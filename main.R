@@ -277,4 +277,26 @@ cifre_circ <- aggregate(
 # candidato per il totale dei voti validi del rispettivo collegio
 # uninominale, moltiplicato per cento;
 
+totali_uni <- aggregate(
+  VOTI_CANDIDATO ~
+    CIRCOSCRIZIONE +
+    COLLEGIOPLURINOMINALE +
+    COLLEGIOUNINOMINALE,
+  data = cifre_ind,
+  sum,
+  na.action = na.pass
+)
 
+cifre_ind <- merge(
+  cifre_ind,
+  totali_uni,
+  by = c(
+    "CIRCOSCRIZIONE",
+    "COLLEGIOPLURINOMINALE",
+    "COLLEGIOUNINOMINALE"
+  ),
+  suffixes = c("", "_TOT")
+)
+
+cifre_ind$CIFRA_PERCENTUALE <- 
+  cifre_ind$VOTI_CANDIDATO / cifre_ind$VOTI_CANDIDATO_TOT * 100
