@@ -362,3 +362,236 @@ totali_circ <- aggregate(
 # del verbale, la cifra elettorale circoscrizionale di ciascuna lista
 # nonche' il totale dei voti validi della circoscrizione)).
 
+# Art. 83.
+# 1. L'Ufficio centrale nazionale, ricevuti gli estratti dei verbali
+# da tutti gli Uffici centrali circoscrizionali, facendosi assistere,
+# ove lo ritenga opportuno, da uno o piu' esperti scelti dal
+# presidente:
+#   a) determina la cifra elettorale nazionale di ciascuna lista.
+# Tale cifra e' data dalla somma delle cifre elettorali
+# circoscrizionali conseguite nelle singole circoscrizioni dalle liste
+# aventi il medesimo contrassegno;
+
+cifre_naz <- aggregate(
+  CIFRA ~ COALIZIONE + LISTA,
+  data = cifre_circ,
+  sum
+)
+
+# b) determina il totale nazionale dei voti validi. Esso e' dato
+# dalla somma delle cifre elettorali circoscrizionali di tutte le
+# liste;
+totale_naz <- sum(cifre_naz$CIFRA)
+
+# c) determina la cifra elettorale nazionale di ciascuna coalizione
+# di liste. Tale cifra e' data dalla somma delle cifre elettorali
+# nazionali delle liste collegate in coalizione. Non concorrono alla
+# determinazione della cifra elettorale nazionale di coalizione i voti
+# espressi a favore delle liste collegate che abbiano conseguito sul
+# piano nazionale un numero di voti validi inferiore all'1 per cento
+# del totale, fatto salvo, per le liste rappresentative di minoranze
+# linguistiche riconosciute, quanto previsto alla lettera e);
+
+
+# d) determina la cifra elettorale circoscrizionale di ciascuna
+# coalizione di liste. Tale cifra e' data dalla somma delle cifre
+# elettorali circoscrizionali delle liste collegate tra loro in
+# coalizione, individuate ai sensi dell'ultimo periodo della lettera
+# c);
+# e) individua quindi:
+#   1) le coalizioni di liste che abbiano conseguito sul piano
+# nazionale almeno il 10 per cento dei voti validi espressi e che
+# comprendano almeno una lista collegata che abbia conseguito sul piano
+# nazionale almeno il 3 per cento dei voti validi espressi ovvero una
+# lista collegata rappresentativa di minoranze linguistiche
+# riconosciute, presentata esclusivamente in una regione ad autonomia
+# speciale il cui statuto o le relative norme di attuazione prevedano
+# una particolare tutela di tali minoranze linguistiche, che abbia
+# conseguito almeno il 20 per cento dei voti validi espressi nella
+# regione medesima o i cui candidati siano stati proclamati eletti in
+# almeno ((un quarto dei collegi uninominali della circoscrizione ai
+#          sensi dell'articolo 77, con arrotondamento all'unita' superiore));
+# 2) le singole liste non collegate, o collegate in coalizioni
+# che non abbiano raggiunto la percentuale di cui al numero 1), che
+# abbiano conseguito sul piano nazionale almeno il 3 per cento dei voti
+# validi espressi, nonche' le singole liste non collegate e le liste
+#          collegate in coalizioni che non abbiano raggiunto la percentuale di
+#          cui al numero 1), rappresentative di minoranze linguistiche
+#         riconosciute, presentate esclusivamente in una regione ad autonomia
+#         speciale il cui statuto o le relative norme di attuazione prevedano
+#         una particolare tutela di tali minoranze linguistiche, che abbiano
+#         conseguito almeno il 20 per cento dei voti validi espressi nella
+#         regione medesima o i cui candidati siano stati proclamati eletti in
+#         almeno ((un quarto dei collegi uninominali della circoscrizione ai
+#                  sensi dell'articolo 77, con arrotondamento all'unita' superiore));
+# f) procede al riparto ((dei seggi assegnati nelle circoscrizioni
+# del territorio nazionale, con esclusione del seggio assegnato alla
+# circoscrizione Valle d'Aosta)); a tale fine, detrae i ((...)) seggi
+#         gia' attribuiti ai candidati proclamati eletti nei collegi
+# uninominali ai sensi dell'articolo 77, comma 1, lettera b), e procede
+# al riparto dei restanti seggi tra le coalizioni di liste e le singole
+# liste di cui alla lettera e) del presente comma in base alla cifra
+# elettorale nazionale di ciascuna di esse, fatto salvo quanto previsto
+# all'articolo 92, primo comma. A tale fine divide il totale delle
+# cifre elettorali nazionali delle coalizioni di liste e delle singole
+# liste di cui alla lettera e) del presente comma per il numero dei
+# seggi da attribuire, ottenendo cosi' il quoziente elettorale
+# nazionale. Nell'effettuare tale divisione non tiene conto
+# dell'eventuale parte frazionaria del quoziente. Divide poi la cifra
+# elettorale nazionale di ciascuna coalizione di liste o singola lista
+# per tale quoziente. La parte intera del quoziente cosi' ottenuto
+# rappresenta il numero dei seggi da assegnare a ciascuna coalizione di
+# liste o singola lista. I seggi che rimangono ancora da attribuire
+# sono rispettivamente assegnati alle coalizioni di liste o singole
+# liste per le quali queste ultime divisioni abbiano dato i maggiori
+# resti, secondo l'ordine decrescente dei resti medesimi, e, in caso di
+# parita' di resti, a quelle che abbiano conseguito la maggiore cifra
+# elettorale nazionale; a parita' di quest'ultima si procede a
+# sorteggio;
+# g) procede, per ciascuna coalizione di liste, al riparto dei
+# seggi fra le liste collegate che abbiano conseguito sul piano
+# nazionale almeno il 3 per cento dei voti validi espressi nonche' fra
+# le liste collegate rappresentative di minoranze linguistiche
+# riconosciute, presentate esclusivamente in una regione ad autonomia
+# speciale il cui statuto o le relative norme di attuazione prevedano
+# una particolare tutela di tali minoranze linguistiche, che abbiano
+# conseguito almeno il 20 per cento dei voti validi espressi nella
+# regione medesima o i cui candidati siano stati proclamati eletti in
+# almeno ((un quarto dei collegi uninominali della circoscrizione ai
+#          sensi dell'articolo 77, con arrotondamento all'unita' superiore)). A
+# tale fine, divide la somma delle cifre elettorali delle liste ammesse
+# al riparto per il numero di seggi gia' individuato ai sensi della
+#          lettera f) del presente comma. Nell'effettuare tale divisione non
+# tiene conto dell'eventuale parte frazionaria del quoziente cosi'
+# ottenuto. Divide poi la cifra elettorale nazionale di ciascuna lista
+# ammessa al riparto per tale quoziente. La parte intera del quoziente
+# cosi' ottenuto rappresenta il numero dei seggi da assegnare a
+#         ciascuna lista. I seggi che rimangono ancora da attribuire sono
+#         rispettivamente assegnati alle liste per le quali queste ultime
+#         divisioni abbiano dato i maggiori resti e, in caso di parita' di
+# resti, alle liste che abbiano conseguito la maggiore cifra elettorale
+# nazionale; a parita' di quest'ultima si procede a sorteggio;
+# h) procede quindi alla distribuzione nelle singole circoscrizioni
+# dei seggi assegnati alle coalizioni di liste o singole liste di cui
+# alla lettera e). A tale fine determina il numero di seggi da
+# attribuire in ciascuna circoscrizione sottraendo dal numero dei seggi
+# spettanti alla circoscrizione stessa ai sensi dell'articolo 3, comma
+#         1, il numero dei collegi uninominali costituiti nella circoscrizione.
+#         Divide quindi la somma delle cifre elettorali circoscrizionali delle
+#         coalizioni di liste e delle singole liste ammesse al riparto per il
+#         numero di seggi da attribuire nella circoscrizione, ottenendo cosi'
+# il quoziente elettorale circoscrizionale. Nell'effettuare tale
+#         divisione non tiene conto dell'eventuale parte frazionaria del
+# quoziente cosi' ottenuto. Divide poi la cifra elettorale
+#         circoscrizionale di ciascuna coalizione di liste o singola lista per
+#         il quoziente elettorale circoscrizionale, ottenendo cosi' il
+# quoziente di attribuzione. La parte intera del quoziente di
+# attribuzione rappresenta il numero dei seggi da assegnare a ciascuna
+# coalizione di liste o singola lista. I seggi che rimangono ancora da
+# attribuire sono rispettivamente assegnati alle coalizioni di liste o
+# singole liste per le quali queste ultime divisioni hanno dato le
+# maggiori parti decimali e, in caso di parita', alle coalizioni di
+#         liste o singole liste che hanno conseguito la maggiore cifra
+#         elettorale nazionale; a parita' di quest'ultima si procede a
+#         sorteggio. Esclude dall'attribuzione di cui al periodo precedente le
+# coalizioni di liste o singole liste alle quali e' stato gia'
+# attribuito il numero di seggi ad esse assegnato a seguito delle
+# operazioni di cui alla lettera f). Successivamente l'Ufficio accerta
+#         se il numero dei seggi assegnati in tutte le circoscrizioni a
+#         ciascuna coalizione di liste o singola lista corrisponda al numero di
+#         seggi determinato ai sensi della lettera f). In caso negativo,
+# procede alle seguenti operazioni, iniziando dalla coalizione di liste
+# o singola lista che abbia il maggior numero di seggi eccedenti e, in
+# caso di parita' di seggi eccedenti da parte di piu' coalizioni di
+# liste o singole liste, da quella che abbia ottenuto la maggiore cifra
+# elettorale nazionale, proseguendo poi con le altre coalizioni di
+# liste o singole liste in ordine decrescente di seggi eccedenti:
+#   sottrae i seggi eccedenti alla coalizione di liste o singola lista
+# nelle circoscrizioni nelle quali essa li ha ottenuti con le parti
+# decimali dei quozienti di attribuzione, secondo il loro ordine
+# crescente, e nelle quali inoltre le coalizioni di liste o singole
+# liste, che non abbiano ottenuto il numero di seggi spettante, abbiano
+# parti decimali dei quozienti non utilizzate. Conseguentemente,
+# assegna i seggi a tali coalizioni di liste o singole liste. Qualora
+# nella medesima circoscrizione due o piu' coalizioni di liste o
+# singole liste abbiano parti decimali dei quozienti non utilizzate, il
+# seggio e' attribuito alla coalizione di liste o alla singola lista
+# con la piu' alta parte decimale del quoziente non utilizzata o, in
+# caso di parita', a quella con la maggiore cifra elettorale nazionale.
+# Nel caso in cui non sia possibile attribuire il seggio eccedentario
+# nella medesima circoscrizione, in quanto non vi siano coalizioni di
+# liste o singole liste deficitarie con parti decimali di quozienti non
+# utilizzate, l'Ufficio prosegue, per la stessa coalizione di liste o
+# singola lista eccedentaria, nell'ordine dei decimali crescenti, a
+# individuare un'altra circoscrizione, fino a quando non sia possibile
+# sottrarre il seggio eccedentario e attribuirlo ad una coalizione di
+# liste o singola lista deficitaria nella medesima circoscrizione. Nel
+# caso in cui non sia possibile fare riferimento alla medesima
+# circoscrizione ai fini del completamento delle operazioni precedenti,
+# fino a concorrenza dei seggi ancora da cedere, alla coalizione di
+# liste o singola lista eccedentaria vengono sottratti i seggi nelle
+# circoscrizioni nelle quali li ha ottenuti con le minori parti
+# decimali del quoziente di attribuzione e alla coalizione di liste o
+# singola lista deficitaria sono conseguentemente attribuiti seggi
+# nelle altre circoscrizioni nelle quali abbia le maggiori parti
+# decimali del quoziente di attribuzione non utilizzate;
+# i) procede quindi all'attribuzione nelle singole circoscrizioni
+# dei seggi spettanti alle liste di ciascuna coalizione. A tale fine,
+# determina il quoziente circoscrizionale di ciascuna coalizione di
+# liste dividendo il totale delle cifre elettorali circoscrizionali
+# delle liste ammesse alla ripartizione ai sensi della lettera g),
+# primo periodo, per il numero dei seggi assegnati alla coalizione
+# nella circoscrizione ai sensi della lettera h). Nell'effettuare la
+# divisione di cui al periodo precedente non tiene conto dell'eventuale
+# parte frazionaria del quoziente. Divide quindi la cifra elettorale
+# circoscrizionale di ciascuna lista della coalizione per tale
+# quoziente circoscrizionale. La parte intera del quoziente cosi'
+# ottenuto rappresenta il numero dei seggi da assegnare a ciascuna
+# lista. I seggi che rimangono ancora da attribuire sono assegnati alle
+# liste seguendo la graduatoria decrescente delle parti decimali dei
+# quozienti cosi' ottenuti; in caso di parita', sono attribuiti alle
+# liste con la maggiore cifra elettorale circoscrizionale; a parita' di
+# quest'ultima, si procede a sorteggio. Esclude dall'attribuzione di
+# cui al periodo precedente le liste alle quali e' stato attribuito il
+# numero di seggi ad esse assegnato a seguito delle operazioni di cui
+# alla lettera g). Successivamente l'ufficio accerta se il numero dei
+# seggi assegnati in tutte le circoscrizioni a ciascuna lista
+# corrisponda al numero dei seggi ad essa attribuito ai sensi della
+# lettera g). In caso negativo, procede alle seguenti operazioni,
+# iniziando dalla lista che abbia il maggior numero di seggi eccedenti
+# e, in caso di parita' di seggi eccedenti da parte di piu' liste, da
+# quella che abbia ottenuto la maggiore cifra elettorale nazionale,
+# proseguendo poi con le altre liste, in ordine decrescente di seggi
+# eccedenti: sottrae i seggi eccedenti alla lista nelle circoscrizioni
+# nelle quali essa li ha ottenuti con le parti decimali dei quozienti,
+# secondo il loro ordine crescente, e nelle quali inoltre le liste, che
+# non abbiano ottenuto il numero di seggi spettante, abbiano parti
+# decimali dei quozienti non utilizzate. Conseguentemente, assegna i
+# seggi a tali liste. Qualora nella medesima circoscrizione due o piu'
+# liste abbiano parti decimali dei quozienti non utilizzate, il seggio
+# e' attribuito alla lista con la piu' alta parte decimale del
+# quoziente non utilizzata o, in caso di parita', a quella con la
+# maggiore cifra elettorale nazionale. Nel caso in cui non sia
+# possibile attribuire il seggio eccedentario nella medesima
+# circoscrizione, in quanto non vi siano liste deficitarie con parti
+# decimali di quozienti non utilizzate, l'Ufficio prosegue, per la
+# stessa lista eccedentaria, nell'ordine dei decimali crescenti, a
+# individuare un'altra circoscrizione, fino a quando non sia possibile
+# sottrarre il seggio eccedentario e attribuirlo ad una lista
+# deficitaria nella medesima circoscrizione. Nel caso in cui non sia
+# possibile fare riferimento alla medesima circoscrizione ai fini del
+# completamento delle operazioni precedenti, fino a concorrenza dei
+# seggi ancora da cedere, alla lista eccedentaria vengono sottratti i
+# seggi nelle circoscrizioni nelle quali li ha ottenuti con le minori
+# parti decimali del quoziente di attribuzione e alle liste deficitarie
+# sono conseguentemente attribuiti seggi nelle altre circoscrizioni
+# nelle quali abbiano le maggiori parti decimali del quoziente di
+# attribuzione non utilizzate.
+# 2. L'Ufficio centrale nazionale provvede a comunicare ai singoli
+# Uffici centrali circoscrizionali il numero dei seggi assegnati a
+# ciascuna lista.
+# 3. Di tutte le operazioni dell'Ufficio centrale nazionale viene
+# redatto, in duplice esemplare, un apposito verbale: un esemplare e'
+# rimesso alla Segreteria generale della Camera dei deputati, la quale
+# ne rilascia ricevuta; un altro esemplare e' depositato presso la
+# cancelleria della Corte di cassazione.
