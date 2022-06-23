@@ -300,3 +300,57 @@ cifre_ind <- merge(
 
 cifre_ind$CIFRA_PERCENTUALE <- 
   cifre_ind$VOTI_CANDIDATO / cifre_ind$VOTI_CANDIDATO_TOT * 100
+
+# h) determina, per ciascuna lista, la graduatoria dei candidati
+# nei collegi uninominali della circoscrizione non proclamati eletti,
+# disponendoli nell'ordine delle rispettive cifre elettorali
+# individuali percentuali. A parita' di cifre individuali percentuali,
+# prevale il piu' giovane di eta'. In caso di collegamento dei
+# candidati con piu' liste, i candidati entrano a far parte della
+# graduatoria relativa a ciascuna delle liste con cui e' stato
+# dichiarato il collegamento;
+
+candidati_uni_non_eletti <- cifre_uni[
+  !(cifre_uni$CANDIDATO %in% cifre_ind$CANDIDATO[cifre_ind$ELETTO])
+  ,
+  c(
+    "CIRCOSCRIZIONE",
+    "COLLEGIOPLURINOMINALE",
+    "COLLEGIOUNINOMINALE",
+    "CANDIDATO",
+    "COALIZIONE",
+    "LISTA"
+  )
+]
+
+candidati_uni_non_eletti <- merge(
+  candidati_uni_non_eletti,
+  cifre_ind[
+    ,
+    c(
+      "COLLEGIOUNINOMINALE",
+      "CANDIDATO",
+      "DATA_NASCITA",
+      "CIFRA_PERCENTUALE"
+    )
+  ]
+)
+
+candidati_uni_non_eletti <- candidati_uni_non_eletti[
+  order(
+    candidati_uni_non_eletti$CIRCOSCRIZIONE,
+    candidati_uni_non_eletti$LISTA, 
+    candidati_uni_non_eletti$CIFRA_PERCENTUALE,  
+    candidati_uni_non_eletti$DATA_NASCITA,
+    decreasing = c("FALSE", "FALSE", "TRUE", "TRUE"), 
+    method = "radix"
+  ),
+]
+
+# i) determina il totale dei voti validi della circoscrizione. Tale
+# totale e' dato dalla somma delle cifre elettorali circoscrizionali di
+# tutte le liste;
+# l) comunica all'Ufficio centrale nazionale, a mezzo di estratto
+# del verbale, la cifra elettorale circoscrizionale di ciascuna lista
+# nonche' il totale dei voti validi della circoscrizione)).
+
