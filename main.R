@@ -1,3 +1,5 @@
+##### Art. 77 comma 1 lettera a - cifra candidati uninominali ####
+
 # Art. 77.
 # ((1. L'Ufficio centrale circoscrizionale, compiute le operazioni di
 # cui all'articolo 76, facendosi assistere, ove lo ritenga opportuno,
@@ -18,6 +20,8 @@ cifre_ind <- aggregate(
 )
 
 cifre_ind <- merge(cifre_ind, dati$camera_candidati_uni)
+
+##### Art. 77 comma 1 lettera b - elezione candidati uninominali ####
 
 # b) proclama eletto in ciascun collegio uninominale il candidato
 # che ha ottenuto il maggior numero di voti validi; in caso di parita',
@@ -44,6 +48,8 @@ cifre_ind$ELETTO <- !duplicated(
     )
   ]
 )
+
+##### Art. 77 comma 1 lettera c - liste cifra uninominale ####
 
 # c) determina la cifra elettorale di collegio uninominale di
 # ciascuna lista. Tale cifra e' data dalla somma dei voti validi
@@ -185,6 +191,8 @@ cifre_uni$CIFRA <-
   cifre_uni$PARTE_INTERA + 
   cifre_uni$VOTI_DA_RESTI
 
+##### Art. 77 comma 1 lettera d - liste cifra plurinominale ####
+
 # d) determina la cifra elettorale di collegio plurinominale di
 # ciascuna lista. Tale cifra e' data dalla somma delle cifre elettorali
 # di collegio uninominale di ciascuna lista;
@@ -197,6 +205,8 @@ cifre_pluri <- aggregate(
   data = cifre_uni,
   sum
 )
+
+##### Art. 77 comma 1 lettera e - liste cifra % uninominale ####
 
 # e) determina la cifra elettorale percentuale di collegio
 # plurinominale di ciascuna lista. Tale cifra e' data dal quoziente
@@ -224,6 +234,8 @@ cifre_pluri <- merge(
 
 cifre_pluri$CIFRA_PERCENTUALE <- cifre_pluri$CIFRA / cifre_pluri$CIFRA_TOT * 100
 
+##### Art. 77 comma 1 lettera c - liste cifra circoscrizionale ####
+
 # f) determina la cifra elettorale circoscrizionale di ciascuna
 # lista. Tale cifra e' data dalla somma delle cifre elettorali di
 # collegio plurinominale della lista stessa;
@@ -235,6 +247,8 @@ cifre_circ <- aggregate(
   data = cifre_pluri,
   sum
 )
+
+##### Art. 77 comma 1 lettera g - cifra % candidato uninominale ####
 
 # g) determina la cifra elettorale percentuale di ciascun candidato
 # nel collegio uninominale. Tale cifra e' data dal quoziente risultante
@@ -264,6 +278,8 @@ cifre_ind <- merge(
 
 cifre_ind$CIFRA_PERCENTUALE <- 
   cifre_ind$VOTI_CANDIDATO / cifre_ind$VOTI_CANDIDATO_TOT * 100
+
+##### Art. 77 comma 1 lettera h - graduatoria candidati uninominale ####
 
 # h) determina, per ciascuna lista, la graduatoria dei candidati
 # nei collegi uninominali della circoscrizione non proclamati eletti,
@@ -310,6 +326,8 @@ candidati_uni_non_eletti <- candidati_uni_non_eletti[
   ),
 ]
 
+##### Art. 77 comma 1 lettera i - totali circoscrizione ####
+
 # i) determina il totale dei voti validi della circoscrizione. Tale
 # totale e' dato dalla somma delle cifre elettorali circoscrizionali di
 # tutte le liste;
@@ -323,6 +341,8 @@ totali_circ <- aggregate(
 # l) comunica all'Ufficio centrale nazionale, a mezzo di estratto
 # del verbale, la cifra elettorale circoscrizionale di ciascuna lista
 # nonche' il totale dei voti validi della circoscrizione)).
+
+##### Art. 83 comma 1 lettera a - cifra naz liste ####
 
 # Art. 83.
 # 1. L'Ufficio centrale nazionale, ricevuti gli estratti dei verbali
@@ -340,10 +360,14 @@ cifre_naz <- aggregate(
   sum
 )
 
+##### Art. 83 comma 1 lettera b - totale naz ####
+
 # b) determina il totale nazionale dei voti validi. Esso e' dato
 # dalla somma delle cifre elettorali circoscrizionali di tutte le
 # liste;
 totale_naz <- sum(cifre_naz$CIFRA)
+
+##### Art. 83 comma 1 lettera c - cifra naz coalizioni ####
 
 # c) determina la cifra elettorale nazionale di ciascuna coalizione
 # di liste. Tale cifra e' data dalla somma delle cifre elettorali
@@ -447,6 +471,8 @@ cifre_naz_coalizione <- aggregate(
   subset = SOGLIA1M
 )
 
+##### Art. 83 comma 1 lettera c - cifra circoscrizionale coalizioni ####
+
 # d) determina la cifra elettorale circoscrizionale di ciascuna
 # coalizione di liste. Tale cifra e' data dalla somma delle cifre
 # elettorali circoscrizionali delle liste collegate tra loro in
@@ -464,6 +490,8 @@ cifre_circ_coalizione <- aggregate(
   sum,
   subset = SOGLIA1M
 )
+
+##### Art. 83 comma 1 lettera e - soglie di sbarramento ####
 
 # e) individua quindi:
 #   1) le coalizioni di liste che abbiano conseguito sul piano
@@ -526,6 +554,8 @@ cifre_naz$SOGLIA_SOLA <-
   (is.na(cifre_naz$COALIZIONE) | !cifre_naz$SOGLIA_COALIZIONE) &
   cifre_naz$SOGLIA3M
 
+##### Art. 83 comma 1 lettera f - riparto nazionale ####
+
 # f) procede al riparto ((dei seggi assegnati nelle circoscrizioni
 # del territorio nazionale, con esclusione del seggio assegnato alla
 # circoscrizione Valle d'Aosta)); a tale fine, detrae i ((...)) seggi
@@ -551,6 +581,8 @@ cifre_naz$SOGLIA_SOLA <-
 # elettorale nazionale; a parita' di quest'ultima si procede a
 # sorteggio;
 
+seggi_proporzionale <- dati$camera_seggi - sum(cifre_ind$ELETTO)
+
 cifre_naz$SOGGETTO_RIPARTO <- NA
 
 cifre_naz$SOGGETTO_RIPARTO[which(cifre_naz$SOGLIA_COALIZIONE)] <- 
@@ -561,6 +593,30 @@ cifre_naz$SOGGETTO_RIPARTO[which(cifre_naz$SOGLIA_SOLA)] <-
 
 cifre_naz$SOGGETTO_RIPARTO <- as.factor(cifre_naz$SOGGETTO_RIPARTO)
 
+riparto_naz <- aggregate(
+  CIFRA ~ SOGGETTO_RIPARTO,
+  data = cifre_naz,
+  sum,
+  subset = SOGLIA1M
+)
+
+totale_naz_riparto <- sum(riparto_naz$CIFRA)
+quoziente_elettorale_naz <- floor(totale_naz_riparto / seggi_proporzionale)
+
+riparto_naz$PARTE_INTERA <- riparto_naz$CIFRA %/% quoziente_elettorale_naz
+riparto_naz$RESTO <- riparto_naz$CIFRA %% quoziente_elettorale_naz
+
+ancora_da_attribuire <- seggi_proporzionale - sum(riparto_naz$PARTE_INTERA)
+
+riparto_naz <- riparto_naz[
+  order(riparto_naz$RESTO, riparto_naz$CIFRA, decreasing = TRUE),
+]
+
+riparto_naz$ORDINE <- seq_along(riparto_naz$RESTO)
+
+riparto_naz$SEGGIO_DA_RESTI <- riparto_naz$ORDINE <= ancora_da_attribuire
+
+riparto_naz$SEGGI <- riparto_naz$PARTE_INTERA + riparto_naz$SEGGIO_DA_RESTI
 
 # g) procede, per ciascuna coalizione di liste, al riparto dei
 # seggi fra le liste collegate che abbiano conseguito sul piano

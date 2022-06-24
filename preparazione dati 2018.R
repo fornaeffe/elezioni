@@ -1,3 +1,5 @@
+camera_seggi <- 232 + 386
+
 camera <- read.csv2(
   "camera-20180304.txt",
   colClasses = c(
@@ -80,6 +82,7 @@ if (
 ) stop("Almeno un candidato uninominale ha voti diversi nello stesso comune")
 
 dati <- list(
+  camera_seggi = camera_seggi,
   camera_coalizioni = coalizioni,
   camera_candidati_uni = camera_candidati_uni,
   camera_voti_lista_per_comune = camera_voti_lista_per_comune,
