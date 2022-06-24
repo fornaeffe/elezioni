@@ -88,8 +88,7 @@ voti_lista_per_candidato <- aggregate(
     CANDIDATO
   , 
   data = dati$camera_voti_lista_per_comune,
-  sum,
-  na.action = na.pass
+  sum
 )
 voti_lista_per_candidato <- merge(voti_lista_per_candidato, cifre_ind)
 voti_lista_per_candidato$VOTI_SOLO_CANDIDATO <-
@@ -108,8 +107,7 @@ cifre_uni <- aggregate(
     LISTA
   ,
   data = dati$camera_voti_lista_per_comune,
-  sum,
-  na.action = na.pass
+  sum
 )
 
 cifre_uni <- merge(
@@ -123,13 +121,7 @@ cifre_uni <- merge(
       "CANDIDATO",
       "QUOZIENTE_RIPARTIZIONE"
     )
-  ], 
-  by = c(
-    "CIRCOSCRIZIONE",
-    "COLLEGIOPLURINOMINALE",
-    "COLLEGIOUNINOMINALE",
-    "CANDIDATO"
-  )
+  ]
 )
 
 cifre_uni$PARTE_INTERA <- 
@@ -137,7 +129,11 @@ cifre_uni$PARTE_INTERA <-
 cifre_uni$RESTO <- 
   cifre_uni$VOTI_LISTA %% cifre_uni$QUOZIENTE_RIPARTIZIONE
 
-cifre_uni$PARTE_INTERA[cifre_uni$PARTE_INTERA < 0] <- 0
+cifre_uni$PARTE_INTERA[
+  cifre_uni$PARTE_INTERA < 0 |
+    is.na(cifre_uni$PARTE_INTERA) | 
+    is.nan(cifre_uni$PARTE_INTERA)
+] <- 0
 
 voti_assegnati <- aggregate(
   PARTE_INTERA ~
@@ -148,8 +144,7 @@ voti_assegnati <- aggregate(
     CANDIDATO
   ,
   data = cifre_uni,
-  sum,
-  na.action = na.pass
+  sum
 )
 
 voti_lista_per_candidato <- merge(voti_lista_per_candidato, voti_assegnati)
@@ -167,13 +162,7 @@ cifre_uni <- merge(
       "CANDIDATO",
       "DA_ASSEGNARE"
     )
-  ], 
-  by = c(
-    "CIRCOSCRIZIONE",
-    "COLLEGIOPLURINOMINALE",
-    "COLLEGIOUNINOMINALE",
-    "CANDIDATO"
-  )
+  ]
 )
 
 cifre_uni <- cifre_uni[
@@ -202,10 +191,6 @@ cifre_uni$ORDINE <- ave(
 
 cifre_uni$VOTI_DA_RESTI <- cifre_uni$ORDINE <= cifre_uni$DA_ASSEGNARE
 
-cifre_uni$PARTE_INTERA[
-  is.na(cifre_uni$PARTE_INTERA) | is.nan(cifre_uni$PARTE_INTERA)
-] <- 0
-
 cifre_uni$VOTI_DA_RESTI[
   is.na(cifre_uni$VOTI_DA_RESTI) | is.nan(cifre_uni$VOTI_DA_RESTI)
 ] <- 0
@@ -226,8 +211,7 @@ cifre_pluri <- aggregate(
     COALIZIONE +
     LISTA,
   data = cifre_uni,
-  sum,
-  na.action = na.pass
+  sum
 )
 
 # e) determina la cifra elettorale percentuale di collegio
@@ -241,8 +225,7 @@ totali_pluri <- aggregate(
     CIRCOSCRIZIONE +
     COLLEGIOPLURINOMINALE,
   data = cifre_pluri,
-  sum,
-  na.action = na.pass
+  sum
 )
 
 cifre_pluri <- merge(
@@ -267,8 +250,7 @@ cifre_circ <- aggregate(
     COALIZIONE +
     LISTA,
   data = cifre_pluri,
-  sum,
-  na.action = na.pass
+  sum
 )
 
 # g) determina la cifra elettorale percentuale di ciascun candidato
@@ -283,8 +265,7 @@ totali_uni <- aggregate(
     COLLEGIOPLURINOMINALE +
     COLLEGIOUNINOMINALE,
   data = cifre_ind,
-  sum,
-  na.action = na.pass
+  sum
 )
 
 cifre_ind <- merge(
@@ -354,8 +335,7 @@ candidati_uni_non_eletti <- candidati_uni_non_eletti[
 totali_circ <- aggregate(
   CIFRA ~ CIRCOSCRIZIONE,
   data = cifre_circ,
-  sum,
-  na.action = na.pass
+  sum
 )
 
 # l) comunica all'Ufficio centrale nazionale, a mezzo di estratto
@@ -392,12 +372,113 @@ totale_naz <- sum(cifre_naz$CIFRA)
 # del totale, fatto salvo, per le liste rappresentative di minoranze
 # linguistiche riconosciute, quanto previsto alla lettera e);
 
+cifre_naz$CIFRA_PERCENTUALE <- cifre_naz$CIFRA / totale_naz * 100
+
+cifre_naz$SOGLIA1 <- cifre_naz$CIFRA_PERCENTUALE >= 1
+
+cifre_circ <- merge(
+  cifre_circ,
+  totali_circ,
+  by = "CIRCOSCRIZIONE",
+  suffixes = c("","_TOT")
+)
+
+cifre_circ$CIFRA_PERCENTUALE <- cifre_circ$CIFRA / cifre_circ$CIFRA_TOT * 100
+
+cifre_uni <- merge(
+  cifre_uni,
+  cifre_ind[
+    ,
+    c(
+      "CIRCOSCRIZIONE",
+      "COLLEGIOPLURINOMINALE",
+      "COLLEGIOUNINOMINALE",
+      "CANDIDATO",
+      "ELETTO"
+    )
+  ]
+)
+
+cifre_uni$MINORANZA <- FALSE
+
+cifre_uni$MINORANZA[
+  cifre_uni$LISTA %in% 
+    dati$camera_coalizioni$LISTA[dati$camera_coalizioni$MINORANZE > 0] &
+  !(
+    cifre_uni$CANDIDATO %in% cifre_uni$CANDIDATO[
+      duplicated(
+        cifre_uni[
+          ,
+          c(
+            "CIRCOSCRIZIONE", 
+            "COLLEGIOPLURINOMINALE", 
+            "COLLEGIOUNINOMINALE",
+            "CANDIDATO"
+          )
+        ]
+      )
+    ]
+  )
+] <- TRUE
+
+eletti_minoranze_circ <- aggregate(
+  ELETTO ~
+    CIRCOSCRIZIONE +
+    LISTA,
+  data = cifre_uni[cifre_uni$MINORANZA,],
+  sum
+)
+
+numero_collegi <- as.data.frame(
+  table(totali_uni$CIRCOSCRIZIONE), 
+  responseName = "COLLEGI"
+)
+
+names(numero_collegi)[1] <- "CIRCOSCRIZIONE"
+
+eletti_minoranze_circ <- merge(
+  eletti_minoranze_circ,
+  numero_collegi
+)
+
+cifre_naz$SOGLIA_MINORANZE <- 
+  cifre_naz$LISTA %in%
+  dati$camera_coalizioni$LISTA[dati$camera_coalizioni$MINORANZE > 0] &
+  (
+    cifre_naz$LISTA %in% cifre_circ$LISTA[cifre_circ$CIFRA_PERCENTUALE > 20] |
+      cifre_naz$LISTA %in% eletti_minoranze_circ$LISTA[
+        eletti_minoranze_circ$ELETTO >= 
+          ceiling(eletti_minoranze_circ$COLLEGI / 4)
+      ]
+  )
+
+cifre_naz$SOGLIA1M <- cifre_naz$SOGLIA1 | cifre_naz$SOGLIA_MINORANZE
+
+cifre_naz_coalizione <- aggregate(
+  CIFRA ~ COALIZIONE,
+  data = cifre_naz,
+  sum,
+  subset = SOGLIA1M
+)
 
 # d) determina la cifra elettorale circoscrizionale di ciascuna
 # coalizione di liste. Tale cifra e' data dalla somma delle cifre
 # elettorali circoscrizionali delle liste collegate tra loro in
 # coalizione, individuate ai sensi dell'ultimo periodo della lettera
 # c);
+
+cifre_circ <- merge(
+  cifre_circ,
+  cifre_naz[, c("COALIZIONE", "LISTA", "SOGLIA1M")]
+)
+
+cifre_circ_coalizione <- aggregate(
+  CIFRA ~ CIRCOSCRIZIONE + COALIZIONE,
+  data = cifre_circ,
+  sum,
+  subset = SOGLIA1M
+)
+
 # e) individua quindi:
 #   1) le coalizioni di liste che abbiano conseguito sul piano
 # nazionale almeno il 10 per cento dei voti validi espressi e che

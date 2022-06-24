@@ -30,6 +30,9 @@ camera_candidati_uni <- unique(
   camera[
     ,
     c(
+      "CIRCOSCRIZIONE",
+      "COLLEGIOPLURINOMINALE",
+      "COLLEGIOUNINOMINALE",
       "CANDIDATO",
       "DATA_NASCITA"
     )
@@ -75,6 +78,7 @@ if (
 ) stop("Almeno un candidato uninominale ha voti diversi nello stesso comune")
 
 dati <- list(
+  camera_coalizioni = coalizioni,
   camera_candidati_uni = camera_candidati_uni,
   camera_voti_lista_per_comune = camera_voti_lista_per_comune,
   camera_voti_candidato_per_comune = camera_voti_candidato_per_comune
