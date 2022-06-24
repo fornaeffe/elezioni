@@ -10,8 +10,12 @@ camera <- read.csv2(
   ),
   fileEncoding = "utf-8"
 )
-coalizioni <- read.csv2("coalizioni.csv")
-camera <- merge(camera, coalizioni)
+
+library(readxl)
+
+coalizioni <- read_excel("coalizioni.xlsx")
+
+# camera <- merge(camera, coalizioni)
 
 camera$DATA_NASCITA <- as.POSIXct(
   camera$DATA_NASCITA, 
@@ -45,8 +49,7 @@ camera_voti_lista_per_comune <- camera[
     "CIRCOSCRIZIONE", 
     "COLLEGIOPLURINOMINALE", 
     "COLLEGIOUNINOMINALE", 
-    "COMUNE", 
-    "COALIZIONE", 
+    "COMUNE",
     "CANDIDATO", 
     "LISTA",
     "VOTI_LISTA"
@@ -61,7 +64,6 @@ camera_voti_candidato_per_comune <- unique(
       "COLLEGIOPLURINOMINALE", 
       "COLLEGIOUNINOMINALE", 
       "COMUNE", 
-      "COALIZIONE", 
       "CANDIDATO",
       "VOTI_CANDIDATO"
     )

@@ -1,13 +1,3 @@
-
-
-# $camera_voti_candidato_per_comune
-# CIRCOSCRIZIONE
-# COLLEGIOPLURINOMINALE
-# COLLEGIOUNINOMINALE
-# COMUNE
-# CANDIDATO
-# VOTI_CANDIDATO
-
 # Art. 77.
 # ((1. L'Ufficio centrale circoscrizionale, compiute le operazioni di
 # cui all'articolo 76, facendosi assistere, ove lo ritenga opportuno,
@@ -22,7 +12,6 @@ cifre_ind <- aggregate(
     CIRCOSCRIZIONE + 
     COLLEGIOPLURINOMINALE + 
     COLLEGIOUNINOMINALE +
-    COALIZIONE +
     CANDIDATO, 
   data = dati$camera_voti_candidato_per_comune, 
   sum
@@ -84,7 +73,6 @@ voti_lista_per_candidato <- aggregate(
     CIRCOSCRIZIONE + 
     COLLEGIOPLURINOMINALE + 
     COLLEGIOUNINOMINALE +
-    COALIZIONE +
     CANDIDATO
   , 
   data = dati$camera_voti_lista_per_comune,
@@ -102,7 +90,6 @@ cifre_uni <- aggregate(
     CIRCOSCRIZIONE + 
     COLLEGIOPLURINOMINALE + 
     COLLEGIOUNINOMINALE +
-    COALIZIONE +
     CANDIDATO +
     LISTA
   ,
@@ -140,7 +127,6 @@ voti_assegnati <- aggregate(
     CIRCOSCRIZIONE + 
     COLLEGIOPLURINOMINALE + 
     COLLEGIOUNINOMINALE +
-    COALIZIONE +
     CANDIDATO
   ,
   data = cifre_uni,
@@ -170,7 +156,6 @@ cifre_uni <- cifre_uni[
     cifre_uni$CIRCOSCRIZIONE, 
     cifre_uni$COLLEGIOPLURINOMINALE, 
     cifre_uni$COLLEGIOUNINOMINALE,
-    cifre_uni$COALIZIONE, 
     cifre_uni$CANDIDATO,  
     cifre_uni$RESTO,
     decreasing = c("FALSE", "FALSE", "FALSE", "FALSE", "FALSE", "TRUE"), 
@@ -208,7 +193,6 @@ cifre_pluri <- aggregate(
   CIFRA ~
     CIRCOSCRIZIONE +
     COLLEGIOPLURINOMINALE +
-    COALIZIONE +
     LISTA,
   data = cifre_uni,
   sum
@@ -247,7 +231,6 @@ cifre_pluri$CIFRA_PERCENTUALE <- cifre_pluri$CIFRA / cifre_pluri$CIFRA_TOT * 100
 cifre_circ <- aggregate(
   CIFRA ~
     CIRCOSCRIZIONE +
-    COALIZIONE +
     LISTA,
   data = cifre_pluri,
   sum
@@ -299,7 +282,6 @@ candidati_uni_non_eletti <- cifre_uni[
     "COLLEGIOPLURINOMINALE",
     "COLLEGIOUNINOMINALE",
     "CANDIDATO",
-    "COALIZIONE",
     "LISTA"
   )
 ]
@@ -353,7 +335,7 @@ totali_circ <- aggregate(
 # aventi il medesimo contrassegno;
 
 cifre_naz <- aggregate(
-  CIFRA ~ COALIZIONE + LISTA,
+  CIFRA ~ LISTA,
   data = cifre_circ,
   sum
 )
@@ -403,7 +385,7 @@ cifre_uni$MINORANZA <- FALSE
 
 cifre_uni$MINORANZA[
   cifre_uni$LISTA %in% 
-    dati$camera_coalizioni$LISTA[dati$camera_coalizioni$MINORANZE > 0] &
+    dati$camera_coalizioni$LISTA[dati$camera_coalizioni$MINORANZE] &
   !(
     cifre_uni$CANDIDATO %in% cifre_uni$CANDIDATO[
       duplicated(
@@ -441,9 +423,13 @@ eletti_minoranze_circ <- merge(
   numero_collegi
 )
 
+cifre_naz <- merge(
+  cifre_naz,
+  dati$camera_coalizioni
+)
+
 cifre_naz$SOGLIA_MINORANZE <- 
-  cifre_naz$LISTA %in%
-  dati$camera_coalizioni$LISTA[dati$camera_coalizioni$MINORANZE > 0] &
+  cifre_naz$MINORANZE &
   (
     cifre_naz$LISTA %in% cifre_circ$LISTA[cifre_circ$CIFRA_PERCENTUALE > 20] |
       cifre_naz$LISTA %in% eletti_minoranze_circ$LISTA[
@@ -511,22 +497,9 @@ cifre_naz_coalizione <- merge(
   )
 )
 
-liste_per_coalizione <- aggregate(
-  LISTA ~ COALIZIONE,
-  data = cifre_naz,
-  length
-)
-liste_per_coalizione$COALIZIONE_VERA <- liste_per_coalizione$LISTA > 1
-
-cifre_naz_coalizione <- merge(
-  cifre_naz_coalizione,
-  liste_per_coalizione[,c("COALIZIONE", "COALIZIONE_VERA")]
-)
-
 cifre_naz_coalizione$SOGLIA_COALIZIONE <- 
   cifre_naz_coalizione$SOGLIA10 & 
-  cifre_naz_coalizione$SOGLIA3M &
-  cifre_naz_coalizione$COALIZIONE_VERA
+  cifre_naz_coalizione$SOGLIA3M
 
 
 # 2) le singole liste non collegate, o collegate in coalizioni
@@ -542,6 +515,17 @@ cifre_naz_coalizione$SOGLIA_COALIZIONE <-
 #         regione medesima o i cui candidati siano stati proclamati eletti in
 #         almeno ((un quarto dei collegi uninominali della circoscrizione ai
 #                  sensi dell'articolo 77, con arrotondamento all'unita' superiore));
+
+cifre_naz <- merge(
+  cifre_naz,
+  cifre_naz_coalizione[, c("COALIZIONE", "SOGLIA_COALIZIONE")],
+  all.x = TRUE
+)
+
+cifre_naz$SOGLIA_SOLA <- 
+  (is.na(cifre_naz$COALIZIONE) | !cifre_naz$SOGLIA_COALIZIONE) &
+  cifre_naz$SOGLIA3M
+
 # f) procede al riparto ((dei seggi assegnati nelle circoscrizioni
 # del territorio nazionale, con esclusione del seggio assegnato alla
 # circoscrizione Valle d'Aosta)); a tale fine, detrae i ((...)) seggi
@@ -566,6 +550,18 @@ cifre_naz_coalizione$SOGLIA_COALIZIONE <-
 # parita' di resti, a quelle che abbiano conseguito la maggiore cifra
 # elettorale nazionale; a parita' di quest'ultima si procede a
 # sorteggio;
+
+cifre_naz$SOGGETTO_RIPARTO <- NA
+
+cifre_naz$SOGGETTO_RIPARTO[which(cifre_naz$SOGLIA_COALIZIONE)] <- 
+  as.character(cifre_naz$COALIZIONE[which(cifre_naz$SOGLIA_COALIZIONE)])
+
+cifre_naz$SOGGETTO_RIPARTO[which(cifre_naz$SOGLIA_SOLA)] <- 
+  as.character(cifre_naz$LISTA[which(cifre_naz$SOGLIA_SOLA)])
+
+cifre_naz$SOGGETTO_RIPARTO <- as.factor(cifre_naz$SOGGETTO_RIPARTO)
+
+
 # g) procede, per ciascuna coalizione di liste, al riparto dei
 # seggi fra le liste collegate che abbiano conseguito sul piano
 # nazionale almeno il 3 per cento dei voti validi espressi nonche' fra
