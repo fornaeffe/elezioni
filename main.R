@@ -492,6 +492,43 @@ cifre_circ_coalizione <- aggregate(
 # regione medesima o i cui candidati siano stati proclamati eletti in
 # almeno ((un quarto dei collegi uninominali della circoscrizione ai
 #          sensi dell'articolo 77, con arrotondamento all'unita' superiore));
+
+cifre_naz_coalizione$CIFRA_PERCENTUALE <- 
+  cifre_naz_coalizione$CIFRA / totale_naz * 100
+
+cifre_naz_coalizione$SOGLIA10 <- cifre_naz_coalizione$CIFRA_PERCENTUALE >= 10
+
+cifre_naz$SOGLIA3 <- cifre_naz$CIFRA_PERCENTUALE >= 3
+
+cifre_naz$SOGLIA3M <- cifre_naz$SOGLIA3 | cifre_naz$SOGLIA_MINORANZE
+
+cifre_naz_coalizione <- merge(
+  cifre_naz_coalizione,
+  aggregate(
+    SOGLIA3M ~ COALIZIONE,
+    data = cifre_naz,
+    function(x) Reduce("|", x)
+  )
+)
+
+liste_per_coalizione <- aggregate(
+  LISTA ~ COALIZIONE,
+  data = cifre_naz,
+  length
+)
+liste_per_coalizione$COALIZIONE_VERA <- liste_per_coalizione$LISTA > 1
+
+cifre_naz_coalizione <- merge(
+  cifre_naz_coalizione,
+  liste_per_coalizione[,c("COALIZIONE", "COALIZIONE_VERA")]
+)
+
+cifre_naz_coalizione$SOGLIA_COALIZIONE <- 
+  cifre_naz_coalizione$SOGLIA10 & 
+  cifre_naz_coalizione$SOGLIA3M &
+  cifre_naz_coalizione$COALIZIONE_VERA
+
+
 # 2) le singole liste non collegate, o collegate in coalizioni
 # che non abbiano raggiunto la percentuale di cui al numero 1), che
 # abbiano conseguito sul piano nazionale almeno il 3 per cento dei voti
