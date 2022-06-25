@@ -91,3 +91,5 @@ dati <- list(
   camera_voti_lista_per_comune = camera_voti_lista_per_comune,
   camera_voti_candidato_per_comune = camera_voti_candidato_per_comune
 )
+
+save(dati, file = "dati.RData")

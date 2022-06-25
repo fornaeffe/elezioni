@@ -10,7 +10,7 @@ totali_circ <- merge(
   totali_circ,
   aggregate(
     SEGGI ~ CIRCOSCRIZIONE,
-    data = camera_pluri,
+    data = dati$camera_pluri,
     sum
   )
 )
@@ -95,7 +95,9 @@ riparto_naz$ESCLUSE <- riparto_naz$PARTE_INTERA_CIRC >= riparto_naz$SEGGI
 
 riparto_circ <- merge(
   riparto_circ,
-  riparto_naz[,c("SOGGETTO_RIPARTO", "ESCLUSE")]
+  riparto_naz[,c("SOGGETTO_RIPARTO", "ESCLUSE", "CIFRA")],
+  by = "SOGGETTO_RIPARTO",
+  suffixes = c("", "_NAZ")
 )
 
 totali_circ <- merge(
@@ -119,7 +121,8 @@ riparto_circ <- riparto_circ[
     riparto_circ$CIRCOSCRIZIONE,
     riparto_circ$ESCLUSE,
     riparto_circ$RESTO,
-    decreasing = c(FALSE, FALSE, TRUE),
+    riparto_circ$CIFRA_NAZ,
+    decreasing = c(FALSE, FALSE, TRUE, TRUE),
     method = "radix"
   ),
 ]
@@ -138,7 +141,20 @@ riparto_circ$SEGGI <- riparto_circ$PARTE_INTERA + riparto_circ$SEGGIO_DA_RESTI
 # Successivamente l'Ufficio accerta
 #         se il numero dei seggi assegnati in tutte le circoscrizioni a
 #         ciascuna coalizione di liste o singola lista corrisponda al numero di
-#         seggi determinato ai sensi della lettera f). In caso negativo,
+#         seggi determinato ai sensi della lettera f).
+
+riparto_naz <- merge(
+  riparto_naz,
+  aggregate(
+    SEGGI ~ SOGGETTO_RIPARTO,
+    data = riparto_circ,
+    sum
+  ),
+  by = "SOGGETTO_RIPARTO",
+  suffixes = c("", "_CIRC")
+)
+
+# In caso negativo,
 # procede alle seguenti operazioni, iniziando dalla coalizione di liste
 # o singola lista che abbia il maggior numero di seggi eccedenti e, in
 # caso di parita' di seggi eccedenti da parte di piu' coalizioni di
@@ -174,3 +190,97 @@ riparto_circ$SEGGI <- riparto_circ$PARTE_INTERA + riparto_circ$SEGGIO_DA_RESTI
 # singola lista deficitaria sono conseguentemente attribuiti seggi
 # nelle altre circoscrizioni nelle quali abbia le maggiori parti
 # decimali del quoziente di attribuzione non utilizzate;
+
+riparto_naz$SEGGI_ECCEDENTI <- riparto_naz$SEGGI_CIRC - riparto_naz$SEGGI
+
+riparto_naz <- riparto_naz[
+  order(
+    riparto_naz$SEGGI_ECCEDENTI,
+    riparto_naz$CIFRA,
+    decreasing = TRUE
+  ),
+]
+
+riparto_naz$SEGGI_ECCEDENTI_CONTATORE <- riparto_naz$SEGGI_ECCEDENTI
+
+riparto_circ$FLIPPER <- 0
+
+for (i in seq_along(riparto_naz$SOGGETTO_RIPARTO)) {
+  if (riparto_naz$SEGGI_ECCEDENTI[i] < 1) break
+  
+  s <- riparto_naz$SOGGETTO_RIPARTO[i]
+  for (j in 1:riparto_naz$SEGGI_ECCEDENTI[i]) {
+    riparto_circ$DEFICIT <- 
+      riparto_circ$SOGGETTO_RIPARTO %in% riparto_naz$SOGGETTO_RIPARTO[
+        riparto_naz$SEGGI_ECCEDENTI_CONTATORE < 0
+      ] & !riparto_circ$SEGGIO_DA_RESTI & riparto_circ$FLIPPER == 0
+    
+    rc <- riparto_circ[
+      riparto_circ$SOGGETTO_RIPARTO == s &
+        riparto_circ$SEGGIO_DA_RESTI & 
+        riparto_circ$FLIPPER == 0,
+    ]
+    
+    if (dim(rc)[1] < 1) stop(
+      "Devo togliere un seggio eccedente ma non ci sono circoscrizioni dove 
+      questo sia stato ottenuto con i resti"
+    )
+    
+    rc$DEFICIT_PRESENTE <- rc$CIRCOSCRIZIONE %in% riparto_circ$CIRCOSCRIZIONE[
+      riparto_circ$DEFICIT
+    ]
+    
+    rc <- rc[
+      order(
+        rc$DEFICIT_PRESENTE,
+        rc$RESTO,
+        decreasing = c(TRUE, FALSE)
+      ),
+    ]
+    
+    c <- rc$CIRCOSCRIZIONE[1]
+    
+    if (rc$DEFICIT_PRESENTE[1]) {
+      rc2 <- riparto_circ[
+        riparto_circ$CIRCOSCRIZIONE == c & riparto_circ$DEFICIT,
+      ]
+    } else {
+      rc2 <- riparto_circ[riparto_circ$DEFICIT,]
+    }
+    
+    if (dim(rc2)[1] < 1) stop("Non ho a chi dare il seggio eccedente")
+    
+    rc2 <- rc2[order(
+      rc2$RESTO,
+      rc2$CIFRA_NAZ,
+      decreasing = TRUE
+    ),]
+    
+    s2 <- rc2$SOGGETTO_RIPARTO[1]
+    
+    c2 <- rc2$CIRCOSCRIZIONE[1]
+    
+    riparto_circ$FLIPPER[
+      riparto_circ$SOGGETTO_RIPARTO == s &
+        riparto_circ$CIRCOSCRIZIONE == c
+    ] <- -1
+    
+    riparto_naz$SEGGI_ECCEDENTI_CONTATORE[riparto_naz$SOGGETTO_RIPARTO == s] <-
+      riparto_naz$SEGGI_ECCEDENTI_CONTATORE[riparto_naz$SOGGETTO_RIPARTO == s] - 1
+    
+    riparto_circ$FLIPPER[
+      riparto_circ$SOGGETTO_RIPARTO == s2 &
+        riparto_circ$CIRCOSCRIZIONE == c2
+    ] <- 1
+    
+    riparto_naz$SEGGI_ECCEDENTI_CONTATORE[riparto_naz$SOGGETTO_RIPARTO == s2] <-
+      riparto_naz$SEGGI_ECCEDENTI_CONTATORE[riparto_naz$SOGGETTO_RIPARTO == s2] + 1
+    
+    cat(
+      "Tolgo un seggio a", levels(s)[s], "in", levels(c)[c],
+      "per darlo a", levels(s2)[s2], "in", levels(c2)[c2], "\n"
+    )
+  }
+}
+
+riparto_circ$SEGGI_FLIPPER <- riparto_circ$SEGGI + riparto_circ$FLIPPER

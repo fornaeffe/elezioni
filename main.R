@@ -1,3 +1,5 @@
+load("dati.RData")
+
 ##### Art. 77 comma 1 lettera a - cifra candidati uninominali ####
 ##### Art. 77 comma 1 lettera b - elezione candidati uninominali ####
 source("C_77_1_ab.R")
