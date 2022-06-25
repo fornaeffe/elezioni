@@ -17,6 +17,8 @@ library(readxl)
 
 coalizioni <- read_excel("coalizioni.xlsx")
 
+camera_pluri <- read_excel("camera_pluri.xlsx")
+
 # camera <- merge(camera, coalizioni)
 
 camera$DATA_NASCITA <- as.POSIXct(
@@ -82,6 +84,7 @@ if (
 ) stop("Almeno un candidato uninominale ha voti diversi nello stesso comune")
 
 dati <- list(
+  camera_pluri = camera_pluri,
   camera_seggi = camera_seggi,
   camera_coalizioni = coalizioni,
   camera_candidati_uni = camera_candidati_uni,
