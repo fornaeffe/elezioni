@@ -44,3 +44,6 @@ source("C_83_1_i.R")
 
 ##### Art. 83 bis - riparto plurinominali ####
 source("C_83bis.R")
+
+##### Art. 84 - nomine pluri ####
+source("C_84.R")
