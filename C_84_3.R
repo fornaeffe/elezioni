@@ -1,109 +1,109 @@
-##### Art. 84 - nomine pluri ####
-
-# Art. 84.
-# ((1. Al termine delle operazioni di cui agli articoli precedenti,
-#   l'Ufficio centrale circoscrizionale proclama eletti in ciascun
-# collegio plurinominale, nei limiti dei seggi ai quali ciascuna lista
-# ha diritto, i candidati compresi nella lista del collegio, secondo
-# l'ordine di presentazione.
-
-
-
-#   2. Qualora una lista abbia esaurito il numero dei candidati
-#   presentati in un collegio plurinominale e non sia quindi possibile
-#   attribuire tutti i seggi a essa spettanti in quel collegio, l'Ufficio
-# centrale circoscrizionale assegna i seggi alla lista negli altri
-# collegi plurinominali della stessa circoscrizione in cui la lista
-# medesima abbia la maggiore parte decimale del quoziente non
-# utilizzata, procedendo secondo l'ordine decrescente. Qualora al
-#   termine di detta operazione residuino ancora seggi da assegnare alla
-#   lista, questi le sono attribuiti negli altri collegi plurinominali
-#   della stessa circoscrizione in cui la lista medesima abbia la
-#   maggiore parte decimale del quoziente gia' utilizzata, procedendo
-# secondo l'ordine decrescente.
-
-ammesse_pluri$SEGGI <- ammesse_pluri$SEGGI_FLIPPER
-
-ammesse_pluri$DECIMALI_USATI <-
-  ammesse_pluri$SEGGIO_DA_RESTI + 
-  ammesse_pluri$RICEVUTO - 
-  ammesse_pluri$CEDUTO > 0
-
-ammesse_pluri <- merge(
-  ammesse_pluri,
-  aggregate(
-    CANDIDATO ~ CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE + LISTA,
-    dati$camera_candidati_pluri,
-    length
-  )
-)
-
-names(ammesse_pluri)[names(ammesse_pluri) == "CANDIDATO"] <- "CANDIDATI"
-
-ammesse_pluri$ELETTI <- 
-  pmin(ammesse_pluri$SEGGI, ammesse_pluri$CANDIDATI)
+#   3. Qualora al termine delle operazioni di cui al comma 2 residuino
+#   ancora seggi da assegnare ad una lista, questi sono attribuiti,
+#   nell'ambito del collegio plurinominale originario, ai candidati della
+# lista nei collegi uninominali non proclamati eletti secondo la
+# graduatoria di cui all'articolo 77, comma 1, lettera h).
 
 donatori <- which(ammesse_pluri$SEGGI - ammesse_pluri$ELETTI > 0)
 
 for (i in donatori) {
   
   cat(
-    "Devo spostare",
+    "Devo ancora spostare ",
     ammesse_pluri$SEGGI[i] - ammesse_pluri$ELETTI[i],
-    "seggi della lista",
+    " seggi della lista ",
     as.character(ammesse_pluri$LISTA[i]),
-    "da",
+    " da ",
     as.character(ammesse_pluri$COLLEGIOPLURINOMINALE[i]),
-    "\n"
+    ", ricorro ai candidati uninominali del collegio plurinominale.\n",
+    sep = ""
   )
   
   accettori <- which(
-    ammesse_pluri$CIRCOSCRIZIONE == ammesse_pluri$CIRCOSCRIZIONE[i] &
-      ammesse_pluri$LISTA == ammesse_pluri$LISTA[i] &
-      ammesse_pluri$ELETTI < ammesse_pluri$CANDIDATI,
+    cifre_ind$COLLEGIOPLURINOMINALE == ammesse_pluri$COLLEGIOPLURINOMINALE[i] &
+      cifre_ind$ELETTO == FALSE &
+      cifre_ind$CANDIDATO %in% cifre_uni$CANDIDATO[
+        cifre_uni$LISTA == ammesse_pluri$LISTA[i]
+      ]
   )
   
   accettori <- accettori[order(
-    ammesse_pluri$DECIMALI_USATI[accettori],
-    ammesse_pluri$RESTO[accettori],
-    decreasing = c(FALSE, TRUE)
+    cifre_ind$CIFRA_PERCENTUALE[accettori],
+    cifre_ind$DATA_NASCITA[accettori],
+    decreasing = c(TRUE, TRUE)
   )]
   
-  for (j in accettori) {
-    seggi_spostati <- min(
-      ammesse_pluri$SEGGI[i] - ammesse_pluri$ELETTI[i],
-      ammesse_pluri$CANDIDATI[j] - ammesse_pluri$ELETTI[j] 
-    )
-    
-    ammesse_pluri$SEGGI[i] <- ammesse_pluri$SEGGI[i] - seggi_spostati
-    ammesse_pluri$SEGGI[j] <- ammesse_pluri$SEGGI[j] + seggi_spostati
-    
-    ammesse_pluri$ELETTI[c(i,j)] <- 
-      pmin(ammesse_pluri$SEGGI[c(i,j)], ammesse_pluri$CANDIDATI[c(i,j)])
+  seggi_spostati <- min(
+    ammesse_pluri$SEGGI[i] - ammesse_pluri$ELETTI[i],
+    length(accettori)
+  )
+  
+  for (j in seggi_spostati) {
+    ammesse_pluri$SEGGI[i] <- ammesse_pluri$SEGGI[i] - 1
+    cifre_ind$ELETTO[accettori[j]] <- TRUE
+    # cifre_ind$RIPESCATO[accettori[j]] <- TRUE
     
     cat(
-      "Ho spostato",
-      seggi_spostati,
-      "seggi da",
-      as.character(ammesse_pluri$COLLEGIOPLURINOMINALE[i]),
-      "a",
-      as.character(ammesse_pluri$COLLEGIOPLURINOMINALE[j]),
+      "Ho ripescato",
+      as.character(cifre_ind$CANDIDATO[accettori[j]]),
       "\n"
     )
-    
-    if (ammesse_pluri$SEGGI[i] - ammesse_pluri$ELETTI[i] == 0) break
   }
 }
 
-#   3. Qualora al termine delle operazioni di cui al comma 2 residuino
-#   ancora seggi da assegnare ad una lista, questi sono attribuiti,
-#   nell'ambito del collegio plurinominale originario, ai candidati della
-# lista nei collegi uninominali non proclamati eletti secondo la
-# graduatoria di cui all'articolo 77, comma 1, lettera h). Qualora
+# Qualora
 #   residuino ancora seggi da assegnare alla lista, questi sono
 #   attribuiti ai candidati della lista nei collegi uninominali non
 #   proclamati eletti nell'ambito della circoscrizione, secondo la
 # graduatoria di cui all'articolo 77, comma 1, lettera h).
+
+donatori <- which(ammesse_pluri$SEGGI - ammesse_pluri$ELETTI > 0)
+
+for (i in donatori) {
+  
+  cat(
+    "Devo ancora spostare ",
+    ammesse_pluri$SEGGI[i] - ammesse_pluri$ELETTI[i],
+    " seggi della lista ",
+    as.character(ammesse_pluri$LISTA[i]),
+    " da ",
+    as.character(ammesse_pluri$COLLEGIOPLURINOMINALE[i]),
+    ", ricorro ai candidati uninominali della circoscrizione.\n",
+    sep = ""
+  )
+  
+  accettori <- which(
+    cifre_ind$CIRCOSCRIZIONE == ammesse_pluri$CIRCOSCRIZIONE[i] &
+      cifre_ind$ELETTO == FALSE &
+      cifre_ind$CANDIDATO %in% cifre_uni$CANDIDATO[
+        cifre_uni$LISTA == ammesse_pluri$LISTA[i]
+      ]
+  )
+  
+  accettori <- accettori[order(
+    cifre_ind$CIFRA_PERCENTUALE[accettori],
+    cifre_ind$DATA_NASCITA[accettori],
+    decreasing = c(TRUE, TRUE)
+  )]
+  
+  seggi_spostati <- min(
+    ammesse_pluri$SEGGI[i] - ammesse_pluri$ELETTI[i],
+    length(accettori)
+  )
+  
+  for (j in seggi_spostati) {
+    ammesse_pluri$SEGGI[i] <- ammesse_pluri$SEGGI[i] - 1
+    cifre_ind$ELETTO[accettori[j]] <- TRUE
+    # cifre_ind$RIPESCATO[accettori[j]] <- TRUE
+    
+    cat(
+      "Ho ripescato",
+      as.character(cifre_ind$CANDIDATO[accettori[j]]),
+      "\n"
+    )
+  }
+}
+
 # 4. Qualora al termine delle operazioni di cui al comma 3 residuino
 # ancora seggi da assegnare alla lista, l'Ufficio centrale nazionale,
 # previa apposita comunicazione dell'Ufficio centrale circoscrizionale,
