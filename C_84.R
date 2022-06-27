@@ -7,22 +7,7 @@
 # ha diritto, i candidati compresi nella lista del collegio, secondo
 # l'ordine di presentazione.
 
-candidati_pluri <- dati$camera_candidati_pluri
 
-candidati_pluri <- merge(
-  candidati_pluri,
-  ammesse_pluri[,c(
-    "CIRCOSCRIZIONE",
-    "COLLEGIOPLURINOMINALE",
-    "LISTA",
-    "SEGGI_FLIPPER"
-  )]
-)
-
-candidati_pluri$SEGGI_FLIPPER[is.na(candidati_pluri$SEGGI_FLIPPER)] <- 0
-
-candidati_pluri$ELETTO <- 
-  candidati_pluri$NUMERO <= candidati_pluri$SEGGI_FLIPPER
 
 #   2. Qualora una lista abbia esaurito il numero dei candidati
 #   presentati in un collegio plurinominale e non sia quindi possibile
@@ -37,77 +22,78 @@ candidati_pluri$ELETTO <-
 #   maggiore parte decimale del quoziente gia' utilizzata, procedendo
 # secondo l'ordine decrescente.
 
-ammesse_pluri <- merge(
-  ammesse_pluri,
-  aggregate(
-    ELETTO ~ CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE + LISTA,
-    candidati_pluri,
-    sum
-  )
-)
+ammesse_pluri$SEGGI <- ammesse_pluri$SEGGI_FLIPPER
 
-names(ammesse_pluri)[names(ammesse_pluri) == "ELETTO"] <- "ELETTI"
-
-ammesse_pluri$DECIMALI_USATI <- 
+ammesse_pluri$DECIMALI_USATI <-
   ammesse_pluri$SEGGIO_DA_RESTI + 
   ammesse_pluri$RICEVUTO - 
   ammesse_pluri$CEDUTO > 0
 
-ammesse_pluri$DA_ELEGGERE <- ammesse_pluri$SEGGI_FLIPPER - ammesse_pluri$ELETTI
-
-ammesse_circ <- merge(
-  ammesse_circ,
+ammesse_pluri <- merge(
+  ammesse_pluri,
   aggregate(
-    DA_ELEGGERE ~ CIRCOSCRIZIONE + LISTA,
-    ammesse_pluri,
-    sum
+    CANDIDATO ~ CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE + LISTA,
+    dati$camera_candidati_pluri,
+    length
   )
 )
 
-ammesse_pluri <- merge(
-  ammesse_pluri,
-  ammesse_circ[,c("CIRCOSCRIZIONE", "LISTA", "DA_ELEGGERE")],
-  by = c("CIRCOSCRIZIONE", "LISTA"),
-  suffixes = c("", "_CIRC")
-)
+names(ammesse_pluri)[names(ammesse_pluri) == "CANDIDATO"] <- "CANDIDATI"
 
-candidati_pluri <- merge(
-  candidati_pluri,
-  ammesse_pluri[
-    ,
-    c(
-      "CIRCOSCRIZIONE",
-      "COLLEGIOPLURINOMINALE",
-      "LISTA",
-      "DA_ELEGGERE_CIRC",
-      "DECIMALI_USATI",
-      "RESTO"
+ammesse_pluri$ELETTI <- 
+  pmin(ammesse_pluri$SEGGI, ammesse_pluri$CANDIDATI)
+
+donatori <- which(ammesse_pluri$SEGGI - ammesse_pluri$ELETTI > 0)
+
+for (i in donatori) {
+  
+  cat(
+    "Devo spostare",
+    ammesse_pluri$SEGGI[i] - ammesse_pluri$ELETTI[i],
+    "seggi della lista",
+    as.character(ammesse_pluri$LISTA[i]),
+    "da",
+    as.character(ammesse_pluri$COLLEGIOPLURINOMINALE[i]),
+    "\n"
+  )
+  
+  accettori <- which(
+    ammesse_pluri$CIRCOSCRIZIONE == ammesse_pluri$CIRCOSCRIZIONE[i] &
+      ammesse_pluri$LISTA == ammesse_pluri$LISTA[i] &
+      ammesse_pluri$ELETTI < ammesse_pluri$CANDIDATI,
+  )
+  
+  accettori <- accettori[order(
+    ammesse_pluri$DECIMALI_USATI[accettori],
+    ammesse_pluri$RESTO[accettori],
+    decreasing = c(FALSE, TRUE)
+  )]
+  
+  for (j in accettori) {
+    seggi_spostati <- min(
+      ammesse_pluri$SEGGI[i] - ammesse_pluri$ELETTI[i],
+      ammesse_pluri$CANDIDATI[j] - ammesse_pluri$ELETTI[j] 
     )
-  ]
-)
-
-candidati_pluri <- candidati_pluri[order(
-  candidati_pluri$CIRCOSCRIZIONE,
-  candidati_pluri$LISTA,
-  candidati_pluri$ELETTO,
-  candidati_pluri$DECIMALI_USATI,
-  candidati_pluri$RESTO,
-  candidati_pluri$NUMERO,
-  decreasing = c(FALSE, FALSE, FALSE, FALSE, TRUE, FALSE)
-),]
-
-candidati_pluri$ORDINE[!candidati_pluri$ELETTO] <- ave(
-  seq_along(candidati_pluri$LISTA[!candidati_pluri$ELETTO]),
-  paste(
-    candidati_pluri$CIRCOSCRIZIONE,
-    candidati_pluri$LISTA
-  )[!candidati_pluri$ELETTO],
-  FUN = seq_along
-)
-
-candidati_pluri$ELETTO[which(
-  candidati_pluri$ORDINE <= candidati_pluri$DA_ELEGGERE
-)] <- TRUE
+    
+    ammesse_pluri$SEGGI[i] <- ammesse_pluri$SEGGI[i] - seggi_spostati
+    ammesse_pluri$SEGGI[j] <- ammesse_pluri$SEGGI[j] + seggi_spostati
+    
+    ammesse_pluri$ELETTI[c(i,j)] <- 
+      pmin(ammesse_pluri$SEGGI[c(i,j)], ammesse_pluri$CANDIDATI[c(i,j)])
+    
+    cat(
+      "Ho spostato",
+      seggi_spostati,
+      "seggi da",
+      as.character(ammesse_pluri$COLLEGIOPLURINOMINALE[i]),
+      "a",
+      as.character(ammesse_pluri$COLLEGIOPLURINOMINALE[j]),
+      "\n"
+    )
+    
+    if (ammesse_pluri$SEGGI[i] - ammesse_pluri$ELETTI[i] == 0) break
+  }
+}
 
 #   3. Qualora al termine delle operazioni di cui al comma 2 residuino
 #   ancora seggi da assegnare ad una lista, questi sono attribuiti,
