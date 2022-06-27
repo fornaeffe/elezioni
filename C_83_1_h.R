@@ -67,7 +67,7 @@ riparto_circ <- merge(
 )
 
 riparto_circ$PARTE_INTERA <- riparto_circ$CIFRA %/% riparto_circ$QUOZIENTE
-riparto_circ$RESTO <- riparto_circ$CIFRA %% riparto_circ$QUOZIENTE
+riparto_circ$RESTO <- ( riparto_circ$CIFRA / riparto_circ$QUOZIENTE ) %% 1
 
 # I seggi che rimangono ancora da
 # attribuire sono rispettivamente assegnati alle coalizioni di liste o

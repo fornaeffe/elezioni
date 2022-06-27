@@ -46,7 +46,7 @@ ammesse_circ <- merge(
 )
 
 ammesse_circ$PARTE_INTERA <- ammesse_circ$CIFRA %/% ammesse_circ$QUOZIENTE_COAL
-ammesse_circ$RESTO <- ammesse_circ$CIFRA %% ammesse_circ$QUOZIENTE_COAL
+ammesse_circ$RESTO <- ( ammesse_circ$CIFRA / ammesse_circ$QUOZIENTE_COAL ) %% 1
 
 # I seggi che rimangono ancora da attribuire sono assegnati alle
 # liste seguendo la graduatoria decrescente delle parti decimali dei

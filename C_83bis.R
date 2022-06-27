@@ -59,7 +59,7 @@ ammesse_pluri <- merge(
 )
 
 ammesse_pluri$PARTE_INTERA <- ammesse_pluri$CIFRA %/% ammesse_pluri$QUOZIENTE
-ammesse_pluri$RESTO <- ammesse_pluri$CIFRA %% ammesse_pluri$QUOZIENTE
+ammesse_pluri$RESTO <- ( ammesse_pluri$CIFRA / ammesse_pluri$QUOZIENTE ) %% 1
 
 
 # I seggi che rimangono ancora da attribuire sono
