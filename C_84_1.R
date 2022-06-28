@@ -22,6 +22,12 @@
 #   maggiore parte decimale del quoziente gia' utilizzata, procedendo
 # secondo l'ordine decrescente.
 
+candidati_pluri <- dati$camera_candidati_pluri
+
+candidati_pluri <- candidati_pluri[
+  !(candidati_pluri$CANDIDATO %in% cifre_ind$CANDIDATO[cifre_ind$ELETTO]),
+]
+
 ammesse_pluri$SEGGI <- ammesse_pluri$SEGGI_FLIPPER
 
 ammesse_pluri$DECIMALI_USATI <-
@@ -33,12 +39,15 @@ ammesse_pluri <- merge(
   ammesse_pluri,
   aggregate(
     CANDIDATO ~ CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE + LISTA,
-    dati$camera_candidati_pluri,
+    candidati_pluri,
     length
-  )
+  ),
+  all.x = TRUE
 )
 
 names(ammesse_pluri)[names(ammesse_pluri) == "CANDIDATO"] <- "CANDIDATI"
+
+ammesse_pluri$CANDIDATI[is.na(ammesse_pluri$CANDIDATI)] <- 0
 
 ammesse_pluri$ELETTI <- 
   pmin(ammesse_pluri$SEGGI, ammesse_pluri$CANDIDATI)

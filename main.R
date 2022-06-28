@@ -53,3 +53,9 @@ source("C_84_3.R")
 
 ##### Art. 84 comma 4 - ripescaggio nazionale ####
 source("C_84_4.R")
+
+##### Art. 84 comma 5 - ripescaggio di coalizione ####
+source("C_84_5.R")
+
+##### Art. 84 comma 6 - ripescaggio uninominale nazionale ####
+source("C_84_6.R")

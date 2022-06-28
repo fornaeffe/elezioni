@@ -38,10 +38,26 @@ for (i in donatori) {
     length(accettori)
   )
   
-  for (j in seggi_spostati) {
-    ammesse_pluri$SEGGI[i] <- ammesse_pluri$SEGGI[i] - 1
-    cifre_ind$ELETTO[accettori[j]] <- TRUE
-    # cifre_ind$RIPESCATO[accettori[j]] <- TRUE
+  if (seggi_spostati < 1) next
+  
+  for (j in 1:seggi_spostati) {
+    candidati_pluri <- rbind(
+      candidati_pluri,
+      data.frame(
+        LISTA = ammesse_pluri$LISTA[i],
+        CIRCOSCRIZIONE = ammesse_pluri$CIRCOSCRIZIONE[i],
+        COLLEGIOPLURINOMINALE = ammesse_pluri$COLLEGIOPLURINOMINALE[i],
+        NUMERO = 1 + max(candidati_pluri$NUMERO[
+          candidati_pluri$LISTA == ammesse_pluri$LISTA[i] &
+            candidati_pluri$COLLEGIOPLURINOMINALE == ammesse_pluri$COLLEGIOPLURINOMINALE[i]
+        ]),
+        CANDIDATO = cifre_ind$CANDIDATO[j]
+      )
+    )
+    
+    ammesse_pluri$CANDIDATI[i] <- ammesse_pluri$CANDIDATI[i] + 1
+    ammesse_pluri$ELETTI[i] <- ammesse_pluri$ELETTI[i] + 1
+    
     
     cat(
       "Ho ripescato",
@@ -91,10 +107,26 @@ for (i in donatori) {
     length(accettori)
   )
   
-  for (j in seggi_spostati) {
-    ammesse_pluri$SEGGI[i] <- ammesse_pluri$SEGGI[i] - 1
-    cifre_ind$ELETTO[accettori[j]] <- TRUE
-    # cifre_ind$RIPESCATO[accettori[j]] <- TRUE
+  if (seggi_spostati < 1) next
+  
+  for (j in 1:seggi_spostati) {
+    candidati_pluri <- rbind(
+      candidati_pluri,
+      data.frame(
+        LISTA = ammesse_pluri$LISTA[i],
+        CIRCOSCRIZIONE = ammesse_pluri$CIRCOSCRIZIONE[i],
+        COLLEGIOPLURINOMINALE = ammesse_pluri$COLLEGIOPLURINOMINALE[i],
+        NUMERO = 1 + max(candidati_pluri$NUMERO[
+          candidati_pluri$LISTA == ammesse_pluri$LISTA[i] &
+            candidati_pluri$COLLEGIOPLURINOMINALE == ammesse_pluri$COLLEGIOPLURINOMINALE[i]
+        ]),
+        CANDIDATO = cifre_ind$CANDIDATO[j]
+      )
+    )
+    
+    ammesse_pluri$CANDIDATI[i] <- ammesse_pluri$CANDIDATI[i] + 1
+    ammesse_pluri$ELETTI[i] <- ammesse_pluri$ELETTI[i] + 1
+    
     
     cat(
       "Ho ripescato",
