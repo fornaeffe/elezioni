@@ -25,7 +25,8 @@ ammesse_pluri <- cifre_pluri[
     "CIRCOSCRIZIONE",
     "COLLEGIOPLURINOMINALE",
     "LISTA",
-    "CIFRA"
+    "CIFRA",
+    "CIFRA_PERCENTUALE"
   )
 ]
 

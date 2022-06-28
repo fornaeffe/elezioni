@@ -305,3 +305,45 @@ subentro(livello = "circ", uni = TRUE)
 # decrescente.
 
 subentro(livello = "naz")
+
+# 5. Qualora al termine delle operazioni di cui al comma 4 residuino
+# ancora seggi da assegnare ad una lista in un collegio plurinominale,
+# questi sono attribuiti, nell'ambito del collegio plurinominale
+# originario, alla lista facente parte della medesima coalizione della
+# lista deficitaria che abbia la maggiore parte decimale del quoziente
+# non utilizzata, procedendo secondo l'ordine decrescente; esaurite le
+# liste con la parte decimale del quoziente non utilizzata, si procede
+# con le liste facenti parte della medesima coalizione, sulla base
+# delle parti decimali del quoziente gia' utilizzate, secondo l'ordine
+# decrescente. 
+
+subentro(livello = "pluri", coal = TRUE)
+
+# Qualora al termine delle operazioni di cui al primo
+# periodo residuino ancora seggi da assegnare alla lista, questi sono
+# attribuiti alle liste facenti parte della medesima coalizione negli
+# altri collegi plurinominali della circoscrizione, partendo da quello
+# in cui la coalizione abbia la maggiore parte decimale del quoziente
+# non utilizzata e procedendo secondo quanto previsto dal primo
+# periodo; si procede successivamente nei collegi plurinominali in cui
+# la coalizione abbia la maggiore parte decimale del quoziente gia'
+# utilizzata, secondo l'ordine decrescente.
+
+subentro(livello = "circ", coal = TRUE)
+
+# 6. Qualora al termine delle operazioni di cui al comma 5 residuino
+# ancora seggi da assegnare ad una lista, questi sono attribuiti ai
+# candidati della lista nei collegi uninominali non proclamati eletti
+# nelle altre circoscrizioni, secondo la graduatoria di cui
+# all'articolo 77, comma 1, lettera h). A tale fine si procede con le
+# modalita' previste dal comma 4.
+
+subentro(livello = "naz", uni = TRUE)
+
+# 7. Qualora al termine delle operazioni di cui al comma 6 residuino
+# ancora seggi da assegnare ad una lista, questi sono attribuiti alle
+# liste facenti parte della medesima coalizione della lista deficitaria
+# nelle altre circoscrizioni. A tale fine si procede con le modalita'
+# previste dai commi 4 e 5.
+
+subentro(livello = "naz", coal = TRUE)

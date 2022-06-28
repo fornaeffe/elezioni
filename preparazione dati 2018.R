@@ -1,4 +1,5 @@
 library(readxl)
+library(stringr)
 
 camera_seggi <- 232 + 386
 
@@ -40,6 +41,11 @@ camera_candidati_pluri <- read.csv2(
     "CANDIDATO"
   ),
   fileEncoding = "utf-8"
+)
+
+camera_candidati_pluri$CANDIDATO <- str_remove(
+  camera_candidati_pluri$CANDIDATO,
+  " DETT[AO] .*"
 )
 
 camera_candidati_pluri$LISTA[camera_candidati_pluri$LISTA == " +EUROPA"] <-

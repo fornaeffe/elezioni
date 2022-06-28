@@ -45,17 +45,8 @@ source("C_83_1_i.R")
 ##### Art. 83 bis - riparto plurinominali ####
 source("C_83bis.R")
 
-##### Art. 84 commi 1 e 2 - nomine pluri e ripescaggio di circoscrizione ####
-source("C_84_1.R")
+##### Art. 84 - subentro ####
+source("C_84.R")
 
-##### Art. 84 comma 3 - ripescaggio uninominale ####
-source("C_84_3.R")
-
-##### Art. 84 comma 4 - ripescaggio nazionale ####
-source("C_84_4.R")
-
-##### Art. 84 comma 5 - ripescaggio di coalizione ####
-source("C_84_5.R")
-
-##### Art. 84 comma 6 - ripescaggio uninominale nazionale ####
-source("C_84_6.R")
+##### Art. 85 e 86 - risoluzione pluricandidature ####
+source("C_85.R")
