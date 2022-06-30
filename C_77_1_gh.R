@@ -11,12 +11,12 @@ totali_uni <- aggregate(
     CIRCOSCRIZIONE +
     COLLEGIOPLURINOMINALE +
     COLLEGIOUNINOMINALE,
-  data = cifre_ind,
+  data = candidati_uni,
   sum
 )
 
-cifre_ind <- merge(
-  cifre_ind,
+candidati_uni <- merge(
+  candidati_uni,
   totali_uni,
   by = c(
     "CIRCOSCRIZIONE",
@@ -26,8 +26,8 @@ cifre_ind <- merge(
   suffixes = c("", "_TOT")
 )
 
-cifre_ind$CIFRA_PERCENTUALE <- 
-  cifre_ind$VOTI_CANDIDATO / cifre_ind$VOTI_CANDIDATO_TOT * 100
+candidati_uni$CIFRA_PERCENTUALE <- 
+  candidati_uni$VOTI_CANDIDATO / candidati_uni$VOTI_CANDIDATO_TOT * 100
 
 ##### Art. 77 comma 1 lettera h - graduatoria candidati uninominale ####
 

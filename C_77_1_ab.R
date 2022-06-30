@@ -9,17 +9,16 @@
 #   validi conseguiti dal candidato nelle singole sezioni elettorali del
 #   collegio uninominale;
 
-cifre_ind <- aggregate(
+candidati_uni <- aggregate(
   VOTI_CANDIDATO ~ 
     CIRCOSCRIZIONE + 
     COLLEGIOPLURINOMINALE + 
     COLLEGIOUNINOMINALE +
-    CANDIDATO, 
-  data = dati$camera_voti_candidato_per_comune, 
+    CANDIDATO +
+    DATA_NASCITA, 
+  data = candidati_comune, 
   sum
 )
-
-cifre_ind <- merge(cifre_ind, dati$camera_candidati_uni)
 
 ##### Art. 77 comma 1 lettera b - elezione candidati uninominali ####
 
@@ -27,19 +26,18 @@ cifre_ind <- merge(cifre_ind, dati$camera_candidati_uni)
 # che ha ottenuto il maggior numero di voti validi; in caso di parita',
 # e' eletto il candidato piu' giovane di eta';
 
-cifre_ind <- cifre_ind[
+candidati_uni <- candidati_uni[
   order(
-    cifre_ind$CIRCOSCRIZIONE, 
-    cifre_ind$COLLEGIOPLURINOMINALE, 
-    cifre_ind$COLLEGIOUNINOMINALE, 
-    cifre_ind$VOTI_CANDIDATO,
-    cifre_ind$DATA_NASCITA,
-    decreasing = c("FALSE", "FALSE", "FALSE", "TRUE", "TRUE"), 
-    method = "radix"
+    candidati_uni$CIRCOSCRIZIONE, 
+    candidati_uni$COLLEGIOPLURINOMINALE, 
+    candidati_uni$COLLEGIOUNINOMINALE, 
+    candidati_uni$VOTI_CANDIDATO,
+    candidati_uni$DATA_NASCITA,
+    decreasing = c("FALSE", "FALSE", "FALSE", "TRUE", "TRUE")
   ),
 ]
-cifre_ind$ELETTO <- !duplicated(
-  cifre_ind[
+candidati_uni$ELETTO <- !duplicated(
+  candidati_uni[
     ,
     c(
       "CIRCOSCRIZIONE", 

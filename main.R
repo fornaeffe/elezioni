@@ -50,3 +50,84 @@ source("C_84.R")
 
 ##### Art. 85 e 86 - risoluzione pluricandidature ####
 source("C_85.R")
+
+liste <- dati$camera_coalizioni
+
+
+liste$COAL_O_LISTA <- factor(ifelse(
+  is.na(liste$COALIZIONE),
+  as.character(liste$LISTA),
+  as.character(liste$COALIZIONE)
+))
+
+liste_pluri <- merge(
+  cifre_pluri[, c(
+    "CIRCOSCRIZIONE",
+    "COLLEGIOPLURINOMINALE",
+    "LISTA"
+  )],
+  ammesse_pluri[, c(
+    "CIRCOSCRIZIONE",
+    "COLLEGIOPLURINOMINALE",
+    "LISTA",
+    "ELETTI"
+  )],
+  all.x = TRUE
+)
+liste_pluri$ELETTI[is.na(liste_pluri$ELETTI)] <- 0
+
+liste_pluri <- merge(
+  liste_pluri,
+  liste[,c("LISTA", "COAL_O_LISTA")]
+)
+
+liste_uni <- unique(
+  dati$camera_voti_lista_per_comune[,c(
+    "CIRCOSCRIZIONE",
+    "COLLEGIOPLURINOMINALE",
+    "COLLEGIOUNINOMINALE",
+    "LISTA"
+  )]
+)
+
+cifre_uni <- merge(
+  cifre_uni,
+  liste[,c(
+    "LISTA",
+    "COAL_O_LISTA"
+  )]
+)
+
+
+candidati_uni <- merge(
+  candidati_uni[,c(
+    "CIRCOSCRIZIONE",
+    "COLLEGIOUNINOMINALE",
+    "COLLEGIOPLURINOMINALE",
+    "CANDIDATO",
+    "ELETTO"
+  )],
+  unique(cifre_uni[,c(
+    "COLLEGIOUNINOMINALE",
+    "CANDIDATO",
+    "COAL_O_LISTA"
+  )])
+)
+
+candidati <- data.frame(CANDIDATO = levels(candidati_uni$CANDIDATO))
+
+candidati$ELETTO <- 
+  candidati$CANDIDATO %in% candidati_uni$CANDIDATO[candidati_uni$ELETTO] |
+  candidati$CANDIDATO %in% candidati_pluri$CANDIDATO[candidati_pluri$ELETTO]
+
+candidati <- merge(
+  candidati,
+  candidati_pluri[candidati_pluri$ELETTO,c("CANDIDATO", "COLLEGIOPLURINOMINALE")],
+  all.x = TRUE
+)
+
+candidati <- merge(
+  candidati,
+  candidati_uni[candidati_uni$ELETTO,c("CANDIDATO", "COLLEGIOUNINOMINALE")],
+  all.x = TRUE
+)

@@ -33,7 +33,7 @@ voti_lista_per_candidato <- aggregate(
   data = dati$camera_voti_lista_per_comune,
   sum
 )
-voti_lista_per_candidato <- merge(voti_lista_per_candidato, cifre_ind)
+voti_lista_per_candidato <- merge(voti_lista_per_candidato, candidati_uni)
 voti_lista_per_candidato$VOTI_SOLO_CANDIDATO <-
   voti_lista_per_candidato$VOTI_CANDIDATO - voti_lista_per_candidato$VOTI_LISTA
 

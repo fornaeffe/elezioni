@@ -24,7 +24,7 @@ cifre_circ$CIFRA_PERCENTUALE <- cifre_circ$CIFRA / cifre_circ$CIFRA_TOT * 100
 
 cifre_uni <- merge(
   cifre_uni,
-  cifre_ind[
+  candidati_uni[
     ,
     c(
       "CIRCOSCRIZIONE",

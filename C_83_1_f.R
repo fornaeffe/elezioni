@@ -25,7 +25,7 @@
 # elettorale nazionale; a parita' di quest'ultima si procede a
 # sorteggio;
 
-seggi_proporzionale <- dati$camera_seggi - sum(cifre_ind$ELETTO)
+seggi_proporzionale <- dati$camera_seggi - sum(candidati_uni$ELETTO)
 
 cifre_naz$SOGGETTO_RIPARTO <- NA
 

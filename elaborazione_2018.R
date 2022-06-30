@@ -5,7 +5,7 @@ camera_seggi <- 232 + 386
 
 #### Caricamento dati di voto camera #### 
 
-camera <- read.csv2(
+liste_comune <- read.csv2(
   "camera-20180304_2.txt",
   colClasses = c(
     CIRCOSCRIZIONE = "factor",
@@ -18,14 +18,14 @@ camera <- read.csv2(
   fileEncoding = "utf-8"
 )
 
-camera$DATA_NASCITA <- as.POSIXct(
-  camera$DATA_NASCITA, 
+liste_comune$DATA_NASCITA <- as.POSIXct(
+  liste_comune$DATA_NASCITA, 
   format="%d/%m/%Y %H:%M:%S"
 )
 
-camera$CANDIDATO <- paste(
-  camera$COGNOME, 
-  camera$NOME
+liste_comune$CANDIDATO <- paste(
+  liste_comune$COGNOME, 
+  liste_comune$NOME
 )
 
 
@@ -54,17 +54,17 @@ camera_candidati_pluri$LISTA[camera_candidati_pluri$LISTA == " +EUROPA"] <-
 
 camera_candidati_pluri$LISTA <- factor(
   camera_candidati_pluri$LISTA, 
-  levels = levels(camera$LISTA)
+  levels = levels(liste_comune$LISTA)
 )
 
 camera_candidati_pluri$CIRCOSCRIZIONE <- factor(
   camera_candidati_pluri$CIRCOSCRIZIONE, 
-  levels = levels(camera$CIRCOSCRIZIONE)
+  levels = levels(liste_comune$CIRCOSCRIZIONE)
 )
 
 camera_candidati_pluri$COLLEGIOPLURINOMINALE <- factor(
   camera_candidati_pluri$COLLEGIOPLURINOMINALE, 
-  levels = levels(camera$COLLEGIOPLURINOMINALE)
+  levels = levels(liste_comune$COLLEGIOPLURINOMINALE)
 )
 
 camera_candidati_pluri$CANDIDATO <- trimws(camera_candidati_pluri$CANDIDATO)
@@ -72,11 +72,11 @@ camera_candidati_pluri$CANDIDATO <- trimws(camera_candidati_pluri$CANDIDATO)
 #### Unico factor per i candidati ####
 
 candidati <- factor(unique(c(
-  camera$CANDIDATO, 
+  liste_comune$CANDIDATO, 
   camera_candidati_pluri$CANDIDATO
 )))
 
-camera$CANDIDATO <- factor(camera$CANDIDATO, levels = levels(candidati))
+liste_comune$CANDIDATO <- factor(liste_comune$CANDIDATO, levels = levels(candidati))
 camera_candidati_pluri$CANDIDATO <- factor(
   camera_candidati_pluri$CANDIDATO,
   levels = levels(candidati)
@@ -90,21 +90,22 @@ camera_pluri <- read_excel("camera_pluri.xlsx")
 
 #### Creo altri data frame ####
 
-
-camera_candidati_uni <- unique(
-  camera[
+candidati_comune <- unique(
+  liste_comune[
     ,
     c(
-      "CIRCOSCRIZIONE",
-      "COLLEGIOPLURINOMINALE",
-      "COLLEGIOUNINOMINALE",
+      "CIRCOSCRIZIONE", 
+      "COLLEGIOPLURINOMINALE", 
+      "COLLEGIOUNINOMINALE", 
+      "COMUNE", 
       "CANDIDATO",
-      "DATA_NASCITA"
+      "DATA_NASCITA",
+      "VOTI_CANDIDATO"
     )
   ]
 )
 
-camera_voti_lista_per_comune <- camera[
+liste_comune <- liste_comune[
   ,
   c(
     "CIRCOSCRIZIONE", 
@@ -117,39 +118,18 @@ camera_voti_lista_per_comune <- camera[
   )
 ]
 
-camera_voti_candidato_per_comune <- unique(
-  camera[
-    ,
-    c(
-      "CIRCOSCRIZIONE", 
-      "COLLEGIOPLURINOMINALE", 
-      "COLLEGIOUNINOMINALE", 
-      "COMUNE", 
-      "CANDIDATO",
-      "VOTI_CANDIDATO"
-    )
-  ]
-)
+
 
 if (
   sum(
     table(
-      camera_voti_candidato_per_comune$CANDIDATO, 
-      camera_voti_candidato_per_comune$COMUNE
+      candidati_comune$CANDIDATO, 
+      candidati_comune$COMUNE
     ) > 1
   ) > 0
 ) stop("Almeno un candidato uninominale ha voti diversi nello stesso comune")
 
 
+### Inizio applicazione della legge ###
 
-dati <- list(
-  camera_pluri = camera_pluri,
-  camera_seggi = camera_seggi,
-  camera_coalizioni = coalizioni,
-  camera_candidati_uni = camera_candidati_uni,
-  camera_candidati_pluri = camera_candidati_pluri,
-  camera_voti_lista_per_comune = camera_voti_lista_per_comune,
-  camera_voti_candidato_per_comune = camera_voti_candidato_per_comune
-)
-
-save(dati, file = "dati.RData")
+source("C_77_1_ab.R")

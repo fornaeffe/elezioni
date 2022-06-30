@@ -10,7 +10,7 @@
 candidati_pluri <- dati$camera_candidati_pluri
 
 candidati_pluri <- candidati_pluri[
-  !(candidati_pluri$CANDIDATO %in% cifre_ind$CANDIDATO[cifre_ind$ELETTO]),
+  !(candidati_pluri$CANDIDATO %in% candidati_uni$CANDIDATO[candidati_uni$ELETTO]),
 ]
 
 ammesse_pluri$SEGGI <- ammesse_pluri$SEGGI_FLIPPER
@@ -163,23 +163,23 @@ cerca_accettori_uni <- function(
 ){
   if (pluri) {
     ambito <- 
-      cifre_ind$COLLEGIOPLURINOMINALE == 
+      candidati_uni$COLLEGIOPLURINOMINALE == 
       ammesse_pluri$COLLEGIOPLURINOMINALE[i]
   } else {
-    ambito <- cifre_ind$CIRCOSCRIZIONE == circ
+    ambito <- candidati_uni$CIRCOSCRIZIONE == circ
   }
   
   accettori <- which(
     ambito &
-      cifre_ind$ELETTO == FALSE &
-      cifre_ind$CANDIDATO %in% cifre_uni$CANDIDATO[
+      candidati_uni$ELETTO == FALSE &
+      candidati_uni$CANDIDATO %in% cifre_uni$CANDIDATO[
         cifre_uni$LISTA == ammesse_pluri$LISTA[i]
       ]
   )
   
   accettori <- accettori[order(
-    cifre_ind$CIFRA_PERCENTUALE[accettori],
-    cifre_ind$DATA_NASCITA[accettori],
+    candidati_uni$CIFRA_PERCENTUALE[accettori],
+    candidati_uni$DATA_NASCITA[accettori],
     decreasing = c(TRUE, TRUE)
   )]
   
@@ -195,7 +195,7 @@ cerca_accettori_uni <- function(
             candidati_pluri$COLLEGIOPLURINOMINALE == 
             ammesse_pluri$COLLEGIOPLURINOMINALE[i]
         ]),
-        CANDIDATO = cifre_ind$CANDIDATO[j]
+        CANDIDATO = candidati_uni$CANDIDATO[j]
       )
     )
     
@@ -204,7 +204,7 @@ cerca_accettori_uni <- function(
     
     cat(
       "Ho ripescato",
-      as.character(cifre_ind$CANDIDATO[accettori[j]]),
+      as.character(candidati_uni$CANDIDATO[accettori[j]]),
       "\n"
     )
     
