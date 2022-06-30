@@ -172,8 +172,8 @@ cerca_accettori_uni <- function(
   accettori <- which(
     ambito &
       candidati_uni$ELETTO == FALSE &
-      candidati_uni$CANDIDATO %in% cifre_uni$CANDIDATO[
-        cifre_uni$LISTA == ammesse_pluri$LISTA[i]
+      candidati_uni$CANDIDATO %in% liste_uni$CANDIDATO[
+        liste_uni$LISTA == ammesse_pluri$LISTA[i]
       ]
   )
   

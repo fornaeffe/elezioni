@@ -90,8 +90,8 @@ liste_uni <- unique(
   )]
 )
 
-cifre_uni <- merge(
-  cifre_uni,
+liste_uni <- merge(
+  liste_uni,
   liste[,c(
     "LISTA",
     "COAL_O_LISTA"
@@ -107,7 +107,7 @@ candidati_uni <- merge(
     "CANDIDATO",
     "ELETTO"
   )],
-  unique(cifre_uni[,c(
+  unique(liste_uni[,c(
     "COLLEGIOUNINOMINALE",
     "CANDIDATO",
     "COAL_O_LISTA"

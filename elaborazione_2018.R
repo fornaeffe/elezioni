@@ -28,6 +28,8 @@ liste_comune$CANDIDATO <- paste(
   liste_comune$NOME
 )
 
+liste_comune$CANDIDATO[liste_comune$CANDIDATO == "CANDIDATO NON PRESENTE "] <- 
+  NA
 
 #### Caricamento elenco candidati plurinominale ####
 
@@ -133,3 +135,5 @@ if (
 ### Inizio applicazione della legge ###
 
 source("C_77_1_ab.R")
+
+source("C_77_1_c.R")

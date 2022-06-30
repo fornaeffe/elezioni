@@ -9,7 +9,7 @@ cifre_pluri <- aggregate(
     CIRCOSCRIZIONE +
     COLLEGIOPLURINOMINALE +
     LISTA,
-  data = cifre_uni,
+  data = liste_uni,
   sum
 )
 

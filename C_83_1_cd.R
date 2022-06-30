@@ -22,8 +22,8 @@ cifre_circ <- merge(
 
 cifre_circ$CIFRA_PERCENTUALE <- cifre_circ$CIFRA / cifre_circ$CIFRA_TOT * 100
 
-cifre_uni <- merge(
-  cifre_uni,
+liste_uni <- merge(
+  liste_uni,
   candidati_uni[
     ,
     c(
@@ -36,15 +36,15 @@ cifre_uni <- merge(
   ]
 )
 
-cifre_uni$MINORANZA <- FALSE
+liste_uni$MINORANZA <- FALSE
 
-cifre_uni$MINORANZA[
-  cifre_uni$LISTA %in% 
+liste_uni$MINORANZA[
+  liste_uni$LISTA %in% 
     dati$camera_coalizioni$LISTA[dati$camera_coalizioni$MINORANZE] &
     !(
-      cifre_uni$CANDIDATO %in% cifre_uni$CANDIDATO[
+      liste_uni$CANDIDATO %in% liste_uni$CANDIDATO[
         duplicated(
-          cifre_uni[
+          liste_uni[
             ,
             c(
               "CIRCOSCRIZIONE", 
@@ -62,7 +62,7 @@ eletti_minoranze_circ <- aggregate(
   ELETTO ~
     CIRCOSCRIZIONE +
     LISTA,
-  data = cifre_uni[cifre_uni$MINORANZA,],
+  data = liste_uni[liste_uni$MINORANZA,],
   sum
 )
 

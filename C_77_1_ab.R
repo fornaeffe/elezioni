@@ -16,7 +16,7 @@ candidati_uni <- aggregate(
     COLLEGIOUNINOMINALE +
     CANDIDATO +
     DATA_NASCITA, 
-  data = candidati_comune, 
+  candidati_comune, 
   sum
 )
 
@@ -26,23 +26,13 @@ candidati_uni <- aggregate(
 # che ha ottenuto il maggior numero di voti validi; in caso di parita',
 # e' eletto il candidato piu' giovane di eta';
 
-candidati_uni <- candidati_uni[
-  order(
-    candidati_uni$CIRCOSCRIZIONE, 
-    candidati_uni$COLLEGIOPLURINOMINALE, 
-    candidati_uni$COLLEGIOUNINOMINALE, 
-    candidati_uni$VOTI_CANDIDATO,
-    candidati_uni$DATA_NASCITA,
-    decreasing = c("FALSE", "FALSE", "FALSE", "TRUE", "TRUE")
-  ),
-]
-candidati_uni$ELETTO <- !duplicated(
-  candidati_uni[
-    ,
-    c(
-      "CIRCOSCRIZIONE", 
-      "COLLEGIOPLURINOMINALE", 
-      "COLLEGIOUNINOMINALE"
-    )
-  ]
-)
+candidati_uni <- candidati_uni[order(
+  candidati_uni$CIRCOSCRIZIONE, 
+  candidati_uni$COLLEGIOPLURINOMINALE, 
+  candidati_uni$COLLEGIOUNINOMINALE, 
+  candidati_uni$VOTI_CANDIDATO,
+  candidati_uni$DATA_NASCITA,
+  decreasing = c("FALSE", "FALSE", "FALSE", "TRUE", "TRUE")
+), ]
+
+candidati_uni$ELETTO <- !duplicated(candidati_uni$COLLEGIOUNINOMINALE)
