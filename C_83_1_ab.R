@@ -12,7 +12,7 @@
 
 cifre_naz <- aggregate(
   CIFRA ~ LISTA,
-  data = cifre_circ,
+  data = liste_circ,
   sum
 )
 

@@ -61,7 +61,7 @@ liste$COAL_O_LISTA <- factor(ifelse(
 ))
 
 liste_pluri <- merge(
-  cifre_pluri[, c(
+  liste_pluri[, c(
     "CIRCOSCRIZIONE",
     "COLLEGIOPLURINOMINALE",
     "LISTA"

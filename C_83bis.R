@@ -11,16 +11,16 @@
 #   tale divisione non tiene conto dell'eventuale parte frazionaria del
 # quoziente.
 
-cifre_pluri <- merge(
-  cifre_pluri,
+liste_pluri <- merge(
+  liste_pluri,
   cifre_naz[
     ,
     c("LISTA", "SOGLIA3M")
   ]
 )
 
-ammesse_pluri <- cifre_pluri[
-  cifre_pluri$SOGLIA3M,
+ammesse_pluri <- liste_pluri[
+  liste_pluri$SOGLIA3M,
   c(
     "CIRCOSCRIZIONE",
     "COLLEGIOPLURINOMINALE",
@@ -30,8 +30,8 @@ ammesse_pluri <- cifre_pluri[
   )
 ]
 
-totali_pluri <- merge(
-  totali_pluri,
+pluri <- merge(
+  pluri,
   aggregate(
     CIFRA ~ CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE,
     ammesse_pluri,
@@ -41,13 +41,13 @@ totali_pluri <- merge(
   suffixes = c("", "_AMMESSE_AL_RIPARTO")
 )
 
-totali_pluri <- merge(
-  totali_pluri,
+pluri <- merge(
+  pluri,
   dati$camera_pluri
 )
 
-totali_pluri$QUOZIENTE <-
-  totali_pluri$CIFRA_AMMESSE_AL_RIPARTO %/% totali_pluri$SEGGI
+pluri$QUOZIENTE <-
+  pluri$CIFRA_AMMESSE_AL_RIPARTO %/% pluri$SEGGI
 
 # Divide quindi la cifra elettorale di collegio di ciascuna
 # lista per tale quoziente di collegio. La parte intera del quoziente
@@ -56,7 +56,7 @@ totali_pluri$QUOZIENTE <-
 
 ammesse_pluri <- merge(
   ammesse_pluri,
-  totali_pluri[, c("CIRCOSCRIZIONE", "COLLEGIOPLURINOMINALE", "QUOZIENTE")]
+  pluri[, c("CIRCOSCRIZIONE", "COLLEGIOPLURINOMINALE", "QUOZIENTE")]
 )
 
 ammesse_pluri$PARTE_INTERA <- ammesse_pluri$CIFRA %/% ammesse_pluri$QUOZIENTE
@@ -94,8 +94,8 @@ ammesse_pluri <- merge(
   suffixes = c("", "_CIRC")
 )
 
-totali_pluri <- merge(
-  totali_pluri,
+pluri <- merge(
+  pluri,
   aggregate(
     PARTE_INTERA ~ CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE,
     ammesse_pluri,
@@ -103,11 +103,11 @@ totali_pluri <- merge(
   )
 )
 
-totali_pluri$DA_ASSEGNARE <- totali_pluri$SEGGI - totali_pluri$PARTE_INTERA
+pluri$DA_ASSEGNARE <- pluri$SEGGI - pluri$PARTE_INTERA
 
 ammesse_pluri <- merge(
   ammesse_pluri,
-  totali_pluri[,c("CIRCOSCRIZIONE", "COLLEGIOPLURINOMINALE", "DA_ASSEGNARE")]
+  pluri[,c("CIRCOSCRIZIONE", "COLLEGIOPLURINOMINALE", "DA_ASSEGNARE")]
 )
 
 ammesse_pluri <- ammesse_pluri[

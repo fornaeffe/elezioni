@@ -21,8 +21,8 @@ totali_circ <- merge(
 # il quoziente elettorale circoscrizionale. Nell'effettuare tale
 #         divisione non tiene conto dell'eventuale parte frazionaria del
 # quoziente cosi' ottenuto.
-cifre_circ <- merge(
-  cifre_circ,
+liste_circ <- merge(
+  liste_circ,
   cifre_naz[
     ,
     c(
@@ -35,7 +35,7 @@ cifre_circ <- merge(
 
 riparto_circ <- aggregate(
   CIFRA ~ CIRCOSCRIZIONE + SOGGETTO_RIPARTO,
-  data = cifre_circ,
+  data = liste_circ,
   sum,
   subset = SOGLIA1M
 )

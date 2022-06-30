@@ -7,10 +7,10 @@ camera_pluri <- camera_pluri[
 ]
 write.csv2(camera_pluri, "camera_pluri.csv")
 
-totali_pluri <- merge(totali_pluri, camera_pluri)
+pluri <- merge(pluri, camera_pluri)
 
-ammesse_circ <- cifre_circ[
-  cifre_circ$SOGLIA3M,
+ammesse_circ <- liste_circ[
+  liste_circ$SOGLIA3M,
   c(
     "CIRCOSCRIZIONE",
     "SOGGETTO_RIPARTO",

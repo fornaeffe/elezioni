@@ -6,23 +6,14 @@
 # candidato per il totale dei voti validi del rispettivo collegio
 # uninominale, moltiplicato per cento;
 
-totali_uni <- aggregate(
-  VOTI_CANDIDATO ~
-    CIRCOSCRIZIONE +
-    COLLEGIOPLURINOMINALE +
-    COLLEGIOUNINOMINALE,
-  data = candidati_uni,
-  sum
-)
-
 candidati_uni <- merge(
   candidati_uni,
-  totali_uni,
-  by = c(
-    "CIRCOSCRIZIONE",
-    "COLLEGIOPLURINOMINALE",
-    "COLLEGIOUNINOMINALE"
+  aggregate(
+    VOTI_CANDIDATO ~ COLLEGIOUNINOMINALE,
+    candidati_uni,
+    sum
   ),
+  by = "COLLEGIOUNINOMINALE",
   suffixes = c("", "_TOT")
 )
 

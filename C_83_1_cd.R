@@ -13,14 +13,14 @@ cifre_naz$CIFRA_PERCENTUALE <- cifre_naz$CIFRA / totale_naz * 100
 
 cifre_naz$SOGLIA1 <- cifre_naz$CIFRA_PERCENTUALE >= 1
 
-cifre_circ <- merge(
-  cifre_circ,
+liste_circ <- merge(
+  liste_circ,
   totali_circ,
   by = "CIRCOSCRIZIONE",
   suffixes = c("","_TOT")
 )
 
-cifre_circ$CIFRA_PERCENTUALE <- cifre_circ$CIFRA / cifre_circ$CIFRA_TOT * 100
+liste_circ$CIFRA_PERCENTUALE <- liste_circ$CIFRA / liste_circ$CIFRA_TOT * 100
 
 liste_uni <- merge(
   liste_uni,
@@ -86,7 +86,7 @@ cifre_naz <- merge(
 cifre_naz$SOGLIA_MINORANZE <- 
   cifre_naz$MINORANZE &
   (
-    cifre_naz$LISTA %in% cifre_circ$LISTA[cifre_circ$CIFRA_PERCENTUALE > 20] |
+    cifre_naz$LISTA %in% liste_circ$LISTA[liste_circ$CIFRA_PERCENTUALE > 20] |
       cifre_naz$LISTA %in% eletti_minoranze_circ$LISTA[
         eletti_minoranze_circ$ELETTO >= 
           ceiling(eletti_minoranze_circ$COLLEGI / 4)
@@ -110,14 +110,14 @@ cifre_naz_coalizione <- aggregate(
 # coalizione, individuate ai sensi dell'ultimo periodo della lettera
 # c);
 
-cifre_circ <- merge(
-  cifre_circ,
+liste_circ <- merge(
+  liste_circ,
   cifre_naz[, c("COALIZIONE", "LISTA", "SOGLIA1M")]
 )
 
-cifre_circ_coalizione <- aggregate(
+liste_circ_coalizione <- aggregate(
   CIFRA ~ CIRCOSCRIZIONE + COALIZIONE,
-  data = cifre_circ,
+  data = liste_circ,
   sum,
   subset = SOGLIA1M
 )

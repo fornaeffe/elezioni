@@ -4,12 +4,9 @@
 # ciascuna lista. Tale cifra e' data dalla somma delle cifre elettorali
 # di collegio uninominale di ciascuna lista;
 
-cifre_pluri <- aggregate(
-  CIFRA ~
-    CIRCOSCRIZIONE +
-    COLLEGIOPLURINOMINALE +
-    LISTA,
-  data = liste_uni,
+liste_pluri <- aggregate(
+  CIFRA ~ CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE + LISTA,
+  liste_uni,
   sum
 )
 
@@ -21,25 +18,18 @@ cifre_pluri <- aggregate(
 # plurinominale di ciascuna lista per il totale dei voti validi del
 # rispettivo collegio plurinominale, moltiplicato per cento;
 
-totali_pluri <- aggregate(
-  CIFRA ~
-    CIRCOSCRIZIONE +
-    COLLEGIOPLURINOMINALE,
-  data = cifre_pluri,
-  sum
-)
-
-cifre_pluri <- merge(
-  cifre_pluri,
-  totali_pluri,
-  by = c(
-    "CIRCOSCRIZIONE",
-    "COLLEGIOPLURINOMINALE"
+liste_pluri <- merge(
+  liste_pluri,
+  aggregate(
+    CIFRA ~ COLLEGIOPLURINOMINALE,
+    liste_pluri,
+    sum
   ),
+  by = "COLLEGIOPLURINOMINALE",
   suffixes = c("", "_TOT")
 )
 
-cifre_pluri$CIFRA_PERCENTUALE <- cifre_pluri$CIFRA / cifre_pluri$CIFRA_TOT * 100
+liste_pluri$CIFRA_PERCENTUALE <- liste_pluri$CIFRA / liste_pluri$CIFRA_TOT * 100
 
 ##### Art. 77 comma 1 lettera f - liste cifra circoscrizionale ####
 
@@ -47,10 +37,4 @@ cifre_pluri$CIFRA_PERCENTUALE <- cifre_pluri$CIFRA / cifre_pluri$CIFRA_TOT * 100
 # lista. Tale cifra e' data dalla somma delle cifre elettorali di
 # collegio plurinominale della lista stessa;
 
-cifre_circ <- aggregate(
-  CIFRA ~
-    CIRCOSCRIZIONE +
-    LISTA,
-  data = cifre_pluri,
-  sum
-)
+liste_circ <- aggregate(CIFRA ~ CIRCOSCRIZIONE + LISTA, liste_pluri, sum)

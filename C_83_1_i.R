@@ -10,8 +10,8 @@
 # divisione di cui al periodo precedente non tiene conto dell'eventuale
 # parte frazionaria del quoziente.
 
-ammesse_circ <- cifre_circ[
-  cifre_circ$SOGLIA3M,
+ammesse_circ <- liste_circ[
+  liste_circ$SOGLIA3M,
   c(
     "CIRCOSCRIZIONE",
     "SOGGETTO_RIPARTO",
