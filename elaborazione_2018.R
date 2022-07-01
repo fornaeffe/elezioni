@@ -33,7 +33,7 @@ liste_comune$CANDIDATO[liste_comune$CANDIDATO == "CANDIDATO NON PRESENTE "] <-
 
 #### Caricamento elenco candidati plurinominale ####
 
-camera_candidati_pluri <- read.csv2(
+candidati_pluri <- read.csv2(
   "WCamPluri.csv",
   col.names = c(
     "LISTA",
@@ -45,42 +45,42 @@ camera_candidati_pluri <- read.csv2(
   fileEncoding = "utf-8"
 )
 
-camera_candidati_pluri$CANDIDATO <- str_remove(
-  camera_candidati_pluri$CANDIDATO,
+candidati_pluri$CANDIDATO <- str_remove(
+  candidati_pluri$CANDIDATO,
   " DETT[AO] .*"
 )
 
-camera_candidati_pluri$LISTA[camera_candidati_pluri$LISTA == " +EUROPA"] <-
+candidati_pluri$LISTA[candidati_pluri$LISTA == " +EUROPA"] <-
   "+EUROPA"
 
 
-camera_candidati_pluri$LISTA <- factor(
-  camera_candidati_pluri$LISTA, 
+candidati_pluri$LISTA <- factor(
+  candidati_pluri$LISTA, 
   levels = levels(liste_comune$LISTA)
 )
 
-camera_candidati_pluri$CIRCOSCRIZIONE <- factor(
-  camera_candidati_pluri$CIRCOSCRIZIONE, 
+candidati_pluri$CIRCOSCRIZIONE <- factor(
+  candidati_pluri$CIRCOSCRIZIONE, 
   levels = levels(liste_comune$CIRCOSCRIZIONE)
 )
 
-camera_candidati_pluri$COLLEGIOPLURINOMINALE <- factor(
-  camera_candidati_pluri$COLLEGIOPLURINOMINALE, 
+candidati_pluri$COLLEGIOPLURINOMINALE <- factor(
+  candidati_pluri$COLLEGIOPLURINOMINALE, 
   levels = levels(liste_comune$COLLEGIOPLURINOMINALE)
 )
 
-camera_candidati_pluri$CANDIDATO <- trimws(camera_candidati_pluri$CANDIDATO)
+candidati_pluri$CANDIDATO <- trimws(candidati_pluri$CANDIDATO)
 
 #### Unico factor per i candidati ####
 
 candidati <- factor(unique(c(
   liste_comune$CANDIDATO, 
-  camera_candidati_pluri$CANDIDATO
+  candidati_pluri$CANDIDATO
 )))
 
 liste_comune$CANDIDATO <- factor(liste_comune$CANDIDATO, levels = levels(candidati))
-camera_candidati_pluri$CANDIDATO <- factor(
-  camera_candidati_pluri$CANDIDATO,
+candidati_pluri$CANDIDATO <- factor(
+  candidati_pluri$CANDIDATO,
   levels = levels(candidati)
 )
 
@@ -89,6 +89,11 @@ camera_candidati_pluri$CANDIDATO <- factor(
 coalizioni <- read_excel("coalizioni.xlsx")
 
 camera_pluri <- read_excel("camera_pluri.xlsx")
+
+#### Separo i dati della Val d'Aosta ####
+
+liste_comune_AOSTA <- liste_comune[liste_comune$CIRCOSCRIZIONE == "AOSTA",]
+liste_comune <- liste_comune[!(liste_comune$CIRCOSCRIZIONE == "AOSTA"),]
 
 #### Creo altri data frame ####
 

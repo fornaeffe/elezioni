@@ -30,7 +30,6 @@ candidati_uni <- merge(
     liste_comune,
     sum
   ),
-  all.x = TRUE
 )
 
 candidati_uni$VOTI_SOLO_CANDIDATO <-
@@ -49,8 +48,7 @@ liste_uni <- aggregate(
     LISTA
   ,
   liste_comune,
-  sum,
-  na.action = na.pass
+  sum
 )
 
 liste_uni <- merge(
