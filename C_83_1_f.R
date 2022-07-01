@@ -27,19 +27,19 @@
 
 seggi_proporzionale <- dati$camera_seggi - sum(candidati_uni$ELETTO)
 
-cifre_naz$SOGGETTO_RIPARTO <- NA
+liste_naz$SOGGETTO_RIPARTO <- NA
 
-cifre_naz$SOGGETTO_RIPARTO[which(cifre_naz$SOGLIA_COALIZIONE)] <- 
-  as.character(cifre_naz$COALIZIONE[which(cifre_naz$SOGLIA_COALIZIONE)])
+liste_naz$SOGGETTO_RIPARTO[which(liste_naz$SOGLIA_COALIZIONE)] <- 
+  as.character(liste_naz$COALIZIONE[which(liste_naz$SOGLIA_COALIZIONE)])
 
-cifre_naz$SOGGETTO_RIPARTO[which(cifre_naz$SOGLIA_SOLA)] <- 
-  as.character(cifre_naz$LISTA[which(cifre_naz$SOGLIA_SOLA)])
+liste_naz$SOGGETTO_RIPARTO[which(liste_naz$SOGLIA_SOLA)] <- 
+  as.character(liste_naz$LISTA[which(liste_naz$SOGLIA_SOLA)])
 
-cifre_naz$SOGGETTO_RIPARTO <- as.factor(cifre_naz$SOGGETTO_RIPARTO)
+liste_naz$SOGGETTO_RIPARTO <- as.factor(liste_naz$SOGGETTO_RIPARTO)
 
 riparto_naz <- aggregate(
   CIFRA ~ SOGGETTO_RIPARTO,
-  data = cifre_naz,
+  data = liste_naz,
   sum,
   subset = SOGLIA1M
 )

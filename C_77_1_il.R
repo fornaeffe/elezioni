@@ -6,7 +6,7 @@
 
 totali_circ <- aggregate(
   CIFRA ~ CIRCOSCRIZIONE,
-  data = liste_circ,
+  liste_circ,
   sum
 )
 

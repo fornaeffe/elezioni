@@ -9,9 +9,9 @@
 # del totale, fatto salvo, per le liste rappresentative di minoranze
 # linguistiche riconosciute, quanto previsto alla lettera e);
 
-cifre_naz$CIFRA_PERCENTUALE <- cifre_naz$CIFRA / totale_naz * 100
+liste_naz$CIFRA_PERCENTUALE <- liste_naz$CIFRA / totale_naz * 100
 
-cifre_naz$SOGLIA1 <- cifre_naz$CIFRA_PERCENTUALE >= 1
+liste_naz$SOGLIA1 <- liste_naz$CIFRA_PERCENTUALE >= 1
 
 liste_circ <- merge(
   liste_circ,
@@ -78,26 +78,26 @@ eletti_minoranze_circ <- merge(
   numero_collegi
 )
 
-cifre_naz <- merge(
-  cifre_naz,
+liste_naz <- merge(
+  liste_naz,
   dati$camera_coalizioni
 )
 
-cifre_naz$SOGLIA_MINORANZE <- 
-  cifre_naz$MINORANZE &
+liste_naz$SOGLIA_MINORANZE <- 
+  liste_naz$MINORANZE &
   (
-    cifre_naz$LISTA %in% liste_circ$LISTA[liste_circ$CIFRA_PERCENTUALE > 20] |
-      cifre_naz$LISTA %in% eletti_minoranze_circ$LISTA[
+    liste_naz$LISTA %in% liste_circ$LISTA[liste_circ$CIFRA_PERCENTUALE > 20] |
+      liste_naz$LISTA %in% eletti_minoranze_circ$LISTA[
         eletti_minoranze_circ$ELETTO >= 
           ceiling(eletti_minoranze_circ$COLLEGI / 4)
       ]
   )
 
-cifre_naz$SOGLIA1M <- cifre_naz$SOGLIA1 | cifre_naz$SOGLIA_MINORANZE
+liste_naz$SOGLIA1M <- liste_naz$SOGLIA1 | liste_naz$SOGLIA_MINORANZE
 
-cifre_naz_coalizione <- aggregate(
+coal_naz <- aggregate(
   CIFRA ~ COALIZIONE,
-  data = cifre_naz,
+  data = liste_naz,
   sum,
   subset = SOGLIA1M
 )
@@ -112,7 +112,7 @@ cifre_naz_coalizione <- aggregate(
 
 liste_circ <- merge(
   liste_circ,
-  cifre_naz[, c("COALIZIONE", "LISTA", "SOGLIA1M")]
+  liste_naz[, c("COALIZIONE", "LISTA", "SOGLIA1M")]
 )
 
 liste_circ_coalizione <- aggregate(

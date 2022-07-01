@@ -7,7 +7,8 @@
 liste_pluri <- aggregate(
   CIFRA ~ CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE + LISTA,
   liste_uni,
-  sum
+  sum,
+  na.action = na.pass
 )
 
 ##### Art. 77 comma 1 lettera e - liste cifra % uninominale ####
@@ -37,4 +38,9 @@ liste_pluri$CIFRA_PERCENTUALE <- liste_pluri$CIFRA / liste_pluri$CIFRA_TOT * 100
 # lista. Tale cifra e' data dalla somma delle cifre elettorali di
 # collegio plurinominale della lista stessa;
 
-liste_circ <- aggregate(CIFRA ~ CIRCOSCRIZIONE + LISTA, liste_pluri, sum)
+liste_circ <- aggregate(
+  CIFRA ~ CIRCOSCRIZIONE + LISTA,
+  liste_pluri, 
+  sum,
+  na.action = na.pass
+)

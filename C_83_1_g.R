@@ -17,8 +17,8 @@
 # tiene conto dell'eventuale parte frazionaria del quoziente cosi'
 # ottenuto.
 
-ammesse_naz <- cifre_naz[
-  cifre_naz$SOGLIA3M,
+ammesse_naz <- liste_naz[
+  liste_naz$SOGLIA3M,
   c(
     "SOGGETTO_RIPARTO",
     "LISTA",

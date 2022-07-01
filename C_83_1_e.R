@@ -14,27 +14,27 @@
 # almeno ((un quarto dei collegi uninominali della circoscrizione ai
 #          sensi dell'articolo 77, con arrotondamento all'unita' superiore));
 
-cifre_naz_coalizione$CIFRA_PERCENTUALE <- 
-  cifre_naz_coalizione$CIFRA / totale_naz * 100
+coal_naz$CIFRA_PERCENTUALE <- 
+  coal_naz$CIFRA / totale_naz * 100
 
-cifre_naz_coalizione$SOGLIA10 <- cifre_naz_coalizione$CIFRA_PERCENTUALE >= 10
+coal_naz$SOGLIA10 <- coal_naz$CIFRA_PERCENTUALE >= 10
 
-cifre_naz$SOGLIA3 <- cifre_naz$CIFRA_PERCENTUALE >= 3
+liste_naz$SOGLIA3 <- liste_naz$CIFRA_PERCENTUALE >= 3
 
-cifre_naz$SOGLIA3M <- cifre_naz$SOGLIA3 | cifre_naz$SOGLIA_MINORANZE
+liste_naz$SOGLIA3M <- liste_naz$SOGLIA3 | liste_naz$SOGLIA_MINORANZE
 
-cifre_naz_coalizione <- merge(
-  cifre_naz_coalizione,
+coal_naz <- merge(
+  coal_naz,
   aggregate(
     SOGLIA3M ~ COALIZIONE,
-    data = cifre_naz,
+    data = liste_naz,
     function(x) Reduce("|", x)
   )
 )
 
-cifre_naz_coalizione$SOGLIA_COALIZIONE <- 
-  cifre_naz_coalizione$SOGLIA10 & 
-  cifre_naz_coalizione$SOGLIA3M
+coal_naz$SOGLIA_COALIZIONE <- 
+  coal_naz$SOGLIA10 & 
+  coal_naz$SOGLIA3M
 
 
 # 2) le singole liste non collegate, o collegate in coalizioni
@@ -51,12 +51,12 @@ cifre_naz_coalizione$SOGLIA_COALIZIONE <-
 #         almeno ((un quarto dei collegi uninominali della circoscrizione ai
 #                  sensi dell'articolo 77, con arrotondamento all'unita' superiore));
 
-cifre_naz <- merge(
-  cifre_naz,
-  cifre_naz_coalizione[, c("COALIZIONE", "SOGLIA_COALIZIONE")],
+liste_naz <- merge(
+  liste_naz,
+  coal_naz[, c("COALIZIONE", "SOGLIA_COALIZIONE")],
   all.x = TRUE
 )
 
-cifre_naz$SOGLIA_SOLA <- 
-  (is.na(cifre_naz$COALIZIONE) | !cifre_naz$SOGLIA_COALIZIONE) &
-  cifre_naz$SOGLIA3M
+liste_naz$SOGLIA_SOLA <- 
+  (is.na(liste_naz$COALIZIONE) | !liste_naz$SOGLIA_COALIZIONE) &
+  liste_naz$SOGLIA3M

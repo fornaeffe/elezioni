@@ -23,7 +23,7 @@ totali_circ <- merge(
 # quoziente cosi' ottenuto.
 liste_circ <- merge(
   liste_circ,
-  cifre_naz[
+  liste_naz[
     ,
     c(
       "LISTA",

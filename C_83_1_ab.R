@@ -10,9 +10,9 @@
 # circoscrizionali conseguite nelle singole circoscrizioni dalle liste
 # aventi il medesimo contrassegno;
 
-cifre_naz <- aggregate(
+liste_naz <- aggregate(
   CIFRA ~ LISTA,
-  data = liste_circ,
+  liste_circ,
   sum
 )
 
@@ -21,4 +21,4 @@ cifre_naz <- aggregate(
 # b) determina il totale nazionale dei voti validi. Esso e' dato
 # dalla somma delle cifre elettorali circoscrizionali di tutte le
 # liste;
-totale_naz <- sum(cifre_naz$CIFRA)
+totale_naz <- sum(liste_naz$CIFRA)

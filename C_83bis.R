@@ -13,7 +13,7 @@
 
 liste_pluri <- merge(
   liste_pluri,
-  cifre_naz[
+  liste_naz[
     ,
     c("LISTA", "SOGLIA3M")
   ]
@@ -30,8 +30,8 @@ ammesse_pluri <- liste_pluri[
   )
 ]
 
-pluri <- merge(
-  pluri,
+totali_pluri <- merge(
+  totali_pluri,
   aggregate(
     CIFRA ~ CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE,
     ammesse_pluri,
@@ -41,13 +41,13 @@ pluri <- merge(
   suffixes = c("", "_AMMESSE_AL_RIPARTO")
 )
 
-pluri <- merge(
-  pluri,
+totali_pluri <- merge(
+  totali_pluri,
   dati$camera_pluri
 )
 
-pluri$QUOZIENTE <-
-  pluri$CIFRA_AMMESSE_AL_RIPARTO %/% pluri$SEGGI
+totali_pluri$QUOZIENTE <-
+  totali_pluri$CIFRA_AMMESSE_AL_RIPARTO %/% totali_pluri$SEGGI
 
 # Divide quindi la cifra elettorale di collegio di ciascuna
 # lista per tale quoziente di collegio. La parte intera del quoziente
@@ -56,7 +56,7 @@ pluri$QUOZIENTE <-
 
 ammesse_pluri <- merge(
   ammesse_pluri,
-  pluri[, c("CIRCOSCRIZIONE", "COLLEGIOPLURINOMINALE", "QUOZIENTE")]
+  totali_pluri[, c("CIRCOSCRIZIONE", "COLLEGIOPLURINOMINALE", "QUOZIENTE")]
 )
 
 ammesse_pluri$PARTE_INTERA <- ammesse_pluri$CIFRA %/% ammesse_pluri$QUOZIENTE
@@ -94,8 +94,8 @@ ammesse_pluri <- merge(
   suffixes = c("", "_CIRC")
 )
 
-pluri <- merge(
-  pluri,
+totali_pluri <- merge(
+  totali_pluri,
   aggregate(
     PARTE_INTERA ~ CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE,
     ammesse_pluri,
@@ -103,11 +103,11 @@ pluri <- merge(
   )
 )
 
-pluri$DA_ASSEGNARE <- pluri$SEGGI - pluri$PARTE_INTERA
+totali_pluri$DA_ASSEGNARE <- totali_pluri$SEGGI - totali_pluri$PARTE_INTERA
 
 ammesse_pluri <- merge(
   ammesse_pluri,
-  pluri[,c("CIRCOSCRIZIONE", "COLLEGIOPLURINOMINALE", "DA_ASSEGNARE")]
+  totali_pluri[,c("CIRCOSCRIZIONE", "COLLEGIOPLURINOMINALE", "DA_ASSEGNARE")]
 )
 
 ammesse_pluri <- ammesse_pluri[
