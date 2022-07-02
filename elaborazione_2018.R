@@ -86,14 +86,19 @@ candidati_pluri$CANDIDATO <- factor(
 
 #### Carico i dati dai fogli excel ####
 
-coalizioni <- read_excel("coalizioni.xlsx")
+liste_naz <- read_excel("dati_2018.xlsx", "camera_liste")
 
-camera_pluri <- read_excel("camera_pluri.xlsx")
+totali_pluri <- read_excel("dati_2018.xlsx", "camera_pluri")
 
 #### Separo i dati della Val d'Aosta ####
 
 liste_comune_AOSTA <- liste_comune[liste_comune$CIRCOSCRIZIONE == "AOSTA",]
 liste_comune <- liste_comune[!(liste_comune$CIRCOSCRIZIONE == "AOSTA"),]
+
+#### Individuo i candidati delle liste di minoranza ####
+
+
+
 
 #### Creo altri data frame ####
 
@@ -112,19 +117,47 @@ candidati_comune <- unique(
   ]
 )
 
-liste_comune <- liste_comune[
-  ,
-  c(
-    "CIRCOSCRIZIONE", 
-    "COLLEGIOPLURINOMINALE", 
-    "COLLEGIOUNINOMINALE", 
-    "COMUNE",
-    "CANDIDATO", 
-    "LISTA",
-    "VOTI_LISTA"
-  )
-]
+candidati_uni <- aggregate(
+  VOTI_CANDIDATO ~ 
+    CIRCOSCRIZIONE + 
+    COLLEGIOPLURINOMINALE + 
+    COLLEGIOUNINOMINALE +
+    CANDIDATO +
+    DATA_NASCITA, 
+  candidati_comune, 
+  sum
+)
 
+liste_uni <- aggregate(
+  VOTI_LISTA ~
+    CIRCOSCRIZIONE + 
+    COLLEGIOPLURINOMINALE + 
+    COLLEGIOUNINOMINALE +
+    LISTA
+  ,
+  liste_comune,
+  sum
+)
+
+liste_uni <- merge(
+  liste_uni,
+  unique(liste_comune[, c("COLLEGIOUNINOMINALE", "CANDIDATO", "LISTA")])
+)
+
+liste_uni <- merge(
+  liste_uni,
+  liste_naz[,c("LISTA", "MINORANZA")]
+)
+
+liste_uni$CAND_MINORANZA <- liste_uni$MINORANZA &
+  !(liste_uni$CANDIDATO %in% liste_uni$CANDIDATO[
+    duplicated(liste_uni[, c(
+      "CIRCOSCRIZIONE", 
+      "COLLEGIOPLURINOMINALE", 
+      "COLLEGIOUNINOMINALE",
+      "CANDIDATO"
+    )])
+  ])
 
 
 if (
@@ -150,3 +183,5 @@ source("C_77_1_gh.R")
 source("C_77_1_il.R")
 
 source("C_83_1_ab.R")
+
+source("C_83_1_cd.R")

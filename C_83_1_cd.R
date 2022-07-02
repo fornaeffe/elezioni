@@ -22,78 +22,40 @@ liste_circ <- merge(
 
 liste_circ$CIFRA_PERCENTUALE <- liste_circ$CIFRA / liste_circ$CIFRA_TOT * 100
 
-liste_uni <- merge(
-  liste_uni,
-  candidati_uni[
-    ,
-    c(
-      "CIRCOSCRIZIONE",
-      "COLLEGIOPLURINOMINALE",
-      "COLLEGIOUNINOMINALE",
-      "CANDIDATO",
-      "ELETTO"
-    )
-  ]
+liste_circ <- merge(
+  liste_circ,
+  aggregate(
+    ELETTO ~ CIRCOSCRIZIONE + LISTA,
+    liste_uni[liste_uni$CAND_MINORANZA,],
+    sum
+  ),
+  all.x = TRUE
 )
+names(liste_circ)[names(liste_circ) == "ELETTO"] <- "ELETTI_MINORANZA"
+liste_circ$ELETTI_MINORANZA[is.na(liste_circ$ELETTI_MINORANZA)] <- 0
 
-liste_uni$MINORANZA <- FALSE
 
-liste_uni$MINORANZA[
-  liste_uni$LISTA %in% 
-    dati$camera_coalizioni$LISTA[dati$camera_coalizioni$MINORANZE] &
-    !(
-      liste_uni$CANDIDATO %in% liste_uni$CANDIDATO[
-        duplicated(
-          liste_uni[
-            ,
-            c(
-              "CIRCOSCRIZIONE", 
-              "COLLEGIOPLURINOMINALE", 
-              "COLLEGIOUNINOMINALE",
-              "CANDIDATO"
-            )
-          ]
-        )
-      ]
-    )
-] <- TRUE
-
-eletti_minoranze_circ <- aggregate(
-  ELETTO ~
-    CIRCOSCRIZIONE +
-    LISTA,
-  data = liste_uni[liste_uni$MINORANZA,],
-  sum
-)
-
-numero_collegi <- as.data.frame(
-  table(totali_uni$CIRCOSCRIZIONE), 
-  responseName = "COLLEGI"
-)
-
-names(numero_collegi)[1] <- "CIRCOSCRIZIONE"
-
-eletti_minoranze_circ <- merge(
-  eletti_minoranze_circ,
-  numero_collegi
-)
-
-liste_naz <- merge(
-  liste_naz,
-  dati$camera_coalizioni
-)
-
-liste_naz$SOGLIA_MINORANZE <- 
-  liste_naz$MINORANZE &
-  (
-    liste_naz$LISTA %in% liste_circ$LISTA[liste_circ$CIFRA_PERCENTUALE > 20] |
-      liste_naz$LISTA %in% eletti_minoranze_circ$LISTA[
-        eletti_minoranze_circ$ELETTO >= 
-          ceiling(eletti_minoranze_circ$COLLEGI / 4)
-      ]
+liste_circ <- merge(
+  liste_circ,
+  aggregate(
+    COLLEGIOUNINOMINALE ~ CIRCOSCRIZIONE,
+    unique(liste_uni[, c("CIRCOSCRIZIONE", "COLLEGIOUNINOMINALE")]),
+    length
   )
+)
+names(liste_circ)[names(liste_circ) == "COLLEGIOUNINOMINALE"] <- "COLLEGI_UNI"
 
-liste_naz$SOGLIA1M <- liste_naz$SOGLIA1 | liste_naz$SOGLIA_MINORANZE
+
+liste_naz$SOGLIA_MINORANZA <- 
+  liste_naz$MINORANZA &
+    liste_naz$LISTA %in% liste_circ$LISTA[
+      liste_circ$CIFRA_PERCENTUALE >= 20 |
+        liste_circ$ELETTI_MINORANZA >= ceiling(liste_circ$COLLEGI_UNI / 4)
+    ]
+
+liste_naz$SOGLIA1M <- liste_naz$SOGLIA1 | liste_naz$SOGLIA_MINORANZA
+
+#### Sono arrivato fino a qui
 
 coal_naz <- aggregate(
   CIFRA ~ COALIZIONE,
@@ -110,14 +72,4 @@ coal_naz <- aggregate(
 # coalizione, individuate ai sensi dell'ultimo periodo della lettera
 # c);
 
-liste_circ <- merge(
-  liste_circ,
-  liste_naz[, c("COALIZIONE", "LISTA", "SOGLIA1M")]
-)
-
-liste_circ_coalizione <- aggregate(
-  CIFRA ~ CIRCOSCRIZIONE + COALIZIONE,
-  data = liste_circ,
-  sum,
-  subset = SOGLIA1M
-)
+# Inutile

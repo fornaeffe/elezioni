@@ -21,7 +21,7 @@ coal_naz$SOGLIA10 <- coal_naz$CIFRA_PERCENTUALE >= 10
 
 liste_naz$SOGLIA3 <- liste_naz$CIFRA_PERCENTUALE >= 3
 
-liste_naz$SOGLIA3M <- liste_naz$SOGLIA3 | liste_naz$SOGLIA_MINORANZE
+liste_naz$SOGLIA3M <- liste_naz$SOGLIA3 | liste_naz$SOGLIA_MINORANZA
 
 coal_naz <- merge(
   coal_naz,

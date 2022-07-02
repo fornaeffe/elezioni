@@ -9,16 +9,7 @@
 #   validi conseguiti dal candidato nelle singole sezioni elettorali del
 #   collegio uninominale;
 
-candidati_uni <- aggregate(
-  VOTI_CANDIDATO ~ 
-    CIRCOSCRIZIONE + 
-    COLLEGIOPLURINOMINALE + 
-    COLLEGIOUNINOMINALE +
-    CANDIDATO +
-    DATA_NASCITA, 
-  candidati_comune, 
-  sum
-)
+
 
 ##### Art. 77 comma 1 lettera b - elezione candidati uninominali ####
 

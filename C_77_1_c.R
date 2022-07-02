@@ -27,7 +27,7 @@ candidati_uni <- merge(
   candidati_uni,
   aggregate(
     VOTI_LISTA ~ COLLEGIOUNINOMINALE + CANDIDATO, 
-    liste_comune,
+    liste_uni,
     sum
   ),
 )
@@ -39,29 +39,12 @@ candidati_uni$QUOZIENTE <-
   candidati_uni$VOTI_LISTA / candidati_uni$VOTI_SOLO_CANDIDATO
 
 
-
-liste_uni <- aggregate(
-  VOTI_LISTA ~
-    CIRCOSCRIZIONE + 
-    COLLEGIOPLURINOMINALE + 
-    COLLEGIOUNINOMINALE +
-    LISTA
-  ,
-  liste_comune,
-  sum
-)
-
-liste_uni <- merge(
-  liste_uni,
-  unique(liste_comune[, c("COLLEGIOUNINOMINALE", "CANDIDATO", "LISTA")])
-)
-
-
 liste_uni <- merge(
   liste_uni, 
   candidati_uni[, c(
     "COLLEGIOUNINOMINALE",
     "CANDIDATO",
+    "ELETTO",
     "QUOZIENTE"
   )],
   all.x = TRUE

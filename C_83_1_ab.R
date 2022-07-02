@@ -10,10 +10,13 @@
 # circoscrizionali conseguite nelle singole circoscrizioni dalle liste
 # aventi il medesimo contrassegno;
 
-liste_naz <- aggregate(
-  CIFRA ~ LISTA,
-  liste_circ,
-  sum
+liste_naz <- merge(
+  liste_naz,
+  aggregate(
+    CIFRA ~ LISTA,
+    liste_circ,
+    sum
+  )
 )
 
 ##### Art. 83 comma 1 lettera b - totale naz ####
