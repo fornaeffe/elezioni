@@ -130,12 +130,12 @@ ammesse_pluri$ORDINE[!ammesse_pluri$ESCLUSE_PLURI] <- ave(
   FUN = seq_along
 )
 
-ammesse_pluri$SEGGIO_DA_RESTI <- 
+ammesse_pluri$SEGGIO_DA_RESTO <- 
   ammesse_pluri$ORDINE <= ammesse_pluri$DA_ASSEGNARE
-ammesse_pluri$SEGGIO_DA_RESTI[is.na(ammesse_pluri$SEGGIO_DA_RESTI)] <- FALSE
+ammesse_pluri$SEGGIO_DA_RESTO[is.na(ammesse_pluri$SEGGIO_DA_RESTO)] <- FALSE
 
 ammesse_pluri$SEGGI <- 
-  ammesse_pluri$PARTE_INTERA + ammesse_pluri$SEGGIO_DA_RESTI
+  ammesse_pluri$PARTE_INTERA + ammesse_pluri$SEGGIO_DA_RESTO
 
 # Successivamente l'ufficio accerta se il
 # numero dei seggi assegnati in tutti i collegi a ciascuna lista
@@ -180,14 +180,14 @@ ammesse_pluri <- merge(
 )
 
 ammesse_pluri$CEDE <- 
-  ammesse_pluri$SEGGI_ECCEDENTI > 0 & ammesse_pluri$SEGGIO_DA_RESTI
+  ammesse_pluri$SEGGI_ECCEDENTI > 0 & ammesse_pluri$SEGGIO_DA_RESTO
 
 ammesse_pluri$RICEVE <-
-  ammesse_pluri$SEGGI_ECCEDENTI < 0 & !ammesse_pluri$SEGGIO_DA_RESTI
+  ammesse_pluri$SEGGI_ECCEDENTI < 0 & !ammesse_pluri$SEGGIO_DA_RESTO
 
 ammesse_pluri <- ammesse_pluri[order(
   ammesse_pluri$CIRCOSCRIZIONE,
-  ammesse_pluri$SEGGIO_DA_RESTI,
+  ammesse_pluri$SEGGIO_DA_RESTO,
   ammesse_pluri$SEGGI_ECCEDENTI,
   ammesse_pluri$RESTO,
   decreasing = c(FALSE, TRUE, TRUE, FALSE)
@@ -209,7 +209,7 @@ ammesse_pluri$CEDUTO[is.na(ammesse_pluri$CEDUTO)] <- FALSE
 
 ammesse_pluri <- ammesse_pluri[order(
   ammesse_pluri$CIRCOSCRIZIONE,
-  ammesse_pluri$SEGGIO_DA_RESTI,
+  ammesse_pluri$SEGGIO_DA_RESTO,
   ammesse_pluri$SEGGI_ECCEDENTI,
   ammesse_pluri$RESTO,
   decreasing = c(FALSE, FALSE, FALSE, TRUE)

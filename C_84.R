@@ -16,7 +16,7 @@ candidati_pluri <- candidati_pluri[
 ammesse_pluri$SEGGI <- ammesse_pluri$SEGGI_FLIPPER
 
 ammesse_pluri$DECIMALI_USATI <-
-  ammesse_pluri$SEGGIO_DA_RESTI + 
+  ammesse_pluri$SEGGIO_DA_RESTO + 
   ammesse_pluri$RICEVUTO - 
   ammesse_pluri$CEDUTO > 0
 

@@ -133,10 +133,10 @@ riparto_circ$ORDINE[!riparto_circ$ESCLUSE] <- ave(
   FUN = seq_along
 )
 
-riparto_circ$SEGGIO_DA_RESTI <- riparto_circ$ORDINE <= riparto_circ$DA_ASSEGNARE
-riparto_circ$SEGGIO_DA_RESTI[is.na(riparto_circ$SEGGIO_DA_RESTI)] <- FALSE
+riparto_circ$SEGGIO_DA_RESTO <- riparto_circ$ORDINE <= riparto_circ$DA_ASSEGNARE
+riparto_circ$SEGGIO_DA_RESTO[is.na(riparto_circ$SEGGIO_DA_RESTO)] <- FALSE
 
-riparto_circ$SEGGI <- riparto_circ$PARTE_INTERA + riparto_circ$SEGGIO_DA_RESTI
+riparto_circ$SEGGI <- riparto_circ$PARTE_INTERA + riparto_circ$SEGGIO_DA_RESTO
 
 # Successivamente l'Ufficio accerta
 #         se il numero dei seggi assegnati in tutte le circoscrizioni a
@@ -213,11 +213,11 @@ for (i in seq_along(riparto_naz$SOGGETTO_RIPARTO)) {
     riparto_circ$DEFICIT <- 
       riparto_circ$SOGGETTO_RIPARTO %in% riparto_naz$SOGGETTO_RIPARTO[
         riparto_naz$SEGGI_ECCEDENTI_CONTATORE < 0
-      ] & !riparto_circ$SEGGIO_DA_RESTI & riparto_circ$FLIPPER == 0
+      ] & !riparto_circ$SEGGIO_DA_RESTO & riparto_circ$FLIPPER == 0
     
     rc <- riparto_circ[
       riparto_circ$SOGGETTO_RIPARTO == s &
-        riparto_circ$SEGGIO_DA_RESTI & 
+        riparto_circ$SEGGIO_DA_RESTO & 
         riparto_circ$FLIPPER == 0,
     ]
     

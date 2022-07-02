@@ -120,11 +120,11 @@ ammesse_circ$ORDINE[!ammesse_circ$ESCLUSE] <- ave(
   FUN = seq_along
 )
 
-ammesse_circ$SEGGIO_DA_RESTI <- 
+ammesse_circ$SEGGIO_DA_RESTO <- 
   ammesse_circ$ORDINE <= ammesse_circ$DA_ASSEGNARE_COAL
-ammesse_circ$SEGGIO_DA_RESTI[is.na(ammesse_circ$SEGGIO_DA_RESTI)] <- FALSE
+ammesse_circ$SEGGIO_DA_RESTO[is.na(ammesse_circ$SEGGIO_DA_RESTO)] <- FALSE
 
-ammesse_circ$SEGGI <- ammesse_circ$PARTE_INTERA + ammesse_circ$SEGGIO_DA_RESTI
+ammesse_circ$SEGGI <- ammesse_circ$PARTE_INTERA + ammesse_circ$SEGGIO_DA_RESTO
 
 # Successivamente l'ufficio accerta se il numero dei
 # seggi assegnati in tutte le circoscrizioni a ciascuna lista
@@ -206,12 +206,12 @@ for (i in seq_along(ammesse_naz$LISTA)) {
       ammesse_circ$LISTA %in% ammesse_naz$LISTA[
         ammesse_naz$SEGGI_ECCEDENTI_CONTATORE < 0
       ] &
-      !ammesse_circ$SEGGIO_DA_RESTI &
+      !ammesse_circ$SEGGIO_DA_RESTO &
       ammesse_circ$FLIPPER == 0
     
     ac <- ammesse_circ[
       ammesse_circ$LISTA == l &
-        ammesse_circ$SEGGIO_DA_RESTI &
+        ammesse_circ$SEGGIO_DA_RESTO &
         ammesse_circ$FLIPPER == 0,
     ]
     

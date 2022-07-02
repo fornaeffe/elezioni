@@ -1,7 +1,7 @@
 library(readxl)
 library(stringr)
 
-camera_seggi <- 232 + 386
+totale_seggi <- 232 + 386
 
 #### Caricamento dati di voto camera #### 
 
@@ -185,3 +185,7 @@ source("C_77_1_il.R")
 source("C_83_1_ab.R")
 
 source("C_83_1_cd.R")
+
+source("C_83_1_e.R")
+
+source("C_83_1_f.R")

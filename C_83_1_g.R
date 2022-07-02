@@ -92,6 +92,6 @@ ammesse_naz$ORDINE <- ave(
   FUN = seq_along
 )
 
-ammesse_naz$SEGGIO_DA_RESTI <- ammesse_naz$ORDINE <= ammesse_naz$DA_ASSEGNARE
+ammesse_naz$SEGGIO_DA_RESTO <- ammesse_naz$ORDINE <= ammesse_naz$DA_ASSEGNARE
 
-ammesse_naz$SEGGI <- ammesse_naz$PARTE_INTERA + ammesse_naz$SEGGIO_DA_RESTI
+ammesse_naz$SEGGI <- ammesse_naz$PARTE_INTERA + ammesse_naz$SEGGIO_DA_RESTO

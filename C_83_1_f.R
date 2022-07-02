@@ -25,7 +25,7 @@
 # elettorale nazionale; a parita' di quest'ultima si procede a
 # sorteggio;
 
-seggi_proporzionale <- dati$camera_seggi - sum(candidati_uni$ELETTO)
+seggi_proporzionale <- totale_seggi - sum(candidati_uni$ELETTO) - 1
 
 liste_naz$SOGGETTO_RIPARTO <- NA
 
@@ -39,13 +39,13 @@ liste_naz$SOGGETTO_RIPARTO <- as.factor(liste_naz$SOGGETTO_RIPARTO)
 
 riparto_naz <- aggregate(
   CIFRA ~ SOGGETTO_RIPARTO,
-  data = liste_naz,
+  liste_naz,
   sum,
   subset = SOGLIA1M
 )
 
 totale_naz_riparto <- sum(riparto_naz$CIFRA)
-quoziente_elettorale_naz <- floor(totale_naz_riparto / seggi_proporzionale)
+quoziente_elettorale_naz <-totale_naz_riparto %/% seggi_proporzionale
 
 riparto_naz$PARTE_INTERA <- riparto_naz$CIFRA %/% quoziente_elettorale_naz
 riparto_naz$RESTO <- riparto_naz$CIFRA %% quoziente_elettorale_naz
@@ -58,6 +58,6 @@ riparto_naz <- riparto_naz[
 
 riparto_naz$ORDINE <- seq_along(riparto_naz$RESTO)
 
-riparto_naz$SEGGIO_DA_RESTI <- riparto_naz$ORDINE <= ancora_da_attribuire
+riparto_naz$SEGGIO_DA_RESTO <- riparto_naz$ORDINE <= ancora_da_attribuire
 
-riparto_naz$SEGGI <- riparto_naz$PARTE_INTERA + riparto_naz$SEGGIO_DA_RESTI
+riparto_naz$SEGGI <- riparto_naz$PARTE_INTERA + riparto_naz$SEGGIO_DA_RESTO

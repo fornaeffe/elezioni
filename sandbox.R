@@ -25,7 +25,7 @@ riparto_circ <- merge(
 )
 
 riparto_circ$DEFICIT <- 
-  riparto_circ$SEGGI_ECCEDENTI < 0 & !riparto_circ$SEGGIO_DA_RESTI
+  riparto_circ$SEGGI_ECCEDENTI < 0 & !riparto_circ$SEGGIO_DA_RESTO
 
 totali_circ <- merge(
   totali_circ,
@@ -46,7 +46,7 @@ riparto_circ <- merge(
 )
 
 riparto_circ$FLAG_ORDINE_ECC <- 
-  riparto_circ$SEGGI_ECCEDENTI > 0 & riparto_circ$SEGGIO_DA_RESTI
+  riparto_circ$SEGGI_ECCEDENTI > 0 & riparto_circ$SEGGIO_DA_RESTO
 
 riparto_circ <- riparto_circ[
   order(
@@ -74,5 +74,5 @@ totali_circ$DEFICIT_CONTATORE <- totali_circ$DEFICIT
 riparto_circ$CIRCOSCRIZIONE %in% riparto_circ$CIRCOSCRIZIONE[
   riparto_circ$SOGGETTO_RIPARTO %in% riparto_naz$SOGGETTO_RIPARTO[
     riparto_naz$SEGGI_ECCEDENTI_CONTATORE < 0
-  ] & ( riparto_circ$SEGGIO_DA_RESTI + riparto_circ$FLIPPER <= 0)
+  ] & ( riparto_circ$SEGGIO_DA_RESTO + riparto_circ$FLIPPER <= 0)
 ]
