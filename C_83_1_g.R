@@ -76,15 +76,12 @@ ammesse_naz <- merge(
   riparto_naz[, c("SOGGETTO_RIPARTO", "DA_ASSEGNARE")]
 )
 
-ammesse_naz <- ammesse_naz[
-  order(
-    ammesse_naz$SOGGETTO_RIPARTO,
-    ammesse_naz$RESTO,
-    ammesse_naz$CIFRA,
-    decreasing = c(FALSE, TRUE, TRUE),
-    method = "radix"
-  ),
-]
+ammesse_naz <- ammesse_naz[order(
+  ammesse_naz$SOGGETTO_RIPARTO,
+  ammesse_naz$RESTO,
+  ammesse_naz$CIFRA,
+  decreasing = c(FALSE, TRUE, TRUE)
+), ]
 
 ammesse_naz$ORDINE <- ave(
   seq_along(ammesse_naz$SOGGETTO_RIPARTO),
