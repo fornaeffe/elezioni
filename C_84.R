@@ -13,8 +13,6 @@ candidati_pluri <- candidati_pluri[
   !(candidati_pluri$CANDIDATO %in% candidati_uni$CANDIDATO[candidati_uni$ELETTO]),
 ]
 
-ammesse_pluri$SEGGI <- ammesse_pluri$SEGGI_FLIPPER
-
 ammesse_pluri$DECIMALI_USATI <-
   ammesse_pluri$SEGGIO_DA_DECIMALI + 
   ammesse_pluri$RICEVUTO - 

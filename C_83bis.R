@@ -78,7 +78,7 @@ ammesse_circ <- merge(
 )
 
 ammesse_circ$ESCLUSE_PLURI <- 
-  ammesse_circ$PARTE_INTERA_PLURI >= ammesse_circ$SEGGI_FLIPPER
+  ammesse_circ$PARTE_INTERA_PLURI >= ammesse_circ$SEGGI
 
 ammesse_pluri <- merge(
   ammesse_pluri,
@@ -147,7 +147,7 @@ ammesse_circ <- merge(
 )
 
 ammesse_circ$SEGGI_ECCEDENTI <- 
-  ammesse_circ$SEGGI_PLURI - ammesse_circ$SEGGI_FLIPPER
+  ammesse_circ$SEGGI_PLURI - ammesse_circ$SEGGI
 
 # In caso
 #   negativo, determina la lista che ha il maggior numero di seggi
@@ -222,7 +222,7 @@ ammesse_pluri$RICEVUTO <-
 
 ammesse_pluri$RICEVUTO[is.na(ammesse_pluri$RICEVUTO)] <- FALSE
 
-ammesse_pluri$SEGGI_FLIPPER <- 
+ammesse_pluri$SEGGI <- 
   ammesse_pluri$SEGGI - ammesse_pluri$CEDUTO + ammesse_pluri$RICEVUTO
 
 # 2. Di tutte le operazioni dell'Ufficio centrale circoscrizionale

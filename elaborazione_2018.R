@@ -6,7 +6,7 @@ totale_seggi <- 232 + 386
 #### Caricamento dati di voto camera #### 
 
 liste_comune <- read.csv2(
-  "camera-20180304_2.txt",
+  "dati_2018/camera-20180304_2.txt",
   colClasses = c(
     CIRCOSCRIZIONE = "factor",
     COLLEGIOPLURINOMINALE = "factor",
@@ -34,7 +34,7 @@ liste_comune$CANDIDATO[liste_comune$CANDIDATO == "CANDIDATO NON PRESENTE "] <-
 #### Caricamento elenco candidati plurinominale ####
 
 candidati_pluri <- read.csv2(
-  "WCamPluri.csv",
+  "dati_2018/WCamPluri.csv",
   col.names = c(
     "LISTA",
     "CIRCOSCRIZIONE",
@@ -86,20 +86,15 @@ candidati_pluri$CANDIDATO <- factor(
 
 #### Carico i dati dai fogli excel ####
 
-liste_naz <- read_excel("dati_2018.xlsx", "camera_liste")
+liste_naz <- read_excel("dati_2018/dati_2018.xlsx", "camera_liste")
 liste_naz$LISTA <- factor(liste_naz$LISTA, levels = levels(liste_comune$LISTA))
 
-totali_pluri <- read_excel("dati_2018.xlsx", "camera_pluri")
+totali_pluri <- read_excel("dati_2018/dati_2018.xlsx", "camera_pluri")
 
 #### Separo i dati della Val d'Aosta ####
 
 liste_comune_AOSTA <- liste_comune[liste_comune$CIRCOSCRIZIONE == "AOSTA",]
 liste_comune <- liste_comune[!(liste_comune$CIRCOSCRIZIONE == "AOSTA"),]
-
-#### Individuo i candidati delle liste di minoranza ####
-
-
-
 
 #### Creo altri data frame ####
 
@@ -202,3 +197,115 @@ source("C_83bis.R")
 source("C_84.R")
 
 source("C_85.R")
+
+#### Esportazione risultati ####
+
+liste_naz$CL <- as.character(liste_naz$COALIZIONE)
+liste_naz$CL[is.na(liste_naz$CL)] <- 
+  as.character(liste_naz$LISTA[is.na(liste_naz$CL)])
+
+liste_pluri <- merge(
+  liste_pluri,
+  liste_naz[,c("LISTA", "CL")]
+)
+
+liste_circ <- merge(
+  liste_circ,
+  liste_naz[,c("LISTA", "CL")]
+)
+
+liste_pluri <- merge(
+  liste_pluri,
+  ammesse_pluri[,c("COLLEGIOPLURINOMINALE", "LISTA", "ELETTI")],
+  all.x = TRUE
+)
+liste_pluri$ELETTI[is.na(liste_pluri$ELETTI)] <- 0
+
+liste_circ <- merge(
+  liste_circ,
+  aggregate(
+    ELETTI ~ CIRCOSCRIZIONE + LISTA,
+    liste_pluri,
+    sum
+  )
+)
+
+liste_naz <- merge(
+  liste_naz,
+  aggregate(
+    ELETTI ~ LISTA,
+    liste_circ,
+    sum
+  )
+)
+
+cl_pluri <- aggregate(
+  ELETTI ~ CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE + CL,
+  liste_pluri,
+  sum
+)
+
+cl_circ <- aggregate(
+  ELETTI ~ CIRCOSCRIZIONE + CL,
+  cl_pluri,
+  sum
+)
+
+cl_naz <- aggregate(
+  ELETTI ~ CL,
+  cl_circ,
+  sum
+)
+
+liste_pluri <- merge(
+  liste_pluri,
+  cl_pluri,
+  by = c("CIRCOSCRIZIONE", "COLLEGIOPLURINOMINALE", "CL"),
+  suffixes = c("", "_CL")
+)
+
+liste_circ <- merge(
+  liste_circ,
+  cl_circ,
+  by = c("CIRCOSCRIZIONE", "CL"),
+  suffixes = c("", "_CL")
+)
+
+liste_naz <- merge(
+  liste_naz,
+  cl_naz,
+  by = "CL",
+  suffixes = c("", "_CL")
+)
+
+write.csv2(
+  cl_naz,
+  "output/cl_naz.csv",
+  row.names = FALSE
+)
+write.csv2(
+  cl_circ,
+  "output/cl_circ.csv",
+  row.names = FALSE
+)
+write.csv2(
+  cl_pluri,
+  "output/cl_pluri.csv",
+  row.names = FALSE
+)
+
+write.csv2(
+  liste_naz[,c("LISTA", "ELETTI", "CL", "ELETTI_CL")],
+  "output/liste_naz.csv",
+  row.names = FALSE
+)
+write.csv2(
+  liste_circ[,c("CIRCOSCRIZIONE", "LISTA", "ELETTI", "CL", "ELETTI_CL")],
+  "output/liste_circ.csv",
+  row.names = FALSE
+)
+write.csv2(
+  liste_pluri[,c("CIRCOSCRIZIONE", "COLLEGIOPLURINOMINALE", "LISTA", "ELETTI", "CL", "ELETTI_CL")],
+  "output/liste_pluri.csv",
+  row.names = FALSE
+)

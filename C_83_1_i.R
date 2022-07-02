@@ -32,7 +32,7 @@ riparto_circ <- merge(
 )
 
 riparto_circ$QUOZIENTE_COAL <- 
-  riparto_circ$CIFRA_AMMESSE_AL_RIPARTO %/% riparto_circ$SEGGI_FLIPPER
+  riparto_circ$CIFRA_AMMESSE_AL_RIPARTO %/% riparto_circ$SEGGI
 
 # Divide quindi la cifra elettorale
 # circoscrizionale di ciascuna lista della coalizione per tale
@@ -89,7 +89,7 @@ riparto_circ <- merge(
 )
 
 riparto_circ$DA_ASSEGNARE_COAL <- 
-  riparto_circ$SEGGI_FLIPPER - riparto_circ$PARTE_INTERA_TOT
+  riparto_circ$SEGGI - riparto_circ$PARTE_INTERA_TOT
 
 ammesse_circ <- merge(
   ammesse_circ,
@@ -282,4 +282,4 @@ for (i in seq_along(ammesse_naz$LISTA)) {
   }
 }
 
-ammesse_circ$SEGGI_FLIPPER <- ammesse_circ$SEGGI + ammesse_circ$FLIPPER
+ammesse_circ$SEGGI <- ammesse_circ$SEGGI + ammesse_circ$FLIPPER

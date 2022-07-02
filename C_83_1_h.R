@@ -284,4 +284,4 @@ for (i in seq_along(riparto_naz$SOGGETTO_RIPARTO)) {
   }
 }
 
-riparto_circ$SEGGI_FLIPPER <- riparto_circ$SEGGI + riparto_circ$FLIPPER
+riparto_circ$SEGGI <- riparto_circ$SEGGI + riparto_circ$FLIPPER
