@@ -60,7 +60,7 @@ ammesse_pluri <- merge(
 )
 
 ammesse_pluri$PARTE_INTERA <- ammesse_pluri$CIFRA %/% ammesse_pluri$QUOZIENTE
-ammesse_pluri$RESTO <- ( ammesse_pluri$CIFRA / ammesse_pluri$QUOZIENTE ) %% 1
+ammesse_pluri$DECIMALI <- ( ammesse_pluri$CIFRA / ammesse_pluri$QUOZIENTE ) %% 1
 
 
 # I seggi che rimangono ancora da attribuire sono
@@ -115,7 +115,7 @@ ammesse_pluri <- ammesse_pluri[
     ammesse_pluri$CIRCOSCRIZIONE,
     ammesse_pluri$COLLEGIOPLURINOMINALE,
     ammesse_pluri$ESCLUSE_PLURI,
-    ammesse_pluri$RESTO,
+    ammesse_pluri$DECIMALI,
     ammesse_pluri$CIFRA_CIRC,
     decreasing = c(FALSE, FALSE, FALSE, TRUE, TRUE)
   ),
@@ -130,12 +130,12 @@ ammesse_pluri$ORDINE[!ammesse_pluri$ESCLUSE_PLURI] <- ave(
   FUN = seq_along
 )
 
-ammesse_pluri$SEGGIO_DA_RESTO <- 
+ammesse_pluri$SEGGIO_DA_DECIMALI <- 
   ammesse_pluri$ORDINE <= ammesse_pluri$DA_ASSEGNARE
-ammesse_pluri$SEGGIO_DA_RESTO[is.na(ammesse_pluri$SEGGIO_DA_RESTO)] <- FALSE
+ammesse_pluri$SEGGIO_DA_DECIMALI[is.na(ammesse_pluri$SEGGIO_DA_DECIMALI)] <- FALSE
 
 ammesse_pluri$SEGGI <- 
-  ammesse_pluri$PARTE_INTERA + ammesse_pluri$SEGGIO_DA_RESTO
+  ammesse_pluri$PARTE_INTERA + ammesse_pluri$SEGGIO_DA_DECIMALI
 
 # Successivamente l'ufficio accerta se il
 # numero dei seggi assegnati in tutti i collegi a ciascuna lista
@@ -180,16 +180,16 @@ ammesse_pluri <- merge(
 )
 
 ammesse_pluri$CEDE <- 
-  ammesse_pluri$SEGGI_ECCEDENTI > 0 & ammesse_pluri$SEGGIO_DA_RESTO
+  ammesse_pluri$SEGGI_ECCEDENTI > 0 & ammesse_pluri$SEGGIO_DA_DECIMALI
 
 ammesse_pluri$RICEVE <-
-  ammesse_pluri$SEGGI_ECCEDENTI < 0 & !ammesse_pluri$SEGGIO_DA_RESTO
+  ammesse_pluri$SEGGI_ECCEDENTI < 0 & !ammesse_pluri$SEGGIO_DA_DECIMALI
 
 ammesse_pluri <- ammesse_pluri[order(
   ammesse_pluri$CIRCOSCRIZIONE,
-  ammesse_pluri$SEGGIO_DA_RESTO,
+  ammesse_pluri$SEGGIO_DA_DECIMALI,
   ammesse_pluri$SEGGI_ECCEDENTI,
-  ammesse_pluri$RESTO,
+  ammesse_pluri$DECIMALI,
   decreasing = c(FALSE, TRUE, TRUE, FALSE)
 ),]
 
@@ -209,9 +209,9 @@ ammesse_pluri$CEDUTO[is.na(ammesse_pluri$CEDUTO)] <- FALSE
 
 ammesse_pluri <- ammesse_pluri[order(
   ammesse_pluri$CIRCOSCRIZIONE,
-  ammesse_pluri$SEGGIO_DA_RESTO,
+  ammesse_pluri$SEGGIO_DA_DECIMALI,
   ammesse_pluri$SEGGI_ECCEDENTI,
-  ammesse_pluri$RESTO,
+  ammesse_pluri$DECIMALI,
   decreasing = c(FALSE, FALSE, FALSE, TRUE)
 ),]
 

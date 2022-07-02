@@ -16,7 +16,7 @@ candidati_pluri <- candidati_pluri[
 ammesse_pluri$SEGGI <- ammesse_pluri$SEGGI_FLIPPER
 
 ammesse_pluri$DECIMALI_USATI <-
-  ammesse_pluri$SEGGIO_DA_RESTO + 
+  ammesse_pluri$SEGGIO_DA_DECIMALI + 
   ammesse_pluri$RICEVUTO - 
   ammesse_pluri$CEDUTO > 0
 
@@ -126,7 +126,7 @@ cerca_accettori <- function(
   
   accettori <- accettori[order(
     ammesse_pluri$DECIMALI_USATI[accettori],
-    ammesse_pluri$RESTO[accettori],
+    ammesse_pluri$DECIMALI[accettori],
     decreasing = c(FALSE, TRUE)
   )]
   
@@ -236,13 +236,13 @@ cerca_naz <- function(
   }
   
   circ_accettrici <- aggregate(
-    RESTO ~ CIRCOSCRIZIONE,
+    DECIMALI ~ CIRCOSCRIZIONE,
     ammesse_pluri[liste & decimali, ],
     max
   )
   
   circ_accettrici <- circ_accettrici[order(
-    circ_accettrici$RESTO,
+    circ_accettrici$DECIMALI,
     decreasing = TRUE
   ),]
   

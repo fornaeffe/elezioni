@@ -46,7 +46,7 @@ ammesse_circ <- merge(
 )
 
 ammesse_circ$PARTE_INTERA <- ammesse_circ$CIFRA %/% ammesse_circ$QUOZIENTE_COAL
-ammesse_circ$RESTO <- ( ammesse_circ$CIFRA / ammesse_circ$QUOZIENTE_COAL ) %% 1
+ammesse_circ$DECIMALI <- ( ammesse_circ$CIFRA / ammesse_circ$QUOZIENTE_COAL ) %% 1
 
 # I seggi che rimangono ancora da attribuire sono assegnati alle
 # liste seguendo la graduatoria decrescente delle parti decimali dei
@@ -105,7 +105,7 @@ ammesse_circ <- ammesse_circ[
     ammesse_circ$CIRCOSCRIZIONE,
     ammesse_circ$SOGGETTO_RIPARTO,
     ammesse_circ$ESCLUSE,
-    ammesse_circ$RESTO,
+    ammesse_circ$DECIMALI,
     ammesse_circ$CIFRA,
     decreasing = c(FALSE, FALSE, FALSE, TRUE, TRUE)
   ),
@@ -120,11 +120,11 @@ ammesse_circ$ORDINE[!ammesse_circ$ESCLUSE] <- ave(
   FUN = seq_along
 )
 
-ammesse_circ$SEGGIO_DA_RESTO <- 
+ammesse_circ$SEGGIO_DA_DECIMALI <- 
   ammesse_circ$ORDINE <= ammesse_circ$DA_ASSEGNARE_COAL
-ammesse_circ$SEGGIO_DA_RESTO[is.na(ammesse_circ$SEGGIO_DA_RESTO)] <- FALSE
+ammesse_circ$SEGGIO_DA_DECIMALI[is.na(ammesse_circ$SEGGIO_DA_DECIMALI)] <- FALSE
 
-ammesse_circ$SEGGI <- ammesse_circ$PARTE_INTERA + ammesse_circ$SEGGIO_DA_RESTO
+ammesse_circ$SEGGI <- ammesse_circ$PARTE_INTERA + ammesse_circ$SEGGIO_DA_DECIMALI
 
 # Successivamente l'ufficio accerta se il numero dei
 # seggi assegnati in tutte le circoscrizioni a ciascuna lista
@@ -206,12 +206,12 @@ for (i in seq_along(ammesse_naz$LISTA)) {
       ammesse_circ$LISTA %in% ammesse_naz$LISTA[
         ammesse_naz$SEGGI_ECCEDENTI_CONTATORE < 0
       ] &
-      !ammesse_circ$SEGGIO_DA_RESTO &
+      !ammesse_circ$SEGGIO_DA_DECIMALI &
       ammesse_circ$FLIPPER == 0
     
     ac <- ammesse_circ[
       ammesse_circ$LISTA == l &
-        ammesse_circ$SEGGIO_DA_RESTO &
+        ammesse_circ$SEGGIO_DA_DECIMALI &
         ammesse_circ$FLIPPER == 0,
     ]
     
@@ -226,7 +226,7 @@ for (i in seq_along(ammesse_naz$LISTA)) {
     ac <- ac[
       order(
         ac$DEFICIT_PRESENTE,
-        ac$RESTO,
+        ac$DECIMALI,
         decreasing = c(TRUE, FALSE)
       ),
     ]
@@ -251,7 +251,7 @@ for (i in seq_along(ammesse_naz$LISTA)) {
     )
     
     ac2 <- ac2[order(
-      ac2$RESTO,
+      ac2$DECIMALI,
       ac2$CIFRA_NAZ,
       decreasing = TRUE
     ),]

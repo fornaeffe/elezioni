@@ -10,7 +10,7 @@ totali_circ <- merge(
   totali_circ,
   aggregate(
     SEGGI ~ CIRCOSCRIZIONE,
-    data = dati$camera_pluri,
+    totali_pluri,
     sum
   )
 )
@@ -28,6 +28,7 @@ liste_circ <- merge(
     c(
       "LISTA",
       "SOGGETTO_RIPARTO",
+      "SOGLIA1M",
       "SOGLIA3M"
     )
   ]
@@ -67,7 +68,7 @@ riparto_circ <- merge(
 )
 
 riparto_circ$PARTE_INTERA <- riparto_circ$CIFRA %/% riparto_circ$QUOZIENTE
-riparto_circ$RESTO <- ( riparto_circ$CIFRA / riparto_circ$QUOZIENTE ) %% 1
+riparto_circ$DECIMALI <- ( riparto_circ$CIFRA / riparto_circ$QUOZIENTE ) %% 1
 
 # I seggi che rimangono ancora da
 # attribuire sono rispettivamente assegnati alle coalizioni di liste o
@@ -120,7 +121,7 @@ riparto_circ <- riparto_circ[
   order(
     riparto_circ$CIRCOSCRIZIONE,
     riparto_circ$ESCLUSE,
-    riparto_circ$RESTO,
+    riparto_circ$DECIMALI,
     riparto_circ$CIFRA_NAZ,
     decreasing = c(FALSE, FALSE, TRUE, TRUE),
     method = "radix"
@@ -133,10 +134,10 @@ riparto_circ$ORDINE[!riparto_circ$ESCLUSE] <- ave(
   FUN = seq_along
 )
 
-riparto_circ$SEGGIO_DA_RESTO <- riparto_circ$ORDINE <= riparto_circ$DA_ASSEGNARE
-riparto_circ$SEGGIO_DA_RESTO[is.na(riparto_circ$SEGGIO_DA_RESTO)] <- FALSE
+riparto_circ$SEGGIO_DA_DECIMALI <- riparto_circ$ORDINE <= riparto_circ$DA_ASSEGNARE
+riparto_circ$SEGGIO_DA_DECIMALI[is.na(riparto_circ$SEGGIO_DA_DECIMALI)] <- FALSE
 
-riparto_circ$SEGGI <- riparto_circ$PARTE_INTERA + riparto_circ$SEGGIO_DA_RESTO
+riparto_circ$SEGGI <- riparto_circ$PARTE_INTERA + riparto_circ$SEGGIO_DA_DECIMALI
 
 # Successivamente l'Ufficio accerta
 #         se il numero dei seggi assegnati in tutte le circoscrizioni a
@@ -213,11 +214,11 @@ for (i in seq_along(riparto_naz$SOGGETTO_RIPARTO)) {
     riparto_circ$DEFICIT <- 
       riparto_circ$SOGGETTO_RIPARTO %in% riparto_naz$SOGGETTO_RIPARTO[
         riparto_naz$SEGGI_ECCEDENTI_CONTATORE < 0
-      ] & !riparto_circ$SEGGIO_DA_RESTO & riparto_circ$FLIPPER == 0
+      ] & !riparto_circ$SEGGIO_DA_DECIMALI & riparto_circ$FLIPPER == 0
     
     rc <- riparto_circ[
       riparto_circ$SOGGETTO_RIPARTO == s &
-        riparto_circ$SEGGIO_DA_RESTO & 
+        riparto_circ$SEGGIO_DA_DECIMALI & 
         riparto_circ$FLIPPER == 0,
     ]
     
@@ -233,7 +234,7 @@ for (i in seq_along(riparto_naz$SOGGETTO_RIPARTO)) {
     rc <- rc[
       order(
         rc$DEFICIT_PRESENTE,
-        rc$RESTO,
+        rc$DECIMALI,
         decreasing = c(TRUE, FALSE)
       ),
     ]
@@ -251,7 +252,7 @@ for (i in seq_along(riparto_naz$SOGGETTO_RIPARTO)) {
     if (dim(rc2)[1] < 1) stop("Non ho a chi dare il seggio eccedente")
     
     rc2 <- rc2[order(
-      rc2$RESTO,
+      rc2$DECIMALI,
       rc2$CIFRA_NAZ,
       decreasing = TRUE
     ),]
