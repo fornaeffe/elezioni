@@ -36,18 +36,11 @@ totali_pluri <- merge(
     CIFRA ~ CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE,
     ammesse_pluri,
     sum
-  ),
-  by = c("CIRCOSCRIZIONE", "COLLEGIOPLURINOMINALE"),
-  suffixes = c("", "_AMMESSE_AL_RIPARTO")
-)
-
-totali_pluri <- merge(
-  totali_pluri,
-  dati$camera_pluri
+  )
 )
 
 totali_pluri$QUOZIENTE <-
-  totali_pluri$CIFRA_AMMESSE_AL_RIPARTO %/% totali_pluri$SEGGI
+  totali_pluri$CIFRA %/% totali_pluri$SEGGI
 
 # Divide quindi la cifra elettorale di collegio di ciascuna
 # lista per tale quoziente di collegio. La parte intera del quoziente

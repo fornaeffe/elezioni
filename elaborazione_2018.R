@@ -87,6 +87,7 @@ candidati_pluri$CANDIDATO <- factor(
 #### Carico i dati dai fogli excel ####
 
 liste_naz <- read_excel("dati_2018.xlsx", "camera_liste")
+liste_naz$LISTA <- factor(liste_naz$LISTA, levels = levels(liste_comune$LISTA))
 
 totali_pluri <- read_excel("dati_2018.xlsx", "camera_pluri")
 
@@ -193,3 +194,11 @@ source("C_83_1_f.R")
 source("C_83_1_g.R")
 
 source("C_83_1_h.R")
+
+source("C_83_1_i.R")
+
+source("C_83bis.R")
+
+source("C_84.R")
+
+source("C_85.R")

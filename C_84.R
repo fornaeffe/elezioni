@@ -7,7 +7,7 @@
 # ha diritto, i candidati compresi nella lista del collegio, secondo
 # l'ordine di presentazione.
 
-candidati_pluri <- dati$candidati_pluri
+candidati_pluri_backup <- candidati_pluri
 
 candidati_pluri <- candidati_pluri[
   !(candidati_pluri$CANDIDATO %in% candidati_uni$CANDIDATO[candidati_uni$ELETTO]),
