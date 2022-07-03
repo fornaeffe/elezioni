@@ -602,10 +602,13 @@ S_scrutinio <- function(
 #   attuazione prevedano una particolare tutela di tali minoranze
 #   linguistiche, i cui candidati siano stati proclamati eletti in almeno
 #   ((un quarto dei collegi uninominali della circoscrizione regionale ai
-#     sensi dell'articolo 16, con arrotondamento all'unita' superiore)). 
+#     sensi dell'articolo 16, con arrotondamento all'unita' superiore)).
+  
+  liste_circ$AMMESSA <-
+    liste_circ$SOGLIA3 | liste_circ$SOGLIA20 | liste_circ$SOGLIA_MINORANZA
 
   ammesse_circ <- liste_circ[
-    liste_circ$SOGLIA3 | liste_circ$SOGLIA20 | liste_circ$SOGLIA_MINORANZA,
+    liste_circ$AMMESSA,
     c(
       "CIRCOSCRIZIONE",
       "SOGGETTO_RIPARTO",
@@ -713,21 +716,142 @@ S_scrutinio <- function(
 # attribuire nel collegio plurinominale, ottenendo cosi' il quoziente
 #     elettorale di collegio. Nell'effettuare tale divisione non tiene
 # conto dell'eventuale parte frazionaria del quoziente cosi' ottenuto.
+  
+  liste_pluri <- merge(
+    liste_pluri,
+    liste_circ[, c("CIRCOSCRIZIONE", "LISTA", "AMMESSA")]
+  )
+  
+  ammesse_pluri <- liste_pluri[
+    liste_pluri$AMMESSA,
+    c(
+      "CIRCOSCRIZIONE",
+      "COLLEGIOPLURINOMINALE",
+      "LISTA",
+      "CIFRA",
+      "CIFRA_PERCENTUALE"
+    )
+  ]
+  
+  totali_pluri <- merge(
+    totali_pluri,
+    aggregate(
+      CIFRA ~ CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE,
+      ammesse_pluri,
+      sum
+    )
+  )
+  
+  totali_pluri$QUOZIENTE <-
+    totali_pluri$CIFRA %/% totali_pluri$SEGGI
+  
 # Divide poi la cifra elettorale di collegio di ciascuna lista per il
 # quoziente elettorale di collegio, ottenendo cosi' il quoziente di
 #     attribuzione. La parte intera del quoziente di attribuzione
-#     rappresenta il numero dei seggi da assegnare a ciascuna lista. I
-#     seggi che rimangono ancora da attribuire sono rispettivamente
+#     rappresenta il numero dei seggi da assegnare a ciascuna lista.
+  
+  ammesse_pluri <- merge(
+    ammesse_pluri,
+    totali_pluri[, c("CIRCOSCRIZIONE", "COLLEGIOPLURINOMINALE", "QUOZIENTE")]
+  )
+  
+  ammesse_pluri$PARTE_INTERA <- 
+    ammesse_pluri$CIFRA %/% ammesse_pluri$QUOZIENTE
+  ammesse_pluri$DECIMALI <- 
+    ( ammesse_pluri$CIFRA / ammesse_pluri$QUOZIENTE ) %% 1
+  
+#     I seggi che rimangono ancora da attribuire sono rispettivamente
 #     assegnati alle liste per le quali queste ultime divisioni hanno dato
 #     le maggiori parti decimali e, in caso di parita', alle liste che
 # hanno conseguito la maggiore cifra elettorale di collegio; a parita'
 #     di quest'ultima si procede a sorteggio. Esclude dall'attribuzione di
 #     cui al periodo precedente le liste alle quali e' stato gia'
 #     attribuito il numero di seggi ad esse assegnato a seguito delle
-#     operazioni di cui alle lettere a) e b). Successivamente l'ufficio
+#     operazioni di cui alle lettere a) e b).
+  
+  ammesse_circ <- merge(
+    ammesse_circ,
+    aggregate(
+      PARTE_INTERA ~ CIRCOSCRIZIONE + LISTA,
+      ammesse_pluri,
+      sum
+    ),
+    by = c("CIRCOSCRIZIONE", "LISTA"),
+    suffixes = c("", "_PLURI")
+  )
+  
+  ammesse_circ$ESCLUSE_PLURI <- 
+    ammesse_circ$PARTE_INTERA_PLURI >= ammesse_circ$SEGGI
+  
+  ammesse_pluri <- merge(
+    ammesse_pluri,
+    ammesse_circ[,c("CIRCOSCRIZIONE", "LISTA", "ESCLUSE_PLURI")]
+  )
+  
+  totali_pluri <- merge(
+    totali_pluri,
+    aggregate(
+      PARTE_INTERA ~ CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE,
+      ammesse_pluri,
+      sum
+    )
+  )
+  
+  totali_pluri$DA_ASSEGNARE <- totali_pluri$SEGGI - totali_pluri$PARTE_INTERA
+  
+  ammesse_pluri <- merge(
+    ammesse_pluri,
+    totali_pluri[,c("CIRCOSCRIZIONE", "COLLEGIOPLURINOMINALE", "DA_ASSEGNARE")]
+  )
+  
+  ammesse_pluri <- ammesse_pluri[
+    order(
+      ammesse_pluri$CIRCOSCRIZIONE,
+      ammesse_pluri$COLLEGIOPLURINOMINALE,
+      ammesse_pluri$ESCLUSE_PLURI,
+      ammesse_pluri$DECIMALI,
+      ammesse_pluri$CIFRA,
+      decreasing = c(FALSE, FALSE, FALSE, TRUE, TRUE)
+    ),
+  ]
+  
+  ammesse_pluri$ORDINE[!ammesse_pluri$ESCLUSE_PLURI] <- ave(
+    seq_along(ammesse_pluri$COLLEGIOPLURINOMINALE[!ammesse_pluri$ESCLUSE_PLURI]),
+    paste(
+      ammesse_pluri$CIRCOSCRIZIONE[!ammesse_pluri$ESCLUSE_PLURI],
+      ammesse_pluri$COLLEGIOPLURINOMINALE[!ammesse_pluri$ESCLUSE_PLURI]
+    ),
+    FUN = seq_along
+  )
+  
+  ammesse_pluri$SEGGIO_DA_DECIMALI <- 
+    ammesse_pluri$ORDINE <= ammesse_pluri$DA_ASSEGNARE
+  ammesse_pluri$SEGGIO_DA_DECIMALI[is.na(ammesse_pluri$SEGGIO_DA_DECIMALI)] <- 
+    FALSE
+  
+  ammesse_pluri$SEGGI <- 
+    ammesse_pluri$PARTE_INTERA + ammesse_pluri$SEGGIO_DA_DECIMALI
+  
+#  Successivamente l'ufficio
 # accerta se il numero dei seggi assegnati in tutti i collegi
 # plurinominali a ciascuna lista corrisponda al numero di seggi
-# determinato ai sensi delle lettere a) e b). In caso negativo,
+# determinato ai sensi delle lettere a) e b). 
+ 
+  ammesse_circ <- merge(
+    ammesse_circ,
+    aggregate(
+      SEGGI ~ CIRCOSCRIZIONE + LISTA,
+      ammesse_pluri,
+      sum
+    ),
+    by = c("CIRCOSCRIZIONE", "LISTA"),
+    suffixes = c("", "_PLURI")
+  )
+  
+  ammesse_circ$SEGGI_ECCEDENTI <- 
+    ammesse_circ$SEGGI_PLURI - ammesse_circ$SEGGI
+   
+#  In caso negativo,
 # determina la lista che ha il maggior numero di seggi eccedentari e, a
 # parita' di essi, la lista che tra queste ha ottenuto il seggio
 # eccedentario con la minore parte decimale del quoziente; sottrae
@@ -741,5 +865,66 @@ S_scrutinio <- function(
 # parte decimale del quoziente di attribuzione non utilizzata; ripete
 # quindi, in successione, tali operazioni sino alla assegnazione di
 # tutti i seggi eccedentari alle liste deficitarie.
+  
+  ammesse_pluri <- merge(
+    ammesse_pluri,
+    ammesse_circ[
+      ,
+      c("CIRCOSCRIZIONE", "LISTA", "SEGGI_ECCEDENTI")
+    ]
+  )
+  
+  ammesse_pluri$CEDE <- 
+    ammesse_pluri$SEGGI_ECCEDENTI > 0 & ammesse_pluri$SEGGIO_DA_DECIMALI
+  
+  ammesse_pluri$RICEVE <-
+    ammesse_pluri$SEGGI_ECCEDENTI < 0 & !ammesse_pluri$SEGGIO_DA_DECIMALI
+  
+  ammesse_pluri <- ammesse_pluri[order(
+    ammesse_pluri$CIRCOSCRIZIONE,
+    ammesse_pluri$SEGGIO_DA_DECIMALI,
+    ammesse_pluri$SEGGI_ECCEDENTI,
+    ammesse_pluri$DECIMALI,
+    decreasing = c(FALSE, TRUE, TRUE, FALSE)
+  ),]
+  
+  ammesse_pluri$ORDINE_CEDE[ammesse_pluri$CEDE] <- ave(
+    seq_along(ammesse_pluri$LISTA[ammesse_pluri$CEDE]),
+    paste(
+      ammesse_pluri$CIRCOSCRIZIONE,
+      ammesse_pluri$LISTA
+    )[ammesse_pluri$CEDE],
+    FUN = seq_along
+  )
+  
+  ammesse_pluri$CEDUTO <- 
+    ammesse_pluri$ORDINE_CEDE <= ammesse_pluri$SEGGI_ECCEDENTI
+  
+  ammesse_pluri$CEDUTO[is.na(ammesse_pluri$CEDUTO)] <- FALSE
+  
+  ammesse_pluri <- ammesse_pluri[order(
+    ammesse_pluri$CIRCOSCRIZIONE,
+    ammesse_pluri$SEGGIO_DA_DECIMALI,
+    ammesse_pluri$SEGGI_ECCEDENTI,
+    ammesse_pluri$DECIMALI,
+    decreasing = c(FALSE, FALSE, FALSE, TRUE)
+  ),]
+  
+  ammesse_pluri$ORDINE_RICEVE[ammesse_pluri$RICEVE] <- ave(
+    seq_along(ammesse_pluri$LISTA[ammesse_pluri$RICEVE]),
+    paste(
+      ammesse_pluri$CIRCOSCRIZIONE,
+      ammesse_pluri$LISTA
+    )[ammesse_pluri$RICEVE],
+    FUN = seq_along
+  )
+  
+  ammesse_pluri$RICEVUTO <- 
+    ammesse_pluri$ORDINE_RICEVE <= - ammesse_pluri$SEGGI_ECCEDENTI
+  
+  ammesse_pluri$RICEVUTO[is.na(ammesse_pluri$RICEVUTO)] <- FALSE
+  
+  ammesse_pluri$SEGGI <- 
+    ammesse_pluri$SEGGI - ammesse_pluri$CEDUTO + ammesse_pluri$RICEVUTO
   
 }
