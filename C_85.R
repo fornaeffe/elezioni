@@ -8,7 +8,7 @@
 #   uninominale)).
 
 for (i in 1:100) {
-  if (sum(ammesse_pluri$SEGGI != ammesse_pluri$ELETTI) > 0) stop(
+  if (sum(ammesse_pluri$SEGGI != ammesse_pluri$ELETTI) > 0) warning(
     "In alcuni collegi il numero di eletti non corrisponde al numero di seggi
   al termine dei subentri"
   )

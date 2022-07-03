@@ -1,3 +1,5 @@
+source("condivisi.R")
+
 S_scrutinio <- function(
   
   liste_uni,
@@ -927,4 +929,136 @@ S_scrutinio <- function(
   ammesse_pluri$SEGGI <- 
     ammesse_pluri$SEGGI - ammesse_pluri$CEDUTO + ammesse_pluri$RICEVUTO
   
+####   Art. 17-bis ####
+  
+#   ((1. Al termine delle operazioni di cui agli articoli precedenti,
+#     l'Ufficio elettorale regionale proclama eletti in ciascun collegio
+# plurinominale, nei limiti dei seggi ai quali ciascuna lista ha
+# diritto, i candidati compresi nella lista del collegio, secondo
+# l'ordine di presentazione.
+  
+  candidati_pluri_backup <- candidati_pluri
+  
+  candidati_pluri <- candidati_pluri[
+    !(candidati_pluri$CANDIDATO %in% candidati_uni$CANDIDATO[candidati_uni$ELETTO]),
+  ]
+  
+  ammesse_pluri$DECIMALI_USATI <-
+    ammesse_pluri$SEGGIO_DA_DECIMALI + 
+    ammesse_pluri$RICEVUTO - 
+    ammesse_pluri$CEDUTO > 0
+  
+  ammesse_pluri <- merge(
+    ammesse_pluri,
+    aggregate(
+      CANDIDATO ~ CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE + LISTA,
+      candidati_pluri,
+      length
+    ),
+    all.x = TRUE
+  )
+  
+  names(ammesse_pluri)[names(ammesse_pluri) == "CANDIDATO"] <- "CANDIDATI"
+  
+  ammesse_pluri$CANDIDATI[is.na(ammesse_pluri$CANDIDATI)] <- 0
+  
+  ammesse_pluri$ELETTI <- 
+    pmin(ammesse_pluri$SEGGI, ammesse_pluri$CANDIDATI)
+
+#     2. Qualora una lista abbia esaurito il numero dei candidati
+#     presentati in un collegio plurinominale e non sia quindi possibile
+#     attribuire tutti i seggi a essa spettanti in quel collegio, si
+#     applica l'articolo 84 del testo unico delle leggi recanti norme per
+# la elezione della Camera dei deputati, di cui al decreto del
+# Presidente della Repubblica 30 marzo 1957, n. 361, ad eccezione di
+# quanto previsto dai commi 4, 6 e 7.
+  
+  subentro()
+  subentro(livello = "pluri", uni = TRUE)
+  subentro(livello = "circ", uni = TRUE)
+  subentro(livello = "pluri", coal = TRUE)
+  subentro(livello = "circ", coal = TRUE)
+
+# 3. Nel caso di elezione in piu' collegi si applica quanto previsto
+#     dall'articolo 85 del testo unico delle leggi recanti norme per la
+# elezione della Camera dei deputati, di cui al decreto del Presidente
+# della Repubblica 30 marzo 1957, n. 361)).
+  for (i in 1:100) {
+    if (sum(ammesse_pluri$SEGGI != ammesse_pluri$ELETTI) > 0) warning(
+      "In alcuni collegi il numero di eletti non corrisponde al numero di seggi
+  al termine dei subentri"
+    )
+    
+    candidati_pluri$ELETTI <- NULL
+    
+    candidati_pluri <- merge(
+      candidati_pluri,
+      ammesse_pluri[,
+                    c(
+                      "CIRCOSCRIZIONE",
+                      "COLLEGIOPLURINOMINALE",
+                      "LISTA",
+                      "ELETTI",
+                      "CIFRA_PERCENTUALE"
+                    )
+      ]
+    )
+    
+    candidati_pluri <- candidati_pluri[order(
+      candidati_pluri$CIRCOSCRIZIONE,
+      candidati_pluri$COLLEGIOPLURINOMINALE,
+      candidati_pluri$LISTA,
+      candidati_pluri$NUMERO
+    ),]
+    
+    candidati_pluri$ORDINE <- ave(
+      seq_along(candidati_pluri$CANDIDATO),
+      paste(
+        candidati_pluri$CIRCOSCRIZIONE,
+        candidati_pluri$COLLEGIOPLURINOMINALE,
+        candidati_pluri$LISTA
+      ),
+      FUN = seq_along
+    )
+    
+    candidati_pluri$ELETTO <- candidati_pluri$ORDINE <= candidati_pluri$ELETTI
+    
+    candidati_pluri <- candidati_pluri[order(
+      candidati_pluri$CANDIDATO,
+      candidati_pluri$ELETTO,
+      candidati_pluri$CIFRA_PERCENTUALE,
+      decreasing = c(FALSE, TRUE, FALSE)
+    ),]
+    
+    if (sum(candidati_pluri$ELETTO & duplicated(candidati_pluri$CANDIDATO)) == 0)
+      break
+    
+    candidati_pluri <- candidati_pluri[
+      -which(candidati_pluri$ELETTO & duplicated(candidati_pluri$CANDIDATO)),
+    ]
+    
+    ammesse_pluri$CANDIDATI <- NULL
+    
+    ammesse_pluri <- merge(
+      ammesse_pluri,
+      aggregate(
+        CANDIDATO ~ CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE + LISTA,
+        candidati_pluri,
+        length
+      ),
+      all.x = TRUE
+    )
+    
+    names(ammesse_pluri)[names(ammesse_pluri) == "CANDIDATO"] <- "CANDIDATI"
+    ammesse_pluri$CANDIDATI[is.na(ammesse_pluri$CANDIDATI)] <- 0
+    
+    ammesse_pluri$ELETTI <- 
+      pmin(ammesse_pluri$SEGGI, ammesse_pluri$CANDIDATI)
+    
+    subentro()
+    subentro(livello = "pluri", uni = TRUE)
+    subentro(livello = "circ", uni = TRUE)
+    subentro(livello = "pluri", coal = TRUE)
+    subentro(livello = "circ", coal = TRUE)
+  }
 }
