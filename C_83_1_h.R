@@ -123,8 +123,7 @@ riparto_circ <- riparto_circ[
     riparto_circ$ESCLUSE,
     riparto_circ$DECIMALI,
     riparto_circ$CIFRA_NAZ,
-    decreasing = c(FALSE, FALSE, TRUE, TRUE),
-    method = "radix"
+    decreasing = c(FALSE, FALSE, TRUE, TRUE)
   ),
 ]
 

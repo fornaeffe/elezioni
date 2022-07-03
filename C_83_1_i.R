@@ -24,7 +24,7 @@ riparto_circ <- merge(
   riparto_circ,
   aggregate(
     CIFRA ~ CIRCOSCRIZIONE + SOGGETTO_RIPARTO,
-    data = ammesse_circ,
+    ammesse_circ,
     sum
   ),
   by = c("CIRCOSCRIZIONE", "SOGGETTO_RIPARTO"),

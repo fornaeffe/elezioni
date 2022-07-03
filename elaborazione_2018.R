@@ -91,6 +91,17 @@ liste_naz$LISTA <- factor(liste_naz$LISTA, levels = levels(liste_comune$LISTA))
 
 totali_pluri <- read_excel("dati_2018/dati_2018.xlsx", "camera_pluri")
 
+totali_pluri$CIRCOSCRIZIONE <- factor(
+  totali_pluri$CIRCOSCRIZIONE, 
+  levels = levels(liste_comune$CIRCOSCRIZIONE)
+)
+
+totali_pluri$COLLEGIOPLURINOMINALE <- factor(
+  totali_pluri$COLLEGIOPLURINOMINALE, 
+  levels = levels(liste_comune$COLLEGIOPLURINOMINALE)
+)
+
+
 #### Separo i dati della Val d'Aosta ####
 
 liste_comune_AOSTA <- liste_comune[liste_comune$CIRCOSCRIZIONE == "AOSTA",]

@@ -55,8 +55,6 @@ liste_naz$SOGLIA_MINORANZA <-
 
 liste_naz$SOGLIA1M <- liste_naz$SOGLIA1 | liste_naz$SOGLIA_MINORANZA
 
-#### Sono arrivato fino a qui
-
 coal_naz <- aggregate(
   CIFRA ~ COALIZIONE,
   data = liste_naz,
