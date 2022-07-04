@@ -219,6 +219,8 @@ if (
   ) > 0
 ) stop("Almeno un candidato uninominale ha voti diversi nello stesso comune")
 
+#### Controllo omonimie ####
+
 if (sum(table(candidati_uni$CANDIDATO) > 1) > 0) stop(
   "Omonimie nei candidati uninominali"
 )

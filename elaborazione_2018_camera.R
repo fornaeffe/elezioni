@@ -53,6 +53,46 @@ candidati_pluri$CANDIDATO <- str_remove(
 candidati_pluri$LISTA[candidati_pluri$LISTA == " +EUROPA"] <-
   "+EUROPA"
 
+candidati_pluri$CANDIDATO <- trimws(candidati_pluri$CANDIDATO)
+
+# Risolvo omonimie
+
+candidati_pluri$CANDIDATO[
+  candidati_pluri$CANDIDATO == "RIZZO MARCO" &
+    candidati_pluri$LISTA == "10 VOLTE MEGLIO"
+] <- "RIZZO MARCO 10"
+
+liste_comune$CANDIDATO[
+  liste_comune$CANDIDATO == "RIZZO MARCO" &
+    liste_comune$LISTA == "10 VOLTE MEGLIO"
+] <- "RIZZO MARCO 10"
+
+candidati_pluri$CANDIDATO[
+  candidati_pluri$CANDIDATO == "IORIO ALESSANDRO" &
+    candidati_pluri$LISTA == "ITALIA EUROPA INSIEME"
+] <- "IORIO ALESSANDRO IEI"
+
+candidati_pluri$CANDIDATO[
+  candidati_pluri$CANDIDATO == "SILVESTRI FRANCESCO" &
+    candidati_pluri$LISTA == "MOVIMENTO 5 STELLE"
+] <- "SILVESTRI FRANCESCO M5S"
+
+liste_comune$CANDIDATO[
+  liste_comune$CANDIDATO == "ROSSI MONICA" &
+    liste_comune$LISTA == "PARTITO REPUBBLICANO ITALIANO - ALA"
+] <- "ROSSI MONICA ALA"
+
+liste_comune$CANDIDATO[
+  liste_comune$CANDIDATO == "RUSSO GIOVANNI" &
+    liste_comune$LISTA == "IL POPOLO DELLA FAMIGLIA"
+] <- "RUSSO GIOVANNI PDF"
+
+liste_comune$CANDIDATO[
+  liste_comune$CANDIDATO == "MAURO GIOVANNI" &
+    liste_comune$LISTA == "PARTITO REPUBBLICANO ITALIANO - ALA"
+] <- "MAURO GIOVANNI ALA"
+
+# Uniformo i factor
 
 candidati_pluri$LISTA <- factor(
   candidati_pluri$LISTA, 
@@ -69,7 +109,7 @@ candidati_pluri$COLLEGIOPLURINOMINALE <- factor(
   levels = levels(liste_comune$COLLEGIOPLURINOMINALE)
 )
 
-candidati_pluri$CANDIDATO <- trimws(candidati_pluri$CANDIDATO)
+
 
 #### Unico factor per i candidati ####
 
@@ -87,6 +127,10 @@ candidati_pluri$CANDIDATO <- factor(
 #### Carico i dati dai fogli excel ####
 
 liste_naz <- read_excel("dati_2018/dati_2018.xlsx", "camera_liste")
+
+liste_naz$CL <- liste_naz$COALIZIONE
+liste_naz$CL[is.na(liste_naz$CL)] <- liste_naz$LISTA[is.na(liste_naz$CL)]
+
 liste_naz$LISTA <- factor(liste_naz$LISTA, levels = levels(liste_comune$LISTA))
 
 totali_pluri <- read_excel("dati_2018/dati_2018.xlsx", "camera_pluri")
@@ -153,7 +197,7 @@ liste_uni <- merge(
 
 liste_uni <- merge(
   liste_uni,
-  liste_naz[,c("LISTA", "MINORANZA")]
+  liste_naz
 )
 
 liste_uni$CAND_MINORANZA <- liste_uni$MINORANZA &
@@ -176,147 +220,52 @@ if (
   ) > 0
 ) stop("Almeno un candidato uninominale ha voti diversi nello stesso comune")
 
+#### Controllo omonimie ####
+
+tab_cand_uni <- table(candidati_uni$CANDIDATO)
+if (sum(tab_cand_uni > 1) > 0) {
+  print(tab_cand_uni[tab_cand_uni > 1])
+  stop("Omonimie nei candidati uninominali")
+} 
+
+candidati_e_liste <- unique(candidati_pluri[, c("CANDIDATO", "LISTA")])
+tab_candidati <- table(candidati_e_liste$CANDIDATO)
+if (sum(tab_candidati > 1) > 0) {
+  print(tab_candidati[tab_candidati > 1])
+  stop("Omonimie nei candidati plurinominali")
+}
+
+
+
+candidati_pluri <- merge(
+  candidati_pluri,
+  liste_naz[, c("LISTA", "CL")]
+)
+
+candidati_pluri$OMONIMIA_UNI <- FALSE
+
+for (i in seq_along(candidati_pluri$OMONIMIA_UNI)) {
+  candidati_pluri$OMONIMIA_UNI[i] <- 
+    candidati_pluri$CANDIDATO[i] %in% liste_uni$CANDIDATO[
+      liste_uni$CL != candidati_pluri$CL[i]
+    ]
+}
+
+if (sum(candidati_pluri$OMONIMIA_UNI) > 0) {
+  print(candidati_pluri[candidati_pluri$OMONIMIA_UNI, ])
+  stop("Omonimie tra candidati uni e plurinominali")
+}
+
 
 ### Inizio applicazione della legge ###
 
-source("C_77_1_ab.R")
+source("C.R")
 
-source("C_77_1_c.R")
-
-source("C_77_1_def.R")
-
-source("C_77_1_gh.R")
-
-source("C_77_1_il.R")
-
-source("C_83_1_ab.R")
-
-source("C_83_1_cd.R")
-
-source("C_83_1_e.R")
-
-source("C_83_1_f.R")
-
-source("C_83_1_g.R")
-
-source("C_83_1_h.R")
-
-source("C_83_1_i.R")
-
-source("C_83bis.R")
-
-source("C_84.R")
-
-source("C_85.R")
-
-#### Esportazione risultati ####
-
-liste_naz$CL <- as.character(liste_naz$COALIZIONE)
-liste_naz$CL[is.na(liste_naz$CL)] <- 
-  as.character(liste_naz$LISTA[is.na(liste_naz$CL)])
-
-liste_pluri <- merge(
-  liste_pluri,
-  liste_naz[,c("LISTA", "CL")]
-)
-
-liste_circ <- merge(
-  liste_circ,
-  liste_naz[,c("LISTA", "CL")]
-)
-
-liste_pluri <- merge(
-  liste_pluri,
-  ammesse_pluri[,c("COLLEGIOPLURINOMINALE", "LISTA", "ELETTI")],
-  all.x = TRUE
-)
-liste_pluri$ELETTI[is.na(liste_pluri$ELETTI)] <- 0
-
-liste_circ <- merge(
-  liste_circ,
-  aggregate(
-    ELETTI ~ CIRCOSCRIZIONE + LISTA,
-    liste_pluri,
-    sum
-  )
-)
-
-liste_naz <- merge(
+risultato <- C_scrutinio(
+  liste_uni,
   liste_naz,
-  aggregate(
-    ELETTI ~ LISTA,
-    liste_circ,
-    sum
-  )
-)
-
-cl_pluri <- aggregate(
-  ELETTI ~ CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE + CL,
-  liste_pluri,
-  sum
-)
-
-cl_circ <- aggregate(
-  ELETTI ~ CIRCOSCRIZIONE + CL,
-  cl_pluri,
-  sum
-)
-
-cl_naz <- aggregate(
-  ELETTI ~ CL,
-  cl_circ,
-  sum
-)
-
-liste_pluri <- merge(
-  liste_pluri,
-  cl_pluri,
-  by = c("CIRCOSCRIZIONE", "COLLEGIOPLURINOMINALE", "CL"),
-  suffixes = c("", "_CL")
-)
-
-liste_circ <- merge(
-  liste_circ,
-  cl_circ,
-  by = c("CIRCOSCRIZIONE", "CL"),
-  suffixes = c("", "_CL")
-)
-
-liste_naz <- merge(
-  liste_naz,
-  cl_naz,
-  by = "CL",
-  suffixes = c("", "_CL")
-)
-
-write.csv2(
-  cl_naz,
-  "output/cl_naz.csv",
-  row.names = FALSE
-)
-write.csv2(
-  cl_circ,
-  "output/cl_circ.csv",
-  row.names = FALSE
-)
-write.csv2(
-  cl_pluri,
-  "output/cl_pluri.csv",
-  row.names = FALSE
-)
-
-write.csv2(
-  liste_naz[,c("LISTA", "ELETTI", "CL", "ELETTI_CL")],
-  "output/liste_naz.csv",
-  row.names = FALSE
-)
-write.csv2(
-  liste_circ[,c("CIRCOSCRIZIONE", "LISTA", "ELETTI", "CL", "ELETTI_CL")],
-  "output/liste_circ.csv",
-  row.names = FALSE
-)
-write.csv2(
-  liste_pluri[,c("CIRCOSCRIZIONE", "COLLEGIOPLURINOMINALE", "LISTA", "ELETTI", "CL", "ELETTI_CL")],
-  "output/liste_pluri.csv",
-  row.names = FALSE
+  candidati_uni,
+  candidati_pluri,
+  totali_pluri,
+  totale_seggi
 )
