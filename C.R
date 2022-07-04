@@ -1421,10 +1421,13 @@ C_scrutinio <- function(
     !(candidati_pluri$CANDIDATO %in% candidati_uni$CANDIDATO[candidati_uni$ELETTO]),
   ]
   
+  # ammesse_pluri$DECIMALI_USATI <-
+  #   ammesse_pluri$SEGGIO_DA_DECIMALI + 
+  #   ammesse_pluri$RICEVUTO - 
+  #   ammesse_pluri$CEDUTO > 0
+  
   ammesse_pluri$DECIMALI_USATI <-
-    ammesse_pluri$SEGGIO_DA_DECIMALI + 
-    ammesse_pluri$RICEVUTO - 
-    ammesse_pluri$CEDUTO > 0
+    ammesse_pluri$SEGGIO_DA_DECIMALI
   
   ammesse_pluri <- merge(
     ammesse_pluri,
@@ -1460,9 +1463,7 @@ C_scrutinio <- function(
   # 7
   #   naz     FALSE TRUE
   
-  source("condivisi.R")
-  
-  #   2. Qualora una lista abbia esaurito il numero dei candidati
+    #   2. Qualora una lista abbia esaurito il numero dei candidati
   #   presentati in un collegio plurinominale e non sia quindi possibile
   #   attribuire tutti i seggi a essa spettanti in quel collegio, l'Ufficio
   # centrale circoscrizionale assegna i seggi alla lista negli altri
