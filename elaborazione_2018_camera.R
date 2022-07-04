@@ -269,3 +269,48 @@ risultato <- C_scrutinio(
   totali_pluri,
   totale_seggi
 )
+
+#### Confronto con i dati di github.com/ondata/elezionipolitiche2018 ####
+
+camera_geopolitico_italia <- read.csv("dati_2018/camera_geopolitico_italia.txt")
+scrutiniCI_p <- read.csv("dati_2018/scrutiniCI_p.txt")
+scrutiniCI_p <- scrutiniCI_p[scrutiniCI_p$tipo_riga == "LI", ]
+scrutiniCI_p <- merge(
+  scrutiniCI_p,
+  camera_geopolitico_italia,
+  by.x = "codice",
+  by.y = "id",
+  all.x = TRUE
+)
+
+if (sum(!(
+  scrutiniCI_p$nome %in% levels(risultato$liste_pluri$COLLEGIOPLURINOMINALE)
+)) > 0) {
+  print(scrutiniCI_p[
+    !(scrutiniCI_p$nome %in% levels(risultato$liste_pluri$COLLEGIOPLURINOMINALE)),
+  ])
+  stop("I collegi plurinominali non combaciano")
+}
+
+
+if (sum(!(
+  scrutiniCI_p$descr_lista %in% levels(risultato$liste_pluri$LISTA)
+)) > 0) {
+  print(scrutiniCI_p[
+    !(scrutiniCI_p$descr_lista %in% levels(risultato$liste_pluri$LISTA)),
+  ])
+  stop("Le liste non combaciano")
+}
+
+confronto_pluri <- merge(
+  risultato$liste_pluri,
+  scrutiniCI_p[, c("nome", "descr_lista", "seggi")],
+  by.x = c("COLLEGIOPLURINOMINALE", "LISTA"),
+  by.y = c("nome", "descr_lista")
+)
+
+confronto_pluri$seggi[confronto_pluri$seggi == "-"] <- 0
+confronto_pluri$seggi <- as.numeric(confronto_pluri$seggi)
+
+confronto_pluri$CORRISPONDE <- confronto_pluri$ELETTI == confronto_pluri$seggi
+confronto_pluri[!confronto_pluri$CORRISPONDE, ]

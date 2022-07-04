@@ -10,3 +10,5 @@ descritti all'inizio della definizione della funzione.
 Il risultato è una lista di tre data frame, che potete trovare descritti alla
 fine della definizione della funzione.
 
+Dati sugli scrutini delle elezioni 2018 da 
+https://github.com/ondata/elezionipolitiche2018
