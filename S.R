@@ -1,4 +1,4 @@
-source("condivisi.R")
+
 
 S_scrutinio <- function(
   
@@ -32,12 +32,16 @@ S_scrutinio <- function(
   # NUMERO (integer)
   # CANDIDATO (factor)
   
-  totali_pluri
+  totali_pluri,
   # CIRCOSCRIZIONE (factor)
   # COLLEGIOPLURINOMINALE (factor)
   # SEGGI (numeric)
   
+  totale_seggi
+  
 ) {
+  
+  source("condivisi.R", local = TRUE)
   
 #### Art. 16 ####
   
@@ -1061,4 +1065,85 @@ S_scrutinio <- function(
     subentro(livello = "pluri", coal = TRUE)
     subentro(livello = "circ", coal = TRUE)
   }
+  
+  #### Preparazione del risultato ####
+  
+  candidati_pluri <- merge(
+    candidati_pluri_backup,
+    candidati_pluri[, c(
+      "CIRCOSCRIZIONE",
+      "COLLEGIOPLURINOMINALE",
+      "LISTA",
+      "NUMERO",
+      "CANDIDATO",
+      "ELETTO"
+    )],
+    all.x = TRUE
+  )
+  
+  candidati_pluri$ELETTO[is.na(candidati_pluri$ELETTO)] <- FALSE
+  
+  candidati_pluri$ELETTO_QUI_O_ALTROVE <-
+    candidati_pluri$CANDIDATO %in% candidati_pluri$CANDIDATO[
+      candidati_pluri$ELETTO
+    ] | candidati_pluri$CANDIDATO %in% candidati_uni$CANDIDATO[
+      candidati_uni$ELETTO
+    ]
+  
+  liste_pluri <- merge(
+    liste_pluri[, c(
+      "CIRCOSCRIZIONE",
+      "COLLEGIOPLURINOMINALE",
+      "LISTA"
+    )],
+    ammesse_pluri[, c(
+      "CIRCOSCRIZIONE",
+      "COLLEGIOPLURINOMINALE",
+      "LISTA",
+      "ELETTI"
+    )],
+    all.x = TRUE
+  )
+  
+  liste_pluri$ELETTI[is.na(liste_pluri$ELETTI)] <- 0
+  
+  liste_pluri <- merge(
+    liste_pluri,
+    aggregate(
+      NUMERO ~ CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE + LISTA,
+      candidati_pluri[candidati_pluri$ELETTO_QUI_O_ALTROVE,],
+      max
+    ),
+    all.x = TRUE
+  )
+  names(liste_pluri)[names(liste_pluri) == "NUMERO"] <- "NUMERO_MAX"
+  
+  #### Risultato ####
+  
+  return(list(
+    liste_pluri = liste_pluri[, c(
+      "CIRCOSCRIZIONE",
+      "COLLEGIOPLURINOMINALE",
+      "LISTA",
+      "ELETTI",
+      "NUMERO_MAX"
+    )],
+    candidati_uni = candidati_uni[, c(
+      "CIRCOSCRIZIONE",
+      "COLLEGIOPLURINOMINALE",
+      "COLLEGIOUNINOMINALE",
+      "CANDIDATO",
+      "ELETTO"
+    )],
+    candidati_pluri = candidati_pluri[, c(
+      "CIRCOSCRIZIONE",
+      "COLLEGIOPLURINOMINALE",
+      "LISTA",
+      "NUMERO",
+      "CANDIDATO",
+      "ELETTO",
+      "ELETTO_QUI_O_ALTROVE"
+    )]
+  ))
+  
 }

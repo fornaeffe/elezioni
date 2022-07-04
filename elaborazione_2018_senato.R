@@ -61,9 +61,34 @@ candidati_pluri$CANDIDATO <- str_remove(
   " DETT[AO] .*"
 )
 
+candidati_pluri$CANDIDATO <- trimws(candidati_pluri$CANDIDATO)
 
 candidati_pluri$LISTA[candidati_pluri$LISTA == " +EUROPA"] <-
   "+EUROPA"
+
+# Risolvo le omonimie
+
+candidati_pluri$CANDIDATO[
+  candidati_pluri$CANDIDATO == "COLOMBO DANIELA" &
+    candidati_pluri$LISTA == "+EUROPA"
+] <- "COLOMBO DANIELA +EUROPA"
+
+candidati_pluri$CANDIDATO[
+  candidati_pluri$CANDIDATO == "STACCIOLI MARINA" &
+    candidati_pluri$LISTA == "FRATELLI D'ITALIA CON GIORGIA MELONI"
+] <- "STACCIOLI MARINA FI"
+
+candidati_pluri$CANDIDATO[
+  candidati_pluri$CANDIDATO == "SANTANGELO VINCENZO" &
+    candidati_pluri$LISTA == "MOVIMENTO 5 STELLE"
+] <- "SANTANGELO VINCENZO M5S"
+
+candidati_pluri$CANDIDATO[
+  candidati_pluri$CANDIDATO == "PISANI GIUSEPPE" &
+    candidati_pluri$LISTA == "PARTITO VALORE UMANO"
+] <- "PISANI GIUSEPPE PVU"
+
+# Uniformo i factor
 
 candidati_pluri$LISTA <- factor(
   candidati_pluri$LISTA, 
@@ -80,7 +105,7 @@ candidati_pluri$COLLEGIOPLURINOMINALE <- factor(
   levels = levels(liste_comune$COLLEGIOPLURINOMINALE)
 )
 
-candidati_pluri$CANDIDATO <- trimws(candidati_pluri$CANDIDATO)
+
 
 #### Unico factor per i candidati ####
 
@@ -99,7 +124,13 @@ candidati_pluri$CANDIDATO <- factor(
 #### Carico i dati dai fogli excel ####
 
 liste_naz <- read_excel("dati_2018/dati_2018.xlsx", "senato_liste")
+
+liste_naz$CL <- liste_naz$COALIZIONE
+liste_naz$CL[is.na(liste_naz$CL)] <- liste_naz$LISTA[is.na(liste_naz$CL)]
+
 liste_naz$LISTA <- factor(liste_naz$LISTA, levels = levels(liste_comune$LISTA))
+
+
 
 totali_pluri <- read_excel("dati_2018/dati_2018.xlsx", "senato_pluri")
 
@@ -165,7 +196,7 @@ liste_uni <- merge(
 
 liste_uni <- merge(
   liste_uni,
-  liste_naz[,c("LISTA", "MINORANZA")]
+  liste_naz
 )
 
 liste_uni$CAND_MINORANZA <- liste_uni$MINORANZA &
@@ -187,4 +218,47 @@ if (
     ) > 1
   ) > 0
 ) stop("Almeno un candidato uninominale ha voti diversi nello stesso comune")
+
+if (sum(table(candidati_uni$CANDIDATO) > 1) > 0) stop(
+  "Omonimie nei candidati uninominali"
+)
+
+candidati_e_liste <- unique(candidati_pluri[, c("CANDIDATO", "LISTA")])
+tab_candidati <- table(candidati_e_liste$CANDIDATO)
+if (sum(tab_candidati > 1) > 0) {
+  print(tab_candidati[tab_candidati > 1])
+  stop("Omonimie nei candidati plurinominali")
+}
+
+candidati_pluri <- merge(
+  candidati_pluri,
+  liste_naz[, c("LISTA", "CL")]
+)
+
+candidati_pluri$OMONIMIA_UNI <- FALSE
+
+for (i in seq_along(candidati_pluri$OMONIMIA_UNI)) {
+  candidati_pluri$OMONIMIA_UNI[i] <- 
+    candidati_pluri$CANDIDATO[i] %in% liste_uni$CANDIDATO[
+      liste_uni$CL != candidati_pluri$CL[i]
+    ]
+}
+
+if (sum(candidati_pluri$OMONIMIA_UNI) > 0) {
+  print(candidati_pluri[candidati_pluri$OMONIMIA_UNI, ])
+  stop("Omonimie tra candidati uni e plurinominali")
+}
+
+source("S.R")
+
+risultato <- S_scrutinio(
+  liste_uni,
+  liste_naz,
+  candidati_uni,
+  candidati_pluri,
+  totali_pluri,
+  totale_seggi
+)
+
+
 
