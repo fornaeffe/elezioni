@@ -78,7 +78,7 @@ camera$seggi <- 400 - 8 - 1 # Tolgo i seggi per l'estero e la Val d'Aosta
 
 camera$popolazione <- sum(camera$circoscrizioni$POP_2011)
 
-camera$quoziente <- popolazione / camera$seggi
+camera$quoziente <- camera$popolazione / camera$seggi
 
 camera$circoscrizioni$PARTE_INTERA <- 
   camera$circoscrizioni$POP_2011 %/% camera$quoziente
@@ -149,7 +149,8 @@ camera$collegi_pluri <- merge(
 camera$collegi_pluri <- camera$collegi_pluri[order(
   camera$collegi_pluri$CIRCOSCRIZIONE,
   camera$collegi_pluri$RESTO,
-  decreasing = c("FALSE", "TRUE")
+  decreasing = c("FALSE", "TRUE"),
+  method = "radix"
 ), ]
 
 camera$collegi_pluri$ORDINE <- ave(
@@ -167,7 +168,30 @@ camera$collegi_pluri$SEGGI <-
 camera$collegi_pluri$SEGGI_PLURI <-
   camera$collegi_pluri$SEGGI - camera$collegi_pluri$COLLEGI_UNI
 
+##### Semplifico i dataframe #####
 
+camera$circoscrizioni <- camera$circoscrizioni[, c(
+  "CIRCOSCRIZIONE",
+  "POP_2011"
+)]
+
+camera$collegi_pluri <- camera$collegi_pluri[, c(
+  "CIRCOSCRIZIONE",
+  "COLLEGIOPLURINOMINALE",
+  "POP_2011",
+  "SEGGI_PLURI"
+)]
+
+camera$collegi_uni <- camera$collegi_uni[, c(
+  "CIRCOSCRIZIONE",
+  "COLLEGIOPLURINOMINALE",
+  "COLLEGIOUNINOMINALE",
+  "POP_2011"
+)]
+
+##### Elimino i dati inutili #####
+
+camera <- camera[c("circoscrizioni", "collegi_pluri", "collegi_uni")]
 
 
 #### Senato ####
@@ -263,7 +287,7 @@ senato$seggi <- 200 - 4 - 1 - 6
 
 senato$popolazione <- sum(senato$circoscrizioni$POP_2011)
 
-senato$quoziente <- popolazione / senato$seggi
+senato$quoziente <- senato$popolazione / senato$seggi
 
 senato$circoscrizioni$PARTE_INTERA <- 
   senato$circoscrizioni$POP_2011 %/% senato$quoziente
@@ -334,7 +358,8 @@ senato$collegi_pluri <- merge(
 senato$collegi_pluri <- senato$collegi_pluri[order(
   senato$collegi_pluri$CIRCOSCRIZIONE,
   senato$collegi_pluri$RESTO,
-  decreasing = c("FALSE", "TRUE")
+  decreasing = c("FALSE", "TRUE"),
+  method = "radix"
 ), ]
 
 senato$collegi_pluri$ORDINE <- ave(
@@ -352,4 +377,52 @@ senato$collegi_pluri$SEGGI <-
 senato$collegi_pluri$SEGGI_PLURI <-
   senato$collegi_pluri$SEGGI - senato$collegi_pluri$COLLEGI_UNI
 
+##### Semplifico i dataframe #####
 
+senato$circoscrizioni <- senato$circoscrizioni[, c(
+  "CIRCOSCRIZIONE",
+  "POP_2011"
+)]
+
+senato$collegi_pluri <- senato$collegi_pluri[, c(
+  "CIRCOSCRIZIONE",
+  "COLLEGIOPLURINOMINALE",
+  "POP_2011",
+  "SEGGI_PLURI"
+)]
+
+senato$collegi_uni <- senato$collegi_uni[, c(
+  "CIRCOSCRIZIONE",
+  "COLLEGIOPLURINOMINALE",
+  "COLLEGIOUNINOMINALE",
+  "POP_2011"
+)]
+
+
+
+##### Unisco nuovamente i dati TAA #####
+
+senato$collegi_pluri_TAA$SEGGI_PLURI <- 0
+
+senato$circoscrizioni <- rbind(
+  senato$circoscrizioni,
+  senato$circoscrizioni_TAA
+)
+
+senato$collegi_pluri <- rbind(
+  senato$collegi_pluri,
+  senato$collegi_pluri_TAA
+)
+
+senato$collegi_uni <- rbind(
+  senato$collegi_uni,
+  senato$collegi_uni_TAA
+)
+
+##### Elimino i dati inutili #####
+
+senato <- senato[c("circoscrizioni", "collegi_pluri", "collegi_uni")]
+
+#### Esporto i dati ####
+
+save(camera, senato, file = "dati_collegi/collegi.RData")
