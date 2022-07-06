@@ -256,8 +256,11 @@ if (sum(candidati_pluri$OMONIMIA_UNI) > 0) {
   stop("Omonimie tra candidati uni e plurinominali")
 }
 
+save(liste_uni, file = "dati_2018/C_liste_uni.RData")
+save(candidati_pluri, file = "dati_2018/C_candidati_pluri.RData")
 
-### Inizio applicazione della legge ###
+
+#### Inizio applicazione della legge ####
 
 source("C.R")
 

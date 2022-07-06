@@ -5,7 +5,7 @@ C_scrutinio <- function(
   # COLLEGIOPLURINOMINALE (factor)
   # COLLEGIOUNINOMINALE (factor)
   # CANDIDATO (factor)
-  # CAN_MINORANZA (logical)
+  # CAND_MINORANZA (logical)
   # LISTA (factor)
   # MINORANZA (logical)
   # VOTI_LISTA (integer)
@@ -66,7 +66,8 @@ C_scrutinio <- function(
     candidati_uni$COLLEGIOUNINOMINALE, 
     candidati_uni$VOTI_CANDIDATO,
     candidati_uni$DATA_NASCITA,
-    decreasing = c("FALSE", "FALSE", "FALSE", "TRUE", "TRUE")
+    decreasing = c("FALSE", "FALSE", "FALSE", "TRUE", "TRUE"),
+    method = "radix"
   ), ]
   
   candidati_uni$ELETTO <- !duplicated(candidati_uni$COLLEGIOUNINOMINALE)
@@ -157,7 +158,8 @@ C_scrutinio <- function(
     liste_uni$COLLEGIOUNINOMINALE,
     liste_uni$CANDIDATO,  
     liste_uni$RESTO,
-    decreasing = c("FALSE", "FALSE", "FALSE", "FALSE", "FALSE", "TRUE")
+    decreasing = c("FALSE", "FALSE", "FALSE", "FALSE", "FALSE", "TRUE"),
+    method = "radix"
   ), ]
   
   liste_uni$ORDINE <- ave(
@@ -326,16 +328,22 @@ C_scrutinio <- function(
   
   liste_circ$CIFRA_PERCENTUALE <- liste_circ$CIFRA / liste_circ$CIFRA_TOT * 100
   
-  liste_circ <- merge(
-    liste_circ,
-    aggregate(
-      ELETTO ~ CIRCOSCRIZIONE + LISTA,
-      liste_uni[liste_uni$CAND_MINORANZA,],
-      sum
-    ),
-    all.x = TRUE
-  )
-  names(liste_circ)[names(liste_circ) == "ELETTO"] <- "ELETTI_MINORANZA"
+  if (sum(liste_uni$CAND_MINORANZA) > 0) {
+    liste_circ <- merge(
+      liste_circ,
+      aggregate(
+        ELETTO ~ CIRCOSCRIZIONE + LISTA,
+        liste_uni[liste_uni$CAND_MINORANZA,],
+        sum
+      ),
+      all.x = TRUE
+    )
+    names(liste_circ)[names(liste_circ) == "ELETTO"] <- "ELETTI_MINORANZA"
+  } else {
+    liste_circ$ELETTI_MINORANZA <- 0
+  }
+  
+  
   liste_circ$ELETTI_MINORANZA[is.na(liste_circ$ELETTI_MINORANZA)] <- 0
   
   
@@ -584,7 +592,8 @@ C_scrutinio <- function(
     ammesse_naz$SOGGETTO_RIPARTO,
     ammesse_naz$RESTO,
     ammesse_naz$CIFRA,
-    decreasing = c(FALSE, TRUE, TRUE)
+    decreasing = c(FALSE, TRUE, TRUE),
+    method = "radix"
   ), ]
   
   ammesse_naz$ORDINE <- ave(
@@ -722,7 +731,8 @@ C_scrutinio <- function(
       riparto_circ$ESCLUSE,
       riparto_circ$DECIMALI,
       riparto_circ$CIFRA_NAZ,
-      decreasing = c(FALSE, FALSE, TRUE, TRUE)
+      decreasing = c(FALSE, FALSE, TRUE, TRUE),
+      method = "radix"
     ),
   ]
   
@@ -836,7 +846,8 @@ C_scrutinio <- function(
         order(
           rc$DEFICIT_PRESENTE,
           rc$DECIMALI,
-          decreasing = c(TRUE, FALSE)
+          decreasing = c(TRUE, FALSE),
+          method = "radix"
         ),
       ]
       
@@ -996,7 +1007,8 @@ C_scrutinio <- function(
       ammesse_circ$ESCLUSE,
       ammesse_circ$DECIMALI,
       ammesse_circ$CIFRA,
-      decreasing = c(FALSE, FALSE, FALSE, TRUE, TRUE)
+      decreasing = c(FALSE, FALSE, FALSE, TRUE, TRUE),
+      method = "radix"
     ),
   ]
   
@@ -1285,7 +1297,8 @@ C_scrutinio <- function(
       ammesse_pluri$ESCLUSE_PLURI,
       ammesse_pluri$DECIMALI,
       ammesse_pluri$CIFRA_CIRC,
-      decreasing = c(FALSE, FALSE, FALSE, TRUE, TRUE)
+      decreasing = c(FALSE, FALSE, FALSE, TRUE, TRUE),
+      method = "radix"
     ),
   ]
   
@@ -1358,7 +1371,8 @@ C_scrutinio <- function(
     ammesse_pluri$SEGGIO_DA_DECIMALI,
     ammesse_pluri$SEGGI_ECCEDENTI,
     ammesse_pluri$DECIMALI,
-    decreasing = c(FALSE, TRUE, TRUE, FALSE)
+    decreasing = c(FALSE, TRUE, TRUE, FALSE),
+    method = "radix"
   ),]
   
   ammesse_pluri$ORDINE_CEDE[ammesse_pluri$CEDE] <- ave(
@@ -1380,7 +1394,8 @@ C_scrutinio <- function(
     ammesse_pluri$SEGGIO_DA_DECIMALI,
     ammesse_pluri$SEGGI_ECCEDENTI,
     ammesse_pluri$DECIMALI,
-    decreasing = c(FALSE, FALSE, FALSE, TRUE)
+    decreasing = c(FALSE, FALSE, FALSE, TRUE),
+    method = "radix"
   ),]
   
   ammesse_pluri$ORDINE_RICEVE[ammesse_pluri$RICEVE] <- ave(
@@ -1606,7 +1621,8 @@ C_scrutinio <- function(
       candidati_pluri$CANDIDATO,
       candidati_pluri$ELETTO,
       candidati_pluri$CIFRA_PERCENTUALE,
-      decreasing = c(FALSE, TRUE, FALSE)
+      decreasing = c(FALSE, TRUE, FALSE),
+      method = "radix"
     ),]
     
     if (sum(candidati_pluri$ELETTO & duplicated(candidati_pluri$CANDIDATO)) == 0)
