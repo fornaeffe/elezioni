@@ -131,7 +131,7 @@ cerca_accettori_uni <- function(
       candidati_uni$ELETTO == FALSE &
       candidati_uni$CANDIDATO %in% liste_uni$CANDIDATO[
         liste_uni$LISTA == ammesse_pluri$LISTA[i]
-      ]
+      ] & !candidati_uni$RIPESCATO
   )
   
   accettori <- accettori[order(
@@ -144,27 +144,34 @@ cerca_accettori_uni <- function(
   
   j <- accettori[1]
   
+  
+  df1 <- data.frame(
+    LISTA = ammesse_pluri$LISTA[i],
+    CIRCOSCRIZIONE = ammesse_pluri$CIRCOSCRIZIONE[i],
+    COLLEGIOPLURINOMINALE = ammesse_pluri$COLLEGIOPLURINOMINALE[i],
+    NUMERO = 1 + max(candidati_pluri$NUMERO[
+      candidati_pluri$LISTA == ammesse_pluri$LISTA[i] &
+        candidati_pluri$COLLEGIOPLURINOMINALE == 
+        ammesse_pluri$COLLEGIOPLURINOMINALE[i]
+    ]),
+    CANDIDATO = candidati_uni$CANDIDATO[j],
+    DISPONIBILE = TRUE
+  )
+  
+  df1[setdiff(names(candidati_pluri), names(df1))] <- NA
+  
   candidati_pluri <<- rbind(
     candidati_pluri,
-    data.frame(
-      LISTA = ammesse_pluri$LISTA[i],
-      CIRCOSCRIZIONE = ammesse_pluri$CIRCOSCRIZIONE[i],
-      COLLEGIOPLURINOMINALE = ammesse_pluri$COLLEGIOPLURINOMINALE[i],
-      NUMERO = 1 + max(candidati_pluri$NUMERO[
-        candidati_pluri$LISTA == ammesse_pluri$LISTA[i] &
-          candidati_pluri$COLLEGIOPLURINOMINALE == 
-          ammesse_pluri$COLLEGIOPLURINOMINALE[i]
-      ]),
-      CANDIDATO = candidati_uni$CANDIDATO[j]
-    )
+    df1
   )
   
   ammesse_pluri$CANDIDATI[i] <<- ammesse_pluri$CANDIDATI[i] + 1
   ammesse_pluri$ELETTI[i] <<- ammesse_pluri$ELETTI[i] + 1
+  candidati_uni$RIPESCATO[j] <<- TRUE
   
   cat(
     "Ho ripescato",
-    as.character(candidati_uni$CANDIDATO[accettori[j]]),
+    as.character(candidati_uni$CANDIDATO[j]),
     "\n"
   )
   

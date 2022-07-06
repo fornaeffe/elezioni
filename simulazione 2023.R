@@ -132,7 +132,9 @@ sd_pluri <- median(liste_pluri_2018$PERCENTUALE_SD, na.rm = TRUE)
 #### Calcolo la percentuale di pluricandidature ####
 
 cand <- c(liste_uni_2018$CANDIDATO, candidati_pluri_2018$CANDIDATO)
-prob_pluricand <- sum(duplicated(cand)) / length(candidati_pluri_2018$CANDIDATO)
+prob_pluricand <- sum(
+  duplicated(cand)) / length(candidati_pluri_2018$CANDIDATO
+) / 10
 
 #### Calcolo il numero massimo di candidati per collegio pluri ####
 camera$collegi_pluri$CANDIDATI_MAX <- 
@@ -146,7 +148,7 @@ camera$candidati <- data.frame(
 )
 
 camera$candidati$CANDIDATO <- 
-  paste(camera$candidati$LISTA, seq_along(camera$candidati$LISTA))
+  factor(paste(camera$candidati$LISTA, seq_along(camera$candidati$LISTA)))
 
 
 #### Preparo i data frame delle liste ai diversi livelli ####
@@ -198,7 +200,10 @@ camera$liste_pluri$PERC_GREZZA <- plogis(rnorm(
 
 camera$liste_pluri$PERCENTUALE_PLURI <- ave(
   camera$liste_pluri$PERC_GREZZA,
-  camera$liste_pluri$CIRCOSCRIZIONE,
+  paste(
+    camera$liste_pluri$CIRCOSCRIZIONE,
+    camera$liste_pluri$COLLEGIOPLURINOMINALE
+  ),
   FUN = function(x) x / sum(x)
 )
 
@@ -217,12 +222,17 @@ camera$liste_uni$PERC_GREZZA <- plogis(rnorm(
 
 camera$liste_uni$PERCENTUALE_UNI <- ave(
   camera$liste_uni$PERC_GREZZA,
-  camera$liste_uni$CIRCOSCRIZIONE,
+  paste(
+    camera$liste_uni$CIRCOSCRIZIONE,
+    camera$liste_uni$COLLEGIOPLURINOMINALE,
+    camera$liste_uni$COLLEGIOUNINOMINALE
+  ),
   FUN = function(x) x / sum(x)
 )
 
 camera$liste_uni$VOTI_LISTA <- 
   camera$liste_uni$POP_2011 * camera$liste_uni$PERCENTUALE_UNI
+
 
 #### Sorteggio i candidati ####
 
@@ -234,7 +244,8 @@ camera$candidati_uni <- unique(camera$liste_uni[, c(
 )])
 
 camera$candidati$SCELTO_UNI <- FALSE
-camera$candidati_uni$CANDIDATO <- NA
+camera$candidati_uni$CANDIDATO <- 
+  factor(NA, levels = levels(camera$candidati$CANDIDATO))
 
 
 for (i in seq_along(camera$candidati_uni$CL)) {
@@ -246,6 +257,11 @@ for (i in seq_along(camera$candidati_uni$CL)) {
   camera$candidati_uni$CANDIDATO[i] <- camera$candidati$CANDIDATO[candidato]
   camera$candidati$SCELTO_UNI[candidato] <- TRUE
 }
+
+if (sum(duplicated(camera$candidati_uni$CANDIDATO)) > 0) stop(
+  "Candidati uninominali duplicati"
+)
+
 
 camera$candidati_pluri <- camera$liste_pluri[
   rep(
@@ -270,7 +286,8 @@ camera$candidati_pluri$NUMERO <- ave(
 )
 
 camera$candidati$SCELTO_PLURI <- 0
-camera$candidati_pluri$CANDIDATO <- NA
+camera$candidati_pluri$CANDIDATO <- 
+  factor(NA, levels = levels(camera$candidati$CANDIDATO))
 
 for (i in seq_along(camera$candidati_pluri$NUMERO)) {
   if (runif(1) < prob_pluricand) {
@@ -300,6 +317,9 @@ for (i in seq_along(camera$candidati_pluri$NUMERO)) {
   camera$candidati_pluri$CANDIDATO[i] <- camera$candidati$CANDIDATO[candidato]
   camera$candidati$SCELTO_PLURI[candidato] <- 1
 }
+
+# Debug
+table(table(camera$candidati_pluri$CANDIDATO))
 
 #### Preparo i data frame per lo scrutinio ####
 
@@ -362,4 +382,20 @@ risultato <- C_scrutinio(
   392
 )
 
+print(sum(risultato$liste_pluri$ELETTI))
+print(sum(risultato$candidati_pluri$ELETTO))
+print(sum(risultato$candidati_uni$ELETTO))
 
+liste_naz <- merge(
+  liste_naz,
+  aggregate(
+    ELETTO ~ LISTA,
+    risultato$candidati_pluri,
+    sum
+  ),
+  all.x = TRUE
+)
+barplot(
+  ELETTO ~ LISTA,
+  data = liste_naz
+)

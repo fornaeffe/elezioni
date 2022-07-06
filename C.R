@@ -890,8 +890,8 @@ C_scrutinio <- function(
         riparto_naz$SEGGI_ECCEDENTI_CONTATORE[riparto_naz$SOGGETTO_RIPARTO == s2] + 1
       
       cat(
-        "Tolgo un seggio a", levels(s)[s], "in", levels(c)[c],
-        "per darlo a", levels(s2)[s2], "in", levels(c2)[c2], "\n"
+        "Tolgo un seggio a", as.character(s), "in", as.character(c),
+        "per darlo a", as.character(s2), "in", as.character(c2), "\n"
       )
     }
   }
@@ -1177,8 +1177,8 @@ C_scrutinio <- function(
         ammesse_naz$SEGGI_ECCEDENTI_CONTATORE[ammesse_naz$LISTA == l2] - 1
       
       cat(
-        "Tolgo un seggio a", levels(l)[l], "in", levels(c)[c],
-        "per darlo a", levels(l2)[l2], "in", levels(c2)[c2], "\n"
+        "Tolgo un seggio a", as.character(l), "in", as.character(c),
+        "per darlo a", as.character(l2), "in", as.character(c2), "\n"
       )
     }
   }
@@ -1430,11 +1430,11 @@ C_scrutinio <- function(
   # ha diritto, i candidati compresi nella lista del collegio, secondo
   # l'ordine di presentazione.
   
-  candidati_pluri_backup <- candidati_pluri
+  candidati_uni$RIPESCATO <- FALSE
   
-  candidati_pluri <- candidati_pluri[
-    !(candidati_pluri$CANDIDATO %in% candidati_uni$CANDIDATO[candidati_uni$ELETTO]),
-  ]
+  candidati_pluri$DISPONIBILE <- 
+    !(candidati_pluri$CANDIDATO %in% 
+        candidati_uni$CANDIDATO[candidati_uni$ELETTO])
   
   # ammesse_pluri$DECIMALI_USATI <-
   #   ammesse_pluri$SEGGIO_DA_DECIMALI + 
@@ -1447,14 +1447,14 @@ C_scrutinio <- function(
   ammesse_pluri <- merge(
     ammesse_pluri,
     aggregate(
-      CANDIDATO ~ CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE + LISTA,
+      DISPONIBILE ~ CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE + LISTA,
       candidati_pluri,
-      length
+      sum
     ),
     all.x = TRUE
   )
   
-  names(ammesse_pluri)[names(ammesse_pluri) == "CANDIDATO"] <- "CANDIDATI"
+  names(ammesse_pluri)[names(ammesse_pluri) == "DISPONIBILE"] <- "CANDIDATI"
   
   ammesse_pluri$CANDIDATI[is.na(ammesse_pluri$CANDIDATI)] <- 0
   
@@ -1599,38 +1599,49 @@ C_scrutinio <- function(
     )
     
     candidati_pluri <- candidati_pluri[order(
+      !candidati_pluri$DISPONIBILE,
       candidati_pluri$CIRCOSCRIZIONE,
       candidati_pluri$COLLEGIOPLURINOMINALE,
       candidati_pluri$LISTA,
       candidati_pluri$NUMERO
     ),]
     
-    candidati_pluri$ORDINE <- ave(
-      seq_along(candidati_pluri$CANDIDATO),
+    candidati_pluri$ORDINE <- NA
+    candidati_pluri$ORDINE[candidati_pluri$DISPONIBILE] <- ave(
+      seq_along(candidati_pluri$CANDIDATO[candidati_pluri$DISPONIBILE]),
       paste(
         candidati_pluri$CIRCOSCRIZIONE,
         candidati_pluri$COLLEGIOPLURINOMINALE,
         candidati_pluri$LISTA
-      ),
+      )[candidati_pluri$DISPONIBILE],
       FUN = seq_along
     )
     
-    candidati_pluri$ELETTO <- candidati_pluri$ORDINE <= candidati_pluri$ELETTI
+    candidati_pluri$ELETTO <- !is.na(candidati_pluri$ORDINE) &
+      candidati_pluri$ORDINE <= candidati_pluri$ELETTI
     
+
     candidati_pluri <- candidati_pluri[order(
+      candidati_pluri$DISPONIBILE,
       candidati_pluri$CANDIDATO,
       candidati_pluri$ELETTO,
       candidati_pluri$CIFRA_PERCENTUALE,
-      decreasing = c(FALSE, TRUE, FALSE),
+      decreasing = c(TRUE, FALSE, TRUE, FALSE),
       method = "radix"
     ),]
     
-    if (sum(candidati_pluri$ELETTO & duplicated(candidati_pluri$CANDIDATO)) == 0)
+    if (sum(candidati_pluri$ELETTO[candidati_pluri$DISPONIBILE] & 
+            duplicated(candidati_pluri$CANDIDATO[candidati_pluri$DISPONIBILE])) == 0)
       break
     
-    candidati_pluri <- candidati_pluri[
-      -which(candidati_pluri$ELETTO & duplicated(candidati_pluri$CANDIDATO)),
-    ]
+    indisponibili <- which(
+      candidati_pluri$ELETTO &
+        candidati_pluri$DISPONIBILE &
+        duplicated(candidati_pluri$CANDIDATO)
+    )
+    
+    candidati_pluri$ELETTO[indisponibili] <- FALSE
+    candidati_pluri$DISPONIBILE[indisponibili] <- FALSE
     
     ammesse_pluri$CANDIDATI <- NULL
     
@@ -1638,7 +1649,7 @@ C_scrutinio <- function(
       ammesse_pluri,
       aggregate(
         CANDIDATO ~ CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE + LISTA,
-        candidati_pluri,
+        candidati_pluri[candidati_pluri$DISPONIBILE, ],
         length
       ),
       all.x = TRUE
@@ -1667,18 +1678,18 @@ C_scrutinio <- function(
   
   #### Preparazione del risultato ####
   
-  candidati_pluri <- merge(
-    candidati_pluri_backup,
-    candidati_pluri[, c(
-      "CIRCOSCRIZIONE",
-      "COLLEGIOPLURINOMINALE",
-      "LISTA",
-      "NUMERO",
-      "CANDIDATO",
-      "ELETTO"
-    )],
-    all.x = TRUE
-  )
+  # candidati_pluri <- merge(
+  #   candidati_pluri_backup,
+  #   candidati_pluri[, c(
+  #     "CIRCOSCRIZIONE",
+  #     "COLLEGIOPLURINOMINALE",
+  #     "LISTA",
+  #     "NUMERO",
+  #     "CANDIDATO",
+  #     "ELETTO"
+  #   )],
+  #   all.x = TRUE
+  # )
   
   candidati_pluri$ELETTO[is.na(candidati_pluri$ELETTO)] <- FALSE
   
