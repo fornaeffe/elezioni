@@ -256,8 +256,127 @@ if (sum(candidati_pluri$OMONIMIA_UNI) > 0) {
   stop("Omonimie tra candidati uni e plurinominali")
 }
 
-save(liste_uni, file = "dati_2018/C_liste_uni.RData")
-save(candidati_pluri, file = "dati_2018/C_candidati_pluri.RData")
+#### Statistiche ###
+
+liste_pluri <- aggregate(
+  VOTI_LISTA ~ CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE + LISTA,
+  liste_uni,
+  sum
+)
+
+liste_circ <- aggregate(
+  VOTI_LISTA ~ CIRCOSCRIZIONE + LISTA,
+  liste_uni,
+  sum
+)
+
+liste_naz <- merge(
+  liste_naz, aggregate(
+    VOTI_LISTA ~ LISTA,
+    liste_uni,
+    sum
+  ),
+  all.x = TRUE
+)
+
+liste_circ <- merge(
+  liste_circ,
+  aggregate(
+    VOTI_LISTA ~ CIRCOSCRIZIONE,
+    liste_circ,
+    sum
+  ),
+  by = "CIRCOSCRIZIONE",
+  suffixes = c("", "_TOT")
+)
+
+liste_pluri <- merge(
+  liste_pluri,
+  aggregate(
+    VOTI_LISTA ~ COLLEGIOPLURINOMINALE,
+    liste_pluri,
+    sum
+  ),
+  by = "COLLEGIOPLURINOMINALE",
+  suffixes = c("", "_TOT")
+)
+
+liste_uni <- merge(
+  liste_uni,
+  aggregate(
+    VOTI_LISTA ~ COLLEGIOUNINOMINALE,
+    liste_uni,
+    sum
+  ),
+  by = "COLLEGIOUNINOMINALE",
+  suffixes = c("", "_TOT")
+)
+
+liste_naz$PERCENTUALE <- 
+  liste_naz$VOTI_LISTA / sum(liste_naz$VOTI_LISTA)
+
+liste_circ$PERCENTUALE <-
+  liste_circ$VOTI_LISTA / liste_circ$VOTI_LISTA_TOT
+
+liste_pluri$PERCENTUALE <-
+  liste_pluri$VOTI_LISTA / liste_pluri$VOTI_LISTA_TOT
+
+liste_uni$PERCENTUALE <-
+  liste_uni$VOTI_LISTA / liste_uni$VOTI_LISTA_TOT
+
+liste_pluri <- merge(
+  liste_pluri,
+  aggregate(
+    PERCENTUALE ~ CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE + LISTA,
+    liste_uni,
+    function(x) sd(qlogis(x))
+  ),
+  by = c("CIRCOSCRIZIONE", "COLLEGIOPLURINOMINALE", "LISTA"),
+  suffixes = c("", "_SD")
+)
+
+liste_circ <- merge(
+  liste_circ,
+  aggregate(
+    PERCENTUALE ~ CIRCOSCRIZIONE + LISTA,
+    liste_pluri,
+    function(x) sd(qlogis(x))
+  ),
+  by = c("CIRCOSCRIZIONE", "LISTA"),
+  suffixes = c("", "_SD")
+)
+
+liste_naz <- merge(
+  liste_naz,
+  aggregate(
+    PERCENTUALE ~ LISTA,
+    liste_circ,
+    function(x) sd(qlogis(x))
+  ),
+  by = "LISTA",
+  suffixes = c("", "_SD"),
+  all.x = TRUE
+)
+
+
+cat("Deviazione standard mediana del logit della percentuale di circoscrizione:\n") 
+print(median(liste_naz$PERCENTUALE_SD, na.rm = TRUE))
+cat("Deviazione standard mediana del logit della percentuale di collegio plurinominale:\n") 
+print(median(liste_circ$PERCENTUALE_SD, na.rm = TRUE))
+cat("Deviazione standard mediana del logit della percentuale di collegio uninominale:\n")
+print(median(liste_pluri$PERCENTUALE_SD, na.rm = TRUE))
+
+#### Calcolo la percentuale di pluricandidature ####
+cat(
+  "Frazione di candidature (oltre la prima), nei collegi plurinominali,",
+  " di persone già candidate in altri collegi uni o plurinominali\n",
+  sep = ""
+)
+print(sum(
+  duplicated(c(liste_uni$CANDIDATO, candidati_pluri$CANDIDATO))) / 
+  length(candidati_pluri$CANDIDATO
+))
+
 
 
 #### Inizio applicazione della legge ####

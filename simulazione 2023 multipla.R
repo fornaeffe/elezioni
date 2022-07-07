@@ -2,8 +2,10 @@
 
 iterazioni <- 200
 
-ampiezza_variazioni <- 2 # Rispetto alla variabilità geografica 2018
-freq_pluricandidature <- .2 
+sd_naz <- .4
+sd_circ <- .1
+sd_pluri <- .2
+prob_pluricand <- .2 
 
 #### Carico librerie e script ####
 
@@ -24,128 +26,10 @@ liste_naz$CL[is.na(liste_naz$CL)] <-
 
 load("dati_collegi/collegi.RData")
 
-load("dati_2018/C_liste_uni.RData")
-load("dati_2018/C_candidati_pluri.RData")
 
 names(camera$collegi_pluri)[names(camera$collegi_pluri) == "SEGGI_PLURI"] <-
   "SEGGI"
 
-#### Calcolo variabilità elezioni 2018 ####
-
-liste_uni_2018 <- liste_uni
-candidati_pluri_2018 <- candidati_pluri
-
-liste_pluri_2018 <- aggregate(
-  VOTI_LISTA ~ CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE + LISTA,
-  liste_uni_2018,
-  sum
-)
-
-liste_circ_2018 <- aggregate(
-  VOTI_LISTA ~ CIRCOSCRIZIONE + LISTA,
-  liste_uni_2018,
-  sum
-)
-
-liste_naz_2018 <- aggregate(
-  VOTI_LISTA ~ LISTA,
-  liste_uni_2018,
-  sum
-)
-
-liste_circ_2018 <- merge(
-  liste_circ_2018,
-  aggregate(
-    VOTI_LISTA ~ CIRCOSCRIZIONE,
-    liste_circ_2018,
-    sum
-  ),
-  by = "CIRCOSCRIZIONE",
-  suffixes = c("", "_TOT")
-)
-
-liste_pluri_2018 <- merge(
-  liste_pluri_2018,
-  aggregate(
-    VOTI_LISTA ~ COLLEGIOPLURINOMINALE,
-    liste_pluri_2018,
-    sum
-  ),
-  by = "COLLEGIOPLURINOMINALE",
-  suffixes = c("", "_TOT")
-)
-
-liste_uni_2018 <- merge(
-  liste_uni_2018,
-  aggregate(
-    VOTI_LISTA ~ COLLEGIOUNINOMINALE,
-    liste_uni_2018,
-    sum
-  ),
-  by = "COLLEGIOUNINOMINALE",
-  suffixes = c("", "_TOT")
-)
-
-liste_naz_2018$PERCENTUALE <- 
-  liste_naz_2018$VOTI_LISTA / sum(liste_naz_2018$VOTI_LISTA)
-
-liste_circ_2018$PERCENTUALE <-
-  liste_circ_2018$VOTI_LISTA / liste_circ_2018$VOTI_LISTA_TOT
-
-liste_pluri_2018$PERCENTUALE <-
-  liste_pluri_2018$VOTI_LISTA / liste_pluri_2018$VOTI_LISTA_TOT
-
-liste_uni_2018$PERCENTUALE <-
-  liste_uni_2018$VOTI_LISTA / liste_uni_2018$VOTI_LISTA_TOT
-
-liste_pluri_2018 <- merge(
-  liste_pluri_2018,
-  aggregate(
-    PERCENTUALE ~ CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE + LISTA,
-    liste_uni_2018,
-    function(x) sd(qlogis(x))
-  ),
-  by = c("CIRCOSCRIZIONE", "COLLEGIOPLURINOMINALE", "LISTA"),
-  suffixes = c("", "_SD")
-)
-
-liste_circ_2018 <- merge(
-  liste_circ_2018,
-  aggregate(
-    PERCENTUALE ~ CIRCOSCRIZIONE + LISTA,
-    liste_pluri_2018,
-    function(x) sd(qlogis(x))
-  ),
-  by = c("CIRCOSCRIZIONE", "LISTA"),
-  suffixes = c("", "_SD")
-)
-
-liste_naz_2018 <- merge(
-  liste_naz_2018,
-  aggregate(
-    PERCENTUALE ~ LISTA,
-    liste_circ_2018,
-    function(x) sd(qlogis(x))
-  ),
-  by = "LISTA",
-  suffixes = c("", "_SD")
-)
-
-
-sd_naz <- 
-  median(liste_naz_2018$PERCENTUALE_SD, na.rm = TRUE) * ampiezza_variazioni
-sd_circ <- 
-  median(liste_circ_2018$PERCENTUALE_SD, na.rm = TRUE) * ampiezza_variazioni
-sd_pluri <- 
-  median(liste_pluri_2018$PERCENTUALE_SD, na.rm = TRUE) * ampiezza_variazioni
-
-#### Calcolo la percentuale di pluricandidature ####
-
-cand <- c(liste_uni_2018$CANDIDATO, candidati_pluri_2018$CANDIDATO)
-# prob_pluricand <- sum(
-#   duplicated(cand)) / length(candidati_pluri_2018$CANDIDATO
-#   ) * freq_pluricandidature
-prob_pluricand <- freq_pluricandidature
 
 #### Calcolo il numero massimo di candidati per collegio pluri ####
 camera$collegi_pluri$CANDIDATI_MAX <- 
