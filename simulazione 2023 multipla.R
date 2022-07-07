@@ -263,8 +263,13 @@ for (j in seq_len(iterazioni)) {
   
   
   for (i in seq_along(camera$candidati_uni$CL)) {
+    lista <- sample(
+      liste_naz$LISTA[liste_naz$CL == camera$candidati_uni$CL[i]], 
+      1, 
+      prob = liste_naz$FRAZ_UNI[liste_naz$CL == camera$candidati_uni$CL[i]]
+    )
     candidato <- sample(which(
-      camera$candidati$CL == camera$candidati_uni$CL[i] &
+      camera$candidati$LISTA == lista &
         !camera$candidati$SCELTO_UNI
     ), 1)
     
@@ -648,13 +653,14 @@ if (iterazioni == 1) {
   )
   abline(v = 3.5, lty = "dotted")
 
-  nmax <- as.factor(c(res_liste_pluri_nmax[etichette_liste == "EV - SI", ]))
-  perc <- cut(
-    res_liste_pluri_percentuale[etichette_liste == "EV - SI", ] * 100,
-    0:20
+  nmax <- factor(
+    c(res_liste_pluri_nmax[etichette_liste == "EV - SI", ]),
+    levels = 0:4
   )
+  nmax[is.na(nmax)] <- 4
   spineplot(
-    nmax ~ perc, 
+    nmax ~ I(c(res_liste_pluri_percentuale[etichette_liste == "EV - SI", ]) * 100),
+    breaks = 20,
     col = hcl.colors(length(levels(nmax))),
     yaxlabels = NA,
     ylab = NA,
