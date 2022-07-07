@@ -658,10 +658,11 @@ if (iterazioni == 1) {
     levels = 0:4
   )
   nmax[is.na(nmax)] <- 4
+  colori <- c(hcl.colors(5)[-5], "#FFFFFF")
   spineplot(
     nmax ~ I(c(res_liste_pluri_percentuale[etichette_liste == "EV - SI", ]) * 100),
     breaks = 20,
-    col = hcl.colors(length(levels(nmax))),
+    col = colori,
     yaxlabels = NA,
     ylab = NA,
     xlab = "Percentuale nel collegio plurinominale",
@@ -673,9 +674,9 @@ if (iterazioni == 1) {
   mtext(side=3, line=1, mysubtitle)
   legend(
     "topleft",
-    legend = c("no eletti", levels(nmax)[-1]),
+    legend = levels(nmax)[-1],
     lwd = 10,
-    col = rev(hcl.colors(length(levels(nmax))))
+    col = rev(colori[-5])
   )
 }
 
