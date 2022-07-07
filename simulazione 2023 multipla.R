@@ -1,6 +1,9 @@
 #### Parametri ####
 
-iterazioni <- 100
+iterazioni <- 200
+
+ampiezza_variazioni <- 2 # Rispetto alla variabilità geografica 2018
+freq_pluricandidature <- .2 
 
 #### Carico librerie e script ####
 
@@ -129,16 +132,20 @@ liste_naz_2018 <- merge(
 )
 
 
-sd_naz <- median(liste_naz_2018$PERCENTUALE_SD, na.rm = TRUE)
-sd_circ <- median(liste_circ_2018$PERCENTUALE_SD, na.rm = TRUE)
-sd_pluri <- median(liste_pluri_2018$PERCENTUALE_SD, na.rm = TRUE)
+sd_naz <- 
+  median(liste_naz_2018$PERCENTUALE_SD, na.rm = TRUE) * ampiezza_variazioni
+sd_circ <- 
+  median(liste_circ_2018$PERCENTUALE_SD, na.rm = TRUE) * ampiezza_variazioni
+sd_pluri <- 
+  median(liste_pluri_2018$PERCENTUALE_SD, na.rm = TRUE) * ampiezza_variazioni
 
 #### Calcolo la percentuale di pluricandidature ####
 
 cand <- c(liste_uni_2018$CANDIDATO, candidati_pluri_2018$CANDIDATO)
-prob_pluricand <- sum(
-  duplicated(cand)) / length(candidati_pluri_2018$CANDIDATO
-  ) / 10
+# prob_pluricand <- sum(
+#   duplicated(cand)) / length(candidati_pluri_2018$CANDIDATO
+#   ) * freq_pluricandidature
+prob_pluricand <- freq_pluricandidature
 
 #### Calcolo il numero massimo di candidati per collegio pluri ####
 camera$collegi_pluri$CANDIDATI_MAX <- 
@@ -416,7 +423,82 @@ for (j in seq_len(iterazioni)) {
     risultato$liste_pluri$LISTA
   ),]
   
+  risultato$liste_naz <- aggregate(
+    VOTI_LISTA ~ LISTA,
+    risultato$liste_pluri,
+    sum
+  )
+  
+  risultato$liste_naz$PERCENTUALE <- 
+    risultato$liste_naz$VOTI_LISTA / sum(risultato$liste_naz$VOTI_LISTA)
+  
+  risultato$liste_naz <- merge(
+    risultato$liste_naz,
+    aggregate(
+      ELETTI ~ LISTA,
+      risultato$liste_pluri,
+      sum
+    )
+  )
+  
+  risultato$liste_naz <- merge(
+    risultato$liste_naz,
+    liste_naz[, c("LISTA", "CL")]
+  )
+  
+  risultato$liste_naz <- risultato$liste_naz[order(
+    risultato$liste_naz$LISTA
+  ), ]
+  
+  risultato$candidati_uni <- merge(
+    risultato$candidati_uni,
+    camera$candidati_uni[, c("CANDIDATO", "CL")]
+  )
+  
+  risultato$candidati_uni <- risultato$candidati_uni[order(
+    risultato$candidati_uni$CIRCOSCRIZIONE,
+    risultato$candidati_uni$COLLEGIOPLURINOMINALE,
+    risultato$candidati_uni$COLLEGIOUNINOMINALE,
+    risultato$candidati_uni$CANDIDATO
+  ), ]
+  
+  risultato$cl_naz <- aggregate(
+    VOTI_LISTA ~ CL,
+    risultato$liste_naz,
+    sum
+  )
+  
+  risultato$cl_naz$PERCENTUALE <- 
+    risultato$cl_naz$VOTI_LISTA / sum(risultato$cl_naz$VOTI_LISTA)
+  
+  risultato$cl_naz <- merge(
+    risultato$cl_naz,
+    aggregate(
+      ELETTI ~ CL,
+      risultato$liste_naz,
+      sum
+    )
+  )
+  
+  risultato$cl_naz <- merge(
+    risultato$cl_naz,
+    aggregate(
+      ELETTO ~ CL,
+      risultato$candidati_uni,
+      sum
+    )
+  )
+  
+  risultato$cl_naz$ELETTI_TOT <- 
+    risultato$cl_naz$ELETTI + risultato$cl_naz$ELETTO
+  
+  risultato$cl_naz <- risultato$cl_naz[order(
+    risultato$cl_naz$CL
+  ), ]
+  
   if (j == 1) {
+    cat("j = ", j, "\n\n")
+    
     etichette_circ <- risultato$liste_pluri$CIRCOSCRIZIONE
     etichette_pluri <- risultato$liste_pluri$COLLEGIOPLURINOMINALE
     etichette_liste <- risultato$liste_pluri$LISTA
@@ -435,10 +517,61 @@ for (j in seq_len(iterazioni)) {
       ncol = 1,
       dimnames = list(paste(etichette_circ, etichette_pluri, etichette_liste))
     )
+    
+    res_liste_naz_percentuale <- matrix(
+      risultato$liste_naz$PERCENTUALE,
+      ncol = 1,
+      dimnames = list(risultato$liste_naz$LISTA)
+    )
+    
+    res_liste_naz_eletti <- matrix(
+      risultato$liste_naz$ELETTI,
+      ncol = 1,
+      dimnames = list(risultato$liste_naz$LISTA)
+    )
+    
+    res_cl_naz_percentuale <- matrix(
+      risultato$cl_naz$PERCENTUALE,
+      ncol = 1,
+      dimnames = list(risultato$cl_naz$CL)
+    )
+    
+    res_cl_naz_uni <- matrix(
+      risultato$cl_naz$ELETTO,
+      ncol = 1,
+      dimnames = list(risultato$cl_naz$CL)
+    )
+    
+    res_cl_naz_eletti <- matrix(
+      risultato$cl_naz$ELETTI_TOT,
+      ncol = 1,
+      dimnames = list(risultato$cl_naz$CL)
+    )
+    
   } else {
-    cbind(res_liste_pluri_eletti, risultato$liste_pluri$ELETTI)
-    cbind(res_liste_pluri_nmax, risultato$liste_pluri$NUMERO_MAX)
-    cbind(res_liste_pluri_percentuale, risultato$liste_pluri$PERCENTUALE)
+    res_liste_pluri_eletti <- 
+      cbind(res_liste_pluri_eletti, risultato$liste_pluri$ELETTI)
+    
+    res_liste_pluri_nmax <- 
+      cbind(res_liste_pluri_nmax, risultato$liste_pluri$NUMERO_MAX)
+    
+    res_liste_pluri_percentuale <- 
+      cbind(res_liste_pluri_percentuale, risultato$liste_pluri$PERCENTUALE)
+    
+    res_liste_naz_percentuale <- 
+      cbind(res_liste_naz_percentuale, risultato$liste_naz$PERCENTUALE)
+    
+    res_liste_naz_eletti <- 
+      cbind(res_liste_naz_eletti, risultato$liste_naz$ELETTI)
+    
+    res_cl_naz_percentuale <- 
+      cbind(res_cl_naz_percentuale, risultato$cl_naz$PERCENTUALE)
+    
+    res_cl_naz_uni <- 
+      cbind(res_cl_naz_uni, risultato$cl_naz$ELETTO)
+    
+    res_cl_naz_eletti <- 
+      cbind(res_cl_naz_eletti, risultato$cl_naz$ELETTI_TOT)
   }
 }
 
@@ -456,4 +589,87 @@ if (iterazioni == 1) {
     ELETTO ~ LISTA,
     data = liste_naz
   )
+} else {
+  plot(res_liste_naz_eletti ~ res_liste_naz_percentuale, col = 1:10)
+  legend(
+    "topleft",
+    legend = rownames(res_liste_naz_eletti),
+    pch = 1,
+    col = 1:10
+  )
+  
+  boxplot(t(res_cl_naz_eletti))
+  
+  plot(
+    res_cl_naz_eletti ~ I(res_cl_naz_percentuale * 100),
+    xlim = c(40, 60),
+    ylim = c(150, 250),
+    col = c("blue", "black", "orange"),
+    main = "Seggi alla Camera",
+    xlab = "Percentuale",
+    ylab = "Seggi"
+  )
+  legend(
+    "topleft",
+    legend = rownames(res_cl_naz_eletti),
+    pch = 1,
+    col = c("blue", "black", "orange")
+  )
+  abline(h = 391 / 2)
+  
+  print(
+    sum(res_cl_naz_eletti[rownames(res_cl_naz_eletti) == "DX",] > 391 / 2) / iterazioni
+  )
+  
+  print(
+    mean(res_liste_naz_eletti[rownames(res_liste_naz_eletti) == "Fratelli d'Italia",])
+  )
+  
+  print(
+    sum(res_liste_naz_eletti[rownames(res_liste_naz_eletti) == "EV - SI",] == 0) / iterazioni
+  )
+  
+  print(
+    mean(
+      res_liste_naz_eletti[
+        rownames(res_liste_naz_eletti) == "EV - SI",
+        res_liste_naz_eletti[rownames(res_liste_naz_eletti) == "EV - SI",] > 0
+      ]
+    )
+  )
+  
+  plot(
+    res_liste_naz_eletti[rownames(res_liste_naz_eletti) == "EV - SI",] ~
+      I(res_liste_naz_percentuale[rownames(res_liste_naz_percentuale) == "EV - SI",] * 100),
+    xlab = "Percentuale",
+    ylab = "Seggi",
+    main = "Seggi Camera (proporz.) di EV - SI",
+    col = "#00BB00"
+  )
+  abline(v = 3.5, lty = "dotted")
+
+  nmax <- as.factor(c(res_liste_pluri_nmax[etichette_liste == "EV - SI", ]))
+  perc <- cut(
+    res_liste_pluri_percentuale[etichette_liste == "EV - SI", ] * 100,
+    0:20
+  )
+  spineplot(
+    nmax ~ perc, 
+    col = hcl.colors(length(levels(nmax))),
+    yaxlabels = NA,
+    ylab = NA,
+    xlab = "Percentuale nel collegio plurinominale",
+    drop.unused.levels = TRUE
+  )
+  mytitle = "Probabilità di elezone in base al numero di listino"
+  mysubtitle = paste0("Fraz. pluricandature: ", format(prob_pluricand*100, digits = 2), "%")
+  mtext(side=3, line=2, cex = 1.5, mytitle)
+  mtext(side=3, line=1, mysubtitle)
+  legend(
+    "topleft",
+    legend = c("no eletti", levels(nmax)[-1]),
+    lwd = 10,
+    col = rev(hcl.colors(length(levels(nmax))))
+  )
 }
+

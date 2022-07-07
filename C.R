@@ -1728,6 +1728,8 @@ C_scrutinio <- function(
   )
   names(liste_pluri)[names(liste_pluri) == "NUMERO"] <- "NUMERO_MAX"
   
+  liste_pluri$NUMERO_MAX[is.na(liste_pluri$NUMERO_MAX)] <- 0
+  
   #### Risultato ####
   
   return(list(
