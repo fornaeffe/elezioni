@@ -372,9 +372,15 @@ cat(
   " di persone già candidate in altri collegi uni o plurinominali\n",
   sep = ""
 )
-print(sum(
-  duplicated(c(liste_uni$CANDIDATO, candidati_pluri$CANDIDATO))) / 
-  length(candidati_pluri$CANDIDATO
+print(sapply(
+  as.character(liste_naz$LISTA),
+  function(l) {
+    sum(duplicated(c(
+      liste_uni$CANDIDATO[liste_uni$LISTA == l],
+      candidati_pluri$CANDIDATO[candidati_pluri$LISTA == l]
+    ))) /
+      length(candidati_pluri$CANDIDATO[candidati_pluri$LISTA == l])
+  }
 ))
 
 

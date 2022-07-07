@@ -1,5 +1,8 @@
 #### Parametri ####
 
+# Scenario
+scenario <- "01"
+
 # Numero di iterazioni
 iterazioni <- 200
 
@@ -18,7 +21,7 @@ source("C.R")
 
 
 
-liste_naz <- read_xlsx("dati_2023/dati_2023.xlsx")
+liste_naz <- read_xlsx(paste0("dati_2023/", scenario, ".xlsx"))
 liste_naz$CL <- as.character(liste_naz$COALIZIONE)
 liste_naz$CL[is.na(liste_naz$CL)] <- 
   as.character(liste_naz$LISTA[is.na(liste_naz$CL)])
@@ -388,41 +391,128 @@ for (j in seq_len(iterazioni)) {
   }
 }
 
-if (iterazioni == 1) {
-  liste_naz <- merge(
-    liste_naz,
-    aggregate(
-      ELETTO ~ LISTA,
-      scrutinio$candidati_pluri,
-      sum
-    ),
-    all.x = TRUE
-  )
-  barplot(
-    ELETTO ~ LISTA,
-    data = liste_naz
-  )
-} else {
-  plot(
-    ELETTI ~ PERCENTUALE,
-    data = risultato$liste_naz
-  )
-  
-  
-  boxplot(
-    ELETTI_TOT ~ CL,
-    data = risultato$cl_naz
-  )
-  
-  
-  lista <- "Movimento 5 Stelle"
+liste_naz$COL <- "#DDDDDD"
+liste_naz$COL[!is.na(liste_naz$COLORE)] <- 
+  hsv(liste_naz$COLORE[!is.na(liste_naz$COLORE)] / 360, 1, .8, 1)
 
+risultato$liste_naz$COL <- NULL
+risultato$liste_naz <- merge(
+  risultato$liste_naz,
+  liste_naz[, c("LISTA", "COL")]
+)
+
+png(
+  paste0("output/", scenario, "_l_naz.png"),
+  width = 800,
+  height = 800,
+  res = 120
+)
+plot(
+  ELETTI ~ I(PERCENTUALE * 100),
+  data = risultato$liste_naz,
+  col = COL,
+  main = "Camera: eletti nei collegi plurinominali",
+  xlab = "Percentuale",
+  ylab = "Eletti"
+)
+legend(
+  "topleft",
+  legend = liste_naz$LISTA[!is.na(liste_naz$COLORE)],
+  pch = 19,
+  col = liste_naz$COL[!is.na(liste_naz$COLORE)]
+)
+dev.off()
+
+risultato$cl_naz <- merge(
+  risultato$cl_naz,
+  liste_naz[!duplicated(liste_naz$CL), c("CL", "COL")]
+)
+
+png(
+  paste0("output/", scenario, "_cl_naz.png"),
+  width = 800,
+  height = 800,
+  res = 120
+)
+plot(
+  ELETTI_TOT ~ I(PERCENTUALE * 100),
+  data = risultato$cl_naz,
+  col = COL,
+  main = "Camera: eletti nei collegi uni e plurinominali",
+  xlab = "Percentuale",
+  ylab = "Eletti"
+)
+abline(h = 391 / 2, lty = "dotted")
+legend(
+  "topleft",
+  legend = liste_naz$CL[!is.na(liste_naz$COLORE) & !duplicated(liste_naz$CL)],
+  pch = 19,
+  col = liste_naz$COL[!is.na(liste_naz$COLORE) & !duplicated(liste_naz$CL)]
+)
+dev.off()
+
+png(
+  paste0("output/", scenario, "_cl_naz_magg.png"),
+  width = 800,
+  height = 800,
+  res = 120
+)
+plot(
+  ELETTO ~ I(PERCENTUALE * 100),
+  data = risultato$cl_naz,
+  col = COL,
+  main = "Camera: eletti nei collegi uninominali",
+  xlab = "Percentuale nazionale",
+  ylab = "Eletti"
+)
+abline(h = nrow(camera$collegi_uni) / 2, lty = "dotted")
+legend(
+  "topleft",
+  legend = liste_naz$CL[!is.na(liste_naz$COLORE) & !duplicated(liste_naz$CL)],
+  pch = 19,
+  col = liste_naz$COL[!is.na(liste_naz$COLORE) & !duplicated(liste_naz$CL)]
+)
+dev.off()
+
+for (lista in liste_naz$LISTA[liste_naz$GRAFICI]) {
+  png(
+    paste0(
+      "output/",
+      scenario,
+      "_l_naz_",
+      liste_naz$ABBREV[liste_naz$LISTA == lista],
+      ".png"
+    ),
+    width = 800,
+    height = 800,
+    res = 120
+  )
+  plot(
+    ELETTI ~ I(PERCENTUALE * 100),
+    data = risultato$liste_naz[risultato$liste_naz$LISTA == lista,],
+    col = COL,
+    xlab = "Percentuale",
+    ylab = "Eletti"
+  )
+  mytitle = "Camera: eletti nei collegi plurinominali"
+  mysubtitle = lista
+  mtext(side=3, line=2, cex = 1.5, mytitle)
+  mtext(side=3, line=1, mysubtitle)
+  dev.off()
+  
+  
+  png(
+    paste0("output/", scenario, "_nmax_", liste_naz$ABBREV[liste_naz$LISTA == lista],".png"),
+    width = 800,
+    height = 800,
+    res = 120
+  )
   nmax <- factor(
     risultato$liste_pluri$NUMERO_MAX[risultato$liste_pluri$LISTA == lista],
     levels = 0:4
   )
   nmax[is.na(nmax)] <- 4
-  colori <- c(hcl.colors(5)[-5], "#FFFFFF")
+  colori <- c(hcl.colors(4), "#FFFFFF")
   spineplot(
     nmax ~ I(
       risultato$liste_pluri$PERCENTUALE[
@@ -435,7 +525,7 @@ if (iterazioni == 1) {
     ylab = NA,
     xlab = "Percentuale nel collegio plurinominale"
   )
-  mytitle = "Probabilità di elezone in base al numero di listino"
+  mytitle = "Probabilità di elezone in base alla posizione nel listino"
   mysubtitle = paste0(
     lista,
     "  -  Fraz. pluricandature: ", 
@@ -450,8 +540,12 @@ if (iterazioni == 1) {
   legend(
     "topleft",
     legend = levels(nmax)[-1],
-    lwd = 10,
-    col = rev(colori[-5])
+    fill = rev(colori[-5]),
+    title = "Posizione"
   )
+  dev.off()
 }
+
+
+
 
