@@ -1721,7 +1721,7 @@ C_scrutinio <- function(
     liste_pluri,
     aggregate(
       NUMERO ~ CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE + LISTA,
-      candidati_pluri[candidati_pluri$ELETTO_QUI_O_ALTROVE,],
+      candidati_pluri[candidati_pluri$ELETTO,],
       max
     ),
     all.x = TRUE

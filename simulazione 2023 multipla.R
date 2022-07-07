@@ -1,11 +1,13 @@
 #### Parametri ####
 
+# Numero di iterazioni
 iterazioni <- 200
 
+# Deviazione standard del logit della distribuzione della percentuale 
+# di ciascuna lista, ai vari livelli
 sd_naz <- .4
 sd_circ <- .1
 sd_pluri <- .2
-prob_pluricand <- .2 
 
 #### Carico librerie e script ####
 
@@ -193,7 +195,9 @@ for (j in seq_len(iterazioni)) {
     factor(NA, levels = levels(camera$candidati$CANDIDATO))
   
   for (i in seq_along(camera$candidati_pluri$NUMERO)) {
-    if (runif(1) < prob_pluricand) {
+    if (runif(1) < liste_naz$FRAZ_PLURICAND[
+      liste_naz$LISTA == camera$candidati_pluri$LISTA[i]
+    ]) {
       papabili <- which(
         camera$candidati$LISTA == camera$candidati_pluri$LISTA[i] &
           camera$candidati$SCELTO_PLURI < 5 &
@@ -536,24 +540,33 @@ if (iterazioni == 1) {
     col = "#00BB00"
   )
   abline(v = 3.5, lty = "dotted")
+  
+  lista <- "Fratelli d'Italia"
 
   nmax <- factor(
-    c(res_liste_pluri_nmax[etichette_liste == "EV - SI", ]),
+    c(res_liste_pluri_nmax[etichette_liste == lista, ]),
     levels = 0:4
   )
   nmax[is.na(nmax)] <- 4
   colori <- c(hcl.colors(5)[-5], "#FFFFFF")
   spineplot(
-    nmax ~ I(c(res_liste_pluri_percentuale[etichette_liste == "EV - SI", ]) * 100),
+    nmax ~ I(c(res_liste_pluri_percentuale[etichette_liste == lista, ]) * 100),
     breaks = 20,
     col = colori,
     yaxlabels = NA,
     ylab = NA,
-    xlab = "Percentuale nel collegio plurinominale",
-    drop.unused.levels = TRUE
+    xlab = "Percentuale nel collegio plurinominale"
   )
   mytitle = "Probabilità di elezone in base al numero di listino"
-  mysubtitle = paste0("Fraz. pluricandature: ", format(prob_pluricand*100, digits = 2), "%")
+  mysubtitle = paste0(
+    lista,
+    "  -  Fraz. pluricandature: ", 
+    format(
+      liste_naz$FRAZ_PLURICAND[liste_naz$LISTA == lista] * 100,
+      digits = 2
+    ), 
+    "%"
+  )
   mtext(side=3, line=2, cex = 1.5, mytitle)
   mtext(side=3, line=1, mysubtitle)
   legend(
