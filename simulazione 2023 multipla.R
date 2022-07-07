@@ -248,7 +248,7 @@ for (j in seq_len(iterazioni)) {
   
   camera$candidati_uni$DATA_NASCITA <- as.POSIXct("1990-01-01")
   
-  risultato <- C_scrutinio(
+  scrutinio <- C_scrutinio(
     camera$liste_uni[, c(
       "CIRCOSCRIZIONE",
       "COLLEGIOPLURINOMINALE",
@@ -287,8 +287,8 @@ for (j in seq_len(iterazioni)) {
     392
   )
   
-  risultato$liste_pluri <- merge(
-    risultato$liste_pluri,
+  scrutinio$liste_pluri <- merge(
+    scrutinio$liste_pluri,
     aggregate(
       VOTI_LISTA ~ CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE + LISTA,
       camera$liste_uni,
@@ -296,175 +296,95 @@ for (j in seq_len(iterazioni)) {
     )
   )
   
-  risultato$liste_pluri <- merge(
-    risultato$liste_pluri,
+  scrutinio$liste_pluri <- merge(
+    scrutinio$liste_pluri,
     aggregate(
       VOTI_LISTA ~ CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE,
-      risultato$liste_pluri,
+      scrutinio$liste_pluri,
       sum
     ),
     by = c("CIRCOSCRIZIONE", "COLLEGIOPLURINOMINALE"),
     suffixes = c("", "_TOT")
   )
   
-  risultato$liste_pluri$PERCENTUALE <-
-    risultato$liste_pluri$VOTI_LISTA / risultato$liste_pluri$VOTI_LISTA_TOT
+  scrutinio$liste_pluri$PERCENTUALE <-
+    scrutinio$liste_pluri$VOTI_LISTA / scrutinio$liste_pluri$VOTI_LISTA_TOT
   
-  risultato$liste_pluri <- risultato$liste_pluri[order(
-    risultato$liste_pluri$CIRCOSCRIZIONE,
-    risultato$liste_pluri$COLLEGIOPLURINOMINALE,
-    risultato$liste_pluri$LISTA
-  ),]
-  
-  risultato$liste_naz <- aggregate(
+  scrutinio$liste_naz <- aggregate(
     VOTI_LISTA ~ LISTA,
-    risultato$liste_pluri,
+    scrutinio$liste_pluri,
     sum
   )
   
-  risultato$liste_naz$PERCENTUALE <- 
-    risultato$liste_naz$VOTI_LISTA / sum(risultato$liste_naz$VOTI_LISTA)
+  scrutinio$liste_naz$PERCENTUALE <- 
+    scrutinio$liste_naz$VOTI_LISTA / sum(scrutinio$liste_naz$VOTI_LISTA)
   
-  risultato$liste_naz <- merge(
-    risultato$liste_naz,
+  scrutinio$liste_naz <- merge(
+    scrutinio$liste_naz,
     aggregate(
       ELETTI ~ LISTA,
-      risultato$liste_pluri,
+      scrutinio$liste_pluri,
       sum
     )
   )
   
-  risultato$liste_naz <- merge(
-    risultato$liste_naz,
+  scrutinio$liste_naz <- merge(
+    scrutinio$liste_naz,
     liste_naz[, c("LISTA", "CL")]
   )
   
-  risultato$liste_naz <- risultato$liste_naz[order(
-    risultato$liste_naz$LISTA
-  ), ]
-  
-  risultato$candidati_uni <- merge(
-    risultato$candidati_uni,
+  scrutinio$candidati_uni <- merge(
+    scrutinio$candidati_uni,
     camera$candidati_uni[, c("CANDIDATO", "CL")]
   )
   
-  risultato$candidati_uni <- risultato$candidati_uni[order(
-    risultato$candidati_uni$CIRCOSCRIZIONE,
-    risultato$candidati_uni$COLLEGIOPLURINOMINALE,
-    risultato$candidati_uni$COLLEGIOUNINOMINALE,
-    risultato$candidati_uni$CANDIDATO
-  ), ]
-  
-  risultato$cl_naz <- aggregate(
+  scrutinio$cl_naz <- aggregate(
     VOTI_LISTA ~ CL,
-    risultato$liste_naz,
+    scrutinio$liste_naz,
     sum
   )
   
-  risultato$cl_naz$PERCENTUALE <- 
-    risultato$cl_naz$VOTI_LISTA / sum(risultato$cl_naz$VOTI_LISTA)
+  scrutinio$cl_naz$PERCENTUALE <- 
+    scrutinio$cl_naz$VOTI_LISTA / sum(scrutinio$cl_naz$VOTI_LISTA)
   
-  risultato$cl_naz <- merge(
-    risultato$cl_naz,
+  scrutinio$cl_naz <- merge(
+    scrutinio$cl_naz,
     aggregate(
       ELETTI ~ CL,
-      risultato$liste_naz,
+      scrutinio$liste_naz,
       sum
     )
   )
   
-  risultato$cl_naz <- merge(
-    risultato$cl_naz,
+  scrutinio$cl_naz <- merge(
+    scrutinio$cl_naz,
     aggregate(
       ELETTO ~ CL,
-      risultato$candidati_uni,
+      scrutinio$candidati_uni,
       sum
     )
   )
   
-  risultato$cl_naz$ELETTI_TOT <- 
-    risultato$cl_naz$ELETTI + risultato$cl_naz$ELETTO
+  scrutinio$cl_naz$ELETTI_TOT <- 
+    scrutinio$cl_naz$ELETTI + scrutinio$cl_naz$ELETTO
   
-  risultato$cl_naz <- risultato$cl_naz[order(
-    risultato$cl_naz$CL
+  scrutinio$cl_naz <- scrutinio$cl_naz[order(
+    scrutinio$cl_naz$CL
   ), ]
   
+  scrutinio$liste_pluri$ITER <- j
+  scrutinio$liste_naz$ITER <- j
+  scrutinio$cl_naz$ITER <- j
+  
   if (j == 1) {
-    cat("j = ", j, "\n\n")
-    
-    etichette_circ <- risultato$liste_pluri$CIRCOSCRIZIONE
-    etichette_pluri <- risultato$liste_pluri$COLLEGIOPLURINOMINALE
-    etichette_liste <- risultato$liste_pluri$LISTA
-    res_liste_pluri_eletti <- matrix(
-      risultato$liste_pluri$ELETTI,
-      ncol = 1,
-      dimnames = list(paste(etichette_circ, etichette_pluri, etichette_liste))
-    )
-    res_liste_pluri_nmax <- matrix(
-      risultato$liste_pluri$NUMERO_MAX,
-      ncol = 1,
-      dimnames = list(paste(etichette_circ, etichette_pluri, etichette_liste))
-    )
-    res_liste_pluri_percentuale <- matrix(
-      risultato$liste_pluri$PERCENTUALE,
-      ncol = 1,
-      dimnames = list(paste(etichette_circ, etichette_pluri, etichette_liste))
-    )
-    
-    res_liste_naz_percentuale <- matrix(
-      risultato$liste_naz$PERCENTUALE,
-      ncol = 1,
-      dimnames = list(risultato$liste_naz$LISTA)
-    )
-    
-    res_liste_naz_eletti <- matrix(
-      risultato$liste_naz$ELETTI,
-      ncol = 1,
-      dimnames = list(risultato$liste_naz$LISTA)
-    )
-    
-    res_cl_naz_percentuale <- matrix(
-      risultato$cl_naz$PERCENTUALE,
-      ncol = 1,
-      dimnames = list(risultato$cl_naz$CL)
-    )
-    
-    res_cl_naz_uni <- matrix(
-      risultato$cl_naz$ELETTO,
-      ncol = 1,
-      dimnames = list(risultato$cl_naz$CL)
-    )
-    
-    res_cl_naz_eletti <- matrix(
-      risultato$cl_naz$ELETTI_TOT,
-      ncol = 1,
-      dimnames = list(risultato$cl_naz$CL)
-    )
-    
+    risultato <- list()
+    risultato$liste_pluri <- scrutinio$liste_pluri
+    risultato$liste_naz <- scrutinio$liste_naz
+    risultato$cl_naz <- scrutinio$cl_naz
   } else {
-    res_liste_pluri_eletti <- 
-      cbind(res_liste_pluri_eletti, risultato$liste_pluri$ELETTI)
-    
-    res_liste_pluri_nmax <- 
-      cbind(res_liste_pluri_nmax, risultato$liste_pluri$NUMERO_MAX)
-    
-    res_liste_pluri_percentuale <- 
-      cbind(res_liste_pluri_percentuale, risultato$liste_pluri$PERCENTUALE)
-    
-    res_liste_naz_percentuale <- 
-      cbind(res_liste_naz_percentuale, risultato$liste_naz$PERCENTUALE)
-    
-    res_liste_naz_eletti <- 
-      cbind(res_liste_naz_eletti, risultato$liste_naz$ELETTI)
-    
-    res_cl_naz_percentuale <- 
-      cbind(res_cl_naz_percentuale, risultato$cl_naz$PERCENTUALE)
-    
-    res_cl_naz_uni <- 
-      cbind(res_cl_naz_uni, risultato$cl_naz$ELETTO)
-    
-    res_cl_naz_eletti <- 
-      cbind(res_cl_naz_eletti, risultato$cl_naz$ELETTI_TOT)
+    risultato$liste_pluri <- rbind(risultato$liste_pluri, scrutinio$liste_pluri)
+    risultato$liste_naz <- rbind(risultato$liste_naz, scrutinio$liste_naz)
+    risultato$cl_naz <- rbind(risultato$cl_naz, scrutinio$cl_naz)
   }
 }
 
@@ -473,7 +393,7 @@ if (iterazioni == 1) {
     liste_naz,
     aggregate(
       ELETTO ~ LISTA,
-      risultato$candidati_pluri,
+      scrutinio$candidati_pluri,
       sum
     ),
     all.x = TRUE
@@ -483,74 +403,32 @@ if (iterazioni == 1) {
     data = liste_naz
   )
 } else {
-  plot(res_liste_naz_eletti ~ res_liste_naz_percentuale, col = 1:10)
-  legend(
-    "topleft",
-    legend = rownames(res_liste_naz_eletti),
-    pch = 1,
-    col = 1:10
-  )
-  
-  boxplot(t(res_cl_naz_eletti))
-  
   plot(
-    res_cl_naz_eletti ~ I(res_cl_naz_percentuale * 100),
-    xlim = c(40, 60),
-    ylim = c(150, 250),
-    col = c("blue", "black", "orange"),
-    main = "Seggi alla Camera",
-    xlab = "Percentuale",
-    ylab = "Seggi"
-  )
-  legend(
-    "topleft",
-    legend = rownames(res_cl_naz_eletti),
-    pch = 1,
-    col = c("blue", "black", "orange")
-  )
-  abline(h = 391 / 2)
-  
-  print(
-    sum(res_cl_naz_eletti[rownames(res_cl_naz_eletti) == "DX",] > 391 / 2) / iterazioni
+    ELETTI ~ PERCENTUALE,
+    data = risultato$liste_naz
   )
   
-  print(
-    mean(res_liste_naz_eletti[rownames(res_liste_naz_eletti) == "Fratelli d'Italia",])
+  
+  boxplot(
+    ELETTI_TOT ~ CL,
+    data = risultato$cl_naz
   )
   
-  print(
-    sum(res_liste_naz_eletti[rownames(res_liste_naz_eletti) == "EV - SI",] == 0) / iterazioni
-  )
   
-  print(
-    mean(
-      res_liste_naz_eletti[
-        rownames(res_liste_naz_eletti) == "EV - SI",
-        res_liste_naz_eletti[rownames(res_liste_naz_eletti) == "EV - SI",] > 0
-      ]
-    )
-  )
-  
-  plot(
-    res_liste_naz_eletti[rownames(res_liste_naz_eletti) == "EV - SI",] ~
-      I(res_liste_naz_percentuale[rownames(res_liste_naz_percentuale) == "EV - SI",] * 100),
-    xlab = "Percentuale",
-    ylab = "Seggi",
-    main = "Seggi Camera (proporz.) di EV - SI",
-    col = "#00BB00"
-  )
-  abline(v = 3.5, lty = "dotted")
-  
-  lista <- "Fratelli d'Italia"
+  lista <- "Movimento 5 Stelle"
 
   nmax <- factor(
-    c(res_liste_pluri_nmax[etichette_liste == lista, ]),
+    risultato$liste_pluri$NUMERO_MAX[risultato$liste_pluri$LISTA == lista],
     levels = 0:4
   )
   nmax[is.na(nmax)] <- 4
   colori <- c(hcl.colors(5)[-5], "#FFFFFF")
   spineplot(
-    nmax ~ I(c(res_liste_pluri_percentuale[etichette_liste == lista, ]) * 100),
+    nmax ~ I(
+      risultato$liste_pluri$PERCENTUALE[
+        risultato$liste_pluri$LISTA == lista
+      ] *100
+    ),
     breaks = 20,
     col = colori,
     yaxlabels = NA,
