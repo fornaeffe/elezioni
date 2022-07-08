@@ -251,9 +251,21 @@ if (sum(candidati_pluri$OMONIMIA_UNI) > 0) {
   stop("Omonimie tra candidati uni e plurinominali")
 }
 
-source("S.R")
+print(sapply(
+  as.character(liste_naz$LISTA),
+  function(l) {
+    sum(duplicated(c(
+      liste_uni$CANDIDATO[liste_uni$LISTA == l],
+      candidati_pluri$CANDIDATO[candidati_pluri$LISTA == l]
+    ))) /
+      length(candidati_pluri$CANDIDATO[candidati_pluri$LISTA == l])
+  }
+))
 
-risultato <- S_scrutinio(
+source("scrutinio.R")
+
+risultato <- Scrutinio(
+  "Senato",
   liste_uni,
   liste_naz,
   candidati_uni,
@@ -305,5 +317,5 @@ confronto_pluri$seggi[confronto_pluri$seggi == "-"] <- 0
 confronto_pluri$seggi <- as.numeric(confronto_pluri$seggi)
 
 confronto_pluri$CORRISPONDE <- confronto_pluri$ELETTI == confronto_pluri$seggi
-confronto_pluri[!confronto_pluri$CORRISPONDE, ]
+print(confronto_pluri[!confronto_pluri$CORRISPONDE, ])
 

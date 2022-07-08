@@ -15,8 +15,7 @@ sd_pluri <- .2
 #### Carico librerie e script ####
 
 library(readxl)
-source("C.R")
-source("S.R")
+source("scrutinio.R")
 
 #### Caricamento dati ####
 
@@ -267,86 +266,45 @@ simula <- function(
     
     dati$candidati_uni$DATA_NASCITA <- as.POSIXct("1990-01-01")
     
-    if (ramo == "Senato") {
-      scrutinio <- S_scrutinio(
-        dati$liste_uni[, c(
-          "CIRCOSCRIZIONE",
-          "COLLEGIOPLURINOMINALE",
-          "COLLEGIOUNINOMINALE",
-          "CANDIDATO",
-          "CAND_MINORANZA",
-          "LISTA",
-          "MINORANZA",
-          "VOTI_LISTA"
-        )],
-        liste_naz[, c(
-          "LISTA",
-          "COALIZIONE",
-          "MINORANZA"
-        )],
-        dati$candidati_uni[, c(
-          "CIRCOSCRIZIONE",
-          "COLLEGIOPLURINOMINALE",
-          "COLLEGIOUNINOMINALE",
-          "CANDIDATO",
-          "DATA_NASCITA",
-          "VOTI_CANDIDATO"
-        )],
-        dati$candidati_pluri[, c(
-          "CIRCOSCRIZIONE",
-          "COLLEGIOPLURINOMINALE",
-          "LISTA",
-          "NUMERO",
-          "CANDIDATO"
-        )],
-        dati$collegi_pluri[, c(
-          "CIRCOSCRIZIONE",
-          "COLLEGIOPLURINOMINALE",
-          "SEGGI"
-        )],
-        296
-      )
-    } else {
-      scrutinio <- C_scrutinio(
-        dati$liste_uni[, c(
-          "CIRCOSCRIZIONE",
-          "COLLEGIOPLURINOMINALE",
-          "COLLEGIOUNINOMINALE",
-          "CANDIDATO",
-          "CAND_MINORANZA",
-          "LISTA",
-          "MINORANZA",
-          "VOTI_LISTA"
-        )],
-        liste_naz[, c(
-          "LISTA",
-          "COALIZIONE",
-          "MINORANZA"
-        )],
-        dati$candidati_uni[, c(
-          "CIRCOSCRIZIONE",
-          "COLLEGIOPLURINOMINALE",
-          "COLLEGIOUNINOMINALE",
-          "CANDIDATO",
-          "DATA_NASCITA",
-          "VOTI_CANDIDATO"
-        )],
-        dati$candidati_pluri[, c(
-          "CIRCOSCRIZIONE",
-          "COLLEGIOPLURINOMINALE",
-          "LISTA",
-          "NUMERO",
-          "CANDIDATO"
-        )],
-        dati$collegi_pluri[, c(
-          "CIRCOSCRIZIONE",
-          "COLLEGIOPLURINOMINALE",
-          "SEGGI"
-        )],
-        392
-      )
-    }
-    
+    scrutinio <- Scrutinio(
+      ramo,
+      dati$liste_uni[, c(
+        "CIRCOSCRIZIONE",
+        "COLLEGIOPLURINOMINALE",
+        "COLLEGIOUNINOMINALE",
+        "CANDIDATO",
+        "CAND_MINORANZA",
+        "LISTA",
+        "MINORANZA",
+        "VOTI_LISTA"
+      )],
+      liste_naz[, c(
+        "LISTA",
+        "COALIZIONE",
+        "MINORANZA"
+      )],
+      dati$candidati_uni[, c(
+        "CIRCOSCRIZIONE",
+        "COLLEGIOPLURINOMINALE",
+        "COLLEGIOUNINOMINALE",
+        "CANDIDATO",
+        "DATA_NASCITA",
+        "VOTI_CANDIDATO"
+      )],
+      dati$candidati_pluri[, c(
+        "CIRCOSCRIZIONE",
+        "COLLEGIOPLURINOMINALE",
+        "LISTA",
+        "NUMERO",
+        "CANDIDATO"
+      )],
+      dati$collegi_pluri[, c(
+        "CIRCOSCRIZIONE",
+        "COLLEGIOPLURINOMINALE",
+        "SEGGI"
+      )],
+      ifelse(ramo == "Camera", 392, 296)
+    )
     
     scrutinio$liste_pluri <- merge(
       scrutinio$liste_pluri,

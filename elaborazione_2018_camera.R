@@ -387,9 +387,10 @@ print(sapply(
 
 #### Inizio applicazione della legge ####
 
-source("C.R")
+source("scrutinio.R")
 
-risultato <- C_scrutinio(
+risultato <- Scrutinio(
+  "Camera",
   liste_uni,
   liste_naz,
   candidati_uni,
@@ -441,4 +442,4 @@ confronto_pluri$seggi[confronto_pluri$seggi == "-"] <- 0
 confronto_pluri$seggi <- as.numeric(confronto_pluri$seggi)
 
 confronto_pluri$CORRISPONDE <- confronto_pluri$ELETTI == confronto_pluri$seggi
-confronto_pluri[!confronto_pluri$CORRISPONDE, ]
+print(confronto_pluri[!confronto_pluri$CORRISPONDE, ])
