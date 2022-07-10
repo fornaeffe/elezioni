@@ -1,41 +1,24 @@
-liste_uni <- camera$liste_uni[, c(
-  "CIRCOSCRIZIONE",
-  "COLLEGIOPLURINOMINALE",
-  "COLLEGIOUNINOMINALE",
-  "CANDIDATO",
-  "CAND_MINORANZA",
-  "LISTA",
-  "MINORANZA",
-  "VOTI_LISTA"
-)]
+library(rstan)
+library(shinystan)
+library(gtools)
 
-liste_naz <- liste_naz[, c(
-  "LISTA",
-  "COALIZIONE",
-  "MINORANZA"
-)]
+N <- 5
+K <- 4
 
-candidati_uni <- camera$candidati_uni[, c(
-  "CIRCOSCRIZIONE",
-  "COLLEGIOPLURINOMINALE",
-  "COLLEGIOUNINOMINALE",
-  "CANDIDATO",
-  "DATA_NASCITA",
-  "VOTI_CANDIDATO"
-)]
+provincia <- rep(1:N, 4)
+L <- length(provincia)
 
-candidati_pluri <- camera$candidati_pluri[, c(
-  "CIRCOSCRIZIONE",
-  "COLLEGIOPLURINOMINALE",
-  "LISTA",
-  "NUMERO",
-  "CANDIDATO"
-)]
+y <- t(rmultinom(L, 50, c(.3, .1, .2, .4)))
 
-totali_pluri <- camera$collegi_pluri[, c(
-  "CIRCOSCRIZIONE",
-  "COLLEGIOPLURINOMINALE",
-  "SEGGI"
-)]
+fit <- stan(
+  "sandbox.stan",
+  data = list(
+    L = L,
+    K = K,
+    y = y
+  ),
+  cores = 4
+)
 
-totale_seggi <- 392
+summary(fit)
+launch_shinystan(fit)
