@@ -1,7 +1,5 @@
 ## TODO: aggiungere area "Altro/Astensione"
 
-t0 <- proc.time()
-
 softmax <- function(x) exp(x) / sum(exp(x))
 
 #### Parametri ####
@@ -103,8 +101,21 @@ lista_dataframes <- lapply(
 lista_dataframes <- mapply(
   function(df, nome_file) {
     names(df) <- toupper(names(df))
-    df$ANNO <- substr(nome_file, 11, 14)
-    df$MESE <- substr(nome_file, 15, 16)
+    if (is.null(df$COGNOME)) df$COGNOME <- NA
+    if (is.null(df$NOME)) df$NOME <- NA
+    names(df)[names(df) == "VOTILISTA"] <- "VOTI_LISTA"
+    df <- df[,c(
+      "REGIONE",
+      "PROVINCIA",
+      "COMUNE",
+      "ELETTORI",
+      "VOTANTI",
+      "COGNOME",
+      "NOME",
+      "LISTA",
+      "VOTI_LISTA"
+    )]
+    df$ELEZIONE <- nome_file
     df
   },
   df = lista_dataframes,
@@ -116,6 +127,7 @@ amministrative <- rbindlist(lista_dataframes)
 lista_dataframes <- NULL
 
 amministrative$PROVINCIA[amministrative$PROVINCIA == "REGGIO NELL' EMILIA"] <- "REGGIO NELL'EMILIA"
+amministrative$PROVINCIA[amministrative$PROVINCIA == "MASSA-CARRARA"] <- "MASSA CARRARA"
 
 # Checks
 setdiff(unique(amministrative$PROVINCIA), province$PROVINCIA)
@@ -129,10 +141,10 @@ setdiff(unique(amministrative$PROVINCIA), province$PROVINCIA)
 
 ##### Corrispondenza liste - aree #####
 
-liste <- read_xlsx("sandbox/liste.xlsx", "aree")
+liste <- read_xlsx("sandbox/liste.xlsx", "liste")
 liste <- liste[
   !duplicated(liste$LISTA) & !is.na(liste$LISTA) & !is.na(liste$AREA)
-  ,]
+  , c("LISTA", "AREA")]
 
 ##### Liste nazionali e collegi ######
 
@@ -955,4 +967,3 @@ simula(
   variab
 )
 
-print(proc.time() - t0)

@@ -30,3 +30,23 @@ plot(
 )
 
 # Emilia-Romagna - P01
+
+lapply(
+  lista_dataframes,
+  function(df) {
+    setdiff(
+      c(
+        "REGIONE",
+        "PROVINCIA",
+        "COMUNE",
+        "ELETTORI",
+        "VOTANTI",
+        "COGNOME",
+        "NOME",
+        "LISTA",
+        "VOTI_LISTA"
+      ),
+      toupper(names(df))
+    )
+  }
+)
