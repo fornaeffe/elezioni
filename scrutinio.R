@@ -1760,6 +1760,7 @@ Scrutinio <- function(
     method = "radix"
   ),]
   
+  ammesse_pluri$ORDINE_CEDE <- NA
   ammesse_pluri$ORDINE_CEDE[ammesse_pluri$CEDE] <- ave(
     seq_along(ammesse_pluri$LISTA[ammesse_pluri$CEDE]),
     paste(
@@ -1783,6 +1784,7 @@ Scrutinio <- function(
     method = "radix"
   ),]
   
+  ammesse_pluri$ORDINE_RICEVE <- NA
   ammesse_pluri$ORDINE_RICEVE[ammesse_pluri$RICEVE] <- ave(
     seq_along(ammesse_pluri$LISTA[ammesse_pluri$RICEVE]),
     paste(
@@ -1799,6 +1801,8 @@ Scrutinio <- function(
   
   ammesse_pluri$SEGGI <- 
     ammesse_pluri$SEGGI - ammesse_pluri$CEDUTO + ammesse_pluri$RICEVUTO
+  
+  ammesse_pluri$SEGGI_PRE_SUBENTRI <- ammesse_pluri$SEGGI
   
 
   #### Nomine e subentri  ####
@@ -2166,6 +2170,12 @@ Scrutinio <- function(
   
   if (ramo == "Camera") subentro(livello = "naz", coal = TRUE)
   
+  # Questo non è previsto dalla norma, ma è stato comunque fatto in
+  # occasione delle scorse elezioni del 2018
+  if (ramo == "Senato") subentro(livello = "naz")
+  if (ramo == "Senato") subentro(livello = "naz", uni = TRUE)
+  if (ramo == "Senato") subentro(livello = "naz", coal = TRUE)
+  
   #### Risoluzione pluricandidature ####
   
   ## Camera
@@ -2282,6 +2292,10 @@ Scrutinio <- function(
     if (ramo == "Camera")  subentro(livello = "naz")
     subentro(livello = "pluri", coal = TRUE)
     subentro(livello = "circ", coal = TRUE)
+    
+    # Questo non è previsto dalla norma, ma è stato comunque fatto in
+    # occasione delle scorse elezioni del 2018
+    if (ramo == "Senato")  subentro(livello = "naz")
   }
   
   #### Preparazione del risultato ####
@@ -2306,12 +2320,14 @@ Scrutinio <- function(
       "COLLEGIOPLURINOMINALE",
       "LISTA",
       "ELETTI",
-      "CANDIDATI"
+      "CANDIDATI",
+      "SEGGI_PRE_SUBENTRI"
     )],
     all.x = TRUE
   )
   
   liste_pluri$ELETTI[is.na(liste_pluri$ELETTI)] <- 0
+  liste_pluri$SEGGI_PRE_SUBENTRI[is.na(liste_pluri$SEGGI_PRE_SUBENTRI)] <- 0
   
   liste_pluri <- merge(
     liste_pluri,
@@ -2325,7 +2341,8 @@ Scrutinio <- function(
   names(liste_pluri)[names(liste_pluri) == "NUMERO"] <- "NUMERO_MAX"
   
   liste_pluri$NUMERO_MAX[is.na(liste_pluri$NUMERO_MAX)] <- 0
-  liste_pluri$NUMERO_MAX[liste_pluri$CANDIDATI == 0] <- 4
+  liste_pluri$NUMERO_MAX <- 
+    pmax(liste_pluri$NUMERO_MAX, liste_pluri$SEGGI_PRE_SUBENTRI)
   
   #### Risultato ####
   
@@ -2335,7 +2352,8 @@ Scrutinio <- function(
       "COLLEGIOPLURINOMINALE",
       "LISTA",
       "ELETTI",
-      "NUMERO_MAX"
+      "NUMERO_MAX",
+      "SEGGI_PRE_SUBENTRI"
     )],
     candidati_uni = candidati_uni[, c(
       "CIRCOSCRIZIONE",

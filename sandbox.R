@@ -22,3 +22,11 @@ fit <- stan(
 
 summary(fit)
 launch_shinystan(fit)
+
+
+plot(
+  PERCENTUALE_UNI ~ PERC_LISTA_BASE,
+  data = dati$liste_uni[dati$liste_uni$LISTA == "Europa Verce", ]
+)
+
+# Emilia-Romagna - P01

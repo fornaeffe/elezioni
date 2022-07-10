@@ -26,9 +26,6 @@ liste_naz$CL <- as.character(liste_naz$COALIZIONE)
 liste_naz$CL[is.na(liste_naz$CL)] <- 
   as.character(liste_naz$LISTA[is.na(liste_naz$CL)])
 
-
-
-
 load("dati_collegi/collegi.RData")
 
 simula <- function(
