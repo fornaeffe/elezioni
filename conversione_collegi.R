@@ -238,7 +238,7 @@ names(senato$collegi_uni)[1] <- "CIRCOSCRIZIONE"
 names(senato$collegi_uni)[2] <- "COLLEGIOPLURINOMINALE"
 names(senato$collegi_uni)[3] <- "COLLEGIOUNINOMINALE"
 
-##### Separo i dati del TAA #####
+##### Separo i dati del TAA e del Molise #####
 
 senato$circoscrizioni_TAA <- senato$circoscrizioni[
   senato$circoscrizioni$CIRCOSCRIZIONE == "Trentino-Alto Adige",
@@ -264,6 +264,30 @@ senato$collegi_uni <- senato$collegi_uni[
   senato$collegi_uni$CIRCOSCRIZIONE != "Trentino-Alto Adige",
 ]
 
+senato$circoscrizioni_M <- senato$circoscrizioni[
+  senato$circoscrizioni$CIRCOSCRIZIONE == "Molise",
+]
+
+senato$collegi_pluri_M <- senato$collegi_pluri[
+  senato$collegi_pluri$CIRCOSCRIZIONE == "Molise",
+]
+
+senato$collegi_uni_M <- senato$collegi_uni[
+  senato$collegi_uni$CIRCOSCRIZIONE == "Molise",
+]
+
+senato$circoscrizioni <- senato$circoscrizioni[
+  senato$circoscrizioni$CIRCOSCRIZIONE != "Molise",
+]
+
+senato$collegi_pluri <- senato$collegi_pluri[
+  senato$collegi_pluri$CIRCOSCRIZIONE != "Molise",
+]
+
+senato$collegi_uni <- senato$collegi_uni[
+  senato$collegi_uni$CIRCOSCRIZIONE != "Molise",
+]
+
 
 
 ##### Assegnazione dei seggi ####
@@ -282,8 +306,8 @@ names(senato$circoscrizioni)[
   names(senato$circoscrizioni) == "COLLEGIOUNINOMINALE"
 ] <- "COLLEGI_UNI"
 
-# Tolgo i seggi per estero, Val d'Aosta e TAA
-senato$seggi <- 200 - 4 - 1 - 6 
+# Tolgo i seggi per estero, Val d'Aosta e TAA e Molise
+senato$seggi <- 200 - 4 - 1 - 6 - 2
 
 senato$popolazione <- sum(senato$circoscrizioni$POP_2011)
 
@@ -400,7 +424,7 @@ senato$collegi_uni <- senato$collegi_uni[, c(
 
 
 
-##### Unisco nuovamente i dati TAA #####
+##### Unisco nuovamente i dati TAA e Molise #####
 
 senato$collegi_pluri_TAA$SEGGI_PLURI <- 0
 
@@ -417,6 +441,23 @@ senato$collegi_pluri <- rbind(
 senato$collegi_uni <- rbind(
   senato$collegi_uni,
   senato$collegi_uni_TAA
+)
+
+senato$collegi_pluri_M$SEGGI_PLURI <- 1
+
+senato$circoscrizioni <- rbind(
+  senato$circoscrizioni,
+  senato$circoscrizioni_M
+)
+
+senato$collegi_pluri <- rbind(
+  senato$collegi_pluri,
+  senato$collegi_pluri_M
+)
+
+senato$collegi_uni <- rbind(
+  senato$collegi_uni,
+  senato$collegi_uni_M
 )
 
 ##### Elimino i dati inutili #####
