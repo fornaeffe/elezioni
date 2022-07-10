@@ -1,5 +1,7 @@
 ## TODO: aggiungere area "Altro/Astensione"
 
+t0 <- proc.time()
+
 softmax <- function(x) exp(x) / sum(exp(x))
 
 #### Parametri ####
@@ -270,7 +272,7 @@ names(camera$aree_uni)[2] <- "COLLEGIOPLURINOMINALE"
 names(camera$aree_uni)[3] <- "COLLEGIOUNINOMINALE"
 
 senato$aree_uni <- aggregate(
-  cbind(VOTANTI, POP_2011) ~ CIRCOCAM_20_DEN + CP20_DEN + CU20_DEN + AREA,
+  cbind(VOTANTI, POP_2011) ~ DEN_REG20 + SP20_DEN + SU20_DEN + AREA,
   comuni_aree,
   sum
 )
@@ -295,10 +297,7 @@ simula <- function(
     liste_naz,
     
     iterazioni = 200,
-    
-    sd_naz = .4,
-    sd_circ = .1,
-    sd_pluri = .2
+    variab = .5
 ) {
   names(dati$collegi_pluri)[names(dati$collegi_pluri) == "SEGGI_PLURI"] <-
     "SEGGI"
@@ -553,6 +552,7 @@ simula <- function(
       ifelse(ramo == "Camera", 392, 296)
     )
     
+    
     scrutinio$liste_pluri <- merge(
       scrutinio$liste_pluri,
       aggregate(
@@ -641,16 +641,25 @@ simula <- function(
     scrutinio$liste_pluri$ITER <- j
     scrutinio$liste_naz$ITER <- j
     scrutinio$cl_naz$ITER <- j
+    scrutinio$candidati_uni$ITER <- j
+    
+    cat(
+      "\n\n Terminata simulazione ", ramo," numero ", j, 
+      "\n\nscrutinio$listepluri ha ", nrow(scrutinio$liste_pluri), " righe\n\n",
+      sep = ""
+    )
     
     if (j == 1) {
       risultato <- list()
       risultato$liste_pluri <- scrutinio$liste_pluri
       risultato$liste_naz <- scrutinio$liste_naz
       risultato$cl_naz <- scrutinio$cl_naz
+      risultato$candidati_uni <- scrutinio$candidati_uni
     } else {
       risultato$liste_pluri <- rbind(risultato$liste_pluri, scrutinio$liste_pluri)
       risultato$liste_naz <- rbind(risultato$liste_naz, scrutinio$liste_naz)
       risultato$cl_naz <- rbind(risultato$cl_naz, scrutinio$cl_naz)
+      risultato$candidati_uni <- rbind(risultato$candidati_uni, scrutinio$candidati_uni)
     }
   }
   
@@ -874,6 +883,55 @@ simula <- function(
       title = "Posizione"
     )
     dev.off()
+    
+    write.csv2(
+      reshape(
+        aggregate(
+          ELETTI ~ CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE + LISTA,
+          risultato$liste_pluri,
+          mean
+        ),
+        direction = "wide",
+        idvar = c("CIRCOSCRIZIONE", "COLLEGIOPLURINOMINALE"),
+        timevar = "LISTA"
+      ),
+      file = paste0(
+        "output/",
+        scenario,
+        substr(ramo, 1, 1),
+        "_eletti_pluri.csv"
+      ),
+      fileEncoding = "utf-8"
+    )
+    
+    write.csv2(
+      reshape(
+        aggregate(
+          ELETTO ~ 
+            CIRCOSCRIZIONE +
+            COLLEGIOPLURINOMINALE +
+            COLLEGIOUNINOMINALE +
+            CL,
+          risultato$candidati_uni,
+          mean
+        ),
+        direction = "wide",
+        idvar = c(
+          "CIRCOSCRIZIONE",
+          "COLLEGIOPLURINOMINALE",
+          "COLLEGIOUNINOMINALE"
+        ),
+        timevar = "CL"
+      ),
+      file = paste0(
+        "output/",
+        scenario,
+        substr(ramo, 1, 1),
+        "_eletti_uni.csv"
+      ),
+      fileEncoding = "utf-8"
+    )
+    
   }
   
   
@@ -885,9 +943,7 @@ simula(
   camera,
   liste_naz,
   iterazioni,
-  sd_naz,
-  sd_circ,
-  sd_pluri
+  variab
 )
 
 simula(
@@ -896,7 +952,7 @@ simula(
   senato,
   liste_naz,
   iterazioni,
-  sd_naz,
-  sd_circ,
-  sd_pluri
+  variab
 )
+
+print(proc.time() - t0)
