@@ -133,12 +133,36 @@ amministrative$PROVINCIA[amministrative$PROVINCIA == "MASSA-CARRARA"] <- "MASSA 
 # Checks
 setdiff(unique(amministrative$PROVINCIA), province$PROVINCIA)
 
+##### Unione camera e amministrative #####
+
+camera_2018$REGIONE <- str_remove(camera_2018$CIRCOSCRIZIONE, " [0-9]\\Z")
+camera_2018$REGIONE <- str_remove(camera_2018$REGIONE, "/.*")
+camera_2018$ELEZIONE <- "camera_2018"
+
+
+dati_precedenti <- rbind(
+  amministrative,
+  camera_2018[, c(
+    "REGIONE",
+    "PROVINCIA",
+    "COMUNE",
+    "ELETTORI",
+    "VOTANTI",
+    "COGNOME",
+    "NOME",
+    "LISTA",
+    "VOTI_LISTA",
+    "ELEZIONE"
+  )]
+)
+amministrative <- NULL
+
 # Questo è servito per esportare i nomi delle liste
-# write.csv2(
-#   amministrative[!duplicated(amministrative$LISTA), ],
-#   "output/liste.csv",
-#   fileEncoding = "utf-8"
-# )
+write.csv2(
+  dati_precedenti[!duplicated(dati_precedenti$LISTA), ],
+  "output/liste.csv",
+  fileEncoding = "utf-8"
+)
 
 ##### Corrispondenza liste - aree #####
 
@@ -160,28 +184,12 @@ load("dati_collegi/collegi.RData")
 
 #### Calcolo distribuzione spaziale elettori di area ####
 
-camera_2018$VOTAZIONE <- "politiche 2018"
-amministrative$VOTAZIONE <- paste("regionali", amministrative$ANNO, amministrative$MESE)
-
-camera_2018$AREA <- factor(camera_2018$LISTA, levels = liste$LISTA, labels = liste$AREA)
-amministrative$AREA <- factor(amministrative$LISTA, levels = liste$LISTA, labels = liste$AREA)
-
-prov_area_voto <- rbind(
-  aggregate(
-    VOTI_LISTA ~ PROVINCIA + AREA + VOTAZIONE,
-    camera_2018,
-    sum
-  ),
-  aggregate(
-    VOTI_LISTA ~ PROVINCIA + AREA + VOTAZIONE,
-    amministrative,
-    sum
-  )
-)
+dati_precedenti$AREA <- 
+  factor(dati_precedenti$LISTA, levels = liste$LISTA, labels = liste$AREA)
 
 prov_area <- aggregate(
   VOTI_LISTA ~ PROVINCIA + AREA,
-  prov_area_voto,
+  dati_precedenti,
   sum
 )
 
@@ -888,7 +896,7 @@ simula <- function(
             risultato$liste_pluri$COLLEGIOPLURINOMINALE == "Emilia-Romagna - P01"
         ] *100
       ),
-      breaks = 10,
+      breaks = 12,
       col = colori,
       yaxlabels = NA,
       ylab = NA,
