@@ -1,6 +1,15 @@
 ## TODO: aggiungere area "Altro/Astensione"
 
-softmax <- function(x) exp(x) / sum(exp(x))
+t0 <- proc.time()
+
+#### Carico librerie e script ####
+
+library(data.table)
+library(readxl)
+library(stringr)
+library(parallel)
+
+# source("scrutinio.R")
 
 #### Parametri ####
 
@@ -12,14 +21,6 @@ iterazioni <- 200
 
 # Variabilità dei voti
 variab <- 0.5
-
-
-#### Carico librerie e script ####
-
-library(data.table)
-library(readxl)
-library(stringr)
-source("scrutinio.R")
 
 #### Importazione dati ####
 
@@ -387,9 +388,13 @@ simula <- function(
   
   #### Inizio iterazioni ####
   
-  for (j in seq_len(iterazioni)) {
-    ##### Randomizzo i voti ####
-    
+  iterazione <- function(
+    iter = 1,
+    ramo = "Camera",
+    dati,
+    liste_naz,
+    variab = .5
+  ) {
     dati$liste_uni$LOG_P <- rnorm(
       dati$liste_uni$LOG_PERC_LISTA_BASE,
       dati$liste_uni$LOG_PERC_LISTA_BASE,
@@ -403,7 +408,7 @@ simula <- function(
         dati$liste_uni$COLLEGIOPLURINOMINALE,
         dati$liste_uni$COLLEGIOUNINOMINALE
       ),
-      FUN = softmax
+      FUN = function(x) exp(x) / sum(exp(x))
     )
     
     dati$liste_uni$VOTI_LISTA <- 
@@ -650,36 +655,51 @@ simula <- function(
       scrutinio$cl_naz$CL
     ), ]
     
-    scrutinio$liste_pluri$ITER <- j
-    scrutinio$liste_naz$ITER <- j
-    scrutinio$cl_naz$ITER <- j
-    scrutinio$candidati_uni$ITER <- j
-    
-    cat(
-      "\n\n Terminata simulazione ", ramo," numero ", j, 
-      "\n\nscrutinio$listepluri ha ", nrow(scrutinio$liste_pluri), " righe\n\n",
-      sep = ""
+    list(
+      liste_pluri = scrutinio$liste_pluri,
+      liste_naz = scrutinio$liste_naz,
+      cl_naz = scrutinio$cl_naz,
+      candidati_uni = scrutinio$candidati_uni
     )
-    
-    if (j == 1) {
-      risultato <- list()
-      risultato$liste_pluri <- scrutinio$liste_pluri
-      risultato$liste_naz <- scrutinio$liste_naz
-      risultato$cl_naz <- scrutinio$cl_naz
-      risultato$candidati_uni <- scrutinio$candidati_uni
-    } else {
-      risultato$liste_pluri <- rbind(risultato$liste_pluri, scrutinio$liste_pluri)
-      risultato$liste_naz <- rbind(risultato$liste_naz, scrutinio$liste_naz)
-      risultato$cl_naz <- rbind(risultato$cl_naz, scrutinio$cl_naz)
-      risultato$candidati_uni <- rbind(risultato$candidati_uni, scrutinio$candidati_uni)
-    }
   }
+  
+  cl <- makeCluster(10)
+  
+  clusterEvalQ(
+    cl,
+    source("scrutinio.R")
+  )
+  
+  lista_risultati <- parLapply(
+    cl,
+    seq_len(iterazioni),
+    iterazione,
+    ramo = ramo,
+    dati = dati,
+    liste_naz = liste_naz,
+    variab = variab
+  )
+  
+  stopCluster(cl)
+  
+  risultato <- list()
+  
+  risultato$liste_pluri <- 
+    rbindlist(lapply(lista_risultati, function(l) l$liste_pluri))
+  risultato$liste_naz <- 
+    rbindlist(lapply(lista_risultati, function(l) l$liste_naz))
+  risultato$cl_naz <- 
+    rbindlist(lapply(lista_risultati, function(l) l$cl_naz))
+  risultato$candidati_uni <- 
+    rbindlist(lapply(lista_risultati, function(l) l$candidati_uni))
+  
+  lista_risultati <- NULL
   
   liste_naz$COL <- "#DDDDDD"
   liste_naz$COL[!is.na(liste_naz$COLORE)] <- 
     hsv(liste_naz$COLORE[!is.na(liste_naz$COLORE)] / 360, 1, .8, 1)
   
-  risultato$liste_naz$COL <- NULL
+  
   risultato$liste_naz <- merge(
     risultato$liste_naz,
     liste_naz[, c("LISTA", "COL")]
@@ -967,3 +987,4 @@ simula(
   variab
 )
 
+print(proc.time() - t0)
