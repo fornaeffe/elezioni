@@ -89,6 +89,8 @@ camera_2018$PROVINCIA[camera_2018$PROV_TEMP == "SAN DONA' DI PIAVE"] <- "VENEZIA
 setdiff(unique(camera_2018$PROVINCIA), province$PROVINCIA)
 sum(is.na(camera_2018$PROVINCIA))
 
+
+
 ##### Amministrative #####
 
 lista_files <- list.files("dati_amministrative")
@@ -139,10 +141,63 @@ camera_2018$REGIONE <- str_remove(camera_2018$CIRCOSCRIZIONE, " [0-9]\\Z")
 camera_2018$REGIONE <- str_remove(camera_2018$REGIONE, "/.*")
 camera_2018$ELEZIONE <- "camera_2018"
 
+###### Calcolo astensione ######
+
+camera_2018_astensione <- aggregate(
+  VOTI_LISTA ~ 
+    CIRCOSCRIZIONE +
+    COLLEGIOPLURINOMINALE +
+    COLLEGIOUNINOMINALE +
+    REGIONE +
+    PROVINCIA +
+    COMUNE +
+    ELETTORI +
+    VOTANTI + 
+    ELEZIONE,
+  camera_2018,
+  sum
+)
+
+camera_2018_astensione$LISTA <- "astensione"
+camera_2018_astensione$COGNOME <- NA
+camera_2018_astensione$NOME <- NA
+camera_2018_astensione$VOTI_LISTA <- 
+  camera_2018_astensione$ELETTORI - camera_2018_astensione$VOTI_LISTA
+
+amministrative_astensione <- aggregate(
+  VOTI_LISTA ~ 
+    REGIONE +
+    PROVINCIA +
+    COMUNE +
+    ELETTORI +
+    VOTANTI +
+    ELEZIONE,
+  amministrative,
+  sum
+)
+
+amministrative_astensione$LISTA <- "astensione"
+amministrative_astensione$COGNOME <- NA
+amministrative_astensione$NOME <- NA
+amministrative_astensione$VOTI_LISTA <- 
+  amministrative_astensione$ELETTORI - amministrative_astensione$VOTI_LISTA
 
 dati_precedenti <- rbind(
   amministrative,
+  amministrative_astensione,
   camera_2018[, c(
+    "REGIONE",
+    "PROVINCIA",
+    "COMUNE",
+    "ELETTORI",
+    "VOTANTI",
+    "COGNOME",
+    "NOME",
+    "LISTA",
+    "VOTI_LISTA",
+    "ELEZIONE"
+  )],
+  camera_2018_astensione[, c(
     "REGIONE",
     "PROVINCIA",
     "COMUNE",
@@ -156,6 +211,7 @@ dati_precedenti <- rbind(
   )]
 )
 amministrative <- NULL
+camera_2018 <- NULL
 
 # Questo è servito per esportare i nomi delle liste
 write.csv2(
@@ -230,18 +286,30 @@ prov_area$PERCENTUALE_AREA <- prov_area$POP_AREA / prov_area$POP_AREA_TOT
 
 #### Calcolo percentuali per provincia ####
 
-votanti <- sum(province$POP_2011) * (1 - altri_dati$Astensione)
+popolazione <- sum(province$POP_2011)
+
+liste_naz$PERC_CORRETTA <-liste_naz$PERCENTUALE * (1 - altri_dati$Astensione) 
+liste_naz <- merge(
+  liste_naz,
+  data.frame(
+    AREA = "astensione",
+    PERC_CORRETTA = altri_dati$Astensione
+  ),
+  all = TRUE
+)
 
 aree <- merge(
   aree,
   aggregate(
-    PERCENTUALE ~ AREA,
+    PERC_CORRETTA ~ AREA,
     liste_naz,
     sum
   )
 )
 
-aree$VOTANTI <- aree$PERCENTUALE * votanti
+names(aree)[names(aree) == "PERC_CORRETTA"] <- "PERCENTUALE"
+
+aree$VOTANTI <- aree$PERCENTUALE * popolazione
 
 prov_area <- merge(
   prov_area,
@@ -280,7 +348,7 @@ comuni_aree$PERCENTUALE[!is.na(comuni_aree$PERCENTUALE_PROV)] <-
   comuni_aree$PERCENTUALE_PROV[!is.na(comuni_aree$PERCENTUALE_PROV)]
 
 comuni_aree$VOTANTI <- 
-  comuni_aree$POP_2011 * (1 - altri_dati$Astensione) * comuni_aree$PERCENTUALE
+  comuni_aree$POP_2011 * comuni_aree$PERCENTUALE
 
 camera$aree_uni <- aggregate(
   cbind(VOTANTI, POP_2011) ~ CIRCOCAM_20_DEN + CP20_DEN + CU20_DEN + AREA,
@@ -309,7 +377,7 @@ liste_naz <- merge(
   suffixes = c("", "_AREA")
 )
 
-liste_naz$PERC_IN_AREA <- liste_naz$PERCENTUALE / liste_naz$PERCENTUALE_AREA
+liste_naz$PERC_IN_AREA <- liste_naz$PERC_CORRETTA / liste_naz$PERCENTUALE_AREA
 
 simula <- function(
     ramo,
@@ -323,25 +391,12 @@ simula <- function(
   names(dati$collegi_pluri)[names(dati$collegi_pluri) == "SEGGI_PLURI"] <-
     "SEGGI"
   
-  
   #### Calcolo il numero massimo di candidati per collegio pluri ####
   dati$collegi_pluri$CANDIDATI_MAX <- 
     pmin(4, dati$collegi_pluri$SEGGI)
   if (ramo == "Senato") {
     dati$collegi_pluri$CANDIDATI_MAX[dati$collegi_pluri$SEGGI == 1] <- 1
   }
-  
-  
-  #### Preparo il data frame dei candidati ####
-  n_cand <- sum(dati$collegi_pluri$CANDIDATI_MAX) + nrow(dati$collegi_uni)
-  dati$candidati <- data.frame(
-    LISTA = rep(liste_naz$LISTA, each = n_cand),
-    CL = rep(liste_naz$CL, each = n_cand)
-  )
-  
-  dati$candidati$CANDIDATO <- 
-    factor(paste(dati$candidati$LISTA, seq_along(dati$candidati$LISTA)))
-  
   
   #### Preparo i data frame delle liste ai diversi livelli ####
   
@@ -394,6 +449,19 @@ simula <- function(
   dati$liste_uni$CAND_MINORANZA <- FALSE
   dati$liste_uni$MINORANZA <- FALSE
   
+  liste_naz <- liste_naz[!is.na(liste_naz$LISTA), ]
+  
+  
+  #### Preparo il data frame dei candidati ####
+  n_cand <- sum(dati$collegi_pluri$CANDIDATI_MAX) + nrow(dati$collegi_uni)
+  dati$candidati <- data.frame(
+    LISTA = rep(liste_naz$LISTA, each = n_cand),
+    CL = rep(liste_naz$CL, each = n_cand)
+  )
+  
+  dati$candidati$CANDIDATO <- 
+    factor(paste(dati$candidati$LISTA, seq_along(dati$candidati$LISTA)))
+  
   #### Inizio iterazioni ####
   
   iterazione <- function(
@@ -422,6 +490,9 @@ simula <- function(
     dati$liste_uni$VOTI_LISTA <- 
       dati$liste_uni$POP_2011 * dati$liste_uni$PERCENTUALE_UNI
     
+    dati$liste_uni <- dati$liste_uni[!is.na(dati$liste_uni$LISTA), ]
+    dati$liste_pluri <- dati$liste_pluri[!is.na(dati$liste_pluri$LISTA), ]
+    dati$liste_circ <- dati$liste_circ[!is.na(dati$liste_circ$LISTA), ]
     
     ##### Sorteggio i candidati ####
     
@@ -574,7 +645,7 @@ simula <- function(
         "COLLEGIOPLURINOMINALE",
         "SEGGI"
       )],
-      ifelse(ramo == "Camera", 392, 296)
+      ifelse(ramo == "Camera", 392, 196)
     )
     
     
@@ -713,6 +784,11 @@ simula <- function(
     liste_naz[, c("LISTA", "COL")]
   )
   
+  liste_naz <- liste_naz[order(
+    liste_naz$PERCENTUALE,
+    decreasing = TRUE
+  ), ]
+  
   png(
     paste0("output/", scenario, substr(ramo, 1, 1), "_l_naz.png"),
     width = 800,
@@ -754,7 +830,7 @@ simula <- function(
     xlab = "Percentuale",
     ylab = "Eletti"
   )
-  abline(h = 391 / 2, lty = "dotted")
+  abline(h = ifelse(ramo == "Camera", 391, 195) / 2, lty = "dotted")
   legend(
     "topleft",
     legend = liste_naz$CL[!is.na(liste_naz$COLORE) & !duplicated(liste_naz$CL)],
