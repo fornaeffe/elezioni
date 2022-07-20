@@ -837,6 +837,22 @@ kbl(
 - Mia ipotesi di coalizioni
 - Frazione di pluricandidature basata sulla frazione di pluricandidature alle
 elezioni politiche del 2018.
+- Numero di simulazioni effettuate: `r iterazioni`
+- Parametro di variabilità dei voti: `r variab`
+
+## Dettagli del procedimento
+
+I collegi uninominali e plurinominali sono stati ricavati dal file Access della 
+proposta della commissione, ricavato dalla pagina <https://www.riformeistituzionali.gov.it/it/i-nuovi-collegi-elettorali/>. Il 
+numero di seggi per ciascun collegio plurinominale è stato calcolato
+suddividendo i seggi totali nelle circoscrizioni in base alla popolazione 
+risultante dal censimento 2011, e al numero di seggi così ottenuto è stato 
+tolto il numero di collegi uninominali definiti. Al Senato, poiché per il
+Trentino-Alto Adige sono definiti 6 collegi uninominali ma in base alla 
+popolazione spetterebbero meno di 6 seggi, non sono stati attribuiti seggi da
+eleggere con metodo proporzionale. Se qualcuno ha informazioni più dettagliate
+su come saranno realmente distribuiti i seggi per la parte proporzionale sono
+molto gradite.
 
 I voti di ogni lista in ciascun collegio uninominale sono stati stimati in
 questo modo:
@@ -867,10 +883,9 @@ di ciascuna lista.
 
 Sono state effettuate `r iterazioni` simulazioni, in ciascuna delle quali la 
 percentuale di ciascuna lista in ciascun collegio è stata fatta variare un poco 
-rispetto alla percentuale calcolata nel punto 8. In particolare, il logaritmo 
-naturale della percentuale di lista è stato fatto variare secondo una 
-distribuzione normale con deviazione standard `r variab`, e i valori così 
-ottenuti sono stati riconvertiti in percentuali attraverso la funzione softmax.
+rispetto alla percentuale calcolata nel punto 8. Il parametro di variabilità
+stabilisce quanto i voti possono variare (per i dettagli del calcolo, vedere
+gli script).
 
 Si assume che tutte le liste si presentino in tutti i collegi plurinominali, con
  il massimo numero di candidati. Per simulare le pluricandidature si è proceduto
@@ -893,8 +908,14 @@ alla lettera il DPR 361/57 e il D.Lgs. 533/93 (con l'unica eccezione dei casi
 di parità da risolvere con sorteggio, e per il Senato applicando, in caso di 
 incapienza di una lista, quanto
 accaduto a seguito delle elezioni 2018, cioè
-andando a ripescare candidati non eletti anche da altre regioni). Non sono stati
-simulati i seggi delle circoscrizioni Estero e Valle d'Aosta.
+andando a ripescare candidati non eletti anche da altre regioni).
+
+**Non sono stati simulati i seggi delle circoscrizioni Estero e Valle d'Aosta.**
+
+Gli script per l'esecuzione dell'analisi si trovano in questo repository:
+<https://github.com/fornaeffe/elezioni>
+
+L'analisi è stata svolta con `r R.version.string`.
 
 ## Risultati
 
@@ -1227,7 +1248,7 @@ grafico_nmax <- function(ramo, collegio = NA) {
         lp$LISTA == lista
       ] *100
     ),
-    breaks = 20,
+    breaks = ifelse(is.na(collegio), 20, 10),
     col = colori,
     yaxlabels = NA,
     ylab = NA,
