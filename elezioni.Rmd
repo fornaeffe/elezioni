@@ -233,7 +233,7 @@ write.csv2(
 
 ##### Corrispondenza liste - aree #####
 
-liste <- read_xlsx("sandbox/liste.xlsx", "liste")
+liste <- read_xlsx("dati_2023/liste.xlsx", "liste")
 liste <- liste[
   !duplicated(liste$LISTA) & !is.na(liste$LISTA) & !is.na(liste$AREA)
   , c("LISTA", "AREA")]
