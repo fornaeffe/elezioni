@@ -15,6 +15,7 @@
 /output/
 
 # Sandbox data files
+sandbox.R
 /sandbox/
 
 # Output files from R CMD build
@@ -47,3 +48,4 @@ vignettes/*.pdf
 # Documento prodotto
 *.html
 *_files/
+rsconnect/

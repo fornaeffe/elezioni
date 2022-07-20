@@ -945,6 +945,85 @@ senato$risultato$cl_naz <- merge(
 
 ### Complessivi
 
+```{r plot_parlamento}
+library(ggplot2)
+library(ggpol)
+
+disegna_parlamento <- function(ramo) {
+  dati <- get(ramo)
+  uni <- aggregate(
+    ELETTO ~ CL,
+    dati$risultato$cl_naz,
+    mean,
+    subset = CL %in% liste_naz$CL[!is.na(liste_naz$COLORE)]
+  )
+  uni$PARTE_INTERA <- floor(uni$ELETTO)
+  uni$RESTO <- uni$ELETTO %% 1
+  uni <- uni[order(uni$RESTO, decreasing = TRUE), ]
+  uni$SEGGIO_DA_RESTO <- 
+    seq_along(uni$PARTE_INTERA) <= 
+    nrow(dati$collegi_uni) - sum(uni$PARTE_INTERA)
+  uni$SEGGI <- uni$PARTE_INTERA + uni$SEGGIO_DA_RESTO
+  uni <- merge(
+    uni,
+    liste_naz[!duplicated(liste_naz$CL), c("CL", "COLORE")]
+  )
+  uni$COL <- hsv(uni$COLORE / 360, 1, 1, 1)
+  uni$Gruppo <- paste("Magg.", uni$CL)
+  
+  pluri <- aggregate(
+    ELETTI ~ LISTA,
+    dati$risultato$liste_naz,
+    mean,
+    subset = LISTA %in% liste_naz$LISTA[!is.na(liste_naz$COLORE)]
+  )
+  pluri$PARTE_INTERA <- floor(pluri$ELETTI)
+  pluri$RESTO <- pluri$ELETTI %% 1
+  pluri <- pluri[order(pluri$RESTO, decreasing = TRUE), ]
+  pluri$SEGGIO_DA_RESTO <- 
+    seq_along(pluri$PARTE_INTERA) <= 
+    sum(dati$collegi_pluri$SEGGI_PLURI) - sum(pluri$PARTE_INTERA)
+  pluri$SEGGI <- pluri$PARTE_INTERA + pluri$SEGGIO_DA_RESTO
+  pluri <- merge(
+    pluri,
+    liste_naz[, c("LISTA", "COL", "CL")]
+  )
+  pluri <- pluri[order(pluri$CL), ]
+  pluri$Gruppo <- paste("Prop.", pluri$LISTA)
+  
+  parlamento <- rbind(
+    uni[, c("Gruppo", "SEGGI", "COL")],
+    pluri[, c("Gruppo", "SEGGI", "COL")],
+    data.frame(
+      Gruppo = c("Valle d'Aosta", "Estero"),
+      SEGGI = c(1, ifelse(ramo == "camera", 8, 4)),
+      COL = c("#AAAAAAFF", "#808080FF")
+    )
+  )
+  
+  parlamento <- parlamento[parlamento$SEGGI > 0, ]
+  
+  ggplot(parlamento) +
+    geom_parliament(aes(seats = SEGGI, fill = Gruppo), color = "black") +
+    scale_fill_manual(values = parlamento$COL, labels = parlamento$Gruppo) +
+    coord_fixed() +
+    theme_void()
+}
+
+
+```
+
+#### Composizione media della Camera
+```{r}
+disegna_parlamento("camera")
+```
+
+#### Composizione media del Senato
+```{r}
+disegna_parlamento("senato")
+```
+
+
 ```{r plot_eletti_tot, fig.width=8, fig.height=8, dpi=100}
 layout(matrix(1:4, 2, 2), c(5, 3), c(5, 5))
 par(mar = c(4,4,4,2) )
