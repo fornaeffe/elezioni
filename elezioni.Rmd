@@ -1,3 +1,16 @@
+---
+title: "Simulazione elezioni politiche"
+author: "Luca Fornasari"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+```
+
+```{r main, include=FALSE, cache=TRUE}
 #### Carico librerie e script ####
 
 library(data.table)
@@ -9,6 +22,10 @@ library(parallel)
 
 # Scenario
 scenario <- "01"
+
+# Lista e collegio di riferimento
+lista <- "Europa Verde - Sinistra Italiana"
+collegio <- "Emilia-Romagna - P01"
 
 # Numero di iterazioni
 iterazioni <- 200
@@ -788,3 +805,453 @@ senato$risultato <- simula(
   iterazioni,
   variab
 )
+
+```
+
+## Dati di input
+
+```{r liste_naz}
+library(kableExtra)
+options(knitr.kable.NA = '')
+liste_naz <- liste_naz[order(liste_naz$PERCENTUALE, decreasing = TRUE), ]
+liste_naz$PERCENTUALE <- formattable::percent(liste_naz$PERCENTUALE, 1)
+liste_naz$FRAZ_PLURICAND <- formattable::percent(liste_naz$FRAZ_PLURICAND, 0)
+kbl(
+  liste_naz[
+    liste_naz$AREA != "astensione" & !is.na(liste_naz$COLORE), 
+    c("LISTA", "PERCENTUALE", "COALIZIONE", "FRAZ_PLURICAND", "AREA")
+  ],
+  row.names = FALSE,
+  col.names = c(
+    "Lista",
+    "Percentuale",
+    "Coalizione",
+    "Pluricandidature",
+    "Area"
+  )
+) %>%
+  kable_minimal()
+```
+
+- Percentuali nazionali dal sondaggio `r altri_dati$Sondaggio`
+- Mia ipotesi di coalizioni
+- Frazione di pluricandidature basata sulla frazione di pluricandidature alle
+elezioni politiche del 2018.
+
+I voti di ogni lista in ciascun collegio uninominale sono stati stimati in
+questo modo:
+
+1. Sono stati recuperati i dati delle elezioni della Camera del 2018, delle
+ elezioni europee del 2019 e delle elezioni regionali dal 2018 ad oggi.
+2. Le liste (sia delle passate elezioni sia della futura elezione) sono state 
+raggruppate in "aree politiche" (vedi tabella sopra), aggiungendo una ulteriore 
+area "astensione".
+3. Basandosi sui risultati delle elezioni precedenti, per ciascuna provincia è
+stata stimata la percentuale di popolazione "appartenente" a ciascuna area 
+politica.
+4. Per ciascuna area politica è stata calcolata quindi la percentuale di 
+popolazione di quella area politica presente nella provincia, rispetto al totale
+nazionale, cioè è stata calcolata la distribuzione geografica di ogni area 
+politica.
+5. Per ciascuna area politica, i voti nazionali (calcolati in base alle 
+percentuali del sondaggio mostrate nella tabella sopra) sono stati divisi nelle 
+diverse provincie in base alla distribuzione calcolata al punto 4.
+6. Sono state calcolate le percentuali di ogni area all'interno di ogni 
+provincia, rispetto al totale di voti assegnati a ogni provincia.
+7. A partire dalle percentuali del punto 6 sono state calcolate le percentuali
+di ogni area all'interno di ogni collegio uninominale di Camera e Senato, in 
+base a quali comuni di quali provincie appartengono a ciascun collegio.
+8. In ogni collegio, le percentuali di ciascuna area sono state suddivise tra le
+liste di quell'area proporzionalmente alla percentuale nazionale (da sondaggio) 
+di ciascuna lista.
+
+Sono state effettuate `r iterazioni` simulazioni, in ciascuna delle quali la 
+percentuale di ciascuna lista in ciascun collegio è stata fatta variare un poco 
+rispetto alla percentuale calcolata nel punto 8. In particolare, il logaritmo 
+naturale della percentuale di lista è stato fatto variare secondo una 
+distribuzione normale con deviazione standard `r variab`, e i valori così 
+ottenuti sono stati riconvertiti in percentuali attraverso la funzione softmax.
+
+Si assume che tutte le liste si presentino in tutti i collegi plurinominali, con
+ il massimo numero di candidati. Per simulare le pluricandidature si è proceduto
+ in questo modo:
+
+1. Ogni candidato uninominale di ciascuna coalizione è stato "assegnato" a 
+una delle liste della coalizione, proporzionalmente alla percentuale di ciascuna
+ lista rispetto alla percentuale complessiva della coalizione (ad esempio se FdI
+ ha il 25% e l'intera coalizione di cdx ha il 50%, metà dei candidati 
+uninominali di cdx saranno "assegnati" a FdI)
+2. Nell'individuare i candidati plurinominali, è stato sorteggiato casualmente 
+se ciascuno di questi dovesse essere "nuovo" (cioè non ancora candidato altrove)
+oppure dovesse essere un nome già candidato in altri collegi uni o 
+plurinominali, rispettando il limite di 1 collegio uninominale e 5 collegi 
+plurinominali. La proporzione di candidati plurinominali che sono in realtà nomi
+già candidati altrove è quella indicata nella prima tabella.
+
+Una volta ottenuti voti e candidati per ciascun collegio, sono stati applicati
+alla lettera il DPR 361/57 e il D.Lgs. 533/93 (con l'unica eccezione dei casi
+di parità da risolvere con sorteggio, e per il Senato applicando, in caso di 
+incapienza di una lista, quanto
+accaduto a seguito delle elezioni 2018, cioè
+andando a ripescare candidati non eletti anche da altre regioni). Non sono stati
+simulati i seggi delle circoscrizioni Estero e Valle d'Aosta.
+
+## Risultati
+
+```{r prep_grafici}
+liste_naz$COL <- "#DDDDDD"
+liste_naz$COL[!is.na(liste_naz$COLORE)] <- 
+    hsv(liste_naz$COLORE[!is.na(liste_naz$COLORE)] / 360, 1, .8, 1)
+
+camera$risultato$liste_naz <- merge(
+  camera$risultato$liste_naz,
+  liste_naz[, c("LISTA", "COL")]
+)
+senato$risultato$liste_naz <- merge(
+  senato$risultato$liste_naz,
+  liste_naz[, c("LISTA", "COL")]
+)
+
+camera$risultato$cl_naz <- merge(
+    camera$risultato$cl_naz,
+    liste_naz[!duplicated(liste_naz$CL), c("CL", "COL")]
+  )
+senato$risultato$cl_naz <- merge(
+    senato$risultato$cl_naz,
+    liste_naz[!duplicated(liste_naz$CL), c("CL", "COL")]
+  )
+```
+
+### Complessivi
+
+```{r plot_eletti_tot, fig.width=8, fig.height=8, dpi=100}
+layout(matrix(1:4, 2, 2), c(5, 3), c(5, 5))
+par(mar = c(4,4,4,2) )
+plot(
+  ELETTI_TOT ~ I(PERCENTUALE * 100),
+  data = camera$risultato$cl_naz,
+  col = COL,
+  main = "Camera: eletti totali",
+  xlab = "Percentuale",
+  ylab = "Eletti"
+)
+abline(h = 391 / 2, lty = "dotted")
+plot(
+  ELETTI_TOT ~ I(PERCENTUALE * 100),
+  data = senato$risultato$cl_naz,
+  col = COL,
+  main = "Senato: eletti totali",
+  xlab = "Percentuale",
+  ylab = "Eletti"
+)
+abline(h = 195 / 2, lty = "dotted")
+
+par(mar = c(4,0.1,4,0.1) )
+plot(NA, xlim = c(0,1), ylim = c(0,1), axes=FALSE, xlab="", ylab="")
+legend(
+  "topleft",
+  legend = liste_naz$CL[!is.na(liste_naz$COLORE) & !duplicated(liste_naz$CL)],
+  pch = 19,
+  col = liste_naz$COL[!is.na(liste_naz$COLORE) & !duplicated(liste_naz$CL)]
+)
+plot(NA, xlim = c(0,1), ylim = c(0,1), axes=FALSE, xlab="", ylab="")
+legend(
+  "topleft",
+  legend = liste_naz$CL[!is.na(liste_naz$COLORE) & !duplicated(liste_naz$CL)],
+  pch = 19,
+  col = liste_naz$COL[!is.na(liste_naz$COLORE) & !duplicated(liste_naz$CL)]
+)
+
+
+```
+\
+\
+\
+
+```{r plot_eletti_uni, fig.width=8, fig.height=8, dpi=100}
+layout(matrix(1:4, 2, 2), c(5, 3), c(5, 5))
+par(mar = c(4,4,4,2) )
+plot(
+  ELETTO ~ I(PERCENTUALE * 100),
+  data = camera$risultato$cl_naz,
+  col = COL,
+  main = "Camera: eletti nei collegi uninominali",
+  xlab = "Percentuale",
+  ylab = "Eletti"
+)
+abline(h = nrow(camera$collegi_uni) / 2, lty = "dotted")
+plot(
+  ELETTO ~ I(PERCENTUALE * 100),
+  data = senato$risultato$cl_naz,
+  col = COL,
+  main = "Senato: eletti nei collegi uninominali",
+  xlab = "Percentuale",
+  ylab = "Eletti"
+)
+abline(h = nrow(senato$collegi_uni) / 2, lty = "dotted")
+
+par(mar = c(4,0.1,4,0.1) )
+plot(NA, xlim = c(0,1), ylim = c(0,1), axes=FALSE, xlab="", ylab="")
+legend(
+  "topleft",
+  legend = liste_naz$CL[!is.na(liste_naz$COLORE) & !duplicated(liste_naz$CL)],
+  pch = 19,
+  col = liste_naz$COL[!is.na(liste_naz$COLORE) & !duplicated(liste_naz$CL)]
+)
+plot(NA, xlim = c(0,1), ylim = c(0,1), axes=FALSE, xlab="", ylab="")
+legend(
+  "topleft",
+  legend = liste_naz$CL[!is.na(liste_naz$COLORE) & !duplicated(liste_naz$CL)],
+  pch = 19,
+  col = liste_naz$COL[!is.na(liste_naz$COLORE) & !duplicated(liste_naz$CL)]
+)
+
+
+```
+\
+\
+\
+
+```{r plot_eletti_pluri, fig.width=8, fig.height=8, dpi=100}
+layout(matrix(1:4, 2, 2), c(5, 3), c(5, 5))
+par(mar = c(4,4,4,2) )
+plot(
+    ELETTI ~ I(PERCENTUALE * 100),
+    data = camera$risultato$liste_naz,
+    col = COL,
+    main = "Camera: eletti nei collegi plurinominali",
+    xlab = "Percentuale",
+    ylab = "Eletti"
+  )
+plot(
+    ELETTI ~ I(PERCENTUALE * 100),
+    data = senato$risultato$liste_naz,
+    col = COL,
+    main = "Senato: eletti nei collegi plurinominali",
+    xlab = "Percentuale",
+    ylab = "Eletti"
+  )
+
+par(mar = c(4,0.1,4,0.1) )
+plot(NA, xlim = c(0,1), ylim = c(0,1), axes=FALSE, xlab="", ylab="")
+legend(
+  "topleft",
+  legend = liste_naz$LISTA[!is.na(liste_naz$COLORE)],
+  pch = 19,
+  col = liste_naz$COL[!is.na(liste_naz$COLORE)]
+)
+plot(NA, xlim = c(0,1), ylim = c(0,1), axes=FALSE, xlab="", ylab="")
+legend(
+  "topleft",
+  legend = liste_naz$LISTA[!is.na(liste_naz$COLORE)],
+  pch = 19,
+  col = liste_naz$COL[!is.na(liste_naz$COLORE)]
+)
+
+
+```
+\
+\
+\
+
+```{r}
+library(stringr)
+disegna_tabella_uni <- function(ramo) {
+  tbl <- reshape(
+    aggregate(
+      ELETTO ~ 
+        CIRCOSCRIZIONE +
+        COLLEGIOPLURINOMINALE +
+        COLLEGIOUNINOMINALE +
+        CL,
+      get(ramo)$risultato$candidati_uni,
+      mean,
+      subset = CL %in% liste_naz$CL[!is.na(liste_naz$COLORE)]
+    ),
+    direction = "wide",
+    idvar = c(
+      "CIRCOSCRIZIONE",
+      "COLLEGIOPLURINOMINALE",
+      "COLLEGIOUNINOMINALE"
+    ),
+    timevar = "CL"
+  )
+  names(tbl) <- str_remove(names(tbl), "ELETTO\\.")
+  
+  kb <- kbl(tbl) %>%
+    kable_minimal()
+  
+  for (i in 4:ncol(tbl)) {
+    kb <- column_spec(
+      kb,
+      i,
+      background = hsv(
+        liste_naz$COLORE[liste_naz$CL == names(tbl)[i]][1] / 360, 
+        .65, 
+        1, 
+        tbl[[i]]
+      )
+    )
+  }
+  kb
+}
+
+disegna_tabella_pluri <- function(ramo) {
+  tbl <- reshape(
+    aggregate(
+      ELETTI ~ CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE + LISTA,
+      get(ramo)$risultato$liste_pluri,
+      mean,
+      subset = LISTA %in% liste_naz$LISTA[!is.na(liste_naz$COLORE)]
+    ),
+    direction = "wide",
+    idvar = c("CIRCOSCRIZIONE", "COLLEGIOPLURINOMINALE"),
+    timevar = "LISTA"
+  )
+  names(tbl) <- str_remove(names(tbl), "ELETTI\\.")
+  
+  kb <- kbl(tbl) %>%
+    kable_minimal()
+  
+  for (i in 3:ncol(tbl)) {
+    kb <- column_spec(
+      kb,
+      i,
+      background = hsv(
+        liste_naz$COLORE[which(liste_naz$LISTA == names(tbl)[i])] / 360, 
+        1, 
+        1, 
+        tbl[[i]] / 4
+      )
+    )
+  }
+  kb
+}
+
+```
+
+#### Probabilità di vittoria in ciascun collegio uninominale della **Camera**
+
+```{r}
+disegna_tabella_uni("camera")
+```
+\
+\
+\
+
+#### Probabilità di vittoria in ciascun collegio uninominale del **Senato**
+
+```{r}
+disegna_tabella_uni("senato")
+```
+\
+\
+\
+
+#### Numero medio di eletti in ciascun collegio plurinominale della **Camera**
+
+```{r}
+disegna_tabella_pluri("camera")
+```
+\
+\
+\
+
+#### Numero medio di eletti in ciascun collegio plurinominale del **Senato**
+
+```{r}
+disegna_tabella_pluri("senato")
+```
+\
+\
+\
+\
+\
+\
+
+---
+
+### `r lista`
+```{r plot_eletti_pluri_lista, fig.width=6, fig.height=6, dpi=100}
+par(mar = c(4,4,4,2) )
+plot(
+    ELETTI ~ I(PERCENTUALE * 100),
+    data = camera$risultato$liste_naz[camera$risultato$liste_naz$LISTA == lista, ],
+    col = COL,
+    main = "Camera: eletti nei collegi plurinominali",
+    xlab = "Percentuale",
+    ylab = "Eletti"
+  )
+plot(
+    ELETTI ~ I(PERCENTUALE * 100),
+    data = senato$risultato$liste_naz[senato$risultato$liste_naz$LISTA == lista, ],
+    col = COL,
+    main = "Senato: eletti nei collegi plurinominali",
+    xlab = "Percentuale",
+    ylab = "Eletti"
+  )
+
+
+```
+\
+\
+\
+
+```{r fig.width=8, fig.height=.5, dpi=100}
+par(mar = c(0,4,2,2))
+plot(NA, xlim = c(0,1), ylim = c(0,1), axes=FALSE, xlab="", ylab="",
+     main = "Probabilità di elezione in base alla posizione nel listino")
+```
+
+
+```{r plot_nmax, fig.width=8, fig.height=8, dpi=100}
+
+grafico_nmax <- function(ramo, collegio = NA) {
+  if (is.na(collegio)) {
+    lp <- get(ramo)$risultato$liste_pluri
+  } else {
+    lp <- get(ramo)$risultato$liste_pluri[
+      get(ramo)$risultato$liste_pluri$COLLEGIOPLURINOMINALE == collegio,
+    ]
+  }
+  
+  nmax <- factor(
+      lp$NUMERO_MAX[lp$LISTA == lista],
+      levels = 0:4
+    )
+  nmax[is.na(nmax)] <- 4
+  colori <- c(hcl.colors(4), "#FFFFFF")
+  spineplot(
+    nmax ~ I(
+      lp$PERCENTUALE[
+        lp$LISTA == lista
+      ] *100
+    ),
+    breaks = 20,
+    col = colori,
+    yaxlabels = NA,
+    ylab = NA,
+    xlab = "Percentuale nel collegio plurinominale",
+    main = paste0(
+      ramo,
+      ifelse(is.na(collegio), "", paste0(" - ", collegio))
+    )
+  )
+  
+  legend(
+    "topleft",
+    legend = levels(nmax)[-1],
+    fill = rev(colori[-5]),
+    title = "Posizione"
+  )
+}
+
+layout(matrix(c(1,3,2,4), 2, 2), c(1,1), c(1, 1))
+grafico_nmax("camera")
+grafico_nmax("senato")
+grafico_nmax("camera", collegio)
+grafico_nmax("senato", collegio)
+
+```
+
+

@@ -1,5 +1,3 @@
-## TODO: aggiungere area "Altro/Astensione"
-
 t0 <- proc.time()
 
 #### Carico librerie e script ####
