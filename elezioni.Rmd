@@ -5,6 +5,16 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
+Questo report contiene i risultati di una simulazione delle prossime elezioni
+della Camera dei Deputati e del Senato della Repubblica Italiana, ottenuti
+partendo da un sondaggio politico e dai risultati delle precedenti elezioni. Da
+questi vengono simulati i possibili voti presi da ciascuna lista in ciascun
+collegio, e dai voti vengono poi calcolati il numero di eletti per ciascuna
+lista.
+
+Segnalazioni, richieste e suggerimenti a <fornaeffe@gmail.com> o sul repository
+<https://github.com/fornaeffe/elezioni>.
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 
@@ -945,6 +955,17 @@ senato$risultato$cl_naz <- merge(
 
 ### Complessivi
 
+Nei grafici seguenti è mostrata la composizione media dei due rami del
+Parlamento.
+
+I seggi attribuiti attraverso il sistema maggioritario nei collegi 
+**uninominali** sono indicati con **"Magg."** seguito dal nome della 
+**coalizione**.
+
+I seggi attribuiti attraverso il sistema proporzionale nei collegi
+**plurinominali** sono indicati con **"Prop."** seguito dal nome della
+**lista**.
+
 ```{r plot_parlamento}
 library(ggplot2)
 library(ggpol)
@@ -1023,6 +1044,19 @@ disegna_parlamento("camera")
 disegna_parlamento("senato")
 ```
 
+#### Eletti rispetto alla percentuale
+
+Nei grafici seguenti è mostrato il numero di eletti (rispettivamente totali,
+nei collegi uninominali e nei collegi plurinominali) per ciascuna coalizione o 
+ciascuna lista, a seconda della percentuale di voti ottenuta dalla coalizione o
+lista. Ogni punto rappresenta una diversa simulazione, i punti relativi a una
+coalizione o una lista formano una "nuvola" perché in ciascuna 
+simulazione la percentuale è libera di variare leggermente rispetto alla
+percentuale stimata dai sondaggi, e di conseguenza la coalizione o la lista
+ottiene un numero più o meno alto di seggi.
+
+La linea orizzontale punteggiata rappresenta la metà dei seggi (esclusi quelli
+di Val d'Aosta ed Estero, che non sono stati simulati).
 
 ```{r plot_eletti_tot, fig.width=8, fig.height=8, dpi=100}
 layout(matrix(1:4, 2, 2), c(5, 3), c(5, 5))
@@ -1231,6 +1265,8 @@ disegna_tabella_pluri <- function(ramo) {
 ```
 
 #### Probabilità di vittoria in ciascun collegio uninominale della **Camera**
+Nella tabella seguente, per ciascun collegio uninominale, è mostrata la 
+probabilità di vittoria di ciascuna coalizione.
 
 ```{r}
 disegna_tabella_uni("camera")
@@ -1240,6 +1276,8 @@ disegna_tabella_uni("camera")
 \
 
 #### Probabilità di vittoria in ciascun collegio uninominale del **Senato**
+Nella tabella seguente, per ciascun collegio uninominale, è mostrata la 
+probabilità di vittoria di ciascuna coalizione.
 
 ```{r}
 disegna_tabella_uni("senato")
@@ -1249,6 +1287,8 @@ disegna_tabella_uni("senato")
 \
 
 #### Numero medio di eletti in ciascun collegio plurinominale della **Camera**
+Nella tabella seguente, per ciascun collegio plurinominale, è mostrato il
+numero medio di eletti per ciascuna lista.
 
 ```{r}
 disegna_tabella_pluri("camera")
@@ -1258,6 +1298,8 @@ disegna_tabella_pluri("camera")
 \
 
 #### Numero medio di eletti in ciascun collegio plurinominale del **Senato**
+Nella tabella seguente, per ciascun collegio plurinominale, è mostrato il
+numero medio di eletti per ciascuna lista.
 
 ```{r}
 disegna_tabella_pluri("senato")
@@ -1272,6 +1314,25 @@ disegna_tabella_pluri("senato")
 ---
 
 ### `r lista`
+Di seguito i risultati di dettaglio per la lista `r lista`. I primi grafici
+mostrano, a seconda della percentuale nazionale ottenuta, il numero di seggi
+ottenuti dalla lista alla Camera e al Senato.
+
+I grafici successivi mostrano la probabilità di elezione per un candidato di
+`r lista` in base alla sua posizione nel listino e alla percentuale ottenuta
+dalla lista nel suo collegio plurinominale.
+L'altezza delle colonne indica la probabilità di elezione, la larghezza delle
+colonne indica la probabilità di ottenere una percentuale in quell'intervallo.
+Sono mostrati prima i grafici generici, relativi a una media di tutti i
+collegi plurinominali, e poi i grafici di dettaglio relativi al collegio
+`r collegio`.
+
+È possibile ottenere le stesse informazioni ma per una diversa lista o un 
+diverso collegio cambiando le impostazioni all'inizio del file elezioni.Rmd
+(tutti gli script si trovano nel repository 
+<https://github.com/fornaeffe/elezioni>) o chiedendomelo a 
+<fornaeffe@gmail.com>.
+
 ```{r plot_eletti_pluri_lista, fig.width=6, fig.height=6, dpi=100}
 par(mar = c(4,4,4,2) )
 plot(
