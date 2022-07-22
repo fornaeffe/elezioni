@@ -12,6 +12,11 @@ questi vengono simulati i possibili voti presi da ciascuna lista in ciascun
 collegio, e dai voti vengono poi calcolati il numero di eletti per ciascuna
 lista.
 
+Avverto che ho fatto questa simulazione per curiosità e non per lavoro, e che
+potrebbero essermi sfuggiti degli errori nel processo di
+simulazione, i risultati vanno dunque presi senza alcuna garanzia di
+accuratezza.
+
 Segnalazioni, richieste e suggerimenti a <fornaeffe@gmail.com> o sul repository
 <https://github.com/fornaeffe/elezioni>.
 
@@ -31,7 +36,7 @@ library(parallel)
 #### Parametri ####
 
 # Scenario
-scenario <- "01"
+scenario <- "02"
 
 # Lista e collegio di riferimento
 lista <- "Europa Verde - Sinistra Italiana"
@@ -844,7 +849,7 @@ kbl(
 ```
 
 - Percentuali nazionali dal sondaggio `r altri_dati$Sondaggio`
-- Mia ipotesi di coalizioni
+- Mia ipotesi di coalizioni (suggerimenti di ipotesi alternative sono benvenuti)
 - Frazione di pluricandidature basata sulla frazione di pluricandidature alle
 elezioni politiche del 2018.
 - Numero di simulazioni effettuate: `r iterazioni`
@@ -890,6 +895,9 @@ base a quali comuni di quali provincie appartengono a ciascun collegio.
 8. In ogni collegio, le percentuali di ciascuna area sono state suddivise tra le
 liste di quell'area proporzionalmente alla percentuale nazionale (da sondaggio) 
 di ciascuna lista.
+
+Se qualcuno ha a disposizione stime più precise delle percentuali su base
+locale, le integro volentieri della simulazione.
 
 Sono state effettuate `r iterazioni` simulazioni, in ciascuna delle quali la 
 percentuale di ciascuna lista in ciascun collegio è stata fatta variare un poco 

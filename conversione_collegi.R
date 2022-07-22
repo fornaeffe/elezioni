@@ -460,6 +460,13 @@ senato$collegi_uni <- rbind(
   senato$collegi_uni_M
 )
 
+# Fix Campania e Basilicata
+senato$collegi_pluri$SEGGI_PLURI[
+  senato$collegi_pluri$COLLEGIOPLURINOMINALE == "Campania - P01"] <- 6
+senato$collegi_pluri$SEGGI_PLURI[
+  senato$collegi_pluri$COLLEGIOPLURINOMINALE == "Basilicata - P01"] <- 2
+
+
 ##### Elimino i dati inutili #####
 
 senato <- senato[c("circoscrizioni", "collegi_pluri", "collegi_uni")]
