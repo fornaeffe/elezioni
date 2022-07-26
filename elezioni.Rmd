@@ -5,6 +5,11 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
+<!-- 
+Vedi il file README.md per info sul funzionamento di questi script e sui
+dati di input.
+-->
+
 Questo report contiene i risultati di una simulazione delle prossime elezioni
 della Camera dei Deputati e del Senato della Repubblica Italiana, ottenuti
 partendo da un sondaggio politico e dai risultati delle precedenti elezioni. Da
@@ -36,7 +41,7 @@ library(parallel)
 #### Parametri ####
 
 # Scenario
-scenario <- "02"
+scenario <- "05"
 
 # Lista e collegio di riferimento
 lista <- "Europa Verde - Sinistra Italiana"
