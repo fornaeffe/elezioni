@@ -41,7 +41,7 @@ library(parallel)
 #### Parametri ####
 
 # Scenario
-scenario <- "05"
+scenario <- "01"
 
 # Lista e collegio di riferimento
 lista <- "Europa Verde - Sinistra Italiana"
@@ -592,7 +592,11 @@ simula <- function(
         papabili <- which(
           dati$candidati$LISTA == dati$candidati_pluri$LISTA[i] &
             dati$candidati$SCELTO_PLURI < 5 &
-            (dati$candidati$SCELTO_UNI | dati$candidati$SCELTO_PLURI > 0)
+            (dati$candidati$SCELTO_UNI | dati$candidati$SCELTO_PLURI > 0) &
+            !(dati$candidati$CANDIDATO %in% dati$candidati_pluri$CANDIDATO[
+              dati$candidati_pluri$COLLEGIOPLURINOMINALE == 
+                dati$candidati_pluri$COLLEGIOPLURINOMINALE[i]
+            ])
         )
         
         if (length(papabili) > 0) {
@@ -1039,7 +1043,11 @@ disegna_parlamento <- function(ramo) {
   
   ggplot(parlamento) +
     geom_parliament(aes(seats = SEGGI, fill = Gruppo), color = "black") +
-    scale_fill_manual(values = parlamento$COL, labels = parlamento$Gruppo) +
+    scale_fill_manual(values = parlamento$COL, labels = paste(
+      parlamento$Gruppo,
+      "-",
+      parlamento$SEGGI
+    )) +
     coord_fixed() +
     theme_void()
 }
