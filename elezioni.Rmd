@@ -41,17 +41,17 @@ library(parallel)
 #### Parametri ####
 
 # Scenario
-scenario <- "01"
+scenario <- "02"
 
 # Lista e collegio di riferimento
 lista <- "Europa Verde - Sinistra Italiana"
 collegio <- "Emilia-Romagna - P01"
 
 # Numero di iterazioni
-iterazioni <- 200
+iterazioni <- 2000
 
 # Variabilità dei voti
-variab <- 0.5
+variab <- 1
 
 #### Importazione dati ####
 
@@ -777,7 +777,7 @@ simula <- function(
     )
   }
   
-  cl <- makeCluster(10)
+  cl <- makeCluster(parallel::detectCores())
   
   clusterEvalQ(
     cl,
@@ -799,13 +799,13 @@ simula <- function(
   risultato <- list()
   
   risultato$liste_pluri <- 
-    rbindlist(lapply(lista_risultati, function(l) l$liste_pluri))
+    rbindlist(lapply(lista_risultati, function(l) l$liste_pluri), idcol = "SIM")
   risultato$liste_naz <- 
-    rbindlist(lapply(lista_risultati, function(l) l$liste_naz))
+    rbindlist(lapply(lista_risultati, function(l) l$liste_naz), idcol = "SIM")
   risultato$cl_naz <- 
-    rbindlist(lapply(lista_risultati, function(l) l$cl_naz))
+    rbindlist(lapply(lista_risultati, function(l) l$cl_naz), idcol = "SIM")
   risultato$candidati_uni <- 
-    rbindlist(lapply(lista_risultati, function(l) l$candidati_uni))
+    rbindlist(lapply(lista_risultati, function(l) l$candidati_uni), idcol = "SIM")
   
   lista_risultati <- NULL
   
@@ -972,7 +972,7 @@ senato$risultato$cl_naz <- merge(
 
 ### Complessivi
 
-Nei grafici seguenti è mostrata la composizione media dei due rami del
+Nei grafici seguenti è mostrata la composizione mediana dei due rami del
 Parlamento.
 
 I seggi attribuiti attraverso il sistema maggioritario nei collegi 
@@ -983,6 +983,13 @@ I seggi attribuiti attraverso il sistema proporzionale nei collegi
 **plurinominali** sono indicati con **"Prop."** seguito dal nome della
 **lista**.
 
+Nota: poiché per ogni coalizione o lista è stato preso il valore mediano
+tra tutte le simulazioni,
+e i valori di ciascuna coalizione o lista
+potrebbero non provenire dalla stessa simulazione,
+il totale dei seggi potrebbe essere leggermente differente
+da 400 (nel caso della Camera) o 200 (nel caso del Senato).
+
 ```{r plot_parlamento}
 library(ggplot2)
 library(ggpol)
@@ -992,16 +999,11 @@ disegna_parlamento <- function(ramo) {
   uni <- aggregate(
     ELETTO ~ CL,
     dati$risultato$cl_naz,
-    mean,
+    median,
     subset = CL %in% liste_naz$CL[!is.na(liste_naz$COLORE)]
   )
-  uni$PARTE_INTERA <- floor(uni$ELETTO)
-  uni$RESTO <- uni$ELETTO %% 1
-  uni <- uni[order(uni$RESTO, decreasing = TRUE), ]
-  uni$SEGGIO_DA_RESTO <- 
-    seq_along(uni$PARTE_INTERA) <= 
-    nrow(dati$collegi_uni) - sum(uni$PARTE_INTERA)
-  uni$SEGGI <- uni$PARTE_INTERA + uni$SEGGIO_DA_RESTO
+  
+  uni$SEGGI <- uni$ELETTO
   uni <- merge(
     uni,
     liste_naz[!duplicated(liste_naz$CL), c("CL", "COLORE")]
@@ -1012,16 +1014,10 @@ disegna_parlamento <- function(ramo) {
   pluri <- aggregate(
     ELETTI ~ LISTA,
     dati$risultato$liste_naz,
-    mean,
+    median,
     subset = LISTA %in% liste_naz$LISTA[!is.na(liste_naz$COLORE)]
   )
-  pluri$PARTE_INTERA <- floor(pluri$ELETTI)
-  pluri$RESTO <- pluri$ELETTI %% 1
-  pluri <- pluri[order(pluri$RESTO, decreasing = TRUE), ]
-  pluri$SEGGIO_DA_RESTO <- 
-    seq_along(pluri$PARTE_INTERA) <= 
-    sum(dati$collegi_pluri$SEGGI_PLURI) - sum(pluri$PARTE_INTERA)
-  pluri$SEGGI <- pluri$PARTE_INTERA + pluri$SEGGIO_DA_RESTO
+  pluri$SEGGI <- pluri$ELETTI
   pluri <- merge(
     pluri,
     liste_naz[, c("LISTA", "COL", "CL")]
@@ -1265,7 +1261,12 @@ disegna_tabella_pluri <- function(ramo) {
   )
   names(tbl) <- str_remove(names(tbl), "ELETTI\\.")
   
-  kb <- kbl(tbl) %>%
+  tbl <- tbl[order(tbl[[lista]], decreasing = TRUE), ]
+  
+  kb <- kbl(
+    tbl,
+    row.names = FALSE
+  ) %>%
     kable_minimal()
   
   for (i in 3:ncol(tbl)) {
@@ -1409,7 +1410,7 @@ grafico_nmax <- function(ramo, collegio = NA) {
         lp$LISTA == lista
       ] *100
     ),
-    breaks = ifelse(is.na(collegio), 20, 10),
+    breaks = c(0, 3, 4, 5, 6, 8, 10, 100),
     col = colori,
     yaxlabels = NA,
     ylab = NA,
@@ -1435,5 +1436,4 @@ grafico_nmax("camera", collegio)
 grafico_nmax("senato", collegio)
 
 ```
-
 

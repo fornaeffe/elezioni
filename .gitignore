@@ -18,6 +18,9 @@
 sandbox.R
 /sandbox/
 
+# Sondaggi EV
+/dati_2023/EV*
+
 # Output files from R CMD build
 /*.tar.gz
 
