@@ -41,14 +41,14 @@ library(parallel)
 #### Parametri ####
 
 # Scenario
-scenario <- "02"
+scenario <- "01"
 
 # Lista e collegio di riferimento
 lista <- "Europa Verde - Sinistra Italiana"
 collegio <- "Emilia-Romagna - P01"
 
 # Numero di iterazioni
-iterazioni <- 2000
+iterazioni <- 200
 
 # Variabilità dei voti
 variab <- 1
