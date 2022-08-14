@@ -2,7 +2,7 @@
 title: "Simulazione elezioni politiche"
 author: "Luca Fornasari"
 date: "`r Sys.Date()`"
-output: html_document
+format: html
 ---
 
 <!-- 
@@ -25,12 +25,15 @@ accuratezza.
 Segnalazioni, richieste e suggerimenti a <fornaeffe@gmail.com> o sul repository
 <https://github.com/fornaeffe/elezioni>.
 
-```{r setup, include=FALSE}
+```{r setup}
+#| include: false
 knitr::opts_chunk$set(echo = FALSE)
 
 ```
 
-```{r main, include=FALSE, cache=TRUE}
+```{r main}
+#| include: false
+#| cache: true
 #### Carico librerie e script ####
 
 library(data.table)
@@ -1035,6 +1038,9 @@ disegna_parlamento <- function(ramo) {
     )
   )
   
+  # Evito seggi con valore di 0.5
+  parlamento$SEGGI <- ceiling(parlamento$SEGGI)
+  
   parlamento <- parlamento[parlamento$SEGGI > 0, ]
   
   ggplot(parlamento) +
@@ -1075,7 +1081,12 @@ ottiene un numero più o meno alto di seggi.
 La linea orizzontale punteggiata rappresenta la metà dei seggi (esclusi quelli
 di Val d'Aosta ed Estero, che non sono stati simulati).
 
-```{r plot_eletti_tot, fig.width=8, fig.height=8, dpi=100}
+```{r plot_eletti_tot}
+#| fig.width: 8
+#| fig-height: 8
+#| dpi: 100
+
+
 layout(matrix(1:4, 2, 2), c(5, 3), c(5, 5))
 par(mar = c(4,4,4,2) )
 plot(
@@ -1119,7 +1130,11 @@ legend(
 \
 \
 
-```{r plot_eletti_uni, fig.width=8, fig.height=8, dpi=100}
+```{r plot_eletti_uni}
+#| fig.width: 8
+#| fig-height: 8
+#| dpi: 100
+
 layout(matrix(1:4, 2, 2), c(5, 3), c(5, 5))
 par(mar = c(4,4,4,2) )
 plot(
@@ -1163,7 +1178,11 @@ legend(
 \
 \
 
-```{r plot_eletti_pluri, fig.width=8, fig.height=8, dpi=100}
+```{r plot_eletti_pluri}
+#| fig.width: 8
+#| fig-height: 8
+#| dpi: 100
+
 layout(matrix(1:4, 2, 2), c(5, 3), c(5, 5))
 par(mar = c(4,4,4,2) )
 plot(
@@ -1355,7 +1374,11 @@ diverso collegio cambiando le impostazioni all'inizio del file elezioni.Rmd
 <https://github.com/fornaeffe/elezioni>) o chiedendomelo a 
 <fornaeffe@gmail.com>.
 
-```{r plot_eletti_pluri_lista, fig.width=6, fig.height=6, dpi=100}
+```{r plot_eletti_pluri_lista}
+#| fig.width: 6
+#| fig-height: 6
+#| dpi: 100
+
 par(mar = c(4,4,4,2) )
 plot(
     ELETTI ~ I(PERCENTUALE * 100),
@@ -1380,14 +1403,21 @@ plot(
 \
 \
 
-```{r fig.width=8, fig.height=.5, dpi=100}
+```{r}
+#| fig.width: 8
+#| fig-height: 0.5
+#| dpi: 100
+
 par(mar = c(0,4,2,2))
 plot(NA, xlim = c(0,1), ylim = c(0,1), axes=FALSE, xlab="", ylab="",
      main = "Probabilità di elezione in base alla posizione nel listino")
 ```
 
 
-```{r plot_nmax, fig.width=8, fig.height=8, dpi=100}
+```{r plot_nmax}
+#| fig.width: 8
+#| fig-height: 8
+#| dpi: 100
 
 grafico_nmax <- function(ramo, collegio = NA) {
   if (is.na(collegio)) {
