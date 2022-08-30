@@ -44,14 +44,14 @@ library(parallel)
 #### Parametri ####
 
 # Scenario
-scenario <- "demopolis"
+scenario <- "demopolis_zeropluricand"
 
 # Lista e collegio di riferimento
 lista <- "Europa Verde - Sinistra Italiana"
 collegio <- "Emilia-Romagna - P01"
 
 # Numero di iterazioni
-iterazioni <- 1000
+iterazioni <- 200
 
 # Variabilità dei voti
 variab <- 0.75
@@ -1440,7 +1440,7 @@ grafico_nmax <- function(ramo, collegio = NA) {
         lp$LISTA == lista
       ] *100
     ),
-    breaks = c(0, 3, 4, 5, 6, 8, 10, 100),
+    breaks = 12,
     col = colori,
     yaxlabels = NA,
     ylab = NA,
@@ -1464,6 +1464,49 @@ grafico_nmax("camera")
 grafico_nmax("senato")
 grafico_nmax("camera", collegio)
 grafico_nmax("senato", collegio)
+
+```
+
+#### Probabilità di elezione in ciascuna posizione di ciascun collegio
+
+```{r}
+disegna_tabella_prob <- function(ramo) {
+  lp <- get(ramo)$risultato$liste_pluri
+  lp <- lp[lp$LISTA == lista, ]
+  lp$NUMERO_MAX <- factor(lp$NUMERO_MAX, levels = 0:4)
+  tbl <- table(lp$COLLEGIOPLURINOMINALE, lp$NUMERO_MAX)
+  tbl2 <- t(apply(
+    tbl,
+    1,
+    function(x) {
+      rev(cumsum(rev(x[2:5]))) / sum(x)
+    }
+  ))
+  
+  tbl2 <- as.data.frame(tbl2)
+  for (i in 1:4) {
+    tbl2[,i] <- formattable::percent(tbl2[, i], 1)
+  }
+  
+  kb <- kbl(tbl2) %>%
+    kable_minimal()
+  
+  for (i in 1:4) {
+    kb <- column_spec(
+      kb,
+      i+1,
+      background = hsv(
+        liste_naz$COLORE[which(liste_naz$LISTA == lista)] / 360, 
+        1, 
+        1, 
+        tbl2[,i]
+      )
+    )
+  }
+  kb
+}
+disegna_tabella_prob("camera")
+disegna_tabella_prob("senato")
 
 ```
 
