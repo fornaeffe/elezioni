@@ -11,16 +11,6 @@
 # Example code in package build process
 *-Ex.R
 
-# Output files
-/output/
-
-# Sandbox data files
-sandbox.R
-/sandbox/
-
-# Sondaggi EV
-/dati_2023/EV*
-
 # Output files from R CMD build
 /*.tar.gz
 
@@ -48,7 +38,7 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 
-# Documento prodotto
-*.html
-*_files/
-rsconnect/
+/.quarto/
+
+# Discarica
+/discarica/
