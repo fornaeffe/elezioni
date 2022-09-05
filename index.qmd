@@ -25,17 +25,26 @@ base_dati <- read.csv2(
   fileEncoding = "utf-8",
 
 # TO DO: verificare che le righe seguenti siano davvero utili
-  colClasses = c(
-    CIRCOCAM_20_DEN = "factor",
-    CP20_DEN = "factor",
-    CU20_DEN = "factor"
-  ),
+  # colClasses = c(
+  #   CIRCOCAM_20_DEN = "factor",
+  #   CP20_DEN = "factor",
+  #   CU20_DEN = "factor"
+  # ),
 
   na.strings = ""
 )
 
 base_dati$SP20_DEN[base_dati$DEN_REG20 == "Trentino-Alto Adige"] <- 
   "Trentino-Alto Adige/Südtirol - P01"
+
+#Trasformo in maiuscolo per compatibilità con i dati dei candidati
+base_dati$DEN_REG20 <- toupper(base_dati$DEN_REG20)
+base_dati$CIRCOCAM_20_DEN <- toupper(base_dati$CIRCOCAM_20_DEN)
+base_dati$CP20_DEN <- toupper(base_dati$CP20_DEN)
+base_dati$SP20_DEN <- toupper(base_dati$SP20_DEN)
+base_dati$CU20_DEN <- toupper(base_dati$CU20_DEN)
+base_dati$SU20_DEN <- toupper(base_dati$SU20_DEN)
+
 
 names(base_dati)[names(base_dati) == "DEN_PRO_CM20"] <- "PROVINCIA"
 names(base_dati)[names(base_dati) == "DEN_COM20"] <- "COMUNE"
@@ -274,6 +283,52 @@ prov_area$PERCENTUALE_AREA <- prov_area$POP_AREA / prov_area$POP_AREA_TOT
 
 # Calcolo popolazione nazionale
 popolazione <- sum(province$POP_2011)
+
+```
+
+```{r dati}
+#| include: false
+#| cache: true
+
+carica_dati <- function(ramo) {
+  uni <- read.csv(
+    paste0(
+      "dati/2022/",
+      toupper(ramo),
+      "_ITALIA_20220925_uni.csv"
+    )
+  )
+  pluri <- read.csv(
+    paste0(
+      "dati/2022/",
+      toupper(ramo),
+      "_ITALIA_20220925_pluri.csv"
+    )
+  )
+  
+  names(uni)[2:3] <- c("COLLEGIOUNINOMINALE", "LISTA")
+  names(pluri)[2:3] <- c("COLLEGIOPLURINOMINALE", "LISTA") 
+  
+  uni$CIRCOSCRIZIONE <- 
+    str_replace(uni$CIRCOSCRIZIONE, "S\\?DTIROL", "SÜDTIROL")
+  uni$COLLEGIOUNINOMINALE <- 
+    str_replace(uni$COLLEGIOUNINOMINALE, "S\\?DTIROL", "SÜDTIROL")
+  pluri$CIRCOSCRIZIONE <- 
+    str_replace(pluri$CIRCOSCRIZIONE, "S\\?DTIROL", "SÜDTIROL")
+  pluri$COLLEGIOPLURINOMINALE <- 
+    str_replace(pluri$COLLEGIOPLURINOMINALE, "S\\?DTIROL", "SÜDTIROL")
+  
+  pluri$NUMERO <- ave(
+    seq_along(pluri$CANDIDATO),
+    paste(pluri$COLLEGIOPLURINOMINALE, pluri$LISTA),
+    FUN = seq_along
+  )
+  
+  list(uni = uni, pluri = pluri)
+}
+
+camera <- carica_dati("camera")
+senato <- carica_dati("senato")
 
 ```
 
