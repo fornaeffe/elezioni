@@ -296,6 +296,78 @@ popolazione <- sum(province$POP_2011)
 
 ```
 
+```{r collegi}
+
+prepara_collegi <- function(ramo) {
+  if (ramo == "camera") {
+    colonna_circ <- base_dati$CIRCOCAM_20_DEN
+    colonna_pluri <- base_dati$CP20_DEN
+    colonna_uni <- base_dati$CU20_DEN
+  }
+  
+  if (ramo == "senato") {
+    colonna_circ <- base_dati$DEN_REG20
+    colonna_pluri <- base_dati$SP20_DEN
+    colonna_uni <- base_dati$SU20_DEN
+  }
+  
+  dati <- list()
+  
+  # Estraggo le circoscrizioni
+  dati$circoscrizioni <- aggregate(
+    POP_2011 ~ CIRCOCAM_20_DEN,
+    base_dati,
+    sum
+  )
+  
+  # Estraggo i collegi plurinominali
+  dati$collegi_pluri <- aggregate(
+    POP_2011 ~ CIRCOCAM_20_DEN + CP20_DEN,
+    base_dati,
+    sum
+  )
+  
+  # Controllo che non ci siano collegi plurinominali duplicati
+  if (sum(duplicated(dati$collegi_pluri$CP20_DEN)) > 0) warning(
+    "Collegi plurinominali duplicati"
+  )
+  
+  dati$collegi_uni <- aggregate(
+    POP_2011 ~ CIRCOCAM_20_DEN + CP20_DEN + CU20_DEN,
+    base_dati,
+    sum
+  )
+  
+  # Controllo che non ci siano collegi uninominali duplicati
+  if (sum(duplicated(dati$collegi_uni$CU20_DEN)) > 0) warning(
+    "Collegi plurinominali duplicati"
+  )
+  
+  ##### Rinomino le colonne ####
+  names(dati$circoscrizioni)[1] <- "CIRCOSCRIZIONE"
+  names(dati$collegi_pluri)[1] <- "CIRCOSCRIZIONE"
+  names(dati$collegi_pluri)[2] <- "COLLEGIOPLURINOMINALE"
+  names(dati$collegi_uni)[1] <- "CIRCOSCRIZIONE"
+  names(dati$collegi_uni)[2] <- "COLLEGIOPLURINOMINALE"
+  names(dati$collegi_uni)[3] <- "COLLEGIOUNINOMINALE"
+  
+  # Carico i collegi
+  dati$collegi_pluri <- merge(
+    dati$collegi_pluri,
+    read_xlsx("dati/2022/collegi.xlsx", paste0(ramo, "_pluri"))
+  )
+  
+  dati
+}
+
+# Preparo le liste
+camera <- prepara_collegi("camera")
+senato <- prepara_collegi("senato")
+
+
+```
+
+
 ```{r dati}
 #| include: false
 #| cache: true
@@ -353,50 +425,45 @@ carica_dati <- function(ramo) {
   uni <- uni[uni$LISTA %in% liste_naz$LISTA, ]
   pluri <- pluri[pluri$LISTA %in% liste_naz$LISTA, ]
   
-  list(uni = uni, pluri = pluri)
+  # Aggiungo la colonna collegio plurinominale
+  uni <- merge(
+    uni,
+    get(ramo)$collegi_uni[, c("COLLEGIOPLURINOMINALE", "COLLEGIOUNINOMINALE")]
+  )
+  
+  list(candidati_uni = uni, candidati_pluri = pluri)
 }
 
-camera <- carica_dati("camera")
-senato <- carica_dati("senato")
+camera <- c(camera, carica_dati("camera"))
+senato <- c(senato, carica_dati("senato"))
 
 # Check per controllare che i nomi corrispondano
-setdiff(camera$uni$CIRCOSCRIZIONE, base_dati$CIRCOCAM_20_DEN)
-setdiff(base_dati$CIRCOCAM_20_DEN, camera$uni$CIRCOSCRIZIONE)
+setdiff(camera$candidati_uni$CIRCOSCRIZIONE, base_dati$CIRCOCAM_20_DEN)
+setdiff(base_dati$CIRCOCAM_20_DEN, camera$candidati_uni$CIRCOSCRIZIONE)
 
-setdiff(camera$pluri$CIRCOSCRIZIONE, base_dati$CIRCOCAM_20_DEN)
-setdiff(base_dati$CIRCOCAM_20_DEN, camera$pluri$CIRCOSCRIZIONE)
+setdiff(camera$candidati_pluri$CIRCOSCRIZIONE, base_dati$CIRCOCAM_20_DEN)
+setdiff(base_dati$CIRCOCAM_20_DEN, camera$candidati_pluri$CIRCOSCRIZIONE)
 
-setdiff(senato$uni$CIRCOSCRIZIONE, base_dati$DEN_REG20)
-setdiff(base_dati$DEN_REG20, senato$uni$CIRCOSCRIZIONE)
+setdiff(senato$candidati_uni$CIRCOSCRIZIONE, base_dati$DEN_REG20)
+setdiff(base_dati$DEN_REG20, senato$candidati_uni$CIRCOSCRIZIONE)
 
-setdiff(senato$pluri$CIRCOSCRIZIONE, base_dati$DEN_REG20)
-setdiff(base_dati$DEN_REG20, senato$pluri$CIRCOSCRIZIONE)
+setdiff(senato$candidati_pluri$CIRCOSCRIZIONE, base_dati$DEN_REG20)
+setdiff(base_dati$DEN_REG20, senato$candidati_pluri$CIRCOSCRIZIONE)
 
 
 
-setdiff(camera$uni$COLLEGIOUNINOMINALE, base_dati$CU20_DEN)
-setdiff(base_dati$CU20_DEN, camera$uni$COLLEGIOUNINOMINALE)
+setdiff(camera$candidati_uni$COLLEGIOUNINOMINALE, base_dati$CU20_DEN)
+setdiff(base_dati$CU20_DEN, camera$candidati_uni$COLLEGIOUNINOMINALE)
 
-setdiff(camera$pluri$COLLEGIOPLURINOMINALE, base_dati$CP20_DEN)
-setdiff(base_dati$CP20_DEN, camera$pluri$COLLEGIOPLURINOMINALE)
+setdiff(camera$candidati_pluri$COLLEGIOPLURINOMINALE, base_dati$CP20_DEN)
+setdiff(base_dati$CP20_DEN, camera$candidati_pluri$COLLEGIOPLURINOMINALE)
 
-setdiff(senato$uni$COLLEGIOUNINOMINALE, base_dati$SU20_DEN)
-setdiff(base_dati$SU20_DEN, senato$uni$COLLEGIOUNINOMINALE)
+setdiff(senato$candidati_uni$COLLEGIOUNINOMINALE, base_dati$SU20_DEN)
+setdiff(base_dati$SU20_DEN, senato$candidati_uni$COLLEGIOUNINOMINALE)
 
-setdiff(senato$pluri$COLLEGIOPLURINOMINALE, base_dati$SP20_DEN)
-setdiff(base_dati$SP20_DEN, senato$pluri$COLLEGIOPLURINOMINALE)
+setdiff(senato$candidati_pluri$COLLEGIOPLURINOMINALE, base_dati$SP20_DEN)
+setdiff(base_dati$SP20_DEN, senato$candidati_pluri$COLLEGIOPLURINOMINALE)
 
-# write.csv2(
-#   unique(
-#     c(
-#       camera$uni$LISTA,
-#       camera$pluri$LISTA,
-#       senato$uni$LISTA,
-#       senato$pluri$LISTA
-#     )
-#   ),
-#   file = "_output/liste.csv"
-# )
 
 ```
 
@@ -505,8 +572,6 @@ simula <- function(
     iterazioni = 200,
     variab = .5
 ) {
-  names(dati$collegi_pluri)[names(dati$collegi_pluri) == "SEGGI_PLURI"] <-
-    "SEGGI"
   
   #### Calcolo il numero massimo di candidati per collegio pluri ####
   dati$collegi_pluri$CANDIDATI_MAX <- 

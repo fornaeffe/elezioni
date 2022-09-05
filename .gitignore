@@ -42,3 +42,6 @@ vignettes/*.pdf
 
 # Discarica
 /discarica/
+
+# Output
+/_output/
