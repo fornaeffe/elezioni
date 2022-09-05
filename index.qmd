@@ -377,15 +377,21 @@ senato <- prepara_collegi("senato")
 liste_naz <- read_xlsx("dati/2022/liste.xlsx", "liste")
 altri_dati <- read_xlsx("dati/2022/liste.xlsx", "altri_dati")
 
+liste_naz$CL <- ifelse(
+  is.na(liste_naz$COALIZIONE), 
+  liste_naz$ABBREV, 
+  liste_naz$COALIZIONE
+)
+
 carica_dati <- function(ramo) {
-  uni <- read.csv(
+  liste_uni <- read.csv(
     paste0(
       "dati/2022/",
       toupper(ramo),
       "_ITALIA_20220925_uni.csv"
     )
   )
-  pluri <- read.csv(
+  candidati_pluri <- read.csv(
     paste0(
       "dati/2022/",
       toupper(ramo),
@@ -393,45 +399,80 @@ carica_dati <- function(ramo) {
     )
   )
   
-  names(uni)[2:3] <- c("COLLEGIOUNINOMINALE", "LISTA")
-  names(pluri)[2:3] <- c("COLLEGIOPLURINOMINALE", "LISTA") 
+  names(liste_uni)[2:3] <- c("COLLEGIOUNINOMINALE", "LISTA")
+  names(candidati_pluri)[2:3] <- c("COLLEGIOPLURINOMINALE", "LISTA") 
   
   # Correggo la scrittura del SÜDTIROL
-  uni$CIRCOSCRIZIONE <- 
-    str_replace(uni$CIRCOSCRIZIONE, "S\\?DTIROL", "SÜDTIROL")
-  uni$COLLEGIOUNINOMINALE <- 
-    str_replace(uni$COLLEGIOUNINOMINALE, "S\\?DTIROL", "SÜDTIROL")
-  pluri$CIRCOSCRIZIONE <- 
-    str_replace(pluri$CIRCOSCRIZIONE, "S\\?DTIROL", "SÜDTIROL")
-  pluri$COLLEGIOPLURINOMINALE <- 
-    str_replace(pluri$COLLEGIOPLURINOMINALE, "S\\?DTIROL", "SÜDTIROL")
+  liste_uni$CIRCOSCRIZIONE <- 
+    str_replace(liste_uni$CIRCOSCRIZIONE, "S\\?DTIROL", "SÜDTIROL")
+  liste_uni$COLLEGIOUNINOMINALE <- 
+    str_replace(liste_uni$COLLEGIOUNINOMINALE, "S\\?DTIROL", "SÜDTIROL")
+  candidati_pluri$CIRCOSCRIZIONE <- 
+    str_replace(candidati_pluri$CIRCOSCRIZIONE, "S\\?DTIROL", "SÜDTIROL")
+  candidati_pluri$COLLEGIOPLURINOMINALE <- 
+    str_replace(candidati_pluri$COLLEGIOPLURINOMINALE, "S\\?DTIROL", "SÜDTIROL")
   
   # Correggo la circoscrizione "ITALIA"
   sost_circ <- function(stringa) {
     substr(stringa, 1, str_length(stringa) - 6)
   }
   
-  uni$CIRCOSCRIZIONE[uni$CIRCOSCRIZIONE == "ITALIA"] <- 
-    sapply(uni$COLLEGIOUNINOMINALE[uni$CIRCOSCRIZIONE == "ITALIA"], sost_circ)
+  liste_uni$CIRCOSCRIZIONE[liste_uni$CIRCOSCRIZIONE == "ITALIA"] <- 
+    sapply(
+      liste_uni$COLLEGIOUNINOMINALE[liste_uni$CIRCOSCRIZIONE == "ITALIA"],
+      sost_circ
+    )
   
   # Aggiungo i numeri dei candidati
-  pluri$NUMERO <- ave(
-    seq_along(pluri$CANDIDATO),
-    paste(pluri$COLLEGIOPLURINOMINALE, pluri$LISTA),
+  candidati_pluri$NUMERO <- ave(
+    seq_along(candidati_pluri$CANDIDATO),
+    paste(candidati_pluri$COLLEGIOPLURINOMINALE, candidati_pluri$LISTA),
     FUN = seq_along
   )
   
-  # Tolgo i candidati di liste non considerate
-  uni <- uni[uni$LISTA %in% liste_naz$LISTA, ]
-  pluri <- pluri[pluri$LISTA %in% liste_naz$LISTA, ]
-  
-  # Aggiungo la colonna collegio plurinominale
-  uni <- merge(
-    uni,
-    get(ramo)$collegi_uni[, c("COLLEGIOPLURINOMINALE", "COLLEGIOUNINOMINALE")]
+  liste_uni <- merge(
+    liste_uni,
+    merge(
+      get(ramo)$collegi_uni,
+      liste_naz[, c("LISTA", "ABBREV", "CL")]
+    ),
+    all.y = TRUE
   )
   
-  list(candidati_uni = uni, candidati_pluri = pluri)
+  # Assegno un nome ai candidati delle liste "altre"
+  liste_uni$CANDIDATO[is.na(liste_uni$CANDIDATO)] <- 
+      seq_len(sum(is.na(liste_uni$CANDIDATO)))
+  
+  # Tolgo i candidati di liste non considerate
+  candidati_pluri <- 
+    candidati_pluri[candidati_pluri$LISTA %in% liste_naz$LISTA, ]
+  
+  # Creo il dataframe candidati_uni
+  candidati_uni <- unique(
+    liste_uni[
+      ,
+      c(
+        "CIRCOSCRIZIONE",
+        "COLLEGIOPLURINOMINALE",
+        "COLLEGIOUNINOMINALE",
+        "CL",
+        "CANDIDATO"
+      )
+    ]
+  )
+  
+  # Controllo omonimie
+  candidati_omonimi <- 
+    candidati_uni[
+      candidati_uni$CANDIDATO %in% 
+        candidati_uni$CANDIDATO[duplicated(candidati_uni$CANDIDATO)], 
+    ]
+  liste_uni[liste_uni$CANDIDATO %in% candidati_omonimi$CANDIDATO, ]
+  
+  list(
+    candidati_uni = liste_uni, 
+    candidati_pluri = candidati_pluri
+  )
 }
 
 camera <- c(camera, carica_dati("camera"))
@@ -573,13 +614,6 @@ simula <- function(
     variab = .5
 ) {
   
-  #### Calcolo il numero massimo di candidati per collegio pluri ####
-  dati$collegi_pluri$CANDIDATI_MAX <- 
-    pmin(4, dati$collegi_pluri$SEGGI)
-  if (ramo == "Senato") {
-    dati$collegi_pluri$CANDIDATI_MAX[dati$collegi_pluri$SEGGI == 1] <- 1
-  }
-  
   #### Preparo i data frame delle liste ai diversi livelli ####
   
   dati$liste_circ <- merge(
@@ -594,7 +628,7 @@ simula <- function(
   
   dati$liste_uni <- merge(
     dati$collegi_uni,
-    liste_naz[, c("LISTA", "CL", "AREA", "PERC_IN_AREA")]
+    liste_naz[, c("LISTA", "AREA", "PERC_IN_AREA")]
   )
   
   dati$liste_uni <- merge(
@@ -631,20 +665,35 @@ simula <- function(
   dati$liste_uni$CAND_MINORANZA <- FALSE
   dati$liste_uni$MINORANZA <- FALSE
   
-  liste_naz <- liste_naz[!is.na(liste_naz$LISTA), ]
-  
-  
-  #### Preparo il data frame dei candidati ####
-  n_cand <- sum(dati$collegi_pluri$CANDIDATI_MAX) + nrow(dati$collegi_uni)
-  dati$candidati <- data.frame(
-    LISTA = rep(liste_naz$LISTA, each = n_cand),
-    CL = rep(liste_naz$CL, each = n_cand)
+  # Copio i candidati uninominali da candidati_uni a liste_uni
+  dati$liste_uni$CANDIDATO <- NULL
+  dati$liste_uni <- merge(
+    dati$liste_uni,
+    dati$candidati_uni,
+    all.x = TRUE
   )
   
-  dati$candidati$CANDIDATO <- 
-    factor(paste(dati$candidati$LISTA, seq_along(dati$candidati$LISTA)))
+  # Creo candidati fittizi per le altre liste
+  dati$liste_uni$CANDIDATO[is.na(dati$liste_uni$CANDIDATO)] <- 
+      seq_len(sum(is.na(dati$liste_uni$CANDIDATO)))
   
-  #### Inizio iterazioni ####
+  # Ricreo il dataframe candidati_uni
+  dati$candidati_uni <- unique(
+    dati$liste_uni[
+      , 
+      c(
+        "CIRCOSCRIZIONE",
+        "COLLEGIOPLURINOMINALE",
+        "COLLEGIOUNINOMINALE",
+        "CANDIDATO"
+      )
+    ]
+  )
+  
+  
+  
+  liste_naz <- liste_naz[!is.na(liste_naz$LISTA), ]
+  
   
   iterazione <- function(
     iter = 1,
@@ -675,121 +724,11 @@ simula <- function(
     dati$liste_pluri <- dati$liste_pluri[!is.na(dati$liste_pluri$LISTA), ]
     dati$liste_circ <- dati$liste_circ[!is.na(dati$liste_circ$LISTA), ]
     
-    ##### Sorteggio i candidati ####
-    
-    dati$candidati_uni <- unique(dati$liste_uni[, c(
-      "CIRCOSCRIZIONE",
-      "COLLEGIOPLURINOMINALE",
-      "COLLEGIOUNINOMINALE",
-      "CL"
-    )])
-    
-    dati$candidati$SCELTO_UNI <- FALSE
-    dati$candidati_uni$CANDIDATO <- 
-      factor(NA, levels = levels(dati$candidati$CANDIDATO))
     
     
-    for (i in seq_along(dati$candidati_uni$CL)) {
-      lista <- sample(
-        liste_naz$LISTA[liste_naz$CL == dati$candidati_uni$CL[i]], 
-        1, 
-        prob = liste_naz$FRAZ_UNI[liste_naz$CL == dati$candidati_uni$CL[i]]
-      )
-      candidato <- sample(which(
-        dati$candidati$LISTA == lista &
-          !dati$candidati$SCELTO_UNI
-      ), 1)
-      
-      dati$candidati_uni$CANDIDATO[i] <- dati$candidati$CANDIDATO[candidato]
-      dati$candidati$SCELTO_UNI[candidato] <- TRUE
-    }
-    
-    if (sum(duplicated(dati$candidati_uni$CANDIDATO)) > 0) stop(
-      "Candidati uninominali duplicati"
-    )
     
     
-    dati$candidati_pluri <- dati$liste_pluri[
-      rep(
-        seq_along(dati$liste_pluri$CANDIDATI_MAX), 
-        dati$liste_pluri$CANDIDATI_MAX
-      ),
-      c(
-        "CIRCOSCRIZIONE",
-        "COLLEGIOPLURINOMINALE",
-        "LISTA"
-      )
-    ]
     
-    dati$candidati_pluri$NUMERO <- ave(
-      seq_along(dati$candidati_pluri$LISTA),
-      paste(
-        dati$candidati_pluri$CIRCOSCRIZIONE,
-        dati$candidati_pluri$COLLEGIOPLURINOMINALE,
-        dati$candidati_pluri$LISTA
-      ),
-      FUN = seq_along
-    )
-    
-    dati$candidati$SCELTO_PLURI <- 0
-    dati$candidati_pluri$CANDIDATO <- 
-      factor(NA, levels = levels(dati$candidati$CANDIDATO))
-    
-    for (i in seq_along(dati$candidati_pluri$NUMERO)) {
-      if (runif(1) < liste_naz$FRAZ_PLURICAND[
-        liste_naz$LISTA == dati$candidati_pluri$LISTA[i]
-      ]) {
-        papabili <- which(
-          dati$candidati$LISTA == dati$candidati_pluri$LISTA[i] &
-            dati$candidati$SCELTO_PLURI < 5 &
-            (dati$candidati$SCELTO_UNI | dati$candidati$SCELTO_PLURI > 0) &
-            !(dati$candidati$CANDIDATO %in% dati$candidati_pluri$CANDIDATO[
-              dati$candidati_pluri$COLLEGIOPLURINOMINALE == 
-                dati$candidati_pluri$COLLEGIOPLURINOMINALE[i]
-            ])
-        )
-        
-        if (length(papabili) > 0) {
-          candidato <- sample(papabili, 1)
-          
-          dati$candidati_pluri$CANDIDATO[i] <- dati$candidati$CANDIDATO[candidato]
-          dati$candidati$SCELTO_PLURI[candidato] <- 
-            dati$candidati$SCELTO_PLURI[candidato] + 1
-          
-          next
-        }
-      }
-      
-      candidato <- which(
-        dati$candidati$LISTA == dati$candidati_pluri$LISTA[i] &
-          dati$candidati$SCELTO_PLURI == 0 &
-          !dati$candidati$SCELTO_UNI
-      )[1]
-      
-      dati$candidati_pluri$CANDIDATO[i] <- dati$candidati$CANDIDATO[candidato]
-      dati$candidati$SCELTO_PLURI[candidato] <- 1
-    }
-    
-    
-    ##### Preparo i data frame per lo scrutinio ####
-    dati$liste_uni$CANDIDATO <- NULL
-    dati$liste_uni <- merge(
-      dati$liste_uni,
-      dati$candidati_uni
-    )
-    
-    
-    dati$candidati_uni <- merge(
-      dati$candidati_uni,
-      aggregate(
-        VOTI_LISTA ~ 
-          CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE + COLLEGIOUNINOMINALE + CANDIDATO,
-        dati$liste_uni,
-        sum
-      )
-    )
-    names(dati$candidati_uni)[names(dati$candidati_uni) == "VOTI_LISTA"] <-
-      "VOTI_CANDIDATO"
     
     dati$candidati_uni$DATA_NASCITA <- as.POSIXct("1990-01-01")
     
