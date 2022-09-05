@@ -300,6 +300,11 @@ popolazione <- sum(province$POP_2011)
 #| include: false
 #| cache: true
 
+# Importo liste_naz
+
+liste_naz <- read_xlsx("dati/2022/liste.xlsx", "liste")
+altri_dati <- read_xlsx("dati/2022/liste.xlsx", "altri_dati")
+
 carica_dati <- function(ramo) {
   uni <- read.csv(
     paste0(
@@ -344,6 +349,10 @@ carica_dati <- function(ramo) {
     FUN = seq_along
   )
   
+  # Tolgo i candidati di liste non considerate
+  uni <- uni[uni$LISTA %in% liste_naz$LISTA, ]
+  pluri <- pluri[pluri$LISTA %in% liste_naz$LISTA, ]
+  
   list(uni = uni, pluri = pluri)
 }
 
@@ -376,6 +385,18 @@ setdiff(base_dati$SU20_DEN, senato$uni$COLLEGIOUNINOMINALE)
 
 setdiff(senato$pluri$COLLEGIOPLURINOMINALE, base_dati$SP20_DEN)
 setdiff(base_dati$SP20_DEN, senato$pluri$COLLEGIOPLURINOMINALE)
+
+# write.csv2(
+#   unique(
+#     c(
+#       camera$uni$LISTA,
+#       camera$pluri$LISTA,
+#       senato$uni$LISTA,
+#       senato$pluri$LISTA
+#     )
+#   ),
+#   file = "_output/liste.csv"
+# )
 
 ```
 
