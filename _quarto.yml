@@ -1,6 +1,8 @@
 project:
   title: elezioni
   output-dir: docs
+  render: 
+  - index.qmd
 
 
 

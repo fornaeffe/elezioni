@@ -45,3 +45,5 @@ vignettes/*.pdf
 
 # Output
 /_output/
+
+/index_files/
