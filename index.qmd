@@ -430,6 +430,8 @@ carica_dati <- function(ramo) {
     FUN = seq_along
   )
   
+  # Aggiungo i candidati uninominali per le liste "altre"
+  # e le colonne abbrev e CL
   liste_uni <- merge(
     liste_uni,
     merge(
@@ -442,6 +444,12 @@ carica_dati <- function(ramo) {
   # Assegno un nome ai candidati delle liste "altre"
   liste_uni$CANDIDATO[is.na(liste_uni$CANDIDATO)] <- 
       seq_len(sum(is.na(liste_uni$CANDIDATO)))
+  
+  # Aggiungo la colonna CL
+  candidati_pluri <- merge(
+    candidati_pluri,
+    liste_naz[, c("LISTA", "CL", "ABBREV")]
+  )
   
   # Tolgo i candidati di liste non considerate
   candidati_pluri <- 
@@ -461,13 +469,80 @@ carica_dati <- function(ramo) {
     ]
   )
   
-  # Controllo omonimie
-  candidati_omonimi <- 
-    candidati_uni[
-      candidati_uni$CANDIDATO %in% 
-        candidati_uni$CANDIDATO[duplicated(candidati_uni$CANDIDATO)], 
-    ]
-  liste_uni[liste_uni$CANDIDATO %in% candidati_omonimi$CANDIDATO, ]
+  ## Controllo omonimie
+  
+  # Omonimie uni
+  omonimi_uni <- which(duplicated(candidati_uni$CANDIDATO))
+  
+  for (o in omonimi_uni) {
+    vecchio_nome <- candidati_uni$CANDIDATO[o]
+    cl <- candidati_uni$CL[o]
+    nuovo_nome <- paste(vecchio_nome, cl, sep = " - ")
+    
+    candidati_uni$CANDIDATO[o] <- nuovo_nome
+    candidati_pluri$CANDIDATO[
+      candidati_pluri$CANDIDATO == vecchio_nome &
+        candidati_pluri$CL == cl
+    ] <- nuovo_nome
+    
+    message("Risolta omonimia uni: ", nuovo_nome)
+  }
+  
+  # Omonimie pluri
+  candidati_pluri_unico <- unique(
+    candidati_pluri[, c("CANDIDATO", "ABBREV", "CL")]
+  )
+  omonimi_pluri <- which(duplicated(candidati_pluri_unico$CANDIDATO))
+  
+  for (o in omonimi_pluri) {
+    vecchio_nome <- candidati_pluri_unico$CANDIDATO[o]
+    abbrev <- candidati_pluri_unico$ABBREV[o]
+    cl <- candidati_pluri_unico$CL[o]
+    nuovo_nome <- paste(vecchio_nome, abbrev, sep = " - ")
+    
+    if (
+      sum(
+        candidati_uni$CANDIDATO == vecchio_nome & candidati_uni$CL == cl
+      ) > 0 &
+      sum(
+        duplicated(
+          candidati_pluri_unico$CL[
+            candidati_pluri_unico$CANDIDATO == vecchio_nome
+          ]
+        )
+      ) > 0
+    ) {
+      warning("C'è un candidato uninominale e due diversi candidati ",
+              "plurinominali della coalizione ", 
+              cl,
+              " chiamati ",
+              vecchio_nome,
+              ", assegno il candidato uninominale al secondo dei due.")
+    }
+    
+    candidati_pluri$CANDIDATO[
+      candidati_pluri$CANDIDATO == vecchio_nome &
+        candidati_pluri$ABBREV == abbrev
+    ] <- nuovo_nome
+    
+    candidati_uni$CANDIDATO[
+      candidati_uni$CANDIDATO == vecchio_nome &
+        candidati_uni$CL == cl
+    ] <- nuovo_nome
+    
+    message("Risolta omonimia pluri: ", nuovo_nome)
+  }
+  
+  # Omonimie incrociate
+  candidati_pluri_unico <- unique(
+    candidati_pluri[, c("CANDIDATO", "ABBREV", "CL")]
+  )
+  candidati_tutti <- unique(rbind(
+    candidati_uni[, c("CANDIDATO", "CL")],
+    candidati_pluri_unico[, c("CANDIDATO", "CL")]
+  ))
+  which(duplicated(candidati_tutti$CANDIDATO))
+  
   
   list(
     candidati_uni = liste_uni, 
