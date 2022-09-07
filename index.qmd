@@ -2,8 +2,11 @@
 title: "Simulazione elezioni politiche"
 author: "Luca Fornasari"
 date: "`r Sys.Date()`"
-format: html
+format: 
+  html:
+    self-contained: true
 ---
+
 
 <!-- 
 Vedi il file README.md per info sul funzionamento di questi script e sui
@@ -25,54 +28,67 @@ accuratezza.
 Segnalazioni, richieste e suggerimenti a <fornaeffe@gmail.com> o sul repository
 <https://github.com/fornaeffe/elezioni>.
 
+```{r parametri}
+#| include: false
+variab <- 1
+
+iterazioni <- 1000
+```
+
+
 ```{r setup}
 #| include: false
 knitr::opts_chunk$set(echo = FALSE)
 
+library(data.table)
+library(stringr)
+library(readxl)
+library(parallel)
 ```
 
-```{r main}
+```{r distribuzione voti}
 #| include: false
 #| cache: true
-#### Carico librerie e script ####
-
-library(data.table)
-library(readxl)
-library(stringr)
-library(parallel)
-
-#### Parametri ####
-
-# Scenario
-scenario <- "demopolis"
-
-# Lista e collegio di riferimento
-lista <- "Europa Verde - Sinistra Italiana"
-collegio <- "Emilia-Romagna - P01"
-
-# Numero di iterazioni
-iterazioni <- 1000
-
-# Variabilità dei voti
-variab <- 0.75
 
 #### Importazione dati ####
 
 ##### Base dati #####
 
 base_dati <- read.csv2(
-  "dati_collegi/BaseDati_Proposta_Commissione.csv",
+  "dati/BaseDati_Proposta_Commissione.csv",
   fileEncoding = "utf-8",
-  colClasses = c(
-    CIRCOCAM_20_DEN = "factor",
-    CP20_DEN = "factor",
-    CU20_DEN = "factor"
-  ),
+
+# TO DO: verificare che le righe seguenti siano davvero utili
+  # colClasses = c(
+  #   CIRCOCAM_20_DEN = "factor",
+  #   CP20_DEN = "factor",
+  #   CU20_DEN = "factor"
+  # ),
+
   na.strings = ""
 )
 
 base_dati$SP20_DEN[base_dati$DEN_REG20 == "Trentino-Alto Adige"] <- 
   "Trentino-Alto Adige/Südtirol - P01"
+
+base_dati$DEN_REG20[base_dati$DEN_REG20 == "Trentino-Alto Adige"] <- 
+  "Trentino-Alto Adige/Südtirol"
+
+base_dati$CIRCOCAM_20_DEN <- 
+  str_remove(base_dati$CIRCOCAM_20_DEN, "/Vallée d'Aoste")
+base_dati$SU20_DEN <- 
+  str_remove(base_dati$SU20_DEN, "/Vallée d'Aoste")
+base_dati$CU20_DEN <- 
+  str_remove(base_dati$CU20_DEN, "/Vallée d'Aoste")
+
+#Trasformo in maiuscolo per compatibilità con i dati dei candidati
+base_dati$DEN_REG20 <- toupper(base_dati$DEN_REG20)
+base_dati$CIRCOCAM_20_DEN <- toupper(base_dati$CIRCOCAM_20_DEN)
+base_dati$CP20_DEN <- toupper(base_dati$CP20_DEN)
+base_dati$SP20_DEN <- toupper(base_dati$SP20_DEN)
+base_dati$CU20_DEN <- toupper(base_dati$CU20_DEN)
+base_dati$SU20_DEN <- toupper(base_dati$SU20_DEN)
+
 
 names(base_dati)[names(base_dati) == "DEN_PRO_CM20"] <- "PROVINCIA"
 names(base_dati)[names(base_dati) == "DEN_COM20"] <- "COMUNE"
@@ -92,7 +108,7 @@ comuni <- unique(base_dati[, c("PROVINCIA", "COMUNE")])
 ##### Politiche #####
 
 camera_2018 <- read.csv2(
-  "dati_2018/camera-20180304_2.txt",
+  "dati/2018/camera-20180304_2.txt",
   fileEncoding = "utf-8"
 )
 
@@ -120,17 +136,16 @@ camera_2018$PROVINCIA[camera_2018$PROV_TEMP == "PATERNÊ"] <- "CATANIA"
 camera_2018$PROVINCIA[camera_2018$PROV_TEMP == "SAN DONA' DI PIAVE"] <- "VENEZIA"
 
 # Checks
+# TO DO: trasformare in un controllo che innesca un errore
 setdiff(unique(camera_2018$PROVINCIA), province$PROVINCIA)
 sum(is.na(camera_2018$PROVINCIA))
 
-
-
 ##### Amministrative #####
 
-lista_files <- list.files("dati_amministrative")
+lista_files <- list.files("dati/eur_reg")
 
 lista_dataframes <- lapply(
-  paste0("dati_amministrative/", lista_files),
+  paste0("dati/eur_reg/", lista_files),
   read.csv2,
   fileEncoding = "utf-8"
 )
@@ -167,6 +182,7 @@ amministrative$PROVINCIA[amministrative$PROVINCIA == "REGGIO NELL' EMILIA"] <- "
 amministrative$PROVINCIA[amministrative$PROVINCIA == "MASSA-CARRARA"] <- "MASSA CARRARA"
 
 # Checks
+# TO DO: trasformare in un controllo che innesca un errore
 setdiff(unique(amministrative$PROVINCIA), province$PROVINCIA)
 
 ##### Unione camera e amministrative #####
@@ -247,30 +263,21 @@ dati_precedenti <- rbind(
 amministrative <- NULL
 camera_2018 <- NULL
 
+
 # Questo è servito per esportare i nomi delle liste
 write.csv2(
   dati_precedenti[!duplicated(dati_precedenti$LISTA), ],
-  "output/liste.csv",
+  "_output/liste_precedenti_elezioni.csv",
   fileEncoding = "utf-8"
 )
 
 ##### Corrispondenza liste - aree #####
 
-liste <- read_xlsx("dati_2023/liste.xlsx", "liste")
+liste <- read_xlsx("dati/liste_precedenti_elezioni.xlsx", "liste")
 liste <- liste[
   !duplicated(liste$LISTA) & !is.na(liste$LISTA) & !is.na(liste$AREA)
   , c("LISTA", "AREA")]
 
-##### Liste nazionali e collegi ######
-
-liste_naz <- read_xlsx(paste0("dati_2023/", scenario, ".xlsx"), "liste_naz")
-liste_naz$CL <- as.character(liste_naz$COALIZIONE)
-liste_naz$CL[is.na(liste_naz$CL)] <- 
-  as.character(liste_naz$LISTA[is.na(liste_naz$CL)])
-
-altri_dati <- read_xlsx(paste0("dati_2023/", scenario, ".xlsx"), "altri_dati")
-
-load("dati_collegi/collegi.RData")
 
 #### Calcolo distribuzione spaziale elettori di area ####
 
@@ -318,9 +325,348 @@ prov_area <- merge(
 
 prov_area$PERCENTUALE_AREA <- prov_area$POP_AREA / prov_area$POP_AREA_TOT
 
-#### Calcolo percentuali per provincia ####
-
+# Calcolo popolazione nazionale
 popolazione <- sum(province$POP_2011)
+
+```
+
+```{r collegi}
+
+prepara_collegi <- function(ramo) {
+  if (ramo == "camera") {
+    colonna_circ <- base_dati$CIRCOCAM_20_DEN
+    colonna_pluri <- base_dati$CP20_DEN
+    colonna_uni <- base_dati$CU20_DEN
+  }
+  
+  if (ramo == "senato") {
+    colonna_circ <- base_dati$DEN_REG20
+    colonna_pluri <- base_dati$SP20_DEN
+    colonna_uni <- base_dati$SU20_DEN
+  }
+  
+  dati <- list()
+  
+  # Estraggo le circoscrizioni
+  dati$circoscrizioni <- aggregate(
+    POP_2011 ~ colonna_circ,
+    base_dati,
+    sum
+  )
+  
+  # Estraggo i collegi plurinominali
+  dati$collegi_pluri <- aggregate(
+    POP_2011 ~ colonna_circ + colonna_pluri,
+    base_dati,
+    sum
+  )
+  
+  dati$collegi_uni <- aggregate(
+    POP_2011 ~ colonna_circ + colonna_pluri + colonna_uni,
+    base_dati,
+    sum
+  )
+  
+  
+  ##### Rinomino le colonne ####
+  names(dati$circoscrizioni)[1] <- "CIRCOSCRIZIONE"
+  names(dati$collegi_pluri)[1] <- "CIRCOSCRIZIONE"
+  names(dati$collegi_pluri)[2] <- "COLLEGIOPLURINOMINALE"
+  names(dati$collegi_uni)[1] <- "CIRCOSCRIZIONE"
+  names(dati$collegi_uni)[2] <- "COLLEGIOPLURINOMINALE"
+  names(dati$collegi_uni)[3] <- "COLLEGIOUNINOMINALE"
+  
+  # Carico i collegi
+  dati$collegi_pluri <- merge(
+    dati$collegi_pluri,
+    read_xlsx("dati/2022/collegi.xlsx", paste0(ramo, "_pluri"))
+  )
+  
+  dati
+}
+
+# Preparo le liste
+camera <- prepara_collegi("camera")
+senato <- prepara_collegi("senato")
+
+
+```
+
+
+```{r dati}
+#| include: false
+#| cache: true
+
+# Importo liste_naz
+
+liste_naz <- read_xlsx("dati/2022/liste.xlsx", "liste")
+altri_dati <- read_xlsx("dati/2022/liste.xlsx", "altri_dati")
+
+# liste_naz$ALTRE <- FALSE
+# 
+# manca <- 1 - sum(liste_naz$PERCENTUALE)
+# liste_da_aggiungere <- manca * 100 %/% 1
+# 
+# for (i in 1:liste_da_aggiungere) {
+#   liste_naz <- rbind(
+#     liste_naz,
+#     data.frame(
+#       LISTA = paste("Altra", i),
+#       ABBREV = paste("Altra", i),
+#       PERCENTUALE = manca / liste_da_aggiungere,
+#       COALIZIONE = NA,
+#       MINORANZA = FALSE,
+#       COLORE = NA,
+#       AREA = "ALTRI",
+#       ALTRE = TRUE
+#     )
+#   )
+# }
+
+liste_naz$CL <- ifelse(
+  is.na(liste_naz$COALIZIONE), 
+  liste_naz$ABBREV, 
+  liste_naz$COALIZIONE
+)
+
+carica_dati <- function(ramo) {
+  liste_uni <- read.csv(
+    paste0(
+      "dati/2022/",
+      toupper(ramo),
+      "_ITALIA_20220925_uni.csv"
+    )
+  )
+  candidati_pluri <- read.csv(
+    paste0(
+      "dati/2022/",
+      toupper(ramo),
+      "_ITALIA_20220925_pluri.csv"
+    )
+  )
+  
+  names(liste_uni)[2:3] <- c("COLLEGIOUNINOMINALE", "LISTA")
+  names(candidati_pluri)[2:3] <- c("COLLEGIOPLURINOMINALE", "LISTA")
+  
+  liste_uni$CANDIDATO <- trimws(liste_uni$CANDIDATO)
+  candidati_pluri$CANDIDATO <- trimws(candidati_pluri$CANDIDATO)
+  
+  # Correggo la scrittura del SÜDTIROL
+  liste_uni$CIRCOSCRIZIONE <- 
+    str_replace(liste_uni$CIRCOSCRIZIONE, "S\\?DTIROL", "SÜDTIROL")
+  liste_uni$COLLEGIOUNINOMINALE <- 
+    str_replace(liste_uni$COLLEGIOUNINOMINALE, "S\\?DTIROL", "SÜDTIROL")
+  candidati_pluri$CIRCOSCRIZIONE <- 
+    str_replace(candidati_pluri$CIRCOSCRIZIONE, "S\\?DTIROL", "SÜDTIROL")
+  candidati_pluri$COLLEGIOPLURINOMINALE <- 
+    str_replace(candidati_pluri$COLLEGIOPLURINOMINALE, "S\\?DTIROL", "SÜDTIROL")
+  
+  # Correggo la circoscrizione "ITALIA"
+  sost_circ <- function(stringa) {
+    substr(stringa, 1, str_length(stringa) - 6)
+  }
+  
+  liste_uni$CIRCOSCRIZIONE[liste_uni$CIRCOSCRIZIONE == "ITALIA"] <- 
+    sapply(
+      liste_uni$COLLEGIOUNINOMINALE[liste_uni$CIRCOSCRIZIONE == "ITALIA"],
+      sost_circ
+    )
+  
+  # Aggiungo i numeri dei candidati
+  candidati_pluri$NUMERO <- ave(
+    seq_along(candidati_pluri$CANDIDATO),
+    paste(candidati_pluri$COLLEGIOPLURINOMINALE, candidati_pluri$LISTA),
+    FUN = seq_along
+  )
+  
+  # Aggiungo la colonna "collegio plurinominale"
+  liste_uni <- merge(
+    liste_uni,
+    get(ramo)$collegi_uni
+  )
+  
+  # Aggiungo le colonne "abbrev", "cl" e "area"
+  liste_uni <- merge(
+    liste_uni,
+    liste_naz[, c("LISTA", "ABBREV", "CL", "AREA")]
+  )
+  
+  # Aggiungo la colonna CL e ABBREV
+  candidati_pluri <- merge(
+    candidati_pluri,
+    liste_naz[, c("LISTA", "CL", "ABBREV")]
+  )
+  
+  # Tolgo i candidati di liste non considerate
+  candidati_pluri <- 
+    candidati_pluri[candidati_pluri$LISTA %in% liste_naz$LISTA, ]
+  
+  # Creo il dataframe candidati_uni
+  candidati_uni <- unique(
+    liste_uni[
+      ,
+      c(
+        "CIRCOSCRIZIONE",
+        "COLLEGIOPLURINOMINALE",
+        "COLLEGIOUNINOMINALE",
+        "CL",
+        "CANDIDATO"
+      )
+    ]
+  )
+  
+  ## Controllo omonimie
+  
+  # Omonimie uni
+  omonimi_uni <- which(duplicated(candidati_uni$CANDIDATO))
+  
+  for (o in omonimi_uni) {
+    vecchio_nome <- candidati_uni$CANDIDATO[o]
+    cl <- candidati_uni$CL[o]
+    nuovo_nome <- paste(vecchio_nome, cl, sep = " - ")
+    
+    candidati_uni$CANDIDATO[o] <- nuovo_nome
+    candidati_pluri$CANDIDATO[
+      candidati_pluri$CANDIDATO == vecchio_nome &
+        candidati_pluri$CL == cl
+    ] <- nuovo_nome
+    liste_uni$CANDIDATO[
+      liste_uni$CANDIDATO == vecchio_nome &
+        liste_uni$CL == cl
+    ] <- nuovo_nome
+    
+    message("Risolta omonimia uni: ", nuovo_nome)
+  }
+  
+  # Omonimie pluri
+  candidati_pluri_unico <- unique(
+    candidati_pluri[, c("CANDIDATO", "ABBREV", "CL")]
+  )
+  omonimi_pluri <- which(duplicated(candidati_pluri_unico$CANDIDATO))
+  
+  for (o in omonimi_pluri) {
+    vecchio_nome <- candidati_pluri_unico$CANDIDATO[o]
+    abbrev <- candidati_pluri_unico$ABBREV[o]
+    cl <- candidati_pluri_unico$CL[o]
+    nuovo_nome <- paste(vecchio_nome, abbrev, sep = " - ")
+    
+    if (
+      sum(
+        candidati_uni$CANDIDATO == vecchio_nome & candidati_uni$CL == cl
+      ) > 0 &
+      sum(
+        duplicated(
+          candidati_pluri_unico$CL[
+            candidati_pluri_unico$CANDIDATO == vecchio_nome
+          ]
+        )
+      ) > 0
+    ) {
+      warning("C'è un candidato uninominale e due diversi candidati ",
+              "plurinominali della coalizione ", 
+              cl,
+              " chiamati ",
+              vecchio_nome,
+              ", assegno il candidato uninominale al secondo dei due.")
+    }
+    
+    candidati_pluri$CANDIDATO[
+      candidati_pluri$CANDIDATO == vecchio_nome &
+        candidati_pluri$ABBREV == abbrev
+    ] <- nuovo_nome
+    
+    candidati_uni$CANDIDATO[
+      candidati_uni$CANDIDATO == vecchio_nome &
+        candidati_uni$CL == cl
+    ] <- nuovo_nome
+    
+    liste_uni$CANDIDATO[
+      liste_uni$CANDIDATO == vecchio_nome &
+        liste_uni$CL == cl
+    ] <- nuovo_nome
+    
+    message("Risolta omonimia pluri: ", nuovo_nome)
+  }
+  
+  # Omonimie incrociate
+  candidati_pluri_unico <- unique(
+    candidati_pluri[, c("CANDIDATO", "ABBREV", "CL")]
+  )
+  candidati_tutti <- unique(rbind(
+    candidati_uni[, c("CANDIDATO", "CL")],
+    candidati_pluri_unico[, c("CANDIDATO", "CL")]
+  ))
+  omonimi_incrociati <- which(duplicated(candidati_tutti$CANDIDATO))
+  
+  for (o in omonimi_incrociati) {
+    vecchio_nome <- candidati_tutti$CANDIDATO[o]
+    cl <- candidati_tutti$CL[o]
+    nuovo_nome <- paste(vecchio_nome, cl, sep = " - ")
+    
+    candidati_pluri$CANDIDATO[
+      candidati_pluri$CANDIDATO == vecchio_nome &
+        candidati_pluri$CL == cl
+    ] <- nuovo_nome
+    
+    candidati_uni$CANDIDATO[
+      candidati_uni$CANDIDATO == vecchio_nome &
+        candidati_uni$CL == cl
+    ] <- nuovo_nome
+    
+    liste_uni$CANDIDATO[
+      liste_uni$CANDIDATO == vecchio_nome &
+        liste_uni$CL == cl
+    ] <- nuovo_nome
+    
+    message("Risolta omonimia incrociata: ", nuovo_nome)
+  }
+  
+  list(
+    liste_uni = liste_uni,
+    candidati_uni = candidati_uni, 
+    candidati_pluri = candidati_pluri
+  )
+}
+
+camera <- c(camera, carica_dati("camera"))
+senato <- c(senato, carica_dati("senato"))
+
+# Check per controllare che i nomi corrispondano
+setdiff(camera$candidati_uni$CIRCOSCRIZIONE, base_dati$CIRCOCAM_20_DEN)
+setdiff(base_dati$CIRCOCAM_20_DEN, camera$candidati_uni$CIRCOSCRIZIONE)
+
+setdiff(camera$candidati_pluri$CIRCOSCRIZIONE, base_dati$CIRCOCAM_20_DEN)
+setdiff(base_dati$CIRCOCAM_20_DEN, camera$candidati_pluri$CIRCOSCRIZIONE)
+
+setdiff(senato$candidati_uni$CIRCOSCRIZIONE, base_dati$DEN_REG20)
+setdiff(base_dati$DEN_REG20, senato$candidati_uni$CIRCOSCRIZIONE)
+
+setdiff(senato$candidati_pluri$CIRCOSCRIZIONE, base_dati$DEN_REG20)
+setdiff(base_dati$DEN_REG20, senato$candidati_pluri$CIRCOSCRIZIONE)
+
+
+
+setdiff(camera$candidati_uni$COLLEGIOUNINOMINALE, base_dati$CU20_DEN)
+setdiff(base_dati$CU20_DEN, camera$candidati_uni$COLLEGIOUNINOMINALE)
+
+setdiff(camera$candidati_pluri$COLLEGIOPLURINOMINALE, base_dati$CP20_DEN)
+setdiff(base_dati$CP20_DEN, camera$candidati_pluri$COLLEGIOPLURINOMINALE)
+
+setdiff(senato$candidati_uni$COLLEGIOUNINOMINALE, base_dati$SU20_DEN)
+setdiff(base_dati$SU20_DEN, senato$candidati_uni$COLLEGIOUNINOMINALE)
+
+setdiff(senato$candidati_pluri$COLLEGIOPLURINOMINALE, base_dati$SP20_DEN)
+setdiff(base_dati$SP20_DEN, senato$candidati_pluri$COLLEGIOPLURINOMINALE)
+
+
+```
+
+
+```{r simula}
+#| include: false
+#| cache: true
+
+#### Calcolo percentuali per provincia ####
 
 liste_naz$PERC_CORRETTA <-liste_naz$PERCENTUALE * (1 - altri_dati$Astensione) 
 liste_naz <- merge(
@@ -413,24 +759,13 @@ liste_naz <- merge(
 
 liste_naz$PERC_IN_AREA <- liste_naz$PERC_CORRETTA / liste_naz$PERCENTUALE_AREA
 
+
 simula <- function(
     ramo,
-    scenario,
-    dati,
-    liste_naz,
-    
     iterazioni = 200,
     variab = .5
 ) {
-  names(dati$collegi_pluri)[names(dati$collegi_pluri) == "SEGGI_PLURI"] <-
-    "SEGGI"
-  
-  #### Calcolo il numero massimo di candidati per collegio pluri ####
-  dati$collegi_pluri$CANDIDATI_MAX <- 
-    pmin(4, dati$collegi_pluri$SEGGI)
-  if (ramo == "Senato") {
-    dati$collegi_pluri$CANDIDATI_MAX[dati$collegi_pluri$SEGGI == 1] <- 1
-  }
+  dati <- get(ramo)
   
   #### Preparo i data frame delle liste ai diversi livelli ####
   
@@ -444,9 +779,25 @@ simula <- function(
     dati$liste_circ[, c("CIRCOSCRIZIONE", "LISTA")]
   )
   
-  dati$liste_uni <- merge(
+  # Aggiungo al dataframe liste_uni i dati sull'astensione
+  astensione_uni <- merge(
     dati$collegi_uni,
-    liste_naz[, c("LISTA", "CL", "AREA", "PERC_IN_AREA")]
+    liste_naz[
+      liste_naz$AREA == "astensione", 
+      c("LISTA", "AREA", "ABBREV", "CL")
+    ]
+  )
+  
+  astensione_uni$CANDIDATO <- NA
+  
+  dati$liste_uni <- rbind(
+    dati$liste_uni,
+    astensione_uni
+  )
+  
+  dati$liste_uni <- merge(
+    dati$liste_uni,
+    liste_naz[, c("LISTA", "AREA", "PERC_IN_AREA")]
   )
   
   dati$liste_uni <- merge(
@@ -486,23 +837,11 @@ simula <- function(
   liste_naz <- liste_naz[!is.na(liste_naz$LISTA), ]
   
   
-  #### Preparo il data frame dei candidati ####
-  n_cand <- sum(dati$collegi_pluri$CANDIDATI_MAX) + nrow(dati$collegi_uni)
-  dati$candidati <- data.frame(
-    LISTA = rep(liste_naz$LISTA, each = n_cand),
-    CL = rep(liste_naz$CL, each = n_cand)
-  )
-  
-  dati$candidati$CANDIDATO <- 
-    factor(paste(dati$candidati$LISTA, seq_along(dati$candidati$LISTA)))
-  
-  #### Inizio iterazioni ####
-  
   iterazione <- function(
     iter = 1,
-    ramo = "Camera",
-    dati,
+    ramo = "camera",
     liste_naz,
+    dati,
     variab = .5
   ) {
     dati$liste_uni$LOG_P <- rnorm(
@@ -528,123 +867,23 @@ simula <- function(
     dati$liste_pluri <- dati$liste_pluri[!is.na(dati$liste_pluri$LISTA), ]
     dati$liste_circ <- dati$liste_circ[!is.na(dati$liste_circ$LISTA), ]
     
-    ##### Sorteggio i candidati ####
+    dati$candidati_uni$DATA_NASCITA <- as.POSIXct("1990-01-01")
     
-    dati$candidati_uni <- unique(dati$liste_uni[, c(
-      "CIRCOSCRIZIONE",
-      "COLLEGIOPLURINOMINALE",
-      "COLLEGIOUNINOMINALE",
-      "CL"
-    )])
-    
-    dati$candidati$SCELTO_UNI <- FALSE
-    dati$candidati_uni$CANDIDATO <- 
-      factor(NA, levels = levels(dati$candidati$CANDIDATO))
-    
-    
-    for (i in seq_along(dati$candidati_uni$CL)) {
-      lista <- sample(
-        liste_naz$LISTA[liste_naz$CL == dati$candidati_uni$CL[i]], 
-        1, 
-        prob = liste_naz$FRAZ_UNI[liste_naz$CL == dati$candidati_uni$CL[i]]
-      )
-      candidato <- sample(which(
-        dati$candidati$LISTA == lista &
-          !dati$candidati$SCELTO_UNI
-      ), 1)
-      
-      dati$candidati_uni$CANDIDATO[i] <- dati$candidati$CANDIDATO[candidato]
-      dati$candidati$SCELTO_UNI[candidato] <- TRUE
-    }
-    
-    if (sum(duplicated(dati$candidati_uni$CANDIDATO)) > 0) stop(
-      "Candidati uninominali duplicati"
-    )
-    
-    
-    dati$candidati_pluri <- dati$liste_pluri[
-      rep(
-        seq_along(dati$liste_pluri$CANDIDATI_MAX), 
-        dati$liste_pluri$CANDIDATI_MAX
-      ),
-      c(
-        "CIRCOSCRIZIONE",
-        "COLLEGIOPLURINOMINALE",
-        "LISTA"
-      )
-    ]
-    
-    dati$candidati_pluri$NUMERO <- ave(
-      seq_along(dati$candidati_pluri$LISTA),
-      paste(
-        dati$candidati_pluri$CIRCOSCRIZIONE,
-        dati$candidati_pluri$COLLEGIOPLURINOMINALE,
-        dati$candidati_pluri$LISTA
-      ),
-      FUN = seq_along
-    )
-    
-    dati$candidati$SCELTO_PLURI <- 0
-    dati$candidati_pluri$CANDIDATO <- 
-      factor(NA, levels = levels(dati$candidati$CANDIDATO))
-    
-    for (i in seq_along(dati$candidati_pluri$NUMERO)) {
-      if (runif(1) < liste_naz$FRAZ_PLURICAND[
-        liste_naz$LISTA == dati$candidati_pluri$LISTA[i]
-      ]) {
-        papabili <- which(
-          dati$candidati$LISTA == dati$candidati_pluri$LISTA[i] &
-            dati$candidati$SCELTO_PLURI < 5 &
-            (dati$candidati$SCELTO_UNI | dati$candidati$SCELTO_PLURI > 0) &
-            !(dati$candidati$CANDIDATO %in% dati$candidati_pluri$CANDIDATO[
-              dati$candidati_pluri$COLLEGIOPLURINOMINALE == 
-                dati$candidati_pluri$COLLEGIOPLURINOMINALE[i]
-            ])
-        )
-        
-        if (length(papabili) > 0) {
-          candidato <- sample(papabili, 1)
-          
-          dati$candidati_pluri$CANDIDATO[i] <- dati$candidati$CANDIDATO[candidato]
-          dati$candidati$SCELTO_PLURI[candidato] <- 
-            dati$candidati$SCELTO_PLURI[candidato] + 1
-          
-          next
-        }
-      }
-      
-      candidato <- which(
-        dati$candidati$LISTA == dati$candidati_pluri$LISTA[i] &
-          dati$candidati$SCELTO_PLURI == 0 &
-          !dati$candidati$SCELTO_UNI
-      )[1]
-      
-      dati$candidati_pluri$CANDIDATO[i] <- dati$candidati$CANDIDATO[candidato]
-      dati$candidati$SCELTO_PLURI[candidato] <- 1
-    }
-    
-    
-    ##### Preparo i data frame per lo scrutinio ####
-    dati$liste_uni$CANDIDATO <- NULL
-    dati$liste_uni <- merge(
-      dati$liste_uni,
-      dati$candidati_uni
-    )
-    
-    
+    # Calcolo i voti per candidato
     dati$candidati_uni <- merge(
       dati$candidati_uni,
       aggregate(
         VOTI_LISTA ~ 
-          CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE + COLLEGIOUNINOMINALE + CANDIDATO,
+          CIRCOSCRIZIONE +
+          COLLEGIOPLURINOMINALE +
+          COLLEGIOUNINOMINALE +
+          CANDIDATO,
         dati$liste_uni,
         sum
       )
     )
     names(dati$candidati_uni)[names(dati$candidati_uni) == "VOTI_LISTA"] <-
       "VOTI_CANDIDATO"
-    
-    dati$candidati_uni$DATA_NASCITA <- as.POSIXct("1990-01-01")
     
     scrutinio <- Scrutinio(
       ramo,
@@ -683,7 +922,7 @@ simula <- function(
         "COLLEGIOPLURINOMINALE",
         "SEGGI"
       )],
-      ifelse(ramo == "Camera", 392, 196)
+      ifelse(ramo == "camera", 392, 196)
     )
     
     
@@ -705,6 +944,11 @@ simula <- function(
       ),
       by = c("CIRCOSCRIZIONE", "COLLEGIOPLURINOMINALE"),
       suffixes = c("", "_TOT")
+    )
+    
+    scrutinio$liste_pluri <- merge(
+      scrutinio$liste_pluri,
+      liste_naz[, c("LISTA", "ABBREV")]
     )
     
     scrutinio$liste_pluri$PERCENTUALE <-
@@ -730,7 +974,7 @@ simula <- function(
     
     scrutinio$liste_naz <- merge(
       scrutinio$liste_naz,
-      liste_naz[, c("LISTA", "CL")]
+      liste_naz[, c("LISTA", "CL", "ABBREV")]
     )
     
     scrutinio$candidati_uni <- merge(
@@ -772,11 +1016,17 @@ simula <- function(
       scrutinio$cl_naz$CL
     ), ]
     
+    scrutinio$candidati_pluri <- merge(
+      scrutinio$candidati_pluri,
+      liste_naz[, c("LISTA", "CL", "ABBREV")]
+    )
+    
     list(
       liste_pluri = scrutinio$liste_pluri,
       liste_naz = scrutinio$liste_naz,
       cl_naz = scrutinio$cl_naz,
-      candidati_uni = scrutinio$candidati_uni
+      candidati_uni = scrutinio$candidati_uni,
+      candidati_pluri = scrutinio$candidati_pluri
     )
   }
   
@@ -809,6 +1059,8 @@ simula <- function(
     rbindlist(lapply(lista_risultati, function(l) l$cl_naz), idcol = "SIM")
   risultato$candidati_uni <- 
     rbindlist(lapply(lista_risultati, function(l) l$candidati_uni), idcol = "SIM")
+  risultato$candidati_pluri <- 
+    rbindlist(lapply(lista_risultati, function(l) l$candidati_pluri), idcol = "SIM")
   
   lista_risultati <- NULL
   
@@ -816,23 +1068,16 @@ simula <- function(
 }
 
 camera$risultato <- simula(
-  "Camera",
-  scenario,
-  camera,
-  liste_naz,
-  iterazioni,
-  variab
+  "camera",
+  iterazioni = iterazioni,
+  variab = variab
 )
 
 senato$risultato <- simula(
-  "Senato",
-  scenario,
-  senato,
-  liste_naz,
-  iterazioni,
-  variab
+  "senato",
+  iterazioni = iterazioni,
+  variab = variab
 )
-
 ```
 
 ## Dati di input
@@ -842,18 +1087,16 @@ library(kableExtra)
 options(knitr.kable.NA = '')
 liste_naz <- liste_naz[order(liste_naz$PERCENTUALE, decreasing = TRUE), ]
 liste_naz$PERCENTUALE <- formattable::percent(liste_naz$PERCENTUALE, 1)
-liste_naz$FRAZ_PLURICAND <- formattable::percent(liste_naz$FRAZ_PLURICAND, 0)
 kbl(
   liste_naz[
     liste_naz$AREA != "astensione" & !is.na(liste_naz$COLORE), 
-    c("LISTA", "PERCENTUALE", "COALIZIONE", "FRAZ_PLURICAND", "AREA")
+    c("LISTA", "PERCENTUALE", "COALIZIONE", "AREA")
   ],
   row.names = FALSE,
   col.names = c(
     "Lista",
     "Percentuale",
     "Coalizione",
-    "Pluricandidature",
     "Area"
   )
 ) %>%
@@ -861,25 +1104,17 @@ kbl(
 ```
 
 - Percentuali nazionali dal sondaggio `r altri_dati$Sondaggio`
-- Coalizioni più probabili a oggi
-- Frazione di pluricandidature basata sulla frazione di pluricandidature alle
-elezioni politiche del 2018.
 - Numero di simulazioni effettuate: `r iterazioni`
 - Parametro di variabilità dei voti: `r variab`
 
 ## Dettagli del procedimento
 
-I collegi uninominali e plurinominali sono stati ricavati dal file Access della 
-proposta della commissione, ricavato dalla pagina <https://www.riformeistituzionali.gov.it/it/i-nuovi-collegi-elettorali/>. Il 
-numero di seggi per ciascun collegio plurinominale è stato calcolato
-suddividendo i seggi totali nelle circoscrizioni in base alla popolazione 
-risultante dal censimento 2011, e al numero di seggi così ottenuto è stato 
-tolto il numero di collegi uninominali definiti. Al Senato, poiché per il
-Trentino-Alto Adige sono definiti 6 collegi uninominali ma in base alla 
-popolazione spetterebbero meno di 6 seggi, non sono stati attribuiti seggi da
-eleggere con metodo proporzionale. Se qualcuno ha informazioni più dettagliate
-su come saranno realmente distribuiti i seggi per la parte proporzionale sono
-molto gradite.
+I collegi uninominali e plurinominali,
+e il rispettivo numero di seggi,
+sono stati ricavati dai Decreti del Presidente della Repubblica
+del 21 luglio 2022.
+
+I candidati sono stati ricavati da [Eligendo](https://dait.interno.gov.it/elezioni/trasparenza/elezioni-politiche-2022).
 
 I voti di ogni lista in ciascun collegio uninominale sono stati stimati in
 questo modo:
@@ -917,23 +1152,7 @@ rispetto alla percentuale calcolata nel punto 8. Il parametro di variabilità
 stabilisce quanto i voti possono variare (per i dettagli del calcolo, vedere
 gli script).
 
-Si assume che tutte le liste si presentino in tutti i collegi plurinominali, con
- il massimo numero di candidati. Per simulare le pluricandidature si è proceduto
- in questo modo:
-
-1. Ogni candidato uninominale di ciascuna coalizione è stato "assegnato" a 
-una delle liste della coalizione, proporzionalmente alla percentuale di ciascuna
- lista rispetto alla percentuale complessiva della coalizione (ad esempio se FdI
- ha il 25% e l'intera coalizione di cdx ha il 50%, metà dei candidati 
-uninominali di cdx saranno "assegnati" a FdI)
-2. Nell'individuare i candidati plurinominali, è stato sorteggiato casualmente 
-se ciascuno di questi dovesse essere "nuovo" (cioè non ancora candidato altrove)
-oppure dovesse essere un nome già candidato in altri collegi uni o 
-plurinominali, rispettando il limite di 1 collegio uninominale e 5 collegi 
-plurinominali. La proporzione di candidati plurinominali che sono in realtà nomi
-già candidati altrove è quella indicata nella prima tabella.
-
-Una volta ottenuti voti e candidati per ciascun collegio, sono stati applicati
+Una volta ottenuti i voti per ciascun collegio, sono stati applicati
 alla lettera il DPR 361/57 e il D.Lgs. 533/93 (con l'unica eccezione dei casi
 di parità da risolvere con sorteggio, e per il Senato applicando, in caso di 
 incapienza di una lista, quanto
@@ -941,6 +1160,11 @@ accaduto a seguito delle elezioni 2018, cioè
 andando a ripescare candidati non eletti anche da altre regioni).
 
 **Non sono stati simulati i seggi delle circoscrizioni Estero e Valle d'Aosta.**
+
+**Sto trascurando SVP, 
+dunque i risultati, 
+soprattutto per il Trentino-Alto Adige,
+potrebbero essere falsati**
 
 Gli script per l'esecuzione dell'analisi si trovano in questo repository:
 <https://github.com/fornaeffe/elezioni>
@@ -972,8 +1196,6 @@ senato$risultato$cl_naz <- merge(
     liste_naz[!duplicated(liste_naz$CL), c("CL", "COL")]
   )
 ```
-
-### Complessivi
 
 Nei grafici seguenti è mostrata la composizione mediana dei due rami del
 Parlamento.
@@ -1015,18 +1237,18 @@ disegna_parlamento <- function(ramo) {
   uni$Gruppo <- paste("Magg.", uni$CL)
   
   pluri <- aggregate(
-    ELETTI ~ LISTA,
+    ELETTI ~ ABBREV,
     dati$risultato$liste_naz,
     median,
-    subset = LISTA %in% liste_naz$LISTA[!is.na(liste_naz$COLORE)]
+    subset = ABBREV %in% liste_naz$ABBREV[!is.na(liste_naz$COLORE)]
   )
   pluri$SEGGI <- pluri$ELETTI
   pluri <- merge(
     pluri,
-    liste_naz[, c("LISTA", "COL", "CL")]
+    liste_naz[, c("ABBREV", "COL", "CL")]
   )
   pluri <- pluri[order(pluri$CL), ]
-  pluri$Gruppo <- paste("Prop.", pluri$LISTA)
+  pluri$Gruppo <- paste("Prop.", pluri$ABBREV)
   
   parlamento <- rbind(
     uni[, c("Gruppo", "SEGGI", "COL")],
@@ -1057,17 +1279,48 @@ disegna_parlamento <- function(ramo) {
 
 ```
 
-#### Composizione media della Camera
+### Composizione media della Camera
 ```{r}
 disegna_parlamento("camera")
 ```
 
-#### Composizione media del Senato
+### Composizione media del Senato
 ```{r}
 disegna_parlamento("senato")
 ```
 
-#### Eletti rispetto alla percentuale
+### Probabilità di superare la soglia
+
+```{r}
+superamento_soglia <- function(ramo) {
+  eletti <- aggregate(
+    ELETTO ~ ABBREV + SIM,
+    get(ramo)$risultato$candidati_pluri,
+    sum,
+    subset = LISTA %in% liste_naz$LISTA[!is.na(liste_naz$COLORE)]
+  )
+  eletti$SOGLIA <- eletti$ELETTO > 0
+  soglie <- aggregate(
+    SOGLIA ~ ABBREV,
+    eletti,
+    mean
+  )
+  soglie$SOGLIA <- formattable::percent(soglie$SOGLIA, 0)
+  kbl(
+    soglie,
+    col.names = c("LISTA", "Prob. di eleggere da coll. plurin."),
+    caption = ramo
+  ) %>%
+    kable_minimal()
+}
+
+superamento_soglia("camera")
+superamento_soglia("senato")
+
+```
+
+
+### Eletti rispetto alla percentuale
 
 Nei grafici seguenti è mostrato il numero di eletti (rispettivamente totali,
 nei collegi uninominali e nei collegi plurinominali) per ciascuna coalizione o 
@@ -1206,14 +1459,14 @@ par(mar = c(4,0.1,4,0.1) )
 plot(NA, xlim = c(0,1), ylim = c(0,1), axes=FALSE, xlab="", ylab="")
 legend(
   "topleft",
-  legend = liste_naz$LISTA[!is.na(liste_naz$COLORE)],
+  legend = liste_naz$ABBREV[!is.na(liste_naz$COLORE)],
   pch = 19,
   col = liste_naz$COL[!is.na(liste_naz$COLORE)]
 )
 plot(NA, xlim = c(0,1), ylim = c(0,1), axes=FALSE, xlab="", ylab="")
 legend(
   "topleft",
-  legend = liste_naz$LISTA[!is.na(liste_naz$COLORE)],
+  legend = liste_naz$ABBREV[!is.na(liste_naz$COLORE)],
   pch = 19,
   col = liste_naz$COL[!is.na(liste_naz$COLORE)]
 )
@@ -1224,14 +1477,14 @@ legend(
 \
 \
 
+
+
 ```{r}
 library(stringr)
 disegna_tabella_uni <- function(ramo) {
   tbl <- reshape(
     aggregate(
       ELETTO ~ 
-        CIRCOSCRIZIONE +
-        COLLEGIOPLURINOMINALE +
         COLLEGIOUNINOMINALE +
         CL,
       get(ramo)$risultato$candidati_uni,
@@ -1239,19 +1492,16 @@ disegna_tabella_uni <- function(ramo) {
       subset = CL %in% liste_naz$CL[!is.na(liste_naz$COLORE)]
     ),
     direction = "wide",
-    idvar = c(
-      "CIRCOSCRIZIONE",
-      "COLLEGIOPLURINOMINALE",
-      "COLLEGIOUNINOMINALE"
-    ),
+    idvar = "COLLEGIOUNINOMINALE",
     timevar = "CL"
   )
   names(tbl) <- str_remove(names(tbl), "ELETTO\\.")
+  tbl[is.na(tbl)] <- 0
   
-  kb <- kbl(tbl) %>%
+  kb <- kbl(tbl, row.names = FALSE) %>%
     kable_minimal()
   
-  for (i in 4:ncol(tbl)) {
+  for (i in 2:ncol(tbl)) {
     kb <- column_spec(
       kb,
       i,
@@ -1263,24 +1513,23 @@ disegna_tabella_uni <- function(ramo) {
       )
     )
   }
+  
   kb
 }
 
 disegna_tabella_pluri <- function(ramo) {
   tbl <- reshape(
     aggregate(
-      ELETTI ~ CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE + LISTA,
+      ELETTI ~ CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE + ABBREV,
       get(ramo)$risultato$liste_pluri,
       mean,
-      subset = LISTA %in% liste_naz$LISTA[!is.na(liste_naz$COLORE)]
+      subset = ABBREV %in% liste_naz$ABBREV[!is.na(liste_naz$COLORE)]
     ),
     direction = "wide",
     idvar = c("CIRCOSCRIZIONE", "COLLEGIOPLURINOMINALE"),
-    timevar = "LISTA"
+    timevar = "ABBREV"
   )
   names(tbl) <- str_remove(names(tbl), "ELETTI\\.")
-  
-  tbl <- tbl[order(tbl[[lista]], decreasing = TRUE), ]
   
   kb <- kbl(
     tbl,
@@ -1293,7 +1542,7 @@ disegna_tabella_pluri <- function(ramo) {
       kb,
       i,
       background = hsv(
-        liste_naz$COLORE[which(liste_naz$LISTA == names(tbl)[i])] / 360, 
+        liste_naz$COLORE[which(liste_naz$ABBREV == names(tbl)[i])] / 360, 
         1, 
         1, 
         tbl[[i]] / 4
@@ -1305,7 +1554,7 @@ disegna_tabella_pluri <- function(ramo) {
 
 ```
 
-#### Probabilità di vittoria in ciascun collegio uninominale della **Camera**
+### Probabilità di vittoria in ciascun collegio uninominale della **Camera**
 Nella tabella seguente, per ciascun collegio uninominale, è mostrata la 
 probabilità di vittoria di ciascuna coalizione.
 
@@ -1316,7 +1565,7 @@ disegna_tabella_uni("camera")
 \
 \
 
-#### Probabilità di vittoria in ciascun collegio uninominale del **Senato**
+### Probabilità di vittoria in ciascun collegio uninominale del **Senato**
 Nella tabella seguente, per ciascun collegio uninominale, è mostrata la 
 probabilità di vittoria di ciascuna coalizione.
 
@@ -1326,144 +1575,140 @@ disegna_tabella_uni("senato")
 \
 \
 \
-
-#### Numero medio di eletti in ciascun collegio plurinominale della **Camera**
-Nella tabella seguente, per ciascun collegio plurinominale, è mostrato il
-numero medio di eletti per ciascuna lista.
-
-```{r}
-disegna_tabella_pluri("camera")
-```
-\
-\
 \
 
-#### Numero medio di eletti in ciascun collegio plurinominale del **Senato**
-Nella tabella seguente, per ciascun collegio plurinominale, è mostrato il
-numero medio di eletti per ciascuna lista.
+### Probabilità di elezione per ciascuna posizione nei collegi plurinominali
 
-```{r}
-disegna_tabella_pluri("senato")
-```
-\
-\
-\
-\
-\
-\
+Nelle tabelle seguenti, per ciascuna lista e per ciascun ramo del Parlamento,
+è indicata la probabilità di elezione per il candidato in prima,
+seconda, terza e quarta posizione.
 
----
-
-### `r lista`
-Di seguito i risultati di dettaglio per la lista `r lista`. I primi grafici
-mostrano, a seconda della percentuale nazionale ottenuta, il numero di seggi
-ottenuti dalla lista alla Camera e al Senato.
-
-I grafici successivi mostrano la probabilità di elezione per un candidato di
-`r lista` in base alla sua posizione nel listino e alla percentuale ottenuta
-dalla lista nel suo collegio plurinominale.
-L'altezza delle colonne indica la probabilità di elezione, la larghezza delle
-colonne indica la probabilità di ottenere una percentuale in quell'intervallo.
-Sono mostrati prima i grafici generici, relativi a una media di tutti i
-collegi plurinominali, e poi i grafici di dettaglio relativi al collegio
-`r collegio`.
-
-È possibile ottenere le stesse informazioni ma per una diversa lista o un 
-diverso collegio cambiando le impostazioni all'inizio del file elezioni.Rmd
-(tutti gli script si trovano nel repository 
-<https://github.com/fornaeffe/elezioni>) o chiedendomelo a 
-<fornaeffe@gmail.com>.
-
-```{r plot_eletti_pluri_lista}
-#| fig.width: 6
-#| fig-height: 6
-#| dpi: 100
-
-par(mar = c(4,4,4,2) )
-plot(
-    ELETTI ~ I(PERCENTUALE * 100),
-    data = camera$risultato$liste_naz[camera$risultato$liste_naz$LISTA == lista, ],
-    col = COL,
-    main = "Camera: eletti nei collegi plurinominali",
-    xlab = "Percentuale",
-    ylab = "Eletti"
-  )
-plot(
-    ELETTI ~ I(PERCENTUALE * 100),
-    data = senato$risultato$liste_naz[senato$risultato$liste_naz$LISTA == lista, ],
-    col = COL,
-    main = "Senato: eletti nei collegi plurinominali",
-    xlab = "Percentuale",
-    ylab = "Eletti"
-  )
-
-
-```
-\
-\
-\
-
-```{r}
-#| fig.width: 8
-#| fig-height: 0.5
-#| dpi: 100
-
-par(mar = c(0,4,2,2))
-plot(NA, xlim = c(0,1), ylim = c(0,1), axes=FALSE, xlab="", ylab="",
-     main = "Probabilità di elezione in base alla posizione nel listino")
-```
-
-
-```{r plot_nmax}
-#| fig.width: 8
-#| fig-height: 8
-#| dpi: 100
-
-grafico_nmax <- function(ramo, collegio = NA) {
-  if (is.na(collegio)) {
-    lp <- get(ramo)$risultato$liste_pluri
-  } else {
-    lp <- get(ramo)$risultato$liste_pluri[
-      get(ramo)$risultato$liste_pluri$COLLEGIOPLURINOMINALE == collegio,
-    ]
+```{r results='asis'}
+disegna_tabella_prob <- function(ramo, lista) {
+  lp <- get(ramo)$risultato$liste_pluri
+  lp <- lp[lp$LISTA == lista, ]
+  lp$NUMERO_MAX <- factor(lp$NUMERO_MAX, levels = 0:4)
+  tbl <- table(lp$COLLEGIOPLURINOMINALE, lp$NUMERO_MAX)
+  tbl2 <- t(apply(
+    tbl,
+    1,
+    function(x) {
+      rev(cumsum(rev(x[2:5]))) / sum(x)
+    }
+  ))
+  
+  tbl2 <- as.data.frame(tbl2)
+  for (i in 1:4) {
+    tbl2[,i] <- formattable::percent(tbl2[, i], 1)
   }
   
-  nmax <- factor(
-      lp$NUMERO_MAX[lp$LISTA == lista],
-      levels = 0:4
-    )
-  nmax[is.na(nmax)] <- 4
-  colori <- c(hcl.colors(4), "#FFFFFF")
-  spineplot(
-    nmax ~ I(
-      lp$PERCENTUALE[
-        lp$LISTA == lista
-      ] *100
-    ),
-    breaks = c(0, 3, 4, 5, 6, 8, 10, 100),
-    col = colori,
-    yaxlabels = NA,
-    ylab = NA,
-    xlab = "Percentuale nel collegio plurinominale",
-    main = paste0(
-      ramo,
-      ifelse(is.na(collegio), "", paste0(" - ", collegio))
-    )
-  )
+  kb <- kbl(tbl2, caption = paste(lista, ramo, sep = " - ")) %>%
+    kable_minimal()
   
-  legend(
-    "topleft",
-    legend = levels(nmax)[-1],
-    fill = rev(colori[-5]),
-    title = "Posizione"
-  )
+  for (i in 1:4) {
+    kb <- column_spec(
+      kb,
+      i+1,
+      background = hsv(
+        liste_naz$COLORE[which(liste_naz$LISTA == lista)] / 360, 
+        1, 
+        1, 
+        tbl2[,i]
+      )
+    )
+  }
+  kb
 }
 
-layout(matrix(c(1,3,2,4), 2, 2), c(1,1), c(1, 1))
-grafico_nmax("camera")
-grafico_nmax("senato")
-grafico_nmax("camera", collegio)
-grafico_nmax("senato", collegio)
+
+for (lista in liste_naz$LISTA[!is.na(liste_naz$COLORE)]) {
+  print(disegna_tabella_prob("camera", lista))
+  print(disegna_tabella_prob("senato", lista))
+}
 
 ```
+
+### Probabilità di elezione di ciascun candidato
+
+Nelle tabelle seguente, per ciascun candidato,
+è indicata la probabilità complessiva di elezione,
+in una qualsiasi delle posizioni dove è candidato.
+
+```{r}
+disegna_tabella_candidati <- function(ramo) {
+  dati <- get(ramo)
+  candidati <- rbind(
+    dati$risultato$candidati_uni[, c("SIM", "CL", "CANDIDATO", "ELETTO")],
+    dati$risultato$candidati_pluri[, c("SIM", "CL", "CANDIDATO", "ELETTO")]
+  )
+  candidati <- aggregate(
+    ELETTO ~ CANDIDATO + CL + SIM,
+    candidati,
+    function(x) Reduce("|", x)
+  )
+  candidati <- aggregate(
+    ELETTO ~ CANDIDATO + CL,
+    candidati,
+    sum
+  )
+  candidati$ELETTO <- candidati$ELETTO / iterazioni
+  candidati <- merge(
+    candidati,
+    liste_naz[!duplicated(liste_naz$CL) & !is.na(liste_naz$COLORE), c("CL", "COLORE")]
+  )
+  candidati <- merge(
+    candidati,
+    unique(dati$candidati_pluri[, c("CANDIDATO", "ABBREV")]),
+    all.x = TRUE
+  )
+  candidati <- merge(
+    candidati,
+    liste_naz[!is.na(liste_naz$COLORE), c("ABBREV", "COLORE")],
+    by = "ABBREV",
+    all.x = TRUE,
+    suffixes = c("", "_ABBREV")
+  )
+  candidati$CL[!is.na(candidati$ABBREV)] <- 
+    candidati$ABBREV[!is.na(candidati$ABBREV)]
+  candidati$COLORE[!is.na(candidati$ABBREV)] <- 
+    candidati$COLORE_ABBREV[!is.na(candidati$ABBREV)]
+  candidati$ABBREV <- NULL
+  candidati$COLORE_ABBREV <- NULL
+  candidati$ELETTO <- formattable::percent(candidati$ELETTO, 0)
+  
+  candidati <- candidati[
+    order(
+      candidati$CL,
+      candidati$ELETTO,
+      decreasing = c(FALSE, TRUE),
+      method = "radix"
+    ), 
+  ]
+  kbl(
+    candidati[1:3],
+    col.names = c(
+      "Candidato",
+      "Lista/Coalizione",
+      "Probabilità di elezione"
+    ),
+    row.names = FALSE,
+    caption = ramo
+  ) %>%
+    kable_minimal() %>%
+    column_spec(
+      3,
+      background = hsv(
+        candidati$COLORE / 360, 
+        1, 
+        1, 
+        candidati$ELETTO
+      )
+    )
+}
+
+disegna_tabella_candidati("camera")
+disegna_tabella_candidati("senato")
+```
+
+
 
