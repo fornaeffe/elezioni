@@ -2220,8 +2220,11 @@ Scrutinio <- function(
                       "ELETTI",
                       "CIFRA_PERCENTUALE"
                     )
-      ]
+      ],
+      all.x = TRUE
     )
+    
+    candidati_pluri$ELETTI[is.na(candidati_pluri$ELETTI)] <- 0
     
     candidati_pluri <- candidati_pluri[order(
       !candidati_pluri$DISPONIBILE,

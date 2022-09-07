@@ -2,7 +2,9 @@
 title: "Simulazione elezioni politiche"
 author: "Luca Fornasari"
 date: "`r Sys.Date()`"
-format: html
+format: 
+  html:
+    self-contained: true
 ---
 
 ```{r parametri}
@@ -379,6 +381,27 @@ senato <- prepara_collegi("senato")
 liste_naz <- read_xlsx("dati/2022/liste.xlsx", "liste")
 altri_dati <- read_xlsx("dati/2022/liste.xlsx", "altri_dati")
 
+# liste_naz$ALTRE <- FALSE
+# 
+# manca <- 1 - sum(liste_naz$PERCENTUALE)
+# liste_da_aggiungere <- manca * 100 %/% 1
+# 
+# for (i in 1:liste_da_aggiungere) {
+#   liste_naz <- rbind(
+#     liste_naz,
+#     data.frame(
+#       LISTA = paste("Altra", i),
+#       ABBREV = paste("Altra", i),
+#       PERCENTUALE = manca / liste_da_aggiungere,
+#       COALIZIONE = NA,
+#       MINORANZA = FALSE,
+#       COLORE = NA,
+#       AREA = "ALTRI",
+#       ALTRE = TRUE
+#     )
+#   )
+# }
+
 liste_naz$CL <- ifelse(
   is.na(liste_naz$COALIZIONE), 
   liste_naz$ABBREV, 
@@ -435,22 +458,19 @@ carica_dati <- function(ramo) {
     FUN = seq_along
   )
   
-  # Aggiungo i candidati uninominali per le liste "altre"
-  # e le colonne abbrev e CL
+  # Aggiungo la colonna "collegio plurinominale"
   liste_uni <- merge(
     liste_uni,
-    merge(
-      get(ramo)$collegi_uni,
-      liste_naz[, c("LISTA", "ABBREV", "CL", "AREA")]
-    ),
-    all.y = TRUE
+    get(ramo)$collegi_uni
   )
   
-  # Assegno un nome ai candidati delle liste "altre"
-  liste_uni$CANDIDATO[is.na(liste_uni$CANDIDATO)] <- 
-      seq_len(sum(is.na(liste_uni$CANDIDATO)))
+  # Aggiungo le colonne "abbrev", "cl" e "area"
+  liste_uni <- merge(
+    liste_uni,
+    liste_naz[, c("LISTA", "ABBREV", "CL", "AREA")]
+  )
   
-  # Aggiungo la colonna CL
+  # Aggiungo la colonna CL e ABBREV
   candidati_pluri <- merge(
     candidati_pluri,
     liste_naz[, c("LISTA", "CL", "ABBREV")]
@@ -977,7 +997,7 @@ simula <- function(
     
     scrutinio$candidati_pluri <- merge(
       scrutinio$candidati_pluri,
-      liste_naz[, c("LISTA", "CL")]
+      liste_naz[, c("LISTA", "CL", "ABBREV")]
     )
     
     list(
@@ -1243,6 +1263,37 @@ disegna_parlamento("camera")
 disegna_parlamento("senato")
 ```
 
+### Probabilità di superare la soglia
+
+```{r}
+superamento_soglia <- function(ramo) {
+  eletti <- aggregate(
+    ELETTO ~ ABBREV + SIM,
+    get(ramo)$risultato$candidati_pluri,
+    sum,
+    subset = LISTA %in% liste_naz$LISTA[!is.na(liste_naz$COLORE)]
+  )
+  eletti$SOGLIA <- eletti$ELETTO > 0
+  soglie <- aggregate(
+    SOGLIA ~ ABBREV,
+    eletti,
+    mean
+  )
+  soglie$SOGLIA <- formattable::percent(soglie$SOGLIA, 0)
+  kbl(
+    soglie,
+    col.names = c("LISTA", "Prob. di eleggere da coll. plurin."),
+    caption = ramo
+  ) %>%
+    kable_minimal()
+}
+
+superamento_soglia("camera")
+superamento_soglia("senato")
+
+```
+
+
 ### Eletti rispetto alla percentuale
 
 Nei grafici seguenti è mostrato il numero di eletti (rispettivamente totali,
@@ -1400,14 +1451,14 @@ legend(
 \
 \
 
+
+
 ```{r}
 library(stringr)
 disegna_tabella_uni <- function(ramo) {
   tbl <- reshape(
     aggregate(
       ELETTO ~ 
-        CIRCOSCRIZIONE +
-        COLLEGIOPLURINOMINALE +
         COLLEGIOUNINOMINALE +
         CL,
       get(ramo)$risultato$candidati_uni,
@@ -1415,19 +1466,16 @@ disegna_tabella_uni <- function(ramo) {
       subset = CL %in% liste_naz$CL[!is.na(liste_naz$COLORE)]
     ),
     direction = "wide",
-    idvar = c(
-      "CIRCOSCRIZIONE",
-      "COLLEGIOPLURINOMINALE",
-      "COLLEGIOUNINOMINALE"
-    ),
+    idvar = "COLLEGIOUNINOMINALE",
     timevar = "CL"
   )
   names(tbl) <- str_remove(names(tbl), "ELETTO\\.")
+  tbl[is.na(tbl)] <- 0
   
-  kb <- kbl(tbl) %>%
+  kb <- kbl(tbl, row.names = FALSE) %>%
     kable_minimal()
   
-  for (i in 4:ncol(tbl)) {
+  for (i in 2:ncol(tbl)) {
     kb <- column_spec(
       kb,
       i,
@@ -1439,6 +1487,7 @@ disegna_tabella_uni <- function(ramo) {
       )
     )
   }
+  
   kb
 }
 
@@ -1501,6 +1550,7 @@ disegna_tabella_uni("senato")
 \
 \
 \
+
 ### Probabilità di elezione per ciascuna posizione nei collegi plurinominali
 
 Nelle tabelle seguenti, per ciascuna lista e per ciascun ramo del Parlamento,
@@ -1573,8 +1623,9 @@ disegna_tabella_candidati <- function(ramo) {
   candidati <- aggregate(
     ELETTO ~ CANDIDATO + CL,
     candidati,
-    mean
+    sum
   )
+  candidati$ELETTO <- candidati$ELETTO / iterazioni
   candidati <- merge(
     candidati,
     liste_naz[!duplicated(liste_naz$CL) & !is.na(liste_naz$COLORE), c("CL", "COLORE")]
