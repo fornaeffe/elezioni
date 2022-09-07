@@ -141,6 +141,8 @@ Scrutinio <- function(
   # unico di cui al decreto del Presidente della Repubblica 30 marzo
   # 1957, n. 361;
   
+  if (nrow(liste_uni) == 0) stop("Errore alla riga 144")
+  
   candidati_uni <- merge(
     candidati_uni,
     aggregate(
@@ -178,6 +180,8 @@ Scrutinio <- function(
       is.na(liste_uni$PARTE_INTERA) | 
       is.nan(liste_uni$PARTE_INTERA)
   ] <- 0
+  
+  if (nrow(liste_uni) == 0) stop("Errore alla riga 184")
   
   candidati_uni <- merge(
     candidati_uni,
@@ -235,12 +239,15 @@ Scrutinio <- function(
   # plurinominale di ciascuna lista per il totale dei voti validi del
   # rispettivo collegio plurinominale, moltiplicato per cento;
   
+  if (nrow(liste_uni) == 0) stop("Errore alla riga 242")
 
   liste_pluri <- aggregate(
     CIFRA ~ CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE + LISTA,
     liste_uni,
     sum
   )
+  
+  if (nrow(liste_pluri) == 0) stop("Errore alla riga 250")
   
   liste_pluri <- merge(
     liste_pluri,
@@ -261,6 +268,8 @@ Scrutinio <- function(
   # f) determina la cifra elettorale circoscrizionale di ciascuna
   # lista. Tale cifra e' data dalla somma delle cifre elettorali di
   # collegio plurinominale della lista stessa;
+  
+  if (nrow(liste_pluri) == 0) stop("Errore alla riga 272")
   
   liste_circ <- aggregate(
     CIFRA ~ CIRCOSCRIZIONE + LISTA,
@@ -284,6 +293,8 @@ Scrutinio <- function(
   # candidati con piu' liste, i candidati entrano a far parte della
   # graduatoria relativa a ciascuna delle liste con cui e' stato
   # dichiarato il collegamento;
+  
+  if (nrow(candidati_uni) == 0) stop("Errore alla riga 297")
   
   candidati_uni <- merge(
     candidati_uni,
@@ -462,6 +473,8 @@ Scrutinio <- function(
     ( liste_naz$SOGLIA20 & ( liste_naz$MINORANZA | ramo == "senato" ) ) |
     liste_naz$SOGLIA_MINORANZA
   
+  if (nrow(liste_naz[liste_naz$SOGLIA1M,]) == 0) stop("Errore alla riga 476")
+  
   coal_naz <- aggregate(
     CIFRA ~ COALIZIONE,
     data = liste_naz,
@@ -477,6 +490,8 @@ Scrutinio <- function(
     liste_circ,
     liste_naz[, c("LISTA", "SOGLIA1M", "COALIZIONE", "MINORANZA")]
   )
+  
+  if (nrow(liste_circ[liste_circ$SOGLIA1M, ]) == 0) stop("Errore alla riga 494")
   
   coal_circ <- aggregate(
     CIFRA ~ CIRCOSCRIZIONE + COALIZIONE,
@@ -626,6 +641,8 @@ Scrutinio <- function(
       as.character(liste_naz$LISTA[which(liste_naz$SOGLIA_SOLA)])
     
     liste_naz$SOGGETTO_RIPARTO <- as.factor(liste_naz$SOGGETTO_RIPARTO)
+    
+    if (nrow(liste_naz[liste_naz$SOGLIA1M, ]) == 0) stop("Errore alla riga 645")
     
     riparto_naz <- aggregate(
       CIFRA ~ SOGGETTO_RIPARTO,
@@ -911,6 +928,7 @@ Scrutinio <- function(
   }
   
   
+  if (nrow(liste_circ[liste_circ$SOGLIA1M, ]) == 0) stop("Errore alla riga 931")
   
   riparto_circ <- aggregate(
     CIFRA ~ CIRCOSCRIZIONE + SOGGETTO_RIPARTO,
@@ -1614,6 +1632,8 @@ Scrutinio <- function(
     )
   ]
   
+  if (nrow(ammesse_pluri) == 0) stop("Errore alla riga 1635")
+  
   totali_pluri <- merge(
     totali_pluri,
     aggregate(
@@ -1640,6 +1660,7 @@ Scrutinio <- function(
   
   
 
+  if (nrow(ammesse_pluri) == 0) stop("Errore alla riga 1663")
   
   ammesse_circ <- merge(
     ammesse_circ,
@@ -1661,6 +1682,8 @@ Scrutinio <- function(
     by = c("CIRCOSCRIZIONE", "LISTA"),
     suffixes = c("", "_CIRC")
   )
+  
+  if (nrow(ammesse_pluri) == 0) stop("Errore alla riga 1686")
   
   totali_pluri <- merge(
     totali_pluri,
@@ -1722,6 +1745,8 @@ Scrutinio <- function(
     ammesse_pluri$PARTE_INTERA + ammesse_pluri$SEGGIO_DA_DECIMALI
   
   ##### Flipper #####
+  
+  if (nrow(ammesse_pluri) == 0) stop("Errore alla riga 1749")
   
   ammesse_circ <- merge(
     ammesse_circ,
@@ -1911,6 +1936,8 @@ Scrutinio <- function(
   
   ammesse_pluri$DECIMALI_USATI <-
     ammesse_pluri$SEGGIO_DA_DECIMALI
+  
+  if (nrow(candidati_pluri) == 0) stop("Errore alla riga 1940")
   
   ammesse_pluri <- merge(
     ammesse_pluri,
@@ -2134,6 +2161,8 @@ Scrutinio <- function(
       liste <- ammesse_pluri$LISTA == ammesse_pluri$LISTA[i]
     }
     
+    if (nrow(ammesse_pluri[liste & decimali, ]) == 0) stop("Errore alla riga 2164")
+    
     circ_accettrici <- aggregate(
       DECIMALI ~ CIRCOSCRIZIONE,
       ammesse_pluri[liste & decimali, ],
@@ -2273,6 +2302,8 @@ Scrutinio <- function(
     
     ammesse_pluri$CANDIDATI <- NULL
     
+    if (nrow(candidati_pluri[candidati_pluri$DISPONIBILE, ]) == 0) stop("Errore alla riga 2305")
+    
     ammesse_pluri <- merge(
       ammesse_pluri,
       aggregate(
@@ -2331,6 +2362,8 @@ Scrutinio <- function(
   
   liste_pluri$ELETTI[is.na(liste_pluri$ELETTI)] <- 0
   liste_pluri$SEGGI_PRE_SUBENTRI[is.na(liste_pluri$SEGGI_PRE_SUBENTRI)] <- 0
+  
+  if (nrow(candidati_pluri[candidati_pluri$ELETTO, ]) == 0) stop("Errore alla riga 2366")
   
   liste_pluri <- merge(
     liste_pluri,

@@ -7,11 +7,32 @@ format:
     self-contained: true
 ---
 
+
+<!-- 
+Vedi il file README.md per info sul funzionamento di questi script e sui
+dati di input.
+-->
+
+Questo report contiene i risultati di una simulazione delle prossime elezioni
+della Camera dei Deputati e del Senato della Repubblica Italiana, ottenuti
+partendo da un sondaggio politico e dai risultati delle precedenti elezioni. Da
+questi vengono simulati i possibili voti presi da ciascuna lista in ciascun
+collegio, e dai voti vengono poi calcolati il numero di eletti per ciascuna
+lista.
+
+Avverto che ho fatto questa simulazione per curiosità e non per lavoro, e che
+potrebbero essermi sfuggiti degli errori nel processo di
+simulazione, i risultati vanno dunque presi senza alcuna garanzia di
+accuratezza.
+
+Segnalazioni, richieste e suggerimenti a <fornaeffe@gmail.com> o sul repository
+<https://github.com/fornaeffe/elezioni>.
+
 ```{r parametri}
 #| include: false
-variab <- .75
+variab <- 1
 
-iterazioni <- 200
+iterazioni <- 1000
 ```
 
 
@@ -1139,6 +1160,11 @@ accaduto a seguito delle elezioni 2018, cioè
 andando a ripescare candidati non eletti anche da altre regioni).
 
 **Non sono stati simulati i seggi delle circoscrizioni Estero e Valle d'Aosta.**
+
+**Sto trascurando SVP, 
+dunque i risultati, 
+soprattutto per il Trentino-Alto Adige,
+potrebbero essere falsati**
 
 Gli script per l'esecuzione dell'analisi si trovano in questo repository:
 <https://github.com/fornaeffe/elezioni>
