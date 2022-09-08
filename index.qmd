@@ -392,7 +392,6 @@ senato <- prepara_collegi("senato")
 
 ```
 
-
 ```{r dati}
 #| include: false
 #| cache: true
@@ -660,6 +659,49 @@ setdiff(base_dati$SP20_DEN, senato$candidati_pluri$COLLEGIOPLURINOMINALE)
 
 
 ```
+
+```{r simula_perc_naz}
+
+liste_sondaggi <- read_xlsx("dati/2022/liste.xlsx", "liste_sondaggi")
+
+liste_naz <- merge(
+  liste_naz,
+  aggregate(
+    PERCENTUALE ~ ABBREV,
+    liste_sondaggi,
+    function(x) mean(log(x))
+  ),
+  by = "ABBREV",
+  all.x = TRUE,
+  suffixes = c("", "_LOG")
+)
+
+liste_naz <- merge(
+  liste_naz,
+  aggregate(
+    PERCENTUALE ~ ABBREV,
+    liste_sondaggi,
+    function(x) sd(log(x))
+  ),
+  by = "ABBREV",
+  all.x = TRUE,
+  suffixes = c("", "_LOG_SD")
+)
+
+tot_liste_conosciute <- sum(exp(liste_naz$PERCENTUALE_LOG), na.rm = TRUE)
+
+if (tot_liste_conosciute < 1) {
+  log_p_altre <- 
+    log((1 - tot_liste_conosciute) / sum(is.na(liste_naz$PERCENTUALE_LOG)))
+} else log_p_altre <- -10
+
+liste_naz$PERCENTUALE_LOG[is.na(liste_naz$PERCENTUALE_LOG)] <- log_p_altre
+
+liste_naz$PERCENTUALE_LOG_SD[is.na(liste_naz$PERCENTUALE_LOG_SD)] <- 1
+
+
+```
+
 
 
 ```{r simula}
