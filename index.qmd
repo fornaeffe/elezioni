@@ -44,6 +44,7 @@ library(data.table)
 library(stringr)
 library(readxl)
 library(parallel)
+library(kableExtra)
 ```
 
 ```{r distribuzione voti}
@@ -1226,7 +1227,7 @@ senato$risultato <- simula(
 ## Dati di input
 
 ```{r liste_naz}
-library(kableExtra)
+
 options(knitr.kable.NA = '')
 liste_naz <- liste_naz[order(liste_naz$PERCENTUALE, decreasing = TRUE), ]
 liste_naz$PERCENTUALE <- formattable::percent(liste_naz$PERCENTUALE, 1)
