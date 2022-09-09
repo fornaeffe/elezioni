@@ -774,6 +774,10 @@ liste_naz$PERCENTUALE_LOG[is.na(liste_naz$PERCENTUALE_LOG)] <- log_p_altre
 
 liste_naz$PERCENTUALE_LOG_SD[is.na(liste_naz$PERCENTUALE_LOG_SD)] <- 1
 
+log_astensione <- 
+  mean(qlogis(liste_sondaggi$PERCENTUALE[liste_sondaggi$ABBREV == "astenuti"]))
+log_astensione_sd <- 
+  sd(qlogis(liste_sondaggi$PERCENTUALE[liste_sondaggi$ABBREV == "astenuti"]))
 
 ```
 
@@ -783,184 +787,202 @@ liste_naz$PERCENTUALE_LOG_SD[is.na(liste_naz$PERCENTUALE_LOG_SD)] <- 1
 #| include: false
 #| cache: true
 
-#### Calcolo percentuali per provincia ####
-
-liste_naz$PERC_CORRETTA <-liste_naz$PERCENTUALE * (1 - altri_dati$Astensione) 
-liste_naz <- merge(
-  liste_naz,
-  data.frame(
-    AREA = "astensione",
-    PERC_CORRETTA = altri_dati$Astensione
-  ),
-  all = TRUE
-)
-
-aree <- merge(
-  aree,
-  aggregate(
-    PERC_CORRETTA ~ AREA,
-    liste_naz,
-    sum
-  )
-)
-
-names(aree)[names(aree) == "PERC_CORRETTA"] <- "PERCENTUALE"
-
-aree$VOTANTI <- aree$PERCENTUALE * popolazione
-
-prov_area <- merge(
-  prov_area,
-  aree[,c("AREA", "VOTANTI")]
-)
-
-prov_area$VOTANTI_LOCALI <- prov_area$VOTANTI * prov_area$PERCENTUALE_AREA
-
-prov_area <- merge(
-  prov_area,
-  aggregate(
-    VOTANTI_LOCALI ~ PROVINCIA,
-    prov_area,
-    sum
-  ),
-  by = "PROVINCIA",
-  suffixes = c("", "_TOT")
-)
-
-prov_area$PERCENTUALE <- prov_area$VOTANTI_LOCALI / prov_area$VOTANTI_LOCALI_TOT
-
-comuni_aree <- merge(
-  base_dati,
-  aree[c("AREA", "PERCENTUALE")]
-)
-
-comuni_aree <- merge(
-  comuni_aree,
-  prov_area[, c("PROVINCIA", "AREA", "PERCENTUALE")],
-  all.x = TRUE,
-  by = c("PROVINCIA", "AREA"),
-  suffixes = c("", "_PROV")
-)
-
-comuni_aree$PERCENTUALE[!is.na(comuni_aree$PERCENTUALE_PROV)] <-
-  comuni_aree$PERCENTUALE_PROV[!is.na(comuni_aree$PERCENTUALE_PROV)]
-
-comuni_aree$VOTANTI <- 
-  comuni_aree$POP_2011 * comuni_aree$PERCENTUALE
-
-camera$aree_uni <- aggregate(
-  cbind(VOTANTI, POP_2011) ~ CIRCOCAM_20_DEN + CP20_DEN + CU20_DEN + AREA,
-  comuni_aree,
-  sum
-)
-
-names(camera$aree_uni)[1] <- "CIRCOSCRIZIONE"
-names(camera$aree_uni)[2] <- "COLLEGIOPLURINOMINALE"
-names(camera$aree_uni)[3] <- "COLLEGIOUNINOMINALE"
-
-senato$aree_uni <- aggregate(
-  cbind(VOTANTI, POP_2011) ~ DEN_REG20 + SP20_DEN + SU20_DEN + AREA,
-  comuni_aree,
-  sum
-)
-
-names(senato$aree_uni)[1] <- "CIRCOSCRIZIONE"
-names(senato$aree_uni)[2] <- "COLLEGIOPLURINOMINALE"
-names(senato$aree_uni)[3] <- "COLLEGIOUNINOMINALE"
-
-liste_naz <- merge(
-  liste_naz,
-  aree[, c("AREA", "PERCENTUALE")],
-  by = "AREA",
-  suffixes = c("", "_AREA")
-)
-
-liste_naz$PERC_IN_AREA <- liste_naz$PERC_CORRETTA / liste_naz$PERCENTUALE_AREA
-
-
 simula <- function(
     ramo,
-    iterazioni = 200,
-    variab = .5
+    iterazioni = 200
 ) {
   dati <- get(ramo)
-  
-  #### Preparo i data frame delle liste ai diversi livelli ####
-  
-  dati$liste_circ <- merge(
-    dati$circoscrizioni,
-    liste_naz[, c("LISTA", "PERCENTUALE")]
-  )
-  
-  dati$liste_pluri <- merge(
-    dati$collegi_pluri,
-    dati$liste_circ[, c("CIRCOSCRIZIONE", "LISTA")]
-  )
-  
-  # Aggiungo al dataframe liste_uni i dati sull'astensione
-  astensione_uni <- merge(
-    dati$collegi_uni,
-    liste_naz[
-      liste_naz$AREA == "astensione", 
-      c("LISTA", "AREA", "ABBREV", "CL")
-    ]
-  )
-  
-  astensione_uni$CANDIDATO <- NA
-  
-  dati$liste_uni <- rbind(
-    dati$liste_uni,
-    astensione_uni
-  )
-  
-  dati$liste_uni <- merge(
-    dati$liste_uni,
-    liste_naz[, c("LISTA", "AREA", "PERC_IN_AREA")]
-  )
-  
-  dati$liste_uni <- merge(
-    dati$liste_uni,
-    dati$aree_uni[, c(
-      "CIRCOSCRIZIONE",
-      "COLLEGIOUNINOMINALE",
-      "COLLEGIOPLURINOMINALE",
-      "AREA",
-      "VOTANTI"
-    )]
-  )
-  
-  dati$liste_uni$VOTANTI_LISTA_BASE <- 
-    dati$liste_uni$VOTANTI * dati$liste_uni$PERC_IN_AREA
-  
-  dati$liste_uni <- merge(
-    dati$liste_uni,
-    aggregate(
-      VOTANTI_LISTA_BASE ~ 
-        CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE + COLLEGIOUNINOMINALE,
-      dati$liste_uni,
-      sum
-    ),
-    by = c("CIRCOSCRIZIONE", "COLLEGIOPLURINOMINALE", "COLLEGIOUNINOMINALE"),
-    suffixes = c("", "_TOT")
-  )
-  
-  dati$liste_uni$PERC_LISTA_BASE <- 
-    dati$liste_uni$VOTANTI_LISTA_BASE / dati$liste_uni$VOTANTI_LISTA_BASE_TOT
-  
-  dati$liste_uni$LOG_PERC_LISTA_BASE <- log(dati$liste_uni$PERC_LISTA_BASE)
-  
-  dati$liste_uni$CAND_MINORANZA <- FALSE
-  dati$liste_uni$MINORANZA <- FALSE
-  
-  liste_naz <- liste_naz[!is.na(liste_naz$LISTA), ]
-  
   
   iterazione <- function(
     iter = 1,
     ramo = "camera",
     liste_naz,
     dati,
-    variab = .5
+    log_astensione,
+    log_astensione_sd,
+    aree,
+    popolazione,
+    prov_area,
+    base_dati,
+    variab
   ) {
+    
+    #### Simulazione percentuali nazionali ####
+    liste_naz$LOG_P <- rnorm(
+      liste_naz$PERCENTUALE_LOG,
+      liste_naz$PERCENTUALE_LOG,
+      liste_naz$PERCENTUALE_LOG_SD
+    )
+    
+    liste_naz$PERCENTUALE <- exp(liste_naz$LOG_P) / sum(exp(liste_naz$LOG_P))
+    
+    astensione <- plogis(rnorm(1, log_astensione, log_astensione_sd))
+    
+    #### Calcolo percentuali per provincia ####
+
+    liste_naz$PERC_CORRETTA <-liste_naz$PERCENTUALE * (1 - astensione) 
+    liste_naz <- merge(
+      liste_naz,
+      data.frame(
+        AREA = "astensione",
+        PERC_CORRETTA = astensione
+      ),
+      all = TRUE
+    )
+    
+    aree <- merge(
+      aree,
+      aggregate(
+        PERC_CORRETTA ~ AREA,
+        liste_naz,
+        sum
+      )
+    )
+    
+    names(aree)[names(aree) == "PERC_CORRETTA"] <- "PERCENTUALE"
+    
+    aree$VOTANTI <- aree$PERCENTUALE * popolazione
+    
+    prov_area <- merge(
+      prov_area,
+      aree[,c("AREA", "VOTANTI")]
+    )
+    
+    prov_area$VOTANTI_LOCALI <- prov_area$VOTANTI * prov_area$PERCENTUALE_AREA
+    
+    prov_area <- merge(
+      prov_area,
+      aggregate(
+        VOTANTI_LOCALI ~ PROVINCIA,
+        prov_area,
+        sum
+      ),
+      by = "PROVINCIA",
+      suffixes = c("", "_TOT")
+    )
+    
+    prov_area$PERCENTUALE <- prov_area$VOTANTI_LOCALI / prov_area$VOTANTI_LOCALI_TOT
+    
+    comuni_aree <- merge(
+      base_dati,
+      aree[c("AREA", "PERCENTUALE")]
+    )
+    
+    comuni_aree <- merge(
+      comuni_aree,
+      prov_area[, c("PROVINCIA", "AREA", "PERCENTUALE")],
+      all.x = TRUE,
+      by = c("PROVINCIA", "AREA"),
+      suffixes = c("", "_PROV")
+    )
+    
+    comuni_aree$PERCENTUALE[!is.na(comuni_aree$PERCENTUALE_PROV)] <-
+      comuni_aree$PERCENTUALE_PROV[!is.na(comuni_aree$PERCENTUALE_PROV)]
+    
+    comuni_aree$VOTANTI <- 
+      comuni_aree$POP_2011 * comuni_aree$PERCENTUALE
+    
+    if (ramo == "camera") {
+      colonna_circ <- comuni_aree$CIRCOCAM_20_DEN
+      colonna_pluri <- comuni_aree$CP20_DEN
+      colonna_uni <- comuni_aree$CU20_DEN
+    }
+    
+    if (ramo == "senato") {
+      colonna_circ <- comuni_aree$DEN_REG20
+      colonna_pluri <- comuni_aree$SP20_DEN
+      colonna_uni <- comuni_aree$SU20_DEN
+    }
+    
+    dati$aree_uni <- aggregate(
+      cbind(VOTANTI, POP_2011) ~ colonna_circ + colonna_pluri + colonna_uni + AREA,
+      comuni_aree,
+      sum
+    )
+    
+    names(dati$aree_uni)[1] <- "CIRCOSCRIZIONE"
+    names(dati$aree_uni)[2] <- "COLLEGIOPLURINOMINALE"
+    names(dati$aree_uni)[3] <- "COLLEGIOUNINOMINALE"
+    
+    
+    liste_naz <- merge(
+      liste_naz,
+      aree[, c("AREA", "PERCENTUALE")],
+      by = "AREA",
+      suffixes = c("", "_AREA")
+    )
+    
+    liste_naz$PERC_IN_AREA <- liste_naz$PERC_CORRETTA / liste_naz$PERCENTUALE_AREA
+    
+    #### Preparo i data frame delle liste ai diversi livelli ####
+  
+    dati$liste_circ <- merge(
+      dati$circoscrizioni,
+      liste_naz[, c("LISTA", "PERCENTUALE")]
+    )
+    
+    dati$liste_pluri <- merge(
+      dati$collegi_pluri,
+      dati$liste_circ[, c("CIRCOSCRIZIONE", "LISTA")]
+    )
+    
+    # Aggiungo al dataframe liste_uni i dati sull'astensione
+    astensione_uni <- merge(
+      dati$collegi_uni,
+      liste_naz[
+        liste_naz$AREA == "astensione", 
+        c("LISTA", "AREA", "ABBREV", "CL")
+      ]
+    )
+    
+    astensione_uni$CANDIDATO <- NA
+    
+    dati$liste_uni <- rbind(
+      dati$liste_uni,
+      astensione_uni
+    )
+    
+    dati$liste_uni <- merge(
+      dati$liste_uni,
+      liste_naz[, c("LISTA", "AREA", "PERC_IN_AREA")]
+    )
+    
+    dati$liste_uni <- merge(
+      dati$liste_uni,
+      dati$aree_uni[, c(
+        "CIRCOSCRIZIONE",
+        "COLLEGIOUNINOMINALE",
+        "COLLEGIOPLURINOMINALE",
+        "AREA",
+        "VOTANTI"
+      )]
+    )
+    
+    dati$liste_uni$VOTANTI_LISTA_BASE <- 
+      dati$liste_uni$VOTANTI * dati$liste_uni$PERC_IN_AREA
+    
+    dati$liste_uni <- merge(
+      dati$liste_uni,
+      aggregate(
+        VOTANTI_LISTA_BASE ~ 
+          CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE + COLLEGIOUNINOMINALE,
+        dati$liste_uni,
+        sum
+      ),
+      by = c("CIRCOSCRIZIONE", "COLLEGIOPLURINOMINALE", "COLLEGIOUNINOMINALE"),
+      suffixes = c("", "_TOT")
+    )
+    
+    dati$liste_uni$PERC_LISTA_BASE <- 
+      dati$liste_uni$VOTANTI_LISTA_BASE / dati$liste_uni$VOTANTI_LISTA_BASE_TOT
+    
+    dati$liste_uni$LOG_PERC_LISTA_BASE <- log(dati$liste_uni$PERC_LISTA_BASE)
+    
+    dati$liste_uni$CAND_MINORANZA <- FALSE
+    dati$liste_uni$MINORANZA <- FALSE
+    
+    liste_naz <- liste_naz[!is.na(liste_naz$LISTA), ]
+    
     dati$liste_uni$LOG_P <- rnorm(
       dati$liste_uni$LOG_PERC_LISTA_BASE,
       dati$liste_uni$LOG_PERC_LISTA_BASE,
@@ -1161,6 +1183,12 @@ simula <- function(
     ramo = ramo,
     dati = dati,
     liste_naz = liste_naz,
+    log_astensione = log_astensione,
+    log_astensione_sd = log_astensione_sd,
+    aree = aree,
+    popolazione = popolazione,
+    prov_area = prov_area,
+    base_dati = base_dati,
     variab = variab
   )
   
@@ -1186,14 +1214,12 @@ simula <- function(
 
 camera$risultato <- simula(
   "camera",
-  iterazioni = iterazioni,
-  variab = variab
+  iterazioni = iterazioni
 )
 
 senato$risultato <- simula(
   "senato",
-  iterazioni = iterazioni,
-  variab = variab
+  iterazioni = iterazioni
 )
 ```
 
