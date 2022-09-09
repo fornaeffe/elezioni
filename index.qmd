@@ -284,6 +284,61 @@ liste <- liste[
 dati_precedenti$AREA <- 
   factor(dati_precedenti$LISTA, levels = liste$LISTA, labels = liste$AREA)
 
+prov_area_elezione <- aggregate(
+  VOTI_LISTA ~ PROVINCIA + AREA + ELEZIONE,
+  dati_precedenti,
+  sum
+)
+
+prov_area_elezione <- merge(
+  prov_area_elezione,
+  aggregate(
+    VOTI_LISTA ~ PROVINCIA + ELEZIONE,
+    prov_area_elezione, 
+    sum
+  ),
+  by = c("PROVINCIA", "ELEZIONE"),
+  suffixes = c("", "_PROV")
+)
+
+prov_area_elezione$PERCENTUALE <-
+  prov_area_elezione$VOTI_LISTA / prov_area_elezione$VOTI_LISTA_PROV
+
+prov_area_elezione$LOG_P <- log(prov_area_elezione$PERCENTUALE)
+
+area_elezione <- aggregate(
+  VOTI_LISTA ~ AREA + ELEZIONE,
+  prov_area_elezione,
+  sum
+)
+
+area_elezione <- merge(
+  area_elezione,
+  aggregate(
+    VOTI_LISTA ~ ELEZIONE,
+    area_elezione,
+    sum
+  ),
+  by = "ELEZIONE",
+  suffixes = c("", "_TOT")
+)
+
+area_elezione$PERCENTUALE <-
+  area_elezione$VOTI_LISTA / area_elezione$VOTI_LISTA_TOT
+  
+area_elezione$LOG_P <- log(area_elezione$PERCENTUALE)
+
+prov_area_elezione <- merge(
+  prov_area_elezione,
+  area_elezione[, c("AREA", "ELEZIONE", "LOG_P")],
+  by = c("AREA", "ELEZIONE"),
+  suffixes = c("", "_ELEZIONE")
+)
+
+prov_area_elezione$DELTA_LOG_P <-
+  prov_area_elezione$LOG_P - prov_area_elezione$LOG_P_ELEZIONE
+
+
 prov_area <- aggregate(
   VOTI_LISTA ~ PROVINCIA + AREA,
   dati_precedenti,
@@ -303,6 +358,8 @@ prov_area <- merge(
 
 prov_area$PERCENTUALE_STORICA <- prov_area$VOTI_LISTA / prov_area$VOTI_LISTA_TOT
 
+prov_area$LOG_P <- log(prov_area$PERCENTUALE_STORICA)
+
 prov_area <- merge(
   prov_area,
   province
@@ -316,6 +373,11 @@ aree <- aggregate(
   sum
 )
 
+
+popolazione <- sum(province$POP_2011)
+
+aree$LOG_P <- log(aree$POP_AREA / popolazione)
+
 prov_area <- merge(
   prov_area,
   aree,
@@ -325,8 +387,21 @@ prov_area <- merge(
 
 prov_area$PERCENTUALE_AREA <- prov_area$POP_AREA / prov_area$POP_AREA_TOT
 
-# Calcolo popolazione nazionale
-popolazione <- sum(province$POP_2011)
+prov_area$DELTA_LOG_P <-
+  prov_area$LOG_P - prov_area$LOG_P_TOT
+  
+prov_area_elezione <- merge(
+  prov_area_elezione,
+  prov_area[, c("PROVINCIA", "AREA", "DELTA_LOG_P")],
+  by = c("PROVINCIA", "AREA"),
+  suffixes = c("", "_GLOBALE")
+)
+
+prov_area_elezione$DELTA2_LOG_P <-
+  prov_area_elezione$DELTA_LOG_P - prov_area_elezione$DELTA_LOG_P_GLOBALE
+
+variab <- sd(prov_area_elezione$DELTA2_LOG_P)
+  
 
 ```
 
