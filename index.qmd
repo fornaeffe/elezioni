@@ -1226,30 +1226,48 @@ senato$risultato <- simula(
 
 ## Dati di input
 
+Sono stati considerati i seguenti sondaggi:
+
 ```{r liste_naz}
 
 options(knitr.kable.NA = '')
-liste_naz <- liste_naz[order(liste_naz$PERCENTUALE, decreasing = TRUE), ]
-liste_naz$PERCENTUALE <- formattable::percent(liste_naz$PERCENTUALE, 1)
+
+liste_sondaggi$PERCENTUALE <- 
+  formattable::percent(liste_sondaggi$PERCENTUALE, 1)
+
+liste <- reshape(
+  as.data.frame(liste_sondaggi),
+  idvar = "ABBREV",
+  timevar = "SONDAGGIO",
+  drop = "DATA",
+  direction = "wide"
+)
+
+names(liste) <- str_remove(names(liste), "PERCENTUALE\\.")
+liste$medie <- apply(liste[-1], 1, mean, na.rm = TRUE)
+liste$medie[liste$ABBREV == "altri"] <- -1
+liste$medie[liste$ABBREV == "astenuti"] <- -2
+
+liste <- merge(
+  liste, 
+  liste_naz[, c("ABBREV", "COALIZIONE", "AREA")],
+  all.x = TRUE
+)
+
+liste <- liste[order(liste$medie, decreasing = TRUE), ]
+
+names(liste)[names(liste) == "ABBREV"] <- "Lista"
+names(liste)[names(liste) == "COALIZIONE"] <- "Coal."
+names(liste)[names(liste) == "AREA"] <- "Area"
+
+
 kbl(
-  liste_naz[
-    liste_naz$AREA != "astensione" & !is.na(liste_naz$COLORE), 
-    c("LISTA", "PERCENTUALE", "COALIZIONE", "AREA")
-  ],
-  row.names = FALSE,
-  col.names = c(
-    "Lista",
-    "Percentuale",
-    "Coalizione",
-    "Area"
-  )
+  liste[, -which(names(liste) == "medie")],
+  row.names = FALSE
 ) %>%
   kable_minimal()
-```
 
-- Percentuali nazionali dal sondaggio `r altri_dati$Sondaggio`
-- Numero di simulazioni effettuate: `r iterazioni`
-- Parametro di variabilità dei voti: `r variab`
+```
 
 ## Dettagli del procedimento
 
@@ -1275,26 +1293,28 @@ politica.
 popolazione di quella area politica presente nella provincia, rispetto al totale
 nazionale, cioè è stata calcolata la distribuzione geografica di ogni area 
 politica.
-5. Per ciascuna area politica, i voti nazionali (calcolati in base alle 
-percentuali del sondaggio mostrate nella tabella sopra) sono stati divisi nelle 
-diverse provincie in base alla distribuzione calcolata al punto 4.
-6. Sono state calcolate le percentuali di ogni area all'interno di ogni 
-provincia, rispetto al totale di voti assegnati a ogni provincia.
-7. A partire dalle percentuali del punto 6 sono state calcolate le percentuali
-di ogni area all'interno di ogni collegio uninominale di Camera e Senato, in 
-base a quali comuni di quali provincie appartengono a ciascun collegio.
-8. In ogni collegio, le percentuali di ciascuna area sono state suddivise tra le
-liste di quell'area proporzionalmente alla percentuale nazionale (da sondaggio) 
-di ciascuna lista.
+5. Sono state effettuate `r iterazioni` simulazioni. In ciascuna di esse:
+   1. La percentuale nazionale di ciascuna lista è stata estratta a sorte
+   da una distribuzione che ha una media e una deviazione standard
+   ricavate dai sondaggi considerati.
+   2. Per ciascuna area politica, i voti nazionali (calcolati in base alle 
+   percentuali dei sondaggi mostrate nella tabella sopra) sono stati divisi nelle 
+   diverse provincie in base alla distribuzione calcolata al punto 4.
+   3. Sono state calcolate le percentuali di ogni area all'interno di ogni 
+   provincia, rispetto al totale di voti assegnati a ogni provincia.
+   4. A partire dalle percentuali del punto 6 sono state calcolate le percentuali
+   di ogni area all'interno di ogni collegio uninominale di Camera e Senato, in 
+   base a quali comuni di quali provincie appartengono a ciascun collegio.
+   5. In ogni collegio, le percentuali di ciascuna area sono state suddivise tra le
+   liste di quell'area proporzionalmente alla percentuale nazionale (da sondaggio) 
+   di ciascuna lista.
+   6. La percentuale di ciascuna lista in ciascun collegio è stata fatta
+   variare leggermente rispetto a quella calcolata al punto precedente,
+   la variabilità di questa percentuale è stata ricavata dalle
+   precedenti elezioni.
 
 Se qualcuno ha a disposizione stime più precise delle percentuali su base
 locale, le integro volentieri della simulazione.
-
-Sono state effettuate `r iterazioni` simulazioni, in ciascuna delle quali la 
-percentuale di ciascuna lista in ciascun collegio è stata fatta variare un poco 
-rispetto alla percentuale calcolata nel punto 8. Il parametro di variabilità
-stabilisce quanto i voti possono variare (per i dettagli del calcolo, vedere
-gli script).
 
 Una volta ottenuti i voti per ciascun collegio, sono stati applicati
 alla lettera il DPR 361/57 e il D.Lgs. 533/93 (con l'unica eccezione dei casi
