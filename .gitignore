@@ -40,8 +40,8 @@ vignettes/*.pdf
 
 /.quarto/
 
-# Discarica
-/discarica/
+# Downloaded data
+/dati/
 
 # Output
 /_output/
