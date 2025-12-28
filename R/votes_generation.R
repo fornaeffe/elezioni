@@ -16,7 +16,6 @@ calcola_parametri_di_voto <- function(
     LISTA := ""
   ]
   
-  elezioni <- unique(dati$comuni_liste_elezioni[,.(DATA, ELEZIONE)])
   
   ##### Corrispondenza liste vecchie - liste nuove #####
   
