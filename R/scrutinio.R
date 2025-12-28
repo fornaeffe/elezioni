@@ -20,13 +20,19 @@ Hare.Niemeyer <- function(votes, seats, details = FALSE) {
 }
 
 
-Scrutinio <- function(
-  prov_lista,
-  province,
+scrutinio_regionali_ER <- function(
+  comuni_liste,
+  pop_legale,
   liste
 ) {
   
-  # load("dati_per_scrutinio.RData")
+  prov_lista <- comuni_liste[
+    ,
+    .(
+      VOTI_LISTA_ITER = sum(VOTI_LISTA_ITER)
+    ),
+    by = .(CODICE_PROVINCIA, PROVINCIA, LISTA)
+  ]
   
   prov_lista <- prov_lista[prov_lista$LISTA != "astensione", ]
   
@@ -57,9 +63,13 @@ Scrutinio <- function(
   # dell'Istituto nazionale di statistica.
   
   
+  province <- pop_legale[
+    ,
+    .(POPOLAZIONE = sum(POPOLAZIONE)),
+    by = .(CODICE_PROVINCIA, PROVINCIA)
+  ]
   
-  
-  province$seggi_proporzionali <- Hare.Niemeyer(province$POP_2011, 40)
+  province$seggi_proporzionali <- Hare.Niemeyer(province$POPOLAZIONE, 40)
   
   
   
@@ -98,7 +108,8 @@ Scrutinio <- function(
     coalizioni[, c(
       "COALIZIONE",
       "SOGLIA_COALIZIONE"
-    )]
+    )],
+    by = "COALIZIONE"
   )
   
   liste$SOGLIA <- liste$SOGLIA_3 | liste$SOGLIA_COALIZIONE
@@ -162,7 +173,8 @@ Scrutinio <- function(
     province[, c(
       "PROVINCIA",
       "QUOZIENTE_1"
-    )]
+    )],
+    by = "PROVINCIA"
   )
   
   prov_lista$SEGGI_1 <- 0
@@ -265,7 +277,8 @@ Scrutinio <- function(
       VOTI_RESIDUATI ~ LISTA,
       prov_lista,
       sum
-    )
+    ),
+    by = "LISTA"
   )
   
   # c) procede alla assegnazione ai predetti gruppi di liste dei seggi indicati
@@ -319,7 +332,8 @@ Scrutinio <- function(
     coalizioni[, c(
       "COALIZIONE",
       "CLASSIFICA"
-    )]
+    )],
+    by = "COALIZIONE"
   )
   
   # b) determina la cifra elettorale regionale di ciascun gruppo di liste
@@ -353,7 +367,8 @@ Scrutinio <- function(
       SEGGI_CIRC ~ LISTA,
       prov_lista,
       sum
-    )
+    ),
+    by = "LISTA"
   )
   
   liste$SEGGI_40 <- liste$SEGGI_CIRC + liste$SEGGI_DA_VOTI_RESIDUATI
@@ -688,7 +703,8 @@ Scrutinio <- function(
     prov_lista = prov_lista[, c(
       "PROVINCIA",
       "LISTA",
-      "ELETTI"
+      "ELETTI",
+      "VOTI_LISTA_ITER"
     )]
   ))
   

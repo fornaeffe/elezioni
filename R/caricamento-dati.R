@@ -546,7 +546,7 @@ scarica_dati <- function(cache = TRUE, cache_path = file.path(tempdir(), "dati.R
 #'
 #' @examples
 filter_dt <- function(DT, filters) {
-  stopifnot(is.data.table(DT), is.list(filters))
+  stopifnot(data.table::is.data.table(DT), is.list(filters))
   
   if (length(filters) == 0) return(DT)
   
