@@ -15,8 +15,6 @@ knitr::opts_chunk$set(echo = FALSE)
 source("R/caricamento-dati.R")
 source("R/votes_generation.R")
 
-future::plan("multisession")
-
 scenario <- "scenari/BO_soli.xlsx"
 
 data_elezione <- as.POSIXct("2027-03-01")

@@ -25,6 +25,7 @@ scrutinio_regionali_ER <- function(
   pop_legale,
   liste
 ) {
+  data.table::setDTthreads(1)
   
   prov_lista <- comuni_liste[
     ,
@@ -786,13 +787,21 @@ esegui_scrutini_ER <- function(
     by = "SIM"
   )
   
-  scrutinio <- future.apply::future_lapply(
+  
+  cl <- parallel::makeCluster(parallel::detectCores())
+  
+  parallel::clusterEvalQ(cl, library(data.table))
+  parallel::clusterExport(cl, "Hare.Niemeyer")
+  
+  scrutinio <- parallel::parLapply(
+    cl,
     comuni_liste_sim_split,
     scrutinio_regionali_ER,
     pop_legale = dati$pop_legale,
-    liste = dati_simulati$liste,
-    future.seed = TRUE
+    liste = dati_simulati$liste
   )
+  
+  parallel::stopCluster(cl)
   
   risultato <- list()
   

@@ -1,5 +1,62 @@
 # TODO usare rstan con modello Dirichlet
 
+simulazione <- function(sim, comuni_liste, liste, data_elezione) {
+  data.table::setDTthreads(1)
+  
+  # Copio le tabelle per evitare di modificare l'originale
+  comuni_liste_temp <- data.table::copy(comuni_liste)
+  liste_temp <- data.table::copy(liste)
+  
+  # Simulo i logit della percentuale
+  liste_temp[
+    ,
+    LOGIT_P_SIM := rnorm(
+      LOGIT_P,
+      LOGIT_P,
+      SIGMA_GLOBAL * unclass(data_elezione - DATA)^0.5
+    )
+  ]
+  
+  # Passo i valori simulati ai singoli comuni
+  comuni_liste_temp <- comuni_liste_temp[
+    liste_temp[, .(LISTA, LOGIT_P_SIM_GLOBAL = LOGIT_P_SIM)],
+    on = .(LISTA)
+  ]
+  
+  # Simulo il drift del delta
+  comuni_liste_temp[
+    ,
+    DELTA_SIM := rnorm(
+      DELTA,
+      DELTA,
+      SIGMA_DELTA * unclass(data_elezione - DATA)^0.5
+    )
+  ]
+  
+  # Calcolo il logit della percentuale a livello comunale
+  comuni_liste_temp[
+    ,
+    LOGIT_P_SIM := LOGIT_P_SIM_GLOBAL + DELTA_SIM
+  ]
+  
+  # Ritrasformo in percentuale
+  comuni_liste_temp[
+    ,
+    PERCENTUALE_SIM := plogis(LOGIT_P_SIM) / sum(plogis(LOGIT_P_SIM)),
+    by = CODICE_COMUNE
+  ]
+  
+  # Converto la percentuale in numero di voti
+  comuni_liste_temp[
+    ,
+    VOTI_LISTA_SIM := round(PERCENTUALE_SIM * ELETTORI)
+  ]
+  
+  # Restituisco il risultato
+  return(comuni_liste_temp)
+  
+}
+
 genera_voti <- function(
     dati,
     scenario,
@@ -161,66 +218,20 @@ genera_voti <- function(
   ]
   
   # Simulo i voti nella futura elezione
-  comuni_liste_sim <- future.apply::future_replicate(
-    simulazioni,
-    {
-      data.table::setDTthreads(1)
-      
-      # Copio le tabelle per evitare di modificare l'originale
-      comuni_liste_temp <- data.table::copy(comuni_liste)
-      liste_temp <- data.table::copy(liste)
-      
-      # Simulo i logit della percentuale
-      liste_temp[
-        ,
-        LOGIT_P_SIM := rnorm(
-          LOGIT_P,
-          LOGIT_P,
-          SIGMA_GLOBAL * unclass(data_elezione - DATA)^0.5
-        )
-      ]
-      
-      # Passo i valori simulati ai singoli comuni
-      comuni_liste_temp <- comuni_liste_temp[
-        liste_temp[, .(LISTA, LOGIT_P_SIM_GLOBAL = LOGIT_P_SIM)],
-        on = .(LISTA)
-      ]
-      
-      # Simulo il drift del delta
-      comuni_liste_temp[
-        ,
-        DELTA_SIM := rnorm(
-          DELTA,
-          DELTA,
-          SIGMA_DELTA * unclass(data_elezione - DATA)^0.5
-        )
-      ]
-      
-      # Calcolo il logit della percentuale a livello comunale
-      comuni_liste_temp[
-        ,
-        LOGIT_P_SIM := LOGIT_P_SIM_GLOBAL + DELTA_SIM
-      ]
-      
-      # Ritrasformo in percentuale
-      comuni_liste_temp[
-        ,
-        PERCENTUALE_SIM := plogis(LOGIT_P_SIM) / sum(plogis(LOGIT_P_SIM)),
-        by = CODICE_COMUNE
-      ]
-      
-      # Converto la percentuale in numero di voti
-      comuni_liste_temp[
-        ,
-        VOTI_LISTA_SIM := round(PERCENTUALE_SIM * ELETTORI)
-      ]
-      
-      # Restituisco il risultato
-      comuni_liste_temp
-      
-    },
-    simplify = FALSE
+  cl <- parallel::makeCluster(parallel::detectCores())
+  
+  parallel::clusterEvalQ(cl, library(data.table))
+  
+  comuni_liste_sim <- parallel::parLapply(
+    cl,
+    seq_len(simulazioni),
+    simulazione,
+    comuni_liste = comuni_liste,
+    liste = liste,
+    data_elezione = data_elezione
   )
+  
+  parallel::stopCluster(cl)
   
   # Trasformo la lista in un data.table
   comuni_liste_sim <- data.table::rbindlist(comuni_liste_sim, idcol = "SIM")
