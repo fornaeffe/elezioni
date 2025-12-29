@@ -1,11 +1,10 @@
-# TODO unire i passaggi di calcolo parametri e generazione voti, scorporando il
-# secondo dallo scrutinio.
-
 # TODO usare rstan con modello Dirichlet
 
-calcola_parametri_di_voto <- function(
+genera_voti <- function(
     dati,
-    scenario
+    scenario,
+    data_elezione,
+    simulazioni = 1000
 ){
   
   
@@ -79,36 +78,12 @@ calcola_parametri_di_voto <- function(
   # Ne calcolo il logit
   comuni_liste_elezioni[, LOGIT_P := qlogis(pmax(PERCENTUALE, 0.5 / ELETTORI))]
   
-  if (length(unique(comuni_liste_elezioni$CODICE_COMUNE)) == 1) {
-    
-    data.table::setorder(comuni_liste_elezioni, LISTA, DATA)
-    liste <- liste[
-      comuni_liste_elezioni[
-        ,
-        .(
-          SIGMA_R = sd(diff(LOGIT_P) / sqrt(diff(unclass(DATA)))),
-          LOGIT_P = LOGIT_P[.N],
-          DATA = DATA[.N],
-          ELETTORI = ELETTORI[.N]
-        ),
-        by = LISTA
-      ],
-      on = .(LISTA)
-    ]
-    
-    return(
-      list(
-        liste = liste,
-        liste_elezioni = comuni_liste_elezioni
-      )
-    )
-  }
   
   # Calcolo i voti totali ricevuti da ogni lista in ogni elezione
   liste_elezioni <- comuni_liste_elezioni[
     ,
     .(VOTI = sum(VOTI)),
-    keyby = .(LISTA, DATA, ELEZIONE)
+    keyby = .(DATA, ELEZIONE, LISTA)
   ]
   
   # Calcolo la percentuale
@@ -124,22 +99,22 @@ calcola_parametri_di_voto <- function(
   # Per ogni lista, calcolo la deviazione standard della velocità di cambiamento
   # del logit della percentuale
   # Riporto, inoltre, il logit della percentuale e la data relativi all'ultima elezione
-  data.table::setkey(liste_elezioni, DATA)
+  data.table::setorder(liste_elezioni, DATA)
   
   liste <- liste[
     liste_elezioni[
       ,
       .(
-        SIGMA_R = sd(diff(.SD$LOGIT_P) / unclass(diff(.SD$DATA))^0.5),
-        LOGIT_P = tail(.SD$LOGIT_P, n=1),
-        DATA = tail(.SD$DATA, n=1)
+        SIGMA_GLOBAL = sd(diff(.SD$LOGIT_P) / unclass(diff(.SD$DATA))^0.5),
+        LOGIT_P = LOGIT_P[.N],
+        DATA = DATA[.N]
       ),
       by = .(LISTA)
     ],
     on = .(LISTA)
   ]
   
-  # Calcolo la differenza tra il logit provinciale e il logit regionale
+  # Calcolo la differenza tra il logit comunale e il logit globale
   comuni_liste_elezioni[
     liste_elezioni[, .(LISTA, ELEZIONE, LOGIT_P)],
     on = .(LISTA, ELEZIONE),
@@ -152,7 +127,7 @@ calcola_parametri_di_voto <- function(
     comuni_liste_elezioni[
       ,
       .(
-        SIGMA_P = sd(
+        SIGMA_DELTA = sd(
           .SD[
             ,
             .(DELTA_DRIFT = diff(DELTA) / unclass(diff(DATA))^0.5),
@@ -167,8 +142,8 @@ calcola_parametri_di_voto <- function(
   
   # Rimpiazzo i sigma mancanti con la media delle altre liste
   
-  liste$SIGMA_R[is.na(liste$SIGMA_R)] <- mean(liste$SIGMA_R, na.rm = TRUE)
-  liste$SIGMA_P[is.na(liste$SIGMA_P)] <- mean(liste$SIGMA_P, na.rm = TRUE)
+  liste$SIGMA_GLOBAL[is.na(liste$SIGMA_GLOBAL)] <- mean(liste$SIGMA_GLOBAL, na.rm = TRUE)
+  liste$SIGMA_DELTA[is.na(liste$SIGMA_DELTA)] <- mean(liste$SIGMA_DELTA, na.rm = TRUE)
   
   # Per ciascuna lista seleziono solo l'ultima elezione
   data.table::setorder(comuni_liste_elezioni, CODICE_COMUNE, LISTA, -DATA)
@@ -179,13 +154,79 @@ calcola_parametri_di_voto <- function(
     .SDcols = c("DATA", "DELTA", "ELETTORI", "CODICE_REGIONE", "REGIONE", "CODICE_PROVINCIA", "PROVINCIA", "COMUNE")
   ]
   
-  # Copio per ogni comune il sigma P della lista
+  # Copio per ogni comune il sigma delta della lista
   comuni_liste <- comuni_liste[
-    liste[, .(LISTA, SIGMA_P)],
+    liste[, .(LISTA, SIGMA_DELTA)],
     on = .(LISTA)
   ]
   
+  # Simulo i voti nella futura elezione
+  comuni_liste_sim <- future.apply::future_replicate(
+    simulazioni,
+    {
+      data.table::setDTthreads(1)
+      
+      # Copio le tabelle per evitare di modificare l'originale
+      comuni_liste_temp <- data.table::copy(comuni_liste)
+      liste_temp <- data.table::copy(liste)
+      
+      # Simulo i logit della percentuale
+      liste_temp[
+        ,
+        LOGIT_P_SIM := rnorm(
+          LOGIT_P,
+          LOGIT_P,
+          SIGMA_GLOBAL * unclass(data_elezione - DATA)^0.5
+        )
+      ]
+      
+      # Passo i valori simulati ai singoli comuni
+      comuni_liste_temp <- comuni_liste_temp[
+        liste_temp[, .(LISTA, LOGIT_P_SIM_GLOBAL = LOGIT_P_SIM)],
+        on = .(LISTA)
+      ]
+      
+      # Simulo il drift del delta
+      comuni_liste_temp[
+        ,
+        DELTA_SIM := rnorm(
+          DELTA,
+          DELTA,
+          SIGMA_DELTA * unclass(data_elezione - DATA)^0.5
+        )
+      ]
+      
+      # Calcolo il logit della percentuale a livello comunale
+      comuni_liste_temp[
+        ,
+        LOGIT_P_SIM := LOGIT_P_SIM_GLOBAL + DELTA_SIM
+      ]
+      
+      # Ritrasformo in percentuale
+      comuni_liste_temp[
+        ,
+        PERCENTUALE_SIM := plogis(LOGIT_P_SIM) / sum(plogis(LOGIT_P_SIM)),
+        by = CODICE_COMUNE
+      ]
+      
+      # Converto la percentuale in numero di voti
+      comuni_liste_temp[
+        ,
+        VOTI_LISTA_SIM := round(PERCENTUALE_SIM * ELETTORI)
+      ]
+      
+      # Restituisco il risultato
+      comuni_liste_temp
+      
+    },
+    simplify = FALSE
+  )
+  
+  # Trasformo la lista in un data.table
+  comuni_liste_sim <- data.table::rbindlist(comuni_liste_sim, idcol = "SIM")
+  
   return(list(
+    comuni_liste_sim = comuni_liste_sim,
     liste = liste,
     comuni_liste = comuni_liste,
     liste_elezioni = liste_elezioni
@@ -193,154 +234,4 @@ calcola_parametri_di_voto <- function(
 }
 
 
-simula <- function(
-    iterazioni = 200,
-    parametri_simulazione,
-    pop_legale,
-    data_elezione
-) {
-  
-  liste <- data.table::copy(parametri_simulazione$liste)
-  comuni_liste <- data.table::copy(parametri_simulazione$comuni_liste)
-  
-  iterazione <- function(
-    iter = 1,
-    liste,
-    comuni_liste,
-    pop_legale,
-    data_elezione
-  ) {
-    #### Simulazione percentuali regionali ####
-    liste$LOG_P_ITER <- rnorm(
-      liste$LOGIT_P,
-      liste$LOGIT_P,
-      liste$SIGMA_R * unclass(data_elezione - liste$DATA)^0.5
-    )
-    
-    #### Simulazione percentuali per provincia ####
-    comuni_liste <- merge(
-      comuni_liste,
-      liste[, c("LISTA", "LOG_P_ITER")]
-    )
-    
-    names(comuni_liste)[names(comuni_liste) == "LOG_P_ITER"] <- "LOG_P_ITER_R"
-    
-    comuni_liste$DELTA_ITER <- rnorm(
-      comuni_liste$DELTA,
-      comuni_liste$DELTA,
-      comuni_liste$SIGMA_P * unclass(data_elezione - comuni_liste$DATA)^0.5
-    )
-    
-    comuni_liste$LOG_P_ITER <- comuni_liste$LOG_P_ITER_R + comuni_liste$DELTA_ITER
-    
-    comuni_liste$PERCENTUALE_ITER <- ave(
-      comuni_liste$LOG_P_ITER,
-      comuni_liste$CODICE_COMUNE,
-      FUN = function(x) plogis(x) / sum(plogis(x))
-    )
-    
-    
-    comuni_liste$VOTI_LISTA_ITER <- comuni_liste$ELETTORI * comuni_liste$PERCENTUALE_ITER
-    
-    scrutinio <- scrutinio_regionali_ER(
-      comuni_liste,
-      pop_legale,
-      liste
-    )
-    
-    
-    scrutinio$prov_lista <- merge(
-      scrutinio$prov_lista,
-      aggregate(
-        VOTI_LISTA_ITER ~ PROVINCIA,
-        scrutinio$prov_lista,
-        sum
-      ),
-      by = "PROVINCIA",
-      suffixes = c("", "_TOT")
-    )
-    
-    scrutinio$prov_lista$PERCENTUALE <-
-      scrutinio$prov_lista$VOTI_LISTA_ITER / 
-      scrutinio$prov_lista$VOTI_LISTA_ITER_TOT
-    
-    scrutinio$liste <- merge(
-      liste[, c(
-        "COALIZIONE",
-        "LISTA"
-      )],
-      aggregate(
-        cbind(ELETTI, VOTI_LISTA_ITER) ~ LISTA,
-        scrutinio$prov_lista,
-        sum
-      )
-    )
-    
-    scrutinio$liste$PERCENTUALE <-
-      scrutinio$liste$VOTI_LISTA_ITER / 
-      sum(scrutinio$liste$VOTI_LISTA_ITER)
-    
-    scrutinio$coalizioni <- merge(
-      scrutinio$coalizioni,
-      aggregate(
-        cbind(VOTI_LISTA_ITER, ELETTI) ~ COALIZIONE,
-        scrutinio$liste,
-        sum
-      )
-    )
-    
-    scrutinio$coalizioni$PERCENTUALE <-
-      scrutinio$coalizioni$VOTI_LISTA_ITER / 
-      sum(scrutinio$coalizioni$VOTI_LISTA_ITER)
-    
-    scrutinio$coalizioni$ELETTI_TOT <-
-      scrutinio$coalizioni$PRESIDENTE +
-      scrutinio$coalizioni$MIGLIOR_PERDENTE +
-      scrutinio$coalizioni$ELETTI
-    
-    
-    
-    
-    list(
-      coalizioni = scrutinio$coalizioni,
-      liste = scrutinio$liste,
-      prov_lista = scrutinio$prov_lista
-    )
-    
-  }
-  
-  cl <- parallel::makeCluster(parallel::detectCores())
-  
-  parallel::clusterEvalQ(
-    cl,
-    {
-      source("R/scrutinio.R")
-      library(data.table)
-    }
-  )
-  
-  lista_risultati <- parallel::parLapply(
-    cl,
-    seq_len(iterazioni),
-    iterazione,
-    liste = liste,
-    comuni_liste = comuni_liste,
-    pop_legale = pop_legale,
-    data_elezione = data_elezione
-  )
-  
-  parallel::stopCluster(cl)
-  
-  risultato <- list()
-  
-  risultato$coalizioni <-
-    data.table::rbindlist(lapply(lista_risultati, function(l) l$coalizioni), idcol = "SIM")
-  risultato$liste <-
-    data.table::rbindlist(lapply(lista_risultati, function(l) l$liste), idcol = "SIM")
-  risultato$prov_lista <-
-    data.table::rbindlist(lapply(lista_risultati, function(l) l$prov_lista), idcol = "SIM")
-  
-  lista_risultati <- NULL
-  
-  risultato
-}
+

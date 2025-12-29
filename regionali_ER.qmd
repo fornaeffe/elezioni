@@ -33,6 +33,7 @@ library(kableExtra)
 
 source("R/caricamento-dati.R")
 source("R/votes_generation.R")
+source("R/scrutinio_ER.R")
 
 scenario <- "scenari/BO_insieme.xlsx"
 
@@ -46,21 +47,17 @@ data_elezione <- as.POSIXct("2027-03-01")
 # Carico i dati
 dati <- carica_dati(cache_path = "dati/dati.RData", filtro = list(REGIONE = "Emilia-Romagna")) 
 
-# Genero i parametri per la simulazione
-parametri_simulazione <- calcola_parametri_di_voto(dati, scenario)
 
+# Simulo i voti
+dati_simulati <- genera_voti(dati, scenario, data_elezione)
 
-risultato <- simula(
-  1000,
-  parametri_simulazione,
-  dati$pop_legale,
-  data_elezione
-)
+# Eseguo lo scrutinio
+risultato <- esegui_scrutini_ER(dati_simulati, dati)
 
 ```
 
 ```{r prep_grafici}
-liste <- parametri_simulazione$liste
+liste <- dati_simulati$liste
 
 liste$COLORE[is.na(liste$COLORE)] <- "#DDDDDD"
 
@@ -710,7 +707,7 @@ lista alle prossime elezioni.
 
 # elettori <- 
 #   lista_elezione$VOTI_LISTA_REG[lista_elezione$ELEZIONE == "europee2024"][1]
-elettori <- sum(parametri_simulazione$comuni_liste$ELETTORI[parametri_simulazione$comuni_liste$LISTA == "astensione"])
+elettori <- sum(dati_simulati$comuni_liste$ELETTORI[dati_simulati$comuni_liste$LISTA == "astensione"])
 
 votanti <- tapply(risultato$liste$VOTI_LISTA_ITER, risultato$liste$SIM, sum)
 astenuti <- data.frame(
@@ -728,7 +725,7 @@ risultato$liste$PERCENTUALE_ELETTORI <-
   risultato$liste$VOTI_LISTA_ITER / elettori
 
 lista_elezione <- merge(
-  parametri_simulazione$liste_elezioni,
+  dati_simulati$liste_elezioni,
   liste[, c("LISTA", "COLORE")],
   by = "LISTA"
 )

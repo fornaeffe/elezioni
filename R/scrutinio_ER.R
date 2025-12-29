@@ -29,7 +29,7 @@ scrutinio_regionali_ER <- function(
   prov_lista <- comuni_liste[
     ,
     .(
-      VOTI_LISTA_ITER = sum(VOTI_LISTA_ITER)
+      VOTI_LISTA_ITER = sum(VOTI_LISTA_SIM)
     ),
     by = .(CODICE_PROVINCIA, PROVINCIA, LISTA)
   ]
@@ -694,19 +694,116 @@ scrutinio_regionali_ER <- function(
   prov_lista$ELETTI <- 
     prov_lista$SEGGI_CIRC + prov_lista$SEGGI_DA_VOTI_RESIDUATI
   
+  prov_lista <- merge(
+    prov_lista,
+    aggregate(
+      VOTI_LISTA_ITER ~ PROVINCIA,
+      prov_lista,
+      sum
+    ),
+    by = "PROVINCIA",
+    suffixes = c("", "_TOT")
+  )
+  
+  prov_lista$PERCENTUALE <-
+    prov_lista$VOTI_LISTA_ITER / 
+    prov_lista$VOTI_LISTA_ITER_TOT
+  
+  liste <- merge(
+    liste[, c(
+      "COALIZIONE",
+      "LISTA"
+    )],
+    aggregate(
+      cbind(ELETTI, VOTI_LISTA_ITER) ~ LISTA,
+      prov_lista,
+      sum
+    )
+  )
+  
+  liste$PERCENTUALE <-
+    liste$VOTI_LISTA_ITER / 
+    sum(liste$VOTI_LISTA_ITER)
+  
+  coalizioni <- merge(
+    coalizioni,
+    aggregate(
+      cbind(VOTI_LISTA_ITER, ELETTI) ~ COALIZIONE,
+      liste,
+      sum
+    )
+  )
+  
+  coalizioni$PERCENTUALE <-
+    coalizioni$VOTI_LISTA_ITER / 
+    sum(coalizioni$VOTI_LISTA_ITER)
+  
+  coalizioni$ELETTI_TOT <-
+    coalizioni$PRESIDENTE +
+    coalizioni$MIGLIOR_PERDENTE +
+    coalizioni$ELETTI
+  
   return(list(
     coalizioni = coalizioni[, c(
       "COALIZIONE",
       "PRESIDENTE",
-      "MIGLIOR_PERDENTE"
+      "MIGLIOR_PERDENTE",
+      "VOTI_LISTA_ITER",
+      "PERCENTUALE",
+      "ELETTI",
+      "ELETTI_TOT"
     )],
     prov_lista = prov_lista[, c(
       "PROVINCIA",
       "LISTA",
       "ELETTI",
-      "VOTI_LISTA_ITER"
+      "VOTI_LISTA_ITER",
+      "PERCENTUALE"
+    )],
+    liste = liste[, c(
+      "LISTA",
+      "COALIZIONE",
+      "VOTI_LISTA_ITER",
+      "PERCENTUALE",
+      "ELETTI"
     )]
   ))
   
   
+}
+
+esegui_scrutini_ER <- function(
+    dati_simulati,
+    dati
+) {
+  
+  
+  comuni_liste_sim_split <- split(
+    dati_simulati$comuni_liste_sim[
+      ,
+      .(SIM, CODICE_COMUNE, COMUNE, LISTA, CODICE_PROVINCIA, PROVINCIA, VOTI_LISTA_SIM)
+    ], 
+    by = "SIM"
+  )
+  
+  scrutinio <- future.apply::future_lapply(
+    comuni_liste_sim_split,
+    scrutinio_regionali_ER,
+    pop_legale = dati$pop_legale,
+    liste = dati_simulati$liste,
+    future.seed = TRUE
+  )
+  
+  risultato <- list()
+  
+  risultato$coalizioni <-
+    data.table::rbindlist(lapply(scrutinio, function(l) l$coalizioni), idcol = "SIM")
+  risultato$liste <-
+    data.table::rbindlist(lapply(scrutinio, function(l) l$liste), idcol = "SIM")
+  risultato$prov_lista <-
+    data.table::rbindlist(lapply(scrutinio, function(l) l$prov_lista), idcol = "SIM")
+  
+  lista_risultati <- NULL
+  
+  risultato
 }
