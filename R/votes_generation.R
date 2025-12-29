@@ -1,3 +1,8 @@
+# TODO unire i passaggi di calcolo parametri e generazione voti, scorporando il
+# secondo dallo scrutinio.
+
+# TODO usare rstan con modello Dirichlet
+
 calcola_parametri_di_voto <- function(
     dati,
     scenario
@@ -43,13 +48,14 @@ calcola_parametri_di_voto <- function(
   ]
   
   # Riassumo i dati per comune
-  comuni_liste_elezioni <- dati$comuni_liste_elezioni
+  comuni_liste_elezioni <- data.table::copy(dati$comuni_liste_elezioni)
   data.table::setnames(comuni_liste_elezioni, "LISTA", "LISTA_ORIGINALE")
   
   # Individuo le liste corrispondenti, e calcolo i voti per le nuove liste
   comuni_liste_elezioni <- comuni_liste_elezioni[
     corrispondenza_liste,
-    on = .(DATA, ELEZIONE, LISTA_ORIGINALE)
+    on = .(DATA, ELEZIONE, LISTA_ORIGINALE),
+    nomatch = NULL
   ]
   
   comuni_liste_elezioni[, VOTI := VOTI * FATTORE]
@@ -72,6 +78,31 @@ calcola_parametri_di_voto <- function(
   
   # Ne calcolo il logit
   comuni_liste_elezioni[, LOGIT_P := qlogis(pmax(PERCENTUALE, 0.5 / ELETTORI))]
+  
+  if (length(unique(comuni_liste_elezioni$CODICE_COMUNE)) == 1) {
+    
+    data.table::setorder(comuni_liste_elezioni, LISTA, DATA)
+    liste <- liste[
+      comuni_liste_elezioni[
+        ,
+        .(
+          SIGMA_R = sd(diff(LOGIT_P) / sqrt(diff(unclass(DATA)))),
+          LOGIT_P = LOGIT_P[.N],
+          DATA = DATA[.N],
+          ELETTORI = ELETTORI[.N]
+        ),
+        by = LISTA
+      ],
+      on = .(LISTA)
+    ]
+    
+    return(
+      list(
+        liste = liste,
+        liste_elezioni = comuni_liste_elezioni
+      )
+    )
+  }
   
   # Calcolo i voti totali ricevuti da ogni lista in ogni elezione
   liste_elezioni <- comuni_liste_elezioni[
@@ -169,8 +200,8 @@ simula <- function(
     data_elezione
 ) {
   
-  liste <- parametri_simulazione$liste
-  comuni_liste <- parametri_simulazione$comuni_liste
+  liste <- data.table::copy(parametri_simulazione$liste)
+  comuni_liste <- data.table::copy(parametri_simulazione$comuni_liste)
   
   iterazione <- function(
     iter = 1,

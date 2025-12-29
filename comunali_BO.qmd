@@ -1,0 +1,32 @@
+---
+title: "Elezioni del comune di Bologna 2027"
+author: "Luca Fornasari"
+date: "`r Sys.Date()`"
+format: 
+  html:
+    self-contained: true
+---
+
+```{r setup}
+#| include: false
+knitr::opts_chunk$set(echo = FALSE)
+
+
+source("R/caricamento-dati.R")
+source("R/votes_generation.R")
+
+scenario <- "scenari/BO_soli.xlsx"
+
+data_elezione <- as.POSIXct("2027-03-01")
+
+```
+
+```{r simulazione}
+#| include: false
+
+# Carico i dati
+dati <- carica_dati(cache_path = "dati/dati.RData", filtro = list(COMUNE = "Bologna"))
+
+parametri <- calcola_parametri_di_voto(dati, scenario)
+
+```
