@@ -14,6 +14,10 @@ knitr::opts_chunk$set(echo = FALSE)
 
 source("R/caricamento-dati.R")
 source("R/votes_generation.R")
+source("R/scrutinio_comunali.R")
+source("R/simula_comunali.R")
+
+comune <- "Bologna"
 
 scenario <- "scenari/BO_soli.xlsx"
 
@@ -24,10 +28,6 @@ data_elezione <- as.POSIXct("2027-03-01")
 ```{r simulazione}
 #| include: false
 
-# Carico i dati
-dati <- carica_dati(cache_path = "dati/dati.RData", filtro = list(COMUNE = "Bologna"))
-
-# Simulo i voti
-dati_simulati <- genera_voti(dati, scenario, data_elezione)
+risultato <- simula_comunali(comune, scenario, data_elezione)
 
 ```
