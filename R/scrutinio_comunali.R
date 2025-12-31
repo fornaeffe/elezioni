@@ -159,6 +159,11 @@ scrutinio_comunali <- function(
     SOGLIA_GRUPPO := PERCENTUALE_LISTE >= 0.03
   ]
   
+  candidati_sindaci[
+    ,
+    VOTI_SOGLIA := VOTI_LISTA * SOGLIA_GRUPPO
+  ]
+  
   liste <- liste[
     candidati_sindaci[, .(CANDIDATO_SINDACO, SOGLIA_GRUPPO)],
     on = .(CANDIDATO_SINDACO)
@@ -179,6 +184,11 @@ scrutinio_comunali <- function(
     SOGLIA := SOGLIA_GRUPPO | SOGLIA_LISTA
   ]
   
+  liste[
+    ,
+    VOTI_SOGLIA := VOTI_LISTA * SOGLIA
+  ]
+  
   # 8. Salvo quanto disposto dal comma 10, per l'assegnazione del numero dei
   # consiglieri a ciascuna lista o a ciascun gruppo di liste collegate, nel
   # turno di elezione del sindaco, con i rispettivi candidati alla carica di
@@ -197,51 +207,51 @@ scrutinio_comunali <- function(
   
 
   dHondt <- function(
-    liste,
     voti,
     num_consiglieri,
-    num_candidati = rep(num_consiglieri, length(liste))
+    num_candidati = rep(num_consiglieri, length(voti))
   ) {
-    quozienti <- data.table::data.table(
-      LISTA = rep(liste, each = num_consiglieri),
+    dt <- data.table::data.table(
+      LISTA = rep(seq_along(voti), each = num_consiglieri),
       VOTI_LISTA = rep(voti, each = num_consiglieri),
       NUM_CANDIDATI = rep(num_candidati, each = num_consiglieri),
-      NUM_QUOZIENTE = rep(1:num_consiglieri, length(liste))
+      DIVISORE = rep(seq_len(num_consiglieri), times = length(voti))
     )
     
-    quozienti <- quozienti[NUM_QUOZIENTE <= NUM_CANDIDATI]
+    dt <- dt[DIVISORE <= NUM_CANDIDATI]
     
-    quozienti[
+    dt[
       ,
       `:=`(
-        QUOZIENTE = VOTI_LISTA / NUM_QUOZIENTE,
+        QUOZIENTE = VOTI_LISTA / DIVISORE,
         SORTEGGIO = runif(.N)
       )
     ]
     
-    data.table::setorder(quozienti, -QUOZIENTE, -VOTI_LISTA, SORTEGGIO)
+    data.table::setorder(dt, -QUOZIENTE, -VOTI_LISTA, SORTEGGIO)
     
-    quozienti[
-      ,
-      ELETTO := .I <= num_consiglieri
+    dt[, ELETTO := .I <= num_consiglieri]
+    
+    eletti <- dt[
+      ELETTO == TRUE,
+      .N,
+      by = LISTA
     ]
     
-    return(
-      quozienti[
-        ,
-        .(ELETTI = sum(ELETTO)),
-        by = .(LISTA)
-      ]
-    )
+    # vettore finale, ordinato come l'input
+    out <- integer(length(voti))
+    out[eletti$LISTA] <- eletti$N
+    
+    out
   }
   
-  candidati_sindaci <- candidati_sindaci[
-    dHondt(
-      CANDIDATO_SINDACO,
-      VOTI_LISTA,
+  
+  candidati_sindaci[
+    ,
+    SEGGI_8 := dHondt(
+      VOTI_SOGLIA,
       num_consiglieri
-    ),
-    on = .(CANDIDATO_SINDACO = LISTA)
+    )
   ]
   
   # 10. Qualora un candidato alla carica di sindaco sia proclamato eletto al 
@@ -258,7 +268,71 @@ scrutinio_comunali <- function(
   # superato nel turno medesimo il 50 per cento dei voti validi. I restanti 
   # seggi vengono assegnati alle altre liste o gruppi di liste collegate ai 
   # sensi del comma 8.
-  if (!ballottaggio) {
+  if (
+    candidati_sindaci[
+      SINDACO==TRUE,
+      SEGGI_8 < num_consiglieri * 0.6 &
+      ( PERCENTUALE_LISTE >= 0.4 | ballottaggio )
+    ] &
+    candidati_sindaci[
+      SINDACO==FALSE,
+      sum(PERCENTUALE_LISTE > 0.5)
+    ] == 0
+  ) {
+    candidati_sindaci[
+      SINDACO==FALSE,
+      SEGGI_10 := dHondt(
+        VOTI_SOGLIA,
+        round(num_consiglieri * 0.4)
+      )
+    ]
+    candidati_sindaci[
+      SINDACO==TRUE,
+      SEGGI_10 := round(num_consiglieri * 0.6)
+    ]
     
+  } else {
+    candidati_sindaci[, SEGGI_10 := SEGGI_8]
   }
+  
+  # 11. Una volta determinato il numero dei seggi spettanti a ciascuna lista o
+  # gruppo di liste collegate, sono in primo luogo proclamati eletti alla carica
+  # di consigliere i candidati alla carica di sindaco, non risultati eletti,
+  # collegati a ciascuna lista che abbia ottenuto almeno un seggio. In caso di
+  # collegamento di più liste al medesimo candidato alla carica di sindaco
+  # risultato non eletto, il seggio spettante a quest'ultimo è detratto dai
+  # seggi complessivamente attribuiti al gruppo di liste collegate.
+  candidati_sindaci[
+    ,
+    SEGGIO_CANDIDATO_SINDACO := !SINDACO & SEGGI_10 > 0
+  ]
+  candidati_sindaci[
+    ,
+    SEGGI_DA_DISTRIBUIRE := SEGGI_10 - SEGGIO_CANDIDATO_SINDACO
+  ]
+  
+  # 9. Nell'ambito di ciascun gruppo di liste collegate la cifra elettorale di
+  # ciascuna di esse, corrispondente ai voti riportati nel primo turno, è divisa
+  # per 1, 2, 3, 4,... sino a concorrenza del numero dei seggi spettanti al
+  # gruppo di liste. Si determinano in tal modo i quozienti più alti e, quindi,
+  # il numero dei seggi spettanti ad ogni lista.
+  liste <- liste[
+    candidati_sindaci[,.(CANDIDATO_SINDACO, SEGGI_DA_DISTRIBUIRE)],
+    on = .(CANDIDATO_SINDACO)
+  ]
+  liste[
+    ,
+    SEGGI := dHondt(
+      VOTI_SOGLIA,
+      SEGGI_DA_DISTRIBUIRE[1]
+    ),
+    by = .(CANDIDATO_SINDACO)
+  ]
+  
+  # 12. Compiute le operazioni di cui al comma 11 sono proclamati eletti
+  # consiglieri comunali i candidati di ciascuna lista secondo l'ordine delle
+  # rispettive cifre individuali. In caso di parità di cifra individuale, sono
+  # proclamati eletti i candidati che precedono nell'ordine di lista.
+  
+  # TODO !
 }
