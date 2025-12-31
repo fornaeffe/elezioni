@@ -27,6 +27,7 @@ data_elezione <- as.POSIXct("2027-03-01")
 
 ```{r simulazione}
 #| include: false
+#| cache: true
 
 risultato <- simula_comunali(comune, scenario, data_elezione)
 

@@ -1,3 +1,14 @@
+#' Simulazione delle elezioni comunali
+#'
+#' @param comune string, nome del comune
+#' @param scenario string, percorso per il file Excel di scenario
+#' @param data_elezione POSIXct, data della futura elezione da simulare
+#'
+#' @returns una lista di data.table:
+#'
+#' @export
+#'
+#' @examples
 simula_comunali <- function(
     comune,
     scenario,
@@ -14,7 +25,7 @@ simula_comunali <- function(
   
   # Aggiungo la colonna coalizione al data.table delle liste
   liste_sim <- dati_simulati$comuni_liste_sim[
-    dati_simulati$liste[, .(LISTA, CANDIDATO_SINDACO = COALIZIONE)],
+    dati_simulati$liste[, .(LISTA, COALIZIONE)],
     on = .(LISTA)
   ]
   
@@ -23,16 +34,16 @@ simula_comunali <- function(
   ]
   
   # Creo la tabella dei candidati sindaci
-  candidati_sindaci_sim <- liste_sim[
+  coalizioni_sim <- liste_sim[
     ,
     .(
       VOTI_SINDACO = sum(VOTI_LISTA_SIM),
       VOTI_BALLOTTAGGIO = sum(VOTI_LISTA_SIM)
     ),
-    by = .(SIM, CANDIDATO_SINDACO)
+    by = .(SIM, COALIZIONE)
   ]
   
-  candidati_sindaci_sim[
+  coalizioni_sim[
     ,
     DATA_DI_NASCITA := sample(seq(as.Date('1940/01/01'), as.Date('2000/01/01'), by="day"), .N, replace = TRUE)
   ]
@@ -41,32 +52,32 @@ simula_comunali <- function(
   liste_split <- split(
     liste_sim[
       ,
-      .(SIM, LISTA, CANDIDATO_SINDACO, VOTI_LISTA = VOTI_LISTA_SIM)
+      .(SIM, LISTA, COALIZIONE, VOTI_LISTA = VOTI_LISTA_SIM)
     ], 
     by = "SIM",
     keep.by = FALSE
   )
   
-  candidati_sindaci_split <- split(
-    candidati_sindaci_sim, 
+  coalizioni_split <- split(
+    coalizioni_sim, 
     by = "SIM",
     keep.by = FALSE
   )
   
   input_scrutinio <- Map(
-    function(liste, candidati_sindaci) {
+    function(liste, coalizioni) {
       list(
         liste = liste,
-        candidati_sindaci = candidati_sindaci
+        coalizioni = coalizioni
       )
     },
     liste_split,
-    candidati_sindaci_split
+    coalizioni_split
   )
   
   # Da commentare:
   # liste <- liste_split[[1]]
-  # candidati_sindaci <- candidati_sindaci_split[[1]]
+  # coalizioni <- coalizioni_split[[1]]
   pop_legale <- dati$pop_legale[COMUNE == comune, POPOLAZIONE]
   
   
@@ -98,15 +109,20 @@ simula_comunali <- function(
     function(x) x$liste
   ), idcol = "SIM")
   
-  candidati_sindaci_sim <- rbindlist(lapply(
+  coalizioni_sim <- rbindlist(lapply(
     scrutinio,
-    function(x) x$candidati_sindaci
+    function(x) x$coalizioni
   ), idcol = "SIM")
+  
+  liste_sim[
+    dati_simulati$liste[,.(LISTA, COLORE)],
+    on = .(LISTA)
+  ]
   
   return(
     list(
       liste_sim = liste_sim,
-      candidati_sindaci_sim = candidati_sindaci_sim,
+      coalizioni_sim = coalizioni_sim,
       liste = dati_simulati$liste
     )
   )

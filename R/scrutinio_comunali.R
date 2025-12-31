@@ -55,15 +55,15 @@ numero_consiglieri <- function(popolazione, capoluogo_provincia = FALSE) {
 #' seguenti colonne:
 #' \describe{
 #'  \item{LISTA}{string, nome della lista}
-#'  \item{CANDIDATO_SINDACO}{string, cognome e nome del candidato sindaco 
+#'  \item{COALIZIONE}{string, cognome e nome del candidato sindaco 
 #'  collegato alla lista}
 #'  \item{VOTI_LISTA}{number, voti ricevuti dalla lista}
 #'  \item{NUM_CANDIDATI}{number, OPZIONALE, numero di candidati della lista}
 #' }
-#' @param candidati_sindaci i candidati sindaci che si presentano alle elezioni,
+#' @param coalizioni i candidati sindaci che si presentano alle elezioni,
 #' un data.table con le seguenti colonne:
 #' \describe{
-#'  \item{CANDIDATO_SINDACO}{string, cognome e nome del candidato sindaco, eventualmente
+#'  \item{COALIZIONE}{string, cognome e nome del candidato sindaco, eventualmente
 #'  disambiguato con la data di nascita}
 #'  \item{DATA_DI_NASCITA}{Date, data di nascita del candidato sindaco}
 #'  \item{VOTI_SINDACO}{number, voti ricevuti dal sindaco al primo turno}
@@ -78,19 +78,19 @@ numero_consiglieri <- function(popolazione, capoluogo_provincia = FALSE) {
 #' @examples
 scrutinio_comunali <- function(
     liste,
-    candidati_sindaci,
+    coalizioni,
     pop_legale,
     num_consiglieri
 ) {
 
   
-  candidati_sindaci <- candidati_sindaci[
+  coalizioni <- coalizioni[
     liste[
       ,
       .(VOTI_LISTA = sum(VOTI_LISTA)),
-      by = .(CANDIDATO_SINDACO)
+      by = .(COALIZIONE)
     ],
-    on = .(CANDIDATO_SINDACO)
+    on = .(COALIZIONE)
   ]
   
   # DECRETO LEGISLATIVO 18 agosto 2000, n. 267
@@ -107,9 +107,9 @@ scrutinio_comunali <- function(
   # consiglio comunale che ha conseguito la maggiore cifra elettorale complessiva. 
   # A parità di cifra elettorale, partecipa al ballottaggio il candidato più 
   # anziano di età.
-  data.table::setorder(candidati_sindaci, -VOTI_SINDACO, -VOTI_LISTA)
+  data.table::setorder(coalizioni, -VOTI_SINDACO, -VOTI_LISTA)
   
-  candidati_sindaci[
+  coalizioni[
     ,
     `:=`(
       PERCENTUALE_SINDACO = VOTI_SINDACO / sum(VOTI_SINDACO),
@@ -117,7 +117,7 @@ scrutinio_comunali <- function(
     )
   ]
   
-  ballottaggio <- candidati_sindaci$PERCENTUALE_SINDACO[1] <= 0.5
+  ballottaggio <- coalizioni$PERCENTUALE_SINDACO[1] <= 0.5
   
   # 9. Dopo il secondo turno è proclamato eletto sindaco il candidato che ha 
   # ottenuto il maggior numero di voti validi. In caso di parità di voti. è 
@@ -126,11 +126,11 @@ scrutinio_comunali <- function(
   # conseguito la maggiore cifra elettorale complessiva. A parità di cifra 
   # elettorale, è proclamato eletto sindaco il candidato più anziano d'età.
   
-  if (ballottaggio) data.table::setorder(candidati_sindaci, -VOTI_BALLOTTAGGIO, -VOTI_LISTA, DATA_DI_NASCITA)
+  if (ballottaggio) data.table::setorder(coalizioni, -VOTI_BALLOTTAGGIO, -VOTI_LISTA, DATA_DI_NASCITA)
   
   # TODO simulare ballottaggio
   
-  candidati_sindaci[
+  coalizioni[
     ,
     SINDACO := c(TRUE, rep(FALSE, .N - 1))
   ]
@@ -144,19 +144,19 @@ scrutinio_comunali <- function(
   
   
   
-  candidati_sindaci[
+  coalizioni[
     ,
     SOGLIA_GRUPPO := PERCENTUALE_LISTE >= 0.03
   ]
   
-  candidati_sindaci[
+  coalizioni[
     ,
     VOTI_SOGLIA := VOTI_LISTA * SOGLIA_GRUPPO
   ]
   
   liste <- liste[
-    candidati_sindaci[, .(CANDIDATO_SINDACO, SOGLIA_GRUPPO)],
-    on = .(CANDIDATO_SINDACO)
+    coalizioni[, .(COALIZIONE, SOGLIA_GRUPPO)],
+    on = .(COALIZIONE)
   ]
   
   liste[
@@ -236,7 +236,7 @@ scrutinio_comunali <- function(
   }
   
   
-  candidati_sindaci[
+  coalizioni[
     ,
     SEGGI_8 := dHondt(
       VOTI_SOGLIA,
@@ -259,30 +259,30 @@ scrutinio_comunali <- function(
   # seggi vengono assegnati alle altre liste o gruppi di liste collegate ai 
   # sensi del comma 8.
   if (
-    candidati_sindaci[
+    coalizioni[
       SINDACO==TRUE,
       SEGGI_8 < num_consiglieri * 0.6 &
       ( PERCENTUALE_LISTE >= 0.4 | ballottaggio )
     ] &
-    candidati_sindaci[
+    coalizioni[
       SINDACO==FALSE,
       sum(PERCENTUALE_LISTE > 0.5)
     ] == 0
   ) {
-    candidati_sindaci[
+    coalizioni[
       SINDACO==FALSE,
       SEGGI_10 := dHondt(
         VOTI_SOGLIA,
         round(num_consiglieri * 0.4)
       )
     ]
-    candidati_sindaci[
+    coalizioni[
       SINDACO==TRUE,
       SEGGI_10 := round(num_consiglieri * 0.6)
     ]
     
   } else {
-    candidati_sindaci[, SEGGI_10 := SEGGI_8]
+    coalizioni[, SEGGI_10 := SEGGI_8]
   }
   
   # 11. Una volta determinato il numero dei seggi spettanti a ciascuna lista o
@@ -292,11 +292,11 @@ scrutinio_comunali <- function(
   # collegamento di più liste al medesimo candidato alla carica di sindaco
   # risultato non eletto, il seggio spettante a quest'ultimo è detratto dai
   # seggi complessivamente attribuiti al gruppo di liste collegate.
-  candidati_sindaci[
+  coalizioni[
     ,
     SEGGIO_CANDIDATO_SINDACO := !SINDACO & SEGGI_10 > 0
   ]
-  candidati_sindaci[
+  coalizioni[
     ,
     SEGGI_DA_DISTRIBUIRE := SEGGI_10 - SEGGIO_CANDIDATO_SINDACO
   ]
@@ -307,8 +307,8 @@ scrutinio_comunali <- function(
   # gruppo di liste. Si determinano in tal modo i quozienti più alti e, quindi,
   # il numero dei seggi spettanti ad ogni lista.
   liste <- liste[
-    candidati_sindaci[,.(CANDIDATO_SINDACO, SEGGI_DA_DISTRIBUIRE)],
-    on = .(CANDIDATO_SINDACO)
+    coalizioni[,.(COALIZIONE, SEGGI_DA_DISTRIBUIRE)],
+    on = .(COALIZIONE)
   ]
   liste[
     ,
@@ -316,7 +316,7 @@ scrutinio_comunali <- function(
       VOTI_SOGLIA,
       SEGGI_DA_DISTRIBUIRE[1]
     ),
-    by = .(CANDIDATO_SINDACO)
+    by = .(COALIZIONE)
   ]
   
   # 12. Compiute le operazioni di cui al comma 11 sono proclamati eletti
@@ -332,16 +332,16 @@ scrutinio_comunali <- function(
         ,
         .(
           LISTA, 
-          CANDIDATO_SINDACO, 
+          COALIZIONE, 
           VOTI_LISTA, 
           PERCENTUALE, 
           SEGGI
         )
       ],
-      candidati_sindaci = candidati_sindaci[
+      coalizioni = coalizioni[
         ,
         .(
-          CANDIDATO_SINDACO, 
+          COALIZIONE, 
           VOTI_SINDACO, 
           VOTI_BALLOTTAGGIO, 
           DATA_DI_NASCITA, 
@@ -359,7 +359,7 @@ scrutinio_comunali <- function(
 scrutinio_worker <- function(x, pop_legale, num_consiglieri) {
   scrutinio_comunali(
     liste = x$liste,
-    candidati_sindaci = x$candidati_sindaci,
+    coalizioni = x$coalizioni,
     pop_legale = pop_legale,
     num_consiglieri = num_consiglieri
   )
