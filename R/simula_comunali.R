@@ -53,26 +53,61 @@ simula_comunali <- function(
     keep.by = FALSE
   )
   
+  input_scrutinio <- Map(
+    function(liste, candidati_sindaci) {
+      list(
+        liste = liste,
+        candidati_sindaci = candidati_sindaci
+      )
+    },
+    liste_split,
+    candidati_sindaci_split
+  )
+  
   # Da commentare:
-  liste <- liste_split[[1]]
-  candidati_sindaci <- candidati_sindaci_split[[1]]
+  # liste <- liste_split[[1]]
+  # candidati_sindaci <- candidati_sindaci_split[[1]]
   pop_legale <- dati$pop_legale[COMUNE == comune, POPOLAZIONE]
+  
+  
   
   cl <- parallel::makeCluster(parallel::detectCores())
   
-  parallel::clusterEvalQ(cl, library(data.table))
+  parallel::clusterEvalQ(cl, {
+    library(data.table)
+  })
   
-  scrutinio <- parallel::clusterMap(
+  parallel::clusterExport(
     cl,
-    scrutinio_comunali,
-    liste = liste_split,
-    candidati_sindaci = candidati_sindaci_split,
-    MoreArgs = list(
-      pop_legale = dati$pop_legale[COMUNE == comune, POPOLAZIONE],
-      num_consiglieri = num_consiglieri
-    ),
+    c("scrutinio_comunali", "scrutinio_worker"),
+    envir = environment()
+  )
+  
+  scrutinio <- parallel::parLapply(
+    cl,
+    input_scrutinio,
+    scrutinio_worker,
+    pop_legale = pop_legale,
+    num_consiglieri = num_consiglieri
   )
   
   parallel::stopCluster(cl)
   
+  liste_sim <- rbindlist(lapply(
+    scrutinio,
+    function(x) x$liste
+  ), idcol = "SIM")
+  
+  candidati_sindaci_sim <- rbindlist(lapply(
+    scrutinio,
+    function(x) x$candidati_sindaci
+  ), idcol = "SIM")
+  
+  return(
+    list(
+      liste_sim = liste_sim,
+      candidati_sindaci_sim = candidati_sindaci_sim,
+      liste = dati_simulati$liste
+    )
+  )
 }

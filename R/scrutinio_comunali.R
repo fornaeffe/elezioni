@@ -71,15 +71,6 @@ numero_consiglieri <- function(popolazione, capoluogo_provincia = FALSE) {
 #' }
 #' @param pop_legale integer: la popolazione legale del comune
 #' @param num_consiglieri integer: numero di consiglieri da eleggere
-#' @param candidati OPZIONALE, i candidati consiglieri che si presentano alle elezioni, un
-#' data.table con le seguenti colonne:
-#' \describe{
-#'  \item{CANDIDATO_CONSIGLIERE}{string, cognome e nome del candidato consigliere,
-#'  eventualmente disambiguato con la data di nascita}
-#'  \item{DATA_DI_NASCITA}{Date, data di nascita del candidato sindaco}
-#'  \item{LISTA}{string, nome della lista di appartenenza del candidato}
-#'  \item{PREFERENZE}{number, numero di preferenze ricevute}
-#' }
 #'
 #' @returns
 #' @export
@@ -89,8 +80,7 @@ scrutinio_comunali <- function(
     liste,
     candidati_sindaci,
     pop_legale,
-    num_consiglieri,
-    candidati = NULL
+    num_consiglieri
 ) {
 
   
@@ -335,4 +325,42 @@ scrutinio_comunali <- function(
   # proclamati eletti i candidati che precedono nell'ordine di lista.
   
   # TODO !
+  
+  return(
+    list(
+      liste = liste[
+        ,
+        .(
+          LISTA, 
+          CANDIDATO_SINDACO, 
+          VOTI_LISTA, 
+          PERCENTUALE, 
+          SEGGI
+        )
+      ],
+      candidati_sindaci = candidati_sindaci[
+        ,
+        .(
+          CANDIDATO_SINDACO, 
+          VOTI_SINDACO, 
+          VOTI_BALLOTTAGGIO, 
+          DATA_DI_NASCITA, 
+          VOTI_LISTA, 
+          PERCENTUALE_SINDACO, 
+          PERCENTUALE_LISTE,
+          SINDACO,
+          SEGGI = SEGGI_10,
+          SEGGIO_CANDIDATO_SINDACO
+        )]
+    )
+  )
+}
+
+scrutinio_worker <- function(x, pop_legale, num_consiglieri) {
+  scrutinio_comunali(
+    liste = x$liste,
+    candidati_sindaci = x$candidati_sindaci,
+    pop_legale = pop_legale,
+    num_consiglieri = num_consiglieri
+  )
 }
