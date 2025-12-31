@@ -6,6 +6,9 @@ simula_comunali <- function(
   # Carico i dati
   dati <- carica_dati(cache_path = "dati/dati.RData", filtro = list(COMUNE = comune))
   
+  # Stabilisco il numero di consiglieri
+  num_consiglieri <- numero_consiglieri(dati$pop_legale[,POPOLAZIONE])
+  
   # Simulo i voti
   dati_simulati <- genera_voti(dati, scenario, data_elezione)
   
@@ -64,7 +67,10 @@ simula_comunali <- function(
     scrutinio_comunali,
     liste = liste_split,
     candidati_sindaci = candidati_sindaci_split,
-    MoreArgs = list(pop_legale = dati$pop_legale[COMUNE == comune, POPOLAZIONE]),
+    MoreArgs = list(
+      pop_legale = dati$pop_legale[COMUNE == comune, POPOLAZIONE],
+      num_consiglieri = num_consiglieri
+    ),
   )
   
   parallel::stopCluster(cl)
