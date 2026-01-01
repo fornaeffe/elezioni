@@ -3,16 +3,31 @@
 #' @param comune string, nome del comune
 #' @param scenario string, percorso per il file Excel di scenario
 #' @param data_elezione POSIXct, data della futura elezione da simulare
+#' @param simulaizoni numero di simulazioni da eseguire
 #'
 #' @returns una lista di data.table:
+#' \describe{
+#'  \item{liste_sim}{data.table con i risultati della simulazione per ciascuna 
+#'    lista e ciascuna simulazione}
+#'  \item{coalizioni_sim}{data.table con i risultati della simulazione per 
+#'    ciascun candidato sindaco e ciascuna simulazione}
+#'  \item{liste}{data.table con i parametri di input per ciascuna lista}
+#' }
 #'
 #' @export
+#' 
+#' @details
+#' Il data.table \code{liste_sim} contiene queste colonne:
+#' \describe{
+#'  \item{}
+#' }
 #'
 #' @examples
 simula_comunali <- function(
     comune,
     scenario,
-    data_elezione
+    data_elezione,
+    simulazioni = 1000
 ){
   # Carico i dati
   dati <- carica_dati(cache_path = "dati/dati.RData", filtro = list(COMUNE = comune))
@@ -21,7 +36,7 @@ simula_comunali <- function(
   num_consiglieri <- numero_consiglieri(dati$pop_legale[,POPOLAZIONE])
   
   # Simulo i voti
-  dati_simulati <- genera_voti(dati, scenario, data_elezione)
+  dati_simulati <- genera_voti(dati, scenario, data_elezione, simulazioni)
   
   # Aggiungo la colonna coalizione al data.table delle liste
   liste_sim <- dati_simulati$comuni_liste_sim[
@@ -104,12 +119,12 @@ simula_comunali <- function(
   
   parallel::stopCluster(cl)
   
-  liste_sim <- rbindlist(lapply(
+  liste_sim <- data.table::rbindlist(lapply(
     scrutinio,
     function(x) x$liste
   ), idcol = "SIM")
   
-  coalizioni_sim <- rbindlist(lapply(
+  coalizioni_sim <- data.table::rbindlist(lapply(
     scrutinio,
     function(x) x$coalizioni
   ), idcol = "SIM")
