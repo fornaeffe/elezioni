@@ -19,8 +19,53 @@
 #' @details
 #' Il data.table \code{liste_sim} contiene queste colonne:
 #' \describe{
-#'  \item{}
+#'  \item{SIM}{numero della simulazione}
+#'  \item{LISTA}{nome della lista}
+#'  \item{COALIZIONE}{cognome e nome del candidato sindaco, eventualmente 
+#'    disambiguato con la data di nascita}
+#'  \item{VOTI_LISTA}{numero di voti simulati ricevuti dalla lista}
+#'  \item{PERCENTUALE}{rapporto tra voti ricevuti dalla lista e voti validi 
+#'    totali alle liste}
+#'  \item{SEGGI}{numero di seggi ottenuti dalla lista}
 #' }
+#' Il data.table \code{coalizioni_sim} contiene queste colonne:
+#' \describe{
+#'  \item{SIM}{numero della simulazione}
+#'  \item{COALIZIONE}{cognome e nome del candidato sindaco, eventualmente 
+#'    disambiguato con la data di nascita}
+#'  \item{VOTI_SINDACO}{i voti simulati al candidato sindaco}
+#'  \item{DATA_DI_NASCITA}{data di nascita del candidato sindaco}
+#'  \item{VOTI_LISTA}{la somma dei voti ricevuti dalle liste collegate al
+#'  candidato sindaco}
+#'  \item{PERCENTUALE_SINDACO}{rapporto tra i voti a questo candidato sindaco
+#'  e i voti validi totali ai candidati sindaci}
+#'  \item{PERCENTUALE_LISTE}{rapporto tra i voti alle liste collegate al 
+#'  candidato sindaco e i voti validi totali alle liste}
+#'  \item{SINDACO}{\code{TRUE} se il candidato è eletto sindaco}
+#'  \item{SEGGI}{numero di seggi assegnati al gruppo di liste, compreso quello
+#'  eventualmente assegnato al candidato sindaco non vincente}
+#'  \item{SEGGIO_CANDIDATO_SINDACO}{TRUE se uno dei seggi è riservato al 
+#'  candidato sindaco non vincente}
+#' }
+#' Il data.table \code{liste} contiene queste colonne:
+#' \describe{
+#'  \item{LISTA}{nome della lista}
+#'  \item{COALIZIONE}{cognome e nome del candidato sindaco, eventualmente 
+#'    disambiguato con la data di nascita}
+#'  \item{COLORE}{codice esadecimale del colore associato alla lista}
+#'  \item{SIGMA_GLOBAL}{parametro che controlla la variabilità globale dei voti
+#'  alla lista}
+#'  \item{PERCENTUALE}{frazione degli elettori che hanno votato per questa lista
+#'  alle ultime elezioni}
+#'  \item{LOGIT_P}{il logit di \code{PERCENTUALE}. La simulazione parte da 
+#'  questo valore per simulare i possibili risultati.}
+#'  \item{DATA}{data dell'ultima elezione in POSIXct}
+#'  \item{SIGMA_DELTA}{parametro che controlla la variabilità locale dei voti
+#'  alla lista}
+#' }
+#' Attenzione: al momento non è implementata la simulazione dei voti al 
+#' candidato sindaco e al ballottaggio, vengono semplicemente copiati i voti
+#' alla lista anche nelle colonne \code{VOTI_SINDACO} e \code{VOTI_BALLOTTAGGIO}
 #'
 #' @examples
 simula_comunali <- function(
@@ -132,6 +177,25 @@ simula_comunali <- function(
   liste_sim[
     dati_simulati$liste[,.(LISTA, COLORE)],
     on = .(LISTA)
+  ]
+  
+  # Formattazione risultati
+  liste_sim[
+    ,
+    PERCENTUALE := formattable::percent(PERCENTUALE, 2)
+  ]
+  
+  coalizioni_sim[
+    ,
+    `:=`(
+      PERCENTUALE_SINDACO = formattable::percent(PERCENTUALE_SINDACO, 2),
+      PERCENTUALE_LISTE = formattable::percent(PERCENTUALE_LISTE, 2)
+    )
+  ]
+  
+  dati_simulati$liste[
+    ,
+    PERCENTUALE := formattable::percent(PERCENTUALE, 2)
   ]
   
   return(

@@ -1,4 +1,5 @@
 # TODO usare rstan con modello Dirichlet
+# TODO verificare se usando un unico data.table anziché parallel diventa più veloce
 
 simulazione <- function(sim, comuni_liste, liste, data_elezione) {
   data.table::setDTthreads(1)
@@ -64,9 +65,11 @@ genera_voti <- function(
     simulazioni = 1000
 ){
   
-  
   liste <- data.table::as.data.table(readxl::read_xlsx(scenario, "liste_future"))
   corrispondenza_liste <- data.table::as.data.table(readxl::read_xlsx(scenario, "flussi_previsti"))
+  
+  # Riempio i colori mancanti:
+  liste$COLORE[is.na(liste$COLORE)] <- "#DDDDDD"
   
   # TODO: validare lo scenario
   

@@ -279,7 +279,7 @@ scarica_dati <- function(cache = TRUE, cache_path = file.path(tempdir(), "dati.R
   ) {
     tryCatch(
       {
-        cat("\nDownload dei dati delll'elezione", elezione,"...\n")
+        cat("\nDownload dei dati dell'elezione", elezione,"...\n")
         
         # Preparo il nome del file temporaneo da scaricare
         file_path <- tempfile(fileext = ".zip")
@@ -317,14 +317,15 @@ scarica_dati <- function(cache = TRUE, cache_path = file.path(tempdir(), "dati.R
             DT <- aggiorna_comuni(DT)
             
             if (dettagli_file$tipo == "scrutinio") {
-              # Tengo solo le colonne di interesse
-              DT <- DT[,c(
-                "comune",
-                "codice",
-                "ELETTORI",
-                "LISTA",
-                "VOTI"
-              )]
+              # # Tengo solo le colonne di interesse
+              # DT <- DT[,c(
+              #   "comune",
+              #   "codice",
+              #   "ELETTORI",
+              #   "LISTA",
+              #   "VOTI",
+              #   intersect("SEZIONE", names(DT))
+              # )]
               
               astensione <- DT[
                 ,
@@ -332,11 +333,7 @@ scarica_dati <- function(cache = TRUE, cache_path = file.path(tempdir(), "dati.R
                   VOTI = ELETTORI - sum(VOTI),
                   LISTA = "astensione"
                 ),
-                by = .(
-                  comune,
-                  codice,
-                  ELETTORI
-                )
+                by = c("comune", "codice", "ELETTORI", intersect("SEZIONE", names(DT)))
               ]
               DT <- rbind(DT, astensione, fill = TRUE)
               

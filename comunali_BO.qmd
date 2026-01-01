@@ -12,10 +12,11 @@ format:
 knitr::opts_chunk$set(echo = FALSE)
 
 
-source("R/caricamento-dati.R")
-source("R/votes_generation.R")
+source("R/caricamento_dati.R")
+source("R/generazione_voti.R")
 source("R/scrutinio_comunali.R")
 source("R/simula_comunali.R")
+source("R/presentazione_risultati.R")
 
 comune <- "Bologna"
 
@@ -31,4 +32,9 @@ data_elezione <- as.POSIXct("2027-03-01")
 
 risultato <- simula_comunali(comune, scenario, data_elezione)
 
+```
+
+## Dati
+```{r}
+tabella_dati(risultato)
 ```
