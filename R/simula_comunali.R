@@ -174,8 +174,8 @@ simula_comunali <- function(
     function(x) x$coalizioni
   ), idcol = "SIM")
   
-  liste_sim[
-    dati_simulati$liste[,.(LISTA, COLORE)],
+  liste_sim <- dati_simulati$liste[,.(LISTA, COLORE)][
+    liste_sim,
     on = .(LISTA)
   ]
   

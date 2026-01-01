@@ -10,3 +10,22 @@ tabella_dati <- function(
   tab <- kableExtra::kable_minimal(tab)
   tab
 }
+
+boxplot_percentuali <- function(
+    risultato
+){
+  x <- droplevels(risultato$liste_sim[LISTA != "astensione"])
+  par(mar=c(4, 12, 0.1, 0.1))
+  
+  boxplot(
+    PERCENTUALE * 100 ~ LISTA, 
+    data = x, 
+    horizontal = TRUE, 
+    las=1,
+    xlab = "Percentuale sui voti validi",
+    ylab = NA,
+    col = x$COLORE,
+    cex.axis = 0.8
+  )
+  
+}

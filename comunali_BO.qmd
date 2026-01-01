@@ -11,7 +11,6 @@ format:
 #| include: false
 knitr::opts_chunk$set(echo = FALSE)
 
-
 source("R/caricamento_dati.R")
 source("R/generazione_voti.R")
 source("R/scrutinio_comunali.R")
@@ -37,4 +36,12 @@ risultato <- simula_comunali(comune, scenario, data_elezione)
 ## Dati
 ```{r}
 tabella_dati(risultato)
+```
+
+### Percentuali per lista
+
+Questo grafico mostra le percentuali simulate per ciascuna 
+lista.
+```{r}
+boxplot_percentuali(risultato)
 ```
