@@ -13,7 +13,10 @@ crea_file_scenario <- function(
   # --- 1. liste_future (vuoto) -------------------------------------
   liste_future <- data.table::data.table(LISTA_FUTURA = character(), COALIZIONE = character(), COLORE = character())
   
-  # --- 2. flussi_previsti ------------------------------------------
+  # --- 2. coalizioni_future (vuoto) -------------------------------------
+  coalizioni_future <- data.table::data.table(COALIZIONE = character(), DATA_DI_NASCITA = character(), COLORE = character())
+  
+  # --- 3. flussi_previsti ------------------------------------------
   colonne_flussi <- c(
     "DATA", "ELEZIONE", "LISTA"
   )

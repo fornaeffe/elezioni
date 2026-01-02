@@ -66,10 +66,24 @@ genera_voti <- function(
 ){
   
   liste <- data.table::as.data.table(readxl::read_xlsx(scenario, "liste_future"))
+  coalizioni <- data.table::as.data.table(readxl::read_xlsx(scenario, "coalizioni_future"))
   corrispondenza_liste <- data.table::as.data.table(readxl::read_xlsx(scenario, "flussi_previsti"))
   
   # Riempio i colori mancanti:
   liste$COLORE[is.na(liste$COLORE)] <- "#DDDDDD"
+  
+  # Se non ci sono le date di nascita dei candidati sindaci, le genero casualmente
+  if ("DATA_DI_NASCITA" %in% names(coalizioni)) {
+    coalizioni[
+      ,
+      DATA_DI_NASCITA := as.Date(DATA_DI_NASCITA)
+    ]
+    coalizioni[
+      is.na(DATA_DI_NASCITA),
+      DATA_DI_NASCITA := sample(seq(as.Date('1940/01/01'), as.Date('2000/01/01'), by="day"), .N, replace = TRUE)
+    ]  
+  }
+  
   
   # TODO: validare lo scenario
   
@@ -93,9 +107,17 @@ genera_voti <- function(
   )
   
   data.table::setnames(
+    coalizioni,
+    "CANDIDATO_SINDACO",
+    "COALIZIONE",
+    skip_absent = TRUE
+  )
+  
+  data.table::setnames(
     liste,
-    "LISTA_FUTURA",
-    "LISTA"
+    c("LISTA_FUTURA", "CANDIDATO_SINDACO"),
+    c("LISTA", "COALIZIONE"),
+    skip_absent = TRUE
   )
   
   # Normalizzo
@@ -244,7 +266,8 @@ genera_voti <- function(
     comuni_liste_sim = comuni_liste_sim,
     liste = liste,
     comuni_liste = comuni_liste,
-    liste_elezioni = liste_elezioni
+    liste_elezioni = liste_elezioni,
+    coalizioni = coalizioni
   ))
 }
 

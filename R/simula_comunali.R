@@ -12,6 +12,8 @@
 #'  \item{coalizioni_sim}{data.table con i risultati della simulazione per 
 #'    ciascun candidato sindaco e ciascuna simulazione}
 #'  \item{liste}{data.table con i parametri di input per ciascuna lista}
+#'  \item{coalizioni}{data.table con i parametri di input per ciascun candidato
+#'  sindaco}
 #' }
 #'
 #' @export
@@ -63,6 +65,13 @@
 #'  \item{SIGMA_DELTA}{parametro che controlla la variabilità locale dei voti
 #'  alla lista}
 #' }
+#' Il data.table \code{coalizioni} contiene queste colonne:
+#' \describe{
+#'  \item{COALIZIONE}{cognome e nome del candidato sindaco, eventualmente 
+#'  disambiguato con la data di nascita}
+#'  \item{DATA_DI_NASCITA}{data di nascita del candidato sindaco, in formato Date}
+#'  \item{COLORE}{codice esadecimale del colore associato al candidato sindaco}  
+#' }
 #' Attenzione: al momento non è implementata la simulazione dei voti al 
 #' candidato sindaco e al ballottaggio, vengono semplicemente copiati i voti
 #' alla lista anche nelle colonne \code{VOTI_SINDACO} e \code{VOTI_BALLOTTAGGIO}
@@ -103,10 +112,12 @@ simula_comunali <- function(
     by = .(SIM, COALIZIONE)
   ]
   
-  coalizioni_sim[
-    ,
-    DATA_DI_NASCITA := sample(seq(as.Date('1940/01/01'), as.Date('2000/01/01'), by="day"), .N, replace = TRUE)
+  # Copio data di nascita nella tabella dei candidati sindaci
+  coalizioni_sim <- coalizioni_sim[
+    dati_simulati$coalizioni[,.(COALIZIONE, DATA_DI_NASCITA)],
+    on = .(COALIZIONE)
   ]
+  
   
   # Separo i data.table
   liste_split <- split(
@@ -174,10 +185,15 @@ simula_comunali <- function(
     function(x) x$coalizioni
   ), idcol = "SIM")
   
-  liste_sim <- dati_simulati$liste[,.(LISTA, COLORE)][
-    liste_sim,
-    on = .(LISTA)
-  ]
+  # liste_sim <- dati_simulati$liste[,.(LISTA, COLORE)][
+  #   liste_sim,
+  #   on = .(LISTA)
+  # ]
+  # 
+  # coalizioni_sim <- dati_simulati$coalizioni[,.(COALIZIONI, COLORE)][
+  #   coalizioni_sim,
+  #   on = .(COALIZIONE)
+  # ]
   
   # Formattazione risultati
   liste_sim[
@@ -202,7 +218,8 @@ simula_comunali <- function(
     list(
       liste_sim = liste_sim,
       coalizioni_sim = coalizioni_sim,
-      liste = dati_simulati$liste
+      liste = dati_simulati$liste,
+      coalizioni = dati_simulati$coalizioni
     )
   )
 }
