@@ -91,27 +91,131 @@ plot_consiglio_comunale <- function(
       ,
       `:=`(
         Gruppo = paste(ifelse(SINDACO, "Sindaco", "Cand. sindaco"), COALIZIONE),
-        SEGGI = SINDACO + SEGGIO_CANDIDATO_SINDACO
+        ELETTI = SINDACO + SEGGIO_CANDIDATO_SINDACO
       )
     ],
     on = .(COALIZIONE)
   ]
   
   parlamento <- rbind(
-    liste[, c("Gruppo", "SEGGI", "COLORE")],
-    coalizioni[, c("Gruppo", "SEGGI", "COLORE")]
+    liste[, c("Gruppo", "ELETTI", "COLORE")],
+    coalizioni[, c("Gruppo", "ELETTI", "COLORE")]
   )
   
-  parlamento <- parlamento[parlamento$SEGGI > 0, ]
+  parlamento <- parlamento[parlamento$ELETTI > 0, ]
   
   ggplot2::ggplot(parlamento) +
-    ggpol::geom_parliament(ggplot2::aes(seats = SEGGI, fill = Gruppo), color = "black") +
+    ggpol::geom_parliament(ggplot2::aes(seats = ELETTI, fill = Gruppo), color = "black") +
     ggplot2::scale_fill_manual(values = parlamento$COLORE, labels = paste(
       parlamento$Gruppo,
       "-",
-      parlamento$SEGGI
+      parlamento$ELETTI
     )) +
     ggplot2::coord_fixed() +
     ggplot2::theme_void()
   
+}
+
+superamento_soglia_comunali <- function(
+  risultato
+) {
+  soglie <- risultato$liste_sim[
+    ,
+    .(PROB_ELEGGERE = mean(ELETTI > 0)),
+    by = .(LISTA)
+  ]
+  soglie_coalizioni <- risultato$coalizioni_sim[
+    ,
+    .(
+      PROB_ELEGGERE = mean(SINDACO + SEGGIO_CANDIDATO_SINDACO),
+      LISTA = paste("Cand. sindaco", COALIZIONE)
+    ),
+    by = .(COALIZIONE)
+  ]
+  
+  soglie <- rbind(
+    soglie[, .(LISTA, PROB_ELEGGERE)],
+    soglie_coalizioni[, .(LISTA, PROB_ELEGGERE)]
+  )
+  
+  soglie$PROB_ELEGGERE <- formattable::percent(soglie$PROB_ELEGGERE, 0)
+  tbl <- kableExtra::kbl(
+    soglie,
+    col.names = c("LISTA", "Prob."),
+    caption = "Prob. di eleggere qualcuno",
+    row.names = FALSE
+  )
+  tbl <- kableExtra::kable_minimal(tbl)
+  tbl
+}
+
+eletti_percentuale_xyplots <- function(
+    risultato
+) {
+  tapply(
+    risultato$liste_sim,
+    risultato$liste_sim$LISTA,
+    function(df) {
+      plot(
+        ELETTI ~ PERCENTUALE,
+        data = df,
+        col = COLORE,
+        xlab = "Percentuale sui voti validi",
+        main = df$LISTA[1]
+      )
+    }
+  )
+}
+
+grafici_eletti <- function(
+    risultato
+) {
+  grafico_eletti <- function(lista) {
+    lp <- risultato$liste_sim[LISTA == lista]
+    
+    nmax <- factor(
+      lp$ELETTI
+    )
+    colori <- colorRampPalette(
+      c(
+        "#000000",
+        risultato$liste[LISTA == lista, COLORE],
+        "#FFFFFF"
+      )
+    )(length(levels(nmax)))
+    tab <- spineplot(
+      nmax ~ I(
+        lp$PERCENTUALE*100
+      ),
+      breaks = unique(round(quantile(lp$PERCENTUALE*100, seq(0, 1, 0.1)))),
+      col = colori,
+      yaxlabels = NA,
+      ylab = NA,
+      xlab = "Percentuale sui voti validi",
+      main = lista
+    )
+    
+    # From https://stackoverflow.com/questions/74814855/how-can-i-plot-data-labels-over-spineplot-in-r
+    nums <- t(apply(tab, 1,rev))
+    pcts <- prop.table(cbind(0, nums), 1)
+    pcts <- t(apply(pcts, 1, cumsum))
+    yvals <- pcts[,-ncol(pcts)] + (pcts[,-1] - pcts[,-ncol(pcts)])/2
+    xvals <- cumsum(c(0, rowSums(nums)/sum(rowSums(nums))))
+    xvals <- xvals[-length(xvals)] + (xvals[-1] - xvals[-length(xvals)])/2
+    xvals <- array(xvals, dim=dim(yvals))
+    xvals <- c(xvals)
+    yvals <- c(yvals)
+    labs <- rep(colnames(nums), each = nrow(nums))
+    
+    text(x = xvals[nums > 5], y = yvals[nums > 5], labels = labs[nums > 5])
+    
+    # legend(
+    #   "topleft",
+    #   legend = levels(nmax),
+    #   fill = rev(colori),
+    #   title = "Eletti"
+    # )
+  }
+  
+  for (lista in risultato$liste[LISTA != "astensione", LISTA]) grafico_eletti(lista)
 }

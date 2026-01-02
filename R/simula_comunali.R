@@ -30,7 +30,7 @@
 #'  \item{VOTI_LISTA}{numero di voti simulati ricevuti dalla lista}
 #'  \item{PERCENTUALE}{rapporto tra voti ricevuti dalla lista e voti validi 
 #'    totali alle liste}
-#'  \item{SEGGI}{numero di seggi ottenuti dalla lista}
+#'  \item{ELETTI}{numero di seggi ottenuti dalla lista}
 #' }
 #' Il data.table \code{coalizioni_sim} contiene queste colonne:
 #' \describe{
@@ -46,7 +46,7 @@
 #'  \item{PERCENTUALE_LISTE}{rapporto tra i voti alle liste collegate al 
 #'  candidato sindaco e i voti validi totali alle liste}
 #'  \item{SINDACO}{\code{TRUE} se il candidato è eletto sindaco}
-#'  \item{SEGGI}{numero di seggi assegnati al gruppo di liste, compreso quello
+#'  \item{ELETTI}{numero di seggi assegnati al gruppo di liste, compreso quello
 #'  eventualmente assegnato al candidato sindaco non vincente}
 #'  \item{SEGGIO_CANDIDATO_SINDACO}{TRUE se uno dei seggi è riservato al 
 #'  candidato sindaco non vincente}
@@ -188,15 +188,15 @@ simula_comunali <- function(
     function(x) x$coalizioni
   ), idcol = "SIM")
   
-  # liste_sim <- dati_simulati$liste[,.(LISTA, COLORE)][
-  #   liste_sim,
-  #   on = .(LISTA)
-  # ]
-  # 
-  # coalizioni_sim <- dati_simulati$coalizioni[,.(COALIZIONI, COLORE)][
-  #   coalizioni_sim,
-  #   on = .(COALIZIONE)
-  # ]
+  liste_sim <- dati_simulati$liste[,.(LISTA, COLORE)][
+    liste_sim,
+    on = .(LISTA)
+  ]
+
+  coalizioni_sim <- dati_simulati$coalizioni[,.(COALIZIONE, COLORE)][
+    coalizioni_sim,
+    on = .(COALIZIONE)
+  ]
   
   # Formattazione risultati
   liste_sim[

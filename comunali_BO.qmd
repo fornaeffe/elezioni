@@ -62,4 +62,21 @@ plot_consiglio_comunale(risultato)
 
 ```
 
+### Probabilità di eleggere qualcuno
+
+```{r}
+superamento_soglia_comunali(risultato)
+```
+
+### Numero di seggi rispetto alle percentuali ottenute
+
+
+
+```{r}
+# eletti_percentuale_xyplots(risultato)
+```
+
+```{r}
+grafici_eletti(risultato)
+```
 

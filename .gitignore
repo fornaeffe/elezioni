@@ -45,5 +45,5 @@ vignettes/*.pdf
 
 # Output
 /_output/
-
-/index_files/
+/*_files/
+/*.html

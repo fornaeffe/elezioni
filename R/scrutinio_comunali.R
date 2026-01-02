@@ -312,7 +312,7 @@ scrutinio_comunali <- function(
   ]
   liste[
     ,
-    SEGGI := dHondt(
+    ELETTI := dHondt(
       VOTI_SOGLIA,
       SEGGI_DA_DISTRIBUIRE[1]
     ),
@@ -335,7 +335,7 @@ scrutinio_comunali <- function(
           COALIZIONE, 
           VOTI_LISTA, 
           PERCENTUALE, 
-          SEGGI
+          ELETTI
         )
       ],
       coalizioni = coalizioni[
@@ -349,7 +349,7 @@ scrutinio_comunali <- function(
           PERCENTUALE_SINDACO, 
           PERCENTUALE_LISTE,
           SINDACO,
-          SEGGI = SEGGI_10,
+          ELETTI = SEGGI_10,
           SEGGIO_CANDIDATO_SINDACO
         )]
     )
