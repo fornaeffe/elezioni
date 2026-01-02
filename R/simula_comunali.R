@@ -5,7 +5,7 @@
 #' @param data_elezione POSIXct, data della futura elezione da simulare
 #' @param simulaizoni numero di simulazioni da eseguire
 #'
-#' @returns una lista di data.table:
+#' @returns una lista:
 #' \describe{
 #'  \item{liste_sim}{data.table con i risultati della simulazione per ciascuna 
 #'    lista e ciascuna simulazione}
@@ -14,6 +14,8 @@
 #'  \item{liste}{data.table con i parametri di input per ciascuna lista}
 #'  \item{coalizioni}{data.table con i parametri di input per ciascun candidato
 #'  sindaco}
+#'  \item{num_consiglieri}{il numero di consiglieri di cui è composto il 
+#'  consiglio comunale, oltre al sindaco}
 #' }
 #'
 #' @export
@@ -64,6 +66,7 @@
 #'  \item{DATA}{data dell'ultima elezione in POSIXct}
 #'  \item{SIGMA_DELTA}{parametro che controlla la variabilità locale dei voti
 #'  alla lista}
+#'  \item{VOTI}{numero di voti ricevuti alle ultime elezioni}
 #' }
 #' Il data.table \code{coalizioni} contiene queste colonne:
 #' \describe{
@@ -219,7 +222,9 @@ simula_comunali <- function(
       liste_sim = liste_sim,
       coalizioni_sim = coalizioni_sim,
       liste = dati_simulati$liste,
-      coalizioni = dati_simulati$coalizioni
+      coalizioni = dati_simulati$coalizioni,
+      num_consiglieri = num_consiglieri,
+      pop_legale = pop_legale
     )
   )
 }

@@ -53,3 +53,13 @@ boxplot_percentuali(risultato)
 coalizioni_vincenti(risultato)
 
 ```
+
+### Composizione del Consiglio comunale
+
+```{r plot_consiglio_comunale}
+
+plot_consiglio_comunale(risultato)
+
+```
+
+

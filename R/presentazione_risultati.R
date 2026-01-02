@@ -53,3 +53,65 @@ coalizioni_vincenti <- function(
   
   tbl
 }
+
+plot_consiglio_comunale <- function(
+    risultato
+){
+  liste <- risultato$liste[LISTA != "astensione"]
+  
+  coalizioni <- risultato$coalizioni[
+    risultato$liste[
+      LISTA != "astensione",
+      .(
+        VOTI_SINDACO = sum(VOTI_LISTA),
+        VOTI_BALLOTTAGGIO = sum(VOTI_LISTA)
+      ),
+      by = .(COALIZIONE)
+    ],
+    on = .(COALIZIONE)
+  ]
+  
+  scrutinio <- scrutinio_comunali(
+    liste,
+    coalizioni,
+    risultato$pop_legale,
+    risultato$num_consiglieri
+  )
+  
+  liste <- liste[, .(LISTA, COLORE)][
+    scrutinio$liste[
+      ,
+      Gruppo := LISTA
+    ],
+    on = .(LISTA)
+  ]
+  
+  coalizioni <- coalizioni[, .(COALIZIONE, COLORE)][
+    scrutinio$coalizioni[
+      ,
+      `:=`(
+        Gruppo = paste(ifelse(SINDACO, "Sindaco", "Cand. sindaco"), COALIZIONE),
+        SEGGI = SINDACO + SEGGIO_CANDIDATO_SINDACO
+      )
+    ],
+    on = .(COALIZIONE)
+  ]
+  
+  parlamento <- rbind(
+    liste[, c("Gruppo", "SEGGI", "COLORE")],
+    coalizioni[, c("Gruppo", "SEGGI", "COLORE")]
+  )
+  
+  parlamento <- parlamento[parlamento$SEGGI > 0, ]
+  
+  ggplot2::ggplot(parlamento) +
+    ggpol::geom_parliament(ggplot2::aes(seats = SEGGI, fill = Gruppo), color = "black") +
+    ggplot2::scale_fill_manual(values = parlamento$COLORE, labels = paste(
+      parlamento$Gruppo,
+      "-",
+      parlamento$SEGGI
+    )) +
+    ggplot2::coord_fixed() +
+    ggplot2::theme_void()
+  
+}

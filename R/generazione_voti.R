@@ -190,6 +190,7 @@ genera_voti <- function(
         SIGMA_GLOBAL = sd(diff(.SD$LOGIT_P) / unclass(diff(.SD$DATA))^0.5),
         PERCENTUALE = PERCENTUALE[.N],
         LOGIT_P = LOGIT_P[.N],
+        VOTI_LISTA = VOTI[.N],
         DATA = DATA[.N]
       ),
       by = .(LISTA)
