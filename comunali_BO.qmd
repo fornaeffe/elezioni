@@ -45,3 +45,12 @@ lista.
 ```{r}
 boxplot_percentuali(risultato)
 ```
+
+### Coalizioni vincenti
+
+```{r vincenti}
+
+
+
+
+```

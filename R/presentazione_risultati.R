@@ -24,7 +24,7 @@ boxplot_percentuali <- function(
     las=1,
     xlab = "Percentuale sui voti validi",
     ylab = NA,
-    col = x$COLORE,
+    col = risultato$liste[LISTA != "astensione", COLORE],
     cex.axis = 0.8
   )
   
