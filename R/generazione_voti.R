@@ -153,6 +153,7 @@ genera_voti <- function(
     ELETTORI := sum(VOTI),
     by = .(CODICE_COMUNE, ELEZIONE)
   ]
+  # TODO verificare se si può riusare il valore elettori preso dai dati
   
   # Calcolo le percentuali per ciascuna provincia e ciascuna elezione
   comuni_liste_elezioni[, PERCENTUALE := VOTI / ELETTORI]

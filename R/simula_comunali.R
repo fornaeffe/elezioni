@@ -16,6 +16,10 @@
 #'  sindaco}
 #'  \item{num_consiglieri}{il numero di consiglieri di cui è composto il 
 #'  consiglio comunale, oltre al sindaco}
+#'  \item{liste_elezioni}{data.table con i risultati delle liste (o delle liste
+#'  affini) nelle precedenti elezioni}
+#'  \item{comuni_liste}{data.table con i parametri di input per ciascuna lista
+#'  in ciascun comune}
 #' }
 #'
 #' @export
@@ -101,6 +105,7 @@ simula_comunali <- function(
     on = .(LISTA)
   ]
   
+  # Rimuovo i dati sull'astensione
   liste_sim <- liste_sim[
     LISTA != "astensione"
   ]
@@ -192,6 +197,8 @@ simula_comunali <- function(
     liste_sim,
     on = .(LISTA)
   ]
+  
+  
 
   coalizioni_sim <- dati_simulati$coalizioni[,.(COALIZIONE, COLORE)][
     coalizioni_sim,
@@ -224,7 +231,9 @@ simula_comunali <- function(
       liste = dati_simulati$liste,
       coalizioni = dati_simulati$coalizioni,
       num_consiglieri = num_consiglieri,
-      pop_legale = pop_legale
+      pop_legale = pop_legale,
+      liste_elezioni = dati_simulati$liste_elezioni,
+      comuni_liste = dati_simulati$comuni_liste
     )
   )
 }

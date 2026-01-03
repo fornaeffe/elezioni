@@ -27,7 +27,6 @@ data_elezione <- as.POSIXct("2027-03-01")
 
 ```{r simulazione}
 #| include: false
-#| cache: true
 
 risultato <- simula_comunali(comune, scenario, data_elezione)
 
@@ -57,6 +56,7 @@ coalizioni_vincenti(risultato)
 ### Composizione del Consiglio comunale
 
 ```{r plot_consiglio_comunale}
+#| warning: false 
 
 plot_consiglio_comunale(risultato)
 
@@ -73,7 +73,8 @@ superamento_soglia_comunali(risultato)
 
 
 ```{r}
-eletti_percentuale_xyplots(risultato)
+eletti_percentuale_xyplots_liste(risultato)
+eletti_percentuale_xyplots_coalizioni_comunali(risultato)
 ```
 
 Nei grafici seguenti ogni colonna rappresenta i numeri di seggi che la lista può
@@ -89,5 +90,25 @@ validi al candidato sindaco) possono essere eletti come sindaco o come consiglie
 
 ```{r}
 grafici_eletti_comunali(risultato)
+```
+
+### Probabilità di elezione per ciascuna posizione
+
+```{r}
+disegna_tabella_prob_comunali(risultato)
+```
+
+# Approfondimenti
+
+{{< include _spiegazione_metodo.qmd >}}
+
+```{r}
+#| fig.width: 8
+#| fig-height: 8
+#| dpi: 100
+
+
+par(mar=c(15.1, 4.1, 4.1, 2.1), xpd=TRUE)
+andamento_passato(risultato)
 ```
 

@@ -149,26 +149,65 @@ superamento_soglia_comunali <- function(
   tbl
 }
 
-eletti_percentuale_xyplots <- function(
+eletti_percentuale_xyplot <- function(
+    ELETTI,
+    PERCENTUALE,
+    COLORE,
+    TITOLO
+){
+  p <- plot(
+    ELETTI ~ PERCENTUALE,
+    pch = 16,
+    col = paste0(COLORE, "10"),
+    xlab = "Percentuale sui voti validi",
+    xaxt = "n",
+    main = TITOLO
+  )
+  ticks <- formattable::percent(pretty(PERCENTUALE), 0)
+  axis(side = 1, at = ticks, labels = ticks)
+  
+  invisible(p)
+}
+
+eletti_percentuale_xyplots_liste <- function(
     risultato
 ) {
-  tapply(
-    risultato$liste_sim,
-    risultato$liste_sim$LISTA,
-    function(df) {
-      plot(
-        ELETTI ~ PERCENTUALE,
-        data = df,
-        pch = 16,
-        col = paste0(COLORE, "10"),
-        xlab = "Percentuale sui voti validi",
-        xaxt = "n",
-        main = df$LISTA[1]
+  
+  spl <- split(risultato$liste_sim, by = "LISTA")
+  
+  lapply(
+    names(spl),
+    function(g) {
+      eletti_percentuale_xyplot(
+        spl[[g]]$ELETTI,
+        spl[[g]]$PERCENTUALE,
+        risultato$liste[LISTA == g]$COLORE,
+        g
       )
-      ticks <- formattable::percent(pretty(df$PERCENTUALE), 0)
-      axis(side = 1, at = ticks, labels = ticks)
     }
   )
+  
+  invisible()
+}
+
+eletti_percentuale_xyplots_coalizioni_comunali <- function(
+    risultato
+){
+  spl <- split(risultato$coalizioni_sim, by = "COALIZIONE")
+  
+  lapply(
+    names(spl),
+    function(g) {
+      eletti_percentuale_xyplot(
+        spl[[g]]$ELETTI + spl[[g]]$SINDACO,
+        spl[[g]]$PERCENTUALE_SINDACO,
+        risultato$coalizioni[COALIZIONE == g]$COLORE,
+        g
+      )
+    }
+  )
+  
+  invisible()
 }
 
 grafico_eletti <- function(nmax, PERCENTUALE, lista, COLORE) {
@@ -205,24 +244,29 @@ grafico_eletti <- function(nmax, PERCENTUALE, lista, COLORE) {
   labs <- rep(colnames(nums), each = nrow(nums))
   
   text(x = xvals[nums > 5], y = yvals[nums > 5], labels = labs[nums > 5])
+  
+  invisible(tab)
 }
 
 grafici_eletti <- function(
     risultato
 ) {
   
-  risultato$liste_sim[
-    ,
-    grafico_eletti(
-      factor(ELETTI),
-      PERCENTUALE,
-      LISTA,
-      COLORE
-    ),
-    by = .(LISTA, COLORE)
-  ]
+  spl <- split(risultato$liste_sim, by = "LISTA")
   
+  lapply(
+    names(spl),
+    function(g) {
+      grafico_eletti(
+        factor(spl[[g]]$ELETTI),
+        spl[[g]]$PERCENTUALE,
+        g,
+        risultato$liste[LISTA == g]$COLORE
+      )
+    }
+  )
   
+  invisible()
 }
 
 grafici_eletti_comunali <- function(
@@ -238,14 +282,134 @@ grafici_eletti_comunali <- function(
     labels = c("0", "Cons.", "Sind.")
   )]
   
-  coalizioni_sim[
-    ,
-    grafico_eletti(
-      ELETTI,
-      PERCENTUALE,
-      paste("Cand. sindaco", COALIZIONE),
-      COLORE
-    ),
-    by = .(COALIZIONE, COLORE)
+  spl <- split(coalizioni_sim, by = "COALIZIONE")
+  
+  lapply(
+    names(spl),
+    function(g) {
+      grafico_eletti(
+        spl[[g]]$ELETTI,
+        spl[[g]]$PERCENTUALE,
+        paste("Cand. sindaco", g),
+        risultato$coalizioni[COALIZIONE == g]$COLORE
+      )
+    }
+  )
+  
+  invisible()
+}
+
+disegna_tabella_prob_comunali <- function(risultato) {
+  lp <- data.table::copy(risultato$liste_sim)
+  lp$ELETTI <- factor(lp$ELETTI, levels = 0:risultato$num_consiglieri)
+  tbl <- table(lp$LISTA, lp$ELETTI)
+  tbl2 <- apply(
+    tbl,
+    1,
+    function(x) {
+      rev(cumsum(rev(x[-1]))) / sum(x)
+    }
+  )
+  
+  tbl2 <- as.data.frame(tbl2)
+  for (i in 1:ncol(tbl2)) {
+    tbl2[,i] <- formattable::percent(tbl2[, i], 1)
+  }
+  
+  kb <- kableExtra::kbl(tbl2, row.names = TRUE)
+  kb <- kableExtra::kable_minimal(kb)
+  
+  valori_hsv <- rgb2hsv(col2rgb(risultato$liste[LISTA != "astensione"]$COLORE))
+  
+  for (i in 1:ncol(tbl2)) {
+    kb <- kableExtra::column_spec(
+      kb,
+      i+1,
+      background = hsv(
+        valori_hsv["h", i], 
+        valori_hsv["s", i]*tbl2[,i], 
+        1
+      )
+    )
+  }
+  kb
+}
+
+andamento_passato <- function(risultato, log_percent = FALSE) {
+  elettori <- risultato$comuni_liste[
+    LISTA == "astensione",
+    sum(ELETTORI)
   ]
+  astenuti <- risultato$liste_sim[
+    ,
+    .(
+      LISTA = "astensione",
+      VOTI_LISTA = elettori - sum(VOTI_LISTA),
+      COLORE = risultato$liste[LISTA == "astensione", COLORE]
+    ),
+    by = .(SIM)
+  ]
+  liste_sim <- rbind(risultato$liste_sim, astenuti, fill = TRUE)
+  liste_sim[
+    ,
+    PERCENTUALE_ELETTORI := VOTI_LISTA / elettori
+  ]
+  
+  lista_elezione <- merge(
+    risultato$liste_elezioni,
+    risultato$liste[, c("LISTA", "COLORE")],
+    by = "LISTA"
+  )
+  
+  # Ordino secondo la data 
+  lista_elezione <- lista_elezione[order(lista_elezione$DATA),]
+  
+  
+  
+  # Grafico dell'andamento della percentuale in base alla data
+  plot(
+    PERCENTUALE * 100 ~ DATA, 
+    data = lista_elezione, 
+    pch = "",
+    ylab = "Percentuale sugli elettori",
+    xlim = c(min(DATA), data_elezione),
+    ylim = c(0, max(liste_sim[
+      ,
+      .(MAX = 100*quantile(PERCENTUALE_ELETTORI, .975)),
+      by = .(LISTA)
+    ]$MAX)),
+    log = ifelse(log_percent, "y", "")
+  )
+  tapply(lista_elezione, lista_elezione$LISTA, function(df) {
+    lines(PERCENTUALE * 100 ~ DATA, data = df, col = df$COLORE, lwd = 2)
+  })
+  
+  for (lista in risultato$liste$LISTA) {
+    y0 <- 100*plogis(risultato$liste$LOGIT_P[risultato$liste$LISTA == lista])
+    y1 <- 100*quantile(
+      liste_sim$PERCENTUALE_ELETTORI[liste_sim$LISTA == lista],
+      0.975
+    )
+    y2 <- 100*quantile(
+      liste_sim$PERCENTUALE_ELETTORI[liste_sim$LISTA == lista],
+      0.025
+    )
+    polygon(
+      c(risultato$liste$DATA[risultato$liste$LISTA == lista], data_elezione, data_elezione),
+      c(y0, y1, y2),
+      border = risultato$liste$COLORE[risultato$liste$LISTA == lista],
+      col = adjustcolor(risultato$liste$COLORE[risultato$liste$LISTA == lista], alpha.f = 0.5)
+    )
+  }
+  
+  legend(
+    "bottomleft", 
+    inset=c(0,-0.6), 
+    legend=risultato$liste$LISTA, 
+    lwd = 2, 
+    col = risultato$liste$COLORE,
+    ncol = 2
+  )
+  
+  
 }
