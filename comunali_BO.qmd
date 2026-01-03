@@ -73,8 +73,19 @@ superamento_soglia_comunali(risultato)
 
 
 ```{r}
-# eletti_percentuale_xyplots(risultato)
+eletti_percentuale_xyplots(risultato)
 ```
+
+Nei grafici seguenti ogni colonna rappresenta i numeri di seggi che la lista può
+ottenere se prende una percentuale compresa tra i due estremi della colonna.
+Ad esempio, se la colonna tra le percentuali 3 e 4 comprende due celle di 
+dimensioni simili, con scritto 1 e 2, significa che se la lista prende tra il 3%
+e il 4% può eleggere uno o due consiglieri, e queste due possibilità hanno 
+probabilità simili. Ad area uguale corrisponde una uguale probabilità di ottenere
+quei risultati.
+
+I grafici relativi ai candidati sindaco indicano con quale percentuale (dei voti
+validi al candidato sindaco) possono essere eletti come sindaco o come consigliere.
 
 ```{r}
 grafici_eletti_comunali(risultato)

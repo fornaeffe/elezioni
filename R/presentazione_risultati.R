@@ -159,10 +159,14 @@ eletti_percentuale_xyplots <- function(
       plot(
         ELETTI ~ PERCENTUALE,
         data = df,
-        col = COLORE,
+        pch = 16,
+        col = paste0(COLORE, "10"),
         xlab = "Percentuale sui voti validi",
+        xaxt = "n",
         main = df$LISTA[1]
       )
+      ticks <- formattable::percent(pretty(df$PERCENTUALE), 0)
+      axis(side = 1, at = ticks, labels = ticks)
     }
   )
 }
@@ -177,18 +181,17 @@ grafico_eletti <- function(nmax, PERCENTUALE, lista, COLORE) {
       "#FFFFFF"
     )
   )(length(levels(nmax)) + 1)[-1]
+  ticks <- formattable::percent(unique(round(quantile(PERCENTUALE, seq(0, 1, 0.1)), 2)), 0)
   tab <- spineplot(
-    nmax ~ I(
-      PERCENTUALE*100
-    ),
-    breaks = unique(round(quantile(PERCENTUALE*100, seq(0, 1, 0.1)))),
+    nmax ~ PERCENTUALE,
+    breaks = ticks,
     col = colori,
     yaxlabels = NA,
+    xaxlabels = ticks,
     ylab = NA,
     xlab = "Percentuale sui voti validi",
     main = lista
   )
-  
   # From https://stackoverflow.com/questions/74814855/how-can-i-plot-data-labels-over-spineplot-in-r
   nums <- t(apply(tab, 1,rev))
   pcts <- prop.table(cbind(0, nums), 1)
