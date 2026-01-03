@@ -167,55 +167,82 @@ eletti_percentuale_xyplots <- function(
   )
 }
 
+grafico_eletti <- function(nmax, PERCENTUALE, lista, COLORE) {
+  
+  colori <- colorRampPalette(
+    
+    c(
+      "#000000",
+      COLORE,
+      "#FFFFFF"
+    )
+  )(length(levels(nmax)) + 1)[-1]
+  tab <- spineplot(
+    nmax ~ I(
+      PERCENTUALE*100
+    ),
+    breaks = unique(round(quantile(PERCENTUALE*100, seq(0, 1, 0.1)))),
+    col = colori,
+    yaxlabels = NA,
+    ylab = NA,
+    xlab = "Percentuale sui voti validi",
+    main = lista
+  )
+  
+  # From https://stackoverflow.com/questions/74814855/how-can-i-plot-data-labels-over-spineplot-in-r
+  nums <- t(apply(tab, 1,rev))
+  pcts <- prop.table(cbind(0, nums), 1)
+  pcts <- t(apply(pcts, 1, cumsum))
+  yvals <- pcts[,-ncol(pcts)] + (pcts[,-1] - pcts[,-ncol(pcts)])/2
+  xvals <- cumsum(c(0, rowSums(nums)/sum(rowSums(nums))))
+  xvals <- xvals[-length(xvals)] + (xvals[-1] - xvals[-length(xvals)])/2
+  xvals <- array(xvals, dim=dim(yvals))
+  xvals <- c(xvals)
+  yvals <- c(yvals)
+  labs <- rep(colnames(nums), each = nrow(nums))
+  
+  text(x = xvals[nums > 5], y = yvals[nums > 5], labels = labs[nums > 5])
+}
+
 grafici_eletti <- function(
     risultato
 ) {
-  grafico_eletti <- function(lista) {
-    lp <- risultato$liste_sim[LISTA == lista]
-    
-    nmax <- factor(
-      lp$ELETTI
-    )
-    colori <- colorRampPalette(
-      c(
-        "#000000",
-        risultato$liste[LISTA == lista, COLORE],
-        "#FFFFFF"
-      )
-    )(length(levels(nmax)))
-    tab <- spineplot(
-      nmax ~ I(
-        lp$PERCENTUALE*100
-      ),
-      breaks = unique(round(quantile(lp$PERCENTUALE*100, seq(0, 1, 0.1)))),
-      col = colori,
-      yaxlabels = NA,
-      ylab = NA,
-      xlab = "Percentuale sui voti validi",
-      main = lista
-    )
-    
-    # From https://stackoverflow.com/questions/74814855/how-can-i-plot-data-labels-over-spineplot-in-r
-    nums <- t(apply(tab, 1,rev))
-    pcts <- prop.table(cbind(0, nums), 1)
-    pcts <- t(apply(pcts, 1, cumsum))
-    yvals <- pcts[,-ncol(pcts)] + (pcts[,-1] - pcts[,-ncol(pcts)])/2
-    xvals <- cumsum(c(0, rowSums(nums)/sum(rowSums(nums))))
-    xvals <- xvals[-length(xvals)] + (xvals[-1] - xvals[-length(xvals)])/2
-    xvals <- array(xvals, dim=dim(yvals))
-    xvals <- c(xvals)
-    yvals <- c(yvals)
-    labs <- rep(colnames(nums), each = nrow(nums))
-    
-    text(x = xvals[nums > 5], y = yvals[nums > 5], labels = labs[nums > 5])
-    
-    # legend(
-    #   "topleft",
-    #   legend = levels(nmax),
-    #   fill = rev(colori),
-    #   title = "Eletti"
-    # )
-  }
   
-  for (lista in risultato$liste[LISTA != "astensione", LISTA]) grafico_eletti(lista)
+  risultato$liste_sim[
+    ,
+    grafico_eletti(
+      factor(ELETTI),
+      PERCENTUALE,
+      LISTA,
+      COLORE
+    ),
+    by = .(LISTA, COLORE)
+  ]
+  
+  
+}
+
+grafici_eletti_comunali <- function(
+    risultato
+){
+  grafici_eletti(risultato)
+  
+  coalizioni_sim <- data.table::copy(risultato$coalizioni_sim)
+  coalizioni_sim[, PERCENTUALE := PERCENTUALE_SINDACO]
+  coalizioni_sim[, ELETTI := factor(
+    2 * SINDACO + SEGGIO_CANDIDATO_SINDACO,
+    levels = 0:2,
+    labels = c("0", "Cons.", "Sind.")
+  )]
+  
+  coalizioni_sim[
+    ,
+    grafico_eletti(
+      ELETTI,
+      PERCENTUALE,
+      paste("Cand. sindaco", COALIZIONE),
+      COLORE
+    ),
+    by = .(COALIZIONE, COLORE)
+  ]
 }

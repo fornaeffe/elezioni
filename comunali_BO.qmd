@@ -77,6 +77,6 @@ superamento_soglia_comunali(risultato)
 ```
 
 ```{r}
-grafici_eletti(risultato)
+grafici_eletti_comunali(risultato)
 ```
 
