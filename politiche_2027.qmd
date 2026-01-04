@@ -1,0 +1,230 @@
+---
+title: "Elezioni del comune di Bologna 2027"
+author: "Luca Fornasari"
+date: "`r Sys.Date()`"
+format: 
+  html:
+    self-contained: true
+---
+
+Simulazione delle prossime elezioni
+politiche, ottenuta
+partendo dai risultati delle elezioni regionali 2024.
+Vengono eseguite 1000 simulazioni, in ciascuna di esse le percentuali che ciascuna
+lista ha preso alle elezioni europee in ciascuna provincia 
+vengono aumentate o diminuite casualmente di una quantità che sia coerente
+con la variabilità che ha avuto nel passato la percentuale di quella lista.
+Per i dettagli vedere in fondo negli approfondimenti.
+
+Avverto che ho fatto questa simulazione per curiosità e non per lavoro, e che
+potrebbero essermi sfuggiti degli errori nel processo di
+simulazione, i risultati vanno dunque presi senza alcuna garanzia di
+accuratezza.
+
+Segnalazioni, richieste e suggerimenti a <fornaeffe@gmail.com> o sul repository
+<https://github.com/fornaeffe/elezioni-EMR>.
+
+```{r setup}
+#| include: false
+knitr::opts_chunk$set(echo = FALSE)
+
+source("R/caricamento_dati.R")
+source("R/generazione_voti.R")
+source("R/presentazione_risultati.R")
+
+scenario <- "scenari/politiche_2027.xlsx"
+
+data_elezione <- as.POSIXct("2027-03-01")
+
+```
+
+```{r simulazione}
+#| include: false
+
+risultato <- simula_comunali(comune, scenario, data_elezione)
+
+```
+
+## Dati
+Di seguito le liste che si ipotizza si presentino alle prossime elezioni,
+insieme con il loro risultato alle ultime elezioni. Per le liste che alle ultime
+elezioni erano presenti sotto diverso nome è stato stimato il risultato 
+partendo da liste affini. In particolare i voti di Alleanza Verdi Sinistra 
+sono stati divisi tra Europa Verde e Sinistra
+Italiana secondo il rapporto tra le preferenze delle due candidate più votate
+alle scorse elezioni regionali (Silvia Zamboni e Simona Larghetti).
+```{r}
+tabella_dati(risultato)
+```
+
+### Percentuali per lista
+
+Questo grafico mostra le percentuali simulate per ciascuna 
+lista.
+```{r}
+boxplot_percentuali(risultato)
+```
+
+### Coalizioni vincenti
+
+```{r vincenti}
+
+coalizioni_vincenti(risultato)
+
+```
+
+### Composizione del Consiglio comunale
+Di seguito viene mostrata la composizione del consiglio comunale se le liste
+ottenessero lo stesso risultato delle ultime elezioni (regionali 2024).
+
+```{r plot_consiglio_comunale}
+#| warning: false 
+
+plot_consiglio_comunale(risultato)
+
+```
+
+### Probabilità di eleggere qualcuno
+Di seguito, la probabilità per ciascuna lista di eleggere almeno un consigliere
+e, in fondo, la probabilità che ciascun candidato sindaco venga eletto
+(o come sindaco o come consigliere).
+
+```{r}
+superamento_soglia_comunali(risultato)
+```
+
+### Numero di seggi rispetto alle percentuali ottenute
+
+I grafici seguenti riportano il numero di seggi ottenuti rispetto alla percentuale
+di voti validi ottenuta. Ogni punto corrisponde ad una simulazione, dove il colore
+è più accesso il risultato è più probabile (più simulazioni hanno ottenuto lo
+stesso risultato).
+
+```{r}
+eletti_percentuale_xyplots_liste(risultato)
+
+```
+
+Nei grafici seguenti è mostrato il numero di consiglieri a seconda della percentuale
+per ciascun gruppo di 
+liste collegato ad uno stesso candidato sindaco, compreso il sindaco o il candidato
+sindaco eventualmente eletto come consigliere.
+
+```{r}
+eletti_percentuale_xyplots_coalizioni_comunali(risultato)
+```
+
+
+
+Nei grafici seguenti ogni colonna rappresenta i numeri di seggi che la lista può
+ottenere se prende una percentuale compresa tra i due estremi della colonna.
+Ad esempio, se la colonna tra le percentuali 3 e 4 comprende due celle di 
+dimensioni simili, con scritto 1 e 2, significa che se la lista prende tra il 3%
+e il 4% può eleggere uno o due consiglieri, e queste due possibilità hanno 
+probabilità simili. Ad area uguale corrisponde una uguale probabilità di ottenere
+quei risultati.
+
+I grafici relativi ai candidati sindaco indicano con quale percentuale (dei voti
+validi al candidato sindaco) possono essere eletti come sindaco o come consigliere.
+
+```{r}
+grafici_eletti_comunali(risultato)
+```
+
+### Probabilità di elezione per ciascuna posizione
+
+```{r}
+disegna_tabella_prob_comunali(risultato)
+```
+
+# Approfondimenti
+
+
+Per predire il numero di voti che ciascuna lista prenderà alle prossime
+elezioni regionali in ciascuna provincia ho ipotizzato che i voti presi da
+ciascuna lista seguano il modello che descrivo qui di seguito.
+
+Ho ipotizzato che la percentuale (sul totale degli elettori) della 
+lista $l$ nell'elezione $t$ (trasformata attraverso la funzione 
+$\operatorname{logit}$ affinché non sia vincolata tra 0 e 1) sia uguale alla 
+percentuale della stessa lista nell'elezione precedente ($t-1$) 
+(anch'essa trasformata tramite $\operatorname{logit}$), più una quantità 
+(positiva o negativa) che dipende dal tempo trascorso tra le due elezioni e da 
+una "velocità" di cambiamento casuale, con una distribuzione normale e una 
+deviazione standard che può variare da lista a lista (ci saranno liste più 
+stabili, le cui velocità di cambiamento saranno vicine allo zero, e liste meno
+stabili con velocità di cambiamento che possono discostarsi maggiormente dallo 
+zero).
+
+$$ \operatorname{logit}(P_{l,t}) = \operatorname{logit}(P_{l,t-1}) 
++ \sqrt{data_t - data_{t-1}} \cdot v_{l, t} $$
+
+$$ v_{l, t} \sim \mathcal{N}(0, \sigma_{l})$$
+
+Dove 
+
+* $P_{l,t}$ è la percentuale (sul totale degli aventi diritto al voto)
+della lista $l$ all'elezione $t$,
+* $P_{t-1}$ è la percentuale della lista $l$ all'elezione precedente ($t-1$),
+* $data_t$ e $data_{t-1}$ sono le date delle due elezioni,
+* $v_{l, t}$ è la velocità di cambiamento della percentuale trasformata
+della lista $l$ tra l'elezione $t-1$ e l'elezione $t$
+* $\sigma_{l}$ è la deviazione standard delle velocità di cambiamento della
+percentuale (logit-trasformata) della lista $l$.
+
+Considero l'astensione come una lista a sé.
+
+
+Dai dati sulle elezioni precedenti ottengo quindi:
+
+* per ciascuna lista $l$, la deviazione standard $\sigma_{l}$ delle velocità
+di cambiamento delle percentuali trasformate;
+* per ciascuna lista $l$, la percentuale regionale trasformata 
+$\operatorname{logit}(P_{l,ultime\ elezioni})$ ottenuta alle ultime elezioni;
+
+
+
+Per fare una simulazione dei voti delle prossime elezioni, quindi:
+
+1. calcolo il tempo che trascorrerà tra le ultime elezioni e una probabile 
+data delle prossime elezioni regionali
+2. estraggo a sorte, per ciascuna lista $l$, le velocità di cambiamento
+$v_{l, prossime\ elezioni}$ delle percentuali regionali;
+3. attraverso le equazioni sopra, calcolo le nuove percentuali.
+
+Le percentuali così ottenute vengono poi scalate in modo che la 
+somma di tutte le percentuali della provincia faccia 1:
+
+$$\hat{P}_{l, prossime\ elezioni} = \frac{P_{l, prossime\ elezioni}}
+{\displaystyle{\sum_{l \in Liste } P_{l, prossime\ elezioni}}}$$
+
+dove $\hat{P}_{l,prossime\ elezioni}$ è la percentuale scalata della lista $l$, 
+simulata per le prossime elezioni regionali.
+
+Quest'ultima percentuale viene poi moltiplicata per gli elettori, per ottenere
+il numero di voti ricevuti da ciascuna lista in ciascuna provincia.
+
+Con questi voti viene poi simulato uno scrutinio, seguendo quanto stabilito
+dalla legge elettorale regionale.
+
+## Serie storica dei risultati delle liste
+
+Di seguito la serie storica di elezioni considerate. Sono mostrate le
+percentuali di ciascuna lista rispetto al totale degli aventi diritto al voto.
+
+In alcuni casi i risultati passati della lista sono basati sul risultato di 
+liste affini.
+
+I triangoli sulla destra comprendono il 95% dei risultati simulati di ciascuna
+lista alle prossime elezioni.
+
+```{r}
+#| fig.width: 8
+#| fig-height: 8
+#| dpi: 100
+
+
+par(mar=c(15.1, 4.1, 4.1, 2.1), xpd=TRUE)
+andamento_passato(risultato)
+```
+

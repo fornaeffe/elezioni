@@ -518,7 +518,13 @@ scarica_dati <- function(cache = TRUE, cache_path = file.path(tempdir(), "dati.R
   
   
   # Salvataggio ----
-  dati <- list(comuni_liste_elezioni = comuni_liste_elezioni, pop_legale = pop_legale, preferenze = preferenze)
+  dati <- list(
+    comuni_liste_elezioni = comuni_liste_elezioni, 
+    pop_legale = pop_legale, 
+    preferenze = preferenze,
+    ISTAT = ISTAT,
+    ISTAT_traslazione = ISTAT_traslazione
+  )
   
   # Salvo il file
   if (cache) saveRDS(dati, file = cache_path)
@@ -571,7 +577,7 @@ carica_dati <- function(cache = TRUE, cache_path = file.path(tempdir(), "dati.RD
     dati <- scarica_dati(cache, cache_path)
   }
   
-  dati <- lapply(dati, filter_dt, filter = filtro)
+  dati[1:3] <- lapply(dati[1:3], filter_dt, filter = filtro)
   
   return(dati)
 }

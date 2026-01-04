@@ -26,6 +26,7 @@ crea_file_scenario <- function(
   # --- Scrittura file Excel ----------------------------------------
   scrittura <- list(
     liste_future = liste_future,
+    coalizioni_future = coalizioni_future,
     flussi_previsti = flussi_previsti
   )
   

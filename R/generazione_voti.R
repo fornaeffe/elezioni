@@ -58,11 +58,9 @@ simulazione <- function(sim, comuni_liste, liste, data_elezione) {
   
 }
 
-genera_voti <- function(
+calcola_parametri_input <- function(
     dati,
-    scenario,
-    data_elezione,
-    simulazioni = 1000
+    scenario
 ){
   
   liste <- data.table::as.data.table(readxl::read_xlsx(scenario, "liste_future"))
@@ -245,6 +243,25 @@ genera_voti <- function(
     on = .(LISTA)
   ]
   
+  return(
+    list(
+      liste = liste,
+      comuni_liste = comuni_liste,
+      liste_elezioni = liste_elezioni,
+      coalizioni = coalizioni
+    )
+  )
+}
+
+genera_voti <- function(
+    dati,
+    scenario,
+    data_elezione,
+    simulazioni = 1000
+){
+  
+  parametri_input <- calcola_parametri_input(dati, scenario)
+  
   # Simulo i voti nella futura elezione
   cl <- parallel::makeCluster(parallel::detectCores())
   
@@ -254,8 +271,8 @@ genera_voti <- function(
     cl,
     seq_len(simulazioni),
     simulazione,
-    comuni_liste = comuni_liste,
-    liste = liste,
+    comuni_liste = parametri_input$comuni_liste,
+    liste = parametri_input$liste,
     data_elezione = data_elezione
   )
   
@@ -266,10 +283,10 @@ genera_voti <- function(
   
   return(list(
     comuni_liste_sim = comuni_liste_sim,
-    liste = liste,
-    comuni_liste = comuni_liste,
-    liste_elezioni = liste_elezioni,
-    coalizioni = coalizioni
+    liste = parametri_input$liste,
+    comuni_liste = parametri_input$comuni_liste,
+    liste_elezioni = parametri_input$liste_elezioni,
+    coalizioni = parametri_input$coalizioni
   ))
 }
 
