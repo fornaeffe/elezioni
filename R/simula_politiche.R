@@ -1,3 +1,5 @@
+# ATTENZIONE: questa funzione richiede almeno 16 GB di RAM!
+
 simula_politiche <- function(
     scenario,
     data_elezione,
@@ -68,34 +70,49 @@ simula_politiche <- function(
   
   # Passo i parametri di input, generati su base comunale, alle singole
   # unità territoriali della base dati
-  unita_liste <- base_dati[
-    parametri_input$comuni_liste[,.(
-      CODICE_COMUNE,
-      LISTA,
-      DATA,
-      DELTA,
-      CODICE_REGIONE,
-      REGIONE,
-      CODICE_PROVINCIA,
-      PROVINCIA,
-      COMUNE,
-      SIGMA_DELTA
+  unita_liste <- parametri_input$comuni_liste[,.(
+    CODICE_COMUNE,
+    LISTA,
+    DATA,
+    DELTA,
+    SIGMA_DELTA
+  )][
+    base_dati[,.(
+      CODITA_20N,
+      POP_2011,
+      CU20_COD,
+      SU20_COD
     )],
     on = .(CODICE_COMUNE)
   ]
   
-  unita_liste[
-    ,
-    ELETTORI := POP_2011
-  ]
-  
   unita_liste_sim <- genera_voti(
-    dati,
-    unita_liste,
+    unita_liste[,.(
+      CODITA_20N,
+      LISTA,
+      DATA,
+      DELTA,
+      SIGMA_DELTA,
+      ELETTORI = POP_2011,
+      CU20_COD,
+      SU20_COD
+    )],
     parametri_input$liste,
     data_elezione,
     simulazioni,
     colonna_localita = "CODITA_20N"
   )
+  
+  SU_liste_sim <- unita_liste_sim[
+    ,
+    .(VOTI_LISTA_SIM = sum(VOTI_LISTA_SIM)),
+    by = .(SIM, SU20_COD, LISTA)
+  ]
+  
+  CU_liste_sim <- unita_liste_sim[
+    ,
+    .(VOTI_LISTA_SIM = sum(VOTI_LISTA_SIM)),
+    by = .(SIM, CU20_COD, LISTA)
+  ]
   
 }
