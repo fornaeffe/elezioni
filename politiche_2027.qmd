@@ -29,12 +29,15 @@ Segnalazioni, richieste e suggerimenti a <fornaeffe@gmail.com> o sul repository
 knitr::opts_chunk$set(echo = FALSE)
 
 source("R/caricamento_dati.R")
+source("R/calcolo_parametri_input.R")
 source("R/generazione_voti.R")
 source("R/presentazione_risultati.R")
 
 scenario <- "scenari/politiche_2027.xlsx"
 
 data_elezione <- as.POSIXct("2027-03-01")
+
+simulazioni <- 1000
 
 ```
 

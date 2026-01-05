@@ -332,6 +332,11 @@ disegna_tabella_prob_comunali <- function(risultato) {
       )
     )
   }
+  
+  kb <- kableExtra::kable_styling(
+    kb,
+    htmltable_class = "tabella-piccola"
+  )
   kb
 }
 
@@ -412,4 +417,18 @@ andamento_passato <- function(risultato, log_percent = FALSE) {
   )
   
   
+}
+
+tabella_flussi <- function(
+    risultato
+){
+  data.table::setorder(risultato$corrispondenza_liste, DATA, ELEZIONE, LISTA_ORIGINALE, LISTA)
+  tab <- kableExtra::kbl(
+    risultato$corrispondenza_liste[,.(ELEZIONE, LISTA_ORIGINALE, LISTA, FATTORE)],
+    col.names = c("ELEZIONE", "LISTA", "LISTA FUTURA", "FRAZIONE"),
+    caption = "Corrispondenza tra liste passate e future",
+    row.names = FALSE
+  )
+  tab <- kableExtra::kable_minimal(tab)
+  tab
 }

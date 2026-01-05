@@ -12,6 +12,36 @@ simula_politiche <- function(
     na.strings = ""
   )
   
+  # Aggiungo manualmente la modifica fatta dal governo alla proposta della 
+  # commissione, perché il file della proposta della commissione era più
+  # semplice da importare.
+  # TODO: importare direttamente e automaticamente i file definitivi
+  # dalla pagina https://www.riformeistituzionali.gov.it/it/i-nuovi-collegi-elettorali/
+  base_dati[
+    CU20_DEN == "Lazio 1 - U03",
+    `:=`(
+      CP20_DEN = "Lazio 1 - P01",
+      CP20_COD = 120101,
+      CP20_COD1 = "P01"
+    )
+  ]
+  base_dati[
+    CU20_DEN == "Lazio 1 - U08",
+    `:=`(
+      CP20_DEN = "Lazio 1 - P02",
+      CP20_COD = 120102,
+      CP20_COD1 = "P02"
+    )
+  ]
+  base_dati[
+    CU20_DEN == "Lazio 1 - U07",
+    `:=`(
+      CP20_DEN = "Lazio 1 - P03",
+      CP20_COD = 120103,
+      CP20_COD1 = "P03"
+    )
+  ]
+  
   # Aggiorno i codici comune delle unità territoriali della base dati collegi:
   # Converto i codici comune nella tabella ISTAT di traslazione (perché in 
   # base_dati sono numeric)
@@ -33,22 +63,39 @@ simula_politiche <- function(
     )
   ]
   
-  # Completo con i nomi e i codici aggiornati di provincia e regione
-  # base_dati[
-  #   dati$ISTAT,
-  #   on = .(CODICE_COMUNE = PRO_COM_T),
-  #   `:=`(
-  #     COMUNE = i.COMUNE,
-  #     CODICE_PROVINCIA = i.COD_UTS,
-  #     PROVINCIA = i.DEN_UTS,
-  #     CODICE_REGIONE = i.COD_REG,
-  #     REGIONE = i.DEN_REG
-  #   )
-  # ]
-  
   # Calcolo i parametri di input per la generazione dei voti
   parametri_input <- calcola_parametri_input(dati, scenario)
   
+  # Passo i parametri di input, generati su base comunale, alle singole
+  # unità territoriali della base dati
+  unita_liste <- base_dati[
+    parametri_input$comuni_liste[,.(
+      CODICE_COMUNE,
+      LISTA,
+      DATA,
+      DELTA,
+      CODICE_REGIONE,
+      REGIONE,
+      CODICE_PROVINCIA,
+      PROVINCIA,
+      COMUNE,
+      SIGMA_DELTA
+    )],
+    on = .(CODICE_COMUNE)
+  ]
   
+  unita_liste[
+    ,
+    ELETTORI := POP_2011
+  ]
+  
+  unita_liste_sim <- genera_voti(
+    dati,
+    unita_liste,
+    parametri_input$liste,
+    data_elezione,
+    simulazioni,
+    colonna_localita = "CODITA_20N"
+  )
   
 }

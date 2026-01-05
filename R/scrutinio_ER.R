@@ -774,13 +774,14 @@ scrutinio_regionali_ER <- function(
 }
 
 esegui_scrutini_ER <- function(
-    dati_simulati,
-    dati
+    comuni_liste_sim,
+    liste,
+    pop_legale
 ) {
   
   
   comuni_liste_sim_split <- split(
-    dati_simulati$comuni_liste_sim[
+    comuni_liste_sim[
       ,
       .(SIM, CODICE_COMUNE, COMUNE, LISTA, CODICE_PROVINCIA, PROVINCIA, VOTI_LISTA_SIM)
     ], 
@@ -797,8 +798,8 @@ esegui_scrutini_ER <- function(
     cl,
     comuni_liste_sim_split,
     scrutinio_regionali_ER,
-    pop_legale = dati$pop_legale,
-    liste = dati_simulati$liste
+    pop_legale = pop_legale,
+    liste = liste
   )
   
   parallel::stopCluster(cl)

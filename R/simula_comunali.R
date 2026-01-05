@@ -20,6 +20,8 @@
 #'  affini) nelle precedenti elezioni}
 #'  \item{comuni_liste}{data.table con i parametri di input per ciascuna lista
 #'  in ciascun comune}
+#'  \item{corrispondenza_liste}{data.table con la corrispondenza tra liste 
+#'  passate e liste delle future elezioni}
 #' }
 #'
 #' @export
@@ -96,12 +98,15 @@ simula_comunali <- function(
   # Stabilisco il numero di consiglieri
   num_consiglieri <- numero_consiglieri(dati$pop_legale[,POPOLAZIONE])
   
+  # Calcolo i parametri di input
+  parametri_input <- calcola_parametri_input(dati, scenario)
+  
   # Simulo i voti
-  dati_simulati <- genera_voti(dati, scenario, data_elezione, simulazioni)
+  comuni_liste_sim <- genera_voti(parametri_input$comuni_liste, parametri_input$liste, data_elezione, simulazioni)
   
   # Aggiungo la colonna coalizione al data.table delle liste
-  liste_sim <- dati_simulati$comuni_liste_sim[
-    dati_simulati$liste[, .(LISTA, COALIZIONE)],
+  liste_sim <- comuni_liste_sim[
+    parametri_input$liste[, .(LISTA, COALIZIONE)],
     on = .(LISTA)
   ]
   
@@ -122,7 +127,7 @@ simula_comunali <- function(
   
   # Copio data di nascita nella tabella dei candidati sindaci
   coalizioni_sim <- coalizioni_sim[
-    dati_simulati$coalizioni[,.(COALIZIONE, DATA_DI_NASCITA)],
+    parametri_input$coalizioni[,.(COALIZIONE, DATA_DI_NASCITA)],
     on = .(COALIZIONE)
   ]
   
@@ -193,14 +198,14 @@ simula_comunali <- function(
     function(x) x$coalizioni
   ), idcol = "SIM")
   
-  liste_sim <- dati_simulati$liste[,.(LISTA, COLORE)][
+  liste_sim <- parametri_input$liste[,.(LISTA, COLORE)][
     liste_sim,
     on = .(LISTA)
   ]
   
   
 
-  coalizioni_sim <- dati_simulati$coalizioni[,.(COALIZIONE, COLORE)][
+  coalizioni_sim <- parametri_input$coalizioni[,.(COALIZIONE, COLORE)][
     coalizioni_sim,
     on = .(COALIZIONE)
   ]
@@ -219,7 +224,7 @@ simula_comunali <- function(
     )
   ]
   
-  dati_simulati$liste[
+  parametri_input$liste[
     ,
     PERCENTUALE := formattable::percent(PERCENTUALE, 2)
   ]
@@ -228,12 +233,13 @@ simula_comunali <- function(
     list(
       liste_sim = liste_sim,
       coalizioni_sim = coalizioni_sim,
-      liste = dati_simulati$liste,
-      coalizioni = dati_simulati$coalizioni,
+      liste = parametri_input$liste,
+      coalizioni = parametri_input$coalizioni,
       num_consiglieri = num_consiglieri,
       pop_legale = pop_legale,
-      liste_elezioni = dati_simulati$liste_elezioni,
-      comuni_liste = dati_simulati$comuni_liste
+      liste_elezioni = parametri_input$liste_elezioni,
+      comuni_liste = parametri_input$comuni_liste,
+      corrispondenza_liste = parametri_input$corrispondenza_liste
     )
   )
 }

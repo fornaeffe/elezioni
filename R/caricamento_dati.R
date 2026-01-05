@@ -127,6 +127,9 @@ ISTAT_API <- function(url) {
 }
 
 scarica_dati <- function(cache = TRUE, cache_path = file.path(tempdir(), "dati.RData")) {
+  
+  cat("\nScarico i dati dal web...\n")
+  
   #### Codici statistici e unità territoriali ####
   
   ISTAT <- ISTAT_API("https://situas-servizi.istat.it/publish/reportspooljson?pfun=61&pdata=")
@@ -527,7 +530,15 @@ scarica_dati <- function(cache = TRUE, cache_path = file.path(tempdir(), "dati.R
   )
   
   # Salvo il file
-  if (cache) saveRDS(dati, file = cache_path)
+  if (cache) {
+    if (!dir.exists(dirname(cache_path))) {
+      dir.create(
+        dirname(cache_path),
+        recursive = TRUE
+      )
+    }
+    saveRDS(dati, file = cache_path)
+  }
   
   return(dati)
   
@@ -574,6 +585,7 @@ carica_dati <- function(cache = TRUE, cache_path = file.path(tempdir(), "dati.RD
   if (cache & file.exists(cache_path)) {
     dati <- readRDS(cache_path)
   } else {
+    
     dati <- scarica_dati(cache, cache_path)
   }
   

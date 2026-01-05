@@ -29,6 +29,7 @@ Segnalazioni, richieste e suggerimenti a <fornaeffe@gmail.com> o sul repository
 knitr::opts_chunk$set(echo = FALSE)
 
 source("R/caricamento_dati.R")
+source("R/calcolo_parametri_input.R")
 source("R/generazione_voti.R")
 source("R/scrutinio_comunali.R")
 source("R/simula_comunali.R")
@@ -36,7 +37,7 @@ source("R/presentazione_risultati.R")
 
 comune <- "Bologna"
 
-scenario <- "scenari/BO_soli.xlsx"
+scenario <- "scenari/BO_soli_fuori_coal.xlsx"
 
 data_elezione <- as.POSIXct("2027-03-01")
 
@@ -137,6 +138,12 @@ grafici_eletti_comunali(risultato)
 
 ### Probabilità di elezione per ciascuna posizione
 
+```{css}
+.tabella-piccola {
+  font-size: 0.6em;
+}
+```
+
 ```{r}
 disegna_tabella_prob_comunali(risultato)
 ```
@@ -230,5 +237,14 @@ lista alle prossime elezioni.
 
 par(mar=c(15.1, 4.1, 4.1, 2.1), xpd=TRUE)
 andamento_passato(risultato)
+```
+
+La tabella seguente mostra le liste passate usate per stimare la percentuale
+di elettori che voteranno per ciascuna lista alle future elezioni.
+La colonna "frazione" indica la frazione degli elettori che hanno votato la "LISTA"
+alle passate elezioni che potrebbero votare la "LISTA FUTURA" alle future elezioni.
+
+```{r}
+tabella_flussi(risultato)
 ```
 
