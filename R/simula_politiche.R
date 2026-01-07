@@ -8,6 +8,27 @@ simula_politiche <- function(
   # Carico i dati
   dati <- carica_dati(cache_path = "dati/dati.RData")
   
+  # DECRETO DEL PRESIDENTE DELLA REPUBBLICA 30 marzo 1957, n. 361
+  # Art. 1
+  # 2. Il territorio nazionale è diviso nelle circoscrizioni elettorali indicate
+  # nella tabella A allegata al presente testo unico. Salvi i seggi assegnati
+  # alla circoscrizione Estero e fermo restando quanto disposto dall'articolo 2,
+  # nelle circoscrizioni del territorio nazionale sono costituiti ((un numero di
+  # collegi uninominali pari ai tre ottavi del totale dei seggi da eleggere
+  # nelle circoscrizioni elettorali di cui alla tabella A allegata al presente
+  # testo unico, con arrotondamento all'unità inferiore,)) ripartiti in ciascuna
+  # circoscrizione sulla base della popolazione; ((la circoscrizione
+  # Trentino-Alto Adige/Südtirol è ripartita in un numero di collegi uninominali
+  # pari alla metà dei seggi assegnati alla circoscrizione medesima, con
+  # arrotondamento all'unità pari superiore. Le circoscrizioni cui sono
+  # assegnati tre deputati sono ripartite in due collegi uninominali; le
+  # circoscrizioni cui sono assegnati due deputati sono costituite in un
+  # collegio uninominale)). 3. Per l'assegnazione degli altri seggi ciascuna
+  # circoscrizione è ripartita in collegi plurinominali costituiti, di norma,
+  # dall'aggregazione del territorio di collegi uninominali contigui e tali che
+  # a ciascuno di essi sia assegnato, di norma, un numero di seggi non inferiore
+  # a tre e non superiore a otto.
+  
   # Carico i collegi
   base_dati <- data.table::fread(
     "dati/BaseDati_Proposta_Commissione.csv",
@@ -65,8 +86,58 @@ simula_politiche <- function(
     )
   ]
   
+  # Aggiorno la popoplazione
+  comuni <- base_dati[
+    ,
+    .(POP_2011 = sum(POP_2011)),
+    by = CODICE_COMUNE
+  ]
+  
+  comuni[
+    dati$pop_legale,
+    on = .(CODICE_COMUNE),
+    POP_LEGALE := i.POPOLAZIONE
+  ]
+  
+  comuni[
+    ,
+    FATTORE_CRESCITA_POP := POP_LEGALE / POP_2011
+  ]
+  
+  base_dati[
+    comuni,
+    on = .(CODICE_COMUNE),
+    POP_LEGALE := POP_2011 * i.FATTORE_CRESCITA_POP
+  ]
+  
+  # TODO urgente: disambiguare i comuni omonimi di caricamento_dati.R
+  
+  
   # Calcolo i parametri di input per la generazione dei voti
   parametri_input <- calcola_parametri_input(dati, scenario)
+  
+  # setdiff(comuni$CODICE_COMUNE, parametri_input$comuni_liste$CODICE_COMUNE)
+  
+  # print(comuni[
+  #   !parametri_input$comuni_liste,
+  #   on = .(CODICE_COMUNE)
+  # ][
+  #   dati$ISTAT,
+  #   on = .(CODICE_COMUNE = PRO_COM_T),
+  #   COMUNE := i.COMUNE
+  # ])
+  
+  
+  # Art. 3.
+  
+  # 1. L'assegnazione del numero dei seggi alle singole circoscrizioni di cui
+  # alla tabella A allegata al presente testo unico, è effettuata, sulla base
+  # dei risultati dell'ultimo censimento generale della popolazione, riportati
+  # dalla più recente pubblicazione ufficiale dell'Istituto nazionale di
+  # statistica, con decreto del Presidente della Repubblica, su proposta del
+  # Ministro dell'interno, da emanare contestualmente al decreto di convocazione
+  # dei comizi.
+  
   
   # Passo i parametri di input, generati su base comunale, alle singole
   # unità territoriali della base dati
