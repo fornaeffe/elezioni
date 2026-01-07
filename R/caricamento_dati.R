@@ -15,12 +15,16 @@ fonti <- list(
           VOTI = "VOTI_LISTA"
         ),
         funzione = function(DT) {
+          DT$REGIONE <- DT$CIRCOSCRIZIONE
           # Poiché VOTI_LISTA è NA per la circoscrizione AOSTA, copio in quella 
           # colonna i voti per il candidato (Nella circoscrizione Aosta ci sono solo 
           # candidati uninominali)
           return(DT[
             CIRCOSCRIZIONE == "AOSTA",
-            VOTI_LISTA := VOTI_CANDIDATO
+            `:=`(
+              VOTI_LISTA = VOTI_CANDIDATO,
+              REGIONE = "VALLE D'AOSTA"
+            )
           ])
         }
       )
@@ -39,7 +43,11 @@ fonti <- list(
           VOTI = "VOTILISTA",
           ELETTORI = "ELETTORITOT",
           LISTA = "DESCRLISTA"
-        )
+        ),
+        funzione = function(DT) {
+          DT$REGIONE <- DT$`CIRC-REG`
+          return(DT)
+        }
         
       )
     )
@@ -88,7 +96,8 @@ fonti <- list(
         colonne = list(
           VOTI = "NUMVOTI",
           LISTA = "DESCLISTA",
-          COMUNE = "DESCCOMUNE"
+          COMUNE = "DESCCOMUNE",
+          REGIONE = "DESCREGIONE"
         )
       )
     )
@@ -126,6 +135,220 @@ ISTAT_API <- function(url) {
   )
 }
 
+#' Normalizzazione robusta di nomi geografici
+#'
+#' Converte in minuscolo, rimuove accenti, apostrofi, slash e trattini,
+#' normalizza gli spazi. Opzionalmente mantiene solo il primo token.
+#'
+#' @param x Character vector
+#' @param first_token Logical; se TRUE mantiene solo la prima parola
+#'
+#' @return Character vector normalizzato
+#' @keywords internal
+normalize_name <- function(x, first_token = FALSE) {
+  x <- tolower(x)
+  x <- iconv(x, from = "UTF-8", to = "ASCII//TRANSLIT")
+  x <- gsub("[’']", " ", x)
+  x <- gsub("[-/]", " ", x)
+  x <- gsub("\\s+", " ", x)
+  x <- trimws(x)
+  
+  if (first_token) {
+    x <- sub("\\s+.*$", "", x)
+  }
+  
+  x
+}
+
+#' Prepara la tabella ISTAT per il matching dei comuni
+#'
+#' @param istat data.table con colonne COMUNE e DEN_REG_DT_FI
+#'
+#' @return data.table con colonne COMUNE_NORM e REGIONE_NORM aggiunte
+#'
+#' @export
+prep_istat <- function(istat) {
+  if (!data.table::is.data.table(istat)) {
+    stop("istat deve essere un data.table")
+  }
+  
+  richieste <- c("COMUNE", "DEN_REG_DT_FI")
+  mancanti <- setdiff(richieste, names(istat))
+  if (length(mancanti) > 0) {
+    stop("Colonne mancanti in istat: ", paste(mancanti, collapse = ", "))
+  }
+  
+  istat[
+    ,
+    `:=`(
+      COMUNE_NORM  = normalize_name(COMUNE, first_token = FALSE),
+      REGIONE_NORM = normalize_name(DEN_REG_DT_FI, first_token = TRUE)
+    )
+  ]
+  
+  istat
+}
+
+
+
+#' Aggiunge codice e nome attuale del comune ai risultati elettorali
+#'
+#' Effettua il matching tra risultati elettorali e tabella ISTAT,
+#' usando prima un confronto esatto su nomi normalizzati e regione,
+#' poi un fallback fuzzy basato su distanza di Levenshtein.
+#'
+#' @param dt data.table dei risultati elettorali
+#' @param istat data.table preparato con prep_istat()
+#' @param max_dist distanza massima ammessa per il matching fuzzy
+#' @param verbose se TRUE, stampa le associazioni fuzzy effettuate
+#'
+#' @return data.table con colonne CODICE_COMUNE e COMUNE_ATTUALE
+#'
+#' @export
+aggiungi_codice_comune <- function(
+    dt,
+    istat,
+    max_dist = 2L,
+    verbose = TRUE
+) {
+  if (!data.table::is.data.table(dt)) {
+    stop("dt deve essere un data.table")
+  }
+  if (!data.table::is.data.table(istat)) {
+    stop("istat deve essere un data.table")
+  }
+  
+  richieste_dt <- c("COMUNE", "REGIONE")
+  mancanti_dt <- setdiff(richieste_dt, names(dt))
+  if (length(mancanti_dt) > 0) {
+    stop("Colonne mancanti in dt: ", paste(mancanti_dt, collapse = ", "))
+  }
+  
+  richieste_istat <- c(
+    "COMUNE_NORM", "REGIONE_NORM",
+    "PRO_COM_T_DT_FI", "COMUNE_DT_FI"
+  )
+  mancanti_istat <- setdiff(richieste_istat, names(istat))
+  if (length(mancanti_istat) > 0) {
+    stop(
+      "istat non preparato correttamente. ",
+      "Usa prep_istat() prima."
+    )
+  }
+  
+  dt <- data.table::copy(dt)
+  
+  # normalizzazione input
+  dt[
+    ,
+    `:=`(
+      COMUNE_NORM  = normalize_name(COMUNE, first_token = FALSE),
+      REGIONE_NORM = normalize_name(REGIONE, first_token = TRUE)
+    )
+  ]
+  
+  # chiavi uniche
+  chiavi <- unique(dt[, .(COMUNE_NORM, REGIONE_NORM)])
+  
+  # MATCH ESATTO
+  match_esatto <- istat[
+    chiavi,
+    on = .(COMUNE_NORM, REGIONE_NORM),
+    nomatch = 0L,
+    .(
+      COMUNE_NORM,
+      REGIONE_NORM,
+      CODICE_COMUNE  = PRO_COM_T_DT_FI,
+      COMUNE_ATTUALE = COMUNE_DT_FI,
+      tipo_match = "esatto"
+    )
+  ]
+  
+  # Appaiamento manuale perché altrimenti lo appaia con San Giovanni d'Asso
+  match_esatto <- rbindlist(
+    list(
+      match_esatto,
+      data.table::data.table(
+        COMUNE_NORM    = "san giovanni di fassa",
+        REGIONE_NORM   = "trentino",
+        CODICE_COMUNE  = "022250",
+        COMUNE_ATTUALE = "San Giovanni di Fassa-Sèn Jan",
+        tipo_match     = "manuale"
+      )
+    )
+  )
+  
+  irrisolti <- chiavi[!match_esatto, on = .(COMUNE_NORM, REGIONE_NORM)]
+  
+  # MATCH FUZZY
+  match_fuzzy <- NULL
+  log_fuzzy <- character()
+  
+  if (nrow(irrisolti) > 0) {
+    for (i in seq_len(nrow(irrisolti))) {
+      c_norm <- irrisolti$COMUNE_NORM[i]
+      r_norm <- irrisolti$REGIONE_NORM[i]
+      
+      d <- stringdist::stringdist(c_norm, istat$COMUNE_NORM, method = "jw")
+      best <- which.min(d)
+      
+      
+      match_fuzzy <- data.table::rbindlist(
+        list(
+          match_fuzzy,
+          data.table::data.table(
+            COMUNE_NORM    = c_norm,
+            REGIONE_NORM   = r_norm,
+            CODICE_COMUNE  = istat$PRO_COM_T_DT_FI[best],
+            COMUNE_ATTUALE = istat$COMUNE_DT_FI[best],
+            tipo_match     = "fuzzy"
+          )
+        ),
+        fill = TRUE
+      )
+      
+      log_fuzzy <- c(
+        log_fuzzy,
+        sprintf(
+          "Fuzzy match: '%s' (regione '%s') → '%s' (regione: '%s'). Distanza = %f",
+          c_norm,
+          r_norm,
+          istat$COMUNE_DT_FI[best],
+          istat$REGIONE_NORM[best],
+          d[best]
+        )
+      )
+      
+    }
+  }
+  
+  if (verbose && length(log_fuzzy) > 0) {
+    message(
+      "Associazioni fuzzy effettuate:\n",
+      paste(log_fuzzy, collapse = "\n")
+    )
+  }
+  
+  mappa <- data.table::rbindlist(
+    list(match_esatto, match_fuzzy),
+    fill = TRUE
+  )
+  
+  dt[
+    mappa,
+    on = .(COMUNE_NORM, REGIONE_NORM),
+    `:=`(
+      CODICE_COMUNE  = i.CODICE_COMUNE,
+      COMUNE_ATTUALE = i.COMUNE_ATTUALE
+    )
+  ]
+  
+  dt[, c("COMUNE_NORM", "REGIONE_NORM") := NULL]
+  
+  dt
+}
+
+
 scarica_dati <- function(
     cache = TRUE, 
     cache_path = file.path(tempdir(), "dati.RData"),
@@ -143,141 +366,7 @@ scarica_dati <- function(
   
   ISTAT_traslazione <- ISTAT_API("https://situas-servizi.istat.it/publish/reportspooljson?pfun=304&pdatada=01/01/1991&pdataa=")
   
-  # Funzione che aggiorna i nomi dei comuni e aggiunge i codici
-  aggiorna_comuni <- function(DT) {
-    
-    cat("Uniformo e aggiorno i nomi dei comuni...\n")
-    
-    nomi_comuni <- unique(DT[,"COMUNE"][[1]])
-    
-    tutti_i_nomi <- c(
-      ISTAT$COMUNE,
-      ISTAT$COMUNE_IT,
-      ISTAT_traslazione$COMUNE
-    )
-    
-    
-    
-    # Funzione che cerca un nome di comune scritto nello stesso modo
-    cerca_nome_identico <- function(nome) {
-      # Cerco il nome nei comuni attuali
-      matches <- which(
-        toupper(ISTAT$COMUNE) == nome
-      )
-      
-      if (length(matches) > 0) return(list(
-        comune = ISTAT$COMUNE[matches[1]],
-        codice = ISTAT$PRO_COM_T[matches[1]]
-      ))
-      
-      # Cerco il nome nei comuni attuali
-      matches <- which(
-        toupper(ISTAT$COMUNE_IT) == nome
-      )
-      
-      if (length(matches) > 0) return(list(
-        comune = ISTAT$COMUNE[matches[1]],
-        codice = ISTAT$PRO_COM_T[matches[1]]
-      ))
-      
-      # Cerco il nome nei comuni variati,
-      # se lo trovo aggiorno il nome con il nome attuale
-      matches <- which(
-        toupper(ISTAT_traslazione$COMUNE) == nome
-      )
-      
-      if (length(matches) > 0) return(list(
-        comune = ISTAT_traslazione$COMUNE_DT_FI[matches[1]],
-        codice = ISTAT_traslazione$PRO_COM_T_DT_FI[matches[1]]
-      ))
-      
-      return(NA)
-    }
-    
-    # Funzione che cerca il nome del comune anche scritto in modo diverso
-    cerca_nome <- function(nome) {
-      
-      # Comincio cercando il nome così come è scritto
-      risultato <- cerca_nome_identico(nome)
-      
-      if (length(risultato) > 1) return (risultato)
-      
-      # Se non lo ho trovato, converto gli apostrofi in accenti
-      # e lo cerco nuovamente
-      risultato <- cerca_nome_identico(
-        stringr::str_replace_all(
-          nome,
-          c(
-            "A'" = toupper("à"),
-            "E'" = toupper("è"),
-            "I'" = toupper("ì"),
-            "O'" = toupper("ò"),
-            "U'" = toupper("ù")
-          )
-        )
-      )
-      
-      if(length(risultato) > 1) return (risultato)
-      
-      # Controlla se il nome è da cambiare manualmente
-      if (nome == "MALE'") return(cerca_nome_identico(toupper("Malé")))
-      if (nome == "S+N JAN DI FASSA") return(cerca_nome_identico("SAN GIOVANNI DI FASSA"))
-      if (nome == "HONE") return(cerca_nome_identico(toupper("Hône")))
-      
-      # Se ancora non lo ho trovato,
-      # cerco nomi simili tra tutti i nomi possibili
-      distanze <- adist(
-        tutti_i_nomi, 
-        nome, 
-        ignore.case = TRUE
-      )
-      matches <- which(distanze == min(distanze))
-      
-      # Se non lo trovo avviso e restituisco NA
-      if (length(matches) == 0) {
-        warning("Comune ", nome, " non trovato negli elenchi ISTAT")
-        
-        return(list(
-          comune = NA,
-          codice = NA
-        ))
-      }
-      
-      # Se lo trovo avviso della corrispondenza trovata
-      cat(nome, "corrisponde a", tutti_i_nomi[matches[1]], "\n")
-      
-      # In base alla posizione dentro "tutti_i_nomi", recupero il codice
-      # e il nome del comune dagli elenchi ISTAT
-      if (matches[1] <= nrow(ISTAT)) return(list(
-        comune = ISTAT$COMUNE[matches[1]],
-        codice = ISTAT$PRO_COM_T[matches[1]]
-      ))
-      
-      if (matches[1] <= nrow(ISTAT) * 2) return(list(
-        comune = ISTAT$COMUNE[matches[1] - nrow(ISTAT)],
-        codice = ISTAT$PRO_COM_T[matches[1] - nrow(ISTAT)]
-      ))
-      
-      # Se devo andarlo a cercare nei nomi passati, aggiorno il nome
-      # e il codice a quelli attuali
-      return(list(
-        comune = ISTAT_traslazione$COMUNE_DT_FI[matches[1] - nrow(ISTAT) * 2],
-        codice = ISTAT_traslazione$PRO_COM_T_DT_FI[matches[1] - nrow(ISTAT) * 2]
-      ))
-      
-    }
-    
-    # Creo un data.table con tutti i nomi e codici aggiornati, associati al
-    # nome come è scritto nella tabella dei dati elettorali
-    risultato <- data.table::rbindlist(lapply(nomi_comuni, cerca_nome))
-    risultato$nome_originario <- nomi_comuni
-    
-    cat("\nTerminato l'aggiornamento dei nomi dei comuni\n")
-    
-    # Associo i nomi e i codici nuovi alla tabella dei dati elettorali
-    return(merge(DT, risultato, by.x = "COMUNE", by.y = "nome_originario"))
-    
-  }
+  ISTAT_traslazione <- prep_istat(ISTAT_traslazione)
   
   scarica_fonte <- function(
     elezione,
@@ -331,18 +420,9 @@ scarica_dati <- function(
             }
             
             # Aggiorno i nomi dei comuni
-            DT <- aggiorna_comuni(DT)
+            DT <- aggiungi_codice_comune(DT, ISTAT_traslazione)
             
             if (dettagli_file$tipo == "scrutinio") {
-              # # Tengo solo le colonne di interesse
-              # DT <- DT[,c(
-              #   "comune",
-              #   "codice",
-              #   "ELETTORI",
-              #   "LISTA",
-              #   "VOTI",
-              #   intersect("SEZIONE", names(DT))
-              # )]
               
               astensione <- DT[
                 ,
@@ -350,7 +430,7 @@ scarica_dati <- function(
                   VOTI = ELETTORI - sum(VOTI),
                   LISTA = "astensione"
                 ),
-                by = c("comune", "codice", "ELETTORI", intersect("SEZIONE", names(DT)))
+                by = c("COMUNE_ATTUALE", "CODICE_COMUNE", "ELETTORI", intersect("SEZIONE", names(DT)))
               ]
               DT <- rbind(DT, astensione, fill = TRUE)
               
@@ -359,8 +439,8 @@ scarica_dati <- function(
                 data.table::data.table(
                   DATA = as.POSIXct(data_elezione),
                   ELEZIONE = elezione,
-                  COMUNE = DT$comune,
-                  CODICE_COMUNE = DT$codice,
+                  COMUNE = DT$COMUNE_ATTUALE,
+                  CODICE_COMUNE = DT$CODICE_COMUNE,
                   LISTA = DT$LISTA,
                   VOTI = DT$VOTI
                 )
@@ -373,8 +453,8 @@ scarica_dati <- function(
                   PREFERENZE = sum(PREFERENZE)
                 ),
                 by = .(
-                  comune,
-                  codice,
+                  COMUNE_ATTUALE,
+                  CODICE_COMUNE,
                   LISTA,
                   NOME,
                   COGNOME
@@ -386,8 +466,8 @@ scarica_dati <- function(
                 data.table::data.table(
                   DATA = as.POSIXct(data_elezione),
                   ELEZIONE = elezione,
-                  COMUNE = DT$comune,
-                  CODICE_COMUNE = DT$codice,
+                  COMUNE = DT$COMUNE_ATTUALE,
+                  CODICE_COMUNE = DT$CODICE_COMUNE,
                   LISTA = DT$LISTA,
                   NOME = DT$NOME,
                   COGNOME = DT$COGNOME,
