@@ -126,7 +126,12 @@ ISTAT_API <- function(url) {
   )
 }
 
-scarica_dati <- function(cache = TRUE, cache_path = file.path(tempdir(), "dati.RData")) {
+scarica_dati <- function(
+    cache = TRUE, 
+    cache_path = file.path(tempdir(), "dati.RData"),
+    cache_raw = FALSE,
+    cache_raw_path = tempdir()
+) {
   
   cat("\nScarico i dati dal web...\n")
   
@@ -315,6 +320,15 @@ scarica_dati <- function(cache = TRUE, cache_path = file.path(tempdir(), "dati.R
               names(dettagli_file$colonne),
               dettagli_file$colonne
             )
+            
+            # Salvo il singolo data.table
+            if (cache_raw) {
+              raw_file_path <- file.path(cache_raw_path, elezione, paste0(dettagli_file$internal_path, ".RData"))
+              if (!dir.exists(dirname(raw_file_path))) {
+                dir.create(dirname(raw_file_path), recursive = TRUE)
+              }
+              saveRDS(DT, file = raw_file_path)
+            }
             
             # Aggiorno i nomi dei comuni
             DT <- aggiorna_comuni(DT)
