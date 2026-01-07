@@ -8,6 +8,9 @@ simula_politiche <- function(
   # Carico i dati
   dati <- carica_dati(cache_path = "dati/dati.RData")
   
+  # Calcolo i parametri di input per la generazione dei voti
+  parametri_input <- calcola_parametri_input(dati, scenario)
+  
   # DECRETO DEL PRESIDENTE DELLA REPUBBLICA 30 marzo 1957, n. 361
   # Art. 1
   # 2. Il territorio nazionale è diviso nelle circoscrizioni elettorali indicate
@@ -86,7 +89,7 @@ simula_politiche <- function(
     )
   ]
   
-  # Aggiorno la popoplazione
+  # Aggiorno la popoplazione e gli elettori
   comuni <- base_dati[
     ,
     .(POP_2011 = sum(POP_2011)),
@@ -99,33 +102,41 @@ simula_politiche <- function(
     POP_LEGALE := i.POPOLAZIONE
   ]
   
+  # Controllo che ci siano dati di elezione per ogni comune
+  stopifnot(
+    length(
+      setdiff(
+        comuni$CODICE_COMUNE, 
+        parametri_input$comuni_liste$CODICE_COMUNE
+      )
+    ) == 0
+  )
+  
+  comuni[
+    parametri_input$comuni_liste,
+    on = .(CODICE_COMUNE),
+    ELETTORI := i.ELETTORI
+  ]
+  
   comuni[
     ,
-    FATTORE_CRESCITA_POP := POP_LEGALE / POP_2011
+    `:=`(
+      FATTORE_CRESCITA_POP = POP_LEGALE / POP_2011,
+      FATTORE_ELETTORI = ELETTORI / POP_LEGALE
+    )
   ]
   
   base_dati[
     comuni,
     on = .(CODICE_COMUNE),
-    POP_LEGALE := POP_2011 * i.FATTORE_CRESCITA_POP
+    `:=`(
+      POP_LEGALE = round(POP_2011 * i.FATTORE_CRESCITA_POP),
+      ELETTORI = round(POP_2011 * i.FATTORE_CRESCITA_POP * i.FATTORE_ELETTORI)
+    )
   ]
   
-  # TODO urgente: disambiguare i comuni omonimi di caricamento_dati.R
   
   
-  # Calcolo i parametri di input per la generazione dei voti
-  parametri_input <- calcola_parametri_input(dati, scenario)
-  
-  # setdiff(comuni$CODICE_COMUNE, parametri_input$comuni_liste$CODICE_COMUNE)
-  
-  # print(comuni[
-  #   !parametri_input$comuni_liste,
-  #   on = .(CODICE_COMUNE)
-  # ][
-  #   dati$ISTAT,
-  #   on = .(CODICE_COMUNE = PRO_COM_T),
-  #   COMUNE := i.COMUNE
-  # ])
   
   
   # Art. 3.
@@ -150,7 +161,7 @@ simula_politiche <- function(
   )][
     base_dati[,.(
       CODITA_20N,
-      POP_2011,
+      ELETTORI,
       CU20_COD,
       SU20_COD
     )],
@@ -164,7 +175,7 @@ simula_politiche <- function(
       DATA,
       DELTA,
       SIGMA_DELTA,
-      ELETTORI = POP_2011,
+      ELETTORI,
       CU20_COD,
       SU20_COD
     )],
