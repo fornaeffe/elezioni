@@ -222,6 +222,27 @@ simula_politiche <- function(
     by = .(CIRCOCAM_20_COD, CIRCOCAM_20_DEN, CP20_COD, CP20_DEN)
   ]
   
+  pluricam[
+    circocam,
+    on = .(CIRCOCAM_20_COD),
+    SEGGI_CIRC := i.SEGGI
+  ]
+  
+  pluricam[
+    ,
+    SEGGI := Hare.Niemeyer_con_minimo(
+      POP_LEGALE,
+      SEGGI_CIRC[1L],
+      CU
+    ),
+    by = CIRCOCAM_20_COD
+  ]
+  
+  pluricam[
+    ,
+    SEGGI_PLURI := SEGGI - CU
+  ]
+  
   # COSTITUZIONE
   
   # Art. 57
@@ -292,9 +313,42 @@ simula_politiche <- function(
     SEGGI_PLURI := SEGGI - SU
   ]
   
+  # 2-ter. Con il medesimo decreto del Presidente della Repubblica di cui al
+  # comma 1, sulla base dei risultati dell'ultimo censimento generale della
+  # popolazione, riportati dalla più recente pubblicazione ufficiale
+  # dell'Istituto nazionale di statistica, è determinato il numero complessivo
+  # di seggi da attribuire in ciascuna circoscrizione regionale nei collegi
+  # plurinominali, compresi i seggi spettanti ai collegi uninominali.
   
+  plurisen <- base_dati[
+    ,
+    .(
+      POP_LEGALE = sum(POP_LEGALE),
+      SU = length(unique(SU20_COD))
+    ),
+    by = .(COD_REG20, DEN_REG20, SP20_COD, SP20_DEN)
+  ]
   
+  plurisen[
+    circosen,
+    on = .(COD_REG20),
+    SEGGI_CIRC := i.SEGGI
+  ]
   
+  plurisen[
+    ,
+    SEGGI := Hare.Niemeyer_con_minimo(
+      POP_LEGALE,
+      SEGGI_CIRC[1L],
+      SU
+    ),
+    by = COD_REG20
+  ]
+  
+  plurisen[
+    ,
+    SEGGI_PLURI := SEGGI - SU
+  ]
   
   # Passo i parametri di input, generati su base comunale, alle singole
   # unità territoriali della base dati
