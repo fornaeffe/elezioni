@@ -32,6 +32,33 @@ simula_politiche <- function(
   # a ciascuno di essi sia assegnato, di norma, un numero di seggi non inferiore
   # a tre e non superiore a otto.
   
+  # DECRETO LEGISLATIVO 20 dicembre 1993, n. 533 
+  # Art. 1 
+  # 2. ((Il territorio
+  # nazionale è suddiviso in un numero di collegi uninominali pari ai tre ottavi
+  # del totale dei seggi da eleggere nelle circoscrizioni regionali, con
+  # arrotondamento all'unità più prossima, assicurandone uno per ogni
+  # circoscrizione. Fatti salvi i collegi uninominali delle regioni che eleggono
+  # un solo senatore e quelli del Trentino-Alto Adige/Südtirol, i)) restanti
+  # collegi uninominali sono ripartiti nelle altre regioni proporzionalmente
+  # alla rispettiva popolazione. In tali collegi uninominali risulta eletto il
+  # candidato che ha riportato il maggior numero di voti validi.
+  
+  # 2-bis. Per la assegnazione degli altri seggi ciascuna circoscrizione
+  # regionale è ripartita in collegi plurinominali costituiti, di norma,
+  # dall'aggregazione del territorio di collegi uninominali contigui e tali che
+  # a ciascuno di essi sia assegnato, di norma, un numero di seggi non inferiore
+  # a due e non superiore a otto. [...]
+  
+  # 3. ((Le regioni che eleggono un solo senatore sono costituite)) in unico
+  # collegio uninominale.
+  
+  # 4. La regione Trentino-Alto Adige è costituita in sei collegi uninominali
+  # definiti ai sensi della legge 30 dicembre 1991, n. 422 ((, ovvero in un
+  # numero di collegi uninominali individuato nel numero pari più alto nel
+  # limite dei seggi assegnati alla regione)). La restante quota di seggi
+  # spettanti alla regione è attribuita con metodo del recupero proporzionale.
+  
   # Carico i collegi
   base_dati <- data.table::fread(
     "dati/BaseDati_Proposta_Commissione.csv",
@@ -135,12 +162,20 @@ simula_politiche <- function(
     )
   ]
   
+  # COSTITUZIONE
+  # Art. 56
+  # La Camera dei deputati è eletta a suffragio universale e diretto. Il numero
+  # dei deputati è di ((quattrocento)), ((otto)) dei quali eletti nella
+  # circoscrizione Estero. [...]
+  # La ripartizione dei seggi tra le circoscrizioni, fatto salvo il numero dei
+  # seggi assegnati alla circoscrizione Estero, si effettua dividendo il numero
+  # degli abitanti della Repubblica, quale risulta dall'ultimo censimento
+  # generale della popolazione, per ((trecentonovantadue)) e distribuendo i
+  # seggi in proporzione alla popolazione di ogni circoscrizione, sulla base dei
+  # quozienti interi e dei più alti resti.
   
-  
-  
-  
+  # DECRETO DEL PRESIDENTE DELLA REPUBBLICA 30 marzo 1957, n. 361
   # Art. 3.
-  
   # 1. L'assegnazione del numero dei seggi alle singole circoscrizioni di cui
   # alla tabella A allegata al presente testo unico, è effettuata, sulla base
   # dei risultati dell'ultimo censimento generale della popolazione, riportati
@@ -148,6 +183,127 @@ simula_politiche <- function(
   # statistica, con decreto del Presidente della Repubblica, su proposta del
   # Ministro dell'interno, da emanare contestualmente al decreto di convocazione
   # dei comizi.
+  
+  # Ottengo i dati per ogni circoscrizione
+  circocam <- base_dati[
+    ,
+    .(
+      POP_LEGALE = sum(POP_LEGALE),
+      CU = length(unique(CU20_COD))
+    ),
+    by = .(CIRCOCAM_20_COD, CIRCOCAM_20_DEN)
+  ]
+  
+  # Distribuisco i seggi
+  circocam[
+    ,
+    SEGGI := Hare.Niemeyer(POP_LEGALE, 392)
+  ]
+  
+  # Calcolo i seggi da distribuire nei collegi plurinominali
+  circocam[
+    ,
+    SEGGI_PLURI := SEGGI - CU
+  ]
+  
+  # COSTITUZIONE
+  
+  # Art. 57
+  # Il Senato della Repubblica è eletto a base regionale, salvi i seggi
+  # assegnati alla circoscrizione Estero. Il numero dei senatori elettivi è di
+  # ((duecento)), ((quattro)) dei quali eletti nella circoscrizione Estero.
+  # ((20)) Nessuna Regione ((o Provincia autonoma)) può avere un numero di
+  # senatori inferiore a ((tre)); il Molise ne ha due, la Valle d'Aosta uno.
+  # ((20)). ((La ripartizione dei seggi tra le Regioni o le Province autonome,
+  # previa applicazione delle disposizioni del precedente comma, si effettua in
+  # proporzione alla loro popolazione, quale risulta dall'ultimo censimento
+  # generale, sulla base dei quozienti interi e dei più alti resti)).
+  
+  # DECRETO LEGISLATIVO 20 dicembre 1993, n. 533
+  
+  # Art. 1
+  
+  # 1. Il Senato della Repubblica è eletto su base regionale. Salvo i seggi
+  # assegnati alla circoscrizione Estero, i seggi sono ripartiti tra le regioni
+  # a norma dell'articolo 57 della Costituzione sulla base dei risultati
+  # dell'ultimo censimento generale della popolazione, riportati dalla più
+  # recente pubblicazione ufficiale dell'Istituto nazionale di statistica, con
+  # decreto del Presidente della Repubblica, da emanare, su proposta del
+  # Ministro dell'interno, previa deliberazione del Consiglio dei ministri,
+  # contemporaneamente al decreto di convocazione dei comizi.
+  
+  seggi_senato <- 200
+  seggi_senato_estero <- 4
+  seggi_senato_italia <- seggi_senato - seggi_senato_estero
+  regioni_seggi_fissi <- c("Molise", "Valle d'Aosta")
+  
+  circosen <- base_dati[
+    ,
+    .(
+      POP_LEGALE = sum(POP_LEGALE),
+      SU = length(unique(SU20_COD))
+    ),
+    by = .(COD_REG20, DEN_REG20)
+  ]
+  
+  # Assegno i seggi minimi per ciascuna regione
+  circosen[, SEGGI_FISSI := 3]
+  circosen[DEN_REG20 == "Molise", SEGGI_FISSI := 2]
+  circosen[DEN_REG20 == "Valle d'Aosta", SEGGI_FISSI := 1]
+  circosen[DEN_REG20 == "Trentino-Alto Adige", SEGGI_FISSI := 6]
+  
+  # Trovo la popolazione totale delle regioni i cui seggi non sono fissi:
+  pop_seggi_variabili <- circosen[
+    !(DEN_REG20 %in% regioni_seggi_fissi),
+    sum(POP_LEGALE)
+  ]
+  
+  # Trovo i seggi da assegnare alle regioni i cui seggi non sono fissi:
+  seggi_regioni_non_fisse <- seggi_senato_italia - 
+    circosen[
+      DEN_REG20 %in% regioni_seggi_fissi,
+      sum(SEGGI_FISSI)
+    ]
+  
+  # Trovo il quoziente
+  quoziente <- pop_seggi_variabili / seggi_regioni_non_fisse
+  
+  # Tolgo dalla popolazione legale quella necessaria ad attribuire i
+  # seggi minimi, impostando il risultato a zero se negativo.
+  circosen[
+    !(DEN_REG20 %in% regioni_seggi_fissi), 
+    pop_per_hn := pmax(POP_LEGALE - quoziente * SEGGI_FISSI, 0)
+  ]
+  
+  # Imposto a zero la popolazione così modificata per le regioni a 
+  # seggi fissi
+  circosen[
+    DEN_REG20 %in% regioni_seggi_fissi, 
+    pop_per_hn := 0
+  ]
+  
+  # Calcolo i seggi ancora da assegnare:
+  seggi_variabili <- seggi_senato_italia - sum(circosen$SEGGI_FISSI)
+  
+  # Li distribuisco tra la popolazione che non ha ancora dato origine
+  # a seggi
+  circosen[
+    ,
+    SEGGI_VARIABILI := Hare.Niemeyer(pop_per_hn, seggi_variabili)
+  ]
+  
+  # Sommo i seggi
+  circosen[
+    ,
+    SEGGI := SEGGI_FISSI + SEGGI_VARIABILI
+  ]
+  
+  # Calcolo i seggi da distribuire nei collegi plurinominali
+  circosen[
+    ,
+    SEGGI_PLURI := SEGGI - SU
+  ]
+  
   
   
   # Passo i parametri di input, generati su base comunale, alle singole

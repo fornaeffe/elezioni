@@ -28,10 +28,9 @@ Segnalazioni, richieste e suggerimenti a <fornaeffe@gmail.com> o sul repository
 #| include: false
 knitr::opts_chunk$set(echo = FALSE)
 
-source("R/caricamento_dati.R")
-source("R/calcolo_parametri_input.R")
-source("R/generazione_voti.R")
-source("R/presentazione_risultati.R")
+# Carico il "pacchetto"
+files.sources = list.files("R", full.names = TRUE, recursive = TRUE)
+invisible(sapply(files.sources, source))
 
 scenario <- "scenari/politiche_2027.xlsx"
 

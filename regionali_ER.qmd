@@ -31,10 +31,9 @@ knitr::opts_chunk$set(echo = FALSE)
 library(kableExtra)
 # library(zoo)
 
-source("R/caricamento_dati.R")
-source("R/generazione_voti.R")
-source("R/calcolo_parametri_input.R")
-source("R/scrutinio_ER.R")
+# Carico il "pacchetto"
+files.sources = list.files("R", full.names = TRUE, recursive = TRUE)
+invisible(sapply(files.sources, source))
 
 scenario <- "scenari/BO_insieme.xlsx"
 

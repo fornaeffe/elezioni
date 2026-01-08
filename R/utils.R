@@ -1,3 +1,3 @@
-utils::globalVariables(
-  c(".SD", ".N", ".I", ".GRP")
-)
+# utils::globalVariables(
+#   c(".SD", ".N", ".I", ".GRP")
+# )
