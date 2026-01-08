@@ -206,6 +206,22 @@ simula_politiche <- function(
     SEGGI_PLURI := SEGGI - CU
   ]
   
+  # ((2. Con il medesimo decreto del Presidente della Repubblica di cui al comma
+  # 1, sulla base dei risultati dell'ultimo censimento generale della
+  # popolazione, riportati dalla più recente pubblicazione ufficiale
+  # dell'Istituto nazionale di statistica, è determinato il numero complessivo
+  # di seggi da attribuire in ciascuna circoscrizione nei collegi plurinominali,
+  # compresi i seggi spettanti ai collegi uninominali)).
+  
+  pluricam <- base_dati[
+    ,
+    .(
+      POP_LEGALE = sum(POP_LEGALE),
+      CU = length(unique(CU20_COD))
+    ),
+    by = .(CIRCOCAM_20_COD, CIRCOCAM_20_DEN, CP20_COD, CP20_DEN)
+  ]
+  
   # COSTITUZIONE
   
   # Art. 57
@@ -246,56 +262,28 @@ simula_politiche <- function(
     by = .(COD_REG20, DEN_REG20)
   ]
   
-  # Assegno i seggi minimi per ciascuna regione
-  circosen[, SEGGI_FISSI := 3]
-  circosen[DEN_REG20 == "Molise", SEGGI_FISSI := 2]
-  circosen[DEN_REG20 == "Valle d'Aosta", SEGGI_FISSI := 1]
-  circosen[DEN_REG20 == "Trentino-Alto Adige", SEGGI_FISSI := 6]
+  # Assegno i seggi fissi
+  circosen[DEN_REG20 == "Molise", SEGGI := 2]
+  circosen[DEN_REG20 == "Valle d'Aosta", SEGGI := 1]
   
-  # Trovo la popolazione totale delle regioni i cui seggi non sono fissi:
-  pop_seggi_variabili <- circosen[
+  # Assegno i seggi minimi per ciascuna regione
+  circosen[
     !(DEN_REG20 %in% regioni_seggi_fissi),
-    sum(POP_LEGALE)
+    SEGGI_MINIMI := 3
   ]
+  circosen[DEN_REG20 == "Trentino-Alto Adige", SEGGI_MINIMI := 6]
   
   # Trovo i seggi da assegnare alle regioni i cui seggi non sono fissi:
   seggi_regioni_non_fisse <- seggi_senato_italia - 
     circosen[
       DEN_REG20 %in% regioni_seggi_fissi,
-      sum(SEGGI_FISSI)
+      sum(SEGGI)
     ]
   
-  # Trovo il quoziente
-  quoziente <- pop_seggi_variabili / seggi_regioni_non_fisse
-  
-  # Tolgo dalla popolazione legale quella necessaria ad attribuire i
-  # seggi minimi, impostando il risultato a zero se negativo.
+  # Assegno i seggi alle regioni
   circosen[
-    !(DEN_REG20 %in% regioni_seggi_fissi), 
-    pop_per_hn := pmax(POP_LEGALE - quoziente * SEGGI_FISSI, 0)
-  ]
-  
-  # Imposto a zero la popolazione così modificata per le regioni a 
-  # seggi fissi
-  circosen[
-    DEN_REG20 %in% regioni_seggi_fissi, 
-    pop_per_hn := 0
-  ]
-  
-  # Calcolo i seggi ancora da assegnare:
-  seggi_variabili <- seggi_senato_italia - sum(circosen$SEGGI_FISSI)
-  
-  # Li distribuisco tra la popolazione che non ha ancora dato origine
-  # a seggi
-  circosen[
-    ,
-    SEGGI_VARIABILI := Hare.Niemeyer(pop_per_hn, seggi_variabili)
-  ]
-  
-  # Sommo i seggi
-  circosen[
-    ,
-    SEGGI := SEGGI_FISSI + SEGGI_VARIABILI
+    !(DEN_REG20 %in% regioni_seggi_fissi),
+    SEGGI := Hare.Niemeyer_con_minimo(POP_LEGALE, seggi_regioni_non_fisse, SEGGI_MINIMI)
   ]
   
   # Calcolo i seggi da distribuire nei collegi plurinominali
@@ -303,6 +291,8 @@ simula_politiche <- function(
     ,
     SEGGI_PLURI := SEGGI - SU
   ]
+  
+  
   
   
   
