@@ -6,7 +6,7 @@ Hare.Niemeyer <- function(votes, seats, details = FALSE) {
     remainders <- votes %% q
     remainders.order <- order(remainders, votes, runif(length(votes)), decreasing = TRUE)
     remainders.seats <- rep(0, length(votes))
-    remainders.seats[remainders.order[1:still.to.assign]] <- 1
+    remainders.seats[remainders.order[seq_len(still.to.assign)]] <- 1
     assigned <- quotients + remainders.seats 
   } else {
     assigned <- rep(0, length(votes))
