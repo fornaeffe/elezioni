@@ -14,6 +14,8 @@ simula_politiche <- function(
   # Calcolo i parametri di input per la generazione dei voti
   parametri_input <- calcola_parametri_input(dati, scenario)
   
+  # Carico i candidati
+  dati_politiche <- carica_candidati(dati_politiche, scenario, parametri_input)
   
   # Passo i parametri di input, generati su base comunale, alle singole
   # unità territoriali della base dati

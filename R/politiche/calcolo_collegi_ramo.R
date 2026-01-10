@@ -223,6 +223,49 @@ calcolo_collegi_ramo <- function(
     SEGGI_PLURI := SEGGI - NUM_UNI
   ]
   
+  # CAMERA
+  
+  # 3. In ogni collegio plurinominale ciascuna lista, all'atto della
+  # presentazione, è composta da un elenco di candidati presentati secondo un
+  # ordine numerico. Il numero dei candidati non può essere inferiore alla metà,
+  # con arrotondamento all'unità superiore, dei seggi assegnati al collegio
+  # plurinominale e non può essere superiore al limite massimo di seggi
+  # assegnati al collegio plurinominale; in ogni caso, il numero dei candidati
+  # non può essere inferiore a due né superiore a quattro. A pena di
+  # inammissibilità, nella successione interna delle liste nei collegi
+  # plurinominali, i candidati sono collocati secondo un ordine alternato di
+  # genere.
+  
+  if (ramo == "camera") {
+    pluri[
+      ,
+      MAX_CANDIDATI := ifelse(SEGGI_PLURI == 0, 0, pmax(2, pmin(4, SEGGI_PLURI)))
+    ]
+  }
+  
+  # SENATO
+  
+  # 4. In ogni collegio plurinominale ciascuna lista, all'atto della
+  # presentazione, è composta da un elenco di candidati presentati secondo un
+  # ordine numerico. Il numero dei candidati non può essere inferiore alla metà,
+  # con arrotondamento all'unità superiore, dei seggi assegnati al collegio
+  # plurinominale e non può essere superiore al numero dei seggi assegnati al
+  # collegio plurinominale. In ogni caso il numero dei candidati non può essere
+  # inferiore a due né superiore a quattro; nei collegi plurinominali in cui è
+  # assegnato un solo seggio, la lista è composta da un solo candidato. A pena
+  # di inammissibilità, nella successione interna delle liste nei collegi
+  # plurinominali, i candidati sono collocati secondo un ordine alternato di
+  # genere.
+  
+  if (ramo == "senato") {
+    pluri[
+      ,
+      MAX_CANDIDATI := pmin(4, SEGGI_PLURI)
+    ]
+  }
+  
+  
+  
   return(
     list(
       circ = circ,
