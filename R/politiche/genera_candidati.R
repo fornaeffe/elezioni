@@ -1,8 +1,21 @@
 genera_candidati <- function(
     dati_politiche,
     parametri_input,
+    frazioni_pluricandidature = c(1,0,0,0,0),
     simulazioni = 1000
 ) {
+  
+  if (!(sum(frazioni_pluricandidature) == 1)) stop(
+    "La somma di frazioni_pluricandidature è ", sum(frazioni_pluricandidature)
+  )
+  
+  if (
+    !all.equal(sort(
+      frazioni_pluricandidature, decreasing = TRUE), 
+      frazioni_pluricandidature
+    )
+  ) stop("frazioni_pluricandidature non è decrescente")
+  
   genera_candidati_ramo <- function(
     ramo
   ) {
@@ -38,18 +51,40 @@ genera_candidati <- function(
       by = .(LISTA)
     ]
     
-    
+    candidati_uni_sim <- data.table::rbindlist(
+      replicate(
+        simulazioni,
+        sorteggio_candidati_uni(
+          candidati_uni[,.(
+            COALIZIONE,
+            UNI_COD,
+            LISTA_MINORANZA,
+            CANDIDATO_ID
+          )],
+          candidati,
+          parametri_input$liste[,c(
+            "LISTA",
+            "COALIZIONE",
+            "PERCENTUALE"
+          )],
+          frazioni_pluricandidature
+        ),
+        simplify = FALSE
+      ),
+      idcol = "SIM"
+    )
     
   }
 }
 
-sorteggio_candidati <- function(
+sorteggio_candidati_uni <- function(
     candidati_uni,
     candidati,
-    liste
+    liste,
+    frazioni_pluricandidature
 ) {
   liste_by_coalizione <- split(
-    liste[, .(LISTA, PERCENTUALE, COALIZIONE)],
+    liste,
     by = "COALIZIONE",
     keep.by = FALSE
   )
@@ -82,5 +117,60 @@ sorteggio_candidati <- function(
   
   candidati_uni$lista_candidato <- NULL
   
+  candidati_uni
   
+}
+
+sorteggio_candidati_pluri <- function(
+){
+  candidati_non_scelti <- candidati[!candidati_pluri, on = .(CANDIDATO_ID)]
+  
+  candidati_pluri[
+    is.na(CANDIDATO_ID),
+    CANDIDATO_ID := {
+      lista <- LISTA[1]
+      candidati_lista <- candidati_non_scelti[LISTA == lista, CANDIDATO_ID]
+      assegna_candidati_pluri(
+        PLURI_COD,
+        candidati_lista,
+        frazioni_pluricandidature
+      )
+    },
+    by = LISTA
+  ]
+  
+  candidati_pluri
+}
+
+assegna_candidati_pluri <- function(
+  pluri_cod,
+  candidati_lista,
+  frazioni_pluricandidature
+){
+  n <- length(pluri_cod)
+  
+  lunghezze_scaglioni <- sort(
+    Hare.Niemeyer(frazioni_pluricandidature, n),
+    decreasing = TRUE
+  )
+  
+  scaglioni <- list()
+  
+  scaglioni[[1]] <- sample(candidati_lista, lunghezze_scaglioni[1])
+  
+  for (i in 2:length(lunghezze_scaglioni)) {
+    scaglioni[[i]] <- sample(scaglioni[[i - 1]], lunghezze_scaglioni[i])
+  }
+  
+  candidati_da_assegnare <- sample(unlist(scaglioni))
+  
+  da_cambiare <- which(duplicated(paste(pluri_cod, candidati_da_assegnare)))
+  
+  candidati_da_assegnare[da_cambiare] <- paste(
+    candidati_da_assegnare[da_cambiare], 
+    "rimpiazzo", 
+    seq_along(da_cambiare)
+  )
+  
+  candidati_da_assegnare
 }
