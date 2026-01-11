@@ -17,6 +17,9 @@ simula_politiche <- function(
   # Carico i candidati
   dati_politiche <- carica_candidati(dati_politiche, scenario, parametri_input)
   
+  # Genero casualmente i candidati mancanti
+  
+  
   # Passo i parametri di input, generati su base comunale, alle singole
   # unità territoriali della base dati
   unita_liste <- parametri_input$comuni_liste[,.(

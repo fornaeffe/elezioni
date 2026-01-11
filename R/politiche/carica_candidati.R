@@ -55,6 +55,12 @@ carica_candidati <- function(dati_politiche, scenario, parametri_input) {
       )
     )
     
+    # Creo la colonna CANDIDATO_ID
+    candidati_uni[
+      !is.na(COGNOME_CAND_UNI) | !is.na(NOME_CAND_UNI),
+      CANDIDATO_ID := paste(COGNOME_CAND_UNI, NOME_CAND_UNI, DATA_NASCITA_CAND_UNI)
+    ]
+    
     # Creo tutte le possibili combinazioni di liste e collegi plurinominali
     liste_pluri <- data.table::CJ(
       LISTA = parametri_input$liste$LISTA, 
@@ -104,6 +110,12 @@ carica_candidati <- function(dati_politiche, scenario, parametri_input) {
         ]
       )
     )
+    
+    # Creo la colonna CANDIDATO_ID
+    candidati_pluri[
+      !is.na(COGNOME_CAND_PLURI) | !is.na(NOME_CAND_PLURI),
+      CANDIDATO_ID := paste(COGNOME_CAND_PLURI, NOME_CAND_PLURI, DATA_NASCITA_CAND_PLURI)
+    ]
     
     return(
       list(
