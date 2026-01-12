@@ -51,6 +51,8 @@ genera_candidati <- function(
       by = .(LISTA)
     ]
     
+    candidati_non_scelti <- candidati[!candidati_uni, on = .(CANDIDATO_ID)]
+    
     candidati_uni_sim <- data.table::rbindlist(
       replicate(
         simulazioni,
@@ -61,7 +63,7 @@ genera_candidati <- function(
             LISTA_MINORANZA,
             CANDIDATO_ID
           )],
-          candidati,
+          candidati_non_scelti,
           parametri_input$liste[,c(
             "LISTA",
             "COALIZIONE",
@@ -71,6 +73,14 @@ genera_candidati <- function(
         simplify = FALSE
       ),
       idcol = "SIM"
+    )
+    
+    candidati_non_scelti <- candidati[!candidati_pluri, on = .(CANDIDATO_ID)]
+    
+    # pre-split per lista
+    candidati_per_lista <- split(
+      candidati_non_scelti$CANDIDATO_ID,
+      candidati_non_scelti$LISTA
     )
     
     candidati_pluri_sim <- data.table::rbindlist(
@@ -84,7 +94,7 @@ genera_candidati <- function(
             MINORANZA,
             CANDIDATO_ID
           )],
-          candidati,
+          candidati_per_lista,
           frazioni_pluricandidature
         ),
         simplify = FALSE
@@ -113,7 +123,7 @@ genera_candidati <- function(
 
 sorteggio_candidati_uni <- function(
     candidati_uni,
-    candidati,
+    candidati_non_scelti,
     liste
 ) {
   liste_by_coalizione <- split(
@@ -121,9 +131,6 @@ sorteggio_candidati_uni <- function(
     by = "COALIZIONE",
     keep.by = FALSE
   )
-  
-  
-  candidati_non_scelti <- candidati[!candidati_uni, on = .(CANDIDATO_ID)]
   
   candidati_uni[
     is.na(CANDIDATO_ID),
@@ -156,19 +163,17 @@ sorteggio_candidati_uni <- function(
 
 sorteggio_candidati_pluri <- function(
     candidati_pluri,
-    candidati,
+    candidati_per_lista,
     frazioni_pluricandidature
 ){
-  candidati_non_scelti <- candidati[!candidati_pluri, on = .(CANDIDATO_ID)]
+  
   
   candidati_pluri[
     is.na(CANDIDATO_ID),
     CANDIDATO_ID := {
-      lista <- LISTA[1]
-      candidati_lista <- candidati_non_scelti[LISTA == lista, CANDIDATO_ID]
       assegna_candidati_pluri(
         PLURI_COD,
-        candidati_lista,
+        candidati_per_lista[[LISTA[1L]]],
         frazioni_pluricandidature
       )
     },
@@ -185,28 +190,39 @@ assegna_candidati_pluri <- function(
 ){
   n <- length(pluri_cod)
   
-  lunghezze_scaglioni <- sort(
+  lunghezze <- sort(
     Hare.Niemeyer(frazioni_pluricandidature, n),
     decreasing = TRUE
   )
   
-  scaglioni <- list()
+  # un solo campionamento
+  base <- sample(candidati_lista, lunghezze[1])
   
-  scaglioni[[1]] <- sample(candidati_lista, lunghezze_scaglioni[1])
-  
-  for (i in 2:length(lunghezze_scaglioni)) {
-    scaglioni[[i]] <- sample(scaglioni[[i - 1]], lunghezze_scaglioni[i])
-  }
-  
-  candidati_da_assegnare <- sample(unlist(scaglioni))
-  
-  da_cambiare <- which(duplicated(paste(pluri_cod, candidati_da_assegnare)))
-  
-  candidati_da_assegnare[da_cambiare] <- paste(
-    candidati_da_assegnare[da_cambiare], 
-    "rimpiazzo", 
-    seq_along(da_cambiare)
+  # indici cumulativi
+  idx <- unlist(
+    mapply(
+      seq_len,
+      lunghezze,
+      SIMPLIFY = FALSE
+    ),
+    use.names = FALSE
   )
+  
+  candidati_da_assegnare <- sample(base[idx])
+  
+  # duplicati
+  dup <- duplicated(data.table::data.table(
+    pluri_cod = pluri_cod,
+    cand = candidati_da_assegnare
+  ))
+  
+  if (any(dup)) {
+    candidati_da_assegnare[dup] <- paste(
+      candidati_da_assegnare[dup],
+      "rimpiazzo",
+      seq_len(sum(dup))
+    )
+  }
   
   candidati_da_assegnare
 }
