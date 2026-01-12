@@ -66,7 +66,25 @@ genera_candidati <- function(
             "LISTA",
             "COALIZIONE",
             "PERCENTUALE"
+          )]
+        ),
+        simplify = FALSE
+      ),
+      idcol = "SIM"
+    )
+    
+    candidati_pluri_sim <- data.table::rbindlist(
+      replicate(
+        simulazioni,
+        sorteggio_candidati_pluri(
+          candidati_pluri[,.(
+            LISTA,
+            PLURI_COD,
+            NUMERO_CANDIDATO,
+            MINORANZA,
+            CANDIDATO_ID
           )],
+          candidati,
           frazioni_pluricandidature
         ),
         simplify = FALSE
@@ -74,14 +92,29 @@ genera_candidati <- function(
       idcol = "SIM"
     )
     
+    return(
+      list(
+        candidati_uni_sim = candidati_uni_sim,
+        candidati_pluri_sim = candidati_pluri_sim
+      )
+    )
   }
+  
+  camera <- genera_candidati_ramo("camera")
+  senato <- genera_candidati_ramo("senato")
+  
+  return(
+    list(
+      camera = camera,
+      senato = senato
+    )
+  )
 }
 
 sorteggio_candidati_uni <- function(
     candidati_uni,
     candidati,
-    liste,
-    frazioni_pluricandidature
+    liste
 ) {
   liste_by_coalizione <- split(
     liste,
@@ -122,6 +155,9 @@ sorteggio_candidati_uni <- function(
 }
 
 sorteggio_candidati_pluri <- function(
+    candidati_pluri,
+    candidati,
+    frazioni_pluricandidature
 ){
   candidati_non_scelti <- candidati[!candidati_pluri, on = .(CANDIDATO_ID)]
   
