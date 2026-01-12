@@ -20,6 +20,12 @@ carica_candidati <- function(dati_politiche, scenario, parametri_input) {
       )
     )
     
+    # Imposto MINORANZA = FALSE se non è specificata
+    candidati_pluri_input[
+      is.na(MINORANZA),
+      MINORANZA := FALSE
+    ]
+    
     # TODO: validare nomi dei collegi nei file Excel
     
     # Creo tutte le possibili combinazioni di coalizioni e collegi uninominali
@@ -130,5 +136,5 @@ carica_candidati <- function(dati_politiche, scenario, parametri_input) {
   camera <- c(dati_politiche$camera, carica_candidati_ramo("camera"))
   senato <- c(dati_politiche$senato, carica_candidati_ramo("senato"))
   
-  return(list(camera = camera, senato = senato))
+  return(list(camera = camera, senato = senato, base_dati = dati_politiche$base_dati))
 }

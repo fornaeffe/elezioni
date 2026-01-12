@@ -3,6 +3,7 @@
 simula_politiche <- function(
     scenario,
     data_elezione,
+    frazioni_pluricandidature = c(1,0,0,0,0),
     simulazioni = 1000
 ){
   # Carico i dati
@@ -18,54 +19,13 @@ simula_politiche <- function(
   dati_politiche <- carica_candidati(dati_politiche, scenario, parametri_input)
   
   # Genero casualmente i candidati mancanti
-  
-  
-  # Passo i parametri di input, generati su base comunale, alle singole
-  # unità territoriali della base dati
-  unita_liste <- parametri_input$comuni_liste[,.(
-    CODICE_COMUNE,
-    LISTA,
-    DATA,
-    DELTA,
-    SIGMA_DELTA
-  )][
-    base_dati[,.(
-      CODICE_COMUNE,
-      CODITA_20N,
-      ELETTORI,
-      CU20_COD,
-      SU20_COD
-    )],
-    on = .(CODICE_COMUNE)
-  ]
-  
-  unita_liste_sim <- genera_voti(
-    unita_liste[,.(
-      CODITA_20N,
-      LISTA,
-      DATA,
-      DELTA,
-      SIGMA_DELTA,
-      ELETTORI,
-      CU20_COD,
-      SU20_COD
-    )],
-    parametri_input$liste,
-    data_elezione,
-    simulazioni,
-    colonna_localita = "CODITA_20N"
+  candidati <- genera_candidati(
+    dati_politiche,
+    parametri_input,
+    frazioni_pluricandidature,
+    simulazioni
   )
   
-  unisen_liste_sim <- unita_liste_sim[
-    ,
-    .(VOTI_LISTA_SIM = sum(VOTI_LISTA_SIM)),
-    by = .(SIM, SU20_COD, LISTA)
-  ]
   
-  unicam_liste_sim <- unita_liste_sim[
-    ,
-    .(VOTI_LISTA_SIM = sum(VOTI_LISTA_SIM)),
-    by = .(SIM, CU20_COD, LISTA)
-  ]
   
 }
