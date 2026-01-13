@@ -43,6 +43,9 @@ scrutinio_politiche <- function(
   
 ) {
   
+  message("Scrutinio del ramo: ", ramo, ifelse("SIM" %in% names(liste_uni), paste0(" SIM: ", liste_uni$SIM[1]), ""))
+  
+  
   #### Elezione dei candidati uninominali ####
   
   ## Camera
@@ -1135,8 +1138,8 @@ scrutinio_politiche <- function(
           riparto_naz$SEGGI_ECCEDENTI_CONTATORE[riparto_naz$SOGGETTO_RIPARTO == s2] + 1
         
         message(
-          "Tolgo un seggio a", as.character(s), "in", as.character(c),
-          "per darlo a", as.character(s2), "in", as.character(c2), "\n"
+          "Tolgo un seggio a ", as.character(s), " in ", as.character(c),
+          "per darlo a ", as.character(s2), " in ", as.character(c2), "\n"
         )
       }
     }
@@ -1372,6 +1375,8 @@ scrutinio_politiche <- function(
       ),
     ]
     
+    ammesse_circ$ORDINE <- NA
+    
     ammesse_circ$ORDINE[!ammesse_circ$ESCLUSE] <- ave(
       seq_along(ammesse_circ$SOGGETTO_RIPARTO[!ammesse_circ$ESCLUSE]),
       paste(
@@ -1498,8 +1503,8 @@ scrutinio_politiche <- function(
           ammesse_naz$SEGGI_ECCEDENTI_CONTATORE[ammesse_naz$LISTA == l2] - 1
         
         message(
-          "Tolgo un seggio a", as.character(l), "in", as.character(c),
-          "per darlo a", as.character(l2), "in", as.character(c2), "\n"
+          "Tolgo un seggio a ", as.character(l), " in ", as.character(c),
+          "per darlo a ", as.character(l2), " in ", as.character(c2), "\n"
         )
       }
     }
@@ -2066,13 +2071,13 @@ scrutinio_politiche <- function(
       pmin(ammesse_pluri$SEGGI[c(i,j)], ammesse_pluri$CANDIDATI[c(i,j)])
     
     message(
-      "Ho spostato un seggio dalla lista",
+      "Ho spostato un seggio dalla lista ",
       as.character(ammesse_pluri$LISTA[i]),
-      "nel collegio",
+      " nel collegio ",
       as.character(ammesse_pluri$COLLEGIOPLURINOMINALE[i]),
-      "alla lista",
+      " alla lista ",
       as.character(ammesse_pluri$LISTA[j]),
-      "nel collegio",
+      " nel collegio ",
       as.character(ammesse_pluri$COLLEGIOPLURINOMINALE[j]),
       "\n"
     )
@@ -2137,7 +2142,7 @@ scrutinio_politiche <- function(
     candidati_uni$RIPESCATO[j] <<- TRUE
     
     message(
-      "Ho ripescato",
+      "Ho ripescato ",
       as.character(candidati_uni$CANDIDATO[j]),
       "\n"
     )
@@ -2209,7 +2214,7 @@ scrutinio_politiche <- function(
   if (ramo == "camera") subentro(livello = "naz", coal = TRUE)
   
   # Questo non è previsto dalla norma, ma è stato comunque fatto in
-  # occasione delle scorse elezioni del 2018
+  # occasione delle elezioni del 2018
   if (ramo == "senato") subentro(livello = "naz")
   if (ramo == "senato") subentro(livello = "naz", uni = TRUE)
   if (ramo == "senato") subentro(livello = "naz", coal = TRUE)
@@ -2241,10 +2246,14 @@ scrutinio_politiche <- function(
   # della Repubblica 30 marzo 1957, n. 361)).
   
   for (i in 1:100) {
-    if (sum(ammesse_pluri$SEGGI != ammesse_pluri$ELETTI) > 0) warning(
-      "In alcuni collegi il numero di eletti non corrisponde al numero di seggi
-  al termine dei subentri"
-    )
+    if (sum(ammesse_pluri$SEGGI != ammesse_pluri$ELETTI) > 0) {
+      warning(
+        "In alcuni collegi il numero di eletti non corrisponde al numero di seggi
+    al termine dei subentri.\nRamo: ", 
+        ramo, 
+        ifelse("SIM" %in% names(liste_uni), paste0("SIM: ", liste_uni$SIM[1]), "")
+      )
+    }
     
     candidati_pluri$ELETTI <- NULL
     

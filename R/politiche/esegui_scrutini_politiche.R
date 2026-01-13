@@ -94,22 +94,22 @@ esegui_scrutini_politiche <- function(
     )
     
     # DEBUG:
-    sim <- 2
-    liste_uni <- uni_liste_sim_split[[sim]]
-    candidati_uni <- candidati_uni_sim_split[[sim]]
-    candidati_pluri <- candidati_pluri_sim_split[[sim]]
-    totali_pluri <- pluri
-    liste_naz <- liste
-    
-    scrutinio <- scrutinio_politiche(
-      uni_liste_sim_split[[1]],
-      candidati_uni_sim_split[[1]],
-      candidati_pluri_sim_split[[1]],
-      pluri,
-      liste,
-      totale_seggi,
-      ramo
-    )
+    # sim <- 10
+    # liste_uni <- uni_liste_sim_split[[sim]]
+    # candidati_uni <- candidati_uni_sim_split[[sim]]
+    # candidati_pluri <- candidati_pluri_sim_split[[sim]]
+    # totali_pluri <- pluri
+    # liste_naz <- liste
+    # 
+    # scrutinio <- scrutinio_politiche(
+    #   uni_liste_sim_split[[1]],
+    #   candidati_uni_sim_split[[1]],
+    #   candidati_pluri_sim_split[[1]],
+    #   pluri,
+    #   liste,
+    #   totale_seggi,
+    #   ramo
+    # )
     
      
   }
