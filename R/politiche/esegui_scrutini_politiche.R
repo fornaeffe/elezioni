@@ -1,4 +1,9 @@
 esegui_scrutini_politiche <- function(
+    dati_collegi,
+    parametri_input,
+    dati_candidati,
+    candidati,
+    voti
 ){
   esegui_scrutini_politiche_ramo <- function(ramo) {
     uni_liste_sim <- data.table::copy(voti[[ramo]]$uni_liste_sim)
@@ -36,7 +41,7 @@ esegui_scrutini_politiche <- function(
     ]
     
     # Torno ai data.frame
-    uni_liste_sim <- as.data.frame(uni_liste_sim[, .(
+    uni_liste_sim_dt <- as.data.frame(uni_liste_sim[, .(
       CIRCOSCRIZIONE = CIRC_COD,
       COLLEGIOPLURINOMINALE = PLURI_COD,
       COLLEGIOUNINOMINALE = UNI_COD,
@@ -47,7 +52,7 @@ esegui_scrutini_politiche <- function(
       VOTI_LISTA = VOTI_LISTA_SIM,
       SIM
     )])
-    candidati_uni_sim <- as.data.frame(candidati_uni_sim[, .(
+    candidati_uni_sim_dt <- as.data.frame(candidati_uni_sim[, .(
       CIRCOSCRIZIONE = CIRC_COD,
       COLLEGIOPLURINOMINALE = PLURI_COD,
       COLLEGIOUNINOMINALE = UNI_COD,
@@ -56,7 +61,7 @@ esegui_scrutini_politiche <- function(
       VOTI_CANDIDATO,
       SIM
     )])
-    candidati_pluri_sim <- as.data.frame(candidati_pluri_sim[, .(
+    candidati_pluri_sim_dt <- as.data.frame(candidati_pluri_sim[, .(
       CIRCOSCRIZIONE = CIRC_COD,
       COLLEGIOPLURINOMINALE = PLURI_COD,
       LISTA,
@@ -64,20 +69,20 @@ esegui_scrutini_politiche <- function(
       CANDIDATO = CANDIDATO_ID,
       SIM
     )])
-    pluri <- as.data.frame(pluri[, .(
+    pluri_dt <- as.data.frame(pluri[, .(
       CIRCOSCRIZIONE = CIRC_COD,
       COLLEGIOPLURINOMINALE = PLURI_COD,
       SEGGI = SEGGI_PLURI
     )])
-    liste <- as.data.frame(liste[, .(
+    liste_dt <- as.data.frame(liste[, .(
       LISTA,
       COALIZIONE,
       MINORANZA
     )])
     
-    uni_liste_sim_split <- split(uni_liste_sim, uni_liste_sim$SIM)
-    candidati_uni_sim_split <- split(candidati_uni_sim, candidati_uni_sim$SIM)
-    candidati_pluri_sim_split <- split(candidati_pluri_sim, candidati_pluri_sim$SIM)
+    uni_liste_sim_split <- split(uni_liste_sim_dt, uni_liste_sim$SIM)
+    candidati_uni_sim_split <- split(candidati_uni_sim_dt, candidati_uni_sim$SIM)
+    candidati_pluri_sim_split <- split(candidati_pluri_sim_dt, candidati_pluri_sim$SIM)
     
     scrutini_sim_split <- mapply(
       scrutinio_politiche,
@@ -85,12 +90,112 @@ esegui_scrutini_politiche <- function(
       candidati_uni_sim_split,
       candidati_pluri_sim_split,
       MoreArgs = list(
-        totali_pluri = pluri,
-        liste_naz = liste,
+        totali_pluri = pluri_dt,
+        liste_naz = liste_dt,
         totale_seggi = totale_seggi,
         ramo = ramo
       ),
-      SIMPLIFY = FALSE
+      SIMPLIFY = FALSE,
+      USE.NAMES = FALSE # Per evitare che rbindlist restituisca una colonna SIM
+      # character anziché integer
+    )
+    
+    pluri_liste_sim_scrutinio <- data.table::rbindlist(
+      lapply(scrutini_sim_split, function(x) x$liste_pluri),
+      idcol = "SIM"
+    )
+    candidati_uni_sim_scrutinio <- data.table::rbindlist(
+      lapply(scrutini_sim_split, function(x) x$candidati_uni),
+      idcol = "SIM"
+    )
+    candidati_pluri_sim_scrutinio <- data.table::rbindlist(
+      lapply(scrutini_sim_split, function(x) x$candidati_pluri),
+      idcol = "SIM"
+    )
+    
+    # Aggiungo colonne informative
+    pluri_liste_sim <- uni_liste_sim[
+      ,
+      .(
+        VOTI_LISTA = sum(VOTI_LISTA_SIM)
+      ),
+      by = .(
+        SIM,
+        CIRC_COD,
+        PLURI_COD,
+        COALIZIONE,
+        LISTA
+      )
+    ][
+      pluri_liste_sim_scrutinio[, -c("CIRCOSCRIZIONE")],
+      on = .(SIM, PLURI_COD = COLLEGIOPLURINOMINALE, LISTA)
+    ][
+      pluri,
+      on = .(PLURI_COD),
+      `:=`(
+        CIRC_DEN = i.CIRC_DEN,
+        PLURI_DEN = i.PLURI_DEN,
+        SEGGI_PLURI = i.SEGGI_PLURI,
+        MAX_CANDIDATI = i.MAX_CANDIDATI
+      )
+    ]
+    
+    # Calcolo la percentuale sui voti validi per ogni lista in ogni
+    # collegio plurinominale
+    pluri_liste_sim[
+      ,
+      PERCENTUALE := formattable::percent(VOTI_LISTA / sum(VOTI_LISTA), 2),
+      by = .(SIM, PLURI_COD)
+    ]
+    
+    # Raccolgo le info per ogni lista a livello nazionale
+    liste_sim <- pluri_liste_sim[
+      ,
+      .(
+        VOTI_LISTA = sum(VOTI_LISTA),
+        ELETTI = sum(ELETTI),
+        SEGGI_PRE_SUBENTRI = sum(SEGGI_PRE_SUBENTRI)
+      ),
+      by = .(
+        SIM,
+        COALIZIONE,
+        LISTA
+      )
+    ]
+    
+    # Calcolo le percentuali nazionali
+    liste_sim[
+      ,
+      PERCENTUALE := formattable::percent(VOTI_LISTA / sum(VOTI_LISTA), 2),
+      by = .(SIM)
+    ]
+    
+    # Costruisco il data.table candidati_uni_sim
+    candidati_uni_sim[
+      dati_collegi[[ramo]]$uni,
+      on = .(UNI_COD),
+      `:=`(
+        CIRC_DEN = i.CIRC_DEN,
+        PLURI_DEN = i.PLURI_DEN,
+        UNI_DEN = i.UNI_DEN
+      )
+    ][
+      candidati_uni_sim_scrutinio,
+      on = .(
+        SIM,
+        UNI_COD = COLLEGIOUNINOMINALE,
+        CANDIDATO_ID = CANDIDATO
+      ),
+      ELETTO := i.ELETTO
+    ]
+    
+    
+    return(
+      list(
+        pluri_liste_sim = pluri_liste_sim,
+        candidati_uni_sim = candidati_uni_sim,
+        candidati_pluri_sim = candidati_pluri_sim
+      )
     )
     
     # DEBUG:
