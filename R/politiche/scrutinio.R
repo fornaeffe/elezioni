@@ -1,7 +1,5 @@
 scrutinio_politiche <- function(
     
-  ramo,
-    
   liste_uni,
   # CIRCOSCRIZIONE (factor)
   # COLLEGIOPLURINOMINALE (factor)
@@ -11,11 +9,6 @@ scrutinio_politiche <- function(
   # LISTA (factor)
   # MINORANZA (logical)
   # VOTI_LISTA (integer)
-  
-  liste_naz,
-  # LISTA (factor)
-  # COALIZIONE (character) cambiare in factor?
-  # MINORANZA (logical)
   
   candidati_uni,
   # CIRCOSCRIZIONE (factor)
@@ -37,7 +30,16 @@ scrutinio_politiche <- function(
   # COLLEGIOPLURINOMINALE (factor)
   # SEGGI (numeric)
   
-  totale_seggi
+  
+  liste_naz,
+  # LISTA (factor)
+  # COALIZIONE (character) cambiare in factor?
+  # MINORANZA (logical)
+  
+  totale_seggi,
+  
+  
+  ramo
   
 ) {
   
@@ -632,6 +634,13 @@ scrutinio_politiche <- function(
     
     seggi_proporzionale <- totale_seggi - sum(candidati_uni$ELETTO) - 1
     
+    if (seggi_proporzionale != sum(totali_pluri$SEGGI)) stop(
+      "seggi_proporzionale = ", 
+      seggi_proporzionale, 
+      " ma sum(totali_pluri$SEGGI) = ",
+      sum(totali_pluri$SEGGI)
+    )
+    
     liste_naz$SOGGETTO_RIPARTO <- NA
     
     liste_naz$SOGGETTO_RIPARTO[which(liste_naz$SOGLIA_COALIZIONE)] <- 
@@ -1125,7 +1134,7 @@ scrutinio_politiche <- function(
         riparto_naz$SEGGI_ECCEDENTI_CONTATORE[riparto_naz$SOGGETTO_RIPARTO == s2] <-
           riparto_naz$SEGGI_ECCEDENTI_CONTATORE[riparto_naz$SOGGETTO_RIPARTO == s2] + 1
         
-        cat(
+        message(
           "Tolgo un seggio a", as.character(s), "in", as.character(c),
           "per darlo a", as.character(s2), "in", as.character(c2), "\n"
         )
@@ -1488,7 +1497,7 @@ scrutinio_politiche <- function(
         ammesse_naz$SEGGI_ECCEDENTI_CONTATORE[ammesse_naz$LISTA == l2] <-
           ammesse_naz$SEGGI_ECCEDENTI_CONTATORE[ammesse_naz$LISTA == l2] - 1
         
-        cat(
+        message(
           "Tolgo un seggio a", as.character(l), "in", as.character(c),
           "per darlo a", as.character(l2), "in", as.character(c2), "\n"
         )
@@ -1962,7 +1971,7 @@ scrutinio_politiche <- function(
       
       da_spostare <- ammesse_pluri$SEGGI[i] - ammesse_pluri$ELETTI[i]
       
-      cat(
+      message(
         "Devo spostare ",
         da_spostare,
         " seggi della lista ",
@@ -2056,7 +2065,7 @@ scrutinio_politiche <- function(
     ammesse_pluri$ELETTI[c(i,j)] <<- 
       pmin(ammesse_pluri$SEGGI[c(i,j)], ammesse_pluri$CANDIDATI[c(i,j)])
     
-    cat(
+    message(
       "Ho spostato un seggio dalla lista",
       as.character(ammesse_pluri$LISTA[i]),
       "nel collegio",
@@ -2127,7 +2136,7 @@ scrutinio_politiche <- function(
     ammesse_pluri$ELETTI[i] <<- ammesse_pluri$ELETTI[i] + 1
     candidati_uni$RIPESCATO[j] <<- TRUE
     
-    cat(
+    message(
       "Ho ripescato",
       as.character(candidati_uni$CANDIDATO[j]),
       "\n"

@@ -4,7 +4,7 @@ calcola_parametri_input <- function(
     dati,
     scenario
 ){
-  cat("\nCalcolo i parametri di input...\n")
+  message("\nCalcolo i parametri di input...\n")
   
   liste <- data.table::as.data.table(readxl::read_xlsx(scenario, "liste_future"))
   coalizioni <- data.table::as.data.table(readxl::read_xlsx(scenario, "coalizioni_future"))
@@ -197,7 +197,7 @@ calcola_parametri_input <- function(
   cjtb <- table(cj$LISTA)
   
   if (length(cjtb) > 0) {
-    cat("Alcune liste non sono presenti in tutti i comuni. Di seguito il numero
+    message("Alcune liste non sono presenti in tutti i comuni. Di seguito il numero
         di comuni nei quali la lista non è presente:\n")
     print(cjtb)
   }

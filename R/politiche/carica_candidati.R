@@ -1,11 +1,11 @@
 
 
-carica_candidati <- function(dati_politiche, scenario, parametri_input) {
+carica_candidati <- function(dati_collegi, scenario, parametri_input) {
   
   carica_candidati_ramo <- function(ramo) {
-    circ <- dati_politiche[[ramo]]$circ
-    pluri <- dati_politiche[[ramo]]$pluri
-    uni <- dati_politiche[[ramo]]$uni
+    circ <- dati_collegi[[ramo]]$circ
+    pluri <- dati_collegi[[ramo]]$pluri
+    uni <- dati_collegi[[ramo]]$uni
     
     candidati_uni_input <- data.table::as.data.table(
       readxl::read_xlsx(
@@ -64,12 +64,12 @@ carica_candidati <- function(dati_politiche, scenario, parametri_input) {
     # Creo la colonna CANDIDATO_ID
     candidati_uni[
       !is.na(COGNOME_CAND_UNI) | !is.na(NOME_CAND_UNI),
-      CANDIDATO_ID := paste(COGNOME_CAND_UNI, NOME_CAND_UNI, DATA_NASCITA_CAND_UNI)
+      CANDIDATO_ID := paste(COGNOME_CAND_UNI, NOME_CAND_UNI, DATA_NASCITA)
     ]
     
     # Creo tutte le possibili combinazioni di liste e collegi plurinominali
     liste_pluri <- data.table::CJ(
-      LISTA = parametri_input$liste$LISTA, 
+      LISTA = parametri_input$liste[LISTA != "astensione", LISTA], 
       PLURI_COD = pluri$PLURI_COD
     )[
       pluri[, .(
@@ -120,7 +120,7 @@ carica_candidati <- function(dati_politiche, scenario, parametri_input) {
     # Creo la colonna CANDIDATO_ID
     candidati_pluri[
       !is.na(COGNOME_CAND_PLURI) | !is.na(NOME_CAND_PLURI),
-      CANDIDATO_ID := paste(COGNOME_CAND_PLURI, NOME_CAND_PLURI, DATA_NASCITA_CAND_PLURI)
+      CANDIDATO_ID := paste(COGNOME_CAND_PLURI, NOME_CAND_PLURI, DATA_NASCITA)
     ]
     
     return(
@@ -133,8 +133,8 @@ carica_candidati <- function(dati_politiche, scenario, parametri_input) {
   }
   
   # Aggiungo i data.table alle liste camera e senato
-  camera <- c(dati_politiche$camera, carica_candidati_ramo("camera"))
-  senato <- c(dati_politiche$senato, carica_candidati_ramo("senato"))
+  camera <- carica_candidati_ramo("camera")
+  senato <- carica_candidati_ramo("senato")
   
-  return(list(camera = camera, senato = senato, base_dati = dati_politiche$base_dati))
+  return(list(camera = camera, senato = senato))
 }

@@ -1,5 +1,6 @@
 genera_candidati <- function(
-    dati_politiche,
+    dati_candidati,
+    dati_collegi,
     parametri_input,
     frazioni_pluricandidature = c(1,0,0,0,0),
     simulazioni = 1000
@@ -19,37 +20,43 @@ genera_candidati <- function(
   genera_candidati_ramo <- function(
     ramo
   ) {
-    pluri <- dati_politiche[[ramo]]$pluri
-    uni <- dati_politiche[[ramo]]$uni
-    candidati_pluri <- dati_politiche[[ramo]]$candidati_pluri
-    candidati_uni <- dati_politiche[[ramo]]$candidati_uni
+    message("Genero i candidati per ", ifelse(ramo == "camera", "la Camera", "il Senato"))
+    
+    pluri <- dati_collegi[[ramo]]$pluri
+    uni <- dati_collegi[[ramo]]$uni
+    candidati_pluri <- dati_candidati[[ramo]]$candidati_pluri
+    candidati_uni <- dati_candidati[[ramo]]$candidati_uni
     
     #### Preparo il data frame dei candidati ####
     n_cand <- sum(pluri$MAX_CANDIDATI) + nrow(uni)
     candidati <- parametri_input$liste[
+      LISTA != "astensione"
+    ][
       rep(seq_len(.N), each = n_cand),
       .(LISTA, COALIZIONE)
     ]
     
     candidati[
       ,
-      CANDIDATO_ID := paste(LISTA, seq_len(.N))
+      `:=`(
+        CANDIDATO_ID = paste(LISTA, seq_len(.N)),
+        DATA_NASCITA = as.POSIXct(runif(.N, as.POSIXct("1950-01-01"), as.POSIXct("2000-12-31")))
+      )
     ]
     
-    
-    # TODO testare questa parte
-    candidati[
-      ,
-      CANDIDATO_ID := {
-        lista <- LISTA[1L]
-        ids <- candidati_pluri[
-          LISTA == lista & !is.na(CANDIDATO_ID),
-          CANDIDATO_ID
+    candidati <- data.table::rbindlist(
+      list(
+        candidati,
+        candidati_pluri[
+          parametri_input$liste[, .(LISTA, COALIZIONE)],
+          on = .(LISTA)
+        ][
+          !is.na(CANDIDATO_ID),
+          .(LISTA, COALIZIONE, CANDIDATO_ID, DATA_NASCITA)
         ]
-        replace(CANDIDATO_ID, seq_along(ids), ids)
-      },
-      by = .(LISTA)
-    ]
+      )
+    )
+    
     
     candidati_non_scelti <- candidati[!candidati_uni, on = .(CANDIDATO_ID)]
     
@@ -101,6 +108,36 @@ genera_candidati <- function(
       ),
       idcol = "SIM"
     )
+    
+    # Aggiungo colonne informative
+    candidati_uni_sim[
+      candidati[, .(CANDIDATO_ID, DATA_NASCITA)],
+      on = .(CANDIDATO_ID),
+      DATA_NASCITA := i.DATA_NASCITA
+    ]
+    
+    candidati_uni_sim[
+      uni,
+      on = .(UNI_COD),
+      `:=`(
+        PLURI_COD = i.PLURI_COD,
+        CIRC_COD = i.CIRC_COD
+      )
+    ]
+    
+    candidati_pluri_sim[
+      candidati[, .(CANDIDATO_ID, DATA_NASCITA)],
+      on = .(CANDIDATO_ID),
+      DATA_NASCITA := i.DATA_NASCITA
+    ]
+    
+    candidati_pluri_sim[
+      pluri,
+      on = .(PLURI_COD),
+      `:=`(
+        CIRC_COD = i.CIRC_COD
+      )
+    ]
     
     return(
       list(

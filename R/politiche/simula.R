@@ -10,19 +10,29 @@ simula_politiche <- function(
   dati <- carica_dati(cache_path = "dati/dati.RData")
   
   # Estraggo i collegi e ne calcolo i seggi e gli elettori
-  dati_politiche <- calcola_collegi(dati)
+  dati_collegi <- calcola_collegi(dati)
   
   # Calcolo i parametri di input per la generazione dei voti
   parametri_input <- calcola_parametri_input(dati, scenario)
   
   # Carico i candidati
-  dati_politiche <- carica_candidati(dati_politiche, scenario, parametri_input)
+  dati_candidati <- carica_candidati(dati_collegi, scenario, parametri_input)
   
   # Genero casualmente i candidati mancanti
   candidati <- genera_candidati(
-    dati_politiche,
+    dati_candidati,
+    dati_collegi,
     parametri_input,
     frazioni_pluricandidature,
+    simulazioni
+  )
+  
+  # Genero i voti
+  voti <- genera_voti_politiche(
+    parametri_input,
+    dati_collegi,
+    dati_candidati,
+    data_elezione,
     simulazioni
   )
   

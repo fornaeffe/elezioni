@@ -1,6 +1,17 @@
+# Dati necessari:
+# parametri_input$liste
+# parametri_input$comuni_liste
+# dati_collegi$base_dati
+# dati_collegi[[ramo]]$uni
+# dati_candidati[[ramo]]$candidati_pluri
+# candidati[[ramo]]$candidati_uni_sim
+# data_elezione
+# simulazioni
+
 genera_voti_politiche <- function(
     parametri_input,
-    dati_politiche,
+    dati_collegi,
+    dati_candidati,
     data_elezione,
     simulazioni
 ) {
@@ -13,7 +24,7 @@ genera_voti_politiche <- function(
     DELTA,
     SIGMA_DELTA
   )][
-    dati_politiche$base_dati[,.(
+    dati_collegi$base_dati[,.(
       CODICE_COMUNE,
       CODITA_20N,
       ELETTORI,
@@ -55,14 +66,16 @@ genera_voti_politiche <- function(
   camera <- prepara_dts(
     unicam_liste_sim,
     "camera",
-    dati_politiche,
+    dati_collegi,
+    dati_candidati,
     candidati,
     parametri_input
   )
   senato <- prepara_dts(
     unisen_liste_sim,
     "senato",
-    dati_politiche,
+    dati_collegi,
+    dati_candidati,
     candidati,
     parametri_input
   )
@@ -78,14 +91,15 @@ genera_voti_politiche <- function(
 prepara_dts <- function(
     uni_liste_sim,
     ramo,
-    dati_politiche,
+    dati_collegi,
+    dati_candidati,
     candidati,
     parametri_input
 ){
   uni_liste_sim <- uni_liste_sim[LISTA != "astensione"]
   
   uni_liste_sim[
-    dati_politiche[[ramo]]$uni,
+    dati_collegi[[ramo]]$uni,
     on = .(UNI_COD),
     `:=`(
       PLURI_COD = i.PLURI_COD,
@@ -94,7 +108,7 @@ prepara_dts <- function(
   ]
   # TODO risolvere l'assenza della VdA
   validi <- unique(
-    dati_politiche[[ramo]]$candidati_pluri[, .(
+    dati_candidati[[ramo]]$candidati_pluri[, .(
       CIRC_COD, 
       PLURI_COD, 
       LISTA,
@@ -138,8 +152,8 @@ prepara_dts <- function(
   
   return(
     list(
-      uni_liste_sim_filtrato,
-      candidati_uni_sim
+      uni_liste_sim = uni_liste_sim_filtrato,
+      candidati_uni_sim = candidati_uni_sim
     )
   )
 }

@@ -7,7 +7,7 @@ genera_voti <- function(
     colonna_localita = "CODICE_COMUNE"
 ) {
   
-  cat("\nSimulo i voti...\n")
+  message("\nSimulo i voti...\n")
   
   # Copie locali
   comuni_liste <- data.table::copy(comuni_liste)

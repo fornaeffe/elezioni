@@ -1,5 +1,6 @@
 # TODO: trasformare le coppie CODICE/NOME in factors
 # TODO: dati VdA 2022
+# TODO: separare il caricamento dei dati elettorali dal caricamento dei dati ISTAT
 
 fonti <- list(
   list(
@@ -356,7 +357,7 @@ scarica_dati <- function(
     cache_raw_path = tempdir()
 ) {
   
-  cat("\nScarico i dati dal web...\n")
+  message("\nScarico i dati dal web...\n")
   
   #### Codici statistici e unità territoriali ####
   
@@ -376,7 +377,7 @@ scarica_dati <- function(
   ) {
     tryCatch(
       {
-        cat("\nDownload dei dati dell'elezione", elezione,"...\n")
+        message("\nDownload dei dati dell'elezione", elezione,"...\n")
         
         # Preparo il nome del file temporaneo da scaricare
         file_path <- tempfile(fileext = ".zip")
