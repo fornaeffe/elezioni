@@ -113,109 +113,61 @@ esegui_scrutini_politiche <- function(
       idcol = "SIM"
     )
     
-    # Aggiungo colonne informative
-    pluri_liste_sim <- uni_liste_sim[
-      ,
-      .(
-        VOTI_LISTA = sum(VOTI_LISTA_SIM)
+    # Standardizzo i nomi
+    data.table::setnames(
+      pluri_liste_sim_scrutinio,
+      c(
+        "CIRCOSCRIZIONE",
+        "COLLEGIOPLURINOMINALE"
       ),
-      by = .(
-        SIM,
-        CIRC_COD,
-        PLURI_COD,
-        COALIZIONE,
-        LISTA
+      c(
+        "CIRC_COD",
+        "PLURI_COD"
       )
-    ][
-      pluri_liste_sim_scrutinio[, -c("CIRCOSCRIZIONE")],
-      on = .(SIM, PLURI_COD = COLLEGIOPLURINOMINALE, LISTA)
-    ][
-      pluri,
-      on = .(PLURI_COD),
-      `:=`(
-        CIRC_DEN = i.CIRC_DEN,
-        PLURI_DEN = i.PLURI_DEN,
-        SEGGI_PLURI = i.SEGGI_PLURI,
-        MAX_CANDIDATI = i.MAX_CANDIDATI
-      )
-    ]
-    
-    # Calcolo la percentuale sui voti validi per ogni lista in ogni
-    # collegio plurinominale
-    pluri_liste_sim[
-      ,
-      PERCENTUALE := formattable::percent(VOTI_LISTA / sum(VOTI_LISTA), 2),
-      by = .(SIM, PLURI_COD)
-    ]
-    
-    # Raccolgo le info per ogni lista a livello nazionale
-    liste_sim <- pluri_liste_sim[
-      ,
-      .(
-        VOTI_LISTA = sum(VOTI_LISTA),
-        ELETTI = sum(ELETTI),
-        SEGGI_PRE_SUBENTRI = sum(SEGGI_PRE_SUBENTRI)
-      ),
-      by = .(
-        SIM,
-        COALIZIONE,
-        LISTA
-      )
-    ]
-    
-    # Calcolo le percentuali nazionali
-    liste_sim[
-      ,
-      PERCENTUALE := formattable::percent(VOTI_LISTA / sum(VOTI_LISTA), 2),
-      by = .(SIM)
-    ]
-    
-    # Costruisco il data.table candidati_uni_sim
-    candidati_uni_sim[
-      dati_collegi[[ramo]]$uni,
-      on = .(UNI_COD),
-      `:=`(
-        CIRC_DEN = i.CIRC_DEN,
-        PLURI_DEN = i.PLURI_DEN,
-        UNI_DEN = i.UNI_DEN
-      )
-    ][
+    )
+    data.table::setnames(
       candidati_uni_sim_scrutinio,
-      on = .(
-        SIM,
-        UNI_COD = COLLEGIOUNINOMINALE,
-        CANDIDATO_ID = CANDIDATO
+      c(
+        "CIRCOSCRIZIONE",
+        "COLLEGIOPLURINOMINALE",
+        "COLLEGIOUNINOMINALE",
+        "CANDIDATO"
       ),
-      ELETTO := i.ELETTO
-    ]
+      c(
+        "CIRC_COD",
+        "PLURI_COD",
+        "UNI_COD",
+        "CANDIDATO_ID"
+      )
+    )
+    data.table::setnames(
+      candidati_pluri_sim_scrutinio,
+      c(
+        "CIRCOSCRIZIONE",
+        "COLLEGIOPLURINOMINALE",
+        "CANDIDATO",
+        "NUMERO"
+      ),
+      c(
+        "CIRC_COD",
+        "PLURI_COD",
+        "CANDIDATO_ID",
+        "NUMERO_CANDIDATO"
+      )
+    )
     
     
     return(
       list(
-        pluri_liste_sim = pluri_liste_sim,
-        candidati_uni_sim = candidati_uni_sim,
-        candidati_pluri_sim = candidati_pluri_sim
+        pluri_liste_sim = pluri_liste_sim_scrutinio,
+        candidati_uni_sim = candidati_uni_sim_scrutinio,
+        candidati_pluri_sim_ = candidati_pluri_sim_scrutinio
       )
     )
-    
-    # DEBUG:
-    # sim <- 10
-    # liste_uni <- uni_liste_sim_split[[sim]]
-    # candidati_uni <- candidati_uni_sim_split[[sim]]
-    # candidati_pluri <- candidati_pluri_sim_split[[sim]]
-    # totali_pluri <- pluri
-    # liste_naz <- liste
-    # 
-    # scrutinio <- scrutinio_politiche(
-    #   uni_liste_sim_split[[1]],
-    #   candidati_uni_sim_split[[1]],
-    #   candidati_pluri_sim_split[[1]],
-    #   pluri,
-    #   liste,
-    #   totale_seggi,
-    #   ramo
-    # )
-    
-     
   }
+  
+  camera <- esegui_scrutini_politiche_ramo("camera")
+  senato <- esegui_scrutini_politiche_ramo("senato")
+  
+  return(list(camera = camera, senato = senato))
 }

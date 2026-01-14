@@ -45,7 +45,12 @@ frazioni_pluricandidature <- c(1, 0, 0, 0, 0)
 ```{r simulazione}
 #| include: false
 
-risultato <- simula_comunali(comune, scenario, data_elezione)
+risultato <- simula_politiche(
+  scenario,
+  data_elezione,
+  frazioni_pluricandidature,
+  simulazioni
+)
 
 ```
 

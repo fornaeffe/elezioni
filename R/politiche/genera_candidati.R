@@ -1,3 +1,7 @@
+# TODO: bypass in caso di assenza di pluricandidature
+# TODO: regolare la porzione di candidati uninominali che sono candidati
+# anche nei plurinominali
+
 genera_candidati <- function(
     dati_candidati,
     dati_collegi,

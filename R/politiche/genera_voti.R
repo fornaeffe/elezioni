@@ -12,6 +12,7 @@ genera_voti_politiche <- function(
     parametri_input,
     dati_collegi,
     dati_candidati,
+    candidati,
     data_elezione,
     simulazioni
 ) {
