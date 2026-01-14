@@ -107,30 +107,15 @@ prepara_dts <- function(
       CIRC_COD = i.CIRC_COD
     )
   ]
-  # TODO risolvere l'assenza della VdA
-  validi <- unique(
-    dati_candidati[[ramo]]$candidati_pluri[, .(
-      CIRC_COD, 
-      PLURI_COD, 
-      LISTA,
-      MINORANZA
-    )]
-  )
   
-  uni_liste_sim_filtrato <- uni_liste_sim[
-    validi,
-    on = .(CIRC_COD, PLURI_COD, LISTA),
-    nomatch = NULL
-  ]
-  
-  uni_liste_sim_filtrato[
+  uni_liste_sim[
     parametri_input$liste[, .(LISTA, COALIZIONE)],
     on = .(LISTA),
     COALIZIONE := i.COALIZIONE
   ]
   
   # TODO aggiungere la possibilità dei candidati delle minoranze
-  uni_liste_sim_filtrato[
+  uni_liste_sim[
     candidati[[ramo]]$candidati_uni_sim,
     on = .(SIM, UNI_COD, COALIZIONE),
     `:=`(
@@ -139,7 +124,7 @@ prepara_dts <- function(
     )
   ]
   
-  voti_candidato <- uni_liste_sim_filtrato[
+  voti_candidato <- uni_liste_sim[
     ,
     .(VOTI_CANDIDATO = sum(VOTI_LISTA_SIM)),
     by = .(SIM, UNI_COD, COALIZIONE, CANDIDATO_ID)
@@ -151,9 +136,33 @@ prepara_dts <- function(
     nomatch = NULL
   ]
   
+  # Collegi plurinominali nei quali ciascuna lista si presenta
+  validi <- unique(
+    dati_candidati[[ramo]]$candidati_pluri[, .(
+      CIRC_COD, 
+      PLURI_COD, 
+      LISTA,
+      MINORANZA
+    )]
+  )
+  
+  uni_liste_sim <- uni_liste_sim[
+    validi,
+    on = .(CIRC_COD, PLURI_COD, LISTA), 
+    nomatch = NULL
+  ]
+  
+  
+  
+  
+  
+  
+  
+  
+  
   return(
     list(
-      uni_liste_sim = uni_liste_sim_filtrato,
+      uni_liste_sim = uni_liste_sim,
       candidati_uni_sim = candidati_uni_sim
     )
   )

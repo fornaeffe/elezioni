@@ -30,125 +30,6 @@ boxplot_percentuali <- function(
   
 }
 
-coalizioni_vincenti <- function(
-    risultato
-){
-  vittoria <- risultato$coalizioni_sim[
-    ,
-    .(SINDACO = mean(SINDACO)),
-    by = .(COALIZIONE)
-  ]
-  
-  vittoria$SINDACO <- formattable::percent(vittoria$SINDACO, 0)
-  
-  
-  tbl <- kableExtra::kbl(
-    vittoria,
-    col.names = c("CANDIDATO SINDACO", "Prob."),
-    caption = "Probabilità di vittoria",
-    row.names = FALSE
-  )
-  
-  tbl <- kableExtra::kable_minimal(tbl)
-  
-  tbl
-}
-
-plot_consiglio_comunale <- function(
-    risultato
-){
-  liste <- risultato$liste[LISTA != "astensione"]
-  
-  coalizioni <- risultato$coalizioni[
-    risultato$liste[
-      LISTA != "astensione",
-      .(
-        VOTI_SINDACO = sum(VOTI_LISTA),
-        VOTI_BALLOTTAGGIO = sum(VOTI_LISTA)
-      ),
-      by = .(COALIZIONE)
-    ],
-    on = .(COALIZIONE)
-  ]
-  
-  scrutinio <- scrutinio_comunali(
-    liste,
-    coalizioni,
-    risultato$pop_legale,
-    risultato$num_consiglieri
-  )
-  
-  liste <- liste[, .(LISTA, COLORE)][
-    scrutinio$liste[
-      ,
-      Gruppo := LISTA
-    ],
-    on = .(LISTA)
-  ]
-  
-  coalizioni <- coalizioni[, .(COALIZIONE, COLORE)][
-    scrutinio$coalizioni[
-      ,
-      `:=`(
-        Gruppo = paste(ifelse(SINDACO, "Sindaco", "Cand. sindaco"), COALIZIONE),
-        ELETTI = SINDACO + SEGGIO_CANDIDATO_SINDACO
-      )
-    ],
-    on = .(COALIZIONE)
-  ]
-  
-  parlamento <- rbind(
-    liste[, c("Gruppo", "ELETTI", "COLORE")],
-    coalizioni[, c("Gruppo", "ELETTI", "COLORE")]
-  )
-  
-  parlamento <- parlamento[parlamento$ELETTI > 0, ]
-  
-  ggplot2::ggplot(parlamento) +
-    ggpol::geom_parliament(ggplot2::aes(seats = ELETTI, fill = Gruppo), color = "black") +
-    ggplot2::scale_fill_manual(values = parlamento$COLORE, labels = paste(
-      parlamento$Gruppo,
-      "-",
-      parlamento$ELETTI
-    )) +
-    ggplot2::coord_fixed() +
-    ggplot2::theme_void()
-  
-}
-
-superamento_soglia_comunali <- function(
-  risultato
-) {
-  soglie <- risultato$liste_sim[
-    ,
-    .(PROB_ELEGGERE = mean(ELETTI > 0)),
-    by = .(LISTA)
-  ]
-  soglie_coalizioni <- risultato$coalizioni_sim[
-    ,
-    .(
-      PROB_ELEGGERE = mean(SINDACO + SEGGIO_CANDIDATO_SINDACO),
-      LISTA = paste("Cand. sindaco", COALIZIONE)
-    ),
-    by = .(COALIZIONE)
-  ]
-  
-  soglie <- rbind(
-    soglie[, .(LISTA, PROB_ELEGGERE)],
-    soglie_coalizioni[, .(LISTA, PROB_ELEGGERE)]
-  )
-  
-  soglie$PROB_ELEGGERE <- formattable::percent(soglie$PROB_ELEGGERE, 0)
-  tbl <- kableExtra::kbl(
-    soglie,
-    col.names = c("LISTA", "Prob."),
-    caption = "Prob. di eleggere qualcuno",
-    row.names = FALSE
-  )
-  tbl <- kableExtra::kable_minimal(tbl)
-  tbl
-}
-
 eletti_percentuale_xyplot <- function(
     ELETTI,
     PERCENTUALE,
@@ -190,8 +71,9 @@ eletti_percentuale_xyplots_liste <- function(
   invisible()
 }
 
-eletti_percentuale_xyplots_coalizioni_comunali <- function(
-    risultato
+eletti_percentuale_xyplots_coalizioni <- function(
+    risultato,
+    colonna_percentuale = "PERCENTUALE"
 ){
   spl <- split(risultato$coalizioni_sim, by = "COALIZIONE")
   
@@ -199,8 +81,8 @@ eletti_percentuale_xyplots_coalizioni_comunali <- function(
     names(spl),
     function(g) {
       eletti_percentuale_xyplot(
-        spl[[g]]$ELETTI + spl[[g]]$SINDACO,
-        spl[[g]]$PERCENTUALE_SINDACO,
+        spl[[g]]$ELETTI,
+        spl[[g]][[colonna_percentuale]],
         risultato$coalizioni[COALIZIONE == g]$COLORE,
         g
       )
@@ -209,6 +91,7 @@ eletti_percentuale_xyplots_coalizioni_comunali <- function(
   
   invisible()
 }
+
 
 grafico_eletti <- function(nmax, PERCENTUALE, lista, COLORE) {
   
@@ -243,7 +126,11 @@ grafico_eletti <- function(nmax, PERCENTUALE, lista, COLORE) {
   yvals <- c(yvals)
   labs <- rep(colnames(nums), each = nrow(nums))
   
-  text(x = xvals[nums > 5], y = yvals[nums > 5], labels = labs[nums > 5])
+  # Stampo le etichette solo per le aree che contengono una quantità significativa
+  # di campioni
+  cutoff <- length(nmax) * 0.005
+  text(x = xvals[nums > cutoff], y = yvals[nums > cutoff], labels = labs[nums > cutoff])
+  
   
   invisible(tab)
 }
@@ -269,35 +156,7 @@ grafici_eletti <- function(
   invisible()
 }
 
-grafici_eletti_comunali <- function(
-    risultato
-){
-  grafici_eletti(risultato)
-  
-  coalizioni_sim <- data.table::copy(risultato$coalizioni_sim)
-  coalizioni_sim[, PERCENTUALE := PERCENTUALE_SINDACO]
-  coalizioni_sim[, ELETTI := factor(
-    2 * SINDACO + SEGGIO_CANDIDATO_SINDACO,
-    levels = 0:2,
-    labels = c("0", "Cons.", "Sind.")
-  )]
-  
-  spl <- split(coalizioni_sim, by = "COALIZIONE")
-  
-  lapply(
-    names(spl),
-    function(g) {
-      grafico_eletti(
-        spl[[g]]$ELETTI,
-        spl[[g]]$PERCENTUALE,
-        paste("Cand. sindaco", g),
-        risultato$coalizioni[COALIZIONE == g]$COLORE
-      )
-    }
-  )
-  
-  invisible()
-}
+
 
 disegna_tabella_prob_comunali <- function(risultato) {
   lp <- data.table::copy(risultato$liste_sim)

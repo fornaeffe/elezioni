@@ -179,7 +179,10 @@ simula_politiche <- function(
     
     # FIX: rimuovo VdA
     # TODO: generazione candidati e scrutinio per VdA
-    candidati_uni_sim <- candidati_uni_sim[CIRC_COD != "201"]
+    # candidati_uni_sim <- candidati_uni_sim[CIRC_COD != "201"]
+    # candidati_uni_sim <- candidati_uni_sim[CIRC_COD != "2"]
+    # 
+    # FIX: rimuovo TAA al Senato
     
     # Creo il data.table delle coalizioni
     coalizioni_sim <- candidati_uni_sim[
@@ -206,6 +209,9 @@ simula_politiche <- function(
         VOTI_LISTA = i.VOTI_LISTA,
         ELETTI_PLURI = i.ELETTI_PLURI
       )
+    ][
+      ,
+      ELETTI := ELETTI_UNI + ELETTI_PLURI
     ]
     
     # Calcolo le percentuali
@@ -251,6 +257,10 @@ simula_politiche <- function(
       list(
         uni = uni,
         pluri = pluri,
+        coalizioni = parametri_input$coalizioni,
+        liste = liste,
+        liste_elezioni = parametri_input$liste_elezioni,
+        comuni_liste = parametri_input$comuni_liste,
         coalizioni_sim = coalizioni_sim,
         liste_sim = liste_sim,
         pluri_liste_sim = pluri_liste_sim,
@@ -267,10 +277,6 @@ simula_politiche <- function(
   
   return(
     list(
-      coalizioni = parametri_input$coalizioni,
-      liste = parametri_input$liste,
-      liste_elezioni = parametri_input$liste_elezioni,
-      comuni_liste = parametri_input$comuni_liste,
       camera = camera,
       senato = senato
     )

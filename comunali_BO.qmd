@@ -71,7 +71,7 @@ boxplot_percentuali(risultato)
 
 ```{r vincenti}
 
-coalizioni_vincenti(risultato)
+coalizioni_vincenti_comunali(risultato)
 
 ```
 

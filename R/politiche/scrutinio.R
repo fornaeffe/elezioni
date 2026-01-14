@@ -155,7 +155,11 @@ scrutinio_politiche <- function(
       liste_uni,
       sum
     ),
+    all.x = TRUE
   )
+  
+  # FIX per circoscrizioni senza collegi plurinominali (VdA, e TAA senato)
+  candidati_uni$VOTI_LISTA[is.na(candidati_uni$VOTI_LISTA)] <- 0
   
   candidati_uni$VOTI_SOLO_CANDIDATO <-
     candidati_uni$VOTI_CANDIDATO - candidati_uni$VOTI_LISTA
@@ -194,8 +198,13 @@ scrutinio_politiche <- function(
       PARTE_INTERA ~ COLLEGIOUNINOMINALE + CANDIDATO,
       liste_uni,
       sum
-    )
+    ),
+    all.x = TRUE
   )
+  
+  # FIX per circoscrizioni senza collegi plurinominali (VdA, e TAA senato)
+  candidati_uni$PARTE_INTERA[is.na(candidati_uni$PARTE_INTERA)] <- 0
+  
   candidati_uni$DA_ASSEGNARE <-
     candidati_uni$VOTI_SOLO_CANDIDATO - candidati_uni$PARTE_INTERA
   
@@ -635,7 +644,7 @@ scrutinio_politiche <- function(
     # elettorale nazionale; a parita' di quest'ultima si procede a
     # sorteggio;
     
-    seggi_proporzionale <- totale_seggi - sum(candidati_uni$ELETTO) - 1
+    seggi_proporzionale <- totale_seggi - sum(candidati_uni$ELETTO)
     
     if (seggi_proporzionale != sum(totali_pluri$SEGGI)) stop(
       "seggi_proporzionale = ", 

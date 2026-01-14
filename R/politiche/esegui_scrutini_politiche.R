@@ -30,10 +30,13 @@ esegui_scrutini_politiche <- function(
     }
     
     liste_minoranza <- candidati_pluri[
-      MINORANZA == TRUE,
-      .(REGIONI = length(unique(REG_COD))),
+      ,
+      .(
+        REGIONI = length(unique(REG_COD)),
+        MINORANZA = sum(MINORANZA)
+      ),
       by = .(LISTA)
-    ][REGIONI == 1, LISTA]
+    ][REGIONI == 1 & MINORANZA > 0, LISTA]
     
     liste[
       ,

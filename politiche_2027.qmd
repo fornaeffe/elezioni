@@ -44,6 +44,8 @@ frazioni_pluricandidature <- c(1, 0, 0, 0, 0)
 
 ```{r simulazione}
 #| include: false
+#| cache: true
+#| message: false
 
 risultato <- simula_politiche(
   scenario,
@@ -58,12 +60,9 @@ risultato <- simula_politiche(
 Di seguito le liste che si ipotizza si presentino alle prossime elezioni,
 insieme con il loro risultato alle ultime elezioni. Per le liste che alle ultime
 elezioni erano presenti sotto diverso nome è stato stimato il risultato 
-partendo da liste affini. In particolare i voti di Alleanza Verdi Sinistra 
-sono stati divisi tra Europa Verde e Sinistra
-Italiana secondo il rapporto tra le preferenze delle due candidate più votate
-alle scorse elezioni regionali (Silvia Zamboni e Simona Larghetti).
+partendo da liste affini.
 ```{r}
-tabella_dati(risultato)
+tabella_dati(risultato$camera)
 ```
 
 ### Percentuali per lista
@@ -71,35 +70,25 @@ tabella_dati(risultato)
 Questo grafico mostra le percentuali simulate per ciascuna 
 lista.
 ```{r}
-boxplot_percentuali(risultato)
+boxplot_percentuali(risultato$camera)
 ```
 
-### Coalizioni vincenti
 
-```{r vincenti}
+### Composizione della Camera dei Deputati
 
-coalizioni_vincenti(risultato)
-
-```
-
-### Composizione del Consiglio comunale
-Di seguito viene mostrata la composizione del consiglio comunale se le liste
-ottenessero lo stesso risultato delle ultime elezioni (regionali 2024).
 
 ```{r plot_consiglio_comunale}
 #| warning: false 
 
-plot_consiglio_comunale(risultato)
+# TODO
 
 ```
 
 ### Probabilità di eleggere qualcuno
-Di seguito, la probabilità per ciascuna lista di eleggere almeno un consigliere
-e, in fondo, la probabilità che ciascun candidato sindaco venga eletto
-(o come sindaco o come consigliere).
+
 
 ```{r}
-superamento_soglia_comunali(risultato)
+# TODO
 ```
 
 ### Numero di seggi rispetto alle percentuali ottenute
@@ -109,41 +98,67 @@ di voti validi ottenuta. Ogni punto corrisponde ad una simulazione, dove il colo
 è più accesso il risultato è più probabile (più simulazioni hanno ottenuto lo
 stesso risultato).
 
+#### Camera dei Deputati
+
 ```{r}
-eletti_percentuale_xyplots_liste(risultato)
+eletti_percentuale_xyplots_liste(risultato$camera)
 
 ```
 
-Nei grafici seguenti è mostrato il numero di consiglieri a seconda della percentuale
-per ciascun gruppo di 
-liste collegato ad uno stesso candidato sindaco, compreso il sindaco o il candidato
-sindaco eventualmente eletto come consigliere.
+Nei grafici seguenti è mostrato il numero di eletti per ogni coalizione.
 
 ```{r}
-eletti_percentuale_xyplots_coalizioni_comunali(risultato)
+eletti_percentuale_xyplots_coalizioni(risultato$camera, colonna_percentuale = "PERCENTUALE_LISTA")
 ```
 
+#### Senato
 
+```{r}
+eletti_percentuale_xyplots_liste(risultato$senato)
+
+```
+
+Nei grafici seguenti è mostrato il numero di eletti per ogni coalizione.
+
+```{r}
+eletti_percentuale_xyplots_coalizioni(risultato$senato, colonna_percentuale = "PERCENTUALE_LISTA")
+```
+
+### Spinogrammi degli eletti
 
 Nei grafici seguenti ogni colonna rappresenta i numeri di seggi che la lista può
 ottenere se prende una percentuale compresa tra i due estremi della colonna.
 Ad esempio, se la colonna tra le percentuali 3 e 4 comprende due celle di 
 dimensioni simili, con scritto 1 e 2, significa che se la lista prende tra il 3%
-e il 4% può eleggere uno o due consiglieri, e queste due possibilità hanno 
+e il 4% può eleggere uno o due parlamentari, e queste due possibilità hanno 
 probabilità simili. Ad area uguale corrisponde una uguale probabilità di ottenere
 quei risultati.
 
-I grafici relativi ai candidati sindaco indicano con quale percentuale (dei voti
-validi al candidato sindaco) possono essere eletti come sindaco o come consigliere.
+#### Camera
 
 ```{r}
-grafici_eletti_comunali(risultato)
+grafici_eletti(risultato$camera)
 ```
+
+#### Senato
+
+```{r}
+grafici_eletti(risultato$senato)
+```
+
+### Probabilità di elezione nel collegio di Parma
+
+```{r}
+
+grafico_eletti_pluri(risultato$camera, "Alleanza Verdi Sinistra", "80001")
+```
+
+
 
 ### Probabilità di elezione per ciascuna posizione
 
 ```{r}
-disegna_tabella_prob_comunali(risultato)
+# TODO
 ```
 
 # Approfondimenti
@@ -234,6 +249,6 @@ lista alle prossime elezioni.
 
 
 par(mar=c(15.1, 4.1, 4.1, 2.1), xpd=TRUE)
-andamento_passato(risultato)
+andamento_passato(risultato$camera)
 ```
 

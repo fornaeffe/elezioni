@@ -98,7 +98,7 @@ calcola_parametri_input <- function(
   # TODO verificare se si può riusare il valore elettori preso dai dati
   
   # Calcolo le percentuali per ciascuna provincia e ciascuna elezione
-  comuni_liste_elezioni[, PERCENTUALE := VOTI / ELETTORI]
+  comuni_liste_elezioni[, PERCENTUALE := formattable::percent(VOTI / ELETTORI, 2)]
   
   # Ne calcolo il logit
   comuni_liste_elezioni[, LOGIT_P := qlogis(pmax(PERCENTUALE, 0.5 / ELETTORI))]
@@ -114,7 +114,7 @@ calcola_parametri_input <- function(
   # Calcolo la percentuale
   liste_elezioni[
     ,
-    PERCENTUALE := VOTI / sum(VOTI),
+    PERCENTUALE := formattable::percent(VOTI / sum(VOTI), 2),
     by = ELEZIONE
   ]
   
