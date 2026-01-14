@@ -8,8 +8,8 @@ grafico_eletti_pluri <- function(
   ]
   
   grafico_eletti(
-    factor(dati_pr$NUMERO_MAX),
-    dati_pr$PERCENTUALE,
+    factor(dati_pluri_lista$NUMERO_MAX),
+    dati_pluri_lista$PERCENTUALE,
     lista = lista,
     COLORE = risultato_ramo$liste[LISTA == lista]$COLORE
   )
