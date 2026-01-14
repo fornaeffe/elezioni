@@ -28,6 +28,8 @@ Segnalazioni, richieste e suggerimenti a <fornaeffe@gmail.com> o sul repository
 #| include: false
 knitr::opts_chunk$set(echo = FALSE)
 
+library(data.table)
+
 # Carico il "pacchetto"
 files.sources = list.files("R", full.names = TRUE, recursive = TRUE)
 invisible(sapply(files.sources, source))
