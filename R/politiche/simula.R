@@ -49,10 +49,7 @@ simula_politiche <- function(
     # TODO verificare quali di questi copy è davvero necessario
     pluri <- data.table::copy(dati_collegi[[ramo]]$pluri)
     uni <- data.table::copy(dati_collegi[[ramo]]$uni)
-    coalizioni <- data.table::copy(parametri_input$coalizioni)
     liste <- data.table::copy(parametri_input$liste)
-    liste_elezioni <- data.table::copy(parametri_input$liste_elezioni)
-    comuni_liste <- data.table::copy(parametri_input$comuni_liste)
     candidati_uni <- data.table::copy(dati_candidati[[ramo]]$candidati_uni)
     candidati_pluri <- data.table::copy(dati_candidati[[ramo]]$candidati_pluri)
     candidati_uni_sim <- data.table::copy(candidati[[ramo]]$candidati_uni_sim)
@@ -254,10 +251,6 @@ simula_politiche <- function(
       list(
         uni = uni,
         pluri = pluri,
-        coalizioni = coalizioni,
-        liste = liste,
-        liste_elezioni = liste_elezioni,
-        comuni_liste = comuni_liste,
         coalizioni_sim = coalizioni_sim,
         liste_sim = liste_sim,
         pluri_liste_sim = pluri_liste_sim,
@@ -274,6 +267,10 @@ simula_politiche <- function(
   
   return(
     list(
+      coalizioni = parametri_input$coalizioni,
+      liste = parametri_input$liste,
+      liste_elezioni = parametri_input$liste_elezioni,
+      comuni_liste = parametri_input$comuni_liste,
       camera = camera,
       senato = senato
     )
