@@ -2184,7 +2184,16 @@ scrutinio_politiche <- function(
       liste <- ammesse_pluri$LISTA == ammesse_pluri$LISTA[i]
     }
     
-    if (nrow(ammesse_pluri[liste & decimali, ]) == 0) stop("Errore alla riga 2164")
+    if (nrow(ammesse_pluri[liste & decimali, ]) == 0) {
+      warning(
+        "Nella ricerca nazionale di un subentro per la lista ",
+        ammesse_pluri$LISTA[i],
+        "non ho trovato nessuna lista adatta. decimali_usati = ",
+        decimali_usati,
+        ifelse("SIM" %in% names(liste_uni), paste0(" SIM: ", liste_uni$SIM[1]), "")
+        )
+      return()
+    }
     
     circ_accettrici <- aggregate(
       DECIMALI ~ CIRCOSCRIZIONE,
