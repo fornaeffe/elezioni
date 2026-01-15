@@ -10,10 +10,26 @@ esegui_scrutini_politiche <- function(
     candidati_uni_sim <- data.table::copy(voti[[ramo]]$candidati_uni_sim)
     candidati_pluri_sim <- data.table::copy(candidati[[ramo]]$candidati_pluri_sim)
     pluri <- data.table::copy(dati_collegi[[ramo]]$pluri)
+    uni <- data.table::copy(dati_collegi[[ramo]]$uni)
     liste <- data.table::copy(parametri_input$liste)
     candidati_pluri <- data.table::copy(dati_candidati[[ramo]]$candidati_pluri)
     
     totale_seggi <- ifelse(ramo == "camera", 392, 196)
+    
+    candidati_uni_sim[
+      uni,
+      on = .(UNI_COD),
+      `:=`(
+        PLURI_COD = i.PLURI_COD,
+        CIRC_COD = i.CIRC_COD
+      )
+    ]
+    
+    candidati_pluri_sim[
+      pluri,
+      on = .(PLURI_COD),
+      CIRC_COD := i.CIRC_COD
+    ]
     
     # Verifico quali liste rappresentanti di minoranze linguistiche si sono 
     # presentate solo in una regione

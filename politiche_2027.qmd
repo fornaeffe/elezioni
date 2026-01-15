@@ -38,7 +38,7 @@ scenario <- "scenari/politiche_2027.xlsx"
 
 data_elezione <- as.POSIXct("2027-03-01")
 
-simulazioni <- 10
+simulazioni <- 1000
 
 frazione_uni_in_pluri <- 0
 
