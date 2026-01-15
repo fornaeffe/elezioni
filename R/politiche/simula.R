@@ -13,7 +13,7 @@ simula_politiche <- function(
   dati_collegi <- calcola_collegi(dati)
   
   # Calcolo i parametri di input per la generazione dei voti
-  parametri_input <- calcola_parametri_input(dati, scenario)
+  parametri_input <- calcola_parametri_input(dati, scenario, "europee")
   
   # Carico i candidati
   dati_candidati <- carica_candidati(dati_collegi, scenario, parametri_input)

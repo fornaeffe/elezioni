@@ -1,5 +1,5 @@
 ---
-title: "Elezioni del comune di Bologna 2027"
+title: "Elezioni politiche 2027"
 author: "Luca Fornasari"
 date: "`r Sys.Date()`"
 format: 
@@ -9,7 +9,7 @@ format:
 
 Simulazione delle prossime elezioni
 politiche, ottenuta
-partendo dai risultati delle elezioni regionali 2024.
+partendo dai risultati delle elezioni europee 2024.
 Vengono eseguite 1000 simulazioni, in ciascuna di esse le percentuali che ciascuna
 lista ha preso alle elezioni europee in ciascuna provincia 
 vengono aumentate o diminuite casualmente di una quantità che sia coerente
@@ -38,7 +38,7 @@ scenario <- "scenari/politiche_2027.xlsx"
 
 data_elezione <- as.POSIXct("2027-03-01")
 
-simulazioni <- 10
+simulazioni <- 1000
 
 frazioni_pluricandidature <- c(1, 0, 0, 0, 0)
 

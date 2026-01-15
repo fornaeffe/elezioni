@@ -2,7 +2,8 @@
 
 calcola_parametri_input <- function(
     dati,
-    scenario
+    scenario,
+    percentuali_partenza = NULL
 ){
   message("\nCalcolo i parametri di input...\n")
   
@@ -123,14 +124,35 @@ calcola_parametri_input <- function(
   
   # Per ogni lista, calcolo la deviazione standard della velocità di cambiamento
   # del logit della percentuale
-  # Riporto, inoltre, il logit della percentuale e la data relativi all'ultima elezione
+  
   data.table::setorder(liste_elezioni, DATA)
   
   liste <- liste[
     liste_elezioni[
       ,
       .(
-        SIGMA_GLOBAL = sd(diff(.SD$LOGIT_P) / unclass(diff(.SD$DATA))^0.5),
+        SIGMA_GLOBAL = sd(diff(.SD$LOGIT_P) / unclass(diff(.SD$DATA))^0.5)
+      ),
+      by = .(LISTA)
+    ],
+    on = .(LISTA)
+  ]
+  
+  # Riporto, inoltre, il logit della percentuale e la data relativi all'ultima elezione
+  # Se disponibile una elezione di tipo indicato, prende l'ultima, se no
+  # ricade sull'ultima elezione di qualsiasi tipo.
+  if (is.null(percentuali_partenza)) {
+    liste_elezioni$liste_elezioni_da_considerare <- TRUE
+  } else {
+    liste_elezioni[, liste_elezioni_da_considerare := startsWith(ELEZIONE, percentuali_partenza)]
+  }
+  
+  data.table::setorder(liste_elezioni, liste_elezioni_da_considerare, DATA)
+  
+  liste <- liste[
+    liste_elezioni[
+      ,
+      .(
         PERCENTUALE = PERCENTUALE[.N],
         LOGIT_P = LOGIT_P[.N],
         VOTI_LISTA = VOTI[.N],
