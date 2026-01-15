@@ -1,3 +1,6 @@
+# TODO: parallelizzare
+# TODO: randomizzare le frazioni di pluricandidature
+
 
 genera_voti <- function(
     comuni_liste,

@@ -79,22 +79,6 @@ boxplot_percentuali(risultato$camera)
 ```
 
 
-### Composizione della Camera dei Deputati
-
-
-```{r plot_consiglio_comunale}
-#| warning: false 
-
-# TODO
-
-```
-
-### Probabilità di eleggere qualcuno
-
-
-```{r}
-# TODO
-```
 
 ### Numero di seggi rispetto alle percentuali ottenute
 
@@ -160,11 +144,6 @@ grafico_eletti_pluri(risultato$camera, "Alleanza Verdi Sinistra", "80001")
 
 
 
-### Probabilità di elezione per ciascuna posizione
-
-```{r}
-# TODO
-```
 
 # Approfondimenti
 
@@ -257,3 +236,11 @@ par(mar=c(15.1, 4.1, 4.1, 2.1), xpd=TRUE)
 andamento_passato(risultato$camera)
 ```
 
+La tabella seguente mostra le liste passate usate per stimare la percentuale
+di elettori che voteranno per ciascuna lista alle future elezioni.
+La colonna "frazione" indica la frazione degli elettori che hanno votato la "LISTA"
+alle passate elezioni che potrebbero votare la "LISTA FUTURA" alle future elezioni.
+
+```{r}
+tabella_flussi(risultato$camera)
+```

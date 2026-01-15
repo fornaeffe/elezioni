@@ -263,6 +263,7 @@ simula_politiche <- function(
         liste = liste,
         liste_elezioni = parametri_input$liste_elezioni,
         comuni_liste = parametri_input$comuni_liste,
+        corrispondenza_liste = parametri_input$corrispondenza_liste,
         coalizioni_sim = coalizioni_sim,
         liste_sim = liste_sim,
         pluri_liste_sim = pluri_liste_sim,
