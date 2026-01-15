@@ -87,7 +87,27 @@ esegui_scrutini_politiche <- function(
     candidati_uni_sim_split <- split(candidati_uni_sim_dt, candidati_uni_sim$SIM)
     candidati_pluri_sim_split <- split(candidati_pluri_sim_dt, candidati_pluri_sim$SIM)
     
-    scrutini_sim_split <- mapply(
+    # scrutini_sim_split <- mapply(
+    #   scrutinio_politiche,
+    #   uni_liste_sim_split,
+    #   candidati_uni_sim_split,
+    #   candidati_pluri_sim_split,
+    #   MoreArgs = list(
+    #     totali_pluri = pluri_dt,
+    #     liste_naz = liste_dt,
+    #     totale_seggi = totale_seggi,
+    #     ramo = ramo
+    #   ),
+    #   SIMPLIFY = FALSE,
+    #   USE.NAMES = FALSE # Per evitare che rbindlist restituisca una colonna SIM
+    #   # character anziché integer
+    # )
+    
+    cl <- parallel::makeCluster(parallel::detectCores() - 2)
+    on.exit(parallel::stopCluster(cl), add = TRUE)
+    
+    scrutini_sim_split <- parallel::clusterMap(
+      cl,
       scrutinio_politiche,
       uni_liste_sim_split,
       candidati_uni_sim_split,
