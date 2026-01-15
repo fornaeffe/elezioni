@@ -1,11 +1,8 @@
-# TODO: bypass in caso di assenza di pluricandidature
-# TODO: regolare la porzione di candidati uninominali che sono candidati
-# anche nei plurinominali
-
 genera_candidati <- function(
     dati_candidati,
     dati_collegi,
     parametri_input,
+    frazione_uni_in_pluri = 0,
     frazioni_pluricandidature = c(1,0,0,0,0),
     simulazioni = 1000
 ) {
@@ -26,10 +23,10 @@ genera_candidati <- function(
   ) {
     message("Genero i candidati per ", ifelse(ramo == "camera", "la Camera", "il Senato"))
     
-    pluri <- dati_collegi[[ramo]]$pluri
-    uni <- dati_collegi[[ramo]]$uni
-    candidati_pluri <- dati_candidati[[ramo]]$candidati_pluri
-    candidati_uni <- dati_candidati[[ramo]]$candidati_uni
+    pluri <- data.table::copy(dati_collegi[[ramo]]$pluri)
+    uni <- data.table::copy(dati_collegi[[ramo]]$uni)
+    candidati_pluri <- data.table::copy(dati_candidati[[ramo]]$candidati_pluri)
+    candidati_uni <- data.table::copy(dati_candidati[[ramo]]$candidati_uni)
     
     #### Preparo il data frame dei candidati ####
     n_cand <- sum(pluri$MAX_CANDIDATI) + nrow(uni)
@@ -43,82 +40,54 @@ genera_candidati <- function(
     candidati[
       ,
       `:=`(
-        CANDIDATO_ID = paste(LISTA, seq_len(.N)),
-        DATA_NASCITA = as.POSIXct(runif(.N, as.POSIXct("1950-01-01"), as.POSIXct("2000-12-31")))
+        CANDIDATO_ID = paste(LISTA, seq_len(.N))
       )
     ]
     
-    candidati <- data.table::rbindlist(
-      list(
+    liste_by_coalizione <- split(
+      parametri_input$liste,
+      by = "COALIZIONE",
+      keep.by = FALSE
+    )
+    
+    
+    risultato <- replicate(
+      simulazioni,
+      sorteggio_candidati(
+        candidati_uni = candidati_uni[,.(
+          COALIZIONE,
+          UNI_COD,
+          LISTA_MINORANZA,
+          CANDIDATO_ID,
+          DATA_NASCITA
+        )],
+        candidati_pluri[,.(
+          LISTA,
+          PLURI_COD,
+          NUMERO_CANDIDATO,
+          MINORANZA,
+          CANDIDATO_ID,
+          DATA_NASCITA
+        )],
         candidati,
-        candidati_pluri[
-          parametri_input$liste[, .(LISTA, COALIZIONE)],
-          on = .(LISTA)
-        ][
-          !is.na(CANDIDATO_ID),
-          .(LISTA, COALIZIONE, CANDIDATO_ID, DATA_NASCITA)
-        ]
-      )
+        liste_by_coalizione,
+        frazione_uni_in_pluri,
+        frazioni_pluricandidature
+      ),
+      simplify = FALSE
     )
     
-    
-    candidati_non_scelti <- candidati[!candidati_uni, on = .(CANDIDATO_ID)]
-    
-    candidati_uni_sim <- data.table::rbindlist(
-      replicate(
-        simulazioni,
-        sorteggio_candidati_uni(
-          candidati_uni[,.(
-            COALIZIONE,
-            UNI_COD,
-            LISTA_MINORANZA,
-            CANDIDATO_ID
-          )],
-          candidati_non_scelti,
-          parametri_input$liste[,c(
-            "LISTA",
-            "COALIZIONE",
-            "PERCENTUALE"
-          )]
-        ),
-        simplify = FALSE
-      ),
+    candidati_uni_sim <- rbindlist(
+      lapply(risultato, function(x) x$candidati_uni),
+      idcol = "SIM"
+    )
+    candidati_pluri_sim <- rbindlist(
+      lapply(risultato, function(x) x$candidati_pluri),
       idcol = "SIM"
     )
     
-    candidati_non_scelti <- candidati[!candidati_pluri, on = .(CANDIDATO_ID)]
-    
-    # pre-split per lista
-    candidati_per_lista <- split(
-      candidati_non_scelti$CANDIDATO_ID,
-      candidati_non_scelti$LISTA
-    )
-    
-    candidati_pluri_sim <- data.table::rbindlist(
-      replicate(
-        simulazioni,
-        sorteggio_candidati_pluri(
-          candidati_pluri[,.(
-            LISTA,
-            PLURI_COD,
-            NUMERO_CANDIDATO,
-            MINORANZA,
-            CANDIDATO_ID
-          )],
-          candidati_per_lista,
-          frazioni_pluricandidature
-        ),
-        simplify = FALSE
-      ),
-      idcol = "SIM"
-    )
     
     # Aggiungo colonne informative
-    candidati_uni_sim[
-      candidati[, .(CANDIDATO_ID, DATA_NASCITA)],
-      on = .(CANDIDATO_ID),
-      DATA_NASCITA := i.DATA_NASCITA
-    ]
     
     candidati_uni_sim[
       uni,
@@ -127,12 +96,6 @@ genera_candidati <- function(
         PLURI_COD = i.PLURI_COD,
         CIRC_COD = i.CIRC_COD
       )
-    ]
-    
-    candidati_pluri_sim[
-      candidati[, .(CANDIDATO_ID, DATA_NASCITA)],
-      on = .(CANDIDATO_ID),
-      DATA_NASCITA := i.DATA_NASCITA
     ]
     
     candidati_pluri_sim[
@@ -162,17 +125,25 @@ genera_candidati <- function(
   )
 }
 
-sorteggio_candidati_uni <- function(
+sorteggio_candidati <- function(
     candidati_uni,
-    candidati_non_scelti,
-    liste
-) {
-  liste_by_coalizione <- split(
-    liste,
-    by = "COALIZIONE",
-    keep.by = FALSE
-  )
+    candidati_pluri,
+    candidati,
+    liste_by_coalizione,
+    frazione_uni_in_pluri,
+    frazioni_pluricandidature
+){
+  candidati[
+    ,
+    DATA_NASCITA := as.POSIXct(runif(
+      .N,
+      as.POSIXct("1950-01-01"), 
+      as.POSIXct("2000-12-31"))
+    )
+  ]
   
+  # Per ogni candidato uninominale, sorteggio a quale lista "appartiene" 
+  # all'interno della coalizione
   candidati_uni[
     is.na(CANDIDATO_ID),
     lista_candidato := {
@@ -187,47 +158,82 @@ sorteggio_candidati_uni <- function(
     by = .(COALIZIONE)
   ]
   
+  # Sceglo il nome del candidato all'interno della lista di appartenenza
+  # Qui non è necessario sorteggiare, perché ho già assegnato casualmente le date di
+  # nascita
   candidati_uni[
     is.na(CANDIDATO_ID),
-    CANDIDATO_ID := sample(
-      candidati_non_scelti[LISTA == lista_candidato, CANDIDATO_ID],
-      .N
-    ),
+    CANDIDATO_ID := 
+      candidati[LISTA == lista_candidato, CANDIDATO_ID][1:.N],
     by = lista_candidato
   ]
   
   candidati_uni$lista_candidato <- NULL
   
-  candidati_uni
+  # Sorteggio i candidati uninominali che si presenteranno anche al plurinominale
+  candidati[
+    ,
+    UNI := CANDIDATO_ID %in% candidati_uni$CANDIDATO_ID
+  ]
   
-}
-
-sorteggio_candidati_pluri <- function(
-    candidati_pluri,
-    candidati_per_lista,
-    frazioni_pluricandidature
-){
+  candidati_uni_anche_pluri <- candidati[
+    UNI == TRUE,
+    .SD[sample.int(.N, size = round(.N * frazione_uni_in_pluri))],
+    by = LISTA
+  ]
   
+  candidati_non_uni <- candidati[UNI == FALSE]
   
+  # split per lista
+  candidati_non_uni_per_lista <- split(
+    candidati_non_uni$CANDIDATO_ID,
+    candidati_non_uni$LISTA
+  )
+  candidati_uni_anche_pluri_per_lista <- split(
+    candidati_uni_anche_pluri$CANDIDATO_ID,
+    candidati_uni_anche_pluri$LISTA
+  )
+  
+  # Sorteggio i candidati nei collegi plurinominali
   candidati_pluri[
     is.na(CANDIDATO_ID),
     CANDIDATO_ID := {
       assegna_candidati_pluri(
         PLURI_COD,
-        candidati_per_lista[[LISTA[1L]]],
+        candidati_non_uni_per_lista[[LISTA[1L]]],
+        candidati_uni_anche_pluri_per_lista[[LISTA[1L]]],
         frazioni_pluricandidature
       )
     },
     by = LISTA
   ]
   
-  candidati_pluri
+  # Riapplico le date di nascita
+  candidati_pluri[
+    candidati,
+    on = .(CANDIDATO_ID),
+    DATA_NASCITA := i.DATA_NASCITA
+  ]
+  candidati_uni[
+    candidati,
+    on = .(CANDIDATO_ID),
+    DATA_NASCITA := i.DATA_NASCITA
+  ]
+  
+  return(
+    list(
+      candidati_uni = candidati_uni,
+      candidati_pluri = candidati_pluri
+    )
+  )
+  
 }
 
 assegna_candidati_pluri <- function(
-  pluri_cod,
-  candidati_lista,
-  frazioni_pluricandidature
+    pluri_cod,
+    candidati_lista,
+    candidati_uni_anche_pluri_lista,
+    frazioni_pluricandidature
 ){
   n <- length(pluri_cod)
   
@@ -236,8 +242,15 @@ assegna_candidati_pluri <- function(
     decreasing = TRUE
   )
   
+  # i candidati da piazzare sono i candidati uninominali che si candidano
+  # anche nei plurinominali più abbastanza candidati nuovi da riempire tutte
+  # le prime candidature
+  base <- c(candidati_uni_anche_pluri_lista, candidati_lista)[1:lunghezze[1]]
+  
   # un solo campionamento
-  base <- sample(candidati_lista, lunghezze[1])
+  base <- sample(base)
+  
+  
   
   # indici cumulativi
   idx <- unlist(
@@ -251,7 +264,8 @@ assegna_candidati_pluri <- function(
   
   candidati_da_assegnare <- sample(base[idx])
   
-  # duplicati
+  # Se lo stesso candidato è stato assegnato più volte nello stesso collegio
+  # lo rimpiazzo
   dup <- duplicated(data.table::data.table(
     pluri_cod = pluri_cod,
     cand = candidati_da_assegnare

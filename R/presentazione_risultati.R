@@ -115,22 +115,47 @@ grafico_eletti <- function(nmax, PERCENTUALE, lista, COLORE) {
     main = lista
   )
   # From https://stackoverflow.com/questions/74814855/how-can-i-plot-data-labels-over-spineplot-in-r
-  nums <- t(apply(tab, 1,rev))
-  pcts <- prop.table(cbind(0, nums), 1)
-  pcts <- t(apply(pcts, 1, cumsum))
-  yvals <- pcts[,-ncol(pcts)] + (pcts[,-1] - pcts[,-ncol(pcts)])/2
-  xvals <- cumsum(c(0, rowSums(nums)/sum(rowSums(nums))))
-  xvals <- xvals[-length(xvals)] + (xvals[-1] - xvals[-length(xvals)])/2
-  xvals <- array(xvals, dim=dim(yvals))
-  xvals <- c(xvals)
-  yvals <- c(yvals)
-  labs <- rep(colnames(nums), each = nrow(nums))
+  nums <- t(apply(tab, 1, rev))
   
-  # Stampo le etichette solo per le aree che contengono una quantità significativa
-  # di campioni
+  # cutoff
   cutoff <- length(nmax) * 0.005
-  text(x = xvals[nums > cutoff], y = yvals[nums > cutoff], labels = labs[nums > cutoff])
   
+  if (ncol(nums) == 1) {
+    ## ---- CASO DEGENERATO: un solo valore di eletti ----
+    
+    xvals <- cumsum(c(0, rowSums(nums) / sum(rowSums(nums))))
+    xvals <- xvals[-length(xvals)] + diff(xvals) / 2
+    yvals <- rep(0.5, length(xvals))
+    
+    labs <- colnames(nums)
+    
+    text(
+      x = xvals[nums[,1] > cutoff],
+      y = yvals[nums[,1] > cutoff],
+      labels = labs[nums[,1] > cutoff]
+    )
+    
+  } else {
+    ## ---- CASO NORMALE ----
+    
+    pcts <- prop.table(cbind(0, nums), 1)
+    pcts <- t(apply(pcts, 1, cumsum))
+    
+    yvals <- pcts[, -ncol(pcts)] +
+      (pcts[, -1] - pcts[, -ncol(pcts)]) / 2
+    
+    xvals <- cumsum(c(0, rowSums(nums) / sum(rowSums(nums))))
+    xvals <- xvals[-length(xvals)] + diff(xvals) / 2
+    xvals <- array(xvals, dim = dim(yvals))
+    
+    labs <- rep(colnames(nums), each = nrow(nums))
+    
+    text(
+      x = xvals[nums > cutoff],
+      y = yvals[nums > cutoff],
+      labels = labs[nums > cutoff]
+    )
+  }
   
   invisible(tab)
 }

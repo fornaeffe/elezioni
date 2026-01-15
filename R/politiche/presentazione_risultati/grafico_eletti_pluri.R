@@ -3,7 +3,7 @@ grafico_eletti_pluri <- function(
     lista,
     pluri_cod
 ){
-  dati_pluri_lista <- risultato$camera$pluri_liste_sim[
+  dati_pluri_lista <- risultato_ramo$pluri_liste_sim[
     LISTA == lista & PLURI_COD == pluri_cod
   ]
   

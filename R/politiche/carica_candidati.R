@@ -26,6 +26,16 @@ carica_candidati <- function(dati_collegi, scenario, parametri_input) {
       MINORANZA := FALSE
     ]
     
+    candidati_uni_input[
+      ,
+      DATA_NASCITA := as.POSIXct(DATA_NASCITA)
+    ]
+    
+    candidati_pluri_input[
+      ,
+      DATA_NASCITA := as.POSIXct(DATA_NASCITA)
+    ]
+    
     # TODO: validare nomi dei collegi nei file Excel
     
     # Creo tutte le possibili combinazioni di coalizioni e collegi uninominali

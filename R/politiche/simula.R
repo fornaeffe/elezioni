@@ -3,6 +3,7 @@
 simula_politiche <- function(
     scenario,
     data_elezione,
+    frazione_uni_in_pluri = 0,
     frazioni_pluricandidature = c(1,0,0,0,0),
     simulazioni = 1000
 ){
@@ -23,6 +24,7 @@ simula_politiche <- function(
     dati_candidati,
     dati_collegi,
     parametri_input,
+    frazione_uni_in_pluri,
     frazioni_pluricandidature,
     simulazioni
   )
