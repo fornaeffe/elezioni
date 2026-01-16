@@ -1,0 +1,681 @@
+---
+title: "Elezioni Emilia-Romagna"
+author: "Luca Fornasari"
+date: "`r Sys.Date()`"
+format: 
+  html:
+    self-contained: true
+---
+
+Questo report contiene i risultati di una simulazione delle prossime elezioni
+del Consiglio della Regione Emilia-Romagna, ottenuti
+partendo dai risultati delle elezioni europee 2024.
+Vengono eseguite 1000 simulazioni, in ciascuna di esse le percentuali che ciascuna
+lista ha preso alle elezioni europee in ciascuna provincia 
+vengono aumentate o diminuite casualmente di una quantità che sia coerente
+con la variabilità che ha avuto nel passato la percentuale di quella lista.
+Per i dettagli vedere in fondo negli approfondimenti.
+
+Avverto che ho fatto questa simulazione per curiosità e non per lavoro, e che
+potrebbero essermi sfuggiti degli errori nel processo di
+simulazione, i risultati vanno dunque presi senza alcuna garanzia di
+accuratezza.
+
+Segnalazioni, richieste e suggerimenti a <fornaeffe@gmail.com> o sul repository
+<https://github.com/fornaeffe/elezioni-EMR>.
+
+```{r setup}
+#| include: false
+knitr::opts_chunk$set(echo = FALSE)
+
+library(kableExtra)
+# library(zoo)
+
+# Carico il "pacchetto"
+files.sources = list.files("R", full.names = TRUE, recursive = TRUE)
+invisible(sapply(files.sources, source))
+
+scenario <- "scenari/BO_insieme.xlsx"
+
+data_elezione <- as.POSIXct("2027-03-01")
+
+simulazioni <- 1000
+
+```
+
+```{r simulazione}
+#| include: false
+
+# Carico i dati
+dati <- carica_dati(cache_path = "dati/dati.RData", filtro = list(REGIONE = "Emilia-Romagna")) 
+
+
+# Calcolo i parametri di input
+parametri_input <- calcola_parametri_input(dati, scenario)
+
+# Simulo i voti
+comuni_liste_sim <- genera_voti(parametri_input$comuni_liste, parametri_input$liste, data_elezione, simulazioni)
+
+# Eseguo lo scrutinio
+risultato <- esegui_scrutini_ER(comuni_liste_sim, parametri_input$liste, dati$pop_legale)
+
+```
+
+```{r prep_grafici}
+liste <- parametri_input$liste
+
+liste$COLORE[is.na(liste$COLORE)] <- "#DDDDDD"
+
+risultato$liste <- merge(
+  risultato$liste,
+  liste[, c("LISTA", "COLORE")]
+)
+
+coalizioni <- liste[!duplicated(liste$COALIZIONE), c("COALIZIONE", "COLORE")]
+
+risultato$coalizioni <- merge(
+  risultato$coalizioni,
+  coalizioni
+)
+
+risultato$liste$PERCENTUALE <- formattable::percent(risultato$liste$PERCENTUALE, 2)
+
+
+```
+
+## Dati
+
+```{r}
+kbl(
+    liste[liste$COLORE != "#DDDDDD", c("COALIZIONE", "LISTA")],
+    col.names = c("COALIZIONE", "LISTA"),
+    caption = "Liste",
+    row.names = FALSE
+  ) %>%
+    kable_minimal()
+```
+
+
+
+## Risultati
+
+
+
+### Percentuali per lista
+
+Questo grafico mostra le percentuali simulate per ciascuna 
+lista.
+
+```{r ris_per_partito}
+
+par(mar=c(4, 12, 0.1, 0.1))
+
+boxplot(
+  PERCENTUALE * 100 ~ LISTA, 
+  data = droplevels(risultato$liste[risultato$liste$COLORE != "#DDDDDD"]), 
+  horizontal = TRUE, 
+  las=1,
+  xlab = "Percentuale sui voti validi",
+  ylab = NA,
+  col = liste$COLORE[liste$COLORE != "#DDDDDD"],
+  cex.axis = 0.8
+  )
+
+
+```
+
+### Coalizioni vincenti
+
+```{r vincenti}
+
+vittoria <- aggregate(
+      PRESIDENTE ~ COALIZIONE,
+      risultato$coalizioni,
+      mean
+    )
+
+vittoria$PRESIDENTE <- formattable::percent(vittoria$PRESIDENTE, 0)
+
+
+kbl(
+    vittoria[vittoria$PRESIDENTE > 0,],
+    col.names = c("COALIZIONE", "Prob."),
+    caption = "Probabilità di vittoria",
+    row.names = FALSE
+  ) %>%
+    kable_minimal()
+
+
+```
+
+
+### Composizione media del Consiglio Regionale
+
+```{r plot_parlamento}
+#| warning: false 
+
+
+library(ggplot2)
+library(ggpol)
+source("R/scrutinio_ER.R")
+
+disegna_parlamento <- function() {
+  
+  eletti <- aggregate(
+    ELETTI ~ LISTA + COLORE + COALIZIONE,
+    risultato$liste,
+    mean
+  )
+  eletti$SEGGI <- Hare.Niemeyer(eletti$ELETTI, 48)
+  eletti$Gruppo <- eletti$LISTA
+  eletti <- eletti[order(eletti$COALIZIONE), ]
+  
+  pres <- aggregate(
+    PRESIDENTE ~ COALIZIONE + COLORE,
+    risultato$coalizioni,
+    mean
+  )
+  pres$SEGGI <- 0
+  pres$SEGGI[order(pres$PRESIDENTE, decreasing = TRUE)[1]] <- 1
+  pres$Gruppo <- paste("Pres.", pres$COALIZIONE)
+  pres$COLORE <- 
+    adjustcolor(pres$COLORE, alpha.f = 0.5)
+  
+  miglior_perdente <- aggregate(
+    MIGLIOR_PERDENTE ~ COALIZIONE + COLORE,
+    risultato$coalizioni,
+    mean
+  )
+  miglior_perdente$SEGGI <- 0
+  miglior_perdente$SEGGI[order(miglior_perdente$MIGLIOR_PERDENTE, decreasing = TRUE)[1]] <- 1
+  miglior_perdente$Gruppo <- paste("Cand. pres.", miglior_perdente$COALIZIONE)
+  miglior_perdente$COLORE <- 
+    adjustcolor(miglior_perdente$COLORE, alpha.f = 0.5)
+  
+  
+  parlamento <- rbind(
+    pres[, c("Gruppo", "SEGGI", "COLORE")],
+    miglior_perdente[, c("Gruppo", "SEGGI", "COLORE")],
+    eletti[, c("Gruppo", "SEGGI", "COLORE")]
+  )
+  
+  
+  parlamento <- parlamento[parlamento$SEGGI > 0, ]
+  
+  ggplot(parlamento) +
+    geom_parliament(aes(seats = SEGGI, fill = Gruppo), color = "black") +
+    scale_fill_manual(values = parlamento$COLORE, labels = paste(
+      parlamento$Gruppo,
+      "-",
+      parlamento$SEGGI
+    )) +
+    coord_fixed() +
+    theme_void()
+}
+
+disegna_parlamento()
+
+```
+
+### Probabilità di eleggere qualcuno
+
+```{r}
+superamento_soglia <- function() {
+  
+  soglie <- aggregate(
+    ELETTI ~ LISTA,
+    risultato$liste,
+    function(x) mean(x > 0)
+  )
+  soglie <- soglie[soglie$LISTA %in% liste$LISTA[liste$COLORE != "#DDDDDD"],]
+  soglie$SOGLIA <- formattable::percent(soglie$ELETTI, 0)
+  kbl(
+    soglie[, c("LISTA", "SOGLIA")],
+    col.names = c("LISTA", "Prob."),
+    caption = "Prob. di eleggere qualcuno",
+    row.names = FALSE
+  ) %>%
+    kable_minimal()
+}
+
+superamento_soglia()
+
+```
+
+### Numero di seggi rispetto alle percentuali ottenute
+```{r}
+#| results: hide
+
+
+tapply(
+  risultato$liste[risultato$liste$COLORE != "#DDDDDD"],
+  risultato$liste$LISTA[risultato$liste$COLORE != "#DDDDDD"],
+  function(df) {
+    plot(
+      ELETTI ~ I(PERCENTUALE*100),
+      data = df,
+      col = COLORE,
+      xlab = "Percentuale sui voti validi",
+      main = df$LISTA[1]
+    )
+  }
+)
+
+
+```
+
+```{r}
+
+grafico_eletti <- function(lista) {
+  lp <- risultato$liste[risultato$liste$LISTA == lista]
+  
+  nmax <- factor(
+      lp$ELETTI
+    )
+  colori <- colorRampPalette(
+    c(
+      "#000000",
+      liste$COLORE[liste$LISTA == lista],
+      "#FFFFFF"
+    )
+  )(length(levels(nmax)))
+  tab <- spineplot(
+    nmax ~ I(
+      lp$PERCENTUALE*100
+    ),
+    breaks = 12,
+    col = colori,
+    yaxlabels = NA,
+    ylab = NA,
+    xlab = "Percentuale sui voti validi",
+    main = lista
+  )
+  
+  # From https://stackoverflow.com/questions/74814855/how-can-i-plot-data-labels-over-spineplot-in-r
+  nums <- t(apply(tab, 1,rev))
+  pcts <- prop.table(cbind(0, nums), 1)
+  pcts <- t(apply(pcts, 1, cumsum))
+  yvals <- pcts[,-ncol(pcts)] + (pcts[,-1] - pcts[,-ncol(pcts)])/2
+  xvals <- cumsum(c(0, rowSums(nums)/sum(rowSums(nums))))
+  xvals <- xvals[-length(xvals)] + (xvals[-1] - xvals[-length(xvals)])/2
+  xvals <- array(xvals, dim=dim(yvals))
+  xvals <- c(xvals)
+  yvals <- c(yvals)
+  labs <- rep(colnames(nums), each = nrow(nums))
+  
+  text(x = xvals[nums > 5], y = yvals[nums > 5], labels = labs[nums > 5])
+  
+  # legend(
+  #   "topleft",
+  #   legend = levels(nmax),
+  #   fill = rev(colori),
+  #   title = "Eletti"
+  # )
+}
+
+for (lista in liste$LISTA[liste$COLORE != "#DDDDDD"]) grafico_eletti(lista)
+
+
+
+
+```
+### Numero di seggi nella provincia di Parma rispetto alle percentuali ottenute
+```{r}
+grafico_eletti_prov <- function(lista, provincia_eletti, provincia_percentuale = NA) {
+  lp <- risultato$prov_lista[risultato$prov_lista$LISTA == lista & risultato$prov_lista$PROVINCIA == provincia_eletti]
+  
+  if (is.na(provincia_percentuale)) {
+    percentuali <- risultato$liste[risultato$liste$LISTA == lista]
+  } else {
+    percentuali <- risultato$prov_lista[risultato$prov_lista$LISTA == lista & risultato$prov_lista$PROVINCIA == provincia_percentuale]
+  }
+  
+  lp$PERCENTUALE <- NULL
+  lp <- merge(
+    lp,
+    percentuali[,c("SIM", "PERCENTUALE")]
+  )
+  
+  nmax <- factor(
+      lp$ELETTI
+    )
+  colori <- colorRampPalette(
+    c(
+      liste$COLORE[liste$LISTA == lista],
+      "#FFFFFF"
+    )
+  )(length(levels(nmax)))
+  tab <- spineplot(
+    nmax ~ I(
+      lp$PERCENTUALE*100
+    ),
+    breaks = 12,
+    col = colori,
+    yaxlabels = NA,
+    ylab = NA,
+    xlab = paste(
+      "Percentuale sui voti validi",
+      ifelse(is.na(provincia_percentuale), "in regione", paste("a", provincia_percentuale))
+    ),
+    main = lista
+  )
+  mtext(side = 3, line = 0.25, paste("Numero di eletti nella provincia di", provincia_eletti))
+  
+  # From https://stackoverflow.com/questions/74814855/how-can-i-plot-data-labels-over-spineplot-in-r
+  nums <- t(apply(tab, 1,rev))
+  pcts <- prop.table(cbind(0, nums), 1)
+  pcts <- t(apply(pcts, 1, cumsum))
+  yvals <- pcts[,-ncol(pcts)] + (pcts[,-1] - pcts[,-ncol(pcts)])/2
+  xvals <- cumsum(c(0, rowSums(nums)/sum(rowSums(nums))))
+  xvals <- xvals[-length(xvals)] + (xvals[-1] - xvals[-length(xvals)])/2
+  xvals <- array(xvals, dim=dim(yvals))
+  xvals <- c(xvals)
+  yvals <- c(yvals)
+  labs <- rep(colnames(nums), each = nrow(nums))
+  
+  text(x = xvals[nums > 5], y = yvals[nums > 5], labels = labs[nums > 5])
+  
+  
+}
+
+grafico_eletti_prov("Alleanza Verdi Sinistra", "Parma")
+# 
+# grafico_eletti_prov("ALLEANZA VERDI SINISTRA", "PARMA", "PARMA")
+# 
+# grafico_eletti_prov("ALLEANZA VERDI SINISTRA", "PARMA", "BOLOGNA")
+# 
+# grafico_eletti_prov("ALLEANZA VERDI SINISTRA", "PARMA", "REGGIO NELL'EMILIA")
+# grafico_eletti_prov("ALLEANZA VERDI SINISTRA", "PARMA", "MODENA")
+```
+
+<!-- ## Possibilità di eleggere a Parma e Reggio in base alle relative percentuali -->
+```{r}
+# grafico_pp <- function(
+#     lista1, 
+#     lista2 = lista1, 
+#     provincia1 = NA, 
+#     provincia2 = provincia1,
+#     dato = "percentuali"
+# ) {
+#   
+#   stopifnot(
+#     lista1 %in% liste$LISTA,
+#     lista2 %in% liste$LISTA,
+#     provincia1 %in% c(NA, province$PROVINCIA),
+#     provincia2 %in% c(NA, province$PROVINCIA)
+#   )
+#   
+#   estrai_df <- function(lista, provincia) {
+#     if (is.na(provincia)) {
+#       df <- risultato$liste[
+#         risultato$liste$LISTA == lista,
+#         c("SIM", "ELETTI", "PERCENTUALE", "VOTI_LISTA_ITER")
+#       ]
+#     } else {
+#       df <- risultato$prov_lista[
+#         risultato$prov_lista$LISTA == lista & 
+#           risultato$prov_lista$PROVINCIA == provincia,
+#         c("SIM", "ELETTI", "PERCENTUALE", "VOTI_LISTA_ITER")
+#       ]
+#     }
+#     
+#     if (dato == "voti") {
+#       df$DATO <- df$VOTI_LISTA_ITER
+#     } else {
+#       df$DATO <- df$PERCENTUALE
+#     }
+# 
+#     df$VOTI_LISTA_ITER <- NULL
+#     df$PERCENTUALE <- NULL
+#     
+#     df
+#   }
+#   
+#   df <- merge(
+#     estrai_df(lista1, provincia1),
+#     estrai_df(lista2, provincia2),
+#     by = "SIM",
+#     suffixes = c("_1", "_2")
+#   )
+#   
+#   plot(
+#     DATO_1 ~ DATO_2,
+#     data = df,
+#     xlim = c(
+#       min(c(DATO_1, DATO_2)),
+#       max(c(DATO_1, DATO_2))
+#     ),
+#     ylim = c(
+#       min(c(DATO_1, DATO_2)),
+#       max(c(DATO_1, DATO_2))
+#     ),
+#     pch = 19,
+#     col = ifelse(ELETTI_1 > 0, "#00FF0080", "#00000040"),
+#     cex = 3
+#   )
+#   abline(0,1)
+#   
+#   
+# }
+# 
+# grafico_pp(
+#   "ALLEANZA VERDI SINISTRA",
+#   "ALLEANZA VERDI SINISTRA", 
+#   "PARMA",
+#   "REGGIO NELL'EMILIA"
+# )
+```
+
+
+
+#### Per coalizione
+```{r}
+par(mar = c(5, 4, 0, 0))
+plot(
+  ELETTI ~ I(PERCENTUALE*100), 
+  data = risultato$coalizioni, 
+  col = COLORE,
+  xlab = "Percentuale sui voti validi"
+)
+legend(
+  "bottomright", 
+  legend = coalizioni$COALIZIONE[coalizioni$COLORE != "#DDDDDD"], 
+  col = coalizioni$COLORE[coalizioni$COLORE != "#DDDDDD"],
+  pch = 1
+)
+```
+
+
+### Probabilità di elezione per ciascuna posizione nelle province
+
+```{r results='asis'}
+disegna_tabella_prob <- function(lista) {
+  lp <- risultato$prov_lista
+  lp <- lp[lp$LISTA == lista, ]
+  lp$ELETTI <- factor(lp$ELETTI, levels = 0:9)
+  tbl <- table(lp$PROVINCIA, lp$ELETTI)
+  tbl2 <- t(apply(
+    tbl,
+    1,
+    function(x) {
+      rev(cumsum(rev(x[2:10]))) / sum(x)
+    }
+  ))
+  
+  tbl2 <- as.data.frame(tbl2)
+  for (i in 1:9) {
+    tbl2[,i] <- formattable::percent(tbl2[, i], 1)
+  }
+  
+  kb <- kbl(tbl2, caption = lista) %>%
+    kable_minimal()
+  
+  valori_hsv <- rgb2hsv(col2rgb(liste$COLORE[liste$LISTA == lista]))
+  
+  for (i in 1:9) {
+    kb <- column_spec(
+      kb,
+      i+1,
+      background = hsv(
+        valori_hsv["h", 1], 
+        valori_hsv["s", 1]*tbl2[,i], 
+        1
+      )
+    )
+  }
+  kb
+}
+
+
+for (lista in liste$LISTA[liste$LISTA != "astensione" & liste$COLORE != "#DDDDDD"]) {
+  print(disegna_tabella_prob(lista))
+}
+
+```
+
+
+### Probabilità di elezione in base alla posizione nel listino
+
+
+```{r plot_nmax}
+#| fig.width: 8
+#| fig-height: 8
+#| dpi: 100
+
+grafico_nmax <- function(lista, provincia = NA) {
+  if (is.na(provincia)) {
+    lp <- risultato$prov_lista
+  } else {
+    lp <- risultato$prov_lista[
+      risultato$prov_lista$PROVINCIA == provincia,
+    ]
+  }
+  
+  nmax <- factor(
+      lp$ELETTI[lp$LISTA == lista],
+      levels = 0:9
+    )
+  # nmax[is.na(nmax)] <- 4
+  colori <- c(hcl.colors(9), "#FFFFFF")
+  spineplot(
+    nmax ~ I(
+      lp$PERCENTUALE[
+        lp$LISTA == lista
+      ] *100
+    ),
+    breaks = 12,
+    col = colori,
+    yaxlabels = NA,
+    ylab = NA,
+    xlab = "Percentuale nella provincia",
+    main = paste0(
+      lista,
+      ifelse(is.na(provincia), "", paste0(" - ", provincia))
+    )
+  )
+  
+  legend(
+    "topleft",
+    legend = levels(nmax)[-1],
+    fill = rev(colori[-10]),
+    title = "Posizione"
+  )
+}
+
+grafico_nmax("Alleanza Verdi Sinistra", "Parma")
+
+```
+
+# Approfondimenti
+
+{{< include _spiegazione_metodo.qmd >}}
+
+```{r}
+#| fig.width: 8
+#| fig-height: 8
+#| dpi: 100
+#| results: hide
+
+
+# elettori <- 
+#   lista_elezione$VOTI_LISTA_REG[lista_elezione$ELEZIONE == "europee2024"][1]
+elettori <- sum(parametri_input$comuni_liste$ELETTORI[parametri_input$comuni_liste$LISTA == "astensione"])
+
+votanti <- tapply(risultato$liste$VOTI_LISTA_ITER, risultato$liste$SIM, sum)
+astenuti <- data.frame(
+  LISTA = "astensione",
+  SIM = 1:length(votanti),
+  COALIZIONE = NA,
+  ELETTI = NA,
+  VOTI_LISTA_ITER = elettori - votanti,
+  PERCENTUALE = NA,
+  COLORE = liste$COLORE[liste$LISTA == "astensione"]
+)
+astenuti$PERCENTUALE <- formattable::percent(astenuti$PERCENTUALE, 2)
+risultato$liste <- rbind(risultato$liste, astenuti)
+risultato$liste$PERCENTUALE_ELETTORI <- 
+  risultato$liste$VOTI_LISTA_ITER / elettori
+
+lista_elezione <- merge(
+  parametri_input$liste_elezioni,
+  liste[, c("LISTA", "COLORE")],
+  by = "LISTA"
+)
+
+# Ordino secondo la data 
+lista_elezione <- lista_elezione[order(lista_elezione$DATA),]
+
+par(mar=c(15.1, 4.1, 4.1, 2.1), xpd=TRUE)
+
+disegna_grafico <- function(log = FALSE) {
+  # Grafico dell'andamento della percentuale in base alla data
+  plot(
+    PERCENTUALE * 100 ~ DATA, 
+    data = lista_elezione, 
+    pch = "",
+    ylab = "Percentuale sugli elettori",
+    xlim = c(min(DATA), data_elezione),
+    ylim = c(0, 100*quantile(
+      risultato$liste$PERCENTUALE_ELETTORI[risultato$liste$LISTA == "astensione"],
+      0.975
+    )),
+    log = ifelse(log, "y", "")
+  )
+  tapply(lista_elezione, lista_elezione$LISTA, function(df) {
+    lines(PERCENTUALE * 100 ~ DATA, data = df, col = df$COLORE, lwd = 2)
+  })
+  
+  for (lista in liste$LISTA) {
+    y0 <- 100*plogis(liste$LOGIT_P[liste$LISTA == lista])
+    y1 <- 100*quantile(
+      risultato$liste$PERCENTUALE_ELETTORI[risultato$liste$LISTA == lista],
+      0.975
+    )
+    y2 <- 100*quantile(
+      risultato$liste$PERCENTUALE_ELETTORI[risultato$liste$LISTA == lista],
+      0.025
+    )
+    polygon(
+      c(liste$DATA[liste$LISTA == lista], data_elezione, data_elezione),
+      c(y0, y1, y2),
+      border = liste$COLORE[liste$LISTA == lista],
+      col = adjustcolor(liste$COLORE[liste$LISTA == lista], alpha.f = 0.5)
+    )
+  }
+  
+  legend(
+    "bottomleft", 
+    inset=c(0,-0.6), 
+    legend=liste$LISTA, 
+    lwd = 2, 
+    col = liste$COLORE,
+    ncol = 2
+  )
+}
+
+disegna_grafico()
+
+```
+
+
+
