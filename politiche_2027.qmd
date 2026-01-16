@@ -40,9 +40,9 @@ data_elezione <- as.POSIXct("2027-03-01")
 
 simulazioni <- 1000
 
-frazione_uni_in_pluri <- 0
+frazione_uni_in_pluri <- 0.35
 
-frazioni_pluricandidature <- c(1, 0, 0, 0, 0)
+frazioni_pluricandidature <- c(0.8, 0.1, 0.05, 0.03, 0.02)
 
 ```
 
