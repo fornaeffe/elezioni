@@ -1,5 +1,5 @@
 # elezioni
-Simulatore per le elezioni italiane
+Simulatore per le elezioni italiane (politiche, comunali e regionali)
 
 In futuro ho intenzione di trasformarlo in un pacchetto, per ora per usarlo
 bisogna arrangiarsi un po', usando i file .qmd come esempio.
