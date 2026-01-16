@@ -8,7 +8,15 @@ simula_politiche <- function(
     simulazioni = 1000
 ){
   # Carico i dati
-  dati <- carica_dati(cache_path = "dati/dati.RData")
+  dati <- carica_dati(
+    cache_path = "dati/dati.RData",
+    filtro = list(ELEZIONE = c(
+      "camera 2018",
+      "europee 2019",
+      "camera 2022",
+      "europee 2024"
+    ))
+  )
   
   # Estraggo i collegi e ne calcolo i seggi e gli elettori
   dati_collegi <- calcola_collegi(dati)
