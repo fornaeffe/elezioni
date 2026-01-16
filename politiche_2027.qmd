@@ -63,7 +63,7 @@ risultato <- simula_politiche(
 
 ## Dati
 Di seguito le liste che si ipotizza si presentino alle prossime elezioni,
-insieme con il loro risultato alle ultime elezioni. Per le liste che alle ultime
+insieme con il loro risultato alle ultime elezioni. Per le liste che alle passate
 elezioni erano presenti sotto diverso nome è stato stimato il risultato 
 partendo da liste affini.
 ```{r}
@@ -147,84 +147,7 @@ grafico_eletti_pluri(risultato$camera, "Alleanza Verdi Sinistra", "80001")
 
 # Approfondimenti
 
-
-Per predire il numero di voti che ciascuna lista prenderà alle prossime
-elezioni regionali in ciascuna provincia ho ipotizzato che i voti presi da
-ciascuna lista seguano il modello che descrivo qui di seguito.
-
-Ho ipotizzato che la percentuale (sul totale degli elettori) della 
-lista $l$ nell'elezione $t$ (trasformata attraverso la funzione 
-$\operatorname{logit}$ affinché non sia vincolata tra 0 e 1) sia uguale alla 
-percentuale della stessa lista nell'elezione precedente ($t-1$) 
-(anch'essa trasformata tramite $\operatorname{logit}$), più una quantità 
-(positiva o negativa) che dipende dal tempo trascorso tra le due elezioni e da 
-una "velocità" di cambiamento casuale, con una distribuzione normale e una 
-deviazione standard che può variare da lista a lista (ci saranno liste più 
-stabili, le cui velocità di cambiamento saranno vicine allo zero, e liste meno
-stabili con velocità di cambiamento che possono discostarsi maggiormente dallo 
-zero).
-
-$$ \operatorname{logit}(P_{l,t}) = \operatorname{logit}(P_{l,t-1}) 
-+ \sqrt{data_t - data_{t-1}} \cdot v_{l, t} $$
-
-$$ v_{l, t} \sim \mathcal{N}(0, \sigma_{l})$$
-
-Dove 
-
-* $P_{l,t}$ è la percentuale (sul totale degli aventi diritto al voto)
-della lista $l$ all'elezione $t$,
-* $P_{t-1}$ è la percentuale della lista $l$ all'elezione precedente ($t-1$),
-* $data_t$ e $data_{t-1}$ sono le date delle due elezioni,
-* $v_{l, t}$ è la velocità di cambiamento della percentuale trasformata
-della lista $l$ tra l'elezione $t-1$ e l'elezione $t$
-* $\sigma_{l}$ è la deviazione standard delle velocità di cambiamento della
-percentuale (logit-trasformata) della lista $l$.
-
-Considero l'astensione come una lista a sé.
-
-
-Dai dati sulle elezioni precedenti ottengo quindi:
-
-* per ciascuna lista $l$, la deviazione standard $\sigma_{l}$ delle velocità
-di cambiamento delle percentuali trasformate;
-* per ciascuna lista $l$, la percentuale regionale trasformata 
-$\operatorname{logit}(P_{l,ultime\ elezioni})$ ottenuta alle ultime elezioni;
-
-
-
-Per fare una simulazione dei voti delle prossime elezioni, quindi:
-
-1. calcolo il tempo che trascorrerà tra le ultime elezioni e una probabile 
-data delle prossime elezioni regionali
-2. estraggo a sorte, per ciascuna lista $l$, le velocità di cambiamento
-$v_{l, prossime\ elezioni}$ delle percentuali regionali;
-3. attraverso le equazioni sopra, calcolo le nuove percentuali.
-
-Le percentuali così ottenute vengono poi scalate in modo che la 
-somma di tutte le percentuali della provincia faccia 1:
-
-$$\hat{P}_{l, prossime\ elezioni} = \frac{P_{l, prossime\ elezioni}}
-{\displaystyle{\sum_{l \in Liste } P_{l, prossime\ elezioni}}}$$
-
-dove $\hat{P}_{l,prossime\ elezioni}$ è la percentuale scalata della lista $l$, 
-simulata per le prossime elezioni regionali.
-
-Quest'ultima percentuale viene poi moltiplicata per gli elettori, per ottenere
-il numero di voti ricevuti da ciascuna lista in ciascuna provincia.
-
-Con questi voti viene poi simulato uno scrutinio, seguendo quanto stabilito
-dalla legge elettorale regionale.
-
-## Serie storica dei risultati delle liste
-
-Di seguito la serie storica di elezioni considerate. Sono mostrate le
-percentuali di ciascuna lista rispetto al totale degli aventi diritto al voto.
-
-In alcuni casi i risultati passati della lista sono basati sul risultato di 
-liste affini.
-
-I triangoli sulla destra comprendono il 95% dei risultati simulati di ciascuna
-lista alle prossime elezioni.
+{{< include _spiegazione_metodo.qmd >}}
 
 ```{r}
 #| fig.width: 8
