@@ -660,10 +660,10 @@ filter_dt <- function(DT, filters) {
   if (length(filters) == 0) return(DT)
   
   cols_ok <- names(filters) %in% names(DT)
-  if (!all(cols_ok)) {
-    stop("Columns not present in dt: ",
-         paste(names(filters)[!cols_ok], collapse = ", "))
-  }
+  
+  filters <- filters[cols_ok]
+  
+  if (length(filters) == 0) return(DT)
   
   DT[
     Reduce(
@@ -684,7 +684,7 @@ carica_dati <- function(cache = TRUE, cache_path = file.path(tempdir(), "dati.RD
     dati <- scarica_dati(cache, cache_path)
   }
   
-  dati[1:3] <- lapply(dati[1:3], filter_dt, filter = filtro)
+  dati <- lapply(dati, filter_dt, filter = filtro)
   
   return(dati)
 }
