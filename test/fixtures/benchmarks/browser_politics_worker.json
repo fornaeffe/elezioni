@@ -1,0 +1,27 @@
+{
+  "metadata": {
+    "created": "2026-06-01T21:21:56.715Z",
+    "browser": "chromium",
+    "workflow": "politiche",
+    "path": "generated TypeScript worker on debug-source snapshot",
+    "data_version": "v1",
+    "notes": [
+      "Elapsed time is read from SimulationResult.benchmark.elapsedMs as rendered by the app.",
+      "The worker path is currently capped at 100 simulations."
+    ]
+  },
+  "runs": [
+    {
+      "simulations_requested": 10,
+      "simulations_completed": 10,
+      "elapsed_ms": 1248,
+      "rows_rendered": 20
+    },
+    {
+      "simulations_requested": 100,
+      "simulations_completed": 100,
+      "elapsed_ms": 14025,
+      "rows_rendered": 200
+    }
+  ]
+}

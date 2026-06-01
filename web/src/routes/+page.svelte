@@ -236,7 +236,7 @@
     <div class="panel result-panel">
       <div class="panel-heading">
         <h2>Risultati</h2>
-        <span>{elapsedLabel}</span>
+        <span data-testid="elapsed-ms" data-phase={phase}>{elapsedLabel}</span>
       </div>
 
       {#if warnings.length > 0}

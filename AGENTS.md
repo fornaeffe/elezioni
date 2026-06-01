@@ -208,6 +208,10 @@ simulation 4.
   `web/static/data/v1/politics-pipeline-source-debug.json`, which is the
   current generated worker source bridge.
 - `scripts/benchmark_r_workflows.R` reruns R baseline workflows.
+- `web/playwright.benchmark.config.ts` and
+  `web/tests/benchmarks/politics-worker.spec.ts` benchmark the generated
+  politics worker path in Chromium. Run with `cd web; npm run
+  benchmark:politics`.
 - `web/` contains the initial static SvelteKit app scaffold, strict TypeScript
   setup, worker API types, seeded RNG, allocation primitives, unit tests, and a
   Playwright smoke test.
@@ -231,7 +235,14 @@ simulation 4.
   probabilities into the source model, and recomputes `LOGIT_P`. This is a
   bridge behavior, not the final scenario import/editor contract.
 - The generated worker path is currently capped at 100 simulations until
-  chunking and browser performance measurements are added.
+  chunked/1000-simulation execution is added.
+- The first generated-worker browser performance gate passed on 2026-06-01:
+  Chromium ran 10 politics simulations in 1.248 s and 100 in 14.025 s
+  (`test/fixtures/benchmarks/browser_politics_worker.json`). Fresh same-machine
+  full R politics baselines were 6.20 s for 10 simulations and 19.58 s for 100
+  (`test/fixtures/benchmarks/r_baseline_politics_10_compare.json` and
+  `test/fixtures/benchmarks/r_baseline_politics_100_compare.json`). Repeat this
+  gate after final data packaging and chunked execution.
 - In the Camera internal list-in-coalition flipper, the R code decrements the
   recipient list's `SEGGI_ECCEDENTI_CONTATORE` after giving it a seat. This
   appears counterintuitive but is preserved in TypeScript for parity and marked

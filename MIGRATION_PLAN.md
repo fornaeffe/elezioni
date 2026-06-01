@@ -34,7 +34,7 @@ R baseline on the same machine, pause and present Python fallback options.
 | Candidate generation | Started | Politics `genera_candidati()` is ported with R `sample()` replay fixture parity and seeded browser sampling. |
 | Composed politics pipeline | Started | Candidate generation, vote generation, vote preparation, and direct-scrutiny input adaptation are composed into tested synthetic, real-source, and browser-worker paths. |
 | Generated politics input adapter | Started | R-style generated-table fixture and TypeScript adapter now rebuild the exact direct scrutiny inputs/context. `prepara_dts()` vote preparation is also ported. |
-| Performance gate | Pending | Compare browser politics run to fresh R baselines. |
+| Performance gate | Passed for current politics worker path | Chromium generated-worker benchmark is below fresh full R politics baselines for 10 and 100 simulations; repeat after production data packaging/chunking. |
 
 ## Decisions
 
@@ -74,6 +74,21 @@ Politics 100-simulation phase breakdown:
 | `genera_candidati` | ~3.3 s | ~33 MB |
 | `genera_voti_politiche` | ~2.4 s | ~25 MB |
 | `esegui_scrutini_politiche` | ~9.3 s | ~37 MB |
+
+Fresh comparison baselines run on 2026-06-01 after the generated worker path was
+wired:
+
+| Workflow | Simulations | Elapsed | Fixture |
+| --- | ---: | ---: | --- |
+| R full politics workflow | 10 | 6.20 s | `test/fixtures/benchmarks/r_baseline_politics_10_compare.json` |
+| R full politics workflow | 100 | 19.58 s | `test/fixtures/benchmarks/r_baseline_politics_100_compare.json` |
+| Chromium generated politics worker | 10 | 1.248 s | `test/fixtures/benchmarks/browser_politics_worker.json` |
+| Chromium generated politics worker | 100 | 14.025 s | `test/fixtures/benchmarks/browser_politics_worker.json` |
+
+Current gate result: pass for this debug-source generated politics worker path.
+The 100-simulation browser run is about 0.72x the fresh full R workflow elapsed
+time, far below the 10x stop threshold. Repeat this gate after final production
+data packaging and chunked/1000-simulation execution.
 
 ## Implementation Checklist
 
@@ -144,10 +159,14 @@ Run on 2026-06-01:
 - `Rscript scripts/export_politics_pipeline_source.R`: passed.
 - `Rscript scripts/export_politics_pipeline_source.R web/static/data/v1/politics-pipeline-source-debug.json`: passed.
 - `Rscript scripts/benchmark_r_workflows.R --politics-sims=10 --municipal-sims=10 --regional-sims=10 --output=test/fixtures/benchmarks/r_baseline_quick.json`: passed.
+- `Rscript scripts/benchmark_r_workflows.R --politics-sims=10 --municipal-sims=1 --regional-sims=1 --output=test/fixtures/benchmarks/r_baseline_politics_10_compare.json`: passed.
+- `Rscript scripts/benchmark_r_workflows.R --politics-sims=100 --municipal-sims=1 --regional-sims=1 --output=test/fixtures/benchmarks/r_baseline_politics_100_compare.json`: passed.
 - `cd web; npm run check`: passed with 0 warnings.
 - `cd web; npm test`: passed, 109 tests.
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.
+- `cd web; npm run benchmark:politics`: passed, 10 simulations in 1.248 s and
+  100 simulations in 14.025 s.
 
 ## Current Caveats
 
@@ -187,8 +206,12 @@ Run on 2026-06-01:
   name, preserves the source abstention row, rescales political list
   probabilities into the source model, and recomputes `LOGIT_P`. This keeps the
   browser workflow usable but is not the final scenario import/editor contract.
-- The generated worker path is capped at 100 simulations until chunking and
-  browser performance measurements are added.
+- The generated worker path is capped at 100 simulations until chunked/1000-
+  simulation execution is added.
+- The first generated-worker browser benchmark passes the 10x performance gate
+  for 10 and 100 politics simulations. This is not yet a final 1000-simulation
+  gate because the worker still runs as a single chunk and is intentionally
+  capped at 100 simulations.
 - The browser direct-scrutiny bridge snapshot is about 8.7 MB and contains only
   direct scrutiny inputs/context, not golden traces or expected outputs. It is
   still useful for tests/benchmarks but is no longer the UI worker path.
@@ -677,3 +700,34 @@ Verification:
 - `cd web; npm test`: passed, 109 tests.
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-01 Checkpoint 19
+
+Completed in the first browser performance-gate pass:
+
+- Added `web/playwright.benchmark.config.ts`.
+- Added `web/tests/benchmarks/politics-worker.spec.ts`.
+- Added `cd web; npm run benchmark:politics`, separate from the normal
+  Playwright smoke suite.
+- Added a stable `data-testid="elapsed-ms"` hook to the result elapsed-time UI.
+- The benchmark drives the built static app in Chromium, runs the generated
+  politics worker path for 10 and 100 simulations, asserts the generated
+  Camera/Senato run rows, and writes
+  `test/fixtures/benchmarks/browser_politics_worker.json`.
+- Re-ran fresh same-machine R politics baselines for comparison:
+  - `test/fixtures/benchmarks/r_baseline_politics_10_compare.json`
+  - `test/fixtures/benchmarks/r_baseline_politics_100_compare.json`
+- Current gate result: pass for the debug-source generated worker path.
+  Chromium ran 10 simulations in 1.248 s and 100 in 14.025 s, while fresh full
+  R politics baselines were 6.20 s and 19.58 s. This is far below the 10x stop
+  threshold, so there is no reason to switch to Python at this stage.
+
+Verification:
+
+- `Rscript scripts/benchmark_r_workflows.R --politics-sims=10 --municipal-sims=1 --regional-sims=1 --output=test/fixtures/benchmarks/r_baseline_politics_10_compare.json`: passed.
+- `Rscript scripts/benchmark_r_workflows.R --politics-sims=100 --municipal-sims=1 --regional-sims=1 --output=test/fixtures/benchmarks/r_baseline_politics_100_compare.json`: passed.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm test`: passed, 109 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+- `cd web; npm run benchmark:politics`: passed.
