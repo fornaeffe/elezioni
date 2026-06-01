@@ -32,8 +32,8 @@ R baseline on the same machine, pause and present Python fallback options.
 | Politics scrutiny port | Started | Direct politics scrutiny output now matches R for the debug fixture and runs in the worker through a compact snapshot bridge. |
 | Vote generation | Started | Generic `genera_voti()` math and politics `genera_voti_politiche()` orchestration are ported with R-draw fixture parity and seeded browser normals. |
 | Candidate generation | Started | Politics `genera_candidati()` is ported with R `sample()` replay fixture parity and seeded browser sampling. |
-| Composed politics pipeline | Started | Candidate generation, vote generation, vote preparation, and direct-scrutiny input adaptation are composed into a tested synthetic snapshot pipeline. |
-| Generated politics input adapter | Started | R-style generated-table fixture and TypeScript adapter now rebuild the exact direct scrutiny inputs/context. `prepara_dts()` vote preparation is also ported; random candidate generation is still pending. |
+| Composed politics pipeline | Started | Candidate generation, vote generation, vote preparation, and direct-scrutiny input adaptation are composed into tested synthetic and one-simulation real-source snapshot pipelines. |
+| Generated politics input adapter | Started | R-style generated-table fixture and TypeScript adapter now rebuild the exact direct scrutiny inputs/context. `prepara_dts()` vote preparation is also ported. |
 | Performance gate | Pending | Compare browser politics run to fresh R baselines. |
 
 ## Decisions
@@ -141,9 +141,10 @@ Run on 2026-06-01:
 - R debug scrutiny equality check after rename: passed for Camera and Senato.
 - `Rscript scripts/export_politics_golden.R`: passed.
 - `node scripts/export_politics_worker_snapshot.mjs`: passed.
+- `Rscript scripts/export_politics_pipeline_source.R`: passed.
 - `Rscript scripts/benchmark_r_workflows.R --politics-sims=10 --municipal-sims=10 --regional-sims=10 --output=test/fixtures/benchmarks/r_baseline_quick.json`: passed.
 - `cd web; npm run check`: passed with 0 warnings.
-- `cd web; npm test`: passed, 87 tests.
+- `cd web; npm test`: passed, 109 tests.
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.
 
@@ -151,11 +152,10 @@ Run on 2026-06-01:
 
 - The TypeScript politics scrutiny core matches direct R scrutiny output for the
   10-simulation debug fixture and is wired into the browser worker through a
-  compact debug snapshot. The generated-table adapter can now rebuild those
-  direct inputs from the R-style generated vote/candidate tables, but the worker
-  still does not consume the scenario editor because random scenario-to-vote
-  generation is not ported yet; the worker returns
-  `POLITICS_SCENARIO_GENERATOR_PENDING` intentionally.
+  compact debug snapshot. The generated pipeline can now build and scrutinize a
+  one-simulation politics snapshot from the real debug source fixture, but the
+  worker still does not consume the generated pipeline or scenario editor data;
+  it returns `POLITICS_SCENARIO_GENERATOR_PENDING` intentionally.
 - The exported politics fixture is about 68 MB because it contains direct
   scrutiny inputs, R trace tables, and expected outputs for 10 simulations.
 - The generated adapter fixture is about 8.1 MB and covers deterministic
@@ -179,6 +179,10 @@ Run on 2026-06-01:
 - The composed pipeline fixture is synthetic. It validates module composition
   and direct-scrutiny input adaptation, but it is not a substitute for the full
   historical data snapshot or the politics performance gate.
+- The real debug generation-source fixture is about 12 MB. It validates a
+  one-simulation generated pipeline plus scrutiny smoke path from realistic
+  source tables, but it is still a test bridge rather than the final bundled
+  production data layout.
 - The browser direct-scrutiny bridge snapshot is about 8.7 MB and contains only
   direct scrutiny inputs/context, not golden traces or expected outputs.
 - `npm audit` reports 3 low-severity findings through SvelteKit's transitive
@@ -607,5 +611,32 @@ Verification so far:
 - `Rscript scripts/export_politics_pipeline_fixture.R`: passed.
 - `cd web; npm run check`: passed with 0 warnings.
 - `cd web; npm test`: passed, 107 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-01 Checkpoint 17
+
+Completed in the real-source pipeline smoke pass:
+
+- Added `scripts/export_politics_pipeline_source.R`.
+- Exported `test/fixtures/politiche/pipeline_source_debug.json`, a compact
+  politics generation-source snapshot derived from `dati/debug_scrutinio.RData`.
+- The fixture includes real debug-source lists, municipality/list parameters,
+  base college data, college maps, and fixed candidate tables for Camera and
+  Senato. It defaults to one simulation and can be overridden by tests or future
+  worker code.
+- Added `web/src/lib/politics/pipeline-source.test.ts`.
+- The new test builds a `PoliticsDirectScrutinySnapshot` from the real debug
+  source with seeded browser random draws, then runs `runPoliticsScrutiny()` for
+  Camera and Senato.
+- This is a smoke/equivalence-boundary test, not the browser performance gate:
+  the worker still runs the compact direct-scrutiny snapshot bridge.
+
+Verification:
+
+- `Rscript scripts/export_politics_pipeline_source.R`: passed.
+- `cd web; npx vitest run src/lib/politics/pipeline-source.test.ts src/lib/politics/pipeline.test.ts`: passed, 5 tests.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm test`: passed, 109 tests.
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.

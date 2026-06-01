@@ -199,6 +199,11 @@ simulation 4.
   `web/src/lib/politics/pipeline.ts` combines candidate generation, vote
   generation, `prepara_dts()` parity logic, and direct scrutiny input adaptation
   into the same snapshot shape used by the worker bridge.
+- `scripts/export_politics_pipeline_source.R` exports
+  `test/fixtures/politiche/pipeline_source_debug.json`, a compact real
+  generation-source snapshot derived from `dati/debug_scrutinio.RData`.
+  `web/src/lib/politics/pipeline-source.test.ts` builds one seeded browser
+  simulation from this source and runs Camera/Senato scrutiny as a smoke test.
 - `scripts/benchmark_r_workflows.R` reruns R baseline workflows.
 - `web/` contains the initial static SvelteKit app scaffold, strict TypeScript
   setup, worker API types, seeded RNG, allocation primitives, unit tests, and a
@@ -216,7 +221,7 @@ simulation 4.
   `liste_pluri`/`candidati_uni`/`candidati_pluri` outputs. The worker can run
   this core on the bundled compact debug snapshot and returns a deliberate
   `POLITICS_SCENARIO_GENERATOR_PENDING` warning because scenario-generated
-  politics votes are not ported yet.
+  politics votes are not wired into the worker yet.
 - In the Camera internal list-in-coalition flipper, the R code decrements the
   recipient list's `SEGGI_ECCEDENTI_CONTATORE` after giving it a seat. This
   appears counterintuitive but is preserved in TypeScript for parity and marked
