@@ -225,6 +225,65 @@ export interface CameraRipartoTrace {
   liste_naz_riparto: CameraListeNazRipartoTraceRow[];
 }
 
+export interface CircRipartoTotaleTraceRow {
+  CIRCOSCRIZIONE: AdministrativeCode;
+  CIFRA: number;
+  SEGGI: number;
+  CIFRA_AMMESSE_AL_RIPARTO: number;
+  QUOZIENTE: number;
+  PARTE_INTERA: number;
+  DA_ASSEGNARE: number;
+}
+
+export interface CircRipartoListaTraceRow {
+  CIRCOSCRIZIONE: AdministrativeCode;
+  LISTA: string;
+  CIFRA: number;
+  SOGLIA1M: boolean;
+  SOGLIA3: boolean;
+  SOGLIA20: boolean;
+  SOGLIA_MINORANZA: boolean;
+  SOGLIA_COALIZIONE: TraceBoolean;
+  SOGLIA_SOLA: TraceBoolean;
+  SOGGETTO_RIPARTO: string | null;
+}
+
+export interface CircRipartoTraceRow {
+  CIRCOSCRIZIONE: AdministrativeCode;
+  SOGGETTO_RIPARTO: string;
+  CIFRA: number;
+  QUOZIENTE: number;
+  PARTE_INTERA: number;
+  DA_ASSEGNARE: number;
+  DECIMALI: TraceNumber;
+  RESTO: TraceNumber;
+  CIFRA_NAZ: TraceNumber;
+  ESCLUSE: TraceBoolean;
+  ORDINE: TraceNumber;
+  SEGGIO_DA_DECIMALI: TraceBoolean;
+  SEGGIO_DA_RESTO: TraceBoolean;
+  FLIPPER: TraceNumber;
+  SEGGI: number;
+}
+
+export interface CircRipartoNazTraceRow {
+  SOGGETTO_RIPARTO: string;
+  CIFRA: number;
+  SEGGI: number;
+  PARTE_INTERA_CIRC: number;
+  ESCLUSE: boolean;
+  SEGGI_CIRC: number;
+  SEGGI_ECCEDENTI: number;
+  SEGGI_ECCEDENTI_CONTATORE: number;
+}
+
+export interface CircRipartoTrace {
+  totali_circ: CircRipartoTotaleTraceRow[];
+  liste_circ: CircRipartoListaTraceRow[];
+  riparto_circ: CircRipartoTraceRow[];
+  riparto_naz: CircRipartoNazTraceRow[];
+}
+
 export interface PoliticsEarlyTrace {
   candidati_uni_elezione: CandidatoUniResultRow[];
   candidati_uni_attribuzione: CandidatoUniAttributionTraceRow[];
@@ -242,6 +301,7 @@ export interface PoliticsScrutinyTrace extends PoliticsEarlyTrace {
   coal_naz_soglie: CoalNazSoglieTraceRow[];
   coal_circ_cifre: CoalCircCifreTraceRow[];
   camera_riparto: CameraRipartoTrace;
+  circ_riparto: CircRipartoTrace;
 }
 
 export interface PoliticsScrutinyInput {

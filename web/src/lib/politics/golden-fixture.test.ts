@@ -130,11 +130,24 @@ function expectCameraRipartoTraceToMatch(actual: PoliticsScrutinyTrace, expected
   ]);
 }
 
+function expectCircRipartoTraceToMatch(actual: PoliticsScrutinyTrace, expected: PoliticsScrutinyTrace): void {
+  expectRowsToMatch(actual.circ_riparto.totali_circ, expected.circ_riparto.totali_circ, ['CIRCOSCRIZIONE']);
+  expectRowsToMatch(actual.circ_riparto.liste_circ, expected.circ_riparto.liste_circ, [
+    'CIRCOSCRIZIONE',
+    'LISTA'
+  ]);
+  expectRowsToMatch(actual.circ_riparto.riparto_circ, expected.circ_riparto.riparto_circ, [
+    'CIRCOSCRIZIONE',
+    'SOGGETTO_RIPARTO'
+  ]);
+  expectRowsToMatch(actual.circ_riparto.riparto_naz, expected.circ_riparto.riparto_naz, ['SOGGETTO_RIPARTO']);
+}
+
 describe('politics golden fixture', () => {
   const fixture = loadFixture();
 
   test('has the expected direct scrutiny fixture shape', () => {
-    expect(fixture.metadata.schema_version).toBe(4);
+    expect(fixture.metadata.schema_version).toBe(5);
     expect(fixture.rami.camera.simulations).toHaveLength(10);
     expect(fixture.rami.senato.simulations).toHaveLength(10);
     expect(fixture.rami.camera.simulations[3].warnings).toHaveLength(1);
@@ -143,6 +156,8 @@ describe('politics golden fixture', () => {
     expect(fixture.rami.camera.simulations[0].trace.liste_naz_soglie.length).toBeGreaterThan(0);
     expect(fixture.rami.camera.simulations[0].trace.camera_riparto.riparto_naz.length).toBeGreaterThan(0);
     expect(fixture.rami.senato.simulations[0].trace.camera_riparto.riparto_naz).toHaveLength(0);
+    expect(fixture.rami.camera.simulations[0].trace.circ_riparto.riparto_circ.length).toBeGreaterThan(0);
+    expect(fixture.rami.senato.simulations[0].trace.circ_riparto.riparto_circ.length).toBeGreaterThan(0);
   });
 
   for (const ramo of ['camera', 'senato'] as Ramo[]) {
@@ -166,6 +181,7 @@ describe('politics golden fixture', () => {
         expectEarlyTraceToMatch(actual, simulation.trace);
         expectThresholdTraceToMatch(actual, simulation.trace);
         expectCameraRipartoTraceToMatch(actual, simulation.trace);
+        expectCircRipartoTraceToMatch(actual, simulation.trace);
       });
     }
   }
