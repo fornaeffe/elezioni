@@ -513,7 +513,7 @@ export interface GeneratedCandidatoPluriRow {
   PLURI_COD: AdministrativeCode;
   NUMERO_CANDIDATO: number;
   MINORANZA?: boolean;
-  CANDIDATO_ID: string;
+  CANDIDATO_ID: string | null;
   DATA_NASCITA?: string;
   CIRC_COD?: AdministrativeCode | null;
 }
@@ -682,6 +682,7 @@ export interface PoliticsCandidateUniTemplateRow {
 }
 
 export interface PoliticsCandidatePluriGenerationTemplateRow {
+  CIRC_COD?: AdministrativeCode;
   LISTA: string;
   PLURI_COD: AdministrativeCode;
   NUMERO_CANDIDATO: number;
@@ -733,6 +734,61 @@ export interface PoliticsCandidateGenerationFixture {
   input: PoliticsCandidateGenerationSource;
   sample_draws: PoliticsCandidateSampleDraw[];
   expected: PoliticsGeneratedCandidates;
+}
+
+export interface PoliticsPipelineListRow extends PoliticsCandidateGenerationListRow {
+  DATA: string;
+  LOGIT_P: number;
+  SIGMA_GLOBAL: number;
+}
+
+export interface PoliticsPipelinePluriRow extends PoliticsCollegePluriRow {
+  PLURI_COD: AdministrativeCode;
+}
+
+export interface PoliticsPipelineCandidatePluriRow extends PoliticsCandidatePluriGenerationTemplateRow {
+  CIRC_COD: AdministrativeCode;
+}
+
+export interface PoliticsPipelineRamoSource {
+  uni: PoliticsCollegeUniRow[];
+  pluri: PoliticsPipelinePluriRow[];
+  candidati_uni: PoliticsCandidateUniTemplateRow[];
+  candidati_pluri: PoliticsPipelineCandidatePluriRow[];
+}
+
+export interface PoliticsPipelineSource {
+  data_elezione: string;
+  simulazioni: number;
+  frazione_uni_in_pluri: number;
+  frazioni_pluricandidature: number[];
+  default_data_nascita: string;
+  liste: PoliticsPipelineListRow[];
+  comuni_liste: PoliticsMunicipalListParameterRow[];
+  base_dati: PoliticsBaseDataRow[];
+  camera: PoliticsPipelineRamoSource;
+  senato: PoliticsPipelineRamoSource;
+}
+
+export interface PoliticsPipelineFixture {
+  metadata: {
+    schema_version: number;
+    source: string;
+    random_seed: number;
+    purpose: string;
+  };
+  input: PoliticsPipelineSource;
+  sample_draws: PoliticsCandidateSampleDraw[];
+  normal_draws: Array<{
+    phase: 'global' | 'local';
+    LISTA: string;
+    SIM: number;
+    LOCALITA: AdministrativeCode | null;
+    mean: number;
+    sd: number;
+    value: number;
+  }>;
+  expected: PoliticsDirectScrutinySnapshot;
 }
 
 export interface PoliticsGoldenFixture {

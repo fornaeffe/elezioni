@@ -32,6 +32,7 @@ R baseline on the same machine, pause and present Python fallback options.
 | Politics scrutiny port | Started | Direct politics scrutiny output now matches R for the debug fixture and runs in the worker through a compact snapshot bridge. |
 | Vote generation | Started | Generic `genera_voti()` math and politics `genera_voti_politiche()` orchestration are ported with R-draw fixture parity and seeded browser normals. |
 | Candidate generation | Started | Politics `genera_candidati()` is ported with R `sample()` replay fixture parity and seeded browser sampling. |
+| Composed politics pipeline | Started | Candidate generation, vote generation, vote preparation, and direct-scrutiny input adaptation are composed into a tested synthetic snapshot pipeline. |
 | Generated politics input adapter | Started | R-style generated-table fixture and TypeScript adapter now rebuild the exact direct scrutiny inputs/context. `prepara_dts()` vote preparation is also ported; random candidate generation is still pending. |
 | Performance gate | Pending | Compare browser politics run to fresh R baselines. |
 
@@ -175,6 +176,9 @@ Run on 2026-06-01:
   `sample()` outputs. The generated-candidate default birthdate is read from
   the fixture because R's `as.POSIXct("2000-01-01")` depends on the local
   timezone; on this machine it serializes as `1999-12-31T23:00:00Z`.
+- The composed pipeline fixture is synthetic. It validates module composition
+  and direct-scrutiny input adaptation, but it is not a substitute for the full
+  historical data snapshot or the politics performance gate.
 - The browser direct-scrutiny bridge snapshot is about 8.7 MB and contains only
   direct scrutiny inputs/context, not golden traces or expected outputs.
 - `npm audit` reports 3 low-severity findings through SvelteKit's transitive
@@ -574,5 +578,34 @@ Verification so far:
 - `Rscript scripts/export_politics_candidate_generation_fixture.R`: passed.
 - `cd web; npm run check`: passed with 0 warnings.
 - `cd web; npm test`: passed, 104 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-01 Checkpoint 16
+
+Completed in the composed politics pipeline pass:
+
+- Added `scripts/export_politics_pipeline_fixture.R`.
+- Exported `test/fixtures/politiche/pipeline.json`, a compact synthetic trace
+  that combines candidate generation, vote generation, `prepara_dts()` parity
+  behavior, and direct-scrutiny input adaptation.
+- Added `PoliticsPipelineSource` and related fixture/source types.
+- Added `web/src/lib/politics/pipeline.ts`, which builds a
+  `PoliticsDirectScrutinySnapshot` from:
+  - candidate generation;
+  - politics vote generation;
+  - generated-table adapter context;
+  - per-simulation direct scrutiny input splitting.
+- Added parity tests that replay both R `sample()` draws and R normal draws,
+  then compare the complete direct-scrutiny snapshot against R.
+- Preserved the R edge where candidate generation can propagate an `NA`
+  candidate into plurinominal slots when list assignment samples an empty
+  right-join row. This is noted in `AGENTS.md` as a business-review caveat.
+
+Verification so far:
+
+- `Rscript scripts/export_politics_pipeline_fixture.R`: passed.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm test`: passed, 107 tests.
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.

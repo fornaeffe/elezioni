@@ -194,6 +194,11 @@ simulation 4.
   outputs in tests and uses a seeded TypeScript sampler in browser runs. The R
   default date for generated candidates is captured from the fixture because
   `as.POSIXct("2000-01-01")` is local-timezone dependent.
+- `scripts/export_politics_pipeline_fixture.R` exports
+  `test/fixtures/politiche/pipeline.json`, a synthetic composed pipeline trace.
+  `web/src/lib/politics/pipeline.ts` combines candidate generation, vote
+  generation, `prepara_dts()` parity logic, and direct scrutiny input adaptation
+  into the same snapshot shape used by the worker bridge.
 - `scripts/benchmark_r_workflows.R` reruns R baseline workflows.
 - `web/` contains the initial static SvelteKit app scaffold, strict TypeScript
   setup, worker API types, seeded RNG, allocation primitives, unit tests, and a
@@ -219,5 +224,9 @@ simulation 4.
 - Plurinominal allocation also preserves R stable ordering for equal decimal
   remainders/equal figures where the law comments mention `sorteggio`; this is
   marked `TODO(law-review)` in TypeScript.
+- Candidate generation preserves the R edge where an `NA` uninominal candidate
+  can be replayed into plurinominal candidate slots when list assignment samples
+  an empty right-join row. This is visible in the synthetic pipeline fixture and
+  may deserve business review before production data is exposed broadly.
 - When posting Svelte `$state` data to workers, derive or build plain snapshots
   first. Svelte proxies are not structured-clone safe.

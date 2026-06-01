@@ -236,7 +236,7 @@ function fillPlurinominalCandidates(
     const availableUninominalCandidates = uniPluriLists
       .filter((row) => row.LISTA === list)
       .map((row) => row.CANDIDATO_ID);
-    const candidates: string[] = [];
+    const candidates: Array<string | null> = [];
 
     const firstFraction = fractions[0];
     const uninominalToUse = Math.min(availableUninominalCandidates.length, firstFraction);
@@ -248,7 +248,7 @@ function fillPlurinominalCandidates(
           ramo: context.ramo,
           sim: context.sim,
           lista: list
-        }).map(String)
+        })
       );
     }
 
@@ -258,7 +258,8 @@ function fillPlurinominalCandidates(
       }
     }
 
-    let previous = candidates.length > 0 ? [...candidates] : [`PLURI_${context.sim}_${list}_base`];
+    let previous: Array<string | null> =
+      candidates.length > 0 ? [...candidates] : [`PLURI_${context.sim}_${list}_base`];
 
     for (let fraction = 2; fraction <= 5; fraction += 1) {
       const seats = fractions[fraction - 1];
@@ -270,7 +271,7 @@ function fillPlurinominalCandidates(
         sim: context.sim,
         lista: list,
         fraction
-      }).map(String);
+      });
       candidates.push(...previous);
     }
 

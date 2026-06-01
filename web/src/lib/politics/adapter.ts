@@ -172,7 +172,7 @@ function adaptPlurinominalCandidates(
       COLLEGIOPLURINOMINALE: row.PLURI_COD,
       LISTA: row.LISTA,
       NUMERO: row.NUMERO_CANDIDATO,
-      CANDIDATO: row.CANDIDATO_ID,
+      CANDIDATO: row.CANDIDATO_ID as string,
       SIM: row.SIM
     };
   });
