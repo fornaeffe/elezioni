@@ -482,6 +482,80 @@ export interface PoliticsDirectScrutinySnapshot {
   rami: Record<Ramo, PoliticsDirectScrutinySnapshotRamo>;
 }
 
+export interface GeneratedUniListVotesRow {
+  SIM: number;
+  UNI_COD: AdministrativeCode;
+  LISTA: string;
+  VOTI_LISTA_SIM: number;
+  PLURI_COD?: AdministrativeCode | null;
+  CIRC_COD?: AdministrativeCode | null;
+  CANDIDATO_ID?: string | null;
+  CAND_MINORANZA?: boolean | null;
+  MINORANZA?: boolean | null;
+}
+
+export interface GeneratedCandidatoUniVotesRow {
+  SIM: number;
+  UNI_COD: AdministrativeCode;
+  CANDIDATO_ID: string;
+  DATA_NASCITA: string;
+  VOTI_CANDIDATO: number;
+  PLURI_COD?: AdministrativeCode | null;
+  CIRC_COD?: AdministrativeCode | null;
+}
+
+export interface GeneratedCandidatoPluriRow {
+  SIM: number;
+  LISTA: string;
+  PLURI_COD: AdministrativeCode;
+  NUMERO_CANDIDATO: number;
+  CANDIDATO_ID: string;
+  CIRC_COD?: AdministrativeCode | null;
+}
+
+export interface PoliticsCollegeUniRow {
+  CIRC_COD: AdministrativeCode;
+  PLURI_COD: AdministrativeCode | null;
+  UNI_COD: AdministrativeCode;
+}
+
+export interface PoliticsCollegePluriRow {
+  CIRC_COD: AdministrativeCode;
+  PLURI_COD: AdministrativeCode | null;
+  SEGGI_PLURI: number;
+}
+
+export interface PoliticsGeneratedListRow {
+  LISTA: string;
+  COALIZIONE: string | null;
+}
+
+export interface PoliticsCandidatePluriTemplateRow {
+  LISTA: string;
+  PLURI_COD: AdministrativeCode | null;
+  CIRC_COD: AdministrativeCode;
+  MINORANZA: boolean;
+}
+
+export interface PoliticsGeneratedRamoSource {
+  uni_liste_sim: GeneratedUniListVotesRow[];
+  candidati_uni_sim: GeneratedCandidatoUniVotesRow[];
+  candidati_pluri_sim: GeneratedCandidatoPluriRow[];
+  uni: PoliticsCollegeUniRow[];
+  pluri: PoliticsCollegePluriRow[];
+  liste: PoliticsGeneratedListRow[];
+  candidati_pluri_template: PoliticsCandidatePluriTemplateRow[];
+}
+
+export interface PoliticsGeneratedAdapterFixture {
+  metadata: {
+    schema_version: number;
+    source: string;
+    purpose: string;
+  };
+  rami: Record<Ramo, PoliticsGeneratedRamoSource>;
+}
+
 export interface PoliticsGoldenFixture {
   metadata: {
     schema_version: number;

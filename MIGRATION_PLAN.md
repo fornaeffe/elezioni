@@ -29,7 +29,8 @@ R baseline on the same machine, pause and present Python fallback options.
 | R benchmarks | Done | `scripts/benchmark_r_workflows.R` added; quick baseline JSON generated. |
 | SvelteKit app scaffold | Done | `web/` created with strict TS, static adapter, Vitest, Playwright. |
 | TypeScript core | Started | Worker API types, seeded RNG, allocation primitives, fixture loader tests, and unit tests added. |
-| Politics scrutiny port | Started | Direct politics scrutiny output now matches R for the debug fixture and runs in the worker through a compact snapshot bridge. Generated politics inputs are next. |
+| Politics scrutiny port | Started | Direct politics scrutiny output now matches R for the debug fixture and runs in the worker through a compact snapshot bridge. |
+| Generated politics input adapter | Started | R-style generated-table fixture and TypeScript adapter now rebuild the exact direct scrutiny inputs/context; random vote/candidate generation is still pending. |
 | Performance gate | Pending | Compare browser politics run to fresh R baselines. |
 
 ## Decisions
@@ -147,11 +148,15 @@ Run on 2026-06-01:
 
 - The TypeScript politics scrutiny core matches direct R scrutiny output for the
   10-simulation debug fixture and is wired into the browser worker through a
-  compact debug snapshot. It still does not consume the scenario editor because
-  scenario-to-vote generation is not ported yet; the worker returns
+  compact debug snapshot. The generated-table adapter can now rebuild those
+  direct inputs from the R-style generated vote/candidate tables, but the worker
+  still does not consume the scenario editor because random scenario-to-vote
+  generation is not ported yet; the worker returns
   `POLITICS_SCENARIO_GENERATOR_PENDING` intentionally.
 - The exported politics fixture is about 68 MB because it contains direct
   scrutiny inputs, R trace tables, and expected outputs for 10 simulations.
+- The generated adapter fixture is about 8.1 MB and covers deterministic
+  `esegui_scrutini_politiche()` input preparation, not random generation.
 - The browser direct-scrutiny bridge snapshot is about 8.7 MB and contains only
   direct scrutiny inputs/context, not golden traces or expected outputs.
 - `npm audit` reports 3 low-severity findings through SvelteKit's transitive
@@ -408,5 +413,31 @@ Verification so far:
 - `node scripts/export_politics_worker_snapshot.mjs`: passed.
 - `cd web; npm run check`: passed with 0 warnings.
 - `cd web; npm test`: passed, 87 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-01 Checkpoint 11
+
+Completed in the generated-input adapter pass:
+
+- Added `scripts/export_politics_adapter_fixture.R`.
+- Exported `test/fixtures/politiche/generated_adapter.json`, an 8.1 MB fixture
+  containing the R-style generated vote/candidate tables consumed by
+  `esegui_scrutini_politiche()`.
+- Added generated politics source table types and `web/src/lib/politics/adapter.ts`.
+- Ported the deterministic adapter boundary from generated R-style tables to:
+  - `PoliticsScrutinyContext`;
+  - per-simulation `PoliticsScrutinyInput`.
+- Preserved the R minority-list rule used before scrutiny: for Camera,
+  `REG_COD` is derived from `CIRC_COD` by removing the last two digits; for
+  Senato, `REG_COD` is `CIRC_COD`.
+- Added exact adapter parity tests against the existing direct R golden fixture
+  for Camera and Senato.
+
+Verification so far:
+
+- `Rscript scripts/export_politics_adapter_fixture.R`: passed.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm test`: passed, 92 tests.
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.

@@ -161,6 +161,13 @@ simulation 4.
   This compact browser snapshot contains direct scrutiny inputs and contexts
   only, not traces or expected outputs. It is a bridge for worker execution and
   benchmarking until scenario-to-vote generation is ported.
+- `scripts/export_politics_adapter_fixture.R` exports
+  `test/fixtures/politiche/generated_adapter.json`, the R-style generated
+  politics vote/candidate tables consumed by `esegui_scrutini_politiche()`.
+  `web/src/lib/politics/adapter.ts` converts those tables into the exact direct
+  scrutiny context and per-simulation inputs from the R golden fixture. This
+  freezes the deterministic boundary before porting random vote/candidate
+  generation.
 - `scripts/benchmark_r_workflows.R` reruns R baseline workflows.
 - `web/` contains the initial static SvelteKit app scaffold, strict TypeScript
   setup, worker API types, seeded RNG, allocation primitives, unit tests, and a
