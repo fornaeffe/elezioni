@@ -1,0 +1,1559 @@
+{
+  "metadata": {
+    "schema_version": 1,
+    "source": "synthetic trace of R/politiche/genera_voti.R",
+    "random_seed": 20260601,
+    "purpose": "Golden fixture for politics-specific vote generation orchestration. Normal draws are exported from R and injected into the TypeScript test; browser production runs use the TypeScript seeded RNG instead."
+  },
+  "input": {
+    "data_elezione": "2027-03-01T00:00:00Z",
+    "simulazioni": 3,
+    "liste": [
+      {
+        "LISTA": "Lista A",
+        "COALIZIONE": "Coalizione 1",
+        "DATA": "2024-06-08T00:00:00Z",
+        "LOGIT_P": -0.8,
+        "SIGMA_GLOBAL": 0.012
+      },
+      {
+        "LISTA": "Lista B",
+        "COALIZIONE": "Coalizione 1",
+        "DATA": "2024-07-15T00:00:00Z",
+        "LOGIT_P": -1.25,
+        "SIGMA_GLOBAL": 0.02
+      },
+      {
+        "LISTA": "Lista C",
+        "COALIZIONE": "Coalizione 2",
+        "DATA": "2024-10-01T12:00:00Z",
+        "LOGIT_P": -2.1,
+        "SIGMA_GLOBAL": 0.018
+      },
+      {
+        "LISTA": "astensione",
+        "COALIZIONE": "astensione",
+        "DATA": "2024-06-08T00:00:00Z",
+        "LOGIT_P": -1.6,
+        "SIGMA_GLOBAL": 0.01
+      }
+    ],
+    "comuni_liste": [
+      {
+        "CODICE_COMUNE": 10,
+        "LISTA": "Lista A",
+        "DATA": "2024-06-08T00:00:00Z",
+        "DELTA": 0.05,
+        "SIGMA_DELTA": 0.03
+      },
+      {
+        "CODICE_COMUNE": 10,
+        "LISTA": "Lista B",
+        "DATA": "2024-06-08T00:00:00Z",
+        "DELTA": -0.1,
+        "SIGMA_DELTA": 0.025
+      },
+      {
+        "CODICE_COMUNE": 10,
+        "LISTA": "Lista C",
+        "DATA": "2024-06-08T00:00:00Z",
+        "DELTA": -0.35,
+        "SIGMA_DELTA": 0.018
+      },
+      {
+        "CODICE_COMUNE": 10,
+        "LISTA": "astensione",
+        "DATA": "2024-06-08T00:00:00Z",
+        "DELTA": -0.2,
+        "SIGMA_DELTA": 0.02
+      },
+      {
+        "CODICE_COMUNE": 20,
+        "LISTA": "Lista A",
+        "DATA": "2024-07-15T00:00:00Z",
+        "DELTA": -0.15,
+        "SIGMA_DELTA": 0.02
+      },
+      {
+        "CODICE_COMUNE": 20,
+        "LISTA": "Lista B",
+        "DATA": "2024-07-15T00:00:00Z",
+        "DELTA": 0.08,
+        "SIGMA_DELTA": 0.03
+      },
+      {
+        "CODICE_COMUNE": 20,
+        "LISTA": "Lista C",
+        "DATA": "2024-07-15T00:00:00Z",
+        "DELTA": -0.22,
+        "SIGMA_DELTA": 0.015
+      },
+      {
+        "CODICE_COMUNE": 20,
+        "LISTA": "astensione",
+        "DATA": "2024-07-15T00:00:00Z",
+        "DELTA": -0.3,
+        "SIGMA_DELTA": 0.02
+      },
+      {
+        "CODICE_COMUNE": 30,
+        "LISTA": "Lista A",
+        "DATA": "2024-10-01T12:00:00Z",
+        "DELTA": 0.12,
+        "SIGMA_DELTA": 0.018
+      },
+      {
+        "CODICE_COMUNE": 30,
+        "LISTA": "Lista B",
+        "DATA": "2024-10-01T12:00:00Z",
+        "DELTA": -0.05,
+        "SIGMA_DELTA": 0.022
+      },
+      {
+        "CODICE_COMUNE": 30,
+        "LISTA": "Lista C",
+        "DATA": "2024-10-01T12:00:00Z",
+        "DELTA": -0.28,
+        "SIGMA_DELTA": 0.017
+      },
+      {
+        "CODICE_COMUNE": 30,
+        "LISTA": "astensione",
+        "DATA": "2024-10-01T12:00:00Z",
+        "DELTA": -0.25,
+        "SIGMA_DELTA": 0.02
+      }
+    ],
+    "base_dati": [
+      {
+        "CODICE_COMUNE": 10,
+        "CODITA_20N": 10001,
+        "ELETTORI": 600,
+        "CU20_COD": 101,
+        "SU20_COD": 1001
+      },
+      {
+        "CODICE_COMUNE": 20,
+        "CODITA_20N": 20001,
+        "ELETTORI": 700,
+        "CU20_COD": 201,
+        "SU20_COD": 1001
+      },
+      {
+        "CODICE_COMUNE": 30,
+        "CODITA_20N": 30001,
+        "ELETTORI": 500,
+        "CU20_COD": 201,
+        "SU20_COD": 2001
+      }
+    ],
+    "camera": {
+      "uni": [
+        {
+          "CIRC_COD": 1,
+          "PLURI_COD": 11,
+          "UNI_COD": 101
+        },
+        {
+          "CIRC_COD": 2,
+          "PLURI_COD": 21,
+          "UNI_COD": 201
+        }
+      ],
+      "candidati_uni_sim": [
+        {
+          "SIM": 1,
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 101,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "camera_1_101_C1",
+          "DATA_NASCITA": "1975-01-01T00:00:00Z",
+          "PLURI_COD": 11,
+          "CIRC_COD": 1
+        },
+        {
+          "SIM": 1,
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 101,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "camera_1_101_C2",
+          "DATA_NASCITA": "1980-01-01T00:00:00Z",
+          "PLURI_COD": 11,
+          "CIRC_COD": 1
+        },
+        {
+          "SIM": 1,
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 201,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "camera_1_201_C1",
+          "DATA_NASCITA": "1975-01-01T00:00:00Z",
+          "PLURI_COD": 21,
+          "CIRC_COD": 2
+        },
+        {
+          "SIM": 1,
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 201,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "camera_1_201_C2",
+          "DATA_NASCITA": "1980-01-01T00:00:00Z",
+          "PLURI_COD": 21,
+          "CIRC_COD": 2
+        },
+        {
+          "SIM": 2,
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 101,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "camera_2_101_C1",
+          "DATA_NASCITA": "1975-01-01T00:00:00Z",
+          "PLURI_COD": 11,
+          "CIRC_COD": 1
+        },
+        {
+          "SIM": 2,
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 101,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "camera_2_101_C2",
+          "DATA_NASCITA": "1980-01-01T00:00:00Z",
+          "PLURI_COD": 11,
+          "CIRC_COD": 1
+        },
+        {
+          "SIM": 2,
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 201,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "camera_2_201_C1",
+          "DATA_NASCITA": "1975-01-01T00:00:00Z",
+          "PLURI_COD": 21,
+          "CIRC_COD": 2
+        },
+        {
+          "SIM": 2,
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 201,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "camera_2_201_C2",
+          "DATA_NASCITA": "1980-01-01T00:00:00Z",
+          "PLURI_COD": 21,
+          "CIRC_COD": 2
+        },
+        {
+          "SIM": 3,
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 101,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "camera_3_101_C1",
+          "DATA_NASCITA": "1975-01-01T00:00:00Z",
+          "PLURI_COD": 11,
+          "CIRC_COD": 1
+        },
+        {
+          "SIM": 3,
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 101,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "camera_3_101_C2",
+          "DATA_NASCITA": "1980-01-01T00:00:00Z",
+          "PLURI_COD": 11,
+          "CIRC_COD": 1
+        },
+        {
+          "SIM": 3,
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 201,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "camera_3_201_C1",
+          "DATA_NASCITA": "1975-01-01T00:00:00Z",
+          "PLURI_COD": 21,
+          "CIRC_COD": 2
+        },
+        {
+          "SIM": 3,
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 201,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "camera_3_201_C2",
+          "DATA_NASCITA": "1980-01-01T00:00:00Z",
+          "PLURI_COD": 21,
+          "CIRC_COD": 2
+        }
+      ],
+      "candidati_pluri_template": [
+        {
+          "CIRC_COD": 1,
+          "PLURI_COD": 11,
+          "LISTA": "Lista A",
+          "MINORANZA": false
+        },
+        {
+          "CIRC_COD": 1,
+          "PLURI_COD": 11,
+          "LISTA": "Lista B",
+          "MINORANZA": false
+        },
+        {
+          "CIRC_COD": 1,
+          "PLURI_COD": 11,
+          "LISTA": "Lista C",
+          "MINORANZA": true
+        },
+        {
+          "CIRC_COD": 2,
+          "PLURI_COD": 21,
+          "LISTA": "Lista A",
+          "MINORANZA": false
+        },
+        {
+          "CIRC_COD": 2,
+          "PLURI_COD": 21,
+          "LISTA": "Lista B",
+          "MINORANZA": false
+        }
+      ]
+    },
+    "senato": {
+      "uni": [
+        {
+          "CIRC_COD": 10,
+          "PLURI_COD": 110,
+          "UNI_COD": 1001
+        },
+        {
+          "CIRC_COD": 20,
+          "PLURI_COD": 210,
+          "UNI_COD": 2001
+        }
+      ],
+      "candidati_uni_sim": [
+        {
+          "SIM": 1,
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 1001,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "senato_1_1001_C1",
+          "DATA_NASCITA": "1975-01-01T00:00:00Z",
+          "PLURI_COD": 110,
+          "CIRC_COD": 10
+        },
+        {
+          "SIM": 1,
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 1001,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "senato_1_1001_C2",
+          "DATA_NASCITA": "1980-01-01T00:00:00Z",
+          "PLURI_COD": 110,
+          "CIRC_COD": 10
+        },
+        {
+          "SIM": 1,
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 2001,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "senato_1_2001_C1",
+          "DATA_NASCITA": "1975-01-01T00:00:00Z",
+          "PLURI_COD": 210,
+          "CIRC_COD": 20
+        },
+        {
+          "SIM": 1,
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 2001,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "senato_1_2001_C2",
+          "DATA_NASCITA": "1980-01-01T00:00:00Z",
+          "PLURI_COD": 210,
+          "CIRC_COD": 20
+        },
+        {
+          "SIM": 2,
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 1001,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "senato_2_1001_C1",
+          "DATA_NASCITA": "1975-01-01T00:00:00Z",
+          "PLURI_COD": 110,
+          "CIRC_COD": 10
+        },
+        {
+          "SIM": 2,
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 1001,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "senato_2_1001_C2",
+          "DATA_NASCITA": "1980-01-01T00:00:00Z",
+          "PLURI_COD": 110,
+          "CIRC_COD": 10
+        },
+        {
+          "SIM": 2,
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 2001,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "senato_2_2001_C1",
+          "DATA_NASCITA": "1975-01-01T00:00:00Z",
+          "PLURI_COD": 210,
+          "CIRC_COD": 20
+        },
+        {
+          "SIM": 2,
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 2001,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "senato_2_2001_C2",
+          "DATA_NASCITA": "1980-01-01T00:00:00Z",
+          "PLURI_COD": 210,
+          "CIRC_COD": 20
+        },
+        {
+          "SIM": 3,
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 1001,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "senato_3_1001_C1",
+          "DATA_NASCITA": "1975-01-01T00:00:00Z",
+          "PLURI_COD": 110,
+          "CIRC_COD": 10
+        },
+        {
+          "SIM": 3,
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 1001,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "senato_3_1001_C2",
+          "DATA_NASCITA": "1980-01-01T00:00:00Z",
+          "PLURI_COD": 110,
+          "CIRC_COD": 10
+        },
+        {
+          "SIM": 3,
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 2001,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "senato_3_2001_C1",
+          "DATA_NASCITA": "1975-01-01T00:00:00Z",
+          "PLURI_COD": 210,
+          "CIRC_COD": 20
+        },
+        {
+          "SIM": 3,
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 2001,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "senato_3_2001_C2",
+          "DATA_NASCITA": "1980-01-01T00:00:00Z",
+          "PLURI_COD": 210,
+          "CIRC_COD": 20
+        }
+      ],
+      "candidati_pluri_template": [
+        {
+          "CIRC_COD": 10,
+          "PLURI_COD": 110,
+          "LISTA": "Lista A",
+          "MINORANZA": false
+        },
+        {
+          "CIRC_COD": 10,
+          "PLURI_COD": 110,
+          "LISTA": "Lista B",
+          "MINORANZA": false
+        },
+        {
+          "CIRC_COD": 10,
+          "PLURI_COD": 110,
+          "LISTA": "Lista C",
+          "MINORANZA": true
+        },
+        {
+          "CIRC_COD": 20,
+          "PLURI_COD": 210,
+          "LISTA": "Lista A",
+          "MINORANZA": false
+        },
+        {
+          "CIRC_COD": 20,
+          "PLURI_COD": 210,
+          "LISTA": "Lista B",
+          "MINORANZA": false
+        }
+      ]
+    }
+  },
+  "normal_draws": [
+    {
+      "phase": "global",
+      "LISTA": "Lista A",
+      "SIM": 1,
+      "LOCALITA": null,
+      "mean": -0.8,
+      "sd": 0.378713612113428,
+      "value": -0.835062487452676
+    },
+    {
+      "phase": "global",
+      "LISTA": "Lista A",
+      "SIM": 2,
+      "LOCALITA": null,
+      "mean": -0.8,
+      "sd": 0.378713612113428,
+      "value": -1.02795168397218
+    },
+    {
+      "phase": "global",
+      "LISTA": "Lista A",
+      "SIM": 3,
+      "LOCALITA": null,
+      "mean": -0.8,
+      "sd": 0.378713612113428,
+      "value": -0.738899423284142
+    },
+    {
+      "phase": "global",
+      "LISTA": "Lista B",
+      "SIM": 1,
+      "LOCALITA": null,
+      "mean": -1.25,
+      "sd": 0.619354502688081,
+      "value": -1.54278779208701
+    },
+    {
+      "phase": "global",
+      "LISTA": "Lista B",
+      "SIM": 2,
+      "LOCALITA": null,
+      "mean": -1.25,
+      "sd": 0.619354502688081,
+      "value": -0.869406861133155
+    },
+    {
+      "phase": "global",
+      "LISTA": "Lista B",
+      "SIM": 3,
+      "LOCALITA": null,
+      "mean": -1.25,
+      "sd": 0.619354502688081,
+      "value": -1.07829568689001
+    },
+    {
+      "phase": "global",
+      "LISTA": "Lista C",
+      "SIM": 1,
+      "LOCALITA": null,
+      "mean": -2.1,
+      "sd": 0.53411796449848,
+      "value": -2.05525149457858
+    },
+    {
+      "phase": "global",
+      "LISTA": "Lista C",
+      "SIM": 2,
+      "LOCALITA": null,
+      "mean": -2.1,
+      "sd": 0.53411796449848,
+      "value": -2.72519717840531
+    },
+    {
+      "phase": "global",
+      "LISTA": "Lista C",
+      "SIM": 3,
+      "LOCALITA": null,
+      "mean": -2.1,
+      "sd": 0.53411796449848,
+      "value": -2.2968176415776
+    },
+    {
+      "phase": "global",
+      "LISTA": "astensione",
+      "SIM": 1,
+      "LOCALITA": null,
+      "mean": -1.6,
+      "sd": 0.31559467676119,
+      "value": -1.91491391575249
+    },
+    {
+      "phase": "global",
+      "LISTA": "astensione",
+      "SIM": 2,
+      "LOCALITA": null,
+      "mean": -1.6,
+      "sd": 0.31559467676119,
+      "value": -1.54876665269116
+    },
+    {
+      "phase": "global",
+      "LISTA": "astensione",
+      "SIM": 3,
+      "LOCALITA": null,
+      "mean": -1.6,
+      "sd": 0.31559467676119,
+      "value": -1.43850878779124
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista A",
+      "SIM": 1,
+      "LOCALITA": 10001,
+      "mean": 0.05,
+      "sd": 0.94678403028357,
+      "value": 1.52788359796204
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista A",
+      "SIM": 1,
+      "LOCALITA": 20001,
+      "mean": -0.15,
+      "sd": 0.619354502688081,
+      "value": -0.80178273731946
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista A",
+      "SIM": 1,
+      "LOCALITA": 30001,
+      "mean": 0.12,
+      "sd": 0.53411796449848,
+      "value": 0.11769512507311
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista A",
+      "SIM": 2,
+      "LOCALITA": 10001,
+      "mean": 0.05,
+      "sd": 0.94678403028357,
+      "value": -0.0505420345124597
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista A",
+      "SIM": 2,
+      "LOCALITA": 20001,
+      "mean": -0.15,
+      "sd": 0.619354502688081,
+      "value": 0.377492593571774
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista A",
+      "SIM": 2,
+      "LOCALITA": 30001,
+      "mean": 0.12,
+      "sd": 0.53411796449848,
+      "value": 0.671594447394915
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista A",
+      "SIM": 3,
+      "LOCALITA": 10001,
+      "mean": 0.05,
+      "sd": 0.94678403028357,
+      "value": -0.40246486499556
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista A",
+      "SIM": 3,
+      "LOCALITA": 20001,
+      "mean": -0.15,
+      "sd": 0.619354502688081,
+      "value": -0.232870549774924
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista A",
+      "SIM": 3,
+      "LOCALITA": 30001,
+      "mean": 0.12,
+      "sd": 0.53411796449848,
+      "value": 0.172726045192428
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista B",
+      "SIM": 1,
+      "LOCALITA": 10001,
+      "mean": -0.1,
+      "sd": 0.788986691902975,
+      "value": -0.784002998814851
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista B",
+      "SIM": 1,
+      "LOCALITA": 20001,
+      "mean": 0.08,
+      "sd": 0.929031754032121,
+      "value": 0.179515935406469
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista B",
+      "SIM": 1,
+      "LOCALITA": 30001,
+      "mean": -0.05,
+      "sd": 0.652810845498143,
+      "value": -0.0789839944664055
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista B",
+      "SIM": 2,
+      "LOCALITA": 10001,
+      "mean": -0.1,
+      "sd": 0.788986691902975,
+      "value": -0.385536955438071
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista B",
+      "SIM": 2,
+      "LOCALITA": 20001,
+      "mean": 0.08,
+      "sd": 0.929031754032121,
+      "value": -0.519818612154448
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista B",
+      "SIM": 2,
+      "LOCALITA": 30001,
+      "mean": -0.05,
+      "sd": 0.652810845498143,
+      "value": 1.43481683694982
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista B",
+      "SIM": 3,
+      "LOCALITA": 10001,
+      "mean": -0.1,
+      "sd": 0.788986691902975,
+      "value": 0.416490803012692
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista B",
+      "SIM": 3,
+      "LOCALITA": 20001,
+      "mean": 0.08,
+      "sd": 0.929031754032121,
+      "value": -0.121587200077242
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista B",
+      "SIM": 3,
+      "LOCALITA": 30001,
+      "mean": -0.05,
+      "sd": 0.652810845498143,
+      "value": -1.38483983088122
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista C",
+      "SIM": 1,
+      "LOCALITA": 10001,
+      "mean": -0.35,
+      "sd": 0.568070418170142,
+      "value": -0.0879618663465865
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista C",
+      "SIM": 1,
+      "LOCALITA": 20001,
+      "mean": -0.22,
+      "sd": 0.464515877016061,
+      "value": -0.215030998645209
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista C",
+      "SIM": 1,
+      "LOCALITA": 30001,
+      "mean": -0.28,
+      "sd": 0.504444744248565,
+      "value": 0.706999872239585
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista C",
+      "SIM": 2,
+      "LOCALITA": 10001,
+      "mean": -0.35,
+      "sd": 0.568070418170142,
+      "value": 0.0447171068304016
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista C",
+      "SIM": 2,
+      "LOCALITA": 20001,
+      "mean": -0.22,
+      "sd": 0.464515877016061,
+      "value": -0.983491787465029
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista C",
+      "SIM": 2,
+      "LOCALITA": 30001,
+      "mean": -0.28,
+      "sd": 0.504444744248565,
+      "value": -0.327720722336382
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista C",
+      "SIM": 3,
+      "LOCALITA": 10001,
+      "mean": -0.35,
+      "sd": 0.568070418170142,
+      "value": -0.121191589714587
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista C",
+      "SIM": 3,
+      "LOCALITA": 20001,
+      "mean": -0.22,
+      "sd": 0.464515877016061,
+      "value": -0.268045564334759
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista C",
+      "SIM": 3,
+      "LOCALITA": 30001,
+      "mean": -0.28,
+      "sd": 0.504444744248565,
+      "value": -0.342080308172154
+    },
+    {
+      "phase": "local",
+      "LISTA": "astensione",
+      "SIM": 1,
+      "LOCALITA": 10001,
+      "mean": -0.2,
+      "sd": 0.63118935352238,
+      "value": -0.523675929606656
+    },
+    {
+      "phase": "local",
+      "LISTA": "astensione",
+      "SIM": 1,
+      "LOCALITA": 20001,
+      "mean": -0.3,
+      "sd": 0.619354502688081,
+      "value": -1.5904530185514
+    },
+    {
+      "phase": "local",
+      "LISTA": "astensione",
+      "SIM": 1,
+      "LOCALITA": 30001,
+      "mean": -0.25,
+      "sd": 0.593464404998312,
+      "value": 0.873636547087851
+    },
+    {
+      "phase": "local",
+      "LISTA": "astensione",
+      "SIM": 2,
+      "LOCALITA": 10001,
+      "mean": -0.2,
+      "sd": 0.63118935352238,
+      "value": -0.0972670374862852
+    },
+    {
+      "phase": "local",
+      "LISTA": "astensione",
+      "SIM": 2,
+      "LOCALITA": 20001,
+      "mean": -0.3,
+      "sd": 0.619354502688081,
+      "value": 0.583636998960826
+    },
+    {
+      "phase": "local",
+      "LISTA": "astensione",
+      "SIM": 2,
+      "LOCALITA": 30001,
+      "mean": -0.25,
+      "sd": 0.593464404998312,
+      "value": -1.61021196117244
+    },
+    {
+      "phase": "local",
+      "LISTA": "astensione",
+      "SIM": 3,
+      "LOCALITA": 10001,
+      "mean": -0.2,
+      "sd": 0.63118935352238,
+      "value": 0.014506922678432
+    },
+    {
+      "phase": "local",
+      "LISTA": "astensione",
+      "SIM": 3,
+      "LOCALITA": 20001,
+      "mean": -0.3,
+      "sd": 0.619354502688081,
+      "value": -1.0502386128697
+    },
+    {
+      "phase": "local",
+      "LISTA": "astensione",
+      "SIM": 3,
+      "LOCALITA": 30001,
+      "mean": -0.25,
+      "sd": 0.593464404998312,
+      "value": -0.138667190097729
+    }
+  ],
+  "expected": {
+    "camera": {
+      "uni_liste_sim": [
+        {
+          "SIM": 1,
+          "UNI_COD": 101,
+          "LISTA": "Lista A",
+          "VOTI_LISTA_SIM": 425,
+          "PLURI_COD": 11,
+          "CIRC_COD": 1,
+          "COALIZIONE": "Coalizione 1",
+          "CANDIDATO_ID": "camera_1_101_C1",
+          "CAND_MINORANZA": false,
+          "MINORANZA": false
+        },
+        {
+          "SIM": 2,
+          "UNI_COD": 101,
+          "LISTA": "Lista A",
+          "VOTI_LISTA_SIM": 217,
+          "PLURI_COD": 11,
+          "CIRC_COD": 1,
+          "COALIZIONE": "Coalizione 1",
+          "CANDIDATO_ID": "camera_2_101_C1",
+          "CAND_MINORANZA": false,
+          "MINORANZA": false
+        },
+        {
+          "SIM": 3,
+          "UNI_COD": 101,
+          "LISTA": "Lista A",
+          "VOTI_LISTA_SIM": 169,
+          "PLURI_COD": 11,
+          "CIRC_COD": 1,
+          "COALIZIONE": "Coalizione 1",
+          "CANDIDATO_ID": "camera_3_101_C1",
+          "CAND_MINORANZA": false,
+          "MINORANZA": false
+        },
+        {
+          "SIM": 1,
+          "UNI_COD": 101,
+          "LISTA": "Lista B",
+          "VOTI_LISTA_SIM": 57,
+          "PLURI_COD": 11,
+          "CIRC_COD": 1,
+          "COALIZIONE": "Coalizione 1",
+          "CANDIDATO_ID": "camera_1_101_C1",
+          "CAND_MINORANZA": false,
+          "MINORANZA": false
+        },
+        {
+          "SIM": 2,
+          "UNI_COD": 101,
+          "LISTA": "Lista B",
+          "VOTI_LISTA_SIM": 190,
+          "PLURI_COD": 11,
+          "CIRC_COD": 1,
+          "COALIZIONE": "Coalizione 1",
+          "CANDIDATO_ID": "camera_2_101_C1",
+          "CAND_MINORANZA": false,
+          "MINORANZA": false
+        },
+        {
+          "SIM": 3,
+          "UNI_COD": 101,
+          "LISTA": "Lista B",
+          "VOTI_LISTA_SIM": 238,
+          "PLURI_COD": 11,
+          "CIRC_COD": 1,
+          "COALIZIONE": "Coalizione 1",
+          "CANDIDATO_ID": "camera_3_101_C1",
+          "CAND_MINORANZA": false,
+          "MINORANZA": false
+        },
+        {
+          "SIM": 1,
+          "UNI_COD": 101,
+          "LISTA": "Lista C",
+          "VOTI_LISTA_SIM": 67,
+          "PLURI_COD": 11,
+          "CIRC_COD": 1,
+          "COALIZIONE": "Coalizione 2",
+          "CANDIDATO_ID": "camera_1_101_C2",
+          "CAND_MINORANZA": false,
+          "MINORANZA": true
+        },
+        {
+          "SIM": 2,
+          "UNI_COD": 101,
+          "LISTA": "Lista C",
+          "VOTI_LISTA_SIM": 55,
+          "PLURI_COD": 11,
+          "CIRC_COD": 1,
+          "COALIZIONE": "Coalizione 2",
+          "CANDIDATO_ID": "camera_2_101_C2",
+          "CAND_MINORANZA": false,
+          "MINORANZA": true
+        },
+        {
+          "SIM": 3,
+          "UNI_COD": 101,
+          "LISTA": "Lista C",
+          "VOTI_LISTA_SIM": 57,
+          "PLURI_COD": 11,
+          "CIRC_COD": 1,
+          "COALIZIONE": "Coalizione 2",
+          "CANDIDATO_ID": "camera_3_101_C2",
+          "CAND_MINORANZA": false,
+          "MINORANZA": true
+        },
+        {
+          "SIM": 1,
+          "UNI_COD": 201,
+          "LISTA": "Lista A",
+          "VOTI_LISTA_SIM": 404,
+          "PLURI_COD": 21,
+          "CIRC_COD": 2,
+          "COALIZIONE": "Coalizione 1",
+          "CANDIDATO_ID": "camera_1_201_C1",
+          "CAND_MINORANZA": false,
+          "MINORANZA": false
+        },
+        {
+          "SIM": 2,
+          "UNI_COD": 201,
+          "LISTA": "Lista A",
+          "VOTI_LISTA_SIM": 466,
+          "PLURI_COD": 21,
+          "CIRC_COD": 2,
+          "COALIZIONE": "Coalizione 1",
+          "CANDIDATO_ID": "camera_2_201_C1",
+          "CAND_MINORANZA": false,
+          "MINORANZA": false
+        },
+        {
+          "SIM": 3,
+          "UNI_COD": 201,
+          "LISTA": "Lista A",
+          "VOTI_LISTA_SIM": 561,
+          "PLURI_COD": 21,
+          "CIRC_COD": 2,
+          "COALIZIONE": "Coalizione 1",
+          "CANDIDATO_ID": "camera_3_201_C1",
+          "CAND_MINORANZA": false,
+          "MINORANZA": false
+        },
+        {
+          "SIM": 1,
+          "UNI_COD": 201,
+          "LISTA": "Lista B",
+          "VOTI_LISTA_SIM": 377,
+          "PLURI_COD": 21,
+          "CIRC_COD": 2,
+          "COALIZIONE": "Coalizione 1",
+          "CANDIDATO_ID": "camera_1_201_C1",
+          "CAND_MINORANZA": false,
+          "MINORANZA": false
+        },
+        {
+          "SIM": 2,
+          "UNI_COD": 201,
+          "LISTA": "Lista B",
+          "VOTI_LISTA_SIM": 447,
+          "PLURI_COD": 21,
+          "CIRC_COD": 2,
+          "COALIZIONE": "Coalizione 1",
+          "CANDIDATO_ID": "camera_2_201_C1",
+          "CAND_MINORANZA": false,
+          "MINORANZA": false
+        },
+        {
+          "SIM": 3,
+          "UNI_COD": 201,
+          "LISTA": "Lista B",
+          "VOTI_LISTA_SIM": 306,
+          "PLURI_COD": 21,
+          "CIRC_COD": 2,
+          "COALIZIONE": "Coalizione 1",
+          "CANDIDATO_ID": "camera_3_201_C1",
+          "CAND_MINORANZA": false,
+          "MINORANZA": false
+        }
+      ],
+      "candidati_uni_sim": [
+        {
+          "SIM": 1,
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 101,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "camera_1_101_C1",
+          "DATA_NASCITA": "1975-01-01T00:00:00Z",
+          "PLURI_COD": 11,
+          "CIRC_COD": 1,
+          "VOTI_CANDIDATO": 482
+        },
+        {
+          "SIM": 1,
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 201,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "camera_1_201_C1",
+          "DATA_NASCITA": "1975-01-01T00:00:00Z",
+          "PLURI_COD": 21,
+          "CIRC_COD": 2,
+          "VOTI_CANDIDATO": 781
+        },
+        {
+          "SIM": 2,
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 101,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "camera_2_101_C1",
+          "DATA_NASCITA": "1975-01-01T00:00:00Z",
+          "PLURI_COD": 11,
+          "CIRC_COD": 1,
+          "VOTI_CANDIDATO": 407
+        },
+        {
+          "SIM": 2,
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 201,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "camera_2_201_C1",
+          "DATA_NASCITA": "1975-01-01T00:00:00Z",
+          "PLURI_COD": 21,
+          "CIRC_COD": 2,
+          "VOTI_CANDIDATO": 913
+        },
+        {
+          "SIM": 3,
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 101,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "camera_3_101_C1",
+          "DATA_NASCITA": "1975-01-01T00:00:00Z",
+          "PLURI_COD": 11,
+          "CIRC_COD": 1,
+          "VOTI_CANDIDATO": 407
+        },
+        {
+          "SIM": 3,
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 201,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "camera_3_201_C1",
+          "DATA_NASCITA": "1975-01-01T00:00:00Z",
+          "PLURI_COD": 21,
+          "CIRC_COD": 2,
+          "VOTI_CANDIDATO": 867
+        },
+        {
+          "SIM": 1,
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 101,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "camera_1_101_C2",
+          "DATA_NASCITA": "1980-01-01T00:00:00Z",
+          "PLURI_COD": 11,
+          "CIRC_COD": 1,
+          "VOTI_CANDIDATO": 67
+        },
+        {
+          "SIM": 1,
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 201,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "camera_1_201_C2",
+          "DATA_NASCITA": "1980-01-01T00:00:00Z",
+          "PLURI_COD": 21,
+          "CIRC_COD": 2,
+          "VOTI_CANDIDATO": 241
+        },
+        {
+          "SIM": 2,
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 101,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "camera_2_101_C2",
+          "DATA_NASCITA": "1980-01-01T00:00:00Z",
+          "PLURI_COD": 11,
+          "CIRC_COD": 1,
+          "VOTI_CANDIDATO": 55
+        },
+        {
+          "SIM": 2,
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 201,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "camera_2_201_C2",
+          "DATA_NASCITA": "1980-01-01T00:00:00Z",
+          "PLURI_COD": 21,
+          "CIRC_COD": 2,
+          "VOTI_CANDIDATO": 40
+        },
+        {
+          "SIM": 3,
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 101,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "camera_3_101_C2",
+          "DATA_NASCITA": "1980-01-01T00:00:00Z",
+          "PLURI_COD": 11,
+          "CIRC_COD": 1,
+          "VOTI_CANDIDATO": 57
+        },
+        {
+          "SIM": 3,
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 201,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "camera_3_201_C2",
+          "DATA_NASCITA": "1980-01-01T00:00:00Z",
+          "PLURI_COD": 21,
+          "CIRC_COD": 2,
+          "VOTI_CANDIDATO": 125
+        }
+      ]
+    },
+    "senato": {
+      "uni_liste_sim": [
+        {
+          "SIM": 1,
+          "UNI_COD": 1001,
+          "LISTA": "Lista A",
+          "VOTI_LISTA_SIM": 658,
+          "PLURI_COD": 110,
+          "CIRC_COD": 10,
+          "COALIZIONE": "Coalizione 1",
+          "CANDIDATO_ID": "senato_1_1001_C1",
+          "CAND_MINORANZA": false,
+          "MINORANZA": false
+        },
+        {
+          "SIM": 2,
+          "UNI_COD": 1001,
+          "LISTA": "Lista A",
+          "VOTI_LISTA_SIM": 502,
+          "PLURI_COD": 110,
+          "CIRC_COD": 10,
+          "COALIZIONE": "Coalizione 1",
+          "CANDIDATO_ID": "senato_2_1001_C1",
+          "CAND_MINORANZA": false,
+          "MINORANZA": false
+        },
+        {
+          "SIM": 3,
+          "UNI_COD": 1001,
+          "LISTA": "Lista A",
+          "VOTI_LISTA_SIM": 463,
+          "PLURI_COD": 110,
+          "CIRC_COD": 10,
+          "COALIZIONE": "Coalizione 1",
+          "CANDIDATO_ID": "senato_3_1001_C1",
+          "CAND_MINORANZA": false,
+          "MINORANZA": false
+        },
+        {
+          "SIM": 1,
+          "UNI_COD": 1001,
+          "LISTA": "Lista B",
+          "VOTI_LISTA_SIM": 348,
+          "PLURI_COD": 110,
+          "CIRC_COD": 10,
+          "COALIZIONE": "Coalizione 1",
+          "CANDIDATO_ID": "senato_1_1001_C1",
+          "CAND_MINORANZA": false,
+          "MINORANZA": false
+        },
+        {
+          "SIM": 2,
+          "UNI_COD": 1001,
+          "LISTA": "Lista B",
+          "VOTI_LISTA_SIM": 356,
+          "PLURI_COD": 110,
+          "CIRC_COD": 10,
+          "COALIZIONE": "Coalizione 1",
+          "CANDIDATO_ID": "senato_2_1001_C1",
+          "CAND_MINORANZA": false,
+          "MINORANZA": false
+        },
+        {
+          "SIM": 3,
+          "UNI_COD": 1001,
+          "LISTA": "Lista B",
+          "VOTI_LISTA_SIM": 486,
+          "PLURI_COD": 110,
+          "CIRC_COD": 10,
+          "COALIZIONE": "Coalizione 1",
+          "CANDIDATO_ID": "senato_3_1001_C1",
+          "CAND_MINORANZA": false,
+          "MINORANZA": false
+        },
+        {
+          "SIM": 1,
+          "UNI_COD": 1001,
+          "LISTA": "Lista C",
+          "VOTI_LISTA_SIM": 201,
+          "PLURI_COD": 110,
+          "CIRC_COD": 10,
+          "COALIZIONE": "Coalizione 2",
+          "CANDIDATO_ID": "senato_1_1001_C2",
+          "CAND_MINORANZA": false,
+          "MINORANZA": true
+        },
+        {
+          "SIM": 2,
+          "UNI_COD": 1001,
+          "LISTA": "Lista C",
+          "VOTI_LISTA_SIM": 75,
+          "PLURI_COD": 110,
+          "CIRC_COD": 10,
+          "COALIZIONE": "Coalizione 2",
+          "CANDIDATO_ID": "senato_2_1001_C2",
+          "CAND_MINORANZA": false,
+          "MINORANZA": true
+        },
+        {
+          "SIM": 3,
+          "UNI_COD": 1001,
+          "LISTA": "Lista C",
+          "VOTI_LISTA_SIM": 133,
+          "PLURI_COD": 110,
+          "CIRC_COD": 10,
+          "COALIZIONE": "Coalizione 2",
+          "CANDIDATO_ID": "senato_3_1001_C2",
+          "CAND_MINORANZA": false,
+          "MINORANZA": true
+        },
+        {
+          "SIM": 1,
+          "UNI_COD": 2001,
+          "LISTA": "Lista A",
+          "VOTI_LISTA_SIM": 171,
+          "PLURI_COD": 210,
+          "CIRC_COD": 20,
+          "COALIZIONE": "Coalizione 1",
+          "CANDIDATO_ID": "senato_1_2001_C1",
+          "CAND_MINORANZA": false,
+          "MINORANZA": false
+        },
+        {
+          "SIM": 2,
+          "UNI_COD": 2001,
+          "LISTA": "Lista A",
+          "VOTI_LISTA_SIM": 181,
+          "PLURI_COD": 210,
+          "CIRC_COD": 20,
+          "COALIZIONE": "Coalizione 1",
+          "CANDIDATO_ID": "senato_2_2001_C1",
+          "CAND_MINORANZA": false,
+          "MINORANZA": false
+        },
+        {
+          "SIM": 3,
+          "UNI_COD": 2001,
+          "LISTA": "Lista A",
+          "VOTI_LISTA_SIM": 267,
+          "PLURI_COD": 210,
+          "CIRC_COD": 20,
+          "COALIZIONE": "Coalizione 1",
+          "CANDIDATO_ID": "senato_3_2001_C1",
+          "CAND_MINORANZA": false,
+          "MINORANZA": false
+        },
+        {
+          "SIM": 1,
+          "UNI_COD": 2001,
+          "LISTA": "Lista B",
+          "VOTI_LISTA_SIM": 86,
+          "PLURI_COD": 210,
+          "CIRC_COD": 20,
+          "COALIZIONE": "Coalizione 1",
+          "CANDIDATO_ID": "senato_1_2001_C1",
+          "CAND_MINORANZA": false,
+          "MINORANZA": false
+        },
+        {
+          "SIM": 2,
+          "UNI_COD": 2001,
+          "LISTA": "Lista B",
+          "VOTI_LISTA_SIM": 281,
+          "PLURI_COD": 210,
+          "CIRC_COD": 20,
+          "COALIZIONE": "Coalizione 1",
+          "CANDIDATO_ID": "senato_2_2001_C1",
+          "CAND_MINORANZA": false,
+          "MINORANZA": false
+        },
+        {
+          "SIM": 3,
+          "UNI_COD": 2001,
+          "LISTA": "Lista B",
+          "VOTI_LISTA_SIM": 58,
+          "PLURI_COD": 210,
+          "CIRC_COD": 20,
+          "COALIZIONE": "Coalizione 1",
+          "CANDIDATO_ID": "senato_3_2001_C1",
+          "CAND_MINORANZA": false,
+          "MINORANZA": false
+        }
+      ],
+      "candidati_uni_sim": [
+        {
+          "SIM": 1,
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 1001,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "senato_1_1001_C1",
+          "DATA_NASCITA": "1975-01-01T00:00:00Z",
+          "PLURI_COD": 110,
+          "CIRC_COD": 10,
+          "VOTI_CANDIDATO": 1006
+        },
+        {
+          "SIM": 1,
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 2001,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "senato_1_2001_C1",
+          "DATA_NASCITA": "1975-01-01T00:00:00Z",
+          "PLURI_COD": 210,
+          "CIRC_COD": 20,
+          "VOTI_CANDIDATO": 257
+        },
+        {
+          "SIM": 2,
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 1001,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "senato_2_1001_C1",
+          "DATA_NASCITA": "1975-01-01T00:00:00Z",
+          "PLURI_COD": 110,
+          "CIRC_COD": 10,
+          "VOTI_CANDIDATO": 858
+        },
+        {
+          "SIM": 2,
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 2001,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "senato_2_2001_C1",
+          "DATA_NASCITA": "1975-01-01T00:00:00Z",
+          "PLURI_COD": 210,
+          "CIRC_COD": 20,
+          "VOTI_CANDIDATO": 462
+        },
+        {
+          "SIM": 3,
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 1001,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "senato_3_1001_C1",
+          "DATA_NASCITA": "1975-01-01T00:00:00Z",
+          "PLURI_COD": 110,
+          "CIRC_COD": 10,
+          "VOTI_CANDIDATO": 949
+        },
+        {
+          "SIM": 3,
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 2001,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "senato_3_2001_C1",
+          "DATA_NASCITA": "1975-01-01T00:00:00Z",
+          "PLURI_COD": 210,
+          "CIRC_COD": 20,
+          "VOTI_CANDIDATO": 325
+        },
+        {
+          "SIM": 1,
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 1001,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "senato_1_1001_C2",
+          "DATA_NASCITA": "1980-01-01T00:00:00Z",
+          "PLURI_COD": 110,
+          "CIRC_COD": 10,
+          "VOTI_CANDIDATO": 201
+        },
+        {
+          "SIM": 1,
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 2001,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "senato_1_2001_C2",
+          "DATA_NASCITA": "1980-01-01T00:00:00Z",
+          "PLURI_COD": 210,
+          "CIRC_COD": 20,
+          "VOTI_CANDIDATO": 107
+        },
+        {
+          "SIM": 2,
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 1001,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "senato_2_1001_C2",
+          "DATA_NASCITA": "1980-01-01T00:00:00Z",
+          "PLURI_COD": 110,
+          "CIRC_COD": 10,
+          "VOTI_CANDIDATO": 75
+        },
+        {
+          "SIM": 2,
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 2001,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "senato_2_2001_C2",
+          "DATA_NASCITA": "1980-01-01T00:00:00Z",
+          "PLURI_COD": 210,
+          "CIRC_COD": 20,
+          "VOTI_CANDIDATO": 20
+        },
+        {
+          "SIM": 3,
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 1001,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "senato_3_1001_C2",
+          "DATA_NASCITA": "1980-01-01T00:00:00Z",
+          "PLURI_COD": 110,
+          "CIRC_COD": 10,
+          "VOTI_CANDIDATO": 133
+        },
+        {
+          "SIM": 3,
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 2001,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "senato_3_2001_C2",
+          "DATA_NASCITA": "1980-01-01T00:00:00Z",
+          "PLURI_COD": 210,
+          "CIRC_COD": 20,
+          "VOTI_CANDIDATO": 49
+        }
+      ]
+    }
+  }
+}

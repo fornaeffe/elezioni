@@ -604,6 +604,69 @@ export interface PoliticsVotePreparationFixture {
   rami: Record<Ramo, PoliticsVotePreparationFixtureRamo>;
 }
 
+export interface PoliticsVoteListParameterRow extends PoliticsGeneratedListRow {
+  DATA: string;
+  LOGIT_P: number;
+  SIGMA_GLOBAL: number;
+}
+
+export interface PoliticsMunicipalListParameterRow {
+  CODICE_COMUNE: AdministrativeCode;
+  LISTA: string;
+  DATA: string;
+  DELTA: number;
+  SIGMA_DELTA: number;
+}
+
+export interface PoliticsBaseDataRow {
+  CODICE_COMUNE: AdministrativeCode;
+  CODITA_20N: AdministrativeCode;
+  ELETTORI: number;
+  CU20_COD: AdministrativeCode;
+  SU20_COD: AdministrativeCode;
+}
+
+export interface PoliticsVoteGenerationRamoSource {
+  uni: PoliticsCollegeUniRow[];
+  candidati_uni_sim: GeneratedCandidatoUniRow[];
+  candidati_pluri_template: PoliticsCandidatePluriTemplateRow[];
+}
+
+export interface PoliticsVoteGenerationSource {
+  data_elezione: string;
+  simulazioni: number;
+  liste: PoliticsVoteListParameterRow[];
+  comuni_liste: PoliticsMunicipalListParameterRow[];
+  base_dati: PoliticsBaseDataRow[];
+  camera: PoliticsVoteGenerationRamoSource;
+  senato: PoliticsVoteGenerationRamoSource;
+}
+
+export interface PoliticsGeneratedVoteTables {
+  camera: PreparedPoliticsVoteTables;
+  senato: PreparedPoliticsVoteTables;
+}
+
+export interface PoliticsVoteGenerationFixture {
+  metadata: {
+    schema_version: number;
+    source: string;
+    random_seed: number;
+    purpose: string;
+  };
+  input: PoliticsVoteGenerationSource;
+  normal_draws: Array<{
+    phase: 'global' | 'local';
+    LISTA: string;
+    SIM: number;
+    LOCALITA: AdministrativeCode | null;
+    mean: number;
+    sd: number;
+    value: number;
+  }>;
+  expected: PoliticsGeneratedVoteTables;
+}
+
 export interface PoliticsGoldenFixture {
   metadata: {
     schema_version: number;

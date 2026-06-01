@@ -181,6 +181,12 @@ simulation 4.
   normal draws, and `web/src/lib/core/vote-generation.ts` injects those draws in
   tests to prove formula and row-order parity. Browser production runs use the
   TypeScript seeded normal sampler, not R's RNG stream.
+- `scripts/export_politics_vote_generation_fixture.R` exports
+  `test/fixtures/politiche/vote_generation.json`, a small synthetic trace for
+  `R/politiche/genera_voti.R::genera_voti_politiche()` orchestration. The
+  TypeScript port in `web/src/lib/politics/vote-generation.ts` combines the
+  generic vote generator with Camera/Senato uninominal aggregation and
+  `preparePoliticsVoteTables()`.
 - `scripts/benchmark_r_workflows.R` reruns R baseline workflows.
 - `web/` contains the initial static SvelteKit app scaffold, strict TypeScript
   setup, worker API types, seeded RNG, allocation primitives, unit tests, and a

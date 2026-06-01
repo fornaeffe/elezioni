@@ -30,7 +30,7 @@ R baseline on the same machine, pause and present Python fallback options.
 | SvelteKit app scaffold | Done | `web/` created with strict TS, static adapter, Vitest, Playwright. |
 | TypeScript core | Started | Worker API types, seeded RNG, allocation primitives, fixture loader tests, and unit tests added. |
 | Politics scrutiny port | Started | Direct politics scrutiny output now matches R for the debug fixture and runs in the worker through a compact snapshot bridge. |
-| Vote generation | Started | Generic `genera_voti()` math is ported with R-draw fixture parity and seeded browser normals. Politics-specific orchestration and candidate generation are still pending. |
+| Vote generation | Started | Generic `genera_voti()` math and politics `genera_voti_politiche()` orchestration are ported with R-draw fixture parity and seeded browser normals. Candidate generation is still pending. |
 | Generated politics input adapter | Started | R-style generated-table fixture and TypeScript adapter now rebuild the exact direct scrutiny inputs/context. `prepara_dts()` vote preparation is also ported; random candidate generation is still pending. |
 | Performance gate | Pending | Compare browser politics run to fresh R baselines. |
 
@@ -166,6 +166,10 @@ Run on 2026-06-01:
   R-produced normal draws into the TypeScript generator, proving formula and
   row-order parity without requiring the browser RNG to reproduce R's RNG
   stream.
+- The politics vote-generation fixture is also synthetic. It proves
+  `genera_voti_politiche()` orchestration, including base-data joins,
+  Camera/Senato uninominal aggregation, and the handoff into
+  `preparePoliticsVoteTables()`.
 - The browser direct-scrutiny bridge snapshot is about 8.7 MB and contains only
   direct scrutiny inputs/context, not golden traces or expected outputs.
 - `npm audit` reports 3 low-severity findings through SvelteKit's transitive
@@ -505,5 +509,34 @@ Verification so far:
 - `Rscript scripts/export_vote_generation_fixture.R`: passed.
 - `cd web; npm run check`: passed with 0 warnings.
 - `cd web; npm test`: passed, 98 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-01 Checkpoint 14
+
+Completed in the politics vote-generation orchestration pass:
+
+- Added `scripts/export_politics_vote_generation_fixture.R`.
+- Exported `test/fixtures/politiche/vote_generation.json`, a compact synthetic
+  trace for `genera_voti_politiche()` orchestration.
+- Added politics vote-generation source and fixture types.
+- Added `web/src/lib/politics/vote-generation.ts`, porting:
+  - municipal list-parameter joins to political base data;
+  - unit-level vote generation through the generic core generator;
+  - Camera aggregation by `CU20_COD`;
+  - Senato aggregation by `SU20_COD`;
+  - handoff to `preparePoliticsVoteTables()` for R-compatible prepared vote
+    tables.
+- The synthetic fixture includes three municipalities, shared Camera/Senato
+  colleges, `astensione`, and a list valid in one plurinominal college but not
+  another, so aggregation and filtering paths are covered.
+- Added parity tests that inject R-produced normal draw values and reproducible
+  TypeScript-seed tests for browser runs.
+
+Verification so far:
+
+- `Rscript scripts/export_politics_vote_generation_fixture.R`: passed.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm test`: passed, 101 tests.
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.
