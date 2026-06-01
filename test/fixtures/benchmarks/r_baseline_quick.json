@@ -1,0 +1,32 @@
+{
+  "metadata": {
+    "r_version": "R version 4.5.1 (2025-06-13 ucrt)",
+    "detected_cores": 28,
+    "politics_sims": 10,
+    "municipal_sims": 10,
+    "regional_sims": 10
+  },
+  "benchmarks": {
+    "municipal_bologna": {
+      "label": "Municipal Bologna (10 simulations)",
+      "elapsed_seconds": 1.18,
+      "user_seconds": 0.75,
+      "system_seconds": 0.16,
+      "output_size_mb": 0.07
+    },
+    "regional_er": {
+      "label": "Emilia-Romagna regional (10 simulations)",
+      "elapsed_seconds": 1.42,
+      "user_seconds": 0.58,
+      "system_seconds": 0.18,
+      "output_size_mb": 0.05
+    },
+    "politics": {
+      "label": "Politics (10 simulations)",
+      "elapsed_seconds": 6.67,
+      "user_seconds": 4.63,
+      "system_seconds": 0.71,
+      "output_size_mb": 21.27
+    }
+  }
+}

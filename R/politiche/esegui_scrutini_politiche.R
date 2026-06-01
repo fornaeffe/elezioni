@@ -200,7 +200,7 @@ esegui_scrutini_politiche <- function(
       list(
         pluri_liste_sim = pluri_liste_sim_scrutinio,
         candidati_uni_sim = candidati_uni_sim_scrutinio,
-        candidati_pluri_sim_ = candidati_pluri_sim_scrutinio
+        candidati_pluri_sim = candidati_pluri_sim_scrutinio
       )
     )
   }
