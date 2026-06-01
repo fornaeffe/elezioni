@@ -30,7 +30,8 @@ R baseline on the same machine, pause and present Python fallback options.
 | SvelteKit app scaffold | Done | `web/` created with strict TS, static adapter, Vitest, Playwright. |
 | TypeScript core | Started | Worker API types, seeded RNG, allocation primitives, fixture loader tests, and unit tests added. |
 | Politics scrutiny port | Started | Direct politics scrutiny output now matches R for the debug fixture and runs in the worker through a compact snapshot bridge. |
-| Vote generation | Started | Generic `genera_voti()` math and politics `genera_voti_politiche()` orchestration are ported with R-draw fixture parity and seeded browser normals. Candidate generation is still pending. |
+| Vote generation | Started | Generic `genera_voti()` math and politics `genera_voti_politiche()` orchestration are ported with R-draw fixture parity and seeded browser normals. |
+| Candidate generation | Started | Politics `genera_candidati()` is ported with R `sample()` replay fixture parity and seeded browser sampling. |
 | Generated politics input adapter | Started | R-style generated-table fixture and TypeScript adapter now rebuild the exact direct scrutiny inputs/context. `prepara_dts()` vote preparation is also ported; random candidate generation is still pending. |
 | Performance gate | Pending | Compare browser politics run to fresh R baselines. |
 
@@ -170,6 +171,10 @@ Run on 2026-06-01:
   `genera_voti_politiche()` orchestration, including base-data joins,
   Camera/Senato uninominal aggregation, and the handoff into
   `preparePoliticsVoteTables()`.
+- The candidate-generation fixture is synthetic and replays R-recorded
+  `sample()` outputs. The generated-candidate default birthdate is read from
+  the fixture because R's `as.POSIXct("2000-01-01")` depends on the local
+  timezone; on this machine it serializes as `1999-12-31T23:00:00Z`.
 - The browser direct-scrutiny bridge snapshot is about 8.7 MB and contains only
   direct scrutiny inputs/context, not golden traces or expected outputs.
 - `npm audit` reports 3 low-severity findings through SvelteKit's transitive
@@ -538,5 +543,36 @@ Verification so far:
 - `Rscript scripts/export_politics_vote_generation_fixture.R`: passed.
 - `cd web; npm run check`: passed with 0 warnings.
 - `cd web; npm test`: passed, 101 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-01 Checkpoint 15
+
+Completed in the politics candidate-generation pass:
+
+- Added `scripts/export_politics_candidate_generation_fixture.R`.
+- Exported `test/fixtures/politiche/candidate_generation.json`, a compact
+  synthetic trace for `genera_candidati()`.
+- Added candidate-generation source, output, sample-draw, and fixture types.
+- Added `web/src/lib/politics/candidate-generation.ts`, porting:
+  - validation for `frazioni_pluricandidature`;
+  - generated uninominal candidate IDs;
+  - random selection of uninominal candidates that may also appear in
+    plurinominal lists;
+  - coalition/list normalized percentage assignment;
+  - plurinominal candidate filling with Hare-Niemeyer fraction allocation;
+  - repeated plurinominal candidate reuse for pluricandidature;
+  - default generated-candidate birthdate cleanup.
+- The fixture includes fixed and generated uninominal candidates, fixed and
+  missing plurinominal slots, minority-list rows, uninominal-to-plurinominal
+  reuse, and repeated-candidate pluricandidature paths.
+- Added parity tests that replay R-recorded `sample()` outputs and verify every
+  sample population, sample size, replacement flag, and context.
+
+Verification so far:
+
+- `Rscript scripts/export_politics_candidate_generation_fixture.R`: passed.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm test`: passed, 104 tests.
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.

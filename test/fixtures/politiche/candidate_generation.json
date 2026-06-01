@@ -1,0 +1,1990 @@
+{
+  "metadata": {
+    "schema_version": 1,
+    "source": "synthetic trace of R/politiche/genera_candidati.R",
+    "random_seed": 20260601,
+    "purpose": "Golden fixture for politics candidate generation. R sample() outputs are exported and replayed in TypeScript tests; browser production runs use the TypeScript seeded sampler."
+  },
+  "input": {
+    "simulazioni": 2,
+    "frazione_uni_in_pluri": 0.75,
+    "frazioni_pluricandidature": [
+      0.42,
+      0.27,
+      0.18,
+      0.09,
+      0.04
+    ],
+    "default_data_nascita": "1999-12-31T23:00:00Z",
+    "liste": [
+      {
+        "LISTA": "Lista A",
+        "COALIZIONE": "Coalizione 1",
+        "PERCENTUALE": 0.6
+      },
+      {
+        "LISTA": "Lista B",
+        "COALIZIONE": "Coalizione 1",
+        "PERCENTUALE": 0.4
+      },
+      {
+        "LISTA": "Lista C",
+        "COALIZIONE": "Coalizione 2",
+        "PERCENTUALE": 0.25
+      },
+      {
+        "LISTA": "astensione",
+        "COALIZIONE": "astensione",
+        "PERCENTUALE": 0.2
+      }
+    ],
+    "camera": {
+      "candidati_uni": [
+        {
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 101,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 101,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "camera_fixed_101_C2",
+          "DATA_NASCITA": "1970-01-01T00:00:00Z"
+        },
+        {
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 102,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 102,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 103,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "camera_fixed_103_C1",
+          "DATA_NASCITA": "1965-05-05T00:00:00Z"
+        },
+        {
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 103,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        }
+      ],
+      "candidati_pluri": [
+        {
+          "LISTA": "Lista A",
+          "PLURI_COD": 11,
+          "NUMERO_CANDIDATO": 1,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "camera_A_fixed",
+          "DATA_NASCITA": "1960-02-02T00:00:00Z"
+        },
+        {
+          "LISTA": "Lista A",
+          "PLURI_COD": 11,
+          "NUMERO_CANDIDATO": 2,
+          "MINORANZA": false,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "LISTA": "Lista A",
+          "PLURI_COD": 11,
+          "NUMERO_CANDIDATO": 3,
+          "MINORANZA": false,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "LISTA": "Lista A",
+          "PLURI_COD": 11,
+          "NUMERO_CANDIDATO": 4,
+          "MINORANZA": false,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "LISTA": "Lista A",
+          "PLURI_COD": 11,
+          "NUMERO_CANDIDATO": 5,
+          "MINORANZA": false,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "LISTA": "Lista A",
+          "PLURI_COD": 11,
+          "NUMERO_CANDIDATO": 6,
+          "MINORANZA": false,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "LISTA": "Lista B",
+          "PLURI_COD": 11,
+          "NUMERO_CANDIDATO": 1,
+          "MINORANZA": false,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "LISTA": "Lista B",
+          "PLURI_COD": 11,
+          "NUMERO_CANDIDATO": 2,
+          "MINORANZA": false,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "LISTA": "Lista B",
+          "PLURI_COD": 11,
+          "NUMERO_CANDIDATO": 3,
+          "MINORANZA": false,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "LISTA": "Lista B",
+          "PLURI_COD": 11,
+          "NUMERO_CANDIDATO": 4,
+          "MINORANZA": false,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "LISTA": "Lista C",
+          "PLURI_COD": 21,
+          "NUMERO_CANDIDATO": 1,
+          "MINORANZA": true,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "LISTA": "Lista C",
+          "PLURI_COD": 21,
+          "NUMERO_CANDIDATO": 2,
+          "MINORANZA": true,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "LISTA": "Lista C",
+          "PLURI_COD": 21,
+          "NUMERO_CANDIDATO": 3,
+          "MINORANZA": true,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        }
+      ]
+    },
+    "senato": {
+      "candidati_uni": [
+        {
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 1001,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 1001,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "senato_fixed_1001_C2",
+          "DATA_NASCITA": "1970-01-01T00:00:00Z"
+        },
+        {
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 1002,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 1002,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 1003,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "senato_fixed_1003_C1",
+          "DATA_NASCITA": "1965-05-05T00:00:00Z"
+        },
+        {
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 1003,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        }
+      ],
+      "candidati_pluri": [
+        {
+          "LISTA": "Lista A",
+          "PLURI_COD": 110,
+          "NUMERO_CANDIDATO": 1,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "senato_A_fixed",
+          "DATA_NASCITA": "1960-02-02T00:00:00Z"
+        },
+        {
+          "LISTA": "Lista A",
+          "PLURI_COD": 110,
+          "NUMERO_CANDIDATO": 2,
+          "MINORANZA": false,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "LISTA": "Lista A",
+          "PLURI_COD": 110,
+          "NUMERO_CANDIDATO": 3,
+          "MINORANZA": false,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "LISTA": "Lista A",
+          "PLURI_COD": 110,
+          "NUMERO_CANDIDATO": 4,
+          "MINORANZA": false,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "LISTA": "Lista A",
+          "PLURI_COD": 110,
+          "NUMERO_CANDIDATO": 5,
+          "MINORANZA": false,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "LISTA": "Lista A",
+          "PLURI_COD": 110,
+          "NUMERO_CANDIDATO": 6,
+          "MINORANZA": false,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "LISTA": "Lista B",
+          "PLURI_COD": 110,
+          "NUMERO_CANDIDATO": 1,
+          "MINORANZA": false,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "LISTA": "Lista B",
+          "PLURI_COD": 110,
+          "NUMERO_CANDIDATO": 2,
+          "MINORANZA": false,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "LISTA": "Lista B",
+          "PLURI_COD": 110,
+          "NUMERO_CANDIDATO": 3,
+          "MINORANZA": false,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "LISTA": "Lista B",
+          "PLURI_COD": 110,
+          "NUMERO_CANDIDATO": 4,
+          "MINORANZA": false,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "LISTA": "Lista C",
+          "PLURI_COD": 210,
+          "NUMERO_CANDIDATO": 1,
+          "MINORANZA": true,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "LISTA": "Lista C",
+          "PLURI_COD": 210,
+          "NUMERO_CANDIDATO": 2,
+          "MINORANZA": true,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "LISTA": "Lista C",
+          "PLURI_COD": 210,
+          "NUMERO_CANDIDATO": 3,
+          "MINORANZA": true,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        }
+      ]
+    }
+  },
+  "sample_draws": [
+    {
+      "context": {
+        "phase": "select_uni_for_pluri",
+        "ramo": "camera",
+        "sim": 1
+      },
+      "values": [
+        1,
+        3,
+        4,
+        6
+      ],
+      "size": 3,
+      "replace": false,
+      "result": [
+        4,
+        1,
+        3
+      ]
+    },
+    {
+      "context": {
+        "phase": "assign_uni_to_list",
+        "ramo": "camera",
+        "sim": 1,
+        "coalizione": "Coalizione 1",
+        "lista": "Lista A"
+      },
+      "values": [
+        1,
+        2
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        2
+      ]
+    },
+    {
+      "context": {
+        "phase": "assign_uni_to_list",
+        "ramo": "camera",
+        "sim": 1,
+        "coalizione": "Coalizione 1",
+        "lista": "Lista B"
+      },
+      "values": [
+        1,
+        2
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        2
+      ]
+    },
+    {
+      "context": {
+        "phase": "assign_uni_to_list",
+        "ramo": "camera",
+        "sim": 1,
+        "coalizione": "Coalizione 2",
+        "lista": "Lista C"
+      },
+      "values": [
+        1
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        1
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_first_fraction_from_uni",
+        "ramo": "camera",
+        "sim": 1,
+        "lista": "Lista A"
+      },
+      "values": [
+        "UNI_1_2"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "UNI_1_2"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "camera",
+        "sim": 1,
+        "lista": "Lista A",
+        "fraction": 2
+      },
+      "values": [
+        "UNI_1_2",
+        "PLURI_1_Lista A_1"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "PLURI_1_Lista A_1"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "camera",
+        "sim": 1,
+        "lista": "Lista A",
+        "fraction": 3
+      },
+      "values": [
+        "PLURI_1_Lista A_1"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "PLURI_1_Lista A_1"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "camera",
+        "sim": 1,
+        "lista": "Lista A",
+        "fraction": 4
+      },
+      "values": [
+        "PLURI_1_Lista A_1"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "PLURI_1_Lista A_1"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_first_fraction_from_uni",
+        "ramo": "camera",
+        "sim": 1,
+        "lista": "Lista B"
+      },
+      "values": [
+        "UNI_1_2"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "UNI_1_2"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "camera",
+        "sim": 1,
+        "lista": "Lista B",
+        "fraction": 2
+      },
+      "values": [
+        "UNI_1_2",
+        "PLURI_1_Lista B_1"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "PLURI_1_Lista B_1"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "camera",
+        "sim": 1,
+        "lista": "Lista B",
+        "fraction": 3
+      },
+      "values": [
+        "PLURI_1_Lista B_1"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "PLURI_1_Lista B_1"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_first_fraction_from_uni",
+        "ramo": "camera",
+        "sim": 1,
+        "lista": "Lista C"
+      },
+      "values": [
+        "UNI_1_3"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "UNI_1_3"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "camera",
+        "sim": 1,
+        "lista": "Lista C",
+        "fraction": 2
+      },
+      "values": [
+        "UNI_1_3"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "UNI_1_3"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "camera",
+        "sim": 1,
+        "lista": "Lista C",
+        "fraction": 3
+      },
+      "values": [
+        "UNI_1_3"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "UNI_1_3"
+      ]
+    },
+    {
+      "context": {
+        "phase": "select_uni_for_pluri",
+        "ramo": "camera",
+        "sim": 2
+      },
+      "values": [
+        1,
+        3,
+        4,
+        6
+      ],
+      "size": 3,
+      "replace": false,
+      "result": [
+        4,
+        1,
+        3
+      ]
+    },
+    {
+      "context": {
+        "phase": "assign_uni_to_list",
+        "ramo": "camera",
+        "sim": 2,
+        "coalizione": "Coalizione 1",
+        "lista": "Lista A"
+      },
+      "values": [
+        1,
+        2
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        1
+      ]
+    },
+    {
+      "context": {
+        "phase": "assign_uni_to_list",
+        "ramo": "camera",
+        "sim": 2,
+        "coalizione": "Coalizione 1",
+        "lista": "Lista B"
+      },
+      "values": [
+        1,
+        2
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        1
+      ]
+    },
+    {
+      "context": {
+        "phase": "assign_uni_to_list",
+        "ramo": "camera",
+        "sim": 2,
+        "coalizione": "Coalizione 2",
+        "lista": "Lista C"
+      },
+      "values": [
+        1
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        1
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_first_fraction_from_uni",
+        "ramo": "camera",
+        "sim": 2,
+        "lista": "Lista A"
+      },
+      "values": [
+        "UNI_2_1"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "UNI_2_1"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "camera",
+        "sim": 2,
+        "lista": "Lista A",
+        "fraction": 2
+      },
+      "values": [
+        "UNI_2_1",
+        "PLURI_2_Lista A_1"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "PLURI_2_Lista A_1"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "camera",
+        "sim": 2,
+        "lista": "Lista A",
+        "fraction": 3
+      },
+      "values": [
+        "PLURI_2_Lista A_1"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "PLURI_2_Lista A_1"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "camera",
+        "sim": 2,
+        "lista": "Lista A",
+        "fraction": 4
+      },
+      "values": [
+        "PLURI_2_Lista A_1"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "PLURI_2_Lista A_1"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_first_fraction_from_uni",
+        "ramo": "camera",
+        "sim": 2,
+        "lista": "Lista B"
+      },
+      "values": [
+        "UNI_2_1"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "UNI_2_1"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "camera",
+        "sim": 2,
+        "lista": "Lista B",
+        "fraction": 2
+      },
+      "values": [
+        "UNI_2_1",
+        "PLURI_2_Lista B_1"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "UNI_2_1"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "camera",
+        "sim": 2,
+        "lista": "Lista B",
+        "fraction": 3
+      },
+      "values": [
+        "UNI_2_1"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "UNI_2_1"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_first_fraction_from_uni",
+        "ramo": "camera",
+        "sim": 2,
+        "lista": "Lista C"
+      },
+      "values": [
+        "UNI_2_3"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "UNI_2_3"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "camera",
+        "sim": 2,
+        "lista": "Lista C",
+        "fraction": 2
+      },
+      "values": [
+        "UNI_2_3"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "UNI_2_3"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "camera",
+        "sim": 2,
+        "lista": "Lista C",
+        "fraction": 3
+      },
+      "values": [
+        "UNI_2_3"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "UNI_2_3"
+      ]
+    },
+    {
+      "context": {
+        "phase": "select_uni_for_pluri",
+        "ramo": "senato",
+        "sim": 1
+      },
+      "values": [
+        1,
+        3,
+        4,
+        6
+      ],
+      "size": 3,
+      "replace": false,
+      "result": [
+        6,
+        3,
+        1
+      ]
+    },
+    {
+      "context": {
+        "phase": "assign_uni_to_list",
+        "ramo": "senato",
+        "sim": 1,
+        "coalizione": "Coalizione 1",
+        "lista": "Lista A"
+      },
+      "values": [
+        1,
+        2
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        1
+      ]
+    },
+    {
+      "context": {
+        "phase": "assign_uni_to_list",
+        "ramo": "senato",
+        "sim": 1,
+        "coalizione": "Coalizione 1",
+        "lista": "Lista B"
+      },
+      "values": [
+        1,
+        2
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        1
+      ]
+    },
+    {
+      "context": {
+        "phase": "assign_uni_to_list",
+        "ramo": "senato",
+        "sim": 1,
+        "coalizione": "Coalizione 2",
+        "lista": "Lista C"
+      },
+      "values": [
+        1
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        1
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_first_fraction_from_uni",
+        "ramo": "senato",
+        "sim": 1,
+        "lista": "Lista A"
+      },
+      "values": [
+        "UNI_1_2"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "UNI_1_2"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "senato",
+        "sim": 1,
+        "lista": "Lista A",
+        "fraction": 2
+      },
+      "values": [
+        "UNI_1_2",
+        "PLURI_1_Lista A_1"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "UNI_1_2"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "senato",
+        "sim": 1,
+        "lista": "Lista A",
+        "fraction": 3
+      },
+      "values": [
+        "UNI_1_2"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "UNI_1_2"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "senato",
+        "sim": 1,
+        "lista": "Lista A",
+        "fraction": 4
+      },
+      "values": [
+        "UNI_1_2"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "UNI_1_2"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_first_fraction_from_uni",
+        "ramo": "senato",
+        "sim": 1,
+        "lista": "Lista B"
+      },
+      "values": [
+        "UNI_1_2"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "UNI_1_2"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "senato",
+        "sim": 1,
+        "lista": "Lista B",
+        "fraction": 2
+      },
+      "values": [
+        "UNI_1_2",
+        "PLURI_1_Lista B_1"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "UNI_1_2"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "senato",
+        "sim": 1,
+        "lista": "Lista B",
+        "fraction": 3
+      },
+      "values": [
+        "UNI_1_2"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "UNI_1_2"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_first_fraction_from_uni",
+        "ramo": "senato",
+        "sim": 1,
+        "lista": "Lista C"
+      },
+      "values": [
+        "UNI_1_4"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "UNI_1_4"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "senato",
+        "sim": 1,
+        "lista": "Lista C",
+        "fraction": 2
+      },
+      "values": [
+        "UNI_1_4"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "UNI_1_4"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "senato",
+        "sim": 1,
+        "lista": "Lista C",
+        "fraction": 3
+      },
+      "values": [
+        "UNI_1_4"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "UNI_1_4"
+      ]
+    },
+    {
+      "context": {
+        "phase": "select_uni_for_pluri",
+        "ramo": "senato",
+        "sim": 2
+      },
+      "values": [
+        1,
+        3,
+        4,
+        6
+      ],
+      "size": 3,
+      "replace": false,
+      "result": [
+        6,
+        1,
+        3
+      ]
+    },
+    {
+      "context": {
+        "phase": "assign_uni_to_list",
+        "ramo": "senato",
+        "sim": 2,
+        "coalizione": "Coalizione 1",
+        "lista": "Lista A"
+      },
+      "values": [
+        1,
+        2
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        2
+      ]
+    },
+    {
+      "context": {
+        "phase": "assign_uni_to_list",
+        "ramo": "senato",
+        "sim": 2,
+        "coalizione": "Coalizione 1",
+        "lista": "Lista B"
+      },
+      "values": [
+        1,
+        2
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        2
+      ]
+    },
+    {
+      "context": {
+        "phase": "assign_uni_to_list",
+        "ramo": "senato",
+        "sim": 2,
+        "coalizione": "Coalizione 2",
+        "lista": "Lista C"
+      },
+      "values": [
+        1
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        1
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_first_fraction_from_uni",
+        "ramo": "senato",
+        "sim": 2,
+        "lista": "Lista A"
+      },
+      "values": [
+        "UNI_2_2"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "UNI_2_2"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "senato",
+        "sim": 2,
+        "lista": "Lista A",
+        "fraction": 2
+      },
+      "values": [
+        "UNI_2_2",
+        "PLURI_2_Lista A_1"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "PLURI_2_Lista A_1"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "senato",
+        "sim": 2,
+        "lista": "Lista A",
+        "fraction": 3
+      },
+      "values": [
+        "PLURI_2_Lista A_1"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "PLURI_2_Lista A_1"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "senato",
+        "sim": 2,
+        "lista": "Lista A",
+        "fraction": 4
+      },
+      "values": [
+        "PLURI_2_Lista A_1"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "PLURI_2_Lista A_1"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_first_fraction_from_uni",
+        "ramo": "senato",
+        "sim": 2,
+        "lista": "Lista B"
+      },
+      "values": [
+        "UNI_2_2"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "UNI_2_2"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "senato",
+        "sim": 2,
+        "lista": "Lista B",
+        "fraction": 2
+      },
+      "values": [
+        "UNI_2_2",
+        "PLURI_2_Lista B_1"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "PLURI_2_Lista B_1"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "senato",
+        "sim": 2,
+        "lista": "Lista B",
+        "fraction": 3
+      },
+      "values": [
+        "PLURI_2_Lista B_1"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "PLURI_2_Lista B_1"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_first_fraction_from_uni",
+        "ramo": "senato",
+        "sim": 2,
+        "lista": "Lista C"
+      },
+      "values": [
+        "UNI_2_4"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "UNI_2_4"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "senato",
+        "sim": 2,
+        "lista": "Lista C",
+        "fraction": 2
+      },
+      "values": [
+        "UNI_2_4"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "UNI_2_4"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "senato",
+        "sim": 2,
+        "lista": "Lista C",
+        "fraction": 3
+      },
+      "values": [
+        "UNI_2_4"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "UNI_2_4"
+      ]
+    }
+  ],
+  "expected": {
+    "camera": {
+      "candidati_uni_sim": [
+        {
+          "SIM": 1,
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 101,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "UNI_1_1",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 1,
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 101,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "camera_fixed_101_C2",
+          "DATA_NASCITA": "1970-01-01T00:00:00Z"
+        },
+        {
+          "SIM": 1,
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 102,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "UNI_1_2",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 1,
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 102,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "UNI_1_3",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 1,
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 103,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "camera_fixed_103_C1",
+          "DATA_NASCITA": "1965-05-05T00:00:00Z"
+        },
+        {
+          "SIM": 1,
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 103,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "UNI_1_4",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 2,
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 101,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "UNI_2_1",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 2,
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 101,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "camera_fixed_101_C2",
+          "DATA_NASCITA": "1970-01-01T00:00:00Z"
+        },
+        {
+          "SIM": 2,
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 102,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "UNI_2_2",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 2,
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 102,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "UNI_2_3",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 2,
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 103,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "camera_fixed_103_C1",
+          "DATA_NASCITA": "1965-05-05T00:00:00Z"
+        },
+        {
+          "SIM": 2,
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 103,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "UNI_2_4",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        }
+      ],
+      "candidati_pluri_sim": [
+        {
+          "SIM": 1,
+          "LISTA": "Lista A",
+          "PLURI_COD": 11,
+          "NUMERO_CANDIDATO": 1,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "camera_A_fixed",
+          "DATA_NASCITA": "1960-02-02T00:00:00Z"
+        },
+        {
+          "SIM": 1,
+          "LISTA": "Lista A",
+          "PLURI_COD": 11,
+          "NUMERO_CANDIDATO": 2,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "UNI_1_2",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 1,
+          "LISTA": "Lista A",
+          "PLURI_COD": 11,
+          "NUMERO_CANDIDATO": 3,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "PLURI_1_Lista A_1",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 1,
+          "LISTA": "Lista A",
+          "PLURI_COD": 11,
+          "NUMERO_CANDIDATO": 4,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "PLURI_1_Lista A_1",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 1,
+          "LISTA": "Lista A",
+          "PLURI_COD": 11,
+          "NUMERO_CANDIDATO": 5,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "PLURI_1_Lista A_1",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 1,
+          "LISTA": "Lista A",
+          "PLURI_COD": 11,
+          "NUMERO_CANDIDATO": 6,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "PLURI_1_Lista A_1",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 1,
+          "LISTA": "Lista B",
+          "PLURI_COD": 11,
+          "NUMERO_CANDIDATO": 1,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "UNI_1_2",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 1,
+          "LISTA": "Lista B",
+          "PLURI_COD": 11,
+          "NUMERO_CANDIDATO": 2,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "PLURI_1_Lista B_1",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 1,
+          "LISTA": "Lista B",
+          "PLURI_COD": 11,
+          "NUMERO_CANDIDATO": 3,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "PLURI_1_Lista B_1",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 1,
+          "LISTA": "Lista B",
+          "PLURI_COD": 11,
+          "NUMERO_CANDIDATO": 4,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "PLURI_1_Lista B_1",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 1,
+          "LISTA": "Lista C",
+          "PLURI_COD": 21,
+          "NUMERO_CANDIDATO": 1,
+          "MINORANZA": true,
+          "CANDIDATO_ID": "UNI_1_3",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 1,
+          "LISTA": "Lista C",
+          "PLURI_COD": 21,
+          "NUMERO_CANDIDATO": 2,
+          "MINORANZA": true,
+          "CANDIDATO_ID": "UNI_1_3",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 1,
+          "LISTA": "Lista C",
+          "PLURI_COD": 21,
+          "NUMERO_CANDIDATO": 3,
+          "MINORANZA": true,
+          "CANDIDATO_ID": "UNI_1_3",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 2,
+          "LISTA": "Lista A",
+          "PLURI_COD": 11,
+          "NUMERO_CANDIDATO": 1,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "camera_A_fixed",
+          "DATA_NASCITA": "1960-02-02T00:00:00Z"
+        },
+        {
+          "SIM": 2,
+          "LISTA": "Lista A",
+          "PLURI_COD": 11,
+          "NUMERO_CANDIDATO": 2,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "UNI_2_1",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 2,
+          "LISTA": "Lista A",
+          "PLURI_COD": 11,
+          "NUMERO_CANDIDATO": 3,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "PLURI_2_Lista A_1",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 2,
+          "LISTA": "Lista A",
+          "PLURI_COD": 11,
+          "NUMERO_CANDIDATO": 4,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "PLURI_2_Lista A_1",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 2,
+          "LISTA": "Lista A",
+          "PLURI_COD": 11,
+          "NUMERO_CANDIDATO": 5,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "PLURI_2_Lista A_1",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 2,
+          "LISTA": "Lista A",
+          "PLURI_COD": 11,
+          "NUMERO_CANDIDATO": 6,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "PLURI_2_Lista A_1",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 2,
+          "LISTA": "Lista B",
+          "PLURI_COD": 11,
+          "NUMERO_CANDIDATO": 1,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "UNI_2_1",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 2,
+          "LISTA": "Lista B",
+          "PLURI_COD": 11,
+          "NUMERO_CANDIDATO": 2,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "PLURI_2_Lista B_1",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 2,
+          "LISTA": "Lista B",
+          "PLURI_COD": 11,
+          "NUMERO_CANDIDATO": 3,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "UNI_2_1",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 2,
+          "LISTA": "Lista B",
+          "PLURI_COD": 11,
+          "NUMERO_CANDIDATO": 4,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "UNI_2_1",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 2,
+          "LISTA": "Lista C",
+          "PLURI_COD": 21,
+          "NUMERO_CANDIDATO": 1,
+          "MINORANZA": true,
+          "CANDIDATO_ID": "UNI_2_3",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 2,
+          "LISTA": "Lista C",
+          "PLURI_COD": 21,
+          "NUMERO_CANDIDATO": 2,
+          "MINORANZA": true,
+          "CANDIDATO_ID": "UNI_2_3",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 2,
+          "LISTA": "Lista C",
+          "PLURI_COD": 21,
+          "NUMERO_CANDIDATO": 3,
+          "MINORANZA": true,
+          "CANDIDATO_ID": "UNI_2_3",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        }
+      ]
+    },
+    "senato": {
+      "candidati_uni_sim": [
+        {
+          "SIM": 1,
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 1001,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "UNI_1_1",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 1,
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 1001,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "senato_fixed_1001_C2",
+          "DATA_NASCITA": "1970-01-01T00:00:00Z"
+        },
+        {
+          "SIM": 1,
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 1002,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "UNI_1_2",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 1,
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 1002,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "UNI_1_3",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 1,
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 1003,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "senato_fixed_1003_C1",
+          "DATA_NASCITA": "1965-05-05T00:00:00Z"
+        },
+        {
+          "SIM": 1,
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 1003,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "UNI_1_4",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 2,
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 1001,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "UNI_2_1",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 2,
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 1001,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "senato_fixed_1001_C2",
+          "DATA_NASCITA": "1970-01-01T00:00:00Z"
+        },
+        {
+          "SIM": 2,
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 1002,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "UNI_2_2",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 2,
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 1002,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "UNI_2_3",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 2,
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 1003,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "senato_fixed_1003_C1",
+          "DATA_NASCITA": "1965-05-05T00:00:00Z"
+        },
+        {
+          "SIM": 2,
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 1003,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "UNI_2_4",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        }
+      ],
+      "candidati_pluri_sim": [
+        {
+          "SIM": 1,
+          "LISTA": "Lista A",
+          "PLURI_COD": 110,
+          "NUMERO_CANDIDATO": 1,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "senato_A_fixed",
+          "DATA_NASCITA": "1960-02-02T00:00:00Z"
+        },
+        {
+          "SIM": 1,
+          "LISTA": "Lista A",
+          "PLURI_COD": 110,
+          "NUMERO_CANDIDATO": 2,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "UNI_1_2",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 1,
+          "LISTA": "Lista A",
+          "PLURI_COD": 110,
+          "NUMERO_CANDIDATO": 3,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "PLURI_1_Lista A_1",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 1,
+          "LISTA": "Lista A",
+          "PLURI_COD": 110,
+          "NUMERO_CANDIDATO": 4,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "UNI_1_2",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 1,
+          "LISTA": "Lista A",
+          "PLURI_COD": 110,
+          "NUMERO_CANDIDATO": 5,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "UNI_1_2",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 1,
+          "LISTA": "Lista A",
+          "PLURI_COD": 110,
+          "NUMERO_CANDIDATO": 6,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "UNI_1_2",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 1,
+          "LISTA": "Lista B",
+          "PLURI_COD": 110,
+          "NUMERO_CANDIDATO": 1,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "UNI_1_2",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 1,
+          "LISTA": "Lista B",
+          "PLURI_COD": 110,
+          "NUMERO_CANDIDATO": 2,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "PLURI_1_Lista B_1",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 1,
+          "LISTA": "Lista B",
+          "PLURI_COD": 110,
+          "NUMERO_CANDIDATO": 3,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "UNI_1_2",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 1,
+          "LISTA": "Lista B",
+          "PLURI_COD": 110,
+          "NUMERO_CANDIDATO": 4,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "UNI_1_2",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 1,
+          "LISTA": "Lista C",
+          "PLURI_COD": 210,
+          "NUMERO_CANDIDATO": 1,
+          "MINORANZA": true,
+          "CANDIDATO_ID": "UNI_1_4",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 1,
+          "LISTA": "Lista C",
+          "PLURI_COD": 210,
+          "NUMERO_CANDIDATO": 2,
+          "MINORANZA": true,
+          "CANDIDATO_ID": "UNI_1_4",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 1,
+          "LISTA": "Lista C",
+          "PLURI_COD": 210,
+          "NUMERO_CANDIDATO": 3,
+          "MINORANZA": true,
+          "CANDIDATO_ID": "UNI_1_4",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 2,
+          "LISTA": "Lista A",
+          "PLURI_COD": 110,
+          "NUMERO_CANDIDATO": 1,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "senato_A_fixed",
+          "DATA_NASCITA": "1960-02-02T00:00:00Z"
+        },
+        {
+          "SIM": 2,
+          "LISTA": "Lista A",
+          "PLURI_COD": 110,
+          "NUMERO_CANDIDATO": 2,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "UNI_2_2",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 2,
+          "LISTA": "Lista A",
+          "PLURI_COD": 110,
+          "NUMERO_CANDIDATO": 3,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "PLURI_2_Lista A_1",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 2,
+          "LISTA": "Lista A",
+          "PLURI_COD": 110,
+          "NUMERO_CANDIDATO": 4,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "PLURI_2_Lista A_1",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 2,
+          "LISTA": "Lista A",
+          "PLURI_COD": 110,
+          "NUMERO_CANDIDATO": 5,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "PLURI_2_Lista A_1",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 2,
+          "LISTA": "Lista A",
+          "PLURI_COD": 110,
+          "NUMERO_CANDIDATO": 6,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "PLURI_2_Lista A_1",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 2,
+          "LISTA": "Lista B",
+          "PLURI_COD": 110,
+          "NUMERO_CANDIDATO": 1,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "UNI_2_2",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 2,
+          "LISTA": "Lista B",
+          "PLURI_COD": 110,
+          "NUMERO_CANDIDATO": 2,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "PLURI_2_Lista B_1",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 2,
+          "LISTA": "Lista B",
+          "PLURI_COD": 110,
+          "NUMERO_CANDIDATO": 3,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "PLURI_2_Lista B_1",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 2,
+          "LISTA": "Lista B",
+          "PLURI_COD": 110,
+          "NUMERO_CANDIDATO": 4,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "PLURI_2_Lista B_1",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 2,
+          "LISTA": "Lista C",
+          "PLURI_COD": 210,
+          "NUMERO_CANDIDATO": 1,
+          "MINORANZA": true,
+          "CANDIDATO_ID": "UNI_2_4",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 2,
+          "LISTA": "Lista C",
+          "PLURI_COD": 210,
+          "NUMERO_CANDIDATO": 2,
+          "MINORANZA": true,
+          "CANDIDATO_ID": "UNI_2_4",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        },
+        {
+          "SIM": 2,
+          "LISTA": "Lista C",
+          "PLURI_COD": 210,
+          "NUMERO_CANDIDATO": 3,
+          "MINORANZA": true,
+          "CANDIDATO_ID": "UNI_2_4",
+          "DATA_NASCITA": "1999-12-31T23:00:00Z"
+        }
+      ]
+    }
+  }
+}

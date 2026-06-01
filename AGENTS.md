@@ -187,6 +187,13 @@ simulation 4.
   TypeScript port in `web/src/lib/politics/vote-generation.ts` combines the
   generic vote generator with Camera/Senato uninominal aggregation and
   `preparePoliticsVoteTables()`.
+- `scripts/export_politics_candidate_generation_fixture.R` exports
+  `test/fixtures/politiche/candidate_generation.json`, a small synthetic trace
+  for `R/politiche/genera_candidati.R`. The TypeScript port in
+  `web/src/lib/politics/candidate-generation.ts` replays R-recorded `sample()`
+  outputs in tests and uses a seeded TypeScript sampler in browser runs. The R
+  default date for generated candidates is captured from the fixture because
+  `as.POSIXct("2000-01-01")` is local-timezone dependent.
 - `scripts/benchmark_r_workflows.R` reruns R baseline workflows.
 - `web/` contains the initial static SvelteKit app scaffold, strict TypeScript
   setup, worker API types, seeded RNG, allocation primitives, unit tests, and a

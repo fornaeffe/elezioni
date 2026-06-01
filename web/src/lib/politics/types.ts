@@ -512,7 +512,9 @@ export interface GeneratedCandidatoPluriRow {
   LISTA: string;
   PLURI_COD: AdministrativeCode;
   NUMERO_CANDIDATO: number;
+  MINORANZA?: boolean;
   CANDIDATO_ID: string;
+  DATA_NASCITA?: string;
   CIRC_COD?: AdministrativeCode | null;
 }
 
@@ -665,6 +667,72 @@ export interface PoliticsVoteGenerationFixture {
     value: number;
   }>;
   expected: PoliticsGeneratedVoteTables;
+}
+
+export interface PoliticsCandidateGenerationListRow extends PoliticsGeneratedListRow {
+  PERCENTUALE: number;
+}
+
+export interface PoliticsCandidateUniTemplateRow {
+  COALIZIONE: string | null;
+  UNI_COD: AdministrativeCode;
+  LISTA_MINORANZA: string | boolean | null;
+  CANDIDATO_ID: string | null;
+  DATA_NASCITA: string | null;
+}
+
+export interface PoliticsCandidatePluriGenerationTemplateRow {
+  LISTA: string;
+  PLURI_COD: AdministrativeCode;
+  NUMERO_CANDIDATO: number;
+  MINORANZA: boolean;
+  CANDIDATO_ID: string | null;
+  DATA_NASCITA: string | null;
+}
+
+export interface PoliticsCandidateGenerationRamoSource {
+  candidati_uni: PoliticsCandidateUniTemplateRow[];
+  candidati_pluri: PoliticsCandidatePluriGenerationTemplateRow[];
+}
+
+export interface PoliticsGeneratedCandidateTables {
+  candidati_uni_sim: GeneratedCandidatoUniRow[];
+  candidati_pluri_sim: GeneratedCandidatoPluriRow[];
+}
+
+export interface PoliticsCandidateGenerationSource {
+  simulazioni: number;
+  frazione_uni_in_pluri: number;
+  frazioni_pluricandidature: number[];
+  default_data_nascita: string;
+  liste: PoliticsCandidateGenerationListRow[];
+  camera: PoliticsCandidateGenerationRamoSource;
+  senato: PoliticsCandidateGenerationRamoSource;
+}
+
+export interface PoliticsGeneratedCandidates {
+  camera: PoliticsGeneratedCandidateTables;
+  senato: PoliticsGeneratedCandidateTables;
+}
+
+export interface PoliticsCandidateSampleDraw {
+  context: Record<string, string | number | boolean | null>;
+  values: string | number | null | Array<string | number | null>;
+  size: number;
+  replace: boolean;
+  result: string | number | null | Array<string | number | null>;
+}
+
+export interface PoliticsCandidateGenerationFixture {
+  metadata: {
+    schema_version: number;
+    source: string;
+    random_seed: number;
+    purpose: string;
+  };
+  input: PoliticsCandidateGenerationSource;
+  sample_draws: PoliticsCandidateSampleDraw[];
+  expected: PoliticsGeneratedCandidates;
 }
 
 export interface PoliticsGoldenFixture {
