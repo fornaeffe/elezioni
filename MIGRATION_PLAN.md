@@ -28,8 +28,8 @@ R baseline on the same machine, pause and present Python fallback options.
 | Golden-master fixtures | Done | `scripts/export_politics_golden.R` exports `test/fixtures/politiche/debug_scrutinio.json`. |
 | R benchmarks | Done | `scripts/benchmark_r_workflows.R` added; quick baseline JSON generated. |
 | SvelteKit app scaffold | Done | `web/` created with strict TS, static adapter, Vitest, Playwright. |
-| TypeScript core | Started | Worker API types, seeded RNG, allocation primitives, and unit tests added. |
-| Politics scrutiny port | Pending | Port after fixture export and core primitives are stable. |
+| TypeScript core | Started | Worker API types, seeded RNG, allocation primitives, fixture loader tests, and unit tests added. |
+| Politics scrutiny port | Started | First uninominal-candidate election stage matches R golden fixture for Camera and Senato. |
 | Performance gate | Pending | Compare browser politics run to fresh R baselines. |
 
 ## Decisions
@@ -127,9 +127,34 @@ Run on 2026-06-01:
 ## Current Caveats
 
 - The TypeScript politics scrutiny core is not ported yet. The current worker
-  returns `POLITICS_SCRUTINY_NOT_PORTED` intentionally.
+  returns `POLITICS_SCRUTINY_NOT_PORTED` intentionally; only the first
+  uninominal election stage has been ported and tested so far.
 - The exported politics fixture is about 31 MB because it contains direct
   scrutiny inputs and expected outputs for 10 simulations.
 - `npm audit` reports 3 low-severity findings through SvelteKit's transitive
   `cookie` dependency. The suggested automatic fix is a semver-major downgrade
   to obsolete SvelteKit packages, so it has not been applied.
+
+## 2026-06-01 Checkpoint 2
+
+Completed after the initial scaffold commit:
+
+- Added Svelte 5 runes-mode guidance to `AGENTS.md`.
+- Fixed `scripts/export_politics_golden.R` so simulations serialize as arrays
+  and warning/message strings do not split into characters.
+- Regenerated `test/fixtures/politiche/debug_scrutinio.json`.
+- Added typed politics fixture/scrutiny types under `web/src/lib/politics`.
+- Ported the first politics scrutiny stage: uninominal candidate election.
+- Added golden parity tests for uninominal election across all 10 Camera and 10
+  Senato fixture simulations.
+- Refactored the scenario page to Svelte 5 runes style with `$state` and
+  `$derived`.
+- Fixed worker payload cloning by deriving a plain scenario snapshot before
+  `postMessage()`.
+
+Verification:
+
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm test`: passed, 27 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.

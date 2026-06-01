@@ -12,21 +12,21 @@
 
   const dataVersion = 'v1';
 
-  let simulations = 100;
-  let seed = 'politiche-2027';
-  let running = false;
-  let phase = 'idle';
-  let elapsedMs = 0;
-  let tables: ResultTable[] = [];
-  let warnings: string[] = [];
+  let simulations = $state(100);
+  let seed = $state('politiche-2027');
+  let running = $state(false);
+  let phase = $state('idle');
+  let elapsedMs = $state(0);
+  let tables = $state<ResultTable[]>([]);
+  let warnings = $state<string[]>([]);
 
-  let coalitions: ScenarioCoalition[] = [
+  let coalitions = $state<ScenarioCoalition[]>([
     { id: 'centrosinistra', name: 'Centrosinistra', color: '#d94848' },
     { id: 'centrodestra', name: 'Centrodestra', color: '#3267b1' },
     { id: 'm5s', name: 'Movimento 5 Stelle', color: '#d8b400' }
-  ];
+  ]);
 
-  let lists: ScenarioList[] = [
+  let lists = $state<ScenarioList[]>([
     {
       id: 'pd',
       name: 'Partito Democratico',
@@ -48,17 +48,17 @@
       color: '#d8b400',
       startingShare: 12
     }
-  ];
+  ]);
 
-  function buildScenario(): Scenario {
-    return {
-      id: 'politiche-2027',
-      name: 'Politiche 2027',
-      electionDate: '2027-03-01',
-      lists,
-      coalitions
-    };
-  }
+  const scenario = $derived.by<Scenario>(() => ({
+    id: 'politiche-2027',
+    name: 'Politiche 2027',
+    electionDate: '2027-03-01',
+    lists: lists.map((list) => ({ ...list })),
+    coalitions: coalitions.map((coalition) => ({ ...coalition }))
+  }));
+  const runButtonLabel = $derived(running ? phase : 'Esegui');
+  const elapsedLabel = $derived(`${elapsedMs.toFixed(0)} ms`);
 
   function addList(): void {
     lists = [
@@ -81,7 +81,7 @@
     const worker = new SimulationWorker();
     const request: SimulationRequest = {
       kind: 'politiche',
-      scenario: buildScenario(),
+      scenario,
       electionDate: '2027-03-01',
       simulations,
       seed,
@@ -110,7 +110,23 @@
       worker.terminate();
     };
 
-    worker.postMessage(request);
+    worker.onerror = (error) => {
+      warnings = [`WORKER_ERROR: ${error.message}`];
+      elapsedMs = performance.now();
+      running = false;
+      phase = 'error';
+      worker.terminate();
+    };
+
+    try {
+      worker.postMessage(request);
+    } catch (error) {
+      warnings = [`WORKER_POST_ERROR: ${error instanceof Error ? error.message : String(error)}`];
+      elapsedMs = 0;
+      running = false;
+      phase = 'error';
+      worker.terminate();
+    }
   }
 </script>
 
@@ -132,9 +148,9 @@
       Seed
       <input type="text" bind:value={seed} />
     </label>
-    <button class="primary" type="button" on:click={runSimulation} disabled={running}>
+    <button class="primary" type="button" onclick={runSimulation} disabled={running}>
       <Play size={18} aria-hidden="true" />
-      <span>{running ? phase : 'Esegui'}</span>
+      <span>{runButtonLabel}</span>
     </button>
   </section>
 
@@ -142,7 +158,7 @@
     <div class="panel scenario-panel">
       <div class="panel-heading">
         <h2>Scenario</h2>
-        <button type="button" class="icon-button" on:click={addList} title="Aggiungi lista">
+        <button type="button" class="icon-button" onclick={addList} title="Aggiungi lista">
           <Plus size={18} aria-hidden="true" />
         </button>
       </div>
@@ -166,7 +182,7 @@
               bind:value={list.startingShare}
               aria-label="Quota iniziale"
             />
-            <button type="button" class="icon-button danger" on:click={() => removeList(list.id)} title="Rimuovi lista">
+            <button type="button" class="icon-button danger" onclick={() => removeList(list.id)} title="Rimuovi lista">
               <Trash2 size={18} aria-hidden="true" />
             </button>
           </div>
@@ -177,7 +193,7 @@
     <div class="panel result-panel">
       <div class="panel-heading">
         <h2>Risultati</h2>
-        <span>{elapsedMs.toFixed(0)} ms</span>
+        <span>{elapsedLabel}</span>
       </div>
 
       {#if warnings.length > 0}

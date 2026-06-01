@@ -57,7 +57,7 @@ capture_conditions <- function(expr) {
       invokeRestart("muffleMessage")
     }
   )
-  list(value = value, warnings = warnings, messages = messages)
+  list(value = value, warnings = as.list(warnings), messages = as.list(messages))
 }
 
 prepare_ramo <- function(ramo) {
@@ -146,7 +146,7 @@ prepare_ramo <- function(ramo) {
       MINORANZA
     )]),
     totale_seggi = totale_seggi,
-    simulations = Map(
+    simulations = unname(Map(
       function(liste_uni, candidati_uni, candidati_pluri) {
         sim <- unique(liste_uni$SIM)
         stopifnot(length(sim) == 1)
@@ -162,7 +162,7 @@ prepare_ramo <- function(ramo) {
       split(uni_liste_sim_dt, uni_liste_sim_dt$SIM),
       split(candidati_uni_sim_dt, candidati_uni_sim_dt$SIM),
       split(candidati_pluri_sim_dt, candidati_pluri_sim_dt$SIM)
-    )
+    ))
   )
 }
 

@@ -101,6 +101,10 @@ simulation 4.
 - The front-end option should not be a direct row-object port of `data.table`
   logic. Use a small typed domain model, columnar/typed-array data where needed,
   Web Workers for simulations, and deterministic seeded RNG.
+- Svelte pages and components should use Svelte 5 runes-mode best practices:
+  prefer `$state` for local mutable state, `$derived` for computed values, and
+  avoid updating state inside `$effect` unless there is no clearer lifecycle or
+  event-driven alternative.
 - A SvelteKit static app can work if it keeps the legal scrutiny core separate
   from UI components and uses workerized computation. It gives the best
   distribution/usability story.
@@ -129,5 +133,9 @@ simulation 4.
 - `web/` contains the initial static SvelteKit app scaffold, strict TypeScript
   setup, worker API types, seeded RNG, allocation primitives, unit tests, and a
   Playwright smoke test.
-- The TypeScript politics scrutiny core is not ported yet; the worker currently
-  returns a deliberate `POLITICS_SCRUTINY_NOT_PORTED` warning.
+- The first TypeScript politics scrutiny stage, uninominal candidate election,
+  is ported and matches the R golden fixture for all current Camera/Senato debug
+  simulations. The rest of the politics scrutiny core is not ported yet; the
+  worker currently returns a deliberate `POLITICS_SCRUTINY_NOT_PORTED` warning.
+- When posting Svelte `$state` data to workers, derive or build plain snapshots
+  first. Svelte proxies are not structured-clone safe.
