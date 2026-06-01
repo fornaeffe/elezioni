@@ -30,7 +30,7 @@ R baseline on the same machine, pause and present Python fallback options.
 | SvelteKit app scaffold | Done | `web/` created with strict TS, static adapter, Vitest, Playwright. |
 | TypeScript core | Started | Worker API types, seeded RNG, allocation primitives, fixture loader tests, and unit tests added. |
 | Politics scrutiny port | Started | Direct politics scrutiny output now matches R for the debug fixture and runs in the worker through a compact snapshot bridge. |
-| Generated politics input adapter | Started | R-style generated-table fixture and TypeScript adapter now rebuild the exact direct scrutiny inputs/context; random vote/candidate generation is still pending. |
+| Generated politics input adapter | Started | R-style generated-table fixture and TypeScript adapter now rebuild the exact direct scrutiny inputs/context. `prepara_dts()` vote preparation is also ported; random vote/candidate generation is still pending. |
 | Performance gate | Pending | Compare browser politics run to fresh R baselines. |
 
 ## Decisions
@@ -157,6 +157,10 @@ Run on 2026-06-01:
   scrutiny inputs, R trace tables, and expected outputs for 10 simulations.
 - The generated adapter fixture is about 8.1 MB and covers deterministic
   `esegui_scrutini_politiche()` input preparation, not random generation.
+- The vote-preparation fixture is about 8.7 MB and covers deterministic
+  `prepara_dts()` joins/filters. Its source list votes are reconstructed from
+  the debug prepared rows plus synthetic `astensione` and invalid-list rows, so
+  it does not claim golden parity for the upstream random `genera_voti()` draw.
 - The browser direct-scrutiny bridge snapshot is about 8.7 MB and contains only
   direct scrutiny inputs/context, not golden traces or expected outputs.
 - `npm audit` reports 3 low-severity findings through SvelteKit's transitive
@@ -439,5 +443,33 @@ Verification so far:
 - `Rscript scripts/export_politics_adapter_fixture.R`: passed.
 - `cd web; npm run check`: passed with 0 warnings.
 - `cd web; npm test`: passed, 92 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-01 Checkpoint 12
+
+Completed in the vote-preparation pass:
+
+- Added `scripts/export_politics_vote_preparation_fixture.R`.
+- Exported `test/fixtures/politiche/vote_preparation.json`, an 8.7 MB fixture
+  for the deterministic `prepara_dts()` boundary.
+- Added TypeScript source/output types for raw uninominal list votes, generated
+  uninominal candidates, and prepared politics vote tables.
+- Added `web/src/lib/politics/vote-preparation.ts`, porting:
+  - `astensione` filtering;
+  - uninominal college joins;
+  - list-to-coalition joins;
+  - uninominal candidate joins by simulation, college, and coalition;
+  - candidate-vote aggregation;
+  - filtering to plurinominal list/circumscription validity.
+- Preserved R/data.table order-sensitive behavior by keeping grouped candidate
+  vote totals and valid plurinominal rows in first-seen order.
+- Added exact parity tests against the R-produced fixture for Camera and Senato.
+
+Verification so far:
+
+- `Rscript scripts/export_politics_vote_preparation_fixture.R`: passed.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm test`: passed, 95 tests.
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.

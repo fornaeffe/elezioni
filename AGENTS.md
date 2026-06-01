@@ -168,6 +168,13 @@ simulation 4.
   scrutiny context and per-simulation inputs from the R golden fixture. This
   freezes the deterministic boundary before porting random vote/candidate
   generation.
+- `scripts/export_politics_vote_preparation_fixture.R` exports
+  `test/fixtures/politiche/vote_preparation.json` for the deterministic
+  `prepara_dts()` boundary. `web/src/lib/politics/vote-preparation.ts` ports
+  that table preparation logic. The fixture uses debug rows reconstructed from
+  prepared list votes plus synthetic `astensione` and invalid-list rows, so it
+  protects join/filter behavior but is not a golden fixture for the random
+  `genera_voti()` draw itself.
 - `scripts/benchmark_r_workflows.R` reruns R baseline workflows.
 - `web/` contains the initial static SvelteKit app scaffold, strict TypeScript
   setup, worker API types, seeded RNG, allocation primitives, unit tests, and a

@@ -489,6 +489,7 @@ export interface GeneratedUniListVotesRow {
   VOTI_LISTA_SIM: number;
   PLURI_COD?: AdministrativeCode | null;
   CIRC_COD?: AdministrativeCode | null;
+  COALIZIONE?: string | null;
   CANDIDATO_ID?: string | null;
   CAND_MINORANZA?: boolean | null;
   MINORANZA?: boolean | null;
@@ -496,7 +497,9 @@ export interface GeneratedUniListVotesRow {
 
 export interface GeneratedCandidatoUniVotesRow {
   SIM: number;
+  COALIZIONE?: string | null;
   UNI_COD: AdministrativeCode;
+  LISTA_MINORANZA?: string | boolean | null;
   CANDIDATO_ID: string;
   DATA_NASCITA: string;
   VOTI_CANDIDATO: number;
@@ -554,6 +557,51 @@ export interface PoliticsGeneratedAdapterFixture {
     purpose: string;
   };
   rami: Record<Ramo, PoliticsGeneratedRamoSource>;
+}
+
+export interface RawUniListVotesRow {
+  SIM: number;
+  UNI_COD: AdministrativeCode;
+  LISTA: string;
+  VOTI_LISTA_SIM: number;
+}
+
+export interface GeneratedCandidatoUniRow {
+  SIM: number;
+  COALIZIONE: string | null;
+  UNI_COD: AdministrativeCode;
+  LISTA_MINORANZA: string | boolean | null;
+  CANDIDATO_ID: string;
+  DATA_NASCITA: string;
+  PLURI_COD?: AdministrativeCode | null;
+  CIRC_COD?: AdministrativeCode | null;
+}
+
+export interface PoliticsVotePreparationSource {
+  uni_liste_sim: RawUniListVotesRow[];
+  uni: PoliticsCollegeUniRow[];
+  liste: PoliticsGeneratedListRow[];
+  candidati_uni_sim: GeneratedCandidatoUniRow[];
+  candidati_pluri_template: PoliticsCandidatePluriTemplateRow[];
+}
+
+export interface PreparedPoliticsVoteTables {
+  uni_liste_sim: GeneratedUniListVotesRow[];
+  candidati_uni_sim: GeneratedCandidatoUniVotesRow[];
+}
+
+export interface PoliticsVotePreparationFixtureRamo {
+  source: PoliticsVotePreparationSource;
+  expected: PreparedPoliticsVoteTables;
+}
+
+export interface PoliticsVotePreparationFixture {
+  metadata: {
+    schema_version: number;
+    source: string;
+    purpose: string;
+  };
+  rami: Record<Ramo, PoliticsVotePreparationFixtureRamo>;
 }
 
 export interface PoliticsGoldenFixture {
