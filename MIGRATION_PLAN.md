@@ -30,7 +30,8 @@ R baseline on the same machine, pause and present Python fallback options.
 | SvelteKit app scaffold | Done | `web/` created with strict TS, static adapter, Vitest, Playwright. |
 | TypeScript core | Started | Worker API types, seeded RNG, allocation primitives, fixture loader tests, and unit tests added. |
 | Politics scrutiny port | Started | Direct politics scrutiny output now matches R for the debug fixture and runs in the worker through a compact snapshot bridge. |
-| Generated politics input adapter | Started | R-style generated-table fixture and TypeScript adapter now rebuild the exact direct scrutiny inputs/context. `prepara_dts()` vote preparation is also ported; random vote/candidate generation is still pending. |
+| Vote generation | Started | Generic `genera_voti()` math is ported with R-draw fixture parity and seeded browser normals. Politics-specific orchestration and candidate generation are still pending. |
+| Generated politics input adapter | Started | R-style generated-table fixture and TypeScript adapter now rebuild the exact direct scrutiny inputs/context. `prepara_dts()` vote preparation is also ported; random candidate generation is still pending. |
 | Performance gate | Pending | Compare browser politics run to fresh R baselines. |
 
 ## Decisions
@@ -161,6 +162,10 @@ Run on 2026-06-01:
   `prepara_dts()` joins/filters. Its source list votes are reconstructed from
   the debug prepared rows plus synthetic `astensione` and invalid-list rows, so
   it does not claim golden parity for the upstream random `genera_voti()` draw.
+- The generic vote-generation fixture is tiny and synthetic. It injects
+  R-produced normal draws into the TypeScript generator, proving formula and
+  row-order parity without requiring the browser RNG to reproduce R's RNG
+  stream.
 - The browser direct-scrutiny bridge snapshot is about 8.7 MB and contains only
   direct scrutiny inputs/context, not golden traces or expected outputs.
 - `npm audit` reports 3 low-severity findings through SvelteKit's transitive
@@ -471,5 +476,34 @@ Verification so far:
 - `Rscript scripts/export_politics_vote_preparation_fixture.R`: passed.
 - `cd web; npm run check`: passed with 0 warnings.
 - `cd web; npm test`: passed, 95 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-01 Checkpoint 13
+
+Completed in the generic vote-generation pass:
+
+- Added `scripts/export_vote_generation_fixture.R`.
+- Exported `test/fixtures/core/vote_generation.json`, a small synthetic trace
+  for the generic `genera_voti()` logic.
+- Added `createNormalSampler()` to `web/src/lib/core/rng.ts`, using the existing
+  seeded uniform RNG and Box-Muller transform for reproducible browser normal
+  draws.
+- Added `web/src/lib/core/vote-generation.ts`, porting:
+  - temporal distance calculation;
+  - global list-level normal draws;
+  - local delta normal draws;
+  - R/data.table-style expansion and join order;
+  - logit-to-probability normalization by simulation/locality;
+  - R-compatible half-to-even rounding for vote counts.
+- Added fixture parity tests that inject R-produced normal draw values, so the
+  TypeScript generator matches R formula and row order while production browser
+  runs remain seeded by TypeScript.
+
+Verification so far:
+
+- `Rscript scripts/export_vote_generation_fixture.R`: passed.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm test`: passed, 98 tests.
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.

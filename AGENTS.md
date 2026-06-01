@@ -175,6 +175,12 @@ simulation 4.
   prepared list votes plus synthetic `astensione` and invalid-list rows, so it
   protects join/filter behavior but is not a golden fixture for the random
   `genera_voti()` draw itself.
+- `scripts/export_vote_generation_fixture.R` exports
+  `test/fixtures/core/vote_generation.json`, a small synthetic trace for the
+  generic `R/generazione_voti.R::genera_voti()` math. It includes R-produced
+  normal draws, and `web/src/lib/core/vote-generation.ts` injects those draws in
+  tests to prove formula and row-order parity. Browser production runs use the
+  TypeScript seeded normal sampler, not R's RNG stream.
 - `scripts/benchmark_r_workflows.R` reruns R baseline workflows.
 - `web/` contains the initial static SvelteKit app scaffold, strict TypeScript
   setup, worker API types, seeded RNG, allocation primitives, unit tests, and a
