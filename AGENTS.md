@@ -156,6 +156,11 @@ simulation 4.
   circumscription totals, national list/coalition figures, threshold flags, and
   subject-level plus internal list-in-coalition Camera/Senato circumscription
   seat allocation, plus pre-subentro plurinominal seat allocation.
+- `scripts/export_politics_worker_snapshot.mjs` derives
+  `web/static/data/v1/politics-debug-scrutiny.json` from the golden fixture.
+  This compact browser snapshot contains direct scrutiny inputs and contexts
+  only, not traces or expected outputs. It is a bridge for worker execution and
+  benchmarking until scenario-to-vote generation is ported.
 - `scripts/benchmark_r_workflows.R` reruns R baseline workflows.
 - `web/` contains the initial static SvelteKit app scaffold, strict TypeScript
   setup, worker API types, seeded RNG, allocation primitives, unit tests, and a
@@ -170,9 +175,10 @@ simulation 4.
   the second Camera flipper reconciliation, and Camera/Senato plurinominal
   allocation with reconciliation back to circumscription list seats, candidate
   availability, subentro, pluricandidature resolution, and final
-  `liste_pluri`/`candidati_uni`/`candidati_pluri` outputs. The worker still
-  returns a deliberate `POLITICS_SCRUTINY_NOT_PORTED` warning because the
-  browser workflow is not wired to real generated politics inputs yet.
+  `liste_pluri`/`candidati_uni`/`candidati_pluri` outputs. The worker can run
+  this core on the bundled compact debug snapshot and returns a deliberate
+  `POLITICS_SCENARIO_GENERATOR_PENDING` warning because scenario-generated
+  politics votes are not ported yet.
 - In the Camera internal list-in-coalition flipper, the R code decrements the
   recipient list's `SEGGI_ECCEDENTI_CONTATORE` after giving it a seat. This
   appears counterintuitive but is preserved in TypeScript for parity and marked

@@ -462,6 +462,26 @@ export interface PoliticsGoldenRamoFixture {
   simulations: PoliticsGoldenSimulation[];
 }
 
+export interface PoliticsDirectScrutinySnapshotSimulation {
+  sim: number;
+  input: PoliticsScrutinyInput;
+}
+
+export interface PoliticsDirectScrutinySnapshotRamo {
+  totali_pluri: TotaliPluriRow[];
+  liste_naz: ListaNazRow[];
+  totale_seggi: number;
+  simulations: PoliticsDirectScrutinySnapshotSimulation[];
+}
+
+export interface PoliticsDirectScrutinySnapshot {
+  schema_version: number;
+  source_schema_version: number;
+  source: string;
+  purpose: string;
+  rami: Record<Ramo, PoliticsDirectScrutinySnapshotRamo>;
+}
+
 export interface PoliticsGoldenFixture {
   metadata: {
     schema_version: number;

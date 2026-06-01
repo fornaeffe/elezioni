@@ -1,6 +1,13 @@
 {
   "version": "v1",
   "created": "2026-06-01",
-  "source": "Initial placeholder snapshot metadata for the SvelteKit migration.",
-  "workflows": ["politiche"]
+  "source": "Initial SvelteKit migration snapshot metadata.",
+  "workflows": ["politiche"],
+  "files": {
+    "politicsDirectScrutinyDebug": "politics-debug-scrutiny.json"
+  },
+  "notes": [
+    "politics-debug-scrutiny.json is a compact direct-scrutiny bridge derived from the R golden fixture.",
+    "Scenario-to-vote generation is not ported yet."
+  ]
 }

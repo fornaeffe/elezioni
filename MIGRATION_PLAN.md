@@ -29,7 +29,7 @@ R baseline on the same machine, pause and present Python fallback options.
 | R benchmarks | Done | `scripts/benchmark_r_workflows.R` added; quick baseline JSON generated. |
 | SvelteKit app scaffold | Done | `web/` created with strict TS, static adapter, Vitest, Playwright. |
 | TypeScript core | Started | Worker API types, seeded RNG, allocation primitives, fixture loader tests, and unit tests added. |
-| Politics scrutiny port | Started | Direct politics scrutiny output now matches R for the debug fixture. Worker integration and generated politics inputs are next. |
+| Politics scrutiny port | Started | Direct politics scrutiny output now matches R for the debug fixture and runs in the worker through a compact snapshot bridge. Generated politics inputs are next. |
 | Performance gate | Pending | Compare browser politics run to fresh R baselines. |
 
 ## Decisions
@@ -136,6 +136,7 @@ Run on 2026-06-01:
 
 - R debug scrutiny equality check after rename: passed for Camera and Senato.
 - `Rscript scripts/export_politics_golden.R`: passed.
+- `node scripts/export_politics_worker_snapshot.mjs`: passed.
 - `Rscript scripts/benchmark_r_workflows.R --politics-sims=10 --municipal-sims=10 --regional-sims=10 --output=test/fixtures/benchmarks/r_baseline_quick.json`: passed.
 - `cd web; npm run check`: passed with 0 warnings.
 - `cd web; npm test`: passed, 87 tests.
@@ -145,11 +146,14 @@ Run on 2026-06-01:
 ## Current Caveats
 
 - The TypeScript politics scrutiny core matches direct R scrutiny output for the
-  10-simulation debug fixture, but it is not wired into the browser worker yet.
-  The current worker still returns `POLITICS_SCRUTINY_NOT_PORTED`
-  intentionally until generated politics inputs and data snapshots are ported.
+  10-simulation debug fixture and is wired into the browser worker through a
+  compact debug snapshot. It still does not consume the scenario editor because
+  scenario-to-vote generation is not ported yet; the worker returns
+  `POLITICS_SCENARIO_GENERATOR_PENDING` intentionally.
 - The exported politics fixture is about 68 MB because it contains direct
   scrutiny inputs, R trace tables, and expected outputs for 10 simulations.
+- The browser direct-scrutiny bridge snapshot is about 8.7 MB and contains only
+  direct scrutiny inputs/context, not golden traces or expected outputs.
 - `npm audit` reports 3 low-severity findings through SvelteKit's transitive
   `cookie` dependency. The suggested automatic fix is a semver-major downgrade
   to obsolete SvelteKit packages, so it has not been applied.
@@ -377,6 +381,31 @@ Completed in the final direct-scrutiny output pass:
 
 Verification so far:
 
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm test`: passed, 87 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-01 Checkpoint 10
+
+Completed in the worker direct-scrutiny bridge pass:
+
+- Added `scripts/export_politics_worker_snapshot.mjs`.
+- Generated `web/static/data/v1/politics-debug-scrutiny.json`, a compact
+  browser snapshot derived from the golden fixture with direct scrutiny inputs
+  and contexts only.
+- Updated `web/static/data/v1/metadata.json` to document the bridge snapshot.
+- Wired the worker to load the compact snapshot and run `runPoliticsScrutiny()`
+  for Camera and Senato debug simulations.
+- The worker now returns completed result tables for direct scrutiny runs and
+  average plurinominal list seats.
+- The worker deliberately warns with `POLITICS_SCENARIO_GENERATOR_PENDING`
+  because scenario-to-vote generation is not ported yet.
+- Updated the Playwright smoke test to assert the real worker scrutiny path.
+
+Verification so far:
+
+- `node scripts/export_politics_worker_snapshot.mjs`: passed.
 - `cd web; npm run check`: passed with 0 warnings.
 - `cd web; npm test`: passed, 87 tests.
 - `cd web; npm run build`: passed.
