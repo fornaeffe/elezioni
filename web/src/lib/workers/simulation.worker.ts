@@ -6,8 +6,20 @@ import type {
   SimulationResult,
   SimulationWorkerMessage
 } from '$lib/core/types';
+import { buildPoliticsDirectScrutinySnapshot } from '$lib/politics/pipeline';
 import { runPoliticsScrutiny } from '$lib/politics/scrutiny';
-import type { PoliticsDirectScrutinySnapshot, PoliticsScrutinyOutput, Ramo } from '$lib/politics/types';
+import type { PoliticsPipelineSource, PoliticsScrutinyOutput, Ramo } from '$lib/politics/types';
+
+const politicsGeneratedSimulationLimit = 100;
+
+interface PoliticsPipelineSourceSnapshot {
+  metadata: {
+    schema_version: number;
+    source: string;
+    purpose: string;
+  };
+  source: PoliticsPipelineSource;
+}
 
 function post(message: SimulationWorkerMessage): void {
   self.postMessage(message);
@@ -42,20 +54,21 @@ function scenarioShareTable(lists: ScenarioList[]): ResultTable {
   };
 }
 
-async function loadPoliticsSnapshot(): Promise<PoliticsDirectScrutinySnapshot> {
-  const response = await fetch('/data/v1/politics-debug-scrutiny.json');
+async function loadPoliticsPipelineSource(): Promise<PoliticsPipelineSource> {
+  const response = await fetch('/data/v1/politics-pipeline-source-debug.json');
   if (!response.ok) {
-    throw new Error(`Unable to load politics direct-scrutiny snapshot: ${response.status}`);
+    throw new Error(`Unable to load politics pipeline source snapshot: ${response.status}`);
   }
 
-  return (await response.json()) as PoliticsDirectScrutinySnapshot;
+  const fixture = (await response.json()) as PoliticsPipelineSourceSnapshot;
+  return fixture.source;
 }
 
-function summarizeDirectScrutinyRuns(
+function summarizeGeneratedRuns(
   runs: Array<{ ramo: Ramo; sim: number; elapsedMs: number; output: PoliticsScrutinyOutput }>
 ): ResultTable {
   return {
-    name: 'Direct scrutiny runs',
+    name: 'Generated pipeline runs',
     columns: ['Ramo', 'Sim', 'Seggi pluri', 'Eletti uni', 'Candidati pluri eletti', 'Tempo ms'],
     rows: runs.map((run) => ({
       Ramo: run.ramo,
@@ -65,6 +78,61 @@ function summarizeDirectScrutinyRuns(
       'Candidati pluri eletti': run.output.candidati_pluri.filter((row) => row.ELETTO).length,
       'Tempo ms': Number(run.elapsedMs.toFixed(1))
     }))
+  };
+}
+
+function listKey(name: string): string {
+  return name.trim().toLocaleLowerCase('it-IT');
+}
+
+function logit(probability: number): number {
+  const bounded = Math.min(Math.max(probability, 1e-9), 1 - 1e-9);
+  return Math.log(bounded / (1 - bounded));
+}
+
+function requestElectionDateIso(request: SimulationRequest, fallback: string): string {
+  const rawDate = request.electionDate || request.scenario.electionDate || fallback;
+  const isoCandidate = /^\d{4}-\d{2}-\d{2}$/.test(rawDate) ? `${rawDate}T00:00:00.000Z` : rawDate;
+  const parsed = new Date(isoCandidate);
+  return Number.isFinite(parsed.getTime()) ? parsed.toISOString() : fallback;
+}
+
+function applyScenarioToPoliticsSource(
+  source: PoliticsPipelineSource,
+  request: SimulationRequest,
+  simulationCount: number
+): PoliticsPipelineSource {
+  const scenarioShares = new Map(
+    request.scenario.lists.map((row) => [listKey(row.name), Math.max(Number(row.startingShare) || 0, 0)])
+  );
+  const politicalRows = source.liste.filter((row) => row.LISTA !== 'astensione');
+  const politicalTotal = politicalRows.reduce((sum, row) => sum + row.PERCENTUALE, 0);
+  const weights = new Map<string, number>();
+
+  for (const row of politicalRows) {
+    weights.set(row.LISTA, scenarioShares.get(listKey(row.LISTA)) ?? row.PERCENTUALE);
+  }
+
+  const totalWeight = [...weights.values()].reduce((sum, value) => sum + value, 0);
+  const effectiveTotalWeight = totalWeight > 0 ? totalWeight : politicalTotal;
+
+  return {
+    ...source,
+    data_elezione: requestElectionDateIso(request, source.data_elezione),
+    simulazioni: simulationCount,
+    liste: source.liste.map((row) => {
+      if (row.LISTA === 'astensione') return { ...row };
+
+      const fallbackWeight = row.PERCENTUALE;
+      const weight = totalWeight > 0 ? (weights.get(row.LISTA) ?? fallbackWeight) : fallbackWeight;
+      const percentage = effectiveTotalWeight > 0 ? (politicalTotal * weight) / effectiveTotalWeight : row.PERCENTUALE;
+
+      return {
+        ...row,
+        PERCENTUALE: percentage,
+        LOGIT_P: logit(percentage)
+      };
+    })
   };
 }
 
@@ -138,15 +206,17 @@ async function handleRequest(request: SimulationRequest): Promise<void> {
   }
 
   progress(startedAt, 'prepare', 1, 5);
-  const snapshot = await loadPoliticsSnapshot();
-  const availableSimulations = Math.min(
-    snapshot.rami.camera.simulations.length,
-    snapshot.rami.senato.simulations.length
-  );
-  const requestedSimulations = Math.max(1, Math.floor(request.simulations));
-  const simulationCount = Math.min(requestedSimulations, availableSimulations);
+  const source = await loadPoliticsPipelineSource();
+  const requestedSimulationInput = Math.floor(Number(request.simulations));
+  const requestedSimulations =
+    Number.isFinite(requestedSimulationInput) && requestedSimulationInput > 0 ? requestedSimulationInput : 1;
+  const simulationCount = Math.min(requestedSimulations, politicsGeneratedSimulationLimit);
 
   progress(startedAt, 'simulate', 2, 5);
+  const snapshot = buildPoliticsDirectScrutinySnapshot(
+    applyScenarioToPoliticsSource(source, request, simulationCount),
+    { seed: request.seed }
+  );
   const runs: Array<{ ramo: Ramo; sim: number; elapsedMs: number; output: PoliticsScrutinyOutput }> = [];
 
   progress(startedAt, 'scrutinize', 3, 5);
@@ -174,23 +244,30 @@ async function handleRequest(request: SimulationRequest): Promise<void> {
     status: 'completed',
     tables: [
       scenarioShareTable(request.scenario.lists),
-      summarizeDirectScrutinyRuns(runs),
+      summarizeGeneratedRuns(runs),
       summarizeListSeats(runs, simulationCount)
     ],
     warnings: [
       {
-        code: 'POLITICS_SCENARIO_GENERATOR_PENDING',
+        code: 'POLITICS_DEBUG_PIPELINE_SOURCE',
         electionKind: request.kind,
         message:
-          'Running the TypeScript scrutiny core on the bundled debug snapshot; scenario-to-vote generation is not ported yet.',
-        todoReference: 'MIGRATION_PLAN.md#implementation-checklist'
+          'Running the TypeScript generated pipeline on the bundled debug-source snapshot; production data packaging is still pending.',
+        todoReference: 'MIGRATION_PLAN.md#current-caveats'
+      },
+      {
+        code: 'POLITICS_SCENARIO_SHARE_PROJECTION',
+        electionKind: request.kind,
+        message:
+          'Scenario list shares are matched by list name and projected onto the source model probabilities for this first browser path.',
+        todoReference: 'MIGRATION_PLAN.md#current-caveats'
       },
       ...(requestedSimulations > simulationCount
         ? [
             {
-              code: 'POLITICS_SNAPSHOT_SIMULATION_LIMIT',
+              code: 'POLITICS_GENERATED_PIPELINE_LIMIT',
               electionKind: request.kind,
-              message: `Requested ${requestedSimulations} simulations, but the debug snapshot contains ${simulationCount}.`,
+              message: `Requested ${requestedSimulations} simulations, but the first generated worker path is capped at ${simulationCount}.`,
               todoReference: 'MIGRATION_PLAN.md#current-caveats'
             }
           ]

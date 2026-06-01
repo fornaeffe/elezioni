@@ -204,6 +204,9 @@ simulation 4.
   generation-source snapshot derived from `dati/debug_scrutinio.RData`.
   `web/src/lib/politics/pipeline-source.test.ts` builds one seeded browser
   simulation from this source and runs Camera/Senato scrutiny as a smoke test.
+  The same script can export
+  `web/static/data/v1/politics-pipeline-source-debug.json`, which is the
+  current generated worker source bridge.
 - `scripts/benchmark_r_workflows.R` reruns R baseline workflows.
 - `web/` contains the initial static SvelteKit app scaffold, strict TypeScript
   setup, worker API types, seeded RNG, allocation primitives, unit tests, and a
@@ -218,10 +221,17 @@ simulation 4.
   the second Camera flipper reconciliation, and Camera/Senato plurinominal
   allocation with reconciliation back to circumscription list seats, candidate
   availability, subentro, pluricandidature resolution, and final
-  `liste_pluri`/`candidati_uni`/`candidati_pluri` outputs. The worker can run
-  this core on the bundled compact debug snapshot and returns a deliberate
-  `POLITICS_SCENARIO_GENERATOR_PENDING` warning because scenario-generated
-  politics votes are not wired into the worker yet.
+  `liste_pluri`/`candidati_uni`/`candidati_pluri` outputs.
+- The worker now runs the composed generated politics pipeline on
+  `web/static/data/v1/politics-pipeline-source-debug.json`, then scrutinizes the
+  generated Camera/Senato simulations. The direct scrutiny bridge snapshot is
+  still useful for tests and benchmarks, but it is no longer the UI worker path.
+- The first browser scenario projection matches edited list shares by exact list
+  name, preserves the source abstention row, rescales political list
+  probabilities into the source model, and recomputes `LOGIT_P`. This is a
+  bridge behavior, not the final scenario import/editor contract.
+- The generated worker path is currently capped at 100 simulations until
+  chunking and browser performance measurements are added.
 - In the Camera internal list-in-coalition flipper, the R code decrements the
   recipient list's `SEGGI_ECCEDENTI_CONTATORE` after giving it a seat. This
   appears counterintuitive but is preserved in TypeScript for parity and marked

@@ -12,7 +12,7 @@
 
   const dataVersion = 'v1';
 
-  let simulations = $state(100);
+  let simulations = $state(10);
   let seed = $state('politiche-2027');
   let running = $state(false);
   let phase = $state('idle');
@@ -21,32 +21,75 @@
   let warnings = $state<string[]>([]);
 
   let coalitions = $state<ScenarioCoalition[]>([
-    { id: 'centrosinistra', name: 'Centrosinistra', color: '#d94848' },
-    { id: 'centrodestra', name: 'Centrodestra', color: '#3267b1' },
-    { id: 'm5s', name: 'Movimento 5 Stelle', color: '#d8b400' }
+    { id: 'sinistra', name: 'sinistra', color: '#d94848' },
+    { id: 'centro', name: 'centro', color: '#7a6bb2' },
+    { id: 'destra', name: 'destra', color: '#3267b1' },
+    { id: 'pap', name: 'PaP', color: '#7a3b2e' }
   ]);
 
   let lists = $state<ScenarioList[]>([
     {
-      id: 'pd',
-      name: 'Partito Democratico',
-      coalition: 'Centrosinistra',
-      color: '#d94848',
-      startingShare: 23
+      id: 'europa',
+      name: '+Europa',
+      coalition: 'sinistra',
+      color: '#e9897e',
+      startingShare: 1.98
+    },
+    {
+      id: 'avs',
+      name: 'Alleanza Verdi Sinistra',
+      coalition: 'sinistra',
+      color: '#44a36f',
+      startingShare: 4.95
+    },
+    {
+      id: 'azione-iv',
+      name: 'Azione - Italia Viva',
+      coalition: 'centro',
+      color: '#7a6bb2',
+      startingShare: 5.49
+    },
+    {
+      id: 'fi',
+      name: 'Forza Italia',
+      coalition: 'destra',
+      color: '#5d8ed8',
+      startingShare: 6.85
     },
     {
       id: 'fdi',
       name: "Fratelli d'Italia",
-      coalition: 'Centrodestra',
+      coalition: 'destra',
       color: '#3267b1',
-      startingShare: 28
+      startingShare: 23.77
+    },
+    {
+      id: 'lega',
+      name: 'Lega',
+      coalition: 'destra',
+      color: '#2f8a68',
+      startingShare: 6.52
     },
     {
       id: 'm5s',
       name: 'Movimento 5 Stelle',
-      coalition: 'Movimento 5 Stelle',
+      coalition: 'sinistra',
       color: '#d8b400',
-      startingShare: 12
+      startingShare: 3.32
+    },
+    {
+      id: 'pd',
+      name: 'Partito Democratico',
+      coalition: 'sinistra',
+      color: '#d94848',
+      startingShare: 45.28
+    },
+    {
+      id: 'pap',
+      name: 'Potere al Popolo!',
+      coalition: 'PaP',
+      color: '#7a3b2e',
+      startingShare: 1.84
     }
   ]);
 
@@ -142,7 +185,7 @@
     </div>
     <label>
       Simulazioni
-      <input type="number" min="1" max="10000" step="1" bind:value={simulations} />
+      <input type="number" min="1" max="1000" step="1" bind:value={simulations} />
     </label>
     <label>
       Seed
