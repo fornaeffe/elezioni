@@ -25,11 +25,11 @@ R baseline on the same machine, pause and present Python fallback options.
 | --- | --- | --- |
 | Migration tracking | Done | `AGENTS.md` and this file are present. |
 | R safety fixes | Done | `candidati_pluri_sim_` renamed to `candidati_pluri_sim`; debug scrutiny still matches. |
-| Golden-master fixtures | Done | `scripts/export_politics_golden.R` exports schema v6 JSON with direct inputs, final outputs, warnings, and scrutiny trace tables. |
+| Golden-master fixtures | Done | `scripts/export_politics_golden.R` exports schema v7 JSON with direct inputs, final outputs, warnings, and scrutiny trace tables. |
 | R benchmarks | Done | `scripts/benchmark_r_workflows.R` added; quick baseline JSON generated. |
 | SvelteKit app scaffold | Done | `web/` created with strict TS, static adapter, Vitest, Playwright. |
 | TypeScript core | Started | Worker API types, seeded RNG, allocation primitives, fixture loader tests, and unit tests added. |
-| Politics scrutiny port | Started | Politics stages through internal list-in-coalition circumscription riparto now match R. Plurinominal allocation is next. |
+| Politics scrutiny port | Started | Politics stages through pre-subentro plurinominal allocation now match R. Candidate/subentro handling is next. |
 | Performance gate | Pending | Compare browser politics run to fresh R baselines. |
 
 ## Decisions
@@ -41,6 +41,11 @@ R baseline on the same machine, pause and present Python fallback options.
 - Compatibility: business/legal behavior must match R unless Luca approves a correction.
 - R TODOs: leave for later unless a fix is trivial and helps migration safety.
 - `sorteggio`: implement only when straightforward; otherwise add `TODO(law-review)`.
+- Scrutiny implementations should stay modular and swappable behind a stable
+  interface, so the same data/scenario can be compared across algorithm
+  variants during law review.
+- Delay splitting `web/src/lib/politics/scrutiny.ts` until the golden-tested
+  stage boundaries are clear enough that the refactor reduces risk.
 
 ## Local R Baselines
 
@@ -95,6 +100,9 @@ Politics 100-simulation phase breakdown:
 - Some law-commented `sorteggio` paths may not be implemented explicitly.
   Mitigation: preserve current output first, then add `TODO(law-review)` or
   straightforward deterministic seeded draws where safe.
+- `web/src/lib/politics/scrutiny.ts` is growing while the port advances.
+  Mitigation: keep stage functions explicit now, then split into focused modules
+  once the politics scrutiny boundary is stable enough for a low-risk refactor.
 - The R remainder ordering for candidate-only vote attribution appears
   inconsistent with the nearby law comment: the comment says highest remainders,
   while the current `order()` call sorts `RESTO` ascending because an extra
@@ -125,7 +133,7 @@ Run on 2026-06-01:
 - `Rscript scripts/export_politics_golden.R`: passed.
 - `Rscript scripts/benchmark_r_workflows.R --politics-sims=10 --municipal-sims=10 --regional-sims=10 --output=test/fixtures/benchmarks/r_baseline_quick.json`: passed.
 - `cd web; npm run check`: passed with 0 warnings.
-- `cd web; npm test`: passed, 6 unit tests.
+- `cd web; npm test`: passed, 67 tests.
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.
 
@@ -133,10 +141,10 @@ Run on 2026-06-01:
 
 - The TypeScript politics scrutiny core is only partially ported. Early vote
   figure stages, national threshold admission, Camera national/internal
-  coalition riparto, subject-level circumscription riparto, and internal
-  list-in-coalition circumscription riparto are tested, but plurinominal
-  allocation, elected plurinominal candidates, pluricandidature, and subentro
-  logic are still pending. The current worker returns
+  coalition riparto, subject-level circumscription riparto, internal
+  list-in-coalition circumscription riparto, and pre-subentro plurinominal
+  allocation are tested, but elected plurinominal candidates,
+  pluricandidature, and subentro logic are still pending. The current worker returns
   `POLITICS_SCRUTINY_NOT_PORTED` intentionally.
 - The exported politics fixture is about 64 MB because it contains direct
   scrutiny inputs, R trace tables, and expected outputs for 10 simulations.
@@ -223,8 +231,6 @@ Verification:
 - `Rscript scripts/export_politics_golden.R`: passed.
 - `cd web; npm run check`: passed with 0 warnings.
 - `cd web; npm test`: passed, 67 tests.
-- `cd web; npm run build`: passed.
-- `cd web; npm run test:e2e`: passed, 1 Playwright test.
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.
 
@@ -315,3 +321,34 @@ Verification so far:
 - `Rscript scripts/export_politics_golden.R`: passed.
 - `cd web; npm run check`: passed with 0 warnings.
 - `cd web; npm test`: passed, 67 tests.
+
+## 2026-06-01 Checkpoint 8
+
+Completed in the plurinominal riparto pass:
+
+- Extended `scripts/export_politics_golden.R` to export schema v7 fixtures with
+  nested `pluri_riparto` traces.
+- Regenerated `test/fixtures/politiche/debug_scrutinio.json`.
+- Added TypeScript trace types for:
+  - admitted plurinominal list rows;
+  - plurinominal college totals, quotients, and remaining seats;
+  - circumscription list reconciliation counters;
+  - final pre-subentro plurinominal seat rows.
+- Ported Camera and Senato plurinominal seat allocation before candidate
+  availability/subentro handling.
+- Preserved R stable ordering for equal decimal remainders/equal figures where
+  the law comments mention `sorteggio`; marked the path `TODO(law-review)`.
+- The debug fixture exercises the plurinominal reconciliation flipper: across
+  the 10 simulations it has 430 moved Camera rows and 162 moved Senato rows.
+- Noted the architecture goal that scrutiny algorithms should remain swappable
+  behind a stable interface. `scrutiny.ts` is large, but splitting is deferred
+  until the golden-tested stage boundaries are stable enough to make the
+  refactor safer.
+
+Verification so far:
+
+- `Rscript scripts/export_politics_golden.R`: passed.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm test`: passed, 67 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.

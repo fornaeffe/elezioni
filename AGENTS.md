@@ -113,6 +113,13 @@ simulation 4.
 - A SvelteKit static app can work if it keeps the legal scrutiny core separate
   from UI components and uses workerized computation. It gives the best
   distribution/usability story.
+- Keep scrutiny algorithms modular and swappable. The same normalized data and
+  scenario should eventually be runnable through different scrutiny algorithm
+  implementations behind a stable interface, for comparison or law-review
+  experiments.
+- `web/src/lib/politics/scrutiny.ts` is currently allowed to grow while golden
+  parity stages are still being discovered. Split it into stage-focused modules
+  once the tested boundaries are clear enough that the refactor lowers risk.
 - A Python pipeline can use stricter runtime and static validation (`pydantic` or
   dataclasses plus `mypy`/`pyright`) and columnar performance libraries
   (`polars`, `pyarrow`, optionally `numpy`). It is the safer pure-performance
@@ -133,30 +140,34 @@ simulation 4.
   `candidati_pluri_sim_` to `candidati_pluri_sim`; the debug scrutiny fixture
   still matches exactly after this rename.
 - `scripts/export_politics_golden.R` exports the direct politics scrutiny JSON
-  fixture used by the TypeScript port. Fixture schema v6 stores R-produced
+  fixture used by the TypeScript port. Fixture schema v7 stores R-produced
   trace tables for uninominal election, uninominal list-vote attribution,
   plurinominal/circumscription figures, uninominal candidate percentages,
   circumscription totals, national list/coalition figures, threshold flags, and
   subject-level plus internal list-in-coalition Camera/Senato circumscription
-  seat allocation.
+  seat allocation, plus pre-subentro plurinominal seat allocation.
 - `scripts/benchmark_r_workflows.R` reruns R baseline workflows.
 - `web/` contains the initial static SvelteKit app scaffold, strict TypeScript
   setup, worker API types, seeded RNG, allocation primitives, unit tests, and a
   Playwright smoke test.
 - The TypeScript politics scrutiny port now matches the R golden fixture through
-  internal list-in-coalition circumscription riparto: uninominal candidate election,
+  pre-subentro plurinominal seat allocation: uninominal candidate election,
   candidate-only vote attribution to lists, plurinominal/circumscription
   aggregates, uninominal candidate percentages, circumscription totals,
   national list/coalition figures, 1%/3%/10% threshold flags, Camera national
-  proportional allocation, and Camera/Senato subject-level circumscription seat
-  allocation with Camera flipper reconciliation, and internal list allocation
-  with the second Camera flipper reconciliation. The later plurinominal
-  allocation, elected plurinominal candidates, pluricandidature, and subentro
-  logic are still pending; the worker currently returns a deliberate
+  proportional allocation, Camera/Senato subject-level circumscription seat
+  allocation with Camera flipper reconciliation, internal list allocation with
+  the second Camera flipper reconciliation, and Camera/Senato plurinominal
+  allocation with reconciliation back to circumscription list seats. The later
+  elected plurinominal candidates, pluricandidature, and subentro logic are
+  still pending; the worker currently returns a deliberate
   `POLITICS_SCRUTINY_NOT_PORTED` warning.
 - In the Camera internal list-in-coalition flipper, the R code decrements the
   recipient list's `SEGGI_ECCEDENTI_CONTATORE` after giving it a seat. This
   appears counterintuitive but is preserved in TypeScript for parity and marked
   `TODO(law-review)`.
+- Plurinominal allocation also preserves R stable ordering for equal decimal
+  remainders/equal figures where the law comments mention `sorteggio`; this is
+  marked `TODO(law-review)` in TypeScript.
 - When posting Svelte `$state` data to workers, derive or build plain snapshots
   first. Svelte proxies are not structured-clone safe.

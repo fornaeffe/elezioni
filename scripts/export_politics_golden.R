@@ -1253,6 +1253,262 @@ compute_early_trace <- function(
     ammesse_naz = ammesse_naz_circ
   )
 
+  liste_pluri <- merge(
+    liste_pluri,
+    liste_circ[, c("CIRCOSCRIZIONE", "LISTA", "AMMESSA")]
+  )
+
+  ammesse_pluri <- liste_pluri[
+    liste_pluri$AMMESSA,
+    c(
+      "CIRCOSCRIZIONE",
+      "COLLEGIOPLURINOMINALE",
+      "LISTA",
+      "CIFRA",
+      "CIFRA_PERCENTUALE"
+    )
+  ]
+
+  if (nrow(ammesse_pluri) == 0) stop("Errore alla riga 1635")
+
+  totali_pluri <- merge(
+    totali_pluri,
+    aggregate(
+      CIFRA ~ CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE,
+      ammesse_pluri,
+      sum
+    )
+  )
+
+  totali_pluri$QUOZIENTE <- totali_pluri$CIFRA %/% totali_pluri$SEGGI
+
+  ammesse_pluri <- merge(
+    ammesse_pluri,
+    totali_pluri[, c("CIRCOSCRIZIONE", "COLLEGIOPLURINOMINALE", "QUOZIENTE")]
+  )
+
+  ammesse_pluri$PARTE_INTERA <-
+    ammesse_pluri$CIFRA %/% ammesse_pluri$QUOZIENTE
+  ammesse_pluri$DECIMALI <-
+    (ammesse_pluri$CIFRA / ammesse_pluri$QUOZIENTE) %% 1
+
+  if (nrow(ammesse_pluri) == 0) stop("Errore alla riga 1663")
+
+  ammesse_circ <- merge(
+    ammesse_circ,
+    aggregate(
+      PARTE_INTERA ~ CIRCOSCRIZIONE + LISTA,
+      ammesse_pluri,
+      sum
+    ),
+    by = c("CIRCOSCRIZIONE", "LISTA"),
+    suffixes = c("", "_PLURI")
+  )
+
+  ammesse_circ$ESCLUSE_PLURI <-
+    ammesse_circ$PARTE_INTERA_PLURI >= ammesse_circ$SEGGI
+
+  ammesse_pluri <- merge(
+    ammesse_pluri,
+    ammesse_circ[, c("CIRCOSCRIZIONE", "LISTA", "ESCLUSE_PLURI", "CIFRA")],
+    by = c("CIRCOSCRIZIONE", "LISTA"),
+    suffixes = c("", "_CIRC")
+  )
+
+  if (nrow(ammesse_pluri) == 0) stop("Errore alla riga 1686")
+
+  totali_pluri <- merge(
+    totali_pluri,
+    aggregate(
+      PARTE_INTERA ~ CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE,
+      ammesse_pluri,
+      sum
+    )
+  )
+
+  totali_pluri$DA_ASSEGNARE <- totali_pluri$SEGGI - totali_pluri$PARTE_INTERA
+
+  ammesse_pluri <- merge(
+    ammesse_pluri,
+    totali_pluri[, c("CIRCOSCRIZIONE", "COLLEGIOPLURINOMINALE", "DA_ASSEGNARE")]
+  )
+
+  if (ramo == "camera") {
+    ammesse_pluri <- ammesse_pluri[
+      order(
+        ammesse_pluri$CIRCOSCRIZIONE,
+        ammesse_pluri$COLLEGIOPLURINOMINALE,
+        ammesse_pluri$ESCLUSE_PLURI,
+        ammesse_pluri$DECIMALI,
+        ammesse_pluri$CIFRA_CIRC,
+        decreasing = c(FALSE, FALSE, FALSE, TRUE, TRUE),
+        method = "radix"
+      ),
+    ]
+  } else {
+    ammesse_pluri <- ammesse_pluri[
+      order(
+        ammesse_pluri$CIRCOSCRIZIONE,
+        ammesse_pluri$COLLEGIOPLURINOMINALE,
+        ammesse_pluri$ESCLUSE_PLURI,
+        ammesse_pluri$DECIMALI,
+        ammesse_pluri$CIFRA,
+        decreasing = c(FALSE, FALSE, FALSE, TRUE, TRUE),
+        method = "radix"
+      ),
+    ]
+  }
+
+  ammesse_pluri$ORDINE[!ammesse_pluri$ESCLUSE_PLURI] <- ave(
+    seq_along(ammesse_pluri$COLLEGIOPLURINOMINALE[!ammesse_pluri$ESCLUSE_PLURI]),
+    paste(
+      ammesse_pluri$CIRCOSCRIZIONE[!ammesse_pluri$ESCLUSE_PLURI],
+      ammesse_pluri$COLLEGIOPLURINOMINALE[!ammesse_pluri$ESCLUSE_PLURI]
+    ),
+    FUN = seq_along
+  )
+
+  ammesse_pluri$SEGGIO_DA_DECIMALI <-
+    ammesse_pluri$ORDINE <= ammesse_pluri$DA_ASSEGNARE
+  ammesse_pluri$SEGGIO_DA_DECIMALI[is.na(ammesse_pluri$SEGGIO_DA_DECIMALI)] <-
+    FALSE
+
+  ammesse_pluri$SEGGI <-
+    ammesse_pluri$PARTE_INTERA + ammesse_pluri$SEGGIO_DA_DECIMALI
+
+  if (nrow(ammesse_pluri) == 0) stop("Errore alla riga 1749")
+
+  ammesse_circ <- merge(
+    ammesse_circ,
+    aggregate(
+      SEGGI ~ CIRCOSCRIZIONE + LISTA,
+      ammesse_pluri,
+      sum
+    ),
+    by = c("CIRCOSCRIZIONE", "LISTA"),
+    suffixes = c("", "_PLURI")
+  )
+
+  ammesse_circ$SEGGI_ECCEDENTI <-
+    ammesse_circ$SEGGI_PLURI - ammesse_circ$SEGGI
+
+  ammesse_pluri <- merge(
+    ammesse_pluri,
+    ammesse_circ[, c("CIRCOSCRIZIONE", "LISTA", "SEGGI_ECCEDENTI")]
+  )
+
+  ammesse_pluri$CEDE <-
+    ammesse_pluri$SEGGI_ECCEDENTI > 0 & ammesse_pluri$SEGGIO_DA_DECIMALI
+
+  ammesse_pluri$RICEVE <-
+    ammesse_pluri$SEGGI_ECCEDENTI < 0 & !ammesse_pluri$SEGGIO_DA_DECIMALI
+
+  ammesse_pluri <- ammesse_pluri[order(
+    ammesse_pluri$CIRCOSCRIZIONE,
+    ammesse_pluri$SEGGIO_DA_DECIMALI,
+    ammesse_pluri$SEGGI_ECCEDENTI,
+    ammesse_pluri$DECIMALI,
+    decreasing = c(FALSE, TRUE, TRUE, FALSE),
+    method = "radix"
+  ),]
+
+  ammesse_pluri$ORDINE_CEDE <- NA
+  ammesse_pluri$ORDINE_CEDE[ammesse_pluri$CEDE] <- ave(
+    seq_along(ammesse_pluri$LISTA[ammesse_pluri$CEDE]),
+    paste(
+      ammesse_pluri$CIRCOSCRIZIONE,
+      ammesse_pluri$LISTA
+    )[ammesse_pluri$CEDE],
+    FUN = seq_along
+  )
+
+  ammesse_pluri$CEDUTO <-
+    ammesse_pluri$ORDINE_CEDE <= ammesse_pluri$SEGGI_ECCEDENTI
+
+  ammesse_pluri$CEDUTO[is.na(ammesse_pluri$CEDUTO)] <- FALSE
+
+  ammesse_pluri <- ammesse_pluri[order(
+    ammesse_pluri$CIRCOSCRIZIONE,
+    ammesse_pluri$SEGGIO_DA_DECIMALI,
+    ammesse_pluri$SEGGI_ECCEDENTI,
+    ammesse_pluri$DECIMALI,
+    decreasing = c(FALSE, FALSE, FALSE, TRUE),
+    method = "radix"
+  ),]
+
+  ammesse_pluri$ORDINE_RICEVE <- NA
+  ammesse_pluri$ORDINE_RICEVE[ammesse_pluri$RICEVE] <- ave(
+    seq_along(ammesse_pluri$LISTA[ammesse_pluri$RICEVE]),
+    paste(
+      ammesse_pluri$CIRCOSCRIZIONE,
+      ammesse_pluri$LISTA
+    )[ammesse_pluri$RICEVE],
+    FUN = seq_along
+  )
+
+  ammesse_pluri$RICEVUTO <-
+    ammesse_pluri$ORDINE_RICEVE <= - ammesse_pluri$SEGGI_ECCEDENTI
+
+  ammesse_pluri$RICEVUTO[is.na(ammesse_pluri$RICEVUTO)] <- FALSE
+
+  ammesse_pluri$SEGGI <-
+    ammesse_pluri$SEGGI - ammesse_pluri$CEDUTO + ammesse_pluri$RICEVUTO
+
+  ammesse_pluri$SEGGI_PRE_SUBENTRI <- ammesse_pluri$SEGGI
+
+  pluri_riparto <- list(
+    liste_pluri = liste_pluri[, c(
+      "CIRCOSCRIZIONE",
+      "COLLEGIOPLURINOMINALE",
+      "LISTA",
+      "CIFRA",
+      "CIFRA_PERCENTUALE",
+      "AMMESSA"
+    )],
+    totali_pluri = totali_pluri[, c(
+      "CIRCOSCRIZIONE",
+      "COLLEGIOPLURINOMINALE",
+      "SEGGI",
+      "CIFRA",
+      "QUOZIENTE",
+      "PARTE_INTERA",
+      "DA_ASSEGNARE"
+    )],
+    ammesse_circ = ammesse_circ[, c(
+      "CIRCOSCRIZIONE",
+      "LISTA",
+      "SEGGI",
+      "PARTE_INTERA_PLURI",
+      "ESCLUSE_PLURI",
+      "SEGGI_PLURI",
+      "SEGGI_ECCEDENTI"
+    )],
+    ammesse_pluri = ammesse_pluri[, c(
+      "CIRCOSCRIZIONE",
+      "COLLEGIOPLURINOMINALE",
+      "LISTA",
+      "CIFRA",
+      "CIFRA_PERCENTUALE",
+      "QUOZIENTE",
+      "PARTE_INTERA",
+      "DECIMALI",
+      "ESCLUSE_PLURI",
+      "CIFRA_CIRC",
+      "DA_ASSEGNARE",
+      "ORDINE",
+      "SEGGIO_DA_DECIMALI",
+      "SEGGI_ECCEDENTI",
+      "CEDE",
+      "RICEVE",
+      "ORDINE_CEDE",
+      "CEDUTO",
+      "ORDINE_RICEVE",
+      "RICEVUTO",
+      "SEGGI",
+      "SEGGI_PRE_SUBENTRI"
+    )]
+  )
+
   list(
     totale_naz = totale_naz,
     candidati_uni_elezione = candidati_uni_elezione,
@@ -1350,7 +1606,8 @@ compute_early_trace <- function(
     )],
     camera_riparto = camera_riparto,
     circ_riparto = circ_riparto,
-    internal_circ_riparto = internal_circ_riparto
+    internal_circ_riparto = internal_circ_riparto,
+    pluri_riparto = pluri_riparto
   )
 }
 
@@ -1478,7 +1735,7 @@ set.seed(20260601)
 
 fixture <- list(
   metadata = list(
-    schema_version = 6,
+    schema_version = 7,
     source = "dati/debug_scrutinio.RData",
     purpose = "Golden-master fixture for the politics scrutiny TypeScript port.",
     random_seed = 20260601,

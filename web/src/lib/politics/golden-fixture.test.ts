@@ -160,11 +160,32 @@ function expectInternalCircRipartoTraceToMatch(actual: PoliticsScrutinyTrace, ex
   expectRowsToMatch(actual.internal_circ_riparto.ammesse_naz, expected.internal_circ_riparto.ammesse_naz, ['LISTA']);
 }
 
+function expectPluriRipartoTraceToMatch(actual: PoliticsScrutinyTrace, expected: PoliticsScrutinyTrace): void {
+  expectRowsToMatch(actual.pluri_riparto.liste_pluri, expected.pluri_riparto.liste_pluri, [
+    'CIRCOSCRIZIONE',
+    'COLLEGIOPLURINOMINALE',
+    'LISTA'
+  ]);
+  expectRowsToMatch(actual.pluri_riparto.totali_pluri, expected.pluri_riparto.totali_pluri, [
+    'CIRCOSCRIZIONE',
+    'COLLEGIOPLURINOMINALE'
+  ]);
+  expectRowsToMatch(actual.pluri_riparto.ammesse_circ, expected.pluri_riparto.ammesse_circ, [
+    'CIRCOSCRIZIONE',
+    'LISTA'
+  ]);
+  expectRowsToMatch(actual.pluri_riparto.ammesse_pluri, expected.pluri_riparto.ammesse_pluri, [
+    'CIRCOSCRIZIONE',
+    'COLLEGIOPLURINOMINALE',
+    'LISTA'
+  ]);
+}
+
 describe('politics golden fixture', () => {
   const fixture = loadFixture();
 
   test('has the expected direct scrutiny fixture shape', () => {
-    expect(fixture.metadata.schema_version).toBe(6);
+    expect(fixture.metadata.schema_version).toBe(7);
     expect(fixture.rami.camera.simulations).toHaveLength(10);
     expect(fixture.rami.senato.simulations).toHaveLength(10);
     expect(fixture.rami.camera.simulations[3].warnings).toHaveLength(1);
@@ -177,6 +198,8 @@ describe('politics golden fixture', () => {
     expect(fixture.rami.senato.simulations[0].trace.circ_riparto.riparto_circ.length).toBeGreaterThan(0);
     expect(fixture.rami.camera.simulations[0].trace.internal_circ_riparto.ammesse_circ.length).toBeGreaterThan(0);
     expect(fixture.rami.senato.simulations[0].trace.internal_circ_riparto.ammesse_circ.length).toBeGreaterThan(0);
+    expect(fixture.rami.camera.simulations[0].trace.pluri_riparto.ammesse_pluri.length).toBeGreaterThan(0);
+    expect(fixture.rami.senato.simulations[0].trace.pluri_riparto.ammesse_pluri.length).toBeGreaterThan(0);
   });
 
   for (const ramo of ['camera', 'senato'] as Ramo[]) {
@@ -202,6 +225,7 @@ describe('politics golden fixture', () => {
         expectCameraRipartoTraceToMatch(actual, simulation.trace);
         expectCircRipartoTraceToMatch(actual, simulation.trace);
         expectInternalCircRipartoTraceToMatch(actual, simulation.trace);
+        expectPluriRipartoTraceToMatch(actual, simulation.trace);
       });
     }
   }

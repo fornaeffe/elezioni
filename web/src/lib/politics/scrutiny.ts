@@ -27,6 +27,11 @@ import type {
   ListePluriCifreTraceRow,
   ListeUniCifreTraceRow,
   ListeUniRow,
+  PluriRipartoAmmesseTraceRow,
+  PluriRipartoCircTraceRow,
+  PluriRipartoListaTraceRow,
+  PluriRipartoTotaleTraceRow,
+  PluriRipartoTrace,
   PoliticsEarlyTrace,
   PoliticsScrutinyContext,
   PoliticsScrutinyInput,
@@ -1664,6 +1669,332 @@ function buildInternalCircRiparto(
   };
 }
 
+function buildPluriRiparto(
+  earlyTrace: PoliticsEarlyTrace,
+  internalCircRiparto: InternalCircRipartoTrace,
+  context: PoliticsScrutinyContext
+): PluriRipartoTrace {
+  /*
+   * Legal basis: Camera DPR 361/1957 art. 83-bis; Senate D.Lgs. 533/1993
+   * art. 17 letter c.
+   *
+   * This stage distributes each circumscription list's seats to its
+   * plurinominal colleges and then reconciles college totals back to the
+   * seats already assigned at circumscription level. Candidate availability
+   * and subentro handling happen in the next stage.
+   */
+  const admissionByCircList = new Map(
+    internalCircRiparto.liste_circ.map((row) => [keyOf(row.CIRCOSCRIZIONE, row.LISTA), row.AMMESSA])
+  );
+  const listePluri = sortGroupedRows(
+    earlyTrace.liste_pluri_cifre.map((row): PluriRipartoListaTraceRow => {
+      const admitted = admissionByCircList.get(keyOf(row.CIRCOSCRIZIONE, row.LISTA));
+      if (admitted === undefined) {
+        throw new Error(`Missing list admission for plurinominal row ${row.CIRCOSCRIZIONE}/${row.LISTA}`);
+      }
+
+      return {
+        CIRCOSCRIZIONE: row.CIRCOSCRIZIONE,
+        COLLEGIOPLURINOMINALE: row.COLLEGIOPLURINOMINALE,
+        LISTA: row.LISTA,
+        CIFRA: row.CIFRA,
+        CIFRA_PERCENTUALE: row.CIFRA_PERCENTUALE,
+        AMMESSA: admitted
+      };
+    }),
+    [(row) => row.CIRCOSCRIZIONE, (row) => row.LISTA, (row) => row.COLLEGIOPLURINOMINALE]
+  );
+  const admittedRows = listePluri.filter((row) => row.AMMESSA);
+  const admittedCifraByPluri = sumBy(
+    admittedRows,
+    (row) => keyOf(row.CIRCOSCRIZIONE, row.COLLEGIOPLURINOMINALE),
+    (row) => row.CIFRA
+  );
+  const rawTotals = sortGroupedRows(
+    context.totali_pluri
+      .filter((row) => admittedCifraByPluri.has(keyOf(row.CIRCOSCRIZIONE, row.COLLEGIOPLURINOMINALE)))
+      .map((row) => {
+        const cifra = admittedCifraByPluri.get(keyOf(row.CIRCOSCRIZIONE, row.COLLEGIOPLURINOMINALE)) ?? 0;
+        return {
+          CIRCOSCRIZIONE: row.CIRCOSCRIZIONE,
+          COLLEGIOPLURINOMINALE: row.COLLEGIOPLURINOMINALE,
+          SEGGI: row.SEGGI,
+          CIFRA: cifra,
+          QUOZIENTE_RAW: rQuotient(cifra, row.SEGGI),
+          PARTE_INTERA: 0,
+          DA_ASSEGNARE: 0
+        };
+      }),
+    [(row) => row.CIRCOSCRIZIONE, (row) => row.COLLEGIOPLURINOMINALE]
+  );
+  const totalByPluri = new Map(rawTotals.map((row) => [keyOf(row.CIRCOSCRIZIONE, row.COLLEGIOPLURINOMINALE), row]));
+  const circByCircList = new Map(
+    internalCircRiparto.ammesse_circ.map((row) => [keyOf(row.CIRCOSCRIZIONE, row.LISTA), row])
+  );
+  const rowsWithIntegerPart = admittedRows.map((row) => {
+    const total = totalByPluri.get(keyOf(row.CIRCOSCRIZIONE, row.COLLEGIOPLURINOMINALE));
+    if (!total) {
+      throw new Error(`Missing plurinominal total for ${row.CIRCOSCRIZIONE}/${row.COLLEGIOPLURINOMINALE}`);
+    }
+
+    return {
+      CIRCOSCRIZIONE: row.CIRCOSCRIZIONE,
+      COLLEGIOPLURINOMINALE: row.COLLEGIOPLURINOMINALE,
+      LISTA: row.LISTA,
+      CIFRA: row.CIFRA,
+      CIFRA_PERCENTUALE: row.CIFRA_PERCENTUALE,
+      QUOZIENTE_RAW: total.QUOZIENTE_RAW,
+      PARTE_INTERA: rIntegerDivide(row.CIFRA, total.QUOZIENTE_RAW),
+      DECIMALI: (row.CIFRA / total.QUOZIENTE_RAW) % 1
+    };
+  });
+  const integerPartByCircList = sumBy(
+    rowsWithIntegerPart,
+    (row) => keyOf(row.CIRCOSCRIZIONE, row.LISTA),
+    (row) => row.PARTE_INTERA
+  );
+  const circRows = sortGroupedRows(
+    internalCircRiparto.ammesse_circ
+      .filter((row) => integerPartByCircList.has(keyOf(row.CIRCOSCRIZIONE, row.LISTA)))
+      .map((row) => {
+        const integerPart = integerPartByCircList.get(keyOf(row.CIRCOSCRIZIONE, row.LISTA)) ?? 0;
+        return {
+          CIRCOSCRIZIONE: row.CIRCOSCRIZIONE,
+          LISTA: row.LISTA,
+          CIFRA: row.CIFRA,
+          SEGGI: row.SEGGI,
+          PARTE_INTERA_PLURI: integerPart,
+          ESCLUSE_PLURI: integerPart >= row.SEGGI,
+          SEGGI_PLURI: 0,
+          SEGGI_ECCEDENTI: 0
+        };
+      }),
+    [(row) => row.CIRCOSCRIZIONE, (row) => row.LISTA]
+  );
+  const circWorkingByCircList = new Map(circRows.map((row) => [keyOf(row.CIRCOSCRIZIONE, row.LISTA), row]));
+  const rows = rowsWithIntegerPart.map((row) => {
+    const circRow = circByCircList.get(keyOf(row.CIRCOSCRIZIONE, row.LISTA));
+    const circWorking = circWorkingByCircList.get(keyOf(row.CIRCOSCRIZIONE, row.LISTA));
+    if (!circRow || !circWorking) {
+      throw new Error(`Missing circ allocation for plurinominal row ${row.CIRCOSCRIZIONE}/${row.LISTA}`);
+    }
+
+    return {
+      CIRCOSCRIZIONE: row.CIRCOSCRIZIONE,
+      COLLEGIOPLURINOMINALE: row.COLLEGIOPLURINOMINALE,
+      LISTA: row.LISTA,
+      CIFRA: row.CIFRA,
+      CIFRA_PERCENTUALE: row.CIFRA_PERCENTUALE,
+      QUOZIENTE_RAW: row.QUOZIENTE_RAW,
+      PARTE_INTERA: row.PARTE_INTERA,
+      DECIMALI: row.DECIMALI,
+      ESCLUSE_PLURI: circWorking.ESCLUSE_PLURI,
+      CIFRA_CIRC: circRow.CIFRA,
+      DA_ASSEGNARE: 0,
+      ORDINE: null as number | null,
+      SEGGIO_DA_DECIMALI: false,
+      SEGGI: 0,
+      SEGGI_ECCEDENTI: 0,
+      CEDE: false,
+      RICEVE: false,
+      ORDINE_CEDE: null as number | null,
+      CEDUTO: false,
+      ORDINE_RICEVE: null as number | null,
+      RICEVUTO: false,
+      SEGGI_PRE_SUBENTRI: 0
+    };
+  });
+  const integerPartByPluri = sumBy(
+    rows,
+    (row) => keyOf(row.CIRCOSCRIZIONE, row.COLLEGIOPLURINOMINALE),
+    (row) => row.PARTE_INTERA
+  );
+
+  for (const total of rawTotals) {
+    const integerPart = integerPartByPluri.get(keyOf(total.CIRCOSCRIZIONE, total.COLLEGIOPLURINOMINALE)) ?? 0;
+    total.PARTE_INTERA = integerPart;
+    total.DA_ASSEGNARE = total.SEGGI - integerPart;
+  }
+
+  const totalByPluriWithRemainders = new Map(
+    rawTotals.map((row) => [keyOf(row.CIRCOSCRIZIONE, row.COLLEGIOPLURINOMINALE), row])
+  );
+  for (const row of rows) {
+    const total = totalByPluriWithRemainders.get(keyOf(row.CIRCOSCRIZIONE, row.COLLEGIOPLURINOMINALE));
+    if (!total) {
+      throw new Error(`Missing plurinominal remainder total for ${row.CIRCOSCRIZIONE}/${row.COLLEGIOPLURINOMINALE}`);
+    }
+    row.DA_ASSEGNARE = total.DA_ASSEGNARE;
+  }
+
+  rows.sort((left, right) => {
+    const byCirc = compareAscending(left.CIRCOSCRIZIONE, right.CIRCOSCRIZIONE);
+    if (byCirc !== 0) return byCirc;
+
+    const byPluri = compareAscending(left.COLLEGIOPLURINOMINALE, right.COLLEGIOPLURINOMINALE);
+    if (byPluri !== 0) return byPluri;
+
+    const byExcluded = compareAscending(Number(left.ESCLUSE_PLURI), Number(right.ESCLUSE_PLURI));
+    if (byExcluded !== 0) return byExcluded;
+
+    const byDecimals = compareDescending(left.DECIMALI, right.DECIMALI);
+    if (byDecimals !== 0) return byDecimals;
+
+    const byCifra =
+      context.ramo === 'camera'
+        ? compareDescending(left.CIFRA_CIRC, right.CIFRA_CIRC)
+        : compareDescending(left.CIFRA, right.CIFRA);
+    if (byCifra !== 0) return byCifra;
+
+    /*
+     * TODO(law-review): both art. 83-bis and art. 17 letter c mention
+     * sorteggio after equal decimal remainders and equal relevant figures.
+     * The R implementation relies on stable order here.
+     */
+    return 0;
+  });
+
+  const orderByPluri = new Map<string, number>();
+  for (const row of rows) {
+    if (!row.ESCLUSE_PLURI) {
+      const groupKey = keyOf(row.CIRCOSCRIZIONE, row.COLLEGIOPLURINOMINALE);
+      const order = (orderByPluri.get(groupKey) ?? 0) + 1;
+      orderByPluri.set(groupKey, order);
+      row.ORDINE = order;
+    }
+
+    row.SEGGIO_DA_DECIMALI = row.ORDINE !== null && row.ORDINE <= row.DA_ASSEGNARE;
+    row.SEGGI = row.PARTE_INTERA + (row.SEGGIO_DA_DECIMALI ? 1 : 0);
+  }
+
+  const seatsByCircList = sumBy(
+    rows,
+    (row) => keyOf(row.CIRCOSCRIZIONE, row.LISTA),
+    (row) => row.SEGGI
+  );
+  for (const circRow of circRows) {
+    const seats = seatsByCircList.get(keyOf(circRow.CIRCOSCRIZIONE, circRow.LISTA)) ?? 0;
+    circRow.SEGGI_PLURI = seats;
+    circRow.SEGGI_ECCEDENTI = seats - circRow.SEGGI;
+  }
+
+  rows.sort((left, right) => {
+    const byCirc = compareAscending(left.CIRCOSCRIZIONE, right.CIRCOSCRIZIONE);
+    if (byCirc !== 0) return byCirc;
+
+    const byList = compareAscending(left.LISTA, right.LISTA);
+    if (byList !== 0) return byList;
+
+    return compareAscending(left.COLLEGIOPLURINOMINALE, right.COLLEGIOPLURINOMINALE);
+  });
+
+  for (const row of rows) {
+    const circRow = circWorkingByCircList.get(keyOf(row.CIRCOSCRIZIONE, row.LISTA));
+    if (!circRow) {
+      throw new Error(`Missing circ excess row for plurinominal row ${row.CIRCOSCRIZIONE}/${row.LISTA}`);
+    }
+    row.SEGGI_ECCEDENTI = circRow.SEGGI_ECCEDENTI;
+    row.CEDE = row.SEGGI_ECCEDENTI > 0 && row.SEGGIO_DA_DECIMALI;
+    row.RICEVE = row.SEGGI_ECCEDENTI < 0 && !row.SEGGIO_DA_DECIMALI;
+  }
+
+  rows.sort((left, right) => {
+    const byCirc = compareAscending(left.CIRCOSCRIZIONE, right.CIRCOSCRIZIONE);
+    if (byCirc !== 0) return byCirc;
+
+    const byDecimalSeat = compareDescending(Number(left.SEGGIO_DA_DECIMALI), Number(right.SEGGIO_DA_DECIMALI));
+    if (byDecimalSeat !== 0) return byDecimalSeat;
+
+    const byExcess = compareDescending(left.SEGGI_ECCEDENTI, right.SEGGI_ECCEDENTI);
+    if (byExcess !== 0) return byExcess;
+
+    return compareAscending(left.DECIMALI, right.DECIMALI);
+  });
+
+  const donorOrderByCircList = new Map<string, number>();
+  for (const row of rows) {
+    if (row.CEDE) {
+      const groupKey = keyOf(row.CIRCOSCRIZIONE, row.LISTA);
+      const order = (donorOrderByCircList.get(groupKey) ?? 0) + 1;
+      donorOrderByCircList.set(groupKey, order);
+      row.ORDINE_CEDE = order;
+    }
+    row.CEDUTO = row.ORDINE_CEDE !== null && row.ORDINE_CEDE <= row.SEGGI_ECCEDENTI;
+  }
+
+  rows.sort((left, right) => {
+    const byCirc = compareAscending(left.CIRCOSCRIZIONE, right.CIRCOSCRIZIONE);
+    if (byCirc !== 0) return byCirc;
+
+    const byDecimalSeat = compareAscending(Number(left.SEGGIO_DA_DECIMALI), Number(right.SEGGIO_DA_DECIMALI));
+    if (byDecimalSeat !== 0) return byDecimalSeat;
+
+    const byExcess = compareAscending(left.SEGGI_ECCEDENTI, right.SEGGI_ECCEDENTI);
+    if (byExcess !== 0) return byExcess;
+
+    return compareDescending(left.DECIMALI, right.DECIMALI);
+  });
+
+  const recipientOrderByCircList = new Map<string, number>();
+  for (const row of rows) {
+    if (row.RICEVE) {
+      const groupKey = keyOf(row.CIRCOSCRIZIONE, row.LISTA);
+      const order = (recipientOrderByCircList.get(groupKey) ?? 0) + 1;
+      recipientOrderByCircList.set(groupKey, order);
+      row.ORDINE_RICEVE = order;
+    }
+    row.RICEVUTO = row.ORDINE_RICEVE !== null && row.ORDINE_RICEVE <= -row.SEGGI_ECCEDENTI;
+    row.SEGGI = row.SEGGI - (row.CEDUTO ? 1 : 0) + (row.RICEVUTO ? 1 : 0);
+    row.SEGGI_PRE_SUBENTRI = row.SEGGI;
+  }
+
+  return {
+    liste_pluri: listePluri,
+    totali_pluri: rawTotals.map((row): PluriRipartoTotaleTraceRow => ({
+      CIRCOSCRIZIONE: row.CIRCOSCRIZIONE,
+      COLLEGIOPLURINOMINALE: row.COLLEGIOPLURINOMINALE,
+      SEGGI: row.SEGGI,
+      CIFRA: row.CIFRA,
+      QUOZIENTE: traceNumber(row.QUOZIENTE_RAW),
+      PARTE_INTERA: row.PARTE_INTERA,
+      DA_ASSEGNARE: row.DA_ASSEGNARE
+    })),
+    ammesse_circ: circRows.map((row): PluriRipartoCircTraceRow => ({
+      CIRCOSCRIZIONE: row.CIRCOSCRIZIONE,
+      LISTA: row.LISTA,
+      SEGGI: row.SEGGI,
+      PARTE_INTERA_PLURI: row.PARTE_INTERA_PLURI,
+      ESCLUSE_PLURI: row.ESCLUSE_PLURI,
+      SEGGI_PLURI: row.SEGGI_PLURI,
+      SEGGI_ECCEDENTI: row.SEGGI_ECCEDENTI
+    })),
+    ammesse_pluri: rows.map((row): PluriRipartoAmmesseTraceRow => ({
+      CIRCOSCRIZIONE: row.CIRCOSCRIZIONE,
+      COLLEGIOPLURINOMINALE: row.COLLEGIOPLURINOMINALE,
+      LISTA: row.LISTA,
+      CIFRA: row.CIFRA,
+      CIFRA_PERCENTUALE: row.CIFRA_PERCENTUALE,
+      QUOZIENTE: traceNumber(row.QUOZIENTE_RAW),
+      PARTE_INTERA: row.PARTE_INTERA,
+      DECIMALI: traceNumber(row.DECIMALI),
+      ESCLUSE_PLURI: row.ESCLUSE_PLURI,
+      CIFRA_CIRC: row.CIFRA_CIRC,
+      DA_ASSEGNARE: row.DA_ASSEGNARE,
+      ORDINE: row.ORDINE,
+      SEGGIO_DA_DECIMALI: row.SEGGIO_DA_DECIMALI,
+      SEGGI_ECCEDENTI: row.SEGGI_ECCEDENTI,
+      CEDE: row.CEDE,
+      RICEVE: row.RICEVE,
+      ORDINE_CEDE: row.ORDINE_CEDE,
+      CEDUTO: row.CEDUTO,
+      ORDINE_RICEVE: row.ORDINE_RICEVE,
+      RICEVUTO: row.RICEVUTO,
+      SEGGI: row.SEGGI,
+      SEGGI_PRE_SUBENTRI: row.SEGGI_PRE_SUBENTRI
+    }))
+  };
+}
+
 function projectCandidateAttribution(row: CandidatoUniAttributionWorkingRow): CandidatoUniAttributionTraceRow {
   return {
     CIRCOSCRIZIONE: row.CIRCOSCRIZIONE,
@@ -1757,6 +2088,7 @@ export function runPoliticsScrutinyTrace(
   const cameraRiparto = buildCameraRiparto(thresholds, earlyTrace.candidati_uni_elezione, context);
   const circRiparto = buildCircRiparto(thresholds, cameraRiparto, context);
   const internalCircRiparto = buildInternalCircRiparto(thresholds, circRiparto, cameraRiparto, context);
+  const pluriRiparto = buildPluriRiparto(earlyTrace, internalCircRiparto, context);
 
   return {
     totale_naz: thresholds.totaleNaz,
@@ -1767,7 +2099,8 @@ export function runPoliticsScrutinyTrace(
     coal_circ_cifre: thresholds.coalCirc,
     camera_riparto: cameraRiparto,
     circ_riparto: circRiparto,
-    internal_circ_riparto: internalCircRiparto
+    internal_circ_riparto: internalCircRiparto,
+    pluri_riparto: pluriRiparto
   };
 }
 

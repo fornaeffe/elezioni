@@ -344,6 +344,67 @@ export interface InternalCircRipartoTrace {
   ammesse_naz: InternalCircAmmesseNazTraceRow[];
 }
 
+export interface PluriRipartoListaTraceRow {
+  CIRCOSCRIZIONE: AdministrativeCode;
+  COLLEGIOPLURINOMINALE: AdministrativeCode;
+  LISTA: string;
+  CIFRA: number;
+  CIFRA_PERCENTUALE: number;
+  AMMESSA: boolean;
+}
+
+export interface PluriRipartoTotaleTraceRow {
+  CIRCOSCRIZIONE: AdministrativeCode;
+  COLLEGIOPLURINOMINALE: AdministrativeCode;
+  SEGGI: number;
+  CIFRA: number;
+  QUOZIENTE: TraceNumber;
+  PARTE_INTERA: number;
+  DA_ASSEGNARE: number;
+}
+
+export interface PluriRipartoCircTraceRow {
+  CIRCOSCRIZIONE: AdministrativeCode;
+  LISTA: string;
+  SEGGI: number;
+  PARTE_INTERA_PLURI: number;
+  ESCLUSE_PLURI: boolean;
+  SEGGI_PLURI: number;
+  SEGGI_ECCEDENTI: number;
+}
+
+export interface PluriRipartoAmmesseTraceRow {
+  CIRCOSCRIZIONE: AdministrativeCode;
+  COLLEGIOPLURINOMINALE: AdministrativeCode;
+  LISTA: string;
+  CIFRA: number;
+  CIFRA_PERCENTUALE: number;
+  QUOZIENTE: TraceNumber;
+  PARTE_INTERA: number;
+  DECIMALI: TraceNumber;
+  ESCLUSE_PLURI: boolean;
+  CIFRA_CIRC: number;
+  DA_ASSEGNARE: number;
+  ORDINE: TraceNumber;
+  SEGGIO_DA_DECIMALI: boolean;
+  SEGGI_ECCEDENTI: number;
+  CEDE: boolean;
+  RICEVE: boolean;
+  ORDINE_CEDE: TraceNumber;
+  CEDUTO: boolean;
+  ORDINE_RICEVE: TraceNumber;
+  RICEVUTO: boolean;
+  SEGGI: number;
+  SEGGI_PRE_SUBENTRI: number;
+}
+
+export interface PluriRipartoTrace {
+  liste_pluri: PluriRipartoListaTraceRow[];
+  totali_pluri: PluriRipartoTotaleTraceRow[];
+  ammesse_circ: PluriRipartoCircTraceRow[];
+  ammesse_pluri: PluriRipartoAmmesseTraceRow[];
+}
+
 export interface PoliticsEarlyTrace {
   candidati_uni_elezione: CandidatoUniResultRow[];
   candidati_uni_attribuzione: CandidatoUniAttributionTraceRow[];
@@ -363,6 +424,7 @@ export interface PoliticsScrutinyTrace extends PoliticsEarlyTrace {
   camera_riparto: CameraRipartoTrace;
   circ_riparto: CircRipartoTrace;
   internal_circ_riparto: InternalCircRipartoTrace;
+  pluri_riparto: PluriRipartoTrace;
 }
 
 export interface PoliticsScrutinyInput {
