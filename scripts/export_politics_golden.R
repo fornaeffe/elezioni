@@ -60,7 +60,21 @@ capture_conditions <- function(expr) {
   list(value = value, warnings = as.list(warnings), messages = as.list(messages))
 }
 
-compute_early_trace <- function(liste_uni, candidati_uni, liste_naz_input, ramo) {
+empty_trace_frame <- function(columns) {
+  as.data.frame(
+    stats::setNames(rep(list(logical()), length(columns)), columns),
+    stringsAsFactors = FALSE
+  )
+}
+
+compute_early_trace <- function(
+  liste_uni,
+  candidati_uni,
+  liste_naz_input,
+  totali_pluri,
+  totale_seggi,
+  ramo
+) {
   liste_naz <- as.data.frame(liste_naz_input, stringsAsFactors = FALSE)
 
   candidati_uni <- candidati_uni[order(
@@ -361,6 +375,203 @@ compute_early_trace <- function(liste_uni, candidati_uni, liste_naz_input, ramo)
     (is.na(liste_naz$COALIZIONE) | !liste_naz$SOGLIA_COALIZIONE) &
     liste_naz$SOGLIA3M
 
+  camera_riparto <- list(
+    seggi_proporzionale = NA,
+    totale_naz_riparto = NA,
+    quoziente_elettorale_naz = NA,
+    ancora_da_attribuire = NA,
+    riparto_naz = empty_trace_frame(c(
+      "SOGGETTO_RIPARTO",
+      "CIFRA",
+      "PARTE_INTERA",
+      "RESTO",
+      "ORDINE",
+      "SEGGIO_DA_RESTO",
+      "SEGGI",
+      "CIFRA_AMMESSE_AL_RIPARTO",
+      "QUOZIENTE",
+      "PARTE_INTERA_TOT",
+      "DA_ASSEGNARE"
+    )),
+    ammesse_naz = empty_trace_frame(c(
+      "SOGGETTO_RIPARTO",
+      "LISTA",
+      "CIFRA",
+      "QUOZIENTE",
+      "PARTE_INTERA",
+      "RESTO",
+      "DA_ASSEGNARE",
+      "ORDINE",
+      "SEGGIO_DA_RESTO",
+      "SEGGI"
+    )),
+    liste_naz_riparto = empty_trace_frame(c(
+      "LISTA",
+      "COALIZIONE",
+      "SOGLIA1M",
+      "SOGLIA3M",
+      "SOGLIA_COALIZIONE",
+      "SOGLIA_SOLA",
+      "SOGGETTO_RIPARTO"
+    ))
+  )
+
+  if (ramo == "camera") {
+    seggi_proporzionale <- totale_seggi - sum(candidati_uni$ELETTO)
+
+    if (seggi_proporzionale != sum(totali_pluri$SEGGI)) stop(
+      "seggi_proporzionale = ",
+      seggi_proporzionale,
+      " ma sum(totali_pluri$SEGGI) = ",
+      sum(totali_pluri$SEGGI)
+    )
+
+    liste_naz$SOGGETTO_RIPARTO <- NA
+
+    liste_naz$SOGGETTO_RIPARTO[which(liste_naz$SOGLIA_COALIZIONE)] <-
+      as.character(liste_naz$COALIZIONE[which(liste_naz$SOGLIA_COALIZIONE)])
+
+    liste_naz$SOGGETTO_RIPARTO[which(liste_naz$SOGLIA_SOLA)] <-
+      as.character(liste_naz$LISTA[which(liste_naz$SOGLIA_SOLA)])
+
+    liste_naz$SOGGETTO_RIPARTO <- as.factor(liste_naz$SOGGETTO_RIPARTO)
+
+    if (nrow(liste_naz[liste_naz$SOGLIA1M, ]) == 0) stop("Errore alla riga 645")
+
+    riparto_naz <- aggregate(
+      CIFRA ~ SOGGETTO_RIPARTO,
+      liste_naz,
+      sum,
+      subset = SOGLIA1M
+    )
+
+    totale_naz_riparto <- sum(riparto_naz$CIFRA)
+    quoziente_elettorale_naz <- totale_naz_riparto %/% seggi_proporzionale
+
+    riparto_naz$PARTE_INTERA <- riparto_naz$CIFRA %/% quoziente_elettorale_naz
+    riparto_naz$RESTO <- riparto_naz$CIFRA %% quoziente_elettorale_naz
+
+    ancora_da_attribuire <- seggi_proporzionale - sum(riparto_naz$PARTE_INTERA)
+
+    riparto_naz <- riparto_naz[
+      order(riparto_naz$RESTO, riparto_naz$CIFRA, decreasing = TRUE),
+    ]
+
+    riparto_naz$ORDINE <- seq_along(riparto_naz$RESTO)
+
+    riparto_naz$SEGGIO_DA_RESTO <- riparto_naz$ORDINE <= ancora_da_attribuire
+
+    riparto_naz$SEGGI <- riparto_naz$PARTE_INTERA + riparto_naz$SEGGIO_DA_RESTO
+
+    ammesse_naz <- liste_naz[
+      liste_naz$SOGLIA3M,
+      c(
+        "SOGGETTO_RIPARTO",
+        "LISTA",
+        "CIFRA"
+      )
+    ]
+
+    riparto_naz <- merge(
+      riparto_naz,
+      aggregate(
+        CIFRA ~ SOGGETTO_RIPARTO,
+        data = ammesse_naz,
+        sum
+      ),
+      by = "SOGGETTO_RIPARTO",
+      suffixes = c("", "_AMMESSE_AL_RIPARTO")
+    )
+
+    riparto_naz$QUOZIENTE <-
+      riparto_naz$CIFRA_AMMESSE_AL_RIPARTO %/% riparto_naz$SEGGI
+
+    ammesse_naz <- merge(
+      ammesse_naz,
+      riparto_naz[, c("SOGGETTO_RIPARTO", "QUOZIENTE")]
+    )
+
+    ammesse_naz$PARTE_INTERA <- ammesse_naz$CIFRA %/% ammesse_naz$QUOZIENTE
+    ammesse_naz$RESTO <- ammesse_naz$CIFRA %% ammesse_naz$QUOZIENTE
+
+    riparto_naz <- merge(
+      riparto_naz,
+      aggregate(
+        PARTE_INTERA ~ SOGGETTO_RIPARTO,
+        data = ammesse_naz,
+        sum
+      ),
+      by = "SOGGETTO_RIPARTO",
+      suffixes = c("", "_TOT")
+    )
+
+    riparto_naz$DA_ASSEGNARE <- riparto_naz$SEGGI - riparto_naz$PARTE_INTERA_TOT
+
+    ammesse_naz <- merge(
+      ammesse_naz,
+      riparto_naz[, c("SOGGETTO_RIPARTO", "DA_ASSEGNARE")]
+    )
+
+    ammesse_naz <- ammesse_naz[order(
+      ammesse_naz$SOGGETTO_RIPARTO,
+      ammesse_naz$RESTO,
+      ammesse_naz$CIFRA,
+      decreasing = c(FALSE, TRUE, TRUE),
+      method = "radix"
+    ), ]
+
+    ammesse_naz$ORDINE <- ave(
+      seq_along(ammesse_naz$SOGGETTO_RIPARTO),
+      ammesse_naz$SOGGETTO_RIPARTO,
+      FUN = seq_along
+    )
+
+    ammesse_naz$SEGGIO_DA_RESTO <- ammesse_naz$ORDINE <= ammesse_naz$DA_ASSEGNARE
+
+    ammesse_naz$SEGGI <- ammesse_naz$PARTE_INTERA + ammesse_naz$SEGGIO_DA_RESTO
+
+    camera_riparto <- list(
+      seggi_proporzionale = seggi_proporzionale,
+      totale_naz_riparto = totale_naz_riparto,
+      quoziente_elettorale_naz = quoziente_elettorale_naz,
+      ancora_da_attribuire = ancora_da_attribuire,
+      riparto_naz = riparto_naz[, c(
+        "SOGGETTO_RIPARTO",
+        "CIFRA",
+        "PARTE_INTERA",
+        "RESTO",
+        "ORDINE",
+        "SEGGIO_DA_RESTO",
+        "SEGGI",
+        "CIFRA_AMMESSE_AL_RIPARTO",
+        "QUOZIENTE",
+        "PARTE_INTERA_TOT",
+        "DA_ASSEGNARE"
+      )],
+      ammesse_naz = ammesse_naz[, c(
+        "SOGGETTO_RIPARTO",
+        "LISTA",
+        "CIFRA",
+        "QUOZIENTE",
+        "PARTE_INTERA",
+        "RESTO",
+        "DA_ASSEGNARE",
+        "ORDINE",
+        "SEGGIO_DA_RESTO",
+        "SEGGI"
+      )],
+      liste_naz_riparto = liste_naz[, c(
+        "LISTA",
+        "COALIZIONE",
+        "SOGLIA1M",
+        "SOGLIA3M",
+        "SOGLIA_COALIZIONE",
+        "SOGLIA_SOLA",
+        "SOGGETTO_RIPARTO"
+      )]
+    )
+  }
+
   list(
     totale_naz = totale_naz,
     candidati_uni_elezione = candidati_uni_elezione,
@@ -455,7 +666,8 @@ compute_early_trace <- function(liste_uni, candidati_uni, liste_naz_input, ramo)
       "CIRCOSCRIZIONE",
       "COALIZIONE",
       "CIFRA"
-    )]
+    )],
+    camera_riparto = camera_riparto
   )
 }
 
@@ -583,7 +795,7 @@ set.seed(20260601)
 
 fixture <- list(
   metadata = list(
-    schema_version = 3,
+    schema_version = 4,
     source = "dati/debug_scrutinio.RData",
     purpose = "Golden-master fixture for the politics scrutiny TypeScript port.",
     random_seed = 20260601,
@@ -599,6 +811,8 @@ for (ramo in c("camera", "senato")) {
       sim_fixture$input$liste_uni,
       sim_fixture$input$candidati_uni,
       ramo_fixture$liste_naz,
+      ramo_fixture$totali_pluri,
+      ramo_fixture$totale_seggi,
       ramo
     )
     result <- run_simulation(ramo, ramo_fixture, sim_fixture)

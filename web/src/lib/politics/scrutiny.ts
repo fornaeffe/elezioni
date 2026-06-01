@@ -1,5 +1,9 @@
 import type {
   AdministrativeCode,
+  CameraAmmesseNazTraceRow,
+  CameraListeNazRipartoTraceRow,
+  CameraRipartoNazTraceRow,
+  CameraRipartoTrace,
   CoalCircCifreTraceRow,
   CoalNazSoglieTraceRow,
   CandidatoUniAttributionTraceRow,
@@ -580,6 +584,227 @@ function buildListeNazSoglie(
   };
 }
 
+function emptyCameraRipartoTrace(): CameraRipartoTrace {
+  return {
+    seggi_proporzionale: null,
+    totale_naz_riparto: null,
+    quoziente_elettorale_naz: null,
+    ancora_da_attribuire: null,
+    riparto_naz: [],
+    ammesse_naz: [],
+    liste_naz_riparto: []
+  };
+}
+
+function buildCameraRiparto(
+  thresholds: ReturnType<typeof buildListeNazSoglie>,
+  electedCandidates: readonly CandidatoUniResultRow[],
+  context: PoliticsScrutinyContext
+): CameraRipartoTrace {
+  if (context.ramo !== 'camera') {
+    return emptyCameraRipartoTrace();
+  }
+
+  const seggiProporzionale =
+    context.totale_seggi - electedCandidates.filter((candidate) => candidate.ELETTO).length;
+  const totalPluriSeats = context.totali_pluri.reduce((total, row) => total + row.SEGGI, 0);
+
+  if (seggiProporzionale !== totalPluriSeats) {
+    throw new Error(
+      `seggi_proporzionale = ${seggiProporzionale} ma sum(totali_pluri$SEGGI) = ${totalPluriSeats}`
+    );
+  }
+
+  const listeNazRiparto = sortGroupedRows(
+    thresholds.listeNaz.map((row): CameraListeNazRipartoTraceRow => {
+      let soggettoRiparto: string | null = null;
+
+      if (row.SOGLIA_COALIZIONE === true && row.COALIZIONE !== null) {
+        soggettoRiparto = row.COALIZIONE;
+      }
+
+      if (row.SOGLIA_SOLA === true) {
+        soggettoRiparto = row.LISTA;
+      }
+
+      return {
+        LISTA: row.LISTA,
+        COALIZIONE: row.COALIZIONE,
+        SOGLIA1M: row.SOGLIA1M,
+        SOGLIA3M: row.SOGLIA3M,
+        SOGLIA_COALIZIONE: row.SOGLIA_COALIZIONE,
+        SOGLIA_SOLA: row.SOGLIA_SOLA,
+        SOGGETTO_RIPARTO: soggettoRiparto
+      };
+    }),
+    [(row) => row.LISTA]
+  );
+
+  const nationalCifraByList = new Map(thresholds.listeNaz.map((row) => [row.LISTA, row.CIFRA]));
+  const repartitionableRows = listeNazRiparto
+    .map((row) => ({
+      ...row,
+      CIFRA: nationalCifraByList.get(row.LISTA) ?? 0
+    }))
+    .filter((row): row is typeof row & { SOGGETTO_RIPARTO: string } => row.SOGLIA1M && row.SOGGETTO_RIPARTO !== null);
+
+  const ripartoInitial = aggregateCifra(
+    repartitionableRows,
+    (row) => row.SOGGETTO_RIPARTO,
+    (row) => ({
+      SOGGETTO_RIPARTO: row.SOGGETTO_RIPARTO
+    })
+  );
+  const totaleNazRiparto = ripartoInitial.reduce((total, row) => total + row.CIFRA, 0);
+  const quozienteElettoraleNaz = rIntegerDivide(totaleNazRiparto, seggiProporzionale);
+  const ripartoWithSeats = ripartoInitial.map((row) => ({
+    ...row,
+    PARTE_INTERA: rIntegerDivide(row.CIFRA, quozienteElettoraleNaz),
+    RESTO: row.CIFRA % quozienteElettoraleNaz,
+    ORDINE: 0,
+    SEGGIO_DA_RESTO: false,
+    SEGGI: 0
+  }));
+  const ancoraDaAttribuire =
+    seggiProporzionale - ripartoWithSeats.reduce((total, row) => total + row.PARTE_INTERA, 0);
+
+  ripartoWithSeats.sort((left, right) => {
+    const byRemainder = compareDescending(left.RESTO, right.RESTO);
+    if (byRemainder !== 0) return byRemainder;
+
+    const byCifra = compareDescending(left.CIFRA, right.CIFRA);
+    if (byCifra !== 0) return byCifra;
+
+    /*
+     * TODO(law-review): art. 83 mentions sorteggio after equal remainders and
+     * equal national figures. The current R path has no explicit draw here, so
+     * we preserve stable ordering for golden-master parity.
+     */
+    return 0;
+  });
+
+  for (const [index, row] of ripartoWithSeats.entries()) {
+    row.ORDINE = index + 1;
+    row.SEGGIO_DA_RESTO = row.ORDINE <= ancoraDaAttribuire;
+    row.SEGGI = row.PARTE_INTERA + (row.SEGGIO_DA_RESTO ? 1 : 0);
+  }
+
+  const ammesseInitial = sortGroupedRows(
+    listeNazRiparto
+      .map((row) => ({
+        SOGGETTO_RIPARTO: row.SOGGETTO_RIPARTO,
+        LISTA: row.LISTA,
+        CIFRA: nationalCifraByList.get(row.LISTA) ?? 0,
+        SOGLIA3M: row.SOGLIA3M
+      }))
+      .filter((row): row is { SOGGETTO_RIPARTO: string; LISTA: string; CIFRA: number; SOGLIA3M: boolean } =>
+        row.SOGLIA3M && row.SOGGETTO_RIPARTO !== null
+      ),
+    [(row) => row.SOGGETTO_RIPARTO, (row) => row.LISTA]
+  );
+  const admittedCifraBySubject = sumBy(
+    ammesseInitial,
+    (row) => row.SOGGETTO_RIPARTO,
+    (row) => row.CIFRA
+  );
+  const ripartoBySubject = new Map(ripartoWithSeats.map((row) => [row.SOGGETTO_RIPARTO, row]));
+  const ammesseWithQuotient = ammesseInitial.map((row) => {
+    const riparto = ripartoBySubject.get(row.SOGGETTO_RIPARTO);
+    if (!riparto) {
+      throw new Error(`Missing national repartition subject: ${row.SOGGETTO_RIPARTO}`);
+    }
+
+    const quotient = rIntegerDivide(admittedCifraBySubject.get(row.SOGGETTO_RIPARTO) ?? 0, riparto.SEGGI);
+    return {
+      SOGGETTO_RIPARTO: row.SOGGETTO_RIPARTO,
+      LISTA: row.LISTA,
+      CIFRA: row.CIFRA,
+      QUOZIENTE: quotient,
+      PARTE_INTERA: rIntegerDivide(row.CIFRA, quotient),
+      RESTO: row.CIFRA % quotient
+    };
+  });
+  const admittedIntegerBySubject = sumBy(
+    ammesseWithQuotient,
+    (row) => row.SOGGETTO_RIPARTO,
+    (row) => row.PARTE_INTERA
+  );
+
+  const ripartoNaz = ripartoWithSeats.map((row): CameraRipartoNazTraceRow => {
+    const admittedCifra = admittedCifraBySubject.get(row.SOGGETTO_RIPARTO) ?? 0;
+    const integerTotal = admittedIntegerBySubject.get(row.SOGGETTO_RIPARTO) ?? 0;
+    return {
+      SOGGETTO_RIPARTO: row.SOGGETTO_RIPARTO,
+      CIFRA: row.CIFRA,
+      PARTE_INTERA: row.PARTE_INTERA,
+      RESTO: row.RESTO,
+      ORDINE: row.ORDINE,
+      SEGGIO_DA_RESTO: row.SEGGIO_DA_RESTO,
+      SEGGI: row.SEGGI,
+      CIFRA_AMMESSE_AL_RIPARTO: admittedCifra,
+      QUOZIENTE: rIntegerDivide(admittedCifra, row.SEGGI),
+      PARTE_INTERA_TOT: integerTotal,
+      DA_ASSEGNARE: row.SEGGI - integerTotal
+    };
+  });
+  const daAssegnareBySubject = new Map(ripartoNaz.map((row) => [row.SOGGETTO_RIPARTO, row.DA_ASSEGNARE]));
+  const ammesseNaz = ammesseWithQuotient.map((row) => ({
+    ...row,
+    DA_ASSEGNARE: daAssegnareBySubject.get(row.SOGGETTO_RIPARTO) ?? 0,
+    ORDINE: 0,
+    SEGGIO_DA_RESTO: false,
+    SEGGI: 0
+  }));
+
+  ammesseNaz.sort((left, right) => {
+    const bySubject = compareAscending(left.SOGGETTO_RIPARTO, right.SOGGETTO_RIPARTO);
+    if (bySubject !== 0) return bySubject;
+
+    const byRemainder = compareDescending(left.RESTO, right.RESTO);
+    if (byRemainder !== 0) return byRemainder;
+
+    const byCifra = compareDescending(left.CIFRA, right.CIFRA);
+    if (byCifra !== 0) return byCifra;
+
+    /*
+     * TODO(law-review): art. 83 also mentions sorteggio for the internal
+     * coalition riparto after equal remainders and equal figures. R has no
+     * explicit draw here, so stable ordering is preserved.
+     */
+    return 0;
+  });
+
+  const orderBySubject = new Map<string, number>();
+  for (const row of ammesseNaz) {
+    const order = (orderBySubject.get(row.SOGGETTO_RIPARTO) ?? 0) + 1;
+    orderBySubject.set(row.SOGGETTO_RIPARTO, order);
+    row.ORDINE = order;
+    row.SEGGIO_DA_RESTO = order <= row.DA_ASSEGNARE;
+    row.SEGGI = row.PARTE_INTERA + (row.SEGGIO_DA_RESTO ? 1 : 0);
+  }
+
+  return {
+    seggi_proporzionale: seggiProporzionale,
+    totale_naz_riparto: totaleNazRiparto,
+    quoziente_elettorale_naz: quozienteElettoraleNaz,
+    ancora_da_attribuire: ancoraDaAttribuire,
+    riparto_naz: ripartoNaz,
+    ammesse_naz: ammesseNaz.map((row): CameraAmmesseNazTraceRow => ({
+      SOGGETTO_RIPARTO: row.SOGGETTO_RIPARTO,
+      LISTA: row.LISTA,
+      CIFRA: row.CIFRA,
+      QUOZIENTE: row.QUOZIENTE,
+      PARTE_INTERA: row.PARTE_INTERA,
+      RESTO: row.RESTO,
+      DA_ASSEGNARE: row.DA_ASSEGNARE,
+      ORDINE: row.ORDINE,
+      SEGGIO_DA_RESTO: row.SEGGIO_DA_RESTO,
+      SEGGI: row.SEGGI
+    })),
+    liste_naz_riparto: listeNazRiparto
+  };
+}
+
 function projectCandidateAttribution(row: CandidatoUniAttributionWorkingRow): CandidatoUniAttributionTraceRow {
   return {
     CIRCOSCRIZIONE: row.CIRCOSCRIZIONE,
@@ -670,6 +895,7 @@ export function runPoliticsScrutinyTrace(
     earlyTrace.candidati_uni_elezione,
     context.ramo
   );
+  const cameraRiparto = buildCameraRiparto(thresholds, earlyTrace.candidati_uni_elezione, context);
 
   return {
     totale_naz: thresholds.totaleNaz,
@@ -677,7 +903,8 @@ export function runPoliticsScrutinyTrace(
     liste_naz_soglie: thresholds.listeNaz,
     liste_circ_soglie: thresholds.listeCirc,
     coal_naz_soglie: thresholds.coalNaz,
-    coal_circ_cifre: thresholds.coalCirc
+    coal_circ_cifre: thresholds.coalCirc,
+    camera_riparto: cameraRiparto
   };
 }
 

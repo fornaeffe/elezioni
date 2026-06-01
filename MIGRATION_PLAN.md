@@ -25,11 +25,11 @@ R baseline on the same machine, pause and present Python fallback options.
 | --- | --- | --- |
 | Migration tracking | Done | `AGENTS.md` and this file are present. |
 | R safety fixes | Done | `candidati_pluri_sim_` renamed to `candidati_pluri_sim`; debug scrutiny still matches. |
-| Golden-master fixtures | Done | `scripts/export_politics_golden.R` exports schema v3 JSON with direct inputs, final outputs, warnings, and scrutiny trace tables. |
+| Golden-master fixtures | Done | `scripts/export_politics_golden.R` exports schema v4 JSON with direct inputs, final outputs, warnings, and scrutiny trace tables. |
 | R benchmarks | Done | `scripts/benchmark_r_workflows.R` added; quick baseline JSON generated. |
 | SvelteKit app scaffold | Done | `web/` created with strict TS, static adapter, Vitest, Playwright. |
 | TypeScript core | Started | Worker API types, seeded RNG, allocation primitives, fixture loader tests, and unit tests added. |
-| Politics scrutiny port | Started | Politics stages through national threshold admission now match R: early vote figures, national list/coalition figures, and 1%/3%/10% threshold flags. |
+| Politics scrutiny port | Started | Politics stages through Camera national/internal-coalition riparto now match R. Shared circumscription/plurinominal allocation is next. |
 | Performance gate | Pending | Compare browser politics run to fresh R baselines. |
 
 ## Decisions
@@ -132,9 +132,10 @@ Run on 2026-06-01:
 ## Current Caveats
 
 - The TypeScript politics scrutiny core is only partially ported. Early vote
-  figure stages and national threshold admission are tested, but seat
-  allocation, elected plurinominal candidates, pluricandidature, and subentro
-  logic are still pending. The current worker returns
+  figure stages, national threshold admission, and Camera national/internal
+  coalition riparto are tested, but circumscription/plurinominal allocation,
+  elected plurinominal candidates, pluricandidature, and subentro logic are
+  still pending. The current worker returns
   `POLITICS_SCRUTINY_NOT_PORTED` intentionally.
 - The exported politics fixture is about 57 MB because it contains direct
   scrutiny inputs, R trace tables, and expected outputs for 10 simulations.
@@ -223,3 +224,32 @@ Verification:
 - `cd web; npm test`: passed, 67 tests.
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-01 Checkpoint 5
+
+Completed in the Camera national-riparto pass:
+
+- Extended `scripts/export_politics_golden.R` to export schema v4 fixtures with
+  nested `camera_riparto` traces.
+- Regenerated `test/fixtures/politiche/debug_scrutinio.json`.
+- Added TypeScript trace types for:
+  - Camera national proportional riparto;
+  - internal coalition/list riparto;
+  - Camera list-to-riparto-subject mapping.
+- Added the required `totali_pluri` and `totale_seggi` fields to
+  `PoliticsScrutinyContext`.
+- Ported Camera national proportional seat allocation and internal coalition
+  allocation to `runPoliticsScrutinyTrace()`.
+- Preserved R stable-order behavior for `sorteggio` tie cases and marked both
+  national and internal-coalition riparto paths with `TODO(law-review)`.
+- Extended golden parity assertions for all 10 Camera and 10 Senato debug
+  simulations. Senato intentionally receives empty/null `camera_riparto` traces
+  at this stage.
+
+Verification so far:
+
+- `Rscript scripts/export_politics_golden.R`: passed.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm test`: passed, 67 tests.

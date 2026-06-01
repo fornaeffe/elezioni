@@ -105,17 +105,44 @@ function expectThresholdTraceToMatch(actual: PoliticsScrutinyTrace, expected: Po
   expectRowsToMatch(actual.coal_circ_cifre, expected.coal_circ_cifre, ['CIRCOSCRIZIONE', 'COALIZIONE']);
 }
 
+function expectCameraRipartoTraceToMatch(actual: PoliticsScrutinyTrace, expected: PoliticsScrutinyTrace): void {
+  expect(normalizeValue(actual.camera_riparto.seggi_proporzionale)).toBe(
+    normalizeValue(expected.camera_riparto.seggi_proporzionale)
+  );
+  expect(normalizeValue(actual.camera_riparto.totale_naz_riparto)).toBe(
+    normalizeValue(expected.camera_riparto.totale_naz_riparto)
+  );
+  expect(normalizeValue(actual.camera_riparto.quoziente_elettorale_naz)).toBe(
+    normalizeValue(expected.camera_riparto.quoziente_elettorale_naz)
+  );
+  expect(normalizeValue(actual.camera_riparto.ancora_da_attribuire)).toBe(
+    normalizeValue(expected.camera_riparto.ancora_da_attribuire)
+  );
+  expectRowsToMatch(actual.camera_riparto.riparto_naz, expected.camera_riparto.riparto_naz, [
+    'SOGGETTO_RIPARTO'
+  ]);
+  expectRowsToMatch(actual.camera_riparto.ammesse_naz, expected.camera_riparto.ammesse_naz, [
+    'SOGGETTO_RIPARTO',
+    'LISTA'
+  ]);
+  expectRowsToMatch(actual.camera_riparto.liste_naz_riparto, expected.camera_riparto.liste_naz_riparto, [
+    'LISTA'
+  ]);
+}
+
 describe('politics golden fixture', () => {
   const fixture = loadFixture();
 
   test('has the expected direct scrutiny fixture shape', () => {
-    expect(fixture.metadata.schema_version).toBe(3);
+    expect(fixture.metadata.schema_version).toBe(4);
     expect(fixture.rami.camera.simulations).toHaveLength(10);
     expect(fixture.rami.senato.simulations).toHaveLength(10);
     expect(fixture.rami.camera.simulations[3].warnings).toHaveLength(1);
     expect(fixture.rami.senato.simulations[3].warnings).toHaveLength(1);
     expect(fixture.rami.camera.simulations[0].trace.liste_uni_cifre.length).toBeGreaterThan(0);
     expect(fixture.rami.camera.simulations[0].trace.liste_naz_soglie.length).toBeGreaterThan(0);
+    expect(fixture.rami.camera.simulations[0].trace.camera_riparto.riparto_naz.length).toBeGreaterThan(0);
+    expect(fixture.rami.senato.simulations[0].trace.camera_riparto.riparto_naz).toHaveLength(0);
   });
 
   for (const ramo of ['camera', 'senato'] as Ramo[]) {
@@ -132,10 +159,13 @@ describe('politics golden fixture', () => {
       test(`${ramo} sim ${simulation.sim}: matches national threshold trace like R`, () => {
         const actual = runPoliticsScrutinyTrace(simulation.input, {
           ramo,
-          liste_naz: fixture.rami[ramo].liste_naz
+          liste_naz: fixture.rami[ramo].liste_naz,
+          totali_pluri: fixture.rami[ramo].totali_pluri,
+          totale_seggi: fixture.rami[ramo].totale_seggi
         });
         expectEarlyTraceToMatch(actual, simulation.trace);
         expectThresholdTraceToMatch(actual, simulation.trace);
+        expectCameraRipartoTraceToMatch(actual, simulation.trace);
       });
     }
   }

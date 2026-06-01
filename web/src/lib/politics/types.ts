@@ -178,6 +178,53 @@ export interface CoalCircCifreTraceRow {
   CIFRA: number;
 }
 
+export interface CameraRipartoNazTraceRow {
+  SOGGETTO_RIPARTO: string;
+  CIFRA: number;
+  PARTE_INTERA: number;
+  RESTO: number;
+  ORDINE: number;
+  SEGGIO_DA_RESTO: boolean;
+  SEGGI: number;
+  CIFRA_AMMESSE_AL_RIPARTO: number;
+  QUOZIENTE: number;
+  PARTE_INTERA_TOT: number;
+  DA_ASSEGNARE: number;
+}
+
+export interface CameraAmmesseNazTraceRow {
+  SOGGETTO_RIPARTO: string;
+  LISTA: string;
+  CIFRA: number;
+  QUOZIENTE: number;
+  PARTE_INTERA: number;
+  RESTO: number;
+  DA_ASSEGNARE: number;
+  ORDINE: number;
+  SEGGIO_DA_RESTO: boolean;
+  SEGGI: number;
+}
+
+export interface CameraListeNazRipartoTraceRow {
+  LISTA: string;
+  COALIZIONE: string | null;
+  SOGLIA1M: boolean;
+  SOGLIA3M: boolean;
+  SOGLIA_COALIZIONE: TraceBoolean;
+  SOGLIA_SOLA: TraceBoolean;
+  SOGGETTO_RIPARTO: string | null;
+}
+
+export interface CameraRipartoTrace {
+  seggi_proporzionale: TraceNumber;
+  totale_naz_riparto: TraceNumber;
+  quoziente_elettorale_naz: TraceNumber;
+  ancora_da_attribuire: TraceNumber;
+  riparto_naz: CameraRipartoNazTraceRow[];
+  ammesse_naz: CameraAmmesseNazTraceRow[];
+  liste_naz_riparto: CameraListeNazRipartoTraceRow[];
+}
+
 export interface PoliticsEarlyTrace {
   candidati_uni_elezione: CandidatoUniResultRow[];
   candidati_uni_attribuzione: CandidatoUniAttributionTraceRow[];
@@ -194,6 +241,7 @@ export interface PoliticsScrutinyTrace extends PoliticsEarlyTrace {
   liste_circ_soglie: ListeCircSoglieTraceRow[];
   coal_naz_soglie: CoalNazSoglieTraceRow[];
   coal_circ_cifre: CoalCircCifreTraceRow[];
+  camera_riparto: CameraRipartoTrace;
 }
 
 export interface PoliticsScrutinyInput {
@@ -205,6 +253,8 @@ export interface PoliticsScrutinyInput {
 export interface PoliticsScrutinyContext {
   ramo: Ramo;
   liste_naz: ListaNazRow[];
+  totali_pluri: TotaliPluriRow[];
+  totale_seggi: number;
 }
 
 export interface PoliticsScrutinyOutput {
