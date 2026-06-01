@@ -1,7 +1,12 @@
 import { describe, expect, test } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { runEarlyPoliticsScrutiny, runInitialPoliticsScrutiny, runPoliticsScrutinyTrace } from './scrutiny';
+import {
+  runEarlyPoliticsScrutiny,
+  runInitialPoliticsScrutiny,
+  runPoliticsScrutiny,
+  runPoliticsScrutinyTrace
+} from './scrutiny';
 import type {
   CandidatoUniResultRow,
   PoliticsEarlyTrace,
@@ -181,6 +186,30 @@ function expectPluriRipartoTraceToMatch(actual: PoliticsScrutinyTrace, expected:
   ]);
 }
 
+function expectOutputToMatch(
+  actual: PoliticsGoldenSimulation['expected'],
+  expected: PoliticsGoldenSimulation['expected']
+): void {
+  expectRowsToMatch(actual.liste_pluri, expected.liste_pluri, [
+    'CIRCOSCRIZIONE',
+    'COLLEGIOPLURINOMINALE',
+    'LISTA'
+  ]);
+  expectRowsToMatch(actual.candidati_uni, expected.candidati_uni, [
+    'CIRCOSCRIZIONE',
+    'COLLEGIOPLURINOMINALE',
+    'COLLEGIOUNINOMINALE',
+    'CANDIDATO'
+  ]);
+  expectRowsToMatch(actual.candidati_pluri, expected.candidati_pluri, [
+    'CIRCOSCRIZIONE',
+    'COLLEGIOPLURINOMINALE',
+    'LISTA',
+    'NUMERO',
+    'CANDIDATO'
+  ]);
+}
+
 describe('politics golden fixture', () => {
   const fixture = loadFixture();
 
@@ -226,6 +255,16 @@ describe('politics golden fixture', () => {
         expectCircRipartoTraceToMatch(actual, simulation.trace);
         expectInternalCircRipartoTraceToMatch(actual, simulation.trace);
         expectPluriRipartoTraceToMatch(actual, simulation.trace);
+      });
+
+      test(`${ramo} sim ${simulation.sim}: matches final scrutiny output like R`, () => {
+        const actual = runPoliticsScrutiny(simulation.input, {
+          ramo,
+          liste_naz: fixture.rami[ramo].liste_naz,
+          totali_pluri: fixture.rami[ramo].totali_pluri,
+          totale_seggi: fixture.rami[ramo].totale_seggi
+        });
+        expectOutputToMatch(actual, simulation.expected);
       });
     }
   }

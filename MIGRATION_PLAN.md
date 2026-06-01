@@ -29,7 +29,7 @@ R baseline on the same machine, pause and present Python fallback options.
 | R benchmarks | Done | `scripts/benchmark_r_workflows.R` added; quick baseline JSON generated. |
 | SvelteKit app scaffold | Done | `web/` created with strict TS, static adapter, Vitest, Playwright. |
 | TypeScript core | Started | Worker API types, seeded RNG, allocation primitives, fixture loader tests, and unit tests added. |
-| Politics scrutiny port | Started | Politics stages through pre-subentro plurinominal allocation now match R. Candidate/subentro handling is next. |
+| Politics scrutiny port | Started | Direct politics scrutiny output now matches R for the debug fixture. Worker integration and generated politics inputs are next. |
 | Performance gate | Pending | Compare browser politics run to fresh R baselines. |
 
 ## Decisions
@@ -108,6 +108,11 @@ Politics 100-simulation phase breakdown:
   while the current `order()` call sorts `RESTO` ascending because an extra
   `decreasing` flag is ignored. Mitigation: TypeScript preserves R behavior for
   golden parity and marks the code `TODO(law-review)`.
+- The R subentro block has two parity-sensitive behaviors that look accidental:
+  non-national same-coalition subentro calls do not pass the `coal`/`livello`
+  flags to `cerca_accettori()`, and later candidate merges implicitly include
+  `CIFRA_PERCENTUALE` as a join key. Mitigation: TypeScript preserves both and
+  marks them `TODO(law-review)`.
 
 ## Completed Work
 
@@ -133,20 +138,17 @@ Run on 2026-06-01:
 - `Rscript scripts/export_politics_golden.R`: passed.
 - `Rscript scripts/benchmark_r_workflows.R --politics-sims=10 --municipal-sims=10 --regional-sims=10 --output=test/fixtures/benchmarks/r_baseline_quick.json`: passed.
 - `cd web; npm run check`: passed with 0 warnings.
-- `cd web; npm test`: passed, 67 tests.
+- `cd web; npm test`: passed, 87 tests.
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.
 
 ## Current Caveats
 
-- The TypeScript politics scrutiny core is only partially ported. Early vote
-  figure stages, national threshold admission, Camera national/internal
-  coalition riparto, subject-level circumscription riparto, internal
-  list-in-coalition circumscription riparto, and pre-subentro plurinominal
-  allocation are tested, but elected plurinominal candidates,
-  pluricandidature, and subentro logic are still pending. The current worker returns
-  `POLITICS_SCRUTINY_NOT_PORTED` intentionally.
-- The exported politics fixture is about 64 MB because it contains direct
+- The TypeScript politics scrutiny core matches direct R scrutiny output for the
+  10-simulation debug fixture, but it is not wired into the browser worker yet.
+  The current worker still returns `POLITICS_SCRUTINY_NOT_PORTED`
+  intentionally until generated politics inputs and data snapshots are ported.
+- The exported politics fixture is about 68 MB because it contains direct
   scrutiny inputs, R trace tables, and expected outputs for 10 simulations.
 - `npm audit` reports 3 low-severity findings through SvelteKit's transitive
   `cookie` dependency. The suggested automatic fix is a semver-major downgrade
@@ -350,5 +352,32 @@ Verification so far:
 - `Rscript scripts/export_politics_golden.R`: passed.
 - `cd web; npm run check`: passed with 0 warnings.
 - `cd web; npm test`: passed, 67 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-01 Checkpoint 9
+
+Completed in the final direct-scrutiny output pass:
+
+- Added `runPoliticsScrutiny()` as the public TypeScript function that builds
+  final politics scrutiny output from the already-tested trace stages.
+- Ported candidate availability, candidate exhaustion/subentro passes,
+  pluricandidature resolution, and final
+  `liste_pluri`/`candidati_uni`/`candidati_pluri` projection.
+- Added golden parity tests for final direct scrutiny output across all 10
+  Camera and 10 Senato debug simulations.
+- Preserved two R behaviors that look accidental but affect parity:
+  - non-national same-coalition subentro calls do not pass `coal`/`livello` to
+    `cerca_accettori()`;
+  - after the first pluricandidature merge, `CIFRA_PERCENTUALE` remains on
+    `candidati_pluri` and becomes an implicit join key for later merges, so
+    late ripescati with `NA` may fail to receive `ELETTI`.
+- Both behaviors are marked `TODO(law-review)` in TypeScript and noted in
+  `AGENTS.md`.
+
+Verification so far:
+
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm test`: passed, 87 tests.
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.

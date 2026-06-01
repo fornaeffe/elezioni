@@ -11,6 +11,8 @@ import type {
   CircRipartoTraceRow,
   CoalCircCifreTraceRow,
   CoalNazSoglieTraceRow,
+  CandidatoPluriInputRow,
+  CandidatoPluriResultRow,
   CandidatoUniAttributionTraceRow,
   CandidatoUniGraduatoriaTraceRow,
   CandidatoUniInputRow,
@@ -25,6 +27,7 @@ import type {
   ListeCircCifreTraceRow,
   ListeNazSoglieTraceRow,
   ListePluriCifreTraceRow,
+  ListePluriResultRow,
   ListeUniCifreTraceRow,
   ListeUniRow,
   PluriRipartoAmmesseTraceRow,
@@ -35,6 +38,7 @@ import type {
   PoliticsEarlyTrace,
   PoliticsScrutinyContext,
   PoliticsScrutinyInput,
+  PoliticsScrutinyOutput,
   PoliticsScrutinyTrace,
   TraceBoolean,
   TotaliCircTraceRow
@@ -61,6 +65,27 @@ interface ListeUniCifreWorkingRow extends ListeUniRow {
   ORDINE: number;
   VOTO_DA_RESTO: number;
   CIFRA: number;
+}
+
+interface CandidatoUniNomineWorkingRow extends CandidatoUniInputRow {
+  ELETTO: boolean;
+  CIFRA_PERCENTUALE: number;
+  RIPESCATO: boolean;
+}
+
+interface CandidatoPluriNomineWorkingRow extends CandidatoPluriInputRow {
+  DISPONIBILE: boolean;
+  ELETTI: number;
+  CIFRA_PERCENTUALE: number | null;
+  ORDINE: number | null;
+  ELETTO: boolean;
+  ELETTO_QUI_O_ALTROVE: boolean;
+}
+
+interface PluriNomineWorkingRow extends PluriRipartoAmmesseTraceRow {
+  DECIMALI_USATI: boolean;
+  CANDIDATI: number;
+  ELETTI: number;
 }
 
 type GroupedRow<T> = T & { CIFRA: number };
@@ -102,6 +127,13 @@ function listKey(row: { LISTA: string }): string {
 
 function traceNumber(value: number): number | null {
   return Number.isFinite(value) ? value : null;
+}
+
+function requiredTraceNumber(value: number | null, label: string): number {
+  if (value === null) {
+    throw new Error(`Missing numeric trace value: ${label}`);
+  }
+  return value;
 }
 
 function rIntegerDivide(left: number, right: number): number {
@@ -1995,6 +2027,448 @@ function buildPluriRiparto(
   };
 }
 
+function buildPoliticsScrutinyOutput(
+  input: PoliticsScrutinyInput,
+  trace: PoliticsScrutinyTrace,
+  context: PoliticsScrutinyContext
+): PoliticsScrutinyOutput {
+  /*
+   * Legal basis: Camera DPR 361/1957 artt. 84-85; Senate D.Lgs. 533/1993
+   * artt. 17-bis and 17-ter.
+   *
+   * This stage fills the plurinominal seats with available candidates, applies
+   * the subentro cascade for exhausted lists, and resolves pluricandidature.
+   */
+  const electedUniCandidates = new Set(
+    trace.candidati_uni_elezione.filter((row) => row.ELETTO).map((row) => row.CANDIDATO)
+  );
+  const uniGraduatoriaByKey = new Map(
+    trace.candidati_uni_graduatoria.map((row) => [candidateKey(row), row])
+  );
+  const candidatiUni: CandidatoUniNomineWorkingRow[] = input.candidati_uni.map((row) => {
+    const graduatoria = uniGraduatoriaByKey.get(candidateKey(row));
+    if (!graduatoria) {
+      throw new Error(`Missing uninominal ranking row for ${row.COLLEGIOUNINOMINALE}/${row.CANDIDATO}`);
+    }
+
+    return {
+      ...row,
+      ELETTO: graduatoria.ELETTO,
+      CIFRA_PERCENTUALE: graduatoria.CIFRA_PERCENTUALE,
+      RIPESCATO: false
+    };
+  });
+  let candidatiPluri: CandidatoPluriNomineWorkingRow[] = input.candidati_pluri.map((row) => ({
+    ...row,
+    DISPONIBILE: !electedUniCandidates.has(row.CANDIDATO),
+    ELETTI: 0,
+    CIFRA_PERCENTUALE: null,
+    ORDINE: null,
+    ELETTO: false,
+    ELETTO_QUI_O_ALTROVE: false
+  }));
+  let candidatiPluriHasCifraPercentuale = false;
+  const ammesse: PluriNomineWorkingRow[] = trace.pluri_riparto.ammesse_pluri.map((row) => ({
+    ...row,
+    DECIMALI_USATI: row.SEGGIO_DA_DECIMALI,
+    CANDIDATI: 0,
+    ELETTI: 0
+  }));
+  const coalitionByList = new Map(context.liste_naz.map((row) => [row.LISTA, row.COALIZIONE]));
+  const listsByCoalition = new Map<string, Set<string>>();
+  for (const row of context.liste_naz) {
+    if (row.COALIZIONE === null) continue;
+    const lists = listsByCoalition.get(row.COALIZIONE) ?? new Set<string>();
+    lists.add(row.LISTA);
+    listsByCoalition.set(row.COALIZIONE, lists);
+  }
+  const uniCandidatesByList = new Map<string, Set<string>>();
+  for (const row of input.liste_uni) {
+    const candidates = uniCandidatesByList.get(row.LISTA) ?? new Set<string>();
+    candidates.add(row.CANDIDATO);
+    uniCandidatesByList.set(row.LISTA, candidates);
+  }
+
+  const ammesseKey = (row: {
+    CIRCOSCRIZIONE: AdministrativeCode;
+    COLLEGIOPLURINOMINALE: AdministrativeCode;
+    LISTA: string;
+  }) => keyOf(row.CIRCOSCRIZIONE, row.COLLEGIOPLURINOMINALE, row.LISTA);
+  const listSet = (list: string, coal: boolean): Set<string> => {
+    if (!coal) return new Set([list]);
+
+    const coalition = coalitionByList.get(list);
+    return coalition === undefined || coalition === null
+      ? new Set<string>()
+      : new Set(listsByCoalition.get(coalition) ?? []);
+  };
+
+  const recomputeCandidateCounts = () => {
+    const counts = new Map<string, number>();
+    for (const candidate of candidatiPluri) {
+      if (!candidate.DISPONIBILE) continue;
+
+      const key = ammesseKey(candidate);
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+
+    for (const row of ammesse) {
+      row.CANDIDATI = counts.get(ammesseKey(row)) ?? 0;
+      row.ELETTI = Math.min(row.SEGGI, row.CANDIDATI);
+    }
+
+    ammesse.sort((left, right) => {
+      const byCirc = compareAscending(String(left.CIRCOSCRIZIONE), String(right.CIRCOSCRIZIONE));
+      if (byCirc !== 0) return byCirc;
+
+      const byPluri = compareAscending(String(left.COLLEGIOPLURINOMINALE), String(right.COLLEGIOPLURINOMINALE));
+      if (byPluri !== 0) return byPluri;
+
+      return compareAscending(left.LISTA, right.LISTA);
+    });
+  };
+  const updateElectedForRows = (indexes: number[]) => {
+    for (const index of indexes) {
+      const row = ammesse[index];
+      row.ELETTI = Math.min(row.SEGGI, row.CANDIDATI);
+    }
+  };
+  const decimalValue = (row: { DECIMALI: number | null }) => requiredTraceNumber(row.DECIMALI, 'DECIMALI');
+
+  const cercaAccettori = (
+    donorIndex: number,
+    circ: AdministrativeCode = ammesse[donorIndex].CIRCOSCRIZIONE,
+    coal = false,
+    pluri = false
+  ): boolean => {
+    const donor = ammesse[donorIndex];
+    const candidateLists = listSet(donor.LISTA, coal);
+    const acceptors = ammesse
+      .map((row, index) => ({ row, index }))
+      .filter(({ row }) => {
+        const ambito = pluri
+          ? row.COLLEGIOPLURINOMINALE === donor.COLLEGIOPLURINOMINALE
+          : row.CIRCOSCRIZIONE === circ;
+
+        return ambito && candidateLists.has(row.LISTA) && row.ELETTI < row.CANDIDATI;
+      })
+      .sort((left, right) => {
+        const byUsedDecimal = compareAscending(Number(left.row.DECIMALI_USATI), Number(right.row.DECIMALI_USATI));
+        if (byUsedDecimal !== 0) return byUsedDecimal;
+
+        return compareDescending(decimalValue(left.row), decimalValue(right.row));
+      });
+
+    const recipient = acceptors[0];
+    if (!recipient) return false;
+
+    donor.SEGGI -= 1;
+    recipient.row.SEGGI += 1;
+    recipient.row.DECIMALI_USATI = true;
+    updateElectedForRows([donorIndex, recipient.index]);
+    return true;
+  };
+
+  const cercaAccettoriUni = (
+    donorIndex: number,
+    circ: AdministrativeCode = ammesse[donorIndex].CIRCOSCRIZIONE,
+    pluri = false
+  ): boolean => {
+    const donor = ammesse[donorIndex];
+    const listCandidates = uniCandidatesByList.get(donor.LISTA) ?? new Set<string>();
+    const acceptors = candidatiUni
+      .map((row, index) => ({ row, index }))
+      .filter(({ row }) => {
+        const ambito = pluri
+          ? row.COLLEGIOPLURINOMINALE === donor.COLLEGIOPLURINOMINALE
+          : row.CIRCOSCRIZIONE === circ;
+
+        return ambito && !row.ELETTO && listCandidates.has(row.CANDIDATO) && !row.RIPESCATO;
+      })
+      .sort((left, right) => {
+        const byFigure = compareDescending(left.row.CIFRA_PERCENTUALE, right.row.CIFRA_PERCENTUALE);
+        if (byFigure !== 0) return byFigure;
+
+        return compareDescending(left.row.DATA_NASCITA, right.row.DATA_NASCITA);
+      });
+
+    const recipient = acceptors[0];
+    if (!recipient) return false;
+
+    const maxNumber = Math.max(
+      0,
+      ...candidatiPluri
+        .filter(
+          (row) => row.LISTA === donor.LISTA && row.COLLEGIOPLURINOMINALE === donor.COLLEGIOPLURINOMINALE
+        )
+        .map((row) => row.NUMERO)
+    );
+    candidatiPluri.push({
+      LISTA: donor.LISTA,
+      CIRCOSCRIZIONE: donor.CIRCOSCRIZIONE,
+      COLLEGIOPLURINOMINALE: donor.COLLEGIOPLURINOMINALE,
+      NUMERO: maxNumber + 1,
+      CANDIDATO: recipient.row.CANDIDATO,
+      DISPONIBILE: true,
+      ELETTI: 0,
+      CIFRA_PERCENTUALE: null,
+      ORDINE: null,
+      ELETTO: false,
+      ELETTO_QUI_O_ALTROVE: false
+    });
+
+    donor.CANDIDATI += 1;
+    donor.ELETTI += 1;
+    recipient.row.RIPESCATO = true;
+    return true;
+  };
+
+  const cercaNaz = (donorIndex: number, decimaliUsati = false, coal = false, uni = false): void => {
+    const donor = ammesse[donorIndex];
+    const candidateLists = listSet(donor.LISTA, coal);
+    const candidateRows = ammesse.filter(
+      (row) => candidateLists.has(row.LISTA) && row.DECIMALI_USATI === decimaliUsati
+    );
+
+    if (candidateRows.length === 0) {
+      return;
+    }
+
+    const maxDecimalByCirc = new Map<AdministrativeCode, number>();
+    for (const row of candidateRows) {
+      const current = maxDecimalByCirc.get(row.CIRCOSCRIZIONE);
+      const rowDecimal = decimalValue(row);
+      if (current === undefined || rowDecimal > current) {
+        maxDecimalByCirc.set(row.CIRCOSCRIZIONE, rowDecimal);
+      }
+    }
+
+    const acceptingCircs = [...maxDecimalByCirc.entries()].sort((left, right) => {
+      const byDecimal = compareDescending(left[1], right[1]);
+      if (byDecimal !== 0) return byDecimal;
+
+      return compareAscending(left[0], right[0]);
+    });
+    for (const [candidateCirc] of acceptingCircs) {
+      const moved = uni
+        ? cercaAccettoriUni(donorIndex, candidateCirc)
+        : cercaAccettori(donorIndex, candidateCirc, coal);
+      if (moved) break;
+    }
+  };
+
+  const subentro = (livello: 'pluri' | 'circ' | 'naz' = 'circ', uni = false, coal = false): void => {
+    const donors = ammesse
+      .map((row, index) => ({ row, index }))
+      .filter(({ row }) => row.SEGGI - row.ELETTI > 0)
+      .map(({ index }) => index);
+
+    for (const donorIndex of donors) {
+      let daSpostare = ammesse[donorIndex].SEGGI - ammesse[donorIndex].ELETTI;
+      if (daSpostare <= 0) continue;
+
+      if (livello === 'naz') {
+        for (let count = 0; count < daSpostare; count += 1) {
+          cercaNaz(donorIndex, false, coal, uni);
+        }
+
+        daSpostare = ammesse[donorIndex].SEGGI - ammesse[donorIndex].ELETTI;
+        if (daSpostare <= 0) continue;
+
+        for (let count = 0; count < daSpostare; count += 1) {
+          cercaNaz(donorIndex, true, coal, uni);
+        }
+        continue;
+      }
+
+      if (uni) {
+        for (let count = 0; count < daSpostare; count += 1) {
+          cercaAccettoriUni(donorIndex, ammesse[donorIndex].CIRCOSCRIZIONE, livello === 'pluri');
+        }
+        continue;
+      }
+
+      /*
+       * TODO(law-review): the R subentro() signature accepts `livello` and
+       * `coal`, and its messages describe coalition/plurinominal searches.
+       * For non-national plurinominal-candidate searches it still calls
+       * cerca_accettori(i) without passing either flag. Preserve that behavior
+       * for parity before deciding whether the law requires a correction.
+       */
+      for (let count = 0; count < daSpostare; count += 1) {
+        cercaAccettori(donorIndex);
+      }
+    }
+  };
+
+  const runInitialSubentri = () => {
+    subentro();
+    subentro('pluri', true);
+    subentro('circ', true);
+    if (context.ramo === 'camera') subentro('naz');
+    subentro('pluri', false, true);
+    if (context.ramo === 'camera') subentro('naz', true);
+    if (context.ramo === 'camera') subentro('naz', false, true);
+
+    /*
+     * TODO(law-review): the R implementation notes that these Senate national
+     * fallback passes are not provided by the law text, but were used in 2018.
+     */
+    if (context.ramo === 'senato') subentro('naz');
+    if (context.ramo === 'senato') subentro('naz', true);
+    if (context.ramo === 'senato') subentro('naz', false, true);
+  };
+  const runDuplicateSubentri = () => {
+    subentro();
+    subentro('pluri', true);
+    subentro('circ', true);
+    if (context.ramo === 'camera') subentro('naz');
+    subentro('pluri', false, true);
+    subentro('circ', false, true);
+    if (context.ramo === 'senato') subentro('naz');
+  };
+  const assignPluriElected = () => {
+    const ammesseByKey = new Map(ammesse.map((row) => [ammesseKey(row), row]));
+    candidatiPluri = candidatiPluri.map((candidate) => {
+      const baseRow = ammesseByKey.get(ammesseKey(candidate));
+      /*
+       * TODO(law-review): after the first R merge, CIFRA_PERCENTUALE remains
+       * on candidati_pluri and silently becomes part of later merge keys.
+       * Uninominal candidates ripescati after that point carry NA and therefore
+       * fail to match the plurinominal row. Preserve this behavior for parity.
+       */
+      const row =
+        !candidatiPluriHasCifraPercentuale ||
+        (candidate.CIFRA_PERCENTUALE !== null &&
+          baseRow !== undefined &&
+          candidate.CIFRA_PERCENTUALE === baseRow.CIFRA_PERCENTUALE)
+          ? baseRow
+          : undefined;
+      return {
+        ...candidate,
+        ELETTI: row?.ELETTI ?? 0,
+        CIFRA_PERCENTUALE: row?.CIFRA_PERCENTUALE ?? candidate.CIFRA_PERCENTUALE
+      };
+    });
+    candidatiPluriHasCifraPercentuale = true;
+
+    candidatiPluri.sort((left, right) => {
+      const byUnavailable = compareAscending(Number(!left.DISPONIBILE), Number(!right.DISPONIBILE));
+      if (byUnavailable !== 0) return byUnavailable;
+
+      const byCirc = compareAscending(left.CIRCOSCRIZIONE, right.CIRCOSCRIZIONE);
+      if (byCirc !== 0) return byCirc;
+
+      const byPluri = compareAscending(left.COLLEGIOPLURINOMINALE, right.COLLEGIOPLURINOMINALE);
+      if (byPluri !== 0) return byPluri;
+
+      const byList = compareAscending(left.LISTA, right.LISTA);
+      if (byList !== 0) return byList;
+
+      return compareAscending(left.NUMERO, right.NUMERO);
+    });
+
+    const orderByPluriList = new Map<string, number>();
+    for (const candidate of candidatiPluri) {
+      candidate.ORDINE = null;
+      if (candidate.DISPONIBILE) {
+        const groupKey = ammesseKey(candidate);
+        const order = (orderByPluriList.get(groupKey) ?? 0) + 1;
+        orderByPluriList.set(groupKey, order);
+        candidate.ORDINE = order;
+      }
+
+      candidate.ELETTO =
+        candidate.DISPONIBILE && candidate.ORDINE !== null && candidate.ORDINE <= candidate.ELETTI;
+    }
+  };
+
+  recomputeCandidateCounts();
+  runInitialSubentri();
+
+  for (let iteration = 0; iteration < 100; iteration += 1) {
+    assignPluriElected();
+
+    candidatiPluri.sort((left, right) => {
+      const byAvailable = compareDescending(Number(left.DISPONIBILE), Number(right.DISPONIBILE));
+      if (byAvailable !== 0) return byAvailable;
+
+      const byCandidate = compareAscending(left.CANDIDATO, right.CANDIDATO);
+      if (byCandidate !== 0) return byCandidate;
+
+      const byElected = compareDescending(Number(left.ELETTO), Number(right.ELETTO));
+      if (byElected !== 0) return byElected;
+
+      return compareNullableNumberAscending(
+        left.CIFRA_PERCENTUALE ?? Number.NaN,
+        right.CIFRA_PERCENTUALE ?? Number.NaN
+      );
+    });
+
+    const seenCandidates = new Set<string>();
+    const unavailableIndexes: number[] = [];
+    for (const [index, candidate] of candidatiPluri.entries()) {
+      const duplicated = seenCandidates.has(candidate.CANDIDATO);
+      seenCandidates.add(candidate.CANDIDATO);
+      if (candidate.ELETTO && candidate.DISPONIBILE && duplicated) {
+        unavailableIndexes.push(index);
+      }
+    }
+
+    if (unavailableIndexes.length === 0) break;
+
+    for (const index of unavailableIndexes) {
+      candidatiPluri[index].ELETTO = false;
+      candidatiPluri[index].DISPONIBILE = false;
+    }
+
+    recomputeCandidateCounts();
+    runDuplicateSubentri();
+  }
+
+  const electedPluriCandidates = new Set(
+    candidatiPluri.filter((candidate) => candidate.ELETTO).map((candidate) => candidate.CANDIDATO)
+  );
+  const electedHereOrElsewhere = new Set([...electedPluriCandidates, ...electedUniCandidates]);
+  for (const candidate of candidatiPluri) {
+    candidate.ELETTO_QUI_O_ALTROVE = electedHereOrElsewhere.has(candidate.CANDIDATO);
+  }
+
+  const ammesseByKey = new Map(ammesse.map((row) => [ammesseKey(row), row]));
+  const maxElectedNumberByPluriList = new Map<string, number>();
+  for (const candidate of candidatiPluri) {
+    if (!candidate.ELETTO) continue;
+
+    const key = ammesseKey(candidate);
+    maxElectedNumberByPluriList.set(key, Math.max(maxElectedNumberByPluriList.get(key) ?? 0, candidate.NUMERO));
+  }
+
+  return {
+    liste_pluri: trace.pluri_riparto.liste_pluri.map((row): ListePluriResultRow => {
+      const ammesseRow = ammesseByKey.get(ammesseKey(row));
+      const seatsBeforeSubentri = ammesseRow?.SEGGI_PRE_SUBENTRI ?? 0;
+      return {
+        CIRCOSCRIZIONE: row.CIRCOSCRIZIONE,
+        COLLEGIOPLURINOMINALE: row.COLLEGIOPLURINOMINALE,
+        LISTA: row.LISTA,
+        ELETTI: ammesseRow?.ELETTI ?? 0,
+        NUMERO_MAX: Math.max(maxElectedNumberByPluriList.get(ammesseKey(row)) ?? 0, seatsBeforeSubentri),
+        SEGGI_PRE_SUBENTRI: seatsBeforeSubentri
+      };
+    }),
+    candidati_uni: trace.candidati_uni_elezione,
+    candidati_pluri: candidatiPluri.map((candidate): CandidatoPluriResultRow => ({
+      CIRCOSCRIZIONE: candidate.CIRCOSCRIZIONE,
+      COLLEGIOPLURINOMINALE: candidate.COLLEGIOPLURINOMINALE,
+      LISTA: candidate.LISTA,
+      NUMERO: candidate.NUMERO,
+      CANDIDATO: candidate.CANDIDATO,
+      ELETTO: candidate.ELETTO,
+      ELETTO_QUI_O_ALTROVE: candidate.ELETTO_QUI_O_ALTROVE
+    }))
+  };
+}
+
 function projectCandidateAttribution(row: CandidatoUniAttributionWorkingRow): CandidatoUniAttributionTraceRow {
   return {
     CIRCOSCRIZIONE: row.CIRCOSCRIZIONE,
@@ -2102,6 +2576,11 @@ export function runPoliticsScrutinyTrace(
     internal_circ_riparto: internalCircRiparto,
     pluri_riparto: pluriRiparto
   };
+}
+
+export function runPoliticsScrutiny(input: PoliticsScrutinyInput, context: PoliticsScrutinyContext): PoliticsScrutinyOutput {
+  const trace = runPoliticsScrutinyTrace(input, context);
+  return buildPoliticsScrutinyOutput(input, trace, context);
 }
 
 export function runInitialPoliticsScrutiny(input: PoliticsScrutinyInput): InitialPoliticsScrutinyState {

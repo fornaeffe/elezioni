@@ -98,6 +98,16 @@ simulation 4.
   but the current `order()` call provides six `decreasing` values for five keys.
   R ignores the final `TRUE`, so `RESTO` is effectively sorted ascending. The
   TypeScript port preserves this for parity and marks it `TODO(law-review)`.
+- In the politics subentro block, `subentro(livello = "pluri", coal = TRUE)`
+  and `subentro(livello = "circ", coal = TRUE)` describe same-coalition
+  searches in messages, but the non-national plurinominal-candidate path calls
+  `cerca_accettori(i)` without passing `livello` or `coal`. The TypeScript port
+  preserves this for parity and marks it `TODO(law-review)`.
+- During politics pluricandidature resolution, R leaves `CIFRA_PERCENTUALE` on
+  `candidati_pluri`; later `merge()` calls then use it as an implicit join key.
+  Uninominal candidates ripescati after that point have `NA` and can fail to
+  receive `ELETTI`. This appears accidental but is preserved for parity and
+  marked `TODO(law-review)`.
 - Politics code has explicit FIX/TODO notes around Valle d'Aosta and
   Trentino-Alto Adige/Senate handling. Treat these as migration review points.
 
@@ -150,18 +160,19 @@ simulation 4.
 - `web/` contains the initial static SvelteKit app scaffold, strict TypeScript
   setup, worker API types, seeded RNG, allocation primitives, unit tests, and a
   Playwright smoke test.
-- The TypeScript politics scrutiny port now matches the R golden fixture through
-  pre-subentro plurinominal seat allocation: uninominal candidate election,
+- The TypeScript politics scrutiny port now matches the R golden fixture for
+  direct scrutiny output on the debug fixture: uninominal candidate election,
   candidate-only vote attribution to lists, plurinominal/circumscription
   aggregates, uninominal candidate percentages, circumscription totals,
   national list/coalition figures, 1%/3%/10% threshold flags, Camera national
   proportional allocation, Camera/Senato subject-level circumscription seat
   allocation with Camera flipper reconciliation, internal list allocation with
   the second Camera flipper reconciliation, and Camera/Senato plurinominal
-  allocation with reconciliation back to circumscription list seats. The later
-  elected plurinominal candidates, pluricandidature, and subentro logic are
-  still pending; the worker currently returns a deliberate
-  `POLITICS_SCRUTINY_NOT_PORTED` warning.
+  allocation with reconciliation back to circumscription list seats, candidate
+  availability, subentro, pluricandidature resolution, and final
+  `liste_pluri`/`candidati_uni`/`candidati_pluri` outputs. The worker still
+  returns a deliberate `POLITICS_SCRUTINY_NOT_PORTED` warning because the
+  browser workflow is not wired to real generated politics inputs yet.
 - In the Camera internal list-in-coalition flipper, the R code decrements the
   recipient list's `SEGGI_ECCEDENTI_CONTATORE` after giving it a seat. This
   appears counterintuitive but is preserved in TypeScript for parity and marked
