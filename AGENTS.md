@@ -93,6 +93,11 @@ simulation 4.
 - Several law comments mention `sorteggio`, but not every politics tie-break path
   appears to use an explicit random draw. Preserve current behavior for golden
   tests first, then review legally with Luca.
+- In `R/politiche/scrutinio.R`, the remainder-vote attribution for
+  candidate-only uninominal votes says remainders should be ordered descending,
+  but the current `order()` call provides six `decreasing` values for five keys.
+  R ignores the final `TRUE`, so `RESTO` is effectively sorted ascending. The
+  TypeScript port preserves this for parity and marks it `TODO(law-review)`.
 - Politics code has explicit FIX/TODO notes around Valle d'Aosta and
   Trentino-Alto Adige/Senate handling. Treat these as migration review points.
 
@@ -128,14 +133,21 @@ simulation 4.
   `candidati_pluri_sim_` to `candidati_pluri_sim`; the debug scrutiny fixture
   still matches exactly after this rename.
 - `scripts/export_politics_golden.R` exports the direct politics scrutiny JSON
-  fixture used by the TypeScript port.
+  fixture used by the TypeScript port. Fixture schema v3 stores R-produced
+  trace tables for uninominal election, uninominal list-vote attribution,
+  plurinominal/circumscription figures, uninominal candidate percentages,
+  circumscription totals, national list/coalition figures, and threshold flags.
 - `scripts/benchmark_r_workflows.R` reruns R baseline workflows.
 - `web/` contains the initial static SvelteKit app scaffold, strict TypeScript
   setup, worker API types, seeded RNG, allocation primitives, unit tests, and a
   Playwright smoke test.
-- The first TypeScript politics scrutiny stage, uninominal candidate election,
-  is ported and matches the R golden fixture for all current Camera/Senato debug
-  simulations. The rest of the politics scrutiny core is not ported yet; the
-  worker currently returns a deliberate `POLITICS_SCRUTINY_NOT_PORTED` warning.
+- The TypeScript politics scrutiny port now matches the R golden fixture through
+  national threshold admission: uninominal candidate election, candidate-only
+  vote attribution to lists, plurinominal/circumscription aggregates,
+  uninominal candidate percentages, circumscription totals, national
+  list/coalition figures, and 1%/3%/10% threshold flags. The later seat
+  allocation, elected plurinominal candidates, pluricandidature, and subentro
+  logic are still pending; the worker currently returns a deliberate
+  `POLITICS_SCRUTINY_NOT_PORTED` warning.
 - When posting Svelte `$state` data to workers, derive or build plain snapshots
   first. Svelte proxies are not structured-clone safe.

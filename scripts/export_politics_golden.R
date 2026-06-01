@@ -60,6 +60,405 @@ capture_conditions <- function(expr) {
   list(value = value, warnings = as.list(warnings), messages = as.list(messages))
 }
 
+compute_early_trace <- function(liste_uni, candidati_uni, liste_naz_input, ramo) {
+  liste_naz <- as.data.frame(liste_naz_input, stringsAsFactors = FALSE)
+
+  candidati_uni <- candidati_uni[order(
+    candidati_uni$CIRCOSCRIZIONE,
+    candidati_uni$COLLEGIOPLURINOMINALE,
+    candidati_uni$COLLEGIOUNINOMINALE,
+    candidati_uni$VOTI_CANDIDATO,
+    candidati_uni$DATA_NASCITA,
+    decreasing = c("FALSE", "FALSE", "FALSE", "TRUE", "TRUE"),
+    method = "radix"
+  ), ]
+
+  candidati_uni$ELETTO <- !duplicated(candidati_uni$COLLEGIOUNINOMINALE)
+
+  candidati_uni_elezione <- candidati_uni[, c(
+    "CIRCOSCRIZIONE",
+    "COLLEGIOPLURINOMINALE",
+    "COLLEGIOUNINOMINALE",
+    "CANDIDATO",
+    "ELETTO"
+  )]
+
+  if (nrow(liste_uni) == 0) stop("Errore alla riga 144")
+
+  candidati_uni <- merge(
+    candidati_uni,
+    aggregate(
+      VOTI_LISTA ~ COLLEGIOUNINOMINALE + CANDIDATO,
+      liste_uni,
+      sum
+    ),
+    all.x = TRUE
+  )
+
+  candidati_uni$VOTI_LISTA[is.na(candidati_uni$VOTI_LISTA)] <- 0
+
+  candidati_uni$VOTI_SOLO_CANDIDATO <-
+    candidati_uni$VOTI_CANDIDATO - candidati_uni$VOTI_LISTA
+
+  candidati_uni$QUOZIENTE <-
+    candidati_uni$VOTI_LISTA / candidati_uni$VOTI_SOLO_CANDIDATO
+
+  liste_uni <- merge(
+    liste_uni,
+    candidati_uni[, c(
+      "COLLEGIOUNINOMINALE",
+      "CANDIDATO",
+      "ELETTO",
+      "QUOZIENTE"
+    )],
+    all.x = TRUE
+  )
+
+  liste_uni$PARTE_INTERA <-
+    liste_uni$VOTI_LISTA %/% liste_uni$QUOZIENTE
+  liste_uni$RESTO <-
+    liste_uni$VOTI_LISTA %% liste_uni$QUOZIENTE
+
+  liste_uni$PARTE_INTERA[
+    liste_uni$PARTE_INTERA < 0 |
+      is.na(liste_uni$PARTE_INTERA) |
+      is.nan(liste_uni$PARTE_INTERA)
+  ] <- 0
+
+  if (nrow(liste_uni) == 0) stop("Errore alla riga 184")
+
+  candidati_uni <- merge(
+    candidati_uni,
+    aggregate(
+      PARTE_INTERA ~ COLLEGIOUNINOMINALE + CANDIDATO,
+      liste_uni,
+      sum
+    ),
+    all.x = TRUE
+  )
+
+  candidati_uni$PARTE_INTERA[is.na(candidati_uni$PARTE_INTERA)] <- 0
+
+  candidati_uni$DA_ASSEGNARE <-
+    candidati_uni$VOTI_SOLO_CANDIDATO - candidati_uni$PARTE_INTERA
+
+  liste_uni <- merge(
+    liste_uni,
+    candidati_uni[, c("COLLEGIOUNINOMINALE", "CANDIDATO", "DA_ASSEGNARE")],
+    all.x = TRUE
+  )
+
+  liste_uni <- liste_uni[order(
+    liste_uni$CIRCOSCRIZIONE,
+    liste_uni$COLLEGIOPLURINOMINALE,
+    liste_uni$COLLEGIOUNINOMINALE,
+    liste_uni$CANDIDATO,
+    liste_uni$RESTO,
+    decreasing = c("FALSE", "FALSE", "FALSE", "FALSE", "FALSE", "TRUE"),
+    method = "radix"
+  ), ]
+
+  liste_uni$ORDINE <- ave(
+    seq_along(liste_uni$CIRCOSCRIZIONE),
+    paste(liste_uni$COLLEGIOUNINOMINALE, liste_uni$CANDIDATO),
+    FUN = seq_along
+  )
+
+  liste_uni$VOTO_DA_RESTO <- liste_uni$ORDINE <= liste_uni$DA_ASSEGNARE
+
+  liste_uni$VOTO_DA_RESTO[
+    is.na(liste_uni$VOTO_DA_RESTO) | is.nan(liste_uni$VOTO_DA_RESTO)
+  ] <- 0
+
+  liste_uni$CIFRA <-
+    liste_uni$VOTI_LISTA +
+    liste_uni$PARTE_INTERA +
+    liste_uni$VOTO_DA_RESTO
+
+  if (nrow(liste_uni) == 0) stop("Errore alla riga 242")
+
+  liste_pluri <- aggregate(
+    CIFRA ~ CIRCOSCRIZIONE + COLLEGIOPLURINOMINALE + LISTA,
+    liste_uni,
+    sum
+  )
+
+  if (nrow(liste_pluri) == 0) stop("Errore alla riga 250")
+
+  liste_pluri <- merge(
+    liste_pluri,
+    aggregate(
+      CIFRA ~ COLLEGIOPLURINOMINALE,
+      liste_pluri,
+      sum
+    ),
+    by = "COLLEGIOPLURINOMINALE",
+    suffixes = c("", "_TOT")
+  )
+
+  liste_pluri$CIFRA_PERCENTUALE <-
+    liste_pluri$CIFRA / liste_pluri$CIFRA_TOT * 100
+
+  if (nrow(liste_pluri) == 0) stop("Errore alla riga 272")
+
+  liste_circ <- aggregate(
+    CIFRA ~ CIRCOSCRIZIONE + LISTA,
+    liste_pluri,
+    sum
+  )
+
+  if (nrow(candidati_uni) == 0) stop("Errore alla riga 297")
+
+  candidati_uni <- merge(
+    candidati_uni,
+    aggregate(
+      VOTI_CANDIDATO ~ COLLEGIOUNINOMINALE,
+      candidati_uni,
+      sum
+    ),
+    by = "COLLEGIOUNINOMINALE",
+    suffixes = c("", "_TOT")
+  )
+
+  candidati_uni$CIFRA_PERCENTUALE <-
+    candidati_uni$VOTI_CANDIDATO / candidati_uni$VOTI_CANDIDATO_TOT * 100
+
+  totali_circ <- aggregate(
+    CIFRA ~ CIRCOSCRIZIONE,
+    liste_circ,
+    sum
+  )
+
+  liste_naz <- merge(
+    liste_naz,
+    aggregate(
+      CIFRA ~ LISTA,
+      liste_circ,
+      sum
+    )
+  )
+
+  totale_naz <- sum(liste_naz$CIFRA)
+
+  liste_naz$CIFRA_PERCENTUALE <- liste_naz$CIFRA / totale_naz * 100
+
+  liste_circ <- merge(
+    liste_circ,
+    totali_circ,
+    by = "CIRCOSCRIZIONE",
+    suffixes = c("", "_TOT")
+  )
+
+  liste_circ$CIFRA_PERCENTUALE <- liste_circ$CIFRA / liste_circ$CIFRA_TOT * 100
+
+  if (sum(liste_uni$CAND_MINORANZA) > 0) {
+    liste_circ <- merge(
+      liste_circ,
+      aggregate(
+        ELETTO ~ CIRCOSCRIZIONE + LISTA,
+        liste_uni[liste_uni$CAND_MINORANZA, ],
+        sum
+      ),
+      all.x = TRUE
+    )
+    names(liste_circ)[names(liste_circ) == "ELETTO"] <- "ELETTI_MINORANZA"
+  } else {
+    liste_circ$ELETTI_MINORANZA <- 0
+  }
+
+  liste_circ$ELETTI_MINORANZA[is.na(liste_circ$ELETTI_MINORANZA)] <- 0
+
+  liste_circ <- merge(
+    liste_circ,
+    aggregate(
+      COLLEGIOUNINOMINALE ~ CIRCOSCRIZIONE,
+      unique(liste_uni[, c("CIRCOSCRIZIONE", "COLLEGIOUNINOMINALE")]),
+      length
+    )
+  )
+  names(liste_circ)[names(liste_circ) == "COLLEGIOUNINOMINALE"] <- "COLLEGI_UNI"
+
+  liste_circ$SOGLIA20 <- liste_circ$CIFRA_PERCENTUALE >= 20
+  liste_circ$SOGLIA_MINORANZA <-
+    liste_circ$ELETTI_MINORANZA >= ceiling(liste_circ$COLLEGI_UNI / 4)
+
+  liste_naz <- merge(
+    liste_naz,
+    aggregate(
+      SOGLIA20 ~ LISTA,
+      liste_circ,
+      function(x) Reduce("|", x)
+    )
+  )
+
+  liste_naz <- merge(
+    liste_naz,
+    aggregate(
+      SOGLIA_MINORANZA ~ LISTA,
+      liste_circ,
+      function(x) Reduce("|", x)
+    )
+  )
+
+  liste_naz$SOGLIA1M <-
+    liste_naz$CIFRA_PERCENTUALE >= 1 |
+    (liste_naz$SOGLIA20 & (liste_naz$MINORANZA | ramo == "senato")) |
+    liste_naz$SOGLIA_MINORANZA
+
+  if (nrow(liste_naz[liste_naz$SOGLIA1M, ]) == 0) stop("Errore alla riga 476")
+
+  coal_naz <- aggregate(
+    CIFRA ~ COALIZIONE,
+    data = liste_naz,
+    sum,
+    subset = SOGLIA1M
+  )
+
+  liste_circ <- merge(
+    liste_circ,
+    liste_naz[, c("LISTA", "SOGLIA1M", "COALIZIONE", "MINORANZA")]
+  )
+
+  if (nrow(liste_circ[liste_circ$SOGLIA1M, ]) == 0) stop("Errore alla riga 494")
+
+  coal_circ <- aggregate(
+    CIFRA ~ CIRCOSCRIZIONE + COALIZIONE,
+    liste_circ,
+    sum,
+    subset = SOGLIA1M
+  )
+
+  coal_naz$CIFRA_PERCENTUALE <-
+    coal_naz$CIFRA / totale_naz * 100
+
+  liste_naz$SOGLIA3 <- liste_naz$CIFRA_PERCENTUALE >= 3
+
+  liste_naz$SOGLIA3M <-
+    liste_naz$SOGLIA3 |
+    (liste_naz$SOGLIA20 & (liste_naz$MINORANZA | ramo == "senato")) |
+    liste_naz$SOGLIA_MINORANZA
+
+  coal_naz <- merge(
+    coal_naz,
+    aggregate(
+      SOGLIA3M ~ COALIZIONE,
+      data = liste_naz,
+      function(x) Reduce("|", x)
+    )
+  )
+
+  coal_naz$SOGLIA_COALIZIONE <-
+    coal_naz$CIFRA_PERCENTUALE >= 10 &
+    coal_naz$SOGLIA3M
+
+  liste_naz <- merge(
+    liste_naz,
+    coal_naz[, c("COALIZIONE", "SOGLIA_COALIZIONE")],
+    all.x = TRUE
+  )
+
+  liste_naz$SOGLIA_SOLA <-
+    (is.na(liste_naz$COALIZIONE) | !liste_naz$SOGLIA_COALIZIONE) &
+    liste_naz$SOGLIA3M
+
+  list(
+    totale_naz = totale_naz,
+    candidati_uni_elezione = candidati_uni_elezione,
+    candidati_uni_attribuzione = candidati_uni[, c(
+      "CIRCOSCRIZIONE",
+      "COLLEGIOPLURINOMINALE",
+      "COLLEGIOUNINOMINALE",
+      "CANDIDATO",
+      "VOTI_CANDIDATO",
+      "VOTI_LISTA",
+      "VOTI_SOLO_CANDIDATO",
+      "QUOZIENTE",
+      "PARTE_INTERA",
+      "DA_ASSEGNARE"
+    )],
+    liste_uni_cifre = liste_uni[, c(
+      "CIRCOSCRIZIONE",
+      "COLLEGIOPLURINOMINALE",
+      "COLLEGIOUNINOMINALE",
+      "CANDIDATO",
+      "LISTA",
+      "VOTI_LISTA",
+      "ELETTO",
+      "QUOZIENTE",
+      "PARTE_INTERA",
+      "RESTO",
+      "DA_ASSEGNARE",
+      "ORDINE",
+      "VOTO_DA_RESTO",
+      "CIFRA"
+    )],
+    liste_pluri_cifre = liste_pluri[, c(
+      "CIRCOSCRIZIONE",
+      "COLLEGIOPLURINOMINALE",
+      "LISTA",
+      "CIFRA",
+      "CIFRA_TOT",
+      "CIFRA_PERCENTUALE"
+    )],
+    liste_circ_cifre = liste_circ[, c(
+      "CIRCOSCRIZIONE",
+      "LISTA",
+      "CIFRA"
+    )],
+    candidati_uni_graduatoria = candidati_uni[, c(
+      "CIRCOSCRIZIONE",
+      "COLLEGIOPLURINOMINALE",
+      "COLLEGIOUNINOMINALE",
+      "CANDIDATO",
+      "ELETTO",
+      "VOTI_CANDIDATO",
+      "VOTI_CANDIDATO_TOT",
+      "CIFRA_PERCENTUALE"
+    )],
+    totali_circ = totali_circ,
+    liste_naz_soglie = liste_naz[, c(
+      "LISTA",
+      "COALIZIONE",
+      "MINORANZA",
+      "CIFRA",
+      "CIFRA_PERCENTUALE",
+      "SOGLIA20",
+      "SOGLIA_MINORANZA",
+      "SOGLIA1M",
+      "SOGLIA3",
+      "SOGLIA3M",
+      "SOGLIA_COALIZIONE",
+      "SOGLIA_SOLA"
+    )],
+    liste_circ_soglie = liste_circ[, c(
+      "CIRCOSCRIZIONE",
+      "LISTA",
+      "CIFRA",
+      "CIFRA_TOT",
+      "CIFRA_PERCENTUALE",
+      "ELETTI_MINORANZA",
+      "COLLEGI_UNI",
+      "SOGLIA20",
+      "SOGLIA_MINORANZA",
+      "SOGLIA1M",
+      "COALIZIONE",
+      "MINORANZA"
+    )],
+    coal_naz_soglie = coal_naz[, c(
+      "COALIZIONE",
+      "CIFRA",
+      "CIFRA_PERCENTUALE",
+      "SOGLIA3M",
+      "SOGLIA_COALIZIONE"
+    )],
+    coal_circ_cifre = coal_circ[, c(
+      "CIRCOSCRIZIONE",
+      "COALIZIONE",
+      "CIFRA"
+    )]
+  )
+}
+
 prepare_ramo <- function(ramo) {
   uni_liste_sim <- data.table::copy(voti[[ramo]]$uni_liste_sim)
   candidati_uni_sim <- data.table::copy(voti[[ramo]]$candidati_uni_sim)
@@ -184,7 +583,7 @@ set.seed(20260601)
 
 fixture <- list(
   metadata = list(
-    schema_version = 1,
+    schema_version = 3,
     source = "dati/debug_scrutinio.RData",
     purpose = "Golden-master fixture for the politics scrutiny TypeScript port.",
     random_seed = 20260601,
@@ -196,6 +595,12 @@ fixture <- list(
 for (ramo in c("camera", "senato")) {
   ramo_fixture <- prepare_ramo(ramo)
   ramo_fixture$simulations <- lapply(ramo_fixture$simulations, function(sim_fixture) {
+    sim_fixture$trace <- compute_early_trace(
+      sim_fixture$input$liste_uni,
+      sim_fixture$input$candidati_uni,
+      ramo_fixture$liste_naz,
+      ramo
+    )
     result <- run_simulation(ramo, ramo_fixture, sim_fixture)
     sim_fixture$expected <- result$value
     sim_fixture$warnings <- result$warnings

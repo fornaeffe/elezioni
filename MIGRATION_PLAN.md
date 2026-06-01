@@ -25,11 +25,11 @@ R baseline on the same machine, pause and present Python fallback options.
 | --- | --- | --- |
 | Migration tracking | Done | `AGENTS.md` and this file are present. |
 | R safety fixes | Done | `candidati_pluri_sim_` renamed to `candidati_pluri_sim`; debug scrutiny still matches. |
-| Golden-master fixtures | Done | `scripts/export_politics_golden.R` exports `test/fixtures/politiche/debug_scrutinio.json`. |
+| Golden-master fixtures | Done | `scripts/export_politics_golden.R` exports schema v3 JSON with direct inputs, final outputs, warnings, and scrutiny trace tables. |
 | R benchmarks | Done | `scripts/benchmark_r_workflows.R` added; quick baseline JSON generated. |
 | SvelteKit app scaffold | Done | `web/` created with strict TS, static adapter, Vitest, Playwright. |
 | TypeScript core | Started | Worker API types, seeded RNG, allocation primitives, fixture loader tests, and unit tests added. |
-| Politics scrutiny port | Started | First uninominal-candidate election stage matches R golden fixture for Camera and Senato. |
+| Politics scrutiny port | Started | Politics stages through national threshold admission now match R: early vote figures, national list/coalition figures, and 1%/3%/10% threshold flags. |
 | Performance gate | Pending | Compare browser politics run to fresh R baselines. |
 
 ## Decisions
@@ -95,6 +95,11 @@ Politics 100-simulation phase breakdown:
 - Some law-commented `sorteggio` paths may not be implemented explicitly.
   Mitigation: preserve current output first, then add `TODO(law-review)` or
   straightforward deterministic seeded draws where safe.
+- The R remainder ordering for candidate-only vote attribution appears
+  inconsistent with the nearby law comment: the comment says highest remainders,
+  while the current `order()` call sorts `RESTO` ascending because an extra
+  `decreasing` flag is ignored. Mitigation: TypeScript preserves R behavior for
+  golden parity and marks the code `TODO(law-review)`.
 
 ## Completed Work
 
@@ -126,11 +131,13 @@ Run on 2026-06-01:
 
 ## Current Caveats
 
-- The TypeScript politics scrutiny core is not ported yet. The current worker
-  returns `POLITICS_SCRUTINY_NOT_PORTED` intentionally; only the first
-  uninominal election stage has been ported and tested so far.
-- The exported politics fixture is about 31 MB because it contains direct
-  scrutiny inputs and expected outputs for 10 simulations.
+- The TypeScript politics scrutiny core is only partially ported. Early vote
+  figure stages and national threshold admission are tested, but seat
+  allocation, elected plurinominal candidates, pluricandidature, and subentro
+  logic are still pending. The current worker returns
+  `POLITICS_SCRUTINY_NOT_PORTED` intentionally.
+- The exported politics fixture is about 57 MB because it contains direct
+  scrutiny inputs, R trace tables, and expected outputs for 10 simulations.
 - `npm audit` reports 3 low-severity findings through SvelteKit's transitive
   `cookie` dependency. The suggested automatic fix is a semver-major downgrade
   to obsolete SvelteKit packages, so it has not been applied.
@@ -156,5 +163,63 @@ Verification:
 
 - `cd web; npm run check`: passed with 0 warnings.
 - `cd web; npm test`: passed, 27 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-01 Checkpoint 3
+
+Completed in the next scrutiny-port pass:
+
+- Extended `scripts/export_politics_golden.R` to export schema v2 fixtures with
+  early R trace tables for each Camera/Senato debug simulation.
+- Regenerated `test/fixtures/politiche/debug_scrutinio.json`.
+- Added TypeScript trace types for the early politics scrutiny stages.
+- Ported the early politics scrutiny pipeline:
+  - uninominal candidate election;
+  - candidate-only vote attribution to linked lists;
+  - uninominal list figures;
+  - plurinominal list figures and percentages;
+  - circumscription list figures;
+  - uninominal candidate percentages;
+  - circumscription totals.
+- Added golden parity tests for all early trace tables across all 10 Camera and
+  10 Senato debug simulations.
+- Preserved the current R remainder ordering for parity and added a
+  `TODO(law-review)` because the law comment says remainders should be ordered
+  descending while the current R call sorts them ascending.
+
+Verification:
+
+- `Rscript scripts/export_politics_golden.R`: passed.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm test`: passed, 47 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-01 Checkpoint 4
+
+Completed in the national-threshold scrutiny pass:
+
+- Extended `scripts/export_politics_golden.R` to export schema v3 fixtures with
+  national list figures, national/circumscription coalition figures, and
+  threshold/admission flags.
+- Regenerated `test/fixtures/politiche/debug_scrutinio.json`.
+- Added TypeScript trace types for:
+  - `liste_naz_soglie`;
+  - `liste_circ_soglie`;
+  - `coal_naz_soglie`;
+  - `coal_circ_cifre`;
+  - `totale_naz`.
+- Added `runPoliticsScrutinyTrace()` with ramo/list metadata context.
+- Ported national list/coalition figures and 1%/3%/10% threshold flags against
+  the R trace.
+- Added golden parity tests for the threshold trace across all 10 Camera and 10
+  Senato debug simulations.
+
+Verification:
+
+- `Rscript scripts/export_politics_golden.R`: passed.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm test`: passed, 67 tests.
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.
