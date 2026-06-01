@@ -921,6 +921,338 @@ compute_early_trace <- function(
     riparto_naz = riparto_naz_circ
   )
 
+  liste_circ$AMMESSA <-
+    liste_circ$SOGLIA3 |
+    (liste_circ$SOGLIA20 & (liste_circ$MINORANZA | ramo == "senato")) |
+    liste_circ$SOGLIA_MINORANZA
+
+  ammesse_circ <- liste_circ[
+    liste_circ$AMMESSA,
+    c(
+      "CIRCOSCRIZIONE",
+      "SOGGETTO_RIPARTO",
+      "LISTA",
+      "CIFRA"
+    )
+  ]
+
+  riparto_circ <- merge(
+    riparto_circ,
+    aggregate(
+      CIFRA ~ CIRCOSCRIZIONE + SOGGETTO_RIPARTO,
+      ammesse_circ,
+      sum
+    ),
+    by = c("CIRCOSCRIZIONE", "SOGGETTO_RIPARTO"),
+    suffixes = c("", "_AMMESSE_AL_RIPARTO")
+  )
+
+  riparto_circ$QUOZIENTE_COAL <-
+    riparto_circ$CIFRA_AMMESSE_AL_RIPARTO %/% riparto_circ$SEGGI
+
+  ammesse_circ <- merge(
+    ammesse_circ,
+    riparto_circ[, c("CIRCOSCRIZIONE", "SOGGETTO_RIPARTO", "QUOZIENTE_COAL")]
+  )
+
+  ammesse_circ$PARTE_INTERA <-
+    ammesse_circ$CIFRA %/% ammesse_circ$QUOZIENTE_COAL
+
+  riparto_circ <- merge(
+    riparto_circ,
+    aggregate(
+      PARTE_INTERA ~ CIRCOSCRIZIONE + SOGGETTO_RIPARTO,
+      ammesse_circ,
+      sum
+    ),
+    by = c("CIRCOSCRIZIONE", "SOGGETTO_RIPARTO"),
+    suffixes = c("", "_TOT")
+  )
+
+  riparto_circ$DA_ASSEGNARE_COAL <-
+    riparto_circ$SEGGI - riparto_circ$PARTE_INTERA_TOT
+
+  ammesse_circ <- merge(
+    ammesse_circ,
+    riparto_circ[, c(
+      "CIRCOSCRIZIONE",
+      "SOGGETTO_RIPARTO",
+      "DA_ASSEGNARE_COAL"
+    )]
+  )
+
+  ammesse_naz_circ <- empty_trace_frame(c(
+    "SOGGETTO_RIPARTO",
+    "LISTA",
+    "CIFRA",
+    "SEGGI",
+    "PARTE_INTERA_CIRC",
+    "ESCLUSE",
+    "SEGGI_CIRC",
+    "SEGGI_ECCEDENTI",
+    "SEGGI_ECCEDENTI_CONTATORE"
+  ))
+
+  if (ramo == "camera") {
+    ammesse_circ$DECIMALI <-
+      (ammesse_circ$CIFRA / ammesse_circ$QUOZIENTE_COAL) %% 1
+
+    ammesse_naz <- merge(
+      ammesse_naz,
+      aggregate(
+        PARTE_INTERA ~ LISTA,
+        ammesse_circ,
+        sum
+      ),
+      by = "LISTA",
+      suffixes = c("", "_CIRC")
+    )
+
+    ammesse_naz$ESCLUSE <- ammesse_naz$PARTE_INTERA_CIRC >= ammesse_naz$SEGGI
+
+    ammesse_circ <- merge(
+      ammesse_circ,
+      ammesse_naz[, c("LISTA", "ESCLUSE", "CIFRA")],
+      by = "LISTA",
+      suffixes = c("", "_NAZ")
+    )
+
+    ammesse_circ <- ammesse_circ[
+      order(
+        ammesse_circ$CIRCOSCRIZIONE,
+        ammesse_circ$SOGGETTO_RIPARTO,
+        ammesse_circ$ESCLUSE,
+        ammesse_circ$DECIMALI,
+        ammesse_circ$CIFRA,
+        decreasing = c(FALSE, FALSE, FALSE, TRUE, TRUE),
+        method = "radix"
+      ),
+    ]
+
+    ammesse_circ$ORDINE <- NA
+
+    ammesse_circ$ORDINE[!ammesse_circ$ESCLUSE] <- ave(
+      seq_along(ammesse_circ$SOGGETTO_RIPARTO[!ammesse_circ$ESCLUSE]),
+      paste(
+        ammesse_circ$CIRCOSCRIZIONE[!ammesse_circ$ESCLUSE],
+        ammesse_circ$SOGGETTO_RIPARTO[!ammesse_circ$ESCLUSE]
+      ),
+      FUN = seq_along
+    )
+
+    ammesse_circ$SEGGIO_DA_DECIMALI <-
+      ammesse_circ$ORDINE <= ammesse_circ$DA_ASSEGNARE_COAL
+    ammesse_circ$SEGGIO_DA_DECIMALI[is.na(ammesse_circ$SEGGIO_DA_DECIMALI)] <- FALSE
+
+    ammesse_circ$SEGGI <- ammesse_circ$PARTE_INTERA + ammesse_circ$SEGGIO_DA_DECIMALI
+
+    ammesse_naz <- merge(
+      ammesse_naz,
+      aggregate(
+        SEGGI ~ LISTA,
+        ammesse_circ,
+        sum
+      ),
+      by = "LISTA",
+      suffixes = c("", "_CIRC")
+    )
+
+    ammesse_naz$SEGGI_ECCEDENTI <-
+      ammesse_naz$SEGGI_CIRC - ammesse_naz$SEGGI
+
+    ammesse_naz <- ammesse_naz[
+      order(
+        ammesse_naz$SEGGI_ECCEDENTI,
+        ammesse_naz$CIFRA,
+        decreasing = TRUE
+      ),
+    ]
+
+    ammesse_naz$SEGGI_ECCEDENTI_CONTATORE <- ammesse_naz$SEGGI_ECCEDENTI
+
+    ammesse_circ$FLIPPER <- 0
+
+    for (i in seq_along(ammesse_naz$LISTA)) {
+      if (ammesse_naz$SEGGI_ECCEDENTI[i] < 1) break
+
+      s <- ammesse_naz$SOGGETTO_RIPARTO[i]
+      l <- ammesse_naz$LISTA[i]
+      for (j in 1:ammesse_naz$SEGGI_ECCEDENTI[i]) {
+        ammesse_circ$DEFICIT <-
+          ammesse_circ$SOGGETTO_RIPARTO == s &
+          ammesse_circ$LISTA %in% ammesse_naz$LISTA[
+            ammesse_naz$SEGGI_ECCEDENTI_CONTATORE < 0
+          ] &
+          !ammesse_circ$SEGGIO_DA_DECIMALI &
+          ammesse_circ$FLIPPER == 0
+
+        ac <- ammesse_circ[
+          ammesse_circ$LISTA == l &
+            ammesse_circ$SEGGIO_DA_DECIMALI &
+            ammesse_circ$FLIPPER == 0,
+        ]
+
+        if (dim(ac)[1] < 1) stop(
+          "Devo togliere un seggio a ", l, " ma non ci sono circoscrizioni dove ",
+          "questo sia stato ottenuto con i resti."
+        )
+
+        ac$DEFICIT_PRESENTE <- ac$CIRCOSCRIZIONE %in%
+          ammesse_circ$CIRCOSCRIZIONE[ammesse_circ$DEFICIT]
+
+        ac <- ac[
+          order(
+            ac$DEFICIT_PRESENTE,
+            ac$DECIMALI,
+            decreasing = c(TRUE, FALSE)
+          ),
+        ]
+
+        c <- ac$CIRCOSCRIZIONE[1]
+
+        if (ac$DEFICIT_PRESENTE[1]) {
+          ac2 <- ammesse_circ[
+            ammesse_circ$CIRCOSCRIZIONE == c &
+              ammesse_circ$SOGGETTO_RIPARTO == s &
+              ammesse_circ$DEFICIT,
+          ]
+        } else {
+          ac2 <- ammesse_circ[
+            ammesse_circ$SOGGETTO_RIPARTO == s &
+              ammesse_circ$DEFICIT,
+          ]
+        }
+
+        if (dim(ac2)[1] < 1) stop(
+          "Devo togliere un seggio a ", l, " ma non ho a chi darlo."
+        )
+
+        ac2 <- ac2[order(
+          ac2$DECIMALI,
+          ac2$CIFRA_NAZ,
+          decreasing = TRUE
+        ), ]
+
+        l2 <- ac2$LISTA[1]
+        c2 <- ac2$CIRCOSCRIZIONE[1]
+
+        ammesse_circ$FLIPPER[
+          ammesse_circ$LISTA == l &
+            ammesse_circ$CIRCOSCRIZIONE == c
+        ] <- -1
+
+        ammesse_naz$SEGGI_ECCEDENTI_CONTATORE[ammesse_naz$LISTA == l] <-
+          ammesse_naz$SEGGI_ECCEDENTI_CONTATORE[ammesse_naz$LISTA == l] - 1
+
+        ammesse_circ$FLIPPER[
+          ammesse_circ$LISTA == l2 &
+            ammesse_circ$CIRCOSCRIZIONE == c2
+        ] <- 1
+
+        ammesse_naz$SEGGI_ECCEDENTI_CONTATORE[ammesse_naz$LISTA == l2] <-
+          ammesse_naz$SEGGI_ECCEDENTI_CONTATORE[ammesse_naz$LISTA == l2] - 1
+      }
+    }
+
+    ammesse_circ$SEGGI <- ammesse_circ$SEGGI + ammesse_circ$FLIPPER
+
+    ammesse_naz_circ <- ammesse_naz[, c(
+      "SOGGETTO_RIPARTO",
+      "LISTA",
+      "CIFRA",
+      "SEGGI",
+      "PARTE_INTERA_CIRC",
+      "ESCLUSE",
+      "SEGGI_CIRC",
+      "SEGGI_ECCEDENTI",
+      "SEGGI_ECCEDENTI_CONTATORE"
+    )]
+  } else {
+    ammesse_circ$RESTO <-
+      ammesse_circ$CIFRA %% ammesse_circ$QUOZIENTE_COAL
+
+    ammesse_circ <- ammesse_circ[
+      order(
+        ammesse_circ$CIRCOSCRIZIONE,
+        ammesse_circ$SOGGETTO_RIPARTO,
+        ammesse_circ$RESTO,
+        ammesse_circ$CIFRA,
+        decreasing = c(FALSE, FALSE, TRUE, TRUE),
+        method = "radix"
+      ),
+    ]
+
+    ammesse_circ$ORDINE <- ave(
+      seq_along(ammesse_circ$SOGGETTO_RIPARTO),
+      paste(
+        ammesse_circ$CIRCOSCRIZIONE,
+        ammesse_circ$SOGGETTO_RIPARTO
+      ),
+      FUN = seq_along
+    )
+
+    ammesse_circ$SEGGIO_DA_RESTO <-
+      ammesse_circ$ORDINE <= ammesse_circ$DA_ASSEGNARE_COAL
+    ammesse_circ$SEGGIO_DA_RESTO[is.na(ammesse_circ$SEGGIO_DA_RESTO)] <- FALSE
+
+    ammesse_circ$SEGGI <- ammesse_circ$PARTE_INTERA + ammesse_circ$SEGGIO_DA_RESTO
+  }
+
+  for (name in c(
+    "DECIMALI",
+    "RESTO",
+    "CIFRA_NAZ",
+    "ESCLUSE",
+    "ORDINE",
+    "SEGGIO_DA_DECIMALI",
+    "SEGGIO_DA_RESTO",
+    "FLIPPER"
+  )) {
+    if (!name %in% names(ammesse_circ)) ammesse_circ[[name]] <- NA
+  }
+
+  internal_circ_riparto <- list(
+    liste_circ = liste_circ[, c(
+      "CIRCOSCRIZIONE",
+      "LISTA",
+      "CIFRA",
+      "MINORANZA",
+      "SOGLIA3",
+      "SOGLIA20",
+      "SOGLIA_MINORANZA",
+      "SOGGETTO_RIPARTO",
+      "AMMESSA"
+    )],
+    riparto_circ = riparto_circ[, c(
+      "CIRCOSCRIZIONE",
+      "SOGGETTO_RIPARTO",
+      "SEGGI",
+      "CIFRA_AMMESSE_AL_RIPARTO",
+      "QUOZIENTE_COAL",
+      "PARTE_INTERA_TOT",
+      "DA_ASSEGNARE_COAL"
+    )],
+    ammesse_circ = ammesse_circ[, c(
+      "CIRCOSCRIZIONE",
+      "SOGGETTO_RIPARTO",
+      "LISTA",
+      "CIFRA",
+      "QUOZIENTE_COAL",
+      "PARTE_INTERA",
+      "DA_ASSEGNARE_COAL",
+      "DECIMALI",
+      "RESTO",
+      "CIFRA_NAZ",
+      "ESCLUSE",
+      "ORDINE",
+      "SEGGIO_DA_DECIMALI",
+      "SEGGIO_DA_RESTO",
+      "FLIPPER",
+      "SEGGI"
+    )],
+    ammesse_naz = ammesse_naz_circ
+  )
+
   list(
     totale_naz = totale_naz,
     candidati_uni_elezione = candidati_uni_elezione,
@@ -1017,7 +1349,8 @@ compute_early_trace <- function(
       "CIFRA"
     )],
     camera_riparto = camera_riparto,
-    circ_riparto = circ_riparto
+    circ_riparto = circ_riparto,
+    internal_circ_riparto = internal_circ_riparto
   )
 }
 
@@ -1145,7 +1478,7 @@ set.seed(20260601)
 
 fixture <- list(
   metadata = list(
-    schema_version = 5,
+    schema_version = 6,
     source = "dati/debug_scrutinio.RData",
     purpose = "Golden-master fixture for the politics scrutiny TypeScript port.",
     random_seed = 20260601,

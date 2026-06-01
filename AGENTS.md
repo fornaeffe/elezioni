@@ -133,25 +133,30 @@ simulation 4.
   `candidati_pluri_sim_` to `candidati_pluri_sim`; the debug scrutiny fixture
   still matches exactly after this rename.
 - `scripts/export_politics_golden.R` exports the direct politics scrutiny JSON
-  fixture used by the TypeScript port. Fixture schema v5 stores R-produced
+  fixture used by the TypeScript port. Fixture schema v6 stores R-produced
   trace tables for uninominal election, uninominal list-vote attribution,
   plurinominal/circumscription figures, uninominal candidate percentages,
   circumscription totals, national list/coalition figures, threshold flags, and
-  subject-level Camera/Senato circumscription seat allocation.
+  subject-level plus internal list-in-coalition Camera/Senato circumscription
+  seat allocation.
 - `scripts/benchmark_r_workflows.R` reruns R baseline workflows.
 - `web/` contains the initial static SvelteKit app scaffold, strict TypeScript
   setup, worker API types, seeded RNG, allocation primitives, unit tests, and a
   Playwright smoke test.
 - The TypeScript politics scrutiny port now matches the R golden fixture through
-  subject-level circumscription riparto: uninominal candidate election,
+  internal list-in-coalition circumscription riparto: uninominal candidate election,
   candidate-only vote attribution to lists, plurinominal/circumscription
   aggregates, uninominal candidate percentages, circumscription totals,
   national list/coalition figures, 1%/3%/10% threshold flags, Camera national
   proportional allocation, and Camera/Senato subject-level circumscription seat
-  allocation with Camera flipper reconciliation. The later internal
-  list-in-coalition circumscription allocation, plurinominal allocation, elected
-  plurinominal candidates, pluricandidature, and subentro logic are still
-  pending; the worker currently returns a deliberate
+  allocation with Camera flipper reconciliation, and internal list allocation
+  with the second Camera flipper reconciliation. The later plurinominal
+  allocation, elected plurinominal candidates, pluricandidature, and subentro
+  logic are still pending; the worker currently returns a deliberate
   `POLITICS_SCRUTINY_NOT_PORTED` warning.
+- In the Camera internal list-in-coalition flipper, the R code decrements the
+  recipient list's `SEGGI_ECCEDENTI_CONTATORE` after giving it a seat. This
+  appears counterintuitive but is preserved in TypeScript for parity and marked
+  `TODO(law-review)`.
 - When posting Svelte `$state` data to workers, derive or build plain snapshots
   first. Svelte proxies are not structured-clone safe.

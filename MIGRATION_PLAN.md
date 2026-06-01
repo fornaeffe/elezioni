@@ -25,11 +25,11 @@ R baseline on the same machine, pause and present Python fallback options.
 | --- | --- | --- |
 | Migration tracking | Done | `AGENTS.md` and this file are present. |
 | R safety fixes | Done | `candidati_pluri_sim_` renamed to `candidati_pluri_sim`; debug scrutiny still matches. |
-| Golden-master fixtures | Done | `scripts/export_politics_golden.R` exports schema v5 JSON with direct inputs, final outputs, warnings, and scrutiny trace tables. |
+| Golden-master fixtures | Done | `scripts/export_politics_golden.R` exports schema v6 JSON with direct inputs, final outputs, warnings, and scrutiny trace tables. |
 | R benchmarks | Done | `scripts/benchmark_r_workflows.R` added; quick baseline JSON generated. |
 | SvelteKit app scaffold | Done | `web/` created with strict TS, static adapter, Vitest, Playwright. |
 | TypeScript core | Started | Worker API types, seeded RNG, allocation primitives, fixture loader tests, and unit tests added. |
-| Politics scrutiny port | Started | Politics stages through subject-level Camera/Senato circumscription riparto now match R. Internal list-in-coalition circumscription allocation is next. |
+| Politics scrutiny port | Started | Politics stages through internal list-in-coalition circumscription riparto now match R. Plurinominal allocation is next. |
 | Performance gate | Pending | Compare browser politics run to fresh R baselines. |
 
 ## Decisions
@@ -133,12 +133,12 @@ Run on 2026-06-01:
 
 - The TypeScript politics scrutiny core is only partially ported. Early vote
   figure stages, national threshold admission, Camera national/internal
-  coalition riparto, and subject-level circumscription riparto are tested, but
-  internal list-in-coalition circumscription allocation, plurinominal allocation,
-  elected plurinominal candidates, pluricandidature, and subentro logic are
-  still pending. The current worker returns
+  coalition riparto, subject-level circumscription riparto, and internal
+  list-in-coalition circumscription riparto are tested, but plurinominal
+  allocation, elected plurinominal candidates, pluricandidature, and subentro
+  logic are still pending. The current worker returns
   `POLITICS_SCRUTINY_NOT_PORTED` intentionally.
-- The exported politics fixture is about 60 MB because it contains direct
+- The exported politics fixture is about 64 MB because it contains direct
   scrutiny inputs, R trace tables, and expected outputs for 10 simulations.
 - `npm audit` reports 3 low-severity findings through SvelteKit's transitive
   `cookie` dependency. The suggested automatic fix is a semver-major downgrade
@@ -225,6 +225,8 @@ Verification:
 - `cd web; npm test`: passed, 67 tests.
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
 
 ## 2026-06-01 Checkpoint 5
 
@@ -283,3 +285,33 @@ Verification so far:
 - `cd web; npm test`: passed, 67 tests.
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-01 Checkpoint 7
+
+Completed in the internal list-in-coalition circumscription riparto pass:
+
+- Extended `scripts/export_politics_golden.R` to export schema v6 fixtures with
+  nested `internal_circ_riparto` traces.
+- Regenerated `test/fixtures/politiche/debug_scrutinio.json`.
+- Added TypeScript trace types for:
+  - admitted circumscription lists;
+  - internal subject/list quotients;
+  - list-level circumscription allocation rows;
+  - Camera list-level national reconciliation counters.
+- Ported internal list-in-coalition circumscription allocation:
+  - Camera: decimal allocation plus second flipper reconciliation back to
+    national list seats;
+  - Senato: regional remainder allocation inside each subject.
+- The debug fixture exercises Camera list-level flipper moves, so the second
+  reconciliation loop is covered by golden parity tests.
+- Preserved the R behavior that decrements the recipient list's
+  `SEGGI_ECCEDENTI_CONTATORE` during the Camera list-level flipper. This is
+  marked `TODO(law-review)` in TypeScript because it appears counterintuitive.
+- Added `TODO(law-review)` for the Senato internal equal-remainder `sorteggio`
+  path, preserving R stable ordering for parity.
+
+Verification so far:
+
+- `Rscript scripts/export_politics_golden.R`: passed.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm test`: passed, 67 tests.

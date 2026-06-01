@@ -284,6 +284,66 @@ export interface CircRipartoTrace {
   riparto_naz: CircRipartoNazTraceRow[];
 }
 
+export interface InternalCircRipartoListaTraceRow {
+  CIRCOSCRIZIONE: AdministrativeCode;
+  LISTA: string;
+  CIFRA: number;
+  MINORANZA: boolean;
+  SOGLIA3: boolean;
+  SOGLIA20: boolean;
+  SOGLIA_MINORANZA: boolean;
+  SOGGETTO_RIPARTO: string | null;
+  AMMESSA: boolean;
+}
+
+export interface InternalCircRipartoSubjectTraceRow {
+  CIRCOSCRIZIONE: AdministrativeCode;
+  SOGGETTO_RIPARTO: string;
+  SEGGI: number;
+  CIFRA_AMMESSE_AL_RIPARTO: number;
+  QUOZIENTE_COAL: TraceNumber;
+  PARTE_INTERA_TOT: number;
+  DA_ASSEGNARE_COAL: number;
+}
+
+export interface InternalCircAmmesseTraceRow {
+  CIRCOSCRIZIONE: AdministrativeCode;
+  SOGGETTO_RIPARTO: string;
+  LISTA: string;
+  CIFRA: number;
+  QUOZIENTE_COAL: TraceNumber;
+  PARTE_INTERA: number;
+  DA_ASSEGNARE_COAL: number;
+  DECIMALI: TraceNumber;
+  RESTO: TraceNumber;
+  CIFRA_NAZ: TraceNumber;
+  ESCLUSE: TraceBoolean;
+  ORDINE: TraceNumber;
+  SEGGIO_DA_DECIMALI: TraceBoolean;
+  SEGGIO_DA_RESTO: TraceBoolean;
+  FLIPPER: TraceNumber;
+  SEGGI: number;
+}
+
+export interface InternalCircAmmesseNazTraceRow {
+  SOGGETTO_RIPARTO: string;
+  LISTA: string;
+  CIFRA: number;
+  SEGGI: number;
+  PARTE_INTERA_CIRC: number;
+  ESCLUSE: boolean;
+  SEGGI_CIRC: number;
+  SEGGI_ECCEDENTI: number;
+  SEGGI_ECCEDENTI_CONTATORE: number;
+}
+
+export interface InternalCircRipartoTrace {
+  liste_circ: InternalCircRipartoListaTraceRow[];
+  riparto_circ: InternalCircRipartoSubjectTraceRow[];
+  ammesse_circ: InternalCircAmmesseTraceRow[];
+  ammesse_naz: InternalCircAmmesseNazTraceRow[];
+}
+
 export interface PoliticsEarlyTrace {
   candidati_uni_elezione: CandidatoUniResultRow[];
   candidati_uni_attribuzione: CandidatoUniAttributionTraceRow[];
@@ -302,6 +362,7 @@ export interface PoliticsScrutinyTrace extends PoliticsEarlyTrace {
   coal_circ_cifre: CoalCircCifreTraceRow[];
   camera_riparto: CameraRipartoTrace;
   circ_riparto: CircRipartoTrace;
+  internal_circ_riparto: InternalCircRipartoTrace;
 }
 
 export interface PoliticsScrutinyInput {

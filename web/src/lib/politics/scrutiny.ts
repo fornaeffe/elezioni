@@ -15,6 +15,11 @@ import type {
   CandidatoUniGraduatoriaTraceRow,
   CandidatoUniInputRow,
   CandidatoUniResultRow,
+  InternalCircAmmesseNazTraceRow,
+  InternalCircAmmesseTraceRow,
+  InternalCircRipartoListaTraceRow,
+  InternalCircRipartoSubjectTraceRow,
+  InternalCircRipartoTrace,
   ListaNazRow,
   ListeCircSoglieTraceRow,
   ListeCircCifreTraceRow,
@@ -97,6 +102,10 @@ function traceNumber(value: number): number | null {
 function rIntegerDivide(left: number, right: number): number {
   const result = Math.floor(left / right);
   return result < 0 || !Number.isFinite(result) ? 0 : result;
+}
+
+function rQuotient(left: number, right: number): number {
+  return Math.floor(left / right);
 }
 
 function sumBy<T>(rows: readonly T[], key: (row: T) => string, value: (row: T) => number): Map<string, number> {
@@ -1225,6 +1234,436 @@ function buildCircRiparto(
   };
 }
 
+function buildInternalCircRiparto(
+  thresholds: ReturnType<typeof buildListeNazSoglie>,
+  circRiparto: CircRipartoTrace,
+  cameraRiparto: CameraRipartoTrace,
+  context: PoliticsScrutinyContext
+): InternalCircRipartoTrace {
+  /*
+   * Legal basis: Camera DPR 361/1957 art. 83 letter i; Senate D.Lgs.
+   * 533/1993 art. 17 letter b.
+   *
+   * This stage distributes each coalition's circumscription seats to admitted
+   * lists, then for Camera reconciles provisional list seats back to the
+   * national internal-coalition allocation with the second flipper loop.
+   */
+  const thresholdByCircList = new Map(
+    thresholds.listeCirc.map((row) => [keyOf(row.CIRCOSCRIZIONE, row.LISTA), row])
+  );
+  const listeCirc = sortGroupedRows(
+    circRiparto.liste_circ.map((row): InternalCircRipartoListaTraceRow => {
+      const threshold = thresholdByCircList.get(keyOf(row.CIRCOSCRIZIONE, row.LISTA));
+      if (!threshold) {
+        throw new Error(`Missing circ threshold row for ${row.CIRCOSCRIZIONE}/${row.LISTA}`);
+      }
+
+      const admitted =
+        row.SOGLIA3 ||
+        (row.SOGLIA20 && (threshold.MINORANZA || context.ramo === 'senato')) ||
+        row.SOGLIA_MINORANZA;
+
+      return {
+        CIRCOSCRIZIONE: row.CIRCOSCRIZIONE,
+        LISTA: row.LISTA,
+        CIFRA: row.CIFRA,
+        MINORANZA: threshold.MINORANZA,
+        SOGLIA3: row.SOGLIA3,
+        SOGLIA20: row.SOGLIA20,
+        SOGLIA_MINORANZA: row.SOGLIA_MINORANZA,
+        SOGGETTO_RIPARTO: row.SOGGETTO_RIPARTO,
+        AMMESSA: admitted
+      };
+    }),
+    [(row) => row.CIRCOSCRIZIONE, (row) => row.LISTA]
+  );
+  const admittedRows = listeCirc.filter(
+    (row): row is InternalCircRipartoListaTraceRow & { SOGGETTO_RIPARTO: string } =>
+      row.AMMESSA && row.SOGGETTO_RIPARTO !== null
+  );
+  const admittedCifraByCircSubject = sumBy(
+    admittedRows,
+    (row) => keyOf(row.CIRCOSCRIZIONE, row.SOGGETTO_RIPARTO),
+    (row) => row.CIFRA
+  );
+  const subjectRowsWithQuotient = circRiparto.riparto_circ.map((row) => {
+    const admittedCifra = admittedCifraByCircSubject.get(keyOf(row.CIRCOSCRIZIONE, row.SOGGETTO_RIPARTO)) ?? 0;
+    const quotient = rQuotient(admittedCifra, row.SEGGI);
+    return {
+      CIRCOSCRIZIONE: row.CIRCOSCRIZIONE,
+      SOGGETTO_RIPARTO: row.SOGGETTO_RIPARTO,
+      SEGGI: row.SEGGI,
+      CIFRA_AMMESSE_AL_RIPARTO: admittedCifra,
+      QUOZIENTE_COAL_RAW: quotient
+    };
+  });
+  const quotientByCircSubject = new Map(
+    subjectRowsWithQuotient.map((row) => [
+      keyOf(row.CIRCOSCRIZIONE, row.SOGGETTO_RIPARTO),
+      row.QUOZIENTE_COAL_RAW
+    ])
+  );
+  const ammesseWithIntegerPart = admittedRows.map((row) => {
+    const quotient = quotientByCircSubject.get(keyOf(row.CIRCOSCRIZIONE, row.SOGGETTO_RIPARTO)) ?? 0;
+    return {
+      CIRCOSCRIZIONE: row.CIRCOSCRIZIONE,
+      SOGGETTO_RIPARTO: row.SOGGETTO_RIPARTO,
+      LISTA: row.LISTA,
+      CIFRA: row.CIFRA,
+      QUOZIENTE_COAL_RAW: quotient,
+      PARTE_INTERA: rIntegerDivide(row.CIFRA, quotient)
+    };
+  });
+  const integerPartByCircSubject = sumBy(
+    ammesseWithIntegerPart,
+    (row) => keyOf(row.CIRCOSCRIZIONE, row.SOGGETTO_RIPARTO),
+    (row) => row.PARTE_INTERA
+  );
+  const subjectRows = sortGroupedRows(
+    subjectRowsWithQuotient.map((row): InternalCircRipartoSubjectTraceRow & { QUOZIENTE_COAL_RAW: number } => {
+      const integerPart = integerPartByCircSubject.get(keyOf(row.CIRCOSCRIZIONE, row.SOGGETTO_RIPARTO)) ?? 0;
+      return {
+        CIRCOSCRIZIONE: row.CIRCOSCRIZIONE,
+        SOGGETTO_RIPARTO: row.SOGGETTO_RIPARTO,
+        SEGGI: row.SEGGI,
+        CIFRA_AMMESSE_AL_RIPARTO: row.CIFRA_AMMESSE_AL_RIPARTO,
+        QUOZIENTE_COAL: traceNumber(row.QUOZIENTE_COAL_RAW),
+        QUOZIENTE_COAL_RAW: row.QUOZIENTE_COAL_RAW,
+        PARTE_INTERA_TOT: integerPart,
+        DA_ASSEGNARE_COAL: row.SEGGI - integerPart
+      };
+    }),
+    [(row) => row.CIRCOSCRIZIONE, (row) => row.SOGGETTO_RIPARTO]
+  );
+  const subjectByCircSubject = new Map(
+    subjectRows.map((row) => [keyOf(row.CIRCOSCRIZIONE, row.SOGGETTO_RIPARTO), row])
+  );
+
+  if (context.ramo === 'camera') {
+    const nationalListByList = new Map(cameraRiparto.ammesse_naz.map((row) => [row.LISTA, row]));
+    const integerByList = sumBy(
+      ammesseWithIntegerPart,
+      (row) => row.LISTA,
+      (row) => row.PARTE_INTERA
+    );
+    const nationalRowsByList = new Map<string, InternalCircAmmesseNazTraceRow>();
+
+    for (const national of cameraRiparto.ammesse_naz) {
+      const integerPart = integerByList.get(national.LISTA) ?? 0;
+      nationalRowsByList.set(national.LISTA, {
+        SOGGETTO_RIPARTO: national.SOGGETTO_RIPARTO,
+        LISTA: national.LISTA,
+        CIFRA: national.CIFRA,
+        SEGGI: national.SEGGI,
+        PARTE_INTERA_CIRC: integerPart,
+        ESCLUSE: integerPart >= national.SEGGI,
+        SEGGI_CIRC: 0,
+        SEGGI_ECCEDENTI: 0,
+        SEGGI_ECCEDENTI_CONTATORE: 0
+      });
+    }
+
+    const rows = ammesseWithIntegerPart.map((row) => {
+      const subject = subjectByCircSubject.get(keyOf(row.CIRCOSCRIZIONE, row.SOGGETTO_RIPARTO));
+      const national = nationalListByList.get(row.LISTA);
+      const nationalCounter = nationalRowsByList.get(row.LISTA);
+      if (!subject || !national || !nationalCounter) {
+        throw new Error(`Missing internal Camera allocation context for ${row.CIRCOSCRIZIONE}/${row.LISTA}`);
+      }
+
+      return {
+        CIRCOSCRIZIONE: row.CIRCOSCRIZIONE,
+        SOGGETTO_RIPARTO: row.SOGGETTO_RIPARTO,
+        LISTA: row.LISTA,
+        CIFRA: row.CIFRA,
+        QUOZIENTE_COAL_RAW: row.QUOZIENTE_COAL_RAW,
+        PARTE_INTERA: row.PARTE_INTERA,
+        DA_ASSEGNARE_COAL: subject.DA_ASSEGNARE_COAL,
+        DECIMALI: (row.CIFRA / row.QUOZIENTE_COAL_RAW) % 1,
+        RESTO: null,
+        CIFRA_NAZ: national.CIFRA,
+        ESCLUSE: nationalCounter.ESCLUSE,
+        ORDINE: null as number | null,
+        SEGGIO_DA_DECIMALI: false,
+        SEGGIO_DA_RESTO: null,
+        FLIPPER: 0,
+        SEGGI: 0
+      };
+    });
+
+    rows.sort((left, right) => {
+      const byCirc = compareAscending(left.CIRCOSCRIZIONE, right.CIRCOSCRIZIONE);
+      if (byCirc !== 0) return byCirc;
+
+      const bySubject = compareAscending(left.SOGGETTO_RIPARTO, right.SOGGETTO_RIPARTO);
+      if (bySubject !== 0) return bySubject;
+
+      const byExcluded = compareAscending(Number(left.ESCLUSE), Number(right.ESCLUSE));
+      if (byExcluded !== 0) return byExcluded;
+
+      const byDecimals = compareDescending(left.DECIMALI, right.DECIMALI);
+      if (byDecimals !== 0) return byDecimals;
+
+      const byCifra = compareDescending(left.CIFRA, right.CIFRA);
+      if (byCifra !== 0) return byCifra;
+
+      return 0;
+    });
+
+    const orderByCircSubject = new Map<string, number>();
+    for (const row of rows) {
+      if (!row.ESCLUSE) {
+        const groupKey = keyOf(row.CIRCOSCRIZIONE, row.SOGGETTO_RIPARTO);
+        const order = (orderByCircSubject.get(groupKey) ?? 0) + 1;
+        orderByCircSubject.set(groupKey, order);
+        row.ORDINE = order;
+      }
+
+      row.SEGGIO_DA_DECIMALI = row.ORDINE !== null && row.ORDINE <= row.DA_ASSEGNARE_COAL;
+      row.SEGGI = row.PARTE_INTERA + (row.SEGGIO_DA_DECIMALI ? 1 : 0);
+    }
+
+    const seatsByList = sumBy(
+      rows,
+      (row) => row.LISTA,
+      (row) => row.SEGGI
+    );
+    let nationalRows = [...nationalRowsByList.values()].map((row) => {
+      const circSeats = seatsByList.get(row.LISTA) ?? 0;
+      const excess = circSeats - row.SEGGI;
+      return {
+        ...row,
+        SEGGI_CIRC: circSeats,
+        SEGGI_ECCEDENTI: excess,
+        SEGGI_ECCEDENTI_CONTATORE: excess
+      };
+    });
+
+    nationalRows.sort((left, right) => {
+      const byExcess = compareDescending(left.SEGGI_ECCEDENTI, right.SEGGI_ECCEDENTI);
+      if (byExcess !== 0) return byExcess;
+
+      const byCifra = compareDescending(left.CIFRA, right.CIFRA);
+      if (byCifra !== 0) return byCifra;
+
+      return 0;
+    });
+
+    const nationalCounterByList = new Map(nationalRows.map((row) => [row.LISTA, row]));
+
+    for (const nationalRow of nationalRows) {
+      if (nationalRow.SEGGI_ECCEDENTI < 1) break;
+
+      const subject = nationalRow.SOGGETTO_RIPARTO;
+      const list = nationalRow.LISTA;
+      for (let index = 0; index < nationalRow.SEGGI_ECCEDENTI; index += 1) {
+        const deficitLists = new Set(
+          [...nationalCounterByList.values()]
+            .filter((row) => row.SEGGI_ECCEDENTI_CONTATORE < 0)
+            .map((row) => row.LISTA)
+        );
+        const deficitRows = rows.filter(
+          (row) =>
+            row.SOGGETTO_RIPARTO === subject &&
+            deficitLists.has(row.LISTA) &&
+            !row.SEGGIO_DA_DECIMALI &&
+            row.FLIPPER === 0
+        );
+        const donorCandidates = rows.filter(
+          (row) => row.LISTA === list && row.SEGGIO_DA_DECIMALI && row.FLIPPER === 0
+        );
+
+        if (donorCandidates.length < 1) {
+          throw new Error(
+            `Devo togliere un seggio a ${list} ma non ci sono circoscrizioni dove questo sia stato ottenuto con i resti.`
+          );
+        }
+
+        const rankedDonorCandidates = donorCandidates
+          .map((row) => ({
+            ...row,
+            DEFICIT_PRESENTE: deficitRows.some((deficit) => deficit.CIRCOSCRIZIONE === row.CIRCOSCRIZIONE)
+          }))
+          .sort((left, right) => {
+            const byDeficit = compareDescending(Number(left.DEFICIT_PRESENTE), Number(right.DEFICIT_PRESENTE));
+            if (byDeficit !== 0) return byDeficit;
+
+            const byDecimals = compareAscending(left.DECIMALI, right.DECIMALI);
+            if (byDecimals !== 0) return byDecimals;
+
+            return 0;
+          });
+
+        const donor = rankedDonorCandidates[0];
+        const recipientPool = donor.DEFICIT_PRESENTE
+          ? deficitRows.filter(
+              (row) => row.CIRCOSCRIZIONE === donor.CIRCOSCRIZIONE && row.SOGGETTO_RIPARTO === subject
+            )
+          : deficitRows.filter((row) => row.SOGGETTO_RIPARTO === subject);
+
+        if (recipientPool.length < 1) {
+          throw new Error(`Devo togliere un seggio a ${list} ma non ho a chi darlo.`);
+        }
+
+        const recipient = [...recipientPool].sort((left, right) => {
+          const byDecimals = compareDescending(left.DECIMALI, right.DECIMALI);
+          if (byDecimals !== 0) return byDecimals;
+
+          const byNationalCifra = compareDescending(left.CIFRA_NAZ, right.CIFRA_NAZ);
+          if (byNationalCifra !== 0) return byNationalCifra;
+
+          return 0;
+        })[0];
+        const source = rows.find((row) => row.LISTA === list && row.CIRCOSCRIZIONE === donor.CIRCOSCRIZIONE);
+        const target = rows.find(
+          (row) => row.LISTA === recipient.LISTA && row.CIRCOSCRIZIONE === recipient.CIRCOSCRIZIONE
+        );
+
+        if (!source || !target) {
+          throw new Error('Internal list flipper row lookup failed');
+        }
+
+        source.FLIPPER = -1;
+        nationalRow.SEGGI_ECCEDENTI_CONTATORE -= 1;
+        target.FLIPPER = 1;
+        const recipientNational = nationalCounterByList.get(recipient.LISTA);
+        if (recipientNational) {
+          /*
+           * TODO(law-review): the R implementation decrements the recipient
+           * counter here. That appears counterintuitive for a deficit list, but
+           * preserving it is necessary for golden-master parity.
+           */
+          recipientNational.SEGGI_ECCEDENTI_CONTATORE -= 1;
+        }
+      }
+    }
+
+    for (const row of rows) {
+      row.SEGGI += row.FLIPPER;
+    }
+
+    return {
+      liste_circ: listeCirc,
+      riparto_circ: subjectRows.map((row): InternalCircRipartoSubjectTraceRow => ({
+        CIRCOSCRIZIONE: row.CIRCOSCRIZIONE,
+        SOGGETTO_RIPARTO: row.SOGGETTO_RIPARTO,
+        SEGGI: row.SEGGI,
+        CIFRA_AMMESSE_AL_RIPARTO: row.CIFRA_AMMESSE_AL_RIPARTO,
+        QUOZIENTE_COAL: row.QUOZIENTE_COAL,
+        PARTE_INTERA_TOT: row.PARTE_INTERA_TOT,
+        DA_ASSEGNARE_COAL: row.DA_ASSEGNARE_COAL
+      })),
+      ammesse_circ: rows.map((row): InternalCircAmmesseTraceRow => ({
+        CIRCOSCRIZIONE: row.CIRCOSCRIZIONE,
+        SOGGETTO_RIPARTO: row.SOGGETTO_RIPARTO,
+        LISTA: row.LISTA,
+        CIFRA: row.CIFRA,
+        QUOZIENTE_COAL: traceNumber(row.QUOZIENTE_COAL_RAW),
+        PARTE_INTERA: row.PARTE_INTERA,
+        DA_ASSEGNARE_COAL: row.DA_ASSEGNARE_COAL,
+        DECIMALI: traceNumber(row.DECIMALI),
+        RESTO: null,
+        CIFRA_NAZ: row.CIFRA_NAZ,
+        ESCLUSE: row.ESCLUSE,
+        ORDINE: row.ORDINE,
+        SEGGIO_DA_DECIMALI: row.SEGGIO_DA_DECIMALI,
+        SEGGIO_DA_RESTO: null,
+        FLIPPER: row.FLIPPER,
+        SEGGI: row.SEGGI
+      })),
+      ammesse_naz: nationalRows
+    };
+  }
+
+  const rows = ammesseWithIntegerPart.map((row) => {
+    const subject = subjectByCircSubject.get(keyOf(row.CIRCOSCRIZIONE, row.SOGGETTO_RIPARTO));
+    if (!subject) {
+      throw new Error(`Missing internal Senate allocation subject for ${row.CIRCOSCRIZIONE}/${row.SOGGETTO_RIPARTO}`);
+    }
+
+    return {
+      CIRCOSCRIZIONE: row.CIRCOSCRIZIONE,
+      SOGGETTO_RIPARTO: row.SOGGETTO_RIPARTO,
+      LISTA: row.LISTA,
+      CIFRA: row.CIFRA,
+      QUOZIENTE_COAL_RAW: row.QUOZIENTE_COAL_RAW,
+      PARTE_INTERA: row.PARTE_INTERA,
+      DA_ASSEGNARE_COAL: subject.DA_ASSEGNARE_COAL,
+      DECIMALI: null,
+      RESTO: row.CIFRA % row.QUOZIENTE_COAL_RAW,
+      CIFRA_NAZ: null,
+      ESCLUSE: null,
+      ORDINE: 0,
+      SEGGIO_DA_DECIMALI: null,
+      SEGGIO_DA_RESTO: false,
+      FLIPPER: null,
+      SEGGI: 0
+    };
+  });
+
+  rows.sort((left, right) => {
+    const byCirc = compareAscending(left.CIRCOSCRIZIONE, right.CIRCOSCRIZIONE);
+    if (byCirc !== 0) return byCirc;
+
+    const bySubject = compareAscending(left.SOGGETTO_RIPARTO, right.SOGGETTO_RIPARTO);
+    if (bySubject !== 0) return bySubject;
+
+    const byRemainder = compareDescending(left.RESTO, right.RESTO);
+    if (byRemainder !== 0) return byRemainder;
+
+    const byCifra = compareDescending(left.CIFRA, right.CIFRA);
+    if (byCifra !== 0) return byCifra;
+
+    /*
+     * TODO(law-review): art. 17 letter b mentions sorteggio for equal
+     * remainders and equal regional figures. R has no explicit draw here.
+     */
+    return 0;
+  });
+
+  const orderByCircSubject = new Map<string, number>();
+  for (const row of rows) {
+    const groupKey = keyOf(row.CIRCOSCRIZIONE, row.SOGGETTO_RIPARTO);
+    const order = (orderByCircSubject.get(groupKey) ?? 0) + 1;
+    orderByCircSubject.set(groupKey, order);
+    row.ORDINE = order;
+    row.SEGGIO_DA_RESTO = row.ORDINE <= row.DA_ASSEGNARE_COAL;
+    row.SEGGI = row.PARTE_INTERA + (row.SEGGIO_DA_RESTO ? 1 : 0);
+  }
+
+  return {
+    liste_circ: listeCirc,
+    riparto_circ: subjectRows.map((row): InternalCircRipartoSubjectTraceRow => ({
+      CIRCOSCRIZIONE: row.CIRCOSCRIZIONE,
+      SOGGETTO_RIPARTO: row.SOGGETTO_RIPARTO,
+      SEGGI: row.SEGGI,
+      CIFRA_AMMESSE_AL_RIPARTO: row.CIFRA_AMMESSE_AL_RIPARTO,
+      QUOZIENTE_COAL: row.QUOZIENTE_COAL,
+      PARTE_INTERA_TOT: row.PARTE_INTERA_TOT,
+      DA_ASSEGNARE_COAL: row.DA_ASSEGNARE_COAL
+    })),
+    ammesse_circ: rows.map((row): InternalCircAmmesseTraceRow => ({
+      CIRCOSCRIZIONE: row.CIRCOSCRIZIONE,
+      SOGGETTO_RIPARTO: row.SOGGETTO_RIPARTO,
+      LISTA: row.LISTA,
+      CIFRA: row.CIFRA,
+      QUOZIENTE_COAL: traceNumber(row.QUOZIENTE_COAL_RAW),
+      PARTE_INTERA: row.PARTE_INTERA,
+      DA_ASSEGNARE_COAL: row.DA_ASSEGNARE_COAL,
+      DECIMALI: null,
+      RESTO: traceNumber(row.RESTO),
+      CIFRA_NAZ: null,
+      ESCLUSE: null,
+      ORDINE: row.ORDINE,
+      SEGGIO_DA_DECIMALI: null,
+      SEGGIO_DA_RESTO: row.SEGGIO_DA_RESTO,
+      FLIPPER: null,
+      SEGGI: row.SEGGI
+    })),
+    ammesse_naz: []
+  };
+}
+
 function projectCandidateAttribution(row: CandidatoUniAttributionWorkingRow): CandidatoUniAttributionTraceRow {
   return {
     CIRCOSCRIZIONE: row.CIRCOSCRIZIONE,
@@ -1317,6 +1756,7 @@ export function runPoliticsScrutinyTrace(
   );
   const cameraRiparto = buildCameraRiparto(thresholds, earlyTrace.candidati_uni_elezione, context);
   const circRiparto = buildCircRiparto(thresholds, cameraRiparto, context);
+  const internalCircRiparto = buildInternalCircRiparto(thresholds, circRiparto, cameraRiparto, context);
 
   return {
     totale_naz: thresholds.totaleNaz,
@@ -1326,7 +1766,8 @@ export function runPoliticsScrutinyTrace(
     coal_naz_soglie: thresholds.coalNaz,
     coal_circ_cifre: thresholds.coalCirc,
     camera_riparto: cameraRiparto,
-    circ_riparto: circRiparto
+    circ_riparto: circRiparto,
+    internal_circ_riparto: internalCircRiparto
   };
 }
 
