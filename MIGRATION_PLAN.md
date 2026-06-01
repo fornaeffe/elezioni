@@ -40,14 +40,26 @@ R baseline on the same machine, pause and present Python fallback options.
 
 - Target: SvelteKit-first, not Python-first.
 - First vertical slice: politics.
-- Scenario UX: in-app editor first.
+- Scenario UX: the web app is the preferred long-term way to create and edit
+  scenarios. Excel scenarios can be abandoned rather than kept as a first-class
+  input, because malformed workbook risk and typechecking cost are too high.
 - Data source: bundled static snapshots.
+- Data-preparation pipeline migration is planned, but only after the rest of
+  the simulator migration. When that phase starts, reassess whether typed
+  Python or Node/TypeScript is the better fit.
+- Data preparation should remain a devops/GitHub Actions workflow, run
+  periodically, and stay agnostic about election kind: it should produce a
+  bundle of previous-election data consumed by election-specific vote generation
+  pipelines.
 - Compatibility: business/legal behavior must match R unless Luca approves a correction.
 - R TODOs: leave for later unless a fix is trivial and helps migration safety.
 - `sorteggio`: implement only when straightforward; otherwise add `TODO(law-review)`.
 - Scrutiny implementations should stay modular and swappable behind a stable
   interface, so the same data/scenario can be compared across algorithm
   variants during law review.
+- The UI should expose multiple scrutiny algorithms for a given election kind
+  once at least two algorithms exist for that same kind. Until then, keep the
+  interface/design ready but avoid premature UI complexity.
 - Delay splitting `web/src/lib/politics/scrutiny.ts` until the golden-tested
   stage boundaries are clear enough that the refactor reduces risk.
 
@@ -105,6 +117,15 @@ data packaging and chunked/1000-simulation execution.
 10. Port politics scrutiny against golden fixtures.
 11. Add politics scenario editor and result presentation.
 12. Run browser performance tests and decide whether to continue in TypeScript.
+13. Add chunked worker execution and repeat the politics benchmark at 1000
+    simulations.
+14. Replace the debug-source bridge with production static data snapshots.
+15. Mature the web-native scenario editor and scenario JSON contract.
+16. Add scrutiny-algorithm selection in the UI when a second same-election-kind
+    algorithm exists.
+17. Migrate regional and municipal workflows.
+18. Migrate data preparation as a periodic, election-kind-agnostic devops
+    pipeline after the simulator migration.
 
 ## Risk Log
 
@@ -116,6 +137,12 @@ data packaging and chunked/1000-simulation execution.
   explicit R rename is done and typed names must stay consistent in TypeScript.
 - Municipal runoff and individual councilor TODOs are business gaps. Mitigation:
   keep visible TODOs and defer until after the first politics slice.
+- Excel scenarios are not a strategic target for the migrated app. Mitigation:
+  design a typed web-native scenario model instead of spending migration effort
+  on robust workbook ingestion/typechecking.
+- Data preparation has different constraints from browser simulation.
+  Mitigation: defer its migration until simulator workflows are migrated, then
+  choose typed Python or Node/TypeScript based on the pipeline shape and CI needs.
 - Some law-commented `sorteggio` paths may not be implemented explicitly.
   Mitigation: preserve current output first, then add `TODO(law-review)` or
   straightforward deterministic seeded draws where safe.

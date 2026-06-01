@@ -123,10 +123,21 @@ simulation 4.
 - A SvelteKit static app can work if it keeps the legal scrutiny core separate
   from UI components and uses workerized computation. It gives the best
   distribution/usability story.
+- The web UI should become the preferred way to create and edit scenarios.
+  Excel scenarios do not need to remain a first-class migrated input; they carry
+  too much malformed-data and typechecking risk for the long-term app.
 - Keep scrutiny algorithms modular and swappable. The same normalized data and
   scenario should eventually be runnable through different scrutiny algorithm
   implementations behind a stable interface, for comparison or law-review
   experiments.
+- Once at least two scrutiny algorithms exist for the same election kind, the UI
+  should support selecting/comparing them. Before then, preserve the architecture
+  hook without adding premature visible complexity.
+- Data preparation should be migrated after the rest of the simulator. At that
+  point, reassess typed Python versus Node/TypeScript. The data-preparation
+  system should remain a periodic devops/GitHub Actions pipeline and stay
+  agnostic about election kind, producing previous-election data bundles for
+  election-specific vote generation pipelines to consume.
 - `web/src/lib/politics/scrutiny.ts` is currently allowed to grow while golden
   parity stages are still being discovered. Split it into stage-focused modules
   once the tested boundaries are clear enough that the refactor lowers risk.
