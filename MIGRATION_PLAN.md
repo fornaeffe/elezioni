@@ -61,6 +61,10 @@ R baseline on the same machine, pause and present Python fallback options.
 - The UI should expose multiple scrutiny algorithms for a given election kind
   once at least two algorithms exist for that same kind. Until then, keep the
   interface/design ready but avoid premature UI complexity.
+- Results UI should prioritize user-facing election outputs. Diagnostic tables
+  such as `Generated pipeline runs` should not be shown by default; keep them
+  reachable through an expandable/debug section or button so summary tables and
+  legally meaningful results stay visible first.
 - Delay splitting `web/src/lib/politics/scrutiny.ts` until the golden-tested
   stage boundaries are clear enough that the refactor reduces risk.
 
@@ -332,6 +336,10 @@ Run on 2026-06-02:
   production scenario/data contract.
 - Advanced correspondences, location-specific overrides, fixed-versus-mean
   modes, and candidate templates are still deferred.
+- The current results panel still shows diagnostic generated-pipeline rows
+  before more interesting summary tables. During UI refinement, move diagnostic
+  worker/run tables behind an expandable section or debug button and surface
+  election summaries first.
 - The generated worker path currently runs in 50-simulation chunks and is
   capped at 1000 simulations. This is enough for the current benchmark gate but
   should be revisited after production data packaging.

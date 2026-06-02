@@ -126,6 +126,9 @@ simulation 4.
 - The web UI should become the preferred way to create and edit scenarios.
   Excel scenarios do not need to remain a first-class migrated input; they carry
   too much malformed-data and typechecking risk for the long-term app.
+- Results UI should prioritize user-facing election outputs. Diagnostic tables
+  such as `Generated pipeline runs` should be hidden or collapsed by default and
+  reachable through an expandable/debug affordance.
 - Scenario editor basics belong in this migration: list/coalition editing,
   global list percentage overrides, typed JSON save/load, automatic local
   storage persistence, reset to defaults, and validation before worker runs.
