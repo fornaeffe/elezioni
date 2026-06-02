@@ -221,8 +221,8 @@ simulation 4.
 - `scripts/benchmark_r_workflows.R` reruns R baseline workflows.
 - `web/playwright.benchmark.config.ts` and
   `web/tests/benchmarks/politics-worker.spec.ts` benchmark the generated
-  politics worker path in Chromium. Run with `cd web; npm run
-  benchmark:politics`.
+  politics worker path in Chromium for 10, 100, and 1000 simulations. Run with
+  `cd web; npm run benchmark:politics`.
 - `web/` contains the initial static SvelteKit app scaffold, strict TypeScript
   setup, worker API types, seeded RNG, allocation primitives, unit tests, and a
   Playwright smoke test.
@@ -245,15 +245,17 @@ simulation 4.
   name, preserves the source abstention row, rescales political list
   probabilities into the source model, and recomputes `LOGIT_P`. This is a
   bridge behavior, not the final scenario import/editor contract.
-- The generated worker path is currently capped at 100 simulations until
-  chunked/1000-simulation execution is added.
-- The first generated-worker browser performance gate passed on 2026-06-01:
-  Chromium ran 10 politics simulations in 1.248 s and 100 in 14.025 s
-  (`test/fixtures/benchmarks/browser_politics_worker.json`). Fresh same-machine
-  full R politics baselines were 6.20 s for 10 simulations and 19.58 s for 100
-  (`test/fixtures/benchmarks/r_baseline_politics_10_compare.json` and
-  `test/fixtures/benchmarks/r_baseline_politics_100_compare.json`). Repeat this
-  gate after final data packaging and chunked execution.
+- The generated worker path currently runs in 50-simulation chunks and is capped
+  at 1000 simulations until production data packaging is done.
+- The generated-worker browser performance gate passed on 2026-06-02: Chromium
+  ran 10 politics simulations in 1.260 s, 100 in 12.426 s, and 1000 in
+  122.608 s (`test/fixtures/benchmarks/browser_politics_worker.json`). Fresh
+  same-machine full R politics baselines were 6.20 s for 10 simulations, 19.58 s
+  for 100, and 151.96 s for 1000
+  (`test/fixtures/benchmarks/r_baseline_politics_10_compare.json`,
+  `test/fixtures/benchmarks/r_baseline_politics_100_compare.json`, and
+  `test/fixtures/benchmarks/r_baseline_politics_1000_compare.json`). Repeat this
+  gate after final data packaging.
 - In the Camera internal list-in-coalition flipper, the R code decrements the
   recipient list's `SEGGI_ECCEDENTI_CONTATORE` after giving it a seat. This
   appears counterintuitive but is preserved in TypeScript for parity and marked

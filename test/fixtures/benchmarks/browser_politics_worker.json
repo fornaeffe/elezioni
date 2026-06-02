@@ -1,27 +1,33 @@
 {
   "metadata": {
-    "created": "2026-06-01T21:21:56.715Z",
+    "created": "2026-06-02T06:35:17.597Z",
     "browser": "chromium",
     "workflow": "politiche",
     "path": "generated TypeScript worker on debug-source snapshot",
     "data_version": "v1",
     "notes": [
       "Elapsed time is read from SimulationResult.benchmark.elapsedMs as rendered by the app.",
-      "The worker path is currently capped at 100 simulations."
+      "The worker path currently runs in 50-simulation chunks and is capped at 1000 simulations."
     ]
   },
   "runs": [
     {
       "simulations_requested": 10,
       "simulations_completed": 10,
-      "elapsed_ms": 1248,
+      "elapsed_ms": 1260,
       "rows_rendered": 20
     },
     {
       "simulations_requested": 100,
       "simulations_completed": 100,
-      "elapsed_ms": 14025,
+      "elapsed_ms": 12426,
       "rows_rendered": 200
+    },
+    {
+      "simulations_requested": 1000,
+      "simulations_completed": 1000,
+      "elapsed_ms": 122608,
+      "rows_rendered": 2000
     }
   ]
 }

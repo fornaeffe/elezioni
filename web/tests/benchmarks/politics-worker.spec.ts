@@ -22,7 +22,7 @@ async function runSimulation(page: import('@playwright/test').Page, simulations:
   await runButton.click();
 
   const runsTable = page.getByRole('table', { name: 'Generated pipeline runs' });
-  await expect(runsTable.locator('tbody tr')).toHaveCount(simulations * 2, { timeout: 150_000 });
+  await expect(runsTable.locator('tbody tr')).toHaveCount(simulations * 2, { timeout: 420_000 });
   await expect(page.getByText('POLITICS_DEBUG_PIPELINE_SOURCE')).toBeVisible();
 
   const rowsRendered = await runsTable.locator('tbody tr').count();
@@ -41,12 +41,12 @@ async function runSimulation(page: import('@playwright/test').Page, simulations:
 }
 
 test('benchmarks the generated politics worker path', async ({ browserName, page }) => {
-  test.setTimeout(180_000);
+  test.setTimeout(600_000);
 
   await page.goto('/');
 
   const runs: BenchmarkRun[] = [];
-  for (const simulations of [10, 100]) {
+  for (const simulations of [10, 100, 1000]) {
     runs.push(await runSimulation(page, simulations));
   }
 
@@ -59,7 +59,7 @@ test('benchmarks the generated politics worker path', async ({ browserName, page
       data_version: 'v1',
       notes: [
         'Elapsed time is read from SimulationResult.benchmark.elapsedMs as rendered by the app.',
-        'The worker path is currently capped at 100 simulations.'
+        'The worker path currently runs in 50-simulation chunks and is capped at 1000 simulations.'
       ]
     },
     runs
