@@ -1,15 +1,18 @@
 import type {
   ResultTable,
-  ScenarioList,
   SimulationProgress,
   SimulationRequest,
   SimulationResult,
   SimulationWorkerMessage
 } from '$lib/core/types';
 import { buildPoliticsDirectScrutinySnapshot } from '$lib/politics/pipeline';
+import {
+  projectScenarioOntoPoliticsSource,
+  type PoliticsScenarioProjectionRow
+} from '$lib/politics/scenario-projection';
 import { runPoliticsScrutiny } from '$lib/politics/scrutiny';
 import { buildPoliticsPipelineSourceFromSnapshot } from '$lib/politics/static-snapshot';
-import type { PoliticsPipelineSource, PoliticsScrutinyOutput, PoliticsStaticSnapshot, Ramo } from '$lib/politics/types';
+import type { PoliticsScrutinyOutput, PoliticsStaticSnapshot, Ramo } from '$lib/politics/types';
 
 const politicsGeneratedSimulationLimit = 1000;
 const politicsGeneratedChunkSize = 50;
@@ -43,16 +46,17 @@ function progress(
   });
 }
 
-function scenarioShareTable(lists: ScenarioList[]): ResultTable {
-  const total = lists.reduce((sum, row) => sum + Math.max(row.startingShare, 0), 0);
-
+function scenarioProjectionTable(rows: PoliticsScenarioProjectionRow[]): ResultTable {
   return {
-    name: 'Scenario shares',
-    columns: ['Lista', 'Coalizione', 'Quota'],
-    rows: lists.map((row) => ({
-      Lista: row.name,
+    name: 'Scenario projection',
+    columns: ['Lista', 'Coalizione', 'Quota scenario', 'Usata', 'Quota proiettata', 'Stato'],
+    rows: rows.map((row) => ({
+      Lista: row.list,
       Coalizione: row.coalition,
-      Quota: total > 0 ? Number(((100 * row.startingShare) / total).toFixed(2)) : 0
+      'Quota scenario': row.scenarioShare === null ? null : Number(row.scenarioShare.toFixed(2)),
+      Usata: row.shareOverride,
+      'Quota proiettata': row.projectedShare === null ? null : Number(row.projectedShare.toFixed(2)),
+      Stato: row.status
     }))
   };
 }
@@ -78,61 +82,6 @@ function summarizeGeneratedRuns(runs: GeneratedRunSummary[]): ResultTable {
       'Candidati pluri eletti': run.electedPluri,
       'Tempo ms': Number(run.elapsedMs.toFixed(1))
     }))
-  };
-}
-
-function listKey(name: string): string {
-  return name.trim().toLocaleLowerCase('it-IT');
-}
-
-function logit(probability: number): number {
-  const bounded = Math.min(Math.max(probability, 1e-9), 1 - 1e-9);
-  return Math.log(bounded / (1 - bounded));
-}
-
-function requestElectionDateIso(request: SimulationRequest, fallback: string): string {
-  const rawDate = request.electionDate || request.scenario.electionDate || fallback;
-  const isoCandidate = /^\d{4}-\d{2}-\d{2}$/.test(rawDate) ? `${rawDate}T00:00:00.000Z` : rawDate;
-  const parsed = new Date(isoCandidate);
-  return Number.isFinite(parsed.getTime()) ? parsed.toISOString() : fallback;
-}
-
-function applyScenarioToPoliticsSource(
-  source: PoliticsPipelineSource,
-  request: SimulationRequest,
-  simulationCount: number
-): PoliticsPipelineSource {
-  const scenarioShares = new Map(
-    request.scenario.lists.map((row) => [listKey(row.name), Math.max(Number(row.startingShare) || 0, 0)])
-  );
-  const politicalRows = source.liste.filter((row) => row.LISTA !== 'astensione');
-  const politicalTotal = politicalRows.reduce((sum, row) => sum + row.PERCENTUALE, 0);
-  const weights = new Map<string, number>();
-
-  for (const row of politicalRows) {
-    weights.set(row.LISTA, scenarioShares.get(listKey(row.LISTA)) ?? row.PERCENTUALE);
-  }
-
-  const totalWeight = [...weights.values()].reduce((sum, value) => sum + value, 0);
-  const effectiveTotalWeight = totalWeight > 0 ? totalWeight : politicalTotal;
-
-  return {
-    ...source,
-    data_elezione: requestElectionDateIso(request, source.data_elezione),
-    simulazioni: simulationCount,
-    liste: source.liste.map((row) => {
-      if (row.LISTA === 'astensione') return { ...row };
-
-      const fallbackWeight = row.PERCENTUALE;
-      const weight = totalWeight > 0 ? (weights.get(row.LISTA) ?? fallbackWeight) : fallbackWeight;
-      const percentage = effectiveTotalWeight > 0 ? (politicalTotal * weight) / effectiveTotalWeight : row.PERCENTUALE;
-
-      return {
-        ...row,
-        PERCENTUALE: percentage,
-        LOGIT_P: logit(percentage)
-      };
-    })
   };
 }
 
@@ -201,7 +150,18 @@ async function handleRequest(request: SimulationRequest): Promise<void> {
     post({
       type: 'result',
       status: 'not_implemented',
-      tables: [scenarioShareTable(request.scenario.lists)],
+      tables: [
+        scenarioProjectionTable(
+          request.scenario.lists.map((row) => ({
+            list: row.name,
+            coalition: row.coalition,
+            scenarioShare: row.startingShare,
+            shareOverride: row.shareOverride,
+            projectedShare: null,
+            status: 'unmatched' as const
+          }))
+        )
+      ],
       warnings: [
         {
           code: 'ELECTION_KIND_NOT_PORTED',
@@ -227,7 +187,11 @@ async function handleRequest(request: SimulationRequest): Promise<void> {
     Number.isFinite(requestedSimulationInput) && requestedSimulationInput > 0 ? requestedSimulationInput : 1;
   const simulationCount = Math.min(requestedSimulations, politicsGeneratedSimulationLimit);
   const source = buildPoliticsPipelineSourceFromSnapshot(staticSnapshot, { simulations: simulationCount });
-  const scenarioSource = applyScenarioToPoliticsSource(source, request, simulationCount);
+  const projection = projectScenarioOntoPoliticsSource(source, request.scenario, {
+    electionDate: request.electionDate,
+    simulations: simulationCount
+  });
+  const scenarioSource = projection.source;
 
   const runs: GeneratedRunSummary[] = [];
   let generatedSimulations = 0;
@@ -275,7 +239,7 @@ async function handleRequest(request: SimulationRequest): Promise<void> {
     type: 'result',
     status: 'completed',
     tables: [
-      scenarioShareTable(request.scenario.lists),
+      scenarioProjectionTable(projection.rows),
       summarizeGeneratedRuns(runs),
       summarizeListSeats(runs, simulationCount)
     ],
@@ -288,12 +252,18 @@ async function handleRequest(request: SimulationRequest): Promise<void> {
         todoReference: 'MIGRATION_PLAN.md#current-caveats'
       },
       {
-        code: 'POLITICS_SCENARIO_SHARE_PROJECTION',
+        code: 'POLITICS_SCENARIO_PROJECTION',
         electionKind: request.kind,
         message:
-          'Scenario list shares are matched by list name and projected onto the source model probabilities for this first browser path.',
+          'Scenario lists are matched by name against the static snapshot; matched list presence, coalitions, and explicit global share overrides are projected into the generated pipeline.',
         todoReference: 'MIGRATION_PLAN.md#current-caveats'
       },
+      ...projection.warnings.map((warning) => ({
+        code: warning.code,
+        electionKind: request.kind,
+        message: warning.message,
+        todoReference: warning.todoReference
+      })),
       ...(requestedSimulations > simulationCount
         ? [
             {

@@ -247,6 +247,30 @@ simulation 4.
 - `web/` contains the initial static SvelteKit app scaffold, strict TypeScript
   setup, worker API types, seeded RNG, allocation primitives, unit tests, and a
   Playwright smoke test.
+- `web/src/lib/scenario/politics.ts` owns the current politics scenario JSON
+  contract. Schema v2 covers basic scenario metadata, coalitions, lists, colors,
+  global starting shares, and `shareOverride`, plus validation and JSON
+  parse/serialize helpers. Old schema-v1 JSON without `shareOverride` remains
+  accepted and defaults those flags to `false`.
+- `web/src/routes/+page.svelte` uses one `scenarioDraft` object for the basic
+  web-native editor: scenario metadata, coalition editing, list/share editing,
+  validation, reset, JSON import/export, and automatic localStorage persistence.
+  Build plain cloned scenario snapshots before posting to the worker.
+- `web/src/lib/politics/scenario-projection.ts` is the current boundary between
+  the web-native politics scenario and the generated worker source. It matches
+  scenario lists to the static snapshot by exact list name, removes source lists
+  that are not present in the scenario, applies only explicit global share
+  overrides, recalculates non-overridden matched lists proportionally from
+  source data, projects matched list coalitions, and warns about unmatched
+  scenario lists or placeholder coalition candidates.
+- New/unmatched scenario lists cannot yet be simulated by the static-snapshot
+  worker path. They are ignored with a warning until production previous-election
+  data packaging and list-correspondence defaults are implemented.
+- Advanced scenario features remain deferred: past-to-future list
+  correspondences UI, location-specific percentage overrides, fixed-versus-mean
+  modes, and candidate templates/editors. Keep schema/generator hooks ready, but
+  do not build large UI for these before production previous-election data
+  packaging is stable.
 - The TypeScript politics scrutiny port now matches the R golden fixture for
   direct scrutiny output on the debug fixture: uninominal candidate election,
   candidate-only vote attribution to lists, plurinominal/circumscription

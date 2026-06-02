@@ -1,0 +1,78 @@
+import { describe, expect, test } from 'vitest';
+import {
+  createDefaultPoliticsScenario,
+  normalizeScenario,
+  parseScenario,
+  serializeScenario,
+  validateScenario
+} from './politics';
+
+describe('politics web-native scenario model', () => {
+  test('default scenario is valid', () => {
+    const scenario = createDefaultPoliticsScenario();
+
+    expect(scenario.lists.every((list) => !list.shareOverride)).toBe(true);
+    expect(validateScenario(scenario)).toEqual([]);
+  });
+
+  test('round-trips through the versioned JSON format', () => {
+    const scenario = createDefaultPoliticsScenario();
+    const parsed = parseScenario(serializeScenario(scenario));
+
+    expect(parsed).toEqual(scenario);
+  });
+
+  test('detects duplicate list names and unknown coalitions', () => {
+    const scenario = createDefaultPoliticsScenario();
+    scenario.lists[1].name = scenario.lists[0].name;
+    scenario.lists[1].coalition = 'missing';
+
+    expect(validateScenario(scenario)).toEqual(
+      expect.arrayContaining([
+        'I nomi delle liste devono essere unici.',
+        'Coalizione mancante o sconosciuta per +Europa.'
+      ])
+    );
+  });
+
+  test('normalizes partial untrusted input before validation', () => {
+    const scenario = normalizeScenario({
+      lists: [{ name: 'Lista A', coalition: 'Coalizione A', startingShare: '40', shareOverride: true }],
+      coalitions: [{ name: 'Coalizione A' }]
+    });
+
+    expect(scenario.id).toBe('politiche-2027');
+    expect(scenario.lists[0].id).toBe('list-lista-a');
+    expect(scenario.lists[0].startingShare).toBe(40);
+    expect(scenario.lists[0].shareOverride).toBe(true);
+    expect(validateScenario(scenario)).toEqual([]);
+  });
+
+  test('keeps old scenario JSON compatible by defaulting missing override flags to false', () => {
+    const scenario = parseScenario(
+      JSON.stringify({
+        schema_version: 1,
+        scenario: {
+          name: 'Old scenario',
+          electionDate: '2027-03-01',
+          coalitions: [{ name: 'Coalizione A' }],
+          lists: [{ name: 'Lista A', coalition: 'Coalizione A', startingShare: 40 }]
+        }
+      })
+    );
+
+    expect(scenario.lists[0].shareOverride).toBe(false);
+  });
+
+  test('validates only explicitly used global share overrides as a total', () => {
+    const scenario = createDefaultPoliticsScenario();
+    scenario.lists[0].startingShare = 60;
+    scenario.lists[1].startingShare = 60;
+    scenario.lists[0].shareOverride = true;
+
+    expect(validateScenario(scenario)).toEqual([]);
+
+    scenario.lists[1].shareOverride = true;
+    expect(validateScenario(scenario)).toEqual(expect.arrayContaining(['La somma delle quote usate non puo superare 100.']));
+  });
+});

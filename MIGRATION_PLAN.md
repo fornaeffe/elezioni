@@ -35,6 +35,7 @@ R baseline on the same machine, pause and present Python fallback options.
 | Composed politics pipeline | Started | Candidate generation, vote generation, vote preparation, and direct-scrutiny input adaptation are composed into tested synthetic, real-source, and browser-worker paths. |
 | Generated politics input adapter | Started | R-style generated-table fixture and TypeScript adapter now rebuild the exact direct scrutiny inputs/context. `prepara_dts()` vote preparation is also ported. |
 | Performance gate | Passed for current politics worker path | Chromium generated-worker benchmark on the production-shaped debug static snapshot is below fresh full R politics baselines for 10, 100, and 1000 simulations; repeat after full production data packaging. |
+| Scenario editor and JSON contract | Started | Basic politics scenario model, validation, localStorage persistence, reset, JSON import/export, list/coalition editing, explicit global share overrides, and worker projection are wired. Advanced correspondence/location/candidate semantics remain planned. |
 
 ## Decisions
 
@@ -237,6 +238,19 @@ full production data packaging.
 - Added the `web/` SvelteKit static app scaffold with strict TypeScript,
   worker API types, a worker smoke path, a compact scenario editor, seeded RNG,
   allocation primitives, Vitest unit tests, and a Playwright smoke test.
+- Added the first typed web-native politics scenario contract in
+  `web/src/lib/scenario/politics.ts`, with default scenario construction,
+  validation, deterministic JSON save/load, and the localStorage key used by the
+  UI.
+- Reworked the first Svelte page so the scenario editor now supports scenario
+  metadata, coalition editing, list/share editing, reset, JSON import/export,
+  localStorage autosave, validation before worker execution, and plain scenario
+  snapshots when posting to the worker.
+- Added a tested politics scenario projection layer that maps matched scenario
+  lists into the generated worker source, removes source lists not present in
+  the scenario, applies explicit global share overrides, recalculates
+  unspecified lists proportionally, and reports unmatched/static-snapshot
+  limitations as warnings.
 
 ## Latest Verification
 
@@ -253,9 +267,10 @@ Run on 2026-06-02:
 - `Rscript scripts/benchmark_r_workflows.R --politics-sims=100 --municipal-sims=1 --regional-sims=1 --output=test/fixtures/benchmarks/r_baseline_politics_100_compare.json`: passed.
 - `Rscript scripts/benchmark_r_workflows.R --politics-sims=1000 --municipal-sims=1 --regional-sims=1 --output=test/fixtures/benchmarks/r_baseline_politics_1000_compare.json`: passed.
 - `cd web; npm run check`: passed with 0 warnings.
-- `cd web; npm test`: passed, 111 tests.
+- `cd web; npm test`: passed, 121 tests.
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.
+- Built-app desktop/mobile layout overflow check with Playwright: passed.
 - `cd web; npm run benchmark:politics`: passed, 10 simulations in 1.216 s,
   100 simulations in 12.220 s, and 1000 simulations in 131.616 s.
 
@@ -297,10 +312,26 @@ Run on 2026-06-02:
   worker input. It separates reusable data from `default_scenario`, but it is
   still derived from the debug source and is not the final historical data
   bundle.
-- The first worker scenario projection matches edited shares by exact list
-  name, preserves the source abstention row, rescales political list
-  probabilities into the source model, and recomputes `LOGIT_P`. This keeps the
-  browser workflow usable but is not the final scenario import/editor contract.
+- The worker scenario projection matches scenario lists by exact list name,
+  preserves the source abstention row, removes matched source lists that are no
+  longer present in the scenario, projects active coalitions into list rows,
+  applies only explicit global share overrides, proportionally recalculates
+  unspecified matched lists, and recomputes `LOGIT_P`.
+- Scenario JSON schema v2 covers the basic UI fields plus `shareOverride`,
+  which distinguishes displayed/calculated shares from user-specified global
+  share overrides. Old schema-v1 JSON without `shareOverride` remains accepted
+  and defaults those flags to `false`.
+- New/unmatched scenario lists are still ignored by the current static-snapshot
+  worker path because production previous-election data packaging and
+  list-correspondence defaults are not implemented yet. The worker reports this
+  as a warning rather than silently simulating unavailable data.
+- When a matched scenario list uses a coalition name not present in the current
+  uninominal candidate template, the worker creates generated placeholder
+  uninominal candidates for that coalition and reports a warning. This keeps the
+  browser workflow runnable, but final coalition/candidate semantics need the
+  production scenario/data contract.
+- Advanced correspondences, location-specific overrides, fixed-versus-mean
+  modes, and candidate templates are still deferred.
 - The generated worker path currently runs in 50-simulation chunks and is
   capped at 1000 simulations. This is enough for the current benchmark gate but
   should be revisited after production data packaging.
@@ -887,3 +918,79 @@ Verification:
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.
 - `cd web; npm run benchmark:politics`: passed.
+
+## 2026-06-02 Checkpoint 22
+
+Completed in the first web-native scenario editor pass:
+
+- Added `web/src/lib/scenario/politics.ts` as the typed politics scenario
+  helper module.
+- Added default scenario construction, cloning, normalization, validation,
+  schema-v1 JSON serialization/parsing, and the versioned localStorage key.
+- Added `web/src/lib/scenario/politics.test.ts` with coverage for valid
+  defaults, JSON round-trips, malformed/partial scenarios, duplicate list
+  names, and unknown coalitions.
+- Reworked `web/src/routes/+page.svelte` around one `scenarioDraft` state
+  object instead of separate list/coalition arrays.
+- The page now supports:
+  - editing scenario name and election date;
+  - adding/removing/renaming coalitions;
+  - adding/removing lists and editing names, coalitions, colors, and global
+    shares;
+  - validation before worker execution;
+  - reset to defaults;
+  - JSON download/upload;
+  - automatic localStorage persistence.
+- The localStorage writer is side-effect-only and uses `$derived` snapshots; it
+  does not update state inside `$effect`.
+- Added unique default names for newly created lists/coalitions so repeated add
+  actions do not immediately create duplicate-name validation errors.
+- This is still the basic scenario editor slice. Partial override semantics,
+  past-to-future correspondences, location overrides, fixed/mean modes, and
+  candidate templates remain deferred until the next scenario model/data
+  packaging pass.
+
+Verification:
+
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 115 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+- Built-app desktop/mobile layout overflow check with Playwright: passed.
+
+## 2026-06-02 Checkpoint 23
+
+Completed in the scenario-to-worker projection pass:
+
+- Extended `ScenarioList` with `shareOverride`, making partial global share
+  overrides first-class in the scenario model.
+- Bumped the serialized politics scenario contract to schema v2 while keeping
+  old schema-v1 JSON compatible by defaulting missing override flags to
+  `false`.
+- Updated the UI so editing a list percentage automatically marks that list's
+  share as used, and added a compact per-list checkbox to enable/disable the
+  override.
+- Added `web/src/lib/politics/scenario-projection.ts`, a tested projection
+  boundary between the web-native scenario and the generated politics worker
+  source.
+- The projection now:
+  - removes static-snapshot source lists not present in the scenario;
+  - ignores and warns about scenario lists missing from the current snapshot;
+  - applies explicit global share overrides;
+  - recalculates non-overridden matched lists proportionally from source data;
+  - projects matched list coalitions into the generated source;
+  - creates placeholder generated uninominal candidates for newly named matched
+    coalitions, with a warning.
+- Rewired `web/src/lib/workers/simulation.worker.ts` to use the projection
+  helper and return a `Scenario projection` result table.
+- Updated the Playwright smoke test to edit `Partito Democratico` to 30%,
+  verify the override checkbox activates, run the worker, and assert the worker
+  output includes that projected scenario row.
+
+Verification:
+
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 121 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+- Built-app desktop/mobile layout overflow check with Playwright: passed.

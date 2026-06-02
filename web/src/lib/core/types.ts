@@ -6,6 +6,7 @@ export interface ScenarioList {
   coalition: string | null;
   color: string;
   startingShare: number;
+  shareOverride: boolean;
 }
 
 export interface ScenarioCoalition {

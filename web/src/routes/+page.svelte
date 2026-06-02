@@ -1,14 +1,24 @@
 <script lang="ts">
-  import { Plus, Play, Trash2 } from '@lucide/svelte';
+  import { Download, Plus, Play, RotateCcw, Trash2, Upload } from '@lucide/svelte';
+  import { browser } from '$app/environment';
+  import { onMount } from 'svelte';
   import SimulationWorker from '$lib/workers/simulation.worker?worker';
   import type {
     ResultTable,
     Scenario,
-    ScenarioCoalition,
-    ScenarioList,
     SimulationRequest,
     SimulationWorkerMessage
   } from '$lib/core/types';
+  import {
+    cloneScenario,
+    createDefaultPoliticsScenario,
+    createScenarioCoalition,
+    createScenarioList,
+    parseScenario,
+    politicsScenarioStorageKey,
+    serializeScenario,
+    validateScenario
+  } from '$lib/scenario/politics';
 
   const dataVersion = 'v1';
 
@@ -19,113 +29,132 @@
   let elapsedMs = $state(0);
   let tables = $state<ResultTable[]>([]);
   let warnings = $state<string[]>([]);
+  let scenarioDraft = $state<Scenario>(createDefaultPoliticsScenario());
+  let scenarioStorageReady = $state(false);
+  let fileInput: HTMLInputElement | undefined;
 
-  let coalitions = $state<ScenarioCoalition[]>([
-    { id: 'sinistra', name: 'sinistra', color: '#d94848' },
-    { id: 'centro', name: 'centro', color: '#7a6bb2' },
-    { id: 'destra', name: 'destra', color: '#3267b1' },
-    { id: 'pap', name: 'PaP', color: '#7a3b2e' }
-  ]);
-
-  let lists = $state<ScenarioList[]>([
-    {
-      id: 'europa',
-      name: '+Europa',
-      coalition: 'sinistra',
-      color: '#e9897e',
-      startingShare: 1.98
-    },
-    {
-      id: 'avs',
-      name: 'Alleanza Verdi Sinistra',
-      coalition: 'sinistra',
-      color: '#44a36f',
-      startingShare: 4.95
-    },
-    {
-      id: 'azione-iv',
-      name: 'Azione - Italia Viva',
-      coalition: 'centro',
-      color: '#7a6bb2',
-      startingShare: 5.49
-    },
-    {
-      id: 'fi',
-      name: 'Forza Italia',
-      coalition: 'destra',
-      color: '#5d8ed8',
-      startingShare: 6.85
-    },
-    {
-      id: 'fdi',
-      name: "Fratelli d'Italia",
-      coalition: 'destra',
-      color: '#3267b1',
-      startingShare: 23.77
-    },
-    {
-      id: 'lega',
-      name: 'Lega',
-      coalition: 'destra',
-      color: '#2f8a68',
-      startingShare: 6.52
-    },
-    {
-      id: 'm5s',
-      name: 'Movimento 5 Stelle',
-      coalition: 'sinistra',
-      color: '#d8b400',
-      startingShare: 3.32
-    },
-    {
-      id: 'pd',
-      name: 'Partito Democratico',
-      coalition: 'sinistra',
-      color: '#d94848',
-      startingShare: 45.28
-    },
-    {
-      id: 'pap',
-      name: 'Potere al Popolo!',
-      coalition: 'PaP',
-      color: '#7a3b2e',
-      startingShare: 1.84
-    }
-  ]);
-
-  const scenario = $derived.by<Scenario>(() => ({
-    id: 'politiche-2027',
-    name: 'Politiche 2027',
-    electionDate: '2027-03-01',
-    lists: lists.map((list) => ({ ...list })),
-    coalitions: coalitions.map((coalition) => ({ ...coalition }))
-  }));
+  const scenario = $derived(cloneScenario(scenarioDraft));
+  const validationMessages = $derived(validateScenario(scenario));
+  const canRun = $derived(!running && validationMessages.length === 0);
   const runButtonLabel = $derived(running ? phase : 'Esegui');
   const elapsedLabel = $derived(`${elapsedMs.toFixed(0)} ms`);
 
-  function addList(): void {
-    lists = [
-      ...lists,
-      {
-        id: crypto.randomUUID(),
-        name: 'Nuova lista',
-        coalition: coalitions[0]?.name ?? null,
-        color: '#6f7f8f',
-        startingShare: 1
+  onMount(() => {
+    if (!browser) return;
+
+    const stored = localStorage.getItem(politicsScenarioStorageKey);
+    if (stored) {
+      try {
+        scenarioDraft = parseScenario(stored);
+      } catch (error) {
+        warnings = [`SCENARIO_STORAGE_ERROR: ${error instanceof Error ? error.message : String(error)}`];
       }
-    ];
+    }
+
+    scenarioStorageReady = true;
+  });
+
+  $effect(() => {
+    if (!browser || !scenarioStorageReady) return;
+    localStorage.setItem(politicsScenarioStorageKey, serializeScenario(scenario));
+  });
+
+  function addList(): void {
+    scenarioDraft.lists = [...scenarioDraft.lists, createScenarioList(scenarioDraft.coalitions, scenarioDraft.lists)];
   }
 
   function removeList(id: string): void {
-    lists = lists.filter((row) => row.id !== id);
+    scenarioDraft.lists = scenarioDraft.lists.filter((row) => row.id !== id);
+  }
+
+  function addCoalition(): void {
+    scenarioDraft.coalitions = [...scenarioDraft.coalitions, createScenarioCoalition(scenarioDraft.coalitions)];
+  }
+
+  function updateCoalitionName(id: string, name: string): void {
+    const coalition = scenarioDraft.coalitions.find((row) => row.id === id);
+    const previousName = coalition?.name;
+    scenarioDraft.coalitions = scenarioDraft.coalitions.map((row) => (row.id === id ? { ...row, name } : row));
+
+    if (previousName !== undefined) {
+      scenarioDraft.lists = scenarioDraft.lists.map((row) =>
+        row.coalition === previousName ? { ...row, coalition: name } : row
+      );
+    }
+  }
+
+  function removeCoalition(id: string): void {
+    const removed = scenarioDraft.coalitions.find((row) => row.id === id);
+    const coalitions = scenarioDraft.coalitions.filter((row) => row.id !== id);
+    const fallback = coalitions[0]?.name ?? null;
+
+    scenarioDraft.coalitions = coalitions;
+    if (removed) {
+      scenarioDraft.lists = scenarioDraft.lists.map((row) =>
+        row.coalition === removed.name ? { ...row, coalition: fallback } : row
+      );
+    }
+  }
+
+  function resetScenario(): void {
+    scenarioDraft = createDefaultPoliticsScenario();
+    tables = [];
+    warnings = [];
+  }
+
+  function scenarioFilename(): string {
+    const slug = scenario.name
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
+    return `${slug || 'scenario'}.json`;
+  }
+
+  function downloadScenario(): void {
+    if (!browser) return;
+
+    const blob = new Blob([serializeScenario(scenario)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = scenarioFilename();
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function chooseScenarioFile(): void {
+    fileInput?.click();
+  }
+
+  async function loadScenarioFile(event: Event): Promise<void> {
+    const input = event.currentTarget as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    try {
+      scenarioDraft = parseScenario(await file.text());
+      tables = [];
+      warnings = [];
+    } catch (error) {
+      warnings = [`SCENARIO_LOAD_ERROR: ${error instanceof Error ? error.message : String(error)}`];
+    } finally {
+      input.value = '';
+    }
   }
 
   function runSimulation(): void {
+    if (validationMessages.length > 0) {
+      warnings = validationMessages.map((message) => `SCENARIO_VALIDATION: ${message}`);
+      return;
+    }
+
     const worker = new SimulationWorker();
+    const scenarioSnapshot = cloneScenario(scenarioDraft);
     const request: SimulationRequest = {
       kind: 'politiche',
-      scenario,
-      electionDate: '2027-03-01',
+      scenario: scenarioSnapshot,
+      electionDate: scenarioSnapshot.electionDate,
       simulations,
       seed,
       dataVersion
@@ -180,7 +209,7 @@
 <main class="workspace">
   <section class="toolbar" aria-label="Simulazione">
     <div>
-      <h1>Politiche 2027</h1>
+      <h1>{scenarioDraft.name || 'Scenario politiche'}</h1>
       <p>Snapshot {dataVersion}</p>
     </div>
     <label>
@@ -191,7 +220,7 @@
       Seed
       <input type="text" bind:value={seed} />
     </label>
-    <button class="primary" type="button" onclick={runSimulation} disabled={running}>
+    <button class="primary" type="button" onclick={runSimulation} disabled={!canRun}>
       <Play size={18} aria-hidden="true" />
       <span>{runButtonLabel}</span>
     </button>
@@ -201,18 +230,121 @@
     <div class="panel scenario-panel">
       <div class="panel-heading">
         <h2>Scenario</h2>
-        <button type="button" class="icon-button" onclick={addList} title="Aggiungi lista">
+        <div class="panel-actions">
+          <button
+            type="button"
+            class="icon-button"
+            onclick={resetScenario}
+            title="Ripristina scenario"
+            aria-label="Ripristina scenario"
+          >
+            <RotateCcw size={18} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            class="icon-button"
+            onclick={chooseScenarioFile}
+            title="Carica scenario"
+            aria-label="Carica scenario"
+          >
+            <Upload size={18} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            class="icon-button"
+            onclick={downloadScenario}
+            title="Scarica scenario"
+            aria-label="Scarica scenario"
+          >
+            <Download size={18} aria-hidden="true" />
+          </button>
+        </div>
+      </div>
+
+      <input
+        class="hidden-file"
+        type="file"
+        accept="application/json,.json"
+        bind:this={fileInput}
+        onchange={loadScenarioFile}
+      />
+
+      <div class="scenario-meta">
+        <label>
+          Nome scenario
+          <input type="text" bind:value={scenarioDraft.name} />
+        </label>
+        <label>
+          Data elezione
+          <input type="date" bind:value={scenarioDraft.electionDate} />
+        </label>
+      </div>
+
+      {#if validationMessages.length > 0}
+        <div class="validation" data-testid="scenario-validation">
+          {#each validationMessages as message}
+            <p>{message}</p>
+          {/each}
+        </div>
+      {/if}
+
+      <div class="section-heading">
+        <h3>Coalizioni</h3>
+        <button
+          type="button"
+          class="icon-button"
+          onclick={addCoalition}
+          title="Aggiungi coalizione"
+          aria-label="Aggiungi coalizione"
+        >
+          <Plus size={18} aria-hidden="true" />
+        </button>
+      </div>
+
+      <div class="coalition-editor">
+        {#each scenarioDraft.coalitions as coalition (coalition.id)}
+          <div class="coalition-row">
+            <input class="color" type="color" bind:value={coalition.color} aria-label="Colore coalizione" />
+            <input
+              type="text"
+              value={coalition.name}
+              oninput={(event) => updateCoalitionName(coalition.id, (event.currentTarget as HTMLInputElement).value)}
+              aria-label="Nome coalizione"
+            />
+            <button
+              type="button"
+              class="icon-button danger"
+              onclick={() => removeCoalition(coalition.id)}
+              disabled={scenarioDraft.coalitions.length <= 1}
+              title="Rimuovi coalizione"
+              aria-label="Rimuovi coalizione"
+            >
+              <Trash2 size={18} aria-hidden="true" />
+            </button>
+          </div>
+        {/each}
+      </div>
+
+      <div class="section-heading">
+        <h3>Liste</h3>
+        <button
+          type="button"
+          class="icon-button"
+          onclick={addList}
+          title="Aggiungi lista"
+          aria-label="Aggiungi lista"
+        >
           <Plus size={18} aria-hidden="true" />
         </button>
       </div>
 
       <div class="list-editor">
-        {#each lists as list (list.id)}
+        {#each scenarioDraft.lists as list (list.id)}
           <div class="list-row">
             <input class="color" type="color" bind:value={list.color} aria-label="Colore lista" />
             <input type="text" bind:value={list.name} aria-label="Nome lista" />
             <select bind:value={list.coalition} aria-label="Coalizione">
-              {#each coalitions as coalition}
+              {#each scenarioDraft.coalitions as coalition}
                 <option value={coalition.name}>{coalition.name}</option>
               {/each}
             </select>
@@ -223,9 +355,24 @@
               max="100"
               step="0.1"
               bind:value={list.startingShare}
+              oninput={() => (list.shareOverride = true)}
               aria-label="Quota iniziale"
             />
-            <button type="button" class="icon-button danger" onclick={() => removeList(list.id)} title="Rimuovi lista">
+            <label class="override-toggle">
+              <input
+                type="checkbox"
+                bind:checked={list.shareOverride}
+                aria-label={`Usa quota ${list.name || 'lista'}`}
+              />
+              <span>Usa</span>
+            </label>
+            <button
+              type="button"
+              class="icon-button danger"
+              onclick={() => removeList(list.id)}
+              title="Rimuovi lista"
+              aria-label="Rimuovi lista"
+            >
               <Trash2 size={18} aria-hidden="true" />
             </button>
           </div>
@@ -317,6 +464,13 @@
     font-weight: 700;
   }
 
+  h3 {
+    margin: 0;
+    color: #4d5963;
+    font-size: 13px;
+    font-weight: 750;
+  }
+
   .toolbar p,
   .panel-heading span {
     color: #697681;
@@ -366,15 +520,65 @@
     padding: 0 16px;
   }
 
+  .panel-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .hidden-file {
+    display: none;
+  }
+
+  .scenario-meta {
+    display: grid;
+    grid-template-columns: minmax(160px, 1fr) 160px;
+    gap: 12px;
+    padding: 16px 16px 0;
+  }
+
+  .validation {
+    margin: 16px 16px 0;
+    border-left: 4px solid #9d2d2d;
+    background: #fff1f1;
+    padding: 10px 12px;
+    color: #7c2020;
+    font-size: 13px;
+  }
+
+  .validation p + p {
+    margin-top: 4px;
+  }
+
+  .section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 16px 0;
+  }
+
+  .coalition-editor {
+    display: grid;
+    gap: 10px;
+    padding: 12px 16px 0;
+  }
+
+  .coalition-row {
+    display: grid;
+    grid-template-columns: 40px minmax(130px, 1fr) 40px;
+    gap: 8px;
+    align-items: center;
+  }
+
   .list-editor {
     display: grid;
     gap: 10px;
-    padding: 16px;
+    padding: 12px 16px 16px;
   }
 
   .list-row {
     display: grid;
-    grid-template-columns: 40px minmax(130px, 1fr) minmax(130px, 0.8fr) 86px 40px;
+    grid-template-columns: 40px minmax(130px, 1fr) minmax(130px, 0.8fr) 86px 64px 40px;
     gap: 8px;
     align-items: center;
   }
@@ -386,6 +590,25 @@
 
   .share {
     text-align: right;
+  }
+
+  .override-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 38px;
+    color: #4d5963;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .override-toggle input {
+    min-height: auto;
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    padding: 0;
   }
 
   button {
@@ -402,7 +625,7 @@
   }
 
   button:disabled {
-    cursor: wait;
+    cursor: not-allowed;
     opacity: 0.7;
   }
 
@@ -468,16 +691,17 @@
     }
 
     .toolbar,
-    .grid {
+    .grid,
+    .scenario-meta {
       grid-template-columns: 1fr;
     }
 
     .list-row {
-      grid-template-columns: 40px minmax(0, 1fr) 78px 40px;
+      grid-template-columns: 40px minmax(0, 1fr) 78px 58px 40px;
     }
 
     .list-row select {
-      grid-column: 2 / 4;
+      grid-column: 2 / -1;
     }
   }
 </style>
