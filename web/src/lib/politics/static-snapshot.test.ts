@@ -19,6 +19,9 @@ const pipelineSourcePath = fileURLToPath(
 const staticSnapshotPath = fileURLToPath(
   new URL('../../../../web/static/data/v1/politics-static-debug.json', import.meta.url)
 );
+const productionStaticSnapshotPath = fileURLToPath(
+  new URL('../../../../web/static/data/v1/politics-static.json', import.meta.url)
+);
 
 function loadJson<T>(path: string): T {
   return JSON.parse(readFileSync(path, 'utf8')) as T;
@@ -27,6 +30,7 @@ function loadJson<T>(path: string): T {
 describe('politics static snapshot bridge', () => {
   const pipelineSource = loadJson<PipelineSourceFixture>(pipelineSourcePath).source;
   const staticSnapshot = loadJson<PoliticsStaticSnapshot>(staticSnapshotPath);
+  const productionStaticSnapshot = loadJson<PoliticsStaticSnapshot>(productionStaticSnapshotPath);
 
   test('splits reusable data from the default scenario', () => {
     expect(staticSnapshot.metadata.schema_version).toBe(1);
@@ -41,5 +45,22 @@ describe('politics static snapshot bridge', () => {
     });
 
     expect(actual).toEqual(pipelineSource);
+  });
+
+  test('loads the production static snapshot exported by the R bridge', () => {
+    expect(productionStaticSnapshot.metadata.source).toBe('current R politics preparation pipeline');
+    expect(productionStaticSnapshot.data.base_dati.length).toBeGreaterThan(8000);
+    expect(productionStaticSnapshot.default_scenario.liste).toHaveLength(10);
+    expect(productionStaticSnapshot.default_scenario.comuni_liste.length).toBeGreaterThan(70000);
+    expect(productionStaticSnapshot.default_scenario.coalizioni).toBeDefined();
+    expect(productionStaticSnapshot.default_scenario.corrispondenza_liste).toBeDefined();
+
+    const actual = buildPoliticsPipelineSourceFromSnapshot(productionStaticSnapshot, {
+      simulations: 2
+    });
+
+    expect(actual.simulazioni).toBe(2);
+    expect(actual.camera.candidati_uni.length).toBeGreaterThan(0);
+    expect(actual.senato.candidati_pluri.length).toBeGreaterThan(0);
   });
 });

@@ -19,7 +19,7 @@ export const defaultPoliticsScenario: Scenario = {
       name: '+Europa',
       coalition: 'sinistra',
       color: '#e9897e',
-      startingShare: 1.98,
+      startingShare: 1.94,
       shareOverride: false
     },
     {
@@ -27,7 +27,7 @@ export const defaultPoliticsScenario: Scenario = {
       name: 'Alleanza Verdi Sinistra',
       coalition: 'sinistra',
       color: '#44a36f',
-      startingShare: 4.95,
+      startingShare: 6.91,
       shareOverride: false
     },
     {
@@ -35,7 +35,7 @@ export const defaultPoliticsScenario: Scenario = {
       name: 'Azione - Italia Viva',
       coalition: 'centro',
       color: '#7a6bb2',
-      startingShare: 5.49,
+      startingShare: 5.38,
       shareOverride: false
     },
     {
@@ -43,7 +43,7 @@ export const defaultPoliticsScenario: Scenario = {
       name: 'Forza Italia',
       coalition: 'destra',
       color: '#5d8ed8',
-      startingShare: 6.85,
+      startingShare: 9.9,
       shareOverride: false
     },
     {
@@ -51,7 +51,7 @@ export const defaultPoliticsScenario: Scenario = {
       name: "Fratelli d'Italia",
       coalition: 'destra',
       color: '#3267b1',
-      startingShare: 23.77,
+      startingShare: 29.69,
       shareOverride: false
     },
     {
@@ -59,7 +59,7 @@ export const defaultPoliticsScenario: Scenario = {
       name: 'Lega',
       coalition: 'destra',
       color: '#2f8a68',
-      startingShare: 6.52,
+      startingShare: 9.27,
       shareOverride: false
     },
     {
@@ -67,7 +67,7 @@ export const defaultPoliticsScenario: Scenario = {
       name: 'Movimento 5 Stelle',
       coalition: 'sinistra',
       color: '#d8b400',
-      startingShare: 3.32,
+      startingShare: 10.29,
       shareOverride: false
     },
     {
@@ -75,7 +75,7 @@ export const defaultPoliticsScenario: Scenario = {
       name: 'Partito Democratico',
       coalition: 'sinistra',
       color: '#d94848',
-      startingShare: 45.28,
+      startingShare: 24.81,
       shareOverride: false
     },
     {
@@ -83,7 +83,7 @@ export const defaultPoliticsScenario: Scenario = {
       name: 'Potere al Popolo!',
       coalition: 'PaP',
       color: '#7a3b2e',
-      startingShare: 1.84,
+      startingShare: 1.81,
       shareOverride: false
     }
   ]

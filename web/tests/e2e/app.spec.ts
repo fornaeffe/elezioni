@@ -15,7 +15,7 @@ test('runs the worker smoke path from the scenario editor', async ({ page }) => 
 
   await page.getByRole('button', { name: 'Esegui' }).click();
 
-  await expect(page.getByText('POLITICS_DEBUG_STATIC_SNAPSHOT')).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByText('POLITICS_STATIC_SNAPSHOT')).toBeVisible({ timeout: 30_000 });
   const projectionRow = page.getByRole('table', { name: 'Scenario projection' }).locator('tbody tr', {
     hasText: 'Partito Democratico'
   });

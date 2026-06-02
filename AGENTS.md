@@ -239,8 +239,12 @@ simulation 4.
   legacy bridge/test artifact.
 - `scripts/export_politics_static_snapshot.mjs` derives
   `web/static/data/v1/politics-static-debug.json` from the pipeline-source
-  bridge. This is the current worker input shape: reusable politics data is
-  split from a `default_scenario`, then converted back into the internal
+  bridge. This remains a fallback/test artifact.
+- `scripts/export_politics_static_snapshot.R` exports
+  `web/static/data/v1/politics-static.json` from the current R preparation
+  path, using `dati/dati.RData` and `scenari/politiche_2027.xlsx`. This is the
+  preferred worker input shape: reusable politics data is split from a
+  `default_scenario`, then converted back into the internal
   `PoliticsPipelineSource` by `web/src/lib/politics/static-snapshot.ts`.
 - `scripts/benchmark_r_workflows.R` reruns R baseline workflows.
 - `web/playwright.benchmark.config.ts` and
@@ -267,8 +271,8 @@ simulation 4.
   source data, projects matched list coalitions, and warns about unmatched
   scenario lists or placeholder coalition candidates.
 - New/unmatched scenario lists cannot yet be simulated by the static-snapshot
-  worker path. They are ignored with a warning until production previous-election
-  data packaging and list-correspondence defaults are implemented.
+  worker path. They are ignored with a warning until list-correspondence
+  defaults and future-list generation semantics are implemented.
 - Advanced scenario features remain deferred: past-to-future list
   correspondences UI, location-specific percentage overrides, fixed-versus-mean
   modes, and candidate templates/editors. Keep schema/generator hooks ready, but
@@ -286,26 +290,29 @@ simulation 4.
   availability, subentro, pluricandidature resolution, and final
   `liste_pluri`/`candidati_uni`/`candidati_pluri` outputs.
 - The worker now runs the composed generated politics pipeline on
-  `web/static/data/v1/politics-static-debug.json`, then scrutinizes the
-  generated Camera/Senato simulations. The direct scrutiny and pipeline-source
-  bridge snapshots are still useful for tests, but they are no longer the UI
-  worker path.
+  `web/static/data/v1/politics-static.json`, then scrutinizes the generated
+  Camera/Senato simulations. It falls back to
+  `web/static/data/v1/politics-static-debug.json` only if the production bridge
+  snapshot is absent. The direct scrutiny and pipeline-source bridge snapshots
+  are still useful for tests, but they are no longer the UI worker path.
 - The first browser scenario projection matches edited list shares by exact list
   name, preserves the source abstention row, rescales political list
   probabilities into the source model, and recomputes `LOGIT_P`. This is a
   bridge behavior, not the final scenario import/editor contract.
 - The generated worker path currently runs in 50-simulation chunks and is capped
-  at 1000 simulations until production data packaging is done.
+  at 1000 simulations. Revisit this if the UI needs larger runs or after
+  columnar packaging.
 - The generated-worker browser performance gate passed on 2026-06-02 after the
-  static snapshot split: Chromium ran 10 politics simulations in 1.216 s, 100
-  in 12.220 s, and 1000 in 131.616 s
+  R-exported production static bridge: Chromium ran 10 politics simulations in
+  1.289 s, 100 in 12.283 s, and 1000 in 125.006 s
   (`test/fixtures/benchmarks/browser_politics_worker.json`). Fresh
   same-machine full R politics baselines were 6.20 s for 10 simulations, 19.58 s
   for 100, and 151.96 s for 1000
   (`test/fixtures/benchmarks/r_baseline_politics_10_compare.json`,
   `test/fixtures/benchmarks/r_baseline_politics_100_compare.json`, and
   `test/fixtures/benchmarks/r_baseline_politics_1000_compare.json`). Repeat this
-  gate after final data packaging.
+  gate after the future data-preparation migration or major snapshot/schema
+  changes.
 - In the Camera internal list-in-coalition flipper, the R code decrements the
   recipient list's `SEGGI_ECCEDENTI_CONTATORE` after giving it a seat. This
   appears counterintuitive but is preserved in TypeScript for parity and marked

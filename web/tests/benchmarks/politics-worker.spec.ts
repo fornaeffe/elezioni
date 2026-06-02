@@ -23,7 +23,7 @@ async function runSimulation(page: import('@playwright/test').Page, simulations:
 
   const runsTable = page.getByRole('table', { name: 'Generated pipeline runs' });
   await expect(runsTable.locator('tbody tr')).toHaveCount(simulations * 2, { timeout: 420_000 });
-  await expect(page.getByText('POLITICS_DEBUG_STATIC_SNAPSHOT')).toBeVisible();
+  await expect(page.getByText('POLITICS_STATIC_SNAPSHOT')).toBeVisible();
 
   const rowsRendered = await runsTable.locator('tbody tr').count();
   const elapsedText = (await page.getByTestId('elapsed-ms').textContent()) ?? '0';
@@ -55,7 +55,7 @@ test('benchmarks the generated politics worker path', async ({ browserName, page
       created: new Date().toISOString(),
       browser: browserName,
       workflow: 'politiche',
-      path: 'generated TypeScript worker on production-shaped debug static snapshot',
+      path: 'generated TypeScript worker on production static snapshot exported from current R preparation pipeline',
       data_version: 'v1',
       notes: [
         'Elapsed time is read from SimulationResult.benchmark.elapsedMs as rendered by the app.',

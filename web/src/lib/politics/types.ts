@@ -786,6 +786,28 @@ export interface PoliticsScenarioRamoSnapshot {
   candidati_pluri: PoliticsPipelineCandidatePluriRow[];
 }
 
+export interface PoliticsScenarioCoalitionSnapshotRow {
+  COALIZIONE: string;
+  COLORE?: string | null;
+}
+
+export interface PoliticsScenarioListElectionSnapshotRow {
+  DATA: string;
+  ELEZIONE: string;
+  LISTA: string;
+  VOTI: number;
+  PERCENTUALE: number;
+  LOGIT_P: number;
+}
+
+export interface PoliticsScenarioListCorrespondenceSnapshotRow {
+  DATA: string;
+  ELEZIONE: string;
+  LISTA_ORIGINALE: string;
+  LISTA: string;
+  FATTORE: number;
+}
+
 export interface PoliticsScenarioSnapshot {
   id: string;
   name: string;
@@ -795,6 +817,9 @@ export interface PoliticsScenarioSnapshot {
   default_data_nascita: string;
   liste: PoliticsPipelineListRow[];
   comuni_liste: PoliticsMunicipalListParameterRow[];
+  coalizioni?: PoliticsScenarioCoalitionSnapshotRow[];
+  liste_elezioni?: PoliticsScenarioListElectionSnapshotRow[];
+  corrispondenza_liste?: PoliticsScenarioListCorrespondenceSnapshotRow[];
   camera: PoliticsScenarioRamoSnapshot;
   senato: PoliticsScenarioRamoSnapshot;
 }
@@ -805,6 +830,9 @@ export interface PoliticsStaticSnapshot {
     source: string;
     purpose: string;
     created?: string;
+    cache_path?: string;
+    scenario_path?: string;
+    elections?: string[];
   };
   data: PoliticsStaticDataSnapshotData;
   default_scenario: PoliticsScenarioSnapshot;

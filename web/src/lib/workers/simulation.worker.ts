@@ -16,6 +16,8 @@ import type { PoliticsScrutinyOutput, PoliticsStaticSnapshot, Ramo } from '$lib/
 
 const politicsGeneratedSimulationLimit = 1000;
 const politicsGeneratedChunkSize = 50;
+const politicsStaticSnapshotPath = '/data/v1/politics-static.json';
+const politicsDebugStaticSnapshotPath = '/data/v1/politics-static-debug.json';
 
 interface GeneratedRunSummary {
   ramo: Ramo;
@@ -25,6 +27,12 @@ interface GeneratedRunSummary {
   electedUni: number;
   electedPluri: number;
   seatsByList: Map<string, number>;
+}
+
+interface LoadedPoliticsStaticSnapshot {
+  snapshot: PoliticsStaticSnapshot;
+  path: string;
+  fallback: boolean;
 }
 
 function post(message: SimulationWorkerMessage): void {
@@ -61,13 +69,32 @@ function scenarioProjectionTable(rows: PoliticsScenarioProjectionRow[]): ResultT
   };
 }
 
-async function loadPoliticsStaticSnapshot(): Promise<PoliticsStaticSnapshot> {
-  const response = await fetch('/data/v1/politics-static-debug.json');
-  if (!response.ok) {
-    throw new Error(`Unable to load politics static snapshot: ${response.status}`);
+async function fetchPoliticsStaticSnapshot(path: string): Promise<PoliticsStaticSnapshot | null> {
+  const response = await fetch(path);
+  if (!response.ok) return null;
+  return (await response.json()) as PoliticsStaticSnapshot;
+}
+
+async function loadPoliticsStaticSnapshot(): Promise<LoadedPoliticsStaticSnapshot> {
+  const productionSnapshot = await fetchPoliticsStaticSnapshot(politicsStaticSnapshotPath);
+  if (productionSnapshot) {
+    return {
+      snapshot: productionSnapshot,
+      path: politicsStaticSnapshotPath,
+      fallback: false
+    };
   }
 
-  return (await response.json()) as PoliticsStaticSnapshot;
+  const debugSnapshot = await fetchPoliticsStaticSnapshot(politicsDebugStaticSnapshotPath);
+  if (debugSnapshot) {
+    return {
+      snapshot: debugSnapshot,
+      path: politicsDebugStaticSnapshotPath,
+      fallback: true
+    };
+  }
+
+  throw new Error(`Unable to load politics static snapshot from ${politicsStaticSnapshotPath} or ${politicsDebugStaticSnapshotPath}`);
 }
 
 function summarizeGeneratedRuns(runs: GeneratedRunSummary[]): ResultTable {
@@ -181,7 +208,8 @@ async function handleRequest(request: SimulationRequest): Promise<void> {
   }
 
   progress(startedAt, 'prepare', 1, 5);
-  const staticSnapshot = await loadPoliticsStaticSnapshot();
+  const loadedSnapshot = await loadPoliticsStaticSnapshot();
+  const staticSnapshot = loadedSnapshot.snapshot;
   const requestedSimulationInput = Math.floor(Number(request.simulations));
   const requestedSimulations =
     Number.isFinite(requestedSimulationInput) && requestedSimulationInput > 0 ? requestedSimulationInput : 1;
@@ -245,10 +273,11 @@ async function handleRequest(request: SimulationRequest): Promise<void> {
     ],
     warnings: [
       {
-        code: 'POLITICS_DEBUG_STATIC_SNAPSHOT',
+        code: loadedSnapshot.fallback ? 'POLITICS_DEBUG_STATIC_SNAPSHOT' : 'POLITICS_STATIC_SNAPSHOT',
         electionKind: request.kind,
-        message:
-          'Running the TypeScript generated pipeline on a production-shaped debug static snapshot; full production data packaging is still pending.',
+        message: loadedSnapshot.fallback
+          ? 'Running the TypeScript generated pipeline on the debug static snapshot because the production static snapshot was not available.'
+          : `Running the TypeScript generated pipeline on ${loadedSnapshot.path} exported from the current R preparation pipeline.`,
         todoReference: 'MIGRATION_PLAN.md#current-caveats'
       },
       {

@@ -1,9 +1,9 @@
 {
   "metadata": {
-    "created": "2026-06-02T06:49:49.601Z",
+    "created": "2026-06-02T19:11:08.246Z",
     "browser": "chromium",
     "workflow": "politiche",
-    "path": "generated TypeScript worker on production-shaped debug static snapshot",
+    "path": "generated TypeScript worker on production static snapshot exported from current R preparation pipeline",
     "data_version": "v1",
     "notes": [
       "Elapsed time is read from SimulationResult.benchmark.elapsedMs as rendered by the app.",
@@ -14,19 +14,19 @@
     {
       "simulations_requested": 10,
       "simulations_completed": 10,
-      "elapsed_ms": 1216,
+      "elapsed_ms": 1289,
       "rows_rendered": 20
     },
     {
       "simulations_requested": 100,
       "simulations_completed": 100,
-      "elapsed_ms": 12220,
+      "elapsed_ms": 12283,
       "rows_rendered": 200
     },
     {
       "simulations_requested": 1000,
       "simulations_completed": 1000,
-      "elapsed_ms": 131616,
+      "elapsed_ms": 125006,
       "rows_rendered": 2000
     }
   ]

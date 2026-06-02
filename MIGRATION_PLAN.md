@@ -34,7 +34,8 @@ R baseline on the same machine, pause and present Python fallback options.
 | Candidate generation | Started | Politics `genera_candidati()` is ported with R `sample()` replay fixture parity and seeded browser sampling. |
 | Composed politics pipeline | Started | Candidate generation, vote generation, vote preparation, and direct-scrutiny input adaptation are composed into tested synthetic, real-source, and browser-worker paths. |
 | Generated politics input adapter | Started | R-style generated-table fixture and TypeScript adapter now rebuild the exact direct scrutiny inputs/context. `prepara_dts()` vote preparation is also ported. |
-| Performance gate | Passed for current politics worker path | Chromium generated-worker benchmark on the production-shaped debug static snapshot is below fresh full R politics baselines for 10, 100, and 1000 simulations; repeat after full production data packaging. |
+| Production static snapshot bridge | Done | `scripts/export_politics_static_snapshot.R` exports `web/static/data/v1/politics-static.json` from the current R cache and politics scenario workbook. |
+| Performance gate | Passed for current politics worker path | Chromium generated-worker benchmark on the R-exported production static snapshot is below fresh full R politics baselines for 10, 100, and 1000 simulations; repeat after future data-preparation migration or major snapshot changes. |
 | Scenario editor and JSON contract | Started | Basic politics scenario model, validation, localStorage persistence, reset, JSON import/export, list/coalition editing, explicit global share overrides, and worker projection are wired. Advanced correspondence/location/candidate semantics remain planned. |
 
 ## Decisions
@@ -160,14 +161,17 @@ was wired:
 | R full politics workflow | 10 | 6.20 s | `test/fixtures/benchmarks/r_baseline_politics_10_compare.json` |
 | R full politics workflow | 100 | 19.58 s | `test/fixtures/benchmarks/r_baseline_politics_100_compare.json` |
 | R full politics workflow | 1000 | 151.96 s | `test/fixtures/benchmarks/r_baseline_politics_1000_compare.json` |
-| Chromium generated politics worker | 10 | 1.216 s | `test/fixtures/benchmarks/browser_politics_worker.json` |
-| Chromium generated politics worker | 100 | 12.220 s | `test/fixtures/benchmarks/browser_politics_worker.json` |
-| Chromium generated politics worker | 1000 | 131.616 s | `test/fixtures/benchmarks/browser_politics_worker.json` |
+| Chromium generated politics worker, debug static bridge | 10 | 1.216 s | `test/fixtures/benchmarks/browser_politics_worker.json` |
+| Chromium generated politics worker, debug static bridge | 100 | 12.220 s | `test/fixtures/benchmarks/browser_politics_worker.json` |
+| Chromium generated politics worker, debug static bridge | 1000 | 131.616 s | `test/fixtures/benchmarks/browser_politics_worker.json` |
+| Chromium generated politics worker, R-exported static bridge | 10 | 1.289 s | `test/fixtures/benchmarks/browser_politics_worker.json` |
+| Chromium generated politics worker, R-exported static bridge | 100 | 12.283 s | `test/fixtures/benchmarks/browser_politics_worker.json` |
+| Chromium generated politics worker, R-exported static bridge | 1000 | 125.006 s | `test/fixtures/benchmarks/browser_politics_worker.json` |
 
-Current gate result: pass for this production-shaped debug static snapshot
-worker path. The 1000-simulation browser run is about 0.87x the fresh full R
-workflow elapsed time, far below the 10x stop threshold. Repeat this gate after
-full production data packaging.
+Current gate result: pass for the R-exported production static bridge worker
+path. The 1000-simulation browser run is about 0.82x the fresh full R workflow
+elapsed time, far below the 10x stop threshold. Repeat this gate after the
+future data-preparation migration or major snapshot/schema changes.
 
 ## Implementation Checklist
 
@@ -255,6 +259,12 @@ full production data packaging.
   the scenario, applies explicit global share overrides, recalculates
   unspecified lists proportionally, and reports unmatched/static-snapshot
   limitations as warnings.
+- Added `scripts/export_politics_static_snapshot.R`, which runs the current R
+  politics preparation path from `dati/dati.RData` and
+  `scenari/politiche_2027.xlsx`, then writes
+  `web/static/data/v1/politics-static.json`.
+- Rewired the worker to prefer `politics-static.json`, falling back to
+  `politics-static-debug.json` only if the production bridge snapshot is absent.
 
 ## Latest Verification
 
@@ -266,25 +276,28 @@ Run on 2026-06-02:
 - `Rscript scripts/export_politics_pipeline_source.R`: passed.
 - `Rscript scripts/export_politics_pipeline_source.R web/static/data/v1/politics-pipeline-source-debug.json`: passed.
 - `node scripts/export_politics_static_snapshot.mjs`: passed.
+- `C:\Program Files\R\R-4.5.1\bin\Rscript.exe scripts/export_politics_static_snapshot.R`: passed.
 - `Rscript scripts/benchmark_r_workflows.R --politics-sims=10 --municipal-sims=10 --regional-sims=10 --output=test/fixtures/benchmarks/r_baseline_quick.json`: passed.
 - `Rscript scripts/benchmark_r_workflows.R --politics-sims=10 --municipal-sims=1 --regional-sims=1 --output=test/fixtures/benchmarks/r_baseline_politics_10_compare.json`: passed.
 - `Rscript scripts/benchmark_r_workflows.R --politics-sims=100 --municipal-sims=1 --regional-sims=1 --output=test/fixtures/benchmarks/r_baseline_politics_100_compare.json`: passed.
 - `Rscript scripts/benchmark_r_workflows.R --politics-sims=1000 --municipal-sims=1 --regional-sims=1 --output=test/fixtures/benchmarks/r_baseline_politics_1000_compare.json`: passed.
 - `cd web; npm run check`: passed with 0 warnings.
-- `cd web; npm test`: passed, 121 tests.
+- `cd web; npm test`: passed, 122 tests.
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.
 - Built-app desktop/mobile layout overflow check with Playwright: passed.
-- `cd web; npm run benchmark:politics`: passed, 10 simulations in 1.216 s,
-  100 simulations in 12.220 s, and 1000 simulations in 131.616 s.
+- `cd web; npm run benchmark:politics`: passed on the R-exported production
+  static bridge, 10 simulations in 1.289 s, 100 simulations in 12.283 s, and
+  1000 simulations in 125.006 s.
 
 ## Current Caveats
 
 - The TypeScript politics scrutiny core matches direct R scrutiny output for the
-  10-simulation debug fixture. The browser worker now consumes
-  `web/static/data/v1/politics-static-debug.json`, converts its default
-  scenario plus reusable data into the internal pipeline source, and runs
-  scrutiny on generated Camera/Senato simulations.
+  10-simulation debug fixture. The browser worker now prefers
+  `web/static/data/v1/politics-static.json`, converts its default scenario plus
+  reusable data into the internal pipeline source, and runs scrutiny on
+  generated Camera/Senato simulations. If that file is absent, it falls back to
+  `politics-static-debug.json`.
 - The exported politics fixture is about 68 MB because it contains direct
   scrutiny inputs, R trace tables, and expected outputs for 10 simulations.
 - The generated adapter fixture is about 8.1 MB and covers deterministic
@@ -312,10 +325,13 @@ Run on 2026-06-02:
   one-simulation generated pipeline plus scrutiny smoke path from realistic
   source tables and is still bundled under `web/static/data/v1/` as a legacy
   bridge/test artifact.
-- The production-shaped debug static snapshot is about 12 MB and is now the
-  worker input. It separates reusable data from `default_scenario`, but it is
-  still derived from the debug source and is not the final historical data
-  bundle.
+- The R-exported production static bridge is about 12.5 MB and is now the
+  preferred worker input. It is produced from the current R cache and scenario
+  workbook, not from the debug scrutiny fixture. The future data-preparation
+  migration is still deferred and may replace this exporter.
+- The production-shaped debug static snapshot is about 12 MB and is now a
+  fallback/test artifact. It separates reusable data from `default_scenario`,
+  but it is still derived from the debug source.
 - The worker scenario projection matches scenario lists by exact list name,
   preserves the source abstention row, removes matched source lists that are no
   longer present in the scenario, projects active coalitions into list rows,
@@ -326,9 +342,9 @@ Run on 2026-06-02:
   share overrides. Old schema-v1 JSON without `shareOverride` remains accepted
   and defaults those flags to `false`.
 - New/unmatched scenario lists are still ignored by the current static-snapshot
-  worker path because production previous-election data packaging and
-  list-correspondence defaults are not implemented yet. The worker reports this
-  as a warning rather than silently simulating unavailable data.
+  worker path because list-correspondence defaults and future-list generation
+  semantics are not implemented yet. The worker reports this as a warning
+  rather than silently simulating unavailable data.
 - When a matched scenario list uses a coalition name not present in the current
   uninominal candidate template, the worker creates generated placeholder
   uninominal candidates for that coalition and reports a warning. This keeps the
@@ -342,10 +358,11 @@ Run on 2026-06-02:
   election summaries first.
 - The generated worker path currently runs in 50-simulation chunks and is
   capped at 1000 simulations. This is enough for the current benchmark gate but
-  should be revisited after production data packaging.
+  should be revisited if the UI needs larger runs or after columnar packaging.
 - The generated-worker browser benchmark passes the 10x performance gate for
-  10, 100, and 1000 politics simulations. This is still not a final production
-  gate because the worker uses a debug-derived static snapshot.
+  10, 100, and 1000 politics simulations on the R-exported production static
+  bridge. Repeat it after the future data-preparation migration or major
+  snapshot/schema changes.
 - The browser direct-scrutiny bridge snapshot is about 8.7 MB and contains only
   direct scrutiny inputs/context, not golden traces or expected outputs. It is
   still useful for tests/benchmarks but is no longer the UI worker path.
@@ -1002,3 +1019,44 @@ Verification:
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.
 - Built-app desktop/mobile layout overflow check with Playwright: passed.
+
+## 2026-06-02 Checkpoint 24
+
+Completed in the production static snapshot bridge pass:
+
+- Added `scripts/export_politics_static_snapshot.R`.
+- The exporter runs the current R politics preparation path:
+  - loads `dati/dati.RData` through `carica_dati()`;
+  - filters to `camera 2018`, `europee 2019`, `camera 2022`, and
+    `europee 2024`;
+  - computes `dati_collegi`;
+  - computes `parametri_input` from `scenari/politiche_2027.xlsx`;
+  - loads candidate templates with `carica_candidati()`;
+  - writes a split static snapshot with reusable data and `default_scenario`.
+- Exported `web/static/data/v1/politics-static.json`, about 12.5 MB.
+- Updated `web/static/data/v1/metadata.json` to list the production static
+  bridge snapshot.
+- Extended static snapshot TypeScript types for optional scenario metadata used
+  by future defaults/correspondence work: coalitions, historical list results,
+  and list correspondences.
+- Rewired the worker to prefer `/data/v1/politics-static.json` and fall back to
+  `/data/v1/politics-static-debug.json` if the production bridge is absent.
+- Updated the browser smoke and benchmark expectations from
+  `POLITICS_DEBUG_STATIC_SNAPSHOT` to `POLITICS_STATIC_SNAPSHOT`.
+- Updated visible politics scenario default shares to match the production
+  static snapshot's political-list percentages.
+- Re-ran the browser performance gate on the production static bridge:
+  - 10 simulations: 1.289 s;
+  - 100 simulations: 12.283 s;
+  - 1000 simulations: 125.006 s.
+- Gate result: pass. The 1000-simulation browser run remains below the fresh
+  full R politics baseline of 151.96 s and far below the 10x stop threshold.
+
+Verification:
+
+- `C:\Program Files\R\R-4.5.1\bin\Rscript.exe scripts/export_politics_static_snapshot.R`: passed.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 122 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+- `cd web; npm run benchmark:politics`: passed.

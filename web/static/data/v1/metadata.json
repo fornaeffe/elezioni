@@ -6,12 +6,14 @@
   "files": {
     "politicsDirectScrutinyDebug": "politics-debug-scrutiny.json",
     "politicsPipelineSourceDebug": "politics-pipeline-source-debug.json",
-    "politicsStaticDebug": "politics-static-debug.json"
+    "politicsStaticDebug": "politics-static-debug.json",
+    "politicsStatic": "politics-static.json"
   },
   "notes": [
     "politics-debug-scrutiny.json is a compact direct-scrutiny bridge derived from the R golden fixture.",
     "politics-pipeline-source-debug.json is a compact real-source generation bridge derived from dati/debug_scrutinio.RData.",
     "politics-static-debug.json is a production-shaped bridge snapshot split into reusable data and a default scenario; it is still derived from the debug source.",
-    "The worker currently runs the generated TypeScript politics pipeline on politics-static-debug.json; full production data packaging is still pending."
+    "politics-static.json is exported from the current R politics preparation pipeline using dati/dati.RData and scenari/politiche_2027.xlsx.",
+    "The worker currently prefers politics-static.json and falls back to politics-static-debug.json if the production bridge snapshot is absent."
   ]
 }
