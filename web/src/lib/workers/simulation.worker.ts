@@ -8,19 +8,11 @@ import type {
 } from '$lib/core/types';
 import { buildPoliticsDirectScrutinySnapshot } from '$lib/politics/pipeline';
 import { runPoliticsScrutiny } from '$lib/politics/scrutiny';
-import type { PoliticsPipelineSource, PoliticsScrutinyOutput, Ramo } from '$lib/politics/types';
+import { buildPoliticsPipelineSourceFromSnapshot } from '$lib/politics/static-snapshot';
+import type { PoliticsPipelineSource, PoliticsScrutinyOutput, PoliticsStaticSnapshot, Ramo } from '$lib/politics/types';
 
 const politicsGeneratedSimulationLimit = 1000;
 const politicsGeneratedChunkSize = 50;
-
-interface PoliticsPipelineSourceSnapshot {
-  metadata: {
-    schema_version: number;
-    source: string;
-    purpose: string;
-  };
-  source: PoliticsPipelineSource;
-}
 
 interface GeneratedRunSummary {
   ramo: Ramo;
@@ -65,14 +57,13 @@ function scenarioShareTable(lists: ScenarioList[]): ResultTable {
   };
 }
 
-async function loadPoliticsPipelineSource(): Promise<PoliticsPipelineSource> {
-  const response = await fetch('/data/v1/politics-pipeline-source-debug.json');
+async function loadPoliticsStaticSnapshot(): Promise<PoliticsStaticSnapshot> {
+  const response = await fetch('/data/v1/politics-static-debug.json');
   if (!response.ok) {
-    throw new Error(`Unable to load politics pipeline source snapshot: ${response.status}`);
+    throw new Error(`Unable to load politics static snapshot: ${response.status}`);
   }
 
-  const fixture = (await response.json()) as PoliticsPipelineSourceSnapshot;
-  return fixture.source;
+  return (await response.json()) as PoliticsStaticSnapshot;
 }
 
 function summarizeGeneratedRuns(runs: GeneratedRunSummary[]): ResultTable {
@@ -230,11 +221,12 @@ async function handleRequest(request: SimulationRequest): Promise<void> {
   }
 
   progress(startedAt, 'prepare', 1, 5);
-  const source = await loadPoliticsPipelineSource();
+  const staticSnapshot = await loadPoliticsStaticSnapshot();
   const requestedSimulationInput = Math.floor(Number(request.simulations));
   const requestedSimulations =
     Number.isFinite(requestedSimulationInput) && requestedSimulationInput > 0 ? requestedSimulationInput : 1;
   const simulationCount = Math.min(requestedSimulations, politicsGeneratedSimulationLimit);
+  const source = buildPoliticsPipelineSourceFromSnapshot(staticSnapshot, { simulations: simulationCount });
   const scenarioSource = applyScenarioToPoliticsSource(source, request, simulationCount);
 
   const runs: GeneratedRunSummary[] = [];
@@ -289,10 +281,10 @@ async function handleRequest(request: SimulationRequest): Promise<void> {
     ],
     warnings: [
       {
-        code: 'POLITICS_DEBUG_PIPELINE_SOURCE',
+        code: 'POLITICS_DEBUG_STATIC_SNAPSHOT',
         electionKind: request.kind,
         message:
-          'Running the TypeScript generated pipeline on the bundled debug-source snapshot; production data packaging is still pending.',
+          'Running the TypeScript generated pipeline on a production-shaped debug static snapshot; full production data packaging is still pending.',
         todoReference: 'MIGRATION_PLAN.md#current-caveats'
       },
       {

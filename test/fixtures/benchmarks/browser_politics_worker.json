@@ -1,9 +1,9 @@
 {
   "metadata": {
-    "created": "2026-06-02T06:35:17.597Z",
+    "created": "2026-06-02T06:49:49.601Z",
     "browser": "chromium",
     "workflow": "politiche",
-    "path": "generated TypeScript worker on debug-source snapshot",
+    "path": "generated TypeScript worker on production-shaped debug static snapshot",
     "data_version": "v1",
     "notes": [
       "Elapsed time is read from SimulationResult.benchmark.elapsedMs as rendered by the app.",
@@ -14,19 +14,19 @@
     {
       "simulations_requested": 10,
       "simulations_completed": 10,
-      "elapsed_ms": 1260,
+      "elapsed_ms": 1216,
       "rows_rendered": 20
     },
     {
       "simulations_requested": 100,
       "simulations_completed": 100,
-      "elapsed_ms": 12426,
+      "elapsed_ms": 12220,
       "rows_rendered": 200
     },
     {
       "simulations_requested": 1000,
       "simulations_completed": 1000,
-      "elapsed_ms": 122608,
+      "elapsed_ms": 131616,
       "rows_rendered": 2000
     }
   ]

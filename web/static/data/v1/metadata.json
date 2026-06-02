@@ -5,11 +5,13 @@
   "workflows": ["politiche"],
   "files": {
     "politicsDirectScrutinyDebug": "politics-debug-scrutiny.json",
-    "politicsPipelineSourceDebug": "politics-pipeline-source-debug.json"
+    "politicsPipelineSourceDebug": "politics-pipeline-source-debug.json",
+    "politicsStaticDebug": "politics-static-debug.json"
   },
   "notes": [
     "politics-debug-scrutiny.json is a compact direct-scrutiny bridge derived from the R golden fixture.",
     "politics-pipeline-source-debug.json is a compact real-source generation bridge derived from dati/debug_scrutinio.RData.",
-    "The worker currently runs the generated TypeScript politics pipeline on the debug-source bridge; production snapshot packaging and chunked performance work are still pending."
+    "politics-static-debug.json is a production-shaped bridge snapshot split into reusable data and a default scenario; it is still derived from the debug source.",
+    "The worker currently runs the generated TypeScript politics pipeline on politics-static-debug.json; full production data packaging is still pending."
   ]
 }

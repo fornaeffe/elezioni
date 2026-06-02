@@ -34,7 +34,7 @@ R baseline on the same machine, pause and present Python fallback options.
 | Candidate generation | Started | Politics `genera_candidati()` is ported with R `sample()` replay fixture parity and seeded browser sampling. |
 | Composed politics pipeline | Started | Candidate generation, vote generation, vote preparation, and direct-scrutiny input adaptation are composed into tested synthetic, real-source, and browser-worker paths. |
 | Generated politics input adapter | Started | R-style generated-table fixture and TypeScript adapter now rebuild the exact direct scrutiny inputs/context. `prepara_dts()` vote preparation is also ported. |
-| Performance gate | Passed for current politics worker path | Chromium generated-worker benchmark is below fresh full R politics baselines for 10, 100, and 1000 simulations; repeat after production data packaging. |
+| Performance gate | Passed for current politics worker path | Chromium generated-worker benchmark on the production-shaped debug static snapshot is below fresh full R politics baselines for 10, 100, and 1000 simulations; repeat after full production data packaging. |
 
 ## Decisions
 
@@ -95,14 +95,14 @@ was wired:
 | R full politics workflow | 10 | 6.20 s | `test/fixtures/benchmarks/r_baseline_politics_10_compare.json` |
 | R full politics workflow | 100 | 19.58 s | `test/fixtures/benchmarks/r_baseline_politics_100_compare.json` |
 | R full politics workflow | 1000 | 151.96 s | `test/fixtures/benchmarks/r_baseline_politics_1000_compare.json` |
-| Chromium generated politics worker | 10 | 1.260 s | `test/fixtures/benchmarks/browser_politics_worker.json` |
-| Chromium generated politics worker | 100 | 12.426 s | `test/fixtures/benchmarks/browser_politics_worker.json` |
-| Chromium generated politics worker | 1000 | 122.608 s | `test/fixtures/benchmarks/browser_politics_worker.json` |
+| Chromium generated politics worker | 10 | 1.216 s | `test/fixtures/benchmarks/browser_politics_worker.json` |
+| Chromium generated politics worker | 100 | 12.220 s | `test/fixtures/benchmarks/browser_politics_worker.json` |
+| Chromium generated politics worker | 1000 | 131.616 s | `test/fixtures/benchmarks/browser_politics_worker.json` |
 
-Current gate result: pass for this debug-source generated politics worker path.
-The 1000-simulation browser run is about 0.81x the fresh full R workflow
-elapsed time, far below the 10x stop threshold. Repeat this gate after final
-production data packaging.
+Current gate result: pass for this production-shaped debug static snapshot
+worker path. The 1000-simulation browser run is about 0.87x the fresh full R
+workflow elapsed time, far below the 10x stop threshold. Repeat this gate after
+full production data packaging.
 
 ## Implementation Checklist
 
@@ -187,23 +187,25 @@ Run on 2026-06-02:
 - `node scripts/export_politics_worker_snapshot.mjs`: passed.
 - `Rscript scripts/export_politics_pipeline_source.R`: passed.
 - `Rscript scripts/export_politics_pipeline_source.R web/static/data/v1/politics-pipeline-source-debug.json`: passed.
+- `node scripts/export_politics_static_snapshot.mjs`: passed.
 - `Rscript scripts/benchmark_r_workflows.R --politics-sims=10 --municipal-sims=10 --regional-sims=10 --output=test/fixtures/benchmarks/r_baseline_quick.json`: passed.
 - `Rscript scripts/benchmark_r_workflows.R --politics-sims=10 --municipal-sims=1 --regional-sims=1 --output=test/fixtures/benchmarks/r_baseline_politics_10_compare.json`: passed.
 - `Rscript scripts/benchmark_r_workflows.R --politics-sims=100 --municipal-sims=1 --regional-sims=1 --output=test/fixtures/benchmarks/r_baseline_politics_100_compare.json`: passed.
 - `Rscript scripts/benchmark_r_workflows.R --politics-sims=1000 --municipal-sims=1 --regional-sims=1 --output=test/fixtures/benchmarks/r_baseline_politics_1000_compare.json`: passed.
 - `cd web; npm run check`: passed with 0 warnings.
-- `cd web; npm test`: passed, 109 tests.
+- `cd web; npm test`: passed, 111 tests.
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.
-- `cd web; npm run benchmark:politics`: passed, 10 simulations in 1.260 s,
-  100 simulations in 12.426 s, and 1000 simulations in 122.608 s.
+- `cd web; npm run benchmark:politics`: passed, 10 simulations in 1.216 s,
+  100 simulations in 12.220 s, and 1000 simulations in 131.616 s.
 
 ## Current Caveats
 
 - The TypeScript politics scrutiny core matches direct R scrutiny output for the
-  10-simulation debug fixture. The browser worker now consumes the generated
-  politics pipeline on `web/static/data/v1/politics-pipeline-source-debug.json`
-  and runs scrutiny on generated Camera/Senato simulations.
+  10-simulation debug fixture. The browser worker now consumes
+  `web/static/data/v1/politics-static-debug.json`, converts its default
+  scenario plus reusable data into the internal pipeline source, and runs
+  scrutiny on generated Camera/Senato simulations.
 - The exported politics fixture is about 68 MB because it contains direct
   scrutiny inputs, R trace tables, and expected outputs for 10 simulations.
 - The generated adapter fixture is about 8.1 MB and covers deterministic
@@ -229,9 +231,12 @@ Run on 2026-06-02:
   historical data snapshot or the politics performance gate.
 - The real debug generation-source fixture is about 12 MB. It validates a
   one-simulation generated pipeline plus scrutiny smoke path from realistic
-  source tables and is also bundled under `web/static/data/v1/` for the current
-  worker path, but it is still a bridge rather than the final production data
-  layout.
+  source tables and is still bundled under `web/static/data/v1/` as a legacy
+  bridge/test artifact.
+- The production-shaped debug static snapshot is about 12 MB and is now the
+  worker input. It separates reusable data from `default_scenario`, but it is
+  still derived from the debug source and is not the final historical data
+  bundle.
 - The first worker scenario projection matches edited shares by exact list
   name, preserves the source abstention row, rescales political list
   probabilities into the source model, and recomputes `LOGIT_P`. This keeps the
@@ -241,7 +246,7 @@ Run on 2026-06-02:
   should be revisited after production data packaging.
 - The generated-worker browser benchmark passes the 10x performance gate for
   10, 100, and 1000 politics simulations. This is still not a final production
-  gate because the worker uses the debug-source bridge snapshot.
+  gate because the worker uses a debug-derived static snapshot.
 - The browser direct-scrutiny bridge snapshot is about 8.7 MB and contains only
   direct scrutiny inputs/context, not golden traces or expected outputs. It is
   still useful for tests/benchmarks but is no longer the UI worker path.
@@ -788,3 +793,37 @@ Verification:
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.
 - `cd web; npm run benchmark:politics`: passed.
 - `Rscript scripts/benchmark_r_workflows.R --politics-sims=1000 --municipal-sims=1 --regional-sims=1 --output=test/fixtures/benchmarks/r_baseline_politics_1000_compare.json`: passed.
+
+## 2026-06-02 Checkpoint 21
+
+Completed in the production-shaped static snapshot bridge pass:
+
+- Added `scripts/export_politics_static_snapshot.mjs`.
+- Generated `web/static/data/v1/politics-static-debug.json` from the existing
+  debug pipeline-source bridge.
+- Added static snapshot and scenario snapshot TypeScript types:
+  - reusable data: `base_dati`, Camera/Senato uninominal colleges, and
+    Camera/Senato plurinominal colleges;
+  - default scenario: election date, list model parameters, municipality/list
+    model parameters, candidate-generation settings, and candidate templates.
+- Added `web/src/lib/politics/static-snapshot.ts` with
+  `buildPoliticsPipelineSourceFromSnapshot()`, keeping the existing internal
+  compute shape stable.
+- Added `web/src/lib/politics/static-snapshot.test.ts`, proving the split
+  static snapshot reconstructs the previous `PoliticsPipelineSource` exactly.
+- Rewired `web/src/lib/workers/simulation.worker.ts` to load
+  `politics-static-debug.json` instead of the older pipeline-source bridge.
+- Updated data metadata, browser smoke, and benchmark expectations to use
+  `POLITICS_DEBUG_STATIC_SNAPSHOT`.
+- Regenerated `test/fixtures/benchmarks/browser_politics_worker.json`; the
+  1000-simulation Chromium run is 131.616 s against the fresh full R baseline
+  of 151.96 s, still comfortably below the 10x stop threshold.
+
+Verification:
+
+- `node scripts/export_politics_static_snapshot.mjs`: passed.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 111 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+- `cd web; npm run benchmark:politics`: passed.

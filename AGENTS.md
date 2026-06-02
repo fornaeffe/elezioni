@@ -216,8 +216,13 @@ simulation 4.
   `web/src/lib/politics/pipeline-source.test.ts` builds one seeded browser
   simulation from this source and runs Camera/Senato scrutiny as a smoke test.
   The same script can export
-  `web/static/data/v1/politics-pipeline-source-debug.json`, which is the
-  current generated worker source bridge.
+  `web/static/data/v1/politics-pipeline-source-debug.json`, which is now a
+  legacy bridge/test artifact.
+- `scripts/export_politics_static_snapshot.mjs` derives
+  `web/static/data/v1/politics-static-debug.json` from the pipeline-source
+  bridge. This is the current worker input shape: reusable politics data is
+  split from a `default_scenario`, then converted back into the internal
+  `PoliticsPipelineSource` by `web/src/lib/politics/static-snapshot.ts`.
 - `scripts/benchmark_r_workflows.R` reruns R baseline workflows.
 - `web/playwright.benchmark.config.ts` and
   `web/tests/benchmarks/politics-worker.spec.ts` benchmark the generated
@@ -238,18 +243,20 @@ simulation 4.
   availability, subentro, pluricandidature resolution, and final
   `liste_pluri`/`candidati_uni`/`candidati_pluri` outputs.
 - The worker now runs the composed generated politics pipeline on
-  `web/static/data/v1/politics-pipeline-source-debug.json`, then scrutinizes the
-  generated Camera/Senato simulations. The direct scrutiny bridge snapshot is
-  still useful for tests and benchmarks, but it is no longer the UI worker path.
+  `web/static/data/v1/politics-static-debug.json`, then scrutinizes the
+  generated Camera/Senato simulations. The direct scrutiny and pipeline-source
+  bridge snapshots are still useful for tests, but they are no longer the UI
+  worker path.
 - The first browser scenario projection matches edited list shares by exact list
   name, preserves the source abstention row, rescales political list
   probabilities into the source model, and recomputes `LOGIT_P`. This is a
   bridge behavior, not the final scenario import/editor contract.
 - The generated worker path currently runs in 50-simulation chunks and is capped
   at 1000 simulations until production data packaging is done.
-- The generated-worker browser performance gate passed on 2026-06-02: Chromium
-  ran 10 politics simulations in 1.260 s, 100 in 12.426 s, and 1000 in
-  122.608 s (`test/fixtures/benchmarks/browser_politics_worker.json`). Fresh
+- The generated-worker browser performance gate passed on 2026-06-02 after the
+  static snapshot split: Chromium ran 10 politics simulations in 1.216 s, 100
+  in 12.220 s, and 1000 in 131.616 s
+  (`test/fixtures/benchmarks/browser_politics_worker.json`). Fresh
   same-machine full R politics baselines were 6.20 s for 10 simulations, 19.58 s
   for 100, and 151.96 s for 1000
   (`test/fixtures/benchmarks/r_baseline_politics_10_compare.json`,

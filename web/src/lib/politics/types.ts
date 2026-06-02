@@ -770,6 +770,46 @@ export interface PoliticsPipelineSource {
   senato: PoliticsPipelineRamoSource;
 }
 
+export interface PoliticsStaticDataRamoSnapshot {
+  uni: PoliticsCollegeUniRow[];
+  pluri: PoliticsPipelinePluriRow[];
+}
+
+export interface PoliticsStaticDataSnapshotData {
+  base_dati: PoliticsBaseDataRow[];
+  camera: PoliticsStaticDataRamoSnapshot;
+  senato: PoliticsStaticDataRamoSnapshot;
+}
+
+export interface PoliticsScenarioRamoSnapshot {
+  candidati_uni: PoliticsCandidateUniTemplateRow[];
+  candidati_pluri: PoliticsPipelineCandidatePluriRow[];
+}
+
+export interface PoliticsScenarioSnapshot {
+  id: string;
+  name: string;
+  data_elezione: string;
+  frazione_uni_in_pluri: number;
+  frazioni_pluricandidature: number[];
+  default_data_nascita: string;
+  liste: PoliticsPipelineListRow[];
+  comuni_liste: PoliticsMunicipalListParameterRow[];
+  camera: PoliticsScenarioRamoSnapshot;
+  senato: PoliticsScenarioRamoSnapshot;
+}
+
+export interface PoliticsStaticSnapshot {
+  metadata: {
+    schema_version: number;
+    source: string;
+    purpose: string;
+    created?: string;
+  };
+  data: PoliticsStaticDataSnapshotData;
+  default_scenario: PoliticsScenarioSnapshot;
+}
+
 export interface PoliticsPipelineFixture {
   metadata: {
     schema_version: number;
