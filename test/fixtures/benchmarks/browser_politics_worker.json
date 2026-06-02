@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "created": "2026-06-02T19:11:08.246Z",
+    "created": "2026-06-02T20:58:38.175Z",
     "browser": "chromium",
     "workflow": "politiche",
     "path": "generated TypeScript worker on production static snapshot exported from current R preparation pipeline",
@@ -14,19 +14,19 @@
     {
       "simulations_requested": 10,
       "simulations_completed": 10,
-      "elapsed_ms": 1289,
+      "elapsed_ms": 1357,
       "rows_rendered": 20
     },
     {
       "simulations_requested": 100,
       "simulations_completed": 100,
-      "elapsed_ms": 12283,
+      "elapsed_ms": 13194,
       "rows_rendered": 200
     },
     {
       "simulations_requested": 1000,
       "simulations_completed": 1000,
-      "elapsed_ms": 125006,
+      "elapsed_ms": 123229,
       "rows_rendered": 2000
     }
   ]

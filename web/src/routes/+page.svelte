@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Download, Plus, Play, RotateCcw, Trash2, Upload } from '@lucide/svelte';
+  import { ChevronDown, ChevronUp, Download, Plus, Play, RotateCcw, Trash2, Upload } from '@lucide/svelte';
   import { browser } from '$app/environment';
   import { onMount } from 'svelte';
   import SimulationWorker from '$lib/workers/simulation.worker?worker';
@@ -21,6 +21,7 @@
   } from '$lib/scenario/politics';
 
   const dataVersion = 'v1';
+  const diagnosticTableNames = new Set(['Generated pipeline runs']);
 
   let simulations = $state(10);
   let seed = $state('politiche-2027');
@@ -29,6 +30,7 @@
   let elapsedMs = $state(0);
   let tables = $state<ResultTable[]>([]);
   let warnings = $state<string[]>([]);
+  let showDiagnostics = $state(false);
   let scenarioDraft = $state<Scenario>(createDefaultPoliticsScenario());
   let scenarioStorageReady = $state(false);
   let fileInput: HTMLInputElement | undefined;
@@ -38,6 +40,13 @@
   const canRun = $derived(!running && validationMessages.length === 0);
   const runButtonLabel = $derived(running ? phase : 'Esegui');
   const elapsedLabel = $derived(`${elapsedMs.toFixed(0)} ms`);
+  const primaryTables = $derived(
+    tables
+      .filter((table) => !diagnosticTableNames.has(table.name))
+      .sort((left, right) => resultTablePriority(left.name) - resultTablePriority(right.name))
+  );
+  const diagnosticTables = $derived(tables.filter((table) => diagnosticTableNames.has(table.name)));
+  const diagnosticsToggleLabel = $derived(showDiagnostics ? 'Nascondi dettagli' : 'Mostra dettagli');
 
   onMount(() => {
     if (!browser) return;
@@ -100,6 +109,7 @@
     scenarioDraft = createDefaultPoliticsScenario();
     tables = [];
     warnings = [];
+    showDiagnostics = false;
   }
 
   function scenarioFilename(): string {
@@ -136,6 +146,7 @@
       scenarioDraft = parseScenario(await file.text());
       tables = [];
       warnings = [];
+      showDiagnostics = false;
     } catch (error) {
       warnings = [`SCENARIO_LOAD_ERROR: ${error instanceof Error ? error.message : String(error)}`];
     } finally {
@@ -165,6 +176,7 @@
     elapsedMs = 0;
     tables = [];
     warnings = [];
+    showDiagnostics = false;
 
     worker.onmessage = (event: MessageEvent<SimulationWorkerMessage>) => {
       const message = event.data;
@@ -199,6 +211,12 @@
       phase = 'error';
       worker.terminate();
     }
+  }
+
+  function resultTablePriority(name: string): number {
+    if (name === 'Average plurinominal seats by list') return 0;
+    if (name === 'Scenario projection') return 1;
+    return 10;
   }
 </script>
 
@@ -394,7 +412,7 @@
         </div>
       {/if}
 
-      {#each tables as table}
+      {#each primaryTables as table}
         <table>
           <caption>{table.name}</caption>
           <thead>
@@ -415,6 +433,51 @@
           </tbody>
         </table>
       {/each}
+
+      {#if diagnosticTables.length > 0}
+        <div class="diagnostics">
+          <button
+            class="diagnostic-toggle"
+            type="button"
+            onclick={() => (showDiagnostics = !showDiagnostics)}
+            aria-expanded={showDiagnostics}
+            aria-controls="diagnostic-tables"
+          >
+            {#if showDiagnostics}
+              <ChevronUp size={18} aria-hidden="true" />
+            {:else}
+              <ChevronDown size={18} aria-hidden="true" />
+            {/if}
+            <span>{diagnosticsToggleLabel}</span>
+          </button>
+
+          {#if showDiagnostics}
+            <div id="diagnostic-tables">
+              {#each diagnosticTables as table}
+                <table>
+                  <caption>{table.name}</caption>
+                  <thead>
+                    <tr>
+                      {#each table.columns as column}
+                        <th>{column}</th>
+                      {/each}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {#each table.rows as row}
+                      <tr>
+                        {#each table.columns as column}
+                          <td>{row[column]}</td>
+                        {/each}
+                      </tr>
+                    {/each}
+                  </tbody>
+                </table>
+              {/each}
+            </div>
+          {/if}
+        </div>
+      {/if}
     </div>
   </section>
 </main>
@@ -659,11 +722,34 @@
     font-size: 13px;
   }
 
+  .diagnostics {
+    border-top: 1px solid #e5e9ed;
+    padding: 12px 16px 0;
+  }
+
+  .diagnostic-toggle {
+    width: 100%;
+    justify-content: flex-start;
+    background: #f7f9fa;
+    color: #4d5963;
+    font-weight: 700;
+  }
+
+  .diagnostic-toggle span {
+    flex: 1;
+    text-align: left;
+  }
+
   table {
     width: calc(100% - 32px);
     margin: 16px;
     border-collapse: collapse;
     font-size: 13px;
+  }
+
+  .diagnostics table {
+    width: 100%;
+    margin: 12px 0 16px;
   }
 
   caption {

@@ -36,7 +36,7 @@ R baseline on the same machine, pause and present Python fallback options.
 | Generated politics input adapter | Started | R-style generated-table fixture and TypeScript adapter now rebuild the exact direct scrutiny inputs/context. `prepara_dts()` vote preparation is also ported. |
 | Production static snapshot bridge | Done | `scripts/export_politics_static_snapshot.R` exports `web/static/data/v1/politics-static.json` from the current R cache and politics scenario workbook. |
 | Performance gate | Passed for current politics worker path | Chromium generated-worker benchmark on the R-exported production static snapshot is below fresh full R politics baselines for 10, 100, and 1000 simulations; repeat after future data-preparation migration or major snapshot changes. |
-| Scenario editor and JSON contract | Started | Basic politics scenario model, validation, localStorage persistence, reset, JSON import/export, list/coalition editing, explicit global share overrides, and worker projection are wired. Advanced correspondence/location/candidate semantics remain planned. |
+| Scenario editor and JSON contract | Started | Basic politics scenario model, validation, localStorage persistence, reset, JSON import/export, list/coalition editing, explicit global share overrides, worker projection, and first result-priority UI are wired. Advanced correspondence/location/candidate semantics remain planned. |
 
 ## Decisions
 
@@ -164,12 +164,12 @@ was wired:
 | Chromium generated politics worker, debug static bridge | 10 | 1.216 s | `test/fixtures/benchmarks/browser_politics_worker.json` |
 | Chromium generated politics worker, debug static bridge | 100 | 12.220 s | `test/fixtures/benchmarks/browser_politics_worker.json` |
 | Chromium generated politics worker, debug static bridge | 1000 | 131.616 s | `test/fixtures/benchmarks/browser_politics_worker.json` |
-| Chromium generated politics worker, R-exported static bridge | 10 | 1.289 s | `test/fixtures/benchmarks/browser_politics_worker.json` |
-| Chromium generated politics worker, R-exported static bridge | 100 | 12.283 s | `test/fixtures/benchmarks/browser_politics_worker.json` |
-| Chromium generated politics worker, R-exported static bridge | 1000 | 125.006 s | `test/fixtures/benchmarks/browser_politics_worker.json` |
+| Chromium generated politics worker, R-exported static bridge | 10 | 1.357 s | `test/fixtures/benchmarks/browser_politics_worker.json` |
+| Chromium generated politics worker, R-exported static bridge | 100 | 13.194 s | `test/fixtures/benchmarks/browser_politics_worker.json` |
+| Chromium generated politics worker, R-exported static bridge | 1000 | 123.229 s | `test/fixtures/benchmarks/browser_politics_worker.json` |
 
 Current gate result: pass for the R-exported production static bridge worker
-path. The 1000-simulation browser run is about 0.82x the fresh full R workflow
+path. The 1000-simulation browser run is about 0.81x the fresh full R workflow
 elapsed time, far below the 10x stop threshold. Repeat this gate after the
 future data-preparation migration or major snapshot/schema changes.
 
@@ -265,6 +265,9 @@ future data-preparation migration or major snapshot/schema changes.
   `web/static/data/v1/politics-static.json`.
 - Rewired the worker to prefer `politics-static.json`, falling back to
   `politics-static-debug.json` only if the production bridge snapshot is absent.
+- Refined the first results panel so user-facing summary tables render before
+  diagnostics and `Generated pipeline runs` is hidden behind a details toggle by
+  default.
 
 ## Latest Verification
 
@@ -287,8 +290,8 @@ Run on 2026-06-02:
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.
 - Built-app desktop/mobile layout overflow check with Playwright: passed.
 - `cd web; npm run benchmark:politics`: passed on the R-exported production
-  static bridge, 10 simulations in 1.289 s, 100 simulations in 12.283 s, and
-  1000 simulations in 125.006 s.
+  static bridge, 10 simulations in 1.357 s, 100 simulations in 13.194 s, and
+  1000 simulations in 123.229 s.
 
 ## Current Caveats
 
@@ -352,10 +355,10 @@ Run on 2026-06-02:
   production scenario/data contract.
 - Advanced correspondences, location-specific overrides, fixed-versus-mean
   modes, and candidate templates are still deferred.
-- The current results panel still shows diagnostic generated-pipeline rows
-  before more interesting summary tables. During UI refinement, move diagnostic
-  worker/run tables behind an expandable section or debug button and surface
-  election summaries first.
+- The current results panel prioritizes the average plurinominal seat summary,
+  keeps the scenario projection visible, and hides `Generated pipeline runs`
+  behind a details toggle by default. Additional result charts and legally
+  richer summaries are still future UI work.
 - The generated worker path currently runs in 50-simulation chunks and is
   capped at 1000 simulations. This is enough for the current benchmark gate but
   should be revisited if the UI needs larger runs or after columnar packaging.
@@ -1060,3 +1063,33 @@ Verification:
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.
 - `cd web; npm run benchmark:politics`: passed.
+
+## 2026-06-02 Checkpoint 25
+
+Completed in the first results-priority UI pass:
+
+- Updated `web/src/routes/+page.svelte` so user-facing result tables are
+  separated from diagnostic tables.
+- Prioritized `Average plurinominal seats by list` ahead of `Scenario
+  projection`, keeping the primary election summary visible first.
+- Hid `Generated pipeline runs` by default behind a `Mostra dettagli` /
+  `Nascondi dettagli` toggle.
+- Reset the diagnostics toggle on scenario reset, scenario load, and new worker
+  runs so repeated simulations start from the user-facing result view.
+- Updated the Playwright smoke test to assert that diagnostics are hidden until
+  the details toggle is opened.
+- Updated the browser benchmark test to open diagnostics explicitly before
+  counting generated Camera/Senato run rows.
+- Regenerated `test/fixtures/benchmarks/browser_politics_worker.json`; the
+  production static bridge benchmark remains below the R baseline and far below
+  the 10x stop threshold.
+
+Verification:
+
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 122 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+- Built-app desktop/mobile layout overflow check with Playwright: passed.
+- `cd web; npm run benchmark:politics`: passed, 10 simulations in 1.357 s,
+  100 simulations in 13.194 s, and 1000 simulations in 123.229 s.

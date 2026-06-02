@@ -262,7 +262,9 @@ simulation 4.
 - `web/src/routes/+page.svelte` uses one `scenarioDraft` object for the basic
   web-native editor: scenario metadata, coalition editing, list/share editing,
   validation, reset, JSON import/export, and automatic localStorage persistence.
-  Build plain cloned scenario snapshots before posting to the worker.
+  Build plain cloned scenario snapshots before posting to the worker. Its
+  results panel prioritizes primary summary tables and keeps diagnostic tables
+  such as `Generated pipeline runs` behind a details toggle by default.
 - `web/src/lib/politics/scenario-projection.ts` is the current boundary between
   the web-native politics scenario and the generated worker source. It matches
   scenario lists to the static snapshot by exact list name, removes source lists
@@ -304,7 +306,7 @@ simulation 4.
   columnar packaging.
 - The generated-worker browser performance gate passed on 2026-06-02 after the
   R-exported production static bridge: Chromium ran 10 politics simulations in
-  1.289 s, 100 in 12.283 s, and 1000 in 125.006 s
+  1.357 s, 100 in 13.194 s, and 1000 in 123.229 s
   (`test/fixtures/benchmarks/browser_politics_worker.json`). Fresh
   same-machine full R politics baselines were 6.20 s for 10 simulations, 19.58 s
   for 100, and 151.96 s for 1000

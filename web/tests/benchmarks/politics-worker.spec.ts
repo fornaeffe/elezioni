@@ -21,6 +21,11 @@ async function runSimulation(page: import('@playwright/test').Page, simulations:
   await input.fill(String(simulations));
   await runButton.click();
 
+  await expect(page.getByRole('table', { name: 'Average plurinominal seats by list' })).toBeVisible({
+    timeout: 420_000
+  });
+  await page.getByRole('button', { name: 'Mostra dettagli' }).click();
+
   const runsTable = page.getByRole('table', { name: 'Generated pipeline runs' });
   await expect(runsTable.locator('tbody tr')).toHaveCount(simulations * 2, { timeout: 420_000 });
   await expect(page.getByText('POLITICS_STATIC_SNAPSHOT')).toBeVisible();

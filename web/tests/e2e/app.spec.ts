@@ -21,5 +21,8 @@ test('runs the worker smoke path from the scenario editor', async ({ page }) => 
   });
   await expect(projectionRow).toContainText('30');
   await expect(projectionRow).toContainText('true');
+  await expect(page.getByRole('table', { name: 'Average plurinominal seats by list' })).toBeVisible();
+  await expect(page.getByRole('table', { name: 'Generated pipeline runs' })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Mostra dettagli' }).click();
   await expect(page.getByRole('table', { name: 'Generated pipeline runs' })).toBeVisible();
 });
