@@ -126,6 +126,22 @@ simulation 4.
 - The web UI should become the preferred way to create and edit scenarios.
   Excel scenarios do not need to remain a first-class migrated input; they carry
   too much malformed-data and typechecking risk for the long-term app.
+- Scenario editor basics belong in this migration: list/coalition editing,
+  global list percentage overrides, typed JSON save/load, automatic local
+  storage persistence, reset to defaults, and validation before worker runs.
+- Scenario defaults should come first from bundled defaults for election kind
+  and territory; if absent, use the most voted lists from the last same-kind
+  election in the same territory; if past coalition data is unavailable, each
+  list defaults to its own coalition.
+- Past-to-future list correspondences, location-specific percentage overrides,
+  fixed-versus-mean percentage modes, and candidate templates need typed schema
+  support and generator hooks. Defer large/rich UI for these advanced settings
+  until production previous-election data packaging and the basic scenario model
+  are stable.
+- The scenario model should allow users to enter only some global percentages;
+  unspecified future-list percentages should be recalculated from previous
+  election results and list correspondences, preserving the current R model's
+  intent.
 - Keep scrutiny algorithms modular and swappable. The same normalized data and
   scenario should eventually be runnable through different scrutiny algorithm
   implementations behind a stable interface, for comparison or law-review

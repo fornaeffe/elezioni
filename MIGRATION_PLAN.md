@@ -63,6 +63,66 @@ R baseline on the same machine, pause and present Python fallback options.
 - Delay splitting `web/src/lib/politics/scrutiny.ts` until the golden-tested
   stage boundaries are clear enough that the refactor reduces risk.
 
+## Scenario Editor Scope
+
+The migrated app should use a web-native scenario model as the primary user
+workflow. Excel scenarios can be abandoned. The scenario editor should separate
+basic settings, visible immediately, from advanced settings behind an explicit
+expander/button.
+
+### Implement During This Migration
+
+- **Basic list/coalition editor**: users can choose the lists present at the
+  next election and their coalitions. This is part of the core migration
+  because every workflow depends on it.
+- **Default list/coalition generation**:
+  - first use defaults bundled for the election kind and territory;
+  - if absent, use the most voted lists from the last election of the same kind
+    in the same territory;
+  - if past coalitions are unavailable, default each list to its own coalition.
+- **Web-native scenario save/load**: scenarios should be serializable as typed
+  JSON, saved/loaded from the UI, and automatically persisted to local storage.
+  Add a reset action that restores the bundled/default scenario.
+- **Global list percentage editor**: users can specify national/territory-wide
+  percentages for any subset of future lists. Unspecified list percentages
+  should be recalculated from previous election results and list
+  correspondences, preserving the current model's intent.
+- **Mean versus fixed percentage mode, at least globally**: the scenario model
+  should support whether an entered percentage is a stochastic mean using
+  historical variability, or a fixed value. The first UI can expose this as an
+  advanced option after the basic global percentage editor is stable.
+- **Scenario validation**: validate duplicate list names, missing coalitions,
+  invalid percentages, impossible total shares, missing default data, and
+  references to unknown past/future lists before posting to the worker.
+
+### Keep Architecture Ready, Defer Full UI
+
+- **Past-to-future list correspondences**: this is essential for default
+  percentage calculation and should be present in the scenario/data model.
+  However, a rich correspondence matrix editor can wait. Start with bundled
+  defaults and homonymous-list fallback; expose a compact advanced editor only
+  after production previous-election data packaging is available.
+- **Location-specific percentages**: keep typed support for per-location list
+  overrides, but defer the full advanced UI. This can become large and hard to
+  validate; implementing it before production data packaging would risk
+  building the wrong interface.
+- **Per-location fixed versus mean mode**: reserve the schema and generator
+  hooks, but defer full UI until location overrides are implemented.
+- **Candidate names/templates**: keep typed candidate-template support and the
+  current generated-candidate fallback. Defer a large candidate editor until the
+  politics scenario model and production data snapshot are stable. When added,
+  it should allow partial candidate entry for some or all candidate slots and
+  leave unspecified slots generated as today.
+
+### Out Of Scope For The Migration Slice
+
+- **Excel scenario import/export as a first-class path**: not worth carrying
+  forward because malformed workbook risk and typechecking cost are high.
+- **Full data-preparation migration**: defer until the simulator workflows are
+  migrated. The future data-preparation pipeline should remain a periodic
+  devops/GitHub Actions process and produce election-kind-agnostic historical
+  data bundles.
+
 ## Local R Baselines
 
 Measured on 2026-06-01 with R 4.5.1 at
