@@ -11,6 +11,15 @@ describe('politics web-native scenario model', () => {
   test('default scenario is valid', () => {
     const scenario = createDefaultPoliticsScenario();
 
+    expect(scenario.defaultSource).toEqual({
+      kind: 'bundled',
+      electionKind: 'politiche',
+      territory: 'Italia',
+      dataVersion: 'v1',
+      snapshotId: 'politics-static.json'
+    });
+    expect(scenario.globalShareMode).toBe('mean');
+    expect(scenario.listCorrespondences).toEqual([]);
     expect(scenario.lists.every((list) => !list.shareOverride)).toBe(true);
     expect(validateScenario(scenario)).toEqual([]);
   });
@@ -42,6 +51,9 @@ describe('politics web-native scenario model', () => {
     });
 
     expect(scenario.id).toBe('politiche-2027');
+    expect(scenario.defaultSource.kind).toBe('bundled');
+    expect(scenario.globalShareMode).toBe('mean');
+    expect(scenario.listCorrespondences).toEqual([]);
     expect(scenario.lists[0].id).toBe('list-lista-a');
     expect(scenario.lists[0].startingShare).toBe(40);
     expect(scenario.lists[0].shareOverride).toBe(true);
@@ -62,6 +74,64 @@ describe('politics web-native scenario model', () => {
     );
 
     expect(scenario.lists[0].shareOverride).toBe(false);
+    expect(scenario.defaultSource.kind).toBe('bundled');
+    expect(scenario.globalShareMode).toBe('mean');
+    expect(scenario.listCorrespondences).toEqual([]);
+  });
+
+  test('round-trips v3 default metadata, share mode, and list correspondences', () => {
+    const scenario = parseScenario(
+      JSON.stringify({
+        schema_version: 3,
+        scenario: {
+          name: 'Scenario con corrispondenze',
+          electionDate: '2027-03-01',
+          defaultSource: {
+            kind: 'last-election',
+            electionKind: 'politiche',
+            territory: 'Italia',
+            dataVersion: 'v1'
+          },
+          globalShareMode: 'fixed',
+          coalitions: [{ name: 'Coalizione A' }],
+          lists: [{ name: 'Lista A', coalition: 'Coalizione A', startingShare: 40 }],
+          listCorrespondences: [
+            {
+              futureList: 'Lista A',
+              pastElection: 'camera 2022',
+              pastDate: '2022-09-25',
+              pastList: 'LISTA A PASSATA',
+              factor: 0.5,
+              source: 'manual'
+            },
+            {
+              futureList: 'astensione',
+              pastElection: 'camera 2022',
+              pastDate: '2022-09-25',
+              pastList: 'LISTA B PASSATA',
+              factor: 1,
+              source: 'manual'
+            }
+          ]
+        }
+      })
+    );
+
+    expect(scenario.defaultSource.kind).toBe('last-election');
+    expect(scenario.globalShareMode).toBe('fixed');
+    expect(scenario.listCorrespondences).toHaveLength(2);
+    expect(scenario.listCorrespondences[0]).toEqual(
+      expect.objectContaining({
+        id: 'correspondence-camera-2022-lista-a-passata-lista-a',
+        futureList: 'Lista A',
+        pastElection: 'camera 2022',
+        pastDate: '2022-09-25',
+        pastList: 'LISTA A PASSATA',
+        factor: 0.5,
+        source: 'manual'
+      })
+    );
+    expect(parseScenario(serializeScenario(scenario))).toEqual(scenario);
   });
 
   test('validates only explicitly used global share overrides as a total', () => {
@@ -74,5 +144,40 @@ describe('politics web-native scenario model', () => {
 
     scenario.lists[1].shareOverride = true;
     expect(validateScenario(scenario)).toEqual(expect.arrayContaining(['La somma delle quote usate non puo superare 100.']));
+  });
+
+  test('validates malformed list correspondences', () => {
+    const scenario = createDefaultPoliticsScenario();
+    scenario.listCorrespondences = [
+      {
+        id: 'bad',
+        futureList: 'Lista inesistente',
+        pastElection: '',
+        pastDate: 'not-a-date',
+        pastList: '',
+        factor: 0,
+        source: 'manual'
+      },
+      {
+        id: 'bad-duplicate',
+        futureList: 'Lista inesistente',
+        pastElection: '',
+        pastDate: 'not-a-date',
+        pastList: '',
+        factor: 1,
+        source: 'manual'
+      }
+    ];
+
+    expect(validateScenario(scenario)).toEqual(
+      expect.arrayContaining([
+        'Corrispondenza verso lista sconosciuta: Lista inesistente.',
+        'Ogni corrispondenza lista deve indicare una elezione precedente.',
+        'Ogni corrispondenza lista deve indicare una lista precedente.',
+        'Data non valida per corrispondenza Lista inesistente.',
+        'Fattore non valido per corrispondenza Lista inesistente.',
+        'Corrispondenza duplicata per lista precedente -> Lista inesistente.'
+      ])
+    );
   });
 });

@@ -15,12 +15,39 @@ export interface ScenarioCoalition {
   color: string;
 }
 
+export type ScenarioDefaultSourceKind = 'bundled' | 'last-election' | 'manual';
+
+export interface ScenarioDefaultSource {
+  kind: ScenarioDefaultSourceKind;
+  electionKind: ElectionKind;
+  territory: string;
+  dataVersion: string;
+  snapshotId?: string;
+}
+
+export type ScenarioGlobalShareMode = 'mean' | 'fixed';
+
+export type ScenarioListCorrespondenceSource = 'bundled' | 'homonymous' | 'manual';
+
+export interface ScenarioListCorrespondence {
+  id: string;
+  futureList: string;
+  pastElection: string;
+  pastDate: string;
+  pastList: string;
+  factor: number;
+  source: ScenarioListCorrespondenceSource;
+}
+
 export interface Scenario {
   id: string;
   name: string;
   electionDate: string;
+  defaultSource: ScenarioDefaultSource;
+  globalShareMode: ScenarioGlobalShareMode;
   lists: ScenarioList[];
   coalitions: ScenarioCoalition[];
+  listCorrespondences: ScenarioListCorrespondence[];
 }
 
 export interface SimulationRequest {

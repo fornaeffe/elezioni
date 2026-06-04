@@ -37,7 +37,7 @@ R baseline on the same machine, pause and present Python fallback options.
 | Production static snapshot bridge | Done | `scripts/export_politics_static_snapshot.R` exports `web/static/data/v1/politics-static.json` from the current R cache and politics scenario workbook. |
 | Performance gate | Passed for current politics worker path | Chromium generated-worker benchmark on the R-exported production static snapshot is below fresh full R politics baselines for 10, 100, and 1000 simulations; repeat after future data-preparation migration or major snapshot changes. |
 | Politics browser vertical slice | Stabilized for current slice | Production snapshot, default scenario, projection, generated pipeline, and registered scrutiny algorithm are guarded by an integration test. Keep this guard green while scenario semantics evolve. |
-| Scenario editor and JSON contract | Started | Basic politics scenario model, validation, localStorage persistence, reset, JSON import/export, list/coalition editing, explicit global share overrides, worker projection, and first result-priority UI are wired. Advanced correspondence/location/candidate semantics remain planned. |
+| Scenario editor and JSON contract | Started | Scenario schema v3 covers basic UI fields, default-source metadata, list correspondences, global fixed/mean share mode, JSON compatibility, validation, and first projection semantics. Advanced UI remains planned. |
 
 ## Planned Future Steps
 
@@ -50,44 +50,42 @@ this list before continuing.
    worker path, scenario projection, result-priority UI, static snapshot bridge,
    and registered scrutiny algorithm now have a production guardrail test; keep
    it passing while the remaining politics scenario semantics are added.
-2. Mature the politics scenario JSON contract: add typed support for bundled
-   defaults, past-to-future list correspondences, global fixed-versus-mean
-   percentage mode, and stronger validation without exposing premature large UI.
-3. Improve scenario defaults and projection: use bundled defaults first,
-   homonymous or declared list correspondences second, and make ignored/new
-   list behavior explicit enough that users can understand what is simulated.
-4. Add advanced politics scenario controls incrementally: compact
+2. Improve scenario defaults and projection using the v3 scenario contract: use
+   bundled defaults first, homonymous or declared list correspondences second,
+   and make ignored/new list behavior explicit enough that users can understand
+   what is simulated.
+3. Add advanced politics scenario controls incrementally: compact
    correspondence editing first, then global fixed/mean settings, then
    location-specific overrides only after the data contract is stable.
-5. Add candidate template support to the scenario model and worker pipeline,
+4. Add candidate template support to the scenario model and worker pipeline,
    allowing user-provided names for some slots while preserving generated
    candidates for unspecified places.
-6. Improve politics result presentation: add legally meaningful summary tables,
+5. Improve politics result presentation: add legally meaningful summary tables,
    charts, exports, and clearer warning/detail separation while keeping
    diagnostic worker tables collapsed by default.
-7. Refactor the politics scrutiny core once boundaries are stable: split
+6. Refactor the politics scrutiny core once boundaries are stable: split
    `web/src/lib/politics/scrutiny.ts` into focused modules only when the
    refactor lowers risk, and keep all algorithms behind the registry interface.
-8. Add a second politics scrutiny algorithm only for a real law-review or
+7. Add a second politics scrutiny algorithm only for a real law-review or
    comparison need. Once it exists, expose UI selection/comparison through the
    existing algorithm hook.
-9. Repeat the politics performance gate after major scenario/data/scrutiny
+8. Repeat the politics performance gate after major scenario/data/scrutiny
    changes. If browser time reaches the 10x stop threshold after one
    optimization pass, pause and reassess the Python compute-core fallback.
-10. Migrate Emilia-Romagna regional workflow: create R golden fixtures and
+9. Migrate Emilia-Romagna regional workflow: create R golden fixtures and
     benchmarks first, then port allocation/scrutiny/generation into the same
     typed worker architecture.
-11. Migrate municipal workflow: create R golden fixtures and benchmarks first,
+10. Migrate municipal workflow: create R golden fixtures and benchmarks first,
     preserve current behavior, and explicitly track known runoff/councilor
     candidate TODOs for later business-law review.
-12. Generalize the web app for multiple election kinds: routing/navigation,
+11. Generalize the web app for multiple election kinds: routing/navigation,
     snapshot selection, worker dispatch, scenario defaults, result components,
     and shared validation patterns.
-13. Migrate data preparation after simulator workflows are migrated. Reassess
+12. Migrate data preparation after simulator workflows are migrated. Reassess
     typed Python versus Node/TypeScript then; keep it a periodic
     election-kind-agnostic devops/GitHub Actions pipeline that produces static
     data bundles.
-14. Retire temporary bridge artifacts and update final documentation once the
+13. Retire temporary bridge artifacts and update final documentation once the
     migrated workflows no longer depend on R-exported intermediary snapshots.
 
 ## Decisions
@@ -328,6 +326,10 @@ future data-preparation migration or major snapshot/schema changes.
   UI default scenario, R-exported static snapshot, scenario projection,
   generated pipeline, and registered scrutiny algorithm still work together for
   one Camera/Senato simulation.
+- Matured the politics scenario JSON contract to schema v3. The contract now
+  carries default-source metadata, a global `mean`/`fixed` share mode, and typed
+  past-to-future list correspondences while preserving compatibility with old
+  saved v1/v2 scenario JSON.
 
 ## Latest Verification
 
@@ -364,7 +366,7 @@ Additional run on 2026-06-04:
 
 - `cd web; npx vitest run src/lib/politics/vertical-slice.test.ts`: passed, 2 tests.
 - `cd web; npm run check`: passed with 0 warnings.
-- `cd web; npm run test`: passed, 127 tests.
+- `cd web; npm run test`: passed, 130 tests.
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.
 
@@ -415,10 +417,15 @@ Additional run on 2026-06-04:
   longer present in the scenario, projects active coalitions into list rows,
   applies only explicit global share overrides, proportionally recalculates
   unspecified matched lists, and recomputes `LOGIT_P`.
-- Scenario JSON schema v2 covers the basic UI fields plus `shareOverride`,
-  which distinguishes displayed/calculated shares from user-specified global
-  share overrides. Old schema-v1 JSON without `shareOverride` remains accepted
-  and defaults those flags to `false`.
+- Scenario JSON schema v3 covers the basic UI fields plus `shareOverride`,
+  default-source metadata, `globalShareMode`, and typed
+  `listCorrespondences`. Old schema-v1/v2 JSON remains accepted: missing
+  `shareOverride` defaults to `false`, missing `globalShareMode` defaults to
+  `mean`, and missing correspondences default to an empty array.
+- `globalShareMode = "fixed"` is currently honored at the projection boundary
+  by setting `SIGMA_GLOBAL = 0` for active political list rows. Local
+  municipality-level variation is unchanged until location-specific fixed/mean
+  semantics are designed.
 - New/unmatched scenario lists are still ignored by the current static-snapshot
   worker path because list-correspondence defaults and future-list generation
   semantics are not implemented yet. The worker reports this as a warning
@@ -1230,5 +1237,39 @@ Verification:
 - `cd web; npx vitest run src/lib/politics/vertical-slice.test.ts`: passed, 2 tests.
 - `cd web; npm run check`: passed with 0 warnings.
 - `cd web; npm run test`: passed, 127 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-04 Checkpoint 28
+
+Completed in the politics scenario JSON contract maturation pass:
+
+- Bumped the politics scenario contract to schema v3.
+- Added typed scenario fields for:
+  - `defaultSource`, recording bundled/default provenance such as election
+    kind, territory, data version, and snapshot id;
+  - `globalShareMode`, currently `mean` or `fixed`;
+  - `listCorrespondences`, the future scenario-owned structure for
+    past-to-future list mappings.
+- Kept old saved scenario JSON compatible: v1/v2 payloads without the new
+  fields normalize to bundled politics defaults, `globalShareMode = "mean"`,
+  and no list correspondences.
+- Added validation for default-source metadata and malformed/duplicated list
+  correspondences. Correspondences may target active scenario lists or the
+  special `astensione` destination used by the existing R/static snapshot
+  bridge.
+- Implemented the first safe `globalShareMode = "fixed"` behavior in
+  `projectScenarioOntoPoliticsSource()`: active political list rows keep their
+  projected percentages but get `SIGMA_GLOBAL = 0`, while default `mean` mode
+  preserves existing stochastic behavior.
+- Added tests for v3 round-trip compatibility, malformed correspondences, old
+  schema compatibility, and mean/fixed projection behavior.
+- Updated the planned future steps so the next work uses the v3 contract for
+  improved defaults/projection instead of redoing the contract step.
+
+Verification:
+
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 130 tests.
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.

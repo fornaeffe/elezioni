@@ -136,11 +136,11 @@ simulation 4.
   and territory; if absent, use the most voted lists from the last same-kind
   election in the same territory; if past coalition data is unavailable, each
   list defaults to its own coalition.
-- Past-to-future list correspondences, location-specific percentage overrides,
-  fixed-versus-mean percentage modes, and candidate templates need typed schema
-  support and generator hooks. Defer large/rich UI for these advanced settings
-  until production previous-election data packaging and the basic scenario model
-  are stable.
+- Past-to-future list correspondences and fixed-versus-mean percentage mode now
+  have typed scenario schema support. Location-specific percentage overrides
+  and candidate templates still need typed schema support and generator hooks.
+  Defer large/rich UI for these advanced settings until production
+  previous-election data packaging and the basic scenario model are stable.
 - The scenario model should allow users to enter only some global percentages;
   unspecified future-list percentages should be recalculated from previous
   election results and list correspondences, preserving the current R model's
@@ -255,10 +255,12 @@ simulation 4.
   setup, worker API types, seeded RNG, allocation primitives, unit tests, and a
   Playwright smoke test.
 - `web/src/lib/scenario/politics.ts` owns the current politics scenario JSON
-  contract. Schema v2 covers basic scenario metadata, coalitions, lists, colors,
-  global starting shares, and `shareOverride`, plus validation and JSON
-  parse/serialize helpers. Old schema-v1 JSON without `shareOverride` remains
-  accepted and defaults those flags to `false`.
+  contract. Schema v3 covers basic scenario metadata, coalitions, lists, colors,
+  global starting shares, `shareOverride`, default-source metadata,
+  `globalShareMode`, and typed `listCorrespondences`, plus validation and JSON
+  parse/serialize helpers. Old schema-v1/v2 JSON remains accepted; missing
+  `shareOverride` defaults to `false`, missing `globalShareMode` defaults to
+  `mean`, and missing correspondences default to an empty array.
 - `web/src/routes/+page.svelte` uses one `scenarioDraft` object for the basic
   web-native editor: scenario metadata, coalition editing, list/share editing,
   validation, reset, JSON import/export, and automatic localStorage persistence.
@@ -270,16 +272,18 @@ simulation 4.
   scenario lists to the static snapshot by exact list name, removes source lists
   that are not present in the scenario, applies only explicit global share
   overrides, recalculates non-overridden matched lists proportionally from
-  source data, projects matched list coalitions, and warns about unmatched
-  scenario lists or placeholder coalition candidates.
+  source data, projects matched list coalitions, honors
+  `globalShareMode = "fixed"` by setting `SIGMA_GLOBAL = 0` for active
+  political list rows, and warns about unmatched scenario lists or placeholder
+  coalition candidates.
 - New/unmatched scenario lists cannot yet be simulated by the static-snapshot
   worker path. They are ignored with a warning until list-correspondence
   defaults and future-list generation semantics are implemented.
-- Advanced scenario features remain deferred: past-to-future list
-  correspondences UI, location-specific percentage overrides, fixed-versus-mean
-  modes, and candidate templates/editors. Keep schema/generator hooks ready, but
-  do not build large UI for these before production previous-election data
-  packaging is stable.
+- Advanced scenario UI remains deferred: past-to-future correspondence editing,
+  location-specific percentage overrides, fixed-versus-mean controls, and
+  candidate templates/editors. Keep schema/generator hooks ready, but do not
+  build large UI for these before production previous-election data packaging is
+  stable.
 - The TypeScript politics scrutiny port now matches the R golden fixture for
   direct scrutiny output on the debug fixture: uninominal candidate election,
   candidate-only vote attribution to lists, plurinominal/circumscription
