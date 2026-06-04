@@ -18,7 +18,30 @@ export interface PoliticsRunPresentationSummary {
   seatsByList: Map<string, number>;
   validVoteShareByList: Map<string, number>;
   uninominalWinnersBySupport: Map<string, number>;
+  seatVoteByList: Map<string, PoliticsSeatVotePoint>;
+  seatVoteByCoalition: Map<string, PoliticsSeatVotePoint>;
+  plurinominalSeatVotePoints: PoliticsPlurinominalSeatVotePoint[];
 }
+
+export interface PoliticsSeatVotePoint {
+  voteShare: number;
+  seats: number;
+}
+
+export interface PoliticsPlurinominalSeatVotePoint extends PoliticsSeatVotePoint {
+  circoscrizione: string;
+  collegioPlurinominale: string;
+  list: string;
+}
+
+export const politicsListSeatVotePlotTableName = 'List seat-vote plot data';
+export const politicsCoalitionSeatVotePlotTableName = 'Coalition seat-vote plot data';
+export const politicsPlurinominalSeatVotePlotTableName = 'Plurinominal seat-vote plot data';
+export const politicsResultPlotTableNames = [
+  politicsListSeatVotePlotTableName,
+  politicsCoalitionSeatVotePlotTableName,
+  politicsPlurinominalSeatVotePlotTableName
+] as const;
 
 interface NumericStats {
   average: number;
@@ -84,6 +107,11 @@ function supportSubjectForWinner(
   return standaloneLists.length > 0 ? standaloneLists.join(' + ') : 'Senza collegamento';
 }
 
+function subjectForList(list: string, coalitionByList: ReadonlyMap<string, string | null>): string {
+  const coalition = coalitionByList.get(list);
+  return coalition && coalition.length > 0 ? coalition : list;
+}
+
 function summarizeValidVoteShares(input: PoliticsScrutinyInput): Map<string, number> {
   const totals = sumByList(input.liste_uni);
   const totalValidVotes = [...totals.values()].reduce((sum, votes) => sum + votes, 0);
@@ -91,6 +119,28 @@ function summarizeValidVoteShares(input: PoliticsScrutinyInput): Map<string, num
 
   for (const [list, votes] of totals) {
     shares.set(list, totalValidVotes === 0 ? 0 : (votes / totalValidVotes) * 100);
+  }
+
+  return shares;
+}
+
+function summarizeCoalitionVoteShares(
+  input: PoliticsScrutinyInput,
+  listeNaz: readonly ListaNazRow[]
+): Map<string, number> {
+  const coalitionByList = buildCoalitionByList(listeNaz);
+  const listTotals = sumByList(input.liste_uni);
+  const totalValidVotes = [...listTotals.values()].reduce((sum, votes) => sum + votes, 0);
+  const totals = new Map<string, number>();
+  const shares = new Map<string, number>();
+
+  for (const [list, votes] of listTotals) {
+    const subject = subjectForList(list, coalitionByList);
+    totals.set(subject, (totals.get(subject) ?? 0) + votes);
+  }
+
+  for (const [subject, votes] of totals) {
+    shares.set(subject, totalValidVotes === 0 ? 0 : (votes / totalValidVotes) * 100);
   }
 
   return shares;
@@ -118,6 +168,105 @@ function summarizeUninominalWinners(
   return winners;
 }
 
+function buildSeatVoteByList(
+  seatsByList: ReadonlyMap<string, number>,
+  validVoteShareByList: ReadonlyMap<string, number>
+): Map<string, PoliticsSeatVotePoint> {
+  const result = new Map<string, PoliticsSeatVotePoint>();
+  const lists = new Set([...seatsByList.keys(), ...validVoteShareByList.keys()]);
+
+  for (const list of lists) {
+    result.set(list, {
+      voteShare: validVoteShareByList.get(list) ?? 0,
+      seats: seatsByList.get(list) ?? 0
+    });
+  }
+
+  return result;
+}
+
+function buildSeatVoteByCoalition(params: {
+  seatsByList: ReadonlyMap<string, number>;
+  coalitionVoteShareBySubject: ReadonlyMap<string, number>;
+  uninominalWinnersBySupport: ReadonlyMap<string, number>;
+  listeNaz: readonly ListaNazRow[];
+}): Map<string, PoliticsSeatVotePoint> {
+  const coalitionByList = buildCoalitionByList(params.listeNaz);
+  const seatsBySubject = new Map<string, number>();
+  const subjects = new Set<string>([
+    ...params.coalitionVoteShareBySubject.keys(),
+    ...params.uninominalWinnersBySupport.keys()
+  ]);
+
+  for (const [list, seats] of params.seatsByList) {
+    const subject = subjectForList(list, coalitionByList);
+    seatsBySubject.set(subject, (seatsBySubject.get(subject) ?? 0) + seats);
+    subjects.add(subject);
+  }
+
+  for (const [subject, seats] of params.uninominalWinnersBySupport) {
+    seatsBySubject.set(subject, (seatsBySubject.get(subject) ?? 0) + seats);
+    subjects.add(subject);
+  }
+
+  const result = new Map<string, PoliticsSeatVotePoint>();
+  for (const subject of subjects) {
+    result.set(subject, {
+      voteShare: params.coalitionVoteShareBySubject.get(subject) ?? 0,
+      seats: seatsBySubject.get(subject) ?? 0
+    });
+  }
+
+  return result;
+}
+
+function plurinominalKey(row: { CIRCOSCRIZIONE: unknown; COLLEGIOPLURINOMINALE: unknown }): string {
+  return `${String(row.CIRCOSCRIZIONE)}\u001f${String(row.COLLEGIOPLURINOMINALE)}`;
+}
+
+function summarizePlurinominalVoteShares(input: PoliticsScrutinyInput): Map<string, Map<string, number>> {
+  const votesByPluriAndList = new Map<string, Map<string, number>>();
+  const totalByPluri = new Map<string, number>();
+
+  for (const row of input.liste_uni) {
+    const key = plurinominalKey(row);
+    const listVotes = votesByPluriAndList.get(key) ?? new Map<string, number>();
+    listVotes.set(row.LISTA, (listVotes.get(row.LISTA) ?? 0) + row.VOTI_LISTA);
+    votesByPluriAndList.set(key, listVotes);
+    totalByPluri.set(key, (totalByPluri.get(key) ?? 0) + row.VOTI_LISTA);
+  }
+
+  const shares = new Map<string, Map<string, number>>();
+  for (const [key, listVotes] of votesByPluriAndList) {
+    const total = totalByPluri.get(key) ?? 0;
+    const listShares = new Map<string, number>();
+    for (const [list, votes] of listVotes) {
+      listShares.set(list, total === 0 ? 0 : (votes / total) * 100);
+    }
+    shares.set(key, listShares);
+  }
+
+  return shares;
+}
+
+function buildPlurinominalSeatVotePoints(
+  input: PoliticsScrutinyInput,
+  output: PoliticsScrutinyOutput
+): PoliticsPlurinominalSeatVotePoint[] {
+  const voteShareByPluri = summarizePlurinominalVoteShares(input);
+
+  return output.liste_pluri.map((row) => {
+    const key = plurinominalKey(row);
+    return {
+      circoscrizione: String(row.CIRCOSCRIZIONE),
+      collegioPlurinominale: String(row.COLLEGIOPLURINOMINALE),
+      list: row.LISTA,
+      voteShare: voteShareByPluri.get(key)?.get(row.LISTA) ?? 0,
+      seats: row.NUMERO_MAX
+    };
+  });
+}
+
 export function summarizePoliticsScrutinyRun(params: {
   ramo: Ramo;
   sim: number;
@@ -132,6 +281,10 @@ export function summarizePoliticsScrutinyRun(params: {
     seatsByList.set(row.LISTA, (seatsByList.get(row.LISTA) ?? 0) + row.ELETTI);
   }
 
+  const validVoteShareByList = summarizeValidVoteShares(params.input);
+  const uninominalWinnersBySupport = summarizeUninominalWinners(params.input, params.output, params.listeNaz);
+  const coalitionVoteShareBySubject = summarizeCoalitionVoteShares(params.input, params.listeNaz);
+
   return {
     ramo: params.ramo,
     sim: params.sim,
@@ -140,8 +293,16 @@ export function summarizePoliticsScrutinyRun(params: {
     electedUni: params.output.candidati_uni.filter((row) => row.ELETTO).length,
     electedPluri: params.output.candidati_pluri.filter((row) => row.ELETTO).length,
     seatsByList,
-    validVoteShareByList: summarizeValidVoteShares(params.input),
-    uninominalWinnersBySupport: summarizeUninominalWinners(params.input, params.output, params.listeNaz)
+    validVoteShareByList,
+    uninominalWinnersBySupport,
+    seatVoteByList: buildSeatVoteByList(seatsByList, validVoteShareByList),
+    seatVoteByCoalition: buildSeatVoteByCoalition({
+      seatsByList,
+      coalitionVoteShareBySubject,
+      uninominalWinnersBySupport,
+      listeNaz: params.listeNaz
+    }),
+    plurinominalSeatVotePoints: buildPlurinominalSeatVotePoints(params.input, params.output)
   };
 }
 
@@ -317,6 +478,69 @@ function uninominalWinnersBySupportTable(runs: readonly PoliticsRunPresentationS
   };
 }
 
+function listSeatVotePlotTable(runs: readonly PoliticsRunPresentationSummary[]): ResultTable {
+  return {
+    name: politicsListSeatVotePlotTableName,
+    columns: ['Ramo', 'Sim', 'Lista', 'Percentuale %', 'Seggi'],
+    rows: runs.flatMap((run) =>
+      [...run.seatVoteByList]
+        .sort(([left], [right]) => left.localeCompare(right))
+        .map(([list, point]) => ({
+          Ramo: run.ramo,
+          Sim: run.sim,
+          Lista: list,
+          'Percentuale %': round(point.voteShare),
+          Seggi: point.seats
+        }))
+    )
+  };
+}
+
+function coalitionSeatVotePlotTable(runs: readonly PoliticsRunPresentationSummary[]): ResultTable {
+  return {
+    name: politicsCoalitionSeatVotePlotTableName,
+    columns: ['Ramo', 'Sim', 'Soggetto', 'Percentuale liste %', 'Seggi'],
+    rows: runs.flatMap((run) =>
+      [...run.seatVoteByCoalition]
+        .sort(([left], [right]) => left.localeCompare(right))
+        .map(([subject, point]) => ({
+          Ramo: run.ramo,
+          Sim: run.sim,
+          Soggetto: subject,
+          'Percentuale liste %': round(point.voteShare),
+          Seggi: point.seats
+        }))
+    )
+  };
+}
+
+function plurinominalSeatVotePlotTable(runs: readonly PoliticsRunPresentationSummary[]): ResultTable {
+  return {
+    name: politicsPlurinominalSeatVotePlotTableName,
+    columns: ['Ramo', 'Sim', 'Circoscrizione', 'Collegio pluri', 'Lista', 'Percentuale %', 'Numero max'],
+    rows: runs.flatMap((run) =>
+      run.plurinominalSeatVotePoints
+        .slice()
+        .sort((left, right) => {
+          const circ = left.circoscrizione.localeCompare(right.circoscrizione);
+          if (circ !== 0) return circ;
+          const pluri = left.collegioPlurinominale.localeCompare(right.collegioPlurinominale);
+          if (pluri !== 0) return pluri;
+          return left.list.localeCompare(right.list);
+        })
+        .map((point) => ({
+          Ramo: run.ramo,
+          Sim: run.sim,
+          Circoscrizione: point.circoscrizione,
+          'Collegio pluri': point.collegioPlurinominale,
+          Lista: point.list,
+          'Percentuale %': round(point.voteShare),
+          'Numero max': point.seats
+        }))
+    )
+  };
+}
+
 export function buildPoliticsResultTables(runs: readonly PoliticsRunPresentationSummary[]): ResultTable[] {
   return [
     electionOverviewTable(runs),
@@ -324,4 +548,8 @@ export function buildPoliticsResultTables(runs: readonly PoliticsRunPresentation
     voteShareByListTable(runs),
     uninominalWinnersBySupportTable(runs)
   ];
+}
+
+export function buildPoliticsResultPlotTables(runs: readonly PoliticsRunPresentationSummary[]): ResultTable[] {
+  return [listSeatVotePlotTable(runs), coalitionSeatVotePlotTable(runs), plurinominalSeatVotePlotTable(runs)];
 }

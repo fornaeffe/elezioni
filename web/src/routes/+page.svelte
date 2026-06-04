@@ -3,6 +3,7 @@
   import { browser } from '$app/environment';
   import { onMount } from 'svelte';
   import SimulationWorker from '$lib/workers/simulation.worker?worker';
+  import PoliticsResultCharts from '$lib/politics/PoliticsResultCharts.svelte';
   import type {
     ResultTable,
     Scenario,
@@ -13,7 +14,12 @@
     SimulationWorkerMessage
   } from '$lib/core/types';
   import { createSimulationResultExport, resultTablesToCsv } from '$lib/core/result-export';
-  import { buildPoliticsResultCharts } from '$lib/politics/result-charts';
+  import {
+    buildPoliticsPlurinominalChart,
+    buildPoliticsPlurinominalChartOptions,
+    buildPoliticsResultCharts
+  } from '$lib/politics/result-charts';
+  import { politicsResultPlotTableNames } from '$lib/politics/result-presentation';
   import {
     cloneScenario,
     createDefaultPoliticsScenario,
@@ -37,6 +43,7 @@
 
   const dataVersion = 'v1';
   const diagnosticTableNames = new Set(['Generated pipeline runs']);
+  const internalTableNames = new Set<string>(politicsResultPlotTableNames);
 
   let simulations = $state(10);
   let seed = $state('politiche-2027');
@@ -48,6 +55,7 @@
   let lastResult = $state<SimulationResult | null>(null);
   let showDiagnostics = $state(false);
   let showAdvancedScenario = $state(false);
+  let selectedPlurinominalOptionId = $state('');
   let scenarioDraft = $state<Scenario>(createDefaultPoliticsScenario());
   let scenarioStorageReady = $state(false);
   let fileInput: HTMLInputElement | undefined;
@@ -62,10 +70,15 @@
   const warningMessages = $derived(messages.filter((message) => message.severity !== 'info'));
   const primaryTables = $derived(
     tables
-      .filter((table) => !diagnosticTableNames.has(table.name))
+      .filter((table) => !diagnosticTableNames.has(table.name) && !internalTableNames.has(table.name))
       .sort((left, right) => resultTablePriority(left.name) - resultTablePriority(right.name))
   );
-  const resultCharts = $derived(buildPoliticsResultCharts(primaryTables, scenario));
+  const resultCharts = $derived(buildPoliticsResultCharts(tables, scenario));
+  const plurinominalOptions = $derived(buildPoliticsPlurinominalChartOptions(tables, scenario));
+  const selectedPlurinominalOption = $derived(
+    plurinominalOptions.find((option) => option.id === selectedPlurinominalOptionId) ?? plurinominalOptions[0] ?? null
+  );
+  const plurinominalChart = $derived(buildPoliticsPlurinominalChart(tables, scenario, selectedPlurinominalOption));
   const diagnosticTables = $derived(tables.filter((table) => diagnosticTableNames.has(table.name)));
   const diagnosticsToggleLabel = $derived(showDiagnostics ? 'Nascondi dettagli' : 'Mostra dettagli');
   const manualListCorrespondences = $derived(
@@ -318,6 +331,10 @@
     if (name === 'Scenario projection') return 4;
     return 10;
   }
+
+  function selectPlurinominalOption(id: string): void {
+    selectedPlurinominalOptionId = id;
+  }
 </script>
 
 <svelte:head>
@@ -344,7 +361,7 @@
     </button>
   </section>
 
-  <section class="grid">
+  <section class="stack">
     <div class="panel scenario-panel">
       <div class="panel-heading">
         <h2>Scenario</h2>
@@ -645,33 +662,14 @@
         </div>
       {/if}
 
-      {#if resultCharts.length > 0}
-        <div class="result-charts">
-          {#each resultCharts as chart}
-            <section class="result-chart" aria-label={chart.title}>
-              <h3>{chart.title}</h3>
-              {#each chart.groups as group}
-                <div class="chart-group">
-                  <h4>{group.label}</h4>
-                  <div class="bar-list">
-                    {#each group.bars as bar}
-                      <div class="bar-row">
-                        <span class="bar-label" title={bar.label}>{bar.label}</span>
-                        <span class="bar-track" aria-hidden="true">
-                          <span
-                            class="bar-fill"
-                            style={`width: ${bar.widthPercent}%; background-color: ${bar.color};`}
-                          ></span>
-                        </span>
-                        <span class="bar-value">{bar.displayValue}</span>
-                      </div>
-                    {/each}
-                  </div>
-                </div>
-              {/each}
-            </section>
-          {/each}
-        </div>
+      {#if resultCharts.length > 0 || plurinominalChart}
+        <PoliticsResultCharts
+          charts={resultCharts}
+          plurinominalOptions={plurinominalOptions}
+          selectedPlurinominalOption={selectedPlurinominalOption}
+          {plurinominalChart}
+          onSelectPlurinominalOption={selectPlurinominalOption}
+        />
       {/if}
 
       {#each primaryTables as table}
@@ -770,7 +768,7 @@
     gap: 16px;
     align-items: end;
     margin: 0 auto 20px;
-    max-width: 1180px;
+    max-width: 1280px;
   }
 
   h1,
@@ -820,11 +818,10 @@
     padding: 0 10px;
   }
 
-  .grid {
+  .stack {
     display: grid;
-    grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
     gap: 20px;
-    max-width: 1180px;
+    max-width: 1280px;
     margin: 0 auto;
   }
 
@@ -1090,86 +1087,6 @@
     color: #6f4315;
   }
 
-  .result-charts {
-    display: grid;
-    gap: 18px;
-    padding: 16px 16px 0;
-  }
-
-  .result-chart {
-    display: grid;
-    gap: 12px;
-    border-bottom: 1px solid #e5e9ed;
-    padding-bottom: 16px;
-  }
-
-  .result-chart h3,
-  .chart-group h4 {
-    margin: 0;
-  }
-
-  .result-chart h3 {
-    color: #4d5963;
-    font-size: 14px;
-    font-weight: 750;
-  }
-
-  .chart-group {
-    display: grid;
-    gap: 8px;
-  }
-
-  .chart-group h4 {
-    color: #697681;
-    font-size: 12px;
-    font-weight: 750;
-    text-transform: uppercase;
-  }
-
-  .bar-list {
-    display: grid;
-    gap: 7px;
-  }
-
-  .bar-row {
-    display: grid;
-    grid-template-columns: minmax(88px, 0.38fr) minmax(96px, 1fr) 56px;
-    gap: 8px;
-    align-items: center;
-    min-height: 22px;
-  }
-
-  .bar-label {
-    overflow: hidden;
-    color: #34414a;
-    font-size: 12px;
-    font-weight: 650;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .bar-track {
-    display: block;
-    overflow: hidden;
-    height: 12px;
-    border-radius: 999px;
-    background: #e8edf1;
-  }
-
-  .bar-fill {
-    display: block;
-    height: 100%;
-    min-width: 2px;
-  }
-
-  .bar-value {
-    color: #4d5963;
-    font-size: 12px;
-    font-variant-numeric: tabular-nums;
-    font-weight: 700;
-    text-align: right;
-  }
-
   .diagnostics {
     border-top: 1px solid #e5e9ed;
     padding: 12px 16px 0;
@@ -1225,22 +1142,12 @@
     }
 
     .toolbar,
-    .grid,
     .scenario-meta {
       grid-template-columns: 1fr;
     }
 
     .list-row {
       grid-template-columns: 40px minmax(0, 1fr) 78px 58px 40px;
-    }
-
-    .bar-row {
-      grid-template-columns: minmax(0, 1fr) 64px;
-      gap: 4px 8px;
-    }
-
-    .bar-label {
-      grid-column: 1 / -1;
     }
 
     .setting-row,

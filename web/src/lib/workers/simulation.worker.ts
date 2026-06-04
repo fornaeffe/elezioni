@@ -12,6 +12,7 @@ import {
   type PoliticsScenarioProjectionRow
 } from '$lib/politics/scenario-projection';
 import {
+  buildPoliticsResultPlotTables,
   buildPoliticsResultTables,
   summarizePoliticsGeneratedRuns,
   summarizePoliticsScrutinyRun,
@@ -268,6 +269,7 @@ async function handleRequest(request: SimulationRequest): Promise<void> {
     status: 'completed',
     tables: [
       ...buildPoliticsResultTables(runs),
+      ...buildPoliticsResultPlotTables(runs),
       scenarioProjectionTable(projection.rows),
       summarizePoliticsGeneratedRuns(runs)
     ],

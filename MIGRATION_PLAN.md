@@ -27,7 +27,7 @@ pass, pause and present Python fallback options before continuing.
 | Politics golden fixtures | Done for current politics slice | `scripts/export_politics_golden.R`, `test/fixtures/politiche/debug_scrutinio.json`. |
 | R and browser benchmarks | Done for current politics slice | `scripts/benchmark_r_workflows.R`, `web/tests/benchmarks/politics-worker.spec.ts`, benchmark JSON under `test/fixtures/benchmarks/`. |
 | SvelteKit app scaffold | Done | `web/` with strict TypeScript, static adapter, Vitest, Playwright. |
-| Shared TypeScript core | Usable, still growing | Worker API types, seeded RNG, allocation primitives, scenario types, severity-aware warning/result contracts, politics result presentation, result export helpers, politics result charts. |
+| Shared TypeScript core | Usable, still growing | Worker API types, seeded RNG, allocation primitives, scenario types, severity-aware warning/result contracts, politics result presentation, result export helpers, R-style politics result charts. |
 | Politics scrutiny | R-parity direct fixture passes | `web/src/lib/politics/scrutiny.ts`; registry id `politiche-r-parity-v1`. Split only when boundaries are clearer. |
 | Politics generation pipeline | Current browser path working | Candidate generation, vote generation, vote preparation, direct-scrutiny adaptation, worker chunking. |
 | Production static politics snapshot | Bridge done, richer raw data added | `scripts/export_politics_static_snapshot.R` writes schema v2 `web/static/data/v1/politics-static.json`, including raw historical municipal list votes for the future TypeScript parameter builder. |
@@ -90,9 +90,12 @@ reveals a cleaner order or a new blocker.
    share distributions by list, and uninominal winners by support. JSON/CSV
    result export helpers and UI buttons are also implemented. Worker messages
    now carry optional severity, and the UI separates informational run notes
-   from real warnings/errors. Lightweight list charts for average
-   plurinominal seats and valid-vote shares are implemented. Keep diagnostic
-   tables such as `Generated pipeline runs` collapsed by default.
+   from real warnings/errors. R-style web charts now mirror the current
+   `presentazione_risultati.R` politics report slice: summary bars, simulated
+   valid-vote boxplots, list and coalition seat-vote scatter plots, list
+   spinograms, and a selectable plurinominal-college spinogram using
+   `NUMERO_MAX`. Keep diagnostic tables such as `Generated pipeline runs`
+   collapsed by default.
 9. Refactor politics scrutiny only when it lowers risk. The likely target is
    stage-focused modules behind the existing scrutiny algorithm registry, but
    do not split during active parity discovery just for size alone.
@@ -179,9 +182,11 @@ reveals a cleaner order or a new blocker.
   into informational run notes versus warnings/errors. Production static
   snapshot and scenario-projection metadata now render as notes instead of
   warning-looking messages.
-- Added `web/src/lib/politics/result-charts.ts` and result-panel bar charts
-  for average plurinominal seats by list and mean valid-vote shares by list,
-  using scenario list colors and tested table-to-chart extraction.
+- Added `web/src/lib/politics/result-charts.ts` and
+  `web/src/lib/politics/PoliticsResultCharts.svelte`. The result panel now has
+  tested chart extraction/rendering for average seats, mean vote shares,
+  simulated valid-vote boxplots, list/coalition seat-vote scatter plots, list
+  spinograms, and a selectable plurinominal-college spinogram.
 - Removed the provisional global `fixed` UI/projection behavior. The active
   scenario share mode is mean-only; older serialized `fixed` values normalize
   to `mean` until fixed semantics get their own design pass.
@@ -203,9 +208,10 @@ reveals a cleaner order or a new blocker.
   to matched municipal parameter rows by keeping local abstention fixed,
   normalizing political list fractions, and recomputing local `DELTA` plus
   `DATA` before the existing vote generator runs. The rich UI remains deferred.
-- Reworked results so primary user-facing summaries appear before diagnostics,
-  with generated pipeline details collapsed by default. The worker now delegates
-  politics result summarization to `result-presentation.ts` instead of keeping
+- Reworked the web page into a single-column scenario-then-results layout.
+  Primary user-facing summaries appear before diagnostics, with generated
+  pipeline details collapsed by default. The worker now delegates politics
+  result summarization to `result-presentation.ts` instead of keeping
   presentation math in the orchestration layer.
 - Added the production politics vertical-slice guard.
 - Passed the current browser performance gate for 10, 100, and 1000 politics
@@ -273,11 +279,11 @@ reveals a cleaner order or a new blocker.
 Latest full web verification on 2026-06-04:
 
 - `cd web; npx vitest run src/lib/scenario/politics.test.ts src/lib/politics/scenario-projection.test.ts src/lib/politics/parameter-preparation.test.ts`: passed, 31 tests.
-- `cd web; npx vitest run src/lib/politics/result-presentation.test.ts`: passed, 2 tests.
+- `cd web; npx vitest run src/lib/politics/result-presentation.test.ts`: passed, 3 tests.
 - `cd web; npx vitest run src/lib/core/result-export.test.ts`: passed, 2 tests.
-- `cd web; npx vitest run src/lib/politics/result-charts.test.ts`: passed, 2 tests.
+- `cd web; npx vitest run src/lib/politics/result-charts.test.ts`: passed, 3 tests.
 - `cd web; npm run check`: passed with 0 warnings.
-- `cd web; npm run test`: passed, 154 tests.
+- `cd web; npm run test`: passed, 156 tests.
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test, including the
   advanced abstention, manual correspondence controls, result export buttons,
@@ -1458,3 +1464,33 @@ Verification with local generated artifacts present:
 - `cd web; npm run test`: passed, 140 tests.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.
 - `cd web; npm run build`: passed.
+
+## 2026-06-04 Checkpoint 38
+
+Completed in the R-style politics result presentation slice:
+
+- Extended `web/src/lib/politics/result-presentation.ts` so each scrutiny run
+  also exposes chart-ready list seat-vote points, coalition seat-vote points,
+  and plurinominal-college seat-vote points.
+- Added internal plot-data result tables for list, coalition, and
+  plurinominal-college charts. These are hidden from the main table stack but
+  remain part of the worker result for charting and export reproducibility.
+- Rebuilt `web/src/lib/politics/result-charts.ts` around the R presentation
+  plots in `R/presentazione_risultati.R` and
+  `R/politiche/presentazione_risultati/grafico_eletti_pluri.R`: summary bars,
+  valid-vote boxplots, list/coalition seat-vote scatter plots, list spinograms,
+  and a selectable plurinominal-college spinogram using `NUMERO_MAX`.
+- Added `web/src/lib/politics/PoliticsResultCharts.svelte` to render the chart
+  model downstream of tested TypeScript helpers.
+- Rearranged `web/src/routes/+page.svelte` into a single-column layout with
+  scenario controls above results. Result chart sections can still arrange
+  chart panels side by side on large screens.
+- Kept plot-data tables out of the visible primary and diagnostic table stacks.
+
+Verification with local generated artifacts present:
+
+- `cd web; npm run test -- src/lib/politics/result-presentation.test.ts src/lib/politics/result-charts.test.ts`: passed, 6 tests.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 156 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.

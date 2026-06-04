@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import type { ListaNazRow, PoliticsScrutinyInput, PoliticsScrutinyOutput } from './types';
 import {
+  buildPoliticsResultPlotTables,
   buildPoliticsResultTables,
   summarizePoliticsGeneratedRuns,
   summarizePoliticsScrutinyRun
@@ -218,6 +219,44 @@ describe('politics result presentation', () => {
         'Eletti uni': 1,
         'Candidati pluri eletti': 1,
         'Tempo ms': 20
+      }
+    ]);
+  });
+
+  test('builds R-style plot data tables from scrutiny runs', () => {
+    const tables = buildPoliticsResultPlotTables(runs);
+
+    expect(tables.map((table) => table.name)).toEqual([
+      'List seat-vote plot data',
+      'Coalition seat-vote plot data',
+      'Plurinominal seat-vote plot data'
+    ]);
+    expect(tables[0].rows.filter((row) => row.Lista === 'Lista A')).toEqual([
+      { Ramo: 'camera', Sim: 1, Lista: 'Lista A', 'Percentuale %': 66.67, Seggi: 2 },
+      { Ramo: 'camera', Sim: 2, Lista: 'Lista A', 'Percentuale %': 40, Seggi: 0 }
+    ]);
+    expect(tables[1].rows.filter((row) => row.Soggetto === 'Coalizione A')).toEqual([
+      { Ramo: 'camera', Sim: 1, Soggetto: 'Coalizione A', 'Percentuale liste %': 66.67, Seggi: 3 },
+      { Ramo: 'camera', Sim: 2, Soggetto: 'Coalizione A', 'Percentuale liste %': 40, Seggi: 0 }
+    ]);
+    expect(tables[2].rows.filter((row) => row.Lista === 'Lista B')).toEqual([
+      {
+        Ramo: 'camera',
+        Sim: 1,
+        Circoscrizione: '1',
+        'Collegio pluri': '10',
+        Lista: 'Lista B',
+        'Percentuale %': 33.33,
+        'Numero max': 0
+      },
+      {
+        Ramo: 'camera',
+        Sim: 2,
+        Circoscrizione: '1',
+        'Collegio pluri': '10',
+        Lista: 'Lista B',
+        'Percentuale %': 60,
+        'Numero max': 1
       }
     ]);
   });
