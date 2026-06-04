@@ -33,6 +33,7 @@ pass, pause and present Python fallback options before continuing.
 | Production static politics snapshot | Bridge done, richer raw data added | `scripts/export_politics_static_snapshot.R` writes schema v2 `web/static/data/v1/politics-static.json`, including raw historical municipal list votes for the future TypeScript parameter builder. |
 | Politics scenario defaults | Bridge done | `scripts/export_politics_scenario_defaults.mjs` writes `web/src/lib/scenario/politics-defaults.generated.ts`. |
 | Scenario editor | Core workflow plus compact advanced controls working | List/coalition/share editor, global mean/fixed mode, one-to-one manual correspondence editor, JSON save/load, localStorage, reset, validation. Rich correspondence semantics remain. |
+| Rich correspondence parameter builder | Done, not wired | `web/src/lib/politics/parameter-preparation.ts` rebuilds politics `liste`, `liste_elezioni`, and `comuni_liste` from raw historical votes and correspondences, with split/merge/unmapped-to-abstention tests and gated production parity. |
 | R correspondence audit | Done | Current R output is coherent for the politics workbook because all historical list keys are mapped, but `calcola_parametri_input.R` drops unmatched rows instead of automatically sending them to `astensione`. |
 | Generated data storage | Done | Large generated JSON snapshots/fixtures are ignored and untracked; regenerate locally from scripts. Small generated TypeScript remains tracked. |
 | Politics browser vertical slice | Stabilized | `web/src/lib/politics/vertical-slice.test.ts` guards snapshot -> scenario -> projection -> generation -> scrutiny. |
@@ -50,15 +51,15 @@ reveals a cleaner order or a new blocker.
    scrutiny registry should preserve or deliberately update
    `web/src/lib/politics/vertical-slice.test.ts`.
 2. Implement richer correspondence semantics in staged slices:
-   add raw historical municipal list votes to the static politics snapshot,
-   port the `calcola_parametri_input()` correspondence/parameter math into a
-   tested TypeScript module, and make unmapped original-list votes fall back to
-   `astensione` explicitly.
+   raw historical municipal list votes are in the static politics snapshot, and
+   the `calcola_parametri_input()` correspondence/parameter math now exists in
+   a tested TypeScript module with unmapped original-list votes explicitly
+   falling back to `astensione`.
 3. Wire the richer parameter builder into scenario projection and the worker
-   behind tests. Preserve the current default politics output first, then add
-   split/merge correspondence fixtures that prove multiple original lists can
-   aggregate into one future list and one original list can split into several
-   future lists by normalized factors.
+   behind tests. Preserve the current default politics output first. Be careful:
+   the current compact correspondence editor maps future lists to current
+   source-model lists, while the richer parameter builder expects historical
+   election/list correspondences.
 4. Refine share override semantics: show list shares as valid-vote
    percentages, keep abstention as a separate advanced elector-share input,
    convert to internal elector fractions at the projection boundary, normalize
@@ -120,6 +121,12 @@ reveals a cleaner order or a new blocker.
 - Upgraded the production static snapshot bridge to schema v2 with
   `data.comuni_liste_elezioni`, the raw historical municipal list votes needed
   to rebuild correspondence-based parameters in TypeScript.
+- Added `web/src/lib/politics/parameter-preparation.ts`, the TypeScript port of
+  the deterministic `calcola_parametri_input()` parameter math from raw
+  historical municipal votes and list correspondences. Synthetic tests cover
+  factor normalization, one-to-many splits, many-to-one aggregation, and
+  unmapped original-list votes becoming `astensione`; gated parity tests rebuild
+  the R-exported production default parameters when local generated data exists.
 - Stopped tracking large generated JSON snapshots and bridge fixtures in Git.
   They remain local/generated artifacts and snapshot-dependent tests skip
   clearly when they are absent.
@@ -243,6 +250,13 @@ after major scenario/schema/snapshot/generation/scrutiny changes.
 - Declared correspondence projection and the current UI support only the safe
   one-to-one bridge case. Multi-source aggregation and split factors remain
   deferred until their business semantics are explicit.
+- `web/src/lib/politics/parameter-preparation.ts` already implements the rich
+  historical correspondence math, but it is deliberately not wired into the
+  worker yet. The current compact manual correspondence editor uses the special
+  source-model election label `politics-static source model`; the rich builder
+  expects real historical election/list correspondences. Wire this only when the
+  scenario UI/schema and candidate-template behavior are ready for historical
+  split/merge semantics.
 - `calcola_parametri_input.R` currently relies on exhaustive correspondence
   rows. Its data.table join uses `nomatch = NULL`, so unmatched original-list
   votes would be dropped from the calculated denominator instead of becoming
@@ -1266,4 +1280,37 @@ Verification with local generated artifacts present:
 - `cd web; npm run check`: passed with 0 warnings.
 - `cd web; npm run test`: passed, 134 tests.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.
+- `cd web; npm run build`: passed.
+
+## 2026-06-04 Checkpoint 35
+
+Completed in the first rich-correspondence implementation slice:
+
+- Added `web/src/lib/politics/parameter-preparation.ts`.
+- Ported the deterministic `calcola_parametri_input()` parameter math from raw
+  historical municipal votes to TypeScript:
+  - historical original-list votes are projected into future-list rows;
+  - multiple original lists can aggregate into one future list;
+  - one original list can split into several future lists by normalized
+    correspondence factors;
+  - original `astensione` and unmapped original-list votes become
+    `astensione`;
+  - global list/election percentages, logits, and global drift sigmas are
+    computed;
+  - municipal deltas and local drift sigmas are computed.
+- Added `web/src/lib/politics/parameter-preparation.test.ts` with synthetic
+  split/merge/unmapped-to-abstention tests.
+- Added a gated production parity test that rebuilds the R-exported default
+  politics `liste`, `liste_elezioni`, and `comuni_liste` from
+  `data.comuni_liste_elezioni` when local ignored `politics-static.json`
+  exists.
+- Kept the builder deliberately unwired from the worker for now. The current
+  compact correspondence UI maps to the static source model, while this builder
+  expects real historical election/list correspondences.
+
+Verification with local generated artifacts present:
+
+- `cd web; npx vitest run src/lib/politics/parameter-preparation.test.ts`: passed, 3 tests.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 137 tests.
 - `cd web; npm run build`: passed.

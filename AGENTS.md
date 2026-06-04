@@ -347,6 +347,23 @@ simulation 4.
   `globalShareMode = "fixed"` by setting `SIGMA_GLOBAL = 0` for active
   political list rows, and warns about unmatched scenario lists, unused manual
   correspondences, or placeholder coalition candidates.
+- `web/src/lib/politics/parameter-preparation.ts` ports the deterministic
+  `calcola_parametri_input()` correspondence/parameter math from raw historical
+  municipal votes to TypeScript. It explicitly sends original-list votes with
+  no active future-list correspondence to `astensione`, supports many-to-one
+  aggregation and one-to-many factor splits, computes global list/election
+  percentages/logits/sigmas, and computes municipal deltas/sigmas. Its tests
+  prove synthetic split/merge/abstention behavior and, when the ignored local
+  `politics-static.json` exists, rebuild the R-exported default politics
+  `liste`, `liste_elezioni`, and `comuni_liste` parameters from raw history.
+  This builder is not wired into the worker yet.
+- Do not wire `parameter-preparation.ts` blindly into the current compact
+  manual correspondence UI. That UI maps a future scenario list to a current
+  static source-model list (`pastElection = "politics-static source model"`),
+  while the rich parameter builder expects real historical election/list
+  correspondences. Integrate it when the scenario UI/schema can express
+  historical correspondences and candidate-template behavior for new/split
+  future lists is clear.
 - New/unmatched scenario lists cannot yet be simulated by the static-snapshot
   worker path unless they reuse one current source-model list through a declared
   correspondence. Other new lists are ignored with a warning until richer
