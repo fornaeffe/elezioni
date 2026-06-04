@@ -1,6 +1,6 @@
-import { describe, expect, test } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { expect, test } from 'vitest';
 import { fileURLToPath } from 'node:url';
+import { describeWithGeneratedFixtures, loadGeneratedJsonFixture } from '$lib/test/generated-fixtures';
 import {
   runEarlyPoliticsScrutiny,
   runInitialPoliticsScrutiny,
@@ -21,7 +21,7 @@ const fixturePath = fileURLToPath(
 );
 
 function loadFixture(): PoliticsGoldenFixture {
-  return JSON.parse(readFileSync(fixturePath, 'utf8')) as PoliticsGoldenFixture;
+  return loadGeneratedJsonFixture<PoliticsGoldenFixture>(fixturePath);
 }
 
 function uninominalKey(row: CandidatoUniResultRow): string {
@@ -210,7 +210,7 @@ function expectOutputToMatch(
   ]);
 }
 
-describe('politics golden fixture', () => {
+describeWithGeneratedFixtures('politics golden fixture', [fixturePath], () => {
   const fixture = loadFixture();
 
   test('has the expected direct scrutiny fixture shape', () => {

@@ -30,9 +30,11 @@ pass, pause and present Python fallback options before continuing.
 | Shared TypeScript core | Usable, still growing | Worker API types, seeded RNG, allocation primitives, scenario types, warning/result contracts. |
 | Politics scrutiny | R-parity direct fixture passes | `web/src/lib/politics/scrutiny.ts`; registry id `politiche-r-parity-v1`. Split only when boundaries are clearer. |
 | Politics generation pipeline | Current browser path working | Candidate generation, vote generation, vote preparation, direct-scrutiny adaptation, worker chunking. |
-| Production static politics snapshot | Bridge done | `scripts/export_politics_static_snapshot.R` writes `web/static/data/v1/politics-static.json`. |
+| Production static politics snapshot | Bridge done, richer raw data added | `scripts/export_politics_static_snapshot.R` writes schema v2 `web/static/data/v1/politics-static.json`, including raw historical municipal list votes for the future TypeScript parameter builder. |
 | Politics scenario defaults | Bridge done | `scripts/export_politics_scenario_defaults.mjs` writes `web/src/lib/scenario/politics-defaults.generated.ts`. |
 | Scenario editor | Core workflow plus compact advanced controls working | List/coalition/share editor, global mean/fixed mode, one-to-one manual correspondence editor, JSON save/load, localStorage, reset, validation. Rich correspondence semantics remain. |
+| R correspondence audit | Done | Current R output is coherent for the politics workbook because all historical list keys are mapped, but `calcola_parametri_input.R` drops unmatched rows instead of automatically sending them to `astensione`. |
+| Generated data storage | Done | Large generated JSON snapshots/fixtures are ignored and untracked; regenerate locally from scripts. Small generated TypeScript remains tracked. |
 | Politics browser vertical slice | Stabilized | `web/src/lib/politics/vertical-slice.test.ts` guards snapshot -> scenario -> projection -> generation -> scrutiny. |
 | Performance gate | Passed | Chromium worker on the R-exported production static snapshot is below fresh full R politics baselines for 10, 100, and 1000 simulations. |
 | Regional and municipal workflows | Not started | Migrate after politics browser workflow is stable enough. |
@@ -47,38 +49,52 @@ reveals a cleaner order or a new blocker.
    Every change to defaults, projection, generation, worker behavior, or the
    scrutiny registry should preserve or deliberately update
    `web/src/lib/politics/vertical-slice.test.ts`.
-2. Decide and implement richer correspondence semantics only after the UI makes
-   the business meaning explicit. Multi-source aggregation and split factors
-   need clear rules for local deltas, variability, abstention, and candidate
-   templates before they should affect simulations.
-3. Add candidate-template support to the scenario model and worker pipeline,
+2. Implement richer correspondence semantics in staged slices:
+   add raw historical municipal list votes to the static politics snapshot,
+   port the `calcola_parametri_input()` correspondence/parameter math into a
+   tested TypeScript module, and make unmapped original-list votes fall back to
+   `astensione` explicitly.
+3. Wire the richer parameter builder into scenario projection and the worker
+   behind tests. Preserve the current default politics output first, then add
+   split/merge correspondence fixtures that prove multiple original lists can
+   aggregate into one future list and one original list can split into several
+   future lists by normalized factors.
+4. Refine share override semantics: show list shares as valid-vote
+   percentages, keep abstention as a separate advanced elector-share input,
+   convert to internal elector fractions at the projection boundary, normalize
+   non-overridden list fractions, set overridden mean-mode dates to today, and
+   warn when all overridden list shares require normalization.
+5. Add local percentage override schema and generator hooks, then recompute
+   local deltas from normalized local elector fractions. Build the large UI
+   only after the data contract and parameter builder are stable.
+6. Add candidate-template support to the scenario model and worker pipeline,
    allowing user-provided names for selected slots while preserving generated
    candidates for unspecified places.
-4. Improve politics result presentation with legally meaningful summaries,
+7. Improve politics result presentation with legally meaningful summaries,
    charts, exports, and clearer warning/detail separation. Keep diagnostic
    tables such as `Generated pipeline runs` collapsed by default.
-5. Refactor politics scrutiny only when it lowers risk. The likely target is
+8. Refactor politics scrutiny only when it lowers risk. The likely target is
    stage-focused modules behind the existing scrutiny algorithm registry, but
    do not split during active parity discovery just for size alone.
-6. Add a second politics scrutiny algorithm only for a concrete law-review or
+9. Add a second politics scrutiny algorithm only for a concrete law-review or
    comparison need. Expose UI selection/comparison only after at least two real
    same-election-kind algorithms exist.
-7. Repeat the politics browser performance gate after major scenario, data,
+10. Repeat the politics browser performance gate after major scenario, data,
    generation, or scrutiny changes.
-8. Migrate the Emilia-Romagna regional workflow: first add R golden fixtures
+11. Migrate the Emilia-Romagna regional workflow: first add R golden fixtures
     and benchmarks, then port allocation, generation, scrutiny, worker, UI, and
     browser tests into the same architecture.
-9. Migrate the municipal workflow: first add R golden fixtures and benchmarks,
+12. Migrate the municipal workflow: first add R golden fixtures and benchmarks,
     preserve current behavior, and keep known runoff/councilor-candidate
     business TODOs explicit for later law review.
-10. Generalize the web app across election kinds: routing, snapshot selection,
+13. Generalize the web app across election kinds: routing, snapshot selection,
     scenario defaults, worker dispatch, result components, validation, and
     shared UI patterns.
-11. Migrate data preparation after simulator workflows are migrated. Reassess
+14. Migrate data preparation after simulator workflows are migrated. Reassess
     typed Python versus Node/TypeScript then; keep it a periodic,
     election-kind-agnostic devops/GitHub Actions pipeline producing static
     previous-election bundles.
-12. Retire temporary bridge artifacts and update user/developer documentation
+15. Retire temporary bridge artifacts and update user/developer documentation
     once migrated workflows no longer depend on R-exported intermediary
     snapshots.
 
@@ -101,6 +117,12 @@ reveals a cleaner order or a new blocker.
 - Built the generated politics worker path with chunked execution and progress.
 - Exported the R-produced production static snapshot bridge at
   `web/static/data/v1/politics-static.json`.
+- Upgraded the production static snapshot bridge to schema v2 with
+  `data.comuni_liste_elezioni`, the raw historical municipal list votes needed
+  to rebuild correspondence-based parameters in TypeScript.
+- Stopped tracking large generated JSON snapshots and bridge fixtures in Git.
+  They remain local/generated artifacts and snapshot-dependent tests skip
+  clearly when they are absent.
 - Generated the default web politics scenario from that static snapshot,
   including bundled list correspondences.
 - Built the basic scenario editor: metadata, list/coalition/share editing,
@@ -141,6 +163,19 @@ reveals a cleaner order or a new blocker.
 - Users should be able to specify only some global list shares. Unspecified
   list shares should be recalculated from previous results and list
   correspondences, preserving the current R model's intent.
+- Rich correspondence semantics are now defined: original historical votes are
+  projected into future lists per municipality/election; many originals can
+  aggregate into one future list; one original can split across future lists by
+  normalized factors; original abstention and unmapped original-list votes count
+  as `astensione`.
+- UI list percentages are percentages of valid votes, excluding abstention.
+  Internal pipeline fractions are elector fractions and must include
+  `astensione` to sum to 1. Abstention should be an advanced separate input,
+  not a normal scenario list.
+- User global share overrides in mean mode represent a current known
+  `P_{l,t-1}` for that list, with `data_{t-1}` set to today. Fixed mode removes
+  global temporal drift for overridden lists while preserving local variation
+  until local fixed semantics are designed.
 - Location-specific percentages, per-location fixed/mean modes, rich
   correspondence matrices, and candidate editors are advanced features. Keep
   schema/generator hooks ready, but build the large UI only when the underlying
@@ -196,14 +231,24 @@ after major scenario/schema/snapshot/generation/scrutiny changes.
   candidate merges implicitly include `CIFRA_PERCENTUALE` as a join key.
   TypeScript preserves both for parity.
 - The production static snapshot is still an R-exported bridge, not the final
-  migrated data-preparation pipeline. Regenerate dependent generated defaults
-  when `web/static/data/v1/politics-static.json` changes.
+  migrated data-preparation pipeline. The snapshot JSON is ignored by Git
+  because it is large and generated. Regenerate it with
+  `Rscript scripts/export_politics_static_snapshot.R`, then regenerate
+  dependent tracked defaults with
+  `node scripts/export_politics_scenario_defaults.mjs` when the default
+  scenario changes.
 - Bundled list correspondences in the generated default are durable metadata for
   defaults and future advanced editing. The current projection warns only for
   unused manual correspondences.
 - Declared correspondence projection and the current UI support only the safe
   one-to-one bridge case. Multi-source aggregation and split factors remain
   deferred until their business semantics are explicit.
+- `calcola_parametri_input.R` currently relies on exhaustive correspondence
+  rows. Its data.table join uses `nomatch = NULL`, so unmatched original-list
+  votes would be dropped from the calculated denominator instead of becoming
+  `astensione`. The current politics workbook is exhaustive, so this does not
+  affect the present default scenario, but the web implementation must not copy
+  this fragility.
 - New/unmatched scenario lists are ignored by the current static-snapshot
   worker path unless they reuse one current source-model list through a declared
   correspondence. The worker reports this as a warning.
@@ -1151,4 +1196,74 @@ Verification:
 - `cd web; npx vitest run src/lib/scenario/politics.test.ts src/lib/politics/scenario-projection.test.ts`: passed, 17 tests.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.
 - `cd web; npm run test`: passed, 134 tests.
+- `cd web; npm run build`: passed.
+
+## 2026-06-04 Checkpoint 33
+
+Completed in the rich-correspondence audit and first data-contract pass:
+
+- Audited `R/calcolo_parametri_input.R` against the intended historical-list
+  correspondence semantics and `_spiegazione_metodo.qmd`.
+- Confirmed the current politics scenario output is substantially coherent
+  because `scenari/politiche_2027.xlsx` maps all 92 filtered historical
+  `(DATA, ELEZIONE, LISTA_ORIGINALE)` keys.
+- Recorded the important fragility: the R implementation uses
+  `nomatch = NULL` when joining historical votes to correspondences, so an
+  incomplete correspondence sheet would drop unmatched original-list votes
+  instead of sending them to `astensione`.
+- Decided to implement richer semantics in staged slices rather than one large
+  pass. The next implementation target is a tested TypeScript parameter
+  builder that explicitly maps unmapped original-list votes to `astensione`.
+- Upgraded `scripts/export_politics_static_snapshot.R` to write snapshot schema
+  v2 with `data.comuni_liste_elezioni`, the raw historical municipal list-vote
+  rows needed by the TypeScript parameter builder.
+- Regenerated `web/static/data/v1/politics-static.json` and the generated
+  default scenario module.
+- Added a snapshot test guard that the production static snapshot is schema v2
+  and carries the raw historical vote rows.
+- Added the correspondence, valid-vote display, abstention, override
+  normalization, fixed-mode, and local-delta requirements to `AGENTS.md`.
+
+Verification:
+
+- `C:\Program Files\R\R-4.5.1\bin\Rscript.exe scripts/export_politics_static_snapshot.R`: passed.
+- `node scripts/export_politics_scenario_defaults.mjs`: passed.
+- `cd web; npx vitest run src/lib/politics/static-snapshot.test.ts src/lib/politics/vertical-slice.test.ts`: passed, 5 tests.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 134 tests.
+- `cd web; npm run build`: passed.
+
+## 2026-06-04 Checkpoint 34
+
+Completed in the generated-data repo hygiene pass:
+
+- Stopped tracking large generated JSON snapshots and fixtures with
+  `git rm --cached`, while keeping Luca's local copies on disk.
+- Added explicit `.gitignore` entries for:
+  - `web/static/data/v1/politics-static.json`;
+  - `web/static/data/v1/politics-static-debug.json`;
+  - `web/static/data/v1/politics-pipeline-source-debug.json`;
+  - `web/static/data/v1/politics-debug-scrutiny.json`;
+  - `test/fixtures/politiche/debug_scrutinio.json`;
+  - `test/fixtures/politiche/generated_adapter.json`;
+  - `test/fixtures/politiche/pipeline_source_debug.json`;
+  - `test/fixtures/politiche/vote_preparation.json`.
+- Kept small generated code and small synthetic fixtures tracked, including
+  `web/src/lib/scenario/politics-defaults.generated.ts`,
+  `test/fixtures/politiche/pipeline.json`,
+  `test/fixtures/politiche/candidate_generation.json`, and
+  `test/fixtures/politiche/vote_generation.json`.
+- Added `web/src/lib/test/generated-fixtures.ts` so tests that depend on large
+  generated JSON artifacts skip clearly when the local generated files are
+  absent.
+- Gated snapshot-dependent Vitest suites, the Playwright smoke test, and the
+  politics worker benchmark on the presence of generated static snapshot data.
+- Documented the policy in `AGENTS.md`: large generated data belongs outside
+  normal Git, while scripts and small generated code/fixtures remain tracked.
+
+Verification with local generated artifacts present:
+
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 134 tests.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
 - `cd web; npm run build`: passed.

@@ -1,6 +1,6 @@
-import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { describe, expect, test } from 'vitest';
+import { expect, test } from 'vitest';
+import { describeWithGeneratedFixtures, loadGeneratedJsonFixture } from '$lib/test/generated-fixtures';
 import { buildPoliticsDirectScrutinySnapshot } from './pipeline';
 import { runPoliticsScrutiny } from './scrutiny';
 import type { PoliticsPipelineSource, Ramo } from './types';
@@ -19,10 +19,10 @@ const fixturePath = fileURLToPath(
 );
 
 function loadFixture(): PipelineSourceFixture {
-  return JSON.parse(readFileSync(fixturePath, 'utf8')) as PipelineSourceFixture;
+  return loadGeneratedJsonFixture<PipelineSourceFixture>(fixturePath);
 }
 
-describe('politics real-source generation pipeline', () => {
+describeWithGeneratedFixtures('politics real-source generation pipeline', [fixturePath], () => {
   const fixture = loadFixture();
 
   test('has the expected compact real-source fixture shape', () => {

@@ -1,6 +1,6 @@
-import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { describe, expect, test } from 'vitest';
+import { expect, test } from 'vitest';
+import { describeWithGeneratedFixtures, loadGeneratedJsonFixture } from '$lib/test/generated-fixtures';
 import { adaptGeneratedPoliticsFixture } from './adapter';
 import type { AdaptedPoliticsSimulation } from './adapter';
 import type { PoliticsGeneratedAdapterFixture, PoliticsGoldenFixture, Ramo } from './types';
@@ -13,18 +13,18 @@ const goldenFixturePath = fileURLToPath(
 );
 
 function loadGeneratedFixture(): PoliticsGeneratedAdapterFixture {
-  return JSON.parse(readFileSync(generatedFixturePath, 'utf8')) as PoliticsGeneratedAdapterFixture;
+  return loadGeneratedJsonFixture<PoliticsGeneratedAdapterFixture>(generatedFixturePath);
 }
 
 function loadGoldenFixture(): PoliticsGoldenFixture {
-  return JSON.parse(readFileSync(goldenFixturePath, 'utf8')) as PoliticsGoldenFixture;
+  return loadGeneratedJsonFixture<PoliticsGoldenFixture>(goldenFixturePath);
 }
 
 function bySimulation(rows: AdaptedPoliticsSimulation[]): Map<number, AdaptedPoliticsSimulation> {
   return new Map(rows.map((row) => [row.sim, row]));
 }
 
-describe('politics generated-table adapter', () => {
+describeWithGeneratedFixtures('politics generated-table adapter', [generatedFixturePath, goldenFixturePath], () => {
   const generated = loadGeneratedFixture();
   const golden = loadGoldenFixture();
   const adapted = adaptGeneratedPoliticsFixture(generated);

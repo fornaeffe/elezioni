@@ -32,6 +32,15 @@ regional elections.
   the `.RData` extension. Do not use `load()` for that cache file.
 - `dati/debug_scrutinio.RData` is a useful politics scrutiny fixture. It contains
   prepared inputs and a stored output for 10 simulations.
+- Large generated JSON artifacts are intentionally not tracked in Git. They can
+  be regenerated locally from scripts and/or stored later as release artifacts:
+  `web/static/data/v1/politics-static.json`,
+  `web/static/data/v1/politics-static-debug.json`,
+  `web/static/data/v1/politics-pipeline-source-debug.json`,
+  `web/static/data/v1/politics-debug-scrutiny.json`, and the large politics
+  fixtures under `test/fixtures/politiche/`. Tests that need these files should
+  skip clearly when they are absent. Small generated code such as
+  `web/src/lib/scenario/politics-defaults.generated.ts` remains tracked.
 
 ## Baseline Timings Measured Locally
 
@@ -110,6 +119,15 @@ simulation 4.
   marked `TODO(law-review)`.
 - Politics code has explicit FIX/TODO notes around Valle d'Aosta and
   Trentino-Alto Adige/Senate handling. Treat these as migration review points.
+- `R/calcolo_parametri_input.R` is substantially coherent with the intended
+  historical-list correspondence model for the current politics workbook because
+  `scenari/politiche_2027.xlsx` explicitly maps every filtered historical
+  `(DATA, ELEZIONE, LISTA_ORIGINALE)` key, including `astensione`. The R code
+  itself does not implement the generic fallback that unmapped original-list
+  votes become `astensione`: its correspondence join uses `nomatch = NULL`, so
+  incomplete correspondence sheets would drop those votes from the denominator.
+  The web migration should encode the fallback explicitly instead of depending
+  on exhaustive spreadsheet rows.
 
 ## Migration Architecture Notes
 
@@ -145,6 +163,37 @@ simulation 4.
   unspecified future-list percentages should be recalculated from previous
   election results and list correspondences, preserving the current R model's
   intent.
+- Rich past-to-future correspondence semantics should follow these rules:
+  historical data contains votes for original lists plus an `astensione` list;
+  original lists mapped to a future list count as that future list in each
+  historical municipality/election; multiple original lists mapped to the same
+  future list are summed; one original list mapped to several future lists is
+  split by normalized correspondence factors; original `astensione` plus votes
+  for original lists with no active future-list correspondence count as
+  `astensione`.
+- The web UI should display list shares as percentages of valid votes, excluding
+  abstention. Internally, vote-generation fractions are fractions of electors
+  and only sum to 1 when `astensione` is included. Convert carefully at every
+  UI boundary. `astensione` should not appear as a normal list in the editor;
+  expose it as a separate advanced abstention percentage over electors.
+- When a user overrides only some global valid-vote list shares in mean mode,
+  convert overrides to elector fractions using the current abstention fraction,
+  treat abstention as fixed, and distribute the remaining elector fraction
+  across non-overridden lists according to their previous-election results after
+  correspondence projection. If all lists are overridden and the valid-vote
+  total is not 100%, normalize list shares to 100% and warn the user.
+- For overridden global list shares in mean mode, treat the converted fraction
+  as that list's `P_{l,t-1}` and set `data_{t-1}` to today. This represents the
+  user knowing the current list share, with uncertainty still drifting from
+  today to election day. Future poll-specific uncertainty can refine this.
+- In fixed mode, overridden global list shares should keep
+  `P_{l,t} = P_{l,t-1}` for the global draw by removing temporal/global drift
+  for those overridden lists. Effective simulation percentages may still vary
+  slightly through local-level randomization until local fixed semantics are
+  explicitly added.
+- For local percentage overrides, use the same valid-vote-to-elector conversion
+  and normalization rule with local previous-election fractions, then recompute
+  the local deltas `delta_{l,c,t-1}` from the normalized local fractions.
 - Keep scrutiny algorithms modular and swappable. The same normalized data and
   scenario should eventually be runnable through different scrutiny algorithm
   implementations behind a stable interface, for comparison or law-review
@@ -242,10 +291,16 @@ simulation 4.
   bridge. This remains a fallback/test artifact.
 - `scripts/export_politics_static_snapshot.R` exports
   `web/static/data/v1/politics-static.json` from the current R preparation
-  path, using `dati/dati.RData` and `scenari/politiche_2027.xlsx`. This is the
-  preferred worker input shape: reusable politics data is split from a
-  `default_scenario`, then converted back into the internal
-  `PoliticsPipelineSource` by `web/src/lib/politics/static-snapshot.ts`.
+  path, using `dati/dati.RData` and `scenari/politiche_2027.xlsx`. Snapshot
+  schema v2 carries raw historical municipal list votes under
+  `data.comuni_liste_elezioni`, so the TypeScript migration can rebuild
+  list-correspondence parameters without relying on the Excel-generated R
+  defaults. This is the preferred worker input shape, but the JSON itself is a
+  large generated local artifact and is ignored by Git. Recreate it with
+  `Rscript scripts/export_politics_static_snapshot.R`, then regenerate
+  `web/src/lib/scenario/politics-defaults.generated.ts` with
+  `node scripts/export_politics_scenario_defaults.mjs` if the default scenario
+  changed.
 - `scripts/export_politics_scenario_defaults.mjs` generates
   `web/src/lib/scenario/politics-defaults.generated.ts` from
   `web/static/data/v1/politics-static.json`. `web/src/lib/scenario/politics.ts`

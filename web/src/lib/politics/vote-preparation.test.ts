@@ -1,6 +1,6 @@
-import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { describe, expect, test } from 'vitest';
+import { expect, test } from 'vitest';
+import { describeWithGeneratedFixtures, loadGeneratedJsonFixture } from '$lib/test/generated-fixtures';
 import { preparePoliticsVoteTables } from './vote-preparation';
 import type { PoliticsVotePreparationFixture, Ramo } from './types';
 
@@ -9,10 +9,10 @@ const fixturePath = fileURLToPath(
 );
 
 function loadFixture(): PoliticsVotePreparationFixture {
-  return JSON.parse(readFileSync(fixturePath, 'utf8')) as PoliticsVotePreparationFixture;
+  return loadGeneratedJsonFixture<PoliticsVotePreparationFixture>(fixturePath);
 }
 
-describe('politics vote preparation', () => {
+describeWithGeneratedFixtures('politics vote preparation', [fixturePath], () => {
   const fixture = loadFixture();
 
   test('has the expected vote-preparation fixture shape', () => {

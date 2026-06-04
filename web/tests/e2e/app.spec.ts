@@ -1,4 +1,12 @@
 import { expect, test } from '@playwright/test';
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
+
+const hasPoliticsStaticSnapshot =
+  existsSync(resolve(process.cwd(), 'static/data/v1/politics-static.json')) ||
+  existsSync(resolve(process.cwd(), 'static/data/v1/politics-static-debug.json'));
+
+test.skip(!hasPoliticsStaticSnapshot, 'Generated politics static snapshot is missing. Run scripts/export_politics_static_snapshot.R first.');
 
 test('runs the worker smoke path from the scenario editor', async ({ page }) => {
   await page.goto('/');

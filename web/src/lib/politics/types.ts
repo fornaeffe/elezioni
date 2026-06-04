@@ -628,6 +628,14 @@ export interface PoliticsBaseDataRow {
   SU20_COD: AdministrativeCode;
 }
 
+export interface PoliticsHistoricalMunicipalListVoteRow {
+  DATA: string;
+  ELEZIONE: string;
+  CODICE_COMUNE: AdministrativeCode;
+  LISTA: string;
+  VOTI: number;
+}
+
 export interface PoliticsVoteGenerationRamoSource {
   uni: PoliticsCollegeUniRow[];
   candidati_uni_sim: GeneratedCandidatoUniRow[];
@@ -777,6 +785,7 @@ export interface PoliticsStaticDataRamoSnapshot {
 
 export interface PoliticsStaticDataSnapshotData {
   base_dati: PoliticsBaseDataRow[];
+  comuni_liste_elezioni?: PoliticsHistoricalMunicipalListVoteRow[];
   camera: PoliticsStaticDataRamoSnapshot;
   senato: PoliticsStaticDataRamoSnapshot;
 }

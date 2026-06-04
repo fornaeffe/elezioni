@@ -1,6 +1,6 @@
-import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, test } from 'vitest';
+import { describeWithGeneratedFixtures, loadGeneratedJsonFixture } from '$lib/test/generated-fixtures';
 import { buildPoliticsPipelineSourceFromSnapshot } from './static-snapshot';
 import type { PoliticsPipelineSource, PoliticsStaticSnapshot } from './types';
 
@@ -24,43 +24,50 @@ const productionStaticSnapshotPath = fileURLToPath(
 );
 
 function loadJson<T>(path: string): T {
-  return JSON.parse(readFileSync(path, 'utf8')) as T;
+  return loadGeneratedJsonFixture<T>(path);
 }
 
 describe('politics static snapshot bridge', () => {
-  const pipelineSource = loadJson<PipelineSourceFixture>(pipelineSourcePath).source;
-  const staticSnapshot = loadJson<PoliticsStaticSnapshot>(staticSnapshotPath);
-  const productionStaticSnapshot = loadJson<PoliticsStaticSnapshot>(productionStaticSnapshotPath);
+  describeWithGeneratedFixtures('debug static snapshot bridge', [pipelineSourcePath, staticSnapshotPath], () => {
+    const pipelineSource = loadJson<PipelineSourceFixture>(pipelineSourcePath).source;
+    const staticSnapshot = loadJson<PoliticsStaticSnapshot>(staticSnapshotPath);
 
-  test('splits reusable data from the default scenario', () => {
-    expect(staticSnapshot.metadata.schema_version).toBe(1);
-    expect(staticSnapshot.data.base_dati).toHaveLength(pipelineSource.base_dati.length);
-    expect(staticSnapshot.data.camera.uni).toHaveLength(pipelineSource.camera.uni.length);
-    expect(staticSnapshot.default_scenario.liste).toHaveLength(pipelineSource.liste.length);
-  });
-
-  test('reconstructs the existing pipeline source exactly', () => {
-    const actual = buildPoliticsPipelineSourceFromSnapshot(staticSnapshot, {
-      simulations: pipelineSource.simulazioni
+    test('splits reusable data from the default scenario', () => {
+      expect(staticSnapshot.metadata.schema_version).toBe(1);
+      expect(staticSnapshot.data.base_dati).toHaveLength(pipelineSource.base_dati.length);
+      expect(staticSnapshot.data.camera.uni).toHaveLength(pipelineSource.camera.uni.length);
+      expect(staticSnapshot.default_scenario.liste).toHaveLength(pipelineSource.liste.length);
     });
 
-    expect(actual).toEqual(pipelineSource);
+    test('reconstructs the existing pipeline source exactly', () => {
+      const actual = buildPoliticsPipelineSourceFromSnapshot(staticSnapshot, {
+        simulations: pipelineSource.simulazioni
+      });
+
+      expect(actual).toEqual(pipelineSource);
+    });
   });
 
-  test('loads the production static snapshot exported by the R bridge', () => {
-    expect(productionStaticSnapshot.metadata.source).toBe('current R politics preparation pipeline');
-    expect(productionStaticSnapshot.data.base_dati.length).toBeGreaterThan(8000);
-    expect(productionStaticSnapshot.default_scenario.liste).toHaveLength(10);
-    expect(productionStaticSnapshot.default_scenario.comuni_liste.length).toBeGreaterThan(70000);
-    expect(productionStaticSnapshot.default_scenario.coalizioni).toBeDefined();
-    expect(productionStaticSnapshot.default_scenario.corrispondenza_liste).toBeDefined();
+  describeWithGeneratedFixtures('production static snapshot bridge', [productionStaticSnapshotPath], () => {
+    const productionStaticSnapshot = loadJson<PoliticsStaticSnapshot>(productionStaticSnapshotPath);
 
-    const actual = buildPoliticsPipelineSourceFromSnapshot(productionStaticSnapshot, {
-      simulations: 2
+    test('loads the production static snapshot exported by the R bridge', () => {
+      expect(productionStaticSnapshot.metadata.source).toBe('current R politics preparation pipeline');
+      expect(productionStaticSnapshot.metadata.schema_version).toBe(2);
+      expect(productionStaticSnapshot.data.base_dati.length).toBeGreaterThan(8000);
+      expect(productionStaticSnapshot.data.comuni_liste_elezioni?.length).toBeGreaterThan(400000);
+      expect(productionStaticSnapshot.default_scenario.liste).toHaveLength(10);
+      expect(productionStaticSnapshot.default_scenario.comuni_liste.length).toBeGreaterThan(70000);
+      expect(productionStaticSnapshot.default_scenario.coalizioni).toBeDefined();
+      expect(productionStaticSnapshot.default_scenario.corrispondenza_liste).toBeDefined();
+
+      const actual = buildPoliticsPipelineSourceFromSnapshot(productionStaticSnapshot, {
+        simulations: 2
+      });
+
+      expect(actual.simulazioni).toBe(2);
+      expect(actual.camera.candidati_uni.length).toBeGreaterThan(0);
+      expect(actual.senato.candidati_pluri.length).toBeGreaterThan(0);
     });
-
-    expect(actual.simulazioni).toBe(2);
-    expect(actual.camera.candidati_uni.length).toBeGreaterThan(0);
-    expect(actual.senato.candidati_pluri.length).toBeGreaterThan(0);
   });
 });

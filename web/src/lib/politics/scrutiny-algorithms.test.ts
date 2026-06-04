@@ -1,6 +1,6 @@
-import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, test } from 'vitest';
+import { hasGeneratedFixture, loadGeneratedJsonFixture } from '$lib/test/generated-fixtures';
 import {
   defaultPoliticsScrutinyAlgorithmId,
   politicsScrutinyAlgorithms,
@@ -14,7 +14,7 @@ const fixturePath = fileURLToPath(
 );
 
 function loadFixture(): PoliticsGoldenFixture {
-  return JSON.parse(readFileSync(fixturePath, 'utf8')) as PoliticsGoldenFixture;
+  return loadGeneratedJsonFixture<PoliticsGoldenFixture>(fixturePath);
 }
 
 describe('politics scrutiny algorithm registry', () => {
@@ -34,7 +34,9 @@ describe('politics scrutiny algorithm registry', () => {
     expect(resolution.fallback).toBe(true);
   });
 
-  test('runs the same implementation as the direct R-parity scrutiny function', () => {
+  const fixtureTest = hasGeneratedFixture(fixturePath) ? test : test.skip;
+
+  fixtureTest('runs the same implementation as the direct R-parity scrutiny function', () => {
     const fixture = loadFixture();
     const ramoFixture = fixture.rami.camera;
     const simulation = ramoFixture.simulations[0];

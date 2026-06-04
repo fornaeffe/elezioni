@@ -1,6 +1,6 @@
-import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { describe, expect, test } from 'vitest';
+import { expect, test } from 'vitest';
+import { describeWithGeneratedFixtures, loadGeneratedJsonFixture } from '$lib/test/generated-fixtures';
 import { createDefaultPoliticsScenario, validateScenario } from '$lib/scenario/politics';
 import { buildPoliticsDirectScrutinySnapshot } from './pipeline';
 import { projectScenarioOntoPoliticsSource } from './scenario-projection';
@@ -13,7 +13,7 @@ const productionStaticSnapshotPath = fileURLToPath(
 );
 
 function loadProductionStaticSnapshot(): PoliticsStaticSnapshot {
-  return JSON.parse(readFileSync(productionStaticSnapshotPath, 'utf8')) as PoliticsStaticSnapshot;
+  return loadGeneratedJsonFixture<PoliticsStaticSnapshot>(productionStaticSnapshotPath);
 }
 
 function politicalListSharePercent(snapshot: PoliticsStaticSnapshot, listName: string): number {
@@ -28,7 +28,7 @@ function politicalListSharePercent(snapshot: PoliticsStaticSnapshot, listName: s
   return (list.PERCENTUALE / totalPoliticalShare) * 100;
 }
 
-describe('politics browser vertical slice', () => {
+describeWithGeneratedFixtures('politics browser vertical slice', [productionStaticSnapshotPath], () => {
   const snapshot = loadProductionStaticSnapshot();
 
   test('keeps the UI default scenario aligned with the production static snapshot', () => {

@@ -73,7 +73,7 @@ dati_candidati <- carica_candidati(dati_collegi, scenario_path, parametri_input)
 
 snapshot <- list(
   metadata = list(
-    schema_version = 1,
+    schema_version = 2,
     source = "current R politics preparation pipeline",
     created = format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ", tz = "UTC"),
     purpose = paste(
@@ -92,6 +92,13 @@ snapshot <- list(
       "ELETTORI",
       "CU20_COD",
       "SU20_COD"
+    )),
+    comuni_liste_elezioni = select_frame(dati$comuni_liste_elezioni, c(
+      "DATA",
+      "ELEZIONE",
+      "CODICE_COMUNE",
+      "LISTA",
+      "VOTI"
     )),
     camera = list(
       uni = select_frame(dati_collegi$camera$uni, c(

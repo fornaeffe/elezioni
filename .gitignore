@@ -43,6 +43,16 @@ vignettes/*.pdf
 # Downloaded data
 /dati/
 
+# Large generated migration data
+/web/static/data/v1/politics-static.json
+/web/static/data/v1/politics-static-debug.json
+/web/static/data/v1/politics-pipeline-source-debug.json
+/web/static/data/v1/politics-debug-scrutiny.json
+/test/fixtures/politiche/debug_scrutinio.json
+/test/fixtures/politiche/generated_adapter.json
+/test/fixtures/politiche/pipeline_source_debug.json
+/test/fixtures/politiche/vote_preparation.json
+
 # Output
 /_output/
 /*_files/

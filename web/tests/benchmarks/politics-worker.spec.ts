@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
-import { mkdirSync, writeFileSync } from 'node:fs';
-import { dirname } from 'node:path';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 interface BenchmarkRun {
@@ -13,6 +13,11 @@ interface BenchmarkRun {
 const outputPath = fileURLToPath(
   new URL('../../../test/fixtures/benchmarks/browser_politics_worker.json', import.meta.url)
 );
+const hasPoliticsStaticSnapshot =
+  existsSync(resolve(process.cwd(), 'static/data/v1/politics-static.json')) ||
+  existsSync(resolve(process.cwd(), 'static/data/v1/politics-static-debug.json'));
+
+test.skip(!hasPoliticsStaticSnapshot, 'Generated politics static snapshot is missing. Run scripts/export_politics_static_snapshot.R first.');
 
 async function runSimulation(page: import('@playwright/test').Page, simulations: number): Promise<BenchmarkRun> {
   const input = page.getByLabel('Simulazioni');
