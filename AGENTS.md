@@ -346,9 +346,10 @@ simulation 4.
   matched lists proportionally from source data, projects matched list
   coalitions, propagates correspondence-based list renames through list
   parameters and plurinominal candidate templates, honors
-  `globalShareMode = "fixed"` by setting `SIGMA_GLOBAL = 0` for active
-  political list rows, and warns about unmatched scenario lists, unused manual
-  correspondences, or placeholder coalition candidates.
+  `globalShareMode = "fixed"` by setting `SIGMA_GLOBAL = 0` only for
+  user-overridden political list rows, sets overridden list `DATA` to the
+  worker run-start date, and warns about unmatched scenario lists, unused
+  manual correspondences, or placeholder coalition candidates.
 - `web/src/lib/politics/parameter-preparation.ts` ports the deterministic
   `calcola_parametri_input()` correspondence/parameter math from raw historical
   municipal votes to TypeScript. It explicitly sends original-list votes with

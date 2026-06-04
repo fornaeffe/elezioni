@@ -222,6 +222,7 @@ export function projectScenarioOntoPoliticsSource(
   options: {
     simulations: number;
     electionDate?: string;
+    overrideReferenceDate?: string;
     historicalVotes?: readonly PoliticsHistoricalMunicipalListVoteRow[];
     parameterPercentualiPartenza?: string | null;
   }
@@ -379,6 +380,7 @@ export function projectScenarioOntoPoliticsSource(
   const historicalParameterSource = buildHistoricalParameterSource(scenario, activeLists, activeBySourceKey, options);
   const baseListRows = historicalParameterSource?.liste ?? source.liste;
   const baseMunicipalRows = historicalParameterSource?.comuni_liste ?? source.comuni_liste;
+  const overrideReferenceDate = requestElectionDateIso(options.overrideReferenceDate, new Date().toISOString());
   const parameterByListKey = new Map(baseListRows.map((row) => [listKey(row.LISTA), row]));
   const activeListsWithParameters = activeLists.map((active) => ({
     ...active,
@@ -424,6 +426,7 @@ export function projectScenarioOntoPoliticsSource(
         return {
           ...row,
           PERCENTUALE: targetAbstention,
+          DATA: scenario.abstentionOverride ? overrideReferenceDate : row.DATA,
           LOGIT_P: logit(targetAbstention),
           SIGMA_GLOBAL: scenario.abstentionOverride ? 0 : row.SIGMA_GLOBAL
         };
@@ -434,13 +437,15 @@ export function projectScenarioOntoPoliticsSource(
 
       const scenarioRow = activeScenarioBySourceName.get(row.LISTA) ?? active.scenario;
       const percentage = projectedPercentages.get(active.projectedListName) ?? row.PERCENTUALE;
+      const hasShareOverride = scenarioRow?.shareOverride ?? active.scenario.shareOverride;
 
       return [{
         ...row,
         LISTA: active.projectedListName,
         COALIZIONE: scenarioRow?.coalition ?? row.COALIZIONE,
         PERCENTUALE: percentage,
-        SIGMA_GLOBAL: scenario.globalShareMode === 'fixed' ? 0 : row.SIGMA_GLOBAL,
+        DATA: hasShareOverride ? overrideReferenceDate : row.DATA,
+        SIGMA_GLOBAL: scenario.globalShareMode === 'fixed' && hasShareOverride ? 0 : row.SIGMA_GLOBAL,
         LOGIT_P: logit(percentage)
       }];
     });

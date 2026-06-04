@@ -60,11 +60,11 @@ reveals a cleaner order or a new blocker.
    still exposes only compact source-model reuse. Add richer editing only with
    clear candidate-template behavior for new/split future lists.
 4. Continue refining share override semantics. Done: list shares are valid-vote
-   percentages, abstention is a separate advanced elector-share input, and
+   percentages, abstention is a separate advanced elector-share input,
    projection converts to internal elector fractions while normalizing
-   non-overridden list fractions. Remaining: set overridden mean-mode dates to
-   today, decide whether fixed mode should apply only to overridden lists or all
-   active political lists, and improve warnings when all overridden list shares
+   non-overridden list fractions, overridden list parameters use the run-start
+   date as their current reference date, and fixed mode freezes only overridden
+   political lists. Remaining: improve warnings when all overridden list shares
    require normalization.
 5. Add local percentage override schema and generator hooks, then recompute
    local deltas from normalized local elector fractions. Build the large UI
@@ -207,13 +207,12 @@ reveals a cleaner order or a new blocker.
 
 Latest full web verification on 2026-06-04:
 
-- `cd web; npx vitest run src/lib/scenario/politics.test.ts src/lib/politics/vertical-slice.test.ts`: passed, 10 tests.
-- `cd web; npx vitest run src/lib/politics/scenario-projection.test.ts`: passed, 7 tests.
+- `cd web; npx vitest run src/lib/politics/scenario-projection.test.ts src/lib/politics/vertical-slice.test.ts`: passed, 11 tests.
 - `cd web; npm run check`: passed with 0 warnings.
-- `cd web; npm run test`: passed, 134 tests.
-- `cd web; npm run build`: passed.
+- `cd web; npm run test`: passed, 140 tests.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test, including the
   advanced global fixed-mode and manual correspondence controls.
+- `cd web; npm run build`: passed.
 
 Current performance gate:
 
@@ -268,9 +267,10 @@ after major scenario/schema/snapshot/generation/scrutiny changes.
 - `abstentionOverride` currently makes the global `astensione` parameter fixed
   by setting its `SIGMA_GLOBAL` to zero. Local variation is still inherited from
   municipal deltas until location-specific override semantics are implemented.
-- User-overridden mean-mode list shares are converted to elector fractions, but
-  their `DATA` is not yet changed to today. That remaining rule is still in the
-  active plan.
+- User-overridden list shares are converted to elector fractions and their
+  parameter `DATA` is changed to the worker run-start date. In fixed mode only
+  those overridden political list rows get `SIGMA_GLOBAL = 0`; non-overridden
+  lists keep modeled global drift.
 - `calcola_parametri_input.R` currently relies on exhaustive correspondence
   rows. Its data.table join uses `nomatch = NULL`, so unmatched original-list
   votes would be dropped from the calculated denominator instead of becoming
@@ -280,10 +280,10 @@ after major scenario/schema/snapshot/generation/scrutiny changes.
 - New/unmatched scenario lists are ignored by the current static-snapshot
   worker path unless they reuse one current source-model list through a declared
   correspondence. The worker reports this as a warning.
-- `globalShareMode = "fixed"` is exposed in the advanced UI and honored
-  globally by setting `SIGMA_GLOBAL = 0` for active political list rows.
-  Municipality-level variation is unchanged until location-specific semantics
-  are designed.
+- `globalShareMode = "fixed"` is exposed in the advanced UI and freezes only
+  user-overridden political list rows by setting their `SIGMA_GLOBAL = 0`.
+  Non-overridden lists keep modeled global drift, and municipality-level
+  variation is unchanged until location-specific semantics are designed.
 - Placeholder uninominal candidates may be generated when a matched scenario
   list uses a coalition absent from the current candidate template. This keeps
   the browser workflow runnable but needs final scenario/data semantics.
@@ -1383,6 +1383,31 @@ Completed in the valid-vote share and abstention slice:
 Verification with local generated artifacts present:
 
 - `cd web; npx vitest run src/lib/scenario/politics.test.ts src/lib/politics/scenario-projection.test.ts src/lib/politics/vertical-slice.test.ts`: passed, 22 tests.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 140 tests.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+- `cd web; npm run build`: passed.
+
+## 2026-06-04 Checkpoint 38
+
+Completed in the per-override fixed-mode slice:
+
+- Updated `web/src/lib/politics/scenario-projection.ts` so overridden list
+  shares get the worker run-start date as their parameter `DATA`.
+- Updated fixed global share mode so it freezes only overridden political list
+  rows by setting their `SIGMA_GLOBAL = 0`; non-overridden lists keep modeled
+  global drift.
+- Threaded the worker run-start ISO timestamp into scenario projection as the
+  override reference date.
+- Kept overridden abstention fixed and anchored to the same reference date.
+- Updated scenario-projection tests to lock the per-list fixed behavior and
+  reference-date semantics.
+- Updated `AGENTS.md` and the current plan/caveats so future work treats this
+  behavior as the implemented rule.
+
+Verification with local generated artifacts present:
+
+- `cd web; npx vitest run src/lib/politics/scenario-projection.test.ts src/lib/politics/vertical-slice.test.ts`: passed, 11 tests.
 - `cd web; npm run check`: passed with 0 warnings.
 - `cd web; npm run test`: passed, 140 tests.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.

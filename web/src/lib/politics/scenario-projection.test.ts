@@ -151,6 +151,7 @@ describe('politics scenario projection', () => {
   });
 
   test('uses abstention override as the elector-fraction anchor for valid-vote list shares', () => {
+    const overrideReferenceDate = '2026-06-04T00:00:00.000Z';
     const abstentionScenario = scenario([
       { id: 'a', name: 'Lista A', coalition: 'Coalizione A', color: '#000000', startingShare: 50, shareOverride: true },
       { id: 'b', name: 'Lista B', coalition: 'Coalizione B', color: '#111111', startingShare: 20, shareOverride: false },
@@ -159,7 +160,7 @@ describe('politics scenario projection', () => {
     abstentionScenario.abstentionShare = 50;
     abstentionScenario.abstentionOverride = true;
 
-    const projection = projectScenarioOntoPoliticsSource(source(), abstentionScenario, { simulations: 1 });
+    const projection = projectScenarioOntoPoliticsSource(source(), abstentionScenario, { simulations: 1, overrideReferenceDate });
 
     expect(projection.source.liste.map((row) => [row.LISTA, Number(row.PERCENTUALE.toFixed(3))])).toEqual([
       ['Lista A', 0.25],
@@ -168,6 +169,7 @@ describe('politics scenario projection', () => {
       ['astensione', 0.5]
     ]);
     expect(projection.source.liste.find((row) => row.LISTA === 'astensione')?.SIGMA_GLOBAL).toBe(0);
+    expect(projection.source.liste.find((row) => row.LISTA === 'astensione')?.DATA).toBe(overrideReferenceDate);
     expect(projection.rows.find((row) => row.list === 'Lista A')?.projectedShare).toBe(50);
   });
 
@@ -313,7 +315,8 @@ describe('politics scenario projection', () => {
     );
   });
 
-  test('keeps mean mode stochastic parameters and zeros global sigma in fixed mode', () => {
+  test('sets override dates and fixes only overridden list sigmas in fixed mode', () => {
+    const overrideReferenceDate = '2026-06-04T00:00:00.000Z';
     const meanProjection = projectScenarioOntoPoliticsSource(
       source(),
       scenario([
@@ -321,7 +324,7 @@ describe('politics scenario projection', () => {
         { id: 'b', name: 'Lista B', coalition: 'Coalizione B', color: '#111111', startingShare: 20, shareOverride: false },
         { id: 'c', name: 'Lista C', coalition: 'Coalizione C', color: '#222222', startingShare: 30, shareOverride: false }
       ]),
-      { simulations: 1 }
+      { simulations: 1, overrideReferenceDate }
     );
     const fixedScenario = scenario([
       { id: 'a', name: 'Lista A', coalition: 'Coalizione A', color: '#000000', startingShare: 50, shareOverride: true },
@@ -329,14 +332,18 @@ describe('politics scenario projection', () => {
       { id: 'c', name: 'Lista C', coalition: 'Coalizione C', color: '#222222', startingShare: 30, shareOverride: false }
     ]);
     fixedScenario.globalShareMode = 'fixed';
-    const fixedProjection = projectScenarioOntoPoliticsSource(source(), fixedScenario, { simulations: 1 });
+    const fixedProjection = projectScenarioOntoPoliticsSource(source(), fixedScenario, { simulations: 1, overrideReferenceDate });
 
     expect(meanProjection.source.liste.filter((row) => row.LISTA !== 'astensione').map((row) => row.SIGMA_GLOBAL)).toEqual([
       0.1, 0.1, 0.1
     ]);
+    expect(meanProjection.source.liste.find((row) => row.LISTA === 'Lista A')?.DATA).toBe(overrideReferenceDate);
+    expect(meanProjection.source.liste.find((row) => row.LISTA === 'Lista B')?.DATA).toBe('2022-09-25T00:00:00.000Z');
     expect(fixedProjection.source.liste.filter((row) => row.LISTA !== 'astensione').map((row) => row.SIGMA_GLOBAL)).toEqual([
-      0, 0, 0
+      0, 0.1, 0.1
     ]);
+    expect(fixedProjection.source.liste.find((row) => row.LISTA === 'Lista A')?.DATA).toBe(overrideReferenceDate);
+    expect(fixedProjection.source.liste.find((row) => row.LISTA === 'Lista B')?.DATA).toBe('2022-09-25T00:00:00.000Z');
   });
 
   test('ignores unmatched new lists and creates placeholder candidates for new matched coalitions', () => {
