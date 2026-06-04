@@ -269,16 +269,21 @@ simulation 4.
   such as `Generated pipeline runs` behind a details toggle by default.
 - `web/src/lib/politics/scenario-projection.ts` is the current boundary between
   the web-native politics scenario and the generated worker source. It matches
-  scenario lists to the static snapshot by exact list name, removes source lists
-  that are not present in the scenario, applies only explicit global share
-  overrides, recalculates non-overridden matched lists proportionally from
-  source data, projects matched list coalitions, honors
+  scenario lists to the static snapshot first by exact list name and then by a
+  one-to-one declared correspondence from a current source-model list to a
+  future scenario list. It removes source lists that are not present or reused,
+  applies only explicit global share overrides, recalculates non-overridden
+  matched lists proportionally from source data, projects matched list
+  coalitions, propagates correspondence-based list renames through list
+  parameters and plurinominal candidate templates, honors
   `globalShareMode = "fixed"` by setting `SIGMA_GLOBAL = 0` for active
-  political list rows, and warns about unmatched scenario lists or placeholder
-  coalition candidates.
+  political list rows, and warns about unmatched scenario lists, unused manual
+  correspondences, or placeholder coalition candidates.
 - New/unmatched scenario lists cannot yet be simulated by the static-snapshot
-  worker path. They are ignored with a warning until list-correspondence
-  defaults and future-list generation semantics are implemented.
+  worker path unless they reuse one current source-model list through a declared
+  correspondence. Other new lists are ignored with a warning until richer
+  list-correspondence defaults and future-list generation semantics are
+  implemented.
 - Advanced scenario UI remains deferred: past-to-future correspondence editing,
   location-specific percentage overrides, fixed-versus-mean controls, and
   candidate templates/editors. Keep schema/generator hooks ready, but do not

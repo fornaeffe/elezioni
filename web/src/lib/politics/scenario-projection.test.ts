@@ -95,7 +95,7 @@ describe('politics scenario projection', () => {
 
     expect(projection.source.simulazioni).toBe(3);
     expect(projection.source.data_elezione).toBe('2027-04-01T00:00:00.000Z');
-    expect(projection.source.liste.filter((row) => row.LISTA !== 'astensione').map((row) => row.PERCENTUALE)).toEqual([
+    expect(projection.source.liste.filter((row) => row.LISTA !== 'astensione').map((row) => Number(row.PERCENTUALE.toFixed(3)))).toEqual([
       0.1, 0.2, 0.3
     ]);
     expect(projection.warnings).toEqual([]);
@@ -134,6 +134,80 @@ describe('politics scenario projection', () => {
       0.3, 0.12, 0.18
     ]);
     expect(projection.rows.find((row) => row.list === 'Lista A')?.projectedShare).toBe(50);
+  });
+
+  test('uses declared correspondences to project renamed scenario lists', () => {
+    const renamedScenario = scenario([
+      { id: 'x', name: 'Lista X', coalition: 'Coalizione A', color: '#000000', startingShare: 10, shareOverride: false },
+      { id: 'b', name: 'Lista B', coalition: 'Coalizione B', color: '#111111', startingShare: 20, shareOverride: false },
+      { id: 'c', name: 'Lista C', coalition: 'Coalizione C', color: '#222222', startingShare: 30, shareOverride: false }
+    ]);
+    renamedScenario.listCorrespondences = [
+      {
+        id: 'corr-a-x',
+        futureList: 'Lista X',
+        pastElection: 'camera 2022',
+        pastDate: '2022-09-25',
+        pastList: 'Lista A',
+        factor: 1,
+        source: 'manual'
+      }
+    ];
+
+    const projection = projectScenarioOntoPoliticsSource(source(), renamedScenario, { simulations: 1 });
+
+    expect(projection.warnings).toEqual([]);
+    expect(projection.source.liste.filter((row) => row.LISTA !== 'astensione').map((row) => row.LISTA)).toEqual([
+      'Lista X',
+      'Lista B',
+      'Lista C'
+    ]);
+    expect(projection.source.liste.filter((row) => row.LISTA !== 'astensione').map((row) => Number(row.PERCENTUALE.toFixed(3)))).toEqual([
+      0.1, 0.2, 0.3
+    ]);
+    expect(projection.source.comuni_liste.map((row) => row.LISTA)).toEqual(['Lista X', 'Lista B', 'Lista C', 'astensione']);
+    expect(projection.source.camera.candidati_pluri.map((row) => row.LISTA)).toEqual(['Lista X', 'Lista B', 'Lista C']);
+    expect(projection.rows.find((row) => row.list === 'Lista X')).toEqual(
+      expect.objectContaining({
+        sourceList: 'Lista A',
+        matchMode: 'declared-correspondence',
+        status: 'matched'
+      })
+    );
+  });
+
+  test('warns when declared correspondences cannot use the current snapshot', () => {
+    const staleScenario = scenario([
+      { id: 'x', name: 'Lista X', coalition: 'Coalizione A', color: '#000000', startingShare: 10, shareOverride: false }
+    ]);
+    staleScenario.listCorrespondences = [
+      {
+        id: 'stale',
+        futureList: 'Lista X',
+        pastElection: 'camera 2022',
+        pastDate: '2022-09-25',
+        pastList: 'Lista che non esiste',
+        factor: 1,
+        source: 'manual'
+      }
+    ];
+
+    const projection = projectScenarioOntoPoliticsSource(source(), staleScenario, { simulations: 1 });
+
+    expect(projection.warnings.map((warning) => warning.code)).toEqual(
+      expect.arrayContaining([
+        'POLITICS_SCENARIO_CORRESPONDENCES_UNUSED',
+        'POLITICS_SCENARIO_LISTS_IGNORED',
+        'POLITICS_SCENARIO_NO_MATCHING_LISTS'
+      ])
+    );
+    expect(projection.rows.find((row) => row.list === 'Lista X')).toEqual(
+      expect.objectContaining({
+        sourceList: null,
+        matchMode: 'none',
+        status: 'unmatched'
+      })
+    );
   });
 
   test('keeps mean mode stochastic parameters and zeros global sigma in fixed mode', () => {

@@ -1,4 +1,4 @@
-import type { Scenario, ScenarioList } from '$lib/core/types';
+import type { Scenario, ScenarioList, ScenarioListCorrespondence } from '$lib/core/types';
 import type {
   PoliticsCandidateUniTemplateRow,
   PoliticsPipelineListRow,
@@ -8,10 +8,12 @@ import type {
 
 export interface PoliticsScenarioProjectionRow {
   list: string;
+  sourceList: string | null;
   coalition: string | null;
   scenarioShare: number | null;
   shareOverride: boolean;
   projectedShare: number | null;
+  matchMode: 'homonymous' | 'declared-correspondence' | 'none';
   status: 'matched' | 'removed' | 'unmatched';
 }
 
@@ -30,6 +32,9 @@ export interface PoliticsScenarioProjection {
 interface ActiveSourceList {
   source: PoliticsPipelineListRow;
   scenario: ScenarioList;
+  projectedListName: string;
+  matchMode: 'homonymous' | 'declared-correspondence';
+  correspondence?: ScenarioListCorrespondence;
 }
 
 function listKey(name: string): string {
@@ -76,7 +81,7 @@ function projectPercentages(
   if (overridden.length === 0) {
     const activeSourceTotal = activeLists.reduce((sum, row) => sum + row.source.PERCENTUALE, 0);
     for (const row of activeLists) {
-      projected.set(row.source.LISTA, activeSourceTotal > 0 ? (sourcePoliticalTotal * row.source.PERCENTUALE) / activeSourceTotal : 0);
+      projected.set(row.projectedListName, activeSourceTotal > 0 ? (sourcePoliticalTotal * row.source.PERCENTUALE) / activeSourceTotal : 0);
     }
     return projected;
   }
@@ -90,13 +95,13 @@ function projectPercentages(
     });
 
     for (const row of overridden) {
-      projected.set(row.source.LISTA, (sourcePoliticalTotal * Math.max(Number(row.scenario.startingShare) || 0, 0)) / overrideShareTotal);
+      projected.set(row.projectedListName, (sourcePoliticalTotal * Math.max(Number(row.scenario.startingShare) || 0, 0)) / overrideShareTotal);
     }
     return projected;
   }
 
   for (const row of overridden) {
-    projected.set(row.source.LISTA, (sourcePoliticalTotal * Math.max(Number(row.scenario.startingShare) || 0, 0)) / 100);
+    projected.set(row.projectedListName, (sourcePoliticalTotal * Math.max(Number(row.scenario.startingShare) || 0, 0)) / 100);
   }
 
   const remainingShare = Math.max(100 - overrideShareTotal, 0);
@@ -104,7 +109,7 @@ function projectPercentages(
 
   for (const row of nonOverridden) {
     projected.set(
-      row.source.LISTA,
+      row.projectedListName,
       nonOverrideSourceTotal > 0 ? (remainingPoliticalTotal * row.source.PERCENTUALE) / nonOverrideSourceTotal : 0
     );
   }
@@ -114,7 +119,7 @@ function projectPercentages(
 
 function projectRamoSource(
   source: PoliticsPipelineRamoSource,
-  activeListKeys: ReadonlySet<string>,
+  activeBySourceKey: ReadonlyMap<string, ActiveSourceList>,
   activeCoalitions: ReadonlySet<string>
 ): { source: PoliticsPipelineRamoSource; syntheticCoalitions: string[] } {
   const existingCoalitions = new Set(
@@ -141,10 +146,19 @@ function projectRamoSource(
         ...source.candidati_uni.filter((row) => row.COALIZIONE !== null && activeCoalitions.has(row.COALIZIONE)),
         ...syntheticRows
       ],
-      candidati_pluri: source.candidati_pluri.filter((row) => activeListKeys.has(listKey(row.LISTA)))
+      candidati_pluri: source.candidati_pluri.flatMap((row) => {
+        const active = activeBySourceKey.get(listKey(row.LISTA));
+        return active ? [{ ...row, LISTA: active.projectedListName }] : [];
+      })
     },
     syntheticCoalitions
   };
+}
+
+function correspondenceLabel(correspondence: ScenarioListCorrespondence): string {
+  return `${correspondence.pastElection || 'elezione sconosciuta'}:${correspondence.pastList || 'lista sconosciuta'} -> ${
+    correspondence.futureList || 'lista sconosciuta'
+  }`;
 }
 
 export function projectScenarioOntoPoliticsSource(
@@ -162,29 +176,104 @@ export function projectScenarioOntoPoliticsSource(
   const scenarioByKey = new Map(scenario.lists.map((row) => [listKey(row.name), row]));
   const activeLists: ActiveSourceList[] = [];
   const projectionRows: PoliticsScenarioProjectionRow[] = [];
+  const activeBySourceKey = new Map<string, ActiveSourceList>();
+  const activeScenarioKeys = new Set<string>();
+  const usedCorrespondenceIds = new Set<string>();
 
   for (const sourceRow of sourcePoliticalRows) {
+    const sourceKey = listKey(sourceRow.LISTA);
     const scenarioRow = scenarioByKey.get(listKey(sourceRow.LISTA));
-    if (!scenarioRow) {
-      projectionRows.push({
-        list: sourceRow.LISTA,
-        coalition: sourceRow.COALIZIONE,
-        scenarioShare: null,
-        shareOverride: false,
-        projectedShare: 0,
-        status: 'removed'
+    if (!scenarioRow) continue;
+
+    const active = {
+      source: sourceRow,
+      scenario: scenarioRow,
+      projectedListName: scenarioRow.name,
+      matchMode: 'homonymous' as const
+    };
+    activeLists.push(active);
+    activeBySourceKey.set(sourceKey, active);
+    activeScenarioKeys.add(listKey(scenarioRow.name));
+  }
+
+  for (const sourceRow of sourcePoliticalRows) {
+    const sourceKey = listKey(sourceRow.LISTA);
+    if (activeBySourceKey.has(sourceKey)) continue;
+
+    const candidates = scenario.listCorrespondences
+      .filter((correspondence) => listKey(correspondence.pastList) === sourceKey)
+      .map((correspondence) => ({
+        correspondence,
+        scenario: scenarioByKey.get(listKey(correspondence.futureList))
+      }))
+      .filter(
+        (candidate): candidate is { correspondence: ScenarioListCorrespondence; scenario: ScenarioList } =>
+          candidate.scenario !== undefined && !activeScenarioKeys.has(listKey(candidate.scenario.name))
+      );
+
+    if (candidates.length === 0) continue;
+
+    if (candidates.length > 1) {
+      warnings.push({
+        code: 'POLITICS_SCENARIO_CORRESPONDENCE_AMBIGUOUS',
+        message: `More than one declared correspondence can use ${sourceRow.LISTA} as a source model list; no correspondence was applied for that source: ${candidates
+          .map((candidate) => correspondenceLabel(candidate.correspondence))
+          .join(', ')}.`,
+        todoReference: 'MIGRATION_PLAN.md#current-caveats'
       });
       continue;
     }
 
-    activeLists.push({ source: sourceRow, scenario: scenarioRow });
+    const [{ correspondence, scenario: scenarioRow }] = candidates;
+    const active = {
+      source: sourceRow,
+      scenario: scenarioRow,
+      projectedListName: scenarioRow.name,
+      matchMode: 'declared-correspondence' as const,
+      correspondence
+    };
+    activeLists.push(active);
+    activeBySourceKey.set(sourceKey, active);
+    activeScenarioKeys.add(listKey(scenarioRow.name));
+    usedCorrespondenceIds.add(correspondence.id);
   }
 
-  const unmatchedScenarioLists = scenario.lists.filter((row) => !sourceByKey.has(listKey(row.name)));
+  const unusedCorrespondences = scenario.listCorrespondences.filter(
+    (correspondence) => correspondence.source === 'manual' && !usedCorrespondenceIds.has(correspondence.id)
+  );
+  if (unusedCorrespondences.length > 0) {
+    warnings.push({
+      code: 'POLITICS_SCENARIO_CORRESPONDENCES_UNUSED',
+      message: `Some declared list correspondences did not match the current static snapshot and were not used: ${unusedCorrespondences
+        .map(correspondenceLabel)
+        .join(', ')}.`,
+      todoReference: 'MIGRATION_PLAN.md#current-caveats'
+    });
+  }
+
+  for (const sourceRow of sourcePoliticalRows) {
+    const active = activeBySourceKey.get(listKey(sourceRow.LISTA));
+    if (active) {
+      continue;
+    }
+
+    projectionRows.push({
+      list: sourceRow.LISTA,
+      sourceList: sourceRow.LISTA,
+      coalition: sourceRow.COALIZIONE,
+      scenarioShare: null,
+      shareOverride: false,
+      projectedShare: 0,
+      matchMode: 'none',
+      status: 'removed'
+    });
+  }
+
+  const unmatchedScenarioLists = scenario.lists.filter((row) => !activeScenarioKeys.has(listKey(row.name)));
   if (unmatchedScenarioLists.length > 0) {
     warnings.push({
       code: 'POLITICS_SCENARIO_LISTS_IGNORED',
-      message: `Some scenario lists do not exist in the current static snapshot and were ignored: ${unmatchedScenarioLists
+      message: `Some scenario lists do not have a homonymous source list or usable declared correspondence in the current static snapshot and were ignored: ${unmatchedScenarioLists
         .map((row) => row.name)
         .join(', ')}.`,
       todoReference: 'MIGRATION_PLAN.md#current-caveats'
@@ -207,18 +296,22 @@ export function projectScenarioOntoPoliticsSource(
       rows: [
         ...sourcePoliticalRows.map((row) => ({
           list: row.LISTA,
+          sourceList: row.LISTA,
           coalition: row.COALIZIONE,
           scenarioShare: null,
           shareOverride: false,
           projectedShare: sourcePoliticalTotal > 0 ? (100 * row.PERCENTUALE) / sourcePoliticalTotal : 0,
+          matchMode: 'none' as const,
           status: 'matched' as const
         })),
         ...unmatchedScenarioLists.map((row) => ({
           list: row.name,
+          sourceList: null,
           coalition: row.coalition,
           scenarioShare: row.startingShare,
           shareOverride: row.shareOverride,
           projectedShare: null,
+          matchMode: 'none' as const,
           status: 'unmatched' as const
         }))
       ],
@@ -227,14 +320,13 @@ export function projectScenarioOntoPoliticsSource(
   }
 
   const projectedPercentages = projectPercentages(activeLists, sourcePoliticalTotal, warnings);
-  const activeListKeys = new Set(activeLists.map((row) => listKey(row.source.LISTA)));
   const activeCoalitions = new Set(
     activeLists
       .map((row) => row.scenario.coalition)
       .filter((coalition): coalition is string => coalition !== null && coalition !== '')
   );
-  const camera = projectRamoSource(source.camera, activeListKeys, activeCoalitions);
-  const senato = projectRamoSource(source.senato, activeListKeys, activeCoalitions);
+  const camera = projectRamoSource(source.camera, activeBySourceKey, activeCoalitions);
+  const senato = projectRamoSource(source.senato, activeBySourceKey, activeCoalitions);
   const syntheticCoalitions = [...new Set([...camera.syntheticCoalitions, ...senato.syntheticCoalitions])];
 
   if (syntheticCoalitions.length > 0) {
@@ -249,30 +341,37 @@ export function projectScenarioOntoPoliticsSource(
 
   const activeScenarioBySourceName = new Map(activeLists.map((row) => [row.source.LISTA, row.scenario]));
   const projectedLists = source.liste
-    .filter((row) => row.LISTA === 'astensione' || activeListKeys.has(listKey(row.LISTA)))
-    .map((row) => {
+    .flatMap((row) => {
       if (row.LISTA === 'astensione') return { ...row };
 
-      const scenarioRow = activeScenarioBySourceName.get(row.LISTA);
-      const percentage = projectedPercentages.get(row.LISTA) ?? row.PERCENTUALE;
+      const active = activeBySourceKey.get(listKey(row.LISTA));
+      if (!active) return [];
 
-      return {
+      const scenarioRow = activeScenarioBySourceName.get(row.LISTA);
+      const percentage = projectedPercentages.get(active.projectedListName) ?? row.PERCENTUALE;
+
+      return [{
         ...row,
+        LISTA: active.projectedListName,
         COALIZIONE: scenarioRow?.coalition ?? row.COALIZIONE,
         PERCENTUALE: percentage,
         SIGMA_GLOBAL: scenario.globalShareMode === 'fixed' ? 0 : row.SIGMA_GLOBAL,
         LOGIT_P: logit(percentage)
-      };
+      }];
     });
 
   for (const { source: sourceRow, scenario: scenarioRow } of activeLists) {
-    const percentage = projectedPercentages.get(sourceRow.LISTA) ?? sourceRow.PERCENTUALE;
+    const active = activeBySourceKey.get(listKey(sourceRow.LISTA));
+    const projectedListName = active?.projectedListName ?? sourceRow.LISTA;
+    const percentage = projectedPercentages.get(projectedListName) ?? sourceRow.PERCENTUALE;
     projectionRows.push({
-      list: sourceRow.LISTA,
+      list: projectedListName,
+      sourceList: sourceRow.LISTA,
       coalition: scenarioRow.coalition,
       scenarioShare: scenarioRow.startingShare,
       shareOverride: scenarioRow.shareOverride,
       projectedShare: sourcePoliticalTotal > 0 ? (100 * percentage) / sourcePoliticalTotal : 0,
+      matchMode: active?.matchMode ?? 'none',
       status: 'matched'
     });
   }
@@ -280,10 +379,12 @@ export function projectScenarioOntoPoliticsSource(
   for (const row of unmatchedScenarioLists) {
     projectionRows.push({
       list: row.name,
+      sourceList: null,
       coalition: row.coalition,
       scenarioShare: row.startingShare,
       shareOverride: row.shareOverride,
       projectedShare: null,
+      matchMode: 'none',
       status: 'unmatched'
     });
   }
@@ -294,7 +395,11 @@ export function projectScenarioOntoPoliticsSource(
       data_elezione: requestElectionDateIso(options.electionDate ?? scenario.electionDate, source.data_elezione),
       simulazioni: options.simulations,
       liste: projectedLists,
-      comuni_liste: source.comuni_liste.filter((row) => row.LISTA === 'astensione' || activeListKeys.has(listKey(row.LISTA))),
+      comuni_liste: source.comuni_liste.flatMap((row) => {
+        if (row.LISTA === 'astensione') return { ...row };
+        const active = activeBySourceKey.get(listKey(row.LISTA));
+        return active ? [{ ...row, LISTA: active.projectedListName }] : [];
+      }),
       camera: camera.source,
       senato: senato.source
     },

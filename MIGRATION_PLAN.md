@@ -37,7 +37,7 @@ R baseline on the same machine, pause and present Python fallback options.
 | Production static snapshot bridge | Done | `scripts/export_politics_static_snapshot.R` exports `web/static/data/v1/politics-static.json` from the current R cache and politics scenario workbook. |
 | Performance gate | Passed for current politics worker path | Chromium generated-worker benchmark on the R-exported production static snapshot is below fresh full R politics baselines for 10, 100, and 1000 simulations; repeat after future data-preparation migration or major snapshot changes. |
 | Politics browser vertical slice | Stabilized for current slice | Production snapshot, default scenario, projection, generated pipeline, and registered scrutiny algorithm are guarded by an integration test. Keep this guard green while scenario semantics evolve. |
-| Scenario editor and JSON contract | Started | Scenario schema v3 covers basic UI fields, default-source metadata, list correspondences, global fixed/mean share mode, JSON compatibility, validation, and first projection semantics. Advanced UI remains planned. |
+| Scenario editor and JSON contract | Started | Scenario schema v3 covers basic UI fields, default-source metadata, list correspondences, global fixed/mean share mode, JSON compatibility, validation, homonymous matching, and one-to-one declared correspondence projection. Advanced UI remains planned. |
 
 ## Planned Future Steps
 
@@ -50,10 +50,11 @@ this list before continuing.
    worker path, scenario projection, result-priority UI, static snapshot bridge,
    and registered scrutiny algorithm now have a production guardrail test; keep
    it passing while the remaining politics scenario semantics are added.
-2. Improve scenario defaults and projection using the v3 scenario contract: use
-   bundled defaults first, homonymous or declared list correspondences second,
-   and make ignored/new list behavior explicit enough that users can understand
-   what is simulated.
+2. Keep improving scenario defaults and projection using the v3 scenario
+   contract: add bundled correspondence defaults to scenario creation, then
+   support richer declared correspondence semantics where needed. Current
+   projection supports homonymous matches and one-to-one declared source-model
+   correspondences.
 3. Add advanced politics scenario controls incrementally: compact
    correspondence editing first, then global fixed/mean settings, then
    location-specific overrides only after the data contract is stable.
@@ -330,6 +331,11 @@ future data-preparation migration or major snapshot/schema changes.
   carries default-source metadata, a global `mean`/`fixed` share mode, and typed
   past-to-future list correspondences while preserving compatibility with old
   saved v1/v2 scenario JSON.
+- Improved scenario projection with v3 correspondence support. The projection
+  now resolves source model rows first by homonymous list name, then by a
+  one-to-one declared correspondence from a current static source-model list to
+  a future scenario list. Projection rows expose the source model list and match
+  mode so ignored or renamed lists are visible to the user.
 
 ## Latest Verification
 
@@ -366,7 +372,8 @@ Additional run on 2026-06-04:
 
 - `cd web; npx vitest run src/lib/politics/vertical-slice.test.ts`: passed, 2 tests.
 - `cd web; npm run check`: passed with 0 warnings.
-- `cd web; npm run test`: passed, 130 tests.
+- `cd web; npx vitest run src/lib/politics/scenario-projection.test.ts`: passed, 7 tests.
+- `cd web; npm run test`: passed, 132 tests.
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.
 
@@ -426,6 +433,13 @@ Additional run on 2026-06-04:
   by setting `SIGMA_GLOBAL = 0` for active political list rows. Local
   municipality-level variation is unchanged until location-specific fixed/mean
   semantics are designed.
+- Declared correspondence projection currently supports the safe one-to-one
+  bridge case: a scenario future list may reuse one current static source-model
+  list, with list names propagated through global list parameters, municipal
+  list parameters, and plurinominal candidate templates. Multi-source
+  aggregation and split factors are still deferred because they need explicit
+  business semantics for combining local deltas, variability, and candidate
+  templates.
 - New/unmatched scenario lists are still ignored by the current static-snapshot
   worker path because list-correspondence defaults and future-list generation
   semantics are not implemented yet. The worker reports this as a warning
@@ -1271,5 +1285,41 @@ Verification:
 
 - `cd web; npm run check`: passed with 0 warnings.
 - `cd web; npm run test`: passed, 130 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-04 Checkpoint 29
+
+Completed in the v3 scenario projection/defaults pass:
+
+- Extended `projectScenarioOntoPoliticsSource()` so scenario lists now resolve
+  against the static source in this order:
+  - homonymous source-model list name;
+  - one-to-one declared correspondence from a current source-model list to a
+    future scenario list.
+- Propagated correspondence-based list renames through:
+  - global list model rows;
+  - municipal list parameter rows;
+  - Camera/Senato plurinominal candidate templates;
+  - scenario projection result rows.
+- Added `sourceList` and `matchMode` to projection rows, and exposed them in
+  the worker `Scenario projection` result table. Users can now distinguish
+  homonymous matches, declared-correspondence matches, removed source rows, and
+  unmatched scenario rows.
+- Made unmatched/new list warnings more explicit: ignored scenario lists now
+  report that no homonymous source list or usable declared correspondence was
+  found.
+- Added manual stale-correspondence warnings. Bundled correspondence metadata is
+  allowed to remain quiet until it is used by richer default/projection logic.
+- Kept multi-source correspondence aggregation deferred. The current safe
+  bridge supports one current source-model list per future scenario list; split
+  factors and multi-list merges still need explicit semantics for combining
+  local deltas, variability, and candidate templates.
+
+Verification:
+
+- `cd web; npx vitest run src/lib/politics/scenario-projection.test.ts`: passed, 7 tests.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 132 tests.
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.

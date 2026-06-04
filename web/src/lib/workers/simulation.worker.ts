@@ -57,9 +57,11 @@ function progress(
 function scenarioProjectionTable(rows: PoliticsScenarioProjectionRow[]): ResultTable {
   return {
     name: 'Scenario projection',
-    columns: ['Lista', 'Coalizione', 'Quota scenario', 'Usata', 'Quota proiettata', 'Stato'],
+    columns: ['Lista', 'Fonte modello', 'Corrispondenza', 'Coalizione', 'Quota scenario', 'Usata', 'Quota proiettata', 'Stato'],
     rows: rows.map((row) => ({
       Lista: row.list,
+      'Fonte modello': row.sourceList,
+      Corrispondenza: row.matchMode,
       Coalizione: row.coalition,
       'Quota scenario': row.scenarioShare === null ? null : Number(row.scenarioShare.toFixed(2)),
       Usata: row.shareOverride,
@@ -181,10 +183,12 @@ async function handleRequest(request: SimulationRequest): Promise<void> {
         scenarioProjectionTable(
           request.scenario.lists.map((row) => ({
             list: row.name,
+            sourceList: null,
             coalition: row.coalition,
             scenarioShare: row.startingShare,
             shareOverride: row.shareOverride,
             projectedShare: null,
+            matchMode: 'none' as const,
             status: 'unmatched' as const
           }))
         )
