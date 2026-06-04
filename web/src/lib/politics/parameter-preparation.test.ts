@@ -83,7 +83,8 @@ function scenario(): Scenario {
         factor: 1,
         source: 'manual' as const
       }
-    ])
+    ]),
+    localShareOverrides: []
   };
 }
 

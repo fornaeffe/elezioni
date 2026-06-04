@@ -154,11 +154,11 @@ simulation 4.
   and territory; if absent, use the most voted lists from the last same-kind
   election in the same territory; if past coalition data is unavailable, each
   list defaults to its own coalition.
-- Past-to-future list correspondences have typed scenario schema support. The
-  active global share mode is mean-only; older serialized `fixed` values should
-  normalize to `mean`. Location-specific percentage overrides and candidate
-  templates still need typed schema support and generator hooks. Defer
-  large/rich UI for these advanced settings until production previous-election
+- Past-to-future list correspondences and location-specific percentage
+  overrides have typed scenario schema support. The active global share mode is
+  mean-only; older serialized `fixed` values should normalize to `mean`.
+  Candidate templates still need typed schema support and generator hooks.
+  Defer large/rich UI for advanced settings until production previous-election
   data packaging and the basic scenario model are stable.
 - The scenario model should allow users to enter only some global percentages;
   unspecified future-list percentages should be recalculated from previous
@@ -203,7 +203,12 @@ simulation 4.
   explicitly designed.
 - For local percentage overrides, use the same valid-vote-to-elector conversion
   and normalization rule with local previous-election fractions, then recompute
-  the local deltas `delta_{l,c,t-1}` from the normalized local fractions.
+  the local deltas `delta_{l,c,t-1}` from the normalized local fractions. The
+  current TypeScript hook supports municipality/list valid-vote share overrides
+  in `Scenario.localShareOverrides`, keeps local abstention fixed from the base
+  municipality model, normalizes all-overridden local totals with a warning,
+  and sets affected municipal `DATA` values to the worker/projection current
+  date before vote generation.
 - Keep scrutiny algorithms modular and swappable. The same normalized data and
   scenario should eventually be runnable through different scrutiny algorithm
   implementations behind a stable interface, for comparison or law-review
@@ -325,14 +330,15 @@ simulation 4.
   setup, worker API types, seeded RNG, allocation primitives, unit tests, and a
   Playwright smoke test.
 - `web/src/lib/scenario/politics.ts` owns the current politics scenario JSON
-  contract. Schema v4 covers basic scenario metadata, coalitions, lists, colors,
+  contract. Schema v5 covers basic scenario metadata, coalitions, lists, colors,
   valid-vote global starting shares, `shareOverride`, separate elector-share
   `abstentionShare`/`abstentionOverride`, default-source metadata,
-  `globalShareMode`, and typed `listCorrespondences`, plus validation and JSON
-  parse/serialize helpers. Old schema-v1/v2/v3 JSON remains accepted; missing
+  `globalShareMode`, typed `listCorrespondences`, and typed
+  `localShareOverrides`, plus validation and JSON parse/serialize helpers.
+  Old schema-v1/v2/v3/v4 JSON remains accepted; missing
   `shareOverride` defaults to `false`, missing `globalShareMode` defaults to
   `mean`, missing abstention fields default to the bundled politics default,
-  and missing correspondences default to an empty array.
+  and missing correspondences/local overrides default to empty arrays.
 - The generated default politics scenario carries bundled list correspondences
   from the production static snapshot. Treat these as default metadata and
   future advanced-editor input. Current projection warnings should stay focused
@@ -383,7 +389,11 @@ simulation 4.
   mean-mode list share overrides are treated as current known values by setting
   the projected list parameter `DATA` to the worker/projection current date;
   when every matched list is overridden and the valid-vote total is not 100%,
-  projection normalizes those shares to 100% and emits a warning.
+  projection normalizes those shares to 100% and emits a warning. Local
+  municipality/list overrides are then applied to `comuni_liste`: projection
+  keeps the municipality's base abstention fraction fixed, normalizes political
+  local list fractions, recomputes `DELTA` against the projected global logits,
+  and sets affected municipal `DATA` values to the projection current date.
 - New/split future lists still need candidate-template semantics before they
   can be fully simulated. The rich parameter builder can create their vote
   parameters, but projection still ignores scenario lists that do not have a

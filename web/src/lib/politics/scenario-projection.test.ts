@@ -81,8 +81,25 @@ function scenario(lists: Scenario['lists']): Scenario {
       { id: 'new', name: 'Coalizione Nuova', color: '#333333' }
     ],
     lists,
-    listCorrespondences: []
+    listCorrespondences: [],
+    localShareOverrides: []
   };
+}
+
+function localFractions(projection: ReturnType<typeof projectScenarioOntoPoliticsSource>, municipalityCode: number): Record<string, number> {
+  const globalByList = new Map(projection.source.liste.map((row) => [row.LISTA, row]));
+  const rows = projection.source.comuni_liste.filter((row) => row.CODICE_COMUNE === municipalityCode);
+  const raw = rows.map((row) => {
+    const global = globalByList.get(row.LISTA);
+    if (!global) throw new Error(`Missing global row for ${row.LISTA}`);
+    return {
+      list: row.LISTA,
+      value: 1 / (1 + Math.exp(-(global.LOGIT_P + row.DELTA)))
+    };
+  });
+  const total = raw.reduce((sum, row) => sum + row.value, 0);
+
+  return Object.fromEntries(raw.map((row) => [row.list, Number((row.value / total).toFixed(3))]));
 }
 
 function historicalVotes(): PoliticsHistoricalMunicipalListVoteRow[] {
@@ -200,6 +217,66 @@ describe('politics scenario projection', () => {
     ]);
     expect(projection.source.liste.find((row) => row.LISTA === 'astensione')?.SIGMA_GLOBAL).toBe(0);
     expect(projection.rows.find((row) => row.list === 'Lista A')?.projectedShare).toBe(50);
+  });
+
+  test('applies local valid-vote share overrides by recomputing municipal deltas', () => {
+    const localScenario = scenario([
+      { id: 'a', name: 'Lista A', coalition: 'Coalizione A', color: '#000000', startingShare: 10, shareOverride: false },
+      { id: 'b', name: 'Lista B', coalition: 'Coalizione B', color: '#111111', startingShare: 20, shareOverride: false },
+      { id: 'c', name: 'Lista C', coalition: 'Coalizione C', color: '#222222', startingShare: 30, shareOverride: false }
+    ]);
+    localScenario.localShareOverrides = [
+      { id: 'local-a', scope: 'municipality', locationCode: '1', list: 'Lista A', startingShare: 50 }
+    ];
+
+    const projection = projectScenarioOntoPoliticsSource(source(), localScenario, {
+      currentDate: '2026-06-04',
+      simulations: 1
+    });
+
+    expect(localFractions(projection, 1)).toEqual({
+      'Lista A': 0.3,
+      'Lista B': 0.12,
+      'Lista C': 0.18,
+      astensione: 0.4
+    });
+    expect(projection.source.comuni_liste.map((row) => [row.LISTA, row.DATA])).toEqual([
+      ['Lista A', '2026-06-04T00:00:00.000Z'],
+      ['Lista B', '2026-06-04T00:00:00.000Z'],
+      ['Lista C', '2026-06-04T00:00:00.000Z'],
+      ['astensione', '2026-06-04T00:00:00.000Z']
+    ]);
+    expect(projection.warnings).toEqual([]);
+  });
+
+  test('normalizes all local list overrides when their valid-vote total is not 100', () => {
+    const localScenario = scenario([
+      { id: 'a', name: 'Lista A', coalition: 'Coalizione A', color: '#000000', startingShare: 10, shareOverride: false },
+      { id: 'b', name: 'Lista B', coalition: 'Coalizione B', color: '#111111', startingShare: 20, shareOverride: false },
+      { id: 'c', name: 'Lista C', coalition: 'Coalizione C', color: '#222222', startingShare: 30, shareOverride: false }
+    ]);
+    localScenario.localShareOverrides = [
+      { id: 'local-a', scope: 'municipality', locationCode: '1', list: 'Lista A', startingShare: 20 },
+      { id: 'local-b', scope: 'municipality', locationCode: '1', list: 'Lista B', startingShare: 20 },
+      { id: 'local-c', scope: 'municipality', locationCode: '1', list: 'Lista C', startingShare: 20 }
+    ];
+
+    const projection = projectScenarioOntoPoliticsSource(source(), localScenario, {
+      currentDate: '2026-06-04',
+      simulations: 1
+    });
+
+    expect(localFractions(projection, 1)).toEqual({
+      'Lista A': 0.2,
+      'Lista B': 0.2,
+      'Lista C': 0.2,
+      astensione: 0.4
+    });
+    expect(projection.warnings).toEqual([
+      expect.objectContaining({
+        code: 'POLITICS_SCENARIO_LOCAL_OVERRIDES_RENORMALIZED'
+      })
+    ]);
   });
 
   test('uses declared correspondences to project renamed scenario lists', () => {

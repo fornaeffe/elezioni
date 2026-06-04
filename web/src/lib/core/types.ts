@@ -39,6 +39,16 @@ export interface ScenarioListCorrespondence {
   source: ScenarioListCorrespondenceSource;
 }
 
+export type ScenarioLocalShareOverrideScope = 'municipality';
+
+export interface ScenarioLocalShareOverride {
+  id: string;
+  scope: ScenarioLocalShareOverrideScope;
+  locationCode: string;
+  list: string;
+  startingShare: number;
+}
+
 export interface Scenario {
   id: string;
   name: string;
@@ -50,6 +60,7 @@ export interface Scenario {
   lists: ScenarioList[];
   coalitions: ScenarioCoalition[];
   listCorrespondences: ScenarioListCorrespondence[];
+  localShareOverrides: ScenarioLocalShareOverride[];
 }
 
 export interface SimulationRequest {

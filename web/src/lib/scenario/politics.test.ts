@@ -22,6 +22,7 @@ describe('politics web-native scenario model', () => {
     expect(scenario.globalShareMode).toBe('mean');
     expect(scenario.abstentionShare).toBeGreaterThan(0);
     expect(scenario.abstentionOverride).toBe(false);
+    expect(scenario.localShareOverrides).toEqual([]);
     expect(scenario.listCorrespondences.length).toBeGreaterThan(0);
     expect(scenario.listCorrespondences.every((correspondence) => correspondence.source === 'bundled')).toBe(true);
     expect(scenario.listCorrespondences).toEqual(
@@ -80,6 +81,7 @@ describe('politics web-native scenario model', () => {
     expect(scenario.abstentionShare).toBe(createDefaultPoliticsScenario().abstentionShare);
     expect(scenario.abstentionOverride).toBe(false);
     expect(scenario.listCorrespondences).toEqual([]);
+    expect(scenario.localShareOverrides).toEqual([]);
     expect(scenario.lists[0].id).toBe('list-lista-a');
     expect(scenario.lists[0].startingShare).toBe(40);
     expect(scenario.lists[0].shareOverride).toBe(true);
@@ -105,12 +107,13 @@ describe('politics web-native scenario model', () => {
     expect(scenario.abstentionShare).toBe(createDefaultPoliticsScenario().abstentionShare);
     expect(scenario.abstentionOverride).toBe(false);
     expect(scenario.listCorrespondences).toEqual([]);
+    expect(scenario.localShareOverrides).toEqual([]);
   });
 
-  test('round-trips v4 default metadata, normalizes retired share mode, abstention, and list correspondences', () => {
+  test('round-trips v5 default metadata, normalizes retired share mode, abstention, correspondences, and local overrides', () => {
     const scenario = parseScenario(
       JSON.stringify({
-        schema_version: 4,
+        schema_version: 5,
         scenario: {
           name: 'Scenario con corrispondenze',
           electionDate: '2027-03-01',
@@ -142,6 +145,13 @@ describe('politics web-native scenario model', () => {
               factor: 1,
               source: 'manual'
             }
+          ],
+          localShareOverrides: [
+            {
+              locationCode: '1',
+              list: 'Lista A',
+              startingShare: 55
+            }
           ]
         }
       })
@@ -152,6 +162,15 @@ describe('politics web-native scenario model', () => {
     expect(scenario.abstentionShare).toBe(47.5);
     expect(scenario.abstentionOverride).toBe(true);
     expect(scenario.listCorrespondences).toHaveLength(2);
+    expect(scenario.localShareOverrides).toEqual([
+      {
+        id: 'local-share-1-lista-a',
+        scope: 'municipality',
+        locationCode: '1',
+        list: 'Lista A',
+        startingShare: 55
+      }
+    ]);
     expect(scenario.listCorrespondences[0]).toEqual(
       expect.objectContaining({
         id: 'correspondence-camera-2022-lista-a-passata-lista-a',
@@ -245,6 +264,57 @@ describe('politics web-native scenario model', () => {
         'Fattore non valido per corrispondenza Lista inesistente.',
         'Corrispondenza duplicata per lista precedente -> Lista inesistente.'
       ])
+    );
+  });
+
+  test('validates malformed local share overrides', () => {
+    const scenario = createDefaultPoliticsScenario();
+    scenario.localShareOverrides = [
+      {
+        id: 'bad-local',
+        scope: 'municipality',
+        locationCode: '',
+        list: 'Lista inesistente',
+        startingShare: -1
+      },
+      {
+        id: 'bad-local-duplicate',
+        scope: 'municipality',
+        locationCode: '',
+        list: 'Lista inesistente',
+        startingShare: 1
+      }
+    ];
+
+    expect(validateScenario(scenario)).toEqual(
+      expect.arrayContaining([
+        'Ogni quota locale deve indicare un comune.',
+        'Quota locale verso lista sconosciuta: Lista inesistente.',
+        'Quota locale non valida per Lista inesistente.',
+        'Quota locale duplicata per comune / Lista inesistente.'
+      ])
+    );
+  });
+
+  test('allows all local list shares to be renormalized but rejects impossible partial totals', () => {
+    const scenario = createDefaultPoliticsScenario();
+    scenario.lists = [
+      { id: 'a', name: 'Lista A', coalition: scenario.coalitions[0].name, color: '#000000', startingShare: 50, shareOverride: false },
+      { id: 'b', name: 'Lista B', coalition: scenario.coalitions[0].name, color: '#111111', startingShare: 50, shareOverride: false },
+      { id: 'c', name: 'Lista C', coalition: scenario.coalitions[0].name, color: '#222222', startingShare: 50, shareOverride: false }
+    ];
+    scenario.listCorrespondences = [];
+    scenario.localShareOverrides = [
+      { id: 'a-local', scope: 'municipality', locationCode: '1', list: 'Lista A', startingShare: 70 },
+      { id: 'b-local', scope: 'municipality', locationCode: '1', list: 'Lista B', startingShare: 70 },
+      { id: 'c-local', scope: 'municipality', locationCode: '1', list: 'Lista C', startingShare: 70 }
+    ];
+
+    expect(validateScenario(scenario)).toEqual([]);
+
+    scenario.localShareOverrides = [scenario.localShareOverrides[0], scenario.localShareOverrides[1]];
+    expect(validateScenario(scenario)).toEqual(
+      expect.arrayContaining(['La somma delle quote locali usate per 1 non puo superare 100.'])
     );
   });
 });

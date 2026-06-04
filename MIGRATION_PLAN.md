@@ -43,7 +43,7 @@ pass, pause and present Python fallback options before continuing.
 
 ## Next Work
 
-This ordered list is the active implementation plan. Update it whenever a step
+This ordered list is the active implementation plan. Update it when a step is done, or whenever a step
 reveals a cleaner order or a new blocker.
 
 1. Keep the politics browser vertical slice green while scenario semantics grow.
@@ -66,9 +66,13 @@ reveals a cleaner order or a new blocker.
    fractions are normalized from source data, all-overridden shares are
    normalized with a warning when needed, and overridden list model dates are
    set to the projection current date. Fixed modes are explicitly deferred.
-5. Add local percentage override schema and generator hooks, then recompute
-   local deltas from normalized local elector fractions. Build the large UI
-   only after the data contract and parameter builder are stable.
+5. Build the UI for local percentage overrides only after the data contract has
+   been exercised on production data. Done for this slice: scenario JSON
+   carries municipality/list local valid-vote share overrides, validation guards
+   malformed or impossible partial local totals, projection converts local
+   overrides to elector fractions, keeps local abstention fixed from the base
+   municipality model, normalizes all-overridden local totals with a warning,
+   and recomputes municipal `DELTA`/`DATA` rows before vote generation.
 6. Preserve architecture hooks for future fixed behavior without exposing it:
    a globally fixed mode should bypass random vote generation and produce a
    single deterministic vote distribution/scrutiny output; an optional
@@ -149,6 +153,8 @@ reveals a cleaner order or a new blocker.
   abstention as a percentage of electors. Projection now treats list shares as
   valid-vote percentages and converts them to elector fractions using the active
   abstention fraction.
+- Added scenario schema-v5 local share overrides and projection hooks for
+  municipality/list valid-vote share overrides.
 - Removed the provisional global `fixed` UI/projection behavior. The active
   scenario share mode is mean-only; older serialized `fixed` values normalize
   to `mean` until fixed semantics get their own design pass.
@@ -165,6 +171,11 @@ reveals a cleaner order or a new blocker.
   that are not 100% are normalized with a warning, and overridden list
   parameter `DATA` values are set to the worker/projection current date so
   temporal drift starts from today.
+- Added typed local share override hooks. `Scenario.localShareOverrides`
+  stores municipality/list valid-vote share overrides. Projection applies them
+  to matched municipal parameter rows by keeping local abstention fixed,
+  normalizing political list fractions, and recomputing local `DELTA` plus
+  `DATA` before the existing vote generator runs. The rich UI remains deferred.
 - Reworked results so primary user-facing summaries appear before diagnostics,
   with generated pipeline details collapsed by default.
 - Added the production politics vertical-slice guard.
@@ -208,10 +219,10 @@ reveals a cleaner order or a new blocker.
   chosen. A future optional per-percentage fixed mode may remove uncertainty
   for selected global shares or local deltas, but only after its interaction
   with local variation is explicitly designed.
-- Location-specific percentages, rich
-  correspondence matrices, and candidate editors are advanced features. Keep
-  schema/generator hooks ready, but build the large UI only when the underlying
-  data contract is stable.
+- Location-specific percentage schema/generator hooks now exist, but the rich
+  local editor is still deferred. Rich correspondence matrices and candidate
+  editors are also advanced features. Keep hooks ready, but build large UI only
+  when the underlying data contract is stable.
 - Scrutiny algorithms must remain modular and swappable. Keep the registry hook
   even while there is only one registered politics algorithm.
 - Results UI should prioritize election outputs and keep diagnostic pipeline
@@ -223,9 +234,9 @@ reveals a cleaner order or a new blocker.
 
 Latest full web verification on 2026-06-04:
 
-- `cd web; npx vitest run src/lib/politics/scenario-projection.test.ts`: passed, 10 tests.
+- `cd web; npx vitest run src/lib/scenario/politics.test.ts src/lib/politics/scenario-projection.test.ts src/lib/politics/parameter-preparation.test.ts`: passed, 28 tests.
 - `cd web; npm run check`: passed with 0 warnings.
-- `cd web; npm run test`: passed, 141 tests.
+- `cd web; npm run test`: passed, 145 tests.
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test, including the
   advanced abstention and manual correspondence controls.
@@ -281,8 +292,9 @@ after major scenario/schema/snapshot/generation/scrutiny changes.
   retargets bundled historical correspondences accordingly. Real historical
   split/merge editing remains an advanced UI/schema task.
 - `abstentionOverride` currently makes the global `astensione` parameter fixed
-  by setting its `SIGMA_GLOBAL` to zero. Local variation is still inherited from
-  municipal deltas until location-specific override semantics are implemented.
+  by setting its `SIGMA_GLOBAL` to zero. Local share overrides keep each
+  municipality's base abstention fraction fixed; there is not yet a separate
+  local abstention override schema or UI.
 - Fixed percentage modes are deliberately not active. The scenario schema keeps
   the `globalShareMode` slot as `mean` for future extensibility, and legacy
   serialized `fixed` values normalize back to `mean`.

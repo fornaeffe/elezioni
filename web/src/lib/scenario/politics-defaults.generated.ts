@@ -969,5 +969,6 @@ export const generatedDefaultPoliticsScenario = {
       "factor": 1,
       "source": "bundled"
     }
-  ]
+  ],
+  "localShareOverrides": []
 } satisfies Scenario;

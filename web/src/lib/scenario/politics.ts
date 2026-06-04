@@ -7,12 +7,14 @@ import type {
   ScenarioGlobalShareMode,
   ScenarioList,
   ScenarioListCorrespondence,
-  ScenarioListCorrespondenceSource
+  ScenarioListCorrespondenceSource,
+  ScenarioLocalShareOverride,
+  ScenarioLocalShareOverrideScope
 } from '$lib/core/types';
 import { generatedDefaultPoliticsScenario } from './politics-defaults.generated';
 
 export const politicsScenarioStorageKey = 'elezioni:web:politics-scenario:v1';
-export const politicsScenarioSchemaVersion = 4;
+export const politicsScenarioSchemaVersion = 5;
 
 export const defaultPoliticsScenario: Scenario = generatedDefaultPoliticsScenario;
 export const defaultPoliticsSourceModelListNames = defaultPoliticsScenario.lists.map((list) => list.name);
@@ -79,6 +81,10 @@ function cleanCorrespondenceSource(value: unknown): ScenarioListCorrespondenceSo
   return value === 'homonymous' || value === 'manual' ? value : 'bundled';
 }
 
+function cleanLocalShareOverrideScope(value: unknown): ScenarioLocalShareOverrideScope {
+  return 'municipality';
+}
+
 function normalizeDefaultSource(value: unknown): ScenarioDefaultSource {
   const source =
     value !== null && typeof value === 'object' ? (value as Partial<ScenarioDefaultSource>) : defaultPoliticsScenario.defaultSource;
@@ -103,7 +109,8 @@ export function cloneScenario(scenario: Scenario): Scenario {
     abstentionOverride: scenario.abstentionOverride,
     coalitions: scenario.coalitions.map((coalition) => ({ ...coalition })),
     lists: scenario.lists.map((list) => ({ ...list })),
-    listCorrespondences: scenario.listCorrespondences.map((correspondence) => ({ ...correspondence }))
+    listCorrespondences: scenario.listCorrespondences.map((correspondence) => ({ ...correspondence })),
+    localShareOverrides: scenario.localShareOverrides.map((override) => ({ ...override }))
   };
 }
 
@@ -162,6 +169,7 @@ export function normalizeScenario(value: unknown): Scenario {
   const coalitions = Array.isArray(input.coalitions) ? input.coalitions : [];
   const lists = Array.isArray(input.lists) ? input.lists : [];
   const listCorrespondences = Array.isArray(input.listCorrespondences) ? input.listCorrespondences : [];
+  const localShareOverrides = Array.isArray(input.localShareOverrides) ? input.localShareOverrides : [];
 
   return {
     id: cleanString(input.id) || defaultPoliticsScenario.id,
@@ -208,6 +216,18 @@ export function normalizeScenario(value: unknown): Scenario {
         factor: cleanPositiveFactor(source.factor),
         source: cleanCorrespondenceSource(source.source)
       };
+    }),
+    localShareOverrides: localShareOverrides.map((override, index) => {
+      const source = override as Partial<ScenarioLocalShareOverride>;
+      const locationCode = cleanString(source.locationCode);
+      const list = cleanString(source.list);
+      return {
+        id: cleanString(source.id) || stableId('local-share', `${locationCode}-${list}`, index + 1),
+        scope: cleanLocalShareOverrideScope(source.scope),
+        locationCode,
+        list,
+        startingShare: cleanShare(source.startingShare)
+      };
     })
   };
 }
@@ -222,6 +242,8 @@ export function validateScenario(scenario: Scenario): string[] {
   const overrideLists = scenario.lists.filter((list) => list.shareOverride);
   const totalOverrideShare = overrideLists.reduce((sum, list) => sum + Math.max(Number(list.startingShare) || 0, 0), 0);
   const correspondenceKeys = new Set<string>();
+  const localOverrideKeys = new Set<string>();
+  const localOverridesByLocation = new Map<string, ScenarioLocalShareOverride[]>();
 
   if (!scenario.name.trim()) messages.push('Lo scenario deve avere un nome.');
   if (Number.isNaN(Date.parse(scenario.electionDate))) messages.push('La data elezione non e valida.');
@@ -279,6 +301,37 @@ export function validateScenario(scenario: Scenario): string[] {
       messages.push(`Corrispondenza duplicata per ${pastList || 'lista precedente'} -> ${correspondence.futureList || 'lista'}.`);
     }
     correspondenceKeys.add(key);
+  }
+
+  for (const override of scenario.localShareOverrides) {
+    const locationCode = override.locationCode.trim();
+    const list = override.list.trim();
+    const listKeyValue = list.toLocaleLowerCase('it-IT');
+    const key = [override.scope, locationCode, listKeyValue].join('|');
+    const share = Number(override.startingShare);
+    const grouped = localOverridesByLocation.get(locationCode) ?? [];
+
+    grouped.push(override);
+    localOverridesByLocation.set(locationCode, grouped);
+
+    if (override.scope !== 'municipality') messages.push('Le quote locali supportano solo il livello comunale.');
+    if (!locationCode) messages.push('Ogni quota locale deve indicare un comune.');
+    if (!listNameSet.has(listKeyValue)) messages.push(`Quota locale verso lista sconosciuta: ${list || 'lista senza nome'}.`);
+    if (!Number.isFinite(share) || share < 0 || share > 100) {
+      messages.push(`Quota locale non valida per ${list || 'lista senza nome'}.`);
+    }
+    if (localOverrideKeys.has(key)) {
+      messages.push(`Quota locale duplicata per ${locationCode || 'comune'} / ${list || 'lista'}.`);
+    }
+    localOverrideKeys.add(key);
+  }
+
+  for (const [locationCode, overrides] of localOverridesByLocation) {
+    const total = overrides.reduce((sum, override) => sum + Math.max(Number(override.startingShare) || 0, 0), 0);
+    if (total <= 0) messages.push(`La somma delle quote locali usate per ${locationCode || 'comune'} deve essere maggiore di zero.`);
+    if (total > 100.01 && overrides.length < scenario.lists.length) {
+      messages.push(`La somma delle quote locali usate per ${locationCode || 'comune'} non puo superare 100.`);
+    }
   }
 
   return messages;
