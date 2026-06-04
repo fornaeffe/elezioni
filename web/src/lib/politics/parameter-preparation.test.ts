@@ -39,6 +39,8 @@ function scenario(): Scenario {
       dataVersion: 'test'
     },
     globalShareMode: 'mean',
+    abstentionShare: 0,
+    abstentionOverride: false,
     coalitions: [
       { id: 'coalition-a', name: 'Coalition A', color: '#111111' },
       { id: 'coalition-b', name: 'Coalition B', color: '#222222' }

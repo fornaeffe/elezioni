@@ -12,7 +12,7 @@ import type {
 import { generatedDefaultPoliticsScenario } from './politics-defaults.generated';
 
 export const politicsScenarioStorageKey = 'elezioni:web:politics-scenario:v1';
-export const politicsScenarioSchemaVersion = 3;
+export const politicsScenarioSchemaVersion = 4;
 
 export const defaultPoliticsScenario: Scenario = generatedDefaultPoliticsScenario;
 export const defaultPoliticsSourceModelListNames = defaultPoliticsScenario.lists.map((list) => list.name);
@@ -99,6 +99,8 @@ export function cloneScenario(scenario: Scenario): Scenario {
     electionDate: scenario.electionDate,
     defaultSource: { ...scenario.defaultSource },
     globalShareMode: scenario.globalShareMode,
+    abstentionShare: scenario.abstentionShare,
+    abstentionOverride: scenario.abstentionOverride,
     coalitions: scenario.coalitions.map((coalition) => ({ ...coalition })),
     lists: scenario.lists.map((list) => ({ ...list })),
     listCorrespondences: scenario.listCorrespondences.map((correspondence) => ({ ...correspondence }))
@@ -167,6 +169,8 @@ export function normalizeScenario(value: unknown): Scenario {
     electionDate: cleanString(input.electionDate) || defaultPoliticsScenario.electionDate,
     defaultSource: normalizeDefaultSource(input.defaultSource),
     globalShareMode: cleanGlobalShareMode(input.globalShareMode),
+    abstentionShare: cleanShare(input.abstentionShare ?? defaultPoliticsScenario.abstentionShare),
+    abstentionOverride: input.abstentionOverride === true,
     coalitions: coalitions.map((coalition, index) => {
       const source = coalition as Partial<ScenarioCoalition>;
       const name = cleanString(source.name);
@@ -229,6 +233,9 @@ export function validateScenario(scenario: Scenario): string[] {
   if (scenario.lists.length === 0) messages.push('Serve almeno una lista.');
   if (listNames.length !== scenario.lists.length) messages.push('Ogni lista deve avere un nome.');
   if (listNameSet.size !== listNames.length) messages.push('I nomi delle liste devono essere unici.');
+  if (!Number.isFinite(scenario.abstentionShare) || scenario.abstentionShare < 0 || scenario.abstentionShare >= 100) {
+    messages.push('Astensione non valida.');
+  }
   if (overrideLists.length > 0 && totalOverrideShare <= 0) {
     messages.push('La somma delle quote usate deve essere maggiore di zero.');
   }

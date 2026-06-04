@@ -32,7 +32,7 @@ pass, pause and present Python fallback options before continuing.
 | Politics generation pipeline | Current browser path working | Candidate generation, vote generation, vote preparation, direct-scrutiny adaptation, worker chunking. |
 | Production static politics snapshot | Bridge done, richer raw data added | `scripts/export_politics_static_snapshot.R` writes schema v2 `web/static/data/v1/politics-static.json`, including raw historical municipal list votes for the future TypeScript parameter builder. |
 | Politics scenario defaults | Bridge done | `scripts/export_politics_scenario_defaults.mjs` writes `web/src/lib/scenario/politics-defaults.generated.ts`. |
-| Scenario editor | Core workflow plus compact advanced controls working | List/coalition/share editor, global mean/fixed mode, one-to-one manual correspondence editor, JSON save/load, localStorage, reset, validation. Rich correspondence semantics remain. |
+| Scenario editor | Core workflow plus compact advanced controls working | List/coalition/share editor, global mean/fixed mode, separate abstention input, one-to-one manual correspondence editor, JSON save/load, localStorage, reset, validation. Rich historical correspondence UI remains. |
 | Rich correspondence parameter builder | Done and wired | `web/src/lib/politics/parameter-preparation.ts` rebuilds politics `liste`, `liste_elezioni`, and `comuni_liste` from raw historical votes and correspondences. `scenario-projection.ts` uses it when schema-v2 snapshot raw votes are present. |
 | R correspondence audit | Done | Current R output is coherent for the politics workbook because all historical list keys are mapped, but `calcola_parametri_input.R` drops unmatched rows instead of automatically sending them to `astensione`. |
 | Generated data storage | Done | Large generated JSON snapshots/fixtures are ignored and untracked; regenerate locally from scripts. Small generated TypeScript remains tracked. |
@@ -59,11 +59,13 @@ reveals a cleaner order or a new blocker.
    now consume real historical correspondences, but the visible advanced editor
    still exposes only compact source-model reuse. Add richer editing only with
    clear candidate-template behavior for new/split future lists.
-4. Refine share override semantics: show list shares as valid-vote
-   percentages, keep abstention as a separate advanced elector-share input,
-   convert to internal elector fractions at the projection boundary, normalize
-   non-overridden list fractions, set overridden mean-mode dates to today, and
-   warn when all overridden list shares require normalization.
+4. Continue refining share override semantics. Done: list shares are valid-vote
+   percentages, abstention is a separate advanced elector-share input, and
+   projection converts to internal elector fractions while normalizing
+   non-overridden list fractions. Remaining: set overridden mean-mode dates to
+   today, decide whether fixed mode should apply only to overridden lists or all
+   active political lists, and improve warnings when all overridden list shares
+   require normalization.
 5. Add local percentage override schema and generator hooks, then recompute
    local deltas from normalized local elector fractions. Build the large UI
    only after the data contract and parameter builder are stable.
@@ -141,6 +143,10 @@ reveals a cleaner order or a new blocker.
 - Exposed global `mean`/`fixed` share mode in the scenario advanced UI. The
   projection boundary already applies `fixed` by setting active political list
   `SIGMA_GLOBAL` values to zero.
+- Added scenario schema-v4 abstention fields and an advanced UI input for
+  abstention as a percentage of electors. Projection now treats list shares as
+  valid-vote percentages and converts them to elector fractions using the active
+  abstention fraction.
 - Added a compact one-to-one manual correspondence editor in the scenario
   advanced UI. It maps one future scenario list to one current source-model list
   and exercises the already-implemented `declared-correspondence` projection
@@ -259,6 +265,12 @@ after major scenario/schema/snapshot/generation/scrutiny changes.
   `politics-static source model`; projection treats that as template reuse and
   retargets bundled historical correspondences accordingly. Real historical
   split/merge editing remains an advanced UI/schema task.
+- `abstentionOverride` currently makes the global `astensione` parameter fixed
+  by setting its `SIGMA_GLOBAL` to zero. Local variation is still inherited from
+  municipal deltas until location-specific override semantics are implemented.
+- User-overridden mean-mode list shares are converted to elector fractions, but
+  their `DATA` is not yet changed to today. That remaining rule is still in the
+  active plan.
 - `calcola_parametri_input.R` currently relies on exhaustive correspondence
   rows. Its data.table join uses `nomatch = NULL`, so unmatched original-list
   votes would be dropped from the calculated denominator instead of becoming
@@ -1344,5 +1356,34 @@ Verification with local generated artifacts present:
 - `cd web; npx vitest run src/lib/politics/parameter-preparation.test.ts src/lib/politics/scenario-projection.test.ts src/lib/politics/vertical-slice.test.ts`: passed, 13 tests.
 - `cd web; npm run check`: passed with 0 warnings.
 - `cd web; npm run test`: passed, 138 tests.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+- `cd web; npm run build`: passed.
+
+## 2026-06-04 Checkpoint 37
+
+Completed in the valid-vote share and abstention slice:
+
+- Extended the shared `Scenario` contract with schema-v4
+  `abstentionShare` and `abstentionOverride` fields.
+- Updated `scripts/export_politics_scenario_defaults.mjs` so generated default
+  politics scenarios carry the bundled abstention percentage over electors.
+- Regenerated `web/src/lib/scenario/politics-defaults.generated.ts`.
+- Updated scenario normalization and validation so old JSON stays compatible
+  and invalid abstention percentages are rejected.
+- Added an advanced scenario UI control for abstention as a percentage of
+  electors, with its own `Usa` checkbox. Editing the value automatically marks
+  it as used.
+- Updated projection so list shares remain valid-vote percentages in the UI but
+  are converted to internal elector fractions using the active abstention
+  fraction. Overridden abstention fixes the global `astensione` parameter by
+  setting `SIGMA_GLOBAL = 0`.
+- Added tests for schema-v4 round-tripping, abstention validation, projection
+  conversion, and the Playwright smoke path.
+
+Verification with local generated artifacts present:
+
+- `cd web; npx vitest run src/lib/scenario/politics.test.ts src/lib/politics/scenario-projection.test.ts src/lib/politics/vertical-slice.test.ts`: passed, 22 tests.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 140 tests.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.
 - `cd web; npm run build`: passed.

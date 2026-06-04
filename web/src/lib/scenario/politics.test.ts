@@ -20,6 +20,8 @@ describe('politics web-native scenario model', () => {
       snapshotId: 'politics-static.json'
     });
     expect(scenario.globalShareMode).toBe('mean');
+    expect(scenario.abstentionShare).toBeGreaterThan(0);
+    expect(scenario.abstentionOverride).toBe(false);
     expect(scenario.listCorrespondences.length).toBeGreaterThan(0);
     expect(scenario.listCorrespondences.every((correspondence) => correspondence.source === 'bundled')).toBe(true);
     expect(scenario.listCorrespondences).toEqual(
@@ -75,6 +77,8 @@ describe('politics web-native scenario model', () => {
     expect(scenario.id).toBe('politiche-2027');
     expect(scenario.defaultSource.kind).toBe('bundled');
     expect(scenario.globalShareMode).toBe('mean');
+    expect(scenario.abstentionShare).toBe(createDefaultPoliticsScenario().abstentionShare);
+    expect(scenario.abstentionOverride).toBe(false);
     expect(scenario.listCorrespondences).toEqual([]);
     expect(scenario.lists[0].id).toBe('list-lista-a');
     expect(scenario.lists[0].startingShare).toBe(40);
@@ -98,13 +102,15 @@ describe('politics web-native scenario model', () => {
     expect(scenario.lists[0].shareOverride).toBe(false);
     expect(scenario.defaultSource.kind).toBe('bundled');
     expect(scenario.globalShareMode).toBe('mean');
+    expect(scenario.abstentionShare).toBe(createDefaultPoliticsScenario().abstentionShare);
+    expect(scenario.abstentionOverride).toBe(false);
     expect(scenario.listCorrespondences).toEqual([]);
   });
 
-  test('round-trips v3 default metadata, share mode, and list correspondences', () => {
+  test('round-trips v4 default metadata, share mode, abstention, and list correspondences', () => {
     const scenario = parseScenario(
       JSON.stringify({
-        schema_version: 3,
+        schema_version: 4,
         scenario: {
           name: 'Scenario con corrispondenze',
           electionDate: '2027-03-01',
@@ -115,6 +121,8 @@ describe('politics web-native scenario model', () => {
             dataVersion: 'v1'
           },
           globalShareMode: 'fixed',
+          abstentionShare: 47.5,
+          abstentionOverride: true,
           coalitions: [{ name: 'Coalizione A' }],
           lists: [{ name: 'Lista A', coalition: 'Coalizione A', startingShare: 40 }],
           listCorrespondences: [
@@ -141,6 +149,8 @@ describe('politics web-native scenario model', () => {
 
     expect(scenario.defaultSource.kind).toBe('last-election');
     expect(scenario.globalShareMode).toBe('fixed');
+    expect(scenario.abstentionShare).toBe(47.5);
+    expect(scenario.abstentionOverride).toBe(true);
     expect(scenario.listCorrespondences).toHaveLength(2);
     expect(scenario.listCorrespondences[0]).toEqual(
       expect.objectContaining({
@@ -166,6 +176,13 @@ describe('politics web-native scenario model', () => {
 
     scenario.lists[1].shareOverride = true;
     expect(validateScenario(scenario)).toEqual(expect.arrayContaining(['La somma delle quote usate non puo superare 100.']));
+  });
+
+  test('validates abstention share as an elector percentage', () => {
+    const scenario = createDefaultPoliticsScenario();
+    scenario.abstentionShare = 100;
+
+    expect(validateScenario(scenario)).toEqual(expect.arrayContaining(['Astensione non valida.']));
   });
 
   test('ignores bundled correspondences that no longer target active scenario lists', () => {

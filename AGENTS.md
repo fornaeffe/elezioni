@@ -315,12 +315,14 @@ simulation 4.
   setup, worker API types, seeded RNG, allocation primitives, unit tests, and a
   Playwright smoke test.
 - `web/src/lib/scenario/politics.ts` owns the current politics scenario JSON
-  contract. Schema v3 covers basic scenario metadata, coalitions, lists, colors,
-  global starting shares, `shareOverride`, default-source metadata,
+  contract. Schema v4 covers basic scenario metadata, coalitions, lists, colors,
+  valid-vote global starting shares, `shareOverride`, separate elector-share
+  `abstentionShare`/`abstentionOverride`, default-source metadata,
   `globalShareMode`, and typed `listCorrespondences`, plus validation and JSON
-  parse/serialize helpers. Old schema-v1/v2 JSON remains accepted; missing
+  parse/serialize helpers. Old schema-v1/v2/v3 JSON remains accepted; missing
   `shareOverride` defaults to `false`, missing `globalShareMode` defaults to
-  `mean`, and missing correspondences default to an empty array.
+  `mean`, missing abstention fields default to the bundled politics default,
+  and missing correspondences default to an empty array.
 - The generated default politics scenario carries bundled list correspondences
   from the production static snapshot. Treat these as default metadata and
   future advanced-editor input. Current projection warnings should stay focused
@@ -329,12 +331,12 @@ simulation 4.
   when a user removes or renames a list.
 - `web/src/routes/+page.svelte` uses one `scenarioDraft` object for the basic
   web-native editor: scenario metadata, coalition editing, list/share editing,
-  global mean/fixed share mode, compact one-to-one manual correspondence
-  editing, validation, reset, JSON import/export, and automatic localStorage
-  persistence. Build plain cloned scenario snapshots before posting to the
-  worker. Its results panel prioritizes primary summary tables and keeps
-  diagnostic tables such as `Generated pipeline runs` behind a details toggle by
-  default.
+  global mean/fixed share mode, separate advanced abstention percentage over
+  electors, compact one-to-one manual correspondence editing, validation, reset,
+  JSON import/export, and automatic localStorage persistence. Build plain cloned
+  scenario snapshots before posting to the worker. Its results panel prioritizes
+  primary summary tables and keeps diagnostic tables such as `Generated pipeline
+  runs` behind a details toggle by default.
 - `web/src/lib/politics/scenario-projection.ts` is the current boundary between
   the web-native politics scenario and the generated worker source. It matches
   scenario lists to the static snapshot first by exact list name and then by a
@@ -363,6 +365,12 @@ simulation 4.
   reuse instruction, not as a real historical correspondence. Bundled/real
   historical correspondences are retargeted through any active source-model
   rename before rebuilding list parameters.
+- `scenario-projection.ts` treats scenario list shares as valid-vote
+  percentages at the UI boundary and converts them to internal elector
+  fractions using the active abstention fraction. When
+  `abstentionOverride = true`, `abstentionShare` is interpreted as a percentage
+  of electors, the remaining elector fraction becomes the political valid-vote
+  total, and the internal `astensione` global sigma is set to zero.
 - New/split future lists still need candidate-template semantics before they
   can be fully simulated. The rich parameter builder can create their vote
   parameters, but projection still ignores scenario lists that do not have a

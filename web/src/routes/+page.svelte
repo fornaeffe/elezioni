@@ -386,6 +386,29 @@
               </div>
             </div>
 
+            <div class="setting-row">
+              <label>
+                Astensione elettori
+                <input
+                  type="number"
+                  min="0"
+                  max="99.9"
+                  step="0.1"
+                  bind:value={scenarioDraft.abstentionShare}
+                  oninput={() => (scenarioDraft.abstentionOverride = true)}
+                  aria-label="Astensione elettori"
+                />
+              </label>
+              <label class="override-toggle">
+                <input
+                  type="checkbox"
+                  bind:checked={scenarioDraft.abstentionOverride}
+                  aria-label="Usa astensione"
+                />
+                <span>Usa</span>
+              </label>
+            </div>
+
             <div class="correspondence-block">
               <div class="correspondence-heading">
                 <div>

@@ -45,6 +45,8 @@ export interface Scenario {
   electionDate: string;
   defaultSource: ScenarioDefaultSource;
   globalShareMode: ScenarioGlobalShareMode;
+  abstentionShare: number;
+  abstentionOverride: boolean;
   lists: ScenarioList[];
   coalitions: ScenarioCoalition[];
   listCorrespondences: ScenarioListCorrespondence[];

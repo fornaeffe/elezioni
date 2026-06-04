@@ -87,6 +87,7 @@ const snapshot = JSON.parse(readFileSync(inputPath, 'utf8'));
 const scenario = snapshot.default_scenario;
 const politicalLists = scenario.liste.filter((row) => row.LISTA !== 'astensione');
 const politicalTotal = politicalLists.reduce((sum, row) => sum + row.PERCENTUALE, 0);
+const abstentionShare = scenario.liste.find((row) => row.LISTA === 'astensione')?.PERCENTUALE ?? Math.max(1 - politicalTotal, 0);
 
 const coalitions = (scenario.coalizioni ?? [])
   .map((row, index) => ({
@@ -134,6 +135,8 @@ const defaultScenario = {
     snapshotId: 'politics-static.json'
   },
   globalShareMode: 'mean',
+  abstentionShare: Number((100 * abstentionShare).toFixed(2)),
+  abstentionOverride: false,
   coalitions,
   lists,
   listCorrespondences

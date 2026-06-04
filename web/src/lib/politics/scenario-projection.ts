@@ -50,6 +50,15 @@ function logit(probability: number): number {
   return Math.log(bounded / (1 - bounded));
 }
 
+function boundedFraction(value: number, fallback: number): number {
+  return Number.isFinite(value) ? Math.min(Math.max(value, 0), 0.999999999) : fallback;
+}
+
+function baseAbstentionFraction(rows: readonly PoliticsPipelineListRow[], politicalTotal: number): number {
+  const abstentionRow = rows.find((row) => listKey(row.LISTA) === 'astensione');
+  return boundedFraction(abstentionRow?.PERCENTUALE ?? 1 - politicalTotal, Math.max(1 - politicalTotal, 0));
+}
+
 function isSourceModelCorrespondence(correspondence: ScenarioListCorrespondence): boolean {
   return correspondence.pastElection === sourceModelCorrespondenceElection;
 }
@@ -378,8 +387,11 @@ export function projectScenarioOntoPoliticsSource(
   const basePoliticalTotal = baseListRows
     .filter((row) => row.LISTA !== 'astensione' && activeScenarioKeys.has(listKey(row.LISTA)))
     .reduce((sum, row) => sum + row.PERCENTUALE, 0);
+  const targetAbstention = scenario.abstentionOverride
+    ? boundedFraction(scenario.abstentionShare / 100, baseAbstentionFraction(baseListRows, basePoliticalTotal))
+    : baseAbstentionFraction(baseListRows, basePoliticalTotal);
   const projectionPoliticalTotal =
-    historicalParameterSource && basePoliticalTotal > 0 ? basePoliticalTotal : sourcePoliticalTotal;
+    scenario.abstentionOverride || historicalParameterSource ? Math.max(1 - targetAbstention, 0) : sourcePoliticalTotal;
   const projectedPercentages = projectPercentages(
     activeListsWithParameters,
     projectionPoliticalTotal,
@@ -408,7 +420,14 @@ export function projectScenarioOntoPoliticsSource(
   const activeByProjectedKey = new Map(activeLists.map((row) => [listKey(row.projectedListName), row]));
   const projectedLists = baseListRows
     .flatMap((row) => {
-      if (row.LISTA === 'astensione') return { ...row };
+      if (listKey(row.LISTA) === 'astensione') {
+        return {
+          ...row,
+          PERCENTUALE: targetAbstention,
+          LOGIT_P: logit(targetAbstention),
+          SIGMA_GLOBAL: scenario.abstentionOverride ? 0 : row.SIGMA_GLOBAL
+        };
+      }
 
       const active = activeBySourceKey.get(listKey(row.LISTA)) ?? activeByProjectedKey.get(listKey(row.LISTA));
       if (!active) return [];

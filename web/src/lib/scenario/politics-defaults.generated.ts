@@ -15,6 +15,8 @@ export const generatedDefaultPoliticsScenario = {
     "snapshotId": "politics-static.json"
   },
   "globalShareMode": "mean",
+  "abstentionShare": 55.18,
+  "abstentionOverride": false,
   "coalitions": [
     {
       "id": "sinistra",

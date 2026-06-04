@@ -72,6 +72,8 @@ function scenario(lists: Scenario['lists']): Scenario {
       dataVersion: 'test'
     },
     globalShareMode: 'mean',
+    abstentionShare: 40,
+    abstentionOverride: false,
     coalitions: [
       { id: 'a', name: 'Coalizione A', color: '#000000' },
       { id: 'b', name: 'Coalizione B', color: '#111111' },
@@ -145,6 +147,27 @@ describe('politics scenario projection', () => {
     expect(projection.source.liste.filter((row) => row.LISTA !== 'astensione').map((row) => Number(row.PERCENTUALE.toFixed(3)))).toEqual([
       0.3, 0.12, 0.18
     ]);
+    expect(projection.rows.find((row) => row.list === 'Lista A')?.projectedShare).toBe(50);
+  });
+
+  test('uses abstention override as the elector-fraction anchor for valid-vote list shares', () => {
+    const abstentionScenario = scenario([
+      { id: 'a', name: 'Lista A', coalition: 'Coalizione A', color: '#000000', startingShare: 50, shareOverride: true },
+      { id: 'b', name: 'Lista B', coalition: 'Coalizione B', color: '#111111', startingShare: 20, shareOverride: false },
+      { id: 'c', name: 'Lista C', coalition: 'Coalizione C', color: '#222222', startingShare: 30, shareOverride: false }
+    ]);
+    abstentionScenario.abstentionShare = 50;
+    abstentionScenario.abstentionOverride = true;
+
+    const projection = projectScenarioOntoPoliticsSource(source(), abstentionScenario, { simulations: 1 });
+
+    expect(projection.source.liste.map((row) => [row.LISTA, Number(row.PERCENTUALE.toFixed(3))])).toEqual([
+      ['Lista A', 0.25],
+      ['Lista B', 0.1],
+      ['Lista C', 0.15],
+      ['astensione', 0.5]
+    ]);
+    expect(projection.source.liste.find((row) => row.LISTA === 'astensione')?.SIGMA_GLOBAL).toBe(0);
     expect(projection.rows.find((row) => row.list === 'Lista A')?.projectedShare).toBe(50);
   });
 
