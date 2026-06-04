@@ -249,8 +249,11 @@
   }
 
   function resultTablePriority(name: string): number {
-    if (name === 'Average plurinominal seats by list') return 0;
-    if (name === 'Scenario projection') return 1;
+    if (name === 'Election overview') return 0;
+    if (name === 'Average plurinominal seats by list') return 1;
+    if (name === 'Vote share by list') return 2;
+    if (name === 'Uninominal winners by support') return 3;
+    if (name === 'Scenario projection') return 4;
     return 10;
   }
 </script>

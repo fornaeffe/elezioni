@@ -27,7 +27,7 @@ pass, pause and present Python fallback options before continuing.
 | Politics golden fixtures | Done for current politics slice | `scripts/export_politics_golden.R`, `test/fixtures/politiche/debug_scrutinio.json`. |
 | R and browser benchmarks | Done for current politics slice | `scripts/benchmark_r_workflows.R`, `web/tests/benchmarks/politics-worker.spec.ts`, benchmark JSON under `test/fixtures/benchmarks/`. |
 | SvelteKit app scaffold | Done | `web/` with strict TypeScript, static adapter, Vitest, Playwright. |
-| Shared TypeScript core | Usable, still growing | Worker API types, seeded RNG, allocation primitives, scenario types, warning/result contracts. |
+| Shared TypeScript core | Usable, still growing | Worker API types, seeded RNG, allocation primitives, scenario types, warning/result contracts, politics result presentation. |
 | Politics scrutiny | R-parity direct fixture passes | `web/src/lib/politics/scrutiny.ts`; registry id `politiche-r-parity-v1`. Split only when boundaries are clearer. |
 | Politics generation pipeline | Current browser path working | Candidate generation, vote generation, vote preparation, direct-scrutiny adaptation, worker chunking. |
 | Production static politics snapshot | Bridge done, richer raw data added | `scripts/export_politics_static_snapshot.R` writes schema v2 `web/static/data/v1/politics-static.json`, including raw historical municipal list votes for the future TypeScript parameter builder. |
@@ -84,9 +84,13 @@ reveals a cleaner order or a new blocker.
    slots, projection applies matching templates to the worker candidate source,
    and unmatched templates warn while generated candidates still fill every
    unspecified place.
-8. Improve politics result presentation with legally meaningful summaries,
-   charts, exports, and clearer warning/detail separation. Keep diagnostic
-   tables such as `Generated pipeline runs` collapsed by default.
+8. Continue improving politics result presentation. Done for this slice:
+   `web/src/lib/politics/result-presentation.ts` builds tested user-facing
+   summary tables for election overview, plurinominal seats by list, valid-vote
+   share distributions by list, and uninominal winners by support. Next result
+   work should add richer charts, exports, and better warning/detail grouping.
+   Keep diagnostic tables such as `Generated pipeline runs` collapsed by
+   default.
 9. Refactor politics scrutiny only when it lowers risk. The likely target is
    stage-focused modules behind the existing scrutiny algorithm registry, but
    do not split during active parity discovery just for size alone.
@@ -162,6 +166,10 @@ reveals a cleaner order or a new blocker.
   uninominal/plurinominal candidate slots. Matching templates pin
   `CANDIDATO_ID`/`DATA_NASCITA` before candidate generation; unspecified slots
   remain generated.
+- Added `web/src/lib/politics/result-presentation.ts`, a tested politics
+  presentation boundary that turns scrutiny runs into primary result tables:
+  election overview, plurinominal seats by list, valid-vote share distribution
+  by list, and uninominal winners by supporting coalition/list.
 - Removed the provisional global `fixed` UI/projection behavior. The active
   scenario share mode is mean-only; older serialized `fixed` values normalize
   to `mean` until fixed semantics get their own design pass.
@@ -184,7 +192,9 @@ reveals a cleaner order or a new blocker.
   normalizing political list fractions, and recomputing local `DELTA` plus
   `DATA` before the existing vote generator runs. The rich UI remains deferred.
 - Reworked results so primary user-facing summaries appear before diagnostics,
-  with generated pipeline details collapsed by default.
+  with generated pipeline details collapsed by default. The worker now delegates
+  politics result summarization to `result-presentation.ts` instead of keeping
+  presentation math in the orchestration layer.
 - Added the production politics vertical-slice guard.
 - Passed the current browser performance gate for 10, 100, and 1000 politics
   simulations.
@@ -242,8 +252,9 @@ reveals a cleaner order or a new blocker.
 Latest full web verification on 2026-06-04:
 
 - `cd web; npx vitest run src/lib/scenario/politics.test.ts src/lib/politics/scenario-projection.test.ts src/lib/politics/parameter-preparation.test.ts`: passed, 31 tests.
+- `cd web; npx vitest run src/lib/politics/result-presentation.test.ts`: passed, 2 tests.
 - `cd web; npm run check`: passed with 0 warnings.
-- `cd web; npm run test`: passed, 148 tests.
+- `cd web; npm run test`: passed, 150 tests.
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test, including the
   advanced abstention and manual correspondence controls.

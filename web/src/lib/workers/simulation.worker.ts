@@ -10,24 +10,20 @@ import {
   projectScenarioOntoPoliticsSource,
   type PoliticsScenarioProjectionRow
 } from '$lib/politics/scenario-projection';
+import {
+  buildPoliticsResultTables,
+  summarizePoliticsGeneratedRuns,
+  summarizePoliticsScrutinyRun,
+  type PoliticsRunPresentationSummary
+} from '$lib/politics/result-presentation';
 import { resolvePoliticsScrutinyAlgorithm } from '$lib/politics/scrutiny-algorithms';
 import { buildPoliticsPipelineSourceFromSnapshot } from '$lib/politics/static-snapshot';
-import type { PoliticsScrutinyOutput, PoliticsStaticSnapshot, Ramo } from '$lib/politics/types';
+import type { PoliticsStaticSnapshot, Ramo } from '$lib/politics/types';
 
 const politicsGeneratedSimulationLimit = 1000;
 const politicsGeneratedChunkSize = 50;
 const politicsStaticSnapshotPath = '/data/v1/politics-static.json';
 const politicsDebugStaticSnapshotPath = '/data/v1/politics-static-debug.json';
-
-interface GeneratedRunSummary {
-  ramo: Ramo;
-  sim: number;
-  elapsedMs: number;
-  pluriSeats: number;
-  electedUni: number;
-  electedPluri: number;
-  seatsByList: Map<string, number>;
-}
 
 interface LoadedPoliticsStaticSnapshot {
   snapshot: PoliticsStaticSnapshot;
@@ -99,75 +95,6 @@ async function loadPoliticsStaticSnapshot(): Promise<LoadedPoliticsStaticSnapsho
   throw new Error(`Unable to load politics static snapshot from ${politicsStaticSnapshotPath} or ${politicsDebugStaticSnapshotPath}`);
 }
 
-function summarizeGeneratedRuns(runs: GeneratedRunSummary[]): ResultTable {
-  return {
-    name: 'Generated pipeline runs',
-    columns: ['Ramo', 'Sim', 'Seggi pluri', 'Eletti uni', 'Candidati pluri eletti', 'Tempo ms'],
-    rows: runs.map((run) => ({
-      Ramo: run.ramo,
-      Sim: run.sim,
-      'Seggi pluri': run.pluriSeats,
-      'Eletti uni': run.electedUni,
-      'Candidati pluri eletti': run.electedPluri,
-      'Tempo ms': Number(run.elapsedMs.toFixed(1))
-    }))
-  };
-}
-
-function summarizeListSeats(runs: GeneratedRunSummary[], simulationCount: number): ResultTable {
-  const byRamoList = new Map<string, { ramo: Ramo; lista: string; total: number; values: number[] }>();
-
-  for (const run of runs) {
-    for (const [lista, seats] of run.seatsByList) {
-      const key = `${run.ramo}\u001f${lista}`;
-      const existing = byRamoList.get(key) ?? { ramo: run.ramo, lista, total: 0, values: [] };
-      existing.total += seats;
-      existing.values.push(seats);
-      byRamoList.set(key, existing);
-    }
-  }
-
-  return {
-    name: 'Average plurinominal seats by list',
-    columns: ['Ramo', 'Lista', 'Media', 'Min', 'Max'],
-    rows: [...byRamoList.values()]
-      .sort((left, right) => {
-        if (left.ramo !== right.ramo) return left.ramo.localeCompare(right.ramo);
-        return left.lista.localeCompare(right.lista);
-      })
-      .map((row) => ({
-        Ramo: row.ramo,
-        Lista: row.lista,
-        Media: Number((row.total / simulationCount).toFixed(2)),
-        Min: Math.min(...row.values),
-        Max: Math.max(...row.values)
-      }))
-  };
-}
-
-function summarizeScrutinyOutput(
-  ramo: Ramo,
-  sim: number,
-  elapsedMs: number,
-  output: PoliticsScrutinyOutput
-): GeneratedRunSummary {
-  const seatsByList = new Map<string, number>();
-
-  for (const row of output.liste_pluri) {
-    seatsByList.set(row.LISTA, (seatsByList.get(row.LISTA) ?? 0) + row.ELETTI);
-  }
-
-  return {
-    ramo,
-    sim,
-    elapsedMs,
-    pluriSeats: output.liste_pluri.reduce((sum, row) => sum + row.ELETTI, 0),
-    electedUni: output.candidati_uni.filter((row) => row.ELETTO).length,
-    electedPluri: output.candidati_pluri.filter((row) => row.ELETTO).length,
-    seatsByList
-  };
-}
-
 async function handleRequest(request: SimulationRequest): Promise<void> {
   const startedAt = performance.now();
   const startedIso = new Date().toISOString();
@@ -230,7 +157,7 @@ async function handleRequest(request: SimulationRequest): Promise<void> {
   });
   const scenarioSource = projection.source;
 
-  const runs: GeneratedRunSummary[] = [];
+  const runs: PoliticsRunPresentationSummary[] = [];
   let generatedSimulations = 0;
   let scrutinizedRuns = 0;
   const totalScrutinyRuns = simulationCount * 2;
@@ -262,7 +189,16 @@ async function handleRequest(request: SimulationRequest): Promise<void> {
           totale_seggi: ramoSnapshot.totale_seggi
         });
         const globalSimulation = chunkStart + simulation.sim - 1;
-        runs.push(summarizeScrutinyOutput(ramo, globalSimulation, performance.now() - runStartedAt, output));
+        runs.push(
+          summarizePoliticsScrutinyRun({
+            ramo,
+            sim: globalSimulation,
+            elapsedMs: performance.now() - runStartedAt,
+            input: simulation.input,
+            output,
+            listeNaz: ramoSnapshot.liste_naz
+          })
+        );
 
         scrutinizedRuns += 1;
         if (scrutinizedRuns % 10 === 0 || scrutinizedRuns === totalScrutinyRuns) {
@@ -276,9 +212,9 @@ async function handleRequest(request: SimulationRequest): Promise<void> {
     type: 'result',
     status: 'completed',
     tables: [
+      ...buildPoliticsResultTables(runs),
       scenarioProjectionTable(projection.rows),
-      summarizeGeneratedRuns(runs),
-      summarizeListSeats(runs, simulationCount)
+      summarizePoliticsGeneratedRuns(runs)
     ],
     warnings: [
       ...(algorithmResolution.fallback

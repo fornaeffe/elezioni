@@ -147,6 +147,10 @@ simulation 4.
 - Results UI should prioritize user-facing election outputs. Diagnostic tables
   such as `Generated pipeline runs` should be hidden or collapsed by default and
   reachable through an expandable/debug affordance.
+- Politics result presentation belongs in `web/src/lib/politics/result-presentation.ts`,
+  not in the worker orchestration layer. Keep summary tables focused on
+  user-facing outcomes first: election overview, seat distributions,
+  valid-vote share distributions, and uninominal winners by support.
 - Scenario editor basics belong in this migration: list/coalition editing,
   global list percentage overrides, typed JSON save/load, automatic local
   storage persistence, reset to defaults, and validation before worker runs.
@@ -360,6 +364,12 @@ simulation 4.
   before posting to the worker. Its results panel prioritizes primary summary
   tables and keeps diagnostic tables such as `Generated pipeline runs` behind a
   details toggle by default.
+- `web/src/lib/politics/result-presentation.ts` turns politics scrutiny runs
+  into result tables for the UI. It summarizes election overview, average
+  plurinominal seats by list with zero-seat runs included, valid-vote share
+  distributions by list, and uninominal winners grouped by supporting
+  coalition/list. Keep future charts/exports downstream of this boundary where
+  possible.
 - `web/src/lib/politics/scenario-projection.ts` is the current boundary between
   the web-native politics scenario and the generated worker source. It matches
   scenario lists to the static snapshot first by exact list name and then by a
