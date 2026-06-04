@@ -19,7 +19,28 @@ describe('politics web-native scenario model', () => {
       snapshotId: 'politics-static.json'
     });
     expect(scenario.globalShareMode).toBe('mean');
-    expect(scenario.listCorrespondences).toEqual([]);
+    expect(scenario.listCorrespondences.length).toBeGreaterThan(0);
+    expect(scenario.listCorrespondences.every((correspondence) => correspondence.source === 'bundled')).toBe(true);
+    expect(scenario.listCorrespondences).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          futureList: 'Partito Democratico',
+          pastElection: 'europee 2024',
+          pastDate: '2024-06-08',
+          pastList: 'PARTITO DEMOCRATICO',
+          factor: 1,
+          source: 'bundled'
+        }),
+        expect.objectContaining({
+          futureList: 'astensione',
+          pastElection: 'europee 2024',
+          pastDate: '2024-06-08',
+          pastList: 'astensione',
+          factor: 1,
+          source: 'bundled'
+        })
+      ])
+    );
     expect(scenario.lists.every((list) => !list.shareOverride)).toBe(true);
     expect(validateScenario(scenario)).toEqual([]);
   });

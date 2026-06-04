@@ -37,7 +37,7 @@ R baseline on the same machine, pause and present Python fallback options.
 | Production static snapshot bridge | Done | `scripts/export_politics_static_snapshot.R` exports `web/static/data/v1/politics-static.json` from the current R cache and politics scenario workbook. |
 | Performance gate | Passed for current politics worker path | Chromium generated-worker benchmark on the R-exported production static snapshot is below fresh full R politics baselines for 10, 100, and 1000 simulations; repeat after future data-preparation migration or major snapshot changes. |
 | Politics browser vertical slice | Stabilized for current slice | Production snapshot, default scenario, projection, generated pipeline, and registered scrutiny algorithm are guarded by an integration test. Keep this guard green while scenario semantics evolve. |
-| Scenario editor and JSON contract | Started | Scenario schema v3 covers basic UI fields, default-source metadata, list correspondences, global fixed/mean share mode, JSON compatibility, validation, homonymous matching, and one-to-one declared correspondence projection. Advanced UI remains planned. |
+| Scenario editor and JSON contract | Started | Scenario schema v3 covers basic UI fields, default-source metadata, bundled generated list correspondences, global fixed/mean share mode, JSON compatibility, validation, homonymous matching, and one-to-one declared correspondence projection. Advanced UI remains planned. |
 
 ## Planned Future Steps
 
@@ -50,14 +50,15 @@ this list before continuing.
    worker path, scenario projection, result-priority UI, static snapshot bridge,
    and registered scrutiny algorithm now have a production guardrail test; keep
    it passing while the remaining politics scenario semantics are added.
-2. Keep improving scenario defaults and projection using the v3 scenario
-   contract: add bundled correspondence defaults to scenario creation, then
-   support richer declared correspondence semantics where needed. Current
-   projection supports homonymous matches and one-to-one declared source-model
-   correspondences.
-3. Add advanced politics scenario controls incrementally: compact
-   correspondence editing first, then global fixed/mean settings, then
-   location-specific overrides only after the data contract is stable.
+2. Add advanced politics scenario controls incrementally: expose the global
+   fixed/mean setting behind the advanced section, then add a compact
+   correspondence view/editor for one-to-one mappings. Keep multi-source
+   correspondence aggregation deferred until its vote-variation and candidate
+   semantics are clear.
+3. Improve scenario projection only where the UI/data contract already makes
+   the semantics explicit. Current projection supports homonymous matches and
+   one-to-one declared source-model correspondences; richer declared
+   correspondence behavior should be added with tests before it reaches the UI.
 4. Add candidate template support to the scenario model and worker pipeline,
    allowing user-provided names for some slots while preserving generated
    candidates for unspecified places.
@@ -336,6 +337,11 @@ future data-preparation migration or major snapshot/schema changes.
   one-to-one declared correspondence from a current static source-model list to
   a future scenario list. Projection rows expose the source model list and match
   mode so ignored or renamed lists are visible to the user.
+- Added `scripts/export_politics_scenario_defaults.mjs`, which derives the
+  default web politics scenario from `web/static/data/v1/politics-static.json`
+  and writes `web/src/lib/scenario/politics-defaults.generated.ts`. The
+  generated default now carries bundled past-to-future list correspondences from
+  the production static snapshot.
 
 ## Latest Verification
 
@@ -371,6 +377,7 @@ Additional run on 2026-06-03:
 Additional run on 2026-06-04:
 
 - `cd web; npx vitest run src/lib/politics/vertical-slice.test.ts`: passed, 2 tests.
+- `cd web; npx vitest run src/lib/scenario/politics.test.ts src/lib/politics/vertical-slice.test.ts`: passed, 10 tests.
 - `cd web; npm run check`: passed with 0 warnings.
 - `cd web; npx vitest run src/lib/politics/scenario-projection.test.ts`: passed, 7 tests.
 - `cd web; npm run test`: passed, 132 tests.
@@ -385,6 +392,15 @@ Additional run on 2026-06-04:
   reusable data into the internal pipeline source, and runs scrutiny on
   generated Camera/Senato simulations. If that file is absent, it falls back to
   `politics-static-debug.json`.
+- The web-facing default politics scenario is generated from
+  `web/static/data/v1/politics-static.json` by
+  `scripts/export_politics_scenario_defaults.mjs`. Regenerate
+  `web/src/lib/scenario/politics-defaults.generated.ts` whenever the production
+  static snapshot or default-scenario shape changes.
+- Bundled list correspondences in the generated default are durable metadata
+  for scenario defaults and future advanced editing. The current projection
+  still warns only for unused manual correspondences, so bundled historical
+  correspondences do not spam the UI before richer semantics are implemented.
 - The exported politics fixture is about 68 MB because it contains direct
   scrutiny inputs, R trace tables, and expected outputs for 10 simulations.
 - The generated adapter fixture is about 8.1 MB and covers deterministic
@@ -1319,6 +1335,39 @@ Completed in the v3 scenario projection/defaults pass:
 Verification:
 
 - `cd web; npx vitest run src/lib/politics/scenario-projection.test.ts`: passed, 7 tests.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 132 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-04 Checkpoint 30
+
+Completed in the bundled scenario defaults pass:
+
+- Added `scripts/export_politics_scenario_defaults.mjs`.
+- Generated `web/src/lib/scenario/politics-defaults.generated.ts` from the
+  production `web/static/data/v1/politics-static.json` snapshot.
+- Rewired `web/src/lib/scenario/politics.ts` so the default politics scenario is
+  imported from the generated snapshot-derived module rather than maintained as
+  a hand-written object.
+- Preserved the editor's stable coalition order (`sinistra`, `centro`,
+  `destra`, `PaP`) while deriving names, shares, and bundled correspondences
+  from the static snapshot.
+- The generated default now carries the 95 bundled `corrispondenza_liste`
+  records from the R-exported production static scenario as typed schema-v3
+  `listCorrespondences`.
+- Updated scenario and vertical-slice tests so the generated default
+  correspondence metadata is part of the expected contract, while partial and
+  legacy saved JSON still normalize missing correspondences to an empty array.
+- Kept rich correspondence UI and multi-source correspondence aggregation
+  deferred. Bundled correspondences are metadata for defaults/future advanced
+  editing; the current projection continues to use homonymous and safe
+  one-to-one declared source-model matches.
+
+Verification:
+
+- `node scripts/export_politics_scenario_defaults.mjs`: passed.
+- `cd web; npx vitest run src/lib/scenario/politics.test.ts src/lib/politics/vertical-slice.test.ts`: passed, 10 tests.
 - `cd web; npm run check`: passed with 0 warnings.
 - `cd web; npm run test`: passed, 132 tests.
 - `cd web; npm run build`: passed.

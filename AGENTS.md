@@ -246,6 +246,11 @@ simulation 4.
   preferred worker input shape: reusable politics data is split from a
   `default_scenario`, then converted back into the internal
   `PoliticsPipelineSource` by `web/src/lib/politics/static-snapshot.ts`.
+- `scripts/export_politics_scenario_defaults.mjs` generates
+  `web/src/lib/scenario/politics-defaults.generated.ts` from
+  `web/static/data/v1/politics-static.json`. `web/src/lib/scenario/politics.ts`
+  imports this generated module as the default politics scenario. Regenerate it
+  whenever the production static snapshot or default-scenario shape changes.
 - `scripts/benchmark_r_workflows.R` reruns R baseline workflows.
 - `web/playwright.benchmark.config.ts` and
   `web/tests/benchmarks/politics-worker.spec.ts` benchmark the generated
@@ -261,6 +266,11 @@ simulation 4.
   parse/serialize helpers. Old schema-v1/v2 JSON remains accepted; missing
   `shareOverride` defaults to `false`, missing `globalShareMode` defaults to
   `mean`, and missing correspondences default to an empty array.
+- The generated default politics scenario carries bundled list correspondences
+  from the production static snapshot. Treat these as default metadata and
+  future advanced-editor input. Current projection warnings should stay focused
+  on user/manual correspondences; bundled historical correspondences should not
+  spam the UI just because they are not all usable by the current safe bridge.
 - `web/src/routes/+page.svelte` uses one `scenarioDraft` object for the basic
   web-native editor: scenario metadata, coalition editing, list/share editing,
   validation, reset, JSON import/export, and automatic localStorage persistence.

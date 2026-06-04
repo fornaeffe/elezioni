@@ -41,6 +41,8 @@ describe('politics browser vertical slice', () => {
     expect(validateScenario(scenario)).toEqual([]);
     expect(scenario.lists.map((row) => row.name)).toEqual(snapshotListNames);
     expect(new Set(scenario.coalitions.map((row) => row.name))).toEqual(snapshotCoalitionNames);
+    expect(scenario.listCorrespondences).toHaveLength(snapshot.default_scenario.corrispondenza_liste?.length ?? 0);
+    expect(scenario.listCorrespondences.every((row) => row.source === 'bundled')).toBe(true);
 
     for (const list of scenario.lists) {
       const snapshotList = snapshot.default_scenario.liste.find((row) => row.LISTA === list.name);

@@ -9,104 +9,12 @@ import type {
   ScenarioListCorrespondence,
   ScenarioListCorrespondenceSource
 } from '$lib/core/types';
+import { generatedDefaultPoliticsScenario } from './politics-defaults.generated';
 
 export const politicsScenarioStorageKey = 'elezioni:web:politics-scenario:v1';
 export const politicsScenarioSchemaVersion = 3;
 
-export const defaultPoliticsScenario: Scenario = {
-  id: 'politiche-2027',
-  name: 'Politiche 2027',
-  electionDate: '2027-03-01',
-  defaultSource: {
-    kind: 'bundled',
-    electionKind: 'politiche',
-    territory: 'Italia',
-    dataVersion: 'v1',
-    snapshotId: 'politics-static.json'
-  },
-  globalShareMode: 'mean',
-  coalitions: [
-    { id: 'sinistra', name: 'sinistra', color: '#d94848' },
-    { id: 'centro', name: 'centro', color: '#7a6bb2' },
-    { id: 'destra', name: 'destra', color: '#3267b1' },
-    { id: 'pap', name: 'PaP', color: '#7a3b2e' }
-  ],
-  lists: [
-    {
-      id: 'europa',
-      name: '+Europa',
-      coalition: 'sinistra',
-      color: '#e9897e',
-      startingShare: 1.94,
-      shareOverride: false
-    },
-    {
-      id: 'avs',
-      name: 'Alleanza Verdi Sinistra',
-      coalition: 'sinistra',
-      color: '#44a36f',
-      startingShare: 6.91,
-      shareOverride: false
-    },
-    {
-      id: 'azione-iv',
-      name: 'Azione - Italia Viva',
-      coalition: 'centro',
-      color: '#7a6bb2',
-      startingShare: 5.38,
-      shareOverride: false
-    },
-    {
-      id: 'fi',
-      name: 'Forza Italia',
-      coalition: 'destra',
-      color: '#5d8ed8',
-      startingShare: 9.9,
-      shareOverride: false
-    },
-    {
-      id: 'fdi',
-      name: "Fratelli d'Italia",
-      coalition: 'destra',
-      color: '#3267b1',
-      startingShare: 29.69,
-      shareOverride: false
-    },
-    {
-      id: 'lega',
-      name: 'Lega',
-      coalition: 'destra',
-      color: '#2f8a68',
-      startingShare: 9.27,
-      shareOverride: false
-    },
-    {
-      id: 'm5s',
-      name: 'Movimento 5 Stelle',
-      coalition: 'sinistra',
-      color: '#d8b400',
-      startingShare: 10.29,
-      shareOverride: false
-    },
-    {
-      id: 'pd',
-      name: 'Partito Democratico',
-      coalition: 'sinistra',
-      color: '#d94848',
-      startingShare: 24.81,
-      shareOverride: false
-    },
-    {
-      id: 'pap',
-      name: 'Potere al Popolo!',
-      coalition: 'PaP',
-      color: '#7a3b2e',
-      startingShare: 1.81,
-      shareOverride: false
-    }
-  ],
-  listCorrespondences: []
-};
+export const defaultPoliticsScenario: Scenario = generatedDefaultPoliticsScenario;
 
 interface SerializedScenario {
   schema_version: number;
