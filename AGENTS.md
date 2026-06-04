@@ -157,9 +157,9 @@ simulation 4.
 - Past-to-future list correspondences and location-specific percentage
   overrides have typed scenario schema support. The active global share mode is
   mean-only; older serialized `fixed` values should normalize to `mean`.
-  Candidate templates still need typed schema support and generator hooks.
-  Defer large/rich UI for advanced settings until production previous-election
-  data packaging and the basic scenario model are stable.
+  Candidate templates have typed schema and projection hooks. Defer large/rich
+  UI for advanced settings until production previous-election data packaging
+  and the basic scenario model are stable.
 - The scenario model should allow users to enter only some global percentages;
   unspecified future-list percentages should be recalculated from previous
   election results and list correspondences, preserving the current R model's
@@ -209,6 +209,12 @@ simulation 4.
   municipality model, normalizes all-overridden local totals with a warning,
   and sets affected municipal `DATA` values to the worker/projection current
   date before vote generation.
+- Scenario candidate templates can pin selected candidate slots without
+  replacing the generator. Uninominal templates target `camera`/`senato`,
+  coalition, and `UNI_COD`; plurinominal templates target `camera`/`senato`,
+  list, `PLURI_COD`, candidate number, and minority flag. Projection writes the
+  scenario `candidateName` into `CANDIDATO_ID` and optional `birthDate` into
+  `DATA_NASCITA`; unmatched templates warn and are otherwise ignored.
 - Keep scrutiny algorithms modular and swappable. The same normalized data and
   scenario should eventually be runnable through different scrutiny algorithm
   implementations behind a stable interface, for comparison or law-review
@@ -330,15 +336,16 @@ simulation 4.
   setup, worker API types, seeded RNG, allocation primitives, unit tests, and a
   Playwright smoke test.
 - `web/src/lib/scenario/politics.ts` owns the current politics scenario JSON
-  contract. Schema v5 covers basic scenario metadata, coalitions, lists, colors,
+  contract. Schema v6 covers basic scenario metadata, coalitions, lists, colors,
   valid-vote global starting shares, `shareOverride`, separate elector-share
   `abstentionShare`/`abstentionOverride`, default-source metadata,
   `globalShareMode`, typed `listCorrespondences`, and typed
-  `localShareOverrides`, plus validation and JSON parse/serialize helpers.
-  Old schema-v1/v2/v3/v4 JSON remains accepted; missing
+  `localShareOverrides`/`candidateTemplates`, plus validation and JSON
+  parse/serialize helpers. Old schema-v1/v2/v3/v4/v5 JSON remains accepted; missing
   `shareOverride` defaults to `false`, missing `globalShareMode` defaults to
   `mean`, missing abstention fields default to the bundled politics default,
-  and missing correspondences/local overrides default to empty arrays.
+  and missing correspondences/local overrides/candidate templates default to
+  empty arrays.
 - The generated default politics scenario carries bundled list correspondences
   from the production static snapshot. Treat these as default metadata and
   future advanced-editor input. Current projection warnings should stay focused
@@ -361,9 +368,10 @@ simulation 4.
   applies only explicit global share overrides, recalculates non-overridden
   matched lists proportionally from source data, projects matched list
   coalitions, propagates correspondence-based list renames through list
-  parameters and plurinominal candidate templates, and warns about unmatched
-  scenario lists, unused manual correspondences, or placeholder coalition
-  candidates.
+  parameters and plurinominal candidate templates, applies matching scenario
+  candidate templates to uninominal/plurinominal candidate source rows, and
+  warns about unmatched scenario lists, unused manual correspondences, unmatched
+  candidate templates, or placeholder coalition candidates.
 - `web/src/lib/politics/parameter-preparation.ts` ports the deterministic
   `calcola_parametri_input()` correspondence/parameter math from raw historical
   municipal votes to TypeScript. It explicitly sends original-list votes with
@@ -394,10 +402,10 @@ simulation 4.
   keeps the municipality's base abstention fraction fixed, normalizes political
   local list fractions, recomputes `DELTA` against the projected global logits,
   and sets affected municipal `DATA` values to the projection current date.
-- New/split future lists still need candidate-template semantics before they
-  can be fully simulated. The rich parameter builder can create their vote
-  parameters, but projection still ignores scenario lists that do not have a
-  homonymous source-model list or a source-model reuse correspondence.
+- New/split future lists can carry candidate templates once they are matched to
+  active projected source rows, but they still cannot be fully simulated unless
+  they have a homonymous source-model list or a source-model reuse
+  correspondence.
 - New/unmatched scenario lists cannot yet be simulated by the static-snapshot
   worker path unless they reuse one current source-model list through a declared
   correspondence. Other new lists are ignored with a warning until richer
@@ -405,7 +413,7 @@ simulation 4.
   implemented.
 - Advanced scenario UI remains deferred for richer past-to-future
   correspondence semantics, location-specific percentage overrides, and
-  candidate templates/editors. Safe one-to-one manual correspondence editing is
+  candidate template editors. Safe one-to-one manual correspondence editing is
   already exposed in the scenario advanced section. Fixed percentage modes are
   deferred; keep schema/generator hooks ready, but do not build large UI or
   active fixed behavior for these deferred areas before production

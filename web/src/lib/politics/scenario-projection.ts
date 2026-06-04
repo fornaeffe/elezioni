@@ -1,6 +1,13 @@
-import type { Scenario, ScenarioList, ScenarioListCorrespondence, ScenarioLocalShareOverride } from '$lib/core/types';
+import type {
+  Scenario,
+  ScenarioCandidateTemplate,
+  ScenarioList,
+  ScenarioListCorrespondence,
+  ScenarioLocalShareOverride
+} from '$lib/core/types';
 import { buildPoliticsParametersFromHistoricalVotes } from './parameter-preparation';
 import type {
+  PoliticsCandidatePluriGenerationTemplateRow,
   PoliticsCandidateUniTemplateRow,
   PoliticsHistoricalMunicipalListVoteRow,
   PoliticsMunicipalListParameterRow,
@@ -188,6 +195,109 @@ function projectRamoSource(
       })
     },
     syntheticCoalitions
+  };
+}
+
+function candidateSlotCode(value: string | number | null | undefined): string {
+  return String(value ?? '').trim();
+}
+
+function candidateTemplateBirthDate(template: ScenarioCandidateTemplate, fallback: string | null): string | null {
+  return template.birthDate ? dateOnlyIso(template.birthDate, fallback ?? template.birthDate) : fallback;
+}
+
+function uninominalCandidateTemplateKey(template: ScenarioCandidateTemplate): string {
+  return `${template.ramo}\u001f${template.coalition?.trim() ?? ''}\u001f${candidateSlotCode(template.uninominalCode)}`;
+}
+
+function uninominalCandidateRowKey(ramo: string, row: PoliticsCandidateUniTemplateRow): string {
+  return `${ramo}\u001f${row.COALIZIONE ?? ''}\u001f${candidateSlotCode(row.UNI_COD)}`;
+}
+
+function plurinominalCandidateTemplateKey(template: ScenarioCandidateTemplate): string {
+  return [
+    template.ramo,
+    template.list?.trim() ?? '',
+    candidateSlotCode(template.plurinominalCode),
+    String(template.candidateNumber ?? ''),
+    String(template.minority === true)
+  ].join('\u001f');
+}
+
+function plurinominalCandidateRowKey(ramo: string, row: PoliticsCandidatePluriGenerationTemplateRow): string {
+  return [ramo, row.LISTA, candidateSlotCode(row.PLURI_COD), String(row.NUMERO_CANDIDATO), String(row.MINORANZA === true)].join(
+    '\u001f'
+  );
+}
+
+function candidateTemplateLabel(template: ScenarioCandidateTemplate): string {
+  if (template.kind === 'uninominal') {
+    return `${template.ramo} uninominal ${template.coalition ?? 'coalition'} / ${template.uninominalCode ?? 'college'}`;
+  }
+  return `${template.ramo} plurinominal ${template.list ?? 'list'} / ${template.plurinominalCode ?? 'college'} #${
+    template.candidateNumber ?? '?'
+  }`;
+}
+
+function applyCandidateTemplatesToRamo(
+  ramo: 'camera' | 'senato',
+  source: PoliticsPipelineRamoSource,
+  templates: readonly ScenarioCandidateTemplate[],
+  warnings: PoliticsScenarioProjectionWarning[]
+): PoliticsPipelineRamoSource {
+  const relevantTemplates = templates.filter((template) => template.ramo === ramo);
+  if (relevantTemplates.length === 0) return source;
+
+  const uninominalTemplates = new Map(
+    relevantTemplates
+      .filter((template) => template.kind === 'uninominal' && template.candidateName.trim())
+      .map((template) => [uninominalCandidateTemplateKey(template), template])
+  );
+  const plurinominalTemplates = new Map(
+    relevantTemplates
+      .filter((template) => template.kind === 'plurinominal' && template.candidateName.trim())
+      .map((template) => [plurinominalCandidateTemplateKey(template), template])
+  );
+  const usedTemplateIds = new Set<string>();
+
+  const candidatiUni = source.candidati_uni.map((row) => {
+    const template = uninominalTemplates.get(uninominalCandidateRowKey(ramo, row));
+    if (!template) return row;
+
+    usedTemplateIds.add(template.id);
+    return {
+      ...row,
+      CANDIDATO_ID: template.candidateName.trim(),
+      DATA_NASCITA: candidateTemplateBirthDate(template, row.DATA_NASCITA)
+    };
+  });
+  const candidatiPluri = source.candidati_pluri.map((row) => {
+    const template = plurinominalTemplates.get(plurinominalCandidateRowKey(ramo, row));
+    if (!template) return row;
+
+    usedTemplateIds.add(template.id);
+    return {
+      ...row,
+      CANDIDATO_ID: template.candidateName.trim(),
+      DATA_NASCITA: candidateTemplateBirthDate(template, row.DATA_NASCITA)
+    };
+  });
+  const unused = relevantTemplates.filter((template) => !usedTemplateIds.has(template.id));
+
+  if (unused.length > 0) {
+    warnings.push({
+      code: 'POLITICS_SCENARIO_CANDIDATE_TEMPLATES_UNUSED',
+      message: `Some candidate templates did not match active ${ramo} candidate slots and were ignored: ${unused
+        .map(candidateTemplateLabel)
+        .join(', ')}.`,
+      todoReference: 'MIGRATION_PLAN.md#current-caveats'
+    });
+  }
+
+  return {
+    ...source,
+    candidati_uni: candidatiUni,
+    candidati_pluri: candidatiPluri
   };
 }
 
@@ -577,9 +687,11 @@ export function projectScenarioOntoPoliticsSource(
       .map((row) => row.scenario.coalition)
       .filter((coalition): coalition is string => coalition !== null && coalition !== '')
   );
-  const camera = projectRamoSource(source.camera, activeBySourceKey, activeCoalitions);
-  const senato = projectRamoSource(source.senato, activeBySourceKey, activeCoalitions);
-  const syntheticCoalitions = [...new Set([...camera.syntheticCoalitions, ...senato.syntheticCoalitions])];
+  const cameraProjection = projectRamoSource(source.camera, activeBySourceKey, activeCoalitions);
+  const senatoProjection = projectRamoSource(source.senato, activeBySourceKey, activeCoalitions);
+  const camera = applyCandidateTemplatesToRamo('camera', cameraProjection.source, scenario.candidateTemplates, warnings);
+  const senato = applyCandidateTemplatesToRamo('senato', senatoProjection.source, scenario.candidateTemplates, warnings);
+  const syntheticCoalitions = [...new Set([...cameraProjection.syntheticCoalitions, ...senatoProjection.syntheticCoalitions])];
 
   if (syntheticCoalitions.length > 0) {
     warnings.push({
@@ -666,8 +778,8 @@ export function projectScenarioOntoPoliticsSource(
       simulazioni: options.simulations,
       liste: projectedLists,
       comuni_liste: projectedMunicipalParameterRows,
-      camera: camera.source,
-      senato: senato.source
+      camera,
+      senato
     },
     rows: projectionRows,
     warnings

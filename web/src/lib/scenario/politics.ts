@@ -1,6 +1,9 @@
 import type {
   ElectionKind,
   Scenario,
+  ScenarioCandidateTemplate,
+  ScenarioCandidateTemplateKind,
+  ScenarioCandidateTemplateRamo,
   ScenarioCoalition,
   ScenarioDefaultSource,
   ScenarioDefaultSourceKind,
@@ -14,7 +17,7 @@ import type {
 import { generatedDefaultPoliticsScenario } from './politics-defaults.generated';
 
 export const politicsScenarioStorageKey = 'elezioni:web:politics-scenario:v1';
-export const politicsScenarioSchemaVersion = 5;
+export const politicsScenarioSchemaVersion = 6;
 
 export const defaultPoliticsScenario: Scenario = generatedDefaultPoliticsScenario;
 export const defaultPoliticsSourceModelListNames = defaultPoliticsScenario.lists.map((list) => list.name);
@@ -60,6 +63,17 @@ function cleanShare(value: unknown): number {
   return Number.isFinite(numeric) ? numeric : 0;
 }
 
+function cleanNullableString(value: unknown): string | null {
+  const cleaned = cleanString(value).trim();
+  return cleaned || null;
+}
+
+function cleanNullableNumber(value: unknown): number | null {
+  if (value === null || value === undefined || value === '') return null;
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? numeric : null;
+}
+
 function cleanPositiveFactor(value: unknown): number {
   const numeric = Number(value);
   return Number.isFinite(numeric) ? numeric : 1;
@@ -83,6 +97,14 @@ function cleanCorrespondenceSource(value: unknown): ScenarioListCorrespondenceSo
 
 function cleanLocalShareOverrideScope(value: unknown): ScenarioLocalShareOverrideScope {
   return 'municipality';
+}
+
+function cleanCandidateTemplateRamo(value: unknown): ScenarioCandidateTemplateRamo {
+  return value === 'senato' ? 'senato' : 'camera';
+}
+
+function cleanCandidateTemplateKind(value: unknown): ScenarioCandidateTemplateKind {
+  return value === 'uninominal' ? 'uninominal' : 'plurinominal';
 }
 
 function normalizeDefaultSource(value: unknown): ScenarioDefaultSource {
@@ -110,7 +132,8 @@ export function cloneScenario(scenario: Scenario): Scenario {
     coalitions: scenario.coalitions.map((coalition) => ({ ...coalition })),
     lists: scenario.lists.map((list) => ({ ...list })),
     listCorrespondences: scenario.listCorrespondences.map((correspondence) => ({ ...correspondence })),
-    localShareOverrides: scenario.localShareOverrides.map((override) => ({ ...override }))
+    localShareOverrides: scenario.localShareOverrides.map((override) => ({ ...override })),
+    candidateTemplates: scenario.candidateTemplates.map((template) => ({ ...template }))
   };
 }
 
@@ -170,6 +193,7 @@ export function normalizeScenario(value: unknown): Scenario {
   const lists = Array.isArray(input.lists) ? input.lists : [];
   const listCorrespondences = Array.isArray(input.listCorrespondences) ? input.listCorrespondences : [];
   const localShareOverrides = Array.isArray(input.localShareOverrides) ? input.localShareOverrides : [];
+  const candidateTemplates = Array.isArray(input.candidateTemplates) ? input.candidateTemplates : [];
 
   return {
     id: cleanString(input.id) || defaultPoliticsScenario.id,
@@ -228,6 +252,28 @@ export function normalizeScenario(value: unknown): Scenario {
         list,
         startingShare: cleanShare(source.startingShare)
       };
+    }),
+    candidateTemplates: candidateTemplates.map((template, index) => {
+      const source = template as Partial<ScenarioCandidateTemplate>;
+      const kind = cleanCandidateTemplateKind(source.kind);
+      const candidateName = cleanString(source.candidateName);
+      const slot =
+        kind === 'uninominal'
+          ? `${source.ramo}-${source.coalition}-${source.uninominalCode}`
+          : `${source.ramo}-${source.list}-${source.plurinominalCode}-${source.candidateNumber}-${source.minority}`;
+      return {
+        id: cleanString(source.id) || stableId('candidate-template', `${slot}-${candidateName}`, index + 1),
+        ramo: cleanCandidateTemplateRamo(source.ramo),
+        kind,
+        candidateName,
+        birthDate: cleanNullableString(source.birthDate),
+        coalition: cleanNullableString(source.coalition),
+        uninominalCode: cleanNullableString(source.uninominalCode),
+        list: cleanNullableString(source.list),
+        plurinominalCode: cleanNullableString(source.plurinominalCode),
+        candidateNumber: cleanNullableNumber(source.candidateNumber),
+        minority: source.minority === true
+      };
     })
   };
 }
@@ -244,6 +290,7 @@ export function validateScenario(scenario: Scenario): string[] {
   const correspondenceKeys = new Set<string>();
   const localOverrideKeys = new Set<string>();
   const localOverridesByLocation = new Map<string, ScenarioLocalShareOverride[]>();
+  const candidateTemplateKeys = new Set<string>();
 
   if (!scenario.name.trim()) messages.push('Lo scenario deve avere un nome.');
   if (Number.isNaN(Date.parse(scenario.electionDate))) messages.push('La data elezione non e valida.');
@@ -332,6 +379,53 @@ export function validateScenario(scenario: Scenario): string[] {
     if (total > 100.01 && overrides.length < scenario.lists.length) {
       messages.push(`La somma delle quote locali usate per ${locationCode || 'comune'} non puo superare 100.`);
     }
+  }
+
+  for (const template of scenario.candidateTemplates) {
+    const candidateName = template.candidateName.trim();
+    const birthDate = template.birthDate?.trim() ?? '';
+    const key =
+      template.kind === 'uninominal'
+        ? [template.ramo, template.kind, template.coalition?.trim().toLocaleLowerCase('it-IT') ?? '', template.uninominalCode?.trim() ?? ''].join('|')
+        : [
+            template.ramo,
+            template.kind,
+            template.list?.trim().toLocaleLowerCase('it-IT') ?? '',
+            template.plurinominalCode?.trim() ?? '',
+            String(template.candidateNumber ?? ''),
+            String(template.minority === true)
+          ].join('|');
+
+    if (!candidateName) messages.push('Ogni candidato definito nello scenario deve avere un nome.');
+    if (birthDate && Number.isNaN(Date.parse(birthDate))) {
+      messages.push(`Data di nascita non valida per ${candidateName || 'candidato senza nome'}.`);
+    }
+
+    if (template.kind === 'uninominal') {
+      const coalition = template.coalition?.trim() ?? '';
+      if (!coalitionNameSet.has(coalition)) {
+        messages.push(`Coalizione candidato uninominale sconosciuta: ${coalition || 'coalizione mancante'}.`);
+      }
+      if (!template.uninominalCode?.trim()) {
+        messages.push(`Collegio uninominale mancante per ${candidateName || 'candidato senza nome'}.`);
+      }
+    } else {
+      const list = template.list?.trim() ?? '';
+      if (!listNameSet.has(list.toLocaleLowerCase('it-IT'))) {
+        messages.push(`Lista candidato plurinominale sconosciuta: ${list || 'lista mancante'}.`);
+      }
+      if (!template.plurinominalCode?.trim()) {
+        messages.push(`Collegio plurinominale mancante per ${candidateName || 'candidato senza nome'}.`);
+      }
+      if (!Number.isInteger(template.candidateNumber) || (template.candidateNumber ?? 0) < 1) {
+        messages.push(`Numero candidato plurinominale non valido per ${candidateName || 'candidato senza nome'}.`);
+      }
+    }
+
+    if (candidateTemplateKeys.has(key)) {
+      messages.push(`Candidato duplicato per lo stesso slot: ${candidateName || 'candidato senza nome'}.`);
+    }
+    candidateTemplateKeys.add(key);
   }
 
   return messages;

@@ -49,6 +49,23 @@ export interface ScenarioLocalShareOverride {
   startingShare: number;
 }
 
+export type ScenarioCandidateTemplateRamo = 'camera' | 'senato';
+export type ScenarioCandidateTemplateKind = 'uninominal' | 'plurinominal';
+
+export interface ScenarioCandidateTemplate {
+  id: string;
+  ramo: ScenarioCandidateTemplateRamo;
+  kind: ScenarioCandidateTemplateKind;
+  candidateName: string;
+  birthDate: string | null;
+  coalition?: string | null;
+  uninominalCode?: string | null;
+  list?: string | null;
+  plurinominalCode?: string | null;
+  candidateNumber?: number | null;
+  minority?: boolean | null;
+}
+
 export interface Scenario {
   id: string;
   name: string;
@@ -61,6 +78,7 @@ export interface Scenario {
   coalitions: ScenarioCoalition[];
   listCorrespondences: ScenarioListCorrespondence[];
   localShareOverrides: ScenarioLocalShareOverride[];
+  candidateTemplates: ScenarioCandidateTemplate[];
 }
 
 export interface SimulationRequest {

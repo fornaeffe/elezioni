@@ -78,9 +78,12 @@ reveals a cleaner order or a new blocker.
    single deterministic vote distribution/scrutiny output; an optional
    per-percentage fixed mode may later remove uncertainty for selected global
    shares or local deltas. Both require a separate design pass.
-7. Add candidate-template support to the scenario model and worker pipeline,
-   allowing user-provided names for selected slots while preserving generated
-   candidates for unspecified places.
+7. Build the rich candidate-template editor only after the slot-selection UX is
+   clear. Done for this slice: scenario JSON carries uninominal and
+   plurinominal candidate templates, validation guards malformed or duplicate
+   slots, projection applies matching templates to the worker candidate source,
+   and unmatched templates warn while generated candidates still fill every
+   unspecified place.
 8. Improve politics result presentation with legally meaningful summaries,
    charts, exports, and clearer warning/detail separation. Keep diagnostic
    tables such as `Generated pipeline runs` collapsed by default.
@@ -155,6 +158,10 @@ reveals a cleaner order or a new blocker.
   abstention fraction.
 - Added scenario schema-v5 local share overrides and projection hooks for
   municipality/list valid-vote share overrides.
+- Added scenario schema-v6 candidate templates and projection hooks for
+  uninominal/plurinominal candidate slots. Matching templates pin
+  `CANDIDATO_ID`/`DATA_NASCITA` before candidate generation; unspecified slots
+  remain generated.
 - Removed the provisional global `fixed` UI/projection behavior. The active
   scenario share mode is mean-only; older serialized `fixed` values normalize
   to `mean` until fixed semantics get their own design pass.
@@ -219,10 +226,10 @@ reveals a cleaner order or a new blocker.
   chosen. A future optional per-percentage fixed mode may remove uncertainty
   for selected global shares or local deltas, but only after its interaction
   with local variation is explicitly designed.
-- Location-specific percentage schema/generator hooks now exist, but the rich
-  local editor is still deferred. Rich correspondence matrices and candidate
-  editors are also advanced features. Keep hooks ready, but build large UI only
-  when the underlying data contract is stable.
+- Location-specific percentage and candidate-template schema/generator hooks
+  now exist, but the rich local/candidate editors are still deferred. Rich
+  correspondence matrices are also advanced features. Keep hooks ready, but
+  build large UI only when the underlying data contract is stable.
 - Scrutiny algorithms must remain modular and swappable. Keep the registry hook
   even while there is only one registered politics algorithm.
 - Results UI should prioritize election outputs and keep diagnostic pipeline
@@ -234,9 +241,9 @@ reveals a cleaner order or a new blocker.
 
 Latest full web verification on 2026-06-04:
 
-- `cd web; npx vitest run src/lib/scenario/politics.test.ts src/lib/politics/scenario-projection.test.ts src/lib/politics/parameter-preparation.test.ts`: passed, 28 tests.
+- `cd web; npx vitest run src/lib/scenario/politics.test.ts src/lib/politics/scenario-projection.test.ts src/lib/politics/parameter-preparation.test.ts`: passed, 31 tests.
 - `cd web; npm run check`: passed with 0 warnings.
-- `cd web; npm run test`: passed, 145 tests.
+- `cd web; npm run test`: passed, 148 tests.
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test, including the
   advanced abstention and manual correspondence controls.

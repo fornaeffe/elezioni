@@ -82,7 +82,8 @@ function scenario(lists: Scenario['lists']): Scenario {
     ],
     lists,
     listCorrespondences: [],
-    localShareOverrides: []
+    localShareOverrides: [],
+    candidateTemplates: []
   };
 }
 
@@ -316,6 +317,93 @@ describe('politics scenario projection', () => {
         matchMode: 'declared-correspondence',
         status: 'matched'
       })
+    );
+  });
+
+  test('applies scenario candidate templates to matched projected slots', () => {
+    const templateScenario = scenario([
+      { id: 'x', name: 'Lista X', coalition: 'Coalizione A', color: '#000000', startingShare: 10, shareOverride: false },
+      { id: 'b', name: 'Lista B', coalition: 'Coalizione B', color: '#111111', startingShare: 20, shareOverride: false },
+      { id: 'c', name: 'Lista C', coalition: 'Coalizione C', color: '#222222', startingShare: 30, shareOverride: false }
+    ]);
+    templateScenario.listCorrespondences = [
+      {
+        id: 'corr-a-x',
+        futureList: 'Lista X',
+        pastElection: sourceModelCorrespondenceElection,
+        pastDate: '2022-09-25',
+        pastList: 'Lista A',
+        factor: 1,
+        source: 'manual'
+      }
+    ];
+    templateScenario.candidateTemplates = [
+      {
+        id: 'uni-template',
+        ramo: 'camera',
+        kind: 'uninominal',
+        coalition: 'Coalizione A',
+        uninominalCode: '10',
+        candidateName: 'Candidate Uni',
+        birthDate: '1977-01-02'
+      },
+      {
+        id: 'pluri-template',
+        ramo: 'camera',
+        kind: 'plurinominal',
+        list: 'Lista X',
+        plurinominalCode: '11',
+        candidateNumber: 1,
+        minority: false,
+        candidateName: 'Candidate Pluri',
+        birthDate: '1988-03-04'
+      }
+    ];
+
+    const projection = projectScenarioOntoPoliticsSource(source(), templateScenario, { simulations: 1 });
+
+    expect(projection.source.camera.candidati_uni.find((row) => row.COALIZIONE === 'Coalizione A' && row.UNI_COD === 10)).toEqual(
+      expect.objectContaining({
+        CANDIDATO_ID: 'Candidate Uni',
+        DATA_NASCITA: '1977-01-02T00:00:00.000Z'
+      })
+    );
+    expect(projection.source.camera.candidati_pluri.find((row) => row.LISTA === 'Lista X' && row.PLURI_COD === 11)).toEqual(
+      expect.objectContaining({
+        CANDIDATO_ID: 'Candidate Pluri',
+        DATA_NASCITA: '1988-03-04T00:00:00.000Z'
+      })
+    );
+    expect(projection.source.senato.candidati_uni.some((row) => row.CANDIDATO_ID === 'Candidate Uni')).toBe(false);
+    expect(projection.warnings).toEqual([]);
+  });
+
+  test('warns when scenario candidate templates do not match projected slots', () => {
+    const templateScenario = scenario([
+      { id: 'a', name: 'Lista A', coalition: 'Coalizione A', color: '#000000', startingShare: 10, shareOverride: false }
+    ]);
+    templateScenario.candidateTemplates = [
+      {
+        id: 'missing-template',
+        ramo: 'camera',
+        kind: 'plurinominal',
+        list: 'Lista A',
+        plurinominalCode: 'missing',
+        candidateNumber: 1,
+        minority: false,
+        candidateName: 'Missing Candidate',
+        birthDate: null
+      }
+    ];
+
+    const projection = projectScenarioOntoPoliticsSource(source(), templateScenario, { simulations: 1 });
+
+    expect(projection.warnings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'POLITICS_SCENARIO_CANDIDATE_TEMPLATES_UNUSED'
+        })
+      ])
     );
   });
 

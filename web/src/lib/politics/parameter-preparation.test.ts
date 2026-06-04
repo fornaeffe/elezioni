@@ -84,7 +84,8 @@ function scenario(): Scenario {
         source: 'manual' as const
       }
     ]),
-    localShareOverrides: []
+    localShareOverrides: [],
+    candidateTemplates: []
   };
 }
 

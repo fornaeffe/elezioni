@@ -970,5 +970,6 @@ export const generatedDefaultPoliticsScenario = {
       "source": "bundled"
     }
   ],
-  "localShareOverrides": []
+  "localShareOverrides": [],
+  "candidateTemplates": []
 } satisfies Scenario;

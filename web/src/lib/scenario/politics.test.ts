@@ -23,6 +23,7 @@ describe('politics web-native scenario model', () => {
     expect(scenario.abstentionShare).toBeGreaterThan(0);
     expect(scenario.abstentionOverride).toBe(false);
     expect(scenario.localShareOverrides).toEqual([]);
+    expect(scenario.candidateTemplates).toEqual([]);
     expect(scenario.listCorrespondences.length).toBeGreaterThan(0);
     expect(scenario.listCorrespondences.every((correspondence) => correspondence.source === 'bundled')).toBe(true);
     expect(scenario.listCorrespondences).toEqual(
@@ -82,6 +83,7 @@ describe('politics web-native scenario model', () => {
     expect(scenario.abstentionOverride).toBe(false);
     expect(scenario.listCorrespondences).toEqual([]);
     expect(scenario.localShareOverrides).toEqual([]);
+    expect(scenario.candidateTemplates).toEqual([]);
     expect(scenario.lists[0].id).toBe('list-lista-a');
     expect(scenario.lists[0].startingShare).toBe(40);
     expect(scenario.lists[0].shareOverride).toBe(true);
@@ -108,12 +110,13 @@ describe('politics web-native scenario model', () => {
     expect(scenario.abstentionOverride).toBe(false);
     expect(scenario.listCorrespondences).toEqual([]);
     expect(scenario.localShareOverrides).toEqual([]);
+    expect(scenario.candidateTemplates).toEqual([]);
   });
 
-  test('round-trips v5 default metadata, normalizes retired share mode, abstention, correspondences, and local overrides', () => {
+  test('round-trips v6 default metadata, normalizes retired share mode, abstention, correspondences, local overrides, and candidate templates', () => {
     const scenario = parseScenario(
       JSON.stringify({
-        schema_version: 5,
+        schema_version: 6,
         scenario: {
           name: 'Scenario con corrispondenze',
           electionDate: '2027-03-01',
@@ -152,6 +155,26 @@ describe('politics web-native scenario model', () => {
               list: 'Lista A',
               startingShare: 55
             }
+          ],
+          candidateTemplates: [
+            {
+              ramo: 'camera',
+              kind: 'uninominal',
+              coalition: 'Coalizione A',
+              uninominalCode: '10',
+              candidateName: 'Candidato Uni',
+              birthDate: '1980-01-02'
+            },
+            {
+              ramo: 'senato',
+              kind: 'plurinominal',
+              list: 'Lista A',
+              plurinominalCode: '20',
+              candidateNumber: '2',
+              minority: true,
+              candidateName: 'Candidato Pluri',
+              birthDate: null
+            }
           ]
         }
       })
@@ -169,6 +192,34 @@ describe('politics web-native scenario model', () => {
         locationCode: '1',
         list: 'Lista A',
         startingShare: 55
+      }
+    ]);
+    expect(scenario.candidateTemplates).toEqual([
+      {
+        id: 'candidate-template-camera-coalizione-a-10-candidato-uni',
+        ramo: 'camera',
+        kind: 'uninominal',
+        candidateName: 'Candidato Uni',
+        birthDate: '1980-01-02',
+        coalition: 'Coalizione A',
+        uninominalCode: '10',
+        list: null,
+        plurinominalCode: null,
+        candidateNumber: null,
+        minority: false
+      },
+      {
+        id: 'candidate-template-senato-lista-a-20-2-true-candidato-pluri',
+        ramo: 'senato',
+        kind: 'plurinominal',
+        candidateName: 'Candidato Pluri',
+        birthDate: null,
+        coalition: null,
+        uninominalCode: null,
+        list: 'Lista A',
+        plurinominalCode: '20',
+        candidateNumber: 2,
+        minority: true
       }
     ]);
     expect(scenario.listCorrespondences[0]).toEqual(
@@ -315,6 +366,64 @@ describe('politics web-native scenario model', () => {
     scenario.localShareOverrides = [scenario.localShareOverrides[0], scenario.localShareOverrides[1]];
     expect(validateScenario(scenario)).toEqual(
       expect.arrayContaining(['La somma delle quote locali usate per 1 non puo superare 100.'])
+    );
+  });
+
+  test('validates malformed candidate templates', () => {
+    const scenario = createDefaultPoliticsScenario();
+    scenario.candidateTemplates = [
+      {
+        id: 'bad-uni',
+        ramo: 'camera',
+        kind: 'uninominal',
+        candidateName: '',
+        birthDate: 'not-a-date',
+        coalition: 'Coalizione inesistente',
+        uninominalCode: '',
+        list: null,
+        plurinominalCode: null,
+        candidateNumber: null,
+        minority: false
+      },
+      {
+        id: 'bad-pluri',
+        ramo: 'senato',
+        kind: 'plurinominal',
+        candidateName: 'Candidato',
+        birthDate: null,
+        coalition: null,
+        uninominalCode: null,
+        list: 'Lista inesistente',
+        plurinominalCode: '',
+        candidateNumber: 0,
+        minority: false
+      },
+      {
+        id: 'bad-pluri-duplicate',
+        ramo: 'senato',
+        kind: 'plurinominal',
+        candidateName: 'Duplicato',
+        birthDate: null,
+        coalition: null,
+        uninominalCode: null,
+        list: 'Lista inesistente',
+        plurinominalCode: '',
+        candidateNumber: 0,
+        minority: false
+      }
+    ];
+
+    expect(validateScenario(scenario)).toEqual(
+      expect.arrayContaining([
+        'Ogni candidato definito nello scenario deve avere un nome.',
+        'Data di nascita non valida per candidato senza nome.',
+        'Coalizione candidato uninominale sconosciuta: Coalizione inesistente.',
+        'Collegio uninominale mancante per candidato senza nome.',
+        'Lista candidato plurinominale sconosciuta: Lista inesistente.',
+        'Collegio plurinominale mancante per Candidato.',
+        'Numero candidato plurinominale non valido per Candidato.',
+        'Candidato duplicato per lo stesso slot: Duplicato.'
+      ])
     );
   });
 });
