@@ -1,6 +1,6 @@
 # SvelteKit Migration Plan
 
-Last updated: 2026-06-03
+Last updated: 2026-06-04
 
 ## Summary
 
@@ -36,7 +36,59 @@ R baseline on the same machine, pause and present Python fallback options.
 | Generated politics input adapter | Started | R-style generated-table fixture and TypeScript adapter now rebuild the exact direct scrutiny inputs/context. `prepara_dts()` vote preparation is also ported. |
 | Production static snapshot bridge | Done | `scripts/export_politics_static_snapshot.R` exports `web/static/data/v1/politics-static.json` from the current R cache and politics scenario workbook. |
 | Performance gate | Passed for current politics worker path | Chromium generated-worker benchmark on the R-exported production static snapshot is below fresh full R politics baselines for 10, 100, and 1000 simulations; repeat after future data-preparation migration or major snapshot changes. |
+| Politics browser vertical slice | Stabilized for current slice | Production snapshot, default scenario, projection, generated pipeline, and registered scrutiny algorithm are guarded by an integration test. Keep this guard green while scenario semantics evolve. |
 | Scenario editor and JSON contract | Started | Basic politics scenario model, validation, localStorage persistence, reset, JSON import/export, list/coalition editing, explicit global share overrides, worker projection, and first result-priority UI are wired. Advanced correspondence/location/candidate semantics remain planned. |
+
+## Planned Future Steps
+
+This is the current intended order for the next migration work. It is a living
+sequence, not a contract: if implementing a future step shows that another
+order would reduce risk, unblock work, or keep the architecture cleaner, update
+this list before continuing.
+
+1. Keep the stabilized politics browser vertical slice green: the generated
+   worker path, scenario projection, result-priority UI, static snapshot bridge,
+   and registered scrutiny algorithm now have a production guardrail test; keep
+   it passing while the remaining politics scenario semantics are added.
+2. Mature the politics scenario JSON contract: add typed support for bundled
+   defaults, past-to-future list correspondences, global fixed-versus-mean
+   percentage mode, and stronger validation without exposing premature large UI.
+3. Improve scenario defaults and projection: use bundled defaults first,
+   homonymous or declared list correspondences second, and make ignored/new
+   list behavior explicit enough that users can understand what is simulated.
+4. Add advanced politics scenario controls incrementally: compact
+   correspondence editing first, then global fixed/mean settings, then
+   location-specific overrides only after the data contract is stable.
+5. Add candidate template support to the scenario model and worker pipeline,
+   allowing user-provided names for some slots while preserving generated
+   candidates for unspecified places.
+6. Improve politics result presentation: add legally meaningful summary tables,
+   charts, exports, and clearer warning/detail separation while keeping
+   diagnostic worker tables collapsed by default.
+7. Refactor the politics scrutiny core once boundaries are stable: split
+   `web/src/lib/politics/scrutiny.ts` into focused modules only when the
+   refactor lowers risk, and keep all algorithms behind the registry interface.
+8. Add a second politics scrutiny algorithm only for a real law-review or
+   comparison need. Once it exists, expose UI selection/comparison through the
+   existing algorithm hook.
+9. Repeat the politics performance gate after major scenario/data/scrutiny
+   changes. If browser time reaches the 10x stop threshold after one
+   optimization pass, pause and reassess the Python compute-core fallback.
+10. Migrate Emilia-Romagna regional workflow: create R golden fixtures and
+    benchmarks first, then port allocation/scrutiny/generation into the same
+    typed worker architecture.
+11. Migrate municipal workflow: create R golden fixtures and benchmarks first,
+    preserve current behavior, and explicitly track known runoff/councilor
+    candidate TODOs for later business-law review.
+12. Generalize the web app for multiple election kinds: routing/navigation,
+    snapshot selection, worker dispatch, scenario defaults, result components,
+    and shared validation patterns.
+13. Migrate data preparation after simulator workflows are migrated. Reassess
+    typed Python versus Node/TypeScript then; keep it a periodic
+    election-kind-agnostic devops/GitHub Actions pipeline that produces static
+    data bundles.
+14. Retire temporary bridge artifacts and update final documentation once the
+    migrated workflows no longer depend on R-exported intermediary snapshots.
 
 ## Decisions
 
@@ -272,6 +324,10 @@ future data-preparation migration or major snapshot/schema changes.
   `politiche-r-parity-v1` as the default R-parity implementation. Worker
   requests can now carry an optional `scrutinyAlgorithmId`; unknown IDs fall
   back to the default with an explicit warning.
+- Added the first production politics browser vertical-slice guard, proving the
+  UI default scenario, R-exported static snapshot, scenario projection,
+  generated pipeline, and registered scrutiny algorithm still work together for
+  one Camera/Senato simulation.
 
 ## Latest Verification
 
@@ -301,6 +357,14 @@ Additional run on 2026-06-03:
 
 - `cd web; npm run check`: passed with 0 warnings.
 - `cd web; npm run test`: passed, 125 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+Additional run on 2026-06-04:
+
+- `cd web; npx vitest run src/lib/politics/vertical-slice.test.ts`: passed, 2 tests.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 127 tests.
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.
 
@@ -375,6 +439,11 @@ Additional run on 2026-06-03:
   worker architecture ready for law-review variants, but the UI selector should
   remain hidden until there is at least a second real same-election-kind
   algorithm.
+- `web/src/lib/politics/vertical-slice.test.ts` is now the production browser
+  slice guard. It catches drift between `politics-static.json`, the UI default
+  scenario, scenario projection, generated pipeline, and the registered
+  R-parity scrutiny algorithm. It is not a substitute for future
+  golden-master fixtures for regional/municipal workflows.
 - The generated worker path currently runs in 50-simulation chunks and is
   capped at 1000 simulations. This is enough for the current benchmark gate but
   should be revisited if the UI needs larger runs or after columnar packaging.
@@ -1132,5 +1201,34 @@ Verification:
 
 - `cd web; npm run check`: passed with 0 warnings.
 - `cd web; npm run test`: passed, 125 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-04 Checkpoint 27
+
+Completed in the politics browser vertical-slice stabilization pass:
+
+- Added `web/src/lib/politics/vertical-slice.test.ts`.
+- The new guard loads the production `web/static/data/v1/politics-static.json`
+  snapshot and verifies that the UI default politics scenario:
+  - validates successfully;
+  - has the same active list names as the production snapshot;
+  - uses coalition names matching the production snapshot;
+  - keeps displayed list shares within a small rounding tolerance of the
+    snapshot's normalized political-list shares.
+- The same guard projects the default scenario into the production source,
+  verifies projection emits no warnings, builds one generated direct-scrutiny
+  snapshot, and runs the registered `politiche-r-parity-v1` algorithm for both
+  Camera and Senato.
+- This stabilizes the current politics browser slice before the scenario JSON
+  contract grows. Future changes to defaults, correspondences, projection,
+  generation, or algorithm registration should keep this test green or update
+  it deliberately with the changed contract.
+
+Verification:
+
+- `cd web; npx vitest run src/lib/politics/vertical-slice.test.ts`: passed, 2 tests.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 127 tests.
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.

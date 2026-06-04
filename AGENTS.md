@@ -303,6 +303,12 @@ simulation 4.
   Future politics law-review variants should be registered there and selected
   through `SimulationRequest.scrutinyAlgorithmId`; keep the UI selector hidden
   until there is a second real same-election-kind algorithm.
+- `web/src/lib/politics/vertical-slice.test.ts` is the production politics
+  browser slice guard. It loads `web/static/data/v1/politics-static.json`,
+  checks that the UI default scenario stays aligned with the production
+  snapshot, then projects, generates, and scrutinizes one Camera/Senato
+  simulation through the registered algorithm. Keep it green while changing
+  defaults, correspondences, projection, generation, or algorithm registration.
 - The first browser scenario projection matches edited list shares by exact list
   name, preserves the source abstention row, rescales political list
   probabilities into the source model, and recomputes `LOGIT_P`. This is a
