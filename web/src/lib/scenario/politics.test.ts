@@ -107,7 +107,7 @@ describe('politics web-native scenario model', () => {
     expect(scenario.listCorrespondences).toEqual([]);
   });
 
-  test('round-trips v4 default metadata, share mode, abstention, and list correspondences', () => {
+  test('round-trips v4 default metadata, normalizes retired share mode, abstention, and list correspondences', () => {
     const scenario = parseScenario(
       JSON.stringify({
         schema_version: 4,
@@ -148,7 +148,7 @@ describe('politics web-native scenario model', () => {
     );
 
     expect(scenario.defaultSource.kind).toBe('last-election');
-    expect(scenario.globalShareMode).toBe('fixed');
+    expect(scenario.globalShareMode).toBe('mean');
     expect(scenario.abstentionShare).toBe(47.5);
     expect(scenario.abstentionOverride).toBe(true);
     expect(scenario.listCorrespondences).toHaveLength(2);

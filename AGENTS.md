@@ -154,11 +154,12 @@ simulation 4.
   and territory; if absent, use the most voted lists from the last same-kind
   election in the same territory; if past coalition data is unavailable, each
   list defaults to its own coalition.
-- Past-to-future list correspondences and fixed-versus-mean percentage mode now
-  have typed scenario schema support. Location-specific percentage overrides
-  and candidate templates still need typed schema support and generator hooks.
-  Defer large/rich UI for these advanced settings until production
-  previous-election data packaging and the basic scenario model are stable.
+- Past-to-future list correspondences have typed scenario schema support. The
+  active global share mode is mean-only; older serialized `fixed` values should
+  normalize to `mean`. Location-specific percentage overrides and candidate
+  templates still need typed schema support and generator hooks. Defer
+  large/rich UI for these advanced settings until production previous-election
+  data packaging and the basic scenario model are stable.
 - The scenario model should allow users to enter only some global percentages;
   unspecified future-list percentages should be recalculated from previous
   election results and list correspondences, preserving the current R model's
@@ -186,11 +187,18 @@ simulation 4.
   as that list's `P_{l,t-1}` and set `data_{t-1}` to today. This represents the
   user knowing the current list share, with uncertainty still drifting from
   today to election day. Future poll-specific uncertainty can refine this.
-- In fixed mode, overridden global list shares should keep
-  `P_{l,t} = P_{l,t-1}` for the global draw by removing temporal/global drift
-  for those overridden lists. Effective simulation percentages may still vary
-  slightly through local-level randomization until local fixed semantics are
-  explicitly added.
+- Do not expose or implement fixed percentage modes in the current app slice.
+  Keep the architecture ready for two future features instead:
+  a globally fixed mode, and optional per-percentage fixed overrides.
+- A future globally fixed mode should bypass random vote generation completely:
+  all percentages are treated as fixed, the run produces one deterministic vote
+  distribution and one scrutiny output, and the still-to-be-chosen municipal
+  distribution method should reflect historical local distribution while
+  guaranteeing the requested global percentages.
+- A future optional per-percentage fixed mode may remove uncertainty for selected
+  global shares or local deltas, for example by setting the relevant sigma to
+  zero, but only after its interaction with local variation and tests is
+  explicitly designed.
 - For local percentage overrides, use the same valid-vote-to-elector conversion
   and normalization rule with local previous-election fractions, then recompute
   the local deltas `delta_{l,c,t-1}` from the normalized local fractions.
@@ -331,12 +339,12 @@ simulation 4.
   when a user removes or renames a list.
 - `web/src/routes/+page.svelte` uses one `scenarioDraft` object for the basic
   web-native editor: scenario metadata, coalition editing, list/share editing,
-  global mean/fixed share mode, separate advanced abstention percentage over
-  electors, compact one-to-one manual correspondence editing, validation, reset,
-  JSON import/export, and automatic localStorage persistence. Build plain cloned
-  scenario snapshots before posting to the worker. Its results panel prioritizes
-  primary summary tables and keeps diagnostic tables such as `Generated pipeline
-  runs` behind a details toggle by default.
+  separate advanced abstention percentage over electors, compact one-to-one
+  manual correspondence editing, validation, reset, JSON import/export, and
+  automatic localStorage persistence. Build plain cloned scenario snapshots
+  before posting to the worker. Its results panel prioritizes primary summary
+  tables and keeps diagnostic tables such as `Generated pipeline runs` behind a
+  details toggle by default.
 - `web/src/lib/politics/scenario-projection.ts` is the current boundary between
   the web-native politics scenario and the generated worker source. It matches
   scenario lists to the static snapshot first by exact list name and then by a
@@ -345,10 +353,9 @@ simulation 4.
   applies only explicit global share overrides, recalculates non-overridden
   matched lists proportionally from source data, projects matched list
   coalitions, propagates correspondence-based list renames through list
-  parameters and plurinominal candidate templates, honors
-  `globalShareMode = "fixed"` by setting `SIGMA_GLOBAL = 0` for active
-  political list rows, and warns about unmatched scenario lists, unused manual
-  correspondences, or placeholder coalition candidates.
+  parameters and plurinominal candidate templates, and warns about unmatched
+  scenario lists, unused manual correspondences, or placeholder coalition
+  candidates.
 - `web/src/lib/politics/parameter-preparation.ts` ports the deterministic
   `calcola_parametri_input()` correspondence/parameter math from raw historical
   municipal votes to TypeScript. It explicitly sends original-list votes with
@@ -382,11 +389,11 @@ simulation 4.
   implemented.
 - Advanced scenario UI remains deferred for richer past-to-future
   correspondence semantics, location-specific percentage overrides, and
-  candidate templates/editors. Global fixed-versus-mean mode and safe
-  one-to-one manual correspondence editing are already exposed in the scenario
-  advanced section. Keep schema/generator hooks ready, but do not build large UI
-  for these deferred areas before production previous-election data packaging is
-  stable.
+  candidate templates/editors. Safe one-to-one manual correspondence editing is
+  already exposed in the scenario advanced section. Fixed percentage modes are
+  deferred; keep schema/generator hooks ready, but do not build large UI or
+  active fixed behavior for these deferred areas before production
+  previous-election data packaging is stable.
 - The TypeScript politics scrutiny port now matches the R golden fixture for
   direct scrutiny output on the debug fixture: uninominal candidate election,
   candidate-only vote attribution to lists, plurinominal/circumscription

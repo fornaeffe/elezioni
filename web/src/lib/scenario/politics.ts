@@ -72,7 +72,7 @@ function cleanElectionKind(value: unknown): ElectionKind {
 }
 
 function cleanGlobalShareMode(value: unknown): ScenarioGlobalShareMode {
-  return value === 'fixed' ? 'fixed' : 'mean';
+  return 'mean';
 }
 
 function cleanCorrespondenceSource(value: unknown): ScenarioListCorrespondenceSource {

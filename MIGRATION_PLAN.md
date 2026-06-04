@@ -32,7 +32,7 @@ pass, pause and present Python fallback options before continuing.
 | Politics generation pipeline | Current browser path working | Candidate generation, vote generation, vote preparation, direct-scrutiny adaptation, worker chunking. |
 | Production static politics snapshot | Bridge done, richer raw data added | `scripts/export_politics_static_snapshot.R` writes schema v2 `web/static/data/v1/politics-static.json`, including raw historical municipal list votes for the future TypeScript parameter builder. |
 | Politics scenario defaults | Bridge done | `scripts/export_politics_scenario_defaults.mjs` writes `web/src/lib/scenario/politics-defaults.generated.ts`. |
-| Scenario editor | Core workflow plus compact advanced controls working | List/coalition/share editor, global mean/fixed mode, separate abstention input, one-to-one manual correspondence editor, JSON save/load, localStorage, reset, validation. Rich historical correspondence UI remains. |
+| Scenario editor | Core workflow plus compact advanced controls working | List/coalition/share editor, mean-mode global share overrides, separate abstention input, one-to-one manual correspondence editor, JSON save/load, localStorage, reset, validation. Rich historical correspondence UI remains. |
 | Rich correspondence parameter builder | Done and wired | `web/src/lib/politics/parameter-preparation.ts` rebuilds politics `liste`, `liste_elezioni`, and `comuni_liste` from raw historical votes and correspondences. `scenario-projection.ts` uses it when schema-v2 snapshot raw votes are present. |
 | R correspondence audit | Done | Current R output is coherent for the politics workbook because all historical list keys are mapped, but `calcola_parametri_input.R` drops unmatched rows instead of automatically sending them to `astensione`. |
 | Generated data storage | Done | Large generated JSON snapshots/fixtures are ignored and untracked; regenerate locally from scripts. Small generated TypeScript remains tracked. |
@@ -63,40 +63,44 @@ reveals a cleaner order or a new blocker.
    percentages, abstention is a separate advanced elector-share input, and
    projection converts to internal elector fractions while normalizing
    non-overridden list fractions. Remaining: set overridden mean-mode dates to
-   today, decide whether fixed mode should apply only to overridden lists or all
-   active political lists, and improve warnings when all overridden list shares
-   require normalization.
+   today and improve warnings when all overridden list shares require
+   normalization. Fixed modes are explicitly deferred.
 5. Add local percentage override schema and generator hooks, then recompute
    local deltas from normalized local elector fractions. Build the large UI
    only after the data contract and parameter builder are stable.
-6. Add candidate-template support to the scenario model and worker pipeline,
+6. Preserve architecture hooks for future fixed behavior without exposing it:
+   a globally fixed mode should bypass random vote generation and produce a
+   single deterministic vote distribution/scrutiny output; an optional
+   per-percentage fixed mode may later remove uncertainty for selected global
+   shares or local deltas. Both require a separate design pass.
+7. Add candidate-template support to the scenario model and worker pipeline,
    allowing user-provided names for selected slots while preserving generated
    candidates for unspecified places.
-7. Improve politics result presentation with legally meaningful summaries,
+8. Improve politics result presentation with legally meaningful summaries,
    charts, exports, and clearer warning/detail separation. Keep diagnostic
    tables such as `Generated pipeline runs` collapsed by default.
-8. Refactor politics scrutiny only when it lowers risk. The likely target is
+9. Refactor politics scrutiny only when it lowers risk. The likely target is
    stage-focused modules behind the existing scrutiny algorithm registry, but
    do not split during active parity discovery just for size alone.
-9. Add a second politics scrutiny algorithm only for a concrete law-review or
+10. Add a second politics scrutiny algorithm only for a concrete law-review or
    comparison need. Expose UI selection/comparison only after at least two real
    same-election-kind algorithms exist.
-10. Repeat the politics browser performance gate after major scenario, data,
+11. Repeat the politics browser performance gate after major scenario, data,
    generation, or scrutiny changes.
-11. Migrate the Emilia-Romagna regional workflow: first add R golden fixtures
+12. Migrate the Emilia-Romagna regional workflow: first add R golden fixtures
     and benchmarks, then port allocation, generation, scrutiny, worker, UI, and
     browser tests into the same architecture.
-12. Migrate the municipal workflow: first add R golden fixtures and benchmarks,
+13. Migrate the municipal workflow: first add R golden fixtures and benchmarks,
     preserve current behavior, and keep known runoff/councilor-candidate
     business TODOs explicit for later law review.
-13. Generalize the web app across election kinds: routing, snapshot selection,
+14. Generalize the web app across election kinds: routing, snapshot selection,
     scenario defaults, worker dispatch, result components, validation, and
     shared UI patterns.
-14. Migrate data preparation after simulator workflows are migrated. Reassess
+15. Migrate data preparation after simulator workflows are migrated. Reassess
     typed Python versus Node/TypeScript then; keep it a periodic,
     election-kind-agnostic devops/GitHub Actions pipeline producing static
     previous-election bundles.
-15. Retire temporary bridge artifacts and update user/developer documentation
+16. Retire temporary bridge artifacts and update user/developer documentation
     once migrated workflows no longer depend on R-exported intermediary
     snapshots.
 
@@ -140,13 +144,13 @@ reveals a cleaner order or a new blocker.
 - Built the basic scenario editor: metadata, list/coalition/share editing,
   validation, reset, JSON import/export, localStorage autosave, and plain
   worker-safe scenario snapshots.
-- Exposed global `mean`/`fixed` share mode in the scenario advanced UI. The
-  projection boundary already applies `fixed` by setting active political list
-  `SIGMA_GLOBAL` values to zero.
 - Added scenario schema-v4 abstention fields and an advanced UI input for
   abstention as a percentage of electors. Projection now treats list shares as
   valid-vote percentages and converts them to elector fractions using the active
   abstention fraction.
+- Removed the provisional global `fixed` UI/projection behavior. The active
+  scenario share mode is mean-only; older serialized `fixed` values normalize
+  to `mean` until fixed semantics get their own design pass.
 - Added a compact one-to-one manual correspondence editor in the scenario
   advanced UI. It maps one future scenario list to one current source-model list
   and exercises the already-implemented `declared-correspondence` projection
@@ -189,10 +193,16 @@ reveals a cleaner order or a new blocker.
   `astensione` to sum to 1. Abstention should be an advanced separate input,
   not a normal scenario list.
 - User global share overrides in mean mode represent a current known
-  `P_{l,t-1}` for that list, with `data_{t-1}` set to today. Fixed mode removes
-  global temporal drift for overridden lists while preserving local variation
-  until local fixed semantics are designed.
-- Location-specific percentages, per-location fixed/mean modes, rich
+  `P_{l,t-1}` for that list, with `data_{t-1}` set to today.
+- Fixed percentage behavior is deferred. A future globally fixed mode should
+  bypass random vote generation completely, treat all percentages as fixed,
+  and produce one deterministic vote distribution plus one scrutiny output; the
+  municipal distribution method must reflect historical local distribution
+  while guaranteeing the requested global percentages and is still to be
+  chosen. A future optional per-percentage fixed mode may remove uncertainty
+  for selected global shares or local deltas, but only after its interaction
+  with local variation is explicitly designed.
+- Location-specific percentages, rich
   correspondence matrices, and candidate editors are advanced features. Keep
   schema/generator hooks ready, but build the large UI only when the underlying
   data contract is stable.
@@ -207,13 +217,12 @@ reveals a cleaner order or a new blocker.
 
 Latest full web verification on 2026-06-04:
 
-- `cd web; npx vitest run src/lib/scenario/politics.test.ts src/lib/politics/vertical-slice.test.ts`: passed, 10 tests.
-- `cd web; npx vitest run src/lib/politics/scenario-projection.test.ts`: passed, 7 tests.
+- `cd web; npx vitest run src/lib/scenario/politics.test.ts src/lib/politics/scenario-projection.test.ts`: passed, 20 tests.
 - `cd web; npm run check`: passed with 0 warnings.
-- `cd web; npm run test`: passed, 134 tests.
+- `cd web; npm run test`: passed, 140 tests.
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test, including the
-  advanced global fixed-mode and manual correspondence controls.
+  advanced abstention and manual correspondence controls.
 
 Current performance gate:
 
@@ -271,6 +280,9 @@ after major scenario/schema/snapshot/generation/scrutiny changes.
 - User-overridden mean-mode list shares are converted to elector fractions, but
   their `DATA` is not yet changed to today. That remaining rule is still in the
   active plan.
+- Fixed percentage modes are deliberately not active. The scenario schema keeps
+  the `globalShareMode` slot as `mean` for future extensibility, and legacy
+  serialized `fixed` values normalize back to `mean`.
 - `calcola_parametri_input.R` currently relies on exhaustive correspondence
   rows. Its data.table join uses `nomatch = NULL`, so unmatched original-list
   votes would be dropped from the calculated denominator instead of becoming
@@ -280,10 +292,6 @@ after major scenario/schema/snapshot/generation/scrutiny changes.
 - New/unmatched scenario lists are ignored by the current static-snapshot
   worker path unless they reuse one current source-model list through a declared
   correspondence. The worker reports this as a warning.
-- `globalShareMode = "fixed"` is exposed in the advanced UI and honored
-  globally by setting `SIGMA_GLOBAL = 0` for active political list rows.
-  Municipality-level variation is unchanged until location-specific semantics
-  are designed.
 - Placeholder uninominal candidates may be generated when a matched scenario
   list uses a coalition absent from the current candidate template. This keeps
   the browser workflow runnable but needs final scenario/data semantics.

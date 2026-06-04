@@ -25,7 +25,7 @@ export interface ScenarioDefaultSource {
   snapshotId?: string;
 }
 
-export type ScenarioGlobalShareMode = 'mean' | 'fixed';
+export type ScenarioGlobalShareMode = 'mean';
 
 export type ScenarioListCorrespondenceSource = 'bundled' | 'homonymous' | 'manual';
 

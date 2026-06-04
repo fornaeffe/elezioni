@@ -313,8 +313,8 @@ describe('politics scenario projection', () => {
     );
   });
 
-  test('keeps mean mode stochastic parameters and zeros global sigma in fixed mode', () => {
-    const meanProjection = projectScenarioOntoPoliticsSource(
+  test('keeps stochastic parameters for active political lists', () => {
+    const projection = projectScenarioOntoPoliticsSource(
       source(),
       scenario([
         { id: 'a', name: 'Lista A', coalition: 'Coalizione A', color: '#000000', startingShare: 50, shareOverride: true },
@@ -323,19 +323,9 @@ describe('politics scenario projection', () => {
       ]),
       { simulations: 1 }
     );
-    const fixedScenario = scenario([
-      { id: 'a', name: 'Lista A', coalition: 'Coalizione A', color: '#000000', startingShare: 50, shareOverride: true },
-      { id: 'b', name: 'Lista B', coalition: 'Coalizione B', color: '#111111', startingShare: 20, shareOverride: false },
-      { id: 'c', name: 'Lista C', coalition: 'Coalizione C', color: '#222222', startingShare: 30, shareOverride: false }
-    ]);
-    fixedScenario.globalShareMode = 'fixed';
-    const fixedProjection = projectScenarioOntoPoliticsSource(source(), fixedScenario, { simulations: 1 });
 
-    expect(meanProjection.source.liste.filter((row) => row.LISTA !== 'astensione').map((row) => row.SIGMA_GLOBAL)).toEqual([
+    expect(projection.source.liste.filter((row) => row.LISTA !== 'astensione').map((row) => row.SIGMA_GLOBAL)).toEqual([
       0.1, 0.1, 0.1
-    ]);
-    expect(fixedProjection.source.liste.filter((row) => row.LISTA !== 'astensione').map((row) => row.SIGMA_GLOBAL)).toEqual([
-      0, 0, 0
     ]);
   });
 

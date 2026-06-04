@@ -6,7 +6,6 @@
   import type {
     ResultTable,
     Scenario,
-    ScenarioGlobalShareMode,
     ScenarioListCorrespondence,
     SimulationRequest,
     SimulationWorkerMessage
@@ -26,10 +25,6 @@
 
   const dataVersion = 'v1';
   const diagnosticTableNames = new Set(['Generated pipeline runs']);
-  const globalShareModes: Array<{ value: ScenarioGlobalShareMode; label: string }> = [
-    { value: 'mean', label: 'Media' },
-    { value: 'fixed', label: 'Fissa' }
-  ];
 
   let simulations = $state(10);
   let seed = $state('politiche-2027');
@@ -364,28 +359,6 @@
 
         {#if showAdvancedScenario}
           <div id="scenario-advanced" class="advanced-content">
-            <div class="setting-row">
-              <span class="setting-label" id="global-share-mode-label">Variabilita quote</span>
-              <div
-                class="segmented-control"
-                role="radiogroup"
-                aria-labelledby="global-share-mode-label"
-                data-testid="global-share-mode"
-              >
-                {#each globalShareModes as mode}
-                  <button
-                    type="button"
-                    role="radio"
-                    class:active={scenarioDraft.globalShareMode === mode.value}
-                    aria-checked={scenarioDraft.globalShareMode === mode.value}
-                    onclick={() => (scenarioDraft.globalShareMode = mode.value)}
-                  >
-                    {mode.label}
-                  </button>
-                {/each}
-              </div>
-            </div>
-
             <div class="setting-row">
               <label>
                 Astensione elettori
@@ -830,33 +803,6 @@
     color: #697681;
     font-size: 12px;
     font-weight: 650;
-  }
-
-  .segmented-control {
-    display: inline-grid;
-    grid-template-columns: repeat(2, minmax(78px, 1fr));
-    border: 1px solid #bdc7d0;
-    border-radius: 6px;
-    overflow: hidden;
-  }
-
-  .segmented-control button {
-    min-height: 34px;
-    border: 0;
-    border-radius: 0;
-    background: #ffffff;
-    color: #4d5963;
-    font-size: 13px;
-    font-weight: 700;
-  }
-
-  .segmented-control button + button {
-    border-left: 1px solid #bdc7d0;
-  }
-
-  .segmented-control button.active {
-    background: #2f6f57;
-    color: #ffffff;
   }
 
   .correspondence-block {

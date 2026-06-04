@@ -440,7 +440,7 @@ export function projectScenarioOntoPoliticsSource(
         LISTA: active.projectedListName,
         COALIZIONE: scenarioRow?.coalition ?? row.COALIZIONE,
         PERCENTUALE: percentage,
-        SIGMA_GLOBAL: scenario.globalShareMode === 'fixed' ? 0 : row.SIGMA_GLOBAL,
+        SIGMA_GLOBAL: row.SIGMA_GLOBAL,
         LOGIT_P: logit(percentage)
       }];
     });

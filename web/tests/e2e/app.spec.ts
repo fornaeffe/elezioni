@@ -12,8 +12,6 @@ test('runs the worker smoke path from the scenario editor', async ({ page }) => 
   await page.goto('/');
 
   await page.getByRole('button', { name: 'Impostazioni avanzate' }).click();
-  await page.getByRole('radio', { name: 'Fissa' }).click();
-  await expect(page.getByRole('radio', { name: 'Fissa' })).toHaveAttribute('aria-checked', 'true');
   await page.getByLabel('Astensione elettori').fill('50');
   await expect(page.getByLabel('Usa astensione')).toBeChecked();
 
