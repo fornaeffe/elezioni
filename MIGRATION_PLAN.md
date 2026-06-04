@@ -59,12 +59,13 @@ reveals a cleaner order or a new blocker.
    now consume real historical correspondences, but the visible advanced editor
    still exposes only compact source-model reuse. Add richer editing only with
    clear candidate-template behavior for new/split future lists.
-4. Continue refining share override semantics. Done: list shares are valid-vote
-   percentages, abstention is a separate advanced elector-share input, and
-   projection converts to internal elector fractions while normalizing
-   non-overridden list fractions. Remaining: set overridden mean-mode dates to
-   today and improve warnings when all overridden list shares require
-   normalization. Fixed modes are explicitly deferred.
+4. Keep the current global mean-mode share override semantics stable while the
+   scenario model grows. Done for this slice: list shares are valid-vote
+   percentages, abstention is a separate advanced elector-share input,
+   projection converts to internal elector fractions, non-overridden list
+   fractions are normalized from source data, all-overridden shares are
+   normalized with a warning when needed, and overridden list model dates are
+   set to the projection current date. Fixed modes are explicitly deferred.
 5. Add local percentage override schema and generator hooks, then recompute
    local deltas from normalized local elector fractions. Build the large UI
    only after the data contract and parameter builder are stable.
@@ -159,6 +160,11 @@ reveals a cleaner order or a new blocker.
   source model, including explicit share overrides, proportional recalculation
   for non-overridden matched lists, homonymous matching, safe one-to-one
   declared correspondences, projection result rows, and warnings.
+- Completed the current global mean-mode share override semantics: overridden
+  valid-vote shares are converted to elector fractions, all-overridden totals
+  that are not 100% are normalized with a warning, and overridden list
+  parameter `DATA` values are set to the worker/projection current date so
+  temporal drift starts from today.
 - Reworked results so primary user-facing summaries appear before diagnostics,
   with generated pipeline details collapsed by default.
 - Added the production politics vertical-slice guard.
@@ -217,9 +223,9 @@ reveals a cleaner order or a new blocker.
 
 Latest full web verification on 2026-06-04:
 
-- `cd web; npx vitest run src/lib/scenario/politics.test.ts src/lib/politics/scenario-projection.test.ts`: passed, 20 tests.
+- `cd web; npx vitest run src/lib/politics/scenario-projection.test.ts`: passed, 10 tests.
 - `cd web; npm run check`: passed with 0 warnings.
-- `cd web; npm run test`: passed, 140 tests.
+- `cd web; npm run test`: passed, 141 tests.
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test, including the
   advanced abstention and manual correspondence controls.
@@ -277,9 +283,6 @@ after major scenario/schema/snapshot/generation/scrutiny changes.
 - `abstentionOverride` currently makes the global `astensione` parameter fixed
   by setting its `SIGMA_GLOBAL` to zero. Local variation is still inherited from
   municipal deltas until location-specific override semantics are implemented.
-- User-overridden mean-mode list shares are converted to elector fractions, but
-  their `DATA` is not yet changed to today. That remaining rule is still in the
-  active plan.
 - Fixed percentage modes are deliberately not active. The scenario schema keeps
   the `globalShareMode` slot as `mean` for future extensibility, and legacy
   serialized `fixed` values normalize back to `mean`.

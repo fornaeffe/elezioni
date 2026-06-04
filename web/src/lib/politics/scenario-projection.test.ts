@@ -141,13 +141,44 @@ describe('politics scenario projection', () => {
         { id: 'b', name: 'Lista B', coalition: 'Coalizione B', color: '#111111', startingShare: 20, shareOverride: false },
         { id: 'c', name: 'Lista C', coalition: 'Coalizione C', color: '#222222', startingShare: 30, shareOverride: false }
       ]),
-      { simulations: 1 }
+      { currentDate: '2026-06-04', simulations: 1 }
     );
 
     expect(projection.source.liste.filter((row) => row.LISTA !== 'astensione').map((row) => Number(row.PERCENTUALE.toFixed(3)))).toEqual([
       0.3, 0.12, 0.18
     ]);
+    expect(projection.source.liste.filter((row) => row.LISTA !== 'astensione').map((row) => [row.LISTA, row.DATA])).toEqual([
+      ['Lista A', '2026-06-04T00:00:00.000Z'],
+      ['Lista B', '2022-09-25T00:00:00.000Z'],
+      ['Lista C', '2022-09-25T00:00:00.000Z']
+    ]);
     expect(projection.rows.find((row) => row.list === 'Lista A')?.projectedShare).toBe(50);
+  });
+
+  test('normalizes all matched valid-vote overrides when their total is not 100', () => {
+    const projection = projectScenarioOntoPoliticsSource(
+      source(),
+      scenario([
+        { id: 'a', name: 'Lista A', coalition: 'Coalizione A', color: '#000000', startingShare: 20, shareOverride: true },
+        { id: 'b', name: 'Lista B', coalition: 'Coalizione B', color: '#111111', startingShare: 20, shareOverride: true },
+        { id: 'c', name: 'Lista C', coalition: 'Coalizione C', color: '#222222', startingShare: 20, shareOverride: true }
+      ]),
+      { currentDate: '2026-06-04', simulations: 1 }
+    );
+
+    expect(projection.source.liste.filter((row) => row.LISTA !== 'astensione').map((row) => Number(row.PERCENTUALE.toFixed(3)))).toEqual([
+      0.2, 0.2, 0.2
+    ]);
+    expect(projection.rows.filter((row) => row.status === 'matched').map((row) => Number((row.projectedShare ?? 0).toFixed(2)))).toEqual([
+      33.33, 33.33, 33.33
+    ]);
+    expect(projection.warnings).toEqual([
+      expect.objectContaining({
+        code: 'POLITICS_SCENARIO_OVERRIDES_RENORMALIZED',
+        message:
+          'All matched lists have explicit valid-vote share overrides totaling 60%; they were normalized to 100% across matched lists before conversion to elector fractions.'
+      })
+    ]);
   });
 
   test('uses abstention override as the elector-fraction anchor for valid-vote list shares', () => {

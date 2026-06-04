@@ -186,7 +186,9 @@ simulation 4.
 - For overridden global list shares in mean mode, treat the converted fraction
   as that list's `P_{l,t-1}` and set `data_{t-1}` to today. This represents the
   user knowing the current list share, with uncertainty still drifting from
-  today to election day. Future poll-specific uncertainty can refine this.
+  today to election day. The current TypeScript projection implements this by
+  setting overridden list parameter `DATA` to the worker/projection current
+  date. Future poll-specific uncertainty can refine this.
 - Do not expose or implement fixed percentage modes in the current app slice.
   Keep the architecture ready for two future features instead:
   a globally fixed mode, and optional per-percentage fixed overrides.
@@ -377,7 +379,11 @@ simulation 4.
   fractions using the active abstention fraction. When
   `abstentionOverride = true`, `abstentionShare` is interpreted as a percentage
   of electors, the remaining elector fraction becomes the political valid-vote
-  total, and the internal `astensione` global sigma is set to zero.
+  total, and the internal `astensione` global sigma is set to zero. Explicit
+  mean-mode list share overrides are treated as current known values by setting
+  the projected list parameter `DATA` to the worker/projection current date;
+  when every matched list is overridden and the valid-vote total is not 100%,
+  projection normalizes those shares to 100% and emits a warning.
 - New/split future lists still need candidate-template semantics before they
   can be fully simulated. The rich parameter builder can create their vote
   parameters, but projection still ignores scenario lists that do not have a

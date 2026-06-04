@@ -222,6 +222,7 @@ async function handleRequest(request: SimulationRequest): Promise<void> {
   const simulationCount = Math.min(requestedSimulations, politicsGeneratedSimulationLimit);
   const source = buildPoliticsPipelineSourceFromSnapshot(staticSnapshot, { simulations: simulationCount });
   const projection = projectScenarioOntoPoliticsSource(source, request.scenario, {
+    currentDate: startedIso,
     electionDate: request.electionDate,
     historicalVotes: staticSnapshot.data.comuni_liste_elezioni,
     parameterPercentualiPartenza: 'europee',

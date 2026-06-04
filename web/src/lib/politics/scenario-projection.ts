@@ -70,6 +70,20 @@ function requestElectionDateIso(rawDate: string | undefined, fallback: string): 
   return Number.isFinite(parsed.getTime()) ? parsed.toISOString() : fallback;
 }
 
+function dateOnlyIso(rawDate: string | undefined, fallback: string): string {
+  const candidate = rawDate || fallback;
+  const isoCandidate = /^\d{4}-\d{2}-\d{2}$/.test(candidate) ? `${candidate}T00:00:00.000Z` : candidate;
+  const parsed = new Date(isoCandidate);
+  const date = Number.isFinite(parsed.getTime()) ? parsed : new Date(fallback);
+
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate())).toISOString();
+}
+
+function overrideReferenceDateIso(rawCurrentDate: string | undefined, electionDateIso: string): string {
+  const referenceDate = dateOnlyIso(rawCurrentDate, new Date().toISOString());
+  return Date.parse(referenceDate) > Date.parse(electionDateIso) ? electionDateIso : referenceDate;
+}
+
 function uniqueBy<T>(rows: readonly T[], key: (row: T) => string): T[] {
   const seen = new Set<string>();
   const result: T[] = [];
@@ -104,10 +118,10 @@ function projectPercentages(
   }
 
   if (nonOverridden.length === 0 && overrideShareTotal > 0 && Math.abs(overrideShareTotal - 100) > 1e-9) {
+    const shareTotal = Number(overrideShareTotal.toFixed(2));
     warnings.push({
       code: 'POLITICS_SCENARIO_OVERRIDES_RENORMALIZED',
-      message:
-        'All matched lists have an explicit share override, but the override total is not 100; overrides were renormalized across matched lists.',
+      message: `All matched lists have explicit valid-vote share overrides totaling ${shareTotal}%; they were normalized to 100% across matched lists before conversion to elector fractions.`,
       todoReference: 'MIGRATION_PLAN.md#current-caveats'
     });
 
@@ -222,11 +236,14 @@ export function projectScenarioOntoPoliticsSource(
   options: {
     simulations: number;
     electionDate?: string;
+    currentDate?: string;
     historicalVotes?: readonly PoliticsHistoricalMunicipalListVoteRow[];
     parameterPercentualiPartenza?: string | null;
   }
 ): PoliticsScenarioProjection {
   const warnings: PoliticsScenarioProjectionWarning[] = [];
+  const electionDateIso = requestElectionDateIso(options.electionDate ?? scenario.electionDate, source.data_elezione);
+  const overrideReferenceDate = overrideReferenceDateIso(options.currentDate, electionDateIso);
   const sourcePoliticalRows = source.liste.filter((row) => row.LISTA !== 'astensione');
   const sourcePoliticalTotal = sourcePoliticalRows.reduce((sum, row) => sum + row.PERCENTUALE, 0);
   const scenarioByKey = new Map(scenario.lists.map((row) => [listKey(row.name), row]));
@@ -347,7 +364,7 @@ export function projectScenarioOntoPoliticsSource(
     return {
       source: {
         ...source,
-        data_elezione: requestElectionDateIso(options.electionDate ?? scenario.electionDate, source.data_elezione),
+        data_elezione: electionDateIso,
         simulazioni: options.simulations
       },
       rows: [
@@ -439,6 +456,7 @@ export function projectScenarioOntoPoliticsSource(
         ...row,
         LISTA: active.projectedListName,
         COALIZIONE: scenarioRow?.coalition ?? row.COALIZIONE,
+        DATA: active.scenario.shareOverride ? overrideReferenceDate : row.DATA,
         PERCENTUALE: percentage,
         SIGMA_GLOBAL: row.SIGMA_GLOBAL,
         LOGIT_P: logit(percentage)
@@ -478,7 +496,7 @@ export function projectScenarioOntoPoliticsSource(
   return {
     source: {
       ...source,
-      data_elezione: requestElectionDateIso(options.electionDate ?? scenario.electionDate, source.data_elezione),
+      data_elezione: electionDateIso,
       simulazioni: options.simulations,
       liste: projectedLists,
       comuni_liste: baseMunicipalRows.flatMap((row) => {
