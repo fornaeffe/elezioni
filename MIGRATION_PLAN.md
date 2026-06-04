@@ -33,7 +33,7 @@ pass, pause and present Python fallback options before continuing.
 | Production static politics snapshot | Bridge done, richer raw data added | `scripts/export_politics_static_snapshot.R` writes schema v2 `web/static/data/v1/politics-static.json`, including raw historical municipal list votes for the future TypeScript parameter builder. |
 | Politics scenario defaults | Bridge done | `scripts/export_politics_scenario_defaults.mjs` writes `web/src/lib/scenario/politics-defaults.generated.ts`. |
 | Scenario editor | Core workflow plus compact advanced controls working | List/coalition/share editor, global mean/fixed mode, one-to-one manual correspondence editor, JSON save/load, localStorage, reset, validation. Rich correspondence semantics remain. |
-| Rich correspondence parameter builder | Done, not wired | `web/src/lib/politics/parameter-preparation.ts` rebuilds politics `liste`, `liste_elezioni`, and `comuni_liste` from raw historical votes and correspondences, with split/merge/unmapped-to-abstention tests and gated production parity. |
+| Rich correspondence parameter builder | Done and wired | `web/src/lib/politics/parameter-preparation.ts` rebuilds politics `liste`, `liste_elezioni`, and `comuni_liste` from raw historical votes and correspondences. `scenario-projection.ts` uses it when schema-v2 snapshot raw votes are present. |
 | R correspondence audit | Done | Current R output is coherent for the politics workbook because all historical list keys are mapped, but `calcola_parametri_input.R` drops unmatched rows instead of automatically sending them to `astensione`. |
 | Generated data storage | Done | Large generated JSON snapshots/fixtures are ignored and untracked; regenerate locally from scripts. Small generated TypeScript remains tracked. |
 | Politics browser vertical slice | Stabilized | `web/src/lib/politics/vertical-slice.test.ts` guards snapshot -> scenario -> projection -> generation -> scrutiny. |
@@ -55,11 +55,10 @@ reveals a cleaner order or a new blocker.
    the `calcola_parametri_input()` correspondence/parameter math now exists in
    a tested TypeScript module with unmapped original-list votes explicitly
    falling back to `astensione`.
-3. Wire the richer parameter builder into scenario projection and the worker
-   behind tests. Preserve the current default politics output first. Be careful:
-   the current compact correspondence editor maps future lists to current
-   source-model lists, while the richer parameter builder expects historical
-   election/list correspondences.
+3. Extend scenario/UI semantics for historical correspondences. The worker can
+   now consume real historical correspondences, but the visible advanced editor
+   still exposes only compact source-model reuse. Add richer editing only with
+   clear candidate-template behavior for new/split future lists.
 4. Refine share override semantics: show list shares as valid-vote
    percentages, keep abstention as a separate advanced elector-share input,
    convert to internal elector fractions at the projection boundary, normalize
@@ -127,6 +126,10 @@ reveals a cleaner order or a new blocker.
   factor normalization, one-to-many splits, many-to-one aggregation, and
   unmapped original-list votes becoming `astensione`; gated parity tests rebuild
   the R-exported production default parameters when local generated data exists.
+- Wired the parameter builder into `scenario-projection.ts` and the worker when
+  schema-v2 raw historical votes are present. Compact source-model reuse
+  correspondences retarget bundled historical correspondences before parameter
+  rebuilding, preserving renamed-list workflows.
 - Stopped tracking large generated JSON snapshots and bridge fixtures in Git.
   They remain local/generated artifacts and snapshot-dependent tests skip
   clearly when they are absent.
@@ -250,13 +253,12 @@ after major scenario/schema/snapshot/generation/scrutiny changes.
 - Declared correspondence projection and the current UI support only the safe
   one-to-one bridge case. Multi-source aggregation and split factors remain
   deferred until their business semantics are explicit.
-- `web/src/lib/politics/parameter-preparation.ts` already implements the rich
-  historical correspondence math, but it is deliberately not wired into the
-  worker yet. The current compact manual correspondence editor uses the special
-  source-model election label `politics-static source model`; the rich builder
-  expects real historical election/list correspondences. Wire this only when the
-  scenario UI/schema and candidate-template behavior are ready for historical
-  split/merge semantics.
+- `web/src/lib/politics/parameter-preparation.ts` is wired into projection and
+  the worker for schema-v2 snapshots. The current compact manual correspondence
+  editor still uses the special source-model election label
+  `politics-static source model`; projection treats that as template reuse and
+  retargets bundled historical correspondences accordingly. Real historical
+  split/merge editing remains an advanced UI/schema task.
 - `calcola_parametri_input.R` currently relies on exhaustive correspondence
   rows. Its data.table join uses `nomatch = NULL`, so unmatched original-list
   votes would be dropped from the calculated denominator instead of becoming
@@ -1313,4 +1315,34 @@ Verification with local generated artifacts present:
 - `cd web; npx vitest run src/lib/politics/parameter-preparation.test.ts`: passed, 3 tests.
 - `cd web; npm run check`: passed with 0 warnings.
 - `cd web; npm run test`: passed, 137 tests.
+- `cd web; npm run build`: passed.
+
+## 2026-06-04 Checkpoint 36
+
+Completed in the rich-parameter projection wiring slice:
+
+- Wired `web/src/lib/politics/parameter-preparation.ts` into
+  `web/src/lib/politics/scenario-projection.ts`.
+- Updated projection so schema-v2 raw historical municipal votes rebuild
+  `liste` and `comuni_liste` before vote generation.
+- Preserved the current compact correspondence UI by treating
+  `pastElection = "politics-static source model"` as source-model template
+  reuse. Historical/bundled correspondences are retargeted through those active
+  source-model mappings before the parameter builder runs.
+- Restricted source-model list reuse to the explicit special election label, so
+  real historical correspondences are no longer accidentally interpreted as
+  candidate-template reuse instructions.
+- Wired the worker and production vertical-slice test to pass
+  `data.comuni_liste_elezioni` and `percentualiPartenza = "europee"` into
+  projection.
+- Added a scenario-projection integration test proving a renamed source-model
+  list receives retargeted historical parameters.
+
+Verification with local generated artifacts present:
+
+- `cd web; npx vitest run src/lib/politics/scenario-projection.test.ts`: passed, 8 tests.
+- `cd web; npx vitest run src/lib/politics/parameter-preparation.test.ts src/lib/politics/scenario-projection.test.ts src/lib/politics/vertical-slice.test.ts`: passed, 13 tests.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 138 tests.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
 - `cd web; npm run build`: passed.

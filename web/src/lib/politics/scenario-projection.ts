@@ -1,10 +1,14 @@
 import type { Scenario, ScenarioList, ScenarioListCorrespondence } from '$lib/core/types';
+import { buildPoliticsParametersFromHistoricalVotes } from './parameter-preparation';
 import type {
   PoliticsCandidateUniTemplateRow,
+  PoliticsHistoricalMunicipalListVoteRow,
   PoliticsPipelineListRow,
   PoliticsPipelineRamoSource,
   PoliticsPipelineSource
 } from './types';
+
+const sourceModelCorrespondenceElection = 'politics-static source model';
 
 export interface PoliticsScenarioProjectionRow {
   list: string;
@@ -44,6 +48,10 @@ function listKey(name: string): string {
 function logit(probability: number): number {
   const bounded = Math.min(Math.max(probability, 1e-9), 1 - 1e-9);
   return Math.log(bounded / (1 - bounded));
+}
+
+function isSourceModelCorrespondence(correspondence: ScenarioListCorrespondence): boolean {
+  return correspondence.pastElection === sourceModelCorrespondenceElection;
 }
 
 function requestElectionDateIso(rawDate: string | undefined, fallback: string): string {
@@ -161,18 +169,57 @@ function correspondenceLabel(correspondence: ScenarioListCorrespondence): string
   }`;
 }
 
+function retargetHistoricalCorrespondences(
+  correspondences: readonly ScenarioListCorrespondence[],
+  activeBySourceKey: ReadonlyMap<string, ActiveSourceList>
+): ScenarioListCorrespondence[] {
+  return correspondences
+    .filter((correspondence) => !isSourceModelCorrespondence(correspondence))
+    .map((correspondence) => {
+      const active = activeBySourceKey.get(listKey(correspondence.futureList));
+      return active ? { ...correspondence, futureList: active.projectedListName } : correspondence;
+    });
+}
+
+function buildHistoricalParameterSource(
+  scenario: Scenario,
+  activeLists: readonly ActiveSourceList[],
+  activeBySourceKey: ReadonlyMap<string, ActiveSourceList>,
+  options: {
+    historicalVotes?: readonly PoliticsHistoricalMunicipalListVoteRow[];
+    parameterPercentualiPartenza?: string | null;
+  }
+): Pick<PoliticsPipelineSource, 'liste' | 'comuni_liste'> | null {
+  if (!options.historicalVotes || options.historicalVotes.length === 0 || activeLists.length === 0) return null;
+
+  const parameterScenario: Scenario = {
+    ...scenario,
+    lists: activeLists.map((row) => row.scenario),
+    listCorrespondences: retargetHistoricalCorrespondences(scenario.listCorrespondences, activeBySourceKey)
+  };
+  const parameters = buildPoliticsParametersFromHistoricalVotes(options.historicalVotes, parameterScenario, {
+    percentualiPartenza: options.parameterPercentualiPartenza ?? null
+  });
+
+  return {
+    liste: parameters.liste,
+    comuni_liste: parameters.comuni_liste
+  };
+}
+
 export function projectScenarioOntoPoliticsSource(
   source: PoliticsPipelineSource,
   scenario: Scenario,
   options: {
     simulations: number;
     electionDate?: string;
+    historicalVotes?: readonly PoliticsHistoricalMunicipalListVoteRow[];
+    parameterPercentualiPartenza?: string | null;
   }
 ): PoliticsScenarioProjection {
   const warnings: PoliticsScenarioProjectionWarning[] = [];
   const sourcePoliticalRows = source.liste.filter((row) => row.LISTA !== 'astensione');
   const sourcePoliticalTotal = sourcePoliticalRows.reduce((sum, row) => sum + row.PERCENTUALE, 0);
-  const sourceByKey = new Map(sourcePoliticalRows.map((row) => [listKey(row.LISTA), row]));
   const scenarioByKey = new Map(scenario.lists.map((row) => [listKey(row.name), row]));
   const activeLists: ActiveSourceList[] = [];
   const projectionRows: PoliticsScenarioProjectionRow[] = [];
@@ -201,7 +248,7 @@ export function projectScenarioOntoPoliticsSource(
     if (activeBySourceKey.has(sourceKey)) continue;
 
     const candidates = scenario.listCorrespondences
-      .filter((correspondence) => listKey(correspondence.pastList) === sourceKey)
+      .filter((correspondence) => isSourceModelCorrespondence(correspondence) && listKey(correspondence.pastList) === sourceKey)
       .map((correspondence) => ({
         correspondence,
         scenario: scenarioByKey.get(listKey(correspondence.futureList))
@@ -239,7 +286,8 @@ export function projectScenarioOntoPoliticsSource(
   }
 
   const unusedCorrespondences = scenario.listCorrespondences.filter(
-    (correspondence) => correspondence.source === 'manual' && !usedCorrespondenceIds.has(correspondence.id)
+    (correspondence) =>
+      correspondence.source === 'manual' && isSourceModelCorrespondence(correspondence) && !usedCorrespondenceIds.has(correspondence.id)
   );
   if (unusedCorrespondences.length > 0) {
     warnings.push({
@@ -319,7 +367,24 @@ export function projectScenarioOntoPoliticsSource(
     };
   }
 
-  const projectedPercentages = projectPercentages(activeLists, sourcePoliticalTotal, warnings);
+  const historicalParameterSource = buildHistoricalParameterSource(scenario, activeLists, activeBySourceKey, options);
+  const baseListRows = historicalParameterSource?.liste ?? source.liste;
+  const baseMunicipalRows = historicalParameterSource?.comuni_liste ?? source.comuni_liste;
+  const parameterByListKey = new Map(baseListRows.map((row) => [listKey(row.LISTA), row]));
+  const activeListsWithParameters = activeLists.map((active) => ({
+    ...active,
+    source: parameterByListKey.get(listKey(active.projectedListName)) ?? active.source
+  }));
+  const basePoliticalTotal = baseListRows
+    .filter((row) => row.LISTA !== 'astensione' && activeScenarioKeys.has(listKey(row.LISTA)))
+    .reduce((sum, row) => sum + row.PERCENTUALE, 0);
+  const projectionPoliticalTotal =
+    historicalParameterSource && basePoliticalTotal > 0 ? basePoliticalTotal : sourcePoliticalTotal;
+  const projectedPercentages = projectPercentages(
+    activeListsWithParameters,
+    projectionPoliticalTotal,
+    warnings
+  );
   const activeCoalitions = new Set(
     activeLists
       .map((row) => row.scenario.coalition)
@@ -340,14 +405,15 @@ export function projectScenarioOntoPoliticsSource(
   }
 
   const activeScenarioBySourceName = new Map(activeLists.map((row) => [row.source.LISTA, row.scenario]));
-  const projectedLists = source.liste
+  const activeByProjectedKey = new Map(activeLists.map((row) => [listKey(row.projectedListName), row]));
+  const projectedLists = baseListRows
     .flatMap((row) => {
       if (row.LISTA === 'astensione') return { ...row };
 
-      const active = activeBySourceKey.get(listKey(row.LISTA));
+      const active = activeBySourceKey.get(listKey(row.LISTA)) ?? activeByProjectedKey.get(listKey(row.LISTA));
       if (!active) return [];
 
-      const scenarioRow = activeScenarioBySourceName.get(row.LISTA);
+      const scenarioRow = activeScenarioBySourceName.get(row.LISTA) ?? active.scenario;
       const percentage = projectedPercentages.get(active.projectedListName) ?? row.PERCENTUALE;
 
       return [{
@@ -363,14 +429,15 @@ export function projectScenarioOntoPoliticsSource(
   for (const { source: sourceRow, scenario: scenarioRow } of activeLists) {
     const active = activeBySourceKey.get(listKey(sourceRow.LISTA));
     const projectedListName = active?.projectedListName ?? sourceRow.LISTA;
-    const percentage = projectedPercentages.get(projectedListName) ?? sourceRow.PERCENTUALE;
+    const baseParameterRow = parameterByListKey.get(listKey(projectedListName));
+    const percentage = projectedPercentages.get(projectedListName) ?? baseParameterRow?.PERCENTUALE ?? sourceRow.PERCENTUALE;
     projectionRows.push({
       list: projectedListName,
       sourceList: sourceRow.LISTA,
       coalition: scenarioRow.coalition,
       scenarioShare: scenarioRow.startingShare,
       shareOverride: scenarioRow.shareOverride,
-      projectedShare: sourcePoliticalTotal > 0 ? (100 * percentage) / sourcePoliticalTotal : 0,
+      projectedShare: projectionPoliticalTotal > 0 ? (100 * percentage) / projectionPoliticalTotal : 0,
       matchMode: active?.matchMode ?? 'none',
       status: 'matched'
     });
@@ -395,9 +462,9 @@ export function projectScenarioOntoPoliticsSource(
       data_elezione: requestElectionDateIso(options.electionDate ?? scenario.electionDate, source.data_elezione),
       simulazioni: options.simulations,
       liste: projectedLists,
-      comuni_liste: source.comuni_liste.flatMap((row) => {
+      comuni_liste: baseMunicipalRows.flatMap((row) => {
         if (row.LISTA === 'astensione') return { ...row };
-        const active = activeBySourceKey.get(listKey(row.LISTA));
+        const active = activeBySourceKey.get(listKey(row.LISTA)) ?? activeByProjectedKey.get(listKey(row.LISTA));
         return active ? [{ ...row, LISTA: active.projectedListName }] : [];
       }),
       camera: camera.source,

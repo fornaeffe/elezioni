@@ -56,6 +56,8 @@ describeWithGeneratedFixtures('politics browser vertical slice', [productionStat
     const source = buildPoliticsPipelineSourceFromSnapshot(snapshot, { simulations: 1 });
     const projection = projectScenarioOntoPoliticsSource(source, scenario, {
       electionDate: scenario.electionDate,
+      historicalVotes: snapshot.data.comuni_liste_elezioni,
+      parameterPercentualiPartenza: 'europee',
       simulations: 1
     });
     const scrutinyAlgorithm = resolvePoliticsScrutinyAlgorithm(defaultPoliticsScrutinyAlgorithmId).algorithm;

@@ -1,7 +1,9 @@
 import { describe, expect, test } from 'vitest';
 import type { Scenario } from '$lib/core/types';
-import type { PoliticsPipelineSource } from './types';
+import type { PoliticsHistoricalMunicipalListVoteRow, PoliticsPipelineSource } from './types';
 import { projectScenarioOntoPoliticsSource } from './scenario-projection';
+
+const sourceModelCorrespondenceElection = 'politics-static source model';
 
 function logit(probability: number): number {
   return Math.log(probability / (1 - probability));
@@ -81,6 +83,16 @@ function scenario(lists: Scenario['lists']): Scenario {
   };
 }
 
+function historicalVotes(): PoliticsHistoricalMunicipalListVoteRow[] {
+  return [
+    { DATA: '2024-01-01T00:00:00.000Z', ELEZIONE: 'election 2024', CODICE_COMUNE: 1, LISTA: 'Historical A', VOTI: 40 },
+    { DATA: '2024-01-01T00:00:00.000Z', ELEZIONE: 'election 2024', CODICE_COMUNE: 1, LISTA: 'Historical B', VOTI: 20 },
+    { DATA: '2024-01-01T00:00:00.000Z', ELEZIONE: 'election 2024', CODICE_COMUNE: 1, LISTA: 'Historical C', VOTI: 20 },
+    { DATA: '2024-01-01T00:00:00.000Z', ELEZIONE: 'election 2024', CODICE_COMUNE: 1, LISTA: 'Historical X', VOTI: 10 },
+    { DATA: '2024-01-01T00:00:00.000Z', ELEZIONE: 'election 2024', CODICE_COMUNE: 1, LISTA: 'astensione', VOTI: 10 }
+  ];
+}
+
 describe('politics scenario projection', () => {
   test('keeps source percentages when no list has a share override', () => {
     const projection = projectScenarioOntoPoliticsSource(
@@ -146,7 +158,7 @@ describe('politics scenario projection', () => {
       {
         id: 'corr-a-x',
         futureList: 'Lista X',
-        pastElection: 'camera 2022',
+        pastElection: sourceModelCorrespondenceElection,
         pastDate: '2022-09-25',
         pastList: 'Lista A',
         factor: 1,
@@ -176,6 +188,74 @@ describe('politics scenario projection', () => {
     );
   });
 
+  test('retargets rich historical parameters through source-model correspondences', () => {
+    const renamedScenario = scenario([
+      { id: 'x', name: 'Lista X', coalition: 'Coalizione A', color: '#000000', startingShare: 10, shareOverride: false },
+      { id: 'b', name: 'Lista B', coalition: 'Coalizione B', color: '#111111', startingShare: 20, shareOverride: false },
+      { id: 'c', name: 'Lista C', coalition: 'Coalizione C', color: '#222222', startingShare: 30, shareOverride: false }
+    ]);
+    renamedScenario.listCorrespondences = [
+      {
+        id: 'source-a-x',
+        futureList: 'Lista X',
+        pastElection: sourceModelCorrespondenceElection,
+        pastDate: '2022-09-25',
+        pastList: 'Lista A',
+        factor: 1,
+        source: 'manual'
+      },
+      {
+        id: 'history-a',
+        futureList: 'Lista A',
+        pastElection: 'election 2024',
+        pastDate: '2024-01-01',
+        pastList: 'Historical A',
+        factor: 1,
+        source: 'bundled'
+      },
+      {
+        id: 'history-b',
+        futureList: 'Lista B',
+        pastElection: 'election 2024',
+        pastDate: '2024-01-01',
+        pastList: 'Historical B',
+        factor: 1,
+        source: 'bundled'
+      },
+      {
+        id: 'history-c',
+        futureList: 'Lista C',
+        pastElection: 'election 2024',
+        pastDate: '2024-01-01',
+        pastList: 'Historical C',
+        factor: 1,
+        source: 'bundled'
+      }
+    ];
+
+    const projection = projectScenarioOntoPoliticsSource(source(), renamedScenario, {
+      historicalVotes: historicalVotes(),
+      simulations: 1
+    });
+
+    expect(projection.warnings).toEqual([]);
+    expect(projection.source.liste.map((row) => [row.LISTA, Number(row.PERCENTUALE.toFixed(3))])).toEqual([
+      ['Lista B', 0.2],
+      ['Lista C', 0.2],
+      ['Lista X', 0.4],
+      ['astensione', 0.2]
+    ]);
+    expect(projection.source.comuni_liste.map((row) => row.LISTA)).toEqual(['astensione', 'Lista B', 'Lista C', 'Lista X']);
+    const renamedProjectionRow = projection.rows.find((row) => row.list === 'Lista X');
+    expect(renamedProjectionRow).toEqual(
+      expect.objectContaining({
+        sourceList: 'Lista A',
+        matchMode: 'declared-correspondence'
+      })
+    );
+    expect(renamedProjectionRow?.projectedShare ?? Number.NaN).toBeCloseTo(50);
+  });
+
   test('warns when declared correspondences cannot use the current snapshot', () => {
     const staleScenario = scenario([
       { id: 'x', name: 'Lista X', coalition: 'Coalizione A', color: '#000000', startingShare: 10, shareOverride: false }
@@ -184,7 +264,7 @@ describe('politics scenario projection', () => {
       {
         id: 'stale',
         futureList: 'Lista X',
-        pastElection: 'camera 2022',
+        pastElection: sourceModelCorrespondenceElection,
         pastDate: '2022-09-25',
         pastList: 'Lista che non esiste',
         factor: 1,

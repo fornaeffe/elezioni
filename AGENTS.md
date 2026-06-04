@@ -356,14 +356,17 @@ simulation 4.
   prove synthetic split/merge/abstention behavior and, when the ignored local
   `politics-static.json` exists, rebuild the R-exported default politics
   `liste`, `liste_elezioni`, and `comuni_liste` parameters from raw history.
-  This builder is not wired into the worker yet.
-- Do not wire `parameter-preparation.ts` blindly into the current compact
-  manual correspondence UI. That UI maps a future scenario list to a current
-  static source-model list (`pastElection = "politics-static source model"`),
-  while the rich parameter builder expects real historical election/list
-  correspondences. Integrate it when the scenario UI/schema can express
-  historical correspondences and candidate-template behavior for new/split
-  future lists is clear.
+- `scenario-projection.ts` wires `parameter-preparation.ts` into the worker path
+  when schema-v2 `politics-static.json` provides `data.comuni_liste_elezioni`.
+  It preserves the compact manual correspondence UI by treating
+  `pastElection = "politics-static source model"` as a source-model template
+  reuse instruction, not as a real historical correspondence. Bundled/real
+  historical correspondences are retargeted through any active source-model
+  rename before rebuilding list parameters.
+- New/split future lists still need candidate-template semantics before they
+  can be fully simulated. The rich parameter builder can create their vote
+  parameters, but projection still ignores scenario lists that do not have a
+  homonymous source-model list or a source-model reuse correspondence.
 - New/unmatched scenario lists cannot yet be simulated by the static-snapshot
   worker path unless they reuse one current source-model list through a declared
   correspondence. Other new lists are ignored with a warning until richer

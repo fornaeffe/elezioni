@@ -223,6 +223,8 @@ async function handleRequest(request: SimulationRequest): Promise<void> {
   const source = buildPoliticsPipelineSourceFromSnapshot(staticSnapshot, { simulations: simulationCount });
   const projection = projectScenarioOntoPoliticsSource(source, request.scenario, {
     electionDate: request.electionDate,
+    historicalVotes: staticSnapshot.data.comuni_liste_elezioni,
+    parameterPercentualiPartenza: 'europee',
     simulations: simulationCount
   });
   const scenarioSource = projection.source;
