@@ -51,7 +51,11 @@ test('runs the worker smoke path from the scenario editor', async ({ page }) => 
   });
   await expect(renamedProjectionRow).toContainText('+Europa');
   await expect(renamedProjectionRow).toContainText('declared-correspondence');
+  await expect(page.getByRole('table', { name: 'Election overview' })).toBeVisible();
   await expect(page.getByRole('table', { name: 'Average plurinominal seats by list' })).toBeVisible();
+  await expect(page.getByRole('table', { name: 'Vote share by list' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Scarica risultati JSON' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Scarica risultati CSV' })).toBeVisible();
   await expect(page.getByRole('table', { name: 'Generated pipeline runs' })).toHaveCount(0);
   await page.getByRole('button', { name: 'Mostra dettagli' }).click();
   await expect(page.getByRole('table', { name: 'Generated pipeline runs' })).toBeVisible();

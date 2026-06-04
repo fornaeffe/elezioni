@@ -8,8 +8,10 @@
     Scenario,
     ScenarioListCorrespondence,
     SimulationRequest,
+    SimulationResult,
     SimulationWorkerMessage
   } from '$lib/core/types';
+  import { createSimulationResultExport, resultTablesToCsv } from '$lib/core/result-export';
   import {
     cloneScenario,
     createDefaultPoliticsScenario,
@@ -33,6 +35,7 @@
   let elapsedMs = $state(0);
   let tables = $state<ResultTable[]>([]);
   let warnings = $state<string[]>([]);
+  let lastResult = $state<SimulationResult | null>(null);
   let showDiagnostics = $state(false);
   let showAdvancedScenario = $state(false);
   let scenarioDraft = $state<Scenario>(createDefaultPoliticsScenario());
@@ -44,6 +47,7 @@
   const canRun = $derived(!running && validationMessages.length === 0);
   const runButtonLabel = $derived(running ? phase : 'Esegui');
   const elapsedLabel = $derived(`${elapsedMs.toFixed(0)} ms`);
+  const hasResult = $derived(lastResult !== null);
   const primaryTables = $derived(
     tables
       .filter((table) => !diagnosticTableNames.has(table.name))
@@ -142,6 +146,7 @@
     scenarioDraft = createDefaultPoliticsScenario();
     tables = [];
     warnings = [];
+    lastResult = null;
     showDiagnostics = false;
     showAdvancedScenario = false;
   }
@@ -158,13 +163,38 @@
   function downloadScenario(): void {
     if (!browser) return;
 
-    const blob = new Blob([serializeScenario(scenario)], { type: 'application/json' });
+    downloadText(serializeScenario(scenario), 'application/json', scenarioFilename());
+  }
+
+  function downloadText(content: string, type: string, filename: string): void {
+    const blob = new Blob([content], { type });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = scenarioFilename();
+    link.download = filename;
     link.click();
     URL.revokeObjectURL(url);
+  }
+
+  function resultFilename(extension: 'csv' | 'json'): string {
+    return `${scenarioFilename().replace(/\.json$/, '')}-risultati.${extension}`;
+  }
+
+  function downloadResultsJson(): void {
+    if (!browser || !lastResult) return;
+
+    const payload = createSimulationResultExport({
+      result: lastResult,
+      scenario,
+      exportedAt: new Date().toISOString()
+    });
+    downloadText(JSON.stringify(payload, null, 2), 'application/json', resultFilename('json'));
+  }
+
+  function downloadResultsCsv(): void {
+    if (!browser || !lastResult) return;
+
+    downloadText(resultTablesToCsv(lastResult.tables), 'text/csv;charset=utf-8', resultFilename('csv'));
   }
 
   function chooseScenarioFile(): void {
@@ -180,6 +210,7 @@
       scenarioDraft = parseScenario(await file.text());
       tables = [];
       warnings = [];
+      lastResult = null;
       showDiagnostics = false;
       showAdvancedScenario = false;
     } catch (error) {
@@ -211,6 +242,7 @@
     elapsedMs = 0;
     tables = [];
     warnings = [];
+    lastResult = null;
     showDiagnostics = false;
 
     worker.onmessage = (event: MessageEvent<SimulationWorkerMessage>) => {
@@ -221,6 +253,7 @@
         return;
       }
 
+      lastResult = message;
       tables = message.tables;
       warnings = message.warnings.map((warning) => `${warning.code}: ${warning.message}`);
       elapsedMs = message.benchmark.elapsedMs;
@@ -234,6 +267,7 @@
       elapsedMs = performance.now();
       running = false;
       phase = 'error';
+      lastResult = null;
       worker.terminate();
     };
 
@@ -244,6 +278,7 @@
       elapsedMs = 0;
       running = false;
       phase = 'error';
+      lastResult = null;
       worker.terminate();
     }
   }
@@ -552,7 +587,19 @@
     <div class="panel result-panel">
       <div class="panel-heading">
         <h2>Risultati</h2>
-        <span data-testid="elapsed-ms" data-phase={phase}>{elapsedLabel}</span>
+        <div class="result-heading-actions">
+          {#if hasResult}
+            <button type="button" class="text-button" onclick={downloadResultsJson} aria-label="Scarica risultati JSON">
+              <Download size={16} aria-hidden="true" />
+              <span>JSON</span>
+            </button>
+            <button type="button" class="text-button" onclick={downloadResultsCsv} aria-label="Scarica risultati CSV">
+              <Download size={16} aria-hidden="true" />
+              <span>CSV</span>
+            </button>
+          {/if}
+          <span data-testid="elapsed-ms" data-phase={phase}>{elapsedLabel}</span>
+        </div>
       </div>
 
       {#if warnings.length > 0}
@@ -736,6 +783,12 @@
 
   .panel-actions {
     display: flex;
+    gap: 8px;
+  }
+
+  .result-heading-actions {
+    display: flex;
+    align-items: center;
     gap: 8px;
   }
 
@@ -928,6 +981,19 @@
   .icon-button {
     width: 38px;
     padding: 0;
+  }
+
+  .text-button {
+    min-height: 32px;
+    padding: 0 10px;
+    color: #4d5963;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .text-button span {
+    color: inherit;
+    font-size: inherit;
   }
 
   .danger {

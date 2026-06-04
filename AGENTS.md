@@ -151,6 +151,9 @@ simulation 4.
   not in the worker orchestration layer. Keep summary tables focused on
   user-facing outcomes first: election overview, seat distributions,
   valid-vote share distributions, and uninominal winners by support.
+- Result exports belong in `web/src/lib/core/result-export.ts`. JSON exports
+  should keep the scenario and worker result together for reproducibility; CSV
+  exports should stay table-oriented for spreadsheet review.
 - Scenario editor basics belong in this migration: list/coalition editing,
   global list percentage overrides, typed JSON save/load, automatic local
   storage persistence, reset to defaults, and validation before worker runs.
@@ -368,8 +371,10 @@ simulation 4.
   into result tables for the UI. It summarizes election overview, average
   plurinominal seats by list with zero-seat runs included, valid-vote share
   distributions by list, and uninominal winners grouped by supporting
-  coalition/list. Keep future charts/exports downstream of this boundary where
-  possible.
+  coalition/list. Keep future charts downstream of this boundary where possible.
+- `web/src/lib/core/result-export.ts` serializes worker result tables to a
+  sectioned CSV and builds a structured JSON export payload with the scenario,
+  result, and export timestamp. Keep this generic across future election kinds.
 - `web/src/lib/politics/scenario-projection.ts` is the current boundary between
   the web-native politics scenario and the generated worker source. It matches
   scenario lists to the static snapshot first by exact list name and then by a
