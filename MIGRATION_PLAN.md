@@ -2,495 +2,219 @@
 
 Last updated: 2026-06-04
 
-## Summary
+## Purpose
 
-The migration target is a SvelteKit static TypeScript app under `web/`, with
+This file is the migration source of truth. The sections before the checkpoint
+log describe the current plan, status, decisions, and risks. The dated
+checkpoints below are historical notes and should not be used as the primary
+task list.
+
+Target architecture: a SvelteKit static TypeScript app under `web/`, with
 simulation and scrutiny running in browser workers. The first migrated workflow
-is `politiche`, because it carries the largest legal and performance risk.
+is `politiche`, because it has the largest legal and performance risk.
 
-The first browser version will use:
+The browser path remains preferred as long as the optimized politics workflow is
+not 10x or more slower than the same full R baseline on the same machine. If a
+future browser benchmark reaches that stop threshold after one optimization
+pass, pause and present Python fallback options before continuing.
 
-- bundled, versioned historical/electoral data snapshots;
-- an in-app scenario editor;
-- deterministic seeded simulations;
-- golden-master tests against the current R implementation;
-- a performance gate against the local R baseline.
+## Current State
 
-If the optimized browser politics workflow is 10x or more slower than the same
-R baseline on the same machine, pause and present Python fallback options.
-
-## Status
-
-| Phase | Status | Notes |
+| Area | State | Source of truth |
 | --- | --- | --- |
-| Migration tracking | Done | `AGENTS.md` and this file are present. |
+| Migration tracking | Done | `AGENTS.md` and this plan are present. |
 | R safety fixes | Done | `candidati_pluri_sim_` renamed to `candidati_pluri_sim`; debug scrutiny still matches. |
-| Golden-master fixtures | Done | `scripts/export_politics_golden.R` exports schema v7 JSON with direct inputs, final outputs, warnings, and scrutiny trace tables. |
-| R benchmarks | Done | `scripts/benchmark_r_workflows.R` added; quick baseline JSON generated. |
-| SvelteKit app scaffold | Done | `web/` created with strict TS, static adapter, Vitest, Playwright. |
-| TypeScript core | Started | Worker API types, seeded RNG, allocation primitives, fixture loader tests, and unit tests added. |
-| Politics scrutiny port | Started | Direct politics scrutiny output matches R for the debug fixture; the worker now scrutinizes generated TypeScript politics simulations through the first algorithm registry hook. |
-| Vote generation | Started | Generic `genera_voti()` math and politics `genera_voti_politiche()` orchestration are ported with R-draw fixture parity and seeded browser normals. |
-| Candidate generation | Started | Politics `genera_candidati()` is ported with R `sample()` replay fixture parity and seeded browser sampling. |
-| Composed politics pipeline | Started | Candidate generation, vote generation, vote preparation, and direct-scrutiny input adaptation are composed into tested synthetic, real-source, and browser-worker paths. |
-| Generated politics input adapter | Started | R-style generated-table fixture and TypeScript adapter now rebuild the exact direct scrutiny inputs/context. `prepara_dts()` vote preparation is also ported. |
-| Production static snapshot bridge | Done | `scripts/export_politics_static_snapshot.R` exports `web/static/data/v1/politics-static.json` from the current R cache and politics scenario workbook. |
-| Performance gate | Passed for current politics worker path | Chromium generated-worker benchmark on the R-exported production static snapshot is below fresh full R politics baselines for 10, 100, and 1000 simulations; repeat after future data-preparation migration or major snapshot changes. |
-| Politics browser vertical slice | Stabilized for current slice | Production snapshot, default scenario, projection, generated pipeline, and registered scrutiny algorithm are guarded by an integration test. Keep this guard green while scenario semantics evolve. |
-| Scenario editor and JSON contract | Started | Scenario schema v3 covers basic UI fields, default-source metadata, bundled generated list correspondences, global fixed/mean share mode, JSON compatibility, validation, homonymous matching, and one-to-one declared correspondence projection. Advanced UI remains planned. |
+| Politics golden fixtures | Done for current politics slice | `scripts/export_politics_golden.R`, `test/fixtures/politiche/debug_scrutinio.json`. |
+| R and browser benchmarks | Done for current politics slice | `scripts/benchmark_r_workflows.R`, `web/tests/benchmarks/politics-worker.spec.ts`, benchmark JSON under `test/fixtures/benchmarks/`. |
+| SvelteKit app scaffold | Done | `web/` with strict TypeScript, static adapter, Vitest, Playwright. |
+| Shared TypeScript core | Usable, still growing | Worker API types, seeded RNG, allocation primitives, scenario types, warning/result contracts. |
+| Politics scrutiny | R-parity direct fixture passes | `web/src/lib/politics/scrutiny.ts`; registry id `politiche-r-parity-v1`. Split only when boundaries are clearer. |
+| Politics generation pipeline | Current browser path working | Candidate generation, vote generation, vote preparation, direct-scrutiny adaptation, worker chunking. |
+| Production static politics snapshot | Bridge done | `scripts/export_politics_static_snapshot.R` writes `web/static/data/v1/politics-static.json`. |
+| Politics scenario defaults | Bridge done | `scripts/export_politics_scenario_defaults.mjs` writes `web/src/lib/scenario/politics-defaults.generated.ts`. |
+| Scenario editor | Basic workflow working | List/coalition/share editor, JSON save/load, localStorage, reset, validation. Advanced controls remain. |
+| Politics browser vertical slice | Stabilized | `web/src/lib/politics/vertical-slice.test.ts` guards snapshot -> scenario -> projection -> generation -> scrutiny. |
+| Performance gate | Passed | Chromium worker on the R-exported production static snapshot is below fresh full R politics baselines for 10, 100, and 1000 simulations. |
+| Regional and municipal workflows | Not started | Migrate after politics browser workflow is stable enough. |
+| Data-preparation migration | Deferred | Reassess typed Python vs Node/TypeScript after simulator workflows are migrated. |
 
-## Planned Future Steps
+## Next Work
 
-This is the current intended order for the next migration work. It is a living
-sequence, not a contract: if implementing a future step shows that another
-order would reduce risk, unblock work, or keep the architecture cleaner, update
-this list before continuing.
+This ordered list is the active implementation plan. Update it whenever a step
+reveals a cleaner order or a new blocker.
 
-1. Keep the stabilized politics browser vertical slice green: the generated
-   worker path, scenario projection, result-priority UI, static snapshot bridge,
-   and registered scrutiny algorithm now have a production guardrail test; keep
-   it passing while the remaining politics scenario semantics are added.
-2. Add advanced politics scenario controls incrementally: expose the global
-   fixed/mean setting behind the advanced section, then add a compact
-   correspondence view/editor for one-to-one mappings. Keep multi-source
-   correspondence aggregation deferred until its vote-variation and candidate
-   semantics are clear.
-3. Improve scenario projection only where the UI/data contract already makes
-   the semantics explicit. Current projection supports homonymous matches and
-   one-to-one declared source-model correspondences; richer declared
-   correspondence behavior should be added with tests before it reaches the UI.
-4. Add candidate template support to the scenario model and worker pipeline,
-   allowing user-provided names for some slots while preserving generated
+1. Keep the politics browser vertical slice green while scenario semantics grow.
+   Every change to defaults, projection, generation, worker behavior, or the
+   scrutiny registry should preserve or deliberately update
+   `web/src/lib/politics/vertical-slice.test.ts`.
+2. Expose global `mean`/`fixed` share mode in the advanced scenario UI. The
+   projection boundary already honors `fixed` globally by setting
+   `SIGMA_GLOBAL = 0` for active political list rows.
+3. Add a compact one-to-one correspondence view/editor for advanced scenario
+   users. Support only the semantics already implemented by projection: one
+   current source-model list reused by one future scenario list. Keep bundled
+   correspondences visible as defaults/metadata without warning spam.
+4. Decide and implement richer correspondence semantics only after the UI makes
+   the business meaning explicit. Multi-source aggregation and split factors
+   need clear rules for local deltas, variability, abstention, and candidate
+   templates before they should affect simulations.
+5. Add candidate-template support to the scenario model and worker pipeline,
+   allowing user-provided names for selected slots while preserving generated
    candidates for unspecified places.
-5. Improve politics result presentation: add legally meaningful summary tables,
-   charts, exports, and clearer warning/detail separation while keeping
-   diagnostic worker tables collapsed by default.
-6. Refactor the politics scrutiny core once boundaries are stable: split
-   `web/src/lib/politics/scrutiny.ts` into focused modules only when the
-   refactor lowers risk, and keep all algorithms behind the registry interface.
-7. Add a second politics scrutiny algorithm only for a real law-review or
-   comparison need. Once it exists, expose UI selection/comparison through the
-   existing algorithm hook.
-8. Repeat the politics performance gate after major scenario/data/scrutiny
-   changes. If browser time reaches the 10x stop threshold after one
-   optimization pass, pause and reassess the Python compute-core fallback.
-9. Migrate Emilia-Romagna regional workflow: create R golden fixtures and
-    benchmarks first, then port allocation/scrutiny/generation into the same
-    typed worker architecture.
-10. Migrate municipal workflow: create R golden fixtures and benchmarks first,
-    preserve current behavior, and explicitly track known runoff/councilor
-    candidate TODOs for later business-law review.
-11. Generalize the web app for multiple election kinds: routing/navigation,
-    snapshot selection, worker dispatch, scenario defaults, result components,
-    and shared validation patterns.
-12. Migrate data preparation after simulator workflows are migrated. Reassess
-    typed Python versus Node/TypeScript then; keep it a periodic
-    election-kind-agnostic devops/GitHub Actions pipeline that produces static
-    data bundles.
-13. Retire temporary bridge artifacts and update final documentation once the
-    migrated workflows no longer depend on R-exported intermediary snapshots.
+6. Improve politics result presentation with legally meaningful summaries,
+   charts, exports, and clearer warning/detail separation. Keep diagnostic
+   tables such as `Generated pipeline runs` collapsed by default.
+7. Refactor politics scrutiny only when it lowers risk. The likely target is
+   stage-focused modules behind the existing scrutiny algorithm registry, but
+   do not split during active parity discovery just for size alone.
+8. Add a second politics scrutiny algorithm only for a concrete law-review or
+   comparison need. Expose UI selection/comparison only after at least two real
+   same-election-kind algorithms exist.
+9. Repeat the politics browser performance gate after major scenario, data,
+   generation, or scrutiny changes.
+10. Migrate the Emilia-Romagna regional workflow: first add R golden fixtures
+    and benchmarks, then port allocation, generation, scrutiny, worker, UI, and
+    browser tests into the same architecture.
+11. Migrate the municipal workflow: first add R golden fixtures and benchmarks,
+    preserve current behavior, and keep known runoff/councilor-candidate
+    business TODOs explicit for later law review.
+12. Generalize the web app across election kinds: routing, snapshot selection,
+    scenario defaults, worker dispatch, result components, validation, and
+    shared UI patterns.
+13. Migrate data preparation after simulator workflows are migrated. Reassess
+    typed Python versus Node/TypeScript then; keep it a periodic,
+    election-kind-agnostic devops/GitHub Actions pipeline producing static
+    previous-election bundles.
+14. Retire temporary bridge artifacts and update user/developer documentation
+    once migrated workflows no longer depend on R-exported intermediary
+    snapshots.
 
-## Decisions
+## Completed Foundations
 
-- Target: SvelteKit-first, not Python-first.
-- First vertical slice: politics.
-- Scenario UX: the web app is the preferred long-term way to create and edit
-  scenarios. Excel scenarios can be abandoned rather than kept as a first-class
-  input, because malformed workbook risk and typechecking cost are too high.
-- Data source: bundled static snapshots.
-- Data-preparation pipeline migration is planned, but only after the rest of
-  the simulator migration. When that phase starts, reassess whether typed
-  Python or Node/TypeScript is the better fit.
-- Data preparation should remain a devops/GitHub Actions workflow, run
-  periodically, and stay agnostic about election kind: it should produce a
-  bundle of previous-election data consumed by election-specific vote generation
-  pipelines.
-- Compatibility: business/legal behavior must match R unless Luca approves a correction.
-- R TODOs: leave for later unless a fix is trivial and helps migration safety.
-- `sorteggio`: implement only when straightforward; otherwise add `TODO(law-review)`.
-- Scrutiny implementations should stay modular and swappable behind a stable
-  interface, so the same data/scenario can be compared across algorithm
-  variants during law review.
-- The UI should expose multiple scrutiny algorithms for a given election kind
-  once at least two algorithms exist for that same kind. Until then, keep the
-  interface/design ready but avoid premature UI complexity.
-- Results UI should prioritize user-facing election outputs. Diagnostic tables
-  such as `Generated pipeline runs` should not be shown by default; keep them
-  reachable through an expandable/debug section or button so summary tables and
-  legally meaningful results stay visible first.
-- Delay splitting `web/src/lib/politics/scrutiny.ts` until the golden-tested
-  stage boundaries are clear enough that the refactor reduces risk.
+- Created durable migration notes in `AGENTS.md` and this living plan.
+- Measured local R baselines and created repeatable benchmark scripts.
+- Renamed the R politics output key to `candidati_pluri_sim` and verified the
+  debug scrutiny fixture still matches.
+- Exported politics golden-master fixtures and direct scrutiny trace tables.
+- Scaffolded the SvelteKit static app with strict TypeScript, Vitest,
+  Playwright, static adapter, worker API types, seeded RNG, and allocation
+  primitives.
+- Ported politics scrutiny enough for the direct debug fixture to match R final
+  outputs across Camera and Senato.
+- Added the politics scrutiny algorithm registry with `politiche-r-parity-v1`
+  as the current default.
+- Ported the politics candidate generation, vote generation, vote preparation,
+  and direct-scrutiny input adaptation path with focused fixture tests.
+- Built the generated politics worker path with chunked execution and progress.
+- Exported the R-produced production static snapshot bridge at
+  `web/static/data/v1/politics-static.json`.
+- Generated the default web politics scenario from that static snapshot,
+  including bundled list correspondences.
+- Built the basic scenario editor: metadata, list/coalition/share editing,
+  validation, reset, JSON import/export, localStorage autosave, and plain
+  worker-safe scenario snapshots.
+- Added scenario projection from the web-native scenario into the current
+  source model, including explicit share overrides, proportional recalculation
+  for non-overridden matched lists, homonymous matching, safe one-to-one
+  declared correspondences, projection result rows, and warnings.
+- Reworked results so primary user-facing summaries appear before diagnostics,
+  with generated pipeline details collapsed by default.
+- Added the production politics vertical-slice guard.
+- Passed the current browser performance gate for 10, 100, and 1000 politics
+  simulations.
 
-## Scenario Editor Scope
+## Durable Decisions
 
-The migrated app should use a web-native scenario model as the primary user
-workflow. Excel scenarios can be abandoned. The scenario editor should separate
-basic settings, visible immediately, from advanced settings behind an explicit
-expander/button.
+- SvelteKit/browser remains the primary migration target because it gives the
+  best usability and distribution story.
+- Architecture may change freely, but business/legal behavior must match R
+  unless Luca explicitly approves a correction.
+- Scrutiny code is the highest-risk migration surface. Keep law comments close
+  to translated logic, golden-master tests nearby, and `TODO(law-review)` on
+  suspicious parity-preserving behavior.
+- The web UI is the preferred long-term scenario editor. Excel scenarios do not
+  need to remain a first-class migrated input.
+- Scenario defaults come first from bundled defaults for election kind and
+  territory; if absent, use the most voted lists from the last same-kind
+  election in the same territory; if past coalitions are unavailable, each list
+  defaults to its own coalition.
+- Users should be able to specify only some global list shares. Unspecified
+  list shares should be recalculated from previous results and list
+  correspondences, preserving the current R model's intent.
+- Location-specific percentages, per-location fixed/mean modes, rich
+  correspondence matrices, and candidate editors are advanced features. Keep
+  schema/generator hooks ready, but build the large UI only when the underlying
+  data contract is stable.
+- Scrutiny algorithms must remain modular and swappable. Keep the registry hook
+  even while there is only one registered politics algorithm.
+- Results UI should prioritize election outputs and keep diagnostic pipeline
+  tables behind an explicit detail/debug affordance.
+- Data preparation should be migrated last. It should remain a periodic
+  devops/GitHub Actions workflow and stay agnostic about election kind.
 
-### Implement During This Migration
+## Verification Snapshot
 
-- **Basic list/coalition editor**: users can choose the lists present at the
-  next election and their coalitions. This is part of the core migration
-  because every workflow depends on it.
-- **Default list/coalition generation**:
-  - first use defaults bundled for the election kind and territory;
-  - if absent, use the most voted lists from the last election of the same kind
-    in the same territory;
-  - if past coalitions are unavailable, default each list to its own coalition.
-- **Web-native scenario save/load**: scenarios should be serializable as typed
-  JSON, saved/loaded from the UI, and automatically persisted to local storage.
-  Add a reset action that restores the bundled/default scenario.
-- **Global list percentage editor**: users can specify national/territory-wide
-  percentages for any subset of future lists. Unspecified list percentages
-  should be recalculated from previous election results and list
-  correspondences, preserving the current model's intent.
-- **Mean versus fixed percentage mode, at least globally**: the scenario model
-  should support whether an entered percentage is a stochastic mean using
-  historical variability, or a fixed value. The first UI can expose this as an
-  advanced option after the basic global percentage editor is stable.
-- **Scenario validation**: validate duplicate list names, missing coalitions,
-  invalid percentages, impossible total shares, missing default data, and
-  references to unknown past/future lists before posting to the worker.
+Latest full web verification on 2026-06-04:
 
-### Keep Architecture Ready, Defer Full UI
+- `cd web; npx vitest run src/lib/scenario/politics.test.ts src/lib/politics/vertical-slice.test.ts`: passed, 10 tests.
+- `cd web; npx vitest run src/lib/politics/scenario-projection.test.ts`: passed, 7 tests.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 132 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
 
-- **Past-to-future list correspondences**: this is essential for default
-  percentage calculation and should be present in the scenario/data model.
-  However, a rich correspondence matrix editor can wait. Start with bundled
-  defaults and homonymous-list fallback; expose a compact advanced editor only
-  after production previous-election data packaging is available.
-- **Location-specific percentages**: keep typed support for per-location list
-  overrides, but defer the full advanced UI. This can become large and hard to
-  validate; implementing it before production data packaging would risk
-  building the wrong interface.
-- **Per-location fixed versus mean mode**: reserve the schema and generator
-  hooks, but defer full UI until location overrides are implemented.
-- **Candidate names/templates**: keep typed candidate-template support and the
-  current generated-candidate fallback. Defer a large candidate editor until the
-  politics scenario model and production data snapshot are stable. When added,
-  it should allow partial candidate entry for some or all candidate slots and
-  leave unspecified slots generated as today.
-
-### Out Of Scope For The Migration Slice
-
-- **Excel scenario import/export as a first-class path**: not worth carrying
-  forward because malformed workbook risk and typechecking cost are high.
-- **Full data-preparation migration**: defer until the simulator workflows are
-  migrated. The future data-preparation pipeline should remain a periodic
-  devops/GitHub Actions process and produce election-kind-agnostic historical
-  data bundles.
-
-## Local R Baselines
-
-Measured on 2026-06-01 with R 4.5.1 at
-`C:\Program Files\R\R-4.5.1\bin\Rscript.exe`, 28 detected cores.
-
-| Workflow | Simulations | Elapsed |
-| --- | ---: | ---: |
-| Municipal Bologna | 1000 | ~3.0 s |
-| Emilia-Romagna regional | 1000 | ~6.8 s |
-| Politics | 10 | ~7.1 s |
-| Politics | 100 | ~20.8 s |
-
-Politics 100-simulation phase breakdown:
-
-| Phase | Elapsed | Output size |
-| --- | ---: | ---: |
-| Load filtered cached data | ~0.4 s | ~47 MB |
-| `calcola_collegi` | ~0.1 s | ~3 MB |
-| `calcola_parametri_input` | ~3.2 s | ~8 MB |
-| `carica_candidati` | ~0.1 s | ~0.3 MB |
-| `genera_candidati` | ~3.3 s | ~33 MB |
-| `genera_voti_politiche` | ~2.4 s | ~25 MB |
-| `esegui_scrutini_politiche` | ~9.3 s | ~37 MB |
-
-Fresh comparison baselines run on 2026-06-01/02 after the generated worker path
-was wired:
+Current performance gate:
 
 | Workflow | Simulations | Elapsed | Fixture |
 | --- | ---: | ---: | --- |
 | R full politics workflow | 10 | 6.20 s | `test/fixtures/benchmarks/r_baseline_politics_10_compare.json` |
 | R full politics workflow | 100 | 19.58 s | `test/fixtures/benchmarks/r_baseline_politics_100_compare.json` |
 | R full politics workflow | 1000 | 151.96 s | `test/fixtures/benchmarks/r_baseline_politics_1000_compare.json` |
-| Chromium generated politics worker, debug static bridge | 10 | 1.216 s | `test/fixtures/benchmarks/browser_politics_worker.json` |
-| Chromium generated politics worker, debug static bridge | 100 | 12.220 s | `test/fixtures/benchmarks/browser_politics_worker.json` |
-| Chromium generated politics worker, debug static bridge | 1000 | 131.616 s | `test/fixtures/benchmarks/browser_politics_worker.json` |
-| Chromium generated politics worker, R-exported static bridge | 10 | 1.357 s | `test/fixtures/benchmarks/browser_politics_worker.json` |
-| Chromium generated politics worker, R-exported static bridge | 100 | 13.194 s | `test/fixtures/benchmarks/browser_politics_worker.json` |
-| Chromium generated politics worker, R-exported static bridge | 1000 | 123.229 s | `test/fixtures/benchmarks/browser_politics_worker.json` |
+| Chromium politics worker, R-exported static bridge | 10 | 1.357 s | `test/fixtures/benchmarks/browser_politics_worker.json` |
+| Chromium politics worker, R-exported static bridge | 100 | 13.194 s | `test/fixtures/benchmarks/browser_politics_worker.json` |
+| Chromium politics worker, R-exported static bridge | 1000 | 123.229 s | `test/fixtures/benchmarks/browser_politics_worker.json` |
 
-Current gate result: pass for the R-exported production static bridge worker
-path. The 1000-simulation browser run is about 0.81x the fresh full R workflow
-elapsed time, far below the 10x stop threshold. Repeat this gate after the
-future data-preparation migration or major snapshot/schema changes.
+Gate result: pass. The 1000-simulation browser run is about 0.81x the fresh
+full R workflow elapsed time, far below the 10x stop threshold. Repeat the gate
+after major scenario/schema/snapshot/generation/scrutiny changes.
 
-## Implementation Checklist
+## Current Caveats And Risks
 
-1. Create the living plan and keep it current.
-2. Apply the R naming safety fix and verify the debug scrutiny fixture still
-   round-trips.
-3. Add scripts that export normalized R golden fixtures to JSON.
-4. Add scripts that reproduce R benchmark baselines.
-5. Scaffold `web/` as a static SvelteKit TypeScript app.
-6. Define shared simulation, warning, scenario, and table types.
-7. Implement deterministic RNG and allocation primitives.
-8. Add TypeScript unit tests for allocations and tie-breaks.
-9. Add a worker smoke path with progress and warnings.
-10. Port politics scrutiny against golden fixtures.
-11. Add politics scenario editor and result presentation.
-12. Run browser performance tests and decide whether to continue in TypeScript.
-13. Add chunked worker execution and repeat the politics benchmark at 1000
-    simulations.
-14. Replace the debug-source bridge with production static data snapshots.
-15. Mature the web-native scenario editor and scenario JSON contract.
-16. Preserve a scrutiny-algorithm registry hook now, then add UI selection when
-    a second same-election-kind algorithm exists.
-17. Migrate regional and municipal workflows.
-18. Migrate data preparation as a periodic, election-kind-agnostic devops
-    pipeline after the simulator migration.
-
-## Risk Log
-
-- Politics scrutiny is large and law-sensitive. Mitigation: golden-master tests
-  before porting and law comments beside translated code.
-- Browser memory may be the limiting factor. Mitigation: columnar data,
-  chunked worker execution, and no direct `data.table` row-object port.
-- R partial matching previously hid `candidati_pluri_sim_`. Mitigation:
-  explicit R rename is done and typed names must stay consistent in TypeScript.
-- Municipal runoff and individual councilor TODOs are business gaps. Mitigation:
-  keep visible TODOs and defer until after the first politics slice.
-- Excel scenarios are not a strategic target for the migrated app. Mitigation:
-  design a typed web-native scenario model instead of spending migration effort
-  on robust workbook ingestion/typechecking.
-- Data preparation has different constraints from browser simulation.
-  Mitigation: defer its migration until simulator workflows are migrated, then
-  choose typed Python or Node/TypeScript based on the pipeline shape and CI needs.
-- Some law-commented `sorteggio` paths may not be implemented explicitly.
-  Mitigation: preserve current output first, then add `TODO(law-review)` or
-  straightforward deterministic seeded draws where safe.
-- `web/src/lib/politics/scrutiny.ts` is growing while the port advances.
-  Mitigation: keep stage functions explicit now, then split into focused modules
-  once the politics scrutiny boundary is stable enough for a low-risk refactor.
-- The R remainder ordering for candidate-only vote attribution appears
-  inconsistent with the nearby law comment: the comment says highest remainders,
-  while the current `order()` call sorts `RESTO` ascending because an extra
-  `decreasing` flag is ignored. Mitigation: TypeScript preserves R behavior for
-  golden parity and marks the code `TODO(law-review)`.
-- The R subentro block has two parity-sensitive behaviors that look accidental:
-  non-national same-coalition subentro calls do not pass the `coal`/`livello`
-  flags to `cerca_accettori()`, and later candidate merges implicitly include
-  `CIFRA_PERCENTUALE` as a join key. Mitigation: TypeScript preserves both and
-  marks them `TODO(law-review)`.
-
-## Completed Work
-
-- Created `AGENTS.md` with durable migration principles and repo notes.
-- Measured local R baselines and confirmed the politics debug scrutiny fixture
-  round-trips exactly against the current R scrutiny output.
-- Created `MIGRATION_PLAN.md` as the living migration control document.
-- Renamed the R politics scrutiny output key from `candidati_pluri_sim_` to
-  `candidati_pluri_sim` and verified equality against the stored debug output.
-- Added `scripts/export_politics_golden.R` and exported the first direct scrutiny
-  JSON fixture at `test/fixtures/politiche/debug_scrutinio.json`.
-- Added `scripts/benchmark_r_workflows.R` and generated a quick local benchmark
-  result at `test/fixtures/benchmarks/r_baseline_quick.json`.
-- Added the `web/` SvelteKit static app scaffold with strict TypeScript,
-  worker API types, a worker smoke path, a compact scenario editor, seeded RNG,
-  allocation primitives, Vitest unit tests, and a Playwright smoke test.
-- Added the first typed web-native politics scenario contract in
-  `web/src/lib/scenario/politics.ts`, with default scenario construction,
-  validation, deterministic JSON save/load, and the localStorage key used by the
-  UI.
-- Reworked the first Svelte page so the scenario editor now supports scenario
-  metadata, coalition editing, list/share editing, reset, JSON import/export,
-  localStorage autosave, validation before worker execution, and plain scenario
-  snapshots when posting to the worker.
-- Added a tested politics scenario projection layer that maps matched scenario
-  lists into the generated worker source, removes source lists not present in
-  the scenario, applies explicit global share overrides, recalculates
-  unspecified lists proportionally, and reports unmatched/static-snapshot
-  limitations as warnings.
-- Added `scripts/export_politics_static_snapshot.R`, which runs the current R
-  politics preparation path from `dati/dati.RData` and
-  `scenari/politiche_2027.xlsx`, then writes
-  `web/static/data/v1/politics-static.json`.
-- Rewired the worker to prefer `politics-static.json`, falling back to
-  `politics-static-debug.json` only if the production bridge snapshot is absent.
-- Refined the first results panel so user-facing summary tables render before
-  diagnostics and `Generated pipeline runs` is hidden behind a details toggle by
-  default.
-- Added the first politics scrutiny algorithm registry, with
-  `politiche-r-parity-v1` as the default R-parity implementation. Worker
-  requests can now carry an optional `scrutinyAlgorithmId`; unknown IDs fall
-  back to the default with an explicit warning.
-- Added the first production politics browser vertical-slice guard, proving the
-  UI default scenario, R-exported static snapshot, scenario projection,
-  generated pipeline, and registered scrutiny algorithm still work together for
-  one Camera/Senato simulation.
-- Matured the politics scenario JSON contract to schema v3. The contract now
-  carries default-source metadata, a global `mean`/`fixed` share mode, and typed
-  past-to-future list correspondences while preserving compatibility with old
-  saved v1/v2 scenario JSON.
-- Improved scenario projection with v3 correspondence support. The projection
-  now resolves source model rows first by homonymous list name, then by a
-  one-to-one declared correspondence from a current static source-model list to
-  a future scenario list. Projection rows expose the source model list and match
-  mode so ignored or renamed lists are visible to the user.
-- Added `scripts/export_politics_scenario_defaults.mjs`, which derives the
-  default web politics scenario from `web/static/data/v1/politics-static.json`
-  and writes `web/src/lib/scenario/politics-defaults.generated.ts`. The
-  generated default now carries bundled past-to-future list correspondences from
-  the production static snapshot.
-
-## Latest Verification
-
-Run on 2026-06-02:
-
-- R debug scrutiny equality check after rename: passed for Camera and Senato.
-- `Rscript scripts/export_politics_golden.R`: passed.
-- `node scripts/export_politics_worker_snapshot.mjs`: passed.
-- `Rscript scripts/export_politics_pipeline_source.R`: passed.
-- `Rscript scripts/export_politics_pipeline_source.R web/static/data/v1/politics-pipeline-source-debug.json`: passed.
-- `node scripts/export_politics_static_snapshot.mjs`: passed.
-- `C:\Program Files\R\R-4.5.1\bin\Rscript.exe scripts/export_politics_static_snapshot.R`: passed.
-- `Rscript scripts/benchmark_r_workflows.R --politics-sims=10 --municipal-sims=10 --regional-sims=10 --output=test/fixtures/benchmarks/r_baseline_quick.json`: passed.
-- `Rscript scripts/benchmark_r_workflows.R --politics-sims=10 --municipal-sims=1 --regional-sims=1 --output=test/fixtures/benchmarks/r_baseline_politics_10_compare.json`: passed.
-- `Rscript scripts/benchmark_r_workflows.R --politics-sims=100 --municipal-sims=1 --regional-sims=1 --output=test/fixtures/benchmarks/r_baseline_politics_100_compare.json`: passed.
-- `Rscript scripts/benchmark_r_workflows.R --politics-sims=1000 --municipal-sims=1 --regional-sims=1 --output=test/fixtures/benchmarks/r_baseline_politics_1000_compare.json`: passed.
-- `cd web; npm run check`: passed with 0 warnings.
-- `cd web; npm test`: passed, 122 tests.
-- `cd web; npm run build`: passed.
-- `cd web; npm run test:e2e`: passed, 1 Playwright test.
-- Built-app desktop/mobile layout overflow check with Playwright: passed.
-- `cd web; npm run benchmark:politics`: passed on the R-exported production
-  static bridge, 10 simulations in 1.357 s, 100 simulations in 13.194 s, and
-  1000 simulations in 123.229 s.
-
-Additional run on 2026-06-03:
-
-- `cd web; npm run check`: passed with 0 warnings.
-- `cd web; npm run test`: passed, 125 tests.
-- `cd web; npm run build`: passed.
-- `cd web; npm run test:e2e`: passed, 1 Playwright test.
-
-Additional run on 2026-06-04:
-
-- `cd web; npx vitest run src/lib/politics/vertical-slice.test.ts`: passed, 2 tests.
-- `cd web; npx vitest run src/lib/scenario/politics.test.ts src/lib/politics/vertical-slice.test.ts`: passed, 10 tests.
-- `cd web; npm run check`: passed with 0 warnings.
-- `cd web; npx vitest run src/lib/politics/scenario-projection.test.ts`: passed, 7 tests.
-- `cd web; npm run test`: passed, 132 tests.
-- `cd web; npm run build`: passed.
-- `cd web; npm run test:e2e`: passed, 1 Playwright test.
-
-## Current Caveats
-
-- The TypeScript politics scrutiny core matches direct R scrutiny output for the
-  10-simulation debug fixture. The browser worker now prefers
-  `web/static/data/v1/politics-static.json`, converts its default scenario plus
-  reusable data into the internal pipeline source, and runs scrutiny on
-  generated Camera/Senato simulations. If that file is absent, it falls back to
-  `politics-static-debug.json`.
-- The web-facing default politics scenario is generated from
-  `web/static/data/v1/politics-static.json` by
-  `scripts/export_politics_scenario_defaults.mjs`. Regenerate
-  `web/src/lib/scenario/politics-defaults.generated.ts` whenever the production
-  static snapshot or default-scenario shape changes.
-- Bundled list correspondences in the generated default are durable metadata
-  for scenario defaults and future advanced editing. The current projection
-  still warns only for unused manual correspondences, so bundled historical
-  correspondences do not spam the UI before richer semantics are implemented.
-- The exported politics fixture is about 68 MB because it contains direct
-  scrutiny inputs, R trace tables, and expected outputs for 10 simulations.
-- The generated adapter fixture is about 8.1 MB and covers deterministic
-  `esegui_scrutini_politiche()` input preparation, not random generation.
-- The vote-preparation fixture is about 8.7 MB and covers deterministic
-  `prepara_dts()` joins/filters. Its source list votes are reconstructed from
-  the debug prepared rows plus synthetic `astensione` and invalid-list rows, so
-  it does not claim golden parity for the upstream random `genera_voti()` draw.
-- The generic vote-generation fixture is tiny and synthetic. It injects
-  R-produced normal draws into the TypeScript generator, proving formula and
-  row-order parity without requiring the browser RNG to reproduce R's RNG
-  stream.
-- The politics vote-generation fixture is also synthetic. It proves
-  `genera_voti_politiche()` orchestration, including base-data joins,
-  Camera/Senato uninominal aggregation, and the handoff into
-  `preparePoliticsVoteTables()`.
-- The candidate-generation fixture is synthetic and replays R-recorded
-  `sample()` outputs. The generated-candidate default birthdate is read from
-  the fixture because R's `as.POSIXct("2000-01-01")` depends on the local
-  timezone; on this machine it serializes as `1999-12-31T23:00:00Z`.
-- The composed pipeline fixture is synthetic. It validates module composition
-  and direct-scrutiny input adaptation, but it is not a substitute for the full
-  historical data snapshot or the politics performance gate.
-- The real debug generation-source fixture is about 12 MB. It validates a
-  one-simulation generated pipeline plus scrutiny smoke path from realistic
-  source tables and is still bundled under `web/static/data/v1/` as a legacy
-  bridge/test artifact.
-- The R-exported production static bridge is about 12.5 MB and is now the
-  preferred worker input. It is produced from the current R cache and scenario
-  workbook, not from the debug scrutiny fixture. The future data-preparation
-  migration is still deferred and may replace this exporter.
-- The production-shaped debug static snapshot is about 12 MB and is now a
-  fallback/test artifact. It separates reusable data from `default_scenario`,
-  but it is still derived from the debug source.
-- The worker scenario projection matches scenario lists by exact list name,
-  preserves the source abstention row, removes matched source lists that are no
-  longer present in the scenario, projects active coalitions into list rows,
-  applies only explicit global share overrides, proportionally recalculates
-  unspecified matched lists, and recomputes `LOGIT_P`.
-- Scenario JSON schema v3 covers the basic UI fields plus `shareOverride`,
-  default-source metadata, `globalShareMode`, and typed
-  `listCorrespondences`. Old schema-v1/v2 JSON remains accepted: missing
-  `shareOverride` defaults to `false`, missing `globalShareMode` defaults to
-  `mean`, and missing correspondences default to an empty array.
-- `globalShareMode = "fixed"` is currently honored at the projection boundary
-  by setting `SIGMA_GLOBAL = 0` for active political list rows. Local
-  municipality-level variation is unchanged until location-specific fixed/mean
-  semantics are designed.
-- Declared correspondence projection currently supports the safe one-to-one
-  bridge case: a scenario future list may reuse one current static source-model
-  list, with list names propagated through global list parameters, municipal
-  list parameters, and plurinominal candidate templates. Multi-source
-  aggregation and split factors are still deferred because they need explicit
-  business semantics for combining local deltas, variability, and candidate
-  templates.
-- New/unmatched scenario lists are still ignored by the current static-snapshot
-  worker path because list-correspondence defaults and future-list generation
-  semantics are not implemented yet. The worker reports this as a warning
-  rather than silently simulating unavailable data.
-- When a matched scenario list uses a coalition name not present in the current
-  uninominal candidate template, the worker creates generated placeholder
-  uninominal candidates for that coalition and reports a warning. This keeps the
-  browser workflow runnable, but final coalition/candidate semantics need the
-  production scenario/data contract.
-- Advanced correspondences, location-specific overrides, fixed-versus-mean
-  modes, and candidate templates are still deferred.
-- The current results panel prioritizes the average plurinominal seat summary,
-  keeps the scenario projection visible, and hides `Generated pipeline runs`
-  behind a details toggle by default. Additional result charts and legally
-  richer summaries are still future UI work.
-- The politics scrutiny registry currently contains only
-  `politiche-r-parity-v1`, the R-parity TypeScript translation. This keeps the
-  worker architecture ready for law-review variants, but the UI selector should
-  remain hidden until there is at least a second real same-election-kind
-  algorithm.
-- `web/src/lib/politics/vertical-slice.test.ts` is now the production browser
-  slice guard. It catches drift between `politics-static.json`, the UI default
-  scenario, scenario projection, generated pipeline, and the registered
-  R-parity scrutiny algorithm. It is not a substitute for future
-  golden-master fixtures for regional/municipal workflows.
+- `web/src/lib/politics/scrutiny.ts` is large. Keep it stable while parity is
+  still being discovered; split it into stage-focused modules only when the
+  tested boundaries are clear.
+- Several politics `sorteggio` paths preserve R stable ordering where law
+  comments may imply random draws. These are marked `TODO(law-review)` where
+  found and should be reviewed with Luca before business correction.
+- The R candidate-only vote attribution appears inconsistent with its law
+  comment: the comment says highest remainders, while current R effectively
+  sorts `RESTO` ascending because an extra `decreasing` flag is ignored.
+  TypeScript preserves R behavior for parity.
+- The R subentro block has parity-sensitive behaviors that look accidental:
+  some same-coalition subentro paths do not pass `coal`/`livello`, and later
+  candidate merges implicitly include `CIFRA_PERCENTUALE` as a join key.
+  TypeScript preserves both for parity.
+- The production static snapshot is still an R-exported bridge, not the final
+  migrated data-preparation pipeline. Regenerate dependent generated defaults
+  when `web/static/data/v1/politics-static.json` changes.
+- Bundled list correspondences in the generated default are durable metadata for
+  defaults and future advanced editing. The current projection warns only for
+  unused manual correspondences.
+- Declared correspondence projection supports only the safe one-to-one bridge
+  case. Multi-source aggregation and split factors remain deferred until their
+  business semantics are explicit.
+- New/unmatched scenario lists are ignored by the current static-snapshot
+  worker path unless they reuse one current source-model list through a declared
+  correspondence. The worker reports this as a warning.
+- `globalShareMode = "fixed"` is currently honored globally by setting
+  `SIGMA_GLOBAL = 0` for active political list rows. Municipality-level
+  variation is unchanged until location-specific semantics are designed.
+- Placeholder uninominal candidates may be generated when a matched scenario
+  list uses a coalition absent from the current candidate template. This keeps
+  the browser workflow runnable but needs final scenario/data semantics.
 - The generated worker path currently runs in 50-simulation chunks and is
-  capped at 1000 simulations. This is enough for the current benchmark gate but
-  should be revisited if the UI needs larger runs or after columnar packaging.
-- The generated-worker browser benchmark passes the 10x performance gate for
-  10, 100, and 1000 politics simulations on the R-exported production static
-  bridge. Repeat it after the future data-preparation migration or major
-  snapshot/schema changes.
-- The browser direct-scrutiny bridge snapshot is about 8.7 MB and contains only
-  direct scrutiny inputs/context, not golden traces or expected outputs. It is
-  still useful for tests/benchmarks but is no longer the UI worker path.
+  capped at 1000 simulations. Revisit after columnar packaging or if larger UI
+  runs are needed.
 - `npm audit` reports 3 low-severity findings through SvelteKit's transitive
   `cookie` dependency. The suggested automatic fix is a semver-major downgrade
   to obsolete SvelteKit packages, so it has not been applied.
