@@ -7,6 +7,7 @@
     ResultTable,
     Scenario,
     ScenarioListCorrespondence,
+    ScrutinyWarning,
     SimulationRequest,
     SimulationResult,
     SimulationWorkerMessage
@@ -25,6 +26,14 @@
     validateScenario
   } from '$lib/scenario/politics';
 
+  type UiMessageSeverity = 'info' | 'warning' | 'error';
+
+  interface UiMessage {
+    code: string;
+    message: string;
+    severity: UiMessageSeverity;
+  }
+
   const dataVersion = 'v1';
   const diagnosticTableNames = new Set(['Generated pipeline runs']);
 
@@ -34,7 +43,7 @@
   let phase = $state('idle');
   let elapsedMs = $state(0);
   let tables = $state<ResultTable[]>([]);
-  let warnings = $state<string[]>([]);
+  let messages = $state<UiMessage[]>([]);
   let lastResult = $state<SimulationResult | null>(null);
   let showDiagnostics = $state(false);
   let showAdvancedScenario = $state(false);
@@ -48,6 +57,8 @@
   const runButtonLabel = $derived(running ? phase : 'Esegui');
   const elapsedLabel = $derived(`${elapsedMs.toFixed(0)} ms`);
   const hasResult = $derived(lastResult !== null);
+  const infoMessages = $derived(messages.filter((message) => message.severity === 'info'));
+  const warningMessages = $derived(messages.filter((message) => message.severity !== 'info'));
   const primaryTables = $derived(
     tables
       .filter((table) => !diagnosticTableNames.has(table.name))
@@ -70,7 +81,9 @@
       try {
         scenarioDraft = parseScenario(stored);
       } catch (error) {
-        warnings = [`SCENARIO_STORAGE_ERROR: ${error instanceof Error ? error.message : String(error)}`];
+        messages = [
+          uiMessage('SCENARIO_STORAGE_ERROR', error instanceof Error ? error.message : String(error), 'warning')
+        ];
       }
     }
 
@@ -145,7 +158,7 @@
   function resetScenario(): void {
     scenarioDraft = createDefaultPoliticsScenario();
     tables = [];
-    warnings = [];
+    messages = [];
     lastResult = null;
     showDiagnostics = false;
     showAdvancedScenario = false;
@@ -197,6 +210,18 @@
     downloadText(resultTablesToCsv(lastResult.tables), 'text/csv;charset=utf-8', resultFilename('csv'));
   }
 
+  function uiMessage(code: string, message: string, severity: UiMessageSeverity = 'warning'): UiMessage {
+    return {
+      code,
+      message,
+      severity
+    };
+  }
+
+  function workerMessage(warning: ScrutinyWarning): UiMessage {
+    return uiMessage(warning.code, warning.message, warning.severity ?? 'warning');
+  }
+
   function chooseScenarioFile(): void {
     fileInput?.click();
   }
@@ -209,12 +234,12 @@
     try {
       scenarioDraft = parseScenario(await file.text());
       tables = [];
-      warnings = [];
+      messages = [];
       lastResult = null;
       showDiagnostics = false;
       showAdvancedScenario = false;
     } catch (error) {
-      warnings = [`SCENARIO_LOAD_ERROR: ${error instanceof Error ? error.message : String(error)}`];
+      messages = [uiMessage('SCENARIO_LOAD_ERROR', error instanceof Error ? error.message : String(error), 'error')];
     } finally {
       input.value = '';
     }
@@ -222,7 +247,7 @@
 
   function runSimulation(): void {
     if (validationMessages.length > 0) {
-      warnings = validationMessages.map((message) => `SCENARIO_VALIDATION: ${message}`);
+      messages = validationMessages.map((message) => uiMessage('SCENARIO_VALIDATION', message, 'warning'));
       return;
     }
 
@@ -241,7 +266,7 @@
     phase = 'validate';
     elapsedMs = 0;
     tables = [];
-    warnings = [];
+    messages = [];
     lastResult = null;
     showDiagnostics = false;
 
@@ -255,7 +280,7 @@
 
       lastResult = message;
       tables = message.tables;
-      warnings = message.warnings.map((warning) => `${warning.code}: ${warning.message}`);
+      messages = message.warnings.map(workerMessage);
       elapsedMs = message.benchmark.elapsedMs;
       running = false;
       phase = message.status;
@@ -263,7 +288,7 @@
     };
 
     worker.onerror = (error) => {
-      warnings = [`WORKER_ERROR: ${error.message}`];
+      messages = [uiMessage('WORKER_ERROR', error.message, 'error')];
       elapsedMs = performance.now();
       running = false;
       phase = 'error';
@@ -274,7 +299,7 @@
     try {
       worker.postMessage(request);
     } catch (error) {
-      warnings = [`WORKER_POST_ERROR: ${error instanceof Error ? error.message : String(error)}`];
+      messages = [uiMessage('WORKER_POST_ERROR', error instanceof Error ? error.message : String(error), 'error')];
       elapsedMs = 0;
       running = false;
       phase = 'error';
@@ -602,10 +627,18 @@
         </div>
       </div>
 
-      {#if warnings.length > 0}
-        <div class="warnings">
-          {#each warnings as warning}
-            <p>{warning}</p>
+      {#if infoMessages.length > 0}
+        <div class="messages info-messages" aria-label="Note simulazione">
+          {#each infoMessages as message}
+            <p><strong>{message.code}</strong>: {message.message}</p>
+          {/each}
+        </div>
+      {/if}
+
+      {#if warningMessages.length > 0}
+        <div class="messages warning-messages" aria-label="Avvisi simulazione">
+          {#each warningMessages as message}
+            <p><strong>{message.code}</strong>: {message.message}</p>
           {/each}
         </div>
       {/if}
@@ -1004,13 +1037,26 @@
     overflow: hidden;
   }
 
-  .warnings {
+  .messages {
     margin: 16px;
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .messages p + p {
+    margin-top: 4px;
+  }
+
+  .info-messages {
+    border-left: 4px solid #5f7f92;
+    background: #f1f6f8;
+    color: #304b5a;
+  }
+
+  .warning-messages {
     border-left: 4px solid #c4822e;
     background: #fff7ec;
-    padding: 10px 12px;
     color: #6f4315;
-    font-size: 13px;
   }
 
   .diagnostics {

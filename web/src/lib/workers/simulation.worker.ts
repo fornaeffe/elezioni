@@ -1,5 +1,6 @@
 import type {
   ResultTable,
+  ScrutinyWarning,
   SimulationProgress,
   SimulationRequest,
   SimulationResult,
@@ -124,6 +125,7 @@ async function handleRequest(request: SimulationRequest): Promise<void> {
         {
           code: 'ELECTION_KIND_NOT_PORTED',
           electionKind: request.kind,
+          severity: 'warning',
           message: 'Only the politics scrutiny bridge is currently available.',
           todoReference: 'MIGRATION_PLAN.md#implementation-checklist'
         }
@@ -208,6 +210,59 @@ async function handleRequest(request: SimulationRequest): Promise<void> {
     }
   }
 
+  const resultWarnings: ScrutinyWarning[] = [];
+
+  if (algorithmResolution.fallback) {
+    resultWarnings.push({
+      code: 'POLITICS_SCRUTINY_ALGORITHM_FALLBACK',
+      electionKind: request.kind,
+      severity: 'warning',
+      message: `Requested scrutiny algorithm ${algorithmResolution.requestedId}, but it is not registered; using ${scrutinyAlgorithm.id}.`,
+      lawReference: scrutinyAlgorithm.lawReference,
+      todoReference: 'MIGRATION_PLAN.md#implementation-checklist'
+    });
+  }
+
+  resultWarnings.push(
+    {
+      code: loadedSnapshot.fallback ? 'POLITICS_DEBUG_STATIC_SNAPSHOT' : 'POLITICS_STATIC_SNAPSHOT',
+      electionKind: request.kind,
+      severity: loadedSnapshot.fallback ? 'warning' : 'info',
+      message: loadedSnapshot.fallback
+        ? 'Running the TypeScript generated pipeline on the debug static snapshot because the production static snapshot was not available.'
+        : `Running the TypeScript generated pipeline on ${loadedSnapshot.path} exported from the current R preparation pipeline.`,
+      todoReference: 'MIGRATION_PLAN.md#current-caveats'
+    },
+    {
+      code: 'POLITICS_SCENARIO_PROJECTION',
+      electionKind: request.kind,
+      severity: 'info',
+      message:
+        'Scenario lists are matched by name against the static snapshot; matched list presence, coalitions, and explicit global share overrides are projected into the generated pipeline.',
+      todoReference: 'MIGRATION_PLAN.md#current-caveats'
+    }
+  );
+
+  for (const warning of projection.warnings) {
+    resultWarnings.push({
+      code: warning.code,
+      electionKind: request.kind,
+      severity: 'warning',
+      message: warning.message,
+      todoReference: warning.todoReference
+    });
+  }
+
+  if (requestedSimulations > simulationCount) {
+    resultWarnings.push({
+      code: 'POLITICS_GENERATED_PIPELINE_LIMIT',
+      electionKind: request.kind,
+      severity: 'warning',
+      message: `Requested ${requestedSimulations} simulations, but the generated worker path is capped at ${simulationCount}.`,
+      todoReference: 'MIGRATION_PLAN.md#current-caveats'
+    });
+  }
+
   const result: SimulationResult = {
     type: 'result',
     status: 'completed',
@@ -216,50 +271,7 @@ async function handleRequest(request: SimulationRequest): Promise<void> {
       scenarioProjectionTable(projection.rows),
       summarizePoliticsGeneratedRuns(runs)
     ],
-    warnings: [
-      ...(algorithmResolution.fallback
-        ? [
-            {
-              code: 'POLITICS_SCRUTINY_ALGORITHM_FALLBACK',
-              electionKind: request.kind,
-              message: `Requested scrutiny algorithm ${algorithmResolution.requestedId}, but it is not registered; using ${scrutinyAlgorithm.id}.`,
-              lawReference: scrutinyAlgorithm.lawReference,
-              todoReference: 'MIGRATION_PLAN.md#implementation-checklist'
-            }
-          ]
-        : []),
-      {
-        code: loadedSnapshot.fallback ? 'POLITICS_DEBUG_STATIC_SNAPSHOT' : 'POLITICS_STATIC_SNAPSHOT',
-        electionKind: request.kind,
-        message: loadedSnapshot.fallback
-          ? 'Running the TypeScript generated pipeline on the debug static snapshot because the production static snapshot was not available.'
-          : `Running the TypeScript generated pipeline on ${loadedSnapshot.path} exported from the current R preparation pipeline.`,
-        todoReference: 'MIGRATION_PLAN.md#current-caveats'
-      },
-      {
-        code: 'POLITICS_SCENARIO_PROJECTION',
-        electionKind: request.kind,
-        message:
-          'Scenario lists are matched by name against the static snapshot; matched list presence, coalitions, and explicit global share overrides are projected into the generated pipeline.',
-        todoReference: 'MIGRATION_PLAN.md#current-caveats'
-      },
-      ...projection.warnings.map((warning) => ({
-        code: warning.code,
-        electionKind: request.kind,
-        message: warning.message,
-        todoReference: warning.todoReference
-      })),
-      ...(requestedSimulations > simulationCount
-        ? [
-            {
-              code: 'POLITICS_GENERATED_PIPELINE_LIMIT',
-              electionKind: request.kind,
-              message: `Requested ${requestedSimulations} simulations, but the generated worker path is capped at ${simulationCount}.`,
-              todoReference: 'MIGRATION_PLAN.md#current-caveats'
-            }
-          ]
-        : [])
-    ],
+    warnings: resultWarnings,
     benchmark: {
       startedAt: startedIso,
       elapsedMs: performance.now() - startedAt,
@@ -283,6 +295,7 @@ self.onmessage = (event: MessageEvent<SimulationRequest>) => {
         {
           code: 'WORKER_ERROR',
           electionKind: event.data.kind,
+          severity: 'error',
           message: error instanceof Error ? error.message : String(error)
         }
       ],

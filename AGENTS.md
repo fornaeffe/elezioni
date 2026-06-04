@@ -147,6 +147,10 @@ simulation 4.
 - Results UI should prioritize user-facing election outputs. Diagnostic tables
   such as `Generated pipeline runs` should be hidden or collapsed by default and
   reachable through an expandable/debug affordance.
+- Worker/UI messages should use `ScrutinyWarning.severity` deliberately:
+  `info` for normal run metadata, `warning` for issues that can affect result
+  interpretation, and `error` for failed execution paths. The UI should render
+  informational notes separately from warning/error blocks.
 - Politics result presentation belongs in `web/src/lib/politics/result-presentation.ts`,
   not in the worker orchestration layer. Keep summary tables focused on
   user-facing outcomes first: election overview, seat distributions,
@@ -375,6 +379,9 @@ simulation 4.
 - `web/src/lib/core/result-export.ts` serializes worker result tables to a
   sectioned CSV and builds a structured JSON export payload with the scenario,
   result, and export timestamp. Keep this generic across future election kinds.
+- Do not run `cd web; npm run build` and `cd web; npm run test:e2e`
+  concurrently. Both touch SvelteKit build/prerender output and can race on
+  hashed assets; run them sequentially for verification.
 - `web/src/lib/politics/scenario-projection.ts` is the current boundary between
   the web-native politics scenario and the generated worker source. It matches
   scenario lists to the static snapshot first by exact list name and then by a

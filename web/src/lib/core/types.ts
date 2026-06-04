@@ -103,6 +103,7 @@ export interface ScrutinyWarning {
   code: string;
   electionKind: ElectionKind;
   simulationId?: number;
+  severity?: 'info' | 'warning' | 'error';
   message: string;
   lawReference?: string;
   todoReference?: string;

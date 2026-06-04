@@ -27,7 +27,7 @@ pass, pause and present Python fallback options before continuing.
 | Politics golden fixtures | Done for current politics slice | `scripts/export_politics_golden.R`, `test/fixtures/politiche/debug_scrutinio.json`. |
 | R and browser benchmarks | Done for current politics slice | `scripts/benchmark_r_workflows.R`, `web/tests/benchmarks/politics-worker.spec.ts`, benchmark JSON under `test/fixtures/benchmarks/`. |
 | SvelteKit app scaffold | Done | `web/` with strict TypeScript, static adapter, Vitest, Playwright. |
-| Shared TypeScript core | Usable, still growing | Worker API types, seeded RNG, allocation primitives, scenario types, warning/result contracts, politics result presentation, result export helpers. |
+| Shared TypeScript core | Usable, still growing | Worker API types, seeded RNG, allocation primitives, scenario types, severity-aware warning/result contracts, politics result presentation, result export helpers. |
 | Politics scrutiny | R-parity direct fixture passes | `web/src/lib/politics/scrutiny.ts`; registry id `politiche-r-parity-v1`. Split only when boundaries are clearer. |
 | Politics generation pipeline | Current browser path working | Candidate generation, vote generation, vote preparation, direct-scrutiny adaptation, worker chunking. |
 | Production static politics snapshot | Bridge done, richer raw data added | `scripts/export_politics_static_snapshot.R` writes schema v2 `web/static/data/v1/politics-static.json`, including raw historical municipal list votes for the future TypeScript parameter builder. |
@@ -88,9 +88,10 @@ reveals a cleaner order or a new blocker.
    `web/src/lib/politics/result-presentation.ts` builds tested user-facing
    summary tables for election overview, plurinominal seats by list, valid-vote
    share distributions by list, and uninominal winners by support. JSON/CSV
-   result export helpers and UI buttons are also implemented. Next result work
-   should add richer charts and better warning/detail grouping. Keep diagnostic
-   tables such as `Generated pipeline runs` collapsed by default.
+   result export helpers and UI buttons are also implemented. Worker messages
+   now carry optional severity, and the UI separates informational run notes
+   from real warnings/errors. Next result work should add richer charts. Keep
+   diagnostic tables such as `Generated pipeline runs` collapsed by default.
 9. Refactor politics scrutiny only when it lowers risk. The likely target is
    stage-focused modules behind the existing scrutiny algorithm registry, but
    do not split during active parity discovery just for size alone.
@@ -173,6 +174,10 @@ reveals a cleaner order or a new blocker.
 - Added `web/src/lib/core/result-export.ts` and result-panel export actions.
   Users can download a JSON payload containing scenario plus worker result, or
   a sectioned CSV containing all result tables.
+- Added optional severity to `ScrutinyWarning` and split result-panel messages
+  into informational run notes versus warnings/errors. Production static
+  snapshot and scenario-projection metadata now render as notes instead of
+  warning-looking messages.
 - Removed the provisional global `fixed` UI/projection behavior. The active
   scenario share mode is mean-only; older serialized `fixed` values normalize
   to `mean` until fixed semantics get their own design pass.
@@ -250,6 +255,9 @@ reveals a cleaner order or a new blocker.
 - Result exports should preserve both the scenario that produced the run and
   the worker result. CSV exports are table-oriented for spreadsheet use; JSON
   exports are the durable structured format for reproducing or reviewing runs.
+- Worker messages should use severity deliberately: `info` for run metadata and
+  benign implementation notes, `warning` for scenario/projection/result issues
+  that may affect interpretation, and `error` for failed execution paths.
 - Data preparation should be migrated last. It should remain a periodic
   devops/GitHub Actions workflow and stay agnostic about election kind.
 
@@ -265,7 +273,13 @@ Latest full web verification on 2026-06-04:
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test, including the
   advanced abstention, manual correspondence controls, and result export
-  buttons.
+  buttons. The smoke test also checks that normal static-snapshot metadata is
+  shown as an informational note, with no warning block for the default edited
+  scenario.
+
+Verification note: do not run `npm run build` and `npm run test:e2e` in
+parallel. Both commands touch SvelteKit build/prerender output and can produce a
+transient hashed-asset 404 even when each command passes alone.
 
 Current performance gate:
 
