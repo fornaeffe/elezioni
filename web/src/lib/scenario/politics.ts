@@ -15,6 +15,8 @@ export const politicsScenarioStorageKey = 'elezioni:web:politics-scenario:v1';
 export const politicsScenarioSchemaVersion = 3;
 
 export const defaultPoliticsScenario: Scenario = generatedDefaultPoliticsScenario;
+export const defaultPoliticsSourceModelListNames = defaultPoliticsScenario.lists.map((list) => list.name);
+const manualCorrespondencePastElection = 'politics-static source model';
 
 interface SerializedScenario {
   schema_version: number;
@@ -130,6 +132,29 @@ export function createScenarioCoalition(existingCoalitions: readonly ScenarioCoa
   };
 }
 
+export function createScenarioListCorrespondence(scenario: Scenario): ScenarioListCorrespondence {
+  const futureList = scenario.lists[0]?.name ?? '';
+  const usedSourceKeys = new Set(
+    scenario.listCorrespondences
+      .filter((correspondence) => correspondence.source === 'manual' && correspondence.futureList === futureList)
+      .map((correspondence) => correspondence.pastList.trim().toLocaleLowerCase('it-IT'))
+  );
+  const pastList =
+    defaultPoliticsSourceModelListNames.find((name) => !usedSourceKeys.has(name.trim().toLocaleLowerCase('it-IT'))) ??
+    defaultPoliticsSourceModelListNames[0] ??
+    '';
+
+  return {
+    id: crypto.randomUUID(),
+    futureList,
+    pastElection: manualCorrespondencePastElection,
+    pastDate: scenario.electionDate,
+    pastList,
+    factor: 1,
+    source: 'manual'
+  };
+}
+
 export function normalizeScenario(value: unknown): Scenario {
   const input = value !== null && typeof value === 'object' ? (value as Partial<Scenario>) : {};
   const coalitions = Array.isArray(input.coalitions) ? input.coalitions : [];
@@ -220,6 +245,8 @@ export function validateScenario(scenario: Scenario): string[] {
   }
 
   for (const correspondence of scenario.listCorrespondences) {
+    if (correspondence.source !== 'manual') continue;
+
     const futureListKey = correspondence.futureList.trim().toLocaleLowerCase('it-IT');
     const pastList = correspondence.pastList.trim();
     const pastElection = correspondence.pastElection.trim();

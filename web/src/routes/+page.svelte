@@ -6,6 +6,8 @@
   import type {
     ResultTable,
     Scenario,
+    ScenarioGlobalShareMode,
+    ScenarioListCorrespondence,
     SimulationRequest,
     SimulationWorkerMessage
   } from '$lib/core/types';
@@ -14,6 +16,8 @@
     createDefaultPoliticsScenario,
     createScenarioCoalition,
     createScenarioList,
+    createScenarioListCorrespondence,
+    defaultPoliticsSourceModelListNames,
     parseScenario,
     politicsScenarioStorageKey,
     serializeScenario,
@@ -22,6 +26,10 @@
 
   const dataVersion = 'v1';
   const diagnosticTableNames = new Set(['Generated pipeline runs']);
+  const globalShareModes: Array<{ value: ScenarioGlobalShareMode; label: string }> = [
+    { value: 'mean', label: 'Media' },
+    { value: 'fixed', label: 'Fissa' }
+  ];
 
   let simulations = $state(10);
   let seed = $state('politiche-2027');
@@ -31,6 +39,7 @@
   let tables = $state<ResultTable[]>([]);
   let warnings = $state<string[]>([]);
   let showDiagnostics = $state(false);
+  let showAdvancedScenario = $state(false);
   let scenarioDraft = $state<Scenario>(createDefaultPoliticsScenario());
   let scenarioStorageReady = $state(false);
   let fileInput: HTMLInputElement | undefined;
@@ -47,6 +56,12 @@
   );
   const diagnosticTables = $derived(tables.filter((table) => diagnosticTableNames.has(table.name)));
   const diagnosticsToggleLabel = $derived(showDiagnostics ? 'Nascondi dettagli' : 'Mostra dettagli');
+  const manualListCorrespondences = $derived(
+    scenarioDraft.listCorrespondences.filter((correspondence) => correspondence.source === 'manual')
+  );
+  const bundledListCorrespondenceCount = $derived(
+    scenarioDraft.listCorrespondences.filter((correspondence) => correspondence.source === 'bundled').length
+  );
 
   onMount(() => {
     if (!browser) return;
@@ -73,7 +88,13 @@
   }
 
   function removeList(id: string): void {
+    const removed = scenarioDraft.lists.find((row) => row.id === id);
     scenarioDraft.lists = scenarioDraft.lists.filter((row) => row.id !== id);
+    if (removed) {
+      scenarioDraft.listCorrespondences = scenarioDraft.listCorrespondences.filter(
+        (correspondence) => correspondence.source !== 'manual' || correspondence.futureList !== removed.name
+      );
+    }
   }
 
   function addCoalition(): void {
@@ -105,11 +126,29 @@
     }
   }
 
+  function addListCorrespondence(): void {
+    scenarioDraft.listCorrespondences = [
+      ...scenarioDraft.listCorrespondences,
+      createScenarioListCorrespondence(scenarioDraft)
+    ];
+  }
+
+  function updateListCorrespondence(id: string, patch: Partial<ScenarioListCorrespondence>): void {
+    scenarioDraft.listCorrespondences = scenarioDraft.listCorrespondences.map((row) =>
+      row.id === id && row.source === 'manual' ? { ...row, ...patch } : row
+    );
+  }
+
+  function removeListCorrespondence(id: string): void {
+    scenarioDraft.listCorrespondences = scenarioDraft.listCorrespondences.filter((row) => row.id !== id);
+  }
+
   function resetScenario(): void {
     scenarioDraft = createDefaultPoliticsScenario();
     tables = [];
     warnings = [];
     showDiagnostics = false;
+    showAdvancedScenario = false;
   }
 
   function scenarioFilename(): string {
@@ -147,6 +186,7 @@
       tables = [];
       warnings = [];
       showDiagnostics = false;
+      showAdvancedScenario = false;
     } catch (error) {
       warnings = [`SCENARIO_LOAD_ERROR: ${error instanceof Error ? error.message : String(error)}`];
     } finally {
@@ -305,6 +345,118 @@
           {/each}
         </div>
       {/if}
+
+      <div class="advanced">
+        <button
+          class="advanced-toggle"
+          type="button"
+          onclick={() => (showAdvancedScenario = !showAdvancedScenario)}
+          aria-expanded={showAdvancedScenario}
+          aria-controls="scenario-advanced"
+        >
+          {#if showAdvancedScenario}
+            <ChevronUp size={18} aria-hidden="true" />
+          {:else}
+            <ChevronDown size={18} aria-hidden="true" />
+          {/if}
+          <span>Impostazioni avanzate</span>
+        </button>
+
+        {#if showAdvancedScenario}
+          <div id="scenario-advanced" class="advanced-content">
+            <div class="setting-row">
+              <span class="setting-label" id="global-share-mode-label">Variabilita quote</span>
+              <div
+                class="segmented-control"
+                role="radiogroup"
+                aria-labelledby="global-share-mode-label"
+                data-testid="global-share-mode"
+              >
+                {#each globalShareModes as mode}
+                  <button
+                    type="button"
+                    role="radio"
+                    class:active={scenarioDraft.globalShareMode === mode.value}
+                    aria-checked={scenarioDraft.globalShareMode === mode.value}
+                    onclick={() => (scenarioDraft.globalShareMode = mode.value)}
+                  >
+                    {mode.label}
+                  </button>
+                {/each}
+              </div>
+            </div>
+
+            <div class="correspondence-block">
+              <div class="correspondence-heading">
+                <div>
+                  <span class="setting-label">Corrispondenze liste</span>
+                  <span class="setting-meta">{bundledListCorrespondenceCount} bundled</span>
+                </div>
+                <button
+                  type="button"
+                  class="icon-button"
+                  onclick={addListCorrespondence}
+                  title="Aggiungi corrispondenza"
+                  aria-label="Aggiungi corrispondenza"
+                  disabled={scenarioDraft.lists.length === 0 || defaultPoliticsSourceModelListNames.length === 0}
+                >
+                  <Plus size={18} aria-hidden="true" />
+                </button>
+              </div>
+
+              {#if manualListCorrespondences.length === 0}
+                <p class="advanced-note">Nessuna corrispondenza manuale</p>
+              {:else}
+                <div class="correspondence-editor">
+                  {#each manualListCorrespondences as correspondence (correspondence.id)}
+                    <div class="correspondence-row">
+                      <label>
+                        Lista scenario
+                        <select
+                          value={correspondence.futureList}
+                          onchange={(event) =>
+                            updateListCorrespondence(correspondence.id, {
+                              futureList: (event.currentTarget as HTMLSelectElement).value
+                            })}
+                          aria-label="Lista scenario corrispondenza"
+                        >
+                          {#each scenarioDraft.lists as list}
+                            <option value={list.name}>{list.name}</option>
+                          {/each}
+                        </select>
+                      </label>
+                      <label>
+                        Modello sorgente
+                        <select
+                          value={correspondence.pastList}
+                          onchange={(event) =>
+                            updateListCorrespondence(correspondence.id, {
+                              pastList: (event.currentTarget as HTMLSelectElement).value
+                            })}
+                          aria-label="Lista modello corrispondenza"
+                        >
+                          {#each defaultPoliticsSourceModelListNames as listName}
+                            <option value={listName}>{listName}</option>
+                          {/each}
+                        </select>
+                      </label>
+                      <button
+                        type="button"
+                        class="icon-button danger"
+                        onclick={() => removeListCorrespondence(correspondence.id)}
+                        title="Rimuovi corrispondenza"
+                        aria-label="Rimuovi corrispondenza"
+                      >
+                        <Trash2 size={18} aria-hidden="true" />
+                      </button>
+                    </div>
+                  {/each}
+                </div>
+              {/if}
+            </div>
+          </div>
+        {/if}
+      </div>
 
       <div class="section-heading">
         <h3>Coalizioni</h3>
@@ -612,6 +764,107 @@
     margin-top: 4px;
   }
 
+  .advanced {
+    padding: 16px 16px 0;
+  }
+
+  .advanced-toggle {
+    width: 100%;
+    justify-content: flex-start;
+    background: #f7f9fa;
+    color: #4d5963;
+    font-weight: 700;
+  }
+
+  .advanced-toggle span {
+    flex: 1;
+    text-align: left;
+  }
+
+  .advanced-content {
+    display: grid;
+    gap: 12px;
+    border-bottom: 1px solid #e5e9ed;
+    padding: 12px 0 16px;
+  }
+
+  .setting-row {
+    display: grid;
+    grid-template-columns: minmax(140px, 1fr) auto;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .setting-label {
+    color: #4d5963;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .setting-meta {
+    display: block;
+    margin-top: 3px;
+    color: #697681;
+    font-size: 12px;
+    font-weight: 650;
+  }
+
+  .segmented-control {
+    display: inline-grid;
+    grid-template-columns: repeat(2, minmax(78px, 1fr));
+    border: 1px solid #bdc7d0;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .segmented-control button {
+    min-height: 34px;
+    border: 0;
+    border-radius: 0;
+    background: #ffffff;
+    color: #4d5963;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .segmented-control button + button {
+    border-left: 1px solid #bdc7d0;
+  }
+
+  .segmented-control button.active {
+    background: #2f6f57;
+    color: #ffffff;
+  }
+
+  .correspondence-block {
+    display: grid;
+    gap: 10px;
+  }
+
+  .correspondence-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .advanced-note {
+    color: #697681;
+    font-size: 13px;
+  }
+
+  .correspondence-editor {
+    display: grid;
+    gap: 10px;
+  }
+
+  .correspondence-row {
+    display: grid;
+    grid-template-columns: minmax(130px, 1fr) minmax(130px, 1fr) 40px;
+    gap: 8px;
+    align-items: end;
+  }
+
   .section-heading {
     display: flex;
     align-items: center;
@@ -784,6 +1037,11 @@
 
     .list-row {
       grid-template-columns: 40px minmax(0, 1fr) 78px 58px 40px;
+    }
+
+    .setting-row,
+    .correspondence-row {
+      grid-template-columns: 1fr;
     }
 
     .list-row select {

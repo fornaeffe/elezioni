@@ -32,7 +32,7 @@ pass, pause and present Python fallback options before continuing.
 | Politics generation pipeline | Current browser path working | Candidate generation, vote generation, vote preparation, direct-scrutiny adaptation, worker chunking. |
 | Production static politics snapshot | Bridge done | `scripts/export_politics_static_snapshot.R` writes `web/static/data/v1/politics-static.json`. |
 | Politics scenario defaults | Bridge done | `scripts/export_politics_scenario_defaults.mjs` writes `web/src/lib/scenario/politics-defaults.generated.ts`. |
-| Scenario editor | Basic workflow working | List/coalition/share editor, JSON save/load, localStorage, reset, validation. Advanced controls remain. |
+| Scenario editor | Core workflow plus compact advanced controls working | List/coalition/share editor, global mean/fixed mode, one-to-one manual correspondence editor, JSON save/load, localStorage, reset, validation. Rich correspondence semantics remain. |
 | Politics browser vertical slice | Stabilized | `web/src/lib/politics/vertical-slice.test.ts` guards snapshot -> scenario -> projection -> generation -> scrutiny. |
 | Performance gate | Passed | Chromium worker on the R-exported production static snapshot is below fresh full R politics baselines for 10, 100, and 1000 simulations. |
 | Regional and municipal workflows | Not started | Migrate after politics browser workflow is stable enough. |
@@ -47,45 +47,38 @@ reveals a cleaner order or a new blocker.
    Every change to defaults, projection, generation, worker behavior, or the
    scrutiny registry should preserve or deliberately update
    `web/src/lib/politics/vertical-slice.test.ts`.
-2. Expose global `mean`/`fixed` share mode in the advanced scenario UI. The
-   projection boundary already honors `fixed` globally by setting
-   `SIGMA_GLOBAL = 0` for active political list rows.
-3. Add a compact one-to-one correspondence view/editor for advanced scenario
-   users. Support only the semantics already implemented by projection: one
-   current source-model list reused by one future scenario list. Keep bundled
-   correspondences visible as defaults/metadata without warning spam.
-4. Decide and implement richer correspondence semantics only after the UI makes
+2. Decide and implement richer correspondence semantics only after the UI makes
    the business meaning explicit. Multi-source aggregation and split factors
    need clear rules for local deltas, variability, abstention, and candidate
    templates before they should affect simulations.
-5. Add candidate-template support to the scenario model and worker pipeline,
+3. Add candidate-template support to the scenario model and worker pipeline,
    allowing user-provided names for selected slots while preserving generated
    candidates for unspecified places.
-6. Improve politics result presentation with legally meaningful summaries,
+4. Improve politics result presentation with legally meaningful summaries,
    charts, exports, and clearer warning/detail separation. Keep diagnostic
    tables such as `Generated pipeline runs` collapsed by default.
-7. Refactor politics scrutiny only when it lowers risk. The likely target is
+5. Refactor politics scrutiny only when it lowers risk. The likely target is
    stage-focused modules behind the existing scrutiny algorithm registry, but
    do not split during active parity discovery just for size alone.
-8. Add a second politics scrutiny algorithm only for a concrete law-review or
+6. Add a second politics scrutiny algorithm only for a concrete law-review or
    comparison need. Expose UI selection/comparison only after at least two real
    same-election-kind algorithms exist.
-9. Repeat the politics browser performance gate after major scenario, data,
+7. Repeat the politics browser performance gate after major scenario, data,
    generation, or scrutiny changes.
-10. Migrate the Emilia-Romagna regional workflow: first add R golden fixtures
+8. Migrate the Emilia-Romagna regional workflow: first add R golden fixtures
     and benchmarks, then port allocation, generation, scrutiny, worker, UI, and
     browser tests into the same architecture.
-11. Migrate the municipal workflow: first add R golden fixtures and benchmarks,
+9. Migrate the municipal workflow: first add R golden fixtures and benchmarks,
     preserve current behavior, and keep known runoff/councilor-candidate
     business TODOs explicit for later law review.
-12. Generalize the web app across election kinds: routing, snapshot selection,
+10. Generalize the web app across election kinds: routing, snapshot selection,
     scenario defaults, worker dispatch, result components, validation, and
     shared UI patterns.
-13. Migrate data preparation after simulator workflows are migrated. Reassess
+11. Migrate data preparation after simulator workflows are migrated. Reassess
     typed Python versus Node/TypeScript then; keep it a periodic,
     election-kind-agnostic devops/GitHub Actions pipeline producing static
     previous-election bundles.
-14. Retire temporary bridge artifacts and update user/developer documentation
+12. Retire temporary bridge artifacts and update user/developer documentation
     once migrated workflows no longer depend on R-exported intermediary
     snapshots.
 
@@ -113,6 +106,13 @@ reveals a cleaner order or a new blocker.
 - Built the basic scenario editor: metadata, list/coalition/share editing,
   validation, reset, JSON import/export, localStorage autosave, and plain
   worker-safe scenario snapshots.
+- Exposed global `mean`/`fixed` share mode in the scenario advanced UI. The
+  projection boundary already applies `fixed` by setting active political list
+  `SIGMA_GLOBAL` values to zero.
+- Added a compact one-to-one manual correspondence editor in the scenario
+  advanced UI. It maps one future scenario list to one current source-model list
+  and exercises the already-implemented `declared-correspondence` projection
+  path.
 - Added scenario projection from the web-native scenario into the current
   source model, including explicit share overrides, proportional recalculation
   for non-overridden matched lists, homonymous matching, safe one-to-one
@@ -159,9 +159,10 @@ Latest full web verification on 2026-06-04:
 - `cd web; npx vitest run src/lib/scenario/politics.test.ts src/lib/politics/vertical-slice.test.ts`: passed, 10 tests.
 - `cd web; npx vitest run src/lib/politics/scenario-projection.test.ts`: passed, 7 tests.
 - `cd web; npm run check`: passed with 0 warnings.
-- `cd web; npm run test`: passed, 132 tests.
+- `cd web; npm run test`: passed, 134 tests.
 - `cd web; npm run build`: passed.
-- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test, including the
+  advanced global fixed-mode and manual correspondence controls.
 
 Current performance gate:
 
@@ -200,15 +201,16 @@ after major scenario/schema/snapshot/generation/scrutiny changes.
 - Bundled list correspondences in the generated default are durable metadata for
   defaults and future advanced editing. The current projection warns only for
   unused manual correspondences.
-- Declared correspondence projection supports only the safe one-to-one bridge
-  case. Multi-source aggregation and split factors remain deferred until their
-  business semantics are explicit.
+- Declared correspondence projection and the current UI support only the safe
+  one-to-one bridge case. Multi-source aggregation and split factors remain
+  deferred until their business semantics are explicit.
 - New/unmatched scenario lists are ignored by the current static-snapshot
   worker path unless they reuse one current source-model list through a declared
   correspondence. The worker reports this as a warning.
-- `globalShareMode = "fixed"` is currently honored globally by setting
-  `SIGMA_GLOBAL = 0` for active political list rows. Municipality-level
-  variation is unchanged until location-specific semantics are designed.
+- `globalShareMode = "fixed"` is exposed in the advanced UI and honored
+  globally by setting `SIGMA_GLOBAL = 0` for active political list rows.
+  Municipality-level variation is unchanged until location-specific semantics
+  are designed.
 - Placeholder uninominal candidates may be generated when a matched scenario
   list uses a coalition absent from the current candidate template. This keeps
   the browser workflow runnable but needs final scenario/data semantics.
@@ -1096,3 +1098,57 @@ Verification:
 - `cd web; npm run test`: passed, 132 tests.
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-04 Checkpoint 31
+
+Completed in the first advanced scenario-control pass:
+
+- Added an `Impostazioni avanzate` expander to the politics scenario panel.
+- Added a segmented `Variabilita quote` control bound to
+  `scenarioDraft.globalShareMode`.
+- The control exposes the existing schema/projection behavior:
+  - `Media` keeps stochastic global list variation;
+  - `Fissa` uses the already-tested projection path that sets active political
+    list `SIGMA_GLOBAL` values to zero.
+- Kept the implementation event-driven and Svelte 5 runes friendly: no state is
+  updated from `$effect`, and the worker still receives a plain cloned scenario
+  snapshot.
+- Updated the Playwright smoke test to open the advanced section, choose
+  `Fissa`, and then run the worker path.
+- Updated the active plan so the next scenario task is the compact one-to-one
+  correspondence view/editor.
+
+Verification:
+
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+- `cd web; npm run test`: passed, 132 tests.
+- `cd web; npm run build`: passed.
+
+## 2026-06-04 Checkpoint 32
+
+Completed in the compact correspondence editor pass:
+
+- Added `createScenarioListCorrespondence()` and
+  `defaultPoliticsSourceModelListNames` to `web/src/lib/scenario/politics.ts`.
+- Added a compact manual list-correspondence editor inside the scenario
+  advanced section.
+- The editor supports the currently safe projection semantics only: one future
+  scenario list can reuse one current source-model list. It does not implement
+  multi-source aggregation or split-factor behavior.
+- Kept bundled correspondence metadata quiet during validation, so removing or
+  renaming a list does not produce validation errors for bundled mappings that
+  are not part of the user's manual edits.
+- Updated the Playwright smoke path to rename `+Europa`, add a manual
+  correspondence back to the `+Europa` source model list, and assert the worker
+  projection reports `declared-correspondence`.
+- Updated the active plan so the next scenario work is deciding richer
+  correspondence semantics or moving to candidate-template support.
+
+Verification:
+
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npx vitest run src/lib/scenario/politics.test.ts src/lib/politics/scenario-projection.test.ts`: passed, 17 tests.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+- `cd web; npm run test`: passed, 134 tests.
+- `cd web; npm run build`: passed.

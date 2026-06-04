@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import {
   createDefaultPoliticsScenario,
+  createScenarioListCorrespondence,
   normalizeScenario,
   parseScenario,
   serializeScenario,
@@ -165,6 +166,34 @@ describe('politics web-native scenario model', () => {
 
     scenario.lists[1].shareOverride = true;
     expect(validateScenario(scenario)).toEqual(expect.arrayContaining(['La somma delle quote usate non puo superare 100.']));
+  });
+
+  test('ignores bundled correspondences that no longer target active scenario lists', () => {
+    const scenario = createDefaultPoliticsScenario();
+    scenario.lists = scenario.lists.filter((list) => list.name !== '+Europa');
+
+    expect(validateScenario(scenario)).toEqual([]);
+  });
+
+  test('creates valid manual list correspondences for compact editing', () => {
+    const scenario = createDefaultPoliticsScenario();
+    scenario.lists[0].name = '+Europa Test';
+    scenario.listCorrespondences = [];
+
+    const correspondence = createScenarioListCorrespondence(scenario);
+    scenario.listCorrespondences = [correspondence];
+
+    expect(correspondence).toEqual(
+      expect.objectContaining({
+        futureList: '+Europa Test',
+        pastElection: 'politics-static source model',
+        pastDate: scenario.electionDate,
+        pastList: '+Europa',
+        factor: 1,
+        source: 'manual'
+      })
+    );
+    expect(validateScenario(scenario)).toEqual([]);
   });
 
   test('validates malformed list correspondences', () => {

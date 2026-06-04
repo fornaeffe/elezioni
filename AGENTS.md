@@ -269,14 +269,17 @@ simulation 4.
 - The generated default politics scenario carries bundled list correspondences
   from the production static snapshot. Treat these as default metadata and
   future advanced-editor input. Current projection warnings should stay focused
-  on user/manual correspondences; bundled historical correspondences should not
-  spam the UI just because they are not all usable by the current safe bridge.
+  on user/manual correspondences, and scenario validation should stay strict for
+  manual correspondences while keeping bundled historical correspondences quiet
+  when a user removes or renames a list.
 - `web/src/routes/+page.svelte` uses one `scenarioDraft` object for the basic
   web-native editor: scenario metadata, coalition editing, list/share editing,
-  validation, reset, JSON import/export, and automatic localStorage persistence.
-  Build plain cloned scenario snapshots before posting to the worker. Its
-  results panel prioritizes primary summary tables and keeps diagnostic tables
-  such as `Generated pipeline runs` behind a details toggle by default.
+  global mean/fixed share mode, compact one-to-one manual correspondence
+  editing, validation, reset, JSON import/export, and automatic localStorage
+  persistence. Build plain cloned scenario snapshots before posting to the
+  worker. Its results panel prioritizes primary summary tables and keeps
+  diagnostic tables such as `Generated pipeline runs` behind a details toggle by
+  default.
 - `web/src/lib/politics/scenario-projection.ts` is the current boundary between
   the web-native politics scenario and the generated worker source. It matches
   scenario lists to the static snapshot first by exact list name and then by a
@@ -294,10 +297,12 @@ simulation 4.
   correspondence. Other new lists are ignored with a warning until richer
   list-correspondence defaults and future-list generation semantics are
   implemented.
-- Advanced scenario UI remains deferred: past-to-future correspondence editing,
-  location-specific percentage overrides, fixed-versus-mean controls, and
-  candidate templates/editors. Keep schema/generator hooks ready, but do not
-  build large UI for these before production previous-election data packaging is
+- Advanced scenario UI remains deferred for richer past-to-future
+  correspondence semantics, location-specific percentage overrides, and
+  candidate templates/editors. Global fixed-versus-mean mode and safe
+  one-to-one manual correspondence editing are already exposed in the scenario
+  advanced section. Keep schema/generator hooks ready, but do not build large UI
+  for these deferred areas before production previous-election data packaging is
   stable.
 - The TypeScript politics scrutiny port now matches the R golden fixture for
   direct scrutiny output on the debug fixture: uninominal candidate election,
