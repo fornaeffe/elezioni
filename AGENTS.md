@@ -297,6 +297,12 @@ simulation 4.
   `web/static/data/v1/politics-static-debug.json` only if the production bridge
   snapshot is absent. The direct scrutiny and pipeline-source bridge snapshots
   are still useful for tests, but they are no longer the UI worker path.
+- `web/src/lib/politics/scrutiny-algorithms.ts` is the politics scrutiny
+  registry. The current default and only registered algorithm is
+  `politiche-r-parity-v1`, which wraps the R-parity TypeScript translation.
+  Future politics law-review variants should be registered there and selected
+  through `SimulationRequest.scrutinyAlgorithmId`; keep the UI selector hidden
+  until there is a second real same-election-kind algorithm.
 - The first browser scenario projection matches edited list shares by exact list
   name, preserves the source abstention row, rescales political list
   probabilities into the source model, and recomputes `LOGIT_P`. This is a

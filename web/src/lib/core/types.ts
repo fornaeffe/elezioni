@@ -30,6 +30,7 @@ export interface SimulationRequest {
   simulations: number;
   seed: string;
   dataVersion: string;
+  scrutinyAlgorithmId?: string;
 }
 
 export interface SimulationProgress {
@@ -60,6 +61,7 @@ export interface SimulationBenchmark {
   elapsedMs: number;
   simulations: number;
   dataVersion: string;
+  scrutinyAlgorithmId?: string;
 }
 
 export interface SimulationResult {

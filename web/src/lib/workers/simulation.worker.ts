@@ -10,7 +10,7 @@ import {
   projectScenarioOntoPoliticsSource,
   type PoliticsScenarioProjectionRow
 } from '$lib/politics/scenario-projection';
-import { runPoliticsScrutiny } from '$lib/politics/scrutiny';
+import { resolvePoliticsScrutinyAlgorithm } from '$lib/politics/scrutiny-algorithms';
 import { buildPoliticsPipelineSourceFromSnapshot } from '$lib/politics/static-snapshot';
 import type { PoliticsScrutinyOutput, PoliticsStaticSnapshot, Ramo } from '$lib/politics/types';
 
@@ -208,6 +208,8 @@ async function handleRequest(request: SimulationRequest): Promise<void> {
   }
 
   progress(startedAt, 'prepare', 1, 5);
+  const algorithmResolution = resolvePoliticsScrutinyAlgorithm(request.scrutinyAlgorithmId);
+  const scrutinyAlgorithm = algorithmResolution.algorithm;
   const loadedSnapshot = await loadPoliticsStaticSnapshot();
   const staticSnapshot = loadedSnapshot.snapshot;
   const requestedSimulationInput = Math.floor(Number(request.simulations));
@@ -246,7 +248,7 @@ async function handleRequest(request: SimulationRequest): Promise<void> {
       const ramoSnapshot = snapshot.rami[ramo];
       for (const simulation of ramoSnapshot.simulations) {
         const runStartedAt = performance.now();
-        const output = runPoliticsScrutiny(simulation.input, {
+        const output = scrutinyAlgorithm.run(simulation.input, {
           ramo,
           liste_naz: ramoSnapshot.liste_naz,
           totali_pluri: ramoSnapshot.totali_pluri,
@@ -272,6 +274,17 @@ async function handleRequest(request: SimulationRequest): Promise<void> {
       summarizeListSeats(runs, simulationCount)
     ],
     warnings: [
+      ...(algorithmResolution.fallback
+        ? [
+            {
+              code: 'POLITICS_SCRUTINY_ALGORITHM_FALLBACK',
+              electionKind: request.kind,
+              message: `Requested scrutiny algorithm ${algorithmResolution.requestedId}, but it is not registered; using ${scrutinyAlgorithm.id}.`,
+              lawReference: scrutinyAlgorithm.lawReference,
+              todoReference: 'MIGRATION_PLAN.md#implementation-checklist'
+            }
+          ]
+        : []),
       {
         code: loadedSnapshot.fallback ? 'POLITICS_DEBUG_STATIC_SNAPSHOT' : 'POLITICS_STATIC_SNAPSHOT',
         electionKind: request.kind,
@@ -308,7 +321,8 @@ async function handleRequest(request: SimulationRequest): Promise<void> {
       startedAt: startedIso,
       elapsedMs: performance.now() - startedAt,
       simulations: simulationCount,
-      dataVersion: request.dataVersion
+      dataVersion: request.dataVersion,
+      scrutinyAlgorithmId: scrutinyAlgorithm.id
     }
   };
 
@@ -333,7 +347,8 @@ self.onmessage = (event: MessageEvent<SimulationRequest>) => {
         startedAt: new Date().toISOString(),
         elapsedMs: 0,
         simulations: event.data.simulations,
-        dataVersion: event.data.dataVersion
+        dataVersion: event.data.dataVersion,
+        scrutinyAlgorithmId: event.data.scrutinyAlgorithmId
       }
     });
   });

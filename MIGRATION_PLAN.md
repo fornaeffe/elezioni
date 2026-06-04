@@ -1,6 +1,6 @@
 # SvelteKit Migration Plan
 
-Last updated: 2026-06-02
+Last updated: 2026-06-03
 
 ## Summary
 
@@ -29,7 +29,7 @@ R baseline on the same machine, pause and present Python fallback options.
 | R benchmarks | Done | `scripts/benchmark_r_workflows.R` added; quick baseline JSON generated. |
 | SvelteKit app scaffold | Done | `web/` created with strict TS, static adapter, Vitest, Playwright. |
 | TypeScript core | Started | Worker API types, seeded RNG, allocation primitives, fixture loader tests, and unit tests added. |
-| Politics scrutiny port | Started | Direct politics scrutiny output matches R for the debug fixture; the worker now scrutinizes generated TypeScript politics simulations. |
+| Politics scrutiny port | Started | Direct politics scrutiny output matches R for the debug fixture; the worker now scrutinizes generated TypeScript politics simulations through the first algorithm registry hook. |
 | Vote generation | Started | Generic `genera_voti()` math and politics `genera_voti_politiche()` orchestration are ported with R-draw fixture parity and seeded browser normals. |
 | Candidate generation | Started | Politics `genera_candidati()` is ported with R `sample()` replay fixture parity and seeded browser sampling. |
 | Composed politics pipeline | Started | Candidate generation, vote generation, vote preparation, and direct-scrutiny input adaptation are composed into tested synthetic, real-source, and browser-worker paths. |
@@ -192,8 +192,8 @@ future data-preparation migration or major snapshot/schema changes.
     simulations.
 14. Replace the debug-source bridge with production static data snapshots.
 15. Mature the web-native scenario editor and scenario JSON contract.
-16. Add scrutiny-algorithm selection in the UI when a second same-election-kind
-    algorithm exists.
+16. Preserve a scrutiny-algorithm registry hook now, then add UI selection when
+    a second same-election-kind algorithm exists.
 17. Migrate regional and municipal workflows.
 18. Migrate data preparation as a periodic, election-kind-agnostic devops
     pipeline after the simulator migration.
@@ -268,6 +268,10 @@ future data-preparation migration or major snapshot/schema changes.
 - Refined the first results panel so user-facing summary tables render before
   diagnostics and `Generated pipeline runs` is hidden behind a details toggle by
   default.
+- Added the first politics scrutiny algorithm registry, with
+  `politiche-r-parity-v1` as the default R-parity implementation. Worker
+  requests can now carry an optional `scrutinyAlgorithmId`; unknown IDs fall
+  back to the default with an explicit warning.
 
 ## Latest Verification
 
@@ -292,6 +296,13 @@ Run on 2026-06-02:
 - `cd web; npm run benchmark:politics`: passed on the R-exported production
   static bridge, 10 simulations in 1.357 s, 100 simulations in 13.194 s, and
   1000 simulations in 123.229 s.
+
+Additional run on 2026-06-03:
+
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 125 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
 
 ## Current Caveats
 
@@ -359,6 +370,11 @@ Run on 2026-06-02:
   keeps the scenario projection visible, and hides `Generated pipeline runs`
   behind a details toggle by default. Additional result charts and legally
   richer summaries are still future UI work.
+- The politics scrutiny registry currently contains only
+  `politiche-r-parity-v1`, the R-parity TypeScript translation. This keeps the
+  worker architecture ready for law-review variants, but the UI selector should
+  remain hidden until there is at least a second real same-election-kind
+  algorithm.
 - The generated worker path currently runs in 50-simulation chunks and is
   capped at 1000 simulations. This is enough for the current benchmark gate but
   should be revisited if the UI needs larger runs or after columnar packaging.
@@ -1093,3 +1109,28 @@ Verification:
 - Built-app desktop/mobile layout overflow check with Playwright: passed.
 - `cd web; npm run benchmark:politics`: passed, 10 simulations in 1.357 s,
   100 simulations in 13.194 s, and 1000 simulations in 123.229 s.
+
+## 2026-06-03 Checkpoint 26
+
+Completed in the scrutiny-algorithm registry pass:
+
+- Added optional `scrutinyAlgorithmId` to `SimulationRequest` and
+  `SimulationBenchmark`.
+- Added `web/src/lib/politics/scrutiny-algorithms.ts`, registering
+  `politiche-r-parity-v1` as the default politics scrutiny algorithm.
+- Rewired the generated politics worker to resolve the algorithm through the
+  registry instead of importing `runPoliticsScrutiny()` directly.
+- Recorded the selected algorithm in benchmark metadata and added a fallback
+  warning for unknown requested algorithm IDs.
+- Added registry tests proving the default algorithm is registered, unknown IDs
+  fall back explicitly, and the default registry path calls the same
+  implementation as the direct R-parity scrutiny function.
+- Kept the UI selector deferred: there is still only one real politics
+  algorithm, so exposing a visible choice would add noise without user value.
+
+Verification:
+
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 125 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
