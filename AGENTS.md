@@ -155,6 +155,10 @@ simulation 4.
   not in the worker orchestration layer. Keep summary tables focused on
   user-facing outcomes first: election overview, seat distributions,
   valid-vote share distributions, and uninominal winners by support.
+- Politics result charts belong in small TypeScript helpers such as
+  `web/src/lib/politics/result-charts.ts`, downstream of the tested
+  result-table contract. Do not put aggregation logic directly in Svelte route
+  components.
 - Result exports belong in `web/src/lib/core/result-export.ts`. JSON exports
   should keep the scenario and worker result together for reproducibility; CSV
   exports should stay table-oriented for spreadsheet review.
@@ -379,6 +383,10 @@ simulation 4.
 - `web/src/lib/core/result-export.ts` serializes worker result tables to a
   sectioned CSV and builds a structured JSON export payload with the scenario,
   result, and export timestamp. Keep this generic across future election kinds.
+- `web/src/lib/politics/result-charts.ts` derives lightweight result-panel bar
+  charts from politics result tables and scenario colors. Keep this helper
+  table-driven unless a future visualization needs a richer typed result
+  contract.
 - Do not run `cd web; npm run build` and `cd web; npm run test:e2e`
   concurrently. Both touch SvelteKit build/prerender output and can race on
   hashed assets; run them sequentially for verification.

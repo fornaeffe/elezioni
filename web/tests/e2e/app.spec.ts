@@ -53,6 +53,8 @@ test('runs the worker smoke path from the scenario editor', async ({ page }) => 
   await expect(renamedProjectionRow).toContainText('+Europa');
   await expect(renamedProjectionRow).toContainText('declared-correspondence');
   await expect(page.getByRole('table', { name: 'Election overview' })).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Seggi plurinominali medi' })).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Percentuali medie sui voti validi' })).toBeVisible();
   await expect(page.getByRole('table', { name: 'Average plurinominal seats by list' })).toBeVisible();
   await expect(page.getByRole('table', { name: 'Vote share by list' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Scarica risultati JSON' })).toBeVisible();
