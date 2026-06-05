@@ -106,8 +106,18 @@
     scenarioDraft.listCorrespondences.filter((correspondence) => correspondence.source === 'manual').length
   );
   const correspondenceDestinations = $derived([...scenarioDraft.lists.map((list) => list.name), politicsAbstentionListName]);
+  const editablePlurinominalCandidacyShareTotal = $derived(
+    scenarioDraft.candidateGeneration.plurinominalCandidacyCountShares
+      .slice(1)
+      .reduce((sum, share) => sum + Number(share), 0)
+  );
+  const calculatedSingleCandidacyShare = $derived(
+    Number.isFinite(editablePlurinominalCandidacyShareTotal)
+      ? Math.max(0, 1 - editablePlurinominalCandidacyShareTotal)
+      : Number.NaN
+  );
   const plurinominalCandidacyShareTotal = $derived(
-    scenarioDraft.candidateGeneration.plurinominalCandidacyCountShares.reduce((sum, share) => sum + Number(share), 0)
+    calculatedSingleCandidacyShare + editablePlurinominalCandidacyShareTotal
   );
   const plurinominalCandidacyShareTotalLabel = $derived(
     Number.isFinite(plurinominalCandidacyShareTotal) ? plurinominalCandidacyShareTotal.toFixed(3) : 'non valido'
@@ -205,10 +215,18 @@
   }
 
   function updatePlurinominalCandidacyCountShare(count: number, value: string | number): void {
+    if (count === 1) return;
+
     const shares = [
       ...scenarioDraft.candidateGeneration.plurinominalCandidacyCountShares
     ] as Scenario['candidateGeneration']['plurinominalCandidacyCountShares'];
-    shares[count - 1] = Number(value);
+    const rawValue = Number(value);
+    const otherEditableShareTotal = shares
+      .slice(1)
+      .reduce((sum, share, index) => sum + (index === count - 2 ? 0 : Number(share)), 0);
+    const remaining = Math.max(0, 1 - otherEditableShareTotal);
+    shares[count - 1] = Number.isFinite(rawValue) ? Math.min(Math.max(rawValue, 0), remaining) : rawValue;
+    shares[0] = Math.max(0, 1 - shares.slice(1).reduce((sum, share) => sum + Number(share), 0));
 
     scenarioDraft = {
       ...scenarioDraft,
@@ -800,13 +818,16 @@
                       type="number"
                       min="0"
                       max="1"
-                      step="0.01"
-                      value={scenarioDraft.candidateGeneration.plurinominalCandidacyCountShares[count - 1]}
+                      step="0.001"
+                      value={count === 1
+                        ? calculatedSingleCandidacyShare
+                        : scenarioDraft.candidateGeneration.plurinominalCandidacyCountShares[count - 1]}
                       oninput={(event) =>
                         updatePlurinominalCandidacyCountShare(
                           count,
                           (event.currentTarget as HTMLInputElement).value
                         )}
+                      disabled={count === 1}
                       aria-label={`Quota candidati con ${count} candidature`}
                     />
                   </label>

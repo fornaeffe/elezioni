@@ -23,9 +23,18 @@ export const politicsScenarioSchemaVersion = 7;
 
 export const defaultPoliticsScenario: Scenario = generatedDefaultPoliticsScenario;
 export const politicsAbstentionListName = 'astensione';
-export const defaultScenarioCandidateGeneration: ScenarioCandidateGeneration = {
+const singleCandidacyCandidateGeneration: ScenarioCandidateGeneration = {
   uninominalToPlurinominalShare: 0,
   plurinominalCandidacyCountShares: [1, 0, 0, 0, 0]
+};
+export const defaultScenarioCandidateGeneration: ScenarioCandidateGeneration = {
+  uninominalToPlurinominalShare:
+    defaultPoliticsScenario.candidateGeneration?.uninominalToPlurinominalShare ??
+    singleCandidacyCandidateGeneration.uninominalToPlurinominalShare,
+  plurinominalCandidacyCountShares: [
+    ...(defaultPoliticsScenario.candidateGeneration?.plurinominalCandidacyCountShares ??
+      singleCandidacyCandidateGeneration.plurinominalCandidacyCountShares)
+  ] as ScenarioPlurinominalCandidacyCountShares
 };
 
 const vectorLength = 5;

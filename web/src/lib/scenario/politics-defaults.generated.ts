@@ -973,13 +973,13 @@ export const generatedDefaultPoliticsScenario = {
   "localShareOverrides": [],
   "candidateTemplates": [],
   "candidateGeneration": {
-    "uninominalToPlurinominalShare": 0,
+    "uninominalToPlurinominalShare": 0.35,
     "plurinominalCandidacyCountShares": [
-      1,
-      0,
-      0,
-      0,
-      0
+      0.875,
+      0.0625,
+      0.025000000000000005,
+      0.012499999999999997,
+      0.024999999999999998
     ]
   }
 } satisfies Scenario;

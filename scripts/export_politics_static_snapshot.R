@@ -129,8 +129,8 @@ snapshot <- list(
     id = "politiche-2027",
     name = "Politiche 2027",
     data_elezione = format(data_elezione, "%Y-%m-%dT%H:%M:%SZ", tz = "UTC"),
-    frazione_uni_in_pluri = 0,
-    frazioni_pluricandidature = as.list(c(1, 0, 0, 0, 0)),
+    frazione_uni_in_pluri = 0.35,
+    frazioni_pluricandidature = as.list(c(0.8, 0.1, 0.05, 0.03, 0.02)),
     default_data_nascita = default_data_nascita,
     liste = select_frame(parametri_input$liste, c(
       "LISTA",

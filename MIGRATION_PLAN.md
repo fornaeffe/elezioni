@@ -1572,3 +1572,28 @@ Verification with local generated artifacts present:
 - `cd web; npm run test`: passed, 166 tests.
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 4 Playwright tests.
+
+## 2026-06-05 Checkpoint 42
+
+Completed in the candidate-generation defaults refinement:
+
+- Updated the advanced scenario UI so the "exactly 1 candidacy" share is
+  disabled and recalculated from the editable exactly 2-5 candidacy shares.
+- Clamped editable pluricandidature shares in the UI so normal edits keep the
+  stored five-value distribution summing to 1.
+- Updated `scripts/export_politics_static_snapshot.R` to use the current
+  `politiche_2027.qmd` defaults: `frazione_uni_in_pluri = 0.35` and
+  `frazioni_pluricandidature = c(0.8, 0.1, 0.05, 0.03, 0.02)`.
+- Regenerated `web/static/data/v1/politics-static.json` locally and then
+  regenerated `web/src/lib/scenario/politics-defaults.generated.ts`; the
+  friendly default exact-candidacy distribution is now
+  `[0.875, 0.0625, 0.025, 0.0125, 0.025]`.
+
+Verification with local generated artifacts present:
+
+- `C:\Program Files\R\R-4.5.1\bin\Rscript.exe scripts/export_politics_static_snapshot.R`: passed.
+- `node scripts/export_politics_scenario_defaults.mjs`: passed.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 166 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 4 Playwright tests.
