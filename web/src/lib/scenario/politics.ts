@@ -1,6 +1,7 @@
 import type {
   ElectionKind,
   Scenario,
+  ScenarioCandidateGeneration,
   ScenarioCandidateTemplate,
   ScenarioCandidateTemplateKind,
   ScenarioCandidateTemplateRamo,
@@ -12,15 +13,23 @@ import type {
   ScenarioListCorrespondence,
   ScenarioListCorrespondenceSource,
   ScenarioLocalShareOverride,
-  ScenarioLocalShareOverrideScope
+  ScenarioLocalShareOverrideScope,
+  ScenarioPlurinominalCandidacyCountShares
 } from '$lib/core/types';
 import { generatedDefaultPoliticsScenario } from './politics-defaults.generated';
 
 export const politicsScenarioStorageKey = 'elezioni:web:politics-scenario:v1';
-export const politicsScenarioSchemaVersion = 6;
+export const politicsScenarioSchemaVersion = 7;
 
 export const defaultPoliticsScenario: Scenario = generatedDefaultPoliticsScenario;
 export const politicsAbstentionListName = 'astensione';
+export const defaultScenarioCandidateGeneration: ScenarioCandidateGeneration = {
+  uninominalToPlurinominalShare: 0,
+  plurinominalCandidacyCountShares: [1, 0, 0, 0, 0]
+};
+
+const vectorLength = 5;
+const shareSumTolerance = 1e-9;
 
 export interface ScenarioHistoricalCorrespondenceSource {
   key: string;
@@ -104,6 +113,10 @@ function cleanShare(value: unknown): number {
   return Number.isFinite(numeric) ? numeric : 0;
 }
 
+function cleanNumber(value: unknown): number {
+  return Number(value);
+}
+
 function cleanNullableString(value: unknown): string | null {
   const cleaned = cleanString(value).trim();
   return cleaned || null;
@@ -161,6 +174,75 @@ function normalizeDefaultSource(value: unknown): ScenarioDefaultSource {
   };
 }
 
+function normalizeCandidateGeneration(value: unknown): ScenarioCandidateGeneration {
+  if (value === undefined || value === null || typeof value !== 'object' || Array.isArray(value)) {
+    return {
+      uninominalToPlurinominalShare: defaultScenarioCandidateGeneration.uninominalToPlurinominalShare,
+      plurinominalCandidacyCountShares: [...defaultScenarioCandidateGeneration.plurinominalCandidacyCountShares]
+    };
+  }
+
+  const source = value as Partial<ScenarioCandidateGeneration>;
+  const shares = Array.isArray(source.plurinominalCandidacyCountShares)
+    ? source.plurinominalCandidacyCountShares.map(cleanNumber)
+    : [...defaultScenarioCandidateGeneration.plurinominalCandidacyCountShares];
+
+  return {
+    uninominalToPlurinominalShare:
+      source.uninominalToPlurinominalShare === undefined
+        ? defaultScenarioCandidateGeneration.uninominalToPlurinominalShare
+        : cleanNumber(source.uninominalToPlurinominalShare),
+    plurinominalCandidacyCountShares: shares as ScenarioPlurinominalCandidacyCountShares
+  };
+}
+
+function normalizeShareVector(
+  shares: readonly number[],
+  fallback: ScenarioPlurinominalCandidacyCountShares = defaultScenarioCandidateGeneration.plurinominalCandidacyCountShares
+): ScenarioPlurinominalCandidacyCountShares {
+  if (
+    shares.length !== vectorLength ||
+    shares.some((share) => !Number.isFinite(share) || share < 0) ||
+    shares.reduce((sum, share) => sum + share, 0) <= 0
+  ) {
+    return [...fallback];
+  }
+
+  const total = shares.reduce((sum, share) => sum + share, 0);
+  return shares.map((share) => share / total) as ScenarioPlurinominalCandidacyCountShares;
+}
+
+export function plurinominalCandidacyCountSharesToFractions(
+  shares: readonly number[]
+): ScenarioPlurinominalCandidacyCountShares {
+  const normalizedShares = normalizeShareVector(shares);
+  const totalSlots = normalizedShares.reduce((sum, share, index) => sum + share * (index + 1), 0);
+
+  return normalizedShares.map((_, index) => {
+    const tail = normalizedShares.slice(index).reduce((sum, share) => sum + share, 0);
+    return tail / totalSlots;
+  }) as ScenarioPlurinominalCandidacyCountShares;
+}
+
+export function pluricandidatureFractionsToPlurinominalCandidacyCountShares(
+  fractions: readonly number[]
+): ScenarioPlurinominalCandidacyCountShares {
+  if (
+    fractions.length !== vectorLength ||
+    fractions.some((fraction) => !Number.isFinite(fraction) || fraction < 0) ||
+    fractions[0] <= 0
+  ) {
+    return [...defaultScenarioCandidateGeneration.plurinominalCandidacyCountShares];
+  }
+
+  const shares = fractions.map((fraction, index) => {
+    const next = fractions[index + 1] ?? 0;
+    return (fraction - next) / fractions[0];
+  });
+
+  return normalizeShareVector(shares);
+}
+
 export function cloneScenario(scenario: Scenario): Scenario {
   return {
     id: scenario.id,
@@ -174,7 +256,11 @@ export function cloneScenario(scenario: Scenario): Scenario {
     lists: scenario.lists.map((list) => ({ ...list })),
     listCorrespondences: scenario.listCorrespondences.map((correspondence) => ({ ...correspondence })),
     localShareOverrides: scenario.localShareOverrides.map((override) => ({ ...override })),
-    candidateTemplates: scenario.candidateTemplates.map((template) => ({ ...template }))
+    candidateTemplates: scenario.candidateTemplates.map((template) => ({ ...template })),
+    candidateGeneration: {
+      uninominalToPlurinominalShare: scenario.candidateGeneration.uninominalToPlurinominalShare,
+      plurinominalCandidacyCountShares: [...scenario.candidateGeneration.plurinominalCandidacyCountShares]
+    }
   };
 }
 
@@ -501,7 +587,8 @@ export function normalizeScenario(value: unknown): Scenario {
         candidateNumber: cleanNullableNumber(source.candidateNumber),
         minority: source.minority === true
       };
-    })
+    }),
+    candidateGeneration: normalizeCandidateGeneration(input.candidateGeneration)
   };
 }
 
@@ -518,6 +605,9 @@ export function validateScenario(scenario: Scenario): string[] {
   const localOverrideKeys = new Set<string>();
   const localOverridesByLocation = new Map<string, ScenarioLocalShareOverride[]>();
   const candidateTemplateKeys = new Set<string>();
+  const candidateGeneration = scenario.candidateGeneration;
+  const candidacyShares = candidateGeneration.plurinominalCandidacyCountShares;
+  const candidacyShareTotal = candidacyShares.reduce((sum, share) => sum + share, 0);
 
   if (!scenario.name.trim()) messages.push('Lo scenario deve avere un nome.');
   if (Number.isNaN(Date.parse(scenario.electionDate))) messages.push('La data elezione non e valida.');
@@ -536,6 +626,23 @@ export function validateScenario(scenario: Scenario): string[] {
     messages.push('La somma delle quote usate deve essere maggiore di zero.');
   }
   if (totalOverrideShare > 100.01) messages.push('La somma delle quote usate non puo superare 100.');
+  if (
+    !Number.isFinite(candidateGeneration.uninominalToPlurinominalShare) ||
+    candidateGeneration.uninominalToPlurinominalShare < 0 ||
+    candidateGeneration.uninominalToPlurinominalShare > 1
+  ) {
+    messages.push('Quota uninominali in plurinominale non valida.');
+  }
+  if (candidacyShares.length !== vectorLength) {
+    messages.push('La distribuzione delle pluricandidature deve avere cinque valori.');
+  } else {
+    if (candidacyShares.some((share) => !Number.isFinite(share) || share < 0)) {
+      messages.push('Distribuzione pluricandidature non valida.');
+    }
+    if (Math.abs(candidacyShareTotal - 1) > shareSumTolerance) {
+      messages.push('La somma della distribuzione pluricandidature deve essere 1.');
+    }
+  }
 
   for (const list of scenario.lists) {
     const share = Number(list.startingShare);

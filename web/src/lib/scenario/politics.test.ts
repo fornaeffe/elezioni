@@ -2,8 +2,11 @@ import { describe, expect, test } from 'vitest';
 import {
   buildScenarioHistoricalCorrespondenceGroups,
   createDefaultPoliticsScenario,
+  defaultScenarioCandidateGeneration,
   normalizeScenario,
   parseScenario,
+  plurinominalCandidacyCountSharesToFractions,
+  pluricandidatureFractionsToPlurinominalCandidacyCountShares,
   removeScenarioList,
   removeScenarioHistoricalCorrespondence,
   renameScenarioList,
@@ -30,6 +33,7 @@ describe('politics web-native scenario model', () => {
     expect(scenario.abstentionOverride).toBe(false);
     expect(scenario.localShareOverrides).toEqual([]);
     expect(scenario.candidateTemplates).toEqual([]);
+    expect(scenario.candidateGeneration).toEqual(defaultScenarioCandidateGeneration);
     expect(scenario.listCorrespondences.length).toBeGreaterThan(0);
     expect(scenario.listCorrespondences.every((correspondence) => correspondence.source === 'bundled')).toBe(true);
     expect(scenario.listCorrespondences).toEqual(
@@ -90,6 +94,7 @@ describe('politics web-native scenario model', () => {
     expect(scenario.listCorrespondences).toEqual([]);
     expect(scenario.localShareOverrides).toEqual([]);
     expect(scenario.candidateTemplates).toEqual([]);
+    expect(scenario.candidateGeneration).toEqual(defaultScenarioCandidateGeneration);
     expect(scenario.lists[0].id).toBe('list-lista-a');
     expect(scenario.lists[0].startingShare).toBe(40);
     expect(scenario.lists[0].shareOverride).toBe(true);
@@ -117,6 +122,7 @@ describe('politics web-native scenario model', () => {
     expect(scenario.listCorrespondences).toEqual([]);
     expect(scenario.localShareOverrides).toEqual([]);
     expect(scenario.candidateTemplates).toEqual([]);
+    expect(scenario.candidateGeneration).toEqual(defaultScenarioCandidateGeneration);
   });
 
   test('round-trips v6 default metadata, normalizes retired share mode, abstention, correspondences, local overrides, and candidate templates', () => {
@@ -228,6 +234,7 @@ describe('politics web-native scenario model', () => {
         minority: true
       }
     ]);
+    expect(scenario.candidateGeneration).toEqual(defaultScenarioCandidateGeneration);
     expect(scenario.listCorrespondences[0]).toEqual(
       expect.objectContaining({
         id: 'correspondence-camera-2022-lista-a-passata-lista-a',
@@ -240,6 +247,70 @@ describe('politics web-native scenario model', () => {
       })
     );
     expect(parseScenario(serializeScenario(scenario))).toEqual(scenario);
+  });
+
+  test('round-trips v7 candidate generation settings', () => {
+    const scenario = parseScenario(
+      JSON.stringify({
+        schema_version: 7,
+        scenario: {
+          name: 'Scenario candidati',
+          electionDate: '2027-03-01',
+          coalitions: [{ name: 'Coalizione A' }],
+          lists: [{ name: 'Lista A', coalition: 'Coalizione A', startingShare: 40 }],
+          candidateGeneration: {
+            uninominalToPlurinominalShare: 0.25,
+            plurinominalCandidacyCountShares: [0.5, 0.3, 0.1, 0.1, 0]
+          }
+        }
+      })
+    );
+
+    expect(scenario.candidateGeneration).toEqual({
+      uninominalToPlurinominalShare: 0.25,
+      plurinominalCandidacyCountShares: [0.5, 0.3, 0.1, 0.1, 0]
+    });
+    expect(parseScenario(serializeScenario(scenario))).toEqual(scenario);
+  });
+
+  test('converts candidacy-count shares to internal pluricandidature fractions and back', () => {
+    const internal = plurinominalCandidacyCountSharesToFractions([0.5, 0.5, 0, 0, 0]);
+    expect(internal).toEqual([2 / 3, 1 / 3, 0, 0, 0]);
+
+    const friendly = pluricandidatureFractionsToPlurinominalCandidacyCountShares(internal);
+    expect(friendly).toEqual([0.5, 0.5, 0, 0, 0]);
+  });
+
+  test('validates malformed candidate generation settings', () => {
+    const scenario = createDefaultPoliticsScenario();
+    scenario.candidateGeneration = {
+      uninominalToPlurinominalShare: 1.2,
+      plurinominalCandidacyCountShares: [1, -0.1, 0, 0, 0]
+    };
+
+    expect(validateScenario(scenario)).toEqual(
+      expect.arrayContaining([
+        'Quota uninominali in plurinominale non valida.',
+        'Distribuzione pluricandidature non valida.',
+        'La somma della distribuzione pluricandidature deve essere 1.'
+      ])
+    );
+
+    scenario.candidateGeneration = {
+      uninominalToPlurinominalShare: 0,
+      plurinominalCandidacyCountShares: [0.5, 0.5, 0.5, 0, 0]
+    };
+    expect(validateScenario(scenario)).toEqual(
+      expect.arrayContaining(['La somma della distribuzione pluricandidature deve essere 1.'])
+    );
+
+    scenario.candidateGeneration = {
+      uninominalToPlurinominalShare: 0,
+      plurinominalCandidacyCountShares: [1, 0, 0] as never
+    };
+    expect(validateScenario(scenario)).toEqual(
+      expect.arrayContaining(['La distribuzione delle pluricandidature deve avere cinque valori.'])
+    );
   });
 
   test('validates only explicitly used global share overrides as a total', () => {

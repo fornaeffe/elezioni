@@ -1547,3 +1547,28 @@ Verification with local generated artifacts present:
 - `cd web; npm run check`: passed with 0 warnings.
 - `cd web; npm run test`: passed, 162 tests.
 - `cd web; npm run test:e2e`: passed, 4 Playwright tests.
+
+## 2026-06-05 Checkpoint 41
+
+Completed in the advanced candidate-generation settings slice:
+
+- Extended the shared politics `Scenario` contract to schema v7 with
+  `candidateGeneration.uninominalToPlurinominalShare` and friendly
+  exact-candidacy-count shares for plurinominal pluricandidatures.
+- Added scenario conversion helpers between exact candidate-count shares and the
+  R-compatible `frazioni_pluricandidature` slot-layer vector.
+- Updated generated politics defaults so the bundled scenario derives the
+  friendly candidate-generation settings from the static snapshot.
+- Wired scenario projection to override `frazione_uni_in_pluri` and
+  `frazioni_pluricandidature` before worker candidate generation.
+- Added advanced UI controls for uninominal-to-plurinominal reuse and the
+  five-value exact-candidacy distribution.
+- Tightened candidate-generation validation to require five finite,
+  non-negative, non-increasing internal fractions summing to 1.
+
+Verification with local generated artifacts present:
+
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 166 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 4 Playwright tests.

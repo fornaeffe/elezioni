@@ -85,7 +85,11 @@ function scenario(): Scenario {
       }
     ]),
     localShareOverrides: [],
-    candidateTemplates: []
+    candidateTemplates: [],
+    candidateGeneration: {
+      uninominalToPlurinominalShare: 0,
+      plurinominalCandidacyCountShares: [1, 0, 0, 0, 0]
+    }
   };
 }
 

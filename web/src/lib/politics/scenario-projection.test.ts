@@ -12,7 +12,7 @@ function source(): PoliticsPipelineSource {
     data_elezione: '2027-03-01T00:00:00.000Z',
     simulazioni: 1,
     frazione_uni_in_pluri: 0.25,
-    frazioni_pluricandidature: [0.5, 0.3, 0.2],
+    frazioni_pluricandidature: [0.5, 0.3, 0.2, 0, 0],
     default_data_nascita: '2000-01-01T00:00:00.000Z',
     liste: [
       { LISTA: 'Lista A', COALIZIONE: 'Coalizione A', DATA: '2022-09-25T00:00:00.000Z', LOGIT_P: logit(0.1), SIGMA_GLOBAL: 0.1, PERCENTUALE: 0.1 },
@@ -81,7 +81,11 @@ function scenario(lists: Scenario['lists']): Scenario {
     lists,
     listCorrespondences: [],
     localShareOverrides: [],
-    candidateTemplates: []
+    candidateTemplates: [],
+    candidateGeneration: {
+      uninominalToPlurinominalShare: 0,
+      plurinominalCandidacyCountShares: [1, 0, 0, 0, 0]
+    }
   };
 }
 
@@ -129,6 +133,23 @@ describe('politics scenario projection', () => {
       0.1, 0.2, 0.3
     ]);
     expect(projection.warnings).toEqual([]);
+  });
+
+  test('overrides candidate-generation settings from the scenario', () => {
+    const candidateScenario = scenario([
+      { id: 'a', name: 'Lista A', coalition: 'Coalizione A', color: '#000000', startingShare: 10, shareOverride: false },
+      { id: 'b', name: 'Lista B', coalition: 'Coalizione B', color: '#111111', startingShare: 20, shareOverride: false },
+      { id: 'c', name: 'Lista C', coalition: 'Coalizione C', color: '#222222', startingShare: 30, shareOverride: false }
+    ]);
+    candidateScenario.candidateGeneration = {
+      uninominalToPlurinominalShare: 0.4,
+      plurinominalCandidacyCountShares: [0.5, 0.5, 0, 0, 0]
+    };
+
+    const projection = projectScenarioOntoPoliticsSource(source(), candidateScenario, { simulations: 1 });
+
+    expect(projection.source.frazione_uni_in_pluri).toBe(0.4);
+    expect(projection.source.frazioni_pluricandidature).toEqual([2 / 3, 1 / 3, 0, 0, 0]);
   });
 
   test('removes missing source lists and rescales the remaining default model', () => {

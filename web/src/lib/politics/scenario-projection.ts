@@ -4,6 +4,7 @@ import type {
   ScenarioList,
   ScenarioLocalShareOverride
 } from '$lib/core/types';
+import { plurinominalCandidacyCountSharesToFractions } from '$lib/scenario/politics';
 import { buildPoliticsParametersFromHistoricalVotes } from './parameter-preparation';
 import type {
   PoliticsBaseDataRow,
@@ -532,6 +533,12 @@ export function projectScenarioOntoPoliticsSource(
   const overrideReferenceDate = overrideReferenceDateIso(options.currentDate, electionDateIso);
   const sourcePoliticalRows = source.liste.filter((row) => row.LISTA !== 'astensione');
   const sourcePoliticalTotal = sourcePoliticalRows.reduce((sum, row) => sum + row.PERCENTUALE, 0);
+  const projectedCandidateGeneration = {
+    frazione_uni_in_pluri: scenario.candidateGeneration.uninominalToPlurinominalShare,
+    frazioni_pluricandidature: plurinominalCandidacyCountSharesToFractions(
+      scenario.candidateGeneration.plurinominalCandidacyCountShares
+    )
+  };
   const historicalParameterSource = buildHistoricalParameterSource(scenario, options);
   const baseListRows = historicalParameterSource?.liste ?? source.liste;
   const baseMunicipalRows = historicalParameterSource?.comuni_liste ?? source.comuni_liste;
@@ -575,7 +582,8 @@ export function projectScenarioOntoPoliticsSource(
       source: {
         ...source,
         data_elezione: electionDateIso,
-        simulazioni: options.simulations
+        simulazioni: options.simulations,
+        ...projectedCandidateGeneration
       },
       rows: [
         ...sourcePoliticalRows.map((row) => ({
@@ -682,6 +690,7 @@ export function projectScenarioOntoPoliticsSource(
       ...source,
       data_elezione: electionDateIso,
       simulazioni: options.simulations,
+      ...projectedCandidateGeneration,
       liste: projectedLists,
       comuni_liste: projectedMunicipalParameterRows,
       camera,

@@ -56,6 +56,7 @@
   const dataVersion = 'v1';
   const diagnosticTableNames = new Set(['Generated pipeline runs']);
   const internalTableNames = new Set<string>(politicsResultPlotTableNames);
+  const candidacyCountOptions = [1, 2, 3, 4, 5] as const;
 
   let simulations = $state(10);
   let seed = $state('politiche-2027');
@@ -105,6 +106,12 @@
     scenarioDraft.listCorrespondences.filter((correspondence) => correspondence.source === 'manual').length
   );
   const correspondenceDestinations = $derived([...scenarioDraft.lists.map((list) => list.name), politicsAbstentionListName]);
+  const plurinominalCandidacyShareTotal = $derived(
+    scenarioDraft.candidateGeneration.plurinominalCandidacyCountShares.reduce((sum, share) => sum + Number(share), 0)
+  );
+  const plurinominalCandidacyShareTotalLabel = $derived(
+    Number.isFinite(plurinominalCandidacyShareTotal) ? plurinominalCandidacyShareTotal.toFixed(3) : 'non valido'
+  );
 
   onMount(() => {
     if (!browser) return;
@@ -185,6 +192,31 @@
 
   function resetListCorrespondenceSource(pastElection: string, pastList: string): void {
     scenarioDraft = resetScenarioHistoricalCorrespondenceSource(scenarioDraft, pastElection, pastList);
+  }
+
+  function updateUninominalToPlurinominalShare(value: string | number): void {
+    scenarioDraft = {
+      ...scenarioDraft,
+      candidateGeneration: {
+        ...scenarioDraft.candidateGeneration,
+        uninominalToPlurinominalShare: Number(value)
+      }
+    };
+  }
+
+  function updatePlurinominalCandidacyCountShare(count: number, value: string | number): void {
+    const shares = [
+      ...scenarioDraft.candidateGeneration.plurinominalCandidacyCountShares
+    ] as Scenario['candidateGeneration']['plurinominalCandidacyCountShares'];
+    shares[count - 1] = Number(value);
+
+    scenarioDraft = {
+      ...scenarioDraft,
+      candidateGeneration: {
+        ...scenarioDraft.candidateGeneration,
+        plurinominalCandidacyCountShares: shares
+      }
+    };
   }
 
   function resetScenario(): void {
@@ -727,6 +759,61 @@
               </label>
             </div>
 
+            <div class="candidate-generation-block">
+              <span class="setting-label">Generazione candidati</span>
+              <div class="range-setting">
+                <label>
+                  Uninominali in plurinominale
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value={scenarioDraft.candidateGeneration.uninominalToPlurinominalShare}
+                    oninput={(event) =>
+                      updateUninominalToPlurinominalShare((event.currentTarget as HTMLInputElement).value)}
+                    aria-label="Quota uninominali in plurinominale"
+                  />
+                </label>
+                <input
+                  class="compact-number"
+                  type="number"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={scenarioDraft.candidateGeneration.uninominalToPlurinominalShare}
+                  oninput={(event) =>
+                    updateUninominalToPlurinominalShare((event.currentTarget as HTMLInputElement).value)}
+                  aria-label="Quota uninominali in plurinominale"
+                />
+              </div>
+
+              <div>
+                <span class="setting-label">Pluricandidature</span>
+                <span class="setting-meta">Somma {plurinominalCandidacyShareTotalLabel}</span>
+              </div>
+              <div class="candidacy-share-grid">
+                {#each candidacyCountOptions as count}
+                  <label>
+                    {count} {count === 1 ? 'candidatura' : 'candidature'}
+                    <input
+                      type="number"
+                      min="0"
+                      max="1"
+                      step="0.01"
+                      value={scenarioDraft.candidateGeneration.plurinominalCandidacyCountShares[count - 1]}
+                      oninput={(event) =>
+                        updatePlurinominalCandidacyCountShare(
+                          count,
+                          (event.currentTarget as HTMLInputElement).value
+                        )}
+                      aria-label={`Quota candidati con ${count} candidature`}
+                    />
+                  </label>
+                {/each}
+              </div>
+            </div>
+
             <div class="correspondence-block">
               <div class="correspondence-heading">
                 <div>
@@ -1175,6 +1262,36 @@
     align-items: center;
   }
 
+  .candidate-generation-block {
+    display: grid;
+    gap: 10px;
+    border-top: 1px solid #e5e9ed;
+    padding-top: 12px;
+  }
+
+  .range-setting {
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) 96px;
+    gap: 10px;
+    align-items: end;
+  }
+
+  .range-setting input[type='range'] {
+    min-height: 38px;
+    padding: 0;
+  }
+
+  .compact-number,
+  .candidacy-share-grid input {
+    text-align: right;
+  }
+
+  .candidacy-share-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 8px;
+  }
+
   .setting-label {
     color: #4d5963;
     font-size: 13px;
@@ -1487,9 +1604,14 @@
     }
 
     .setting-row,
+    .range-setting,
     .correspondence-source,
     .correspondence-row {
       grid-template-columns: 1fr;
+    }
+
+    .candidacy-share-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .source-actions {

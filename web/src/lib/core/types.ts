@@ -66,6 +66,13 @@ export interface ScenarioCandidateTemplate {
   minority?: boolean | null;
 }
 
+export type ScenarioPlurinominalCandidacyCountShares = [number, number, number, number, number];
+
+export interface ScenarioCandidateGeneration {
+  uninominalToPlurinominalShare: number;
+  plurinominalCandidacyCountShares: ScenarioPlurinominalCandidacyCountShares;
+}
+
 export interface Scenario {
   id: string;
   name: string;
@@ -79,6 +86,7 @@ export interface Scenario {
   listCorrespondences: ScenarioListCorrespondence[];
   localShareOverrides: ScenarioLocalShareOverride[];
   candidateTemplates: ScenarioCandidateTemplate[];
+  candidateGeneration: ScenarioCandidateGeneration;
 }
 
 export interface SimulationRequest {

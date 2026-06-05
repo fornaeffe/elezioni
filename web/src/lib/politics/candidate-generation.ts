@@ -49,6 +49,14 @@ function roundHalfToEven(value: number): number {
 }
 
 function validateCandidateGenerationInput(source: PoliticsCandidateGenerationSource): void {
+  if (source.frazioni_pluricandidature.length !== 5) {
+    throw new Error('frazioni_pluricandidature deve avere cinque valori');
+  }
+
+  if (source.frazioni_pluricandidature.some((value) => !Number.isFinite(value) || value < 0)) {
+    throw new Error('frazioni_pluricandidature contiene valori non validi');
+  }
+
   const fractionSum = source.frazioni_pluricandidature.reduce((total, value) => total + value, 0);
   if (Math.abs(fractionSum - 1) > 1e-12) {
     throw new Error(`La somma di frazioni_pluricandidature e ${fractionSum}`);
