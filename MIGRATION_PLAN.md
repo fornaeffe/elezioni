@@ -30,7 +30,7 @@ pass, pause and present Python fallback options before continuing.
 | Shared TypeScript core | Usable, still growing | Worker API types, seeded RNG, allocation primitives, scenario types, severity-aware warning/result contracts, politics result presentation, result export/import helpers, R-style politics result charts. |
 | Politics scrutiny | R-parity direct fixture passes | `web/src/lib/politics/scrutiny.ts`; registry id `politiche-r-parity-v1`. Split only when boundaries are clearer. |
 | Politics generation pipeline | Current browser path working | Candidate generation, vote generation, vote preparation, direct-scrutiny adaptation, worker chunking. |
-| Production static politics snapshot | Bridge done, richer raw data added | `scripts/export_politics_static_snapshot.R` writes schema v3 `web/static/data/v1/politics-static.json`, including raw historical municipal list votes and a compact municipality catalog for UI lookup. |
+| Production static politics snapshot | Bridge done, richer raw data added | `scripts/export_politics_static_snapshot.R` writes schema v4 `web/static/data/v1/politics-static.json`, including raw historical municipal list votes, a compact municipality catalog for UI lookup, and named politics college metadata for candidate-slot selection. |
 | Politics scenario defaults | Bridge done | `scripts/export_politics_scenario_defaults.mjs` writes `web/src/lib/scenario/politics-defaults.generated.ts`. |
 | Scenario editor | Core workflow plus compact advanced controls working | List/coalition/share editor, mean-mode global share overrides, separate abstention input, local percentage override editor, historical correspondence editor, JSON save/load, localStorage, reset, validation. |
 | Rich correspondence parameter builder | Done and wired | `web/src/lib/politics/parameter-preparation.ts` rebuilds politics `liste`, `liste_elezioni`, and `comuni_liste` from raw historical votes and correspondences. `scenario-projection.ts` uses it when snapshot raw votes are present. |
@@ -88,8 +88,9 @@ reveals a cleaner order or a new blocker.
    clear. Done for this slice: scenario JSON carries uninominal and
    plurinominal candidate templates, validation guards malformed or duplicate
    slots, projection applies matching templates to the worker candidate source,
-   and unmatched templates warn while generated candidates still fill every
-   unspecified place.
+   unmatched templates warn while generated candidates still fill every
+   unspecified place, and the advanced scenario UI exposes a slot-by-slot
+   candidate editor backed by a compact generated named-college catalog.
 8. Continue improving politics result presentation. Done for this slice:
    `web/src/lib/politics/result-presentation.ts` builds tested user-facing
    summary tables for election overview, plurinominal seats by list, valid-vote
@@ -151,10 +152,11 @@ reveals a cleaner order or a new blocker.
 - Built the generated politics worker path with chunked execution and progress.
 - Exported the R-produced production static snapshot bridge at
   `web/static/data/v1/politics-static.json`.
-- Upgraded the production static snapshot bridge to schema v3 with
+- Upgraded the production static snapshot bridge to schema v4 with
   `data.comuni_liste_elezioni`, the raw historical municipal list votes needed
   to rebuild correspondence-based parameters in TypeScript, plus
   `data.municipalities`, a compact municipality/province/region catalog for UI
+  lookup, and named uninominal/plurinominal college metadata for candidate-slot
   lookup.
 - Added `web/src/lib/politics/parameter-preparation.ts`, the TypeScript port of
   the deterministic `calcola_parametri_input()` parameter math from raw
@@ -185,6 +187,8 @@ reveals a cleaner order or a new blocker.
   uninominal/plurinominal candidate slots. Matching templates pin
   `CANDIDATO_ID`/`DATA_NASCITA` before candidate generation; unspecified slots
   remain generated.
+- Added `web/src/lib/scenario/politics-candidate-slots.generated.ts`, a compact
+  generated catalog of named uninominal and plurinominal candidate slots.
 - Added `web/src/lib/politics/result-presentation.ts`, a tested politics
   presentation boundary that turns scrutiny runs into primary result tables:
   election overview, plurinominal seats by list, valid-vote share distribution
@@ -1583,6 +1587,36 @@ Verification with local generated artifacts present:
 
 - `cd web; npm run check`: passed with 0 warnings.
 - `cd web; npm run test`: passed, 166 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 4 Playwright tests.
+
+## 2026-06-05 Checkpoint 44
+
+Completed in the rich candidate-template editor slice:
+
+- Upgraded the production static snapshot bridge to schema v4 by preserving
+  `CIRC_DEN`, `PLURI_DEN`, `UNI_DEN`, and plurinominal `MAX_CANDIDATI` from
+  the R college builder.
+- Added `scripts/export_politics_candidate_slots.mjs` and
+  `web/src/lib/scenario/politics-candidate-slots.generated.ts`, a compact
+  named-college catalog for candidate-slot selection in the UI.
+- Added scenario helpers for candidate-template create/upsert/update/remove
+  behavior and coalition rename/removal cascades through uninominal templates.
+- Added the advanced `Candidati` editor: slot-by-slot uninominal and
+  plurinominal candidate pins, searchable named college slots, candidate
+  number/minority controls for plurinominal rows, editable grouped rows, and
+  duplicate-slot validation through the existing scenario contract.
+- Extended the Playwright smoke path to add one Camera uninominal candidate
+  and one Camera plurinominal candidate before running the worker.
+
+Verification with local generated artifacts present:
+
+- `C:\Program Files\R\R-4.5.1\bin\Rscript.exe scripts/export_politics_static_snapshot.R`: passed.
+- `node scripts/export_politics_scenario_defaults.mjs`: passed.
+- `node scripts/export_politics_candidate_slots.mjs`: passed.
+- `node scripts/export_politics_municipality_catalog.mjs`: passed.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 175 tests.
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 4 Playwright tests.
 

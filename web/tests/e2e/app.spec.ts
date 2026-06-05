@@ -70,6 +70,26 @@ test('runs the worker smoke path from the scenario editor', async ({ page }) => 
   await page.getByRole('button', { name: 'Aggiungi quota locale' }).click();
   await expect(page.locator('.local-override-group', { hasText: 'Lombardia' })).toContainText('20.0%');
 
+  await page.getByLabel('Coalizione candidato').selectOption('sinistra');
+  await page.getByLabel('Cerca collegio candidato').fill('Valle');
+  await page.getByRole('listbox', { name: 'Collegi candidati trovati' }).getByRole('button', { name: /Valle/ }).click();
+  await page.getByLabel('Nome candidato').fill('Candidata Uni Test');
+  await page.getByLabel('Data nascita candidato').fill('1980-01-02');
+  await page.getByRole('button', { name: 'Aggiungi candidato' }).click();
+  await expect(page.locator('.candidate-template-group', { hasText: 'Camera uninominale' })).toBeVisible();
+  await expect(page.getByLabel('Nome Candidata Uni Test')).toHaveValue('Candidata Uni Test');
+
+  await page.getByLabel('Tipo candidato', { exact: true }).selectOption('plurinominal');
+  await page.getByLabel('Lista candidato', { exact: true }).selectOption('Partito Democratico');
+  await page.getByLabel('Cerca collegio candidato').fill('Piemonte 1 P01');
+  await page.getByRole('listbox', { name: 'Collegi candidati trovati' }).getByRole('button', { name: /Piemonte 1 - P01/ }).click();
+  await page.getByLabel('Numero candidato').selectOption('1');
+  await page.getByLabel('Nome candidato').fill('Candidata Pluri Test');
+  await page.getByLabel('Data nascita candidato').fill('1985-03-04');
+  await page.getByRole('button', { name: 'Aggiungi candidato' }).click();
+  await expect(page.locator('.candidate-template-group', { hasText: 'Camera plurinominale' })).toBeVisible();
+  await expect(page.getByLabel('Nome Candidata Pluri Test')).toHaveValue('Candidata Pluri Test');
+
   await page.getByRole('button', { name: 'Esegui' }).click();
 
   await expect(page.getByLabel('Note simulazione')).toContainText('POLITICS_STATIC_SNAPSHOT', { timeout: 30_000 });

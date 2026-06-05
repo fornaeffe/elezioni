@@ -3,21 +3,27 @@ import {
   addScenarioHistoricalCorrespondence,
   buildScenarioHistoricalCorrespondenceGroups,
   buildScenarioLocalShareOverrideGroups,
+  createScenarioCandidateTemplate,
   createDefaultPoliticsScenario,
   defaultScenarioCandidateGeneration,
   normalizeScenario,
   parseScenario,
   plurinominalCandidacyCountSharesToFractions,
   pluricandidatureFractionsToPlurinominalCandidacyCountShares,
+  removeScenarioCandidateTemplate,
+  removeScenarioCoalition,
   removeScenarioHistoricalCorrespondence,
   removeScenarioList,
   removeScenarioLocalShareOverride,
   removeScenarioLocalShareOverridesForLocation,
+  renameScenarioCoalition,
   renameScenarioList,
   resetScenarioHistoricalCorrespondenceSource,
   serializeScenario,
+  updateScenarioCandidateTemplate,
   updateScenarioHistoricalCorrespondence,
   updateScenarioLocalShareOverride,
+  upsertScenarioCandidateTemplate,
   upsertScenarioLocalShareOverride,
   validateScenario
 } from './politics';
@@ -467,6 +473,113 @@ describe('politics web-native scenario model', () => {
     expect(scenario.localShareOverrides).toEqual([]);
     expect(scenario.candidateTemplates).toEqual([]);
     expect(validateScenario(scenario)).toEqual([]);
+  });
+
+  test('cascades coalition rename and removal through uninominal candidate templates', () => {
+    let scenario = createDefaultPoliticsScenario();
+    const coalition = scenario.coalitions.find((row) => row.name === 'sinistra');
+
+    expect(coalition).toBeDefined();
+    scenario.candidateTemplates = [
+      {
+        id: 'candidate-sinistra',
+        ramo: 'camera',
+        kind: 'uninominal',
+        coalition: 'sinistra',
+        uninominalCode: '20001',
+        candidateName: 'Candidato Uni',
+        birthDate: null,
+        list: null,
+        plurinominalCode: null,
+        candidateNumber: null,
+        minority: false
+      },
+      {
+        id: 'candidate-pd',
+        ramo: 'camera',
+        kind: 'plurinominal',
+        list: 'Partito Democratico',
+        plurinominalCode: '10201',
+        candidateNumber: 1,
+        minority: false,
+        candidateName: 'Candidato Pluri',
+        birthDate: null,
+        coalition: null,
+        uninominalCode: null
+      }
+    ];
+
+    scenario = renameScenarioCoalition(scenario, coalition?.id ?? '', 'Centrosinistra');
+    expect(scenario.coalitions.some((row) => row.name === 'Centrosinistra')).toBe(true);
+    expect(scenario.lists.some((row) => row.coalition === 'Centrosinistra')).toBe(true);
+    expect(scenario.candidateTemplates.find((row) => row.kind === 'uninominal')?.coalition).toBe('Centrosinistra');
+
+    scenario = removeScenarioCoalition(scenario, coalition?.id ?? '');
+    expect(scenario.coalitions.some((row) => row.name === 'Centrosinistra')).toBe(false);
+    expect(scenario.candidateTemplates.map((row) => row.kind)).toEqual(['plurinominal']);
+    expect(validateScenario(scenario)).toEqual([]);
+  });
+
+  test('creates, upserts, updates, and removes candidate templates', () => {
+    let scenario = createDefaultPoliticsScenario();
+    const template = createScenarioCandidateTemplate(scenario, {
+      ramo: 'camera',
+      kind: 'uninominal',
+      coalition: 'sinistra',
+      uninominalCode: '20001',
+      candidateName: 'Candidato Uno',
+      birthDate: '1980-01-02'
+    });
+
+    expect(template).toEqual(
+      expect.objectContaining({
+        ramo: 'camera',
+        kind: 'uninominal',
+        coalition: 'sinistra',
+        uninominalCode: '20001',
+        candidateName: 'Candidato Uno',
+        list: null,
+        plurinominalCode: null
+      })
+    );
+
+    scenario = upsertScenarioCandidateTemplate(scenario, template);
+    scenario = upsertScenarioCandidateTemplate(scenario, {
+      ramo: 'camera',
+      kind: 'uninominal',
+      coalition: 'sinistra',
+      uninominalCode: '20001',
+      candidateName: 'Candidato Aggiornato',
+      birthDate: null
+    });
+    expect(scenario.candidateTemplates).toHaveLength(1);
+    expect(scenario.candidateTemplates[0]).toEqual(
+      expect.objectContaining({
+        candidateName: 'Candidato Aggiornato',
+        birthDate: null
+      })
+    );
+
+    scenario = updateScenarioCandidateTemplate(scenario, scenario.candidateTemplates[0].id, {
+      kind: 'plurinominal',
+      list: 'Partito Democratico',
+      plurinominalCode: '10201',
+      candidateNumber: 2,
+      minority: false
+    });
+    expect(scenario.candidateTemplates[0]).toEqual(
+      expect.objectContaining({
+        kind: 'plurinominal',
+        list: 'Partito Democratico',
+        plurinominalCode: '10201',
+        candidateNumber: 2,
+        coalition: null,
+        uninominalCode: null
+      })
+    );
+
+    scenario = removeScenarioCandidateTemplate(scenario, scenario.candidateTemplates[0].id);
+    expect(scenario.candidateTemplates).toEqual([]);
   });
 
   test('groups, upserts, updates, and removes local share overrides', () => {

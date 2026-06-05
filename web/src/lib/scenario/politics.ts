@@ -121,6 +121,26 @@ function localShareOverrideKey(scope: ScenarioLocalShareOverrideScope, locationC
   return `${scope}\u001f${locationCode.trim()}\u001f${listKey(list)}`;
 }
 
+function candidateTemplateSlotKey(template: ScenarioCandidateTemplate): string {
+  if (template.kind === 'uninominal') {
+    return [
+      template.ramo,
+      template.kind,
+      listKey(template.coalition ?? ''),
+      template.uninominalCode?.trim() ?? ''
+    ].join('|');
+  }
+
+  return [
+    template.ramo,
+    template.kind,
+    listKey(template.list ?? ''),
+    template.plurinominalCode?.trim() ?? '',
+    String(template.candidateNumber ?? ''),
+    String(template.minority === true)
+  ].join('|');
+}
+
 function localShareOverrideLocationKey(scope: ScenarioLocalShareOverrideScope, locationCode: string): string {
   return `${scope}\u001f${locationCode.trim()}`;
 }
@@ -320,6 +340,37 @@ export function createScenarioCoalition(existingCoalitions: readonly ScenarioCoa
     id: crypto.randomUUID(),
     name: uniqueName('Nuova coalizione', existingCoalitions.map((coalition) => coalition.name)),
     color: '#6f7f8f'
+  };
+}
+
+export function renameScenarioCoalition(scenario: Scenario, id: string, name: string): Scenario {
+  const previous = scenario.coalitions.find((row) => row.id === id);
+  if (!previous) return scenario;
+
+  return {
+    ...scenario,
+    coalitions: scenario.coalitions.map((row) => (row.id === id ? { ...row, name } : row)),
+    lists: scenario.lists.map((row) => (row.coalition === previous.name ? { ...row, coalition: name } : row)),
+    candidateTemplates: scenario.candidateTemplates.map((row) =>
+      row.kind === 'uninominal' && row.coalition === previous.name ? { ...row, coalition: name } : row
+    )
+  };
+}
+
+export function removeScenarioCoalition(scenario: Scenario, id: string): Scenario {
+  const removed = scenario.coalitions.find((row) => row.id === id);
+  if (!removed) return scenario;
+
+  const coalitions = scenario.coalitions.filter((row) => row.id !== id);
+  const fallback = coalitions[0]?.name ?? null;
+
+  return {
+    ...scenario,
+    coalitions,
+    lists: scenario.lists.map((row) => (row.coalition === removed.name ? { ...row, coalition: fallback } : row)),
+    candidateTemplates: scenario.candidateTemplates.filter(
+      (row) => row.kind !== 'uninominal' || row.coalition !== removed.name
+    )
   };
 }
 
@@ -625,6 +676,96 @@ export function removeScenarioLocalShareOverridesForLocation(
   };
 }
 
+function cleanCandidateTemplate(
+  scenario: Scenario,
+  template: Partial<ScenarioCandidateTemplate>,
+  fallback?: ScenarioCandidateTemplate
+): ScenarioCandidateTemplate {
+  const kind = cleanCandidateTemplateKind(template.kind ?? fallback?.kind);
+  const ramo = cleanCandidateTemplateRamo(template.ramo ?? fallback?.ramo);
+  const candidateName = cleanString(template.candidateName ?? fallback?.candidateName);
+  const birthDate = cleanNullableString(template.birthDate ?? fallback?.birthDate);
+
+  if (kind === 'uninominal') {
+    return {
+      id: cleanString(template.id ?? fallback?.id) || crypto.randomUUID(),
+      ramo,
+      kind,
+      candidateName,
+      birthDate,
+      coalition:
+        cleanNullableString(template.coalition ?? fallback?.coalition) ?? scenario.coalitions[0]?.name ?? null,
+      uninominalCode: cleanNullableString(template.uninominalCode ?? fallback?.uninominalCode),
+      list: null,
+      plurinominalCode: null,
+      candidateNumber: null,
+      minority: false
+    };
+  }
+
+  return {
+    id: cleanString(template.id ?? fallback?.id) || crypto.randomUUID(),
+    ramo,
+    kind,
+    candidateName,
+    birthDate,
+    coalition: null,
+    uninominalCode: null,
+    list: cleanNullableString(template.list ?? fallback?.list) ?? scenario.lists[0]?.name ?? null,
+    plurinominalCode: cleanNullableString(template.plurinominalCode ?? fallback?.plurinominalCode),
+    candidateNumber: cleanNullableNumber(template.candidateNumber ?? fallback?.candidateNumber),
+    minority: template.minority ?? fallback?.minority ?? false
+  };
+}
+
+export function createScenarioCandidateTemplate(
+  scenario: Scenario,
+  input: Partial<ScenarioCandidateTemplate> = {}
+): ScenarioCandidateTemplate {
+  return cleanCandidateTemplate(scenario, input);
+}
+
+export function upsertScenarioCandidateTemplate(
+  scenario: Scenario,
+  input: Partial<ScenarioCandidateTemplate>
+): Scenario {
+  const template = createScenarioCandidateTemplate(scenario, input);
+  const slotKey = candidateTemplateSlotKey(template);
+  let matched = false;
+  const candidateTemplates = scenario.candidateTemplates.map((row) => {
+    if (candidateTemplateSlotKey(row) !== slotKey) return row;
+    matched = true;
+    return { ...template, id: row.id };
+  });
+
+  if (!matched) candidateTemplates.push(template);
+
+  return {
+    ...scenario,
+    candidateTemplates
+  };
+}
+
+export function updateScenarioCandidateTemplate(
+  scenario: Scenario,
+  id: string,
+  patch: Partial<ScenarioCandidateTemplate>
+): Scenario {
+  return {
+    ...scenario,
+    candidateTemplates: scenario.candidateTemplates.map((template) =>
+      template.id === id ? cleanCandidateTemplate(scenario, { ...template, ...patch, id: template.id }, template) : template
+    )
+  };
+}
+
+export function removeScenarioCandidateTemplate(scenario: Scenario, id: string): Scenario {
+  return {
+    ...scenario,
+    candidateTemplates: scenario.candidateTemplates.filter((template) => template.id !== id)
+  };
+}
+
 export function normalizeScenario(value: unknown): Scenario {
   const input = value !== null && typeof value === 'object' ? (value as Partial<Scenario>) : {};
   const coalitions = Array.isArray(input.coalitions) ? input.coalitions : [];
@@ -845,17 +986,7 @@ export function validateScenario(scenario: Scenario): string[] {
   for (const template of scenario.candidateTemplates) {
     const candidateName = template.candidateName.trim();
     const birthDate = template.birthDate?.trim() ?? '';
-    const key =
-      template.kind === 'uninominal'
-        ? [template.ramo, template.kind, template.coalition?.trim().toLocaleLowerCase('it-IT') ?? '', template.uninominalCode?.trim() ?? ''].join('|')
-        : [
-            template.ramo,
-            template.kind,
-            template.list?.trim().toLocaleLowerCase('it-IT') ?? '',
-            template.plurinominalCode?.trim() ?? '',
-            String(template.candidateNumber ?? ''),
-            String(template.minority === true)
-          ].join('|');
+    const key = candidateTemplateSlotKey(template);
 
     if (!candidateName) messages.push('Ogni candidato definito nello scenario deve avere un nome.');
     if (birthDate && Number.isNaN(Date.parse(birthDate))) {

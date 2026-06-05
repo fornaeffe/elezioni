@@ -7,6 +7,9 @@
   import type {
     ResultTable,
     Scenario,
+    ScenarioCandidateTemplate,
+    ScenarioCandidateTemplateKind,
+    ScenarioCandidateTemplateRamo,
     ScenarioListCorrespondence,
     ScenarioLocalShareOverride,
     ScenarioLocalShareOverrideScope,
@@ -35,6 +38,8 @@
     cloneScenario,
     createDefaultPoliticsScenario,
     createScenarioCoalition,
+    removeScenarioCandidateTemplate,
+    removeScenarioCoalition as removeScenarioCoalitionFromScenario,
     createScenarioList,
     politicsAbstentionListName,
     parseScenario,
@@ -46,11 +51,22 @@
     renameScenarioList,
     resetScenarioHistoricalCorrespondenceSource,
     serializeScenario,
+    renameScenarioCoalition,
+    updateScenarioCandidateTemplate,
     updateScenarioHistoricalCorrespondence,
     updateScenarioLocalShareOverride,
+    upsertScenarioCandidateTemplate,
     upsertScenarioLocalShareOverride,
     validateScenario
   } from '$lib/scenario/politics';
+  import {
+    candidateSlotCode,
+    candidateSlotLabel,
+    candidateSlotSearchText,
+    candidateSlotSublabel,
+    type PoliticsCandidateSlot
+  } from '$lib/scenario/politics-candidate-slots';
+  import { generatedPoliticsCandidateSlots } from '$lib/scenario/politics-candidate-slots.generated';
   import { generatedPoliticsMunicipalities } from '$lib/scenario/politics-municipalities.generated';
 
   type UiMessageSeverity = 'info' | 'warning' | 'error';
@@ -70,10 +86,18 @@
     searchText: string;
   }
 
+  interface CandidateTemplateGroup {
+    key: string;
+    label: string;
+    templates: ScenarioCandidateTemplate[];
+  }
+
   const dataVersion = 'v1';
   const diagnosticTableNames = new Set(['Generated pipeline runs']);
   const internalTableNames = new Set<string>(politicsResultPlotTableNames);
   const candidacyCountOptions = [1, 2, 3, 4, 5] as const;
+  const candidateTemplateRamoOptions: ScenarioCandidateTemplateRamo[] = ['camera', 'senato'];
+  const candidateTemplateKindOptions: ScenarioCandidateTemplateKind[] = ['uninominal', 'plurinominal'];
 
   let simulations = $state(10);
   let seed = $state('politiche-2027');
@@ -92,6 +116,16 @@
   let selectedLocalOverrideLocationCode = $state('');
   let selectedLocalOverrideList = $state('');
   let localOverrideShare = $state(0);
+  let candidateTemplateRamo = $state<ScenarioCandidateTemplateRamo>('camera');
+  let candidateTemplateKind = $state<ScenarioCandidateTemplateKind>('uninominal');
+  let candidateTemplateCoalition = $state('');
+  let candidateTemplateList = $state('');
+  let candidateTemplateSlotSearch = $state('');
+  let selectedCandidateTemplateSlotCode = $state('');
+  let candidateTemplateNumber = $state(1);
+  let candidateTemplateMinority = $state(false);
+  let candidateTemplateName = $state('');
+  let candidateTemplateBirthDate = $state('');
   let scenarioDraft = $state<Scenario>(createDefaultPoliticsScenario());
   let scenarioStorageReady = $state(false);
   let compressionSupported = $state(false);
@@ -147,6 +181,31 @@
   const localOverrideSummary = $derived(
     `${scenarioDraft.localShareOverrides.length} quote / ${localOverrideGroups.length} aree`
   );
+  const candidateTemplateSlotOptions = $derived(
+    candidateTemplateSlots(candidateTemplateRamo, candidateTemplateKind)
+  );
+  const selectedCandidateTemplateSlot = $derived(
+    findCandidateTemplateSlot(candidateTemplateRamo, candidateTemplateKind, selectedCandidateTemplateSlotCode)
+  );
+  const candidateTemplateSearchResults = $derived(
+    searchCandidateTemplateSlots(candidateTemplateSlotSearch, candidateTemplateSlotOptions)
+  );
+  const candidateTemplateCoalitionSelection = $derived(
+    candidateTemplateCoalition || scenarioDraft.coalitions[0]?.name || ''
+  );
+  const candidateTemplateListSelection = $derived(candidateTemplateList || scenarioDraft.lists[0]?.name || '');
+  const candidateTemplateNumberOptions = $derived(
+    plurinominalCandidateNumbers(selectedCandidateTemplateSlot)
+  );
+  const candidateTemplateCanAdd = $derived(
+    Boolean(
+      resolveCandidateTemplateSlotCode() &&
+        candidateTemplateName.trim() &&
+        (candidateTemplateKind === 'uninominal' ? candidateTemplateCoalitionSelection : candidateTemplateListSelection)
+    )
+  );
+  const candidateTemplateGroups = $derived(buildCandidateTemplateGroups(scenarioDraft.candidateTemplates));
+  const candidateTemplateSummary = $derived(`${scenarioDraft.candidateTemplates.length} candidati`);
   const editablePlurinominalCandidacyShareTotal = $derived(
     scenarioDraft.candidateGeneration.plurinominalCandidacyCountShares
       .slice(1)
@@ -201,28 +260,11 @@
   }
 
   function updateCoalitionName(id: string, name: string): void {
-    const coalition = scenarioDraft.coalitions.find((row) => row.id === id);
-    const previousName = coalition?.name;
-    scenarioDraft.coalitions = scenarioDraft.coalitions.map((row) => (row.id === id ? { ...row, name } : row));
-
-    if (previousName !== undefined) {
-      scenarioDraft.lists = scenarioDraft.lists.map((row) =>
-        row.coalition === previousName ? { ...row, coalition: name } : row
-      );
-    }
+    scenarioDraft = renameScenarioCoalition(scenarioDraft, id, name);
   }
 
   function removeCoalition(id: string): void {
-    const removed = scenarioDraft.coalitions.find((row) => row.id === id);
-    const coalitions = scenarioDraft.coalitions.filter((row) => row.id !== id);
-    const fallback = coalitions[0]?.name ?? null;
-
-    scenarioDraft.coalitions = coalitions;
-    if (removed) {
-      scenarioDraft.lists = scenarioDraft.lists.map((row) =>
-        row.coalition === removed.name ? { ...row, coalition: fallback } : row
-      );
-    }
+    scenarioDraft = removeScenarioCoalitionFromScenario(scenarioDraft, id);
   }
 
   function updateListCorrespondence(id: string, patch: Partial<ScenarioListCorrespondence>): void {
@@ -251,6 +293,136 @@
       .toLocaleLowerCase('it-IT')
       .normalize('NFKD')
       .replace(/[\u0300-\u036f]/g, '');
+  }
+
+  function candidateTemplateRamoLabel(ramo: ScenarioCandidateTemplateRamo): string {
+    return ramo === 'senato' ? 'Senato' : 'Camera';
+  }
+
+  function candidateTemplateKindLabel(kind: ScenarioCandidateTemplateKind): string {
+    return kind === 'uninominal' ? 'Uninominale' : 'Plurinominale';
+  }
+
+  function candidateTemplateSlots(
+    ramo: ScenarioCandidateTemplateRamo,
+    kind: ScenarioCandidateTemplateKind
+  ): PoliticsCandidateSlot[] {
+    const rows = kind === 'uninominal' ? generatedPoliticsCandidateSlots.uninominal : generatedPoliticsCandidateSlots.plurinominal;
+    return rows.filter((slot) => slot.ramo === ramo);
+  }
+
+  function findCandidateTemplateSlot(
+    ramo: ScenarioCandidateTemplateRamo,
+    kind: ScenarioCandidateTemplateKind,
+    code: string | null | undefined
+  ): PoliticsCandidateSlot | null {
+    const slotCode = String(code ?? '').trim();
+    if (!slotCode) return null;
+    return candidateTemplateSlots(ramo, kind).find((slot) => candidateSlotCode(slot) === slotCode) ?? null;
+  }
+
+  function searchCandidateTemplateSlots(query: string, options: PoliticsCandidateSlot[]): PoliticsCandidateSlot[] {
+    const normalizedQuery = normalizeSearchText(query);
+    if (normalizedQuery.length < 2) return [];
+
+    const tokens = normalizedQuery.split(/\s+/).filter(Boolean);
+    return options
+      .filter((option) => tokens.every((token) => normalizeSearchText(candidateSlotSearchText(option)).includes(token)))
+      .slice(0, 10);
+  }
+
+  function selectCandidateTemplateSlot(slot: PoliticsCandidateSlot): void {
+    selectedCandidateTemplateSlotCode = candidateSlotCode(slot);
+    candidateTemplateSlotSearch = candidateSlotLabel(slot);
+
+    if ('maxCandidates' in slot) {
+      candidateTemplateNumber = Math.min(Math.max(candidateTemplateNumber, 1), Math.max(slot.maxCandidates, 1));
+    }
+  }
+
+  function resetCandidateTemplateSlotSelection(): void {
+    candidateTemplateSlotSearch = '';
+    selectedCandidateTemplateSlotCode = '';
+    candidateTemplateNumber = 1;
+  }
+
+  function resolveCandidateTemplateSlotCode(): string {
+    if (selectedCandidateTemplateSlotCode) return selectedCandidateTemplateSlotCode;
+
+    const normalizedSearch = normalizeSearchText(candidateTemplateSlotSearch);
+    const exactMatch = candidateTemplateSlotOptions.find(
+      (option) =>
+        normalizeSearchText(candidateSlotCode(option)) === normalizedSearch ||
+        normalizeSearchText(candidateSlotLabel(option)) === normalizedSearch
+    );
+
+    return exactMatch ? candidateSlotCode(exactMatch) : '';
+  }
+
+  function plurinominalCandidateNumbers(slot: PoliticsCandidateSlot | null): number[] {
+    const maxCandidates = slot && 'maxCandidates' in slot ? Math.max(1, Math.floor(slot.maxCandidates)) : 4;
+    return Array.from({ length: maxCandidates }, (_, index) => index + 1);
+  }
+
+  function plurinominalCandidateNumbersForTemplate(template: ScenarioCandidateTemplate): number[] {
+    const slot = findCandidateTemplateSlot(template.ramo, 'plurinominal', template.plurinominalCode);
+    const options = plurinominalCandidateNumbers(slot);
+    const current = Number(template.candidateNumber);
+
+    if (Number.isInteger(current) && current > 0 && !options.includes(current)) {
+      return [...options, current].sort((left, right) => left - right);
+    }
+
+    return options;
+  }
+
+  function candidateTemplateSlotDisplay(template: ScenarioCandidateTemplate): string {
+    const slot = findCandidateTemplateSlot(
+      template.ramo,
+      template.kind,
+      template.kind === 'uninominal' ? template.uninominalCode : template.plurinominalCode
+    );
+    const code = template.kind === 'uninominal' ? template.uninominalCode : template.plurinominalCode;
+    return slot ? candidateSlotLabel(slot) : `${template.kind === 'uninominal' ? 'UNI' : 'PLURI'} ${code ?? ''}`.trim();
+  }
+
+  function candidateTemplateTargetLabel(template: ScenarioCandidateTemplate): string {
+    if (template.kind === 'uninominal') {
+      return `${template.coalition ?? 'Coalizione'} - ${candidateTemplateSlotDisplay(template)}`;
+    }
+
+    return `${template.list ?? 'Lista'} - ${candidateTemplateSlotDisplay(template)} #${template.candidateNumber ?? '?'}`;
+  }
+
+  function buildCandidateTemplateGroups(templates: readonly ScenarioCandidateTemplate[]): CandidateTemplateGroup[] {
+    const groups = new Map<string, CandidateTemplateGroup>();
+
+    for (const ramo of candidateTemplateRamoOptions) {
+      for (const kind of candidateTemplateKindOptions) {
+        const key = `${ramo}\u001f${kind}`;
+        groups.set(key, {
+          key,
+          label: `${candidateTemplateRamoLabel(ramo)} ${candidateTemplateKindLabel(kind).toLowerCase()}`,
+          templates: []
+        });
+      }
+    }
+
+    for (const template of templates) {
+      const key = `${template.ramo}\u001f${template.kind}`;
+      const group = groups.get(key);
+      if (!group) continue;
+      group.templates.push(template);
+    }
+
+    return [...groups.values()]
+      .map((group) => ({
+        ...group,
+        templates: [...group.templates].sort((left, right) =>
+          candidateTemplateTargetLabel(left).localeCompare(candidateTemplateTargetLabel(right), 'it', { numeric: true })
+        )
+      }))
+      .filter((group) => group.templates.length > 0);
   }
 
   function localOverrideLocationOptionKey(scope: ScenarioLocalShareOverrideScope, code: string): string {
@@ -407,6 +579,45 @@
 
     if (!list) return;
     upsertLocalOverride(scope, locationCode, list.name, 0);
+  }
+
+  function addCandidateTemplate(): void {
+    const slotCode = resolveCandidateTemplateSlotCode();
+    const candidateName = candidateTemplateName.trim();
+    if (!slotCode || !candidateName) return;
+
+    scenarioDraft = upsertScenarioCandidateTemplate(
+      scenarioDraft,
+      candidateTemplateKind === 'uninominal'
+        ? {
+            ramo: candidateTemplateRamo,
+            kind: candidateTemplateKind,
+            coalition: candidateTemplateCoalitionSelection,
+            uninominalCode: slotCode,
+            candidateName,
+            birthDate: candidateTemplateBirthDate || null
+          }
+        : {
+            ramo: candidateTemplateRamo,
+            kind: candidateTemplateKind,
+            list: candidateTemplateListSelection,
+            plurinominalCode: slotCode,
+            candidateNumber: candidateTemplateNumber,
+            minority: candidateTemplateMinority,
+            candidateName,
+            birthDate: candidateTemplateBirthDate || null
+          }
+    );
+    candidateTemplateName = '';
+    candidateTemplateBirthDate = '';
+  }
+
+  function updateCandidateTemplate(id: string, patch: Partial<ScenarioCandidateTemplate>): void {
+    scenarioDraft = updateScenarioCandidateTemplate(scenarioDraft, id, patch);
+  }
+
+  function removeCandidateTemplate(id: string): void {
+    scenarioDraft = removeScenarioCandidateTemplate(scenarioDraft, id);
   }
 
   function updateUninominalToPlurinominalShare(value: string | number): void {
@@ -1038,6 +1249,364 @@
                   </label>
                 {/each}
               </div>
+            </div>
+
+            <div class="candidate-template-block">
+              <div class="candidate-template-heading">
+                <div>
+                  <span class="setting-label">Candidati</span>
+                  <span class="setting-meta">{candidateTemplateSummary}</span>
+                </div>
+              </div>
+
+              <div class="candidate-template-picker">
+                <div class="candidate-template-meta">
+                  <label>
+                    Ramo
+                    <select
+                      value={candidateTemplateRamo}
+                      onchange={(event) => {
+                        candidateTemplateRamo = (event.currentTarget as HTMLSelectElement)
+                          .value as ScenarioCandidateTemplateRamo;
+                        resetCandidateTemplateSlotSelection();
+                      }}
+                      aria-label="Ramo candidato"
+                    >
+                      {#each candidateTemplateRamoOptions as ramo}
+                        <option value={ramo}>{candidateTemplateRamoLabel(ramo)}</option>
+                      {/each}
+                    </select>
+                  </label>
+                  <label>
+                    Tipo
+                    <select
+                      value={candidateTemplateKind}
+                      onchange={(event) => {
+                        candidateTemplateKind = (event.currentTarget as HTMLSelectElement)
+                          .value as ScenarioCandidateTemplateKind;
+                        resetCandidateTemplateSlotSelection();
+                      }}
+                      aria-label="Tipo candidato"
+                    >
+                      {#each candidateTemplateKindOptions as kind}
+                        <option value={kind}>{candidateTemplateKindLabel(kind)}</option>
+                      {/each}
+                    </select>
+                  </label>
+                </div>
+
+                <div class="candidate-template-target">
+                  {#if candidateTemplateKind === 'uninominal'}
+                    <label>
+                      Coalizione
+                      <select
+                        value={candidateTemplateCoalitionSelection}
+                        onchange={(event) => (candidateTemplateCoalition = (event.currentTarget as HTMLSelectElement).value)}
+                        aria-label="Coalizione candidato"
+                      >
+                        {#each scenarioDraft.coalitions as coalition}
+                          <option value={coalition.name}>{coalition.name}</option>
+                        {/each}
+                      </select>
+                    </label>
+                  {:else}
+                    <label>
+                      Lista
+                      <select
+                        value={candidateTemplateListSelection}
+                        onchange={(event) => (candidateTemplateList = (event.currentTarget as HTMLSelectElement).value)}
+                        aria-label="Lista candidato"
+                      >
+                        {#each scenarioDraft.lists as list}
+                          <option value={list.name}>{list.name}</option>
+                        {/each}
+                      </select>
+                    </label>
+                  {/if}
+
+                  <div class="candidate-slot-picker">
+                    <label>
+                      Collegio
+                      <input
+                        type="search"
+                        value={candidateTemplateSlotSearch}
+                        oninput={(event) => {
+                          candidateTemplateSlotSearch = (event.currentTarget as HTMLInputElement).value;
+                          selectedCandidateTemplateSlotCode = '';
+                        }}
+                        autocomplete="off"
+                        aria-label="Cerca collegio candidato"
+                      />
+                    </label>
+                    {#if selectedCandidateTemplateSlot}
+                      <span class="selected-location">{candidateSlotSublabel(selectedCandidateTemplateSlot)}</span>
+                    {/if}
+                    {#if candidateTemplateSearchResults.length > 0 && !selectedCandidateTemplateSlotCode}
+                      <div class="slot-results" role="listbox" aria-label="Collegi candidati trovati">
+                        {#each candidateTemplateSearchResults as slot (`${candidateTemplateRamo}\u001f${candidateTemplateKind}\u001f${candidateSlotCode(slot)}`)}
+                          <button type="button" onclick={() => selectCandidateTemplateSlot(slot)}>
+                            <span>{candidateSlotLabel(slot)}</span>
+                            <span>{candidateSlotSublabel(slot)}</span>
+                          </button>
+                        {/each}
+                      </div>
+                    {/if}
+                  </div>
+
+                  {#if candidateTemplateKind === 'plurinominal'}
+                    <label>
+                      Numero
+                      <select
+                        value={candidateTemplateNumber}
+                        onchange={(event) => (candidateTemplateNumber = Number((event.currentTarget as HTMLSelectElement).value))}
+                        aria-label="Numero candidato"
+                      >
+                        {#each candidateTemplateNumberOptions as candidateNumber}
+                          <option value={candidateNumber}>{candidateNumber}</option>
+                        {/each}
+                      </select>
+                    </label>
+                    <label class="override-toggle">
+                      <input
+                        type="checkbox"
+                        bind:checked={candidateTemplateMinority}
+                        aria-label="Candidato minoranza"
+                      />
+                      <span>Min.</span>
+                    </label>
+                  {/if}
+                </div>
+
+                <div class="candidate-template-person">
+                  <label>
+                    Nome
+                    <input
+                      type="text"
+                      value={candidateTemplateName}
+                      oninput={(event) => (candidateTemplateName = (event.currentTarget as HTMLInputElement).value)}
+                      aria-label="Nome candidato"
+                    />
+                  </label>
+                  <label>
+                    Nascita
+                    <input
+                      type="date"
+                      value={candidateTemplateBirthDate}
+                      oninput={(event) => (candidateTemplateBirthDate = (event.currentTarget as HTMLInputElement).value)}
+                      aria-label="Data nascita candidato"
+                    />
+                  </label>
+                </div>
+
+                <button
+                  type="button"
+                  class="text-button"
+                  onclick={addCandidateTemplate}
+                  disabled={!candidateTemplateCanAdd}
+                  aria-label="Aggiungi candidato"
+                >
+                  <Plus size={16} aria-hidden="true" />
+                  <span>Aggiungi</span>
+                </button>
+              </div>
+
+              {#if candidateTemplateGroups.length === 0}
+                <p class="advanced-note">Nessun candidato</p>
+              {:else}
+                <div class="candidate-template-groups">
+                  {#each candidateTemplateGroups as group (group.key)}
+                    <details class="candidate-template-group" open>
+                      <summary>
+                        <span>{group.label}</span>
+                        <span>{group.templates.length} candidati</span>
+                      </summary>
+
+                      <div class="candidate-template-rows">
+                        {#each group.templates as template (template.id)}
+                          <div class="candidate-template-row">
+                            <div class="candidate-template-meta">
+                              <label>
+                                Ramo
+                                <select
+                                  value={template.ramo}
+                                  onchange={(event) =>
+                                    updateCandidateTemplate(template.id, {
+                                      ramo: (event.currentTarget as HTMLSelectElement)
+                                        .value as ScenarioCandidateTemplateRamo
+                                    })}
+                                  aria-label={`Ramo ${template.candidateName || 'candidato'}`}
+                                >
+                                  {#each candidateTemplateRamoOptions as ramo}
+                                    <option value={ramo}>{candidateTemplateRamoLabel(ramo)}</option>
+                                  {/each}
+                                </select>
+                              </label>
+                              <label>
+                                Tipo
+                                <select
+                                  value={template.kind}
+                                  onchange={(event) =>
+                                    updateCandidateTemplate(template.id, {
+                                      kind: (event.currentTarget as HTMLSelectElement)
+                                        .value as ScenarioCandidateTemplateKind
+                                    })}
+                                  aria-label={`Tipo ${template.candidateName || 'candidato'}`}
+                                >
+                                  {#each candidateTemplateKindOptions as kind}
+                                    <option value={kind}>{candidateTemplateKindLabel(kind)}</option>
+                                  {/each}
+                                </select>
+                              </label>
+                            </div>
+
+                            <div class="candidate-template-target">
+                              {#if template.kind === 'uninominal'}
+                                <label>
+                                  Coalizione
+                                  <select
+                                    value={template.coalition ?? ''}
+                                    onchange={(event) =>
+                                      updateCandidateTemplate(template.id, {
+                                        coalition: (event.currentTarget as HTMLSelectElement).value
+                                      })}
+                                    aria-label={`Coalizione ${template.candidateName || 'candidato'}`}
+                                  >
+                                    {#each scenarioDraft.coalitions as coalition}
+                                      <option value={coalition.name}>{coalition.name}</option>
+                                    {/each}
+                                    {#if template.coalition && !scenarioDraft.coalitions.some((coalition) => coalition.name === template.coalition)}
+                                      <option value={template.coalition}>{template.coalition}</option>
+                                    {/if}
+                                  </select>
+                                </label>
+                                <label>
+                                  Collegio
+                                  <select
+                                    value={template.uninominalCode ?? ''}
+                                    onchange={(event) =>
+                                      updateCandidateTemplate(template.id, {
+                                        uninominalCode: (event.currentTarget as HTMLSelectElement).value
+                                      })}
+                                    aria-label={`Collegio ${template.candidateName || 'candidato'}`}
+                                  >
+                                    {#each candidateTemplateSlots(template.ramo, 'uninominal') as slot (candidateSlotCode(slot))}
+                                      <option value={candidateSlotCode(slot)}>{candidateSlotLabel(slot)}</option>
+                                    {/each}
+                                    {#if template.uninominalCode && !findCandidateTemplateSlot(template.ramo, 'uninominal', template.uninominalCode)}
+                                      <option value={template.uninominalCode}>UNI {template.uninominalCode}</option>
+                                    {/if}
+                                  </select>
+                                </label>
+                              {:else}
+                                <label>
+                                  Lista
+                                  <select
+                                    value={template.list ?? ''}
+                                    onchange={(event) =>
+                                      updateCandidateTemplate(template.id, {
+                                        list: (event.currentTarget as HTMLSelectElement).value
+                                      })}
+                                    aria-label={`Lista ${template.candidateName || 'candidato'}`}
+                                  >
+                                    {#each scenarioDraft.lists as list}
+                                      <option value={list.name}>{list.name}</option>
+                                    {/each}
+                                    {#if template.list && !scenarioDraft.lists.some((list) => list.name === template.list)}
+                                      <option value={template.list}>{template.list}</option>
+                                    {/if}
+                                  </select>
+                                </label>
+                                <label>
+                                  Collegio
+                                  <select
+                                    value={template.plurinominalCode ?? ''}
+                                    onchange={(event) =>
+                                      updateCandidateTemplate(template.id, {
+                                        plurinominalCode: (event.currentTarget as HTMLSelectElement).value
+                                      })}
+                                    aria-label={`Collegio ${template.candidateName || 'candidato'}`}
+                                  >
+                                    {#each candidateTemplateSlots(template.ramo, 'plurinominal') as slot (candidateSlotCode(slot))}
+                                      <option value={candidateSlotCode(slot)}>{candidateSlotLabel(slot)}</option>
+                                    {/each}
+                                    {#if template.plurinominalCode && !findCandidateTemplateSlot(template.ramo, 'plurinominal', template.plurinominalCode)}
+                                      <option value={template.plurinominalCode}>PLURI {template.plurinominalCode}</option>
+                                    {/if}
+                                  </select>
+                                </label>
+                                <label>
+                                  Numero
+                                  <select
+                                    value={template.candidateNumber ?? 1}
+                                    onchange={(event) =>
+                                      updateCandidateTemplate(template.id, {
+                                        candidateNumber: Number((event.currentTarget as HTMLSelectElement).value)
+                                      })}
+                                    aria-label={`Numero ${template.candidateName || 'candidato'}`}
+                                  >
+                                    {#each plurinominalCandidateNumbersForTemplate(template) as candidateNumber}
+                                      <option value={candidateNumber}>{candidateNumber}</option>
+                                    {/each}
+                                  </select>
+                                </label>
+                                <label class="override-toggle">
+                                  <input
+                                    type="checkbox"
+                                    checked={template.minority === true}
+                                    onchange={(event) =>
+                                      updateCandidateTemplate(template.id, {
+                                        minority: (event.currentTarget as HTMLInputElement).checked
+                                      })}
+                                    aria-label={`Minoranza ${template.candidateName || 'candidato'}`}
+                                  />
+                                  <span>Min.</span>
+                                </label>
+                              {/if}
+                            </div>
+
+                            <div class="candidate-template-person">
+                              <label>
+                                Nome
+                                <input
+                                  type="text"
+                                  value={template.candidateName}
+                                  oninput={(event) =>
+                                    updateCandidateTemplate(template.id, {
+                                      candidateName: (event.currentTarget as HTMLInputElement).value
+                                    })}
+                                  aria-label={`Nome ${template.candidateName || 'candidato'}`}
+                                />
+                              </label>
+                              <label>
+                                Nascita
+                                <input
+                                  type="date"
+                                  value={template.birthDate?.slice(0, 10) ?? ''}
+                                  oninput={(event) =>
+                                    updateCandidateTemplate(template.id, {
+                                      birthDate: (event.currentTarget as HTMLInputElement).value || null
+                                    })}
+                                  aria-label={`Nascita ${template.candidateName || 'candidato'}`}
+                                />
+                              </label>
+                            </div>
+
+                            <button
+                              type="button"
+                              class="icon-button danger"
+                              onclick={() => removeCandidateTemplate(template.id)}
+                              title="Rimuovi candidato"
+                              aria-label={`Rimuovi candidato ${template.candidateName || 'candidato'}`}
+                            >
+                              <Trash2 size={18} aria-hidden="true" />
+                            </button>
+                          </div>
+                        {/each}
+                      </div>
+                    </details>
+                  {/each}
+                </div>
+              {/if}
             </div>
 
             <div class="local-overrides-block">
@@ -1674,6 +2243,131 @@
     padding-top: 12px;
   }
 
+  .candidate-template-block {
+    display: grid;
+    gap: 10px;
+    border-top: 1px solid #e5e9ed;
+    padding-top: 12px;
+  }
+
+  .candidate-template-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .candidate-template-picker,
+  .candidate-template-row {
+    display: grid;
+    grid-template-columns: minmax(180px, 0.8fr) minmax(280px, 1.35fr) minmax(240px, 1.1fr) auto;
+    gap: 8px;
+    align-items: end;
+  }
+
+  .candidate-template-meta,
+  .candidate-template-target,
+  .candidate-template-person {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    align-items: end;
+  }
+
+  .candidate-template-target {
+    grid-template-columns: minmax(130px, 0.9fr) minmax(170px, 1.1fr) 74px 62px;
+  }
+
+  .candidate-template-person {
+    grid-template-columns: minmax(150px, 1fr) 128px;
+  }
+
+  .candidate-slot-picker {
+    position: relative;
+    display: grid;
+    gap: 4px;
+  }
+
+  .slot-results {
+    position: absolute;
+    z-index: 5;
+    top: calc(100% + 4px);
+    right: 0;
+    left: 0;
+    display: grid;
+    max-height: 280px;
+    overflow: auto;
+    border: 1px solid #bdc7d0;
+    border-radius: 6px;
+    background: #ffffff;
+    box-shadow: 0 10px 24px rgb(24 32 38 / 14%);
+  }
+
+  .slot-results button {
+    display: grid;
+    justify-content: stretch;
+    min-height: 48px;
+    border: 0;
+    border-bottom: 1px solid #e5e9ed;
+    border-radius: 0;
+    padding: 7px 10px;
+    text-align: left;
+  }
+
+  .slot-results button:last-child {
+    border-bottom: 0;
+  }
+
+  .slot-results button:hover {
+    background: #eef7f3;
+  }
+
+  .slot-results span:first-child {
+    color: #182026;
+    font-size: 13px;
+    font-weight: 750;
+  }
+
+  .slot-results span:last-child {
+    color: #697681;
+    font-size: 12px;
+    font-weight: 650;
+  }
+
+  .candidate-template-groups {
+    display: grid;
+    gap: 10px;
+  }
+
+  .candidate-template-group {
+    border-top: 1px solid #e5e9ed;
+    padding-top: 8px;
+  }
+
+  .candidate-template-group summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 34px;
+    color: #4d5963;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 750;
+  }
+
+  .candidate-template-group summary span:last-child {
+    color: #697681;
+    font-size: 12px;
+    font-weight: 650;
+  }
+
+  .candidate-template-rows {
+    display: grid;
+    gap: 8px;
+    padding-top: 8px;
+  }
+
   .local-overrides-block {
     display: grid;
     gap: 10px;
@@ -2143,6 +2837,11 @@
 
     .setting-row,
     .range-setting,
+    .candidate-template-picker,
+    .candidate-template-row,
+    .candidate-template-meta,
+    .candidate-template-target,
+    .candidate-template-person,
     .local-override-picker,
     .local-override-group summary,
     .local-override-row,

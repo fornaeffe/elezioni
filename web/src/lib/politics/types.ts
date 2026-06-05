@@ -520,14 +520,20 @@ export interface GeneratedCandidatoPluriRow {
 
 export interface PoliticsCollegeUniRow {
   CIRC_COD: AdministrativeCode;
+  CIRC_DEN?: string | null;
   PLURI_COD: AdministrativeCode | null;
+  PLURI_DEN?: string | null;
   UNI_COD: AdministrativeCode;
+  UNI_DEN?: string | null;
 }
 
 export interface PoliticsCollegePluriRow {
   CIRC_COD: AdministrativeCode;
+  CIRC_DEN?: string | null;
   PLURI_COD: AdministrativeCode | null;
+  PLURI_DEN?: string | null;
   SEGGI_PLURI: number;
+  MAX_CANDIDATI?: number | null;
 }
 
 export interface PoliticsGeneratedListRow {

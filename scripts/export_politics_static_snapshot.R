@@ -100,7 +100,7 @@ if (length(missing_municipality_codes) > 0) {
 
 snapshot <- list(
   metadata = list(
-    schema_version = 3,
+    schema_version = 4,
     source = "current R politics preparation pipeline",
     created = format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ", tz = "UTC"),
     purpose = paste(
@@ -138,25 +138,37 @@ snapshot <- list(
     camera = list(
       uni = select_frame(dati_collegi$camera$uni, c(
         "CIRC_COD",
+        "CIRC_DEN",
         "PLURI_COD",
+        "PLURI_DEN",
+        "UNI_DEN",
         "UNI_COD"
       )),
       pluri = select_frame(dati_collegi$camera$pluri, c(
         "CIRC_COD",
+        "CIRC_DEN",
         "PLURI_COD",
-        "SEGGI_PLURI"
+        "PLURI_DEN",
+        "SEGGI_PLURI",
+        "MAX_CANDIDATI"
       ))
     ),
     senato = list(
       uni = select_frame(dati_collegi$senato$uni, c(
         "CIRC_COD",
+        "CIRC_DEN",
         "PLURI_COD",
+        "PLURI_DEN",
+        "UNI_DEN",
         "UNI_COD"
       )),
       pluri = select_frame(dati_collegi$senato$pluri, c(
         "CIRC_COD",
+        "CIRC_DEN",
         "PLURI_COD",
-        "SEGGI_PLURI"
+        "PLURI_DEN",
+        "SEGGI_PLURI",
+        "MAX_CANDIDATI"
       ))
     )
   ),
