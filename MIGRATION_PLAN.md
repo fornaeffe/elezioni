@@ -181,13 +181,14 @@ reveals a cleaner order or a new blocker.
   election overview, plurinominal seats by list, valid-vote share distribution
   by list, and uninominal winners by supporting coalition/list.
 - Added `web/src/lib/core/result-export.ts` and result-panel export actions.
-  Users can download a JSON payload containing scenario plus worker result, or
-  a sectioned CSV containing all result tables.
+  Users can download a compressed JSON payload containing scenario plus worker
+  result, or a sectioned CSV containing all result tables.
 - Added strict bundled result JSON import. The Results panel can load app
   exports containing both scenario and result, and the existing scenario upload
   accepts the same bundled file while preserving result provenance. Result JSON
-  export schema v2 stores table rows columnarly to reduce repeated keys; result
-  files are imported/exported through gzip-only `.json.gz` in the UI.
+  export schema v2 is the only supported result schema and stores table rows
+  columnarly to reduce repeated keys; result files are imported/exported through
+  gzip-only `.json.gz` in the UI.
 - Added optional severity to `ScrutinyWarning` and split result-panel messages
   into informational run notes versus warnings/errors. Production static
   snapshot and scenario-projection metadata now render as notes instead of

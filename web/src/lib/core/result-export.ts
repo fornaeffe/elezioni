@@ -1,7 +1,7 @@
 import type { ResultTable, Scenario, SimulationResult } from './types';
 
 export interface SimulationResultExport {
-  schema_version: 1 | 2;
+  schema_version: 2;
   exportedAt: string;
   scenario: Scenario;
   result: SimulationResult;
@@ -144,35 +144,6 @@ function parseExportedScenario(value: unknown): Scenario {
   return scenario as unknown as Scenario;
 }
 
-function parseRowObjectResultTable(value: unknown, index: number): ResultTable {
-  const table = requireRecord(value, `result.tables[${index}]`);
-  const columns = requireStringArray(table.columns, `result.tables[${index}].columns`);
-  const rows = requireArray(table.rows, `result.tables[${index}].rows`).map((row, rowIndex) => {
-    const rowRecord = requireRecord(row, `result.tables[${index}].rows[${rowIndex}]`);
-    const parsedRow: Record<string, JsonCell> = {};
-
-    for (const column of columns) {
-      if (!(column in rowRecord)) {
-        throw new Error(`result.tables[${index}].rows[${rowIndex}].${column} is missing.`);
-      }
-      parsedRow[column] = requireCell(rowRecord[column], `result.tables[${index}].rows[${rowIndex}].${column}`);
-    }
-
-    for (const [key, cell] of Object.entries(rowRecord)) {
-      if (key in parsedRow) continue;
-      parsedRow[key] = requireCell(cell, `result.tables[${index}].rows[${rowIndex}].${key}`);
-    }
-
-    return parsedRow;
-  });
-
-  return {
-    name: requireString(table.name, `result.tables[${index}].name`),
-    columns,
-    rows
-  };
-}
-
 function parseColumnarResultTable(value: unknown, index: number): ResultTable {
   const table = requireRecord(value, `result.tables[${index}]`);
   const columns = requireStringArray(table.columns, `result.tables[${index}].columns`);
@@ -227,7 +198,7 @@ function parseWarning(value: unknown, index: number): SimulationResult['warnings
   return parsedWarning;
 }
 
-function parseSimulationResult(value: unknown, tableFormat: 'row-object' | 'columnar'): SimulationResult {
+function parseSimulationResult(value: unknown): SimulationResult {
   const result = requireRecord(value, 'result');
   const benchmark = requireRecord(result.benchmark, 'result.benchmark');
   const status = requireEnum(result.status, 'result.status', ['completed', 'not_implemented']);
@@ -238,9 +209,7 @@ function parseSimulationResult(value: unknown, tableFormat: 'row-object' | 'colu
   const parsedResult: SimulationResult = {
     type: 'result',
     status,
-    tables: requireArray(result.tables, 'result.tables').map(
-      tableFormat === 'columnar' ? parseColumnarResultTable : parseRowObjectResultTable
-    ),
+    tables: requireArray(result.tables, 'result.tables').map(parseColumnarResultTable),
     warnings: requireArray(result.warnings, 'result.warnings').map(parseWarning),
     benchmark: {
       startedAt: requireString(benchmark.startedAt, 'result.benchmark.startedAt'),
@@ -307,7 +276,7 @@ export function parseSimulationResultExport(text: string): SimulationResultExpor
   if (!('result' in payload)) {
     throw new Error('Result export JSON must include a result.');
   }
-  if (payload.schema_version !== 1 && payload.schema_version !== 2) {
+  if (payload.schema_version !== 2) {
     throw new Error(`Unsupported result export schema_version: ${String(payload.schema_version)}.`);
   }
 
@@ -318,7 +287,7 @@ export function parseSimulationResultExport(text: string): SimulationResultExpor
     schema_version: payload.schema_version,
     exportedAt,
     scenario: parseExportedScenario(payload.scenario),
-    result: parseSimulationResult(payload.result, payload.schema_version === 2 ? 'columnar' : 'row-object')
+    result: parseSimulationResult(payload.result)
   };
 }
 

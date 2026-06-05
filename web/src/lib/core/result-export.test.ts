@@ -99,18 +99,6 @@ describe('result export helpers', () => {
     });
   });
 
-  test('keeps parsing legacy row-object result export payloads', () => {
-    const result = sampleResult();
-    const payload = {
-      schema_version: 1,
-      exportedAt: '2026-06-04T01:00:00.000Z',
-      scenario: createDefaultPoliticsScenario(),
-      result
-    };
-
-    expect(parseSimulationResultExport(JSON.stringify(payload))).toEqual(payload);
-  });
-
   test('rejects result JSON without the generating scenario', () => {
     expect(() => parseSimulationResultExport(JSON.stringify(sampleResult()))).toThrow(
       /must include the scenario/
@@ -153,5 +141,18 @@ describe('result export helpers', () => {
     expect(() => parseSimulationResultExport(JSON.stringify({ ...payload, schema_version: 999 }))).toThrow(
       /Unsupported result export schema_version/
     );
+  });
+
+  test('rejects schema-v1 result export payloads', () => {
+    expect(() =>
+      parseSimulationResultExport(
+        JSON.stringify({
+          schema_version: 1,
+          exportedAt: '2026-06-04T01:00:00.000Z',
+          scenario: createDefaultPoliticsScenario(),
+          result: sampleResult()
+        })
+      )
+    ).toThrow(/Unsupported result export schema_version: 1/);
   });
 });

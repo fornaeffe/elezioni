@@ -1,12 +1,10 @@
 import { expect, test } from '@playwright/test';
 import { gzipSync } from 'node:zlib';
 
-function bundledResultJson(schemaVersion: 1 | 2 = 1): string {
-  const rows = schemaVersion === 1 ? [{ Ramo: 'camera', Simulazioni: 1 }] : [['camera', 1]];
-
+function bundledResultJson(): string {
   return JSON.stringify(
     {
-      schema_version: schemaVersion,
+      schema_version: 2,
       exportedAt: '2026-06-05T10:00:00.000Z',
       scenario: {
         id: 'imported-scenario',
@@ -43,7 +41,7 @@ function bundledResultJson(schemaVersion: 1 | 2 = 1): string {
           {
             name: 'Election overview',
             columns: ['Ramo', 'Simulazioni'],
-            rows
+            rows: [['camera', 1]]
           }
         ],
         warnings: [],
@@ -74,29 +72,13 @@ test('rejects uncompressed result JSON from the Results panel', async ({ page })
   await expect(page.getByRole('table', { name: 'Election overview' })).toHaveCount(0);
 });
 
-test('imports compressed legacy row-object result JSON from the Results panel', async ({ page }) => {
-  await page.goto('/');
-
-  await page.getByTestId('result-file-input').setInputFiles({
-    name: 'imported-results.json.gz',
-    mimeType: 'application/gzip',
-    buffer: gzipSync(Buffer.from(bundledResultJson(1)))
-  });
-
-  await expect(page.getByRole('heading', { name: 'Imported Scenario' })).toBeVisible();
-  await expect(page.getByLabel('Note simulazione')).toContainText('RESULT_IMPORT');
-  await expect(page.getByRole('table', { name: 'Election overview' })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Scarica risultati compressi' })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Scarica risultati CSV' })).toBeVisible();
-});
-
 test('imports compressed columnar result JSON from the Results panel', async ({ page }) => {
   await page.goto('/');
 
   await page.getByTestId('result-file-input').setInputFiles({
     name: 'imported-results.json.gz',
     mimeType: 'application/gzip',
-    buffer: gzipSync(Buffer.from(bundledResultJson(2)))
+    buffer: gzipSync(Buffer.from(bundledResultJson()))
   });
 
   await expect(page.getByRole('heading', { name: 'Imported Scenario' })).toBeVisible();
@@ -111,7 +93,7 @@ test('scenario upload accepts compressed bundled result JSON and shows the impor
   await page.getByTestId('scenario-file-input').setInputFiles({
     name: 'scenario-and-results.json.gz',
     mimeType: 'application/gzip',
-    buffer: gzipSync(Buffer.from(bundledResultJson(2)))
+    buffer: gzipSync(Buffer.from(bundledResultJson()))
   });
 
   await expect(page.getByRole('heading', { name: 'Imported Scenario' })).toBeVisible();
