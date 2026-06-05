@@ -71,9 +71,36 @@ parametri_input <- calcola_parametri_input(dati, scenario_path, "europee")
 message("Loading politics candidate templates")
 dati_candidati <- carica_candidati(dati_collegi, scenario_path, parametri_input)
 
+municipalities <- unique(
+  data.table::as.data.table(parametri_input$comuni_liste)[
+    ,
+    .(
+      CODICE_COMUNE,
+      COMUNE,
+      CODICE_PROVINCIA,
+      PROVINCIA,
+      CODICE_REGIONE,
+      REGIONE
+    )
+  ]
+)
+data.table::setorder(municipalities, CODICE_COMUNE)
+
+missing_municipality_codes <- setdiff(
+  as.character(unique(dati_collegi$base_dati$CODICE_COMUNE)),
+  as.character(municipalities$CODICE_COMUNE)
+)
+if (length(missing_municipality_codes) > 0) {
+  stop(
+    "Missing municipality metadata for codes: ",
+    paste(utils::head(missing_municipality_codes, 20), collapse = ", "),
+    if (length(missing_municipality_codes) > 20) "..." else ""
+  )
+}
+
 snapshot <- list(
   metadata = list(
-    schema_version = 2,
+    schema_version = 3,
     source = "current R politics preparation pipeline",
     created = format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ", tz = "UTC"),
     purpose = paste(
@@ -92,6 +119,14 @@ snapshot <- list(
       "ELETTORI",
       "CU20_COD",
       "SU20_COD"
+    )),
+    municipalities = select_frame(municipalities, c(
+      "CODICE_COMUNE",
+      "COMUNE",
+      "CODICE_PROVINCIA",
+      "PROVINCIA",
+      "CODICE_REGIONE",
+      "REGIONE"
     )),
     comuni_liste_elezioni = select_frame(dati$comuni_liste_elezioni, c(
       "DATA",

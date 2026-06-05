@@ -53,13 +53,19 @@ describe('politics static snapshot bridge', () => {
 
     test('loads the production static snapshot exported by the R bridge', () => {
       expect(productionStaticSnapshot.metadata.source).toBe('current R politics preparation pipeline');
-      expect(productionStaticSnapshot.metadata.schema_version).toBe(2);
+      expect(productionStaticSnapshot.metadata.schema_version).toBe(3);
       expect(productionStaticSnapshot.data.base_dati.length).toBeGreaterThan(8000);
+      expect(productionStaticSnapshot.data.municipalities?.length).toBeGreaterThan(7800);
       expect(productionStaticSnapshot.data.comuni_liste_elezioni?.length).toBeGreaterThan(400000);
       expect(productionStaticSnapshot.default_scenario.liste).toHaveLength(10);
       expect(productionStaticSnapshot.default_scenario.comuni_liste.length).toBeGreaterThan(70000);
       expect(productionStaticSnapshot.default_scenario.coalizioni).toBeDefined();
       expect(productionStaticSnapshot.default_scenario.corrispondenza_liste).toBeDefined();
+      const municipalityCodes = new Set(productionStaticSnapshot.data.municipalities?.map((row) => String(row.CODICE_COMUNE)));
+      expect(municipalityCodes.size).toBe(productionStaticSnapshot.data.municipalities?.length);
+      expect(productionStaticSnapshot.data.base_dati.every((row) => municipalityCodes.has(String(row.CODICE_COMUNE)))).toBe(
+        true
+      );
 
       const actual = buildPoliticsPipelineSourceFromSnapshot(productionStaticSnapshot, {
         simulations: 2

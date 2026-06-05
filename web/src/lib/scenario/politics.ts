@@ -57,6 +57,13 @@ export interface ScenarioHistoricalCorrespondenceGroup {
   sources: ScenarioHistoricalCorrespondenceSource[];
 }
 
+export interface ScenarioLocalShareOverrideGroup {
+  key: string;
+  locationCode: string;
+  overrides: ScenarioLocalShareOverride[];
+  totalShare: number;
+}
+
 interface SerializedScenario {
   schema_version: number;
   scenario: Scenario;
@@ -107,6 +114,10 @@ function correspondenceEditableKey(correspondence: ScenarioListCorrespondence): 
     correspondence.futureList.trim(),
     String(correspondence.factor)
   ].join('|');
+}
+
+function localShareOverrideKey(locationCode: string, list: string): string {
+  return `${locationCode.trim()}\u001f${listKey(list)}`;
 }
 
 function cleanColor(value: unknown, fallback: string): string {
@@ -481,6 +492,107 @@ export function removeScenarioList(scenario: Scenario, id: string): Scenario {
     localShareOverrides: scenario.localShareOverrides.filter((row) => row.list !== removed.name),
     candidateTemplates: scenario.candidateTemplates.filter(
       (row) => row.kind !== 'plurinominal' || row.list !== removed.name
+    )
+  };
+}
+
+export function buildScenarioLocalShareOverrideGroups(scenario: Scenario): ScenarioLocalShareOverrideGroup[] {
+  const groups = new Map<string, ScenarioLocalShareOverride[]>();
+
+  for (const override of scenario.localShareOverrides) {
+    const locationCode = override.locationCode.trim();
+    const grouped = groups.get(locationCode) ?? [];
+    grouped.push({ ...override, locationCode });
+    groups.set(locationCode, grouped);
+  }
+
+  return [...groups.entries()]
+    .map(([locationCode, overrides]) => ({
+      key: locationCode,
+      locationCode,
+      overrides: overrides
+        .map((override) => ({ ...override }))
+        .sort((left, right) => listKey(left.list).localeCompare(listKey(right.list), 'it')),
+      totalShare: overrides.reduce((sum, override) => sum + Math.max(Number(override.startingShare) || 0, 0), 0)
+    }))
+    .sort((left, right) => left.locationCode.localeCompare(right.locationCode, 'it'));
+}
+
+export function upsertScenarioLocalShareOverride(
+  scenario: Scenario,
+  input: Pick<ScenarioLocalShareOverride, 'locationCode' | 'list' | 'startingShare'>
+): Scenario {
+  const locationCode = input.locationCode.trim();
+  const list = input.list.trim();
+  const startingShare = Number(input.startingShare);
+  const key = localShareOverrideKey(locationCode, list);
+  let matched = false;
+
+  const localShareOverrides = scenario.localShareOverrides.map((override) => {
+    if (localShareOverrideKey(override.locationCode, override.list) !== key) return override;
+    matched = true;
+    return {
+      ...override,
+      locationCode,
+      list,
+      startingShare
+    };
+  });
+
+  if (!matched) {
+    localShareOverrides.push({
+      id: crypto.randomUUID(),
+      scope: 'municipality',
+      locationCode,
+      list,
+      startingShare
+    });
+  }
+
+  return {
+    ...scenario,
+    localShareOverrides
+  };
+}
+
+export function updateScenarioLocalShareOverride(
+  scenario: Scenario,
+  id: string,
+  patch: Partial<ScenarioLocalShareOverride>
+): Scenario {
+  return {
+    ...scenario,
+    localShareOverrides: scenario.localShareOverrides.map((override) =>
+      override.id === id
+        ? {
+            ...override,
+            ...patch,
+            scope: 'municipality',
+            locationCode:
+              patch.locationCode === undefined ? override.locationCode : cleanString(patch.locationCode).trim(),
+            list: patch.list === undefined ? override.list : cleanString(patch.list).trim(),
+            startingShare:
+              patch.startingShare === undefined ? override.startingShare : Number(patch.startingShare)
+          }
+        : override
+    )
+  };
+}
+
+export function removeScenarioLocalShareOverride(scenario: Scenario, id: string): Scenario {
+  return {
+    ...scenario,
+    localShareOverrides: scenario.localShareOverrides.filter((override) => override.id !== id)
+  };
+}
+
+export function removeScenarioLocalShareOverridesForLocation(scenario: Scenario, locationCode: string): Scenario {
+  const normalizedLocationCode = locationCode.trim();
+
+  return {
+    ...scenario,
+    localShareOverrides: scenario.localShareOverrides.filter(
+      (override) => override.locationCode.trim() !== normalizedLocationCode
     )
   };
 }

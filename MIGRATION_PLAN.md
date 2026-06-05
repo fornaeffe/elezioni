@@ -30,10 +30,10 @@ pass, pause and present Python fallback options before continuing.
 | Shared TypeScript core | Usable, still growing | Worker API types, seeded RNG, allocation primitives, scenario types, severity-aware warning/result contracts, politics result presentation, result export/import helpers, R-style politics result charts. |
 | Politics scrutiny | R-parity direct fixture passes | `web/src/lib/politics/scrutiny.ts`; registry id `politiche-r-parity-v1`. Split only when boundaries are clearer. |
 | Politics generation pipeline | Current browser path working | Candidate generation, vote generation, vote preparation, direct-scrutiny adaptation, worker chunking. |
-| Production static politics snapshot | Bridge done, richer raw data added | `scripts/export_politics_static_snapshot.R` writes schema v2 `web/static/data/v1/politics-static.json`, including raw historical municipal list votes for the future TypeScript parameter builder. |
+| Production static politics snapshot | Bridge done, richer raw data added | `scripts/export_politics_static_snapshot.R` writes schema v3 `web/static/data/v1/politics-static.json`, including raw historical municipal list votes and a compact municipality catalog for UI lookup. |
 | Politics scenario defaults | Bridge done | `scripts/export_politics_scenario_defaults.mjs` writes `web/src/lib/scenario/politics-defaults.generated.ts`. |
-| Scenario editor | Core workflow plus compact advanced controls working | List/coalition/share editor, mean-mode global share overrides, separate abstention input, one-to-one manual correspondence editor, JSON save/load, localStorage, reset, validation. Rich historical correspondence UI remains. |
-| Rich correspondence parameter builder | Done and wired | `web/src/lib/politics/parameter-preparation.ts` rebuilds politics `liste`, `liste_elezioni`, and `comuni_liste` from raw historical votes and correspondences. `scenario-projection.ts` uses it when schema-v2 snapshot raw votes are present. |
+| Scenario editor | Core workflow plus compact advanced controls working | List/coalition/share editor, mean-mode global share overrides, separate abstention input, local percentage override editor, historical correspondence editor, JSON save/load, localStorage, reset, validation. |
+| Rich correspondence parameter builder | Done and wired | `web/src/lib/politics/parameter-preparation.ts` rebuilds politics `liste`, `liste_elezioni`, and `comuni_liste` from raw historical votes and correspondences. `scenario-projection.ts` uses it when snapshot raw votes are present. |
 | R correspondence audit | Done | Current R output is coherent for the politics workbook because all historical list keys are mapped, but `calcola_parametri_input.R` drops unmatched rows instead of automatically sending them to `astensione`. |
 | Generated data storage | Done | Large generated JSON snapshots/fixtures are ignored and untracked; regenerate locally from scripts. Small generated TypeScript remains tracked. |
 | Politics browser vertical slice | Stabilized | `web/src/lib/politics/vertical-slice.test.ts` guards snapshot -> scenario -> projection -> generation -> scrutiny. |
@@ -75,7 +75,8 @@ reveals a cleaner order or a new blocker.
    malformed or impossible partial local totals, projection converts local
    overrides to elector fractions, keeps local abstention fixed from the base
    municipality model, normalizes all-overridden local totals with a warning,
-   and recomputes municipal `DELTA`/`DATA` rows before vote generation.
+   recomputes municipal `DELTA`/`DATA` rows before vote generation, and the
+   advanced scenario UI exposes searchable municipality/list/share editing.
 6. Preserve architecture hooks for future fixed behavior without exposing it:
    a globally fixed mode should bypass random vote generation and produce a
    single deterministic vote distribution/scrutiny output; an optional
@@ -148,9 +149,11 @@ reveals a cleaner order or a new blocker.
 - Built the generated politics worker path with chunked execution and progress.
 - Exported the R-produced production static snapshot bridge at
   `web/static/data/v1/politics-static.json`.
-- Upgraded the production static snapshot bridge to schema v2 with
+- Upgraded the production static snapshot bridge to schema v3 with
   `data.comuni_liste_elezioni`, the raw historical municipal list votes needed
-  to rebuild correspondence-based parameters in TypeScript.
+  to rebuild correspondence-based parameters in TypeScript, plus
+  `data.municipalities`, a compact municipality/province/region catalog for UI
+  lookup.
 - Added `web/src/lib/politics/parameter-preparation.ts`, the TypeScript port of
   the deterministic `calcola_parametri_input()` parameter math from raw
   historical municipal votes and list correspondences. Synthetic tests cover
@@ -158,7 +161,7 @@ reveals a cleaner order or a new blocker.
   unmapped original-list votes becoming `astensione`; gated parity tests rebuild
   the R-exported production default parameters when local generated data exists.
 - Wired the parameter builder into `scenario-projection.ts` and the worker when
-  schema-v2 raw historical votes are present. Scenario lists now receive
+  raw historical votes are present. Scenario lists now receive
   historical/static/synthetic parameters directly, without a source-model reuse
   layer.
 - Stopped tracking large generated JSON snapshots and bridge fixtures in Git.
@@ -216,11 +219,13 @@ reveals a cleaner order or a new blocker.
   that are not 100% are normalized with a warning, and overridden list
   parameter `DATA` values are set to the worker/projection current date so
   temporal drift starts from today.
-- Added typed local share override hooks. `Scenario.localShareOverrides`
-  stores municipality/list valid-vote share overrides. Projection applies them
-  to matched municipal parameter rows by keeping local abstention fixed,
-  normalizing political list fractions, and recomputing local `DELTA` plus
-  `DATA` before the existing vote generator runs. The rich UI remains deferred.
+- Added typed local share override hooks and the advanced local override UI.
+  `Scenario.localShareOverrides` stores municipality/list valid-vote share
+  overrides. Projection applies them to matched municipal parameter rows by
+  keeping local abstention fixed, normalizing political list fractions, and
+  recomputing local `DELTA` plus `DATA` before the existing vote generator
+  runs. The UI searches municipalities by name/code/province/region and edits
+  grouped municipality/list percentages.
 - Reworked the web page into a single-column scenario-then-results layout.
   Primary user-facing summaries appear before diagnostics, with generated
   pipeline details collapsed by default. The worker now delegates politics
@@ -344,13 +349,14 @@ after major scenario/schema/snapshot/generation/scrutiny changes.
   because it is large and generated. Regenerate it with
   `Rscript scripts/export_politics_static_snapshot.R`, then regenerate
   dependent tracked defaults with
-  `node scripts/export_politics_scenario_defaults.mjs` when the default
-  scenario changes.
+  `node scripts/export_politics_scenario_defaults.mjs` and
+  `node scripts/export_politics_municipality_catalog.mjs` when the default
+  scenario or municipality metadata changes.
 - Bundled list correspondences in the generated default are durable metadata for
   defaults and the current advanced editor. Editing a bundled row marks that row
   manual; reset restores the generated default rows for that historical source.
 - `web/src/lib/politics/parameter-preparation.ts` is wired into projection and
-  the worker for schema-v2 snapshots. The editor now exposes real historical
+  the worker when raw historical votes are available. The editor now exposes real historical
   split/merge factors, and projection treats candidate slots as independent
   legal grid rows for every active scenario list.
 - `abstentionOverride` currently makes the global `astensione` parameter fixed

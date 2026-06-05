@@ -8,11 +8,13 @@
     ResultTable,
     Scenario,
     ScenarioListCorrespondence,
+    ScenarioLocalShareOverride,
     ScrutinyWarning,
     SimulationRequest,
     SimulationResult,
     SimulationWorkerMessage
   } from '$lib/core/types';
+  import type { PoliticsMunicipalityCatalogRow } from '$lib/politics/types';
   import {
     createSimulationResultExport,
     parseSimulationResultExport,
@@ -28,6 +30,7 @@
   import {
     addScenarioHistoricalCorrespondence,
     buildScenarioHistoricalCorrespondenceGroups,
+    buildScenarioLocalShareOverrideGroups,
     cloneScenario,
     createDefaultPoliticsScenario,
     createScenarioCoalition,
@@ -37,12 +40,17 @@
     politicsScenarioStorageKey,
     removeScenarioHistoricalCorrespondence,
     removeScenarioList as removeScenarioListFromScenario,
+    removeScenarioLocalShareOverride,
+    removeScenarioLocalShareOverridesForLocation,
     renameScenarioList,
     resetScenarioHistoricalCorrespondenceSource,
     serializeScenario,
     updateScenarioHistoricalCorrespondence,
+    updateScenarioLocalShareOverride,
+    upsertScenarioLocalShareOverride,
     validateScenario
   } from '$lib/scenario/politics';
+  import { generatedPoliticsMunicipalities } from '$lib/scenario/politics-municipalities.generated';
 
   type UiMessageSeverity = 'info' | 'warning' | 'error';
 
@@ -50,6 +58,13 @@
     code: string;
     message: string;
     severity: UiMessageSeverity;
+  }
+
+  interface MunicipalityOption extends PoliticsMunicipalityCatalogRow {
+    code: string;
+    label: string;
+    sublabel: string;
+    searchText: string;
   }
 
   const dataVersion = 'v1';
@@ -69,6 +84,10 @@
   let showDiagnostics = $state(false);
   let showAdvancedScenario = $state(false);
   let selectedPlurinominalOptionId = $state('');
+  let localOverrideSearch = $state('');
+  let selectedLocalOverrideLocationCode = $state('');
+  let selectedLocalOverrideList = $state('');
+  let localOverrideShare = $state(0);
   let scenarioDraft = $state<Scenario>(createDefaultPoliticsScenario());
   let scenarioStorageReady = $state(false);
   let compressionSupported = $state(false);
@@ -98,6 +117,11 @@
   const diagnosticTables = $derived(tables.filter((table) => diagnosticTableNames.has(table.name)));
   const diagnosticsToggleLabel = $derived(showDiagnostics ? 'Nascondi dettagli' : 'Mostra dettagli');
   const historicalCorrespondenceGroups = $derived(buildScenarioHistoricalCorrespondenceGroups(scenarioDraft));
+  const localOverrideGroups = $derived(buildScenarioLocalShareOverrideGroups(scenarioDraft));
+  const municipalityOptions = $derived(generatedPoliticsMunicipalities.map(municipalityOption));
+  const municipalityByCode = $derived(new Map(municipalityOptions.map((option) => [option.code, option])));
+  const localOverrideSearchResults = $derived(searchMunicipalities(localOverrideSearch, municipalityOptions));
+  const selectedLocalOverrideLocation = $derived(municipalityByCode.get(selectedLocalOverrideLocationCode) ?? null);
   const bundledListCorrespondenceCount = $derived(
     scenarioDraft.listCorrespondences.filter((correspondence) => correspondence.source === 'bundled').length
   );
@@ -105,6 +129,10 @@
     scenarioDraft.listCorrespondences.filter((correspondence) => correspondence.source === 'manual').length
   );
   const correspondenceDestinations = $derived([...scenarioDraft.lists.map((list) => list.name), politicsAbstentionListName]);
+  const localOverrideListSelection = $derived(selectedLocalOverrideList || scenarioDraft.lists[0]?.name || '');
+  const localOverrideSummary = $derived(
+    `${scenarioDraft.localShareOverrides.length} quote / ${localOverrideGroups.length} comuni`
+  );
   const editablePlurinominalCandidacyShareTotal = $derived(
     scenarioDraft.candidateGeneration.plurinominalCandidacyCountShares
       .slice(1)
@@ -197,6 +225,110 @@
 
   function resetListCorrespondenceSource(pastElection: string, pastList: string): void {
     scenarioDraft = resetScenarioHistoricalCorrespondenceSource(scenarioDraft, pastElection, pastList);
+  }
+
+  function municipalityCode(row: Pick<PoliticsMunicipalityCatalogRow, 'CODICE_COMUNE'>): string {
+    return String(row.CODICE_COMUNE);
+  }
+
+  function normalizeSearchText(value: string): string {
+    return value
+      .trim()
+      .toLocaleLowerCase('it-IT')
+      .normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g, '');
+  }
+
+  function municipalityOption(row: PoliticsMunicipalityCatalogRow): MunicipalityOption {
+    const code = municipalityCode(row);
+    const label = `${row.COMUNE} (${code})`;
+    const sublabel = [row.PROVINCIA, row.REGIONE].filter(Boolean).join(' - ');
+
+    return {
+      ...row,
+      code,
+      label,
+      sublabel,
+      searchText: normalizeSearchText([code, row.COMUNE, row.PROVINCIA, row.REGIONE].join(' '))
+    };
+  }
+
+  function searchMunicipalities(query: string, options: MunicipalityOption[]): MunicipalityOption[] {
+    const normalizedQuery = normalizeSearchText(query);
+    if (normalizedQuery.length < 2) return [];
+
+    const tokens = normalizedQuery.split(/\s+/).filter(Boolean);
+    return options.filter((option) => tokens.every((token) => option.searchText.includes(token))).slice(0, 10);
+  }
+
+  function municipalityDisplay(locationCode: string): string {
+    return municipalityByCode.get(locationCode)?.label ?? locationCode;
+  }
+
+  function municipalitySubLabel(locationCode: string): string {
+    return municipalityByCode.get(locationCode)?.sublabel ?? '';
+  }
+
+  function selectLocalOverrideMunicipality(option: MunicipalityOption): void {
+    selectedLocalOverrideLocationCode = option.code;
+    localOverrideSearch = option.label;
+  }
+
+  function resolveLocalOverrideLocationCode(): string {
+    if (selectedLocalOverrideLocationCode) return selectedLocalOverrideLocationCode;
+
+    const normalizedSearch = normalizeSearchText(localOverrideSearch);
+    const exactMatch = municipalityOptions.find(
+      (option) =>
+        normalizeSearchText(option.code) === normalizedSearch ||
+        normalizeSearchText(option.COMUNE) === normalizedSearch ||
+        normalizeSearchText(option.label) === normalizedSearch
+    );
+
+    return exactMatch?.code ?? '';
+  }
+
+  function upsertLocalOverride(locationCode: string, list: string, startingShare: string | number): void {
+    if (!locationCode || !list) return;
+
+    scenarioDraft = upsertScenarioLocalShareOverride(scenarioDraft, {
+      locationCode,
+      list,
+      startingShare: Number(startingShare)
+    });
+  }
+
+  function addSelectedLocalOverride(): void {
+    const locationCode = resolveLocalOverrideLocationCode();
+    const list = localOverrideListSelection;
+    if (!locationCode || !list) return;
+
+    selectedLocalOverrideLocationCode = locationCode;
+    upsertLocalOverride(locationCode, list, localOverrideShare);
+  }
+
+  function updateLocalOverride(id: string, patch: Partial<ScenarioLocalShareOverride>): void {
+    scenarioDraft = updateScenarioLocalShareOverride(scenarioDraft, id, patch);
+  }
+
+  function removeLocalOverride(id: string): void {
+    scenarioDraft = removeScenarioLocalShareOverride(scenarioDraft, id);
+  }
+
+  function removeLocalOverridesForLocation(locationCode: string): void {
+    scenarioDraft = removeScenarioLocalShareOverridesForLocation(scenarioDraft, locationCode);
+  }
+
+  function addLocalOverrideForLocation(locationCode: string): void {
+    const existingLists = new Set(
+      scenarioDraft.localShareOverrides
+        .filter((override) => override.locationCode.trim() === locationCode.trim())
+        .map((override) => normalizeSearchText(override.list))
+    );
+    const list = scenarioDraft.lists.find((candidate) => !existingLists.has(normalizeSearchText(candidate.name)));
+
+    if (!list) return;
+    upsertLocalOverride(locationCode, list.name, 0);
   }
 
   function updateUninominalToPlurinominalShare(value: string | number): void {
@@ -830,6 +962,178 @@
               </div>
             </div>
 
+            <div class="local-overrides-block">
+              <div class="local-overrides-heading">
+                <div>
+                  <span class="setting-label">Quote locali</span>
+                  <span class="setting-meta">{localOverrideSummary}</span>
+                </div>
+              </div>
+
+              <div class="local-override-picker">
+                <div class="municipality-picker">
+                  <label>
+                    Comune
+                    <input
+                      type="search"
+                      value={localOverrideSearch}
+                      oninput={(event) => {
+                        localOverrideSearch = (event.currentTarget as HTMLInputElement).value;
+                        selectedLocalOverrideLocationCode = '';
+                      }}
+                      autocomplete="off"
+                      aria-label="Cerca comune"
+                    />
+                  </label>
+                  {#if selectedLocalOverrideLocation}
+                    <span class="selected-location">{selectedLocalOverrideLocation.sublabel}</span>
+                  {/if}
+                  {#if localOverrideSearchResults.length > 0 && !selectedLocalOverrideLocationCode}
+                    <div class="municipality-results" role="listbox" aria-label="Comuni trovati">
+                      {#each localOverrideSearchResults as option (option.code)}
+                        <button
+                          type="button"
+                          class:active={option.code === selectedLocalOverrideLocationCode}
+                          onclick={() => selectLocalOverrideMunicipality(option)}
+                        >
+                          <span>{option.label}</span>
+                          <span>{option.sublabel}</span>
+                        </button>
+                      {/each}
+                    </div>
+                  {/if}
+                </div>
+
+                <label>
+                  Lista
+                  <select
+                    value={localOverrideListSelection}
+                    onchange={(event) => (selectedLocalOverrideList = (event.currentTarget as HTMLSelectElement).value)}
+                    aria-label="Lista quota locale"
+                  >
+                    {#each scenarioDraft.lists as list}
+                      <option value={list.name}>{list.name}</option>
+                    {/each}
+                  </select>
+                </label>
+
+                <label>
+                  Quota
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.1"
+                    value={localOverrideShare}
+                    oninput={(event) => (localOverrideShare = Number((event.currentTarget as HTMLInputElement).value))}
+                    aria-label="Quota locale da aggiungere"
+                  />
+                </label>
+
+                <button
+                  type="button"
+                  class="text-button"
+                  onclick={addSelectedLocalOverride}
+                  disabled={!resolveLocalOverrideLocationCode() || scenarioDraft.lists.length === 0}
+                  aria-label="Aggiungi quota locale"
+                >
+                  <Plus size={16} aria-hidden="true" />
+                  <span>Aggiungi</span>
+                </button>
+              </div>
+
+              {#if localOverrideGroups.length === 0}
+                <p class="advanced-note">Nessuna quota locale</p>
+              {:else}
+                <div class="local-override-groups">
+                  {#each localOverrideGroups as group (group.key)}
+                    <details class="local-override-group" open>
+                      <summary>
+                        <span>
+                          {municipalityDisplay(group.locationCode)}
+                          {#if municipalitySubLabel(group.locationCode)}
+                            <small>{municipalitySubLabel(group.locationCode)}</small>
+                          {/if}
+                        </span>
+                        <span>{group.overrides.length} liste / {group.totalShare.toFixed(1)}%</span>
+                      </summary>
+
+                      <div class="local-override-rows">
+                        {#each group.overrides as override (override.id)}
+                          <div class="local-override-row">
+                            <label>
+                              Lista
+                              <select
+                                value={override.list}
+                                onchange={(event) =>
+                                  updateLocalOverride(override.id, {
+                                    list: (event.currentTarget as HTMLSelectElement).value
+                                  })}
+                                aria-label={`Lista quota locale ${municipalityDisplay(group.locationCode)}`}
+                              >
+                                {#each scenarioDraft.lists as list}
+                                  <option value={list.name}>{list.name}</option>
+                                {/each}
+                                {#if !scenarioDraft.lists.some((list) => list.name === override.list)}
+                                  <option value={override.list}>{override.list}</option>
+                                {/if}
+                              </select>
+                            </label>
+                            <label>
+                              Quota
+                              <input
+                                type="number"
+                                min="0"
+                                max="100"
+                                step="0.1"
+                                value={override.startingShare}
+                                oninput={(event) =>
+                                  updateLocalOverride(override.id, {
+                                    startingShare: Number((event.currentTarget as HTMLInputElement).value)
+                                  })}
+                                aria-label={`Quota locale ${override.list}`}
+                              />
+                            </label>
+                            <button
+                              type="button"
+                              class="icon-button danger"
+                              onclick={() => removeLocalOverride(override.id)}
+                              title="Rimuovi quota locale"
+                              aria-label={`Rimuovi quota locale ${override.list}`}
+                            >
+                              <Trash2 size={18} aria-hidden="true" />
+                            </button>
+                          </div>
+                        {/each}
+                      </div>
+
+                      <div class="location-actions">
+                        <button
+                          type="button"
+                          class="icon-button"
+                          onclick={() => addLocalOverrideForLocation(group.locationCode)}
+                          title="Aggiungi lista locale"
+                          aria-label={`Aggiungi lista locale ${municipalityDisplay(group.locationCode)}`}
+                          disabled={group.overrides.length >= scenarioDraft.lists.length}
+                        >
+                          <Plus size={18} aria-hidden="true" />
+                        </button>
+                        <button
+                          type="button"
+                          class="icon-button danger"
+                          onclick={() => removeLocalOverridesForLocation(group.locationCode)}
+                          title="Rimuovi comune"
+                          aria-label={`Rimuovi comune ${municipalityDisplay(group.locationCode)}`}
+                        >
+                          <Trash2 size={18} aria-hidden="true" />
+                        </button>
+                      </div>
+                    </details>
+                  {/each}
+                </div>
+              {/if}
+            </div>
+
             <div class="correspondence-block">
               <div class="correspondence-heading">
                 <div>
@@ -1276,6 +1580,139 @@
     padding-top: 12px;
   }
 
+  .local-overrides-block {
+    display: grid;
+    gap: 10px;
+    border-top: 1px solid #e5e9ed;
+    padding-top: 12px;
+  }
+
+  .local-overrides-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .local-override-picker {
+    display: grid;
+    grid-template-columns: minmax(220px, 1.3fr) minmax(150px, 0.9fr) 88px auto;
+    gap: 8px;
+    align-items: end;
+  }
+
+  .municipality-picker {
+    position: relative;
+    display: grid;
+    gap: 4px;
+  }
+
+  .selected-location {
+    color: #697681;
+    font-size: 12px;
+    font-weight: 650;
+  }
+
+  .municipality-results {
+    position: absolute;
+    z-index: 5;
+    top: calc(100% + 4px);
+    right: 0;
+    left: 0;
+    display: grid;
+    max-height: 280px;
+    overflow: auto;
+    border: 1px solid #bdc7d0;
+    border-radius: 6px;
+    background: #ffffff;
+    box-shadow: 0 10px 24px rgb(24 32 38 / 14%);
+  }
+
+  .municipality-results button {
+    display: grid;
+    justify-content: stretch;
+    min-height: 48px;
+    border: 0;
+    border-bottom: 1px solid #e5e9ed;
+    border-radius: 0;
+    padding: 7px 10px;
+    text-align: left;
+  }
+
+  .municipality-results button:last-child {
+    border-bottom: 0;
+  }
+
+  .municipality-results button.active,
+  .municipality-results button:hover {
+    background: #eef7f3;
+  }
+
+  .municipality-results span:first-child {
+    color: #182026;
+    font-size: 13px;
+    font-weight: 750;
+  }
+
+  .municipality-results span:last-child {
+    color: #697681;
+    font-size: 12px;
+    font-weight: 650;
+  }
+
+  .local-override-groups {
+    display: grid;
+    gap: 10px;
+  }
+
+  .local-override-group {
+    border-top: 1px solid #e5e9ed;
+    padding-top: 8px;
+  }
+
+  .local-override-group summary {
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) auto;
+    gap: 12px;
+    min-height: 34px;
+    color: #4d5963;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 750;
+  }
+
+  .local-override-group summary small,
+  .local-override-group summary span:last-child {
+    color: #697681;
+    font-size: 12px;
+    font-weight: 650;
+  }
+
+  .local-override-group summary small {
+    display: block;
+    margin-top: 2px;
+  }
+
+  .local-override-rows {
+    display: grid;
+    gap: 8px;
+    padding-top: 8px;
+  }
+
+  .local-override-row {
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) 92px 40px;
+    gap: 8px;
+    align-items: end;
+  }
+
+  .location-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    padding-top: 8px;
+  }
+
   .range-setting {
     display: grid;
     grid-template-columns: minmax(180px, 1fr) 96px;
@@ -1612,6 +2049,9 @@
 
     .setting-row,
     .range-setting,
+    .local-override-picker,
+    .local-override-group summary,
+    .local-override-row,
     .correspondence-source,
     .correspondence-row {
       grid-template-columns: 1fr;

@@ -628,6 +628,15 @@ export interface PoliticsBaseDataRow {
   SU20_COD: AdministrativeCode;
 }
 
+export interface PoliticsMunicipalityCatalogRow {
+  CODICE_COMUNE: AdministrativeCode;
+  COMUNE: string;
+  CODICE_PROVINCIA: AdministrativeCode;
+  PROVINCIA: string;
+  CODICE_REGIONE: AdministrativeCode;
+  REGIONE: string;
+}
+
 export interface PoliticsHistoricalMunicipalListVoteRow {
   DATA: string;
   ELEZIONE: string;
@@ -785,6 +794,7 @@ export interface PoliticsStaticDataRamoSnapshot {
 
 export interface PoliticsStaticDataSnapshotData {
   base_dati: PoliticsBaseDataRow[];
+  municipalities?: PoliticsMunicipalityCatalogRow[];
   comuni_liste_elezioni?: PoliticsHistoricalMunicipalListVoteRow[];
   camera: PoliticsStaticDataRamoSnapshot;
   senato: PoliticsStaticDataRamoSnapshot;

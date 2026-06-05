@@ -51,6 +51,33 @@ describeWithGeneratedFixtures('politics browser vertical slice', [productionStat
     }
   });
 
+  test('projects a production local percentage override onto municipal parameters', () => {
+    const scenario = createDefaultPoliticsScenario();
+    scenario.localShareOverrides = [
+      {
+        id: 'local-aglie-pd',
+        scope: 'municipality',
+        locationCode: '001001',
+        list: 'Partito Democratico',
+        startingShare: 45
+      }
+    ];
+    const source = buildPoliticsPipelineSourceFromSnapshot(snapshot, { simulations: 1 });
+    const projection = projectScenarioOntoPoliticsSource(source, scenario, {
+      currentDate: '2026-06-05',
+      electionDate: scenario.electionDate,
+      historicalVotes: snapshot.data.comuni_liste_elezioni,
+      parameterPercentualiPartenza: 'europee',
+      simulations: 1
+    });
+    const municipalityRows = projection.source.comuni_liste.filter((row) => String(row.CODICE_COMUNE) === '001001');
+    const overriddenRow = municipalityRows.find((row) => row.LISTA === 'Partito Democratico');
+
+    expect(snapshot.data.municipalities?.some((row) => String(row.CODICE_COMUNE) === '001001')).toBe(true);
+    expect(overriddenRow?.DATA).toBe('2026-06-05T00:00:00.000Z');
+    expect(projection.warnings).toEqual([]);
+  });
+
   test('projects, generates, and scrutinizes one production politics browser simulation', { timeout: 30_000 }, () => {
     const scenario = createDefaultPoliticsScenario();
     const source = buildPoliticsPipelineSourceFromSnapshot(snapshot, { simulations: 1 });

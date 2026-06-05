@@ -1,19 +1,24 @@
 import { describe, expect, test } from 'vitest';
 import {
-  buildScenarioHistoricalCorrespondenceGroups,
   addScenarioHistoricalCorrespondence,
+  buildScenarioHistoricalCorrespondenceGroups,
+  buildScenarioLocalShareOverrideGroups,
   createDefaultPoliticsScenario,
   defaultScenarioCandidateGeneration,
   normalizeScenario,
   parseScenario,
   plurinominalCandidacyCountSharesToFractions,
   pluricandidatureFractionsToPlurinominalCandidacyCountShares,
-  removeScenarioList,
   removeScenarioHistoricalCorrespondence,
+  removeScenarioList,
+  removeScenarioLocalShareOverride,
+  removeScenarioLocalShareOverridesForLocation,
   renameScenarioList,
   resetScenarioHistoricalCorrespondenceSource,
   serializeScenario,
   updateScenarioHistoricalCorrespondence,
+  updateScenarioLocalShareOverride,
+  upsertScenarioLocalShareOverride,
   validateScenario
 } from './politics';
 
@@ -449,6 +454,56 @@ describe('politics web-native scenario model', () => {
     expect(scenario.localShareOverrides).toEqual([]);
     expect(scenario.candidateTemplates).toEqual([]);
     expect(validateScenario(scenario)).toEqual([]);
+  });
+
+  test('groups, upserts, updates, and removes local share overrides', () => {
+    let scenario = createDefaultPoliticsScenario();
+
+    scenario = upsertScenarioLocalShareOverride(scenario, {
+      locationCode: '001001',
+      list: 'Partito Democratico',
+      startingShare: 40
+    });
+    scenario = upsertScenarioLocalShareOverride(scenario, {
+      locationCode: '001001',
+      list: 'Movimento 5 Stelle',
+      startingShare: 20
+    });
+    scenario = upsertScenarioLocalShareOverride(scenario, {
+      locationCode: '001001',
+      list: 'Partito Democratico',
+      startingShare: 42
+    });
+
+    expect(scenario.localShareOverrides).toHaveLength(2);
+    expect(
+      scenario.localShareOverrides.find((override) => override.list === 'Partito Democratico')
+    ).toEqual(expect.objectContaining({ locationCode: '001001', scope: 'municipality', startingShare: 42 }));
+
+    const groups = buildScenarioLocalShareOverrideGroups(scenario);
+    expect(groups).toEqual([
+      expect.objectContaining({
+        locationCode: '001001',
+        totalShare: 62,
+        overrides: expect.arrayContaining([
+          expect.objectContaining({ list: 'Movimento 5 Stelle', startingShare: 20 }),
+          expect.objectContaining({ list: 'Partito Democratico', startingShare: 42 })
+        ])
+      })
+    ]);
+
+    const pdOverride = scenario.localShareOverrides.find((override) => override.list === 'Partito Democratico');
+    scenario = updateScenarioLocalShareOverride(scenario, pdOverride?.id ?? '', {
+      list: 'Partito Democratico',
+      startingShare: 45
+    });
+    expect(scenario.localShareOverrides.find((override) => override.id === pdOverride?.id)?.startingShare).toBe(45);
+
+    scenario = removeScenarioLocalShareOverride(scenario, pdOverride?.id ?? '');
+    expect(scenario.localShareOverrides.map((override) => override.list)).toEqual(['Movimento 5 Stelle']);
+
+    scenario = removeScenarioLocalShareOverridesForLocation(scenario, '001001');
+    expect(scenario.localShareOverrides).toEqual([]);
   });
 
   test('validates malformed list correspondences', () => {

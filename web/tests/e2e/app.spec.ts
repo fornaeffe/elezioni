@@ -37,6 +37,23 @@ test('runs the worker smoke path from the scenario editor', async ({ page }) => 
     break;
   }
 
+  await page.getByLabel('Cerca comune').fill('Aglie');
+  await page.getByRole('listbox', { name: 'Comuni trovati' }).getByRole('button', { name: /001001/ }).click();
+  await page.getByLabel('Lista quota locale').selectOption('Partito Democratico');
+  await page.getByLabel('Quota locale da aggiungere').fill('42');
+  await page.getByRole('button', { name: 'Aggiungi quota locale' }).click();
+
+  let localOverrideGroup = page.locator('.local-override-group', { hasText: 'Agliè' });
+  await expect(localOverrideGroup).toContainText('42.0%');
+  await localOverrideGroup.getByRole('spinbutton', { name: 'Quota locale Partito Democratico' }).fill('40');
+  await expect(localOverrideGroup).toContainText('40.0%');
+  await localOverrideGroup.getByRole('button', { name: 'Rimuovi quota locale Partito Democratico' }).click();
+  await expect(page.locator('.local-override-group', { hasText: 'Agliè' })).toHaveCount(0);
+
+  await page.getByRole('button', { name: 'Aggiungi quota locale' }).click();
+  localOverrideGroup = page.locator('.local-override-group', { hasText: 'Agliè' });
+  await expect(localOverrideGroup).toContainText('42.0%');
+
   await page.getByRole('button', { name: 'Esegui' }).click();
 
   await expect(page.getByLabel('Note simulazione')).toContainText('POLITICS_STATIC_SNAPSHOT', { timeout: 30_000 });
