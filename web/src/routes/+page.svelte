@@ -581,6 +581,99 @@
         </div>
       {/if}
 
+      
+
+      <div class="section-heading">
+        <h3>Coalizioni</h3>
+        <button
+          type="button"
+          class="icon-button"
+          onclick={addCoalition}
+          title="Aggiungi coalizione"
+          aria-label="Aggiungi coalizione"
+        >
+          <Plus size={18} aria-hidden="true" />
+        </button>
+      </div>
+
+      <div class="coalition-editor">
+        {#each scenarioDraft.coalitions as coalition (coalition.id)}
+          <div class="coalition-row">
+            <input class="color" type="color" bind:value={coalition.color} aria-label="Colore coalizione" />
+            <input
+              type="text"
+              value={coalition.name}
+              oninput={(event) => updateCoalitionName(coalition.id, (event.currentTarget as HTMLInputElement).value)}
+              aria-label="Nome coalizione"
+            />
+            <button
+              type="button"
+              class="icon-button danger"
+              onclick={() => removeCoalition(coalition.id)}
+              disabled={scenarioDraft.coalitions.length <= 1}
+              title="Rimuovi coalizione"
+              aria-label="Rimuovi coalizione"
+            >
+              <Trash2 size={18} aria-hidden="true" />
+            </button>
+          </div>
+        {/each}
+      </div>
+
+      <div class="section-heading">
+        <h3>Liste</h3>
+        <button
+          type="button"
+          class="icon-button"
+          onclick={addList}
+          title="Aggiungi lista"
+          aria-label="Aggiungi lista"
+        >
+          <Plus size={18} aria-hidden="true" />
+        </button>
+      </div>
+
+      <div class="list-editor">
+        {#each scenarioDraft.lists as list (list.id)}
+          <div class="list-row">
+            <input class="color" type="color" bind:value={list.color} aria-label="Colore lista" />
+            <input type="text" bind:value={list.name} aria-label="Nome lista" />
+            <select bind:value={list.coalition} aria-label="Coalizione">
+              {#each scenarioDraft.coalitions as coalition}
+                <option value={coalition.name}>{coalition.name}</option>
+              {/each}
+            </select>
+            <input
+              class="share"
+              type="number"
+              min="0"
+              max="100"
+              step="0.1"
+              bind:value={list.startingShare}
+              oninput={() => (list.shareOverride = true)}
+              aria-label="Quota iniziale"
+            />
+            <label class="override-toggle">
+              <input
+                type="checkbox"
+                bind:checked={list.shareOverride}
+                aria-label={`Usa quota ${list.name || 'lista'}`}
+              />
+              <span>Usa</span>
+            </label>
+            <button
+              type="button"
+              class="icon-button danger"
+              onclick={() => removeList(list.id)}
+              title="Rimuovi lista"
+              aria-label="Rimuovi lista"
+            >
+              <Trash2 size={18} aria-hidden="true" />
+            </button>
+          </div>
+        {/each}
+      </div>
+
       <div class="advanced">
         <button
           class="advanced-toggle"
@@ -692,97 +785,6 @@
             </div>
           </div>
         {/if}
-      </div>
-
-      <div class="section-heading">
-        <h3>Coalizioni</h3>
-        <button
-          type="button"
-          class="icon-button"
-          onclick={addCoalition}
-          title="Aggiungi coalizione"
-          aria-label="Aggiungi coalizione"
-        >
-          <Plus size={18} aria-hidden="true" />
-        </button>
-      </div>
-
-      <div class="coalition-editor">
-        {#each scenarioDraft.coalitions as coalition (coalition.id)}
-          <div class="coalition-row">
-            <input class="color" type="color" bind:value={coalition.color} aria-label="Colore coalizione" />
-            <input
-              type="text"
-              value={coalition.name}
-              oninput={(event) => updateCoalitionName(coalition.id, (event.currentTarget as HTMLInputElement).value)}
-              aria-label="Nome coalizione"
-            />
-            <button
-              type="button"
-              class="icon-button danger"
-              onclick={() => removeCoalition(coalition.id)}
-              disabled={scenarioDraft.coalitions.length <= 1}
-              title="Rimuovi coalizione"
-              aria-label="Rimuovi coalizione"
-            >
-              <Trash2 size={18} aria-hidden="true" />
-            </button>
-          </div>
-        {/each}
-      </div>
-
-      <div class="section-heading">
-        <h3>Liste</h3>
-        <button
-          type="button"
-          class="icon-button"
-          onclick={addList}
-          title="Aggiungi lista"
-          aria-label="Aggiungi lista"
-        >
-          <Plus size={18} aria-hidden="true" />
-        </button>
-      </div>
-
-      <div class="list-editor">
-        {#each scenarioDraft.lists as list (list.id)}
-          <div class="list-row">
-            <input class="color" type="color" bind:value={list.color} aria-label="Colore lista" />
-            <input type="text" bind:value={list.name} aria-label="Nome lista" />
-            <select bind:value={list.coalition} aria-label="Coalizione">
-              {#each scenarioDraft.coalitions as coalition}
-                <option value={coalition.name}>{coalition.name}</option>
-              {/each}
-            </select>
-            <input
-              class="share"
-              type="number"
-              min="0"
-              max="100"
-              step="0.1"
-              bind:value={list.startingShare}
-              oninput={() => (list.shareOverride = true)}
-              aria-label="Quota iniziale"
-            />
-            <label class="override-toggle">
-              <input
-                type="checkbox"
-                bind:checked={list.shareOverride}
-                aria-label={`Usa quota ${list.name || 'lista'}`}
-              />
-              <span>Usa</span>
-            </label>
-            <button
-              type="button"
-              class="icon-button danger"
-              onclick={() => removeList(list.id)}
-              title="Rimuovi lista"
-              aria-label="Rimuovi lista"
-            >
-              <Trash2 size={18} aria-hidden="true" />
-            </button>
-          </div>
-        {/each}
       </div>
     </div>
 
