@@ -37,9 +37,9 @@ test('runs the worker smoke path from the scenario editor', async ({ page }) => 
     break;
   }
 
-  await page.getByLabel('Cerca comune').fill('Aglie');
-  await page.getByRole('listbox', { name: 'Comuni trovati' }).getByRole('button', { name: /001001/ }).click();
-  await page.getByLabel('Lista quota locale').selectOption('Partito Democratico');
+  await page.getByLabel('Cerca localita').fill('Aglie');
+  await page.getByRole('listbox', { name: 'Localita trovate' }).getByRole('button', { name: /001001/ }).click();
+  await page.getByLabel('Lista quota locale', { exact: true }).selectOption('Partito Democratico');
   await page.getByLabel('Quota locale da aggiungere').fill('42');
   await page.getByRole('button', { name: 'Aggiungi quota locale' }).click();
 
@@ -53,6 +53,22 @@ test('runs the worker smoke path from the scenario editor', async ({ page }) => 
   await page.getByRole('button', { name: 'Aggiungi quota locale' }).click();
   localOverrideGroup = page.locator('.local-override-group', { hasText: 'Agliè' });
   await expect(localOverrideGroup).toContainText('42.0%');
+
+  await page.getByLabel('Ambito quota locale').selectOption('province');
+  await page.getByLabel('Cerca localita').fill('Roma');
+  await page.getByRole('listbox', { name: 'Localita trovate' }).getByRole('button', { name: /^Roma \(/ }).click();
+  await page.getByLabel('Lista quota locale', { exact: true }).selectOption('Partito Democratico');
+  await page.getByLabel('Quota locale da aggiungere').fill('25');
+  await page.getByRole('button', { name: 'Aggiungi quota locale' }).click();
+  await expect(page.locator('.local-override-group', { hasText: 'Roma' })).toContainText('25.0%');
+
+  await page.getByLabel('Ambito quota locale').selectOption('region');
+  await page.getByLabel('Cerca localita').fill('Lombardia');
+  await page.getByRole('listbox', { name: 'Localita trovate' }).getByRole('button', { name: /Lombardia/ }).click();
+  await page.getByLabel('Lista quota locale', { exact: true }).selectOption('Partito Democratico');
+  await page.getByLabel('Quota locale da aggiungere').fill('20');
+  await page.getByRole('button', { name: 'Aggiungi quota locale' }).click();
+  await expect(page.locator('.local-override-group', { hasText: 'Lombardia' })).toContainText('20.0%');
 
   await page.getByRole('button', { name: 'Esegui' }).click();
 

@@ -71,12 +71,14 @@ reveals a cleaner order or a new blocker.
    set to the projection current date. Fixed modes are explicitly deferred.
 5. Build the UI for local percentage overrides only after the data contract has
    been exercised on production data. Done for this slice: scenario JSON
-   carries municipality/list local valid-vote share overrides, validation guards
-   malformed or impossible partial local totals, projection converts local
-   overrides to elector fractions, keeps local abstention fixed from the base
-   municipality model, normalizes all-overridden local totals with a warning,
-   recomputes municipal `DELTA`/`DATA` rows before vote generation, and the
-   advanced scenario UI exposes searchable municipality/list/share editing.
+   carries municipality/province/region list valid-vote share overrides,
+   validation guards malformed or impossible partial local totals, projection
+   keeps local abstention fixed from the base municipality model, calibrates
+   province/region targets across covered municipalities while preserving
+   historical geographic variation, applies more specific overrides after
+   broader ones with overlap warnings, recomputes municipal `DELTA`/`DATA` rows
+   before vote generation, and the advanced scenario UI exposes searchable
+   municipality/province/region list/share editing.
 6. Preserve architecture hooks for future fixed behavior without exposing it:
    a globally fixed mode should bypass random vote generation and produce a
    single deterministic vote distribution/scrutiny output; an optional
@@ -176,8 +178,9 @@ reveals a cleaner order or a new blocker.
   abstention as a percentage of electors. Projection now treats list shares as
   valid-vote percentages and converts them to elector fractions using the active
   abstention fraction.
-- Added scenario schema-v5 local share overrides and projection hooks for
-  municipality/list valid-vote share overrides.
+- Added scenario schema-v5 local share overrides and projection hooks; the same
+  scenario array now supports municipality/province/region list valid-vote
+  share overrides.
 - Added scenario schema-v6 candidate templates and projection hooks for
   uninominal/plurinominal candidate slots. Matching templates pin
   `CANDIDATO_ID`/`DATA_NASCITA` before candidate generation; unspecified slots
@@ -220,12 +223,14 @@ reveals a cleaner order or a new blocker.
   parameter `DATA` values are set to the worker/projection current date so
   temporal drift starts from today.
 - Added typed local share override hooks and the advanced local override UI.
-  `Scenario.localShareOverrides` stores municipality/list valid-vote share
-  overrides. Projection applies them to matched municipal parameter rows by
-  keeping local abstention fixed, normalizing political list fractions, and
-  recomputing local `DELTA` plus `DATA` before the existing vote generator
-  runs. The UI searches municipalities by name/code/province/region and edits
-  grouped municipality/list percentages.
+  `Scenario.localShareOverrides` stores municipality/province/region list
+  valid-vote share overrides. Projection expands aggregate province/region rows
+  only in memory, weights covered municipalities by expected valid votes,
+  calibrates shares to the requested aggregate target while preserving
+  historical geographic variation, keeps local abstention fixed, and
+  recomputes local `DELTA` plus `DATA` before the existing vote generator
+  runs. The UI searches municipalities, provinces, and regions by name/code and
+  edits grouped location/list percentages.
 - Reworked the web page into a single-column scenario-then-results layout.
   Primary user-facing summaries appear before diagnostics, with generated
   pipeline details collapsed by default. The worker now delegates politics
@@ -272,10 +277,12 @@ reveals a cleaner order or a new blocker.
   chosen. A future optional per-percentage fixed mode may remove uncertainty
   for selected global shares or local deltas, but only after its interaction
   with local variation is explicitly designed.
-- Location-specific percentage and candidate-template schema/generator hooks
-  now exist, but the rich local/candidate editors are still deferred. Rich
-  correspondence matrices are also advanced features. Keep hooks ready, but
-  build large UI only when the underlying data contract is stable.
+- Location-specific percentages are first-class for municipalities, provinces,
+  and regions. Province/region rows stay compact in scenario JSON and are
+  expanded only during projection; region overrides apply first, then province,
+  then municipality, so more specific rows win. Candidate-template editing and
+  rich correspondence matrices remain advanced features to build only when the
+  underlying data contract is stable.
 - Scrutiny algorithms must remain modular and swappable. Keep the registry hook
   even while there is only one registered politics algorithm.
 - Results UI should prioritize election outputs and keep diagnostic pipeline
@@ -1576,6 +1583,38 @@ Verification with local generated artifacts present:
 
 - `cd web; npm run check`: passed with 0 warnings.
 - `cd web; npm run test`: passed, 166 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 4 Playwright tests.
+
+## 2026-06-05 Checkpoint 43
+
+Completed in the province/region local override slice:
+
+- Extended local share override scopes from municipalities to municipalities,
+  provinces, and regions while keeping the same
+  `Scenario.localShareOverrides` JSON array shape.
+- Updated scenario normalization, validation, grouping, upsert, update, and
+  removal helpers so rows are keyed by `(scope, locationCode, list)` and old
+  municipality-only JSON remains compatible.
+- Passed the static municipality catalog into scenario projection and used it
+  to resolve province/region coverage. If catalog metadata is missing or a
+  location code cannot be matched, aggregate local rows warn and are ignored.
+- Added aggregate projection calibration for province/region overrides:
+  municipalities are weighted by expected valid votes, local abstention stays
+  fixed, requested valid-vote shares are matched with multiplicative
+  adjustments, and adjusted municipal `DELTA`/`DATA` rows are written only in
+  the projected worker source.
+- Applied scope precedence in projection: region first, then province, then
+  municipality. More specific overrides win, and overlap warnings explain when
+  a broader aggregate may no longer match exactly.
+- Extended the advanced `Quote locali` UI with an area selector, searchable
+  municipality/province/region options, and grouped override rows that show the
+  covered municipality count for aggregate locations.
+
+Verification with local generated artifacts present:
+
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 171 tests.
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 4 Playwright tests.
 

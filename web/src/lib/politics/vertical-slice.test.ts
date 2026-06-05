@@ -67,6 +67,7 @@ describeWithGeneratedFixtures('politics browser vertical slice', [productionStat
       currentDate: '2026-06-05',
       electionDate: scenario.electionDate,
       historicalVotes: snapshot.data.comuni_liste_elezioni,
+      municipalities: snapshot.data.municipalities,
       parameterPercentualiPartenza: 'europee',
       simulations: 1
     });
@@ -84,6 +85,7 @@ describeWithGeneratedFixtures('politics browser vertical slice', [productionStat
     const projection = projectScenarioOntoPoliticsSource(source, scenario, {
       electionDate: scenario.electionDate,
       historicalVotes: snapshot.data.comuni_liste_elezioni,
+      municipalities: snapshot.data.municipalities,
       parameterPercentualiPartenza: 'europee',
       simulations: 1
     });

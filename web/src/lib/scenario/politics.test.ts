@@ -171,6 +171,12 @@ describe('politics web-native scenario model', () => {
               locationCode: '1',
               list: 'Lista A',
               startingShare: 55
+            },
+            {
+              scope: 'region',
+              locationCode: '01',
+              list: 'Lista A',
+              startingShare: 45
             }
           ],
           candidateTemplates: [
@@ -204,11 +210,18 @@ describe('politics web-native scenario model', () => {
     expect(scenario.listCorrespondences).toHaveLength(2);
     expect(scenario.localShareOverrides).toEqual([
       {
-        id: 'local-share-1-lista-a',
+        id: 'local-share-municipality-1-lista-a',
         scope: 'municipality',
         locationCode: '1',
         list: 'Lista A',
         startingShare: 55
+      },
+      {
+        id: 'local-share-region-01-lista-a',
+        scope: 'region',
+        locationCode: '01',
+        list: 'Lista A',
+        startingShare: 45
       }
     ]);
     expect(scenario.candidateTemplates).toEqual([
@@ -470,39 +483,66 @@ describe('politics web-native scenario model', () => {
       startingShare: 20
     });
     scenario = upsertScenarioLocalShareOverride(scenario, {
+      scope: 'province',
+      locationCode: '201',
+      list: 'Partito Democratico',
+      startingShare: 35
+    });
+    scenario = upsertScenarioLocalShareOverride(scenario, {
       locationCode: '001001',
       list: 'Partito Democratico',
       startingShare: 42
     });
 
-    expect(scenario.localShareOverrides).toHaveLength(2);
+    expect(scenario.localShareOverrides).toHaveLength(3);
     expect(
       scenario.localShareOverrides.find((override) => override.list === 'Partito Democratico')
     ).toEqual(expect.objectContaining({ locationCode: '001001', scope: 'municipality', startingShare: 42 }));
 
     const groups = buildScenarioLocalShareOverrideGroups(scenario);
-    expect(groups).toEqual([
-      expect.objectContaining({
-        locationCode: '001001',
-        totalShare: 62,
-        overrides: expect.arrayContaining([
-          expect.objectContaining({ list: 'Movimento 5 Stelle', startingShare: 20 }),
-          expect.objectContaining({ list: 'Partito Democratico', startingShare: 42 })
-        ])
-      })
-    ]);
+    expect(groups).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          scope: 'province',
+          locationCode: '201',
+          totalShare: 35,
+          overrides: [expect.objectContaining({ list: 'Partito Democratico', startingShare: 35 })]
+        }),
+        expect.objectContaining({
+          scope: 'municipality',
+          locationCode: '001001',
+          totalShare: 62,
+          overrides: expect.arrayContaining([
+            expect.objectContaining({ list: 'Movimento 5 Stelle', startingShare: 20 }),
+            expect.objectContaining({ list: 'Partito Democratico', startingShare: 42 })
+          ])
+        })
+      ])
+    );
 
     const pdOverride = scenario.localShareOverrides.find((override) => override.list === 'Partito Democratico');
+    const provinceOverride = scenario.localShareOverrides.find((override) => override.scope === 'province');
     scenario = updateScenarioLocalShareOverride(scenario, pdOverride?.id ?? '', {
       list: 'Partito Democratico',
       startingShare: 45
     });
     expect(scenario.localShareOverrides.find((override) => override.id === pdOverride?.id)?.startingShare).toBe(45);
+    scenario = updateScenarioLocalShareOverride(scenario, provinceOverride?.id ?? '', { startingShare: 36 });
+    expect(scenario.localShareOverrides.find((override) => override.id === provinceOverride?.id)).toEqual(
+      expect.objectContaining({ scope: 'province', locationCode: '201', startingShare: 36 })
+    );
 
     scenario = removeScenarioLocalShareOverride(scenario, pdOverride?.id ?? '');
-    expect(scenario.localShareOverrides.map((override) => override.list)).toEqual(['Movimento 5 Stelle']);
+    expect(scenario.localShareOverrides.map((override) => [override.scope, override.list])).toEqual([
+      ['municipality', 'Movimento 5 Stelle'],
+      ['province', 'Partito Democratico']
+    ]);
 
     scenario = removeScenarioLocalShareOverridesForLocation(scenario, '001001');
+    expect(scenario.localShareOverrides).toEqual([
+      expect.objectContaining({ scope: 'province', locationCode: '201', list: 'Partito Democratico' })
+    ]);
+    scenario = removeScenarioLocalShareOverridesForLocation(scenario, '201', 'province');
     expect(scenario.localShareOverrides).toEqual([]);
   });
 
@@ -562,10 +602,10 @@ describe('politics web-native scenario model', () => {
 
     expect(validateScenario(scenario)).toEqual(
       expect.arrayContaining([
-        'Ogni quota locale deve indicare un comune.',
+        'Ogni quota locale deve indicare una localita.',
         'Quota locale verso lista sconosciuta: Lista inesistente.',
         'Quota locale non valida per Lista inesistente.',
-        'Quota locale duplicata per comune / Lista inesistente.'
+        'Quota locale duplicata per comune senza codice / Lista inesistente.'
       ])
     );
   });
@@ -588,7 +628,7 @@ describe('politics web-native scenario model', () => {
 
     scenario.localShareOverrides = [scenario.localShareOverrides[0], scenario.localShareOverrides[1]];
     expect(validateScenario(scenario)).toEqual(
-      expect.arrayContaining(['La somma delle quote locali usate per 1 non puo superare 100.'])
+      expect.arrayContaining(['La somma delle quote locali usate per comune 1 non puo superare 100.'])
     );
   });
 

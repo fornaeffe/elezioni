@@ -39,7 +39,7 @@ export interface ScenarioListCorrespondence {
   source: ScenarioListCorrespondenceSource;
 }
 
-export type ScenarioLocalShareOverrideScope = 'municipality';
+export type ScenarioLocalShareOverrideScope = 'municipality' | 'province' | 'region';
 
 export interface ScenarioLocalShareOverride {
   id: string;

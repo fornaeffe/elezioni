@@ -59,6 +59,7 @@ export interface ScenarioHistoricalCorrespondenceGroup {
 
 export interface ScenarioLocalShareOverrideGroup {
   key: string;
+  scope: ScenarioLocalShareOverrideScope;
   locationCode: string;
   overrides: ScenarioLocalShareOverride[];
   totalShare: number;
@@ -116,8 +117,18 @@ function correspondenceEditableKey(correspondence: ScenarioListCorrespondence): 
   ].join('|');
 }
 
-function localShareOverrideKey(locationCode: string, list: string): string {
-  return `${locationCode.trim()}\u001f${listKey(list)}`;
+function localShareOverrideKey(scope: ScenarioLocalShareOverrideScope, locationCode: string, list: string): string {
+  return `${scope}\u001f${locationCode.trim()}\u001f${listKey(list)}`;
+}
+
+function localShareOverrideLocationKey(scope: ScenarioLocalShareOverrideScope, locationCode: string): string {
+  return `${scope}\u001f${locationCode.trim()}`;
+}
+
+function localShareOverrideScopeLabel(scope: ScenarioLocalShareOverrideScope): string {
+  if (scope === 'region') return 'regione';
+  if (scope === 'province') return 'provincia';
+  return 'comune';
 }
 
 function cleanColor(value: unknown, fallback: string): string {
@@ -170,6 +181,7 @@ function cleanCorrespondenceSource(value: unknown): ScenarioListCorrespondenceSo
 }
 
 function cleanLocalShareOverrideScope(value: unknown): ScenarioLocalShareOverrideScope {
+  if (value === 'province' || value === 'region') return value;
   return 'municipality';
 }
 
@@ -501,38 +513,50 @@ export function buildScenarioLocalShareOverrideGroups(scenario: Scenario): Scena
 
   for (const override of scenario.localShareOverrides) {
     const locationCode = override.locationCode.trim();
-    const grouped = groups.get(locationCode) ?? [];
+    const key = localShareOverrideLocationKey(override.scope, locationCode);
+    const grouped = groups.get(key) ?? [];
     grouped.push({ ...override, locationCode });
-    groups.set(locationCode, grouped);
+    groups.set(key, grouped);
   }
 
   return [...groups.entries()]
-    .map(([locationCode, overrides]) => ({
-      key: locationCode,
-      locationCode,
-      overrides: overrides
-        .map((override) => ({ ...override }))
-        .sort((left, right) => listKey(left.list).localeCompare(listKey(right.list), 'it')),
-      totalShare: overrides.reduce((sum, override) => sum + Math.max(Number(override.startingShare) || 0, 0), 0)
-    }))
-    .sort((left, right) => left.locationCode.localeCompare(right.locationCode, 'it'));
+    .map(([key, overrides]) => {
+      const reference = overrides[0];
+      const scope = reference?.scope ?? 'municipality';
+      const locationCode = reference?.locationCode.trim() ?? '';
+      return {
+        key,
+        scope,
+        locationCode,
+        overrides: overrides
+          .map((override) => ({ ...override }))
+          .sort((left, right) => listKey(left.list).localeCompare(listKey(right.list), 'it')),
+        totalShare: overrides.reduce((sum, override) => sum + Math.max(Number(override.startingShare) || 0, 0), 0)
+      };
+    })
+    .sort((left, right) =>
+      [left.scope, left.locationCode].join('\u001f').localeCompare([right.scope, right.locationCode].join('\u001f'), 'it')
+    );
 }
 
 export function upsertScenarioLocalShareOverride(
   scenario: Scenario,
-  input: Pick<ScenarioLocalShareOverride, 'locationCode' | 'list' | 'startingShare'>
+  input: Pick<ScenarioLocalShareOverride, 'locationCode' | 'list' | 'startingShare'> &
+    Partial<Pick<ScenarioLocalShareOverride, 'scope'>>
 ): Scenario {
+  const scope = input.scope ?? 'municipality';
   const locationCode = input.locationCode.trim();
   const list = input.list.trim();
   const startingShare = Number(input.startingShare);
-  const key = localShareOverrideKey(locationCode, list);
+  const key = localShareOverrideKey(scope, locationCode, list);
   let matched = false;
 
   const localShareOverrides = scenario.localShareOverrides.map((override) => {
-    if (localShareOverrideKey(override.locationCode, override.list) !== key) return override;
+    if (localShareOverrideKey(override.scope, override.locationCode, override.list) !== key) return override;
     matched = true;
     return {
       ...override,
+      scope,
       locationCode,
       list,
       startingShare
@@ -542,7 +566,7 @@ export function upsertScenarioLocalShareOverride(
   if (!matched) {
     localShareOverrides.push({
       id: crypto.randomUUID(),
-      scope: 'municipality',
+      scope,
       locationCode,
       list,
       startingShare
@@ -567,7 +591,7 @@ export function updateScenarioLocalShareOverride(
         ? {
             ...override,
             ...patch,
-            scope: 'municipality',
+            scope: patch.scope === undefined ? override.scope : cleanLocalShareOverrideScope(patch.scope),
             locationCode:
               patch.locationCode === undefined ? override.locationCode : cleanString(patch.locationCode).trim(),
             list: patch.list === undefined ? override.list : cleanString(patch.list).trim(),
@@ -586,13 +610,17 @@ export function removeScenarioLocalShareOverride(scenario: Scenario, id: string)
   };
 }
 
-export function removeScenarioLocalShareOverridesForLocation(scenario: Scenario, locationCode: string): Scenario {
+export function removeScenarioLocalShareOverridesForLocation(
+  scenario: Scenario,
+  locationCode: string,
+  scope: ScenarioLocalShareOverrideScope = 'municipality'
+): Scenario {
   const normalizedLocationCode = locationCode.trim();
 
   return {
     ...scenario,
     localShareOverrides: scenario.localShareOverrides.filter(
-      (override) => override.locationCode.trim() !== normalizedLocationCode
+      (override) => override.scope !== scope || override.locationCode.trim() !== normalizedLocationCode
     )
   };
 }
@@ -653,11 +681,12 @@ export function normalizeScenario(value: unknown): Scenario {
     }),
     localShareOverrides: localShareOverrides.map((override, index) => {
       const source = override as Partial<ScenarioLocalShareOverride>;
+      const scope = cleanLocalShareOverrideScope(source.scope);
       const locationCode = cleanString(source.locationCode);
       const list = cleanString(source.list);
       return {
-        id: cleanString(source.id) || stableId('local-share', `${locationCode}-${list}`, index + 1),
-        scope: cleanLocalShareOverrideScope(source.scope),
+        id: cleanString(source.id) || stableId('local-share', `${scope}-${locationCode}-${list}`, index + 1),
+        scope,
         locationCode,
         list,
         startingShare: cleanShare(source.startingShare)
@@ -782,28 +811,34 @@ export function validateScenario(scenario: Scenario): string[] {
     const listKeyValue = list.toLocaleLowerCase('it-IT');
     const key = [override.scope, locationCode, listKeyValue].join('|');
     const share = Number(override.startingShare);
-    const grouped = localOverridesByLocation.get(locationCode) ?? [];
+    const locationKey = localShareOverrideLocationKey(override.scope, locationCode);
+    const locationLabel = `${localShareOverrideScopeLabel(override.scope)} ${locationCode || 'senza codice'}`;
+    const grouped = localOverridesByLocation.get(locationKey) ?? [];
 
     grouped.push(override);
-    localOverridesByLocation.set(locationCode, grouped);
+    localOverridesByLocation.set(locationKey, grouped);
 
-    if (override.scope !== 'municipality') messages.push('Le quote locali supportano solo il livello comunale.');
-    if (!locationCode) messages.push('Ogni quota locale deve indicare un comune.');
+    if (!['municipality', 'province', 'region'].includes(override.scope)) {
+      messages.push('Ambito quota locale non valido.');
+    }
+    if (!locationCode) messages.push('Ogni quota locale deve indicare una localita.');
     if (!listNameSet.has(listKeyValue)) messages.push(`Quota locale verso lista sconosciuta: ${list || 'lista senza nome'}.`);
     if (!Number.isFinite(share) || share < 0 || share > 100) {
       messages.push(`Quota locale non valida per ${list || 'lista senza nome'}.`);
     }
     if (localOverrideKeys.has(key)) {
-      messages.push(`Quota locale duplicata per ${locationCode || 'comune'} / ${list || 'lista'}.`);
+      messages.push(`Quota locale duplicata per ${locationLabel} / ${list || 'lista'}.`);
     }
     localOverrideKeys.add(key);
   }
 
-  for (const [locationCode, overrides] of localOverridesByLocation) {
+  for (const [locationKey, overrides] of localOverridesByLocation) {
+    const [scope, locationCode] = locationKey.split('\u001f') as [ScenarioLocalShareOverrideScope, string];
+    const locationLabel = `${localShareOverrideScopeLabel(scope)} ${locationCode || 'senza codice'}`;
     const total = overrides.reduce((sum, override) => sum + Math.max(Number(override.startingShare) || 0, 0), 0);
-    if (total <= 0) messages.push(`La somma delle quote locali usate per ${locationCode || 'comune'} deve essere maggiore di zero.`);
+    if (total <= 0) messages.push(`La somma delle quote locali usate per ${locationLabel} deve essere maggiore di zero.`);
     if (total > 100.01 && overrides.length < scenario.lists.length) {
-      messages.push(`La somma delle quote locali usate per ${locationCode || 'comune'} non puo superare 100.`);
+      messages.push(`La somma delle quote locali usate per ${locationLabel} non puo superare 100.`);
     }
   }
 

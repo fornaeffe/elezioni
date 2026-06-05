@@ -2,7 +2,8 @@ import type {
   Scenario,
   ScenarioCandidateTemplate,
   ScenarioList,
-  ScenarioLocalShareOverride
+  ScenarioLocalShareOverride,
+  ScenarioLocalShareOverrideScope
 } from '$lib/core/types';
 import { plurinominalCandidacyCountSharesToFractions } from '$lib/scenario/politics';
 import { buildPoliticsParametersFromHistoricalVotes } from './parameter-preparation';
@@ -11,6 +12,7 @@ import type {
   PoliticsCandidatePluriGenerationTemplateRow,
   PoliticsCandidateUniTemplateRow,
   PoliticsHistoricalMunicipalListVoteRow,
+  PoliticsMunicipalityCatalogRow,
   PoliticsMunicipalListParameterRow,
   PoliticsPipelineListRow,
   PoliticsPipelineRamoSource,
@@ -329,7 +331,15 @@ function localShareOverrideKey(scope: ScenarioLocalShareOverride['scope'], locat
 }
 
 function localOverrideLabel(scope: ScenarioLocalShareOverride['scope'], locationCode: string): string {
-  return scope === 'municipality' ? `municipality ${locationCode}` : `${scope} ${locationCode}`;
+  if (scope === 'region') return `region ${locationCode}`;
+  if (scope === 'province') return `province ${locationCode}`;
+  return `municipality ${locationCode}`;
+}
+
+function localScopeRank(scope: ScenarioLocalShareOverrideScope): number {
+  if (scope === 'region') return 0;
+  if (scope === 'province') return 1;
+  return 2;
 }
 
 function projectedMunicipalRows(
@@ -367,17 +377,16 @@ function projectedMunicipalRows(
 
 function localBaseFractions(
   rows: readonly PoliticsMunicipalListParameterRow[],
-  baseGlobalByList: ReadonlyMap<string, PoliticsPipelineListRow>,
   projectedGlobalByList: ReadonlyMap<string, PoliticsPipelineListRow>
 ): Map<string, number> {
   const rawByList = new Map<string, number>();
   let total = 0;
 
   for (const row of rows) {
-    const baseGlobal = baseGlobalByList.get(listKey(row.LISTA)) ?? projectedGlobalByList.get(listKey(row.LISTA));
-    if (!baseGlobal) continue;
+    const projectedGlobal = projectedGlobalByList.get(listKey(row.LISTA));
+    if (!projectedGlobal) continue;
 
-    const raw = logistic(baseGlobal.LOGIT_P + row.DELTA);
+    const raw = logistic(projectedGlobal.LOGIT_P + row.DELTA);
     rawByList.set(row.LISTA, raw);
     total += raw;
   }
@@ -385,27 +394,354 @@ function localBaseFractions(
   return new Map([...rawByList.entries()].map(([list, raw]) => [list, total > 0 ? raw / total : 0]));
 }
 
+interface LocalOverrideAreaApplication {
+  scope: ScenarioLocalShareOverrideScope;
+  locationCode: string;
+  municipalityCodes: Set<string>;
+}
+
+interface LocalMunicipalityState {
+  code: string;
+  rows: PoliticsMunicipalListParameterRow[];
+  fractions: Map<string, number>;
+  abstentionFraction: number;
+  politicalTotal: number;
+  weight: number;
+  validShares: Map<string, number>;
+}
+
+function rowMunicipalityListKey(row: Pick<PoliticsMunicipalListParameterRow, 'CODICE_COMUNE' | 'LISTA'>): string {
+  return `${String(row.CODICE_COMUNE)}\u001f${row.LISTA}`;
+}
+
+function groupRowsByMunicipality(
+  rows: readonly PoliticsMunicipalListParameterRow[]
+): Map<string, PoliticsMunicipalListParameterRow[]> {
+  const rowsByMunicipality = new Map<string, PoliticsMunicipalListParameterRow[]>();
+
+  for (const row of rows) {
+    const key = String(row.CODICE_COMUNE);
+    const grouped = rowsByMunicipality.get(key) ?? [];
+    grouped.push(row);
+    rowsByMunicipality.set(key, grouped);
+  }
+
+  return rowsByMunicipality;
+}
+
+function electorsByMunicipality(rows: readonly PoliticsBaseDataRow[]): Map<string, number> {
+  const electors = new Map<string, number>();
+  for (const row of rows) {
+    const key = String(row.CODICE_COMUNE);
+    electors.set(key, (electors.get(key) ?? 0) + (Number(row.ELETTORI) || 0));
+  }
+  return electors;
+}
+
+function municipalityCatalogByCode(
+  rows: readonly PoliticsMunicipalityCatalogRow[] | undefined
+): Map<string, PoliticsMunicipalityCatalogRow> {
+  return new Map((rows ?? []).map((row) => [String(row.CODICE_COMUNE), row]));
+}
+
+function overrideMunicipalityCodes(
+  scope: ScenarioLocalShareOverrideScope,
+  locationCode: string,
+  rowsByMunicipality: ReadonlyMap<string, PoliticsMunicipalListParameterRow[]>,
+  municipalitiesByCode: ReadonlyMap<string, PoliticsMunicipalityCatalogRow>
+): string[] {
+  if (scope === 'municipality') {
+    return rowsByMunicipality.has(locationCode) ? [locationCode] : [];
+  }
+
+  if (municipalitiesByCode.size === 0) return [];
+
+  return [...rowsByMunicipality.keys()].filter((code) => {
+    const municipality = municipalitiesByCode.get(code);
+    if (!municipality) return false;
+    return scope === 'province'
+      ? String(municipality.CODICE_PROVINCIA) === locationCode
+      : String(municipality.CODICE_REGIONE) === locationCode;
+  });
+}
+
+function activePoliticalLists(
+  projectedGlobalByList: ReadonlyMap<string, PoliticsPipelineListRow>,
+  rows: readonly PoliticsMunicipalListParameterRow[]
+): string[] {
+  const active = new Set<string>();
+  for (const row of rows) {
+    const key = listKey(row.LISTA);
+    if (key === 'astensione' || !projectedGlobalByList.has(key)) continue;
+    active.add(row.LISTA);
+  }
+  return [...active].sort((left, right) => listKey(left).localeCompare(listKey(right), 'it'));
+}
+
+function normalizeValidShares(shares: Map<string, number>, activeLists: readonly string[]): Map<string, number> {
+  const epsilon = 1e-9;
+  const raw = new Map(activeLists.map((list) => [list, Math.max(shares.get(list) ?? 0, epsilon)]));
+  const total = [...raw.values()].reduce((sum, value) => sum + value, 0);
+  return new Map([...raw.entries()].map(([list, value]) => [list, total > 0 ? value / total : 1 / Math.max(activeLists.length, 1)]));
+}
+
+function localMunicipalityStates(
+  municipalityCodes: readonly string[],
+  rowsByMunicipality: ReadonlyMap<string, PoliticsMunicipalListParameterRow[]>,
+  projectedGlobalByList: ReadonlyMap<string, PoliticsPipelineListRow>,
+  electors: ReadonlyMap<string, number>,
+  activeLists: readonly string[]
+): LocalMunicipalityState[] {
+  return municipalityCodes.flatMap((code) => {
+    const rows = rowsByMunicipality.get(code);
+    if (!rows) return [];
+
+    const fractions = localBaseFractions(rows, projectedGlobalByList);
+    const abstentionFraction = boundedFraction(fractions.get('astensione') ?? 0, 0);
+    const politicalTotal = Math.max(1 - abstentionFraction, 0);
+    const validShares = new Map(
+      activeLists.map((list) => [list, politicalTotal > 0 ? (fractions.get(list) ?? 0) / politicalTotal : 0])
+    );
+    const normalizedShares = normalizeValidShares(validShares, activeLists);
+    const weight = Math.max((electors.get(code) ?? 0) * politicalTotal, 0);
+
+    return [
+      {
+        code,
+        rows,
+        fractions,
+        abstentionFraction,
+        politicalTotal,
+        weight,
+        validShares: normalizedShares
+      }
+    ];
+  });
+}
+
+function weightedTotal(states: readonly LocalMunicipalityState[]): number {
+  const total = states.reduce((sum, state) => sum + state.weight, 0);
+  return total > 0 ? total : states.length;
+}
+
+function aggregateValidShares(
+  states: readonly LocalMunicipalityState[],
+  activeLists: readonly string[],
+  adjustedShares?: ReadonlyMap<string, ReadonlyMap<string, number>>
+): Map<string, number> {
+  const totalWeight = weightedTotal(states);
+  const aggregate = new Map(activeLists.map((list) => [list, 0]));
+
+  for (const state of states) {
+    const weight = state.weight > 0 ? state.weight : 1;
+    const shares = adjustedShares?.get(state.code) ?? state.validShares;
+    for (const list of activeLists) {
+      aggregate.set(list, (aggregate.get(list) ?? 0) + (weight * (shares.get(list) ?? 0)) / totalWeight);
+    }
+  }
+
+  return aggregate;
+}
+
+function areaTargetValidShares(
+  overrides: readonly ScenarioLocalShareOverride[],
+  activeLists: readonly string[],
+  currentAggregate: ReadonlyMap<string, number>,
+  scope: ScenarioLocalShareOverrideScope,
+  locationCode: string,
+  warnings: PoliticsScenarioProjectionWarning[]
+): Map<string, number> | null {
+  const overrideByList = new Map(overrides.map((override) => [listKey(override.list), override]));
+  const overriddenLists = activeLists.filter((list) => overrideByList.has(listKey(list)));
+  const nonOverriddenLists = activeLists.filter((list) => !overrideByList.has(listKey(list)));
+  const overrideShareTotal = overriddenLists.reduce(
+    (sum, list) => sum + Math.max(Number(overrideByList.get(listKey(list))?.startingShare) || 0, 0),
+    0
+  );
+  const target = new Map<string, number>();
+
+  if (overriddenLists.length === 0) {
+    warnings.push({
+      code: 'POLITICS_SCENARIO_LOCAL_OVERRIDES_UNUSED',
+      message: `Local share overrides for ${localOverrideLabel(scope, locationCode)} did not match active scenario lists and were ignored.`,
+      todoReference: 'MIGRATION_PLAN.md#current-caveats'
+    });
+    return null;
+  }
+
+  if (nonOverriddenLists.length === 0 && overrideShareTotal > 0 && Math.abs(overrideShareTotal - 100) > 1e-9) {
+    warnings.push({
+      code: 'POLITICS_SCENARIO_LOCAL_OVERRIDES_RENORMALIZED',
+      message: `All active lists have explicit local valid-vote share overrides totaling ${Number(
+        overrideShareTotal.toFixed(2)
+      )}% in ${localOverrideLabel(scope, locationCode)}; they were normalized to 100% before conversion to elector fractions.`,
+      todoReference: 'MIGRATION_PLAN.md#current-caveats'
+    });
+
+    for (const list of overriddenLists) {
+      target.set(list, Math.max(Number(overrideByList.get(listKey(list))?.startingShare) || 0, 0) / overrideShareTotal);
+    }
+    return target;
+  }
+
+  for (const list of overriddenLists) {
+    target.set(list, Math.max(Number(overrideByList.get(listKey(list))?.startingShare) || 0, 0) / 100);
+  }
+
+  const remainingShare = Math.max(1 - overrideShareTotal / 100, 0);
+  const nonOverrideCurrentTotal = nonOverriddenLists.reduce((sum, list) => sum + (currentAggregate.get(list) ?? 0), 0);
+
+  for (const list of nonOverriddenLists) {
+    target.set(
+      list,
+      nonOverrideCurrentTotal > 0 ? (remainingShare * (currentAggregate.get(list) ?? 0)) / nonOverrideCurrentTotal : remainingShare / nonOverriddenLists.length
+    );
+  }
+
+  return target;
+}
+
+function calibratedMunicipalityValidShares(
+  states: readonly LocalMunicipalityState[],
+  activeLists: readonly string[],
+  targetAggregate: ReadonlyMap<string, number>
+): Map<string, Map<string, number>> {
+  const factors = new Map(activeLists.map((list) => [list, 1]));
+
+  const sharesFromFactors = (): Map<string, Map<string, number>> => {
+    const result = new Map<string, Map<string, number>>();
+    for (const state of states) {
+      const denominator = activeLists.reduce(
+        (sum, list) => sum + (state.validShares.get(list) ?? 0) * (factors.get(list) ?? 0),
+        0
+      );
+      const shares = new Map<string, number>();
+      for (const list of activeLists) {
+        shares.set(
+          list,
+          denominator > 0 ? ((state.validShares.get(list) ?? 0) * (factors.get(list) ?? 0)) / denominator : targetAggregate.get(list) ?? 0
+        );
+      }
+      result.set(state.code, shares);
+    }
+    return result;
+  };
+
+  for (let iteration = 0; iteration < 80; iteration += 1) {
+    const current = aggregateValidShares(states, activeLists, sharesFromFactors());
+    for (const list of activeLists) {
+      const target = targetAggregate.get(list) ?? 0;
+      const actual = current.get(list) ?? 0;
+      if (target <= 0) {
+        factors.set(list, 0);
+      } else if (actual > 0) {
+        factors.set(list, (factors.get(list) ?? 1) * (target / actual));
+      }
+    }
+  }
+
+  return sharesFromFactors();
+}
+
+function replaceAdjustedRows(
+  rows: readonly PoliticsMunicipalListParameterRow[],
+  adjustedRows: ReadonlyMap<string, PoliticsMunicipalListParameterRow>
+): PoliticsMunicipalListParameterRow[] {
+  if (adjustedRows.size === 0) return rows.map((row) => ({ ...row }));
+  return rows.map((row) => adjustedRows.get(rowMunicipalityListKey(row)) ?? { ...row });
+}
+
+function applyAreaOverride(
+  rows: readonly PoliticsMunicipalListParameterRow[],
+  municipalityCodes: readonly string[],
+  overrides: readonly ScenarioLocalShareOverride[],
+  scope: ScenarioLocalShareOverrideScope,
+  locationCode: string,
+  projectedGlobalByList: ReadonlyMap<string, PoliticsPipelineListRow>,
+  electors: ReadonlyMap<string, number>,
+  overrideReferenceDate: string,
+  warnings: PoliticsScenarioProjectionWarning[]
+): PoliticsMunicipalListParameterRow[] {
+  const rowsByMunicipality = groupRowsByMunicipality(rows);
+  const municipalityRows = municipalityCodes.flatMap((code) => rowsByMunicipality.get(code) ?? []);
+  const activeLists = activePoliticalLists(projectedGlobalByList, municipalityRows);
+  const states = localMunicipalityStates(
+    municipalityCodes,
+    rowsByMunicipality,
+    projectedGlobalByList,
+    electors,
+    activeLists
+  );
+  const currentAggregate = aggregateValidShares(states, activeLists);
+  const targetAggregate = areaTargetValidShares(overrides, activeLists, currentAggregate, scope, locationCode, warnings);
+
+  if (!targetAggregate || states.length === 0 || activeLists.length === 0) return rows.map((row) => ({ ...row }));
+
+  const calibratedShares = calibratedMunicipalityValidShares(states, activeLists, targetAggregate);
+  const adjustedRows = new Map<string, PoliticsMunicipalListParameterRow>();
+
+  for (const state of states) {
+    const validShares = calibratedShares.get(state.code) ?? state.validShares;
+
+    for (const row of state.rows) {
+      const projectedGlobal = projectedGlobalByList.get(listKey(row.LISTA));
+      if (!projectedGlobal) continue;
+
+      const target =
+        listKey(row.LISTA) === 'astensione'
+          ? state.abstentionFraction
+          : state.politicalTotal * (validShares.get(row.LISTA) ?? 0);
+
+      adjustedRows.set(rowMunicipalityListKey(row), {
+        ...row,
+        DATA: overrideReferenceDate,
+        DELTA: logit(target) - projectedGlobal.LOGIT_P
+      });
+    }
+  }
+
+  return replaceAdjustedRows(rows, adjustedRows);
+}
+
+function warnIfLocalOverrideOverlaps(
+  appliedAreas: readonly LocalOverrideAreaApplication[],
+  scope: ScenarioLocalShareOverrideScope,
+  locationCode: string,
+  municipalityCodes: ReadonlySet<string>,
+  warnings: PoliticsScenarioProjectionWarning[]
+): void {
+  const broader = appliedAreas.find(
+    (area) => localScopeRank(area.scope) < localScopeRank(scope) && [...municipalityCodes].some((code) => area.municipalityCodes.has(code))
+  );
+  if (!broader) return;
+
+  warnings.push({
+    code: 'POLITICS_SCENARIO_LOCAL_OVERRIDES_OVERLAP',
+    message: `Local share overrides for ${localOverrideLabel(scope, locationCode)} overlap broader ${localOverrideLabel(
+      broader.scope,
+      broader.locationCode
+    )}; the more specific override was applied later, so the broader aggregate may no longer match exactly.`,
+    todoReference: 'MIGRATION_PLAN.md#current-caveats'
+  });
+}
+
 function applyLocalShareOverrides(
   rows: readonly PoliticsMunicipalListParameterRow[],
-  baseListRows: readonly PoliticsPipelineListRow[],
   projectedListRows: readonly PoliticsPipelineListRow[],
+  baseRows: readonly PoliticsBaseDataRow[],
+  municipalities: readonly PoliticsMunicipalityCatalogRow[] | undefined,
   localOverrides: readonly ScenarioLocalShareOverride[],
   overrideReferenceDate: string,
   warnings: PoliticsScenarioProjectionWarning[]
 ): PoliticsMunicipalListParameterRow[] {
   if (localOverrides.length === 0) return rows.map((row) => ({ ...row }));
 
-  const baseGlobalByList = new Map(baseListRows.map((row) => [listKey(row.LISTA), row]));
   const projectedGlobalByList = new Map(projectedListRows.map((row) => [listKey(row.LISTA), row]));
-  const rowsByMunicipality = new Map<string, PoliticsMunicipalListParameterRow[]>();
+  const municipalitiesByCode = municipalityCatalogByCode(municipalities);
+  const electors = electorsByMunicipality(baseRows);
   const overridesByLocation = new Map<string, ScenarioLocalShareOverride[]>();
-
-  for (const row of rows) {
-    const key = localShareOverrideKey('municipality', row.CODICE_COMUNE);
-    const grouped = rowsByMunicipality.get(key) ?? [];
-    grouped.push(row);
-    rowsByMunicipality.set(key, grouped);
-  }
+  let currentRows = rows.map((row) => ({ ...row }));
+  const appliedAreas: LocalOverrideAreaApplication[] = [];
 
   for (const override of localOverrides) {
     const key = localShareOverrideKey(override.scope, override.locationCode);
@@ -414,88 +750,47 @@ function applyLocalShareOverrides(
     overridesByLocation.set(key, grouped);
   }
 
-  const adjustedByRowKey = new Map<string, PoliticsMunicipalListParameterRow>();
+  for (const scope of ['region', 'province', 'municipality'] as const) {
+    const scopedOverrides = [...overridesByLocation.entries()]
+      .filter(([key]) => key.startsWith(`${scope}\u001f`))
+      .sort(([left], [right]) => left.localeCompare(right, 'it'));
 
-  for (const [locationKey, overrides] of overridesByLocation) {
-    const municipalityRows = rowsByMunicipality.get(locationKey);
-    const [scope, locationCode] = locationKey.split('\u001f');
+    for (const [locationKey, overrides] of scopedOverrides) {
+      const [, locationCode] = locationKey.split('\u001f');
+      const rowsByMunicipality = groupRowsByMunicipality(currentRows);
+      const municipalityCodes = overrideMunicipalityCodes(scope, locationCode, rowsByMunicipality, municipalitiesByCode);
 
-    if (!municipalityRows || scope !== 'municipality') {
-      warnings.push({
-        code: 'POLITICS_SCENARIO_LOCAL_OVERRIDES_UNUSED',
-        message: `Local share overrides for ${localOverrideLabel('municipality', locationCode)} did not match the current scenario municipalities and were ignored.`,
-        todoReference: 'MIGRATION_PLAN.md#current-caveats'
-      });
-      continue;
-    }
-
-    const baseFractions = localBaseFractions(municipalityRows, baseGlobalByList, projectedGlobalByList);
-    const abstentionFraction = boundedFraction(baseFractions.get('astensione') ?? 0, 0);
-    const politicalTotal = Math.max(1 - abstentionFraction, 0);
-    const politicalRows = municipalityRows.filter((row) => listKey(row.LISTA) !== 'astensione' && projectedGlobalByList.has(listKey(row.LISTA)));
-    const overrideByList = new Map(overrides.map((override) => [listKey(override.list), override]));
-    const overriddenRows = politicalRows.filter((row) => overrideByList.has(listKey(row.LISTA)));
-    const nonOverriddenRows = politicalRows.filter((row) => !overrideByList.has(listKey(row.LISTA)));
-    const overrideShareTotal = overriddenRows.reduce(
-      (sum, row) => sum + Math.max(Number(overrideByList.get(listKey(row.LISTA))?.startingShare) || 0, 0),
-      0
-    );
-    const targetByList = new Map<string, number>();
-
-    if (overriddenRows.length === 0) {
-      warnings.push({
-        code: 'POLITICS_SCENARIO_LOCAL_OVERRIDES_UNUSED',
-        message: `Local share overrides for ${localOverrideLabel('municipality', locationCode)} did not match active scenario lists and were ignored.`,
-        todoReference: 'MIGRATION_PLAN.md#current-caveats'
-      });
-      continue;
-    }
-
-    if (nonOverriddenRows.length === 0 && overrideShareTotal > 0 && Math.abs(overrideShareTotal - 100) > 1e-9) {
-      warnings.push({
-        code: 'POLITICS_SCENARIO_LOCAL_OVERRIDES_RENORMALIZED',
-        message: `All active lists have explicit local valid-vote share overrides totaling ${Number(
-          overrideShareTotal.toFixed(2)
-        )}% in ${localOverrideLabel('municipality', locationCode)}; they were normalized to 100% before conversion to elector fractions.`,
-        todoReference: 'MIGRATION_PLAN.md#current-caveats'
-      });
-
-      for (const row of overriddenRows) {
-        targetByList.set(
-          row.LISTA,
-          (politicalTotal * Math.max(Number(overrideByList.get(listKey(row.LISTA))?.startingShare) || 0, 0)) / overrideShareTotal
-        );
-      }
-    } else {
-      for (const row of overriddenRows) {
-        targetByList.set(row.LISTA, (politicalTotal * Math.max(Number(overrideByList.get(listKey(row.LISTA))?.startingShare) || 0, 0)) / 100);
+      if (municipalityCodes.length === 0) {
+        warnings.push({
+          code: 'POLITICS_SCENARIO_LOCAL_OVERRIDES_UNUSED',
+          message: `Local share overrides for ${localOverrideLabel(scope, locationCode)} did not match the current scenario geography and were ignored.`,
+          todoReference: 'MIGRATION_PLAN.md#current-caveats'
+        });
+        continue;
       }
 
-      const remainingShare = Math.max(100 - overrideShareTotal, 0);
-      const remainingPoliticalTotal = (politicalTotal * remainingShare) / 100;
-      const nonOverrideBaseTotal = nonOverriddenRows.reduce((sum, row) => sum + (baseFractions.get(row.LISTA) ?? 0), 0);
-
-      for (const row of nonOverriddenRows) {
-        targetByList.set(row.LISTA, nonOverrideBaseTotal > 0 ? (remainingPoliticalTotal * (baseFractions.get(row.LISTA) ?? 0)) / nonOverrideBaseTotal : 0);
-      }
-    }
-
-    targetByList.set('astensione', abstentionFraction);
-
-    for (const row of municipalityRows) {
-      const projectedGlobal = projectedGlobalByList.get(listKey(row.LISTA));
-      const target = targetByList.get(row.LISTA);
-      if (!projectedGlobal || target === undefined) continue;
-
-      adjustedByRowKey.set(`${String(row.CODICE_COMUNE)}\u001f${row.LISTA}`, {
-        ...row,
-        DATA: overrideReferenceDate,
-        DELTA: logit(target) - projectedGlobal.LOGIT_P
+      const municipalityCodeSet = new Set(municipalityCodes);
+      warnIfLocalOverrideOverlaps(appliedAreas, scope, locationCode, municipalityCodeSet, warnings);
+      currentRows = applyAreaOverride(
+        currentRows,
+        municipalityCodes,
+        overrides,
+        scope,
+        locationCode,
+        projectedGlobalByList,
+        electors,
+        overrideReferenceDate,
+        warnings
+      );
+      appliedAreas.push({
+        scope,
+        locationCode,
+        municipalityCodes: municipalityCodeSet
       });
     }
   }
 
-  return rows.map((row) => adjustedByRowKey.get(`${String(row.CODICE_COMUNE)}\u001f${row.LISTA}`) ?? { ...row });
+  return currentRows;
 }
 
 function buildHistoricalParameterSource(
@@ -525,6 +820,7 @@ export function projectScenarioOntoPoliticsSource(
     electionDate?: string;
     currentDate?: string;
     historicalVotes?: readonly PoliticsHistoricalMunicipalListVoteRow[];
+    municipalities?: readonly PoliticsMunicipalityCatalogRow[];
     parameterPercentualiPartenza?: string | null;
   }
 ): PoliticsScenarioProjection {
@@ -665,8 +961,9 @@ export function projectScenarioOntoPoliticsSource(
   );
   const projectedMunicipalParameterRows = applyLocalShareOverrides(
     projectedMunicipalRows(baseMunicipalRows, projectedLists, source.base_dati),
-    baseListRows,
     projectedLists,
+    source.base_dati,
+    options.municipalities,
     scenario.localShareOverrides,
     overrideReferenceDate,
     warnings

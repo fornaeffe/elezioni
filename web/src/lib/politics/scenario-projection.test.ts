@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import type { Scenario } from '$lib/core/types';
-import type { PoliticsHistoricalMunicipalListVoteRow, PoliticsPipelineSource } from './types';
+import type { PoliticsHistoricalMunicipalListVoteRow, PoliticsMunicipalityCatalogRow, PoliticsPipelineSource } from './types';
 import { projectScenarioOntoPoliticsSource } from './scenario-projection';
 
 function logit(probability: number): number {
@@ -89,7 +89,10 @@ function scenario(lists: Scenario['lists']): Scenario {
   };
 }
 
-function localFractions(projection: ReturnType<typeof projectScenarioOntoPoliticsSource>, municipalityCode: number): Record<string, number> {
+function rawLocalFractions(
+  projection: ReturnType<typeof projectScenarioOntoPoliticsSource>,
+  municipalityCode: number
+): Record<string, number> {
   const globalByList = new Map(projection.source.liste.map((row) => [row.LISTA, row]));
   const rows = projection.source.comuni_liste.filter((row) => row.CODICE_COMUNE === municipalityCode);
   const raw = rows.map((row) => {
@@ -102,7 +105,103 @@ function localFractions(projection: ReturnType<typeof projectScenarioOntoPolitic
   });
   const total = raw.reduce((sum, row) => sum + row.value, 0);
 
-  return Object.fromEntries(raw.map((row) => [row.list, Number((row.value / total).toFixed(3))]));
+  return Object.fromEntries(raw.map((row) => [row.list, row.value / total]));
+}
+
+function localFractions(projection: ReturnType<typeof projectScenarioOntoPoliticsSource>, municipalityCode: number): Record<string, number> {
+  const fractions = rawLocalFractions(projection, municipalityCode);
+  return Object.fromEntries(Object.entries(fractions).map(([list, value]) => [list, Number(value.toFixed(3))]));
+}
+
+function localValidShares(projection: ReturnType<typeof projectScenarioOntoPoliticsSource>, municipalityCode: number): Record<string, number> {
+  const fractions = rawLocalFractions(projection, municipalityCode);
+  const politicalTotal = 1 - (fractions.astensione ?? 0);
+  return Object.fromEntries(
+    Object.entries(fractions)
+      .filter(([list]) => list !== 'astensione')
+      .map(([list, fraction]) => [list, fraction / politicalTotal])
+  );
+}
+
+function localRowsFor(
+  municipalityCode: number,
+  validShares: Record<'Lista A' | 'Lista B' | 'Lista C', number>,
+  abstentionFraction = 0.4
+): PoliticsPipelineSource['comuni_liste'] {
+  return [
+    {
+      CODICE_COMUNE: municipalityCode,
+      LISTA: 'Lista A',
+      DATA: '2022-09-25T00:00:00.000Z',
+      DELTA: logit((1 - abstentionFraction) * validShares['Lista A']) - logit(0.1),
+      SIGMA_DELTA: 0.1
+    },
+    {
+      CODICE_COMUNE: municipalityCode,
+      LISTA: 'Lista B',
+      DATA: '2022-09-25T00:00:00.000Z',
+      DELTA: logit((1 - abstentionFraction) * validShares['Lista B']) - logit(0.2),
+      SIGMA_DELTA: 0.1
+    },
+    {
+      CODICE_COMUNE: municipalityCode,
+      LISTA: 'Lista C',
+      DATA: '2022-09-25T00:00:00.000Z',
+      DELTA: logit((1 - abstentionFraction) * validShares['Lista C']) - logit(0.3),
+      SIGMA_DELTA: 0.1
+    },
+    {
+      CODICE_COMUNE: municipalityCode,
+      LISTA: 'astensione',
+      DATA: '2022-09-25T00:00:00.000Z',
+      DELTA: 0,
+      SIGMA_DELTA: 0.1
+    }
+  ];
+}
+
+function aggregateSource(): PoliticsPipelineSource {
+  return {
+    ...source(),
+    comuni_liste: [
+      ...localRowsFor(1, { 'Lista A': 0.1, 'Lista B': 0.3, 'Lista C': 0.6 }),
+      ...localRowsFor(2, { 'Lista A': 0.3, 'Lista B': 0.4, 'Lista C': 0.3 }),
+      ...localRowsFor(3, { 'Lista A': 0.6, 'Lista B': 0.2, 'Lista C': 0.2 })
+    ],
+    base_dati: [
+      { CODICE_COMUNE: 1, CODITA_20N: 1, ELETTORI: 1000, CU20_COD: 10, SU20_COD: 20 },
+      { CODICE_COMUNE: 2, CODITA_20N: 2, ELETTORI: 2000, CU20_COD: 10, SU20_COD: 20 },
+      { CODICE_COMUNE: 3, CODITA_20N: 3, ELETTORI: 3000, CU20_COD: 11, SU20_COD: 21 }
+    ]
+  };
+}
+
+function municipalities(): PoliticsMunicipalityCatalogRow[] {
+  return [
+    { CODICE_COMUNE: 1, COMUNE: 'Comune 1', CODICE_PROVINCIA: 10, PROVINCIA: 'Provincia 10', CODICE_REGIONE: 100, REGIONE: 'Regione 100' },
+    { CODICE_COMUNE: 2, COMUNE: 'Comune 2', CODICE_PROVINCIA: 10, PROVINCIA: 'Provincia 10', CODICE_REGIONE: 100, REGIONE: 'Regione 100' },
+    { CODICE_COMUNE: 3, COMUNE: 'Comune 3', CODICE_PROVINCIA: 11, PROVINCIA: 'Provincia 11', CODICE_REGIONE: 100, REGIONE: 'Regione 100' }
+  ];
+}
+
+function aggregateValidShare(
+  projection: ReturnType<typeof projectScenarioOntoPoliticsSource>,
+  municipalityCodes: readonly number[],
+  list: string
+): number {
+  const baseByCode = new Map(projection.source.base_dati.map((row) => [Number(row.CODICE_COMUNE), row]));
+  let numerator = 0;
+  let denominator = 0;
+
+  for (const code of municipalityCodes) {
+    const fractions = rawLocalFractions(projection, code);
+    const politicalTotal = 1 - (fractions.astensione ?? 0);
+    const electors = Number(baseByCode.get(code)?.ELETTORI ?? 0);
+    numerator += electors * (fractions[list] ?? 0);
+    denominator += electors * politicalTotal;
+  }
+
+  return numerator / denominator;
 }
 
 function historicalVotes(): PoliticsHistoricalMunicipalListVoteRow[] {
@@ -296,6 +395,81 @@ describe('politics scenario projection', () => {
       expect.objectContaining({
         code: 'POLITICS_SCENARIO_LOCAL_OVERRIDES_RENORMALIZED'
       })
+    ]);
+  });
+
+  test('applies province valid-vote share overrides while preserving geographic distribution', () => {
+    const localScenario = scenario([
+      { id: 'a', name: 'Lista A', coalition: 'Coalizione A', color: '#000000', startingShare: 10, shareOverride: false },
+      { id: 'b', name: 'Lista B', coalition: 'Coalizione B', color: '#111111', startingShare: 20, shareOverride: false },
+      { id: 'c', name: 'Lista C', coalition: 'Coalizione C', color: '#222222', startingShare: 30, shareOverride: false }
+    ]);
+    localScenario.localShareOverrides = [
+      { id: 'province-a', scope: 'province', locationCode: '10', list: 'Lista A', startingShare: 40 }
+    ];
+
+    const projection = projectScenarioOntoPoliticsSource(aggregateSource(), localScenario, {
+      currentDate: '2026-06-04',
+      municipalities: municipalities(),
+      simulations: 1
+    });
+    const first = localValidShares(projection, 1);
+    const second = localValidShares(projection, 2);
+
+    expect(Number(aggregateValidShare(projection, [1, 2], 'Lista A').toFixed(3))).toBe(0.4);
+    expect(first['Lista A']).toBeLessThan(second['Lista A']);
+    expect(projection.warnings).toEqual([]);
+  });
+
+  test('applies multi-list region overrides and keeps municipal political shares normalized', () => {
+    const localScenario = scenario([
+      { id: 'a', name: 'Lista A', coalition: 'Coalizione A', color: '#000000', startingShare: 10, shareOverride: false },
+      { id: 'b', name: 'Lista B', coalition: 'Coalizione B', color: '#111111', startingShare: 20, shareOverride: false },
+      { id: 'c', name: 'Lista C', coalition: 'Coalizione C', color: '#222222', startingShare: 30, shareOverride: false }
+    ]);
+    localScenario.localShareOverrides = [
+      { id: 'region-a', scope: 'region', locationCode: '100', list: 'Lista A', startingShare: 35 },
+      { id: 'region-b', scope: 'region', locationCode: '100', list: 'Lista B', startingShare: 35 }
+    ];
+
+    const projection = projectScenarioOntoPoliticsSource(aggregateSource(), localScenario, {
+      currentDate: '2026-06-04',
+      municipalities: municipalities(),
+      simulations: 1
+    });
+
+    expect(Number(aggregateValidShare(projection, [1, 2, 3], 'Lista A').toFixed(3))).toBe(0.35);
+    expect(Number(aggregateValidShare(projection, [1, 2, 3], 'Lista B').toFixed(3))).toBe(0.35);
+    for (const code of [1, 2, 3]) {
+      const shares = localValidShares(projection, code);
+      expect(Number(Object.values(shares).reduce((sum, value) => sum + value, 0).toFixed(3))).toBe(1);
+    }
+    expect(projection.warnings).toEqual([]);
+  });
+
+  test('applies province and municipality overrides after broader region overrides', () => {
+    const localScenario = scenario([
+      { id: 'a', name: 'Lista A', coalition: 'Coalizione A', color: '#000000', startingShare: 10, shareOverride: false },
+      { id: 'b', name: 'Lista B', coalition: 'Coalizione B', color: '#111111', startingShare: 20, shareOverride: false },
+      { id: 'c', name: 'Lista C', coalition: 'Coalizione C', color: '#222222', startingShare: 30, shareOverride: false }
+    ]);
+    localScenario.localShareOverrides = [
+      { id: 'region-a', scope: 'region', locationCode: '100', list: 'Lista A', startingShare: 30 },
+      { id: 'province-a', scope: 'province', locationCode: '10', list: 'Lista A', startingShare: 45 },
+      { id: 'municipality-a', scope: 'municipality', locationCode: '2', list: 'Lista A', startingShare: 60 }
+    ];
+
+    const projection = projectScenarioOntoPoliticsSource(aggregateSource(), localScenario, {
+      currentDate: '2026-06-04',
+      municipalities: municipalities(),
+      simulations: 1
+    });
+
+    expect(localValidShares(projection, 2)['Lista A']).toBeCloseTo(0.6, 3);
+    expect(Number(aggregateValidShare(projection, [1, 2], 'Lista A').toFixed(3))).not.toBe(0.45);
+    expect(projection.warnings.map((warning) => warning.code)).toEqual([
+      'POLITICS_SCENARIO_LOCAL_OVERRIDES_OVERLAP',
+      'POLITICS_SCENARIO_LOCAL_OVERRIDES_OVERLAP'
     ]);
   });
 

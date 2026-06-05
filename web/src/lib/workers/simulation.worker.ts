@@ -153,6 +153,7 @@ async function handleRequest(request: SimulationRequest): Promise<void> {
     currentDate: startedIso,
     electionDate: request.electionDate,
     historicalVotes: staticSnapshot.data.comuni_liste_elezioni,
+    municipalities: staticSnapshot.data.municipalities,
     parameterPercentualiPartenza: 'europee',
     simulations: simulationCount
   });
