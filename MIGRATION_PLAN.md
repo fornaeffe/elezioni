@@ -27,7 +27,7 @@ pass, pause and present Python fallback options before continuing.
 | Politics golden fixtures | Done for current politics slice | `scripts/export_politics_golden.R`, `test/fixtures/politiche/debug_scrutinio.json`. |
 | R and browser benchmarks | Done for current politics slice | `scripts/benchmark_r_workflows.R`, `web/tests/benchmarks/politics-worker.spec.ts`, benchmark JSON under `test/fixtures/benchmarks/`. |
 | SvelteKit app scaffold | Done | `web/` with strict TypeScript, static adapter, Vitest, Playwright. |
-| Shared TypeScript core | Usable, still growing | Worker API types, seeded RNG, allocation primitives, scenario types, severity-aware warning/result contracts, politics result presentation, result export helpers, R-style politics result charts. |
+| Shared TypeScript core | Usable, still growing | Worker API types, seeded RNG, allocation primitives, scenario types, severity-aware warning/result contracts, politics result presentation, result export/import helpers, R-style politics result charts. |
 | Politics scrutiny | R-parity direct fixture passes | `web/src/lib/politics/scrutiny.ts`; registry id `politiche-r-parity-v1`. Split only when boundaries are clearer. |
 | Politics generation pipeline | Current browser path working | Candidate generation, vote generation, vote preparation, direct-scrutiny adaptation, worker chunking. |
 | Production static politics snapshot | Bridge done, richer raw data added | `scripts/export_politics_static_snapshot.R` writes schema v2 `web/static/data/v1/politics-static.json`, including raw historical municipal list votes for the future TypeScript parameter builder. |
@@ -97,7 +97,9 @@ reveals a cleaner order or a new blocker.
    `NUMERO_MAX`. Spinograms use darker colors for higher seat counts,
    contrast-aware labels, x-axis valid-vote percentage break labels, and
    click-to-enlarge overlays. Keep diagnostic tables such as
-   `Generated pipeline runs` collapsed by default.
+   `Generated pipeline runs` collapsed by default. Bundled JSON result exports
+   can be re-imported to restore both the generating scenario and displayed
+   results without rerunning the worker.
 9. Refactor politics scrutiny only when it lowers risk. The likely target is
    stage-focused modules behind the existing scrutiny algorithm registry, but
    do not split during active parity discovery just for size alone.
@@ -180,6 +182,9 @@ reveals a cleaner order or a new blocker.
 - Added `web/src/lib/core/result-export.ts` and result-panel export actions.
   Users can download a JSON payload containing scenario plus worker result, or
   a sectioned CSV containing all result tables.
+- Added strict bundled result JSON import. The Results panel can load app
+  exports containing both scenario and result, and the existing scenario upload
+  accepts the same bundled file while preserving result provenance.
 - Added optional severity to `ScrutinyWarning` and split result-panel messages
   into informational run notes versus warnings/errors. Production static
   snapshot and scenario-projection metadata now render as notes instead of

@@ -13,7 +13,12 @@
     SimulationResult,
     SimulationWorkerMessage
   } from '$lib/core/types';
-  import { createSimulationResultExport, resultTablesToCsv } from '$lib/core/result-export';
+  import {
+    createSimulationResultExport,
+    parseSimulationResultExport,
+    resultTablesToCsv,
+    type SimulationResultExport
+  } from '$lib/core/result-export';
   import {
     buildPoliticsPlurinominalChart,
     buildPoliticsPlurinominalChartOptions,
@@ -59,6 +64,7 @@
   let scenarioDraft = $state<Scenario>(createDefaultPoliticsScenario());
   let scenarioStorageReady = $state(false);
   let fileInput: HTMLInputElement | undefined;
+  let resultFileInput: HTMLInputElement | undefined;
 
   const scenario = $derived(cloneScenario(scenarioDraft));
   const validationMessages = $derived(validateScenario(scenario));
@@ -172,11 +178,18 @@
 
   function resetScenario(): void {
     scenarioDraft = createDefaultPoliticsScenario();
-    tables = [];
     messages = [];
-    lastResult = null;
-    showDiagnostics = false;
+    clearDisplayedResults();
     showAdvancedScenario = false;
+  }
+
+  function clearDisplayedResults(): void {
+    tables = [];
+    lastResult = null;
+    elapsedMs = 0;
+    phase = 'idle';
+    showDiagnostics = false;
+    selectedPlurinominalOptionId = '';
   }
 
   function scenarioFilename(): string {
@@ -237,8 +250,42 @@
     return uiMessage(warning.code, warning.message, warning.severity ?? 'warning');
   }
 
+  function isRecord(value: unknown): value is Record<string, unknown> {
+    return value !== null && typeof value === 'object' && !Array.isArray(value);
+  }
+
+  function looksLikeResultJson(text: string): boolean {
+    try {
+      const parsed = JSON.parse(text) as unknown;
+      return isRecord(parsed) && ('result' in parsed || parsed.type === 'result');
+    } catch {
+      return false;
+    }
+  }
+
+  function applyResultExport(payload: SimulationResultExport): void {
+    const importedScenario = parseScenario(JSON.stringify({ scenario: payload.scenario }));
+
+    scenarioDraft = importedScenario;
+    tables = payload.result.tables;
+    lastResult = payload.result;
+    elapsedMs = payload.result.benchmark.elapsedMs;
+    phase = payload.result.status;
+    showDiagnostics = false;
+    showAdvancedScenario = false;
+    selectedPlurinominalOptionId = '';
+    messages = [
+      uiMessage('RESULT_IMPORT', `Risultati importati dal JSON esportato il ${payload.exportedAt}.`, 'info'),
+      ...payload.result.warnings.map(workerMessage)
+    ];
+  }
+
   function chooseScenarioFile(): void {
     fileInput?.click();
+  }
+
+  function chooseResultFile(): void {
+    resultFileInput?.click();
   }
 
   async function loadScenarioFile(event: Event): Promise<void> {
@@ -247,14 +294,35 @@
     if (!file) return;
 
     try {
-      scenarioDraft = parseScenario(await file.text());
-      tables = [];
+      const text = await file.text();
+
+      try {
+        applyResultExport(parseSimulationResultExport(text));
+        return;
+      } catch (error) {
+        if (looksLikeResultJson(text)) throw error;
+      }
+
+      scenarioDraft = parseScenario(text);
       messages = [];
-      lastResult = null;
-      showDiagnostics = false;
+      clearDisplayedResults();
       showAdvancedScenario = false;
     } catch (error) {
       messages = [uiMessage('SCENARIO_LOAD_ERROR', error instanceof Error ? error.message : String(error), 'error')];
+    } finally {
+      input.value = '';
+    }
+  }
+
+  async function loadResultFile(event: Event): Promise<void> {
+    const input = event.currentTarget as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    try {
+      applyResultExport(parseSimulationResultExport(await file.text()));
+    } catch (error) {
+      messages = [uiMessage('RESULT_LOAD_ERROR', error instanceof Error ? error.message : String(error), 'error')];
     } finally {
       input.value = '';
     }
@@ -284,6 +352,7 @@
     messages = [];
     lastResult = null;
     showDiagnostics = false;
+    selectedPlurinominalOptionId = '';
 
     worker.onmessage = (event: MessageEvent<SimulationWorkerMessage>) => {
       const message = event.data;
@@ -379,6 +448,7 @@
             type="button"
             class="icon-button"
             onclick={chooseScenarioFile}
+            disabled={running}
             title="Carica scenario"
             aria-label="Carica scenario"
           >
@@ -402,6 +472,7 @@
         accept="application/json,.json"
         bind:this={fileInput}
         onchange={loadScenarioFile}
+        data-testid="scenario-file-input"
       />
 
       <div class="scenario-meta">
@@ -632,6 +703,16 @@
       <div class="panel-heading">
         <h2>Risultati</h2>
         <div class="result-heading-actions">
+          <button
+            type="button"
+            class="text-button"
+            onclick={chooseResultFile}
+            disabled={running}
+            aria-label="Carica risultati JSON"
+          >
+            <Upload size={16} aria-hidden="true" />
+            <span>Carica JSON</span>
+          </button>
           {#if hasResult}
             <button type="button" class="text-button" onclick={downloadResultsJson} aria-label="Scarica risultati JSON">
               <Download size={16} aria-hidden="true" />
@@ -645,6 +726,15 @@
           <span data-testid="elapsed-ms" data-phase={phase}>{elapsedLabel}</span>
         </div>
       </div>
+
+      <input
+        class="hidden-file"
+        type="file"
+        accept="application/json,.json"
+        bind:this={resultFileInput}
+        onchange={loadResultFile}
+        data-testid="result-file-input"
+      />
 
       {#if infoMessages.length > 0}
         <div class="messages info-messages" aria-label="Note simulazione">
