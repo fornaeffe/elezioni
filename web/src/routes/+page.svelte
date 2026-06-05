@@ -244,7 +244,7 @@
     URL.revokeObjectURL(url);
   }
 
-  function resultFilename(extension: 'csv' | 'json' | 'json.gz'): string {
+  function resultFilename(extension: 'csv' | 'json.gz'): string {
     return `${scenarioFilename().replace(/\.json$/, '')}-risultati.${extension}`;
   }
 
@@ -278,20 +278,6 @@
   function isGzipFile(file: File): boolean {
     const name = file.name.toLocaleLowerCase();
     return name.endsWith('.gz') || file.type === 'application/gzip' || file.type === 'application/x-gzip';
-  }
-
-  async function downloadResultsJson(): Promise<void> {
-    if (!browser || !lastResult) return;
-
-    try {
-      await withBusy('Preparo il JSON compatto dei risultati...', () => {
-        const payload = currentResultExport();
-        if (!payload) return;
-        downloadText(JSON.stringify(payload), 'application/json', resultFilename('json'));
-      });
-    } catch (error) {
-      messages = [uiMessage('RESULT_EXPORT_ERROR', error instanceof Error ? error.message : String(error), 'error')];
-    }
   }
 
   async function downloadResultsGzip(): Promise<void> {
@@ -382,11 +368,15 @@
       await withBusy('Carico il file...', async () => {
         const text = await readJsonFile(file);
 
-        try {
-          applyResultExport(parseSimulationResultExport(text));
-          return;
-        } catch (error) {
-          if (looksLikeResultJson(text)) throw error;
+        if (isGzipFile(file)) {
+          try {
+            applyResultExport(parseSimulationResultExport(text));
+            return;
+          } catch (error) {
+            if (looksLikeResultJson(text)) throw error;
+          }
+        } else if (looksLikeResultJson(text)) {
+          throw new Error('I risultati devono essere caricati come file .json.gz.');
         }
 
         scenarioDraft = parseScenario(text);
@@ -407,6 +397,8 @@
     if (!file) return;
 
     try {
+      if (!isGzipFile(file)) throw new Error('I risultati devono essere caricati come file .json.gz.');
+
       await withBusy('Carico i risultati...', async () =>
         applyResultExport(parseSimulationResultExport(await readJsonFile(file)))
       );
@@ -803,33 +795,21 @@
             class="text-button"
             onclick={chooseResultFile}
             disabled={isBusy}
-            aria-label="Carica risultati JSON"
+            aria-label="Carica risultati compressi"
           >
             <Upload size={16} aria-hidden="true" />
-            <span>Carica JSON</span>
+            <span>Carica JSON.gz</span>
           </button>
           {#if hasResult}
-            {#if compressionSupported}
-              <button
-                type="button"
-                class="text-button"
-                onclick={downloadResultsGzip}
-                disabled={isBusy}
-                aria-label="Scarica risultati compressi"
-              >
-                <Download size={16} aria-hidden="true" />
-                <span>JSON.gz</span>
-              </button>
-            {/if}
             <button
               type="button"
               class="text-button"
-              onclick={downloadResultsJson}
+              onclick={downloadResultsGzip}
               disabled={isBusy}
-              aria-label="Scarica risultati JSON"
+              aria-label="Scarica risultati compressi"
             >
               <Download size={16} aria-hidden="true" />
-              <span>JSON</span>
+              <span>JSON.gz</span>
             </button>
             <button
               type="button"
@@ -849,7 +829,7 @@
       <input
         class="hidden-file"
         type="file"
-        accept="application/json,application/gzip,.json,.json.gz"
+        accept="application/gzip,.json.gz"
         bind:this={resultFileInput}
         onchange={loadResultFile}
         data-testid="result-file-input"

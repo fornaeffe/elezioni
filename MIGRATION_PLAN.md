@@ -97,10 +97,10 @@ reveals a cleaner order or a new blocker.
    `NUMERO_MAX`. Spinograms use darker colors for higher seat counts,
    contrast-aware labels, x-axis valid-vote percentage break labels, and
    click-to-enlarge overlays. Keep diagnostic tables such as
-   `Generated pipeline runs` collapsed by default. Bundled JSON result exports
-   use compact columnar result tables, can optionally be downloaded as
-   `.json.gz`, and can be re-imported to restore both the generating scenario
-   and displayed results without rerunning the worker.
+   `Generated pipeline runs` collapsed by default. Bundled result exports use
+   compact columnar result tables, are downloaded as `.json.gz`, and can be
+   re-imported to restore both the generating scenario and displayed results
+   without rerunning the worker.
 9. Refactor politics scrutiny only when it lowers risk. The likely target is
    stage-focused modules behind the existing scrutiny algorithm registry, but
    do not split during active parity discovery just for size alone.
@@ -186,9 +186,8 @@ reveals a cleaner order or a new blocker.
 - Added strict bundled result JSON import. The Results panel can load app
   exports containing both scenario and result, and the existing scenario upload
   accepts the same bundled file while preserving result provenance. Result JSON
-  export schema v2 stores table rows columnarly to reduce repeated keys; the UI
-  also offers gzip download/import when browser compression streams are
-  available.
+  export schema v2 stores table rows columnarly to reduce repeated keys; result
+  files are imported/exported through gzip-only `.json.gz` in the UI.
 - Added optional severity to `ScrutinyWarning` and split result-panel messages
   into informational run notes versus warnings/errors. Production static
   snapshot and scenario-projection metadata now render as notes instead of

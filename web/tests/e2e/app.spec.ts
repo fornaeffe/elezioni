@@ -62,7 +62,7 @@ test('runs the worker smoke path from the scenario editor', async ({ page }) => 
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await expect(page.getByRole('table', { name: 'Average plurinominal seats by list' })).toBeVisible();
   await expect(page.getByRole('table', { name: 'Vote share by list' })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Scarica risultati JSON' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Scarica risultati compressi' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Scarica risultati CSV' })).toBeVisible();
   await expect(page.getByRole('table', { name: 'Generated pipeline runs' })).toHaveCount(0);
   await page.getByRole('button', { name: 'Mostra dettagli' }).click();

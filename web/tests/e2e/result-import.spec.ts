@@ -60,7 +60,7 @@ function bundledResultJson(schemaVersion: 1 | 2 = 1): string {
   );
 }
 
-test('imports bundled scenario and results from the Results panel', async ({ page }) => {
+test('rejects uncompressed result JSON from the Results panel', async ({ page }) => {
   await page.goto('/');
 
   await page.getByTestId('result-file-input').setInputFiles({
@@ -69,10 +69,24 @@ test('imports bundled scenario and results from the Results panel', async ({ pag
     buffer: Buffer.from(bundledResultJson())
   });
 
+  await expect(page.getByLabel('Avvisi simulazione')).toContainText('RESULT_LOAD_ERROR');
+  await expect(page.getByLabel('Avvisi simulazione')).toContainText('.json.gz');
+  await expect(page.getByRole('table', { name: 'Election overview' })).toHaveCount(0);
+});
+
+test('imports compressed legacy row-object result JSON from the Results panel', async ({ page }) => {
+  await page.goto('/');
+
+  await page.getByTestId('result-file-input').setInputFiles({
+    name: 'imported-results.json.gz',
+    mimeType: 'application/gzip',
+    buffer: gzipSync(Buffer.from(bundledResultJson(1)))
+  });
+
   await expect(page.getByRole('heading', { name: 'Imported Scenario' })).toBeVisible();
   await expect(page.getByLabel('Note simulazione')).toContainText('RESULT_IMPORT');
   await expect(page.getByRole('table', { name: 'Election overview' })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Scarica risultati JSON' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Scarica risultati compressi' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Scarica risultati CSV' })).toBeVisible();
 });
 
@@ -91,13 +105,13 @@ test('imports compressed columnar result JSON from the Results panel', async ({ 
   await expect(page.getByRole('button', { name: 'Scarica risultati compressi' })).toBeVisible();
 });
 
-test('scenario upload also accepts bundled result JSON and shows the imported results', async ({ page }) => {
+test('scenario upload accepts compressed bundled result JSON and shows the imported results', async ({ page }) => {
   await page.goto('/');
 
   await page.getByTestId('scenario-file-input').setInputFiles({
-    name: 'scenario-and-results.json',
-    mimeType: 'application/json',
-    buffer: Buffer.from(bundledResultJson())
+    name: 'scenario-and-results.json.gz',
+    mimeType: 'application/gzip',
+    buffer: gzipSync(Buffer.from(bundledResultJson(2)))
   });
 
   await expect(page.getByRole('heading', { name: 'Imported Scenario' })).toBeVisible();
