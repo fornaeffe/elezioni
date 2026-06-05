@@ -410,30 +410,6 @@ export function addScenarioHistoricalCorrespondence(
   };
 }
 
-export function splitScenarioHistoricalCorrespondence(scenario: Scenario, id: string): Scenario {
-  const sourceRow = scenario.listCorrespondences.find((row) => row.id === id);
-  if (!sourceRow) return scenario;
-
-  const nextDestination = defaultDestinationForSource(scenario, sourceRow.pastElection, sourceRow.pastList);
-  const listCorrespondences = scenario.listCorrespondences.map((row) =>
-    row.id === id ? { ...row, source: 'manual' as const } : row
-  );
-
-  return {
-    ...scenario,
-    listCorrespondences: [
-      ...listCorrespondences,
-      {
-        ...sourceRow,
-        id: crypto.randomUUID(),
-        futureList: nextDestination,
-        factor: 1,
-        source: 'manual'
-      }
-    ]
-  };
-}
-
 export function updateScenarioHistoricalCorrespondence(
   scenario: Scenario,
   id: string,

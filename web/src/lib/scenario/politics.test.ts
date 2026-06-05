@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import {
   buildScenarioHistoricalCorrespondenceGroups,
+  addScenarioHistoricalCorrespondence,
   createDefaultPoliticsScenario,
   defaultScenarioCandidateGeneration,
   normalizeScenario,
@@ -12,7 +13,6 @@ import {
   renameScenarioList,
   resetScenarioHistoricalCorrespondenceSource,
   serializeScenario,
-  splitScenarioHistoricalCorrespondence,
   updateScenarioHistoricalCorrespondence,
   validateScenario
 } from './politics';
@@ -363,7 +363,7 @@ describe('politics web-native scenario model', () => {
     );
   });
 
-  test('edits, splits, removes, and resets historical correspondences', () => {
+  test('edits, adds, removes, and resets historical correspondences', () => {
     let scenario = createDefaultPoliticsScenario();
     const target = scenario.listCorrespondences.find(
       (row) => row.pastElection === 'europee 2024' && row.pastList === 'PARTITO DEMOCRATICO'
@@ -382,14 +382,18 @@ describe('politics web-native scenario model', () => {
       })
     );
 
-    scenario = splitScenarioHistoricalCorrespondence(scenario, target?.id ?? '');
-    const splitRows = scenario.listCorrespondences.filter(
+    scenario = addScenarioHistoricalCorrespondence(scenario, {
+      pastElection: 'europee 2024',
+      pastDate: '2024-06-08',
+      pastList: 'PARTITO DEMOCRATICO'
+    });
+    const addedRows = scenario.listCorrespondences.filter(
       (row) => row.pastElection === 'europee 2024' && row.pastList === 'PARTITO DEMOCRATICO'
     );
-    expect(splitRows).toHaveLength(2);
-    expect(splitRows.every((row) => row.source === 'manual')).toBe(true);
+    expect(addedRows).toHaveLength(2);
+    expect(addedRows.map((row) => row.source)).toEqual(['manual', 'manual']);
 
-    scenario = removeScenarioHistoricalCorrespondence(scenario, splitRows[1].id);
+    scenario = removeScenarioHistoricalCorrespondence(scenario, addedRows[1].id);
     expect(
       scenario.listCorrespondences.filter(
         (row) => row.pastElection === 'europee 2024' && row.pastList === 'PARTITO DEMOCRATICO'

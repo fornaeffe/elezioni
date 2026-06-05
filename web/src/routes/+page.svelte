@@ -40,7 +40,6 @@
     renameScenarioList,
     resetScenarioHistoricalCorrespondenceSource,
     serializeScenario,
-    splitScenarioHistoricalCorrespondence,
     updateScenarioHistoricalCorrespondence,
     validateScenario
   } from '$lib/scenario/politics';
@@ -190,10 +189,6 @@
 
   function removeListCorrespondence(id: string): void {
     scenarioDraft = removeScenarioHistoricalCorrespondence(scenarioDraft, id);
-  }
-
-  function splitListCorrespondence(id: string): void {
-    scenarioDraft = splitScenarioHistoricalCorrespondence(scenarioDraft, id);
   }
 
   function addListCorrespondenceForSource(pastElection: string, pastDate: string, pastList: string): void {
@@ -905,15 +900,6 @@
                                     </label>
                                     <button
                                       type="button"
-                                      class="icon-button"
-                                      onclick={() => splitListCorrespondence(correspondence.id)}
-                                      title="Dividi corrispondenza"
-                                      aria-label="Dividi corrispondenza"
-                                    >
-                                      <Plus size={18} aria-hidden="true" />
-                                    </button>
-                                    <button
-                                      type="button"
                                       class="icon-button danger"
                                       onclick={() => removeListCorrespondence(correspondence.id)}
                                       title="Rimuovi corrispondenza"
@@ -1414,7 +1400,7 @@
 
   .correspondence-row {
     display: grid;
-    grid-template-columns: minmax(150px, 1fr) 92px 40px 40px;
+    grid-template-columns: minmax(150px, 1fr) 92px 40px;
     gap: 8px;
     align-items: end;
   }
