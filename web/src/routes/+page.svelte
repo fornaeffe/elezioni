@@ -1,7 +1,7 @@
 <script lang="ts">
   import { ChevronDown, ChevronUp, Download, Plus, Play, RotateCcw, Trash2, Upload } from '@lucide/svelte';
   import { browser } from '$app/environment';
-  import { onMount } from 'svelte';
+  import { onMount, tick } from 'svelte';
   import SimulationWorker from '$lib/workers/simulation.worker?worker';
   import PoliticsResultCharts from '$lib/politics/PoliticsResultCharts.svelte';
   import type {
@@ -53,6 +53,7 @@
   let simulations = $state(10);
   let seed = $state('politiche-2027');
   let running = $state(false);
+  let busyAction = $state('');
   let phase = $state('idle');
   let elapsedMs = $state(0);
   let tables = $state<ResultTable[]>([]);
@@ -63,12 +64,14 @@
   let selectedPlurinominalOptionId = $state('');
   let scenarioDraft = $state<Scenario>(createDefaultPoliticsScenario());
   let scenarioStorageReady = $state(false);
+  let compressionSupported = $state(false);
   let fileInput: HTMLInputElement | undefined;
   let resultFileInput: HTMLInputElement | undefined;
 
   const scenario = $derived(cloneScenario(scenarioDraft));
   const validationMessages = $derived(validateScenario(scenario));
-  const canRun = $derived(!running && validationMessages.length === 0);
+  const isBusy = $derived(running || busyAction !== '');
+  const canRun = $derived(!isBusy && validationMessages.length === 0);
   const runButtonLabel = $derived(running ? phase : 'Esegui');
   const elapsedLabel = $derived(`${elapsedMs.toFixed(0)} ms`);
   const hasResult = $derived(lastResult !== null);
@@ -96,6 +99,8 @@
 
   onMount(() => {
     if (!browser) return;
+
+    compressionSupported = 'CompressionStream' in globalThis && 'DecompressionStream' in globalThis;
 
     const stored = localStorage.getItem(politicsScenarioStorageKey);
     if (stored) {
@@ -201,14 +206,36 @@
     return `${slug || 'scenario'}.json`;
   }
 
-  function downloadScenario(): void {
+  async function withBusy<T>(label: string, action: () => T | Promise<T>): Promise<T> {
+    busyAction = label;
+    await tick();
+    await nextFrame();
+
+    try {
+      return await action();
+    } finally {
+      busyAction = '';
+    }
+  }
+
+  function nextFrame(): Promise<void> {
+    if (!browser) return Promise.resolve();
+    return new Promise((resolve) => requestAnimationFrame(() => resolve()));
+  }
+
+  async function downloadScenario(): Promise<void> {
     if (!browser) return;
 
-    downloadText(serializeScenario(scenario), 'application/json', scenarioFilename());
+    await withBusy('Preparo il file scenario...', () =>
+      downloadText(serializeScenario(scenario), 'application/json', scenarioFilename())
+    );
   }
 
   function downloadText(content: string, type: string, filename: string): void {
-    const blob = new Blob([content], { type });
+    downloadBlob(new Blob([content], { type }), filename);
+  }
+
+  function downloadBlob(blob: Blob, filename: string): void {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -217,25 +244,83 @@
     URL.revokeObjectURL(url);
   }
 
-  function resultFilename(extension: 'csv' | 'json'): string {
+  function resultFilename(extension: 'csv' | 'json' | 'json.gz'): string {
     return `${scenarioFilename().replace(/\.json$/, '')}-risultati.${extension}`;
   }
 
-  function downloadResultsJson(): void {
-    if (!browser || !lastResult) return;
+  function currentResultExport() {
+    if (!lastResult) return null;
 
-    const payload = createSimulationResultExport({
+    return createSimulationResultExport({
       result: lastResult,
       scenario,
       exportedAt: new Date().toISOString()
     });
-    downloadText(JSON.stringify(payload, null, 2), 'application/json', resultFilename('json'));
   }
 
-  function downloadResultsCsv(): void {
+  async function gzipText(text: string): Promise<Blob> {
+    if (!compressionSupported) throw new Error('Compressione gzip non supportata da questo browser.');
+
+    const stream = new Blob([text], { type: 'application/json' })
+      .stream()
+      .pipeThrough(new CompressionStream('gzip'));
+    return new Response(stream).blob();
+  }
+
+  async function readJsonFile(file: File): Promise<string> {
+    if (!isGzipFile(file)) return file.text();
+    if (!compressionSupported) throw new Error('Decompressione gzip non supportata da questo browser.');
+
+    const stream = file.stream().pipeThrough(new DecompressionStream('gzip'));
+    return new Response(stream).text();
+  }
+
+  function isGzipFile(file: File): boolean {
+    const name = file.name.toLocaleLowerCase();
+    return name.endsWith('.gz') || file.type === 'application/gzip' || file.type === 'application/x-gzip';
+  }
+
+  async function downloadResultsJson(): Promise<void> {
     if (!browser || !lastResult) return;
 
-    downloadText(resultTablesToCsv(lastResult.tables), 'text/csv;charset=utf-8', resultFilename('csv'));
+    try {
+      await withBusy('Preparo il JSON compatto dei risultati...', () => {
+        const payload = currentResultExport();
+        if (!payload) return;
+        downloadText(JSON.stringify(payload), 'application/json', resultFilename('json'));
+      });
+    } catch (error) {
+      messages = [uiMessage('RESULT_EXPORT_ERROR', error instanceof Error ? error.message : String(error), 'error')];
+    }
+  }
+
+  async function downloadResultsGzip(): Promise<void> {
+    if (!browser || !lastResult) return;
+
+    try {
+      await withBusy('Comprimo il JSON dei risultati...', async () => {
+        const payload = currentResultExport();
+        if (!payload) return;
+        const blob = await gzipText(JSON.stringify(payload));
+        downloadBlob(blob, resultFilename('json.gz'));
+      });
+    } catch (error) {
+      messages = [uiMessage('RESULT_EXPORT_ERROR', error instanceof Error ? error.message : String(error), 'error')];
+    }
+  }
+
+  async function downloadResultsCsv(): Promise<void> {
+    if (!browser || !lastResult) return;
+
+    const result = lastResult;
+
+    try {
+      await withBusy('Preparo il CSV dei risultati...', () =>
+        downloadText(resultTablesToCsv(result.tables), 'text/csv;charset=utf-8', resultFilename('csv'))
+      );
+    } catch (error) {
+      messages = [uiMessage('RESULT_EXPORT_ERROR', error instanceof Error ? error.message : String(error), 'error')];
+    }
   }
 
   function uiMessage(code: string, message: string, severity: UiMessageSeverity = 'warning'): UiMessage {
@@ -294,19 +379,21 @@
     if (!file) return;
 
     try {
-      const text = await file.text();
+      await withBusy('Carico il file...', async () => {
+        const text = await readJsonFile(file);
 
-      try {
-        applyResultExport(parseSimulationResultExport(text));
-        return;
-      } catch (error) {
-        if (looksLikeResultJson(text)) throw error;
-      }
+        try {
+          applyResultExport(parseSimulationResultExport(text));
+          return;
+        } catch (error) {
+          if (looksLikeResultJson(text)) throw error;
+        }
 
-      scenarioDraft = parseScenario(text);
-      messages = [];
-      clearDisplayedResults();
-      showAdvancedScenario = false;
+        scenarioDraft = parseScenario(text);
+        messages = [];
+        clearDisplayedResults();
+        showAdvancedScenario = false;
+      });
     } catch (error) {
       messages = [uiMessage('SCENARIO_LOAD_ERROR', error instanceof Error ? error.message : String(error), 'error')];
     } finally {
@@ -320,7 +407,9 @@
     if (!file) return;
 
     try {
-      applyResultExport(parseSimulationResultExport(await file.text()));
+      await withBusy('Carico i risultati...', async () =>
+        applyResultExport(parseSimulationResultExport(await readJsonFile(file)))
+      );
     } catch (error) {
       messages = [uiMessage('RESULT_LOAD_ERROR', error instanceof Error ? error.message : String(error), 'error')];
     } finally {
@@ -430,6 +519,10 @@
     </button>
   </section>
 
+  {#if busyAction}
+    <div class="busy-status" role="status" aria-live="polite">{busyAction}</div>
+  {/if}
+
   <section class="stack">
     <div class="panel scenario-panel">
       <div class="panel-heading">
@@ -439,6 +532,7 @@
             type="button"
             class="icon-button"
             onclick={resetScenario}
+            disabled={isBusy}
             title="Ripristina scenario"
             aria-label="Ripristina scenario"
           >
@@ -448,7 +542,7 @@
             type="button"
             class="icon-button"
             onclick={chooseScenarioFile}
-            disabled={running}
+            disabled={isBusy}
             title="Carica scenario"
             aria-label="Carica scenario"
           >
@@ -458,6 +552,7 @@
             type="button"
             class="icon-button"
             onclick={downloadScenario}
+            disabled={isBusy}
             title="Scarica scenario"
             aria-label="Scarica scenario"
           >
@@ -469,7 +564,7 @@
       <input
         class="hidden-file"
         type="file"
-        accept="application/json,.json"
+        accept="application/json,application/gzip,.json,.json.gz"
         bind:this={fileInput}
         onchange={loadScenarioFile}
         data-testid="scenario-file-input"
@@ -707,18 +802,42 @@
             type="button"
             class="text-button"
             onclick={chooseResultFile}
-            disabled={running}
+            disabled={isBusy}
             aria-label="Carica risultati JSON"
           >
             <Upload size={16} aria-hidden="true" />
             <span>Carica JSON</span>
           </button>
           {#if hasResult}
-            <button type="button" class="text-button" onclick={downloadResultsJson} aria-label="Scarica risultati JSON">
+            {#if compressionSupported}
+              <button
+                type="button"
+                class="text-button"
+                onclick={downloadResultsGzip}
+                disabled={isBusy}
+                aria-label="Scarica risultati compressi"
+              >
+                <Download size={16} aria-hidden="true" />
+                <span>JSON.gz</span>
+              </button>
+            {/if}
+            <button
+              type="button"
+              class="text-button"
+              onclick={downloadResultsJson}
+              disabled={isBusy}
+              aria-label="Scarica risultati JSON"
+            >
               <Download size={16} aria-hidden="true" />
               <span>JSON</span>
             </button>
-            <button type="button" class="text-button" onclick={downloadResultsCsv} aria-label="Scarica risultati CSV">
+            <button
+              type="button"
+              class="text-button"
+              onclick={downloadResultsCsv}
+              disabled={isBusy}
+              aria-label="Scarica risultati CSV"
+            >
               <Download size={16} aria-hidden="true" />
               <span>CSV</span>
             </button>
@@ -730,7 +849,7 @@
       <input
         class="hidden-file"
         type="file"
-        accept="application/json,.json"
+        accept="application/json,application/gzip,.json,.json.gz"
         bind:this={resultFileInput}
         onchange={loadResultFile}
         data-testid="result-file-input"
@@ -913,6 +1032,17 @@
     gap: 20px;
     max-width: 1280px;
     margin: 0 auto;
+  }
+
+  .busy-status {
+    max-width: 1280px;
+    margin: 0 auto 20px;
+    border-left: 4px solid #2f6f57;
+    background: #eef7f3;
+    padding: 10px 12px;
+    color: #244f40;
+    font-size: 13px;
+    font-weight: 700;
   }
 
   .panel {

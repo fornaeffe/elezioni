@@ -1,9 +1,12 @@
 import { expect, test } from '@playwright/test';
+import { gzipSync } from 'node:zlib';
 
-function bundledResultJson(): string {
+function bundledResultJson(schemaVersion: 1 | 2 = 1): string {
+  const rows = schemaVersion === 1 ? [{ Ramo: 'camera', Simulazioni: 1 }] : [['camera', 1]];
+
   return JSON.stringify(
     {
-      schema_version: 1,
+      schema_version: schemaVersion,
       exportedAt: '2026-06-05T10:00:00.000Z',
       scenario: {
         id: 'imported-scenario',
@@ -40,7 +43,7 @@ function bundledResultJson(): string {
           {
             name: 'Election overview',
             columns: ['Ramo', 'Simulazioni'],
-            rows: [{ Ramo: 'camera', Simulazioni: 1 }]
+            rows
           }
         ],
         warnings: [],
@@ -71,6 +74,21 @@ test('imports bundled scenario and results from the Results panel', async ({ pag
   await expect(page.getByRole('table', { name: 'Election overview' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Scarica risultati JSON' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Scarica risultati CSV' })).toBeVisible();
+});
+
+test('imports compressed columnar result JSON from the Results panel', async ({ page }) => {
+  await page.goto('/');
+
+  await page.getByTestId('result-file-input').setInputFiles({
+    name: 'imported-results.json.gz',
+    mimeType: 'application/gzip',
+    buffer: gzipSync(Buffer.from(bundledResultJson(2)))
+  });
+
+  await expect(page.getByRole('heading', { name: 'Imported Scenario' })).toBeVisible();
+  await expect(page.getByLabel('Note simulazione')).toContainText('RESULT_IMPORT');
+  await expect(page.getByRole('table', { name: 'Election overview' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Scarica risultati compressi' })).toBeVisible();
 });
 
 test('scenario upload also accepts bundled result JSON and shows the imported results', async ({ page }) => {

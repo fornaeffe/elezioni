@@ -76,18 +76,37 @@ describe('result export helpers', () => {
     result.tables[0].rows[0].Value = 2;
     scenario.name = 'Changed after export';
 
-    expect(payload.schema_version).toBe(1);
+    expect(payload.schema_version).toBe(2);
     expect(payload.exportedAt).toBe('2026-06-04T01:00:00.000Z');
-    expect(payload.result.tables[0].rows[0].Value).toBe(1);
+    expect(payload.result.tables[0].rows[0]).toEqual([1]);
     expect(payload.scenario.name).not.toBe('Changed after export');
   });
 
-  test('parses the bundled JSON export payload', () => {
+  test('creates compact columnar tables and parses the bundled JSON export payload', () => {
     const payload = createSimulationResultExport({
       result: sampleResult(),
       scenario: createDefaultPoliticsScenario(),
       exportedAt: '2026-06-04T01:00:00.000Z'
     });
+
+    expect(payload.schema_version).toBe(2);
+    expect(payload.result.tables[0].rows).toEqual([[1]]);
+    expect(parseSimulationResultExport(JSON.stringify(payload))).toEqual({
+      schema_version: 2,
+      exportedAt: payload.exportedAt,
+      scenario: payload.scenario,
+      result: sampleResult()
+    });
+  });
+
+  test('keeps parsing legacy row-object result export payloads', () => {
+    const result = sampleResult();
+    const payload = {
+      schema_version: 1,
+      exportedAt: '2026-06-04T01:00:00.000Z',
+      scenario: createDefaultPoliticsScenario(),
+      result
+    };
 
     expect(parseSimulationResultExport(JSON.stringify(payload))).toEqual(payload);
   });
@@ -115,13 +134,13 @@ describe('result export helpers', () => {
               {
                 name: 'Broken',
                 columns: ['Value'],
-                rows: [{}]
+                rows: [[]]
               }
             ]
           }
         })
       )
-    ).toThrow(/result\.tables\[0\]\.rows\[0\]\.Value is missing/);
+    ).toThrow(/must have 1 cells, found 0/);
   });
 
   test('rejects unsupported result export schemas', () => {

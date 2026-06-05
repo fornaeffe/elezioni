@@ -1,10 +1,27 @@
 import type { ResultTable, Scenario, SimulationResult } from './types';
 
 export interface SimulationResultExport {
-  schema_version: 1;
+  schema_version: 1 | 2;
   exportedAt: string;
   scenario: Scenario;
   result: SimulationResult;
+}
+
+interface ColumnarResultTable {
+  name: string;
+  columns: string[];
+  rows: JsonCell[][];
+}
+
+interface ColumnarSimulationResult extends Omit<SimulationResult, 'tables'> {
+  tables: ColumnarResultTable[];
+}
+
+export interface SerializedSimulationResultExportV2 {
+  schema_version: 2;
+  exportedAt: string;
+  scenario: Scenario;
+  result: ColumnarSimulationResult;
 }
 
 type JsonRecord = Record<string, unknown>;
@@ -93,6 +110,10 @@ function requireCell(value: unknown, path: string): JsonCell {
   throw new Error(`${path} must be a string, number, boolean, or null.`);
 }
 
+function tableCell(value: string | number | boolean | null | undefined): JsonCell {
+  return value ?? null;
+}
+
 function parseExportedScenario(value: unknown): Scenario {
   const scenario = requireRecord(value, 'scenario');
   const defaultSource = requireRecord(scenario.defaultSource, 'scenario.defaultSource');
@@ -123,7 +144,7 @@ function parseExportedScenario(value: unknown): Scenario {
   return scenario as unknown as Scenario;
 }
 
-function parseResultTable(value: unknown, index: number): ResultTable {
+function parseRowObjectResultTable(value: unknown, index: number): ResultTable {
   const table = requireRecord(value, `result.tables[${index}]`);
   const columns = requireStringArray(table.columns, `result.tables[${index}].columns`);
   const rows = requireArray(table.rows, `result.tables[${index}].rows`).map((row, rowIndex) => {
@@ -143,6 +164,32 @@ function parseResultTable(value: unknown, index: number): ResultTable {
     }
 
     return parsedRow;
+  });
+
+  return {
+    name: requireString(table.name, `result.tables[${index}].name`),
+    columns,
+    rows
+  };
+}
+
+function parseColumnarResultTable(value: unknown, index: number): ResultTable {
+  const table = requireRecord(value, `result.tables[${index}]`);
+  const columns = requireStringArray(table.columns, `result.tables[${index}].columns`);
+  const rows = requireArray(table.rows, `result.tables[${index}].rows`).map((row, rowIndex) => {
+    const rowValues = requireArray(row, `result.tables[${index}].rows[${rowIndex}]`);
+    if (rowValues.length !== columns.length) {
+      throw new Error(
+        `result.tables[${index}].rows[${rowIndex}] must have ${columns.length} cells, found ${rowValues.length}.`
+      );
+    }
+
+    return Object.fromEntries(
+      columns.map((column, columnIndex) => [
+        column,
+        requireCell(rowValues[columnIndex], `result.tables[${index}].rows[${rowIndex}][${columnIndex}]`)
+      ])
+    ) as Record<string, JsonCell>;
   });
 
   return {
@@ -180,7 +227,7 @@ function parseWarning(value: unknown, index: number): SimulationResult['warnings
   return parsedWarning;
 }
 
-function parseSimulationResult(value: unknown): SimulationResult {
+function parseSimulationResult(value: unknown, tableFormat: 'row-object' | 'columnar'): SimulationResult {
   const result = requireRecord(value, 'result');
   const benchmark = requireRecord(result.benchmark, 'result.benchmark');
   const status = requireEnum(result.status, 'result.status', ['completed', 'not_implemented']);
@@ -191,7 +238,9 @@ function parseSimulationResult(value: unknown): SimulationResult {
   const parsedResult: SimulationResult = {
     type: 'result',
     status,
-    tables: requireArray(result.tables, 'result.tables').map(parseResultTable),
+    tables: requireArray(result.tables, 'result.tables').map(
+      tableFormat === 'columnar' ? parseColumnarResultTable : parseRowObjectResultTable
+    ),
     warnings: requireArray(result.warnings, 'result.warnings').map(parseWarning),
     benchmark: {
       startedAt: requireString(benchmark.startedAt, 'result.benchmark.startedAt'),
@@ -223,12 +272,21 @@ export function createSimulationResultExport(params: {
   result: SimulationResult;
   scenario: Scenario;
   exportedAt: string;
-}): SimulationResultExport {
+}): SerializedSimulationResultExportV2 {
+  const result = jsonClone(params.result);
+
   return {
-    schema_version: 1,
+    schema_version: 2,
     exportedAt: params.exportedAt,
     scenario: jsonClone(params.scenario),
-    result: jsonClone(params.result)
+    result: {
+      ...result,
+      tables: result.tables.map((table) => ({
+        name: table.name,
+        columns: [...table.columns],
+        rows: table.rows.map((row) => table.columns.map((column) => tableCell(row[column])))
+      }))
+    }
   };
 }
 
@@ -249,7 +307,7 @@ export function parseSimulationResultExport(text: string): SimulationResultExpor
   if (!('result' in payload)) {
     throw new Error('Result export JSON must include a result.');
   }
-  if (payload.schema_version !== 1) {
+  if (payload.schema_version !== 1 && payload.schema_version !== 2) {
     throw new Error(`Unsupported result export schema_version: ${String(payload.schema_version)}.`);
   }
 
@@ -257,10 +315,10 @@ export function parseSimulationResultExport(text: string): SimulationResultExpor
   if (Number.isNaN(Date.parse(exportedAt))) throw new Error('exportedAt must be a valid date string.');
 
   return {
-    schema_version: 1,
+    schema_version: payload.schema_version,
     exportedAt,
     scenario: parseExportedScenario(payload.scenario),
-    result: parseSimulationResult(payload.result)
+    result: parseSimulationResult(payload.result, payload.schema_version === 2 ? 'columnar' : 'row-object')
   };
 }
 
