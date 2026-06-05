@@ -93,6 +93,7 @@ export interface PoliticsSpineCell {
   count: number;
   label: string;
   color: string;
+  textColor: string;
   yPercent: number;
   heightPercent: number;
 }
@@ -106,6 +107,7 @@ export interface PoliticsSpineBin {
 
 export interface PoliticsSpinePanel {
   label: string;
+  ticks: PoliticsChartTick[];
   bins: PoliticsSpineBin[];
 }
 
@@ -523,6 +525,15 @@ function mixColor(left: string, right: string, amount: number): string {
   return `#${mixed.map(toHex).join('')}`;
 }
 
+function readableTextColor(backgroundColor: string): string {
+  const [red, green, blue] = parseHexColor(backgroundColor).map((value) => {
+    const normalized = value / 255;
+    return normalized <= 0.03928 ? normalized / 12.92 : ((normalized + 0.055) / 1.055) ** 2.4;
+  });
+  const luminance = 0.2126 * red + 0.7152 * green + 0.0722 * blue;
+  return luminance < 0.42 ? '#ffffff' : '#182026';
+}
+
 function spineColor(baseColor: string, index: number, total: number): string {
   if (total <= 1) return mixColor(baseColor, '#ffffff', 0.35);
   const amount = index / (total - 1);
@@ -566,6 +577,13 @@ function buildSpinePanel(label: string, rows: readonly SeatVoteRow[], color: str
   }
 
   let xCursor = 0;
+  const ticks: PoliticsChartTick[] = [
+    {
+      value: boundaries[0] ?? 0,
+      label: formatPercent(boundaries[0] ?? 0),
+      positionPercent: 0
+    }
+  ];
   const bins = binRows
     .map((rowsInBin, index) => {
       const widthPercent = (rowsInBin.length / total) * 100;
@@ -579,11 +597,17 @@ function buildSpinePanel(label: string, rows: readonly SeatVoteRow[], color: str
           const count = countBySeats.get(seats) ?? 0;
           const heightPercent = rowsInBin.length === 0 ? 0 : (count / rowsInBin.length) * 100;
           yCursor -= heightPercent;
+          const cellColor = spineColor(
+            color,
+            seatValues.length - 1 - (seatIndex.get(seats) ?? 0),
+            seatValues.length
+          );
           return {
             seats,
             count,
             label: count > total * 0.005 ? String(seats) : '',
-            color: spineColor(color, seatIndex.get(seats) ?? 0, seatValues.length),
+            color: cellColor,
+            textColor: readableTextColor(cellColor),
             yPercent: yCursor,
             heightPercent
           };
@@ -595,13 +619,22 @@ function buildSpinePanel(label: string, rows: readonly SeatVoteRow[], color: str
         widthPercent,
         cells
       };
+      const previousX = xCursor;
       xCursor += widthPercent;
+      if (xCursor > previousX) {
+        ticks.push({
+          value: boundaries[index + 1],
+          label: formatPercent(boundaries[index + 1]),
+          positionPercent: xCursor
+        });
+      }
       return bin;
     })
     .filter((bin) => bin.widthPercent > 0);
 
   return {
     label,
+    ticks,
     bins
   };
 }

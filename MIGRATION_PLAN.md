@@ -1,6 +1,6 @@
 # SvelteKit Migration Plan
 
-Last updated: 2026-06-04
+Last updated: 2026-06-05
 
 ## Purpose
 
@@ -94,8 +94,10 @@ reveals a cleaner order or a new blocker.
    `presentazione_risultati.R` politics report slice: summary bars, simulated
    valid-vote boxplots, list and coalition seat-vote scatter plots, list
    spinograms, and a selectable plurinominal-college spinogram using
-   `NUMERO_MAX`. Keep diagnostic tables such as `Generated pipeline runs`
-   collapsed by default.
+   `NUMERO_MAX`. Spinograms use darker colors for higher seat counts,
+   contrast-aware labels, x-axis valid-vote percentage break labels, and
+   click-to-enlarge overlays. Keep diagnostic tables such as
+   `Generated pipeline runs` collapsed by default.
 9. Refactor politics scrutiny only when it lowers risk. The likely target is
    stage-focused modules behind the existing scrutiny algorithm registry, but
    do not split during active parity discovery just for size alone.
@@ -276,7 +278,7 @@ reveals a cleaner order or a new blocker.
 
 ## Verification Snapshot
 
-Latest full web verification on 2026-06-04:
+Latest full web verification on 2026-06-05:
 
 - `cd web; npx vitest run src/lib/scenario/politics.test.ts src/lib/politics/scenario-projection.test.ts src/lib/politics/parameter-preparation.test.ts`: passed, 31 tests.
 - `cd web; npx vitest run src/lib/politics/result-presentation.test.ts`: passed, 3 tests.
@@ -287,9 +289,9 @@ Latest full web verification on 2026-06-04:
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test, including the
   advanced abstention, manual correspondence controls, result export buttons,
-  and politics result charts. The smoke test also checks that normal
-  static-snapshot metadata is shown as an informational note, with no warning
-  block for the default edited scenario.
+  politics result charts, and the spinogram enlarged-overlay interaction. The
+  smoke test also checks that normal static-snapshot metadata is shown as an
+  informational note, with no warning block for the default edited scenario.
 
 Verification note: do not run `npm run build` and `npm run test:e2e` in
 parallel. Both commands touch SvelteKit build/prerender output and can produce a
@@ -1490,6 +1492,26 @@ Completed in the R-style politics result presentation slice:
 Verification with local generated artifacts present:
 
 - `cd web; npm run test -- src/lib/politics/result-presentation.test.ts src/lib/politics/result-charts.test.ts`: passed, 6 tests.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 156 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-05 Checkpoint 39
+
+Completed in the spinogram refinement slice:
+
+- Reversed spinogram color ordering so larger seat counts receive darker
+  colors and lower counts receive lighter colors.
+- Added contrast-aware spinogram cell labels so dark cells render white text.
+- Added valid-vote percentage break labels on the spinogram x axis.
+- Added click-to-enlarge spinogram overlays, including the selectable
+  plurinominal-college chart.
+- Extended the Playwright smoke test to open and close an enlarged spinogram.
+
+Verification with local generated artifacts present:
+
+- `cd web; npm run test -- src/lib/politics/result-charts.test.ts`: passed, 3 tests.
 - `cd web; npm run check`: passed with 0 warnings.
 - `cd web; npm run test`: passed, 156 tests.
 - `cd web; npm run build`: passed.

@@ -1,7 +1,9 @@
 <script lang="ts">
+  import { X } from '@lucide/svelte';
   import type {
     PoliticsPlurinominalChartOption,
     PoliticsResultChart,
+    PoliticsSpinePanel,
     PoliticsSpineResultChart
   } from './result-charts';
 
@@ -21,11 +23,19 @@
     onSelectPlurinominalOption
   }: Props = $props();
 
+  interface EnlargedSpinogram {
+    title: string;
+    xLabel: string;
+    panel: PoliticsSpinePanel;
+  }
+
   const scatterLeft = 14;
   const scatterTop = 7;
   const scatterWidth = 80;
   const scatterHeight = 49;
   const scatterBottom = scatterTop + scatterHeight;
+
+  let enlargedSpinogram = $state<EnlargedSpinogram | null>(null);
 
   function bounded(value: number): number {
     return Math.max(0, Math.min(100, value));
@@ -46,7 +56,21 @@
   function detailOpen(chart: PoliticsResultChart): boolean {
     return chart.kind === 'bar' || chart.kind === 'boxplot';
   }
+
+  function openSpinogram(title: string, xLabel: string, panel: PoliticsSpinePanel): void {
+    enlargedSpinogram = { title, xLabel, panel };
+  }
+
+  function closeSpinogram(): void {
+    enlargedSpinogram = null;
+  }
+
+  function handleKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape') closeSpinogram();
+  }
 </script>
+
+<svelte:window onkeydown={handleKeydown} />
 
 <div class="result-charts">
   {#each charts as chart}
@@ -166,23 +190,39 @@
           {#each chart.panels as panel}
             <section class="small-panel" aria-label={panel.label}>
               <h4>{panel.label}</h4>
-              <div class="spine-plot" role="img" aria-label={panel.label}>
-                {#each panel.bins as bin}
-                  <span
-                    class="spine-bin"
-                    title={bin.label}
-                    style={`left: ${pct(bin.xPercent)}; width: ${pct(bin.widthPercent)};`}
-                  >
-                    {#each bin.cells as cell}
-                      <span
-                        class="spine-cell"
-                        style={`top: ${pct(cell.yPercent)}; height: ${pct(cell.heightPercent)}; background-color: ${cell.color};`}
-                      >
-                        {#if cell.label}
-                          <span>{cell.label}</span>
-                        {/if}
-                      </span>
-                    {/each}
+              <button
+                type="button"
+                class="spine-panel-button"
+                onclick={() => openSpinogram(chart.title, chart.xLabel, panel)}
+                aria-label={panel.label}
+                title={panel.label}
+              >
+                <div class="spine-plot" role="img" aria-label={panel.label}>
+                  {#each panel.bins as bin}
+                    <span
+                      class="spine-bin"
+                      title={bin.label}
+                      style={`left: ${pct(bin.xPercent)}; width: ${pct(bin.widthPercent)};`}
+                    >
+                      {#each bin.cells as cell}
+                        <span
+                          class="spine-cell"
+                          style={`top: ${pct(cell.yPercent)}; height: ${pct(cell.heightPercent)}; background-color: ${cell.color}; color: ${cell.textColor};`}
+                        >
+                          {#if cell.label}
+                            <span>{cell.label}</span>
+                          {/if}
+                        </span>
+                      {/each}
+                    </span>
+                  {/each}
+                </div>
+              </button>
+              <div class="spine-axis" aria-hidden="true">
+                {#each panel.ticks as tick}
+                  <span class="spine-axis-tick" style={`left: ${pct(tick.positionPercent)};`}>
+                    <span></span>
+                    <em>{tick.label}</em>
                   </span>
                 {/each}
               </div>
@@ -214,23 +254,39 @@
         {#each plurinominalChart.panels as panel}
           <section class="small-panel" aria-label={panel.label}>
             <h4>{panel.label}</h4>
-            <div class="spine-plot large" role="img" aria-label={panel.label}>
-              {#each panel.bins as bin}
-                <span
-                  class="spine-bin"
-                  title={bin.label}
-                  style={`left: ${pct(bin.xPercent)}; width: ${pct(bin.widthPercent)};`}
-                >
-                  {#each bin.cells as cell}
-                    <span
-                      class="spine-cell"
-                      style={`top: ${pct(cell.yPercent)}; height: ${pct(cell.heightPercent)}; background-color: ${cell.color};`}
-                    >
-                      {#if cell.label}
-                        <span>{cell.label}</span>
-                      {/if}
-                    </span>
-                  {/each}
+            <button
+              type="button"
+              class="spine-panel-button"
+              onclick={() => openSpinogram(plurinominalChart.title, plurinominalChart.xLabel, panel)}
+              aria-label={panel.label}
+              title={panel.label}
+            >
+              <div class="spine-plot large" role="img" aria-label={panel.label}>
+                {#each panel.bins as bin}
+                  <span
+                    class="spine-bin"
+                    title={bin.label}
+                    style={`left: ${pct(bin.xPercent)}; width: ${pct(bin.widthPercent)};`}
+                  >
+                    {#each bin.cells as cell}
+                      <span
+                        class="spine-cell"
+                        style={`top: ${pct(cell.yPercent)}; height: ${pct(cell.heightPercent)}; background-color: ${cell.color}; color: ${cell.textColor};`}
+                      >
+                        {#if cell.label}
+                          <span>{cell.label}</span>
+                        {/if}
+                      </span>
+                    {/each}
+                  </span>
+                {/each}
+              </div>
+            </button>
+            <div class="spine-axis" aria-hidden="true">
+              {#each panel.ticks as tick}
+                <span class="spine-axis-tick" style={`left: ${pct(tick.positionPercent)};`}>
+                  <span></span>
+                  <em>{tick.label}</em>
                 </span>
               {/each}
             </div>
@@ -240,6 +296,52 @@
     </details>
   {/if}
 </div>
+
+{#if enlargedSpinogram}
+  <div class="overlay" role="presentation">
+    <button type="button" class="overlay-backdrop" onclick={closeSpinogram} aria-label="Chiudi"></button>
+    <div class="overlay-panel" role="dialog" aria-modal="true" aria-label={enlargedSpinogram.panel.label}>
+      <div class="overlay-heading">
+        <div>
+          <h3>{enlargedSpinogram.title}</h3>
+          <p>{enlargedSpinogram.panel.label}</p>
+        </div>
+        <button type="button" class="close-button" onclick={closeSpinogram} aria-label="Chiudi" title="Chiudi">
+          <X size={20} aria-hidden="true" />
+        </button>
+      </div>
+      <div class="spine-plot enlarged" role="img" aria-label={enlargedSpinogram.panel.label}>
+        {#each enlargedSpinogram.panel.bins as bin}
+          <span
+            class="spine-bin"
+            title={bin.label}
+            style={`left: ${pct(bin.xPercent)}; width: ${pct(bin.widthPercent)};`}
+          >
+            {#each bin.cells as cell}
+              <span
+                class="spine-cell enlarged-cell"
+                style={`top: ${pct(cell.yPercent)}; height: ${pct(cell.heightPercent)}; background-color: ${cell.color}; color: ${cell.textColor};`}
+              >
+                {#if cell.label}
+                  <span>{cell.label}</span>
+                {/if}
+              </span>
+            {/each}
+          </span>
+        {/each}
+      </div>
+      <div class="spine-axis enlarged-axis" aria-hidden="true">
+        {#each enlargedSpinogram.panel.ticks as tick}
+          <span class="spine-axis-tick" style={`left: ${pct(tick.positionPercent)};`}>
+            <span></span>
+            <em>{tick.label}</em>
+          </span>
+        {/each}
+      </div>
+      <p class="axis-label">{enlargedSpinogram.xLabel}</p>
+    </div>
+  </div>
+{/if}
 
 <style>
   .result-charts {
@@ -463,6 +565,25 @@
     height: 240px;
   }
 
+  .spine-plot.enlarged {
+    height: min(68vh, 620px);
+  }
+
+  .spine-panel-button {
+    display: block;
+    width: 100%;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    cursor: zoom-in;
+    font: inherit;
+  }
+
+  .spine-panel-button:focus-visible {
+    outline: 2px solid #2f6f57;
+    outline-offset: 3px;
+  }
+
   .spine-bin,
   .spine-cell {
     position: absolute;
@@ -481,9 +602,44 @@
     display: grid;
     place-items: center;
     min-height: 8px;
-    color: #182026;
     font-size: 11px;
     font-weight: 750;
+  }
+
+  .enlarged-cell {
+    font-size: 16px;
+  }
+
+  .spine-axis {
+    position: relative;
+    height: 28px;
+    border-top: 1px solid #cfd7de;
+  }
+
+  .spine-axis.enlarged-axis {
+    height: 34px;
+  }
+
+  .spine-axis-tick {
+    position: absolute;
+    top: 0;
+    display: grid;
+    justify-items: center;
+    transform: translateX(-50%);
+  }
+
+  .spine-axis-tick span {
+    width: 1px;
+    height: 8px;
+    background: #aeb8c0;
+  }
+
+  .spine-axis-tick em {
+    color: #697681;
+    font-size: 10px;
+    font-style: normal;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
   }
 
   .pluri-control {
@@ -507,6 +663,78 @@
     color: #182026;
     padding: 0 10px;
     font: inherit;
+  }
+
+  .overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    display: grid;
+    place-items: center;
+    background: rgba(24, 32, 38, 0.58);
+    padding: 28px;
+  }
+
+  .overlay-backdrop {
+    position: absolute;
+    inset: 0;
+    border: 0;
+    background: transparent;
+    padding: 0;
+  }
+
+  .overlay-panel {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: 14px;
+    width: min(1180px, 100%);
+    max-height: calc(100vh - 56px);
+    overflow: auto;
+    border: 1px solid #d8dee3;
+    border-radius: 8px;
+    background: #ffffff;
+    padding: 16px;
+    box-shadow: 0 24px 70px rgba(24, 32, 38, 0.28);
+  }
+
+  .overlay-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .overlay-heading h3,
+  .overlay-heading p {
+    margin: 0;
+  }
+
+  .overlay-heading h3 {
+    color: #182026;
+    font-size: 17px;
+    font-weight: 750;
+  }
+
+  .overlay-heading p {
+    margin-top: 3px;
+    color: #697681;
+    font-size: 13px;
+    font-weight: 650;
+  }
+
+  .close-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    min-width: 38px;
+    height: 38px;
+    border: 1px solid #bdc7d0;
+    border-radius: 6px;
+    background: #ffffff;
+    color: #182026;
+    cursor: pointer;
   }
 
   @media (min-width: 1120px) {
@@ -536,6 +764,14 @@
     .boxplot-row {
       grid-template-columns: 1fr;
       gap: 2px;
+    }
+
+    .overlay {
+      padding: 12px;
+    }
+
+    .overlay-panel {
+      max-height: calc(100vh - 24px);
     }
   }
 </style>

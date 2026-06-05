@@ -55,6 +55,11 @@ test('runs the worker smoke path from the scenario editor', async ({ page }) => 
   await expect(page.getByRole('table', { name: 'Election overview' })).toBeVisible();
   await expect(page.getByRole('region', { name: 'Seggi plurinominali medi' })).toBeVisible();
   await expect(page.getByRole('region', { name: 'Percentuali medie sui voti validi' })).toBeVisible();
+  await page.getByText('Spinogrammi degli eletti').click();
+  await page.getByRole('button', { name: /camera - / }).first().click();
+  await expect(page.getByRole('dialog')).toContainText('Spinogrammi degli eletti');
+  await page.getByRole('dialog').getByRole('button', { name: 'Chiudi' }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
   await expect(page.getByRole('table', { name: 'Average plurinominal seats by list' })).toBeVisible();
   await expect(page.getByRole('table', { name: 'Vote share by list' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Scarica risultati JSON' })).toBeVisible();

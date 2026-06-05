@@ -165,6 +165,13 @@ describe('politics result charts', () => {
     expect(chart?.kind).toBe('spine');
     expect(chart?.panels[0].label).toBe('camera - Lista A - 10');
     expect(chart?.panels[0].bins.flatMap((bin) => bin.cells.map((cell) => cell.seats))).toEqual([1, 2]);
+
+    const cells = chart?.panels[0].bins.flatMap((bin) => bin.cells).sort((left, right) => left.seats - right.seats);
+    expect(cells?.map((cell) => [cell.seats, cell.color, cell.textColor])).toEqual([
+      [1, '#ffffff', '#182026'],
+      [2, '#000000', '#ffffff']
+    ]);
+    expect(chart?.panels[0].ticks.map((tick) => tick.label)).toEqual(['60%', '60.2%', '62%']);
   });
 
   test('returns no charts when result tables are missing', () => {
