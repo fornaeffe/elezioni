@@ -2,11 +2,11 @@ import type {
   Scenario,
   ScenarioCandidateTemplate,
   ScenarioList,
-  ScenarioListCorrespondence,
   ScenarioLocalShareOverride
 } from '$lib/core/types';
 import { buildPoliticsParametersFromHistoricalVotes } from './parameter-preparation';
 import type {
+  PoliticsBaseDataRow,
   PoliticsCandidatePluriGenerationTemplateRow,
   PoliticsCandidateUniTemplateRow,
   PoliticsHistoricalMunicipalListVoteRow,
@@ -16,17 +16,14 @@ import type {
   PoliticsPipelineSource
 } from './types';
 
-const sourceModelCorrespondenceElection = 'politics-static source model';
-
 export interface PoliticsScenarioProjectionRow {
   list: string;
-  sourceList: string | null;
   coalition: string | null;
   scenarioShare: number | null;
   shareOverride: boolean;
   projectedShare: number | null;
-  matchMode: 'homonymous' | 'declared-correspondence' | 'none';
-  status: 'matched' | 'removed' | 'unmatched';
+  parameterSource: 'historical' | 'static-snapshot' | 'synthetic';
+  status: 'active';
 }
 
 export interface PoliticsScenarioProjectionWarning {
@@ -41,12 +38,11 @@ export interface PoliticsScenarioProjection {
   warnings: PoliticsScenarioProjectionWarning[];
 }
 
-interface ActiveSourceList {
+interface ActiveScenarioList {
   source: PoliticsPipelineListRow;
   scenario: ScenarioList;
   projectedListName: string;
-  matchMode: 'homonymous' | 'declared-correspondence';
-  correspondence?: ScenarioListCorrespondence;
+  parameterSource: PoliticsScenarioProjectionRow['parameterSource'];
 }
 
 function listKey(name: string): string {
@@ -66,13 +62,15 @@ function boundedFraction(value: number, fallback: number): number {
   return Number.isFinite(value) ? Math.min(Math.max(value, 0), 0.999999999) : fallback;
 }
 
+function meanFinite(values: readonly number[]): number {
+  const finiteValues = values.filter(Number.isFinite);
+  if (finiteValues.length === 0) return 0;
+  return finiteValues.reduce((sum, value) => sum + value, 0) / finiteValues.length;
+}
+
 function baseAbstentionFraction(rows: readonly PoliticsPipelineListRow[], politicalTotal: number): number {
   const abstentionRow = rows.find((row) => listKey(row.LISTA) === 'astensione');
   return boundedFraction(abstentionRow?.PERCENTUALE ?? 1 - politicalTotal, Math.max(1 - politicalTotal, 0));
-}
-
-function isSourceModelCorrespondence(correspondence: ScenarioListCorrespondence): boolean {
-  return correspondence.pastElection === sourceModelCorrespondenceElection;
 }
 
 function requestElectionDateIso(rawDate: string | undefined, fallback: string): string {
@@ -111,7 +109,7 @@ function uniqueBy<T>(rows: readonly T[], key: (row: T) => string): T[] {
 }
 
 function projectPercentages(
-  activeLists: readonly ActiveSourceList[],
+  activeLists: readonly ActiveScenarioList[],
   sourcePoliticalTotal: number,
   warnings: PoliticsScenarioProjectionWarning[]
 ): Map<string, number> {
@@ -133,7 +131,7 @@ function projectPercentages(
     const shareTotal = Number(overrideShareTotal.toFixed(2));
     warnings.push({
       code: 'POLITICS_SCENARIO_OVERRIDES_RENORMALIZED',
-      message: `All matched lists have explicit valid-vote share overrides totaling ${shareTotal}%; they were normalized to 100% across matched lists before conversion to elector fractions.`,
+      message: `All active lists have explicit valid-vote share overrides totaling ${shareTotal}%; they were normalized to 100% across active lists before conversion to elector fractions.`,
       todoReference: 'MIGRATION_PLAN.md#current-caveats'
     });
 
@@ -160,41 +158,65 @@ function projectPercentages(
   return projected;
 }
 
-function projectRamoSource(
+function uninominalCandidateKey(coalition: string, code: string | number | null): string {
+  return `${coalition}\u001f${String(code ?? '')}`;
+}
+
+function plurinominalSlotKey(row: Pick<PoliticsCandidatePluriGenerationTemplateRow, 'PLURI_COD' | 'NUMERO_CANDIDATO' | 'MINORANZA'>): string {
+  return [String(row.PLURI_COD ?? ''), String(row.NUMERO_CANDIDATO), String(row.MINORANZA === true)].join('\u001f');
+}
+
+function synthesizeRamoSource(
   source: PoliticsPipelineRamoSource,
-  activeBySourceKey: ReadonlyMap<string, ActiveSourceList>,
-  activeCoalitions: ReadonlySet<string>
-): { source: PoliticsPipelineRamoSource; syntheticCoalitions: string[] } {
-  const existingCoalitions = new Set(
+  activeLists: readonly ActiveScenarioList[],
+  activeCoalitions: readonly string[]
+): PoliticsPipelineRamoSource {
+  const existingUninominalByKey = new Map(
     source.candidati_uni
-      .map((row) => row.COALIZIONE)
-      .filter((coalition): coalition is string => coalition !== null && coalition !== '')
+      .filter((row) => row.COALIZIONE !== null)
+      .map((row) => [uninominalCandidateKey(row.COALIZIONE as string, row.UNI_COD), row])
   );
-  const syntheticCoalitions = [...activeCoalitions].filter((coalition) => !existingCoalitions.has(coalition));
-  const baseUninominalRows = uniqueBy(source.candidati_uni, (row) => String(row.UNI_COD));
-  const syntheticRows: PoliticsCandidateUniTemplateRow[] = syntheticCoalitions.flatMap((coalition) =>
-    baseUninominalRows.map((row) => ({
-      COALIZIONE: coalition,
-      UNI_COD: row.UNI_COD,
-      LISTA_MINORANZA: null,
-      CANDIDATO_ID: null,
-      DATA_NASCITA: null
-    }))
+  const uninominalCollegeRows = uniqueBy(source.uni, (row) => String(row.UNI_COD));
+  const candidatiUni: PoliticsCandidateUniTemplateRow[] = activeCoalitions.flatMap((coalition) =>
+    uninominalCollegeRows.map((row) => {
+      const existing = existingUninominalByKey.get(uninominalCandidateKey(coalition, row.UNI_COD));
+      return existing
+        ? { ...existing, COALIZIONE: coalition, UNI_COD: row.UNI_COD }
+        : {
+            COALIZIONE: coalition,
+            UNI_COD: row.UNI_COD,
+            LISTA_MINORANZA: null,
+            CANDIDATO_ID: null,
+            DATA_NASCITA: null
+          };
+    })
+  );
+
+  const existingPlurinominalByListSlot = new Map(
+    source.candidati_pluri.map((row) => [`${listKey(row.LISTA)}\u001f${plurinominalSlotKey(row)}`, row])
+  );
+  const slotGrid = uniqueBy(source.candidati_pluri, plurinominalSlotKey);
+  const candidatiPluri: PoliticsPipelineRamoSource['candidati_pluri'] = activeLists.flatMap((active) =>
+    slotGrid.map((slot) => {
+      const existing = existingPlurinominalByListSlot.get(`${listKey(active.projectedListName)}\u001f${plurinominalSlotKey(slot)}`);
+      return existing
+        ? { ...existing, LISTA: active.projectedListName }
+        : {
+            CIRC_COD: slot.CIRC_COD,
+            LISTA: active.projectedListName,
+            PLURI_COD: slot.PLURI_COD,
+            NUMERO_CANDIDATO: slot.NUMERO_CANDIDATO,
+            MINORANZA: slot.MINORANZA,
+            CANDIDATO_ID: null,
+            DATA_NASCITA: null
+          };
+    })
   );
 
   return {
-    source: {
-      ...source,
-      candidati_uni: [
-        ...source.candidati_uni.filter((row) => row.COALIZIONE !== null && activeCoalitions.has(row.COALIZIONE)),
-        ...syntheticRows
-      ],
-      candidati_pluri: source.candidati_pluri.flatMap((row) => {
-        const active = activeBySourceKey.get(listKey(row.LISTA));
-        return active ? [{ ...row, LISTA: active.projectedListName }] : [];
-      })
-    },
-    syntheticCoalitions
+    ...source,
+    candidati_uni: candidatiUni,
+    candidati_pluri: candidatiPluri
   };
 }
 
@@ -311,14 +333,35 @@ function localOverrideLabel(scope: ScenarioLocalShareOverride['scope'], location
 
 function projectedMunicipalRows(
   rows: readonly PoliticsMunicipalListParameterRow[],
-  activeBySourceKey: ReadonlyMap<string, ActiveSourceList>,
-  activeByProjectedKey: ReadonlyMap<string, ActiveSourceList>
+  projectedListRows: readonly PoliticsPipelineListRow[],
+  baseRows: readonly PoliticsBaseDataRow[]
 ): PoliticsMunicipalListParameterRow[] {
-  return rows.flatMap((row) => {
-    if (row.LISTA === 'astensione') return { ...row };
-    const active = activeBySourceKey.get(listKey(row.LISTA)) ?? activeByProjectedKey.get(listKey(row.LISTA));
-    return active ? [{ ...row, LISTA: active.projectedListName }] : [];
-  });
+  const projectedListByKey = new Map(projectedListRows.map((row) => [listKey(row.LISTA), row]));
+  const filteredRows = rows.filter((row) => projectedListByKey.has(listKey(row.LISTA))).map((row) => ({ ...row }));
+  const rowsByKey = new Map(filteredRows.map((row) => [`${String(row.CODICE_COMUNE)}\u001f${listKey(row.LISTA)}`, row]));
+  const municipalityCodes = new Map<string, PoliticsMunicipalListParameterRow['CODICE_COMUNE']>();
+  for (const row of baseRows) municipalityCodes.set(String(row.CODICE_COMUNE), row.CODICE_COMUNE);
+  for (const row of filteredRows) municipalityCodes.set(String(row.CODICE_COMUNE), row.CODICE_COMUNE);
+  const fallbackSigmaDelta = meanFinite(filteredRows.map((row) => row.SIGMA_DELTA));
+
+  for (const [municipalityKey, municipalityCode] of municipalityCodes) {
+    for (const listRow of projectedListRows) {
+      const key = `${municipalityKey}\u001f${listKey(listRow.LISTA)}`;
+      if (rowsByKey.has(key)) continue;
+
+      rowsByKey.set(key, {
+        CODICE_COMUNE: municipalityCode,
+        LISTA: listRow.LISTA,
+        DATA: listRow.DATA,
+        DELTA: 0,
+        SIGMA_DELTA: fallbackSigmaDelta
+      });
+    }
+  }
+
+  return [...rowsByKey.values()].sort((left, right) =>
+    [String(left.CODICE_COMUNE), left.LISTA].join('\u001f').localeCompare([String(right.CODICE_COMUNE), right.LISTA].join('\u001f'))
+  );
 }
 
 function localBaseFractions(
@@ -379,7 +422,7 @@ function applyLocalShareOverrides(
     if (!municipalityRows || scope !== 'municipality') {
       warnings.push({
         code: 'POLITICS_SCENARIO_LOCAL_OVERRIDES_UNUSED',
-        message: `Local share overrides for ${localOverrideLabel('municipality', locationCode)} did not match the current source model and were ignored.`,
+        message: `Local share overrides for ${localOverrideLabel('municipality', locationCode)} did not match the current scenario municipalities and were ignored.`,
         todoReference: 'MIGRATION_PLAN.md#current-caveats'
       });
       continue;
@@ -454,41 +497,16 @@ function applyLocalShareOverrides(
   return rows.map((row) => adjustedByRowKey.get(`${String(row.CODICE_COMUNE)}\u001f${row.LISTA}`) ?? { ...row });
 }
 
-function correspondenceLabel(correspondence: ScenarioListCorrespondence): string {
-  return `${correspondence.pastElection || 'elezione sconosciuta'}:${correspondence.pastList || 'lista sconosciuta'} -> ${
-    correspondence.futureList || 'lista sconosciuta'
-  }`;
-}
-
-function retargetHistoricalCorrespondences(
-  correspondences: readonly ScenarioListCorrespondence[],
-  activeBySourceKey: ReadonlyMap<string, ActiveSourceList>
-): ScenarioListCorrespondence[] {
-  return correspondences
-    .filter((correspondence) => !isSourceModelCorrespondence(correspondence))
-    .map((correspondence) => {
-      const active = activeBySourceKey.get(listKey(correspondence.futureList));
-      return active ? { ...correspondence, futureList: active.projectedListName } : correspondence;
-    });
-}
-
 function buildHistoricalParameterSource(
   scenario: Scenario,
-  activeLists: readonly ActiveSourceList[],
-  activeBySourceKey: ReadonlyMap<string, ActiveSourceList>,
   options: {
     historicalVotes?: readonly PoliticsHistoricalMunicipalListVoteRow[];
     parameterPercentualiPartenza?: string | null;
   }
 ): Pick<PoliticsPipelineSource, 'liste' | 'comuni_liste'> | null {
-  if (!options.historicalVotes || options.historicalVotes.length === 0 || activeLists.length === 0) return null;
+  if (!options.historicalVotes || options.historicalVotes.length === 0 || scenario.lists.length === 0) return null;
 
-  const parameterScenario: Scenario = {
-    ...scenario,
-    lists: activeLists.map((row) => row.scenario),
-    listCorrespondences: retargetHistoricalCorrespondences(scenario.listCorrespondences, activeBySourceKey)
-  };
-  const parameters = buildPoliticsParametersFromHistoricalVotes(options.historicalVotes, parameterScenario, {
+  const parameters = buildPoliticsParametersFromHistoricalVotes(options.historicalVotes, scenario, {
     percentualiPartenza: options.parameterPercentualiPartenza ?? null
   });
 
@@ -514,118 +532,42 @@ export function projectScenarioOntoPoliticsSource(
   const overrideReferenceDate = overrideReferenceDateIso(options.currentDate, electionDateIso);
   const sourcePoliticalRows = source.liste.filter((row) => row.LISTA !== 'astensione');
   const sourcePoliticalTotal = sourcePoliticalRows.reduce((sum, row) => sum + row.PERCENTUALE, 0);
-  const scenarioByKey = new Map(scenario.lists.map((row) => [listKey(row.name), row]));
-  const activeLists: ActiveSourceList[] = [];
+  const historicalParameterSource = buildHistoricalParameterSource(scenario, options);
+  const baseListRows = historicalParameterSource?.liste ?? source.liste;
+  const baseMunicipalRows = historicalParameterSource?.comuni_liste ?? source.comuni_liste;
+  const baseListByKey = new Map(baseListRows.map((row) => [listKey(row.LISTA), row]));
+  const sourceListByKey = new Map(source.liste.map((row) => [listKey(row.LISTA), row]));
+  const fallbackListDate = baseListRows[0]?.DATA ?? source.liste[0]?.DATA ?? electionDateIso;
+  const fallbackSigmaGlobal = meanFinite(baseListRows.map((row) => row.SIGMA_GLOBAL));
+  const activeLists: ActiveScenarioList[] = scenario.lists.map((scenarioRow) => {
+    const baseParameter = baseListByKey.get(listKey(scenarioRow.name));
+    const sourceParameter = sourceListByKey.get(listKey(scenarioRow.name));
+    const parameter = baseParameter ?? sourceParameter ?? {
+      LISTA: scenarioRow.name,
+      COALIZIONE: scenarioRow.coalition,
+      DATA: fallbackListDate,
+      LOGIT_P: logit(0),
+      SIGMA_GLOBAL: fallbackSigmaGlobal,
+      PERCENTUALE: 0
+    };
+
+    return {
+      source: {
+        ...parameter,
+        LISTA: scenarioRow.name,
+        COALIZIONE: scenarioRow.coalition
+      },
+      scenario: scenarioRow,
+      projectedListName: scenarioRow.name,
+      parameterSource: historicalParameterSource ? 'historical' : sourceParameter ? 'static-snapshot' : 'synthetic'
+    };
+  });
   const projectionRows: PoliticsScenarioProjectionRow[] = [];
-  const activeBySourceKey = new Map<string, ActiveSourceList>();
-  const activeScenarioKeys = new Set<string>();
-  const usedCorrespondenceIds = new Set<string>();
-
-  for (const sourceRow of sourcePoliticalRows) {
-    const sourceKey = listKey(sourceRow.LISTA);
-    const scenarioRow = scenarioByKey.get(listKey(sourceRow.LISTA));
-    if (!scenarioRow) continue;
-
-    const active = {
-      source: sourceRow,
-      scenario: scenarioRow,
-      projectedListName: scenarioRow.name,
-      matchMode: 'homonymous' as const
-    };
-    activeLists.push(active);
-    activeBySourceKey.set(sourceKey, active);
-    activeScenarioKeys.add(listKey(scenarioRow.name));
-  }
-
-  for (const sourceRow of sourcePoliticalRows) {
-    const sourceKey = listKey(sourceRow.LISTA);
-    if (activeBySourceKey.has(sourceKey)) continue;
-
-    const candidates = scenario.listCorrespondences
-      .filter((correspondence) => isSourceModelCorrespondence(correspondence) && listKey(correspondence.pastList) === sourceKey)
-      .map((correspondence) => ({
-        correspondence,
-        scenario: scenarioByKey.get(listKey(correspondence.futureList))
-      }))
-      .filter(
-        (candidate): candidate is { correspondence: ScenarioListCorrespondence; scenario: ScenarioList } =>
-          candidate.scenario !== undefined && !activeScenarioKeys.has(listKey(candidate.scenario.name))
-      );
-
-    if (candidates.length === 0) continue;
-
-    if (candidates.length > 1) {
-      warnings.push({
-        code: 'POLITICS_SCENARIO_CORRESPONDENCE_AMBIGUOUS',
-        message: `More than one declared correspondence can use ${sourceRow.LISTA} as a source model list; no correspondence was applied for that source: ${candidates
-          .map((candidate) => correspondenceLabel(candidate.correspondence))
-          .join(', ')}.`,
-        todoReference: 'MIGRATION_PLAN.md#current-caveats'
-      });
-      continue;
-    }
-
-    const [{ correspondence, scenario: scenarioRow }] = candidates;
-    const active = {
-      source: sourceRow,
-      scenario: scenarioRow,
-      projectedListName: scenarioRow.name,
-      matchMode: 'declared-correspondence' as const,
-      correspondence
-    };
-    activeLists.push(active);
-    activeBySourceKey.set(sourceKey, active);
-    activeScenarioKeys.add(listKey(scenarioRow.name));
-    usedCorrespondenceIds.add(correspondence.id);
-  }
-
-  const unusedCorrespondences = scenario.listCorrespondences.filter(
-    (correspondence) =>
-      correspondence.source === 'manual' && isSourceModelCorrespondence(correspondence) && !usedCorrespondenceIds.has(correspondence.id)
-  );
-  if (unusedCorrespondences.length > 0) {
-    warnings.push({
-      code: 'POLITICS_SCENARIO_CORRESPONDENCES_UNUSED',
-      message: `Some declared list correspondences did not match the current static snapshot and were not used: ${unusedCorrespondences
-        .map(correspondenceLabel)
-        .join(', ')}.`,
-      todoReference: 'MIGRATION_PLAN.md#current-caveats'
-    });
-  }
-
-  for (const sourceRow of sourcePoliticalRows) {
-    const active = activeBySourceKey.get(listKey(sourceRow.LISTA));
-    if (active) {
-      continue;
-    }
-
-    projectionRows.push({
-      list: sourceRow.LISTA,
-      sourceList: sourceRow.LISTA,
-      coalition: sourceRow.COALIZIONE,
-      scenarioShare: null,
-      shareOverride: false,
-      projectedShare: 0,
-      matchMode: 'none',
-      status: 'removed'
-    });
-  }
-
-  const unmatchedScenarioLists = scenario.lists.filter((row) => !activeScenarioKeys.has(listKey(row.name)));
-  if (unmatchedScenarioLists.length > 0) {
-    warnings.push({
-      code: 'POLITICS_SCENARIO_LISTS_IGNORED',
-      message: `Some scenario lists do not have a homonymous source list or usable declared correspondence in the current static snapshot and were ignored: ${unmatchedScenarioLists
-        .map((row) => row.name)
-        .join(', ')}.`,
-      todoReference: 'MIGRATION_PLAN.md#current-caveats'
-    });
-  }
 
   if (activeLists.length === 0) {
     warnings.push({
-      code: 'POLITICS_SCENARIO_NO_MATCHING_LISTS',
-      message: 'No scenario list matched the current static snapshot, so the bundled default source was used unchanged.',
+      code: 'POLITICS_SCENARIO_NO_LISTS',
+      message: 'No scenario list is available, so the bundled default source was used unchanged.',
       todoReference: 'MIGRATION_PLAN.md#current-caveats'
     });
 
@@ -638,39 +580,20 @@ export function projectScenarioOntoPoliticsSource(
       rows: [
         ...sourcePoliticalRows.map((row) => ({
           list: row.LISTA,
-          sourceList: row.LISTA,
           coalition: row.COALIZIONE,
           scenarioShare: null,
           shareOverride: false,
           projectedShare: sourcePoliticalTotal > 0 ? (100 * row.PERCENTUALE) / sourcePoliticalTotal : 0,
-          matchMode: 'none' as const,
-          status: 'matched' as const
-        })),
-        ...unmatchedScenarioLists.map((row) => ({
-          list: row.name,
-          sourceList: null,
-          coalition: row.coalition,
-          scenarioShare: row.startingShare,
-          shareOverride: row.shareOverride,
-          projectedShare: null,
-          matchMode: 'none' as const,
-          status: 'unmatched' as const
+          parameterSource: 'static-snapshot' as const,
+          status: 'active' as const
         }))
       ],
       warnings
     };
   }
 
-  const historicalParameterSource = buildHistoricalParameterSource(scenario, activeLists, activeBySourceKey, options);
-  const baseListRows = historicalParameterSource?.liste ?? source.liste;
-  const baseMunicipalRows = historicalParameterSource?.comuni_liste ?? source.comuni_liste;
-  const parameterByListKey = new Map(baseListRows.map((row) => [listKey(row.LISTA), row]));
-  const activeListsWithParameters = activeLists.map((active) => ({
-    ...active,
-    source: parameterByListKey.get(listKey(active.projectedListName)) ?? active.source
-  }));
   const basePoliticalTotal = baseListRows
-    .filter((row) => row.LISTA !== 'astensione' && activeScenarioKeys.has(listKey(row.LISTA)))
+    .filter((row) => row.LISTA !== 'astensione' && scenario.lists.some((list) => listKey(list.name) === listKey(row.LISTA)))
     .reduce((sum, row) => sum + row.PERCENTUALE, 0);
   const targetAbstention = scenario.abstentionOverride
     ? boundedFraction(scenario.abstentionShare / 100, baseAbstentionFraction(baseListRows, basePoliticalTotal))
@@ -678,62 +601,62 @@ export function projectScenarioOntoPoliticsSource(
   const projectionPoliticalTotal =
     scenario.abstentionOverride || historicalParameterSource ? Math.max(1 - targetAbstention, 0) : sourcePoliticalTotal;
   const projectedPercentages = projectPercentages(
-    activeListsWithParameters,
+    activeLists,
     projectionPoliticalTotal,
     warnings
   );
-  const activeCoalitions = new Set(
-    activeLists
-      .map((row) => row.scenario.coalition)
-      .filter((coalition): coalition is string => coalition !== null && coalition !== '')
-  );
-  const cameraProjection = projectRamoSource(source.camera, activeBySourceKey, activeCoalitions);
-  const senatoProjection = projectRamoSource(source.senato, activeBySourceKey, activeCoalitions);
-  const camera = applyCandidateTemplatesToRamo('camera', cameraProjection.source, scenario.candidateTemplates, warnings);
-  const senato = applyCandidateTemplatesToRamo('senato', senatoProjection.source, scenario.candidateTemplates, warnings);
-  const syntheticCoalitions = [...new Set([...cameraProjection.syntheticCoalitions, ...senatoProjection.syntheticCoalitions])];
-
-  if (syntheticCoalitions.length > 0) {
-    warnings.push({
-      code: 'POLITICS_SCENARIO_SYNTHETIC_COALITIONS',
-      message: `Some scenario coalitions do not exist in the current candidate template; generated placeholder uninominal candidates were created for: ${syntheticCoalitions.join(
-        ', '
-      )}.`,
-      todoReference: 'MIGRATION_PLAN.md#current-caveats'
-    });
-  }
-
-  const activeScenarioBySourceName = new Map(activeLists.map((row) => [row.source.LISTA, row.scenario]));
-  const activeByProjectedKey = new Map(activeLists.map((row) => [listKey(row.projectedListName), row]));
-  const projectedLists = baseListRows
-    .flatMap((row) => {
-      if (listKey(row.LISTA) === 'astensione') {
-        return {
-          ...row,
-          PERCENTUALE: targetAbstention,
-          LOGIT_P: logit(targetAbstention),
-          SIGMA_GLOBAL: scenario.abstentionOverride ? 0 : row.SIGMA_GLOBAL
-        };
-      }
-
-      const active = activeBySourceKey.get(listKey(row.LISTA)) ?? activeByProjectedKey.get(listKey(row.LISTA));
-      if (!active) return [];
-
-      const scenarioRow = activeScenarioBySourceName.get(row.LISTA) ?? active.scenario;
-      const percentage = projectedPercentages.get(active.projectedListName) ?? row.PERCENTUALE;
-
-      return [{
-        ...row,
+  const activeCoalitions = [
+    ...new Set(
+      activeLists
+        .map((row) => row.scenario.coalition)
+        .filter((coalition): coalition is string => coalition !== null && coalition !== '')
+    )
+  ];
+  const baseAbstentionRow =
+    baseListRows.find((row) => listKey(row.LISTA) === 'astensione') ??
+    source.liste.find((row) => listKey(row.LISTA) === 'astensione') ?? {
+      LISTA: 'astensione',
+      COALIZIONE: null,
+      DATA: fallbackListDate,
+      LOGIT_P: logit(targetAbstention),
+      SIGMA_GLOBAL: fallbackSigmaGlobal,
+      PERCENTUALE: targetAbstention
+    };
+  const projectedLists: PoliticsPipelineListRow[] = [
+    ...activeLists.map((active) => {
+      const percentage = projectedPercentages.get(active.projectedListName) ?? active.source.PERCENTUALE;
+      return {
+        ...active.source,
         LISTA: active.projectedListName,
-        COALIZIONE: scenarioRow?.coalition ?? row.COALIZIONE,
-        DATA: active.scenario.shareOverride ? overrideReferenceDate : row.DATA,
+        COALIZIONE: active.scenario.coalition,
+        DATA: active.scenario.shareOverride ? overrideReferenceDate : active.source.DATA,
         PERCENTUALE: percentage,
-        SIGMA_GLOBAL: row.SIGMA_GLOBAL,
         LOGIT_P: logit(percentage)
-      }];
-    });
+      };
+    }),
+    {
+      ...baseAbstentionRow,
+      LISTA: 'astensione',
+      COALIZIONE: null,
+      PERCENTUALE: targetAbstention,
+      LOGIT_P: logit(targetAbstention),
+      SIGMA_GLOBAL: scenario.abstentionOverride ? 0 : baseAbstentionRow.SIGMA_GLOBAL
+    }
+  ];
+  const camera = applyCandidateTemplatesToRamo(
+    'camera',
+    synthesizeRamoSource(source.camera, activeLists, activeCoalitions),
+    scenario.candidateTemplates,
+    warnings
+  );
+  const senato = applyCandidateTemplatesToRamo(
+    'senato',
+    synthesizeRamoSource(source.senato, activeLists, activeCoalitions),
+    scenario.candidateTemplates,
+    warnings
+  );
   const projectedMunicipalParameterRows = applyLocalShareOverrides(
-    projectedMunicipalRows(baseMunicipalRows, activeBySourceKey, activeByProjectedKey),
+    projectedMunicipalRows(baseMunicipalRows, projectedLists, source.base_dati),
     baseListRows,
     projectedLists,
     scenario.localShareOverrides,
@@ -741,33 +664,16 @@ export function projectScenarioOntoPoliticsSource(
     warnings
   );
 
-  for (const { source: sourceRow, scenario: scenarioRow } of activeLists) {
-    const active = activeBySourceKey.get(listKey(sourceRow.LISTA));
-    const projectedListName = active?.projectedListName ?? sourceRow.LISTA;
-    const baseParameterRow = parameterByListKey.get(listKey(projectedListName));
-    const percentage = projectedPercentages.get(projectedListName) ?? baseParameterRow?.PERCENTUALE ?? sourceRow.PERCENTUALE;
+  for (const active of activeLists) {
+    const percentage = projectedPercentages.get(active.projectedListName) ?? active.source.PERCENTUALE;
     projectionRows.push({
-      list: projectedListName,
-      sourceList: sourceRow.LISTA,
-      coalition: scenarioRow.coalition,
-      scenarioShare: scenarioRow.startingShare,
-      shareOverride: scenarioRow.shareOverride,
+      list: active.projectedListName,
+      coalition: active.scenario.coalition,
+      scenarioShare: active.scenario.startingShare,
+      shareOverride: active.scenario.shareOverride,
       projectedShare: projectionPoliticalTotal > 0 ? (100 * percentage) / projectionPoliticalTotal : 0,
-      matchMode: active?.matchMode ?? 'none',
-      status: 'matched'
-    });
-  }
-
-  for (const row of unmatchedScenarioLists) {
-    projectionRows.push({
-      list: row.name,
-      sourceList: null,
-      coalition: row.coalition,
-      scenarioShare: row.startingShare,
-      shareOverride: row.shareOverride,
-      projectedShare: null,
-      matchMode: 'none',
-      status: 'unmatched'
+      parameterSource: active.parameterSource,
+      status: 'active'
     });
   }
 

@@ -63,7 +63,7 @@ describeWithGeneratedFixtures('politics browser vertical slice', [productionStat
     const scrutinyAlgorithm = resolvePoliticsScrutinyAlgorithm(defaultPoliticsScrutinyAlgorithmId).algorithm;
 
     expect(projection.warnings).toEqual([]);
-    expect(projection.rows.every((row) => row.status === 'matched')).toBe(true);
+    expect(projection.rows.every((row) => row.status === 'active')).toBe(true);
 
     const directSnapshot = buildPoliticsDirectScrutinySnapshot(projection.source, {
       seed: 'production-vertical-slice'

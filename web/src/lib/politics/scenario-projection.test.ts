@@ -3,8 +3,6 @@ import type { Scenario } from '$lib/core/types';
 import type { PoliticsHistoricalMunicipalListVoteRow, PoliticsPipelineSource } from './types';
 import { projectScenarioOntoPoliticsSource } from './scenario-projection';
 
-const sourceModelCorrespondenceElection = 'politics-static source model';
-
 function logit(probability: number): number {
   return Math.log(probability / (1 - probability));
 }
@@ -146,9 +144,9 @@ describe('politics scenario projection', () => {
     const rows = projection.source.liste.filter((row) => row.LISTA !== 'astensione');
     expect(rows.map((row) => row.LISTA)).toEqual(['Lista A', 'Lista C']);
     expect(rows.map((row) => Number(row.PERCENTUALE.toFixed(3)))).toEqual([0.15, 0.45]);
-    expect(projection.source.comuni_liste.map((row) => row.LISTA)).toEqual(['Lista A', 'Lista C', 'astensione']);
+    expect(projection.source.comuni_liste.map((row) => row.LISTA)).toEqual(['astensione', 'Lista A', 'Lista C']);
     expect(projection.source.camera.candidati_pluri.map((row) => row.LISTA)).toEqual(['Lista A', 'Lista C']);
-    expect(projection.rows.find((row) => row.list === 'Lista B')?.status).toBe('removed');
+    expect(projection.rows.map((row) => row.list)).toEqual(['Lista A', 'Lista C']);
   });
 
   test('applies partial share overrides and recalculates unspecified lists proportionally', () => {
@@ -173,7 +171,7 @@ describe('politics scenario projection', () => {
     expect(projection.rows.find((row) => row.list === 'Lista A')?.projectedShare).toBe(50);
   });
 
-  test('normalizes all matched valid-vote overrides when their total is not 100', () => {
+  test('normalizes all active valid-vote overrides when their total is not 100', () => {
     const projection = projectScenarioOntoPoliticsSource(
       source(),
       scenario([
@@ -187,14 +185,14 @@ describe('politics scenario projection', () => {
     expect(projection.source.liste.filter((row) => row.LISTA !== 'astensione').map((row) => Number(row.PERCENTUALE.toFixed(3)))).toEqual([
       0.2, 0.2, 0.2
     ]);
-    expect(projection.rows.filter((row) => row.status === 'matched').map((row) => Number((row.projectedShare ?? 0).toFixed(2)))).toEqual([
+    expect(projection.rows.filter((row) => row.status === 'active').map((row) => Number((row.projectedShare ?? 0).toFixed(2)))).toEqual([
       33.33, 33.33, 33.33
     ]);
     expect(projection.warnings).toEqual([
       expect.objectContaining({
         code: 'POLITICS_SCENARIO_OVERRIDES_RENORMALIZED',
         message:
-          'All matched lists have explicit valid-vote share overrides totaling 60%; they were normalized to 100% across matched lists before conversion to elector fractions.'
+          'All active lists have explicit valid-vote share overrides totaling 60%; they were normalized to 100% across active lists before conversion to elector fractions.'
       })
     ]);
   });
@@ -242,10 +240,10 @@ describe('politics scenario projection', () => {
       astensione: 0.4
     });
     expect(projection.source.comuni_liste.map((row) => [row.LISTA, row.DATA])).toEqual([
+      ['astensione', '2026-06-04T00:00:00.000Z'],
       ['Lista A', '2026-06-04T00:00:00.000Z'],
       ['Lista B', '2026-06-04T00:00:00.000Z'],
-      ['Lista C', '2026-06-04T00:00:00.000Z'],
-      ['astensione', '2026-06-04T00:00:00.000Z']
+      ['Lista C', '2026-06-04T00:00:00.000Z']
     ]);
     expect(projection.warnings).toEqual([]);
   });
@@ -280,7 +278,7 @@ describe('politics scenario projection', () => {
     ]);
   });
 
-  test('uses declared correspondences to project renamed scenario lists', () => {
+  test('uses historical correspondences to project renamed scenario lists', () => {
     const renamedScenario = scenario([
       { id: 'x', name: 'Lista X', coalition: 'Coalizione A', color: '#000000', startingShare: 10, shareOverride: false },
       { id: 'b', name: 'Lista B', coalition: 'Coalizione B', color: '#111111', startingShare: 20, shareOverride: false },
@@ -288,17 +286,38 @@ describe('politics scenario projection', () => {
     ]);
     renamedScenario.listCorrespondences = [
       {
-        id: 'corr-a-x',
+        id: 'history-a-x',
         futureList: 'Lista X',
-        pastElection: sourceModelCorrespondenceElection,
-        pastDate: '2022-09-25',
-        pastList: 'Lista A',
+        pastElection: 'election 2024',
+        pastDate: '2024-01-01',
+        pastList: 'Historical A',
+        factor: 1,
+        source: 'manual'
+      },
+      {
+        id: 'history-b',
+        futureList: 'Lista B',
+        pastElection: 'election 2024',
+        pastDate: '2024-01-01',
+        pastList: 'Historical B',
+        factor: 1,
+        source: 'manual'
+      },
+      {
+        id: 'history-c',
+        futureList: 'Lista C',
+        pastElection: 'election 2024',
+        pastDate: '2024-01-01',
+        pastList: 'Historical C',
         factor: 1,
         source: 'manual'
       }
     ];
 
-    const projection = projectScenarioOntoPoliticsSource(source(), renamedScenario, { simulations: 1 });
+    const projection = projectScenarioOntoPoliticsSource(source(), renamedScenario, {
+      historicalVotes: historicalVotes(),
+      simulations: 1
+    });
 
     expect(projection.warnings).toEqual([]);
     expect(projection.source.liste.filter((row) => row.LISTA !== 'astensione').map((row) => row.LISTA)).toEqual([
@@ -307,36 +326,24 @@ describe('politics scenario projection', () => {
       'Lista C'
     ]);
     expect(projection.source.liste.filter((row) => row.LISTA !== 'astensione').map((row) => Number(row.PERCENTUALE.toFixed(3)))).toEqual([
-      0.1, 0.2, 0.3
+      0.4, 0.2, 0.2
     ]);
-    expect(projection.source.comuni_liste.map((row) => row.LISTA)).toEqual(['Lista X', 'Lista B', 'Lista C', 'astensione']);
+    expect(projection.source.comuni_liste.map((row) => row.LISTA)).toEqual(['astensione', 'Lista B', 'Lista C', 'Lista X']);
     expect(projection.source.camera.candidati_pluri.map((row) => row.LISTA)).toEqual(['Lista X', 'Lista B', 'Lista C']);
     expect(projection.rows.find((row) => row.list === 'Lista X')).toEqual(
       expect.objectContaining({
-        sourceList: 'Lista A',
-        matchMode: 'declared-correspondence',
-        status: 'matched'
+        parameterSource: 'historical',
+        status: 'active'
       })
     );
   });
 
-  test('applies scenario candidate templates to matched projected slots', () => {
+  test('applies scenario candidate templates to generated new-list slots', () => {
     const templateScenario = scenario([
       { id: 'x', name: 'Lista X', coalition: 'Coalizione A', color: '#000000', startingShare: 10, shareOverride: false },
       { id: 'b', name: 'Lista B', coalition: 'Coalizione B', color: '#111111', startingShare: 20, shareOverride: false },
       { id: 'c', name: 'Lista C', coalition: 'Coalizione C', color: '#222222', startingShare: 30, shareOverride: false }
     ]);
-    templateScenario.listCorrespondences = [
-      {
-        id: 'corr-a-x',
-        futureList: 'Lista X',
-        pastElection: sourceModelCorrespondenceElection,
-        pastDate: '2022-09-25',
-        pastList: 'Lista A',
-        factor: 1,
-        source: 'manual'
-      }
-    ];
     templateScenario.candidateTemplates = [
       {
         id: 'uni-template',
@@ -407,106 +414,44 @@ describe('politics scenario projection', () => {
     );
   });
 
-  test('retargets rich historical parameters through source-model correspondences', () => {
-    const renamedScenario = scenario([
-      { id: 'x', name: 'Lista X', coalition: 'Coalizione A', color: '#000000', startingShare: 10, shareOverride: false },
-      { id: 'b', name: 'Lista B', coalition: 'Coalizione B', color: '#111111', startingShare: 20, shareOverride: false },
-      { id: 'c', name: 'Lista C', coalition: 'Coalizione C', color: '#222222', startingShare: 30, shareOverride: false }
+  test('splits one historical list across two future lists and sends unmatched history to abstention', () => {
+    const splitScenario = scenario([
+      { id: 'one', name: 'Lista Uno', coalition: 'Coalizione A', color: '#000000', startingShare: 10, shareOverride: false },
+      { id: 'two', name: 'Lista Due', coalition: 'Coalizione B', color: '#111111', startingShare: 20, shareOverride: false }
     ]);
-    renamedScenario.listCorrespondences = [
+    splitScenario.listCorrespondences = [
       {
-        id: 'source-a-x',
-        futureList: 'Lista X',
-        pastElection: sourceModelCorrespondenceElection,
-        pastDate: '2022-09-25',
-        pastList: 'Lista A',
-        factor: 1,
+        id: 'history-a-one',
+        futureList: 'Lista Uno',
+        pastElection: 'election 2024',
+        pastDate: '2024-01-01',
+        pastList: 'Historical A',
+        factor: 2,
         source: 'manual'
       },
       {
-        id: 'history-a',
-        futureList: 'Lista A',
+        id: 'history-a-two',
+        futureList: 'Lista Due',
         pastElection: 'election 2024',
         pastDate: '2024-01-01',
         pastList: 'Historical A',
         factor: 1,
-        source: 'bundled'
-      },
-      {
-        id: 'history-b',
-        futureList: 'Lista B',
-        pastElection: 'election 2024',
-        pastDate: '2024-01-01',
-        pastList: 'Historical B',
-        factor: 1,
-        source: 'bundled'
-      },
-      {
-        id: 'history-c',
-        futureList: 'Lista C',
-        pastElection: 'election 2024',
-        pastDate: '2024-01-01',
-        pastList: 'Historical C',
-        factor: 1,
-        source: 'bundled'
+        source: 'manual'
       }
     ];
 
-    const projection = projectScenarioOntoPoliticsSource(source(), renamedScenario, {
+    const projection = projectScenarioOntoPoliticsSource(source(), splitScenario, {
       historicalVotes: historicalVotes(),
       simulations: 1
     });
 
     expect(projection.warnings).toEqual([]);
     expect(projection.source.liste.map((row) => [row.LISTA, Number(row.PERCENTUALE.toFixed(3))])).toEqual([
-      ['Lista B', 0.2],
-      ['Lista C', 0.2],
-      ['Lista X', 0.4],
-      ['astensione', 0.2]
+      ['Lista Uno', 0.267],
+      ['Lista Due', 0.133],
+      ['astensione', 0.6]
     ]);
-    expect(projection.source.comuni_liste.map((row) => row.LISTA)).toEqual(['astensione', 'Lista B', 'Lista C', 'Lista X']);
-    const renamedProjectionRow = projection.rows.find((row) => row.list === 'Lista X');
-    expect(renamedProjectionRow).toEqual(
-      expect.objectContaining({
-        sourceList: 'Lista A',
-        matchMode: 'declared-correspondence'
-      })
-    );
-    expect(renamedProjectionRow?.projectedShare ?? Number.NaN).toBeCloseTo(50);
-  });
-
-  test('warns when declared correspondences cannot use the current snapshot', () => {
-    const staleScenario = scenario([
-      { id: 'x', name: 'Lista X', coalition: 'Coalizione A', color: '#000000', startingShare: 10, shareOverride: false }
-    ]);
-    staleScenario.listCorrespondences = [
-      {
-        id: 'stale',
-        futureList: 'Lista X',
-        pastElection: sourceModelCorrespondenceElection,
-        pastDate: '2022-09-25',
-        pastList: 'Lista che non esiste',
-        factor: 1,
-        source: 'manual'
-      }
-    ];
-
-    const projection = projectScenarioOntoPoliticsSource(source(), staleScenario, { simulations: 1 });
-
-    expect(projection.warnings.map((warning) => warning.code)).toEqual(
-      expect.arrayContaining([
-        'POLITICS_SCENARIO_CORRESPONDENCES_UNUSED',
-        'POLITICS_SCENARIO_LISTS_IGNORED',
-        'POLITICS_SCENARIO_NO_MATCHING_LISTS'
-      ])
-    );
-    expect(projection.rows.find((row) => row.list === 'Lista X')).toEqual(
-      expect.objectContaining({
-        sourceList: null,
-        matchMode: 'none',
-        status: 'unmatched'
-      })
-    );
+    expect(projection.source.comuni_liste.map((row) => row.LISTA)).toEqual(['astensione', 'Lista Due', 'Lista Uno']);
   });
 
   test('keeps stochastic parameters for active political lists', () => {
@@ -525,7 +470,7 @@ describe('politics scenario projection', () => {
     ]);
   });
 
-  test('ignores unmatched new lists and creates placeholder candidates for new matched coalitions', () => {
+  test('keeps new lists active and creates legal candidate slots for new coalitions', () => {
     const projection = projectScenarioOntoPoliticsSource(
       source(),
       scenario([
@@ -535,16 +480,21 @@ describe('politics scenario projection', () => {
       { simulations: 1 }
     );
 
-    expect(projection.source.liste.filter((row) => row.LISTA !== 'astensione').map((row) => row.LISTA)).toEqual(['Lista A']);
+    expect(projection.source.liste.filter((row) => row.LISTA !== 'astensione').map((row) => row.LISTA)).toEqual(['Lista A', 'Lista X']);
     expect(projection.source.liste.find((row) => row.LISTA === 'Lista A')?.COALIZIONE).toBe('Coalizione Nuova');
+    expect(projection.source.liste.find((row) => row.LISTA === 'Lista X')?.PERCENTUALE).toBeCloseTo(0.09);
     expect(projection.source.camera.candidati_uni).toEqual(
       expect.arrayContaining([
         { COALIZIONE: 'Coalizione Nuova', UNI_COD: 10, LISTA_MINORANZA: null, CANDIDATO_ID: null, DATA_NASCITA: null }
       ])
     );
-    expect(projection.warnings.map((warning) => warning.code)).toEqual(
-      expect.arrayContaining(['POLITICS_SCENARIO_LISTS_IGNORED', 'POLITICS_SCENARIO_SYNTHETIC_COALITIONS'])
+    expect(projection.source.camera.candidati_pluri.map((row) => row.LISTA)).toEqual(['Lista A', 'Lista X']);
+    expect(projection.warnings).toEqual([]);
+    expect(projection.rows.find((row) => row.list === 'Lista X')).toEqual(
+      expect.objectContaining({
+        parameterSource: 'synthetic',
+        status: 'active'
+      })
     );
-    expect(projection.rows.find((row) => row.list === 'Lista X')?.status).toBe('unmatched');
   });
 });

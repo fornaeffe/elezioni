@@ -20,8 +20,24 @@ export const politicsScenarioStorageKey = 'elezioni:web:politics-scenario:v1';
 export const politicsScenarioSchemaVersion = 6;
 
 export const defaultPoliticsScenario: Scenario = generatedDefaultPoliticsScenario;
-export const defaultPoliticsSourceModelListNames = defaultPoliticsScenario.lists.map((list) => list.name);
-const manualCorrespondencePastElection = 'politics-static source model';
+export const politicsAbstentionListName = 'astensione';
+
+export interface ScenarioHistoricalCorrespondenceSource {
+  key: string;
+  pastElection: string;
+  pastDate: string;
+  pastList: string;
+  correspondences: ScenarioListCorrespondence[];
+  defaultCorrespondences: ScenarioListCorrespondence[];
+  customized: boolean;
+}
+
+export interface ScenarioHistoricalCorrespondenceGroup {
+  key: string;
+  pastElection: string;
+  pastDate: string;
+  sources: ScenarioHistoricalCorrespondenceSource[];
+}
 
 interface SerializedScenario {
   schema_version: number;
@@ -48,6 +64,31 @@ function uniqueName(base: string, existingNames: readonly string[]): string {
     suffix += 1;
   }
   return `${base} ${suffix}`;
+}
+
+function listKey(name: string): string {
+  return name.trim().toLocaleLowerCase('it-IT');
+}
+
+function correspondenceSourceKey(pastElection: string, pastList: string): string {
+  return `${pastElection.trim()}\u001f${listKey(pastList)}`;
+}
+
+function correspondenceRowKey(correspondence: ScenarioListCorrespondence): string {
+  return [
+    correspondence.pastElection.trim().toLocaleLowerCase('it-IT'),
+    correspondence.pastList.trim().toLocaleLowerCase('it-IT'),
+    correspondence.futureList.trim().toLocaleLowerCase('it-IT')
+  ].join('|');
+}
+
+function correspondenceEditableKey(correspondence: ScenarioListCorrespondence): string {
+  return [
+    correspondence.pastElection.trim(),
+    correspondence.pastList.trim(),
+    correspondence.futureList.trim(),
+    String(correspondence.factor)
+  ].join('|');
 }
 
 function cleanColor(value: unknown, fallback: string): string {
@@ -92,7 +133,7 @@ function cleanGlobalShareMode(value: unknown): ScenarioGlobalShareMode {
 }
 
 function cleanCorrespondenceSource(value: unknown): ScenarioListCorrespondenceSource {
-  return value === 'homonymous' || value === 'manual' ? value : 'bundled';
+  return value === 'manual' ? 'manual' : 'bundled';
 }
 
 function cleanLocalShareOverrideScope(value: unknown): ScenarioLocalShareOverrideScope {
@@ -164,26 +205,212 @@ export function createScenarioCoalition(existingCoalitions: readonly ScenarioCoa
   };
 }
 
-export function createScenarioListCorrespondence(scenario: Scenario): ScenarioListCorrespondence {
-  const futureList = scenario.lists[0]?.name ?? '';
-  const usedSourceKeys = new Set(
+function cloneCorrespondence(correspondence: ScenarioListCorrespondence): ScenarioListCorrespondence {
+  return {
+    ...correspondence
+  };
+}
+
+function defaultDestinationForSource(
+  scenario: Scenario,
+  pastElection: string,
+  pastList: string
+): string {
+  const usedDestinations = new Set(
     scenario.listCorrespondences
-      .filter((correspondence) => correspondence.source === 'manual' && correspondence.futureList === futureList)
-      .map((correspondence) => correspondence.pastList.trim().toLocaleLowerCase('it-IT'))
+      .filter((row) => correspondenceSourceKey(row.pastElection, row.pastList) === correspondenceSourceKey(pastElection, pastList))
+      .map((row) => listKey(row.futureList))
   );
-  const pastList =
-    defaultPoliticsSourceModelListNames.find((name) => !usedSourceKeys.has(name.trim().toLocaleLowerCase('it-IT'))) ??
-    defaultPoliticsSourceModelListNames[0] ??
-    '';
+  const candidate = scenario.lists.find((list) => !usedDestinations.has(listKey(list.name)));
+  return candidate?.name ?? politicsAbstentionListName;
+}
+
+export function buildScenarioHistoricalCorrespondenceGroups(
+  scenario: Scenario
+): ScenarioHistoricalCorrespondenceGroup[] {
+  const defaultRowsBySource = new Map<string, ScenarioListCorrespondence[]>();
+  const currentRowsBySource = new Map<string, ScenarioListCorrespondence[]>();
+  const sourceOrder = new Map<string, number>();
+
+  const rememberSource = (row: ScenarioListCorrespondence, index: number): void => {
+    const key = correspondenceSourceKey(row.pastElection, row.pastList);
+    if (!sourceOrder.has(key)) sourceOrder.set(key, index);
+  };
+
+  defaultPoliticsScenario.listCorrespondences.forEach((row, index) => {
+    const key = correspondenceSourceKey(row.pastElection, row.pastList);
+    const rows = defaultRowsBySource.get(key) ?? [];
+    rows.push(cloneCorrespondence(row));
+    defaultRowsBySource.set(key, rows);
+    rememberSource(row, index);
+  });
+
+  scenario.listCorrespondences.forEach((row, index) => {
+    const key = correspondenceSourceKey(row.pastElection, row.pastList);
+    const rows = currentRowsBySource.get(key) ?? [];
+    rows.push(cloneCorrespondence(row));
+    currentRowsBySource.set(key, rows);
+    rememberSource(row, defaultPoliticsScenario.listCorrespondences.length + index);
+  });
+
+  const sources = [...new Set([...defaultRowsBySource.keys(), ...currentRowsBySource.keys()])]
+    .map((key) => {
+      const current = currentRowsBySource.get(key) ?? [];
+      const defaults = defaultRowsBySource.get(key) ?? [];
+      const reference = current[0] ?? defaults[0];
+      const defaultSignature = defaults.map(correspondenceEditableKey).sort().join('\u001e');
+      const currentSignature = current.map(correspondenceEditableKey).sort().join('\u001e');
+
+      return {
+        key,
+        pastElection: reference?.pastElection ?? '',
+        pastDate: reference?.pastDate ?? '',
+        pastList: reference?.pastList ?? '',
+        correspondences: current.sort((left, right) => listKey(left.futureList).localeCompare(listKey(right.futureList), 'it')),
+        defaultCorrespondences: defaults,
+        customized: currentSignature !== defaultSignature
+      } satisfies ScenarioHistoricalCorrespondenceSource;
+    })
+    .sort((left, right) => {
+      const leftOrder = sourceOrder.get(left.key) ?? Number.MAX_SAFE_INTEGER;
+      const rightOrder = sourceOrder.get(right.key) ?? Number.MAX_SAFE_INTEGER;
+      if (leftOrder !== rightOrder) return leftOrder - rightOrder;
+      return [left.pastElection, left.pastList].join('|').localeCompare([right.pastElection, right.pastList].join('|'), 'it');
+    });
+
+  const groups = new Map<string, ScenarioHistoricalCorrespondenceGroup>();
+  for (const source of sources) {
+    const groupKey = source.pastElection.trim();
+    const group = groups.get(groupKey) ?? {
+      key: groupKey,
+      pastElection: source.pastElection,
+      pastDate: source.pastDate,
+      sources: []
+    };
+    group.sources.push(source);
+    groups.set(groupKey, group);
+  }
+
+  return [...groups.values()];
+}
+
+export function addScenarioHistoricalCorrespondence(
+  scenario: Scenario,
+  source: Pick<ScenarioHistoricalCorrespondenceSource, 'pastElection' | 'pastDate' | 'pastList'>
+): Scenario {
+  return {
+    ...scenario,
+    listCorrespondences: [
+      ...scenario.listCorrespondences,
+      {
+        id: crypto.randomUUID(),
+        futureList: defaultDestinationForSource(scenario, source.pastElection, source.pastList),
+        pastElection: source.pastElection,
+        pastDate: source.pastDate,
+        pastList: source.pastList,
+        factor: 1,
+        source: 'manual'
+      }
+    ]
+  };
+}
+
+export function splitScenarioHistoricalCorrespondence(scenario: Scenario, id: string): Scenario {
+  const sourceRow = scenario.listCorrespondences.find((row) => row.id === id);
+  if (!sourceRow) return scenario;
+
+  const nextDestination = defaultDestinationForSource(scenario, sourceRow.pastElection, sourceRow.pastList);
+  const listCorrespondences = scenario.listCorrespondences.map((row) =>
+    row.id === id ? { ...row, source: 'manual' as const } : row
+  );
 
   return {
-    id: crypto.randomUUID(),
-    futureList,
-    pastElection: manualCorrespondencePastElection,
-    pastDate: scenario.electionDate,
-    pastList,
-    factor: 1,
-    source: 'manual'
+    ...scenario,
+    listCorrespondences: [
+      ...listCorrespondences,
+      {
+        ...sourceRow,
+        id: crypto.randomUUID(),
+        futureList: nextDestination,
+        factor: 1,
+        source: 'manual'
+      }
+    ]
+  };
+}
+
+export function updateScenarioHistoricalCorrespondence(
+  scenario: Scenario,
+  id: string,
+  patch: Partial<ScenarioListCorrespondence>
+): Scenario {
+  return {
+    ...scenario,
+    listCorrespondences: scenario.listCorrespondences.map((row) =>
+      row.id === id ? { ...row, ...patch, source: 'manual' } : row
+    )
+  };
+}
+
+export function removeScenarioHistoricalCorrespondence(scenario: Scenario, id: string): Scenario {
+  return {
+    ...scenario,
+    listCorrespondences: scenario.listCorrespondences.filter((row) => row.id !== id)
+  };
+}
+
+export function resetScenarioHistoricalCorrespondenceSource(
+  scenario: Scenario,
+  pastElection: string,
+  pastList: string
+): Scenario {
+  const sourceKey = correspondenceSourceKey(pastElection, pastList);
+  const defaults = defaultPoliticsScenario.listCorrespondences
+    .filter((row) => correspondenceSourceKey(row.pastElection, row.pastList) === sourceKey)
+    .map(cloneCorrespondence);
+
+  return {
+    ...scenario,
+    listCorrespondences: [
+      ...scenario.listCorrespondences.filter((row) => correspondenceSourceKey(row.pastElection, row.pastList) !== sourceKey),
+      ...defaults
+    ]
+  };
+}
+
+export function renameScenarioList(scenario: Scenario, id: string, name: string): Scenario {
+  const previous = scenario.lists.find((row) => row.id === id);
+  if (!previous) return scenario;
+
+  return {
+    ...scenario,
+    lists: scenario.lists.map((row) => (row.id === id ? { ...row, name } : row)),
+    listCorrespondences: scenario.listCorrespondences.map((row) =>
+      row.futureList === previous.name ? { ...row, futureList: name, source: 'manual' } : row
+    ),
+    localShareOverrides: scenario.localShareOverrides.map((row) =>
+      row.list === previous.name ? { ...row, list: name } : row
+    ),
+    candidateTemplates: scenario.candidateTemplates.map((row) =>
+      row.kind === 'plurinominal' && row.list === previous.name ? { ...row, list: name } : row
+    )
+  };
+}
+
+export function removeScenarioList(scenario: Scenario, id: string): Scenario {
+  const removed = scenario.lists.find((row) => row.id === id);
+  if (!removed) return scenario;
+
+  return {
+    ...scenario,
+    lists: scenario.lists.filter((row) => row.id !== id),
+    listCorrespondences: scenario.listCorrespondences.map((row) =>
+      row.futureList === removed.name ? { ...row, futureList: politicsAbstentionListName, source: 'manual' } : row
+    ),
+    localShareOverrides: scenario.localShareOverrides.filter((row) => row.list !== removed.name),
+    candidateTemplates: scenario.candidateTemplates.filter(
+      (row) => row.kind !== 'plurinominal' || row.list !== removed.name
+    )
   };
 }
 
@@ -326,12 +553,7 @@ export function validateScenario(scenario: Scenario): string[] {
     const futureListKey = correspondence.futureList.trim().toLocaleLowerCase('it-IT');
     const pastList = correspondence.pastList.trim();
     const pastElection = correspondence.pastElection.trim();
-    const key = [
-      correspondence.pastDate,
-      pastElection.toLocaleLowerCase('it-IT'),
-      pastList.toLocaleLowerCase('it-IT'),
-      futureListKey
-    ].join('|');
+    const key = correspondenceRowKey(correspondence);
 
     if (!correspondenceDestinationSet.has(futureListKey)) {
       messages.push(`Corrispondenza verso lista sconosciuta: ${correspondence.futureList || 'lista senza nome'}.`);

@@ -24,10 +24,9 @@ test('runs the worker smoke path from the scenario editor', async ({ page }) => 
     break;
   }
 
-  await page.getByRole('button', { name: 'Aggiungi corrispondenza' }).click();
-  const correspondenceRow = page.locator('.correspondence-row').first();
-  await expect(correspondenceRow.getByLabel('Lista scenario corrispondenza')).toHaveValue('+Europa Test');
-  await expect(correspondenceRow.getByLabel('Lista modello corrispondenza')).toHaveValue('+Europa');
+  const unitedStatesMapping = page.locator('.correspondence-source', { hasText: "STATI UNITI D'EUROPA" });
+  await expect(unitedStatesMapping.getByLabel('Destinazione corrispondenza').first()).toHaveValue('+Europa Test');
+  await expect(unitedStatesMapping.getByLabel('Fattore corrispondenza').first()).toHaveValue('0.5');
 
   for (let index = 0; index < (await listRows.count()); index += 1) {
     const row = listRows.nth(index);
@@ -50,8 +49,7 @@ test('runs the worker smoke path from the scenario editor', async ({ page }) => 
   const renamedProjectionRow = page.getByRole('table', { name: 'Scenario projection' }).locator('tbody tr', {
     hasText: '+Europa Test'
   });
-  await expect(renamedProjectionRow).toContainText('+Europa');
-  await expect(renamedProjectionRow).toContainText('declared-correspondence');
+  await expect(renamedProjectionRow).toContainText('historical');
   await expect(page.getByRole('table', { name: 'Election overview' })).toBeVisible();
   await expect(page.getByRole('region', { name: 'Seggi plurinominali medi' })).toBeVisible();
   await expect(page.getByRole('region', { name: 'Percentuali medie sui voti validi' })).toBeVisible();

@@ -27,7 +27,7 @@ export interface ScenarioDefaultSource {
 
 export type ScenarioGlobalShareMode = 'mean';
 
-export type ScenarioListCorrespondenceSource = 'bundled' | 'homonymous' | 'manual';
+export type ScenarioListCorrespondenceSource = 'bundled' | 'manual';
 
 export interface ScenarioListCorrespondence {
   id: string;

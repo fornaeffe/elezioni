@@ -1,10 +1,16 @@
 import { describe, expect, test } from 'vitest';
 import {
+  buildScenarioHistoricalCorrespondenceGroups,
   createDefaultPoliticsScenario,
-  createScenarioListCorrespondence,
   normalizeScenario,
   parseScenario,
+  removeScenarioList,
+  removeScenarioHistoricalCorrespondence,
+  renameScenarioList,
+  resetScenarioHistoricalCorrespondenceSource,
   serializeScenario,
+  splitScenarioHistoricalCorrespondence,
+  updateScenarioHistoricalCorrespondence,
   validateScenario
 } from './politics';
 
@@ -262,24 +268,111 @@ describe('politics web-native scenario model', () => {
     expect(validateScenario(scenario)).toEqual([]);
   });
 
-  test('creates valid manual list correspondences for compact editing', () => {
+  test('groups historical correspondences for preset matrix editing', () => {
     const scenario = createDefaultPoliticsScenario();
-    scenario.lists[0].name = '+Europa Test';
-    scenario.listCorrespondences = [];
+    const groups = buildScenarioHistoricalCorrespondenceGroups(scenario);
+    const latest = groups.find((group) => group.pastElection === 'europee 2024');
 
-    const correspondence = createScenarioListCorrespondence(scenario);
-    scenario.listCorrespondences = [correspondence];
+    expect(groups.map((group) => group.pastElection)).toEqual(
+      expect.arrayContaining(['camera 2018', 'camera 2022', 'europee 2019', 'europee 2024'])
+    );
+    expect(latest?.sources).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          pastList: 'PARTITO DEMOCRATICO',
+          customized: false,
+          correspondences: expect.arrayContaining([
+            expect.objectContaining({
+              futureList: 'Partito Democratico',
+              factor: 1
+            })
+          ])
+        })
+      ])
+    );
+  });
 
-    expect(correspondence).toEqual(
+  test('edits, splits, removes, and resets historical correspondences', () => {
+    let scenario = createDefaultPoliticsScenario();
+    const target = scenario.listCorrespondences.find(
+      (row) => row.pastElection === 'europee 2024' && row.pastList === 'PARTITO DEMOCRATICO'
+    );
+
+    expect(target).toBeDefined();
+    scenario = updateScenarioHistoricalCorrespondence(scenario, target?.id ?? '', {
+      futureList: 'Movimento 5 Stelle',
+      factor: 2
+    });
+    expect(scenario.listCorrespondences.find((row) => row.id === target?.id)).toEqual(
       expect.objectContaining({
-        futureList: '+Europa Test',
-        pastElection: 'politics-static source model',
-        pastDate: scenario.electionDate,
-        pastList: '+Europa',
-        factor: 1,
+        futureList: 'Movimento 5 Stelle',
+        factor: 2,
         source: 'manual'
       })
     );
+
+    scenario = splitScenarioHistoricalCorrespondence(scenario, target?.id ?? '');
+    const splitRows = scenario.listCorrespondences.filter(
+      (row) => row.pastElection === 'europee 2024' && row.pastList === 'PARTITO DEMOCRATICO'
+    );
+    expect(splitRows).toHaveLength(2);
+    expect(splitRows.every((row) => row.source === 'manual')).toBe(true);
+
+    scenario = removeScenarioHistoricalCorrespondence(scenario, splitRows[1].id);
+    expect(
+      scenario.listCorrespondences.filter(
+        (row) => row.pastElection === 'europee 2024' && row.pastList === 'PARTITO DEMOCRATICO'
+      )
+    ).toHaveLength(1);
+
+    scenario = resetScenarioHistoricalCorrespondenceSource(scenario, 'europee 2024', 'PARTITO DEMOCRATICO');
+    expect(
+      scenario.listCorrespondences.filter(
+        (row) => row.pastElection === 'europee 2024' && row.pastList === 'PARTITO DEMOCRATICO'
+      )
+    ).toEqual([
+      expect.objectContaining({
+        futureList: 'Partito Democratico',
+        factor: 1,
+        source: 'bundled'
+      })
+    ]);
+    expect(validateScenario(scenario)).toEqual([]);
+  });
+
+  test('cascades list rename and removal through scenario references', () => {
+    let scenario = createDefaultPoliticsScenario();
+    const list = scenario.lists.find((row) => row.name === 'Partito Democratico');
+
+    expect(list).toBeDefined();
+    scenario.localShareOverrides = [
+      { id: 'local-pd', scope: 'municipality', locationCode: '1', list: 'Partito Democratico', startingShare: 40 }
+    ];
+    scenario.candidateTemplates = [
+      {
+        id: 'candidate-pd',
+        ramo: 'camera',
+        kind: 'plurinominal',
+        list: 'Partito Democratico',
+        plurinominalCode: '10',
+        candidateNumber: 1,
+        minority: false,
+        candidateName: 'Candidato',
+        birthDate: null
+      }
+    ];
+
+    scenario = renameScenarioList(scenario, list?.id ?? '', 'Democratici');
+    expect(scenario.listCorrespondences.some((row) => row.futureList === 'Democratici')).toBe(true);
+    expect(scenario.localShareOverrides[0].list).toBe('Democratici');
+    expect(scenario.candidateTemplates[0].list).toBe('Democratici');
+
+    scenario = removeScenarioList(scenario, list?.id ?? '');
+    expect(scenario.lists.some((row) => row.name === 'Democratici')).toBe(false);
+    expect(scenario.listCorrespondences.some((row) => row.futureList === 'Democratici')).toBe(false);
+    expect(scenario.listCorrespondences.some((row) => row.futureList === 'astensione' && row.source === 'manual')).toBe(true);
+    expect(scenario.localShareOverrides).toEqual([]);
+    expect(scenario.candidateTemplates).toEqual([]);
     expect(validateScenario(scenario)).toEqual([]);
   });
 

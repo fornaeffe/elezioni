@@ -26,15 +26,22 @@
   } from '$lib/politics/result-charts';
   import { politicsResultPlotTableNames } from '$lib/politics/result-presentation';
   import {
+    addScenarioHistoricalCorrespondence,
+    buildScenarioHistoricalCorrespondenceGroups,
     cloneScenario,
     createDefaultPoliticsScenario,
     createScenarioCoalition,
     createScenarioList,
-    createScenarioListCorrespondence,
-    defaultPoliticsSourceModelListNames,
+    politicsAbstentionListName,
     parseScenario,
     politicsScenarioStorageKey,
+    removeScenarioHistoricalCorrespondence,
+    removeScenarioList as removeScenarioListFromScenario,
+    renameScenarioList,
+    resetScenarioHistoricalCorrespondenceSource,
     serializeScenario,
+    splitScenarioHistoricalCorrespondence,
+    updateScenarioHistoricalCorrespondence,
     validateScenario
   } from '$lib/scenario/politics';
 
@@ -90,12 +97,14 @@
   const plurinominalChart = $derived(buildPoliticsPlurinominalChart(tables, scenario, selectedPlurinominalOption));
   const diagnosticTables = $derived(tables.filter((table) => diagnosticTableNames.has(table.name)));
   const diagnosticsToggleLabel = $derived(showDiagnostics ? 'Nascondi dettagli' : 'Mostra dettagli');
-  const manualListCorrespondences = $derived(
-    scenarioDraft.listCorrespondences.filter((correspondence) => correspondence.source === 'manual')
-  );
+  const historicalCorrespondenceGroups = $derived(buildScenarioHistoricalCorrespondenceGroups(scenarioDraft));
   const bundledListCorrespondenceCount = $derived(
     scenarioDraft.listCorrespondences.filter((correspondence) => correspondence.source === 'bundled').length
   );
+  const manualListCorrespondenceCount = $derived(
+    scenarioDraft.listCorrespondences.filter((correspondence) => correspondence.source === 'manual').length
+  );
+  const correspondenceDestinations = $derived([...scenarioDraft.lists.map((list) => list.name), politicsAbstentionListName]);
 
   onMount(() => {
     if (!browser) return;
@@ -126,13 +135,7 @@
   }
 
   function removeList(id: string): void {
-    const removed = scenarioDraft.lists.find((row) => row.id === id);
-    scenarioDraft.lists = scenarioDraft.lists.filter((row) => row.id !== id);
-    if (removed) {
-      scenarioDraft.listCorrespondences = scenarioDraft.listCorrespondences.filter(
-        (correspondence) => correspondence.source !== 'manual' || correspondence.futureList !== removed.name
-      );
-    }
+    scenarioDraft = removeScenarioListFromScenario(scenarioDraft, id);
   }
 
   function addCoalition(): void {
@@ -164,21 +167,24 @@
     }
   }
 
-  function addListCorrespondence(): void {
-    scenarioDraft.listCorrespondences = [
-      ...scenarioDraft.listCorrespondences,
-      createScenarioListCorrespondence(scenarioDraft)
-    ];
-  }
-
   function updateListCorrespondence(id: string, patch: Partial<ScenarioListCorrespondence>): void {
-    scenarioDraft.listCorrespondences = scenarioDraft.listCorrespondences.map((row) =>
-      row.id === id && row.source === 'manual' ? { ...row, ...patch } : row
-    );
+    scenarioDraft = updateScenarioHistoricalCorrespondence(scenarioDraft, id, patch);
   }
 
   function removeListCorrespondence(id: string): void {
-    scenarioDraft.listCorrespondences = scenarioDraft.listCorrespondences.filter((row) => row.id !== id);
+    scenarioDraft = removeScenarioHistoricalCorrespondence(scenarioDraft, id);
+  }
+
+  function splitListCorrespondence(id: string): void {
+    scenarioDraft = splitScenarioHistoricalCorrespondence(scenarioDraft, id);
+  }
+
+  function addListCorrespondenceForSource(pastElection: string, pastDate: string, pastList: string): void {
+    scenarioDraft = addScenarioHistoricalCorrespondence(scenarioDraft, { pastElection, pastDate, pastList });
+  }
+
+  function resetListCorrespondenceSource(pastElection: string, pastList: string): void {
+    scenarioDraft = resetScenarioHistoricalCorrespondenceSource(scenarioDraft, pastElection, pastList);
   }
 
   function resetScenario(): void {
@@ -637,7 +643,13 @@
         {#each scenarioDraft.lists as list (list.id)}
           <div class="list-row">
             <input class="color" type="color" bind:value={list.color} aria-label="Colore lista" />
-            <input type="text" bind:value={list.name} aria-label="Nome lista" />
+            <input
+              type="text"
+              value={list.name}
+              oninput={(event) =>
+                (scenarioDraft = renameScenarioList(scenarioDraft, list.id, (event.currentTarget as HTMLInputElement).value))}
+              aria-label="Nome lista"
+            />
             <select bind:value={list.coalition} aria-label="Coalizione">
               {#each scenarioDraft.coalitions as coalition}
                 <option value={coalition.name}>{coalition.name}</option>
@@ -718,67 +730,120 @@
             <div class="correspondence-block">
               <div class="correspondence-heading">
                 <div>
-                  <span class="setting-label">Corrispondenze liste</span>
-                  <span class="setting-meta">{bundledListCorrespondenceCount} bundled</span>
+                  <span class="setting-label">Corrispondenze storiche</span>
+                  <span class="setting-meta">{bundledListCorrespondenceCount} bundled / {manualListCorrespondenceCount} manuali</span>
                 </div>
-                <button
-                  type="button"
-                  class="icon-button"
-                  onclick={addListCorrespondence}
-                  title="Aggiungi corrispondenza"
-                  aria-label="Aggiungi corrispondenza"
-                  disabled={scenarioDraft.lists.length === 0 || defaultPoliticsSourceModelListNames.length === 0}
-                >
-                  <Plus size={18} aria-hidden="true" />
-                </button>
               </div>
 
-              {#if manualListCorrespondences.length === 0}
-                <p class="advanced-note">Nessuna corrispondenza manuale</p>
+              {#if historicalCorrespondenceGroups.length === 0}
+                <p class="advanced-note">Nessuna corrispondenza storica</p>
               {:else}
                 <div class="correspondence-editor">
-                  {#each manualListCorrespondences as correspondence (correspondence.id)}
-                    <div class="correspondence-row">
-                      <label>
-                        Lista scenario
-                        <select
-                          value={correspondence.futureList}
-                          onchange={(event) =>
-                            updateListCorrespondence(correspondence.id, {
-                              futureList: (event.currentTarget as HTMLSelectElement).value
-                            })}
-                          aria-label="Lista scenario corrispondenza"
-                        >
-                          {#each scenarioDraft.lists as list}
-                            <option value={list.name}>{list.name}</option>
-                          {/each}
-                        </select>
-                      </label>
-                      <label>
-                        Modello sorgente
-                        <select
-                          value={correspondence.pastList}
-                          onchange={(event) =>
-                            updateListCorrespondence(correspondence.id, {
-                              pastList: (event.currentTarget as HTMLSelectElement).value
-                            })}
-                          aria-label="Lista modello corrispondenza"
-                        >
-                          {#each defaultPoliticsSourceModelListNames as listName}
-                            <option value={listName}>{listName}</option>
-                          {/each}
-                        </select>
-                      </label>
-                      <button
-                        type="button"
-                        class="icon-button danger"
-                        onclick={() => removeListCorrespondence(correspondence.id)}
-                        title="Rimuovi corrispondenza"
-                        aria-label="Rimuovi corrispondenza"
-                      >
-                        <Trash2 size={18} aria-hidden="true" />
-                      </button>
-                    </div>
+                  {#each historicalCorrespondenceGroups as group (group.key)}
+                    <details class="correspondence-election" open={group.pastElection === 'europee 2024'}>
+                      <summary>
+                        <span>{group.pastElection}</span>
+                        <span>{group.sources.length} liste</span>
+                      </summary>
+                      <div class="correspondence-sources">
+                        {#each group.sources as source (source.key)}
+                          <div class="correspondence-source">
+                            <div class="past-list-cell">
+                              <span>{source.pastList}</span>
+                              {#if source.customized}
+                                <span class="source-status">manuale</span>
+                              {:else}
+                                <span class="source-status">default</span>
+                              {/if}
+                            </div>
+
+                            <div class="correspondence-mappings">
+                              {#if source.correspondences.length === 0}
+                                <p class="advanced-note">Nessuna destinazione</p>
+                              {:else}
+                                {#each source.correspondences as correspondence (correspondence.id)}
+                                  <div class="correspondence-row">
+                                    <label>
+                                      Destinazione
+                                      <select
+                                        value={correspondence.futureList}
+                                        onchange={(event) =>
+                                          updateListCorrespondence(correspondence.id, {
+                                            futureList: (event.currentTarget as HTMLSelectElement).value
+                                          })}
+                                        aria-label="Destinazione corrispondenza"
+                                      >
+                                        {#each correspondenceDestinations as destination}
+                                          <option value={destination}>{destination}</option>
+                                        {/each}
+                                        {#if !correspondenceDestinations.includes(correspondence.futureList)}
+                                          <option value={correspondence.futureList}>{correspondence.futureList}</option>
+                                        {/if}
+                                      </select>
+                                    </label>
+                                    <label>
+                                      Fattore
+                                      <input
+                                        type="number"
+                                        min="0.001"
+                                        step="0.001"
+                                        value={correspondence.factor}
+                                        oninput={(event) =>
+                                          updateListCorrespondence(correspondence.id, {
+                                            factor: Number((event.currentTarget as HTMLInputElement).value)
+                                          })}
+                                        aria-label="Fattore corrispondenza"
+                                      />
+                                    </label>
+                                    <button
+                                      type="button"
+                                      class="icon-button"
+                                      onclick={() => splitListCorrespondence(correspondence.id)}
+                                      title="Dividi corrispondenza"
+                                      aria-label="Dividi corrispondenza"
+                                    >
+                                      <Plus size={18} aria-hidden="true" />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      class="icon-button danger"
+                                      onclick={() => removeListCorrespondence(correspondence.id)}
+                                      title="Rimuovi corrispondenza"
+                                      aria-label="Rimuovi corrispondenza"
+                                    >
+                                      <Trash2 size={18} aria-hidden="true" />
+                                    </button>
+                                  </div>
+                                {/each}
+                              {/if}
+                            </div>
+
+                            <div class="source-actions">
+                              <button
+                                type="button"
+                                class="icon-button"
+                                onclick={() => addListCorrespondenceForSource(source.pastElection, source.pastDate, source.pastList)}
+                                title="Aggiungi destinazione"
+                                aria-label="Aggiungi destinazione"
+                                disabled={scenarioDraft.lists.length === 0}
+                              >
+                                <Plus size={18} aria-hidden="true" />
+                              </button>
+                              <button
+                                type="button"
+                                class="icon-button"
+                                onclick={() => resetListCorrespondenceSource(source.pastElection, source.pastList)}
+                                title="Ripristina default"
+                                aria-label="Ripristina default"
+                                disabled={source.defaultCorrespondences.length === 0}
+                              >
+                                <RotateCcw size={18} aria-hidden="true" />
+                              </button>
+                            </div>
+                          </div>
+                        {/each}
+                      </div>
+                    </details>
                   {/each}
                 </div>
               {/if}
@@ -1146,11 +1211,80 @@
     gap: 10px;
   }
 
+  .correspondence-election {
+    border-top: 1px solid #e5e9ed;
+    padding-top: 8px;
+  }
+
+  .correspondence-election:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  .correspondence-election summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 34px;
+    color: #4d5963;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 750;
+  }
+
+  .correspondence-election summary span:last-child {
+    color: #697681;
+    font-size: 12px;
+    font-weight: 650;
+  }
+
+  .correspondence-sources {
+    display: grid;
+    gap: 8px;
+    padding-top: 8px;
+  }
+
+  .correspondence-source {
+    display: grid;
+    grid-template-columns: minmax(180px, 0.8fr) minmax(280px, 1.4fr) 84px;
+    gap: 8px;
+    align-items: start;
+  }
+
+  .past-list-cell {
+    display: grid;
+    gap: 4px;
+    min-height: 38px;
+    align-content: center;
+    color: #182026;
+    font-size: 13px;
+    font-weight: 650;
+  }
+
+  .source-status {
+    color: #697681;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .correspondence-mappings {
+    display: grid;
+    gap: 8px;
+  }
+
   .correspondence-row {
     display: grid;
-    grid-template-columns: minmax(130px, 1fr) minmax(130px, 1fr) 40px;
+    grid-template-columns: minmax(150px, 1fr) 92px 40px 40px;
     gap: 8px;
     align-items: end;
+  }
+
+  .source-actions {
+    display: flex;
+    gap: 6px;
+    justify-content: flex-end;
   }
 
   .section-heading {
@@ -1353,8 +1487,13 @@
     }
 
     .setting-row,
+    .correspondence-source,
     .correspondence-row {
       grid-template-columns: 1fr;
+    }
+
+    .source-actions {
+      justify-content: flex-start;
     }
 
     .list-row select {

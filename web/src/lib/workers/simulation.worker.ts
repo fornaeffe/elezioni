@@ -55,11 +55,10 @@ function progress(
 function scenarioProjectionTable(rows: PoliticsScenarioProjectionRow[]): ResultTable {
   return {
     name: 'Scenario projection',
-    columns: ['Lista', 'Fonte modello', 'Corrispondenza', 'Coalizione', 'Quota scenario', 'Usata', 'Quota proiettata', 'Stato'],
+    columns: ['Lista', 'Fonte parametri', 'Coalizione', 'Quota scenario', 'Usata', 'Quota proiettata', 'Stato'],
     rows: rows.map((row) => ({
       Lista: row.list,
-      'Fonte modello': row.sourceList,
-      Corrispondenza: row.matchMode,
+      'Fonte parametri': row.parameterSource,
       Coalizione: row.coalition,
       'Quota scenario': row.scenarioShare === null ? null : Number(row.scenarioShare.toFixed(2)),
       Usata: row.shareOverride,
@@ -112,13 +111,12 @@ async function handleRequest(request: SimulationRequest): Promise<void> {
         scenarioProjectionTable(
           request.scenario.lists.map((row) => ({
             list: row.name,
-            sourceList: null,
             coalition: row.coalition,
             scenarioShare: row.startingShare,
             shareOverride: row.shareOverride,
             projectedShare: null,
-            matchMode: 'none' as const,
-            status: 'unmatched' as const
+            parameterSource: 'synthetic' as const,
+            status: 'active' as const
           }))
         )
       ],
@@ -239,7 +237,7 @@ async function handleRequest(request: SimulationRequest): Promise<void> {
       electionKind: request.kind,
       severity: 'info',
       message:
-        'Scenario lists are matched by name against the static snapshot; matched list presence, coalitions, and explicit global share overrides are projected into the generated pipeline.',
+        'Scenario lists are projected from historical correspondences when raw historical votes are available; candidate slots are generated from the legal college grid for every active scenario list.',
       todoReference: 'MIGRATION_PLAN.md#current-caveats'
     }
   );

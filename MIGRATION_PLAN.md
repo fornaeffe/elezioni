@@ -55,10 +55,13 @@ reveals a cleaner order or a new blocker.
    the `calcola_parametri_input()` correspondence/parameter math now exists in
    a tested TypeScript module with unmapped original-list votes explicitly
    falling back to `astensione`.
-3. Extend scenario/UI semantics for historical correspondences. The worker can
-   now consume real historical correspondences, but the visible advanced editor
-   still exposes only compact source-model reuse. Add richer editing only with
-   clear candidate-template behavior for new/split future lists.
+3. Extend scenario/UI semantics for historical correspondences. Done for this
+   slice: the advanced editor now exposes grouped historical correspondence
+   rows with destination, factor, split, delete, and reset controls; the old
+   source-model reuse concept has been removed from the UI and scenario
+   helpers; projection treats every active scenario list as simulatable and
+   generates candidate slots from the legal college grid independently of
+   historical vote correspondences.
 4. Keep the current global mean-mode share override semantics stable while the
    scenario model grows. Done for this slice: list shares are valid-vote
    percentages, abstention is a separate advanced elector-share input,
@@ -155,9 +158,9 @@ reveals a cleaner order or a new blocker.
   unmapped original-list votes becoming `astensione`; gated parity tests rebuild
   the R-exported production default parameters when local generated data exists.
 - Wired the parameter builder into `scenario-projection.ts` and the worker when
-  schema-v2 raw historical votes are present. Compact source-model reuse
-  correspondences retarget bundled historical correspondences before parameter
-  rebuilding, preserving renamed-list workflows.
+  schema-v2 raw historical votes are present. Scenario lists now receive
+  historical/static/synthetic parameters directly, without a source-model reuse
+  layer.
 - Stopped tracking large generated JSON snapshots and bridge fixtures in Git.
   They remain local/generated artifacts and snapshot-dependent tests skip
   clearly when they are absent.
@@ -201,14 +204,13 @@ reveals a cleaner order or a new blocker.
 - Removed the provisional global `fixed` UI/projection behavior. The active
   scenario share mode is mean-only; older serialized `fixed` values normalize
   to `mean` until fixed semantics get their own design pass.
-- Added a compact one-to-one manual correspondence editor in the scenario
-  advanced UI. It maps one future scenario list to one current source-model list
-  and exercises the already-implemented `declared-correspondence` projection
-  path.
-- Added scenario projection from the web-native scenario into the current
-  source model, including explicit share overrides, proportional recalculation
-  for non-overridden matched lists, homonymous matching, safe one-to-one
-  declared correspondences, projection result rows, and warnings.
+- Added a grouped historical correspondence editor in the scenario advanced UI.
+  It edits destination lists, split factors, deletion, and reset-to-default for
+  bundled historical election/list rows.
+- Added scenario projection from the web-native scenario into the generated
+  worker source, including explicit share overrides, proportional recalculation
+  for non-overridden active lists, historical/static/synthetic parameter source
+  reporting, and candidate slot generation from legal college grids.
 - Completed the current global mean-mode share override semantics: overridden
   valid-vote shares are converted to elector fractions, all-overridden totals
   that are not 100% are normalized with a warning, and overridden list
@@ -345,17 +347,12 @@ after major scenario/schema/snapshot/generation/scrutiny changes.
   `node scripts/export_politics_scenario_defaults.mjs` when the default
   scenario changes.
 - Bundled list correspondences in the generated default are durable metadata for
-  defaults and future advanced editing. The current projection warns only for
-  unused manual correspondences.
-- Declared correspondence projection and the current UI support only the safe
-  one-to-one bridge case. Multi-source aggregation and split factors remain
-  deferred until their business semantics are explicit.
+  defaults and the current advanced editor. Editing a bundled row marks that row
+  manual; reset restores the generated default rows for that historical source.
 - `web/src/lib/politics/parameter-preparation.ts` is wired into projection and
-  the worker for schema-v2 snapshots. The current compact manual correspondence
-  editor still uses the special source-model election label
-  `politics-static source model`; projection treats that as template reuse and
-  retargets bundled historical correspondences accordingly. Real historical
-  split/merge editing remains an advanced UI/schema task.
+  the worker for schema-v2 snapshots. The editor now exposes real historical
+  split/merge factors, and projection treats candidate slots as independent
+  legal grid rows for every active scenario list.
 - `abstentionOverride` currently makes the global `astensione` parameter fixed
   by setting its `SIGMA_GLOBAL` to zero. Local share overrides keep each
   municipality's base abstention fraction fixed; there is not yet a separate
@@ -1525,3 +1522,28 @@ Verification with local generated artifacts present:
 - `cd web; npm run test`: passed, 156 tests.
 - `cd web; npm run build`: passed.
 - `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-05 Checkpoint 40
+
+Completed in the historical correspondence editor slice:
+
+- Replaced the compact source-model correspondence editor with grouped
+  historical correspondence controls in the advanced scenario panel.
+- Added scenario helpers for historical correspondence grouping, split/delete,
+  reset-to-default, and list rename/removal cascades through correspondences,
+  local share overrides, and plurinominal candidate templates.
+- Removed the old `politics-static source model` projection concept from the
+  web scenario path.
+- Updated projection so every active scenario list receives vote parameters
+  from historical correspondences when raw history is available, and candidate
+  slots are generated independently from the legal uninominal/plurinominal
+  college grids.
+- Updated the worker projection table and Playwright smoke path to report
+  historical/static/synthetic parameter sources instead of source-model
+  matches.
+
+Verification with local generated artifacts present:
+
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 162 tests.
+- `cd web; npm run test:e2e`: passed, 4 Playwright tests.

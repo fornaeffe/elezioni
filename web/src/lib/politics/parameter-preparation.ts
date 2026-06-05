@@ -171,8 +171,7 @@ function normalizeCorrespondences(
 
 function projectedDestinations(
   row: PoliticsHistoricalMunicipalListVoteRow,
-  correspondencesBySource: ReadonlyMap<string, CorrespondenceEntry[]>,
-  activeFutureListByKey: ReadonlyMap<string, string>
+  correspondencesBySource: ReadonlyMap<string, CorrespondenceEntry[]>
 ): readonly CorrespondenceEntry[] {
   const explicit = correspondencesBySource.get(correspondenceSourceKey(row.ELEZIONE, row.LISTA));
   if (explicit) return explicit;
@@ -180,9 +179,6 @@ function projectedDestinations(
   if (listKey(row.LISTA) === listKey(abstentionListName)) {
     return [{ futureList: abstentionListName, factor: 1 }];
   }
-
-  const homonymousFutureList = activeFutureListByKey.get(listKey(row.LISTA));
-  if (homonymousFutureList) return [{ futureList: homonymousFutureList, factor: 1 }];
 
   return [{ futureList: abstentionListName, factor: 1 }];
 }
@@ -204,7 +200,7 @@ export function projectHistoricalMunicipalVotes(
     const votes = Number(row.VOTI);
     if (!Number.isFinite(votes)) continue;
 
-    for (const destination of projectedDestinations(row, correspondencesBySource, activeFutureListByKey)) {
+    for (const destination of projectedDestinations(row, correspondencesBySource)) {
       const projectedRow: AggregatedProjectedVote = {
         DATA: row.DATA,
         ELEZIONE: row.ELEZIONE,
