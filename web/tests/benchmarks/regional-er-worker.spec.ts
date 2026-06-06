@@ -11,13 +11,14 @@ interface BenchmarkRun {
 }
 
 const outputPath = fileURLToPath(
-  new URL('../../../test/fixtures/benchmarks/browser_politics_worker.json', import.meta.url)
+  new URL('../../../test/fixtures/benchmarks/browser_regional_er_worker.json', import.meta.url)
 );
-const hasPoliticsStaticSnapshot =
-  existsSync(resolve(process.cwd(), 'static/data/v1/politics-static.json')) ||
-  existsSync(resolve(process.cwd(), 'static/data/v1/politics-static-debug.json'));
+const hasRegionalErStaticSnapshot = existsSync(resolve(process.cwd(), 'static/data/v1/regional-er-static.json'));
 
-test.skip(!hasPoliticsStaticSnapshot, 'Generated politics static snapshot is missing. Run scripts/export_politics_static_snapshot.R first.');
+test.skip(
+  !hasRegionalErStaticSnapshot,
+  'Generated regional Emilia-Romagna static snapshot is missing. Run scripts/export_regional_er_static_snapshot.R first.'
+);
 
 async function runSimulation(page: import('@playwright/test').Page, simulations: number): Promise<BenchmarkRun> {
   const input = page.getByLabel('Simulazioni');
@@ -26,20 +27,20 @@ async function runSimulation(page: import('@playwright/test').Page, simulations:
   await input.fill(String(simulations));
   await runButton.click();
 
-  await expect(page.getByRole('table', { name: 'Average plurinominal seats by list' })).toBeVisible({
-    timeout: 420_000
+  await expect(page.getByRole('table', { name: 'Regional average seats by list' })).toBeVisible({
+    timeout: 240_000
   });
   await page.getByRole('button', { name: 'Mostra dettagli' }).click();
 
-  const runsTable = page.getByRole('table', { name: 'Generated pipeline runs' });
-  await expect(runsTable.locator('tbody tr')).toHaveCount(simulations * 2, { timeout: 420_000 });
-  await expect(page.getByText('POLITICS_STATIC_SNAPSHOT')).toBeVisible();
+  const runsTable = page.getByRole('table', { name: 'Generated regional runs' });
+  await expect(runsTable.locator('tbody tr')).toHaveCount(simulations, { timeout: 240_000 });
+  await expect(page.getByText('REGIONAL_ER_STATIC_SNAPSHOT')).toBeVisible();
 
   const rowsRendered = await runsTable.locator('tbody tr').count();
   const elapsedText = (await page.getByTestId('elapsed-ms').textContent()) ?? '0';
   const elapsedMs = Number(elapsedText.replace(/[^\d.]/g, ''));
 
-  expect(rowsRendered).toBe(simulations * 2);
+  expect(rowsRendered).toBe(simulations);
   expect(elapsedMs).toBeGreaterThan(0);
 
   return {
@@ -50,10 +51,10 @@ async function runSimulation(page: import('@playwright/test').Page, simulations:
   };
 }
 
-test('benchmarks the generated politics worker path', async ({ browserName, page }) => {
-  test.setTimeout(600_000);
+test('benchmarks the generated Emilia-Romagna regional worker path', async ({ browserName, page }) => {
+  test.setTimeout(420_000);
 
-  await page.goto('/politics');
+  await page.goto('/emilia-romagna');
 
   const runs: BenchmarkRun[] = [];
   for (const simulations of [10, 100, 1000]) {
@@ -64,8 +65,8 @@ test('benchmarks the generated politics worker path', async ({ browserName, page
     metadata: {
       created: new Date().toISOString(),
       browser: browserName,
-      workflow: 'politiche',
-      path: 'generated TypeScript worker on production static snapshot exported from current R preparation pipeline',
+      workflow: 'regionali-er',
+      path: 'generated TypeScript worker on production Emilia-Romagna static snapshot exported from current R preparation pipeline',
       data_version: 'v1',
       notes: [
         'Elapsed time is read from SimulationResult.benchmark.elapsedMs as rendered by the app.',

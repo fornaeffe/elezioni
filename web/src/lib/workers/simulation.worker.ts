@@ -21,16 +21,36 @@ import {
 import { resolvePoliticsScrutinyAlgorithm } from '$lib/politics/scrutiny-algorithms';
 import { buildPoliticsPipelineSourceFromSnapshot } from '$lib/politics/static-snapshot';
 import type { PoliticsStaticSnapshot, Ramo } from '$lib/politics/types';
+import { buildRegionalErDirectScrutinySnapshot } from '$lib/regional-er/pipeline';
+import {
+  buildRegionalErResultPlotTables,
+  buildRegionalErResultTables,
+  summarizeRegionalErGeneratedRuns,
+  summarizeRegionalErScrutinyRun,
+  type RegionalErRunPresentationSummary
+} from '$lib/regional-er/result-presentation';
+import { projectScenarioOntoRegionalErSource } from '$lib/regional-er/scenario-projection';
+import { runRegionalErScrutiny } from '$lib/regional-er/scrutiny';
+import { buildRegionalErPipelineSourceFromSnapshot } from '$lib/regional-er/static-snapshot';
+import type { RegionalErScenarioProjectionRow, RegionalErStaticSnapshot } from '$lib/regional-er/types';
 
 const politicsGeneratedSimulationLimit = 1000;
 const politicsGeneratedChunkSize = 50;
 const politicsStaticSnapshotPath = '/data/v1/politics-static.json';
 const politicsDebugStaticSnapshotPath = '/data/v1/politics-static-debug.json';
+const regionalErGeneratedSimulationLimit = 1000;
+const regionalErGeneratedChunkSize = 50;
+const regionalErStaticSnapshotPath = '/data/v1/regional-er-static.json';
 
 interface LoadedPoliticsStaticSnapshot {
   snapshot: PoliticsStaticSnapshot;
   path: string;
   fallback: boolean;
+}
+
+interface LoadedRegionalErStaticSnapshot {
+  snapshot: RegionalErStaticSnapshot;
+  path: string;
 }
 
 function post(message: SimulationWorkerMessage): void {
@@ -52,7 +72,7 @@ function progress(
   });
 }
 
-function scenarioProjectionTable(rows: PoliticsScenarioProjectionRow[]): ResultTable {
+function scenarioProjectionTable(rows: Array<PoliticsScenarioProjectionRow | RegionalErScenarioProjectionRow>): ResultTable {
   return {
     name: 'Scenario projection',
     columns: ['Lista', 'Fonte parametri', 'Coalizione', 'Quota scenario', 'Usata', 'Quota proiettata', 'Stato'],
@@ -96,13 +116,27 @@ async function loadPoliticsStaticSnapshot(): Promise<LoadedPoliticsStaticSnapsho
   throw new Error(`Unable to load politics static snapshot from ${politicsStaticSnapshotPath} or ${politicsDebugStaticSnapshotPath}`);
 }
 
+async function fetchRegionalErStaticSnapshot(path: string): Promise<RegionalErStaticSnapshot | null> {
+  const response = await fetch(path);
+  if (!response.ok) return null;
+  return (await response.json()) as RegionalErStaticSnapshot;
+}
+
+async function loadRegionalErStaticSnapshot(): Promise<LoadedRegionalErStaticSnapshot> {
+  const snapshot = await fetchRegionalErStaticSnapshot(regionalErStaticSnapshotPath);
+  if (!snapshot) {
+    throw new Error(`Unable to load Emilia-Romagna regional static snapshot from ${regionalErStaticSnapshotPath}. Run scripts/export_regional_er_static_snapshot.R.`);
+  }
+  return { snapshot, path: regionalErStaticSnapshotPath };
+}
+
 async function handleRequest(request: SimulationRequest): Promise<void> {
   const startedAt = performance.now();
   const startedIso = new Date().toISOString();
 
   progress(startedAt, 'validate', 0, 5);
 
-  if (request.kind !== 'politiche') {
+  if (request.kind !== 'politiche' && request.kind !== 'regionali-er') {
     progress(startedAt, 'summarize', 5, 5);
     post({
       type: 'result',
@@ -136,6 +170,131 @@ async function handleRequest(request: SimulationRequest): Promise<void> {
         dataVersion: request.dataVersion
       }
     });
+    return;
+  }
+
+  if (request.kind === 'regionali-er') {
+    progress(startedAt, 'prepare', 1, 5);
+    const loadedSnapshot = await loadRegionalErStaticSnapshot();
+    const staticSnapshot = loadedSnapshot.snapshot;
+    const requestedSimulationInput = Math.floor(Number(request.simulations));
+    const requestedSimulations =
+      Number.isFinite(requestedSimulationInput) && requestedSimulationInput > 0 ? requestedSimulationInput : 1;
+    const simulationCount = Math.min(requestedSimulations, regionalErGeneratedSimulationLimit);
+    const source = buildRegionalErPipelineSourceFromSnapshot(staticSnapshot, { simulations: simulationCount });
+    const projection = projectScenarioOntoRegionalErSource(source, request.scenario, {
+      currentDate: startedIso,
+      electionDate: request.electionDate,
+      historicalVotes: staticSnapshot.data.comuni_liste_elezioni,
+      municipalities: staticSnapshot.data.municipalities,
+      simulations: simulationCount
+    });
+    const scenarioSource = projection.source;
+    const runs: RegionalErRunPresentationSummary[] = [];
+    let generatedSimulations = 0;
+    let scrutinizedRuns = 0;
+
+    progress(startedAt, 'simulate', generatedSimulations, simulationCount);
+
+    for (let chunkStart = 1; chunkStart <= simulationCount; chunkStart += regionalErGeneratedChunkSize) {
+      const chunkSize = Math.min(regionalErGeneratedChunkSize, simulationCount - chunkStart + 1);
+      const snapshot = buildRegionalErDirectScrutinySnapshot(
+        {
+          ...scenarioSource,
+          simulazioni: chunkSize
+        },
+        { seed: `${request.seed}:regional-er:chunk:${chunkStart}` }
+      );
+
+      generatedSimulations += chunkSize;
+      progress(startedAt, 'simulate', generatedSimulations, simulationCount);
+      progress(startedAt, 'scrutinize', scrutinizedRuns, simulationCount);
+
+      for (const simulation of snapshot.simulations) {
+        const globalSimulation = chunkStart + simulation.sim - 1;
+        const runStartedAt = performance.now();
+        const output = runRegionalErScrutiny(
+          simulation.input,
+          {
+            pop_legale: scenarioSource.pop_legale,
+            liste: scenarioSource.liste
+          },
+          { seed: `${request.seed}:regional-er:scrutiny:${globalSimulation}` }
+        );
+
+        runs.push(
+          summarizeRegionalErScrutinyRun({
+            sim: globalSimulation,
+            elapsedMs: performance.now() - runStartedAt,
+            input: simulation.input,
+            output
+          })
+        );
+        scrutinizedRuns += 1;
+        if (scrutinizedRuns % 10 === 0 || scrutinizedRuns === simulationCount) {
+          progress(startedAt, 'scrutinize', scrutinizedRuns, simulationCount);
+        }
+      }
+    }
+
+    const resultWarnings: ScrutinyWarning[] = [
+      {
+        code: 'REGIONAL_ER_STATIC_SNAPSHOT',
+        electionKind: request.kind,
+        severity: 'info',
+        message: `Running the TypeScript regional pipeline on ${loadedSnapshot.path} exported from the current R preparation pipeline.`,
+        todoReference: 'MIGRATION_PLAN.md#next-work'
+      },
+      {
+        code: 'REGIONAL_ER_SCENARIO_PROJECTION',
+        electionKind: request.kind,
+        severity: 'info',
+        message:
+          'Scenario lists are projected from Emilia-Romagna historical correspondences when raw historical votes are available; regional workflow does not generate individual candidates.',
+        todoReference: 'MIGRATION_PLAN.md#next-work'
+      }
+    ];
+
+    for (const warning of projection.warnings) {
+      resultWarnings.push({
+        code: warning.code,
+        electionKind: request.kind,
+        severity: 'warning',
+        message: warning.message,
+        todoReference: warning.todoReference
+      });
+    }
+
+    if (requestedSimulations > simulationCount) {
+      resultWarnings.push({
+        code: 'REGIONAL_ER_GENERATED_PIPELINE_LIMIT',
+        electionKind: request.kind,
+        severity: 'warning',
+        message: `Requested ${requestedSimulations} simulations, but the regional generated worker path is capped at ${simulationCount}.`,
+        todoReference: 'MIGRATION_PLAN.md#next-work'
+      });
+    }
+
+    const result: SimulationResult = {
+      type: 'result',
+      status: 'completed',
+      tables: [
+        ...buildRegionalErResultTables(runs),
+        ...buildRegionalErResultPlotTables(runs),
+        scenarioProjectionTable(projection.rows),
+        summarizeRegionalErGeneratedRuns(runs)
+      ],
+      warnings: resultWarnings,
+      benchmark: {
+        startedAt: startedIso,
+        elapsedMs: performance.now() - startedAt,
+        simulations: simulationCount,
+        dataVersion: request.dataVersion
+      }
+    };
+
+    progress(startedAt, 'summarize', 5, 5);
+    post(result);
     return;
   }
 

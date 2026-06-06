@@ -9,7 +9,7 @@ const hasPoliticsStaticSnapshot =
 test.skip(!hasPoliticsStaticSnapshot, 'Generated politics static snapshot is missing. Run scripts/export_politics_static_snapshot.R first.');
 
 test('runs the worker smoke path from the scenario editor', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/politics');
 
   await page.getByRole('button', { name: 'Impostazioni avanzate' }).click();
   await page.getByLabel('Astensione elettori').fill('50');

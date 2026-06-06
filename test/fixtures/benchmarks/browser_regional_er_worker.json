@@ -1,0 +1,33 @@
+{
+  "metadata": {
+    "created": "2026-06-06T11:31:30.461Z",
+    "browser": "chromium",
+    "workflow": "regionali-er",
+    "path": "generated TypeScript worker on production Emilia-Romagna static snapshot exported from current R preparation pipeline",
+    "data_version": "v1",
+    "notes": [
+      "Elapsed time is read from SimulationResult.benchmark.elapsedMs as rendered by the app.",
+      "The worker path currently runs in 50-simulation chunks and is capped at 1000 simulations."
+    ]
+  },
+  "runs": [
+    {
+      "simulations_requested": 10,
+      "simulations_completed": 10,
+      "elapsed_ms": 211,
+      "rows_rendered": 10
+    },
+    {
+      "simulations_requested": 100,
+      "simulations_completed": 100,
+      "elapsed_ms": 557,
+      "rows_rendered": 100
+    },
+    {
+      "simulations_requested": 1000,
+      "simulations_completed": 1000,
+      "elapsed_ms": 6405,
+      "rows_rendered": 1000
+    }
+  ]
+}

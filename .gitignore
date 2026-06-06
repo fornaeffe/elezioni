@@ -48,10 +48,12 @@ vignettes/*.pdf
 /web/static/data/v1/politics-static-debug.json
 /web/static/data/v1/politics-pipeline-source-debug.json
 /web/static/data/v1/politics-debug-scrutiny.json
+/web/static/data/v1/regional-er-static.json
 /test/fixtures/politiche/debug_scrutinio.json
 /test/fixtures/politiche/generated_adapter.json
 /test/fixtures/politiche/pipeline_source_debug.json
 /test/fixtures/politiche/vote_preparation.json
+/test/fixtures/regionali-er/debug_scrutiny.json
 
 # Output
 /_output/

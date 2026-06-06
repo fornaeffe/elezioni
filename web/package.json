@@ -11,7 +11,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "benchmark:politics": "playwright test --config playwright.benchmark.config.ts"
+    "benchmark:politics": "playwright test --config playwright.benchmark.config.ts politics-worker.spec.ts",
+    "benchmark:regional-er": "playwright test --config playwright.benchmark.config.ts regional-er-worker.spec.ts"
   },
   "devDependencies": {
     "@playwright/test": "1.60.0",
