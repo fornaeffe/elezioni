@@ -75,6 +75,8 @@
   let tables = $state<ResultTable[]>([]);
   let messages = $state<UiMessage[]>([]);
   let lastResult = $state<SimulationResult | null>(null);
+  let resultScenario = $state<Scenario | null>(null);
+  let resultScenarioFingerprint = $state('');
   let showDiagnostics = $state(false);
   let showAdvancedScenario = $state(false);
   let scenarioDraft = $state<Scenario>(createDefaultRegionalErScenario());
@@ -94,6 +96,11 @@
   const canRun = $derived(!isBusy && validationMessages.length === 0);
   const runButtonLabel = $derived(running ? phase : 'Esegui');
   const elapsedLabel = $derived(`${elapsedMs.toFixed(0)} ms`);
+  const scenarioFingerprint = $derived(serializeRegionalErScenario(scenario));
+  const resultScenarioChanged = $derived(
+    lastResult !== null && resultScenario !== null && scenarioFingerprint !== resultScenarioFingerprint
+  );
+  const chartScenario = $derived(resultScenario ?? scenario);
   const infoMessages = $derived(messages.filter((message) => message.severity === 'info'));
   const warningMessages = $derived(messages.filter((message) => message.severity !== 'info'));
   const primaryTables = $derived(
@@ -102,7 +109,7 @@
       .sort((left, right) => resultTablePriority(left.name) - resultTablePriority(right.name))
   );
   const diagnosticTables = $derived(tables.filter((table) => diagnosticTableNames.has(table.name)));
-  const resultCharts = $derived(buildRegionalErResultCharts(tables, scenario));
+  const resultCharts = $derived(buildRegionalErResultCharts(tables, chartScenario));
   const localOverrideGroups = $derived(buildRegionalErScenarioLocalShareOverrideGroups(scenarioDraft));
   const localOverrideLocationOptions = $derived(
     buildLocationOptions().filter((option) => option.scope === selectedLocalOverrideScope)
@@ -127,12 +134,14 @@
 
   $effect(() => {
     if (!browser || !scenarioStorageReady) return;
-    localStorage.setItem(regionalErScenarioStorageKey, serializeRegionalErScenario(scenario));
+    localStorage.setItem(regionalErScenarioStorageKey, scenarioFingerprint);
   });
 
   function clearDisplayedResults(): void {
     tables = [];
     lastResult = null;
+    resultScenario = null;
+    resultScenarioFingerprint = '';
     showDiagnostics = false;
   }
 
@@ -174,6 +183,10 @@
 
   function catalogCode(value: string | number): string {
     return String(value).trim();
+  }
+
+  function openDefaultDetails(node: HTMLDetailsElement, initiallyOpen: boolean): void {
+    if (initiallyOpen) node.open = true;
   }
 
   function normalizeSearchText(value: string): string {
@@ -393,10 +406,17 @@
   function applyResultExport(payload: SimulationResultExport): void {
     const importedScenario = parseRegionalErScenario(JSON.stringify({ scenario: payload.scenario }));
     scenarioDraft = importedScenario;
+    resultScenario = cloneRegionalErScenario(importedScenario);
+    resultScenarioFingerprint = serializeRegionalErScenario(importedScenario);
     lastResult = payload.result;
     tables = payload.result.tables;
     messages = [uiMessage('RESULT_IMPORT', `Risultati importati dal JSON esportato il ${payload.exportedAt}.`, 'info')];
     elapsedMs = payload.result.benchmark.elapsedMs;
+  }
+
+  function restoreResultScenario(): void {
+    if (!resultScenario) return;
+    scenarioDraft = cloneRegionalErScenario(resultScenario);
   }
 
   function chooseScenarioFile(): void {
@@ -452,6 +472,8 @@
     messages = [];
     tables = [];
     lastResult = null;
+    resultScenario = null;
+    resultScenarioFingerprint = '';
     showDiagnostics = false;
 
     const worker = new SimulationWorker();
@@ -478,6 +500,8 @@
       elapsedMs = message.benchmark.elapsedMs;
       lastResult = message;
       tables = message.tables;
+      resultScenario = cloneRegionalErScenario(scenarioSnapshot);
+      resultScenarioFingerprint = serializeRegionalErScenario(scenarioSnapshot);
       messages = message.warnings.map(workerMessage);
     };
 
@@ -681,7 +705,7 @@
 
     {#if showAdvancedScenario}
       <div class="advanced">
-        <details>
+        <details use:openDefaultDetails={true}>
           <summary>Corrispondenze storiche ({scenarioDraft.listCorrespondences.length})</summary>
           <div class="correspondence-list">
             {#each scenarioDraft.listCorrespondences as correspondence (correspondence.id)}
@@ -818,6 +842,25 @@
     </div>
 
     <RegionalErResultCharts charts={resultCharts} />
+
+    {#if resultScenarioChanged}
+      <div class="stale-result-warning" role="alert" data-testid="regional-stale-result-warning">
+        <p>
+          <strong>Scenario modificato.</strong> I risultati mostrati si riferiscono allo scenario precedente.
+          Riesegui la simulazione per aggiornarli oppure ripristina lo scenario associato ai risultati.
+        </p>
+        <div class="stale-result-actions">
+          <button type="button" onclick={runSimulation} disabled={!canRun}>
+            <Play size={16} aria-hidden="true" />
+            Riesegui simulazione
+          </button>
+          <button type="button" onclick={restoreResultScenario} disabled={isBusy}>
+            <RotateCcw size={16} aria-hidden="true" />
+            Ripristina scenario dei risultati
+          </button>
+        </div>
+      </div>
+    {/if}
 
     {#if primaryTables.length === 0}
       <p class="empty">Esegui una simulazione regionale per vedere i risultati.</p>
@@ -1084,6 +1127,23 @@
   .message-list.warning {
     border-color: #e4c785;
     background: #fff7df;
+  }
+
+  .stale-result-warning {
+    display: grid;
+    gap: 10px;
+    margin: 16px;
+    border-left: 4px solid #c4822e;
+    background: #fff7ec;
+    padding: 10px 12px;
+    color: #6f4315;
+    font-size: 13px;
+  }
+
+  .stale-result-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
   }
 
   .hidden-input {
