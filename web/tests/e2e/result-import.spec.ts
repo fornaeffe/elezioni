@@ -87,6 +87,28 @@ test('imports compressed columnar result JSON from the Results panel', async ({ 
   await expect(page.getByRole('button', { name: 'Scarica risultati compressi' })).toBeVisible();
 });
 
+test('warns when the imported result scenario is modified and can restore it', async ({ page }) => {
+  await page.goto('/politics');
+
+  await page.getByTestId('result-file-input').setInputFiles({
+    name: 'imported-results.json.gz',
+    mimeType: 'application/gzip',
+    buffer: gzipSync(Buffer.from(bundledResultJson()))
+  });
+
+  await expect(page.getByRole('heading', { name: 'Imported Scenario' })).toBeVisible();
+  await page.getByLabel('Nome scenario').fill('Scenario modificato');
+
+  const staleResultWarning = page.getByTestId('stale-result-warning');
+  await expect(staleResultWarning).toContainText('I risultati mostrati si riferiscono allo scenario precedente');
+  await expect(staleResultWarning.getByRole('button', { name: 'Riesegui simulazione' })).toBeVisible();
+  await expect(staleResultWarning.getByRole('button', { name: 'Ripristina scenario dei risultati' })).toBeVisible();
+
+  await staleResultWarning.getByRole('button', { name: 'Ripristina scenario dei risultati' }).click();
+  await expect(page.getByLabel('Nome scenario')).toHaveValue('Imported Scenario');
+  await expect(staleResultWarning).toHaveCount(0);
+});
+
 test('scenario upload accepts compressed bundled result JSON and shows the imported results', async ({ page }) => {
   await page.goto('/politics');
 

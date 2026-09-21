@@ -127,18 +127,25 @@
   let candidateTemplateName = $state('');
   let candidateTemplateBirthDate = $state('');
   let scenarioDraft = $state<Scenario>(createDefaultPoliticsScenario());
+  let resultScenario = $state<Scenario | null>(null);
+  let resultScenarioFingerprint = $state('');
   let scenarioStorageReady = $state(false);
   let compressionSupported = $state(false);
   let fileInput: HTMLInputElement | undefined;
   let resultFileInput: HTMLInputElement | undefined;
 
   const scenario = $derived(cloneScenario(scenarioDraft));
+  const scenarioFingerprint = $derived(serializeScenario(scenario));
   const validationMessages = $derived(validateScenario(scenario));
   const isBusy = $derived(running || busyAction !== '');
   const canRun = $derived(!isBusy && validationMessages.length === 0);
   const runButtonLabel = $derived(running ? phase : 'Esegui');
   const elapsedLabel = $derived(`${elapsedMs.toFixed(0)} ms`);
   const hasResult = $derived(lastResult !== null);
+  const resultScenarioChanged = $derived(
+    hasResult && resultScenario !== null && scenarioFingerprint !== resultScenarioFingerprint
+  );
+  const chartScenario = $derived(resultScenario ?? scenario);
   const infoMessages = $derived(messages.filter((message) => message.severity === 'info'));
   const warningMessages = $derived(messages.filter((message) => message.severity !== 'info'));
   const primaryTables = $derived(
@@ -146,12 +153,12 @@
       .filter((table) => !diagnosticTableNames.has(table.name) && !internalTableNames.has(table.name))
       .sort((left, right) => resultTablePriority(left.name) - resultTablePriority(right.name))
   );
-  const resultCharts = $derived(buildPoliticsResultCharts(tables, scenario));
-  const plurinominalOptions = $derived(buildPoliticsPlurinominalChartOptions(tables, scenario));
+  const resultCharts = $derived(buildPoliticsResultCharts(tables, chartScenario));
+  const plurinominalOptions = $derived(buildPoliticsPlurinominalChartOptions(tables, chartScenario));
   const selectedPlurinominalOption = $derived(
     plurinominalOptions.find((option) => option.id === selectedPlurinominalOptionId) ?? plurinominalOptions[0] ?? null
   );
-  const plurinominalChart = $derived(buildPoliticsPlurinominalChart(tables, scenario, selectedPlurinominalOption));
+  const plurinominalChart = $derived(buildPoliticsPlurinominalChart(tables, chartScenario, selectedPlurinominalOption));
   const diagnosticTables = $derived(tables.filter((table) => diagnosticTableNames.has(table.name)));
   const diagnosticsToggleLabel = $derived(showDiagnostics ? 'Nascondi dettagli' : 'Mostra dettagli');
   const historicalCorrespondenceGroups = $derived(buildScenarioHistoricalCorrespondenceGroups(scenarioDraft));
@@ -244,7 +251,7 @@
 
   $effect(() => {
     if (!browser || !scenarioStorageReady) return;
-    localStorage.setItem(politicsScenarioStorageKey, serializeScenario(scenario));
+    localStorage.setItem(politicsScenarioStorageKey, scenarioFingerprint);
   });
 
   function addList(): void {
@@ -667,6 +674,8 @@
   function clearDisplayedResults(): void {
     tables = [];
     lastResult = null;
+    resultScenario = null;
+    resultScenarioFingerprint = '';
     elapsedMs = 0;
     phase = 'idle';
     showDiagnostics = false;
@@ -814,6 +823,8 @@
     const importedScenario = parseScenario(JSON.stringify({ scenario: payload.scenario }));
 
     scenarioDraft = importedScenario;
+    resultScenario = cloneScenario(importedScenario);
+    resultScenarioFingerprint = serializeScenario(importedScenario);
     tables = payload.result.tables;
     lastResult = payload.result;
     elapsedMs = payload.result.benchmark.elapsedMs;
@@ -825,6 +836,11 @@
       uiMessage('RESULT_IMPORT', `Risultati importati dal JSON esportato il ${payload.exportedAt}.`, 'info'),
       ...payload.result.warnings.map(workerMessage)
     ];
+  }
+
+  function restoreResultScenario(): void {
+    if (!resultScenario) return;
+    scenarioDraft = cloneScenario(resultScenario);
   }
 
   function chooseScenarioFile(): void {
@@ -908,6 +924,8 @@
     tables = [];
     messages = [];
     lastResult = null;
+    resultScenario = null;
+    resultScenarioFingerprint = '';
     showDiagnostics = false;
     selectedPlurinominalOptionId = '';
 
@@ -921,6 +939,8 @@
 
       lastResult = message;
       tables = message.tables;
+      resultScenario = cloneScenario(scenarioSnapshot);
+      resultScenarioFingerprint = serializeScenario(scenarioSnapshot);
       messages = message.warnings.map(workerMessage);
       elapsedMs = message.benchmark.elapsedMs;
       running = false;
@@ -1986,6 +2006,25 @@
         </div>
       {/if}
 
+      {#if resultScenarioChanged}
+        <div class="stale-result-warning" role="alert" data-testid="stale-result-warning">
+          <p>
+            <strong>Scenario modificato.</strong> I risultati mostrati si riferiscono allo scenario precedente.
+            Riesegui la simulazione per aggiornarli oppure ripristina lo scenario associato ai risultati.
+          </p>
+          <div class="stale-result-actions">
+            <button class="text-button" type="button" onclick={runSimulation} disabled={!canRun}>
+              <Play size={16} aria-hidden="true" />
+              <span>Riesegui simulazione</span>
+            </button>
+            <button class="text-button" type="button" onclick={restoreResultScenario} disabled={isBusy}>
+              <RotateCcw size={16} aria-hidden="true" />
+              <span>Ripristina scenario dei risultati</span>
+            </button>
+          </div>
+        </div>
+      {/if}
+
       {#if resultCharts.length > 0 || plurinominalChart}
         <PoliticsResultCharts
           charts={resultCharts}
@@ -2777,6 +2816,23 @@
     border-left: 4px solid #c4822e;
     background: #fff7ec;
     color: #6f4315;
+  }
+
+  .stale-result-warning {
+    display: grid;
+    gap: 10px;
+    margin: 16px;
+    border-left: 4px solid #c4822e;
+    background: #fff7ec;
+    padding: 10px 12px;
+    color: #6f4315;
+    font-size: 13px;
+  }
+
+  .stale-result-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
   }
 
   .diagnostics {
