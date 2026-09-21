@@ -283,6 +283,10 @@
     scenarioDraft = resetScenarioHistoricalCorrespondenceSource(scenarioDraft, pastElection, pastList);
   }
 
+  function openDefaultCorrespondenceGroup(node: HTMLDetailsElement, initiallyOpen: boolean): void {
+    if (initiallyOpen) node.open = true;
+  }
+
   function catalogCode(value: string | number): string {
     return String(value);
   }
@@ -1810,7 +1814,10 @@
               {:else}
                 <div class="correspondence-editor">
                   {#each historicalCorrespondenceGroups as group (group.key)}
-                    <details class="correspondence-election" open={group.pastElection === 'europee 2024'}>
+                    <details
+                      class="correspondence-election"
+                      use:openDefaultCorrespondenceGroup={group.pastElection === 'europee 2024'}
+                    >
                       <summary>
                         <span>{group.pastElection}</span>
                         <span>{group.sources.length} liste</span>
