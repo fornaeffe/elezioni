@@ -1,5 +1,11 @@
 # Indicazioni per la simulazione delle elezioni politiche secondo la riforma del 2026
 
+Per l'ordine di realizzazione e i criteri di verifica, consultare il
+[piano operativo](politics-reform-2026-plan.md). Le scelte ancora da discutere
+sui voti alle sole liste del premio, sulle preferenze e sulla differenziazione
+Camera-Senato sono raccolte nelle
+[decisioni di modellazione](politics-reform-2026-modelling.md).
+
 Il file docs/testo_a_fronte.pdf è il riferimento normativo: in ogni pagina, la colonna di sinistra mostra le attuali leggi che regolano l'elezione di Camera e Senato, la colonna di destra mostra le stesse leggi così come sarebbero modificate dalla nuova riforma.
 
 Di seguito riporto il testo delle norme, così come modificato dalla riforma in discussione, nelle sole parti più significative per la realizzazione della simulazione.

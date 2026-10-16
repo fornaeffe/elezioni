@@ -143,9 +143,13 @@ preparation last.
 - [x] Migrate the Emilia-Romagna regional workflow with golden fixtures, static
   data, scenario defaults, generation, scrutiny, worker dispatch, UI, tests,
   and benchmarks.
-- [ ] **2026 politics reform** Adapt the web simulator to the new politics election
-  system, described in `docs\politics-reform-2026.md`. Keep the old scrutiny algorithm
-  as a selectable alternative.
+- [ ] **2026 politics reform** Follow the step-by-step
+  [implementation plan](docs/politics-reform-2026-plan.md), using the
+  [legal text](docs/politics-reform-2026.md) and the three pending
+  [modelling decisions](docs/politics-reform-2026-modelling.md). Keep the old
+  scrutiny algorithm as a selectable alternative. Resolve bonus-only vote,
+  preference, and Camera-Senato vote assumptions before integrating their
+  dependent production generators.
 - [ ] Keep completed politics and regional vertical slices green while shared
   scenario, worker, result, and routing infrastructure evolves.
 - [ ] Preserve mean-mode global and local share semantics; do not expose fixed
