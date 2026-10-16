@@ -145,7 +145,8 @@ preparation last.
   and benchmarks.
 - [ ] **2026 politics reform** Follow the step-by-step
   [implementation plan](docs/politics-reform-2026-plan.md), using the
-  [legal text](docs/politics-reform-2026.md) and the three pending
+  [normative specification](docs/politics-reform-2026-specification.md),
+  [legal extract](docs/politics-reform-2026.md) and the three pending
   [modelling decisions](docs/politics-reform-2026-modelling.md). Keep the old
   scrutiny algorithm as a selectable alternative. Resolve bonus-only vote,
   preference, and Camera-Senato vote assumptions before integrating their

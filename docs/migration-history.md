@@ -1816,3 +1816,68 @@ Verification:
   transcription from its original introductory paragraph onward against `HEAD`.
 - Changes are limited to Markdown documentation. Application tests, builds,
   benchmarks, and normative source reconciliation were not run for this task.
+
+## 2026-10-16 R26-01: normative specification
+
+Completed the requested specification step only:
+
+- Added [the normative specification](politics-reform-2026-specification.md)
+  with a source/version register, six discrepancy/omission entries, 29
+  norm-to-function/test rows, a quota/tie catalogue and nine interpretation or
+  data-dependency entries with particular downstream effects. Test IDs describe
+  future implementation acceptance obligations, not executed application tests.
+- Checked the local selective transcription and September A.C. 2822-B comparison
+  against the original promulgated Law 9 October 2026, no. 180 (26G00201, GU 235,
+  9 October). Its entry into force is 24 October, after this review date.
+  Recorded the parliamentary erratum 19PDL0214090 and distinguished it from a
+  later GU correction. No later correction was identified in the bounded
+  official-source searches/act links checked today.
+- Recorded the stale C86 bonus-award reference: the extract/comparison says
+  C83(1)(e-quinquies), while the promulgated amendment says e-sexies.
+  The erratum's explicit C83(1)(e)(2-bis) admission rule already agrees with
+  the local consolidated comparison/extract. No quoted legal text was changed.
+- Recorded omitted single-chamber no-bonus-slate provisions, Bolzano boundary
+  annexes, foreign-voting changes, away-from-home domicile attribution and the
+  Senate electorate-age provision. Defined the initial domestic-only scrutiny
+  boundary and the effects of upstream administrative/data assumptions.
+- Delimited unresolved ties, zero denominators/impossible quotas, Camera cap
+  minority-index truncation, Senate cap progression and Senate recovery imports.
+  These cases must block affected definitive results; completing their mapping
+  does not resolve every interpretation or supply missing election decrees.
+- Explained the conditional 314-seat Camera ordinary pool and the separate
+  ordinary/bonus/special/foreign ledger. Kept exact candidate outputs dependent
+  on supplied valid preferences and identities, without selecting a statistical
+  model or changing R26-02/03/04.
+- Marked only R26-01 complete and linked its specification from both plans.
+  Added targeted downstream reminders for candidature validation and Senate
+  recovery. All implementation, generator, worker and UI steps remain open.
+
+Verification and source-review evidence:
+
+- Read the applicable comparison columns, including left-column provisions
+  incorporated by `Identico`, and checked the relevant promulgated amendments.
+  Downloaded official GU articles 1-9 and the parliamentary erratum for review;
+  temporary review files stayed under the system temporary directory.
+- Used the PDF skill/PyMuPDF for extraction and visual column/page checks.
+  The local and downloaded official AC0469g PDFs both have 141 pages and
+  identical extracted text on every corresponding page, despite different byte
+  hashes. Recorded both SHA-256 values in the specification.
+- A read-only Python check passed for 46 local Markdown file/section links in
+  `MIGRATION_PLAN.md`, the reform plan and the new specification; ordered and
+  unique N01-N29, I01-I09 and D01-D06 rows; all 21 checklist entries with only
+  R26-01 checked; and exact rational arithmetic examples/seat-ledger identities.
+- Confirmed the transcription's worktree SHA-256 is unchanged from the start
+  of the review, the local PDF is byte-identical to `HEAD`, and legal/model
+  Markdown contents match `HEAD` after newline normalization. The first raw
+  Markdown byte comparison failed because Git stores LF and the worktree uses
+  CRLF; the corrected check distinguishes EOL conversion from content changes.
+- `git diff --check`: passed; only expected LF-to-CRLF conversion notices.
+  Application tests, build and browser tests were not run for documentation-only
+  changes. No application behavior or generated data was changed.
+
+Follow-up limits: the announced 23 October republication with notes is future
+as of this review. Recheck it and any official corrections before R26-21;
+R26-07 must source and verify election-specific territorial/seat tables.
+The interpretation register governs affected later fixtures and supported-output
+claims until further evidence or an explicitly recorded interpretation resolves
+those cases. R26-02 is the next discussion; it was not started here.

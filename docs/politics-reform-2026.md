@@ -2495,20 +2495,21 @@ presidente:
     f-quater) qualora la verifica di cui alla
     lettera f-bis) abbia dato esito positivo,
     prosegue ai sensi del comma 1-ter.
-    1-bis. Nei casi di cui al comma 1,
-    lettera e-sexies), l’Ufficio procede, per
-    ciascuna regione, alla distribuzione dei
-    seggi di cui all’articolo 1 comma 2-ter,
-    lettera c), tra le coalizioni e le singole
-    liste individuate ai sensi dei numeri 1)
-    e 2) della lettera e) del comma 1 del
-    presente articolo in base alla cifra
-    elettorale regionale di ciascuna di
-    queste, secondo quanto disposto dal
-    comma 1, lettera f), periodi secondo e
-    seguenti. Procede poi alle
-    comunicazioni agli Uffici elettorali
-    regionali di cui al comma 1-septies.
+    
+1-bis. Nei casi di cui al comma 1,
+lettera e-sexies), l’Ufficio procede, per
+ciascuna regione, alla distribuzione dei
+seggi di cui all’articolo 1 comma 2-ter,
+lettera c), tra le coalizioni e le singole
+liste individuate ai sensi dei numeri 1)
+e 2) della lettera e) del comma 1 del
+presente articolo in base alla cifra
+elettorale regionale di ciascuna di
+queste, secondo quanto disposto dal
+comma 1, lettera f), periodi secondo e
+seguenti. Procede poi alle
+comunicazioni agli Uffici elettorali
+regionali di cui al comma 1-septies.
 
 1-ter. Nel caso di cui al comma 1,
 lettera f-quater), l’Ufficio procede

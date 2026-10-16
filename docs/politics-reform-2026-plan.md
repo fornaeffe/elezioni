@@ -10,6 +10,9 @@ time and leave subsequent application features inactive.
 - For the next task, use the checklist and its corresponding section below.
 - For legal wording, use [`politics-reform-2026.md`](politics-reform-2026.md)
   and the referenced PDF; read only the articles needed for that step.
+- For verified source versions, legal function/test boundaries and unresolved
+  interpretations, use the [R26-01 specification](politics-reform-2026-specification.md).
+  Its discrepancy register takes precedence over stale references in the extract.
 - For the three unresolved statistical choices, use only the relevant section
   of [`politics-reform-2026-modelling.md`](politics-reform-2026-modelling.md).
 - For completed work, decisions, verification, and limitations, use
@@ -54,7 +57,7 @@ keep dependent production generation and claims of completeness blocked.
 
 | Done | Step | Deliverable | Dependencies |
 | --- | --- | --- | --- |
-| [ ] | [R26-01](#r26-01-normative-specification) | Norm-to-function/test specification | None |
+| [x] | [R26-01](#r26-01-normative-specification) | Norm-to-function/test specification | None |
 | [ ] | [R26-02](#r26-02-bonus-only-vote-modelling) | Bonus-only vote decision and bias protocol | 01 |
 | [ ] | [R26-03](#r26-03-preference-modelling) | Preference decision and supported outputs | 01 |
 | [ ] | [R26-04](#r26-04-camera-senato-vote-modelling) | Chamber differentiation decision | 01 |
@@ -77,6 +80,12 @@ keep dependent production generation and claims of completeness blocked.
 | [ ] | [R26-21](#r26-21-acceptance-and-performance) | Application and performance acceptance | 20 |
 
 ### R26-01: Normative specification
+
+Use the [dated normative specification](politics-reform-2026-specification.md)
+for the completed source concordance, operation/test matrix, scope and
+interpretation register. Carry its case-specific blockers into dependent steps.
+Recheck later official corrections and the announced republication with notes
+before production acceptance; do not silently overwrite historical quotations.
 
 Check the local transcription and September 2026 A.C. 2822-B comparison against
 the final promulgated text, including errata. Record exact source versions and
@@ -141,6 +150,8 @@ Reserve modelling metadata and supported-output status without choosing models.
 Validate identities, territorial/political references, nonnegative finite vote
 counts, and candidacy constraints, including seven-slot lists, gender rules,
 multiple candidacies, and required ordinary/bonus slate links where applicable.
+Apply chamber-specific coverage and single-chamber no-bonus-slate rules from
+the specification; keep special-territory compatibility explicit.
 Distinguish malformed candidature input from a legally handled later shortfall.
 Version scenario/snapshot contracts as needed without reinterpreting old files.
 
@@ -303,8 +314,10 @@ until the legally defined terminal state with an explicit progress condition.
 
 Tests: every recovery level and remainder priority, coalition recovery, bonus
 shortfall, repeated subentro, fully exhausted candidates, and Senato territorial
-limits. Distinguish seats entitled from seats filled and report unresolved seats
-without inventing further redistribution. Do not extend into future vacancies
+limits. Delimit the separate bonus/vacancy imports under specification I07
+before applying any cross-region fallback. Distinguish seats entitled from seats
+filled and report unresolved seats without inventing further redistribution.
+Do not extend into future vacancies
 or supplementary elections beyond the initial simulation's agreed scope.
 
 ### R26-18: Composition and registry
