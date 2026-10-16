@@ -40,9 +40,10 @@ time and leave subsequent application features inactive.
 - Keep ordinary seats, bonus seats, special-territory seats, and candidate
   identities distinguishable. A coalition bonus slate is not an arbitrary
   proportional distribution of bonus seats between member lists.
-- Apply the provisional I03/I05/I06/I08 policies in the specification, keeping
+- Apply the provisional I03/I05/I06/I07/I08 policies in the specification, keeping
   them distinguishable from express statutory rules and revisable on further
-  legal evidence. Warn in affected simulations when an I03 fallback draw is used.
+  legal evidence. Warn in affected simulations when an I03 fallback draw or an
+  I07 cross-region recovery is used.
 - Do not silently turn missing preferences into zero or absent chamber data
   into independent draws. Record assumptions and unresolved outputs explicitly.
 - Use small tracked fixtures with independently worked expected results for
@@ -63,7 +64,7 @@ keep dependent production generation and claims of completeness blocked.
 | Done | Step | Deliverable | Dependencies |
 | --- | --- | --- | --- |
 | [x] | [R26-01](#r26-01-normative-specification) | Norm-to-function/test specification | None |
-| [ ] | [R26-01a](#r26-01a-senate-recovery-precedent) | Historical Senate recovery evidence and provisional interpretation | 01 |
+| [x] | [R26-01a](#r26-01a-senate-recovery-precedent) | Historical Senate recovery evidence and provisional interpretation | 01 |
 | [ ] | [R26-02](#r26-02-bonus-only-vote-modelling) | Bonus-only vote decision and bias protocol | 01a |
 | [ ] | [R26-03](#r26-03-preference-modelling) | Preference decision and supported outputs | 01 |
 | [ ] | [R26-04](#r26-04-camera-senato-vote-modelling) | Chamber differentiation decision | 01 |
@@ -97,34 +98,20 @@ separate from provisional simulator interpretations.
 
 Recheck later official corrections and the announced republication with notes
 before production acceptance. Update the transcription, source version and
-affected specification/test boundaries together. Keep genuinely unresolved
-inputs and I07-dependent recovery outputs explicit.
+affected specification/test boundaries together. Apply approved provisional
+policies and keep genuinely unresolved inputs and outputs explicit.
 
 ### R26-01a: Senate recovery precedent
 
-Before R26-02, investigate whether a previous Senate election produced the
-candidate-exhaustion/recovery situation relevant to specification I07, and how
-the competent authority resolved it. Start with Senate election-verification
-proceedings, electoral-office decisions and any directly relevant judicial or
-constitutional decisions; use secondary accounts to locate primary evidence.
+Use the approved [I07 recovery protocol and worked expectations](politics-reform-2026-specification.md#senate-initial-recovery-i07)
+and the [precedent review](migration-history.md#2026-10-16-r26-01a-senate-recovery-precedents-and-approved-i07).
+Keep initial exhaustion, later vacancies and the new bonus-shortfall route
+distinct. Reassess I07 if further legal evidence arises; do not import the
+historical unsuccessful-uninominal recovery abolished by the reform.
 
-Establish the election, region, lists, seats/candidates involved, statutory text
-then in force, decision-making authority and actual final outcome. Distinguish
-an unfilled seat, ordinary exhaustion, a vacancy/released seat and a bonus
-shortfall. Compare the precedent's legal basis and territorial constraints with
-S17-bis(2), S19(2) and S16-bis(1-quinquies); do not transfer a rule merely because
-the practical problem looks similar.
-
-Record the findings and evidence in history, adopt the supported reading as a
-provisional I07 interpretation, and update the specification and R26-17 test
-boundary. If no usable precedent is found, document the bounded search and the
-remaining question for Luca rather than inventing an outcome or claiming an
-unsupported precedent. This research is a separate requested step, not completed
-by adding it to the plan.
-
-Acceptance: sourced outcome, explicit applicability limits, provisional recovery
-policy and worked test expectations; or a documented lack of sufficient evidence
-with the affected recovery output still restricted pending a recorded decision.
+The research decision does not implement recovery. Translate the approved
+protocol and its fixture expectations in R26-17, retaining warnings and traces
+through R26-18/20.
 
 ### R26-02: Bonus-only vote modelling
 
@@ -346,18 +333,22 @@ preferences in legal fixtures even if their statistical model is still deferred.
 
 Translate Camera arts. 84, 86, 83(1-quinquies) and Senato arts. 17-bis, 19,
 16-bis(1-quinquies). Model ordered recovery operations, exhaustion after multiple
-election resolution, and missing bonus candidates. Respect the Senato exclusions
-of Camera cross-constituency recovery rules and the provisional I07 policy
-established by R26-01a. Compose proclamation and recovery until the legally
+election resolution, and missing bonus candidates. Apply the approved
+[I07 protocol](politics-reform-2026-specification.md#senate-initial-recovery-i07):
+ordinary initial recovery exhausts regional C84(2),(5) remedies before residual
+same-list cross-region recovery through S19(2)/C86(2)/C84(4). Keep the express
+S16-bis(1-quinquies) bonus route separate and do not enable C84(7) through the
+ordinary route. Compose proclamation and recovery until the legally
 defined terminal state with an explicit progress condition.
 
 Tests: every recovery level and remainder priority, coalition recovery, bonus
-shortfall, repeated subentro, fully exhausted candidates, and Senato territorial
-limits. Delimit the separate bonus/vacancy imports under specification I07
-before applying any cross-region fallback. Distinguish seats entitled from seats
-filled and report unresolved seats without inventing further redistribution.
-Do not extend into future vacancies
-or supplementary elections beyond the initial simulation's agreed scope.
+shortfall, repeated subentro, fully exhausted candidates, and the worked I07
+priority/boundary cases. Preserve original entitlement and actual election
+territories, seat identity and candidate/remainder state in recovery traces;
+warn on each I07 cross-region recovery. Distinguish seats entitled from seats
+filled and report unfilled seats without inventing further redistribution or
+recomputing the ordinary allocation to hide a geographic shift. Do not extend
+into future vacancies or supplementary elections beyond the agreed scope.
 
 ### R26-18: Composition and registry
 
@@ -399,7 +390,8 @@ behavior explicit; do not silently reinterpret a legacy run as the reform.
 
 Update typed presentation helpers and derive charts from their tables. Include
 bonus eligibility/reasons, bonus seats, cap effects, special seats, model
-assumptions, applied provisional interpretation IDs, I03 draw warnings, census
+assumptions, applied provisional interpretation IDs, I03 draw warnings, I07
+cross-region recovery warnings and entitlement/election territory traces, census
 versus decree seat-table provenance, and any candidate-output limitations.
 Keep ordinary list seats and coalition bonus identities distinguishable.
 Persist scenario, algorithm/model

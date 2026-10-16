@@ -13,9 +13,10 @@ Read only the relevant part:
 
 - Current legal sources: [sources](#sources-and-version-reconciliation).
 - Inputs, output scope and seat accounting: [scope](#supported-scope-and-accounting).
+- Senate exhaustion and bonus shortages: [approved I07 protocol](#senate-initial-recovery-i07).
 - Legal stages and their tests: [matrix](#norm-to-functiontest-matrix).
 - Numerical operations and tie rules: [numerics](#numerical-and-tie-contracts).
-- Cases without a determined legal result: [interpretation register](#interpretation-register).
+- Provisional policies and unresolved cases: [interpretation register](#interpretation-register).
 
 ## Sources and version reconciliation
 
@@ -32,6 +33,7 @@ respectively, **as amended**, not article numbers of the amending law.
 | T | [Current scoped transcription](politics-reform-2026.md) | Consolidated operative text for the matrix, including constitutional totals/allocation/age constraints and the revised Bolzano mapping. Excludes administrative procedures, individual ballot adjudication, foreign scrutiny and later supplementary elections. |
 | K | [Constitution, Presidency of the Republic, current text](https://www.quirinale.it/allegati_statici/costituzione/costituzione.pdf), articles 48(1), 56, 57 and 58; Civil Code article 2(1), first sentence | Electorate/candidate age, elective chamber totals, separate foreign-seat endowments and population apportionment. Operative excerpts are in T. |
 | P0 | [DPR 20 January 2023, GU 53, ordinary supplement 10, 3 March 2023](https://www.gazzettaufficiale.it/eli/gu/2023/03/03/53/so/10/sg/pdf) | Identified legal-population baseline: census at 31 December 2021. R26-07 must verify the latest legally declared census at generation time and reconcile territorial changes. Annual estimates are not automatically legal census data. |
+| H07 | [R26-01a precedent review and primary sources](migration-history.md#2026-10-16-r26-01a-senate-recovery-precedents-and-approved-i07) | Senate decisions on Pavanelli (2019) and Minasi (2021), and Constitutional Court order 86/2020. Evidence for provisional I07, not an amendment to the controlling statutory text. |
 
 Reproducible source identification (SHA-256 of the PDF bytes):
 
@@ -145,6 +147,74 @@ Future vacancies and supplementary elections (C86(3), S21-ter) are outside the
 initial simulation, even though initial multiple-election recovery uses their
 applicable replacement provisions.
 
+### Senate initial recovery (I07)
+
+Luca approved this provisional interpretation on **16 October 2026**, following
+the [R26-01a precedent review](migration-history.md#2026-10-16-r26-01a-senate-recovery-precedents-and-approved-i07).
+Revise it if further legal evidence arises. The 2019 Pavanelli decision supports
+residual cross-region recovery for initial exhaustion; the 2021 Minasi decision
+concerns a later vacancy and does not set the priority for this initial scrutiny.
+Neither case directly establishes the reform's new bonus mechanism.
+
+For **ordinary initial allocation**, including seats released by resolving
+multiple elections:
+
+1. Fill from the original list in the same region under S17-bis(2)/C84(2),
+   following the statutory college and unused-then-used remainder priorities.
+2. Exhaust the same-coalition remedies within that region under C84(5): first
+   the original college, then the other colleges, in their prescribed order.
+3. Only after those regional remedies fail, use S19(2) -> C86(2) -> C84(4) for
+   the **original list** in another region. Apply the prescribed regional and
+   college ordering, unused remainders before used remainders, and eligibility
+   checks. This residual import does not also enable C84(7)'s cross-region
+   recovery for other coalition lists.
+
+For a **bonus-candidate shortage**, use the separate express cross-reference
+S16-bis(1-quinquies) -> C83(1-quinquies) -> C86(1), insofar as applicable:
+
+1. Seek the prescribed replacement within the region. For a coalition, choose
+   the eligible member list by C86(1)'s unused-then-used remainder order and,
+   where there are several colleges, its highest college vote percentage;
+   then follow the candidate ranking. Preserve the bonus-winning coalition's
+   entitlement rather than allocating a fixed bonus share to each member list.
+2. When the region has no available candidates, recover for that **bonus-winning
+   list or coalition** in another region, by its greatest unused quotient
+   remainder, descending; only after those opportunities are exhausted use
+   already-used remainders, descending. Within the destination region, apply
+   C86(1) again to identify the list, college and candidate.
+
+Do not restore the abolished C84(3) recovery of unsuccessful uninominal
+candidates. Do not apply the 2021 later-vacancy priority in place of the regional
+steps above. Later vacancies and supplementary elections remain outside scope.
+
+Every cross-region recovery must emit a `ScrutinyWarning` with severity
+`"warning"` and policy ID I07, with a reproducible trace containing the route,
+original seat identity/type and entitlement territory/list or coalition,
+destination region/college/list and elected identity, candidate eligibility,
+ordered alternatives, remainder values/used state and any draw context/outcome.
+Use seeded statutory draws where prescribed (including C84(8)); apply warned
+I03 only when the final tie criterion is missing. Resolve multiple elections
+without duplicate final elected identities.
+
+Retain entitlement and filled-seat ledgers separately: regional totals may
+diverge after a cross-region recovery. Do not recompute the ordinary allocation
+to conceal that movement. Retain national seat entitlement and the applicable
+list/coalition allegiance, recording any permitted regional coalition transfer.
+If every permitted route is exhausted, report the seat explicitly unfilled;
+do not invent another redistribution.
+
+Worked expectations for **constructed R26-17 fixtures**, not reconstructions of
+the historical vote arithmetic (all candidates mentioned are otherwise eligible):
+
+| Fixture | Inputs at the recovery boundary | Expected result |
+| --- | --- | --- |
+| I07-A / regional list first | List A lacks one candidate in region R, college R1. A has an unelected candidate in R2; coalition partner B has one in R1. | C84(2) elects A in R2 before considering B. No cross-region warning. |
+| I07-B / regional coalition before another region | A is exhausted throughout R; B has an eligible candidate in original college R1. A also has an eligible candidate in region S with an unused remainder of 0.90. | C84(5) elects B in R1 before A in S. Record the permitted list transfer; do not import the 2021 vacancy priority. |
+| I07-C / residual same-list ordering | A and its coalition are exhausted in R. A has eligible candidates in S and T with unused regional remainders 0.70 and 0.40, and in U with a used remainder 0.95. One seat is missing. | C84(4) elects A in S, applying C84(2) within S. Preserve R's original entitlement and S's filled seat; emit I07 warning. Used U cannot precede unused S/T; a separate all-used variant chooses U. |
+| I07-D / exhausted routes | A has no eligible candidates anywhere; its coalition is exhausted in R, but B has a candidate in S. | The ordinary seat remains explicitly unfilled. Do not invoke C84(7) to elect B in S. |
+| I07-E / coalition bonus shortage | Bonus winner G lacks one bonus candidate in R and has no regional replacement. G has unused regional remainders 0.60 in S and 0.30 in T. In S, eligible member lists A/B have unused remainders 0.20/0.50; B has college percentages 10%/12% and eligible candidates in both. | The bonus route chooses G in S, then B's first unelected candidate in its 12% college, applying the candidate ranking. Preserve G's bonus entitlement; emit I07 warning. A local-replacement variant must fill in R before considering S; an all-used variant exercises used-remainder ordering. |
+| I07-F / releases and ties | A multiple election releases the missing ordinary seat; the eligible destinations have equal remainders. Repeat with permuted input order and the same seed. | Follow the same regional-first protocol, use C84(8)'s seeded statutory draw at a tied recovery rank, retain the trace and obtain the same unique final identities. Do not label an express statutory draw as an I03 fallback. |
+
 ### Provisional census-based seat tables (I08)
 
 This protocol implements Luca's interim decision, not an assertion about an
@@ -231,7 +301,7 @@ entitlements must reconcile.
 | N24 / 16 | C85, C93-octies(3); S17-bis(3), S20-bis(01) (82-83, 98, 129, 133) | `resolveMultipleElections`: all provisional elections, roles and percentages -> one retained seat per person and released seats | `N24`: special uninominal priority, bonus over ordinary, capolista over non-capolista; among capolista wins lowest list percentage; among other wins highest individual percentage. Exact equal percentages: warned seeded draw under I03. Prohibit incompatible bonus/special input before resolving wins. |
 | N25 / 17 | C84(2),(4)-(5),(7)-(8) (79-82) | `recoverCameraOrdinarySeats`: released/unfilled ordinary seats, remaining candidates, used/unused remainders -> ordered replacements and unfilled residue | `N25`: same-list same constituency unused then used remainders; same list other constituencies; coalition in original college then other local colleges; coalition other constituencies. Exercise every level and exhausted endpoint; decimal ties draw under C84(8). Preserve movements and final filled/entitled distinction. |
 | N26 / 17 | C86(1)-(2), C83(1-quinquies) (75, 83-84) | `recoverCameraBonusSeats` / `fillReleasedSeats`: missing bonus candidates or initial released seats, local slates/preferences/remainders -> replacement holders and traces | `N26`: missing bonus candidate invokes C86(1), same constituency, single list or coalition-list unused then used remainders; in multiple colleges choose list's highest college percentage. C83(1-quinquies) supplies fallback to other constituencies. C86(2) expressly invokes C84(2),(4),(5); do not replace this with all C84 levels indiscriminately. I03 for unsupplied tie-breaks. |
-| N27 / 17 | S17-bis(2), S19(2), S16-bis(1-quinquies) (121-122, 129-130) | `recoverSenateSeats`: ordinary/bonus shortages, initial releases, regional slates and traces -> replacement candidates or unresolved residue | `N27`: ordinary exhaustion imports C84 except (4),(7), retaining regional boundaries; exercise imported draw rule. S19(2) imports C86; bonus shortfall separately imports C83(1-quinquies) only insofar as applicable. I07 blocks unresolved cross-region recovery; do not globally import or globally prohibit every Camera fallback. |
+| N27 / 17 | S17-bis(2), S19(2), S16-bis(1-quinquies) (121-122, 129-130) | `recoverSenateSeats`: ordinary/bonus shortages, initial releases, regional slates and traces -> replacement candidates, original/actual territories, I07 warnings or unfilled residue | `N27`: apply the [approved I07 protocol and fixtures](#senate-initial-recovery-i07): regional C84(2),(5) before residual same-list C84(4) through S19(2)/C86(2); no ordinary C84(7) import. Bonus shortage separately follows S16-bis(1-quinquies)/C83(1-quinquies)/C86(1). Exercise seeded statutory draws, exhaustion, explicit unfilled seats and entitlement/filled ledgers. |
 | N28 / 18 | Composition of N01-N27 | `runPoliticsReformScrutiny`: validated legal inputs, chamber renewal scope, seeded legal draws -> paired scrutiny stages, ledgers, reasons and supported output status | `N28`: complete independently worked fixtures for no bonus, bonus below cap, cap correction, special territories and recovery; deterministic injected statutory draws and warned I03 fallback draws; repeated proclamation/recovery terminates by consuming an eligible candidature/seat transition or reports no progress. No duplicate final elected identity. |
 | N29 / 19-21 | K48(1), K56-58; C4(2), C58; S13(1), S14; L6-8 and scope above | `describeSupportedOutputs`: source/data/model versions and stage results -> reproducible labelled result and export | `N29`: raw ballot validity remains upstream; missing preferences/chamber/decree remain explicit; domestic-only totals cannot masquerade as a whole chamber; away-from-home data limitation; no claim to simulate foreign voting or later supplementary elections. These are downstream acceptance checks, not UI implementation in R26-01. |
 
@@ -297,12 +367,12 @@ source list order remains material for preference ties.
 ## Interpretation register
 
 `Delimited` means implementation proceeds within the stated scope. Decisions
-I03, I05, I06 and I08 are **Luca's provisional interpretation/modelling decisions
+I03, I05, I06, I07 and I08 are **Luca's provisional interpretation/modelling decisions
 of 16 October 2026**, to be corrected when further legal evidence arises. They
 permit the specified execution paths and are not quotations or claims that the
 law expressly supplies these choices. Persist their policy/version identifiers
-in reproducible runs. I03 requires a warning whenever its fallback draw is used.
-I07 remains pending the dedicated R26-01a research step, which precedes R26-02.
+in reproducible runs. I03 requires a warning whenever its fallback draw is used;
+I07 requires a warning whenever its cross-region recovery is used.
 Other genuinely non-computable inputs still return a structured partial result.
 
 | ID / status | Reading or explicit boundary | Downstream effect and required test |
@@ -313,12 +383,12 @@ Other genuinely non-computable inputs still return a structured partial result.
 | I04 / delimited numerical domain | Zero requested seats: empty assignment without division. Zero only-ballots: no additions. A single linked list receives its only-ballots directly. Multiple linked lists, positive only-ballots and zero direct support: no legal proportional weights, unresolved. Zero all-valid denominator makes percentages undefined, never 0%; zero positive-seat eligible vote sum, integer quota zero, initial integer seats exceeding capacity or impossible residual allocation: explicit non-computable stage, no invented allocation. | R26-05/06/08-17: test each case, including an entirely zero-vote election and a cap group with zero target. A zero-target group is inactive; do not evaluate its undefined quota/index. If a required positive-seat stage cannot be computed, block that result. No fallback to legacy scrutiny or equal shares. |
 | I05 / provisional decision, symmetry | Interpret “Analogamente” in C83(1-ter)(d) symmetrically: truncate both the majority index and every minority subject index to six decimal places before normalizing the local allocations. | R26-06/13: test both sides at the sixth/seventh-decimal boundary and a case where truncation changes a seat; persist the provisional policy ID. This path is not blocked by the wording ambiguity. Revise if further legal evidence establishes a different reading. |
 | I06 / provisional decision, Senate cap progression | Resolve equal removal ranks by the seeded draw of I03. Trace used/unused remainders and consume each remainder at most once: a used-remainder removal entry cannot be selected twice; a recipient remainder changes from unused to used on assignment and cannot win another remainder seat. Once unused recipient remainders are exhausted, use the statutory regional-vote fallback, resolving any remaining tie under I03. | R26-14: test equal ranks, several transfers in one region, single consumption and transitions to regional-vote fallback; retain ordered before/after state and movements. Apply statutory regional exclusions, repeated passes and last-seat protection; report non-computable no-progress states. Fallback tie draws emit warnings. |
-| I07 / pending precedent research | Ordinary exhaustion S17-bis(2) excludes C84(4),(7) and is regional. S16-bis(1-quinquies) separately imports Camera bonus shortfall insofar as applicable; S19(2) imports C86. Research whether a past Senate exhaustion/recovery case exists and how the competent authority resolved it, distinguishing its law and procedure from the new bonus mechanism. | R26-01a, before R26-02: locate primary decisions/proceedings, establish the actual outcome and its legal basis, then record the applicable provisional interpretation and a worked test. Do not assume that a historical case exists or automatically generalize a different law. Pending that step, cross-region outcomes remain restricted; unambiguous regional cases can be specified. |
+| I07 / provisional decision, initial Senate recovery | Apply the [approved protocol](#senate-initial-recovery-i07), informed by the [R26-01a precedents](migration-history.md#2026-10-16-r26-01a-senate-recovery-precedents-and-approved-i07): exhaust same-region list/coalition remedies, then permit residual same-list cross-region recovery through S19(2)/C86(2)/C84(4), without C84(7). Keep the express bonus-shortfall route separate; later vacancies are outside scope. | R26-05/17/18/20: implement I07-A through I07-F expectations and every recovery level. Retain original entitlement and actual election territory, candidate/remainder state, route and draw traces; warn on each cross-region recovery. Preserve unfilled seats when permitted candidates run out. Revise on further legal evidence; do not treat historical decisions as direct proof of the new bonus rule. |
 | I08 / provisional decision, census-based tables | Until the prescribed election decree is available, distribute seats from the latest legally declared population census, using the reproducible [provisional apportionment protocol](#provisional-census-based-seat-tables-i08). Record census, geography, method and table versions and mark the resulting endowments provisional. An official decree replaces these tables after validation. | R26-07/12/19-21: missing decree alone no longer blocks census-based generation or acceptance labelled provisional. Verify coverage, constitutional minima, special endowments, 70/35 totals, alternative college capacities and compatibility with Camera’s literal 314. Reject inconsistent inputs rather than silently rescaling. Recheck the latest legal census before generation. |
 | I09 / delimited candidature validation | C93-quinquies(6)/S9 refer to Camera filing rules only insofar as compatible; S9 expressly permits a single region. Do not impose Camera's nationwide coverage requirement on Senate inputs, or require bonus slates in special territories/single-chamber renewals. Special ordinary candidacy restrictions and seven-slot/gender rules still need focused compatibility checks. The three-preference gender wording concerns upstream ballot validity, not a license to infer valid preference counts from totals. | R26-05/10: write separate chamber/special-territory validation fixtures and record any remaining compatibility reading before rejecting a legally supplied slate. Raw ballot generation/adjudication would require a separately specified validity model; R26-03 must operate on valid preferences or label its limit. |
 
 The specification is complete as a dated R26-01 mapping and delimitation.
-The provisional decisions and the pending I07 research govern dependent work;
+The approved provisional decisions govern dependent work;
 they do not mark those implementation steps complete. Changes to this document
 must preserve source/version provenance and keep later statistical decisions in
 the [modelling document](politics-reform-2026-modelling.md).

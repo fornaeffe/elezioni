@@ -148,8 +148,8 @@ preparation last.
   [normative specification](docs/politics-reform-2026-specification.md),
   [current scoped transcription](docs/politics-reform-2026.md) and the three pending
   [modelling decisions](docs/politics-reform-2026-modelling.md). Keep the old
-  scrutiny algorithm as a selectable alternative. Complete the R26-01a Senate
-  recovery precedent research before R26-02. Resolve bonus-only vote,
+  scrutiny algorithm as a selectable alternative. Apply the approved provisional
+  I07 Senate recovery policy and continue with R26-02. Resolve bonus-only vote,
   preference, and Camera-Senato vote assumptions before integrating their
   dependent production generators.
 - [ ] Keep completed politics and regional vertical slices green while shared
