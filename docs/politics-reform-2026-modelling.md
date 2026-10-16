@@ -2,8 +2,9 @@
 
 Read the section corresponding to R26-02, R26-03, or R26-04 in
 [`politics-reform-2026-plan.md`](politics-reform-2026-plan.md). These are pending
-decisions, not implemented models. None of the three has calibration data
-available for this task. Constructed data can test mechanics and sensitivity;
+decisions, not implemented models. No calibrated generator for these choices is
+established here; audit available source data in the relevant decision step.
+Constructed data can test mechanics and sensitivity;
 it cannot establish the real distribution of unobserved voting behavior.
 
 For each decision, present options and evidence to Luca, then record the chosen
@@ -135,6 +136,13 @@ territorial list draws and aggregates it into Camera and Senato uninominal
 geographies. It does not estimate a separate chamber voting-behavior component.
 Check downstream coverage/normalization before claiming final chamber totals
 are identical. The reform's joint bonus makes this dependence consequential.
+
+Inspect whether previous Senate election results are already available in the
+source bundles before treating calibration data as absent. If R26-04 elects to
+use them, audit the electorate-age rule for each election, align age/turnout
+bases and geography, and separate list coverage from voting-behavior differences.
+Otherwise leave this data-backed extension in the root plan's post-migration
+roadmap; do not infer that choosing chamber residuals alone implements it.
 
 | Option | Assumption to discuss | Required evidence |
 | --- | --- | --- |

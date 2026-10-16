@@ -146,9 +146,10 @@ preparation last.
 - [ ] **2026 politics reform** Follow the step-by-step
   [implementation plan](docs/politics-reform-2026-plan.md), using the
   [normative specification](docs/politics-reform-2026-specification.md),
-  [legal extract](docs/politics-reform-2026.md) and the three pending
+  [current scoped transcription](docs/politics-reform-2026.md) and the three pending
   [modelling decisions](docs/politics-reform-2026-modelling.md). Keep the old
-  scrutiny algorithm as a selectable alternative. Resolve bonus-only vote,
+  scrutiny algorithm as a selectable alternative. Complete the R26-01a Senate
+  recovery precedent research before R26-02. Resolve bonus-only vote,
   preference, and Camera-Senato vote assumptions before integrating their
   dependent production generators.
 - [ ] Keep completed politics and regional vertical slices green while shared
@@ -179,3 +180,29 @@ preparation last.
 - [ ] Retire temporary bridge artifacts and update user and developer
   documentation when migrated workflows no longer depend on R-exported
   intermediary snapshots.
+
+## After completion of the web migration
+
+Start these additions after all simulator workflows and data preparation have
+completed the web migration; they do not expand the current domestic reform
+implementation or municipal parity scope.
+
+- [ ] Add foreign-seat simulation under the applicable foreign-voting law,
+  including its current territorial divisions, seat endowments, votes,
+  preferences and candidate proclamations. Keep its inputs and calculations
+  separate from domestic admission, bonus and caps, then compose accurately
+  labelled whole-chamber results.
+- [ ] If R26-04 has not already delivered it, incorporate previous Senate
+  election results to model Camera/Senato differences. Audit available data by
+  election year and geography, distinguishing the historical 25+ Senate
+  electorate from elections after the voting-age reduction to 18. Align
+  electorate/turnout bases, territories and list coverage before attributing
+  residual differences to voting behavior; version the model and its evidence.
+  If R26-04 already includes this capability, verify its coverage instead of
+  implementing a duplicate model.
+- [ ] Model away-from-home voter distribution using sourced or explicitly
+  assumed residence-to-temporary-domicile flows, eligibility and turnout.
+  Attribute votes to the legally applicable destination college, conserve
+  electors/votes without double counting, and test geographic and joint-bonus
+  sensitivity. Distinguish voting-population movement from legal census data
+  used for seat apportionment.

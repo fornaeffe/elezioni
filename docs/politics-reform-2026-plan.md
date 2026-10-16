@@ -12,7 +12,8 @@ time and leave subsequent application features inactive.
   and the referenced PDF; read only the articles needed for that step.
 - For verified source versions, legal function/test boundaries and unresolved
   interpretations, use the [R26-01 specification](politics-reform-2026-specification.md).
-  Its discrepancy register takes precedence over stale references in the extract.
+  Use the current scoped transcription for operative wording; promulgated law
+  and official corrections control conflicting official sources.
 - For the three unresolved statistical choices, use only the relevant section
   of [`politics-reform-2026-modelling.md`](politics-reform-2026-modelling.md).
 - For completed work, decisions, verification, and limitations, use
@@ -39,6 +40,9 @@ time and leave subsequent application features inactive.
 - Keep ordinary seats, bonus seats, special-territory seats, and candidate
   identities distinguishable. A coalition bonus slate is not an arbitrary
   proportional distribution of bonus seats between member lists.
+- Apply the provisional I03/I05/I06/I08 policies in the specification, keeping
+  them distinguishable from express statutory rules and revisable on further
+  legal evidence. Warn in affected simulations when an I03 fallback draw is used.
 - Do not silently turn missing preferences into zero or absent chamber data
   into independent draws. Record assumptions and unresolved outputs explicitly.
 - Use small tracked fixtures with independently worked expected results for
@@ -50,7 +54,8 @@ time and leave subsequent application features inactive.
 
 ## Checklist and dependencies
 
-The default order is below. R26-02 through R26-04 are explicit discussions with
+The default order is below. Complete R26-01a before starting R26-02.
+R26-02 through R26-04 are explicit discussions with
 Luca, not choices already authorized by approval of this document. If a choice
 is deferred, R26-05 through R26-18 may proceed using constructed legal inputs;
 keep dependent production generation and claims of completeness blocked.
@@ -58,7 +63,8 @@ keep dependent production generation and claims of completeness blocked.
 | Done | Step | Deliverable | Dependencies |
 | --- | --- | --- | --- |
 | [x] | [R26-01](#r26-01-normative-specification) | Norm-to-function/test specification | None |
-| [ ] | [R26-02](#r26-02-bonus-only-vote-modelling) | Bonus-only vote decision and bias protocol | 01 |
+| [ ] | [R26-01a](#r26-01a-senate-recovery-precedent) | Historical Senate recovery evidence and provisional interpretation | 01 |
+| [ ] | [R26-02](#r26-02-bonus-only-vote-modelling) | Bonus-only vote decision and bias protocol | 01a |
 | [ ] | [R26-03](#r26-03-preference-modelling) | Preference decision and supported outputs | 01 |
 | [ ] | [R26-04](#r26-04-camera-senato-vote-modelling) | Chamber differentiation decision | 01 |
 | [ ] | [R26-05](#r26-05-scrutiny-contracts) | Typed legal inputs, outputs, validation | 01; interfaces reserved for 02-04 |
@@ -73,7 +79,7 @@ keep dependent production generation and claims of completeness blocked.
 | [ ] | [R26-14](#r26-14-senato-regional-allocation) | Senato regional allocation and cap | 10-11 |
 | [ ] | [R26-15](#r26-15-senato-list-and-college-allocation) | Senato lists and colleges | 14 |
 | [ ] | [R26-16](#r26-16-proclamations-and-multiple-elections) | Candidate proclamations and precedence | 10, 13, 15 |
-| [ ] | [R26-17](#r26-17-exhaustion-and-replacements) | Exhaustion, replacements, bonus shortfalls | 16 |
+| [ ] | [R26-17](#r26-17-exhaustion-and-replacements) | Exhaustion, replacements, bonus shortfalls | 01a, 16 |
 | [ ] | [R26-18](#r26-18-composition-and-registry) | Composed scrutiny and algorithm registration | 06-17 |
 | [ ] | [R26-19](#r26-19-scenarios-and-generation) | Scenario compatibility and generators | 02-04 resolved, 07, 18 |
 | [ ] | [R26-20](#r26-20-worker-results-and-ui) | Worker, selector, results, exports | 19 |
@@ -81,26 +87,44 @@ keep dependent production generation and claims of completeness blocked.
 
 ### R26-01: Normative specification
 
-Use the [dated normative specification](politics-reform-2026-specification.md)
-for the completed source concordance, operation/test matrix, scope and
-interpretation register. Carry its case-specific blockers into dependent steps.
+Use the [normative specification](politics-reform-2026-specification.md) for
+sources, operation/test boundaries, scope and provisional interpretation policies.
+Maintain the [transcription](politics-reform-2026.md) as the current consolidated
+text of all and only provisions translated by this simulation, including
+constitutional inputs. Incorporate verified legal corrections directly and do
+not retain a transcription error/omission register. Keep statutory wording
+separate from provisional simulator interpretations.
+
 Recheck later official corrections and the announced republication with notes
-before production acceptance; do not silently overwrite historical quotations.
+before production acceptance. Update the transcription, source version and
+affected specification/test boundaries together. Keep genuinely unresolved
+inputs and I07-dependent recovery outputs explicit.
 
-Check the local transcription and September 2026 A.C. 2822-B comparison against
-the final promulgated text, including errata. Record exact source versions and
-discrepancies without silently rewriting quoted legal text. Create a focused
-norm-to-function/test matrix, with explicit inputs, outputs, ties, and unresolved
-interpretations. The article references in later steps are a starting map to
-verify here, not a completed legal concordance.
+### R26-01a: Senate recovery precedent
 
-Resolve or delimit ambiguous cross-references, first-place ties, zero-denominator
-cases, and the scope of foreign seats and single-chamber elections. Specify
-whether any omitted provisions affect the supported scrutiny; do not infer full
-coverage of foreign voting or administrative election procedures from this plan.
+Before R26-02, investigate whether a previous Senate election produced the
+candidate-exhaustion/recovery situation relevant to specification I07, and how
+the competent authority resolved it. Start with Senate election-verification
+proceedings, electoral-office decisions and any directly relevant judicial or
+constitutional decisions; use secondary accounts to locate primary evidence.
 
-Acceptance: every supported legal operation has a source and test boundary;
-unresolved interpretations identify the particular downstream work they block.
+Establish the election, region, lists, seats/candidates involved, statutory text
+then in force, decision-making authority and actual final outcome. Distinguish
+an unfilled seat, ordinary exhaustion, a vacancy/released seat and a bonus
+shortfall. Compare the precedent's legal basis and territorial constraints with
+S17-bis(2), S19(2) and S16-bis(1-quinquies); do not transfer a rule merely because
+the practical problem looks similar.
+
+Record the findings and evidence in history, adopt the supported reading as a
+provisional I07 interpretation, and update the specification and R26-17 test
+boundary. If no usable precedent is found, document the bounded search and the
+remaining question for Luca rather than inventing an outcome or claiming an
+unsupported precedent. This research is a separate requested step, not completed
+by adding it to the plan.
+
+Acceptance: sourced outcome, explicit applicability limits, provisional recovery
+policy and worked test expectations; or a documented lack of sufficient evidence
+with the affected recovery output still restricted pending a recorded decision.
 
 ### R26-02: Bonus-only vote modelling
 
@@ -151,7 +175,9 @@ Validate identities, territorial/political references, nonnegative finite vote
 counts, and candidacy constraints, including seven-slot lists, gender rules,
 multiple candidacies, and required ordinary/bonus slate links where applicable.
 Apply chamber-specific coverage and single-chamber no-bonus-slate rules from
-the specification; keep special-territory compatibility explicit.
+the specification; keep special-territory compatibility explicit. Include the
+constitutional electorate/candidate age constraints and reserve provisional
+policy identifiers, draw traces/warnings and seat-table provenance in outputs.
 Distinguish malformed candidature input from a legally handled later shortfall.
 Version scenario/snapshot contracts as needed without reinterpreting old files.
 
@@ -169,7 +195,8 @@ global RNG state and arbitrary floating-point tolerances that change legal ties.
 Tests: independently worked allocations where truncation matters, successive
 tie criteria, deterministic injected draws, zero seats, no eligible subjects,
 zero quotas, and impossible allocations with explicit outcomes. Preserve the
-legacy helpers' behavior.
+legacy helpers' behavior. Exercise I03's final seeded-draw fallback after all
+express legal criteria and require a warning in every affected simulation.
 
 ### R26-07: Territories and seat endowments
 
@@ -179,8 +206,14 @@ ordinary college capacities both with and without the bonus (Camera art. 3;
 Senato art. 1). Check the geographic resolution of existing source data before
 reusing it for revised boundaries.
 
-Use prescribed decree tables when available. Document provisional assumptions
-and their provenance if needed; do not invent the decree allocation formula.
+Use prescribed decree tables when available. Until then generate census-based
+provisional endowments under specification I08, using the latest legally declared
+population census, constitutional constraints and the documented interim quota/
+remainder method for bonus seats and college capacities. Version and label these
+tables as provisional; do not describe that method as an official decree formula.
+Replace them with verified official tables when available, preserving replay of
+older runs with their original versions. A missing decree alone does not block
+the provisional path; statutory/territorial conflicts still need resolution.
 Keep any generator changes limited to the reform's required data; the general
 data-preparation migration remains deferred. Regenerate dependent defaults and
 catalogs through scripts, never by editing generated files.
@@ -215,7 +248,8 @@ law's admission rules into the reform by default.
 
 Tests: just below/at/above 3%, 10%, and applicable 20% thresholds; linguistic
 minorities and special uninominal wins; Senato regional access; failed coalition
-with independently admitted list; best subthreshold list and unresolved ties.
+with independently admitted list; best subthreshold list and provisional warned
+tie draws under I03.
 Stage any special-territory winner calculation needed for admission before the
 special proportional allocation, avoiding a circular dependency with R26-10.
 
@@ -262,6 +296,8 @@ Translate art. 83 constituency distribution and art. 83-bis college distribution
 Separate provisional allocations from corrections for surplus/deficit subjects,
 and subject allocation from allocation among coalition lists. Implement the cap
 path's majority/minority indices and six-decimal truncations explicitly.
+Apply I05 symmetrically to the majority and all minority indices before local
+normalization, with boundary tests and a recorded provisional policy version.
 
 Tests: already reconciled matrices, transfers within a constituency, prescribed
 fallback transfers across constituencies, used versus unused remainders,
@@ -275,6 +311,8 @@ Translate art. 16-bis provisional regional allocation and the 113-seat cap.
 Isolate ranking of used remainders across regions, removal of excess ordinary
 seats, repeated regional-percentage passes, and corresponding regional
 reassignment. Preserve the 35 bonus seats and count special seats in the cap.
+Apply I06: resolve equal removal ranks by seeded draw with the I03 warning,
+trace every used/unused transition and consume each remainder only once.
 
 Tests: no bonus, bonus without correction, exactly/over 113, ordinary majority
 target including special seats of 78, exhausted remainder ranking, repeated
@@ -309,8 +347,9 @@ preferences in legal fixtures even if their statistical model is still deferred.
 Translate Camera arts. 84, 86, 83(1-quinquies) and Senato arts. 17-bis, 19,
 16-bis(1-quinquies). Model ordered recovery operations, exhaustion after multiple
 election resolution, and missing bonus candidates. Respect the Senato exclusions
-of Camera cross-constituency recovery rules. Compose proclamation and recovery
-until the legally defined terminal state with an explicit progress condition.
+of Camera cross-constituency recovery rules and the provisional I07 policy
+established by R26-01a. Compose proclamation and recovery until the legally
+defined terminal state with an explicit progress condition.
 
 Tests: every recovery level and remainder priority, coalition recovery, bonus
 shortfall, repeated subentro, fully exhausted candidates, and Senato territorial
@@ -360,8 +399,10 @@ behavior explicit; do not silently reinterpret a legacy run as the reform.
 
 Update typed presentation helpers and derive charts from their tables. Include
 bonus eligibility/reasons, bonus seats, cap effects, special seats, model
-assumptions, and any candidate-output limitations. Keep ordinary list seats and
-coalition bonus identities distinguishable. Persist scenario, algorithm/model
+assumptions, applied provisional interpretation IDs, I03 draw warnings, census
+versus decree seat-table provenance, and any candidate-output limitations.
+Keep ordinary list seats and coalition bonus identities distinguishable.
+Persist scenario, algorithm/model
 identity, and worker result in structured exports through the generic export
 module; keep CSV table-oriented. Apply the existing severity conventions.
 
@@ -389,4 +430,7 @@ Apply the existing 10x stop rule where a matching full R workflow is available.
 
 Acceptance requires the promised output scope to be implemented and accurately
 labelled. A candidate-limited model is not full candidate-level acceptance.
+Recheck available official corrections and decree tables. Census-based I08
+tables permit acceptance explicitly labelled provisional until a decree exists;
+they do not establish that official decree allocation has been implemented.
 Record unresolved limits in history and leave affected checklist items open.
