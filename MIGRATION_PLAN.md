@@ -152,7 +152,8 @@ preparation last.
   I07 Senate recovery policy and approved R26-02/03/04 models: attributed list
   totals, historically informed synthetic preferences and paired chamber votes
   with common anchors and explicit chamber precedence. R26-05 contracts and
-  validation are complete; continue with R26-06 numerical primitives.
+  validation and R26-06 numerical primitives are complete; continue with R26-07
+  territories and seat endowments.
   Acquire/reconcile Senate history and fit/validate the approved models before
   production integration under R26-19.
 - [ ] Keep completed politics and regional vertical slices green while shared
