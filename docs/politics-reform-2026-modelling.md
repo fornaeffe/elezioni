@@ -1,10 +1,11 @@
 # Politics reform 2026: modelling decisions
 
 Read the section corresponding to R26-02, R26-03, or R26-04 in
-[`politics-reform-2026-plan.md`](politics-reform-2026-plan.md). R26-02 is approved;
-R26-03 and R26-04 remain pending. A recorded decision does not implement its
-generator. Audit source data before production integration; no calibrated model
-of bonus-only ballot composition is established here.
+[`politics-reform-2026-plan.md`](politics-reform-2026-plan.md). R26-02 and R26-03
+are approved; R26-04 remains pending. A recorded decision does not implement its
+generator. Audit source data before production integration. Preference data are
+available, but no fitted national preference model or calibrated model of
+bonus-only ballot composition is established here.
 Constructed data can test mechanics and sensitivity;
 it cannot establish the real distribution of unobserved voting behavior.
 
@@ -111,46 +112,104 @@ equivalence and sensitivity checks remain future work.
 
 ## Preferences (R26-03)
 
-### Question and options
+### Approved model and input contract
 
-No preference data or calibrated preference-generation model is available for
-this task. The legal ranking functions can still be implemented against supplied
-counts. Decide separately whether the web simulation should generate counts and
-what candidate-level conclusions it can support.
+**Approved by Luca on 17 October 2026:** fit a synthetic model informed by
+historical preference patterns, with supplied valid preference counts taking
+precedence. The [decision record](migration-history.md#2026-10-17-r26-03-approved-historical-pattern-preference-model)
+contains the source audit, alternatives, rationale and transfer limits. Model
+family selection is complete; fitting, generator implementation and downstream
+validation remain R26-19 work, using independently supplied legal fixtures first.
 
-| Option | Required choice | Consequence |
-| --- | --- | --- |
-| Synthetic preference generation | Distribution, concentration, territorial/candidate effects, ballot constraints | Candidate results depend on stated assumptions |
-| Supplied preferences | Input resolution and validation | Exact ranking only for supplied scenarios |
-| No random preference model for now | Explicitly limited outputs | Do not present unsupported candidate election probabilities |
+1. Separate effective preference intensity (marks per list vote), concentration
+   among candidates and territorial variation. Fit historical patterns with
+   partial pooling toward a shared baseline when list/geographic observations
+   are sparse. Adjust for list length and the reform's capolista exclusion;
+   do not transplant a regional participation rate or list profile unchanged.
+2. Give each candidate a shared underlying popularity component across their
+   candidatures, with local variation. For new candidates without individual
+   evidence, use exchangeable synthetic strengths informed by the historical
+   distribution. Do not transfer an old candidate's measured strength to a new
+   name or redraw the same person's underlying strength independently by college.
+3. Generate aggregate counts of **valid preference combinations**: zero to
+   three distinct eligible candidates, no capolista, with the applicable gender
+   constraints. For six eligible ordinary candidates there are at most 42 subsets
+   before legal filtering; sample category counts rather than every voter.
+   Derive candidate marginal counts from those categories. Retain a reproducible
+   realizability trace; independent marginal draws/bounds alone do not prove
+   valid ballots. This construction generates valid inputs, not invalid-ballot
+   adjudication. Apply the legal ranking and presentation-order tie rule later.
+4. For the central profile, use a maximum-entropy distribution over valid
+   combinations constrained by the selected intensity and candidate-strength
+   profile. This is an explicit modelling convention: aggregate candidate totals
+   do not identify the zero/one/two/three-preference mix or pairing behaviour.
+   Test alternative multiplicity/pairing assumptions, especially the third
+   preference absent from the regional source.
+5. Preserve R26-02. With final attributed totals, model effective preference
+   intensity without reconstructing bonus-only counts; the zero-preference
+   category remains unspecified composition. With explicit direct/bonus-only
+   components, only direct list votes supply the preference budget. In either
+   representation, percentages for legal ranking/multiple-election decisions
+   use the statutory denominator, not the calibration intensity denominator.
 
-Specify treatment of capolista, up to three preferences, gender constraints, and
-ties in presentation order. If counts are generated in aggregate, establish
-their realizability under valid ballots or use a construction that guarantees
-it. Marginal count bounds alone do not establish ballot validity.
+Unknown supplied preferences remain missing, never silently all zero. Valid
+supplied counts bypass synthetic generation for their declared scope; preserve
+whether each resolved input was supplied or generated. A genuinely incomplete
+input leaves its dependent identities/recovery unresolved rather than claiming
+complete scrutiny.
 
-Do not represent unknown preferences as all zero: that would impose an actual
-all-tied ranking and systematically favor list order. An explicit synthetic
-equal/random/order-based ranking is also a modelling choice to discuss.
+### Calibration and validation requirements
 
-### Impact checks and acceptance
+The local 2024 Emilia-Romagna cache covers the region's municipalities and
+sections, but a single election is not national calibration. Additional municipal
+and European sources were located and sampled during the decision review;
+their availability does not imply completed cleaning or calibration. Use the
+[dated source/evidence register](migration-history.md#preference-source-audit-and-evidence)
+to start R26-19, then:
 
-- Compare supplied rankings with concentrated, dispersed, and geographically
-  varying synthetic examples. Check capolista priority and exact preference ties.
-- Propagate alternative rankings through multiple elections, bonus precedence,
-  exhaustion, and recovery. Distinguish seats assigned before these operations
-  from final filled seats and candidate identities. Establish which aggregates
-  are invariant and which can change; do not assume only names are affected.
-- If candidate predictions are deferred, define which aggregate seat outputs
-  remain justified and how unsupported candidate/recovery results are represented.
-  Do not bypass candidate capacities to claim complete legal scrutiny.
-- If a synthetic model is selected, define its parameters, reproducible stream,
-  sensitivity range, and visible assumptions. Avoid adding uncalibrated UI
-  controls without explaining their meaning.
+- Reconcile source versions/totals, join verified candidate rosters and gender,
+  and preserve geographic coverage, election/rule version and fingerprints.
+  Do not infer gender from names or treat absent geographic data as zero.
+  Distinguish multiple candidatures from people and zero counts from missing rows.
+- Separate measured source patterns, estimated parameters and national transfer
+  assumptions. Expand geographic/election coverage; use partial pooling and
+  wider sensitivity where evidence is sparse. Regional two-preference ballots,
+  different candidates/campaigns, list lengths and protected capolista effects
+  require explicit adaptation. Marginals do not identify ballot combinations,
+  even in a source allowing three preferences.
+- Validate withheld provinces and, as sources expand, withheld elections/regions.
+  Account for shared candidates and clustered section data when splitting and
+  estimating uncertainty; row counts are not independent sample sizes. Check
+  preference intensity, concentration, territorial persistence, zeros and ties.
+- Compare central, concentrated/dispersed, weak/strong local-persistence and
+  alternative multiplicity/pairing profiles in paired runs with votes and
+  candidatures held fixed. Predeclare profile parameters, diagnostics, acceptance
+  criteria and seed/replication budget; quantify Monte Carlo uncertainty within
+  profiles separately from uncertainty about the model.
+- Test valid subset counts, integer/nonnegative marginal counts, direct-vote
+  budgets, capolista exclusion, gender constraints and statutory preference ties.
+  Propagate preferences through multiple elections, bonus precedence, exhaustion
+  and recovery; check which aggregate outputs change, not only candidate names.
+  Test supplied-input precedence and reproducibility with isolated preference
+  and legal-draw streams. Keep supplied law fixtures independent of calibration.
 
-Acceptance: an explicit output contract, model/input requirements, and a test
-protocol covering these effects. A restricted mode may be a staged deliverable;
-it does not close the plan's full candidate-level acceptance by itself.
+### Supported outputs and acceptance
+
+Persist `preferences-empirical-synthetic-v1`, fitted-parameter/profile and source
+versions, assumptions, seed and supplied/generated provenance. Report vote-based
+seat entitlements separately from final filled seats, recoveries and candidate
+outcomes conditional on preferences. Synthetic candidate probabilities are
+conditional scenario results, not calibrated forecasts for real names. Show
+sensitivity across profiles; do not label that spread a calibrated confidence
+interval. Do not bypass candidate capacities to report complete final results.
+
+R26-19/20 acceptance requires a versioned fitted profile with source reconciliation,
+validation and sensitivity evidence; valid preference generation or supplied
+inputs; and complete propagation/reporting of candidate-dependent effects. This
+decision does not assert fitted parameters or passing application tests. Revisit
+the model when broader data, actual reform-election results, material validation
+failures or new candidate information change its evidential basis. Keep any UI
+parameters tied to an explained modelling meaning.
 
 ## Camera-Senato votes (R26-04)
 

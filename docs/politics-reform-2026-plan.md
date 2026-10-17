@@ -14,7 +14,7 @@ time and leave subsequent application features inactive.
   interpretations, use the [R26-01 specification](politics-reform-2026-specification.md).
   Use the current scoped transcription for operative wording; promulgated law
   and official corrections control conflicting official sources.
-- For approved vote semantics and pending preference/chamber choices, use the
+- For approved vote/preference models and the pending chamber choice, use the
   relevant section
   of [`politics-reform-2026-modelling.md`](politics-reform-2026-modelling.md).
 - For completed work, decisions, verification, and limitations, use
@@ -56,20 +56,20 @@ time and leave subsequent application features inactive.
 
 ## Checklist and dependencies
 
-The default order is below. R26-02's final-attributed-total semantics are approved;
-R26-03 and R26-04 remain explicit discussions with Luca, not choices authorized
-by approval of another step. If a choice is deferred, R26-05 through R26-18 may
-proceed using constructed legal inputs;
-keep dependent production generation and claims of completeness blocked.
+The default order is below. R26-02's final-attributed-total semantics and R26-03's
+historically informed synthetic preference model are approved. R26-04 remains an
+explicit discussion with Luca. If deferred, R26-05 through R26-18 may proceed
+using constructed legal inputs; keep dependent production generation and claims
+of completeness blocked. Approved model choices do not imply completed fitting.
 
 | Done | Step | Deliverable | Dependencies |
 | --- | --- | --- | --- |
 | [x] | [R26-01](#r26-01-normative-specification) | Norm-to-function/test specification | None |
 | [x] | [R26-01a](#r26-01a-senate-recovery-precedent) | Historical Senate recovery evidence and provisional interpretation | 01 |
 | [x] | [R26-02](#r26-02-bonus-only-vote-modelling) | Bonus-only vote decision and bias protocol | 01a |
-| [ ] | [R26-03](#r26-03-preference-modelling) | Preference decision and supported outputs | 01 |
+| [x] | [R26-03](#r26-03-preference-modelling) | Preference decision and supported outputs | 01 |
 | [ ] | [R26-04](#r26-04-camera-senato-vote-modelling) | Chamber differentiation decision | 01 |
-| [ ] | [R26-05](#r26-05-scrutiny-contracts) | Typed legal inputs, outputs, validation | 01, 02; interfaces reserved for 03-04 |
+| [ ] | [R26-05](#r26-05-scrutiny-contracts) | Typed legal inputs, outputs, validation | 01-03; interfaces reserved for 04 |
 | [ ] | [R26-06](#r26-06-numerical-primitives) | Quotas, truncation, remainders, ties | 05 |
 | [ ] | [R26-07](#r26-07-territories-and-seat-endowments) | Versioned geography and seat tables | 01, 05 |
 | [ ] | [R26-08](#r26-08-electoral-figures-and-rankings) | Vote attribution, totals, rankings | 05-07 |
@@ -125,18 +125,19 @@ ballot composition explicit and prevent double attribution.
 Use the [decision evidence and limits](migration-history.md#2026-10-17-r26-02-approved-final-attributed-vote-model)
 when validating R26-08/19. Historical-source reconciliation is an implementation
 requirement; this completed modelling decision does not implement a generator,
-settle preferences/chamber dependence or prove empirical absence of bias.
+settle other modelling choices or prove empirical absence of bias.
 
 ### R26-03: Preference modelling
 
-Discuss whether and how to simulate preferences without calibration data. Use
-[the dedicated decision protocol](politics-reform-2026-modelling.md#preferences-r26-03)
-to distinguish synthetic preferences, supplied preferences, and a limited mode
-without candidate-level predictions. Define effects on multiple elections,
-candidate exhaustion, and seat recovery before promising exact final results.
-
-Acceptance: record the selected model or explicit supported limitation, required
-inputs, sensitivity checks, and output semantics. Keep missing and zero distinct.
+Apply the [approved model and validation contract](politics-reform-2026-modelling.md#preferences-r26-03):
+fit synthetic preferences from historical patterns with supplied valid counts
+taking precedence. Preserve shared candidate strength/local variation and generate
+valid preference-combination counts. Keep source reconciliation, fitting and
+held-out/sensitivity validation in R26-19, using the
+[decision evidence](migration-history.md#2026-10-17-r26-03-approved-historical-pattern-preference-model).
+Report candidate/recovery outcomes as conditional on the preference profile;
+distinguish missing from zero. Completing this decision does not fit the model,
+implement its generator or settle R26-04.
 
 ### R26-04: Camera-Senato vote modelling
 
@@ -155,8 +156,9 @@ Define reform-specific contracts for per-chamber votes, coalition links, list
 coverage, candidate identities and affiliations, ordinary/bonus slates,
 preferences, special contests, and seat endowments. Distinguish raw direct and
 bonus-only inputs from already attributed list totals through explicit variants.
-Carry R26-02's approved representation/provenance metadata and reserve
-supported-output interfaces for the still-pending R26-03/04 choices.
+Carry approved R26-02/03 representation, supplied/generated preference provenance,
+model/profile/source versions and conditional-output metadata; reserve chamber
+interfaces for the still-pending R26-04 choice.
 
 Validate identities, territorial/political references, nonnegative finite vote
 counts, and candidacy constraints, including seven-slot lists, gender rules,
@@ -329,7 +331,7 @@ affiliation without inventing a coalition bonus split.
 Tests: every precedence, capolista elected in multiple colleges with the lowest
 list percentage, non-capolista elected with the highest individual percentage,
 mixed roles, and no duplicate definitive elected identity. Use supplied
-preferences in legal fixtures even if their statistical model is still deferred.
+preferences in legal fixtures independently of R26-03 fitting and generation.
 
 ### R26-17: Exhaustion and replacements
 
@@ -368,7 +370,7 @@ handled; never represent a fallback run as the requested reform algorithm.
 ### R26-19: Scenarios and generation
 
 Implement the recorded R26-02/03/04 decisions with separate seeded streams for
-votes, candidates, preferences if any, chamber differences if any, and legal
+votes, candidates, synthetic preferences, chamber differences if any, and legal
 draws. Preserve approved mean-mode shares, abstention, correspondences, and
 local overrides. Adapt list coverage, candidate templates, seven-slot lists,
 bonus slates, affiliations, and compatible multiple candidacies.
@@ -381,6 +383,10 @@ Reconcile each source's direct-list/candidate-only categories to the reform's
 final-total semantics using the historical attribution rules; record finer
 geographic reconstruction assumptions and verify totals before calibration.
 Version this reform preparation without altering the legacy parity path.
+Fit R26-03 using its source-reconciliation, roster/gender, pooling, valid-subset,
+held-out validation and paired sensitivity protocol. Honour supplied counts and
+the direct-versus-attributed preference budget. Version fitted parameters and
+profiles separately from model code; preserve candidate identity across colleges.
 
 Tests: each decision's algebraic, statistical, and sensitivity protocol; valid
 candidacies and preferences; chamber-specific geographic aggregation; scenario
@@ -402,6 +408,10 @@ versus decree seat-table provenance, and any candidate-output limitations.
 Keep ordinary list seats and coalition bonus identities distinguishable.
 Expose R26-02's vote model ID, representation and conversion provenance; keep
 bonus-only composition unspecified rather than reporting it as zero.
+Expose R26-03's supplied/generated provenance, model/profile/source versions and
+assumptions. Separate vote-based entitlement from preference-dependent filled
+seats, recovery and candidate outcomes; label synthetic probabilities as
+conditional. Present profile sensitivity separately from calibrated uncertainty.
 Persist scenario, algorithm/model
 identity, and worker result in structured exports through the generic export
 module; keep CSV table-oriented. Apply the existing severity conventions.

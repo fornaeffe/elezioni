@@ -149,10 +149,10 @@ preparation last.
   [current scoped transcription](docs/politics-reform-2026.md) and the
   [modelling decisions](docs/politics-reform-2026-modelling.md). Keep the old
   scrutiny algorithm as a selectable alternative. Apply the approved provisional
-  I07 Senate recovery policy and R26-02 final-attributed-vote semantics. Continue
-  with R26-03; resolve preference and Camera-Senato vote assumptions before
-  integrating their dependent production generators. Reconcile historical vote
-  categories before calibrating reform generation under R26-19.
+  I07 Senate recovery policy, R26-02 final-attributed-vote semantics and R26-03
+  historically informed synthetic preferences. Continue with R26-04 to resolve
+  Camera-Senato vote assumptions. Reconcile source data and fit/validate the
+  approved preference model before production integration under R26-19.
 - [ ] Keep completed politics and regional vertical slices green while shared
   scenario, worker, result, and routing infrastructure evolves.
 - [ ] Preserve mean-mode global and local share semantics; do not expose fixed
