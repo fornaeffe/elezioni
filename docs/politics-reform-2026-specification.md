@@ -1,8 +1,10 @@
 # Politics reform 2026: normative specification (R26-01)
 
 This is the legal boundary for the [implementation plan](politics-reform-2026-plan.md),
-verified on **16 October 2026**. Function names and test IDs below are proposed
-contracts, not implemented functions or passing tests. The supported target is
+verified on **16 October 2026**. Function names and test IDs below define stage
+boundaries; implementation status belongs to the plan. R26-05's
+[typed contracts and input validation](../web/src/lib/politics/reform-2026/README.md)
+are implemented; later scrutiny stages remain pending. The supported target is
 the initial allocation and proclamation of **domestic elective seats** under
 the promulgated reform. The [transcription](politics-reform-2026.md) is the
 current consolidated working transcription of all and only provisions translated
@@ -84,7 +86,9 @@ Preserve ordinary, bonus and special seats separately even when recovery changes
 the eventual holder or territory. Record the legal destination and the original
 entitlement of a replacement. An unresolved interpretation returns the affected
 stage/subjects and partial results; it must not look like a completed election.
-These are specification requirements for R26-05, not a new runtime schema.
+R26-05 implements these input distinctions and result types in its isolated
+versioned envelope. Result production, numerical stage traces and integration
+remain the responsibility of the subsequent implementation steps.
 
 The [approved R26-02 contract](politics-reform-2026-modelling.md#bonus-only-votes-r26-02)
 selects final attributed list totals for generation, with explicit component

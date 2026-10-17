@@ -56,10 +56,11 @@ time and leave subsequent application features inactive.
 
 ## Checklist and dependencies
 
-The default order is below. R26-02/03/04 model choices are approved; continue
-with R26-05 contracts. Model selection does not imply fitted parameters,
-implemented generators or production acceptance. R26-05 through R26-18 can use
-constructed legal inputs independently of R26-19 calibration and generation.
+The default order is below. R26-02/03/04 model choices and R26-05 contracts are
+complete; continue with R26-06 numerical primitives. Model selection does not
+imply fitted parameters, implemented generators or production acceptance.
+R26-05 through R26-18 can use constructed legal inputs independently of R26-19
+calibration and generation.
 
 | Done | Step | Deliverable | Dependencies |
 | --- | --- | --- | --- |
@@ -68,7 +69,7 @@ constructed legal inputs independently of R26-19 calibration and generation.
 | [x] | [R26-02](#r26-02-bonus-only-vote-modelling) | Bonus-only vote decision and bias protocol | 01a |
 | [x] | [R26-03](#r26-03-preference-modelling) | Preference decision and supported outputs | 01 |
 | [x] | [R26-04](#r26-04-camera-senato-vote-modelling) | Chamber differentiation decision | 01 |
-| [ ] | [R26-05](#r26-05-scrutiny-contracts) | Typed legal inputs, outputs, validation | 01-04 |
+| [x] | [R26-05](#r26-05-scrutiny-contracts) | Typed legal inputs, outputs, validation | 01-04 |
 | [ ] | [R26-06](#r26-06-numerical-primitives) | Quotas, truncation, remainders, ties | 05 |
 | [ ] | [R26-07](#r26-07-territories-and-seat-endowments) | Versioned geography and seat tables | 01, 05 |
 | [ ] | [R26-08](#r26-08-electoral-figures-and-rankings) | Vote attribution, totals, rankings | 05-07 |
@@ -150,6 +151,10 @@ Keep the 2022 same-age baseline distinct from older 25+ Senate electorates.
 Model selection does not establish fitted covariance or generator behavior.
 
 ### R26-05: Scrutiny contracts
+
+Use the [implemented contract boundary](../web/src/lib/politics/reform-2026/README.md)
+for input construction, validation and result types. Retain its isolated versioned
+envelope until scenario/worker integration in R26-18/19/20.
 
 Define reform-specific contracts for per-chamber votes, coalition links, list
 coverage, candidate identities and affiliations, ordinary/bonus slates,
