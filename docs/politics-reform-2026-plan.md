@@ -14,7 +14,8 @@ time and leave subsequent application features inactive.
   interpretations, use the [R26-01 specification](politics-reform-2026-specification.md).
   Use the current scoped transcription for operative wording; promulgated law
   and official corrections control conflicting official sources.
-- For the three unresolved statistical choices, use only the relevant section
+- For approved vote semantics and pending preference/chamber choices, use the
+  relevant section
   of [`politics-reform-2026-modelling.md`](politics-reform-2026-modelling.md).
 - For completed work, decisions, verification, and limitations, use
   [`migration-history.md`](migration-history.md). Keep this plan directive-only.
@@ -55,20 +56,20 @@ time and leave subsequent application features inactive.
 
 ## Checklist and dependencies
 
-The default order is below. Complete R26-01a before starting R26-02.
-R26-02 through R26-04 are explicit discussions with
-Luca, not choices already authorized by approval of this document. If a choice
-is deferred, R26-05 through R26-18 may proceed using constructed legal inputs;
+The default order is below. R26-02's final-attributed-total semantics are approved;
+R26-03 and R26-04 remain explicit discussions with Luca, not choices authorized
+by approval of another step. If a choice is deferred, R26-05 through R26-18 may
+proceed using constructed legal inputs;
 keep dependent production generation and claims of completeness blocked.
 
 | Done | Step | Deliverable | Dependencies |
 | --- | --- | --- | --- |
 | [x] | [R26-01](#r26-01-normative-specification) | Norm-to-function/test specification | None |
 | [x] | [R26-01a](#r26-01a-senate-recovery-precedent) | Historical Senate recovery evidence and provisional interpretation | 01 |
-| [ ] | [R26-02](#r26-02-bonus-only-vote-modelling) | Bonus-only vote decision and bias protocol | 01a |
+| [x] | [R26-02](#r26-02-bonus-only-vote-modelling) | Bonus-only vote decision and bias protocol | 01a |
 | [ ] | [R26-03](#r26-03-preference-modelling) | Preference decision and supported outputs | 01 |
 | [ ] | [R26-04](#r26-04-camera-senato-vote-modelling) | Chamber differentiation decision | 01 |
-| [ ] | [R26-05](#r26-05-scrutiny-contracts) | Typed legal inputs, outputs, validation | 01; interfaces reserved for 02-04 |
+| [ ] | [R26-05](#r26-05-scrutiny-contracts) | Typed legal inputs, outputs, validation | 01, 02; interfaces reserved for 03-04 |
 | [ ] | [R26-06](#r26-06-numerical-primitives) | Quotas, truncation, remainders, ties | 05 |
 | [ ] | [R26-07](#r26-07-territories-and-seat-endowments) | Versioned geography and seat tables | 01, 05 |
 | [ ] | [R26-08](#r26-08-electoral-figures-and-rankings) | Vote attribution, totals, rankings | 05-07 |
@@ -115,18 +116,16 @@ through R26-18/20.
 
 ### R26-02: Bonus-only vote modelling
 
-Discuss whether separate bonus-only ballots need to be generated despite the
-absence of calibration data. Assess Luca's working hypothesis: generated list
-votes already include direct list votes plus the lawful redistribution of
-bonus-only votes. It remains a proposal until this decision is recorded.
+Apply the [approved final-total semantics and implementation checks](politics-reform-2026-modelling.md#bonus-only-votes-r26-02).
+Generate final attributed list totals; preserve explicit component inputs and
+their separately testable legal attribution functions. Apply the same convention
+separately to special candidate-only votes at uninominal level. Keep unknown
+ballot composition explicit and prevent double attribution.
 
-Use [the options and bias checks](politics-reform-2026-modelling.md#bonus-only-votes-r26-02).
-Specify the generation-to-scrutiny boundary so an already attributed vote is
-never redistributed twice. Preserve the separately testable legal attribution
-function for explicit inputs even if production generation does not use it.
-
-Acceptance: record the selected semantics, evidence, limits of any bias claim,
-and criteria to apply in R26-19. A deferred decision is not completion.
+Use the [decision evidence and limits](migration-history.md#2026-10-17-r26-02-approved-final-attributed-vote-model)
+when validating R26-08/19. Historical-source reconciliation is an implementation
+requirement; this completed modelling decision does not implement a generator,
+settle preferences/chamber dependence or prove empirical absence of bias.
 
 ### R26-03: Preference modelling
 
@@ -156,7 +155,8 @@ Define reform-specific contracts for per-chamber votes, coalition links, list
 coverage, candidate identities and affiliations, ordinary/bonus slates,
 preferences, special contests, and seat endowments. Distinguish raw direct and
 bonus-only inputs from already attributed list totals through explicit variants.
-Reserve modelling metadata and supported-output status without choosing models.
+Carry R26-02's approved representation/provenance metadata and reserve
+supported-output interfaces for the still-pending R26-03/04 choices.
 
 Validate identities, territorial/political references, nonnegative finite vote
 counts, and candidacy constraints, including seven-slot lists, gender rules,
@@ -213,8 +213,10 @@ Tests: geographic coverage, unambiguous joins, chamber/territory seat totals,
 Translate Camera art. 77 and Senato art. 16 into functions including
 `distributeBonusOnlyVotes()`, `aggregateElectoralFigures()`, and
 `rankPreferenceCandidates()`. Test the attribution rule with explicit raw inputs
-regardless of the future production model. Accept already attributed totals
-through a path that performs no second allocation.
+alongside R26-02's approved final-total generation path. Accept already
+attributed totals through a path that performs no second allocation. Test exact
+downstream representation equivalence with matched candidate/preference inputs
+and isolated attribution/downstream legal draws.
 
 Keep national figures for admission, first place, and bonus eligibility separate
 from ordinary allocation figures excluding special territories where required.
@@ -375,6 +377,10 @@ Add explicit version conversions and validation for scenario/snapshot changes;
 preserve old algorithm scenarios and prevent silent model switches. Persist
 model identifiers, assumptions, seeds, and data version so runs can be reproduced.
 Reuse existing historical/static inputs only at their verified resolution.
+Reconcile each source's direct-list/candidate-only categories to the reform's
+final-total semantics using the historical attribution rules; record finer
+geographic reconstruction assumptions and verify totals before calibration.
+Version this reform preparation without altering the legacy parity path.
 
 Tests: each decision's algebraic, statistical, and sensitivity protocol; valid
 candidacies and preferences; chamber-specific geographic aggregation; scenario
@@ -394,6 +400,8 @@ assumptions, applied provisional interpretation IDs, I03 draw warnings, I07
 cross-region recovery warnings and entitlement/election territory traces, census
 versus decree seat-table provenance, and any candidate-output limitations.
 Keep ordinary list seats and coalition bonus identities distinguishable.
+Expose R26-02's vote model ID, representation and conversion provenance; keep
+bonus-only composition unspecified rather than reporting it as zero.
 Persist scenario, algorithm/model
 identity, and worker result in structured exports through the generic export
 module; keep CSV table-oriented. Apply the existing severity conventions.

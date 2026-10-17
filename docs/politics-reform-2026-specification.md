@@ -71,8 +71,9 @@ signatures, adjudicate appeals or infer legal eligibility from a name.
 
 Two vote representations must remain explicit: direct list votes plus separately
 counted bonus-only/candidate-only ballots, or final attributed list totals with
-provenance. Only the first invokes attribution. Candidate-only totals remain
-available for special uninominal winners. Preferences are separate valid counts;
+provenance. Only the first invokes attribution. Special candidate totals remain
+available for uninominal winners; generated totals equal the sum of their linked
+lists' final votes under approved R26-02. Preferences are separate valid counts;
 one ballot can contribute several preferences but only one list vote. Missing
 preferences differ from zero. Candidate identities, date of birth, list role,
 order and affiliation must be supplied for exact proclamations.
@@ -85,9 +86,12 @@ entitlement of a replacement. An unresolved interpretation returns the affected
 stage/subjects and partial results; it must not look like a completed election.
 These are specification requirements for R26-05, not a new runtime schema.
 
-R26-02/03/04 choose statistical generation semantics later. They do not alter the
-legal matrix or authorize synthetic preferences, identical chamber votes or
-independent chamber draws here.
+The [approved R26-02 contract](politics-reform-2026-modelling.md#bonus-only-votes-r26-02)
+selects final attributed list totals for generation, with explicit component
+inputs retained, unknown ballot composition and historical-source reconciliation.
+R26-03/04 still decide preferences and chamber dependence. These modelling
+choices do not alter the legal matrix or authorize synthetic preferences,
+identical chamber votes or independent chamber draws here.
 
 ### Territorial and seat ledger
 

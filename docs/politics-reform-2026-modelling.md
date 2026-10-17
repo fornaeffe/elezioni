@@ -1,9 +1,10 @@
 # Politics reform 2026: modelling decisions
 
 Read the section corresponding to R26-02, R26-03, or R26-04 in
-[`politics-reform-2026-plan.md`](politics-reform-2026-plan.md). These are pending
-decisions, not implemented models. No calibrated generator for these choices is
-established here; audit available source data in the relevant decision step.
+[`politics-reform-2026-plan.md`](politics-reform-2026-plan.md). R26-02 is approved;
+R26-03 and R26-04 remain pending. A recorded decision does not implement its
+generator. Audit source data before production integration; no calibrated model
+of bonus-only ballot composition is established here.
 Constructed data can test mechanics and sensitivity;
 it cannot establish the real distribution of unobserved voting behavior.
 
@@ -11,34 +12,48 @@ For each decision, present options and evidence to Luca, then record the chosen
 semantics, rejected alternatives and rationale, supported outputs, assumptions,
 verification criteria, and conditions for revisiting it in
 [`migration-history.md`](migration-history.md). Update active directives after
-the choice. Approval to write this documentation does not settle the choices.
+the choice. Approval of one decision does not settle the other choices.
 Any experiment used for a decision must be reproducible and distinguish a
 modelling assumption from a measured electoral fact.
 
 ## Bonus-only votes (R26-02)
 
-### Question and options
+### Approved semantics
 
-There are no data here to estimate how many ballots name only the bonus slate,
-or how that behavior varies by coalition, locality, or chamber. Decide whether
-to generate these ballots separately or to generate final attributed list totals.
+**Approved by Luca on 17 October 2026:** generate final attributed list totals;
+retain explicit components for supplied scenarios and legal tests. The
+[decision record](migration-history.md#2026-10-17-r26-02-approved-final-attributed-vote-model)
+contains the alternatives, rationale, arithmetic evidence and source-data limit.
 
-Luca's working proposal is to interpret every generated list total as direct
-list votes plus its share of bonus-only votes after legal redistribution. This
-is a candidate baseline, not a decision to use zero bonus-only ballots.
+- Interpret generated list totals, scenario shares and local overrides as
+  support after lawful attribution: direct votes plus attributed bonus-only
+  votes. Those ballots are already included in valid-vote totals. Their count
+  is unknown, not zero; do not add ballots or redistribute these totals again.
+- Preserve two explicit input variants: final attributed totals with provenance,
+  or direct list totals plus explicit bonus-only/candidate-only counts. Only
+  the component variant invokes the pure legal attribution functions, once,
+  before admission thresholds. Do not generate random bonus-only counts by
+  default or infer a ballot decomposition from a final total.
+- Apply the final-total convention separately to special uninominal territories:
+  attributed list totals include candidate-only attribution at uninominal level.
+  For generated inputs, each special candidate's total is the sum of its linked
+  lists' final totals. Preserve separately supplied candidate totals for explicit
+  scenarios and validate consistency after attribution. These are candidate-only
+  votes, not ordinary bonus-only ballots.
+- Persist the model identifier `final-attributed-list-totals-v1`, input
+  representation and source/conversion provenance in reproducible results and
+  exports. Describe ballot composition as unspecified; do not report predicted
+  bonus-only participation or infer preference counts. R26-03/04 remain separate.
+- Reconcile historical direct-list/candidate-only categories before calibrating
+  the reform's final-total generator. Audit each source, use its historical
+  attribution rules at their legal geographic level, and document any finer
+  geographic reconstruction assumption. Do not merely relabel a raw list field
+  as a final total. Keep the legacy algorithm/data path unchanged.
 
-Evaluate at least these paths:
-
-| Path | Generator output | Scrutiny treatment | Main limitation |
-| --- | --- | --- | --- |
-| Already attributed totals | Final list totals | Do not redistribute again | Ballot composition is not identifiable |
-| Explicit ballot components | Direct list totals and bonus-only total for each coalition/college | Apply legal attribution once | Needs unsupported parameters or user inputs |
-| Supplied explicit components | Validated external scenario components | Apply legal attribution once | Depends on input availability; not a calibrated random model |
-
-Keep the pure raw-ballot attribution function testable whatever production path
-is selected. Do not add bonus-only votes on top of a generated final total.
-Special uninominal candidate-only votes are a separate legal input; decide
-whether the same final-total convention is applicable there instead of assuming it.
+Revisit this choice if calibrated bonus-only data become available, ballot
+composition becomes a requested output, or validation exposes a material
+limitation. Supplied components remain supported without assuming a calibrated
+random composition model.
 
 ### Equivalence and bias protocol
 
@@ -46,24 +61,28 @@ For one ordinary plurinominal college and coalition, let `D[l]` be direct list
 votes, `B` bonus-only votes, and `A(D, B)[l]` their legal attribution, including
 integer remainders. Final list votes are `T[l] = D[l] + A(D, B)[l]`.
 
-1. Establish the exact legal geographic level and rounding rule in R26-01/08.
+1. Apply R26-01's exact geographic and rounding rules in R26-08: ordinary
+   attribution at plurinominal college, special attribution at uninominal college.
    Never substitute attribution at municipal or national level without proving
    equivalence. Aggregation and integer remainder allocation may not commute.
-2. Prove the real-valued proportional identity where `sum(D) > 0`, then test the
-   actual integer operation separately. For example, in an ideal real-valued
+2. Use `T[l] = D[l] * (1 + B/sum(D))` before integer rounding where `sum(D) > 0`,
+   and test the actual integer operation separately. In an ideal real-valued
    construction `D[l] = (1 - beta) * T[l]` and `B = beta * sum(T)`, the final
    proportions are preserved for `0 <= beta < 1`. Rounding can break exact
    reconstruction, and this identity says nothing about unknown behavior.
 3. Feed identical final `T` to the direct-total path and to the downstream part
    of the explicit path. All subsequent figures, admissions, bonus decisions,
-   seats, and supported candidate results must agree under the same legal draws.
+   seats, and supported candidate results must agree with identical candidate/
+   preference inputs and the same downstream legal draws. Isolate attribution
+   draws so their consumption cannot shift later draws. Attribution-stage traces
+   may differ between representations.
    This proves representation equivalence, not empirical absence of bias.
 4. Construct integer `D/B` scenarios across list sizes, coalition structures,
    local concentration, ballot-only shares, and vote volumes. Include zero
    direct support, small lists, special territories where relevant, and cases
    around 3%, 10%, 20%, 42%, and both caps. A no-support rule must come from the
    normative specification; do not silently distribute equally.
-5. Compare explicit attribution against the proposed final-total model under
+5. Compare explicit attribution against the approved final-total model under
    matched, stated counterfactual assumptions and comparable vote totals.
    Separate representation/rounding error from a changed distribution of final
    votes. Final `T` alone does not uniquely identify historical `D/B` components.
@@ -78,11 +97,17 @@ integer remainders. Final list votes are `T[l] = D[l] + A(D, B)[l]`.
    proportional identity. Use exact worked boundary cases as well as random runs;
    rare threshold effects must not disappear in overall averages.
 
-Acceptance: no double attribution or unexplained directional implementation
-effect; an explicit bound or measured sensitivity for material rounding/model
-effects; and a qualified statement of which hypotheses were tested. Do not claim
-unconditional absence of systematic bias without data. If material bias remains,
-revise the proposal or record the restriction before production integration.
+R26-08/19 implementation acceptance: no double attribution or unexplained
+directional implementation effect; an explicit bound or measured sensitivity
+for material rounding/model effects; and a qualified statement of which
+hypotheses were tested. Do not claim unconditional absence of systematic bias
+without data. If material bias remains,
+revise the model or record the restriction before production integration.
+Require exact downstream representation equivalence (zero discrepancies);
+the less-than-one-vote bound per list/college concerns integer attribution versus
+its ideal proportional value for fixed `D/B`, not arbitrary integer
+reconstruction from a target `T` or a bound on seat changes. Full scrutiny
+equivalence and sensitivity checks remain future work.
 
 ## Preferences (R26-03)
 
