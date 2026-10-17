@@ -92,9 +92,12 @@ inputs retained, unknown ballot composition and historical-source reconciliation
 The [approved R26-03 contract](politics-reform-2026-modelling.md#preferences-r26-03)
 selects historically informed synthetic preferences with supplied valid counts
 taking precedence, valid-combination construction and conditional candidate/
-recovery outputs. Its fitting and generation remain unimplemented. R26-04 still
-decides chamber dependence; no identical-vote or independent-draw assumption is
-authorized here. These statistical choices do not alter the legal matrix.
+recovery outputs. The [approved R26-04 contract](politics-reform-2026-modelling.md#camera-senato-votes-r26-04)
+selects shared shocks, historical contrasts and correlated residuals. Common
+national/local shares anchor derived chamber references; explicit chamber shares
+take precedence at the same scope, retaining geographic specificity and
+mean-mode uncertainty. Model fitting and generation remain unimplemented.
+These statistical choices do not alter the legal matrix.
 
 ### Territorial and seat ledger
 
@@ -136,9 +139,10 @@ For renewal of only one chamber, C83(1-quater)/S16-bis(1-quater) require its
 no-bonus path. Do not synthesize the other chamber. A missing chamber in a
 declared **joint** renewal is incomplete input, not a single-chamber election.
 
-Foreign scrutiny, a historical-Senate data extension if R26-04 does not deliver
-it, and away-from-home distribution modelling are in the
+Foreign scrutiny, further historical Camera/Senato coverage review, and
+away-from-home distribution modelling are in the
 [post-migration roadmap](../MIGRATION_PLAN.md#after-completion-of-the-web-migration).
+Paired Senate-history preparation is required within R26-19 by approved R26-04.
 
 L8(12) assigns an away-from-home voter to the lists/candidates of the temporary
 domicile. The core can accept those correctly attributed valid aggregates;
@@ -310,7 +314,7 @@ entitlements must reconcile.
 | N26 / 17 | C86(1)-(2), C83(1-quinquies) (75, 83-84) | `recoverCameraBonusSeats` / `fillReleasedSeats`: missing bonus candidates or initial released seats, local slates/preferences/remainders -> replacement holders and traces | `N26`: missing bonus candidate invokes C86(1), same constituency, single list or coalition-list unused then used remainders; in multiple colleges choose list's highest college percentage. C83(1-quinquies) supplies fallback to other constituencies. C86(2) expressly invokes C84(2),(4),(5); do not replace this with all C84 levels indiscriminately. I03 for unsupplied tie-breaks. |
 | N27 / 17 | S17-bis(2), S19(2), S16-bis(1-quinquies) (121-122, 129-130) | `recoverSenateSeats`: ordinary/bonus shortages, initial releases, regional slates and traces -> replacement candidates, original/actual territories, I07 warnings or unfilled residue | `N27`: apply the [approved I07 protocol and fixtures](#senate-initial-recovery-i07): regional C84(2),(5) before residual same-list C84(4) through S19(2)/C86(2); no ordinary C84(7) import. Bonus shortage separately follows S16-bis(1-quinquies)/C83(1-quinquies)/C86(1). Exercise seeded statutory draws, exhaustion, explicit unfilled seats and entitlement/filled ledgers. |
 | N28 / 18 | Composition of N01-N27 | `runPoliticsReformScrutiny`: validated legal inputs, chamber renewal scope, seeded legal draws -> paired scrutiny stages, ledgers, reasons and supported output status | `N28`: complete independently worked fixtures for no bonus, bonus below cap, cap correction, special territories and recovery; deterministic injected statutory draws and warned I03 fallback draws; repeated proclamation/recovery terminates by consuming an eligible candidature/seat transition or reports no progress. No duplicate final elected identity. |
-| N29 / 19-21 | K48(1), K56-58; C4(2), C58; S13(1), S14; L6-8 and scope above | `describeSupportedOutputs`: source/data/model versions and stage results -> reproducible labelled result and export | `N29`: raw ballot validity remains upstream; missing preferences/chamber/decree remain explicit; supplied/generated preference provenance and conditional candidate/recovery reporting under R26-03; domestic-only totals cannot masquerade as a whole chamber; away-from-home data limitation; no claim to simulate foreign voting or later supplementary elections. These are downstream acceptance checks, not UI implementation in R26-01. |
+| N29 / 19-21 | K48(1), K56-58; C4(2), C58; S13(1), S14; L6-8 and scope above | `describeSupportedOutputs`: source/data/model versions and stage results -> reproducible labelled result and export | `N29`: raw ballot validity remains upstream; missing preferences/chamber/decree remain explicit; supplied/generated preference provenance and conditional candidate/recovery reporting under R26-03; common/supplied/model-derived chamber references and dependence assumptions under R26-04; domestic-only totals cannot masquerade as a whole chamber; away-from-home data limitation; no claim to simulate foreign voting or later supplementary elections. These are downstream acceptance checks, not UI implementation in R26-01. |
 
 ## Numerical and tie contracts
 

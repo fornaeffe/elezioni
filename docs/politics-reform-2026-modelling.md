@@ -1,10 +1,11 @@
 # Politics reform 2026: modelling decisions
 
 Read the section corresponding to R26-02, R26-03, or R26-04 in
-[`politics-reform-2026-plan.md`](politics-reform-2026-plan.md). R26-02 and R26-03
-are approved; R26-04 remains pending. A recorded decision does not implement its
-generator. Audit source data before production integration. Preference data are
-available, but no fitted national preference model or calibrated model of
+[`politics-reform-2026-plan.md`](politics-reform-2026-plan.md). R26-02, R26-03 and
+R26-04 are approved. Recorded decisions do not implement their generators or
+establish fitted parameters. Audit source data before production integration;
+preference and paired chamber data are available, but national preference and
+chamber-dependence calibration remain future work. No calibrated model of
 bonus-only ballot composition is established here.
 Constructed data can test mechanics and sensitivity;
 it cannot establish the real distribution of unobserved voting behavior.
@@ -213,52 +214,108 @@ parameters tied to an explained modelling meaning.
 
 ## Camera-Senato votes (R26-04)
 
-### Current boundary and options
+### Approved model
 
-The current `web/src/lib/politics/vote-generation.ts` generates one set of
-territorial list draws and aggregates it into Camera and Senato uninominal
-geographies. It does not estimate a separate chamber voting-behavior component.
-Check downstream coverage/normalization before claiming final chamber totals
-are identical. The reform's joint bonus makes this dependence consequential.
+**Approved by Luca on 17 October 2026:** shared political shocks plus historical
+chamber contrasts and correlated chamber-specific residuals, anchored to a common
+scenario share when supplied. Explicit per-chamber shares take precedence over
+model-derived references. The [decision record](migration-history.md#2026-10-17-r26-04-approved-paired-chamber-vote-model)
+contains alternatives, the official-source audit and limits of calibration.
 
-Inspect whether previous Senate election results are already available in the
-source bundles before treating calibration data as absent. If R26-04 elects to
-use them, audit the electorate-age rule for each election, align age/turnout
-bases and geography, and separate list coverage from voting-behavior differences.
-Otherwise leave this data-backed extension in the root plan's post-migration
-roadmap; do not infer that choosing chamber residuals alone implements it.
+- Fit paired historical contrasts at common geographic units, with shared
+  national and territorial movement plus chamber-specific national, regional
+  and local components. Pool sparse estimates and strongly regularize persistent
+  gaps; separate measured geography, turnout and list coverage from behaviour.
+- Allocate uncertainty between shared and chamber-specific components while
+  preserving each chamber's intended marginal uncertainty. Do not simply append
+  Senate noise to a Camera draw and thereby inflate variance without evidence.
+  Estimate or explicitly assume a valid joint covariance, then verify means,
+  variances and dependence after normalization and integer vote generation.
+- Use 2022 as the primary paired baseline reviewed here: both chambers used the
+  18+ electorate. Older Senate results include the former 25+ threshold; retain
+  them as supplementary evidence/sensitivity unless an explicit demographic
+  model justifies comparison. Population ratios alone cannot recover unobserved
+  age-specific political preferences. Do not attribute a current difference to
+  an obsolete voting-age rule.
+- Acquire and prepare paired Senate history within R26-19. Align identifiers,
+  dates, electoral geography, elector/turnout bases, list correspondences and
+  R26-02 attribution. Treat special-territory inputs separately, including their
+  contribution to domestic bonus figures; foreign voting stays outside scope.
+- Account for transfer limits: 2022 chamber differences include old uninominal
+  candidate and ballot effects, whereas the reform changes those contests.
+  Municipal pairs from one election do not identify repeated national forecast
+  errors. A high cross-municipality share correlation is not a calibrated
+  future-shock correlation. Use a central profile dominated by shared movement
+  with weaker/stronger dependence and gap sensitivity profiles; numerical
+  covariance/residual scales must be justified or labelled assumptions before
+  production integration. Do not count two chambers on one date as independent
+  elections when estimating temporal volatility.
 
-| Option | Assumption to discuss | Required evidence |
+### Common anchors and per-chamber precedence
+
+Apply this resolution per list and at the specified **national or local scope**:
+
+| Scenario input at that scope | Camera reference | Senato reference |
 | --- | --- | --- |
-| Shared territorial votes | No modeled chamber-specific behavior | State the joint-bonus limitation |
-| Shared component plus chamber residuals | Magnitude and correlation of residual differences | Sensitivity and valid marginal distributions |
-| Chamber-specific supplied inputs/overrides | Which differences users supply and at what resolution | Validation and preserved scenario semantics |
+| No supplied share | Historical/model baseline | Historical/model baseline |
+| Common share only | Derived by the paired model from the common anchor | Derived by the paired model from the same anchor |
+| Common plus Camera-specific share | Supplied Camera reference | Model-derived from the common anchor |
+| Common plus Senato-specific share | Model-derived from the common anchor | Supplied Senato reference |
+| Both chamber-specific shares, with or without a common share | Supplied Camera reference | Supplied Senato reference |
 
-Absence of calibration data is not evidence for independent chamber draws.
-Do not introduce an obsolete voter-age distinction as an explanation for a
-residual. Separate actual electorate/geography/list-coverage differences from
-assumed differences in voting behavior.
+A single supplied chamber reference without a common share overrides that
+chamber only; the other keeps its historical/model baseline. Explicit references
+replace modelled reference adjustments at their scope, not all stochastic
+variation. A common share is a starting anchor for distinct chamber references,
+not an instruction to copy identical votes into both chambers.
 
-### Impact checks and acceptance
+Resolve geographic scope using the established specificity rules: apply broader
+territories before more specific province/municipality overrides, so the most
+specific value wins. **Within the same scope**, per-chamber input wins over a
+model-derived reference from a common input, which wins over the default model
+baseline. Do not silently reinterpret a shared override as Camera-only.
 
-- Separate common national/local shocks from any chamber-specific residuals;
-  define their covariance, normalization, and interaction with abstention,
-  overrides, and list/coalition coverage. Do not choose residual parameters here.
-- Check nonnegative votes, intended marginal means/uncertainty, and preservation
-  of approved global/local share semantics. Keep geographic aggregation effects
-  distinct from a behavioral swing. Specify what a scenario share means for
-  each chamber if the model changes.
-- Use constructed outcomes with linked winners, different winners, only one
-  chamber at 42%, and one chamber not renewed. The scrutiny tests must cover
-  these branches even if the selected generator cannot reach all of them.
-- Compare joint first-place and joint-42% frequencies, bonus probability, seats,
-  and cap effects across a stated dependence/swing sensitivity range. Quantify
-  uncertainty and avoid asserting a universal direction of bias without evidence.
-- Define reproducible paired simulation IDs and isolated random streams. If a
-  shared model is chosen, say explicitly that unmodeled chamber differences
-  remain a limitation, not a measured absence of differences.
+Preserve current mean-mode semantics: supplied shares are current valid-vote
+references with their parameter dates and election-day uncertainty active;
+they are not fixed simulation outputs. Retain correlated shocks even when both
+references are supplied. Preserve partial overrides, valid-vote/elector
+conversion, abstention handling and normalization/warnings. Validate list
+coverage and incompatible inputs rather than creating votes for an absent list.
+Trace supplied common anchors, supplied/derived chamber references, resolved
+scope and normalization. Version new scenario fields explicitly; preserve
+legacy algorithm interpretation and do not silently switch saved algorithms.
 
-Acceptance: Luca's recorded choice, model/input and export semantics, justified
-or explicitly assumed parameters, and the protocol to verify R26-19. A decision
-to defer differentiation must still document how joint-bonus results should be
-interpreted and when to revisit that assumption.
+### Validation, outputs and acceptance
+
+- Reconcile paired sources and R26-02 attributed totals before fitting; separate
+  national/local contrasts, denominators, coverage and special territories.
+  Validate withheld territories and, when comparable elections become available,
+  temporal transfer. Sparse evidence must remain visible in fitted profiles.
+- Test the entire precedence table, a single chamber-only input, partial list
+  overrides and national/region/province/municipality interactions. Common-only
+  input must allow chamber differences; one explicit reference must not overwrite
+  the model-derived other chamber. Both explicit references suppress modelled
+  reference shifts while mean-mode uncertainty remains active. Verify reference
+  centring and resulting marginal distributions after normalization/rounding.
+- Predeclare fit diagnostics, sensitivity profiles and seed/replication budgets.
+  Compare joint first-place/42% frequencies, bonus probability, seats and caps
+  under paired runs; quantify Monte Carlo uncertainty separately from uncertainty
+  about model assumptions. Include identical-vote and independent-draw benchmarks
+  without treating either as the production default or asserting universal bias.
+- Use constructed legal inputs with linked/unlinked winners, different winners,
+  one chamber below/exactly at 42%, incomplete joint input and single-chamber
+  renewal. Generate only the renewed chamber in the last case; do not synthesize
+  the other chamber or award a joint bonus. Keep fixtures independent of fitting.
+- Preserve paired simulation IDs and isolated streams for shared shocks,
+  chamber components, candidates/preferences and legal draws. Test reproducible
+  replay, stream isolation and unchanged legacy algorithm behavior.
+
+Persist `paired-chamber-votes-v1`, parameter/profile and source versions, age/
+geography/coverage assumptions, seeds, and supplied/common/model-derived reference
+provenance. Report dependence sensitivity and joint-bonus limitations; do not
+present assumed correlation as measured certainty. Acceptance in R26-19/20
+requires fitted or explicitly assumed, versioned parameters with reconciliation,
+override/marginal tests and joint-bonus sensitivity evidence. The decision does
+not implement the model or establish numerical correlation values. Revisit when
+new comparable paired elections, changed ballots, validation failures or better
+demographic information change the evidence.

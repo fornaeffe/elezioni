@@ -149,10 +149,11 @@ preparation last.
   [current scoped transcription](docs/politics-reform-2026.md) and the
   [modelling decisions](docs/politics-reform-2026-modelling.md). Keep the old
   scrutiny algorithm as a selectable alternative. Apply the approved provisional
-  I07 Senate recovery policy, R26-02 final-attributed-vote semantics and R26-03
-  historically informed synthetic preferences. Continue with R26-04 to resolve
-  Camera-Senato vote assumptions. Reconcile source data and fit/validate the
-  approved preference model before production integration under R26-19.
+  I07 Senate recovery policy and approved R26-02/03/04 models: attributed list
+  totals, historically informed synthetic preferences and paired chamber votes
+  with common anchors and explicit chamber precedence. Continue with R26-05.
+  Acquire/reconcile Senate history and fit/validate the approved models before
+  production integration under R26-19.
 - [ ] Keep completed politics and regional vertical slices green while shared
   scenario, worker, result, and routing infrastructure evolves.
 - [ ] Preserve mean-mode global and local share semantics; do not expose fixed
@@ -193,14 +194,12 @@ implementation or municipal parity scope.
   preferences and candidate proclamations. Keep its inputs and calculations
   separate from domestic admission, bonus and caps, then compose accurately
   labelled whole-chamber results.
-- [ ] If R26-04 has not already delivered it, incorporate previous Senate
-  election results to model Camera/Senato differences. Audit available data by
-  election year and geography, distinguishing the historical 25+ Senate
-  electorate from elections after the voting-age reduction to 18. Align
-  electorate/turnout bases, territories and list coverage before attributing
-  residual differences to voting behavior; version the model and its evidence.
-  If R26-04 already includes this capability, verify its coverage instead of
-  implementing a duplicate model.
+- [ ] Review historical Camera/Senato coverage delivered under R26-19 and extend
+  it where additional comparable elections/geographies improve the evidence.
+  Paired Senate-history preparation is part of the current R26-04 decision's
+  implementation, not a deferred duplicate model. Preserve the distinction
+  between historical 25+ Senate electorates and the 18+ baseline, align turnout,
+  geography and list coverage, and version any expanded calibration evidence.
 - [ ] Model away-from-home voter distribution using sourced or explicitly
   assumed residence-to-temporary-domicile flows, eligibility and turnout.
   Attribute votes to the legally applicable destination college, conserve

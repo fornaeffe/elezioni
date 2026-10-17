@@ -14,7 +14,7 @@ time and leave subsequent application features inactive.
   interpretations, use the [R26-01 specification](politics-reform-2026-specification.md).
   Use the current scoped transcription for operative wording; promulgated law
   and official corrections control conflicting official sources.
-- For approved vote/preference models and the pending chamber choice, use the
+- For the approved vote, preference and chamber models, use the
   relevant section
   of [`politics-reform-2026-modelling.md`](politics-reform-2026-modelling.md).
 - For completed work, decisions, verification, and limitations, use
@@ -56,11 +56,10 @@ time and leave subsequent application features inactive.
 
 ## Checklist and dependencies
 
-The default order is below. R26-02's final-attributed-total semantics and R26-03's
-historically informed synthetic preference model are approved. R26-04 remains an
-explicit discussion with Luca. If deferred, R26-05 through R26-18 may proceed
-using constructed legal inputs; keep dependent production generation and claims
-of completeness blocked. Approved model choices do not imply completed fitting.
+The default order is below. R26-02/03/04 model choices are approved; continue
+with R26-05 contracts. Model selection does not imply fitted parameters,
+implemented generators or production acceptance. R26-05 through R26-18 can use
+constructed legal inputs independently of R26-19 calibration and generation.
 
 | Done | Step | Deliverable | Dependencies |
 | --- | --- | --- | --- |
@@ -68,8 +67,8 @@ of completeness blocked. Approved model choices do not imply completed fitting.
 | [x] | [R26-01a](#r26-01a-senate-recovery-precedent) | Historical Senate recovery evidence and provisional interpretation | 01 |
 | [x] | [R26-02](#r26-02-bonus-only-vote-modelling) | Bonus-only vote decision and bias protocol | 01a |
 | [x] | [R26-03](#r26-03-preference-modelling) | Preference decision and supported outputs | 01 |
-| [ ] | [R26-04](#r26-04-camera-senato-vote-modelling) | Chamber differentiation decision | 01 |
-| [ ] | [R26-05](#r26-05-scrutiny-contracts) | Typed legal inputs, outputs, validation | 01-03; interfaces reserved for 04 |
+| [x] | [R26-04](#r26-04-camera-senato-vote-modelling) | Chamber differentiation decision | 01 |
+| [ ] | [R26-05](#r26-05-scrutiny-contracts) | Typed legal inputs, outputs, validation | 01-04 |
 | [ ] | [R26-06](#r26-06-numerical-primitives) | Quotas, truncation, remainders, ties | 05 |
 | [ ] | [R26-07](#r26-07-territories-and-seat-endowments) | Versioned geography and seat tables | 01, 05 |
 | [ ] | [R26-08](#r26-08-electoral-figures-and-rankings) | Vote attribution, totals, rankings | 05-07 |
@@ -136,19 +135,19 @@ valid preference-combination counts. Keep source reconciliation, fitting and
 held-out/sensitivity validation in R26-19, using the
 [decision evidence](migration-history.md#2026-10-17-r26-03-approved-historical-pattern-preference-model).
 Report candidate/recovery outcomes as conditional on the preference profile;
-distinguish missing from zero. Completing this decision does not fit the model,
-implement its generator or settle R26-04.
+distinguish missing from zero. Completing this decision does not fit the model
+or implement its generator.
 
 ### R26-04: Camera-Senato vote modelling
 
-Discuss retaining the shared generated territorial vote realization versus
-modelling correlated chamber differences. Use
-[the dedicated decision protocol](politics-reform-2026-modelling.md#camera-senato-votes-r26-04).
-Assess the effect of the joint bonus condition rather than assuming independent
-chamber draws or identical votes are neutral defaults.
-
-Acceptance: record the selected dependence structure, any parameters and their
-status as assumptions, reproducibility rules, and joint-bonus sensitivity checks.
+Apply the [approved paired-chamber model and precedence contract](politics-reform-2026-modelling.md#camera-senato-votes-r26-04):
+shared shocks, historical contrasts and correlated residuals. Common national/
+local shares anchor model-derived chamber references; explicit chamber shares
+win at the same scope. Preserve geographic specificity, mean-mode uncertainty,
+abstention and normalization. Prepare historical Senate inputs within R26-19,
+using the [source review](migration-history.md#2026-10-17-r26-04-approved-paired-chamber-vote-model).
+Keep the 2022 same-age baseline distinct from older 25+ Senate electorates.
+Model selection does not establish fitted covariance or generator behavior.
 
 ### R26-05: Scrutiny contracts
 
@@ -157,8 +156,9 @@ coverage, candidate identities and affiliations, ordinary/bonus slates,
 preferences, special contests, and seat endowments. Distinguish raw direct and
 bonus-only inputs from already attributed list totals through explicit variants.
 Carry approved R26-02/03 representation, supplied/generated preference provenance,
-model/profile/source versions and conditional-output metadata; reserve chamber
-interfaces for the still-pending R26-04 choice.
+model/profile/source versions and conditional-output metadata. Add R26-04's
+common/per-chamber references, resolved geographic scope, paired simulation ID,
+covariance/profile metadata and supplied/model-derived provenance.
 
 Validate identities, territorial/political references, nonnegative finite vote
 counts, and candidacy constraints, including seven-slot lists, gender rules,
@@ -370,8 +370,8 @@ handled; never represent a fallback run as the requested reform algorithm.
 ### R26-19: Scenarios and generation
 
 Implement the recorded R26-02/03/04 decisions with separate seeded streams for
-votes, candidates, synthetic preferences, chamber differences if any, and legal
-draws. Preserve approved mean-mode shares, abstention, correspondences, and
+shared/chamber-specific vote components, candidates, synthetic preferences and
+legal draws. Preserve approved mean-mode shares, abstention, correspondences, and
 local overrides. Adapt list coverage, candidate templates, seven-slot lists,
 bonus slates, affiliations, and compatible multiple candidacies.
 
@@ -387,6 +387,12 @@ Fit R26-03 using its source-reconciliation, roster/gender, pooling, valid-subset
 held-out validation and paired sensitivity protocol. Honour supplied counts and
 the direct-versus-attributed preference budget. Version fitted parameters and
 profiles separately from model code; preserve candidate identity across colleges.
+Acquire and prepare paired Camera/Senato history for R26-04, starting with the
+reviewed 2022 common-age baseline. Audit older electorate-age differences and
+reconcile geography, attribution, coverage and special-territory inputs. Fit or
+explicitly label joint covariance/contrast assumptions; preserve marginal
+uncertainty rather than adding unbudgeted chamber noise. Implement common-anchor
+derivation, per-chamber precedence and geographic specificity with traces.
 
 Tests: each decision's algebraic, statistical, and sensitivity protocol; valid
 candidacies and preferences; chamber-specific geographic aggregation; scenario
@@ -412,6 +418,10 @@ Expose R26-03's supplied/generated provenance, model/profile/source versions and
 assumptions. Separate vote-based entitlement from preference-dependent filled
 seats, recovery and candidate outcomes; label synthetic probabilities as
 conditional. Present profile sensitivity separately from calibrated uncertainty.
+Expose R26-04's paired model/profile/source versions, covariance assumptions and
+common/supplied/model-derived chamber reference provenance, including resolved
+geographic scope. Explain the common anchor, explicit chamber precedence and
+continuing mean-mode uncertainty; report joint-bonus dependence sensitivity.
 Persist scenario, algorithm/model
 identity, and worker result in structured exports through the generic export
 module; keep CSV table-oriented. Apply the existing severity conventions.
