@@ -1,4 +1,4 @@
-# Reform scrutiny core (R26-05 through R26-10)
+# Reform scrutiny core (R26-05 through R26-11)
 
 Public API: [`index.ts`](index.ts). Legal requirements and later stage boundaries:
 [normative specification](../../../../../docs/politics-reform-2026-specification.md).
@@ -18,6 +18,7 @@ This folder is independent of the legacy politics contracts and algorithm regist
 | Attribute ordinary votes / aggregate electoral figures / rank preferences | [attribution.ts](attribution.ts), [figures.ts](figures.ts), [rankings.ts](rankings.ts) |
 | Determine preliminary special uninominal winners | [special-winners.ts](special-winners.ts) |
 | Determine Camera/Senato admission and local TAA exceptions | [admission.ts](admission.ts) |
+| Decide the paired 70/35 governability bonus | [bonus.ts](bonus.ts) |
 | Attribute special candidate-only votes | [special-attribution.ts](special-attribution.ts) |
 | Allocate Camera TAA proportional seats and provisional candidates | [taa-allocation.ts](taa-allocation.ts) |
 | Reuse special winners and summarize cap entitlements | [special-seats.ts](special-seats.ts) |
@@ -357,6 +358,37 @@ invented list entitlements. See [special-attribution.test.ts](special-attributio
 [special-seats.test.ts](special-seats.test.ts) for worked and validated-envelope
 fixtures; age-tie rules remain covered by [special-winners.test.ts](special-winners.test.ts).
 
+## Joint bonus decision (R26-11)
+
+`determineGovernabilityBonus(input, execution)` receives the simulation ID,
+declared `renewedChambers`, explicit `bonusLinks` from the legal envelope, and
+one `{ chamber, admission, national }` record per available renewed chamber.
+Supply the same simulation's N07/N08 admission and N06 `figures.national`, which
+includes VdA/TAA ballots once. Do not supply `ordinaryAllocation` or totals
+renormalized over admitted subjects. Stage records do not carry an independent
+simulation ID; pairing their provenance remains the caller's responsibility.
+
+The function ranks only `admittedSubjects` (coalitions and standalone lists),
+checks exact counts against 42% independently in each chamber, and requires
+explicit reciprocal links between the two selected first subjects. Equal names
+or IDs imply no link; subject kind remains part of identity. A lower linked
+subject cannot replace an unlinked first subject. Every unresolved first-place
+tie uses an injected, warned I03 draw, with canonical alternatives and fixed
+Camera-then-Senato order. Admission draw events are not re-emitted.
+
+Results distinguish `awarded` (the paired 70/35 subject entitlements),
+`not-awarded` (structured threshold, linkage or single-renewal reasons), and
+`non-computable` (missing joint data, blocked admission, undefined denominator,
+empty admission or missing subject figures). Both chambers are preflighted
+before drawing. A single renewal follows its statutory no-bonus path without
+ranking or drawing; missing data in a declared joint renewal remains a blocker.
+Computed joint results retain both first subjects, vote counts, all-valid
+denominators, exact percentages, threshold decisions and N12 draw/warning traces.
+Coalition awards stay with the coalition. No seat ledger, cap computation,
+candidate election or distribution among coalition lists occurs here.
+See [bonus.test.ts](bonus.test.ts) for independently constructed divergent
+chambers, threshold/tie effects, special votes and validated-envelope composition.
+
 ## Output and remaining stages
 
 `ReformScrutinyResult` is a **type contract**, with complete/partial/non-computable
@@ -383,7 +415,7 @@ warnings in the existing schema version. Scenario/result integration must retain
 the referenced immutable artifact and display `seatTableMessages()` in R26-20.
 Ordinary attribution, figures and rankings are available through R26-08 above;
 admission and preliminary special winners through R26-09; special attribution,
-TAA proportional allocation and entitlement summaries through R26-10. Joint
-bonus and ordinary allocation remain R26-11 onward, multiple-election precedence
+TAA proportional allocation and entitlement summaries through R26-10; the paired
+bonus decision through R26-11. Ordinary allocation/caps remain R26-12 onward, multiple-election precedence
 R26-16 and initial recovery R26-17. Composition, scenario/generator, worker and
 UI integration follow R26-18/19/20.

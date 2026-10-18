@@ -11,6 +11,7 @@ export * from './special-attribution';
 export * from './taa-allocation';
 export * from './special-seats';
 export * from './admission';
+export * from './bonus';
 export * from './geography';
 export * from './endowments';
 export * from './population';
