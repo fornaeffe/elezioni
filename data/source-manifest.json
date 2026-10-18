@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "id": "r26-geography-census-2021-v1",
+  "reviewedOn": "2026-10-18",
+  "censusDate": "2021-12-31",
+  "legalReference": "DPR 20 gennaio 2023, GU 53 del 3 marzo 2023, SO 10; legge 180/2026, allegati 4 e 5",
+  "sources": [
+    {
+      "id": "camera-a1",
+      "url": "https://www.riformeistituzionali.gov.it/media/1383/a1-camera-uni-codiceistat-comune.xlsx",
+      "path": "camera-a1.xlsx",
+      "sha256": "b97d99ddba10bd55851d78a6a32a80c0f1d9d3f8a18a0ecfe5b5e52ff24e0588",
+      "bytes": 286052,
+      "headers": {}
+    },
+    {
+      "id": "camera-a2",
+      "url": "https://www.riformeistituzionali.gov.it/media/1378/a2-camera-pluri-unico.xlsx",
+      "path": "camera-a2.xlsx",
+      "sha256": "39d75b98ee1e3c10b4ca51ce9a1e0628fb9143db0dd31d052e4ed2d036d0503a",
+      "bytes": 20659,
+      "headers": {}
+    },
+    {
+      "id": "senato-b1",
+      "url": "https://www.riformeistituzionali.gov.it/media/1384/b1-senato-uni-codice-istat-comune.xlsx",
+      "path": "senato-b1.xlsx",
+      "sha256": "2315f431f385e2a9005eb25cb0a77fbf817889807dbcbaa1a04b40941789b77b",
+      "bytes": 281160,
+      "headers": {}
+    },
+    {
+      "id": "senato-b2",
+      "url": "https://www.riformeistituzionali.gov.it/media/1382/b2-senato-pluri-unico.xlsx",
+      "path": "senato-b2.xlsx",
+      "sha256": "b357891a221790cab19899096481987fa081d138375253cad32b95f78c572cc1",
+      "bytes": 16192,
+      "headers": {}
+    },
+    {
+      "id": "legal-population-2021",
+      "url": "https://esploradati.istat.it/SDMXWS/rest/data/IT1,DF_DCSS_POP_LEGALE_TV,1.0/A../ALL/?startPeriod=2021&endPeriod=2021",
+      "path": "legal-population-2021.csv",
+      "sha256": "08a7da406bed8703966f1b24412816b8f7b407181686ab9aa8ff0a378e3079f8",
+      "bytes": 545204,
+      "headers": {
+        "Accept": "text/csv",
+        "Accept-Language": "it"
+      }
+    },
+    {
+      "id": "municipalities-2021",
+      "url": "https://situas-servizi.istat.it/publish/reportspooljson?pfun=61&pdata=31/12/2021",
+      "path": "municipalities-2021.json",
+      "sha256": "efd579d65e3e88dd4eebe759b1321a0f85233b13761591e6a0c0848aa853d07e",
+      "bytes": 3410100,
+      "headers": {}
+    },
+    {
+      "id": "municipality-changes-2020-2021",
+      "url": "https://situas-servizi.istat.it/publish/reportspooljson?pfun=304&pdatada=01/01/2020&pdataa=31/12/2021",
+      "path": "municipality-changes-2020-2021.json",
+      "sha256": "415084c6bfca65ef7bc7b43f503ead53577fd45ba0e7db0a6c1c256deaa9b8f3",
+      "bytes": 1804796,
+      "headers": {}
+    },
+    {
+      "id": "submunicipal-population-2021",
+      "url": "https://esploradati.istat.it/databrowser/DWL/PERMPOP/SUBCOM/Comuni_2021.zip",
+      "path": "submunicipal-population-2021.zip",
+      "sha256": "ff8021ef7708c7cdb1b899521edd133cf96f0e9c0ddb90f7b7889fc1d5ecfb0d",
+      "bytes": 31685704,
+      "headers": {}
+    },
+    {
+      "id": "bolzano-annex-4",
+      "url": "https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticolo?art.codiceRedazionale=26G00201&art.dataPubblicazioneGazzetta=2026-10-09&art.flagTipoArticolo=4&art.idArticolo=1&art.idGruppo=0&art.idSottoArticolo=1&art.idSottoArticolo1=10&art.progressivo=0&art.versione=1",
+      "path": "bolzano-annex-4.html",
+      "sha256": "bfb3ad5d3ea07fb94c5034b8d2eb89b2e26475002ad48c10090d6577bca1c9a3",
+      "bytes": 2798,
+      "headers": {}
+    },
+    {
+      "id": "bolzano-annex-5",
+      "url": "https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticolo?art.codiceRedazionale=26G00201&art.dataPubblicazioneGazzetta=2026-10-09&art.flagTipoArticolo=5&art.idArticolo=1&art.idGruppo=0&art.idSottoArticolo=1&art.idSottoArticolo1=10&art.progressivo=0&art.versione=1",
+      "path": "bolzano-annex-5.html",
+      "sha256": "9b0f9a8645bedd473d2341eee421de781bc7d5838568a9c76aa7b2fa02898f8c",
+      "bytes": 21258,
+      "headers": {}
+    },
+    {
+      "id": "electoral-geography-2022",
+      "url": "https://www.riformeistituzionali.gov.it/media/1431/collegi_elettorali_basigeografiche.zip",
+      "path": "electoral-geography-2022.zip",
+      "sha256": "d6a1c10ec64765ff3e0001049cc0d9b6110b823b4f125a256aaf3ecea7f2382b",
+      "bytes": 98007281,
+      "headers": {}
+    },
+    {
+      "id": "submunicipal-geography-2021",
+      "url": "https://www.istat.it/wp-content/uploads/2025/04/ASC_21.zip",
+      "path": "submunicipal-geography-2021.zip",
+      "sha256": "7c3dfbaab24940b996978ecb237d820ae1da6cfa6b9c05f5d1d40db4170e47b9",
+      "bytes": 9389933,
+      "headers": {}
+    }
+  ]
+}

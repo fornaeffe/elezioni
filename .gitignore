@@ -42,6 +42,8 @@ vignettes/*.pdf
 
 # Downloaded data
 /dati/
+/data/sources/
+/data/derived/
 
 # Large generated migration data
 /web/static/data/v1/politics-static.json

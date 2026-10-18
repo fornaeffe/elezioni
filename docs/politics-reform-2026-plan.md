@@ -56,9 +56,9 @@ time and leave subsequent application features inactive.
 
 ## Checklist and dependencies
 
-The default order is below. R26-02/03/04 model choices, R26-05 contracts and R26-06
-numerical primitives are complete; continue with R26-07 territories and seat
-endowments. Model selection does not
+The default order is below. R26-02/03/04 model choices, R26-05 contracts, R26-06
+numerical primitives and R26-07 geography/seat tables are complete; continue with
+R26-08 electoral figures and rankings. Model selection does not
 imply fitted parameters, implemented generators or production acceptance.
 R26-05 through R26-18 can use constructed legal inputs independently of R26-19
 calibration and generation.
@@ -72,7 +72,7 @@ calibration and generation.
 | [x] | [R26-04](#r26-04-camera-senato-vote-modelling) | Chamber differentiation decision | 01 |
 | [x] | [R26-05](#r26-05-scrutiny-contracts) | Typed legal inputs, outputs, validation | 01-04 |
 | [x] | [R26-06](#r26-06-numerical-primitives) | Quotas, truncation, remainders, ties | 05 |
-| [ ] | [R26-07](#r26-07-territories-and-seat-endowments) | Versioned geography and seat tables | 01, 05 |
+| [x] | [R26-07](#r26-07-territories-and-seat-endowments) | Versioned geography and seat tables | 01, 05 |
 | [ ] | [R26-08](#r26-08-electoral-figures-and-rankings) | Vote attribution, totals, rankings | 05-07 |
 | [ ] | [R26-09](#r26-09-admission) | Camera and Senato admission | 08 |
 | [ ] | [R26-10](#r26-10-special-territories) | Special elections and seat totals | 09 |
@@ -198,7 +198,7 @@ express legal criteria and require a warning in every affected simulation.
 
 ### R26-07: Territories and seat endowments
 
-Prepare a versioned catalog of constituencies, colleges, and special territories;
+Use the versioned catalog of constituencies, colleges, and special territories;
 check the changed Bolzano Senate boundaries. Supply bonus-seat distributions and
 ordinary college capacities both with and without the bonus (Camera art. 3;
 Senato art. 1). Check the geographic resolution of existing source data before
@@ -212,9 +212,17 @@ tables as provisional; do not describe that method as an official decree formula
 Replace them with verified official tables when available, preserving replay of
 older runs with their original versions. A missing decree alone does not block
 the provisional path; statutory/territorial conflicts still need resolution.
-Keep any generator changes limited to the reform's required data; the general
-data-preparation migration remains deferred. Regenerate dependent defaults and
-catalogs through scripts, never by editing generated files.
+Use the shared Node/TypeScript acquisition and geography/census pipeline in
+[`../data/README.md`](../data/README.md). Keep originals in `data/sources` and
+intermediates in `data/derived`; remove legacy `dati` only after the whole
+data-preparation migration is complete and its consumers have migrated.
+Use definitive machine-readable geography, auditing the presentation-oriented
+2020 spreadsheets. Prefer available fine census data; when it is unavailable,
+retain usability through explicit, versioned population estimates conserving the
+legal municipal total. Preserve those disclosures in inputs/results. Historical
+vote/preference importers and calibration remain subsequent work, including R26-19.
+Regenerate dependent defaults and catalogs through scripts, never by editing
+generated files. Keep the reform application path inactive until its integration steps.
 
 Tests: geographic coverage, unambiguous joins, chamber/territory seat totals,
 70/35 bonus totals, and consistent alternative college capacities.

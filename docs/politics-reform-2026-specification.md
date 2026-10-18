@@ -240,6 +240,12 @@ calculation traces; no tables are generated in this documentation task.
    date, and a reconciled municipality/constituency/college catalog. The identified
    baseline P0 is the 2021 legal population; verify that no newer legal census
    applies when generating. Do not substitute annual resident estimates.
+   When finer geographic population is unavailable or boundaries need
+   reconstruction, use the best available census data, then explicit estimates
+   preserving the legal municipal total. Record source resolution, crosswalk
+   assumptions, weights and method; warn users rather than blocking solely on
+   unavailable fine population. This R26-07 refinement was approved on 18 October
+   2026; it does not permit inventing electoral boundaries or ignoring seat conflicts.
 2. Apportion Camera's 392 domestic seats by K56's population quotas/remainders,
    checking the statutory VdA/TAA structure. For Senato's 196 domestic seats,
    apply K57's regional/autonomous-province minima and special endowments before

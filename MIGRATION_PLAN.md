@@ -8,8 +8,9 @@ what changed, why, problems encountered, workarounds, and measured results in
 
 The target is a static SvelteKit TypeScript app under `web/`, with simulation
 and scrutiny running in browser workers. Migrate `politiche` first, then
-Emilia-Romagna regional elections, then municipal elections, and migrate data
-preparation last.
+Emilia-Romagna regional elections, then municipal elections. Shared source
+acquisition and geography/census preparation migrate with reform R26-07;
+historical election importers and remaining data preparation follow their consumers.
 
 ## Working principles
 
@@ -26,9 +27,10 @@ preparation last.
   D'Hondt and Hare-Niemeyer allocations, uninominal/plurinominal seat
   reconciliation, candidate exhaustion and subentro, pluricandidature
   resolution, and municipal ballot/runoff handling.
-- Migrate data preparation after the simulator workflows. Keep it a periodic,
-  election-kind-agnostic devops or GitHub Actions pipeline that produces static
-  previous-election bundles; reassess typed Python versus Node/TypeScript then.
+- Use the Node/TypeScript acquisition and geography/census foundation in
+  [`data/README.md`](data/README.md). Migrate remaining historical importers as
+  their simulator/model inputs are implemented. Keep preparation a periodic,
+  election-kind-agnostic devops or GitHub Actions pipeline producing static bundles.
 
 ## Scenario Semantics
 
@@ -152,8 +154,8 @@ preparation last.
   I07 Senate recovery policy and approved R26-02/03/04 models: attributed list
   totals, historically informed synthetic preferences and paired chamber votes
   with common anchors and explicit chamber precedence. R26-05 contracts and
-  validation and R26-06 numerical primitives are complete; continue with R26-07
-  territories and seat endowments.
+  validation, R26-06 numerical primitives and R26-07 versioned geography/seat
+  tables are complete; continue with R26-08 electoral figures and rankings.
   Acquire/reconcile Senate history and fit/validate the approved models before
   production integration under R26-19.
 - [ ] Keep completed politics and regional vertical slices green while shared
@@ -177,10 +179,11 @@ preparation last.
 - [ ] Generalize routing, snapshot selection, scenario defaults, validation,
   worker dispatch, result components, and shared UI patterns across election
   kinds.
-- [ ] Migrate data preparation only after simulator workflows are migrated.
-  Reassess typed Python versus Node/TypeScript, and keep the result a periodic,
-  election-kind-agnostic devops/GitHub Actions pipeline that produces static
-  previous-election bundles.
+- [ ] Finish data-preparation migration on the shared R26-07 acquisition,
+  geography and census foundation. Migrate historical election importers and
+  static previous-election bundles; use R26-19 for required paired Senate history
+  and calibration. Remove legacy `dati/` only after the whole data-preparation
+  migration is complete and its consumers have migrated.
 - [ ] Retire temporary bridge artifacts and update user and developer
   documentation when migrated workflows no longer depend on R-exported
   intermediary snapshots.

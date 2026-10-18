@@ -49,7 +49,7 @@ export interface Coalition {
   readonly listIds: readonly string[];
 }
 
-export type SeatTableSource =
+export type SeatTableSource = (
   | { readonly kind: 'official-decree' | 'constructed'; readonly reference: string; readonly version: string }
   | {
       readonly kind: 'provisional-census';
@@ -58,7 +58,8 @@ export type SeatTableSource =
       readonly censusDate: string;
       readonly geographyVersion: string;
       readonly method: 'I08-v1';
-    };
+    }
+) & { readonly populationNotes?: readonly string[] };
 
 export interface Territory {
   readonly id: string;

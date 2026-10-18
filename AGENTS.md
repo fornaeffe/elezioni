@@ -37,6 +37,13 @@ to stable instructions that apply across migration steps.
   tests skip clearly when they are absent.
 - Do not edit generated defaults by hand. After regenerating a static snapshot,
   run its corresponding scenario-default and catalog generators.
+- New preparation sources belong in `data/sources/`, derived artifacts in
+  `data/derived/`; follow [`data/README.md`](data/README.md) and its pinned source
+  manifest. `dati/` is legacy: remove it only after the whole data-preparation
+  migration is complete and its legacy consumers have migrated.
+- Keep population reconstruction assumptions explicit and conserve the legal
+  municipal census total. Missing fine geography may use labelled estimates;
+  it must not silently become zero or be mistaken for an official seat decree.
 
 ## Web app architecture
 

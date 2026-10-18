@@ -11,6 +11,7 @@ export interface ValidationIssue {
 }
 
 interface Schema<T> {
+  readonly optional?: boolean;
   readonly check: (value: unknown, path: string, issues: ValidationIssue[]) => boolean;
   readonly type?: T;
 }
@@ -40,6 +41,9 @@ function literal<const T extends string | number>(...values: T[]): Schema<T> {
 function nullable<T>(s: Schema<T>): Schema<T | null> {
   return { check: (v, p, e) => v === null || s.check(v, p, e) };
 }
+function optional<T>(s: Schema<T>): Schema<T | undefined> {
+  return { optional: true, check: (v, p, e) => v === undefined || s.check(v, p, e) };
+}
 function array<T>(s: Schema<T>): Schema<readonly T[]> {
   return { check(v, p, e) {
     if (!Array.isArray(v)) { e.push(issue(p, 'Expected an array.')); return false; }
@@ -60,7 +64,7 @@ function object<S extends Record<string, Schema<unknown>>>(fields: S): Schema<{ 
       e.push(issue(`${p}.${key}`, 'Unexpected field; representations cannot be mixed.')); valid = false;
     }
     for (const [key, schema] of Object.entries(fields)) {
-      if (!Object.hasOwn(row, key)) { e.push(issue(`${p}.${key}`, 'Required field is missing.')); valid = false; }
+      if (!Object.hasOwn(row, key)) { if (!schema.optional) { e.push(issue(`${p}.${key}`, 'Required field is missing.')); valid = false; } }
       else if (!schema.check(row[key], `${p}.${key}`, e)) valid = false;
     }
     return valid;
@@ -113,9 +117,9 @@ const chamberInput = object({
   colleges: array(object({ id: text, territoryId: text, kind: literal('ordinary', 'taa-proportional', 'special-uninominal'),
     seatsWithoutBonus: count, seatsWithBonus: count })),
   seatTable: union(
-    object({ kind: literal('official-decree', 'constructed'), reference: text, version: text }),
+    object({ kind: literal('official-decree', 'constructed'), reference: text, version: text, populationNotes: optional(array(text)) }),
     object({ kind: literal('provisional-census'), reference: text, version: text, censusDate: date,
-      geographyVersion: text, method: literal('I08-v1') })
+      geographyVersion: text, method: literal('I08-v1'), populationNotes: optional(array(text)) })
   ),
   lists: array(object({ id: text, name: text, coalitionId: nullable(text),
     protectedMinority: nullable(object({ regionId: text, legalReference: text })) })),

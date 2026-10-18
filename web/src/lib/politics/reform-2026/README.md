@@ -1,4 +1,4 @@
-# Reform scrutiny core (R26-05/06)
+# Reform scrutiny core (R26-05/06/07)
 
 Public API: [`index.ts`](index.ts). Legal requirements and later stage boundaries:
 [normative specification](../../../../../docs/politics-reform-2026-specification.md).
@@ -11,6 +11,10 @@ This folder is independent of the legacy politics contracts and algorithm regist
 | Compute exact fractions, ratios and six-decimal truncation | [exact.ts](exact.ts) |
 | Apply successive legal tie criteria and injected seeded draws | [ties.ts](ties.ts) |
 | Allocate integer/exact quotas and single-use remainders | [allocation.ts](allocation.ts) |
+| Validate geography and census coverage | [geography.ts](geography.ts) |
+| Generate/validate versioned I08 or supplied decree tables | [endowments.ts](endowments.ts) |
+| Reconcile incomplete fine-geography population | [population.ts](population.ts) |
+| Read the tracked, offline seat-table artifact | [bundled-data.ts](bundled-data.ts) |
 | Validate unknown input | [validation.ts](validation.ts) |
 | Inspect accepted structure and scalar domains | [shape.ts](shape.ts) |
 | Check political references and seat accounting | [validation-context.ts](validation-context.ts) |
@@ -173,11 +177,17 @@ the transferable envelope. I03 draws and I07 cross-region recoveries must produc
 warnings when implemented. Output types do not themselves enforce those future
 execution rules or validate arbitrary result JSON.
 
-Current endowment checks cover domestic totals 392/196, bonus totals 70/35,
-special totals, capacity differences and source compatibility. `constructed`
-tables support legal fixtures; `provisional-census` records I08, census date,
-geography and table versions; `official-decree` records the controlling table.
-Real geography, completeness against official catalogs, constitutional regional
-minima and population apportionment remain R26-07. Attribution remains R26-08,
+R26-07 adds the versioned real geography and census-based provisional seat tables.
+For acquisition, generation, source/estimation limitations and official-table
+replacement, use only the [preparation workflow](../../../../../data/README.md).
+`validateTerritoryCatalog()` checks municipal and college coverage/populations;
+`validateSeatTableBundle()` checks both chambers, constitutional minima, special
+structures, 70/35 bonuses and alternative capacities. `getBundledReformSeatTables()`
+and `chamberGeography()` return owned data without requiring downloaded archives.
+`constructed` inputs remain usable independently for legal fixtures. The additive
+optional `SeatTableSource.populationNotes` preserves user-facing reconstruction
+warnings in the existing schema version. Scenario/result integration must retain
+the referenced immutable artifact and display `seatTableMessages()` in R26-20.
+Attribution remains R26-08,
 special scrutiny R26-10 and initial recovery
 R26-17. Scenario/generator, worker and UI integration follow R26-18/19/20.
