@@ -1,4 +1,4 @@
-# Reform scrutiny core (R26-05 through R26-11)
+# Reform scrutiny core (R26-05 through R26-12)
 
 Public API: [`index.ts`](index.ts). Legal requirements and later stage boundaries:
 [normative specification](../../../../../docs/politics-reform-2026-specification.md).
@@ -19,6 +19,7 @@ This folder is independent of the legacy politics contracts and algorithm regist
 | Determine preliminary special uninominal winners | [special-winners.ts](special-winners.ts) |
 | Determine Camera/Senato admission and local TAA exceptions | [admission.ts](admission.ts) |
 | Decide the paired 70/35 governability bonus | [bonus.ts](bonus.ts) |
+| Allocate Camera national subjects/lists and apply the 220-seat cap | [camera-national.ts](camera-national.ts) |
 | Attribute special candidate-only votes | [special-attribution.ts](special-attribution.ts) |
 | Allocate Camera TAA proportional seats and provisional candidates | [taa-allocation.ts](taa-allocation.ts) |
 | Reuse special winners and summarize cap entitlements | [special-seats.ts](special-seats.ts) |
@@ -389,6 +390,48 @@ candidate election or distribution among coalition lists occurs here.
 See [bonus.test.ts](bonus.test.ts) for independently constructed divergent
 chambers, threshold/tie effects, special votes and validated-envelope composition.
 
+## Camera national allocation (R26-12)
+
+`allocateCameraNationalSeats(input, execution)` consumes the validated Camera
+chamber, N06 figures, N07 admission, N12 bonus result, N10 `specialSeats` summary
+and simulation ID. Use communications from the same run; N06/N07/N10 totals have
+no independent run ID. The bonus ID is checked. Only
+`figures.ordinaryAllocation.lists` supplies allocation votes; admission/bonus
+totals include special ballots and must not replace them.
+
+The completed result selects `no-bonus`, `bonus-without-cap` or `bonus-with-cap`.
+The first allocates all 384 ordinary seats. The other paths first allocate 314
+ordinary seats, reserving 70 for the bonus subject. The cap check counts the
+winner's ordinary, bonus and linked special entitlements, including unresolved
+candidate identities. Exactly 220 remains unchanged; a greater total fixes
+majority ordinary seats to `150 - winnerSpecial`, then reapportions
+`314 - majorityOrdinary` among the other admitted subjects. The majority quota
+is floored for R26-13; it does not recompute the majority's fixed entitlement.
+Special totals must be complete before the bonus path starts drawing. Incomplete
+special totals do not block a computed no-bonus allocation.
+
+C83(1)(f) includes all linked coalition votes; (g) divides the coalition target
+only among its admitted (2-bis)/(2-ter) lists, including the one best excluded
+member. All subject, minority and internal-list allocations use integer quotas,
+then exact remainders, ordinary national figures and statutory seeded draws.
+Zero-seat coalitions need no division. I04 failures return a named stage/reason
+and attempted traces without publishing final targets. Upstream draws/warnings
+are not repeated.
+
+Outputs retain the provisional allocation, cap check, majority/minority quotas,
+minority and coalition allocations, final subject/list ordinary targets, owned
+seat-table provenance and stage draw traces. Bonus seats retain subject ownership
+and are never distributed among coalition members. The input endowment must
+reconcile 392 domestic seats, eight special seats, 384/314 ordinary capacities
+and 70 bonus seats; incompatible tables are rejected under I08 rather than
+rescaled. Estero has no input into allocation or the cap. The bundled table
+remains explicitly provisional census data, with its version and population notes.
+
+See [camera-national.test.ts](camera-national.test.ts) for worked quota/remainder
+fixtures, the 220/221 boundary, internal-list filtering, seeded ties, arithmetic
+failures and validated single/joint-envelope composition. Territorial allocation,
+territorial bonus assignment and final candidate outcomes remain later stages.
+
 ## Output and remaining stages
 
 `ReformScrutinyResult` is a **type contract**, with complete/partial/non-computable
@@ -416,6 +459,7 @@ the referenced immutable artifact and display `seatTableMessages()` in R26-20.
 Ordinary attribution, figures and rankings are available through R26-08 above;
 admission and preliminary special winners through R26-09; special attribution,
 TAA proportional allocation and entitlement summaries through R26-10; the paired
-bonus decision through R26-11. Ordinary allocation/caps remain R26-12 onward, multiple-election precedence
+bonus decision through R26-11 and Camera national allocation/cap through R26-12.
+Territorial Camera and Senate allocations remain R26-13 onward, multiple-election precedence
 R26-16 and initial recovery R26-17. Composition, scenario/generator, worker and
 UI integration follow R26-18/19/20.

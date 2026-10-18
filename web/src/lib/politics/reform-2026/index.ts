@@ -12,6 +12,7 @@ export * from './taa-allocation';
 export * from './special-seats';
 export * from './admission';
 export * from './bonus';
+export * from './camera-national';
 export * from './geography';
 export * from './endowments';
 export * from './population';
