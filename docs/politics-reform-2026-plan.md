@@ -57,8 +57,9 @@ time and leave subsequent application features inactive.
 ## Checklist and dependencies
 
 The default order is below. R26-02/03/04 model choices, R26-05 contracts, R26-06
-numerical primitives, R26-07 geography/seat tables and R26-08 electoral figures
-and rankings are complete; continue with R26-09 admission. Model selection does not
+numerical primitives, R26-07 geography/seat tables, R26-08 electoral figures
+and rankings and R26-09 admission/preliminary special winners are complete;
+continue with R26-10 special territories. Model selection does not
 imply fitted parameters, implemented generators or production acceptance.
 R26-05 through R26-18 can use constructed legal inputs independently of R26-19
 calibration and generation.
@@ -74,7 +75,7 @@ calibration and generation.
 | [x] | [R26-06](#r26-06-numerical-primitives) | Quotas, truncation, remainders, ties | 05 |
 | [x] | [R26-07](#r26-07-territories-and-seat-endowments) | Versioned geography and seat tables | 01, 05 |
 | [x] | [R26-08](#r26-08-electoral-figures-and-rankings) | Vote attribution, totals, rankings | 05-07 |
-| [ ] | [R26-09](#r26-09-admission) | Camera and Senato admission | 08 |
+| [x] | [R26-09](#r26-09-admission) | Camera and Senato admission | 08 |
 | [ ] | [R26-10](#r26-10-special-territories) | Special elections and seat totals | 09 |
 | [ ] | [R26-11](#r26-11-joint-bonus-decision) | Joint bonus eligibility and reasons | 09 |
 | [ ] | [R26-12](#r26-12-camera-national-allocation) | Camera national allocation and cap | 10-11 |

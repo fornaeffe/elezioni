@@ -6,6 +6,8 @@ export * from './allocation';
 export * from './attribution';
 export * from './figures';
 export * from './rankings';
+export * from './special-winners';
+export * from './admission';
 export * from './geography';
 export * from './endowments';
 export * from './population';

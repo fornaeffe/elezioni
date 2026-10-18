@@ -1,4 +1,4 @@
-# Reform scrutiny core (R26-05/06/07)
+# Reform scrutiny core (R26-05 through R26-09)
 
 Public API: [`index.ts`](index.ts). Legal requirements and later stage boundaries:
 [normative specification](../../../../../docs/politics-reform-2026-specification.md).
@@ -15,6 +15,9 @@ This folder is independent of the legacy politics contracts and algorithm regist
 | Generate/validate versioned I08 or supplied decree tables | [endowments.ts](endowments.ts) |
 | Reconcile incomplete fine-geography population | [population.ts](population.ts) |
 | Read the tracked, offline seat-table artifact | [bundled-data.ts](bundled-data.ts) |
+| Attribute ordinary votes / aggregate electoral figures / rank preferences | [attribution.ts](attribution.ts), [figures.ts](figures.ts), [rankings.ts](rankings.ts) |
+| Determine preliminary special uninominal winners | [special-winners.ts](special-winners.ts) |
+| Determine Camera/Senato admission and local TAA exceptions | [admission.ts](admission.ts) |
 | Validate unknown input | [validation.ts](validation.ts) |
 | Inspect accepted structure and scalar domains | [shape.ts](shape.ts) |
 | Check political references and seat accounting | [validation-context.ts](validation-context.ts) |
@@ -215,6 +218,67 @@ traces match exactly. This proves accounting equivalence, not empirical model
 calibration or absence of statistical bias. See [attribution.test.ts](attribution.test.ts),
 [figures.test.ts](figures.test.ts) and [rankings.test.ts](rankings.test.ts).
 
+## Admission and preliminary special winners (R26-09)
+
+Use already validated chamber/candidate references and N06 aggregates from the
+same simulation. These are pure legal-stage helpers, not a composed scrutiny
+entry point. No statistical model or ordinary/special proportional allocation
+runs here.
+
+1. Call `determineSpecialWinners({ chamber, candidates, simulationId }, execution)`
+   once for each chamber. Both special vote representations already contain the
+   adjudicated `candidateTotals`; list attribution is unnecessary for this call.
+   Highest candidate votes win regardless of linked-list admission. Camera uses
+   the younger candidate on a vote tie; Senato uses the older. Equal dates use
+   warned I03 draws. All special colleges/counts/references are preflighted before
+   draws, then colleges and alternatives are processed canonically.
+2. Call `determineCameraAdmission({ chamber, figures, simulationId,
+   specialWinners }, execution)` or `determineSenateAdmission({ chamber, figures,
+   simulationId }, execution)`. `figures.national` must include special ballots;
+   never substitute `ordinaryAllocation`. Camera requires the complete preliminary
+   winner result for the same chamber/simulation. Senate admission does not depend
+   on those winners.
+3. Retain the preliminary winner ledger for R26-10, later cap accounting and
+   proclamations. It preserves college/territory/region, candidate, subject,
+   every linked list, separate affiliation, votes, legal reference and tie trace.
+   Admission never recomputes it or repeats its warnings/draws. A future
+   coordinator must collect each stage's top-level warnings/draws once; nested
+   winner tie traces describe those same draws, not additional events.
+
+Admission compares integer counts with bigint products at inclusive 3%, 10% and
+20% thresholds; rounded percentages never decide access. Valid-vote denominators
+retain excluded lists. A 10% coalition needs a qualifying member. Qualifying
+members enter through (2-bis); exactly one otherwise excluded member enters
+through (2-ter), without a 1% floor. If none are excluded there is no rescue or
+draw. Equal best national figures use warned I03 draws in canonical coalition
+order. An all-zero national denominator returns `non-computable:
+zero-valid-votes`, with no invented admission/exclusion decisions. Zero-vote
+regions cannot qualify a Senate list through 20%.
+
+`coalitions` and `lists` expose decisions, reason codes, legal references and exact
+national shares. `qualifyingRegionIds` records the 20% evidence; Camera's
+`minorityQualification` also records local shares, college counts, required
+`ceil(colleges/4)` wins and actual linked wins. `admittedAs` distinguishes a
+standalone list (including independent access after coalition failure) from a
+member of an admitted coalition. `admittedSubjects` contains only the admitted
+coalitions and standalone lists for later subject allocations/bonus ranking;
+coalition members are not counted as additional subjects.
+
+Camera's minority routes require upstream protected-minority recognition,
+autonomy and exclusive presentation in the declared region. Only an unlinked
+minority can qualify nationally through a quarter of uninominal wins. Those wins
+do not qualify a coalition or a (2-bis) member. A minority in a failed coalition
+has only the independent national 3% route; `taaLocalExceptions` separately
+records I01 access at local 20% under C93-septies(2), preserving its anomalous
+(2-bis) reference. R26-10 must union these local standalone lists with the
+nationally communicated subjects without duplicating an already admitted list.
+Local exceptions do not add nationwide subjects. Senate's 20% route is available
+to all lists in any region, including special regions and failed-coalition
+members, and permits national access rather than restricting access to that
+region. See [admission.test.ts](admission.test.ts) and
+[special-winners.test.ts](special-winners.test.ts) for independent worked fixtures
+and the validated-envelope integration checks.
+
 ## Output and remaining stages
 
 `ReformScrutinyResult` is a **type contract**, with complete/partial/non-computable
@@ -240,5 +304,6 @@ optional `SeatTableSource.populationNotes` preserves user-facing reconstruction
 warnings in the existing schema version. Scenario/result integration must retain
 the referenced immutable artifact and display `seatTableMessages()` in R26-20.
 Ordinary attribution, figures and rankings are available through R26-08 above;
-admission remains R26-09, special scrutiny R26-10 and initial recovery
+admission and preliminary special winners through R26-09. Special list-vote
+attribution and TAA proportional allocation remain R26-10, and initial recovery
 R26-17. Scenario/generator, worker and UI integration follow R26-18/19/20.
