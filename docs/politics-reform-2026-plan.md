@@ -59,8 +59,9 @@ time and leave subsequent application features inactive.
 The default order is below. R26-02/03/04 model choices, R26-05 contracts, R26-06
 numerical primitives, R26-07 geography/seat tables, R26-08 electoral figures
 and rankings, R26-09 admission/preliminary special winners, R26-10 special
-territories, R26-11 joint bonus decision and R26-12 Camera national allocation
-are complete; continue with R26-13 Camera territorial allocation. Model
+territories, R26-11 joint bonus decision, R26-12 Camera national allocation and
+R26-13 Camera territorial allocation are complete; continue with R26-14 Senato
+regional allocation. Model
 selection does not
 imply fitted parameters, implemented generators or production acceptance.
 R26-05 through R26-18 can use constructed legal inputs independently of R26-19
@@ -81,7 +82,7 @@ calibration and generation.
 | [x] | [R26-10](#r26-10-special-territories) | Special elections and seat totals | 09 |
 | [x] | [R26-11](#r26-11-joint-bonus-decision) | Joint bonus eligibility and reasons | 09 |
 | [x] | [R26-12](#r26-12-camera-national-allocation) | Camera national allocation and cap | 10-11 |
-| [ ] | [R26-13](#r26-13-camera-territorial-allocation) | Camera constituencies and colleges | 12 |
+| [x] | [R26-13](#r26-13-camera-territorial-allocation) | Camera constituencies and colleges | 12 |
 | [ ] | [R26-14](#r26-14-senato-regional-allocation) | Senato regional allocation and cap | 10-11 |
 | [ ] | [R26-15](#r26-15-senato-list-and-college-allocation) | Senato lists and colleges | 14 |
 | [ ] | [R26-16](#r26-16-proclamations-and-multiple-elections) | Candidate proclamations and precedence | 10, 13, 15 |
@@ -314,6 +315,9 @@ quota/remainder traces. Verify the statutory 314-seat scope against R26-07.
 
 ### R26-13: Camera territorial allocation
 
+Use the [implemented territorial boundary](../web/src/lib/politics/reform-2026/README.md#camera-territorial-allocation-r26-13)
+for stage communications, distinct correction rules, traces and explicit blockers.
+
 Translate art. 83 constituency distribution and art. 83-bis college distribution.
 Separate provisional allocations from corrections for surplus/deficit subjects,
 and subject allocation from allocation among coalition lists. Implement the cap
@@ -326,6 +330,10 @@ fallback transfers across constituencies, used versus unused remainders,
 exclusion of subjects already at their target, and every tie criterion. Assert
 the specific national and territorial totals required at each correction stage;
 do not assume every intermediate transfer preserves every local total.
+Preserve explicit arithmetic/no-progress failures and the N18
+`constituency-capacity-target-mismatch` state when a cross-constituency correction
+is incompatible with the supplied fixed college endowment. Any further
+reconciliation requires reviewed legal support, not implicit table rescaling.
 
 ### R26-14: Senato regional allocation
 

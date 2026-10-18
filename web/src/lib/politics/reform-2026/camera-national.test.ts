@@ -4,6 +4,7 @@ import { admissionFixture } from './admission.fixture';
 import { determineGovernabilityBonus } from './bonus';
 import { getBundledReformSeatTables } from './bundled-data';
 import { allocateCameraNationalSeats, type CameraNationalInput } from './camera-national';
+import { allocateCameraTerritorialSeats } from './camera-territorial';
 import { jointFixture, singleFixture } from './contracts.fixture';
 import { aggregateElectoralFigures } from './figures';
 import type { Subject } from './input';
@@ -270,7 +271,7 @@ describe('N13/N14 Camera national allocation', () => {
     expect(r.bonus?.subject).not.toBe(f.bonus.status === 'awarded' ? f.bonus.awards[0].subject : null);
   });
 
-  it.each([false, true])('composes a validated envelope through N06/N07/N09/N10/N12 (joint=%s)', joint => {
+  it.each([false, true])('composes a validated envelope through national and N15-N18 territorial allocation (joint=%s)', joint => {
     const full = joint ? jointFixture() : singleFixture('camera');
     const chambers = full.renewal.kind === 'joint' ? [full.renewal.camera, full.renewal.senato] : [full.renewal.chamber];
     for (const c of chambers) {
@@ -329,8 +330,12 @@ describe('N13/N14 Camera national allocation', () => {
     }
     const bonus = determineGovernabilityBonus({ simulationId: input.simulationId, renewedChambers: joint ? ['camera', 'senato'] : ['camera'],
       chambers: [{ chamber: 'camera', admission, national: figures.national }, ...paired], bonusLinks: input.bonusLinks }, noDraw);
-    expect(allocateCameraNationalSeats({ ...args, figures, admission, bonus, specialSeats }, noDraw)).toMatchObject({
+    const national = allocateCameraNationalSeats({ ...args, figures, admission, bonus, specialSeats }, noDraw);
+    expect(national).toMatchObject({
       status: 'complete', path: joint ? 'bonus-with-cap' : 'no-bonus', ordinarySeats: joint ? 314 : 384,
       subjectTargets: joint ? [{ ordinarySeats: 143 }, { ordinarySeats: 171 }] : [{ ordinarySeats: 384 }] });
+    const territorial = allocateCameraTerritorialSeats({ chamber: c, figures, national }, createSeededDrawContext('validated-territorial', 'legal'));
+    expect(territorial.status).toBe('complete');
+    expect(territorial.colleges.status === 'complete' && territorial.colleges.targets.reduce((n, t) => n + t.ordinarySeats, 0)).toBe(joint ? 314 : 384);
   });
 });

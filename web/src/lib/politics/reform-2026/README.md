@@ -1,4 +1,4 @@
-# Reform scrutiny core (R26-05 through R26-12)
+# Reform scrutiny core (R26-05 through R26-13)
 
 Public API: [`index.ts`](index.ts). Legal requirements and later stage boundaries:
 [normative specification](../../../../../docs/politics-reform-2026-specification.md).
@@ -20,6 +20,8 @@ This folder is independent of the legacy politics contracts and algorithm regist
 | Determine Camera/Senato admission and local TAA exceptions | [admission.ts](admission.ts) |
 | Decide the paired 70/35 governability bonus | [bonus.ts](bonus.ts) |
 | Allocate Camera national subjects/lists and apply the 220-seat cap | [camera-national.ts](camera-national.ts) |
+| Allocate Camera constituencies, coalition lists and colleges | [camera-territorial.ts](camera-territorial.ts) |
+| Inspect Camera matrix numerics and correction movements | [camera-territorial-matrix.ts](camera-territorial-matrix.ts) |
 | Attribute special candidate-only votes | [special-attribution.ts](special-attribution.ts) |
 | Allocate Camera TAA proportional seats and provisional candidates | [taa-allocation.ts](taa-allocation.ts) |
 | Reuse special winners and summarize cap entitlements | [special-seats.ts](special-seats.ts) |
@@ -429,8 +431,89 @@ remains explicitly provisional census data, with its version and population note
 
 See [camera-national.test.ts](camera-national.test.ts) for worked quota/remainder
 fixtures, the 220/221 boundary, internal-list filtering, seeded ties, arithmetic
-failures and validated single/joint-envelope composition. Territorial allocation,
-territorial bonus assignment and final candidate outcomes remain later stages.
+failures and validated single/joint-envelope composition. Ordinary territorial
+allocation follows below; bonus proclamations and candidate outcomes remain later stages.
+
+## Camera territorial allocation (R26-13)
+
+Supply `{ chamber, figures, national }` to
+`allocateCameraTerritorialSeats(input, execution)`. Use the validated Camera
+input, complete N06 electoral figures and N13/N14 national result from the same
+run. National simulation ID and seat-table provenance carry through each result;
+N06 figures have no independent run ID, so their pairing remains the caller's
+responsibility. Only ordinary territories/colleges enter these allocations.
+The national path selects the college endowments with or without the bonus.
+
+The scoped coordinator returns three separately inspectable stage results:
+
+| Stage API | Operation |
+| --- | --- |
+| `allocateCameraConstituencies(input, execution)` | N15 subject matrix under C83(1)(h), or N17 when the cap applies |
+| `allocateCameraCapConstituencies(input, execution)` | Explicit N17 entry point requiring the corrected cap path |
+| `allocateCameraCoalitionListsInConstituencies(input, constituencies, execution)` | N16 internal coalition-list matrices under C83(1)(i)/(1-ter)(e); standalone targets pass through |
+| `allocateCameraColleges(input, lists, execution)` | N18 college groups/lists under C83-bis; requires completed constituency-list targets |
+
+Each complete stage publishes ordinary entitlement targets. A non-computable
+stage retains attempted matrices, draw/warning evidence, reason and affected ID,
+without publishing final targets. Upstream draw events are not repeated by
+downstream stages. The coordinator retains all three stage results; preserve
+their metadata when composing the full scrutiny in R26-18.
+
+The internal matrix engine exposes capacities, raw/applied quotas, cap index
+divisors, raw/truncated indices, normalized attribution quotients, integer seats,
+decimal parts, reached-target exclusions, provisional/final seats and remainder
+states. It computes integer parts across all areas before excluding targets
+already reached from their parallel remainder allocations. This avoids assigning
+an arbitrary constituency/college priority. Each initial remainder is usable
+once. Zero-seat divisions are skipped; I04 arithmetic failures are explicit.
+
+Initial constituency subject ties use ordinary national figures; initial
+coalition-list ties use constituency figures. N16 corrections import C83(h)'s
+national criteria. College list/group residual ties also use constituency figures,
+never college votes. Initial final ties use statutory draws. Missing correction
+tie-breaks use canonical, warned I03 draws. The cap path truncates majority and
+every minority subject index before constituency normalization, retaining
+`{ id: 'I05', version: 'I05-v1' }` in the constituency result. College group
+indices are both truncated as expressly required by C83-bis(1-bis)(b). A
+zero-target group is inactive and its undefined quota/index is not evaluated.
+
+Correction rules remain distinct:
+
+- C83(h), also imported by (i)/(1-ter)(d): largest surplus then national figure;
+  used donor decimals ascending, unused recipient decimals descending. Search
+  all same-constituency opportunities before the cross-constituency fallback.
+  Same-constituency recipient ties use national figures; unspecified fallback
+  destination ties use I03. National subject/list targets and total ordinary
+  seats are conserved; a fallback can change individual constituency totals.
+- C83-bis(1)(b)(3): donor and recipient colleges follow their independent decimal
+  rankings. Constituency list targets and the constituency total are conserved;
+  individual college totals can change. This rule also applies inside each cap
+  group after its corrected college distribution.
+- C83-bis(1-bis)(c): cap-group transfers occur within the same college, conserving
+  each college capacity and the constituency's group totals.
+
+Every movement records donor/recipient cell IDs, seat counts before transfer,
+same/cross-area route, exact remainder transitions and applicable draw context
+IDs. Donated remainders become consumed; recipient remainders become used.
+These are allocation movements, separate from candidate-recovery seat ledgers.
+
+If an h/i cross-constituency fallback leaves the next constituency's communicated
+total incompatible with its fixed college endowment, N18 reports
+`constituency-capacity-target-mismatch`, retaining the completed N15/N16 results.
+There is no implicit decree-table rescaling or compensating transfer. Composition
+must preserve this non-computable state; any further reconciliation requires
+reviewed legal support. A correction without an eligible donor or unused
+recipient likewise reports its explicit no-progress reason.
+
+See [camera-territorial-matrix.test.ts](camera-territorial-matrix.test.ts) for
+hand-worked matrices, correction ordering, changed local totals, truncation
+boundaries and changed-seat cases; [camera-territorial.test.ts](camera-territorial.test.ts)
+for stage communications, denominators, zero targets and blockers; and
+[camera-national.test.ts](camera-national.test.ts) for validated single/joint
+envelopes through N18. These functions establish ordinary entitlements only.
+Bonus seats remain owned by the national winning subject; candidate proclamations,
+multiple elections, exhaustion, Senate allocation and application integration
+retain their subsequent plan steps.
 
 ## Output and remaining stages
 
@@ -459,7 +542,8 @@ the referenced immutable artifact and display `seatTableMessages()` in R26-20.
 Ordinary attribution, figures and rankings are available through R26-08 above;
 admission and preliminary special winners through R26-09; special attribution,
 TAA proportional allocation and entitlement summaries through R26-10; the paired
-bonus decision through R26-11 and Camera national allocation/cap through R26-12.
-Territorial Camera and Senate allocations remain R26-13 onward, multiple-election precedence
+bonus decision through R26-11, Camera national allocation/cap through R26-12 and
+ordinary Camera territorial allocation through R26-13. Senate allocations remain
+R26-14/15, multiple-election precedence
 R26-16 and initial recovery R26-17. Composition, scenario/generator, worker and
 UI integration follow R26-18/19/20.
