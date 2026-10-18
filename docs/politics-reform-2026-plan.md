@@ -58,8 +58,9 @@ time and leave subsequent application features inactive.
 
 The default order is below. R26-02/03/04 model choices, R26-05 contracts, R26-06
 numerical primitives, R26-07 geography/seat tables, R26-08 electoral figures
-and rankings and R26-09 admission/preliminary special winners are complete;
-continue with R26-10 special territories. Model selection does not
+and rankings, R26-09 admission/preliminary special winners and R26-10 special
+territories are complete; continue with R26-11 joint bonus decision. Model
+selection does not
 imply fitted parameters, implemented generators or production acceptance.
 R26-05 through R26-18 can use constructed legal inputs independently of R26-19
 calibration and generation.
@@ -76,7 +77,7 @@ calibration and generation.
 | [x] | [R26-07](#r26-07-territories-and-seat-endowments) | Versioned geography and seat tables | 01, 05 |
 | [x] | [R26-08](#r26-08-electoral-figures-and-rankings) | Vote attribution, totals, rankings | 05-07 |
 | [x] | [R26-09](#r26-09-admission) | Camera and Senato admission | 08 |
-| [ ] | [R26-10](#r26-10-special-territories) | Special elections and seat totals | 09 |
+| [x] | [R26-10](#r26-10-special-territories) | Special elections and seat totals | 09 |
 | [ ] | [R26-11](#r26-11-joint-bonus-decision) | Joint bonus eligibility and reasons | 09 |
 | [ ] | [R26-12](#r26-12-camera-national-allocation) | Camera national allocation and cap | 10-11 |
 | [ ] | [R26-13](#r26-13-camera-territorial-allocation) | Camera constituencies and colleges | 12 |
@@ -268,6 +269,9 @@ Stage any special-territory winner calculation needed for admission before the
 special proportional allocation, avoiding a circular dependency with R26-10.
 
 ### R26-10: Special territories
+
+Use the [implemented special-territory boundary](../web/src/lib/politics/reform-2026/README.md#special-territories-r26-10)
+for stage order, provisional proclamations and cap-ready entitlement totals.
 
 Translate Camera arts. 92-93-octies and Senato arts. 20-21-ter as applicable to
 initial scrutiny. Separate special uninominal proclamations, attribution of

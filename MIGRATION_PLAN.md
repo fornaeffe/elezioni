@@ -155,8 +155,9 @@ historical election importers and remaining data preparation follow their consum
   totals, historically informed synthetic preferences and paired chamber votes
   with common anchors and explicit chamber precedence. R26-05 contracts and
   validation, R26-06 numerical primitives, R26-07 versioned geography/seat
-  tables, R26-08 electoral figures/rankings and R26-09 admission/preliminary
-  special winners are complete; continue with R26-10 special territories.
+  tables, R26-08 electoral figures/rankings, R26-09 admission/preliminary
+  special winners and R26-10 special territories are complete; continue with
+  R26-11 joint bonus decision.
   Acquire/reconcile Senate history and fit/validate the approved models before
   production integration under R26-19.
 - [ ] Keep completed politics and regional vertical slices green while shared

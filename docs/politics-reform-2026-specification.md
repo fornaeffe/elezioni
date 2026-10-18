@@ -298,6 +298,12 @@ entitlements must reconcile.
 | N10 / 10 | C93(3-bis), C93-septies(1)(c)-(d),(h)-(i); S21(2-bis) (89, 94-95, 134) | `attributeSpecialVotes`: direct/candidate-only votes and candidate-list links -> list/territorial figures for N06, keeping winner figures separate | `N10`: same rational attribution as N04 but at **uninominal college**; sum only afterwards; single-list link, excluded-list winner, zero/tie cases; S cross-reference per I02. VdA cannot lose its national contribution because it has no ordinary list slate elsewhere. |
 | N11 / 10 | C93-septies(2)-(3) (96-97) | `allocateCameraTaaSeats`: national admission communication plus local minority exception, local figures and proportional endowment -> subject seats, coalition-list seats, elected candidates | `N11`: non-truncated quotas; local electoral-figure tie-break then draw; capolista then preferences; totals exclude already assigned special uninominal seats. Local exception I01 does not imply nationwide admission. |
 
+N11's internal coalition allocation follows C93-septies(2)(b)'s locally filed
+coalition lists. It does not import ordinary C83(1)(g)'s explicit limitation to
+national (2-bis)/(2-ter) members. Keep a fixture where an admitted coalition's
+otherwise excluded national member receives TAA proportional seats, without
+changing that list's national admission decision.
+
 ### Joint decision and ordinary allocation
 
 | ID / step | Source (P pages) | Proposed operation: inputs -> outputs | Test boundary and ties |

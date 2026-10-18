@@ -95,7 +95,7 @@ function figures(rows: readonly CollegeListFigure[], lists: readonly PoliticalLi
  * VdA/TAA for ordinary allocation. Special ballots still count nationally.
  *
  * Requires validated chamber references and completed attribution at the legal
- * college level. specialFigures is N10's future output (or supplied attributed
+ * college level. specialFigures is N10's complete output (or supplied attributed
  * input), NOT candidate totals added to list votes. No special scrutiny runs here.
  * Missing contributions are errors, not partial national totals.
  */

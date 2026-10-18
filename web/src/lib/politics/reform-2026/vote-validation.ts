@@ -1,7 +1,7 @@
 import type { ListVotes, OrdinarySlate } from './input';
 import { ChamberContext, key } from './validation-context';
 
-/** Validate the supplied representation; attribution itself belongs to R26-08. */
+/** Validate representations; legal attribution runs in N04/N10. */
 export function validateVotes(c: ChamberContext): void {
   const { validation: v, data: d, path: p } = c;
   function lists(rows: readonly ListVotes[], expected: readonly string[], path: string): Map<string, ListVotes> {
@@ -43,7 +43,18 @@ export function validateVotes(c: ChamberContext): void {
       total = v.sum([total, ...votes.bonusOnlyVotes.map(x => x.votes)], path);
     }
     electorate(total, row.electorate.electors, path);
-    for (const slate of slates) validatePreferences(c, slate, byList.get(slate.listId)?.votes ?? 0, path);
+    for (const slate of slates) {
+      // C93-sexies(3)-(4), C93-septies(1)(d)-(e): TAA preferences accompany
+      // the SAME uninominal ballots. The compatibility ordinaryVotes view is
+      // not an independent preference budget. Raw candidate-only votes cannot
+      // express preferences; attributed representation keeps composition unknown.
+      const budget = college?.kind === 'taa-proportional'
+        ? v.sum(d.specialVotes.filter(r => c.colleges.get(r.collegeId)?.territoryId === college.territoryId)
+          .flatMap(r => (r.votes.kind === 'components' ? r.votes.directListVotes : r.votes.listVotes)
+            .filter(l => l.listId === slate.listId).map(l => l.votes)), path)
+        : byList.get(slate.listId)?.votes ?? 0;
+      validatePreferences(c, slate, budget, path);
+    }
   }
   for (const row of d.specialVotes) {
     const path = `${p}.specialVotes.${row.collegeId}`;

@@ -1,4 +1,4 @@
-# Reform scrutiny core (R26-05 through R26-09)
+# Reform scrutiny core (R26-05 through R26-10)
 
 Public API: [`index.ts`](index.ts). Legal requirements and later stage boundaries:
 [normative specification](../../../../../docs/politics-reform-2026-specification.md).
@@ -18,6 +18,9 @@ This folder is independent of the legacy politics contracts and algorithm regist
 | Attribute ordinary votes / aggregate electoral figures / rank preferences | [attribution.ts](attribution.ts), [figures.ts](figures.ts), [rankings.ts](rankings.ts) |
 | Determine preliminary special uninominal winners | [special-winners.ts](special-winners.ts) |
 | Determine Camera/Senato admission and local TAA exceptions | [admission.ts](admission.ts) |
+| Attribute special candidate-only votes | [special-attribution.ts](special-attribution.ts) |
+| Allocate Camera TAA proportional seats and provisional candidates | [taa-allocation.ts](taa-allocation.ts) |
+| Reuse special winners and summarize cap entitlements | [special-seats.ts](special-seats.ts) |
 | Validate unknown input | [validation.ts](validation.ts) |
 | Inspect accepted structure and scalar domains | [shape.ts](shape.ts) |
 | Check political references and seat accounting | [validation-context.ts](validation-context.ts) |
@@ -71,8 +74,8 @@ Known counts bound valid ballots. Candidate ages are evaluated on election day.
 | --- | --- | --- |
 | Ordinary `components` | Direct list votes and separate subject bonus-only votes | Direct list votes |
 | Ordinary `attributed` | Final list totals only | Final list totals; composition remains unknown |
-| Special `components` | Direct list votes, separate candidate-only votes and candidate totals | Supplied separately on any TAA proportional slate |
-| Special `attributed` | Final linked-list totals and candidate totals | Supplied separately on any TAA proportional slate |
+| Special `components` | Direct list votes, separate candidate-only votes and candidate totals | Territorial direct list votes; counts on the TAA slate |
+| Special `attributed` | Final linked-list totals and candidate totals | Territorial final list totals; counts on the TAA slate, composition unknown |
 
 Mixed representations are rejected to prevent double attribution. Positive
 ordinary bonus-only votes require the applicable filed bonus slate and joint
@@ -184,8 +187,8 @@ are canonicalized independently of input-array ordering.
 `aggregateElectoralFigures(chamber, ordinaryFigures, specialFigures)` receives
 complete attributed list rows for every ordinary and special uninominal college.
 Pass successful N04 outputs as `ordinaryFigures`. For `specialFigures`, pass
-supplied final special list totals, or the future N10 output; raw candidate-only
-inputs must first complete R26-10. Do not pass candidate totals or count them
+supplied final special list totals, or successful `attributeSpecialVotes()` outputs.
+Do not pass candidate totals or count them
 again. Missing/extra colleges and missing/duplicate/non-contesting list rows throw.
 These functions require already validated political/geographic references;
 they do not replace `validateReformScrutinyInput()` or compose scrutiny stages.
@@ -270,7 +273,7 @@ minority can qualify nationally through a quarter of uninominal wins. Those wins
 do not qualify a coalition or a (2-bis) member. A minority in a failed coalition
 has only the independent national 3% route; `taaLocalExceptions` separately
 records I01 access at local 20% under C93-septies(2), preserving its anomalous
-(2-bis) reference. R26-10 must union these local standalone lists with the
+(2-bis) reference. R26-10 unions these local standalone lists with the
 nationally communicated subjects without duplicating an already admitted list.
 Local exceptions do not add nationwide subjects. Senate's 20% route is available
 to all lists in any region, including special regions and failed-coalition
@@ -278,6 +281,81 @@ members, and permits national access rather than restricting access to that
 region. See [admission.test.ts](admission.test.ts) and
 [special-winners.test.ts](special-winners.test.ts) for independent worked fixtures
 and the validated-envelope integration checks.
+
+## Special territories (R26-10)
+
+Use validated chamber/candidate references and stage results from the same
+simulation. These helpers implement domestic **initial** special scrutiny;
+they do not dispatch a worker, decide a bonus/cap, resolve multiple elections or
+simulate later vacancies and supplementary elections.
+
+1. Compute N09 preliminary winners once, as described above. Independently call
+   `attributeSpecialVotes({ chamber, collegeId, simulationId }, execution)` for
+   each special uninominal college. Pass its complete results to N06 aggregation,
+   alongside complete ordinary N04 results. Positive candidate-only votes with
+   multiple linked lists and no direct support block the required figures;
+   do not construct partial national admission totals.
+2. Determine N07/N08 admission using those aggregates and the retained winners.
+   For Camera call `allocateCameraTaaSeats({ chamber, candidates, figures,
+   admission, collegeId, simulationId }, execution)` on its TAA proportional
+   college. Use its invariant proportional capacity directly: the uninominal
+   seats are already separate and must not be subtracted again.
+3. Call `proclaimSpecialUninominalWinners({ chamber, candidates, simulationId,
+   preliminary })` using the same N09 result. No draw dependency is accepted;
+   it checks matching college/candidate totals and political links. Proclamations
+   retain winners whose linked lists failed admission. Availability can leave
+   an unresolved identity, without deleting the seat entitlement. The owned
+   `preliminary` communication preserves candidate affiliation and **all** links;
+   coalition seat locations have `listId: null` rather than assigning the seat
+   to a member by personal affiliation. Collect N09 warnings/draws once, not
+   again from this nested communication.
+4. `summarizeSpecialSeats(uninominal, taa?)` returns separate uninominal and TAA
+   proportional entitlement totals per subject, suitable for the future cap
+   stages. Camera requires the computed TAA entitlements for complete totals;
+   omitted/non-computable TAA counts remain `null`. Senate has zero proportional
+   special seats. Missing preferences/availability do not erase known
+   entitlements. Neither ordinary nor foreign seats enter this summary.
+
+N10 uses exact candidate-only attribution at **each uninominal college** before
+any territorial sum. Single linked lists receive their only-votes directly;
+zero only-votes require no division; equal residuals use warned I03 draws with
+no unprescribed vote secondary criterion. All candidate groups in a college are
+preflighted before any draw and processed in canonical order. Senate I02 reads
+the S21 link reference together with S20's candidate-only ballot rule. Attributed
+inputs are cloned and bypass redistribution; candidate totals never change.
+Traces retain per-candidate additions, quotas, remainders, draw IDs and warnings.
+
+N11 uses exact quotas for subjects **and** internal coalition lists, then local
+electoral figures and statutory draws on equal remainders/figures. These draws
+are not I03 warnings. Subjects are the national C83(1)(e-bis) communication union
+I01 local exceptions, deduplicated. Failed-coalition minority access does not
+change national admission. Within an admitted coalition, C93-septies(2)(b)
+distributes to all locally filed coalition lists: unlike ordinary C83(1)(g), it
+does not restrict internal allocation to (2-bis)/(2-ter) lists. Coalition figures
+include those local votes. Tests distinguish these two legal routes explicitly.
+
+Results retain subject and coalition allocation traces, list entitlements,
+preference ranks and a provisional seat ledger. The capolista precedes the
+non-capolista preference order, with filed order on equal preferences. List and
+individual percentages use all valid TAA ballots. Preference validation uses
+territorial special-list ballots, excluding candidate-only components in raw
+inputs; the compatibility TAA `ordinaryVotes` row supplies no additional budget.
+That row remains required by input version 1 but never contributes to N06/N11
+figures. Raw/attributed equivalence tests isolate attribution and downstream draw
+streams; no statistical generation is involved.
+
+An N11 `complete`/`partial` result has `entitlementStatus: complete` even if some
+identities are unresolved. Missing preferences still permit the head's seat;
+subsequent preference-dependent seats remain unresolved. Explicit zero counts
+are ranked normally. Unavailable/exhausted candidates require R26-16/17; do not
+silently skip them. The ledger is provisional, including legally permitted
+special/ordinary multiple candidacies: R26-16 must apply uninominal precedence
+and R26-17 must refill released seats before final whole-chamber conclusions.
+A required non-computable quota/admission returns a named failure with no
+invented list entitlements. See [special-attribution.test.ts](special-attribution.test.ts),
+[taa-allocation.test.ts](taa-allocation.test.ts) and
+[special-seats.test.ts](special-seats.test.ts) for worked and validated-envelope
+fixtures; age-tie rules remain covered by [special-winners.test.ts](special-winners.test.ts).
 
 ## Output and remaining stages
 
@@ -304,6 +382,8 @@ optional `SeatTableSource.populationNotes` preserves user-facing reconstruction
 warnings in the existing schema version. Scenario/result integration must retain
 the referenced immutable artifact and display `seatTableMessages()` in R26-20.
 Ordinary attribution, figures and rankings are available through R26-08 above;
-admission and preliminary special winners through R26-09. Special list-vote
-attribution and TAA proportional allocation remain R26-10, and initial recovery
-R26-17. Scenario/generator, worker and UI integration follow R26-18/19/20.
+admission and preliminary special winners through R26-09; special attribution,
+TAA proportional allocation and entitlement summaries through R26-10. Joint
+bonus and ordinary allocation remain R26-11 onward, multiple-election precedence
+R26-16 and initial recovery R26-17. Composition, scenario/generator, worker and
+UI integration follow R26-18/19/20.
