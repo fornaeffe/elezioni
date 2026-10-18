@@ -154,8 +154,9 @@ historical election importers and remaining data preparation follow their consum
   I07 Senate recovery policy and approved R26-02/03/04 models: attributed list
   totals, historically informed synthetic preferences and paired chamber votes
   with common anchors and explicit chamber precedence. R26-05 contracts and
-  validation, R26-06 numerical primitives and R26-07 versioned geography/seat
-  tables are complete; continue with R26-08 electoral figures and rankings.
+  validation, R26-06 numerical primitives, R26-07 versioned geography/seat
+  tables and R26-08 electoral figures/rankings are complete; continue with
+  R26-09 admission.
   Acquire/reconcile Senate history and fit/validate the approved models before
   production integration under R26-19.
 - [ ] Keep completed politics and regional vertical slices green while shared

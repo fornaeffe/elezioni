@@ -57,8 +57,8 @@ time and leave subsequent application features inactive.
 ## Checklist and dependencies
 
 The default order is below. R26-02/03/04 model choices, R26-05 contracts, R26-06
-numerical primitives and R26-07 geography/seat tables are complete; continue with
-R26-08 electoral figures and rankings. Model selection does not
+numerical primitives, R26-07 geography/seat tables and R26-08 electoral figures
+and rankings are complete; continue with R26-09 admission. Model selection does not
 imply fitted parameters, implemented generators or production acceptance.
 R26-05 through R26-18 can use constructed legal inputs independently of R26-19
 calibration and generation.
@@ -73,7 +73,7 @@ calibration and generation.
 | [x] | [R26-05](#r26-05-scrutiny-contracts) | Typed legal inputs, outputs, validation | 01-04 |
 | [x] | [R26-06](#r26-06-numerical-primitives) | Quotas, truncation, remainders, ties | 05 |
 | [x] | [R26-07](#r26-07-territories-and-seat-endowments) | Versioned geography and seat tables | 01, 05 |
-| [ ] | [R26-08](#r26-08-electoral-figures-and-rankings) | Vote attribution, totals, rankings | 05-07 |
+| [x] | [R26-08](#r26-08-electoral-figures-and-rankings) | Vote attribution, totals, rankings | 05-07 |
 | [ ] | [R26-09](#r26-09-admission) | Camera and Senato admission | 08 |
 | [ ] | [R26-10](#r26-10-special-territories) | Special elections and seat totals | 09 |
 | [ ] | [R26-11](#r26-11-joint-bonus-decision) | Joint bonus eligibility and reasons | 09 |
@@ -228,6 +228,11 @@ Tests: geographic coverage, unambiguous joins, chamber/territory seat totals,
 70/35 bonus totals, and consistent alternative college capacities.
 
 ### R26-08: Electoral figures and rankings
+
+Use the [implemented figures boundary](../web/src/lib/politics/reform-2026/README.md#electoral-figures-and-rankings-r26-08).
+Supply completed ordinary and special college list figures separately. Treat
+Camera TAA proportional figures as a view of the same territorial ballots;
+do not count its proportional row again. Raw special attribution remains R26-10.
 
 Translate Camera art. 77 and Senato art. 16 into functions including
 `distributeBonusOnlyVotes()`, `aggregateElectoralFigures()`, and

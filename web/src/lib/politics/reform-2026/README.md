@@ -164,6 +164,57 @@ truncation can change a seat; cap-stage orchestration and policy metadata remain
 R26-13/15. Zero-target groups must remain inactive before constructing their
 undefined quotas/indices.
 
+## Electoral figures and rankings (R26-08)
+
+`distributeBonusOnlyVotes(input, execution)` receives one ordinary plurinominal
+college's validated `OrdinaryVotes`, coalition membership, chamber, simulation ID
+and college ID. Component inputs use exact `q = directTotal / onlyVotes` for each
+subject, integer additions and descending remainders. Traces preserve quota,
+quotients, additions, remainders and I03 draws/warnings. Zero only-votes and a
+single linked list avoid division. Multiple linked lists with positive only-votes
+but no direct support return `non-computable: zero-direct-support`, without
+partial totals or draw consumption. `attributed` inputs return owned final totals
+with no allocations or draws; mixed variants are rejected. Attribution uses the
+original direct counts, never another subject's additions. Subjects and tied IDs
+are canonicalized independently of input-array ordering.
+
+`aggregateElectoralFigures(chamber, ordinaryFigures, specialFigures)` receives
+complete attributed list rows for every ordinary and special uninominal college.
+Pass successful N04 outputs as `ordinaryFigures`. For `specialFigures`, pass
+supplied final special list totals, or the future N10 output; raw candidate-only
+inputs must first complete R26-10. Do not pass candidate totals or count them
+again. Missing/extra colleges and missing/duplicate/non-contesting list rows throw.
+These functions require already validated political/geographic references;
+they do not replace `validateReformScrutinyInput()` or compose scrutiny stages.
+
+Outputs contain college, constituency/territory, region and national figures,
+all-list valid totals and unfiltered coalition totals. `national` includes VdA
+and TAA for admission, first place and bonus eligibility; `ordinaryAllocation`
+excludes both special territories. There is no admission filter, so excluded
+votes remain in denominators and sub-1% members remain in coalition figures.
+Camera `taaProportional` contains views of the TAA territorial figures derived
+from its uninominal ballots. The envelope's TAA `ordinaryVotes` row is not an
+extra ballot contribution: never include it among `ordinaryFigures`. Its slate
+still supplies preferences. This avoids counting the same territorial ballots
+twice. Senate has no TAA proportional view.
+
+`rankPreferenceCandidates(slate, figures)` receives the college figures (the TAA
+constituency view for Camera TAA). It excludes the capolista and orders the other
+filed candidates by preference counts, then filed position, without a draw or
+availability filtering. Missing preferences return an explicit missing outcome;
+explicit zeros retain list order. List and individual percentages use **all valid
+votes** in that scope. `calculatePercentages(counts, validVotes)` returns exact
+fractions in percentage units, or `undefined: zero-valid-votes` under I04. A
+zero-vote election still has complete count aggregates, without defined shares.
+Unsafe integer counts or sums throw instead of losing precision.
+
+Own separate injected streams for attribution and downstream legal draws. The
+representation-equivalence fixture supplies identical candidate/preferences and
+final totals after a tied attribution; figures, rankings and downstream draw
+traces match exactly. This proves accounting equivalence, not empirical model
+calibration or absence of statistical bias. See [attribution.test.ts](attribution.test.ts),
+[figures.test.ts](figures.test.ts) and [rankings.test.ts](rankings.test.ts).
+
 ## Output and remaining stages
 
 `ReformScrutinyResult` is a **type contract**, with complete/partial/non-computable
@@ -188,6 +239,6 @@ and `chamberGeography()` return owned data without requiring downloaded archives
 optional `SeatTableSource.populationNotes` preserves user-facing reconstruction
 warnings in the existing schema version. Scenario/result integration must retain
 the referenced immutable artifact and display `seatTableMessages()` in R26-20.
-Attribution remains R26-08,
-special scrutiny R26-10 and initial recovery
+Ordinary attribution, figures and rankings are available through R26-08 above;
+admission remains R26-09, special scrutiny R26-10 and initial recovery
 R26-17. Scenario/generator, worker and UI integration follow R26-18/19/20.
