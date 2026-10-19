@@ -1,4 +1,4 @@
-# Reform scrutiny core (R26-05 through R26-13)
+# Reform scrutiny core (R26-05 through R26-14)
 
 Public API: [`index.ts`](index.ts). Legal requirements and later stage boundaries:
 [normative specification](../../../../../docs/politics-reform-2026-specification.md).
@@ -22,6 +22,7 @@ This folder is independent of the legacy politics contracts and algorithm regist
 | Allocate Camera national subjects/lists and apply the 220-seat cap | [camera-national.ts](camera-national.ts) |
 | Allocate Camera constituencies, coalition lists and colleges | [camera-territorial.ts](camera-territorial.ts) |
 | Inspect Camera matrix numerics and correction movements | [camera-territorial-matrix.ts](camera-territorial-matrix.ts) |
+| Allocate Senato regional subjects and apply the 113-seat cap | [senate-regional.ts](senate-regional.ts) |
 | Attribute special candidate-only votes | [special-attribution.ts](special-attribution.ts) |
 | Allocate Camera TAA proportional seats and provisional candidates | [taa-allocation.ts](taa-allocation.ts) |
 | Reuse special winners and summarize cap entitlements | [special-seats.ts](special-seats.ts) |
@@ -512,8 +513,73 @@ for stage communications, denominators, zero targets and blockers; and
 [camera-national.test.ts](camera-national.test.ts) for validated single/joint
 envelopes through N18. These functions establish ordinary entitlements only.
 Bonus seats remain owned by the national winning subject; candidate proclamations,
-multiple elections, exhaustion, Senate allocation and application integration
+multiple elections, exhaustion, Senate list/college allocation and application integration
 retain their subsequent plan steps.
+
+## Senato regional allocation (R26-14)
+
+`allocateSenateRegions()` consumes validated Senate geography/endowments and the
+same run's N06 figures, N08 admission, N10 special entitlements and N12 bonus
+decision. The N12 simulation ID is checked; N06/N08/N10 lack independent run IDs,
+so their pairing remains the caller's responsibility. Endowments must conserve
+196 domestic seats: 189 ordinary plus 7 special, or 154 ordinary plus 35 bonus
+plus 7 special. The ordinary reduction must match each region's bonus capacity.
+Seat-table provenance remains owned output metadata; census tables retain I08's
+provisional label.
+
+N19 allocates each ordinary region independently, using its integer quota,
+remainders, regional electoral figures and statutory draws. Coalition figures
+include every linked list, including excluded internal members. Special votes
+never enter these regional allocations. National subject totals are sums of
+regional allocations, with provisional and final totals exposed separately.
+Coalition-to-list and college allocation remain N21/N22 under R26-15.
+
+`applySenateCap()` is independently callable with completed N19 regional
+allocations, the bonus subject, its special entitlement count and simulation ID.
+It does not re-emit N19 events. Exactly 113 domestic seats need no correction;
+above that, the ordinary target is `78 - specialSeats`, retaining all 35 bonus
+seats. Cap checking uses entitlements even when candidate identities are missing.
+No bonus means no cap check or correction.
+
+The cap result exposes an ascending national ranking of the winner's **raw vote
+remainders** that supplied seats. Decimal quotient parts are not comparable
+across different regional quotas. Equal values share a rank; canonical array
+order only serializes them. I03 resolves their legal order when a removal needs
+it, so an unchanged allocation consumes no unnecessary tie draws.
+
+N20 first removes each ranked used remainder at most once. The first percentage
+pass excludes those regions and protects regions with only one majority seat.
+S16-bis(1-ter)(a)'s sixth sentence repeats only the third and fourth sentences
+(percentage ranking and one seat per region), not the fifth sentence's initial
+exclusions. It supplies a current-last-seat exclusion instead. Thus further
+passes readmit remainder-phase regions while protecting every final seat.
+Each pass removes at most one seat per region, ranking the winner's exact
+percentage against **all** valid regional votes, including excluded lists. The
+one-seat protection belongs to percentage passes: a sole used remainder seat
+can be removed in the preceding remainder phase.
+
+Each removal is paired with a reassignment in the same region. A recipient's
+largest unused remainder is consumed once; after unused minority remainders
+run out, regional votes determine recipients. Missing terminal tie-breaks use
+warned I03 draws, including equal removal ranks, equal percentages, equal unused
+recipient remainders and equal fallback vote totals. Do not import N19's express
+secondary vote criterion into these different correction decisions.
+
+Cap corrections record `{ id: 'I06', version: 'I06-v1' }`, exact ranks,
+percentage-pass numbers, donor/recipient seats and remainder states before and
+after each movement, tie resolutions, draws and warnings. A donated used
+remainder becomes `consumed`; an unused recipient remainder becomes `used`.
+Regional endowments are preserved after every paired movement. No eligible
+recipient or no lawful removal progress returns an explicit non-computable
+result, retaining provisional allocations and attempted movements without final
+targets. Missing prerequisite stages block before allocation draws; arithmetic
+failures retain the affected region and quota trace.
+
+See [senate-regional.test.ts](senate-regional.test.ts) for hand-worked cap paths,
+repeated passes, single-use states, tie criteria, seeded replay/permutations,
+failure paths, the bundled endowment and validated single/joint envelopes
+through N19/N20. These stages establish subject entitlements; bonus candidates,
+internal list targets and candidate recovery retain their later boundaries.
 
 ## Output and remaining stages
 
@@ -542,8 +608,9 @@ the referenced immutable artifact and display `seatTableMessages()` in R26-20.
 Ordinary attribution, figures and rankings are available through R26-08 above;
 admission and preliminary special winners through R26-09; special attribution,
 TAA proportional allocation and entitlement summaries through R26-10; the paired
-bonus decision through R26-11, Camera national allocation/cap through R26-12 and
-ordinary Camera territorial allocation through R26-13. Senate allocations remain
-R26-14/15, multiple-election precedence
+bonus decision through R26-11, Camera national allocation/cap through R26-12,
+ordinary Camera territorial allocation through R26-13 and Senate regional
+allocation/cap through R26-14. Senate list/college allocation remains R26-15,
+multiple-election precedence
 R26-16 and initial recovery R26-17. Composition, scenario/generator, worker and
 UI integration follow R26-18/19/20.

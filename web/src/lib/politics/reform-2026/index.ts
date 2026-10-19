@@ -14,6 +14,7 @@ export * from './admission';
 export * from './bonus';
 export * from './camera-national';
 export * from './camera-territorial';
+export * from './senate-regional';
 export * from './geography';
 export * from './endowments';
 export * from './population';

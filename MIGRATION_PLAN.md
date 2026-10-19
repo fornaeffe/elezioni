@@ -157,8 +157,9 @@ historical election importers and remaining data preparation follow their consum
   validation, R26-06 numerical primitives, R26-07 versioned geography/seat
   tables, R26-08 electoral figures/rankings, R26-09 admission/preliminary
   special winners, R26-10 special territories, R26-11 joint bonus decision and
-  R26-12 Camera national allocation/cap and R26-13 Camera territorial allocation
-  are complete; continue with R26-14 Senato regional allocation.
+  R26-12 Camera national allocation/cap, R26-13 Camera territorial allocation and
+  R26-14 Senato regional allocation/cap are complete; continue with R26-15 Senato
+  list and college allocation.
   Acquire/reconcile Senate history and fit/validate the approved models before
   production integration under R26-19.
 - [ ] Keep completed politics and regional vertical slices green while shared
