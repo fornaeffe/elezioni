@@ -20,6 +20,9 @@ time and leave subsequent application features inactive.
 - For completed work, decisions, verification, and limitations, use
   [`migration-history.md`](migration-history.md). Keep this plan directive-only.
 - Stable repository instructions remain in [`../AGENTS.md`](../AGENTS.md).
+- For the GitHub Actions/Pages target and final all-election publication gate,
+  use [`../MIGRATION_PLAN.md`](../MIGRATION_PLAN.md#plan). R26 application
+  acceptance does not itself publish the site or complete the whole migration.
 
 ## Architecture and completion rules
 
@@ -409,7 +412,8 @@ into future vacancies or supplementary elections beyond the agreed scope.
 Compose `runPoliticsReformScrutiny()` from tested stages. Introduce the common
 simulation-level execution boundary and register `politiche-reform-2026-v1`
 alongside the legacy adapter. Keep a complete direct-input execution path before
-activating production generation or the UI selector.
+activating production generation or the UI selector. Keep composition and the
+registry browser-worker compatible, without Node or server-runtime dependencies.
 
 Tests: independently verified complete fixtures for all bonus/cap branches,
 special territories, replacements, paired simulation identity, deterministic
@@ -444,6 +448,12 @@ explicitly label joint covariance/contrast assumptions; preserve marginal
 uncertainty rather than adding unbudgeted chamber noise. Implement common-anchor
 derivation, per-chamber precedence and geographic specificity with traces.
 
+Deliver this step's historical acquisition/import and model fitting through
+shared non-interactive Node/TypeScript preparation commands, following the
+[Actions delivery contract](../data/README.md#github-actions-delivery-contract).
+Produce versioned static model/data bundles and matching defaults/catalogs from
+a clean clone; keep fitting and source downloads out of browser execution.
+
 Tests: each decision's algebraic, statistical, and sensitivity protocol; valid
 candidacies and preferences; chamber-specific geographic aggregation; scenario
 round trips; stream isolation; and a production-data vertical slice. Any
@@ -455,6 +465,12 @@ Dispatch paired chambers per simulation with consistent global IDs, progress,
 existing chunking, and the 1000-run limit. Expose the two real algorithms in a
 selector only when both work end to end. Make the default and old saved-file
 behavior explicit; do not silently reinterpret a legacy run as the reform.
+
+Use configurable project-base URLs for navigation and worker/data assets so the
+static app works under `/elezioni/` as well as at the development root. Load
+versioned production bundles with verified compressed/chunked decoding where
+needed. Missing production inputs must fail explicitly rather than use debug
+fixtures. Keep these contracts reusable by regional and municipal workflows.
 
 Update typed presentation helpers and derive charts from their tables. Include
 bonus eligibility/reasons, bonus seats, cap effects, special seats, model
@@ -484,11 +500,19 @@ requested feature; selecting the alternative is sufficient for this plan.
 ### R26-21: Acceptance and performance
 
 Run focused tests during each step. At application completion run, from `web/`,
-`npm run check`, `npm run test`, `npm run build`, then `npm run test:e2e`.
+`npm run check:data`, `npm run check`, `npm run test`, `npm run build`, then
+`npm run test:e2e`.
 Build and e2e must run sequentially. Verify both politics algorithms and the
 completed regional workflow, including required generated-artifact availability.
 Small reform law fixtures must run without the large ignored artifacts; clearly
 identify skips in tests which genuinely depend on those artifacts.
+
+For application acceptance, generate all required production inputs and run
+their dependent checks without skips. Exercise static project-base navigation,
+direct page loads/refreshes and worker/data loading. Whole-migration hosted-runner
+feasibility, deployment and public-site verification remain the final
+[publication gate](../MIGRATION_PLAN.md#plan), after the municipal and remaining
+data-preparation migration; R26-21 does not enable deployment.
 
 Benchmark 10, 100, and 1000 simulations with data/model/algorithm versions,
 seed, environment, elapsed times, and peak memory where measurable. Separate

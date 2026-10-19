@@ -34,7 +34,9 @@ to stable instructions that apply across migration steps.
   warning-producing simulation 4.
 - Large generated politics and regional JSON artifacts are intentionally
   untracked. Regenerate them from the scripts when needed, and make dependent
-  tests skip clearly when they are absent.
+  development tests skip clearly when they are absent. Release acceptance must
+  require every production bundle and its dependent checks; missing data is a
+  failure, not an accepted skip or a debug-data fallback.
 - Do not edit generated defaults by hand. After regenerating a static snapshot,
   run its corresponding scenario-default and catalog generators.
 - New preparation sources belong in `data/sources/`, derived artifacts in
@@ -50,6 +52,10 @@ to stable instructions that apply across migration steps.
 - Keep the browser as the primary target. Use a static SvelteKit app, browser workers,
   deterministic seeded RNG, chunking, and columnar or typed-array structures
   where scale requires them.
+- Target GitHub Pages hosting with GitHub Actions for Node/TypeScript data
+  preparation, validation and static builds. Keep navigation, worker and data
+  URLs compatible with a configurable project base path. Use the final
+  publication gate in `MIGRATION_PLAN.md` before enabling public deployment.
 - Keep the legal scrutiny core separate from UI components and worker
   orchestration. Keep algorithms modular and selectable through stable
   registries, even while only one implementation exists.

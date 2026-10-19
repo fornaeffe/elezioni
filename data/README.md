@@ -5,6 +5,29 @@ importers and R26-19 statistical calibration are separate future consumers.
 `dati/` remains the legacy R data directory; remove it only after the whole
 data-preparation migration is complete and its consumers have migrated.
 
+## GitHub Actions delivery contract
+
+The whole migration targets Node/TypeScript preparation in GitHub Actions and
+static hosting on GitHub Pages. The commands below currently cover only
+geography/census and seat tables; they do not regenerate every production
+politics/regional snapshot or the future historical/model inputs.
+
+As remaining importers and calibration migrate, expose non-interactive commands
+reusable locally and on a standard Linux runner. A clean clone must acquire
+pinned sources, verify checksums and reproduce all required versioned bundles,
+fitted profiles, defaults and catalogs without legacy R caches, manual exports
+or local-only files. Preserve source/method provenance and deterministic seeds.
+Cache by manifest and preparation/model versions; a cache miss must remain
+supported. Changed upstream bytes require a reviewed manifest update.
+
+Validate required production data before building and running release checks;
+missing bundles or skipped required checks must fail release. Ship only runtime
+assets, with versioned paths and verified compressed/chunked loading where
+needed; exclude raw archives, preparation audits and debug fixtures. Artifact
+publication below writes a local source artifact, not a public website. Website
+publication and measured free-tier reassessment belong to the
+[final migration gate](../MIGRATION_PLAN.md#plan).
+
 ## Regenerate in another clone
 
 Requires Node 24 and npm; R and Python are not runtime dependencies. From `web/`:

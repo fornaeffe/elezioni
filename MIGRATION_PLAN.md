@@ -11,6 +11,11 @@ and scrutiny running in browser workers. Migrate `politiche` first, then
 Emilia-Romagna regional elections, then municipal elections. Shared source
 acquisition and geography/census preparation migrate with reform R26-07;
 historical election importers and remaining data preparation follow their consumers.
+The desired hosting target for the whole migration is GitHub Actions plus
+GitHub Pages on GitHub Free: Actions prepares data and builds the static site;
+simulation and scrutiny remain in the browser. Reassess the completed workload
+at the final publication gate below. Luca merges the completed migration branch
+into `main`; public deployment follows that merge and a successful hosting gate.
 
 ## Working principles
 
@@ -29,8 +34,10 @@ historical election importers and remaining data preparation follow their consum
   resolution, and municipal ballot/runoff handling.
 - Use the Node/TypeScript acquisition and geography/census foundation in
   [`data/README.md`](data/README.md). Migrate remaining historical importers as
-  their simulator/model inputs are implemented. Keep preparation a periodic,
-  election-kind-agnostic devops or GitHub Actions pipeline producing static bundles.
+  their simulator/model inputs are implemented. Keep all preparation a
+  non-interactive Node/TypeScript pipeline, reusable locally and in GitHub
+  Actions, producing versioned static bundles across election kinds. See the
+  [preparation delivery contract](data/README.md#github-actions-delivery-contract).
 
 ## Scenario Semantics
 
@@ -183,15 +190,34 @@ historical election importers and remaining data preparation follow their consum
   gaps explicit for later business and legal review.
 - [ ] Generalize routing, snapshot selection, scenario defaults, validation,
   worker dispatch, result components, and shared UI patterns across election
-  kinds.
+  kinds. Preserve configurable project-base navigation and worker/data loading
+  for GitHub Pages, including direct page loads and refreshes.
 - [ ] Finish data-preparation migration on the shared R26-07 acquisition,
   geography and census foundation. Migrate historical election importers and
   static previous-election bundles; use R26-19 for required paired Senate history
-  and calibration. Remove legacy `dati/` only after the whole data-preparation
-  migration is complete and its consumers have migrated.
+  and calibration. Deliver all production bundles/defaults from a clean clone
+  through the Node/TypeScript pipeline, with cache misses supported and required
+  data checks blocking release. Remove legacy `dati/` only after the whole
+  data-preparation migration is complete and its consumers have migrated.
 - [ ] Retire temporary bridge artifacts and update user and developer
   documentation when migrated workflows no longer depend on R-exported
   intermediary snapshots.
+- [ ] **Final hosting reassessment and publication.** After all preceding
+  implementation and acceptance work, reassess GitHub Actions plus GitHub Pages
+  against current GitHub Free eligibility, runner time/RAM/disk, artifact/cache
+  retention, site size, bandwidth and deployment limits. Measure the complete
+  cold-cache Node preparation/check/build pipeline on a standard hosted Linux
+  runner, warm-cache replay, and actual production payload/transfer sizes across
+  every migrated election kind. Validate project-base routes, direct loads,
+  refreshes, workers, required bundles, simulation and exports. If feasible,
+  implement/verify the preparation, validation, build and Pages deployment
+  workflow with bounded retention and production-only output; keep public
+  deployment disabled until Luca merges the migration branch into `main`.
+  Then publish the passing `main` revision, smoke-test the public site and
+  record the URL, commit, data versions, measurements and outcome in history.
+  Leave this step open until publication and deployed checks succeed. If the
+  target fails, record the concrete blocker and reassess free alternatives
+  before selecting a replacement; do not mark hosting or migration complete.
 
 ## After completion of the web migration
 
