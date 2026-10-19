@@ -1,7 +1,10 @@
 import { runPoliticsScrutiny } from './scrutiny';
 import type { PoliticsScrutinyContext, PoliticsScrutinyInput, PoliticsScrutinyOutput } from './types';
+import { REFORM_ALGORITHM_ID } from './reform-2026/input';
+import { PoliticsAlgorithmUnavailableError, legacyPoliticsScrutinyAlgorithmId } from './simulation-scrutiny';
+export * from './simulation-scrutiny';
 
-export const defaultPoliticsScrutinyAlgorithmId = 'politiche-r-parity-v1';
+export const defaultPoliticsScrutinyAlgorithmId = legacyPoliticsScrutinyAlgorithmId;
 
 export interface PoliticsScrutinyAlgorithm {
   id: string;
@@ -17,7 +20,7 @@ export interface PoliticsScrutinyAlgorithmResolution {
   fallback: boolean;
 }
 
-export const politicsScrutinyAlgorithms: readonly PoliticsScrutinyAlgorithm[] = [
+const legacyAlgorithms: readonly PoliticsScrutinyAlgorithm[] = [
   {
     id: defaultPoliticsScrutinyAlgorithmId,
     name: 'R parity',
@@ -28,10 +31,13 @@ export const politicsScrutinyAlgorithms: readonly PoliticsScrutinyAlgorithm[] = 
   }
 ];
 
-const politicsScrutinyAlgorithmById = new Map(politicsScrutinyAlgorithms.map((algorithm) => [algorithm.id, algorithm]));
+const politicsScrutinyAlgorithmById = new Map(legacyAlgorithms.map((algorithm) => [algorithm.id, algorithm]));
 
 export function resolvePoliticsScrutinyAlgorithm(requestedId?: string): PoliticsScrutinyAlgorithmResolution {
   const normalizedId = requestedId?.trim() || defaultPoliticsScrutinyAlgorithmId;
+  // This compatibility resolver serves the legacy generator/worker only.
+  // A known reform request must never execute the old law through fallback.
+  if (normalizedId === REFORM_ALGORITHM_ID) throw new PoliticsAlgorithmUnavailableError(normalizedId, 'production-unavailable');
   const algorithm = politicsScrutinyAlgorithmById.get(normalizedId);
 
   if (algorithm) {

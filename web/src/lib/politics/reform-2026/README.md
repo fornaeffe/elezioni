@@ -1,8 +1,9 @@
-# Reform scrutiny core (R26-05 through R26-17)
+# Reform scrutiny core (R26-05 through R26-18)
 
 Public API: [`index.ts`](index.ts). Legal requirements and later stage boundaries:
 [normative specification](../../../../../docs/politics-reform-2026-specification.md).
-This folder is independent of the legacy politics contracts and algorithm registry.
+This folder is independent of legacy politics contracts. The common
+[simulation registry](../simulation-scrutiny.ts) adapts both legal implementations.
 
 | Task | File |
 | --- | --- |
@@ -29,6 +30,8 @@ This folder is independent of the legacy politics contracts and algorithm regist
 | Reuse special winners and summarize cap entitlements | [special-seats.ts](special-seats.ts) |
 | Proclaim candidates and resolve multiple elections | [proclamations.ts](proclamations.ts), [multiple-elections.ts](multiple-elections.ts) |
 | Recover initially exhausted/released seats and bonus shortages | [recovery.ts](recovery.ts) |
+| Execute a complete direct-input simulation | [scrutiny.ts](scrutiny.ts) |
+| Assemble final allocation evidence for recovery | [recovery-communications.ts](recovery-communications.ts) |
 | Validate unknown input | [validation.ts](validation.ts) |
 | Inspect accepted structure and scalar domains | [shape.ts](shape.ts) |
 | Check political references and seat accounting | [validation-context.ts](validation-context.ts) |
@@ -38,9 +41,9 @@ This folder is independent of the legacy politics contracts and algorithm regist
 
 ## Input boundary
 
-`ReformScrutinyInput` uses `schemaVersion: 1` and the reserved algorithm ID
-`politiche-reform-2026-v1`. These identify this legal envelope, not an installed
-scenario schema or an executable registered algorithm. No old file is migrated.
+`ReformScrutinyInput` uses `schemaVersion: 1` and the registered algorithm ID
+`politiche-reform-2026-v1`. This direct legal envelope remains separate from
+scenario schemas and production generation. No old file is migrated.
 
 ```ts
 import { validateReformScrutinyInput } from '$lib/politics/reform-2026';
@@ -774,9 +777,95 @@ joint-envelope tests in [proclamations.test.ts](proclamations.test.ts) extend
 through recovery, preserving 392/196 entitlements and 70/35 bonus members while
 reporting their deliberately oversized colleges' exhausted residue.
 
-## Output and remaining stages
+## Composition and registry (R26-18)
 
-`ReformScrutinyResult` is a **type contract**, with complete/partial/non-computable
+```ts
+import { runPoliticsReformScrutiny } from '$lib/politics/reform-2026';
+import { runPoliticsSimulation } from '$lib/politics/scrutiny-algorithms';
+
+const result = runPoliticsReformScrutiny(decoded); // validates unknown input
+const wrapped = runPoliticsSimulation({
+  algorithmId: decoded.algorithmId,
+  simulationId: decoded.simulationId,
+  input: decoded // typed ReformScrutinyInput
+});
+```
+
+`runPoliticsReformScrutiny()` validates the entire envelope before any draw and
+throws `ReformScrutinyInputError` with structured validation issues on invalid
+input. One invocation derives every communication from the same owned simulation,
+including both chambers before N12. It composes N01-N27 into N28, preserving the
+special winners once, attribution once, ordinary versus national figures, separate
+allocation paths, proclamations, multiple elections and terminal initial recovery.
+No statistical generation occurs. It accepts supplied or generated provenance
+already present in valid inputs, without fitting models or importing scenarios.
+
+The optional second argument is an injected `ScrutinyExecutionContext`. Otherwise
+the runner creates a private stream from the input seed and the JSON tuple
+`[streamVersion, algorithmId, simulationId]`. Replay needs that metadata and the
+same direct input. Custom resolvers remain responsible for their stream state.
+Draws and warnings are collected from their owning stages once. I03 and I07
+warnings, policy versions, population notes and input provenance survive composition.
+
+`ComposedReformScrutinyResult` implements the transferable `ReformScrutinyResult`
+contract and adds `randomness`, the complete joint `bonus` decision, and per-chamber
+`chambers` communications with figures, rankings, admissions, special results,
+allocations, provisional proclamations, N24 decisions and final recovery results.
+These preserve exact quotients, group-index operations, national cap arithmetic,
+matrix movements and recovery remainder evidence without flattening away their
+legal scope. `transfers` summarizes located matrix/Senate-cap movements; its IDs
+identify allocation movements before candidate seat identities exist. National
+Camera cap arithmetic and temporary majority/minority group movements remain in
+their original allocation communications. Coalition bonus affiliations are in
+the retained `CandidateElection` records, separate from coalition entitlements.
+
+Top-level `seats` is the final entitlement ledger after recovery. Complete results
+account for 392/196 domestic seats and globally unique filled candidates. Missing
+preferences, unavailable candidates, exhausted routes and undefined priorities
+remain explicit partial results. Arithmetic/attribution failures remain
+non-computable, with known special seats and attempted communications retained;
+they never publish fabricated full national totals. Intermediate partial candidate
+batches may become complete after recovery. Conditions describe supplied/generated
+preferences, unknown ballot composition, provisional census tables and modelled
+chamber votes independently of terminal success.
+
+Recovery admission includes all admitted lists in each territory, even at zero
+seat targets, plus applicable local TAA exceptions. The adapter copies final
+list/subject matrix decimals, Senate cap states, regional coalition-list quotas
+and TAA quotas, preserving source IDs and explicit null values. It never treats
+cap majority/minority indices as coalition quotients or recomputes a vote ratio.
+Some upstream stages do not calculate a college/coalition quotient or a
+single-college quotient. If a recovery actually needs unavailable evidence, it
+returns `missing-recovery-remainder`; this is an explicit output limitation.
+Resolving that case requires a reviewed legal source quotient, not an adapter
+guess or an automatic redistribution. Focused R26-17 inputs can still supply
+their independently established recovery communications directly.
+
+The common `runPoliticsSimulation()` request is discriminated by algorithm ID.
+Reform requests contain the full envelope and matching global `simulationId`;
+legacy requests contain one or two `{ input, context }` chamber communications.
+The adapter checks supplied legacy `SIM` tags and calls the unchanged scrutiny
+implementation. Both return the actual algorithm and simulation identity.
+`politicsScrutinyAlgorithms` describes both real algorithms with a common
+`execute()` method; `resolvePoliticsSimulationAlgorithm(id, mode)` rejects unknown
+IDs and rejects reform in `production` mode while R26-19/20 are pending.
+
+The older `resolvePoliticsScrutinyAlgorithm()` remains a compatibility adapter for
+the current legacy generator/worker. It retains the legacy default and its
+explicitly reported unknown-ID fallback, but rejects the known reform ID as
+`production-unavailable`. Its `.run()` contract is intentionally legacy-only.
+The new common direct-input resolver never falls back. No UI selector, saved-file
+conversion or production reform worker dispatch is activated here.
+
+Verification entry points: [scrutiny.test.ts](scrutiny.test.ts) contains independently
+worked full elections and recovery/failure cases; [simulation-scrutiny.test.ts](../simulation-scrutiny.test.ts)
+covers registry rejection and the ten paired legacy golden cases;
+[reform-core.spec.ts](../../../../tests/e2e/reform-core.spec.ts) executes the common
+registry in a real browser module worker without production activation.
+
+## Output and remaining integration
+
+`ReformScrutinyResult` is the composed result contract, with complete/partial/non-computable
 status, stage status, admission/bonus reasons, conditions on candidate conclusions,
 source metadata, policy versions, warnings and separate seat categories. Seat
 ledgers preserve original entitlement and actual election location. Allocation
@@ -805,5 +894,5 @@ bonus decision through R26-11, Camera national allocation/cap through R26-12,
 ordinary Camera territorial allocation through R26-13, Senate regional
 allocation/cap through R26-14, Senate list/college allocation through R26-15,
 initial proclamations/multiple-election precedence through R26-16, and initial
-exhaustion/recovery through R26-17. Composition, scenario/generator, worker and
-UI integration follow R26-18/19/20.
+exhaustion/recovery through R26-17 and composition/registration through R26-18.
+Scenario/generator and production worker/UI integration follow R26-19/20.

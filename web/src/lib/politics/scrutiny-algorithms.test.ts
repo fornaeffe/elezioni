@@ -23,7 +23,7 @@ describe('politics scrutiny algorithm registry', () => {
 
     expect(resolution.algorithm.id).toBe(defaultPoliticsScrutinyAlgorithmId);
     expect(resolution.fallback).toBe(false);
-    expect(politicsScrutinyAlgorithms.map((algorithm) => algorithm.id)).toEqual([defaultPoliticsScrutinyAlgorithmId]);
+    expect(politicsScrutinyAlgorithms.map((algorithm) => algorithm.id)).toEqual([defaultPoliticsScrutinyAlgorithmId, 'politiche-reform-2026-v1']);
   });
 
   test('falls back to the default algorithm for an unknown requested id', () => {

@@ -95,6 +95,11 @@ export function validateEndowments(c: ChamberContext): void {
     if (!d.colleges.some(x => x.territoryId === t.id)) v.add('INVALID_ENDOWMENT', p, `Territory ${t.id} has no colleges.`);
   }
   if (d.chamber === 'senato') v.index(d.territories, t => t.regionId, `${p}.territories.regionId`);
+  // C93-septies(2): one constituency-level TAA proportional allocation.
+  // Composition must not choose an arbitrary first row or count two copies.
+  if (d.chamber === 'camera' && d.colleges.filter(x => x.kind === 'taa-proportional').length !== 1) {
+    v.add('INVALID_ENDOWMENT', `${p}.colleges`, 'Camera requires exactly one TAA proportional college.', 'C93-septies(2)');
+  }
   for (const college of d.colleges) {
     const t = v.reference(c.territories, college.territoryId, `${p}.colleges.${college.id}.territoryId`);
     if (!t) continue;

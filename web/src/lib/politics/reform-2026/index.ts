@@ -19,6 +19,8 @@ export * from './senate-territorial';
 export * from './proclamations';
 export * from './multiple-elections';
 export * from './recovery';
+export * from './scrutiny';
+export * from './recovery-communications';
 export * from './geography';
 export * from './endowments';
 export * from './population';

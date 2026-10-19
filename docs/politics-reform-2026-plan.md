@@ -65,8 +65,8 @@ and rankings, R26-09 admission/preliminary special winners, R26-10 special
 territories, R26-11 joint bonus decision, R26-12 Camera national allocation,
 R26-13 Camera territorial allocation, R26-14 Senato regional allocation/cap and
 R26-15 Senato list and college allocation, R26-16 proclamations and multiple
-elections and R26-17 exhaustion and replacements are complete; continue with
-R26-18 composition and registry. Model
+elections, R26-17 exhaustion and replacements and R26-18 composition and registry
+are complete; continue with R26-19 scenarios and generation. Model
 selection does not
 imply fitted parameters, implemented generators or production acceptance.
 R26-05 through R26-18 can use constructed legal inputs independently of R26-19
@@ -92,7 +92,7 @@ calibration and generation.
 | [x] | [R26-15](#r26-15-senato-list-and-college-allocation) | Senato lists and colleges | 14 |
 | [x] | [R26-16](#r26-16-proclamations-and-multiple-elections) | Candidate proclamations and precedence | 10, 13, 15 |
 | [x] | [R26-17](#r26-17-exhaustion-and-replacements) | Exhaustion, replacements, bonus shortfalls | 01a, 16 |
-| [ ] | [R26-18](#r26-18-composition-and-registry) | Composed scrutiny and algorithm registration | 06-17 |
+| [x] | [R26-18](#r26-18-composition-and-registry) | Composed scrutiny and algorithm registration | 06-17 |
 | [ ] | [R26-19](#r26-19-scenarios-and-generation) | Scenario compatibility and generators | 02-04 resolved, 07, 18 |
 | [ ] | [R26-20](#r26-20-worker-results-and-ui) | Worker, selector, results, exports | 19 |
 | [ ] | [R26-21](#r26-21-acceptance-and-performance) | Application and performance acceptance | 20 |
@@ -408,6 +408,12 @@ recomputing the ordinary allocation to hide a geographic shift. Do not extend
 into future vacancies or supplementary elections beyond the agreed scope.
 
 ### R26-18: Composition and registry
+
+Use the [implemented composition boundary](../web/src/lib/politics/reform-2026/README.md#composition-and-registry-r26-18)
+for direct execution, the common registry, production availability and recovery
+evidence limitations. Preserve explicit `missing-recovery-remainder` outputs when
+an upstream stage has no applicable quotient; extend that source stage only with
+reviewed legal support, never a fabricated adapter ratio.
 
 Compose `runPoliticsReformScrutiny()` from tested stages. Introduce the common
 simulation-level execution boundary and register `politiche-reform-2026-v1`
