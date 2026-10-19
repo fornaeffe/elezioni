@@ -390,6 +390,7 @@ source list order remains material for preference ties.
 | N24 repeated capolista/non-capolista wins | Lowest list/highest individual percentage respectively | Equal percentages: provisional warned seeded draw under I03 |
 | N25 C84 recovery decimals | None | Draw expressly required by C84(8), also when imported by S17-bis |
 | N26 bonus recovery list remainders / best college percentage | As specified in C86(1) | I03: provisional warned seeded draw |
+| N24 ordinary candidates simultaneously proposed for multiple bonus replacement seats | Bonus precedence over ordinary; no final bonus-seat comparison is supplied | I03: warned seeded draw, restricted to N25-N27 recovery metadata; filed multiple bonus candidatures remain invalid |
 
 ## Interpretation register
 

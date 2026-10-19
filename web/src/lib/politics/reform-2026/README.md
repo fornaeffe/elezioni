@@ -1,4 +1,4 @@
-# Reform scrutiny core (R26-05 through R26-14)
+# Reform scrutiny core (R26-05 through R26-17)
 
 Public API: [`index.ts`](index.ts). Legal requirements and later stage boundaries:
 [normative specification](../../../../../docs/politics-reform-2026-specification.md).
@@ -27,6 +27,8 @@ This folder is independent of the legacy politics contracts and algorithm regist
 | Attribute special candidate-only votes | [special-attribution.ts](special-attribution.ts) |
 | Allocate Camera TAA proportional seats and provisional candidates | [taa-allocation.ts](taa-allocation.ts) |
 | Reuse special winners and summarize cap entitlements | [special-seats.ts](special-seats.ts) |
+| Proclaim candidates and resolve multiple elections | [proclamations.ts](proclamations.ts), [multiple-elections.ts](multiple-elections.ts) |
+| Recover initially exhausted/released seats and bonus shortages | [recovery.ts](recovery.ts) |
 | Validate unknown input | [validation.ts](validation.ts) |
 | Inspect accepted structure and scalar domains | [shape.ts](shape.ts) |
 | Check political references and seat accounting | [validation-context.ts](validation-context.ts) |
@@ -692,9 +694,85 @@ See [proclamations.test.ts](proclamations.test.ts) and
 [multiple-elections.test.ts](multiple-elections.test.ts) for worked precedence
 fixtures, exact ties, missing/zero preferences, ownership, replay and validated
 joint envelopes through N23/N24, including mixed-affiliation coalition slates.
-R26-17 must consume released and unresolved seats, preserve retained identities,
-and implement the ordered recovery routes. Repeated proclamation/recovery and
-its progress condition are not implemented by this initial-batch boundary.
+The [R26-17 stage below](#initial-exhaustion-and-replacements-r26-17) consumes this
+fresh N24 result and implements repeated recovery. N24 itself remains the
+single-batch precedence function.
+
+## Initial exhaustion and replacements (R26-17)
+
+`recoverInitialSeats(input, execution)` implements N25/N26/N27, including scoped
+composition with N24. It receives the validated chamber, candidate catalog,
+matching N06 figures, a fresh N24 result, territory/list admissions and final
+allocation remainder rows. It does not run the preceding legal stages or register
+an algorithm. Simulation pairing of figures and remainder communications remains
+the caller's responsibility, as N06 has no run ID.
+
+`eligibleLists` specifies admission in each territory, including local exceptions;
+filing a slate alone does not qualify a list. `RecoveryRemainder` identifies the
+source quotient by ID, territory, optional college and list/coalition subject,
+with its exact decimal or explicit null and its final allocation state. Supply
+college/list rows for C84(2)/(5), college/coalition rows for C84(5), territorial
+list rows for C84(4) and coalition bonus selection, and territorial subject rows
+for bonus/C84(7) recovery elsewhere. These are the applicable final quotients,
+not recomputed vote fractions. R26-18 must assemble these communications from
+the separate allocation stages, retaining their source IDs and final correction
+states. No adapter guesses a missing quotient or admits an excluded list.
+
+Camera ordinary recovery uses the original college, same-list local colleges,
+same-list other constituencies, coalition in the original college, other local
+coalition colleges, then coalition in other constituencies. C86(2) releases
+use only C84(2),(4),(5), so cannot reach C84(7). Senate ordinary recovery follows
+I07: regional list and coalition remedies, then residual same-list recovery in
+another region; it never imports C84(7). Bonus shortfalls separately follow
+C83/S16-bis(1-quinquies)/C86(1): local winning-subject member list by unused then
+used remainder, its best college list percentage, then candidate order; only
+after local exhaustion consider other territories by the winning subject's
+unused then used remainder. Coalition bonus entitlements retain `listId: null`
+and record the actual replacement's list separately.
+
+Recovery reads immutable allocation priorities. It does not consume or reset
+ordinary allocation decimals: `RecoveryTrace.remainders` records equal before
+and after states. A correction's `consumed` decimal belongs to the already-used
+tier, never the unused tier. The ranked destination can supply further candidates
+until its eligible filed candidates run out. This differs from allocating a new
+ordinary remainder seat or transferring an allocation matrix cell.
+
+Each round proposes first unelected available candidates, reserves each proposed
+person within its source slate, then applies N24 across the batch. Already
+retained people cannot be elected again. A shared person in different slates
+can cause a new release and another round. Released recovered seats search at
+their actual election location while preserving the original seat ID, category
+and entitlement. Successful rounds strictly increase retained identities;
+undefined comparisons freeze the affected seats, and unchanged states are not
+retried. A shared ordinary person proposed for multiple bonus replacement seats
+uses warned I03, since no final bonus-seat criterion is supplied. Such proposals
+carry `CandidateElection.source: 'ordinary-recovery'`; this does not relax the
+prohibition on filing a person in multiple bonus slates.
+
+Missing preferences block dependent candidate selection but do not hide proven
+exhaustion or a known head. Missing applicable remainders and undefined college
+percentages remain unresolved; explicit zeros retain their normal meaning.
+Unused remainders precede already-used alternatives, with statutory C84(8)
+draws for equal ordinary recovery decimals. Unspecified bonus ties use I03.
+Every proposed I07 cross-region recovery emits a warning, including a proposal
+subsequently released by N24. Upstream N24 warnings/draws are not re-emitted.
+
+Outputs contain owned, JSON-safe final seats/retained identities, proposal-round
+progress, N24 decisions, remainder evidence and recovery traces with candidate
+eligibility, legally ordered alternatives, choice and precedence draw IDs,
+original/actual locations, and retained/released/unresolved dispositions. A
+released proposal has `outcome: 'unfilled'`; later traces retain its replacement
+history. Exhausted permitted routes end explicitly unfilled; missing evidence
+ends unresolved. Status is complete only when all entitled seats are filled.
+No regional entitlement is recalculated to hide a geographic shift. Special
+uninominal seats and reasons outside initial recovery remain untouched; future
+vacancies and supplementary elections are outside this API.
+
+Use [recovery.test.ts](recovery.test.ts) for all six worked I07 cases, every
+recovery route, tie replay, shortages, exhaustion and repeated subentro. The
+joint-envelope tests in [proclamations.test.ts](proclamations.test.ts) extend
+through recovery, preserving 392/196 entitlements and 70/35 bonus members while
+reporting their deliberately oversized colleges' exhausted residue.
 
 ## Output and remaining stages
 
@@ -706,8 +784,8 @@ transfers and candidate recovery have separate traces; exact fraction strings
 and remainder state include consumption. `DrawRequest`/`DrawTrace` identify stage, alternatives,
 rule, context, stream and outcome; the injected execution dependency lives outside
 the transferable envelope. I03 draws and I07 cross-region recoveries must produce
-warnings when implemented. Output types do not themselves enforce those future
-execution rules or validate arbitrary result JSON.
+warnings through the implemented tie/recovery stages. Output types do not
+themselves validate arbitrary result JSON.
 
 R26-07 adds the versioned real geography and census-based provisional seat tables.
 For acquisition, generation, source/estimation limitations and official-table
@@ -726,6 +804,6 @@ TAA proportional allocation and entitlement summaries through R26-10; the paired
 bonus decision through R26-11, Camera national allocation/cap through R26-12,
 ordinary Camera territorial allocation through R26-13, Senate regional
 allocation/cap through R26-14, Senate list/college allocation through R26-15,
-and initial proclamations/multiple-election precedence through R26-16.
-Initial recovery remains R26-17. Composition, scenario/generator, worker and
+initial proclamations/multiple-election precedence through R26-16, and initial
+exhaustion/recovery through R26-17. Composition, scenario/generator, worker and
 UI integration follow R26-18/19/20.

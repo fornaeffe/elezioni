@@ -159,8 +159,8 @@ historical election importers and remaining data preparation follow their consum
   special winners, R26-10 special territories, R26-11 joint bonus decision and
   R26-12 Camera national allocation/cap, R26-13 Camera territorial allocation and
   R26-14 Senato regional allocation/cap, R26-15 Senato list and college
-  allocation and R26-16 proclamations and multiple elections are complete;
-  continue with R26-17 exhaustion and replacements.
+  allocation, R26-16 proclamations and multiple elections and R26-17 exhaustion
+  and replacements are complete; continue with R26-18 composition and registry.
   Acquire/reconcile Senate history and fit/validate the approved models before
   production integration under R26-19.
 - [ ] Keep completed politics and regional vertical slices green while shared

@@ -18,6 +18,7 @@ export * from './senate-regional';
 export * from './senate-territorial';
 export * from './proclamations';
 export * from './multiple-elections';
+export * from './recovery';
 export * from './geography';
 export * from './endowments';
 export * from './population';

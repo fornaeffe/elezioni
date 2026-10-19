@@ -3,7 +3,7 @@ import type { DrawTrace, ReformWarning, ScrutinyExecutionContext, SeatLedgerEntr
 import { resolveTie } from './ties';
 
 export type MultipleElectionReason = 'single-election' | 'special-uninominal-priority' | 'bonus-priority' |
-  'capolista-priority' | 'lowest-list-percentage' | 'highest-individual-percentage' | 'undefined-percentage';
+  'capolista-priority' | 'lowest-list-percentage' | 'highest-individual-percentage' | 'undefined-percentage' | 'multiple-bonus-recovery';
 export interface MultipleElectionDecision {
   readonly candidateId: string;
   readonly consideredSeatIds: readonly string[];
@@ -51,7 +51,8 @@ export function resolveMultipleElections(input: CandidateProclamations, executio
   for (const election of input.elections) groups.set(election.seat.candidateId, [...(groups.get(election.seat.candidateId) ?? []), election]);
   // Preflight all groups before consuming any draw.
   for (const wins of groups.values()) {
-    if (wins.filter(e => e.role === 'bonus').length > 1 || wins.filter(e => e.role === 'special-uninominal').length > 1 ||
+    const bonus = wins.filter(e => e.role === 'bonus');
+    if ((bonus.length > 1 && bonus.some(e => e.source !== 'ordinary-recovery')) || wins.filter(e => e.role === 'special-uninominal').length > 1 ||
         (wins.some(e => e.role === 'bonus') && wins.some(e => e.role === 'special-uninominal' || e.seat.category === 'taa-proportional'))) {
       throw new RangeError('Incompatible special/bonus multiple elections');
     }
@@ -68,12 +69,23 @@ export function resolveMultipleElections(input: CandidateProclamations, executio
       const bonus = wins.filter(e => e.role === 'bonus');
       const heads = wins.filter(e => e.role === 'capolista');
       if (special.length) { eligible = special; reason = 'special-uninominal-priority'; lawReference = chamber === 'camera' ? 'C93-octies(3)' : 'S20-bis(01)'; }
-      else if (bonus.length) { eligible = bonus; reason = 'bonus-priority'; lawReference = chamber === 'camera' ? 'C85(1-bis)' : 'S17-bis(3)/C85(1-bis)'; }
+      else if (bonus.length) { eligible = bonus; reason = bonus.length > 1 ? 'multiple-bonus-recovery' : 'bonus-priority'; lawReference = chamber === 'camera' ? 'C85(1-bis)' : 'S17-bis(3)/C85(1-bis)'; }
       else if (heads.length) { eligible = heads; reason = heads.length === 1 ? 'capolista-priority' : 'lowest-list-percentage'; }
       else reason = 'highest-individual-percentage';
     }
     let winner: CandidateElection | undefined = eligible.length === 1 ? eligible[0] : undefined;
     const contextIds: string[] = [];
+    // A filed bonus candidate cannot stand in two bonus slates. C83/C86
+    // recovery can nevertheless propose one ordinary person for two bonus
+    // entitlements. C85 supplies no preference between those seats: I03,
+    // without inventing a list/individual percentage criterion for the bonus.
+    if (!winner && reason === 'multiple-bonus-recovery') {
+      const resolved = resolveTie(eligible.map(e => ({ id: e.seat.seatId, values: [] })), [],
+        { simulationId, request: { contextId: JSON.stringify(['N24', chamber, simulationId, candidateId, 'bonus-recovery', eligible.map(e => e.seat.seatId)]),
+          chamber, norm: 'N24', rule: 'I03', lawReference } }, execution);
+      winner = eligible.find(e => e.seat.seatId === resolved.chosenId)!;
+      draws.push(...resolved.draws); warnings.push(...resolved.warnings); contextIds.push(...resolved.draws.map(d => d.contextId));
+    }
     if (!winner) {
       const head = eligible[0].role === 'capolista';
       const percentages = eligible.map(e => head ? e.listPercentage : e.individualPercentage);

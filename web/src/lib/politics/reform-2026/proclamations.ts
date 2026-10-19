@@ -12,6 +12,8 @@ export type FilledSeat = Extract<SeatLedgerEntry, { readonly status: 'filled' }>
 export interface CandidateElection {
   readonly seat: FilledSeat;
   readonly role: 'bonus' | 'special-uninominal' | 'capolista' | 'preference';
+  /** N25-N27 may elect an ordinary-slate candidate into a bonus entitlement. */
+  readonly source?: 'ordinary-recovery';
   /** Personal affiliation, separate from the entitlement of a coalition seat. */
   readonly affiliationListId: string | null;
   readonly listPercentage: Percentage | null;

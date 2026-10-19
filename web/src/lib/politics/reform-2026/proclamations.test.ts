@@ -15,6 +15,7 @@ import { allocateSenateListsAndColleges } from './senate-territorial';
 import { validateReformScrutinyInput } from './validation';
 import { createSeededDrawContext } from './ties';
 import { resolveMultipleElections } from './multiple-elections';
+import { recoverInitialSeats } from './recovery';
 import type { ScrutinyExecutionContext } from './result';
 
 const noDraw: ScrutinyExecutionContext = { draw() { throw new Error('Unexpected draw'); } };
@@ -180,6 +181,21 @@ describe('validated joint envelopes through N23/N24', () => {
       if (s.chamber.chamber === 'camera') expect(r.decisions.some(d => d.reason === 'special-uninominal-priority')).toBe(true);
       expect(new Set(r.retained.map(e => e.seat.candidateId)).size).toBe(r.retained.length);
       expect(r.seats.filter(e => e.category === 'special-uninominal')).toEqual(s.special.seats);
+      // R26-17 accepts the real N23/N24 ledger. These deliberately oversized
+      // one-territory colleges exhaust every permitted destination; therefore
+      // no fabricated quotient is needed to prove their exhausted endpoint.
+      if (ordinary.status !== 'complete') throw new Error();
+      const eligibleLists = [...new Map([
+        ...ordinary.targets.map(t => ({ territoryId: t.territoryId, listId: t.listId })),
+        ...(s.taa && s.taa.status !== 'non-computable' ? s.taa.listEntitlements.map(t => ({ territoryId: s.taa!.territoryId, listId: t.listId })) : [])
+      ].map(t => [JSON.stringify(t), t])).values()];
+      const recovered = recoverInitialSeats({ ...s, initial: r, eligibleLists, remainders: [] }, execution);
+      expect(recovered.seats.map(t => [t.seatId, t.category, t.entitlement])).toEqual(r.seats.map(t => [t.seatId, t.category, t.entitlement]));
+      expect(recovered.seats.filter(t => t.category === 'special-uninominal')).toEqual(s.special.seats);
+      expect(new Set(recovered.retained.map(e => e.seat.candidateId)).size).toBe(recovered.retained.length);
+      expect(recovered.seats.some(t => t.status === 'unfilled')).toBe(true);
+      expect(recovered.status).toBe('partial');
+      expect(recovered.retained.filter(e => e.role === 'bonus')).toHaveLength(s.chamber.chamber === 'camera' ? 70 : 35);
       if (s.taa?.status !== 'non-computable') expect(proclamations.seats.filter(e => e.category === 'taa-proportional')).toEqual(s.taa?.seats ?? []);
       const args = { ...s, ordinary, bonus };
       const unavailableId = proclamations.elections.find(e => e.role === 'bonus')!.seat.candidateId;
