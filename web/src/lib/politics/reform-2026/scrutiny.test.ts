@@ -177,18 +177,55 @@ describe('R26-18 complete direct-input composition', () => {
     expect(cross.every(t => r.seats.some(s => s.seatId === t.seatId && s.entitlement.territoryId === 'O'))).toBe(true);
     expect(new Set(cross.map(t => r.seats.find(s => s.seatId === t.seatId)!.category))).toEqual(new Set(['ordinary', 'bonus']));
   });
-  it('reports unavailable college-coalition recovery quotients instead of fabricating priorities', () => {
+  it('fills the formerly blocked coalition-college recovery using provisional I10 member evidence', () => {
     const input = coalitionScrutinyFixture();
     if (input.renewal.kind !== 'joint') throw new Error();
     const c = input.renewal.camera;
     const unavailable = new Set(c.ordinarySlates.filter(s => s.listId === 'A' || s.listId === 'C' && s.collegeId === 'P00').flatMap(s => s.candidateIds));
     for (const p of input.candidates) if (unavailable.has(p.id)) p.availability = { kind: 'unavailable', reason: 'post-filing shortage' };
     const r = runPoliticsReformScrutiny(input);
-    expect(r.status).toBe('partial'); expect(r.seats).toHaveLength(588);
-    expect(r.seats.some(s => s.status === 'unresolved' && s.reason === 'missing-recovery-remainder')).toBe(true);
+    expect(r.status).toBe('complete'); expect(r.seats).toHaveLength(588);
+    expect(r.seats.some(s => s.status !== 'filled')).toBe(false);
     const camera = r.chambers[0];
     expect(camera.recovery!.remainders.some(r => r.collegeId === 'P01' && r.subject.kind === 'coalition')).toBe(false);
-    expect(camera.recovery!.recoveries.some(t => t.rankings.some(r => r.chosenId === null && r.alternatives.some(a => a.remainder === null)))).toBe(true);
+    expect(camera.recovery!.recoveries.some(t => t.route === 'coalition-local-colleges' && t.interpretations.includes('I10'))).toBe(true);
+    expect(r.interpretations).toContainEqual({ id: 'I10', version: 'I10-v1' });
+    expect(r.warnings.some(w => w.interpretationId === 'I10')).toBe(true);
+  });
+  it.each([1, 2])('I11 excludes zero-territorial-entitlement recovery in both single and multiple colleges (%s colleges)', count => {
+    const input = completeScrutinyFixture(45, false);
+    if (input.renewal.kind !== 'joint') throw new Error();
+    const c = input.renewal.senato;
+    c.regions.push({ id: 'R', autonomous: false });
+    c.territories.find(t => t.id === 'O')!.bonusSeats -= count;
+    c.territories.push({ id: 'R', regionId: 'R', kind: 'ordinary', bonusSeats: count });
+    const collegeIds = new Set(['P31', ...(count === 2 ? ['P30'] : [])]);
+    for (const p of c.colleges) if (collegeIds.has(p.id)) p.territoryId = 'R';
+    c.bonusSlates = c.bonusSlates.flatMap(s => ['O', 'R'].map(territoryId => ({ ...s, territoryId,
+      candidates: s.candidates.filter(p => c.ordinarySlates.some(slate => slate.candidateIds.includes(p.candidateId) &&
+        c.colleges.find(college => college.id === slate.collegeId)!.territoryId === territoryId)) })));
+    for (const row of c.ordinaryVotes.filter(r => collegeIds.has(r.collegeId))) {
+      if (row.votes.kind !== 'attributed') throw new Error();
+      row.votes.listVotes = [{ listId: 'A', votes: 1 }, { listId: 'B', votes: 69999 }, { listId: 'C', votes: 30000 }];
+    }
+    for (const s of c.ordinarySlates.filter(s => collegeIds.has(s.collegeId) && s.listId === 'A')) {
+      if (s.preferences.kind === 'counts') for (const p of s.preferences.counts) p.count = 0;
+    }
+    const unavailable = new Set(c.ordinarySlates.filter(s => s.listId === 'A' && !collegeIds.has(s.collegeId)).flatMap(s => s.candidateIds));
+    for (const p of input.candidates) if (unavailable.has(p.id)) p.availability = { kind: 'unavailable', reason: 'post-filing shortage' };
+    const r = runPoliticsReformScrutiny(input), senate = r.chambers[1];
+    expect(r.status).toBe('partial'); // Exhausted permitted candidates; zero targets cannot receive recovery.
+    expect(senate.senateTerritorial!.lists.status).toBe('complete');
+    if (senate.senateTerritorial!.lists.status !== 'complete') throw new Error();
+    expect(senate.senateTerritorial!.lists.targets.find(t => t.regionId === 'R' && t.listId === 'A')!.ordinarySeats).toBe(0);
+    const missing = senate.recovery!.seats.filter(s => s.status === 'unresolved' && s.reason === 'missing-recovery-remainder');
+    expect(missing).toEqual([]);
+    expect(senate.recovery!.remainders.some(r => collegeIds.has(r.collegeId ?? '') && r.subject.id === 'A')).toBe(false);
+    expect(senate.recovery!.seats.some(s => s.status === 'filled' && s.electedAt.territoryId === 'R' && s.electedAt.listId === 'A')).toBe(false);
+    expect(senate.recovery!.seats.some(s => s.status === 'unfilled' && s.reason === 'permitted-candidates-exhausted')).toBe(true);
+    expect(senate.recovery!.excludedLists).toContainEqual({ territoryId: 'R', listId: 'A', reason: 'zero-territorial-entitlement' });
+    expect(r.interpretations).toContainEqual({ id: 'I11', version: 'I11-v1' });
+    expect(r.seats).toHaveLength(588);
   });
   it('retains explicit failures and known special entitlements for an all-zero election', () => {
     const input = completeScrutinyFixture();

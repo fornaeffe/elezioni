@@ -40,6 +40,7 @@ export function scrutinyMetadata(input: ReformScrutinyInput, renewed: readonly C
     for (const p of s.cameraTerritorial?.constituencies.interpretations ?? []) policies.set(p.id, p.version);
     for (const p of s.regional?.cap?.interpretations ?? []) policies.set(p.id, p.version);
     if (c.chamber === 'senato' && s.recovery) policies.set('I07', 'approved-2026-10-16');
+    for (const p of s.recovery?.interpretations ?? []) policies.set(p.id, p.version);
   }
   if (input.chamberModel.kind === 'generated') conditions.push({ kind: 'modelled-chamber-votes', chamber: null,
     affectedIds: [], reference: JSON.stringify(input.chamberModel) });

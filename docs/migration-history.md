@@ -3577,3 +3577,128 @@ for direct execution, request/result types, registry availability and limitation
   integration remain inactive. No generated defaults, data bundles, legal
   interpretation policy, production deployment or saved-file migration changed.
   Both plans now continue with R26-19. Changes are left uncommitted.
+
+## 2026-10-19: recovery evidence handoffs and provisional I10
+
+Follow-up to R26-18, explicitly authorized by Luca: repair missing downstream
+communications without new legal assumptions; research the inherited C84(5)
+coalition phrase and the R implementation; use the proposed member-list maximum
+provisionally if the evidence does not establish another interpretation. The
+[interpretation register](politics-reform-2026-specification.md#interpretation-register)
+contains the operational I10-v1 policy. The [core README](../web/src/lib/politics/reform-2026/README.md#composition-and-registry-r26-18)
+describes execution and the remaining boundary.
+
+### Source review and authorized decision
+
+- Searched the exact phrase and C84(5) recovery terminology, including election
+  instructions, candidate exhaustion, parliamentary material and interpretations.
+  The [2017 Senate dossier 548 comparison](https://www.parlamento.it/show-doc?id=1046530&leg=17&part=dossier_dossier1-sezione_sezione11-h2_h21&tipodoc=DOSSIER)
+  confirms that the wording predates the reform. The [Camera dossier of 26 June 2026](https://documenti.camera.it/leg19/dossier/testi/AC0469b.htm)
+  discusses member-list decimals, but its summary does not conclusively resolve
+  the exact college-selection operation. The [6 October 2021 Senate debate](https://www.parlamento.it/show-doc?id=1313906&leg=18&part=doc_dc-sedetit_vdp-genbl_rv-intervento_durnwalderautsvppattuv&tipodoc=SommComm)
+  quotes C84(5) and debates coalition replacements; the cited intervention is not
+  an authoritative algorithm specifying this maximum. No conclusive official
+  ruling or operational interpretation was located. This is a scoped search
+  finding, not proof that no interpretation exists.
+- Inspected `R/politiche/scrutinio.R`: `cerca_accettori()` filters candidate-bearing
+  list/college rows and sorts unused before used, then descending list decimal.
+  `cerca_naz()` filters the requested lists and unused/used tier, then aggregates
+  list decimals by constituency with `max`. It never constructs a new coalition
+  quotient. This corroborates member-list maximum reasoning in a different
+  territorial operation, not empirical proof of C84(5)'s college ordering.
+- Crucially, `subentro()` calls the local `cerca_accettori(i)` without forwarding
+  `coal`/`pluri`; this is the previously recorded legacy parity boundary. Thus
+  real-election output agreement cannot establish this branch's interpretation
+  without demonstrated coverage. No assertion was made that the disputed case
+  actually occurred in a historical election. The R and legacy TypeScript paths
+  remain unchanged, including this known forwarding behavior.
+- With inconclusive exact evidence and no established contrary interpretation,
+  applied Luca's authorized provisional I10-v1: rank candidate-bearing colleges
+  by the largest unused decimal of any admitted member list filed there, then
+  the largest already-used decimal. Preserve actual member-list source IDs and
+  states; do not sum votes/decimals or invent coalition quotients. Allocation
+  records of an exhausted member still contribute to that college's priority;
+  eligible candidates in another member list can fill its seat. Then apply
+  the normal member-list ordering inside the selected college. Equal college
+  priorities use the statutory C84(8) draw. Emit an I10 warning on application,
+  retain I10 in the recovery trace and composed policy metadata, and preserve
+  independent I07 cross-region warnings and route ordering.
+
+### Mechanical repairs, tests and remaining boundary
+
+- A sole candidate-bearing alternative now bypasses a comparison that cannot
+  affect the choice. No missing quotient or percentage is replaced by zero;
+  existing evidence is retained and no draw is consumed. Multiple alternatives
+  still require all applicable ranking evidence.
+- The S17(3) single-college path now receives the existing regional list quotient
+  and final state from N19 (standalone) or N21 (coalition member). New scoped IDs
+  retain `sourceId` pointing to the original record; no allocation or vote ratio
+  is recomputed. Tests include Senate cap states and coalition member records.
+- The formerly blocked constructed coalition-shortage election now fills all
+  588 domestic seats. Added tests for member maxima conflicting with artificial
+  coalition decimals, exhausted member witnesses, unused versus used/consumed
+  states, statutory ties and permutation replay, singleton comparisons, exact
+  source aliases, warning/trace/policy retention, and direct browser-worker I10
+  execution. Existing missing-evidence tests now supply multiple alternatives,
+  because a single alternative no longer needs that comparison.
+- One distinct problem remains, reproduced with a full valid envelope: an
+  admitted list has zero regional entitlement, hence is excluded from the local
+  college-allocation denominator. There is no original college/list quotient
+  to communicate. Recovery can choose a sole destination (and the single-college
+  regional evidence is carried), but comparison between two such destination
+  colleges remains `unresolved: missing-recovery-remainder`. Establishing a
+  divisor or alternative priority here requires an additional legal/modelling
+  decision; this is not the now-resolved absence of a coalition quotient. The
+  regression preserves this distinction and all seat entitlements. The same
+  principle preserves nulls for zero-capacity allocation paths. Recorded the
+  remaining comparison as a precondition for unrestricted candidate acceptance.
+- Verification: `npm run check:data` and `npm run check` passed (zero diagnostics);
+  `npm run test` passed **775 tests in 49 files**, with no skips; the static build
+  passed; **9 Chromium browser tests** passed, including I10 recovery and policy
+  warnings in a bundled module worker. Build/e2e ran sequentially. No production
+  generation, UI selector, source data, generated defaults or deployment changed.
+  Changes are left uncommitted.
+
+## 2026-10-19: provisional I11 excludes zero territorial targets from recovery
+
+Luca explicitly resolved the last edge case with the provisional reading that a
+list with zero territorial seat entitlement has no college quotient and cannot
+obtain a recovery seat. This supersedes the zero-entitlement limitation recorded
+in the preceding I10 follow-up. The current rule is in the
+[interpretation register](politics-reform-2026-specification.md#interpretation-register).
+
+- Implemented `I11-v1` before every recovery candidate/priority selection,
+  including a sole destination, coalition partners and bonus replacements.
+  Admitted zero-target lists also cannot supply an I10 priority witness. Targets
+  are the final ordinary list allocations after territorial/cap operations and
+  before recovery: Camera constituency, Senate region, and Camera TAA
+  proportional allocation. A zero allocation in one college does not exclude a
+  list whose territorial target is positive.
+- Added explicit nonnegative `ordinarySeats` to the internal recovery admission
+  communications. The coordinator obtains these from final constituency/regional
+  list and TAA targets, without inferring missing targets as zero. Standalone
+  recovery calls must supply the same evidence; malformed/missing counts fail
+  before execution. Existing initial ordinary entitlements must have a positive
+  territorial list target.
+- `InitialRecoveryResult.excludedLists` records excluded territory/list pairs
+  with `zero-territorial-entitlement`; recovery and composed policy metadata
+  record I11-v1. Final targets remain immutable throughout recovery. Zero-target
+  Senate/TAA college aliases are not created, while original territorial
+  allocation traces remain available.
+- Both full-envelope regressions (one and two zero-target destination colleges)
+  now exclude those candidates and terminate with explicit unfilled seats when
+  permitted routes exhaust, preserving all 588 domestic entitlements. They no
+  longer end in `missing-recovery-remainder` or fill the formerly permitted sole
+  zero-target destination. This closes the identified zero-territorial-target
+  ambiguity under the authorized provisional policy; genuinely missing evidence
+  and undefined arithmetic remain separate failure states.
+- Added focused cases for Camera/Senate singleton exclusions despite supplied
+  quotients, continuing after an excluded coalition partner, coalition bonus
+  replacement, missing/invalid target rejection and TAA zero-target evidence.
+  Updated prior stage fixtures to communicate their real territorial totals.
+- Verification: `npm run check:data` and `npm run check` passed, with zero
+  diagnostics. All **784 unit tests in 49 files** and **9 Chromium browser tests**
+  passed, including browser transfer of I11 metadata and exclusions. Playwright's
+  static build passed before browser execution. Plans and current API
+  documentation now describe the resolved boundary. Legacy law and later
+  generator/UI integration remain untouched; changes are left uncommitted.

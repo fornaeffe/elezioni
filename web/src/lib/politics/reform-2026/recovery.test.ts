@@ -76,13 +76,50 @@ describe('N25/N27 ordered ordinary initial recovery and I07 worked cases', () =>
     expect(winner(recoverInitialSeats(input, noDraw))).toBe('S2-A-0');
     remainder(input, 'S', 'S2', 'A', 2, 'used'); expect(winner(recoverInitialSeats(input, noDraw))).toBe('S1-A-0');
   });
-  it('orders coalition colleges before comparing member lists within the chosen college', () => {
+  it('I10 ranks colleges by member-list decimals, ignoring invented coalition decimals', () => {
     const input = recoveryFixture();
     input.chamber.colleges.find(c => c.id === 'S1')!.territoryId = 'R';
     for (const r of input.remainders.filter(r => r.collegeId === 'S1')) r.territoryId = 'R';
     enable(input, 'R2-B-0', 'S1-B-0'); remainder(input, 'R', 'R2', 'G', 2); remainder(input, 'R', 'S1', 'G', 8);
     remainder(input, 'R', 'R2', 'B', 9); remainder(input, 'R', 'S1', 'B', 1);
+    const r = recoverInitialSeats(input, noDraw);
+    expect(winner(r)).toBe('R2-B-0');
+    expect(r.recoveries[0].interpretations).toEqual(['I10']);
+    expect(r.recoveries[0].remainders.every(r => !r.id.endsWith('"G"]'))).toBe(true);
+    expect(r.warnings).toEqual([expect.objectContaining({ interpretationId: 'I10', severity: 'warning' })]);
+  });
+  it('I10 uses the maximum of ANY admitted member, even if that member is exhausted in the destination', () => {
+    const input = recoveryFixture();
+    input.chamber.colleges.find(c => c.id === 'S1')!.territoryId = 'R';
+    for (const r of input.remainders.filter(r => r.collegeId === 'S1')) r.territoryId = 'R';
+    input.remainders = input.remainders.filter(r => r.collegeId === null || r.subject.kind !== 'coalition');
+    enable(input, 'R2-B-0', 'S1-B-0');
+    remainder(input, 'R', 'R2', 'A', 9); remainder(input, 'R', 'R2', 'B', 1);
+    remainder(input, 'R', 'S1', 'A', 2); remainder(input, 'R', 'S1', 'B', 8);
+    const r = recoverInitialSeats(input, noDraw);
+    expect(winner(r)).toBe('R2-B-0');
+    expect(r.recoveries[0].remainders[0].id).toBe('["R","R2","A"]');
+    expect(r.recoveries[0].remainders[1].id).toBe('["R","R2","B"]');
+  });
+  it.each(['used', 'consumed'] as const)('I10 unused member decimal beats greater %s member decimals', state => {
+    const input = recoveryFixture();
+    input.chamber.colleges.find(c => c.id === 'S1')!.territoryId = 'R';
+    for (const r of input.remainders.filter(r => r.collegeId === 'S1')) r.territoryId = 'R';
+    enable(input, 'R2-B-0', 'S1-B-0');
+    remainder(input, 'R', 'R2', 'A', 9, state); remainder(input, 'R', 'R2', 'B', 8, state);
+    remainder(input, 'R', 'S1', 'A', 1); remainder(input, 'R', 'S1', 'B', 2, state);
     expect(winner(recoverInitialSeats(input, noDraw))).toBe('S1-B-0');
+  });
+  it('I10 tied college priorities use the statutory draw and replay under input permutations', () => {
+    const input = recoveryFixture();
+    input.chamber.colleges.find(c => c.id === 'S1')!.territoryId = 'R';
+    for (const r of input.remainders.filter(r => r.collegeId === 'S1')) r.territoryId = 'R';
+    enable(input, 'R2-B-0', 'S1-B-0');
+    const run = () => recoverInitialSeats(input, createSeededDrawContext(17, 'I10'));
+    const r = run();
+    expect(r.draws).toHaveLength(1); expect(r.draws[0].rule).toBe('statutory');
+    input.remainders.reverse(); input.chamber.colleges.reverse(); input.chamber.ordinarySlates.reverse();
+    expect(run()).toEqual(r);
   });
   it.each([false, true])('I07-F statutory remainder draws replay under permutations, release=%s', release => {
     const input = recoveryFixture(); enable(input, 'S1-A-0', 'T1-A-0');
@@ -155,7 +192,7 @@ describe('initial recovery composition, uncertainty and boundaries', () => {
     // retains it in P2 (higher individual percentage), then P1 takes next.
     p.candidates.find(c => c.id === 'P1-0')!.availability = { kind: 'unavailable', reason: 'test' };
     const initial = resolveMultipleElections(proclaimCandidates(p), noDraw);
-    const result = recoverInitialSeats({ ...p, initial, eligibleLists: [{ territoryId: 'R', listId: 'A' }], remainders: [] }, noDraw);
+    const result = recoverInitialSeats({ ...p, initial, eligibleLists: [{ territoryId: 'R', listId: 'A', ordinarySeats: 2 }], remainders: [] }, noDraw);
     expect(result.status).toBe('complete'); expect(result.rounds).toHaveLength(2);
     expect(result.rounds.map(r => [r.filledBefore, r.filledAfter, r.proposed])).toEqual([[0, 1, 2], [1, 2, 1]]);
     expect(result.recoveries.map(t => t.disposition)).toEqual(['released', 'retained', 'retained']);
@@ -189,7 +226,7 @@ describe('initial recovery composition, uncertainty and boundaries', () => {
     // The exact figure provider explicitly reports an undefined percentage.
     for (const f of p.figures.colleges) f.figures.validVotes = 0;
     const initial = resolveMultipleElections(proclaimCandidates(p), noDraw);
-    const result = recoverInitialSeats({ ...p, initial, eligibleLists: [{ territoryId: 'R', listId: 'A' }], remainders: [] }, noDraw);
+    const result = recoverInitialSeats({ ...p, initial, eligibleLists: [{ territoryId: 'R', listId: 'A', ordinarySeats: 2 }], remainders: [] }, noDraw);
     expect(result.status).toBe('partial'); expect(result.rounds).toHaveLength(1);
     expect(result.retained).toEqual([]); expect(result.seats.every(s => s.status === 'unresolved')).toBe(true);
     expect(result.recoveries.every(t => t.disposition === 'unresolved')).toBe(true);
@@ -228,7 +265,7 @@ describe('initial recovery composition, uncertainty and boundaries', () => {
     slate.preferences = original; expect(winner(recoverInitialSeats(input, noDraw))).toBe('R1-A-1');
   });
   it('does not turn missing/null quotients into zero or claim candidates are exhausted', () => {
-    const input = recoveryFixture(); enable(input, 'R2-A-0'); input.remainders = [];
+    const input = recoveryFixture(); enable(input, 'S1-A-0', 'T1-A-0'); input.remainders = [];
     expect(recoverInitialSeats(input, noDraw).seats[0]).toMatchObject({ status: 'unresolved', reason: 'missing-recovery-remainder' });
   });
   it('does not require a lower used-tier value before a known unused destination', () => {
@@ -238,13 +275,44 @@ describe('initial recovery composition, uncertainty and boundaries', () => {
     expect(winner(recoverInitialSeats(input, noDraw))).toBe('S1-A-0');
   });
   it('does not choose a bonus college using an undefined percentage', () => {
-    const input = recoveryFixture(); bonusSeat(input, false); enable(input, 'R1-A-0');
+    const input = recoveryFixture(); bonusSeat(input, false); enable(input, 'R1-A-0', 'R2-A-0');
     input.figures.colleges[0].figures.lists[0].percentage = { status: 'undefined', reason: 'zero-valid-votes' };
     expect(recoverInitialSeats(input, noDraw).seats[0]).toMatchObject({ status: 'unresolved', reason: 'undefined-recovery-percentage' });
+  });
+  it('a sole eligible destination needs no quotient, percentage or draw', () => {
+    const input = recoveryFixture(); enable(input, 'S1-A-0'); input.remainders = [];
+    expect(winner(recoverInitialSeats(input, noDraw))).toBe('S1-A-0');
+    bonusSeat(input, false);
+    input.figures.colleges.find(f => f.collegeId === 'S1')!.figures.lists[0].percentage = { status: 'undefined', reason: 'zero-valid-votes' };
+    expect(winner(recoverInitialSeats(input, noDraw))).toBe('S1-A-0');
   });
   it('does not use a filed but unadmitted coalition partner', () => {
     const input = recoveryFixture(); enable(input, 'R1-B-0'); input.eligibleLists = input.eligibleLists.filter(r => r.listId !== 'B');
     expect(recoverInitialSeats(input, noDraw).seats[0].status).toBe('unfilled');
+  });
+  it.each(['camera', 'senato'] as const)('I11 excludes a sole zero-entitlement destination in %s, even with a supplied quotient', side => {
+    const input = recoveryFixture(side); enable(input, 'S1-A-0');
+    input.eligibleLists.find(r => r.territoryId === 'S' && r.listId === 'A')!.ordinarySeats = 0;
+    const r = recoverInitialSeats(input, noDraw);
+    expect(r.seats[0]).toMatchObject({ status: 'unfilled', reason: 'permitted-candidates-exhausted' });
+    expect(r.excludedLists).toEqual([{ territoryId: 'S', listId: 'A', reason: 'zero-territorial-entitlement' }]);
+    expect(r.interpretations).toEqual([{ id: 'I11', version: 'I11-v1' }]);
+  });
+  it('I11 skips a zero-entitlement local coalition partner and continues the permitted routes', () => {
+    const input = recoveryFixture(); enable(input, 'R1-B-0', 'S1-A-0');
+    input.eligibleLists.find(r => r.territoryId === 'R' && r.listId === 'B')!.ordinarySeats = 0;
+    const r = recoverInitialSeats(input, noDraw);
+    expect(winner(r)).toBe('S1-A-0'); expect(r.recoveries[0].route).toBe('same-list-other-territory');
+  });
+  it('I11 excludes zero-entitlement lists from coalition bonus replacements', () => {
+    const input = recoveryFixture(); bonusSeat(input); enable(input, 'R1-A-0', 'R1-B-0');
+    input.eligibleLists.find(r => r.territoryId === 'R' && r.listId === 'A')!.ordinarySeats = 0;
+    const r = recoverInitialSeats(input, noDraw);
+    expect(winner(r)).toBe('R1-B-0'); expect(r.seats[0]).toMatchObject({ category: 'bonus', electedAt: { listId: 'B' } });
+  });
+  it.each([undefined, null, -1, 0.5])('rejects missing or invalid territorial entitlement %s instead of inferring zero', count => {
+    const input = recoveryFixture(); Object.assign(input.eligibleLists[0], { ordinarySeats: count });
+    expect(() => recoverInitialSeats(input, noDraw)).toThrow(/territorial entitlement/);
   });
   it('does not process future vacancies or special supplementary elections', () => {
     const input = recoveryFixture(); enable(input, 'R1-A-0');

@@ -36,7 +36,7 @@ export function recoveryFixture(side: Chamber = 'senato'): Mutable<RecoveryInput
     initial: { chamber: side, simulationId: 7, status: 'partial', blockers: [], seats: [{ seatId: 'seat-1', category: 'ordinary',
       entitlement: { chamber: side, territoryId: 'R', collegeId: 'R1', subject: { kind: 'coalition', id: 'G' }, listId: 'A' },
       status: 'unresolved', reason: 'candidate-exhaustion-requires-recovery' }], retained: [], released: [], decisions: [], draws: [], warnings: [] },
-    eligibleLists: territories.flatMap(territoryId => lists.map(listId => ({ territoryId, listId }))),
+    eligibleLists: territories.flatMap(territoryId => lists.map(listId => ({ territoryId, listId, ordinarySeats: 1 }))),
     remainders: territories.flatMap(territoryId => [null, ...colleges.filter(id => id[0] === territoryId)].flatMap(collegeId =>
       [...lists.map(id => ({ kind: 'list' as const, id })), { kind: 'coalition' as const, id: 'G' }].map(subject => ({
         id: JSON.stringify([territoryId, collegeId, subject.id]), territoryId, collegeId, subject, value: exactFraction(1, 10), state: 'unused' as const })))) };

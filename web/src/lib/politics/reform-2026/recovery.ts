@@ -8,10 +8,13 @@ import type { DrawTrace, ExactFraction, RecoveryTrace, ReformWarning, ScrutinyEx
 import { resolveTie } from './ties';
 
 /** A final allocation quotient, NOT a new allocation computed during recovery.
- * Supply list and coalition rows separately, including explicit null quotients.
+ * Supply college/list and territorial list/subject rows, including explicit null
+ * quotients. I10 college-coalition ranking uses existing member-list evidence.
  * College null denotes the constituency (Camera) or region (Senato). */
 export interface RecoveryRemainder {
   readonly id: string;
+  /** Existing quotient carried to an equivalent scope, e.g. a sole college. */
+  readonly sourceId?: string;
   readonly territoryId: string;
   readonly collegeId: string | null;
   readonly subject: Subject;
@@ -23,9 +26,9 @@ export interface RecoveryInput {
   readonly candidates: readonly Candidate[];
   readonly figures: AggregatedElectoralFigures;
   readonly initial: MultipleElectionsResult;
-  /** Only lists admitted to the applicable territorial allocation. A filed
-   * slate alone does not establish admission (including local exceptions). */
-  readonly eligibleLists: readonly { readonly territoryId: string; readonly listId: string }[];
+  /** Admitted lists and their ORIGINAL final territorial ordinary entitlement,
+   * including explicit zeros. I11-v1 excludes zero targets from recovery. */
+  readonly eligibleLists: readonly { readonly territoryId: string; readonly listId: string; readonly ordinarySeats: number }[];
   readonly remainders: readonly RecoveryRemainder[];
 }
 export interface RecoveryRanking {
@@ -36,6 +39,7 @@ export interface RecoveryRanking {
   readonly chosenId: string | null;
 }
 export interface InitialRecoveryTrace extends RecoveryTrace {
+  readonly interpretations: readonly ('I07' | 'I10')[];
   readonly round: number;
   readonly vacancyAt: SeatLocation;
   readonly candidateChecks: readonly { readonly collegeId: string; readonly listId: string;
@@ -45,6 +49,8 @@ export interface InitialRecoveryTrace extends RecoveryTrace {
   readonly disposition: 'retained' | 'released' | 'unresolved' | 'exhausted';
 }
 export interface InitialRecoveryResult {
+  readonly interpretations: readonly { readonly id: 'I11'; readonly version: 'I11-v1' }[];
+  readonly excludedLists: readonly { readonly territoryId: string; readonly listId: string; readonly reason: 'zero-territorial-entitlement' }[];
   readonly chamber: ChamberInput['chamber'];
   readonly simulationId: number;
   readonly status: 'complete' | 'partial' | 'non-computable';
@@ -67,6 +73,7 @@ const list = (id: string): Subject => ({ kind: 'list', id });
 const order = <T>(rows: readonly T[], id: (r: T) => string) => [...rows].sort((a, b) => id(a) < id(b) ? -1 : id(a) > id(b) ? 1 : 0);
 interface Leaf { readonly kind: 'candidate'; readonly slate: OrdinarySlate; readonly candidateId: string | null; readonly reason: string | null }
 interface Branch { readonly kind: 'rank'; readonly id: string; readonly criterion: RecoveryRanking['criterion'];
+  readonly policy?: 'I10';
   readonly options: readonly { readonly id: string; readonly node: Node; readonly value: ExactFraction | null; readonly remainder: RecoveryRemainder | null }[] }
 type Node = Leaf | Branch;
 interface Route { readonly id: string; readonly law: string; readonly node: Node | null; readonly rule: 'statutory' | 'I03' }
@@ -102,12 +109,19 @@ export function recoverInitialSeats(input: RecoveryInput, execution: ScrutinyExe
   const draws: DrawTrace[] = [], warnings: ReformWarning[] = [];
   const remainders = order(input.remainders, r => r.id);
   const people = new Map(input.candidates.map(p => [p.id, p]));
-  const eligible = new Set(input.eligibleLists.map(r => key(r.territoryId, r.listId)));
+  // User-authorized provisional I11-v1: a list with zero territorial seat
+  // entitlement has no college quotient and cannot receive ANY recovery seat,
+  // including a sole destination or bonus replacement. Apply before ranking.
+  // Use original final allocation targets, never counts changed by recovery.
+  const eligible = new Set(input.eligibleLists.filter(r => r.ordinarySeats > 0).map(r => key(r.territoryId, r.listId)));
+  const excludedLists = order(input.eligibleLists.filter(r => r.ordinarySeats === 0), r => key(r.territoryId, r.listId))
+    .map(({ territoryId, listId }) => ({ territoryId, listId, reason: 'zero-territorial-entitlement' as const }));
   const released = new Set([...initial.released.map(r => r.seatId), ...initial.seats.flatMap(s =>
     s.status !== 'filled' && s.reason === 'multiple-election-requires-recovery' ? [s.seatId] : [])]);
   const vacancyAt = new Map(seats.map(s => [s.seatId, s.entitlement]));
   const uncertain = new Set(initial.decisions.filter(d => d.retainedSeatId === null).map(d => d.candidateId));
   const finish = (): InitialRecoveryResult => structuredClone({ chamber: c.chamber, simulationId,
+    interpretations: initial.status === 'non-computable' ? [] : [{ id: 'I11', version: 'I11-v1' }], excludedLists,
     status: initial.status === 'non-computable' ? 'non-computable' : seats.every(s => s.status === 'filled') ? 'complete' : 'partial',
     blockers: initial.blockers, terminalReason: initial.status === 'non-computable' ? 'prerequisite-non-computable' :
       seats.every(s => s.status === 'filled') ? 'all-filled' : 'permitted-routes-exhausted-or-unresolved',
@@ -127,12 +141,15 @@ export function recoverInitialSeats(input: RecoveryInput, execution: ScrutinyExe
       const checks: InitialRecoveryTrace['candidateChecks'][number][] = [];
       const rankings: RecoveryRanking[] = [];
       const transitions: RecoveryTrace['remainders'][number][] = [];
+      let appliedI10 = false;
       const drawStart = draws.length;
       const norm = c.chamber === 'senato' ? 'N27' : seat.category === 'bonus' || released.has(seat.seatId) ? 'N26' : 'N25';
       // Build eligibility without drawing. Only the chosen route/branch consumes
       // ties, so irrelevant downstream routes never perturb the random stream.
       const leaves = new Map<string, Leaf | null>();
       function candidate(slate: OrdinarySlate): Leaf | null {
+        const territoryId = c.colleges.find(t => t.id === slate.collegeId)!.territoryId;
+        if (!eligible.has(key(territoryId, slate.listId))) return null;
         const id = key(slate.collegeId, slate.listId);
         if (leaves.has(id)) return leaves.get(id)!;
         const f = [...input.figures.colleges, ...input.figures.taaProportional].find(f => f.collegeId === slate.collegeId)!;
@@ -184,9 +201,28 @@ export function recoverInitialSeats(input: RecoveryInput, execution: ScrutinyExe
           .map(s => decimal(territoryId, collegeId, list(s.listId), candidate(s))));
       }
       function coalitionTerritory(territoryId: string, subject: Subject, exclude: string | null = null): Node | null {
-        return rank(key('coalition-colleges', territoryId, subjectKey(subject)), 'remainder',
+        // C84(5): "partendo da quello in cui la coalizione abbia la maggiore
+        // parte decimale del quoziente non utilizzata". Provisional I10-v1:
+        // rank colleges by ANY admitted member list's greatest unused decimal,
+        // then greatest already-used decimal. No new coalition quotient exists.
+        // Keep the actual member-list source row as evidence. Exhaustion does
+        // not change an allocation remainder; only destination colleges lacking
+        // any candidate are removed. See the I10 source audit in the specification.
+        const node = rank(key('coalition-colleges', territoryId, subjectKey(subject)), 'remainder',
           c.colleges.filter(t => t.territoryId === territoryId && t.kind !== 'special-uninominal' && t.id !== exclude)
-            .map(t => decimal(territoryId, t.id, subject, coalitionCollege(territoryId, t.id, subject))));
+            .map(t => {
+              const members = slates.filter(s => at(s) === territoryId && s.collegeId === t.id && memberIds(subject).includes(s.listId));
+              const evidence = members.map(s => remainders.find(r => r.territoryId === territoryId && r.collegeId === t.id &&
+                r.subject.kind === 'list' && r.subject.id === s.listId) ?? null);
+              const unused = evidence.filter(r => r?.state === 'unused');
+              const tier = unused.length ? unused : evidence;
+              const unknown = evidence.some(r => r === null) || tier.some(r => r?.value === null);
+              const best = unknown ? null : order(tier.flatMap(r => r ? [r] : []), r => r.id)
+                .sort((a, b) => -compareExact(a.value!, b.value!))[0] ?? null;
+              return { id: key(territoryId, t.id, subjectKey(subject)), node: coalitionCollege(territoryId, t.id, subject),
+                value: best?.value ?? null, remainder: best };
+            }));
+        return node ? { ...node, policy: 'I10' } : null;
       }
       function bonusTerritory(territoryId: string, subject: Subject): Node | null {
         // C86(1): "nel collegio ... maggiore cifra elettorale percentuale";
@@ -232,7 +268,19 @@ export function recoverInitialSeats(input: RecoveryInput, execution: ScrutinyExe
       let failure = 'permitted-candidates-exhausted';
       function choose(node: Node, route: Route): Leaf | null {
         if (node.kind === 'candidate') { failure = node.reason ?? failure; return node; }
+        if (node.policy === 'I10') appliedI10 = true;
         const all = node.options;
+        // One candidate-bearing destination requires no comparison, quota or
+        // draw. Preserve available evidence but do not demand a nonexistent
+        // quotient from S17(3)'s direct single-college communication.
+        if (all.length === 1) {
+          const only = all[0];
+          rankings.push({ id: node.id, criterion: node.criterion,
+            alternatives: all.map(({ id, value, remainder }) => ({ id, value, remainder })), chosenId: only.id });
+          if (only.remainder && only.value) transitions.push({ id: only.remainder.id, value: only.value,
+            before: only.remainder.state, after: only.remainder.state });
+          return choose(only.node, route);
+        }
         // Unknown lower-tier decimals do not obstruct a known unused tier.
         // A wholly missing remainder also lacks its tier, so remains blocking.
         const unknownTier = node.criterion === 'remainder' && all.some(o => o.remainder === null);
@@ -275,12 +323,16 @@ export function recoverInitialSeats(input: RecoveryInput, execution: ScrutinyExe
       const crossRegion = election && c.chamber === 'senato' &&
         c.territories.find(t => t.id === seat.entitlement.territoryId)!.regionId !== c.territories.find(t => t.id === election!.seat.electedAt.territoryId)!.regionId;
       const trace: InitialRecoveryTrace = { round, seatId: seat.seatId, route: route?.id ?? 'exhausted', lawReference: law,
+        interpretations: [...(crossRegion ? ['I07' as const] : []), ...(appliedI10 ? ['I10' as const] : [])],
         interpretationId: crossRegion ? 'I07' : null, originalEntitlement: seat.entitlement, vacancyAt: origin,
         electedAt: election?.seat.electedAt ?? null, candidateId: election?.seat.candidateId ?? null,
         consideredCandidateIds: [...new Set(checks.map(p => p.candidateId))].sort(), candidateChecks: order(checks, p => key(p.collegeId, p.listId)),
         remainders: transitions, rankings, drawContextIds: draws.slice(drawStart).map(d => d.contextId),
         outcome: election ? 'filled' : route ? 'unresolved' : 'unfilled', disposition: election ? 'retained' : route ? 'unresolved' : 'exhausted' };
       traces.push(trace);
+      if (appliedI10) warnings.push({ code: 'I10_COALITION_RECOVERY_PRIORITY', severity: 'warning', electionKind: 'politiche',
+        simulationId, chamber: c.chamber, interpretationId: 'I10', seatId: seat.seatId, lawReference: 'C84(5); I10-v1',
+        message: 'Provisional I10-v1: coalition college priority uses the greatest unused member-list decimal, then already-used decimals. Original allocation evidence preserved.' });
     }
     if (!proposals.length) { recoveries.push(...traces); break; }
     const before = retained.length;
@@ -325,7 +377,8 @@ function preflight({ chamber: c, candidates, figures, initial, eligibleLists, re
         !validSubject(r.subject) || !['unused', 'used', 'consumed'].includes(r.state) ||
         (r.value && compareExact(exactFraction(r.value.numerator, r.value.denominator), exactFraction(1)) >= 0)) throw new RangeError('Invalid recovery remainder');
   }
-  for (const r of eligibleLists) if (!c.territories.some(t => t.id === r.territoryId) || !c.lists.some(l => l.id === r.listId)) throw new RangeError('Unknown recovery admission');
+  for (const r of eligibleLists) if (!c.territories.some(t => t.id === r.territoryId) || !c.lists.some(l => l.id === r.listId) ||
+      !Number.isSafeInteger(r.ordinarySeats) || r.ordinarySeats < 0) throw new RangeError('Supply known recovery admission and nonnegative territorial entitlement');
   if (!unique(c.ordinarySlates.map(s => key(s.collegeId, s.listId)))) throw new RangeError('Duplicate recovery slate');
   for (const s of c.ordinarySlates) {
     const college = c.colleges.find(t => t.id === s.collegeId);
@@ -342,7 +395,7 @@ function preflight({ chamber: c, candidates, figures, initial, eligibleLists, re
     if (location.chamber !== c.chamber || !c.territories.some(t => t.id === location.territoryId) || !validSubject(location.subject) ||
         (s.category !== 'bonus' && !c.colleges.some(t => t.id === location.collegeId && t.territoryId === location.territoryId)) ||
         (['ordinary', 'taa-proportional'].includes(s.category) && (!subjectMatchesList ||
-          !eligibleLists.some(r => r.territoryId === location.territoryId && r.listId === location.listId) ||
+          !eligibleLists.some(r => r.territoryId === location.territoryId && r.listId === location.listId && r.ordinarySeats > 0) ||
           !c.ordinarySlates.some(t => t.collegeId === location.collegeId && t.listId === location.listId))) ||
         (s.category === 'bonus' && (location.collegeId !== null || location.listId !== (location.subject.kind === 'list' ? location.subject.id : null))) ||
         (s.status === 'filled' && (!election || JSON.stringify(election.seat) !== JSON.stringify(s) || people.get(s.candidateId)?.availability.kind !== 'available')) ||

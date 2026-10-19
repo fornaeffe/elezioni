@@ -710,14 +710,26 @@ allocation remainder rows. It does not run the preceding legal stages or registe
 an algorithm. Simulation pairing of figures and remainder communications remains
 the caller's responsibility, as N06 has no run ID.
 
-`eligibleLists` specifies admission in each territory, including local exceptions;
-filing a slate alone does not qualify a list. `RecoveryRemainder` identifies the
+`eligibleLists` specifies admission and the original final territorial ordinary
+`ordinarySeats` target for each list, including explicit zeros and local TAA
+exceptions. Missing or invalid targets are rejected, not treated as zero.
+Provisional I11-v1 excludes zero-target lists from every recovery destination and
+I10 witness set, including singleton selection and bonus replacement. Positive
+territorial entitlement remains sufficient when a particular college initially
+received zero seats. `InitialRecoveryResult.excludedLists` identifies the excluded
+territory/list pairs, and `interpretations` records I11-v1. A filed slate alone
+does not qualify a list. `RecoveryRemainder` identifies the
 source quotient by ID, territory, optional college and list/coalition subject,
 with its exact decimal or explicit null and its final allocation state. Supply
-college/list rows for C84(2)/(5), college/coalition rows for C84(5), territorial
+college/list rows for C84(2)/(5), territorial
 list rows for C84(4) and coalition bonus selection, and territorial subject rows
 for bonus/C84(7) recovery elsewhere. These are the applicable final quotients,
-not recomputed vote fractions. R26-18 must assemble these communications from
+not recomputed vote fractions. I10-v1 ranks coalition colleges using the greatest
+unused member-list decimal, then the greatest already-used decimal; a separate
+college/coalition quotient is not required. The actual member record supplies
+the evidence, including its unchanged state. The selected college then compares
+eligible lists under C84(5). Applied I10 appears in the recovery trace's
+`interpretations`, warnings and composed policy metadata. R26-18 assembles these communications from
 the separate allocation stages, retaining their source IDs and final correction
 states. No adapter guesses a missing quotient or admits an excluded list.
 
@@ -829,17 +841,28 @@ batches may become complete after recovery. Conditions describe supplied/generat
 preferences, unknown ballot composition, provisional census tables and modelled
 chamber votes independently of terminal success.
 
-Recovery admission includes all admitted lists in each territory, even at zero
-seat targets, plus applicable local TAA exceptions. The adapter copies final
+Recovery communications include admitted lists and their final territorial
+ordinary targets, plus applicable local TAA exceptions. I11-v1 excludes zero
+territorial targets before any candidate selection. The adapter copies final
 list/subject matrix decimals, Senate cap states, regional coalition-list quotas
 and TAA quotas, preserving source IDs and explicit null values. It never treats
 cap majority/minority indices as coalition quotients or recomputes a vote ratio.
-Some upstream stages do not calculate a college/coalition quotient or a
-single-college quotient. If a recovery actually needs unavailable evidence, it
-returns `missing-recovery-remainder`; this is an explicit output limitation.
-Resolving that case requires a reviewed legal source quotient, not an adapter
-guess or an automatic redistribution. Focused R26-17 inputs can still supply
-their independently established recovery communications directly.
+Positive-target single-college Senate paths carry the existing N19 standalone/N21 coalition-list
+quotient and final state to the college, with `sourceId` pointing to the regional
+record; no allocation is rerun. A sole candidate-bearing destination needs no
+quotient/percentage comparison or draw, while any available evidence is retained.
+Provisional I10-v1 removes the former missing-coalition-quotient blockage using
+the actual member-list records; see the [policy and source audit](../../../../../docs/politics-reform-2026-specification.md#interpretation-register).
+
+The former zero-territorial-entitlement boundary is resolved by Luca's provisional
+I11-v1 decision of 19 October 2026: no college quotient exists for such a list, so
+it cannot obtain recovery seats. This applies equally to one or multiple colleges,
+Camera constituencies, Senate regions and TAA proportional list entitlements.
+Targets are those after cap and territorial allocation, before recovery; recovery
+does not requalify an excluded list by changing its seat count. If the permitted
+routes exhaust, seats remain explicitly unfilled and retain their original
+entitlement. Genuine missing ranking inputs or undefined zero-capacity quotients
+remain separate explicit states; no absent value becomes zero.
 
 The common `runPoliticsSimulation()` request is discriminated by algorithm ID.
 Reform requests contain the full envelope and matching global `simulationId`;

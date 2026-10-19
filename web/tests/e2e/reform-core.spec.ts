@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
 import { build } from 'vite';
-import { completeScrutinyFixture } from '../../src/lib/politics/reform-2026/scrutiny.fixture';
+import { completeScrutinyFixture, coalitionScrutinyFixture } from '../../src/lib/politics/reform-2026/scrutiny.fixture';
 import type { PoliticsSimulationResult } from '../../src/lib/politics/simulation-scrutiny';
 
 type WorkerResponse = { ok: true; result: PoliticsSimulationResult } | { ok: false; message: string };
@@ -43,7 +43,30 @@ test('direct reform registry runs in a browser module worker and transfers repla
   expect(result.first.result).toMatchObject({ algorithmId: input.algorithmId, simulationId: input.simulationId,
     result: { status: 'complete', scope: 'domestic-initial', renewedChambers: ['camera', 'senato'] } });
   expect(result.first.result.result.seats).toHaveLength(588);
+  expect(result.first.result.result.interpretations).toContainEqual({ id: 'I11', version: 'I11-v1' });
+  expect(result.first.result.result.chambers[0].recovery!.excludedLists).toContainEqual({ territoryId: 'T', listId: 'C', reason: 'zero-territorial-entitlement' });
   expect(result.deterministic).toBe(true);
   expect(result.unavailable).toMatchObject({ ok: false, message: expect.stringContaining('production-unavailable') });
   expect(result.unknown).toMatchObject({ ok: false, message: expect.stringContaining('unknown-algorithm') });
+});
+
+test('provisional I10 resolves coalition recovery in the browser and preserves policy warnings', async ({ page, context }) => {
+  await context.route('**/r26-test-worker.js', route => route.fulfill({ contentType: 'text/javascript', body: workerCode }));
+  await page.goto('/');
+  const input = coalitionScrutinyFixture();
+  if (input.renewal.kind !== 'joint') throw new Error();
+  const unavailable = new Set(input.renewal.camera.ordinarySlates.filter(s => s.listId === 'A' || s.listId === 'C' && s.collegeId === 'P00').flatMap(s => s.candidateIds));
+  for (const p of input.candidates) if (unavailable.has(p.id)) p.availability = { kind: 'unavailable', reason: 'post-filing shortage' };
+  const reply = await page.evaluate(input => new Promise<WorkerResponse>((resolve, reject) => {
+    const worker = new Worker('/r26-test-worker.js', { type: 'module' });
+    worker.onmessage = e => { worker.terminate(); resolve(e.data); };
+    worker.onerror = e => { worker.terminate(); reject(new Error(e.message)); };
+    worker.postMessage({ request: { algorithmId: input.algorithmId, simulationId: input.simulationId, input } });
+  }), input);
+  expect(reply.ok).toBe(true);
+  if (!reply.ok || reply.result.algorithmId !== 'politiche-reform-2026-v1') throw new Error('Expected reform worker output');
+  expect(reply.result.result.status).toBe('complete');
+  expect(reply.result.result.seats).toHaveLength(588);
+  expect(reply.result.result.interpretations).toContainEqual({ id: 'I10', version: 'I10-v1' });
+  expect(reply.result.result.warnings.some(w => w.interpretationId === 'I10')).toBe(true);
 });

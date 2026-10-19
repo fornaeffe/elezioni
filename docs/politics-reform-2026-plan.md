@@ -44,7 +44,7 @@ time and leave subsequent application features inactive.
 - Keep ordinary seats, bonus seats, special-territory seats, and candidate
   identities distinguishable. A coalition bonus slate is not an arbitrary
   proportional distribution of bonus seats between member lists.
-- Apply the provisional I03/I05/I06/I07/I08 policies in the specification, keeping
+- Apply the provisional I03/I05/I06/I07/I08/I10/I11 policies in the specification, keeping
   them distinguishable from express statutory rules and revisable on further
   legal evidence. Warn in affected simulations when an I03 fallback draw or an
   I07 cross-region recovery is used.
@@ -411,9 +411,12 @@ into future vacancies or supplementary elections beyond the agreed scope.
 
 Use the [implemented composition boundary](../web/src/lib/politics/reform-2026/README.md#composition-and-registry-r26-18)
 for direct execution, the common registry, production availability and recovery
-evidence limitations. Preserve explicit `missing-recovery-remainder` outputs when
-an upstream stage has no applicable quotient; extend that source stage only with
-reviewed legal support, never a fabricated adapter ratio.
+evidence. Apply provisional I10-v1 member-list college ranking and I11-v1:
+an admitted list with zero final territorial ordinary entitlement has no
+college quotient and cannot receive a recovery seat, including a sole destination
+or bonus replacement. Carry known positive-target single-college Senate quotients
+downstream. Preserve missing-input failures separately from known zero targets;
+never fabricate an adapter divisor or treat an absent target as zero.
 
 Compose `runPoliticsReformScrutiny()` from tested stages. Introduce the common
 simulation-level execution boundary and register `politiche-reform-2026-v1`
@@ -480,8 +483,9 @@ fixtures. Keep these contracts reusable by regional and municipal workflows.
 
 Update typed presentation helpers and derive charts from their tables. Include
 bonus eligibility/reasons, bonus seats, cap effects, special seats, model
-assumptions, applied provisional interpretation IDs, I03 draw warnings, I07
-cross-region recovery warnings and entitlement/election territory traces, census
+assumptions, applied provisional interpretation IDs, I03 draw warnings, I10
+coalition-recovery warnings, I07 cross-region recovery warnings, I11
+zero-entitlement exclusions and entitlement/election territory traces, census
 versus decree seat-table provenance, and any candidate-output limitations.
 Keep ordinary list seats and coalition bonus identities distinguishable.
 Expose R26-02's vote model ID, representation and conversion provenance; keep

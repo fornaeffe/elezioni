@@ -7,8 +7,8 @@ import { aggregateElectoralFigures, type AggregatedElectoralFigures } from './fi
 import type { ChamberInput, ReformScrutinyInput } from './input';
 import { resolveMultipleElections, type MultipleElectionsResult } from './multiple-elections';
 import { proclaimCandidates, type CandidateProclamations } from './proclamations';
-import { recoverInitialSeats, type InitialRecoveryResult } from './recovery';
-import { assembleRecoveryRemainders } from './recovery-communications';
+import { recoverInitialSeats, type InitialRecoveryResult, type RecoveryInput } from './recovery';
+import { assembleRecoveryEligibility, assembleRecoveryRemainders } from './recovery-communications';
 import type { NormId, ReformScrutinyResult, ScrutinyExecutionContext, StageOutcome } from './result';
 import { allocateSenateRegions, type SenateRegionalAllocationResult } from './senate-regional';
 import { allocateSenateListsAndColleges, type SenateCollegeResult } from './senate-territorial';
@@ -128,6 +128,7 @@ export function runPoliticsReformScrutiny(value: unknown, execution?: ScrutinyEx
     let ordinary: CameraCollegeResult | SenateCollegeResult;
     let allocation: Partial<ReformChamberExecution>;
     let remainders;
+    let eligibleLists: RecoveryInput['eligibleLists'];
     if (s.chamber === 'camera') {
       const national = allocateCameraNationalSeats(args, context); events(national);
       record(s.chamber, 'N13', national.status, national.status === 'non-computable' ? national.reason : '');
@@ -140,6 +141,7 @@ export function runPoliticsReformScrutiny(value: unknown, execution?: ScrutinyEx
       record(s.chamber, cap ? 'N15' : 'N17', 'not-run', 'alternative-allocation-path');
       ordinary = territorial.colleges; allocation = { national, cameraTerritorial: territorial };
       remainders = assembleRecoveryRemainders(chamber, { ...territorial, taa: s.taa });
+      eligibleLists = assembleRecoveryEligibility(chamber, s.admission, { ...territorial, taa: s.taa });
     } else {
       const regional = allocateSenateRegions(args, context); events(regional);
       record(s.chamber, 'N19', regional.status, regional.status === 'non-computable' ? regional.reason : '');
@@ -150,16 +152,12 @@ export function runPoliticsReformScrutiny(value: unknown, execution?: ScrutinyEx
       record(s.chamber, 'N22', regional.status === 'complete' && regional.path === 'bonus-with-cap' ? territorial.colleges.status : 'not-run', 'alternative-allocation-path');
       ordinary = territorial.colleges; allocation = { regional, senateTerritorial: territorial };
       remainders = assembleRecoveryRemainders(chamber, { ...territorial, regional });
+      eligibleLists = assembleRecoveryEligibility(chamber, s.admission, { ...territorial, regional });
     }
     const proclamations = proclaimCandidates({ ...args, ordinary, special: s.special, taa: s.taa });
     record(s.chamber, 'N23', proclamations.status, proclamations.blockers.join(',') || 'provisional-candidate-identities');
     const multiple = resolveMultipleElections(proclamations, context); events(multiple);
     record(s.chamber, 'N24', multiple.status, multiple.blockers.join(',') || 'released-or-unresolved-seats');
-    // Admission, rather than positive targets, qualifies recovery destinations.
-    const admission = s.admission;
-    const eligibleLists = admission.status === 'complete' ? chamber.territories.flatMap(t =>
-      admission.lists.filter(l => l.admitted || admission.taaLocalExceptions.some(e => e.territoryId === t.id && e.listId === l.listId))
-        .map(l => ({ territoryId: t.id, listId: l.listId }))) : [];
     const recovery = recoverInitialSeats({ ...args, initial: multiple, eligibleLists, remainders }, context); events(recovery);
     for (const norm of ['N25', 'N26', 'N27'] as const) {
       const applicable = s.chamber === 'senato' ? norm === 'N27' : norm !== 'N27';

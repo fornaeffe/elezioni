@@ -185,10 +185,16 @@ describe('validated joint envelopes through N23/N24', () => {
       // one-territory colleges exhaust every permitted destination; therefore
       // no fabricated quotient is needed to prove their exhausted endpoint.
       if (ordinary.status !== 'complete') throw new Error();
-      const eligibleLists = [...new Map([
-        ...ordinary.targets.map(t => ({ territoryId: t.territoryId, listId: t.listId })),
-        ...(s.taa && s.taa.status !== 'non-computable' ? s.taa.listEntitlements.map(t => ({ territoryId: s.taa!.territoryId, listId: t.listId })) : [])
-      ].map(t => [JSON.stringify(t), t])).values()];
+      const territorialTargets = new Map<string, { territoryId: string; listId: string; ordinarySeats: number }>();
+      for (const t of ordinary.targets) {
+        const id = JSON.stringify([t.territoryId, t.listId]);
+        territorialTargets.set(id, { territoryId: t.territoryId, listId: t.listId,
+          ordinarySeats: (territorialTargets.get(id)?.ordinarySeats ?? 0) + t.ordinarySeats });
+      }
+      if (s.taa && s.taa.status !== 'non-computable') for (const t of s.taa.listEntitlements) {
+        territorialTargets.set(JSON.stringify([s.taa.territoryId, t.listId]), { territoryId: s.taa.territoryId, listId: t.listId, ordinarySeats: t.seats });
+      }
+      const eligibleLists = [...territorialTargets.values()];
       const recovered = recoverInitialSeats({ ...s, initial: r, eligibleLists, remainders: [] }, execution);
       expect(recovered.seats.map(t => [t.seatId, t.category, t.entitlement])).toEqual(r.seats.map(t => [t.seatId, t.category, t.entitlement]));
       expect(recovered.seats.filter(t => t.category === 'special-uninominal')).toEqual(s.special.seats);
