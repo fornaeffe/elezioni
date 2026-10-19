@@ -353,9 +353,9 @@ streams; no statistical generation is involved.
 An N11 `complete`/`partial` result has `entitlementStatus: complete` even if some
 identities are unresolved. Missing preferences still permit the head's seat;
 subsequent preference-dependent seats remain unresolved. Explicit zero counts
-are ranked normally. Unavailable/exhausted candidates require R26-16/17; do not
+are ranked normally. Unavailable/exhausted candidates require R26-17; do not
 silently skip them. The ledger is provisional, including legally permitted
-special/ordinary multiple candidacies: R26-16 must apply uninominal precedence
+special/ordinary multiple candidacies: R26-16 applies uninominal precedence
 and R26-17 must refill released seats before final whole-chamber conclusions.
 A required non-computable quota/admission returns a named failure with no
 invented list entitlements. See [special-attribution.test.ts](special-attribution.test.ts),
@@ -434,7 +434,7 @@ remains explicitly provisional census data, with its version and population note
 See [camera-national.test.ts](camera-national.test.ts) for worked quota/remainder
 fixtures, the 220/221 boundary, internal-list filtering, seeded ties, arithmetic
 failures and validated single/joint-envelope composition. Ordinary territorial
-allocation follows below; bonus proclamations and candidate outcomes remain later stages.
+allocation and bonus proclamations follow below; candidate recovery remains R26-17.
 
 ## Camera territorial allocation (R26-13)
 
@@ -639,6 +639,63 @@ and [senate-regional.test.ts](senate-regional.test.ts) for validated single/join
 envelopes through N22. Candidate proclamations, multiple elections, exhaustion,
 registration, generation, workers and UI remain in subsequent plan steps.
 
+## Proclamations and multiple elections (R26-16)
+
+| Function | Responsibility |
+| --- | --- |
+| `proclaimCandidates(input)` | N23: initial bonus/ordinary/TAA proclamations and reuse of N09/N10 special winners |
+| `resolveMultipleElections(batch, execution)` | N24: retain one election per person, expose released seats and precedence decisions |
+
+`ProclamationInput` receives the validated chamber and candidate catalog, N06
+figures, final Camera N18 or Senate N21/N22 college targets, the N12 bonus
+decision, the special uninominal ledger and Camera TAA allocation where present.
+Stage simulation/chamber, seat-table, target/figure and entitlement totals are
+checked. N06 has no run ID: pairing its figures remains the caller's duty.
+Non-computable allocation/bonus prerequisites return blockers and no final seat
+batch. Partial special/TAA candidate outputs do not block known entitlements.
+
+N23 elects the winning bonus slate in filed order, retaining each member's actual
+list affiliation. Coalition bonus entitlements keep `listId: null`; they are
+never divided into proportional member-list quotas. Ordinary and TAA slates
+elect the capolista first, then N05 preference order, including its statutory
+filed-order tie rule. TAA seat IDs match N11; its provisional candidate ledger
+is rebuilt from the same entitlements and supplied preferences, not appended a
+second time. Special uninominal identities reuse the upstream ledger without
+another winner draw.
+
+Missing preferences preserve the known capolista and leave dependent identities
+unresolved. Explicit zero counts still produce a filed-order ranking. Unavailable
+filed candidates and exhausted seven-slot slates leave explicit unresolved seats;
+N23 does not skip them to fill seats through an implicit replacement route.
+Filed special/bonus incompatibilities are rejected even for unelected candidates.
+
+N24 applies special uninominal precedence, bonus over ordinary, and capolista
+over other positions. Repeated capolista wins select the lowest list percentage;
+other repeated wins select the highest individual percentage, using the exact
+N05/N06 fractions. Only eligible roles enter each comparison. Equal percentages
+use warned I03 draws after all express criteria. Candidate and seat ordering is
+canonical; draw contexts identify the run, person and compared seats. Undefined
+percentages leave the person's competing seats unresolved without drawing or
+substituting zero, while preserving other known elections.
+
+Outputs are owned and JSON-safe. `CandidateProclamations.status` describes only
+the initial batch: even a complete N23 batch must pass N24. N24 returns retained
+elections, per-person decisions with legal references and draw IDs, and released
+seat/candidate/retained-seat links. Released seats become `unfilled` with their
+original seat ID, category and entitlement. Existing unresolved seats retain
+their reason. Every filled identity occurs once after resolution; a release or
+unresolved comparison keeps the batch partial. These retained identities are
+subject to the eventual complete recovery composition, not full-election
+acceptance. N24 does not re-emit upstream events.
+
+See [proclamations.test.ts](proclamations.test.ts) and
+[multiple-elections.test.ts](multiple-elections.test.ts) for worked precedence
+fixtures, exact ties, missing/zero preferences, ownership, replay and validated
+joint envelopes through N23/N24, including mixed-affiliation coalition slates.
+R26-17 must consume released and unresolved seats, preserve retained identities,
+and implement the ordered recovery routes. Repeated proclamation/recovery and
+its progress condition are not implemented by this initial-batch boundary.
+
 ## Output and remaining stages
 
 `ReformScrutinyResult` is a **type contract**, with complete/partial/non-computable
@@ -667,8 +724,8 @@ Ordinary attribution, figures and rankings are available through R26-08 above;
 admission and preliminary special winners through R26-09; special attribution,
 TAA proportional allocation and entitlement summaries through R26-10; the paired
 bonus decision through R26-11, Camera national allocation/cap through R26-12,
-ordinary Camera territorial allocation through R26-13 and Senate regional
-allocation/cap through R26-14 and Senate list/college allocation through R26-15.
-Proclamations and multiple-election precedence remain
-R26-16 and initial recovery R26-17. Composition, scenario/generator, worker and
+ordinary Camera territorial allocation through R26-13, Senate regional
+allocation/cap through R26-14, Senate list/college allocation through R26-15,
+and initial proclamations/multiple-election precedence through R26-16.
+Initial recovery remains R26-17. Composition, scenario/generator, worker and
 UI integration follow R26-18/19/20.

@@ -61,8 +61,8 @@ numerical primitives, R26-07 geography/seat tables, R26-08 electoral figures
 and rankings, R26-09 admission/preliminary special winners, R26-10 special
 territories, R26-11 joint bonus decision, R26-12 Camera national allocation,
 R26-13 Camera territorial allocation, R26-14 Senato regional allocation/cap and
-R26-15 Senato list and college allocation are complete; continue with R26-16
-proclamations and multiple elections. Model
+R26-15 Senato list and college allocation and R26-16 proclamations and multiple
+elections are complete; continue with R26-17 exhaustion and replacements. Model
 selection does not
 imply fitted parameters, implemented generators or production acceptance.
 R26-05 through R26-18 can use constructed legal inputs independently of R26-19
@@ -86,7 +86,7 @@ calibration and generation.
 | [x] | [R26-13](#r26-13-camera-territorial-allocation) | Camera constituencies and colleges | 12 |
 | [x] | [R26-14](#r26-14-senato-regional-allocation) | Senato regional allocation and cap | 10-11 |
 | [x] | [R26-15](#r26-15-senato-list-and-college-allocation) | Senato lists and colleges | 14 |
-| [ ] | [R26-16](#r26-16-proclamations-and-multiple-elections) | Candidate proclamations and precedence | 10, 13, 15 |
+| [x] | [R26-16](#r26-16-proclamations-and-multiple-elections) | Candidate proclamations and precedence | 10, 13, 15 |
 | [ ] | [R26-17](#r26-17-exhaustion-and-replacements) | Exhaustion, replacements, bonus shortfalls | 01a, 16 |
 | [ ] | [R26-18](#r26-18-composition-and-registry) | Composed scrutiny and algorithm registration | 06-17 |
 | [ ] | [R26-19](#r26-19-scenarios-and-generation) | Scenario compatibility and generators | 02-04 resolved, 07, 18 |
@@ -364,6 +364,9 @@ corrections, six-decimal indices, and the Senato-specific vote totals used to
 break ties. Preserve each region's seat total.
 
 ### R26-16: Proclamations and multiple elections
+
+Use the [implemented proclamation boundary](../web/src/lib/politics/reform-2026/README.md#proclamations-and-multiple-elections-r26-16)
+for provisional batches, retained identities, released seats and recovery inputs.
 
 Translate Camera arts. 83-bis, 84-85, 93-octies and Senato arts. 17-17-bis.
 Separate bonus-slate election, capolista priority, preference ranking, and
