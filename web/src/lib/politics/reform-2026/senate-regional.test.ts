@@ -10,6 +10,7 @@ import { aggregateElectoralFigures } from './figures';
 import type { Subject } from './input';
 import type { ScrutinyExecutionContext } from './result';
 import { allocateSenateRegions, applySenateCap, type SenateCapResult, type SenateRegionAllocation, type SenateRegionalInput } from './senate-regional';
+import { allocateSenateListsAndColleges } from './senate-territorial';
 import { attributeSpecialVotes } from './special-attribution';
 import { proclaimSpecialUninominalWinners, summarizeSpecialSeats } from './special-seats';
 import { determineSpecialWinners } from './special-winners';
@@ -352,7 +353,7 @@ describe('Senate stage prerequisites and arithmetic failures', () => {
   });
 });
 
-describe('validated reform-envelope composition through N19/N20', () => {
+describe('validated reform-envelope composition through N19-N22', () => {
   it.each([false, true])('continues the legal stages with Senate regional totals (joint=%s)', joint => {
     const full = joint ? jointFixture() : singleFixture('senato');
     const chambers = full.renewal.kind === 'joint' ? [full.renewal.camera, full.renewal.senato] : [full.renewal.chamber];
@@ -406,5 +407,10 @@ describe('validated reform-envelope composition through N19/N20', () => {
     if (r.status !== 'complete') throw new Error();
     expect(r.targets.reduce((n, t) => n + t.ordinarySeats, 0)).toBe(joint ? 154 : 189);
     if (r.cap) conservation(r.cap, r.regions, 7);
+    const territorial = allocateSenateListsAndColleges({ ...senate, regional: r }, createSeededDrawContext('validated-N21-N22', 'legal'));
+    expect(territorial.status).toBe('complete');
+    if (territorial.colleges.status !== 'complete') throw new Error(JSON.stringify(territorial));
+    expect(territorial.colleges.targets.reduce((n, t) => n + t.ordinarySeats, 0)).toBe(joint ? 154 : 189);
+    expect(territorial.colleges.targets.filter(t => t.listId === 'A').reduce((n, t) => n + t.ordinarySeats, 0)).toBe(joint ? 71 : 113);
   });
 });

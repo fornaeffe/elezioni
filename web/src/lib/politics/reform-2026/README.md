@@ -21,8 +21,9 @@ This folder is independent of the legacy politics contracts and algorithm regist
 | Decide the paired 70/35 governability bonus | [bonus.ts](bonus.ts) |
 | Allocate Camera national subjects/lists and apply the 220-seat cap | [camera-national.ts](camera-national.ts) |
 | Allocate Camera constituencies, coalition lists and colleges | [camera-territorial.ts](camera-territorial.ts) |
-| Inspect Camera matrix numerics and correction movements | [camera-territorial-matrix.ts](camera-territorial-matrix.ts) |
+| Inspect shared territorial matrix numerics and correction movements | [territorial-matrix.ts](territorial-matrix.ts) |
 | Allocate Senato regional subjects and apply the 113-seat cap | [senate-regional.ts](senate-regional.ts) |
+| Allocate Senato regional coalition lists and ordinary/cap colleges | [senate-territorial.ts](senate-territorial.ts) |
 | Attribute special candidate-only votes | [special-attribution.ts](special-attribution.ts) |
 | Allocate Camera TAA proportional seats and provisional candidates | [taa-allocation.ts](taa-allocation.ts) |
 | Reuse special winners and summarize cap entitlements | [special-seats.ts](special-seats.ts) |
@@ -513,7 +514,7 @@ for stage communications, denominators, zero targets and blockers; and
 [camera-national.test.ts](camera-national.test.ts) for validated single/joint
 envelopes through N18. These functions establish ordinary entitlements only.
 Bonus seats remain owned by the national winning subject; candidate proclamations,
-multiple elections, exhaustion, Senate list/college allocation and application integration
+multiple elections, exhaustion and application integration
 retain their subsequent plan steps.
 
 ## Senato regional allocation (R26-14)
@@ -532,7 +533,7 @@ remainders, regional electoral figures and statutory draws. Coalition figures
 include every linked list, including excluded internal members. Special votes
 never enter these regional allocations. National subject totals are sums of
 regional allocations, with provisional and final totals exposed separately.
-Coalition-to-list and college allocation remain N21/N22 under R26-15.
+For coalition-to-list and college allocation, continue with N21/N22 below.
 
 `applySenateCap()` is independently callable with completed N19 regional
 allocations, the bonus subject, its special entitlement count and simulation ID.
@@ -578,8 +579,65 @@ failures retain the affected region and quota trace.
 See [senate-regional.test.ts](senate-regional.test.ts) for hand-worked cap paths,
 repeated passes, single-use states, tie criteria, seeded replay/permutations,
 failure paths, the bundled endowment and validated single/joint envelopes
-through N19/N20. These stages establish subject entitlements; bonus candidates,
-internal list targets and candidate recovery retain their later boundaries.
+through N22. These stages establish subject entitlements; internal list targets
+follow below, while bonus candidates and recovery retain their later boundaries.
+
+## Senato list and college allocation (R26-15)
+
+`SenateTerritorialInput` requires the validated Senate chamber, same-run N06
+figures, N08 admission and completed N19/N20 regional communication. Regional
+targets are final, including any cap correction. Simulation and seat-table
+identity are checked where available; N06/N08 pairing remains the caller's duty
+because those stages have no run IDs. Every ordinary region must retain its
+selected college endowment, and college list figures must sum to regional ones.
+
+| Function | Responsibility |
+| --- | --- |
+| `allocateSenateRegionalLists(input, execution)` | N21, S17(1)(b),(2): coalition-list integer quotas, remainders, regional votes and statutory draws; standalone lists pass through |
+| `allocateSenateColleges(input, lists, execution)` | N21/N22: dispatch ordinary or corrected-cap college allocation from completed regional list targets |
+| `allocateSenateCapColleges(input, lists, execution)` | Independently callable N22 boundary; requires the corrected cap path |
+| `allocateSenateListsAndColleges(input, execution)` | Scoped coordinator retaining both list and college stage results |
+
+Coalition allocation includes only N08's admitted 2-bis/2-ter members. Its
+denominator excludes other coalition members even though N19 counted their
+votes at subject level. Targets retain region, subject, list, votes and ordinary
+seats. No bonus seats are divided between coalition lists. Source metadata is
+owned output and preserves I08's provisional label.
+
+A single ordinary college receives its regional list targets directly, including
+zero targets, without an additional quota. In multiple-college regions, only
+positive-target lists enter S17(4) denominators. No bonus and bonus without a cap
+correction both use integer college quotas. Remainder ties use **college** list
+votes, then statutory draws, unlike Camera's constituency figures. Reached
+integer targets are excluded from the parallel remainder allocations. Donor
+used decimals ascend and recipient unused decimals descend independently;
+transfers conserve regional list targets and region totals but can change
+individual college totals. Missing correction tie-breaks use warned I03 draws.
+
+After an actual cap correction, S17(5) first divides the region's positive-target
+lists into majority and minority groups. Both regional group quotas discard
+their fractional part. Both college indices are truncated to six decimals before
+normalization by their sum and college capacity. Equal decimals use **college
+group** votes, then statutory draws. Group corrections transfer seats within the
+same college; S17(4) then allocates lists separately within each corrected group.
+Zero-target groups are inactive and their undefined quotas/indices are skipped.
+Both truncations are express statutory rules here, requiring no I05 policy.
+
+The shared `territorial-matrix.ts` engine takes an explicit chamber, statutory
+references, vote tie criterion and correction route. Camera retains its existing
+criteria and draw contexts. Matrix traces expose divisors, raw/truncated indices,
+normalized quotients, integer/provisional/final seats, remainder exclusions and
+states, movements, resolutions, draws and warnings. Regional coalition quota
+traces are kept separately. Downstream results do not re-emit upstream events.
+
+Non-computable prerequisites, I04 arithmetic failures and no-progress corrections
+retain attempted traces, reason and affected region without publishing final
+targets. There is no invented divisor, equal-share fallback or seat-table
+rescaling. Outputs are owned, JSON-safe and deterministic under input permutations.
+See [senate-territorial.test.ts](senate-territorial.test.ts) for worked fixtures
+and [senate-regional.test.ts](senate-regional.test.ts) for validated single/joint
+envelopes through N22. Candidate proclamations, multiple elections, exhaustion,
+registration, generation, workers and UI remain in subsequent plan steps.
 
 ## Output and remaining stages
 
@@ -610,7 +668,7 @@ admission and preliminary special winners through R26-09; special attribution,
 TAA proportional allocation and entitlement summaries through R26-10; the paired
 bonus decision through R26-11, Camera national allocation/cap through R26-12,
 ordinary Camera territorial allocation through R26-13 and Senate regional
-allocation/cap through R26-14. Senate list/college allocation remains R26-15,
-multiple-election precedence
+allocation/cap through R26-14 and Senate list/college allocation through R26-15.
+Proclamations and multiple-election precedence remain
 R26-16 and initial recovery R26-17. Composition, scenario/generator, worker and
 UI integration follow R26-18/19/20.

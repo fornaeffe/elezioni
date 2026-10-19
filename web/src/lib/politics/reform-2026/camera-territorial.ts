@@ -1,5 +1,5 @@
 import type { CameraNationalAllocationResult } from './camera-national';
-import { allocateCameraMatrix, type CameraMatrixResult } from './camera-territorial-matrix';
+import { allocateTerritorialMatrix, type TerritorialMatrixResult } from './territorial-matrix';
 import { exactFraction, floorExact } from './exact';
 import { sumVoteCounts, type AggregatedElectoralFigures, type ElectoralFigures } from './figures';
 import type { ChamberInput, SeatTableSource, Subject } from './input';
@@ -14,7 +14,7 @@ interface TerritorialBase {
   readonly chamber: 'camera';
   readonly simulationId: number;
   readonly seatTable: SeatTableSource;
-  readonly matrices: readonly CameraMatrixResult[];
+  readonly matrices: readonly TerritorialMatrixResult[];
   readonly draws: readonly DrawTrace[];
   readonly warnings: readonly ReformWarning[];
   readonly interpretations: readonly { readonly id: 'I05'; readonly version: 'I05-v1' }[];
@@ -68,7 +68,7 @@ function prerequisites(input: CameraTerritorialInput): void {
   }
 }
 
-function stage(input: CameraTerritorialInput, matrices: readonly CameraMatrixResult[] = [], i05 = false): TerritorialBase {
+function stage(input: CameraTerritorialInput, matrices: readonly TerritorialMatrixResult[] = [], i05 = false): TerritorialBase {
   return { chamber: 'camera', simulationId: input.national.simulationId, seatTable: input.chamber.seatTable, matrices,
     draws: matrices.flatMap(m => m.draws), warnings: matrices.flatMap(m => m.warnings),
     interpretations: i05 ? [{ id: 'I05', version: 'I05-v1' }] : [] };
@@ -128,7 +128,7 @@ function constituencies(input: CameraTerritorialInput, execution: ScrutinyExecut
   const { chamber, national } = input;
   if (national.status !== 'complete') throw new Error('Incomplete national communication');
   const targets = national.subjectTargets;
-  const result = allocateCameraMatrix({ contextId: `camera/${national.simulationId}/constituencies`,
+  const result = allocateTerritorialMatrix({ chamber: 'camera', contextId: `camera/${national.simulationId}/constituencies`,
     simulationId: national.simulationId, norm: cap ? 'N17' : 'N15',
     lawReference: cap ? 'C83(1-ter)(d), I05-v1' : 'C83(1)(h),(1-bis)',
     targets: targets.map(t => ({ id: key(t.subject), seats: t.ordinarySeats, votes: t.votes })),
@@ -154,7 +154,7 @@ export function allocateCameraCoalitionListsInConstituencies(
   prerequisites(input); communication(input, constituencies);
   const base = stage(input);
   if (input.national.status !== 'complete' || constituencies.status !== 'complete') return blocked(base, 'constituency-allocation-non-computable');
-  const matrices: CameraMatrixResult[] = [];
+  const matrices: TerritorialMatrixResult[] = [];
   const rows: CameraConstituencyListTarget[] = [];
   for (const t of sorted(input.national.subjectTargets.map(t => ({ ...t, id: key(t.subject) })))) {
     const local = constituencies.targets.filter(c => same(c.subject, t.subject));
@@ -164,7 +164,7 @@ export function allocateCameraCoalitionListsInConstituencies(
       rows.push(...local.map(c => ({ ...c, listId: t.subject.id })));
       continue;
     }
-    const m = allocateCameraMatrix({ contextId: `camera/${base.simulationId}/coalition/${t.subject.id}`,
+    const m = allocateTerritorialMatrix({ chamber: 'camera', contextId: `camera/${base.simulationId}/coalition/${t.subject.id}`,
       simulationId: base.simulationId, norm: 'N16', lawReference: 'C83(1)(i),(1-ter)(e); C83(1)(h), periods 9+',
       targets: members.map(l => ({ id: l.listId, seats: l.ordinarySeats, votes: l.votes })),
       areas: local.map(c => ({ id: c.territoryId, seats: c.ordinarySeats, entries: members.map(l => ({ id: l.listId,
@@ -187,7 +187,7 @@ export function allocateCameraColleges(
   prerequisites(input); communication(input, lists);
   if (input.national.status !== 'complete' || lists.status !== 'complete') return blocked(stage(input), 'constituency-lists-non-computable');
   const national = input.national;
-  const matrices: CameraMatrixResult[] = [];
+  const matrices: TerritorialMatrixResult[] = [];
   const rows: CameraCollegeTarget[] = [];
   for (const territory of sorted(input.chamber.territories.filter(t => t.kind === 'ordinary'))) {
     const colleges = sorted(input.chamber.colleges.filter(c => c.kind === 'ordinary' && c.territoryId === territory.id));
@@ -199,7 +199,7 @@ export function allocateCameraColleges(
       return blocked(stage(input, matrices), 'constituency-capacity-target-mismatch', territory.id);
     }
     const runLists = (members: readonly CameraConstituencyListTarget[], capacities: ReadonlyMap<string, number>, suffix: string): string | null => {
-      const matrix = allocateCameraMatrix({ contextId: `camera/${national.simulationId}/colleges/${territory.id}/${suffix}`,
+      const matrix = allocateTerritorialMatrix({ chamber: 'camera', contextId: `camera/${national.simulationId}/colleges/${territory.id}/${suffix}`,
         simulationId: national.simulationId, norm: 'N18', lawReference: national.path === 'bonus-with-cap'
           ? 'C83-bis(1-bis)(d); C83-bis(1)(b)(1)-(3)' : 'C83-bis(1)(b)(1)-(3)',
         targets: members.map(l => ({ id: l.listId, seats: l.ordinarySeats, votes: l.votes })),
@@ -221,7 +221,7 @@ export function allocateCameraColleges(
     const groups = ['majority', 'minority'].map(id => ({ id, members: local.filter(l =>
       same(l.subject, national.bonus!.subject) === (id === 'majority')) }));
     const groupTargets = groups.map(g => ({ id: g.id, seats: sum(g.members.map(l => l.ordinarySeats)), votes: sum(g.members.map(l => l.votes)) }));
-    const groupMatrix = allocateCameraMatrix({ contextId: `camera/${national.simulationId}/colleges/${territory.id}/groups`,
+    const groupMatrix = allocateTerritorialMatrix({ chamber: 'camera', contextId: `camera/${national.simulationId}/colleges/${territory.id}/groups`,
       simulationId: national.simulationId, norm: 'N18', lawReference: 'C83-bis(1-bis)(a)-(c)', targets: groupTargets,
       areas: colleges.map(c => ({ id: c.id, seats: capacity(c.id), entries: groups.map(g => ({ id: g.id,
         votes: sum(g.members.map(l => votes(collegeFigures(input, c.id), list(l.listId)))), tieVotes: groupTargets.find(t => t.id === g.id)!.votes })) })),

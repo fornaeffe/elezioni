@@ -3,9 +3,10 @@ import { sumVoteCounts } from './figures';
 import type { DrawTrace, ExactFraction, NormId, ReformWarning, ScrutinyExecutionContext } from './result';
 import { resolveTie, type TieCriterion, type TieResolution } from './ties';
 
-/** Internal Camera matrix engine. Callers select the actual statutory scope,
- * electoral figures and correction route; this is not a Senate algorithm. */
-export interface CameraMatrixInput {
+/** Shared exact matrix arithmetic. Callers supply chamber, statutory scope,
+ * electoral figures and correction route; no chamber tie policy is inferred. */
+export interface TerritorialMatrixInput {
+  readonly chamber: 'camera' | 'senato';
   readonly contextId: string;
   readonly simulationId: number;
   readonly norm: NormId;
@@ -16,15 +17,16 @@ export interface CameraMatrixInput {
     readonly seats: number;
     readonly entries: readonly { readonly id: string; readonly votes: number; readonly tieVotes: number }[];
   }[];
-  /** C83(h)/(i), C83-bis(b)(3), or C83-bis(1-bis)(c), respectively. */
+  /** C83(h)/(i); C83-bis(b)(3)/S17(4)(c); or
+   * C83-bis(1-bis)(c)/S17(5)(c), respectively. */
   readonly correction: 'constituencies' | 'colleges' | 'college-groups';
-  readonly initialTieFigure: 'national-electoral-figure' | 'constituency-electoral-figure';
+  readonly initialTieFigure: 'national-electoral-figure' | 'constituency-electoral-figure' | 'college-electoral-figure';
   /** Absent: integer local quota. Present: truncated indices, then normalization.
    * null marks an inactive zero-target group; its quota/index is never divided. */
   readonly indexQuotas?: readonly { readonly id: string; readonly quota: ExactFraction | null }[];
 }
 
-export interface CameraMatrixCell {
+export interface TerritorialMatrixCell {
   readonly id: string;
   readonly areaId: string;
   readonly targetId: string;
@@ -40,7 +42,7 @@ export interface CameraMatrixCell {
   readonly remainderState: 'unused' | 'used' | 'consumed';
   readonly seats: number;
 }
-export interface CameraMatrixTransfer {
+export interface TerritorialMatrixTransfer {
   readonly fromCellId: string;
   readonly toCellId: string;
   readonly route: 'same-area' | 'cross-area';
@@ -53,20 +55,21 @@ export interface CameraMatrixTransfer {
 interface MatrixTrace {
   readonly norm: NormId;
   readonly lawReference: string;
+  readonly chamber: 'camera' | 'senato';
   readonly contextId: string;
-  readonly initialTieFigure: CameraMatrixInput['initialTieFigure'];
-  readonly correction: CameraMatrixInput['correction'];
-  readonly indexQuotas: CameraMatrixInput['indexQuotas'] | null;
+  readonly initialTieFigure: TerritorialMatrixInput['initialTieFigure'];
+  readonly correction: TerritorialMatrixInput['correction'];
+  readonly indexQuotas: TerritorialMatrixInput['indexQuotas'] | null;
   readonly areas: readonly { readonly id: string; readonly capacity: number; readonly rawQuota: ExactFraction | null;
     readonly quota: ExactFraction | null; readonly finalSeats: number }[];
-  readonly targets: CameraMatrixInput['targets'];
-  readonly cells: readonly CameraMatrixCell[];
-  readonly transfers: readonly CameraMatrixTransfer[];
+  readonly targets: TerritorialMatrixInput['targets'];
+  readonly cells: readonly TerritorialMatrixCell[];
+  readonly transfers: readonly TerritorialMatrixTransfer[];
   readonly resolutions: readonly TieResolution[];
   readonly draws: readonly DrawTrace[];
   readonly warnings: readonly ReformWarning[];
 }
-export type CameraMatrixResult = MatrixTrace & (
+export type TerritorialMatrixResult = MatrixTrace & (
   | { readonly status: 'complete' }
   | { readonly status: 'non-computable'; readonly phase: 'initial' | 'remainders' | 'correction'; readonly reason: string }
 );
@@ -76,15 +79,15 @@ const desc = (name: string): TieCriterion => ({ name, direction: 'descending' })
 const zero = exactFraction(0);
 const cellId = (area: string, target: string) => JSON.stringify([area, target]);
 
-export function allocateCameraMatrix(input: CameraMatrixInput, execution: ScrutinyExecutionContext): CameraMatrixResult {
+export function allocateTerritorialMatrix(input: TerritorialMatrixInput, execution: ScrutinyExecutionContext): TerritorialMatrixResult {
   const targets = [...input.targets].sort((a, b) => a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
   const areas = [...input.areas].sort((a, b) => a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
   const unique = (ids: readonly string[]) => ids.every(Boolean) && new Set(ids).size === ids.length;
   if (!unique(targets.map(t => t.id)) || !unique(areas.map(a => a.id)) ||
-      !Number.isSafeInteger(input.simulationId) || input.simulationId < 0) throw new RangeError('Invalid Camera matrix IDs');
+      !Number.isSafeInteger(input.simulationId) || input.simulationId < 0) throw new RangeError('Invalid territorial matrix IDs');
   targets.forEach(t => sumVoteCounts([t.seats, t.votes]));
   if (sumVoteCounts(targets.map(t => t.seats)) !== sumVoteCounts(areas.map(a => a.seats))) {
-    throw new RangeError('Camera matrix capacities must sum to its targets');
+    throw new RangeError('Territorial matrix capacities must sum to its targets');
   }
   for (const area of areas) {
     if (!unique(area.entries.map(e => e.id)) || area.entries.length !== targets.length ||
@@ -94,12 +97,12 @@ export function allocateCameraMatrix(input: CameraMatrixInput, execution: Scruti
   if (input.indexQuotas && (!unique(input.indexQuotas.map(q => q.id)) || input.indexQuotas.length !== targets.length ||
       targets.some(t => !input.indexQuotas!.some(q => q.id === t.id)))) throw new RangeError('Supply every index quota once');
 
-  let cells: CameraMatrixCell[] = [];
+  let cells: TerritorialMatrixCell[] = [];
   const quotas: { id: string; capacity: number; rawQuota: ExactFraction | null; quota: ExactFraction | null }[] = [];
-  const transfers: CameraMatrixTransfer[] = [];
+  const transfers: TerritorialMatrixTransfer[] = [];
   const resolutions: TieResolution[] = [];
-  const finish = (failure?: { phase: 'initial' | 'remainders' | 'correction'; reason: string }): CameraMatrixResult => structuredClone({
-    norm: input.norm, lawReference: input.lawReference, contextId: input.contextId,
+  const finish = (failure?: { phase: 'initial' | 'remainders' | 'correction'; reason: string }): TerritorialMatrixResult => structuredClone({
+    chamber: input.chamber, norm: input.norm, lawReference: input.lawReference, contextId: input.contextId,
     initialTieFigure: input.initialTieFigure, correction: input.correction,
     indexQuotas: input.indexQuotas ? [...input.indexQuotas].sort((a, b) => a.id < b.id ? -1 : a.id > b.id ? 1 : 0) : null,
     targets, cells, transfers, resolutions,
@@ -110,21 +113,21 @@ export function allocateCameraMatrix(input: CameraMatrixInput, execution: Scruti
   const choose = (options: readonly { id: string; values: readonly ExactFraction[] }[], criteria: readonly TieCriterion[],
     suffix: string, rule: 'statutory' | 'I03') => {
     const r = resolveTie(options, criteria, { simulationId: input.simulationId, request: {
-      contextId: `${input.contextId}/${suffix}`, chamber: 'camera', norm: input.norm, lawReference: input.lawReference, rule
+      contextId: `${input.contextId}/${suffix}`, chamber: input.chamber, norm: input.norm, lawReference: input.lawReference, rule
     } }, execution);
     resolutions.push(r);
     return r.chosenId;
   };
   const total = (id: string) => sumVoteCounts(cells.filter(c => c.targetId === id).map(c => c.seats));
   const target = (id: string) => targets.find(t => t.id === id)!;
-  const remainder = (c: CameraMatrixCell) => c.decimalPart!;
-  const change = (c: CameraMatrixCell, patch: Partial<CameraMatrixCell>) => {
+  const remainder = (c: TerritorialMatrixCell) => c.decimalPart!;
+  const change = (c: TerritorialMatrixCell, patch: Partial<TerritorialMatrixCell>) => {
     const updated = { ...c, ...patch };
     cells[cells.findIndex(row => row.id === c.id)] = updated;
     return updated;
   };
 
-  // C83(h)/(i), C83-bis(1)(b): "non tiene conto ... parte frazionaria".
+  // C83(h)/(i), C83-bis(1)(b), S17(4)(a): "non tiene conto ... parte frazionaria".
   // Calculate ALL integer parts before applying reached-target exclusions.
   // This is a simultaneous territorial allocation, independent of input order.
   for (const area of areas) {
@@ -138,7 +141,8 @@ export function allocateCameraMatrix(input: CameraMatrixInput, execution: Scruti
       if (q && t.seats === 0) indices.push({ raw: null, applied: zero });
       else if (q) {
         const raw = divideExact(exactFraction(e.votes), q.quota!);
-        // C83(1-ter)(d), I05-v1; C83-bis(1-bis)(b) expressly truncates BOTH groups.
+        // C83(1-ter)(d), I05-v1; C83-bis(1-bis)(b) and S17(5)(b)
+        // expressly truncate BOTH groups: "troncato alla sesta cifra decimale".
         indices.push({ raw, applied: truncateToSixDecimals(raw) });
       } else indices.push({ raw: null, applied: exactFraction(e.votes) });
     }
@@ -185,8 +189,8 @@ export function allocateCameraMatrix(input: CameraMatrixInput, execution: Scruti
   // C83(h), ninth and following sentences: largest surplus, then national
   // figure; donor's USED decimals ascending, recipient's UNUSED descending.
   // Try EVERY eligible same-area donor before the cross-area fallback.
-  // C83-bis(1)(b)(3) selects donor/recipient colleges independently.
-  // C83-bis(1-bis)(c): "nei medesimi collegi" even if the other remainder is used.
+  // C83-bis(1)(b)(3), S17(4)(c) select donor/recipient colleges independently.
+  // C83-bis(1-bis)(c), S17(5)(c): "nei medesimi collegi" even if the other remainder is used.
   const surplusOrder: string[] = [];
   const surplusDrawContexts = new Map<string, readonly string[]>();
   let remaining = targets.filter(t => total(t.id) > t.seats);

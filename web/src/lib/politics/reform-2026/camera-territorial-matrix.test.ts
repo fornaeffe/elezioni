@@ -1,20 +1,20 @@
 import { describe, expect, it } from 'vitest';
-import { allocateCameraMatrix, type CameraMatrixInput } from './camera-territorial-matrix';
+import { allocateTerritorialMatrix, type TerritorialMatrixInput } from './territorial-matrix';
 import { compareExact, divideExact, exactFraction, truncateToSixDecimals } from './exact';
 import type { ScrutinyExecutionContext } from './result';
 import { createSeededDrawContext } from './ties';
 
 const noDraw: ScrutinyExecutionContext = { draw() { throw new Error('Unexpected draw'); } };
 const first: ScrutinyExecutionContext = { draw(r) { return { ...r, chosenId: r.alternativeIds[0], streamId: 'controlled' }; } };
-function fixture(targets: number[] = [3, 3], areas = [[180, 120], [170, 130]], capacities = [3, 3]): CameraMatrixInput {
+function fixture(targets: number[] = [3, 3], areas = [[180, 120], [170, 130]], capacities = [3, 3]): TerritorialMatrixInput {
   const names = targets.map((_, i) => String.fromCharCode(65 + i));
   const national = names.map((_, i) => areas.reduce((s, a) => s + a[i], 0));
-  return { simulationId: 13, contextId: 'worked-matrix', norm: 'N15', lawReference: 'C83(1)(h)',
+  return { chamber: 'camera', simulationId: 13, contextId: 'worked-matrix', norm: 'N15', lawReference: 'C83(1)(h)',
     correction: 'constituencies', initialTieFigure: 'national-electoral-figure',
     targets: names.map((id, i) => ({ id, seats: targets[i], votes: national[i] })),
     areas: areas.map((a, i) => ({ id: `T${i}`, seats: capacities[i], entries: a.map((votes, j) => ({ id: names[j], votes, tieVotes: national[j] })) })) };
 }
-function run(f = fixture(), execution = noDraw) { return allocateCameraMatrix(f, execution); }
+function run(f = fixture(), execution = noDraw) { return allocateTerritorialMatrix(f, execution); }
 function complete(f = fixture(), execution = noDraw) {
   const r = run(f, execution);
   if (r.status !== 'complete') throw new Error(`${r.phase}: ${r.reason}`);
@@ -191,7 +191,7 @@ describe('Camera territorial integer/remainder matrices and legal corrections', 
     ['zero-quota', fixture([2, 1], [[1, 1]], [3])],
     ['initial-overallocation', fixture([3, 2, 2], [[10, 1, 1]], [7])],
   ])('reports I04 %s before consuming draws', (reason, input) => {
-    expect(run(input as CameraMatrixInput)).toMatchObject({ status: 'non-computable', phase: 'initial', reason, draws: [] });
+    expect(run(input as TerritorialMatrixInput)).toMatchObject({ status: 'non-computable', phase: 'initial', reason, draws: [] });
   });
 
   it('preflights impossible residual pools before any draw', () => {
