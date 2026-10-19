@@ -54,7 +54,7 @@ export const politicsScrutinyAlgorithms: readonly PoliticsSimulationAlgorithm[] 
           .map(c => ({ chamber: c.context.ramo, output: runPoliticsScrutiny(c.input, c.context) })) };
     } },
   { id: REFORM_ALGORITHM_ID, name: 'Reform 2026', productionAvailable: false,
-    description: 'Paired domestic initial scrutiny from complete direct legal inputs; production generation is pending R26-19/20.',
+    description: 'Paired domestic scrutiny and R26-19 generation; production worker/UI integration is pending R26-20.',
     lawReference: 'docs/politics-reform-2026-specification.md; stage-local law comments',
     execute(request, execution) {
       if (request.algorithmId !== REFORM_ALGORITHM_ID || request.input.algorithmId !== REFORM_ALGORITHM_ID || request.input.simulationId !== request.simulationId) {

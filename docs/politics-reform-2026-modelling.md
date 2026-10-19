@@ -2,11 +2,11 @@
 
 Read the section corresponding to R26-02, R26-03, or R26-04 in
 [`politics-reform-2026-plan.md`](politics-reform-2026-plan.md). R26-02, R26-03 and
-R26-04 are approved. Recorded decisions do not implement their generators or
-establish fitted parameters. Audit source data before production integration;
-preference and paired chamber data are available, but national preference and
-chamber-dependence calibration remain future work. No calibrated model of
-bonus-only ballot composition is established here.
+R26-04 are approved. Their R26-19 implementation, fitted preference parameters,
+source reconciliation and assumed chamber profiles are documented in the
+[generation guide](politics-reform-2026-generation.md). Application integration
+and acceptance remain R26-20/21. No calibrated model of bonus-only ballot
+composition or future national chamber-error covariance is established here.
 Constructed data can test mechanics and sensitivity;
 it cannot establish the real distribution of unobserved voting behavior.
 
@@ -109,7 +109,8 @@ Require exact downstream representation equivalence (zero discrepancies);
 the less-than-one-vote bound per list/college concerns integer attribution versus
 its ideal proportional value for fixed `D/B`, not arbitrary integer
 reconstruction from a target `T` or a bound on seat changes. Full scrutiny
-equivalence and sensitivity checks remain future work.
+equivalence and conditional sensitivity checks are recorded under R26-19; they
+do not identify unobserved ballot behavior.
 
 ## Preferences (R26-03)
 
@@ -119,8 +120,9 @@ equivalence and sensitivity checks remain future work.
 historical preference patterns, with supplied valid preference counts taking
 precedence. The [decision record](migration-history.md#2026-10-17-r26-03-approved-historical-pattern-preference-model)
 contains the source audit, alternatives, rationale and transfer limits. Model
-family selection is complete; fitting, generator implementation and downstream
-validation remain R26-19 work, using independently supplied legal fixtures first.
+family selection is complete. R26-19 implements fitting, generation and downstream
+validation using independently supplied legal fixtures; see the generation guide
+for the exact evidence and transfer limits.
 
 1. Separate effective preference intensity (marks per list vote), concentration
    among candidates and territorial variation. Fit historical patterns with
@@ -207,7 +209,8 @@ interval. Do not bypass candidate capacities to report complete final results.
 R26-19/20 acceptance requires a versioned fitted profile with source reconciliation,
 validation and sensitivity evidence; valid preference generation or supplied
 inputs; and complete propagation/reporting of candidate-dependent effects. This
-decision does not assert fitted parameters or passing application tests. Revisit
+decision alone does not assert fitted parameters or passing application tests;
+use the separate implementation evidence. Revisit
 the model when broader data, actual reform-election results, material validation
 failures or new candidate information change its evidential basis. Keep any UI
 parameters tied to an explained modelling meaning.
@@ -315,7 +318,8 @@ geography/coverage assumptions, seeds, and supplied/common/model-derived referen
 provenance. Report dependence sensitivity and joint-bonus limitations; do not
 present assumed correlation as measured certainty. Acceptance in R26-19/20
 requires fitted or explicitly assumed, versioned parameters with reconciliation,
-override/marginal tests and joint-bonus sensitivity evidence. The decision does
-not implement the model or establish numerical correlation values. Revisit when
+override/marginal tests and joint-bonus sensitivity evidence. The decision alone
+does not establish numerical correlation values; R26-19 labels its
+implemented profile correlations as assumptions. Revisit when
 new comparable paired elections, changed ballots, validation failures or better
 demographic information change the evidence.

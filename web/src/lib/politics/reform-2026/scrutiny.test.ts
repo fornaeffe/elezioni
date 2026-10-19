@@ -116,8 +116,8 @@ describe('R26-18 complete direct-input composition', () => {
       }
     }
   });
-  it('reconciles raw components once and preserves equivalent downstream seats', () => {
-    const attributed = completeScrutinyFixture(), raw = structuredClone(attributed);
+  it.each([30, 42, 45, 50, 60])('reconciles components once at majority %s and preserves equivalent downstream seats', majority => {
+    const attributed = completeScrutinyFixture(majority), raw = structuredClone(attributed);
     if (raw.renewal.kind !== 'joint') throw new Error();
     for (const c of [raw.renewal.camera, raw.renewal.senato]) {
       for (const row of c.ordinaryVotes) {

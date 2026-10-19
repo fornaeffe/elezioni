@@ -10,7 +10,7 @@ export interface ValidationIssue {
   readonly lawReference: string | null;
 }
 
-interface Schema<T> {
+export interface Schema<T> {
   readonly optional?: boolean;
   readonly check: (value: unknown, path: string, issues: ValidationIssue[]) => boolean;
   readonly type?: T;
@@ -155,3 +155,8 @@ export const inputShape: Schema<ReformScrutinyInput> = object({
         camera: nullable(resolved), senato: nullable(resolved) })) })
   )
 });
+
+// Reuse the same strict JSON grammar for versioned generation envelopes.
+export { scalar, text, boolean, count, positive, share, date, literal, nullable,
+  optional, array, object, union, chamber, subject, provenance, preferences,
+  ordinaryVotes, specialVotes };

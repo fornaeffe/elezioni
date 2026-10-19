@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "kind": "politics-reform-generation",
+  "snapshotVersion": "r26-generation-v1-c5c4be9fafb5",
+  "modelVersion": "r26-models-v1-f71a72020aaa",
+  "defaultsVersion": "r26-defaults-v1-f204e831aad3",
+  "path": "data/reform-2026/r26-generation-v1-c5c4be9fafb5.json.gz",
+  "sha256": "ba8d628268182fd7558a7f7b06aae19542b968c6e9950259ca66a3e78906423d",
+  "bytes": 992943,
+  "uncompressedSha256": "9c13bcfa860589ecafdc8f5386aead95eec5c07ed393e132584310c97254e715",
+  "defaultsPath": "r26-defaults-v1-f204e831aad3.json",
+  "modelsPath": "r26-models-v1-f71a72020aaa.json"
+}

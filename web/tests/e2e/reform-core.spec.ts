@@ -3,6 +3,9 @@ import { expect, test } from '@playwright/test';
 import { build } from 'vite';
 import { completeScrutinyFixture, coalitionScrutinyFixture } from '../../src/lib/politics/reform-2026/scrutiny.fixture';
 import type { PoliticsSimulationResult } from '../../src/lib/politics/simulation-scrutiny';
+import { generationFixture } from '../../src/lib/politics/reform-2026/generation.fixture';
+import { generateReformSimulation, prepareReformGeneration } from '../../src/lib/politics/reform-2026/generation';
+import { runPoliticsReformScrutiny } from '../../src/lib/politics/reform-2026/scrutiny';
 
 type WorkerResponse = { ok: true; result: PoliticsSimulationResult } | { ok: false; message: string };
 
@@ -69,4 +72,20 @@ test('provisional I10 resolves coalition recovery in the browser and preserves p
   expect(reply.result.result.seats).toHaveLength(588);
   expect(reply.result.result.interpretations).toContainEqual({ id: 'I10', version: 'I10-v1' });
   expect(reply.result.result.warnings.some(w => w.interpretationId === 'I10')).toBe(true);
+});
+
+test('reform scenario generation and full scrutiny replay identically in a browser worker', async ({ page, context }) => {
+  await context.route('**/r26-test-worker.js', route => route.fulfill({ contentType: 'text/javascript', body: workerCode }));
+  await page.goto('/');
+  const fixture = generationFixture();
+  const expected = runPoliticsReformScrutiny(generateReformSimulation(prepareReformGeneration(fixture.scenario, fixture.snapshot), 7).input);
+  const reply = await page.evaluate(generation => new Promise<WorkerResponse>((resolve, reject) => {
+    const worker = new Worker('/r26-test-worker.js', { type: 'module' });
+    worker.onmessage = e => { worker.terminate(); resolve(e.data); };
+    worker.onerror = e => { worker.terminate(); reject(new Error(e.message)); };
+    worker.postMessage({ generation });
+  }), { ...fixture, simulationId: 7 });
+  expect(reply.ok).toBe(true);
+  if (!reply.ok || reply.result.algorithmId !== 'politiche-reform-2026-v1') throw new Error('Expected generated reform output');
+  expect(reply.result.result).toEqual(expected);
 });

@@ -66,6 +66,8 @@ export function runPoliticsReformScrutiny(value: unknown, execution?: ScrutinyEx
   const input = checked.input;
   const context = execution ?? createSeededDrawContext(input.randomness.seed,
     JSON.stringify([input.randomness.streamVersion, input.algorithmId, input.simulationId]));
+  const attributionContext = execution ?? createSeededDrawContext(input.randomness.seed,
+    JSON.stringify([input.randomness.streamVersion, input.algorithmId, input.simulationId, 'attribution']));
   const renewed = input.renewal.kind === 'joint' ? [input.renewal.camera, input.renewal.senato] : [input.renewal.chamber];
   const stages: StageOutcome[] = [], draws: ReformScrutinyResult['draws'][number][] = [], warnings: ReformScrutinyResult['warnings'][number][] = [];
   const events = (s: { readonly draws: ReformScrutinyResult['draws']; readonly warnings: ReformScrutinyResult['warnings'] }) => {
@@ -83,9 +85,9 @@ export function runPoliticsReformScrutiny(value: unknown, execution?: ScrutinyEx
     const attribution = [...chamber.ordinaryVotes].filter(r => chamber.colleges.find(c => c.id === r.collegeId)!.kind === 'ordinary')
       .sort((a, b) => a.collegeId < b.collegeId ? -1 : 1)
       .map(r => distributeBonusOnlyVotes({ chamber: chamber.chamber, simulationId: input.simulationId,
-        collegeId: r.collegeId, coalitions: chamber.coalitions, votes: r.votes }, context));
+        collegeId: r.collegeId, coalitions: chamber.coalitions, votes: r.votes }, attributionContext));
     const specialAttribution = [...chamber.specialVotes].sort((a, b) => a.collegeId < b.collegeId ? -1 : 1)
-      .map(r => attributeSpecialVotes({ ...args, collegeId: r.collegeId }, context));
+      .map(r => attributeSpecialVotes({ ...args, collegeId: r.collegeId }, attributionContext));
     attribution.forEach(events); specialAttribution.forEach(events);
     const failed = attribution.filter(r => r.status !== 'complete');
     record(chamber.chamber, 'N04', failed.length ? 'non-computable' : 'complete', 'zero-direct-support', failed.map(r => r.collegeId));

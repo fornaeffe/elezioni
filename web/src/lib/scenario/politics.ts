@@ -1033,10 +1033,19 @@ export function serializeScenario(scenario: Scenario): string {
 
 export function parseScenario(text: string): Scenario {
   const parsed = JSON.parse(text) as unknown;
+  if (parsed !== null && typeof parsed === 'object' && 'schema_version' in parsed && (
+    !Number.isSafeInteger(parsed.schema_version) || Number(parsed.schema_version) < 1 || Number(parsed.schema_version) > politicsScenarioSchemaVersion
+  )) throw new Error('Versione del file scenario non supportata; usare una conversione esplicita.');
   const scenarioInput =
     parsed !== null && typeof parsed === 'object' && 'scenario' in parsed
       ? (parsed as Partial<SerializedScenario>).scenario
       : parsed;
+  // Reform envelopes require their explicit versioned converter. Normalizing
+  // one as a legacy Scenario would otherwise silently restore old-law defaults.
+  for (const envelope of [parsed, scenarioInput]) if (envelope !== null && typeof envelope === 'object' && (
+    'kind' in envelope && (envelope.kind === 'politics-reform-scenario' || envelope.kind === 'politics-reform-generation') ||
+    'algorithmId' in envelope && envelope.algorithmId !== 'politiche-r-parity-v1'
+  )) throw new Error('Questo file richiede il modello di scenario della riforma o un algoritmo diverso; convertirlo esplicitamente prima di usarlo.');
   const scenario = normalizeScenario(scenarioInput);
   const errors = validateScenario(scenario);
 

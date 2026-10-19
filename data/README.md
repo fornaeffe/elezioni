@@ -1,7 +1,9 @@
 # Geography and census preparation
 
-Use this workflow for R26-07 geography and seat tables. Historical vote/preference
-importers and R26-19 statistical calibration are separate future consumers.
+Use this workflow for R26-07 geography and seat tables. For the paired historical
+vote/preference importers, fitting and R26-19 runtime bundles, use the separate
+[generation guide](../docs/politics-reform-2026-generation.md#clean-clone-preparation)
+and [`reform-model-source-manifest.json`](reform-model-source-manifest.json).
 `dati/` remains the legacy R data directory; remove it only after the whole
 data-preparation migration is complete and its consumers have migrated.
 
@@ -9,8 +11,9 @@ data-preparation migration is complete and its consumers have migrated.
 
 The whole migration targets Node/TypeScript preparation in GitHub Actions and
 static hosting on GitHub Pages. The commands below currently cover only
-geography/census and seat tables; they do not regenerate every production
-politics/regional snapshot or the future historical/model inputs.
+geography/census and seat tables. The R26-19 commands extend the same acquisition
+and immutable-artifact foundation to historical/model inputs. They do not
+regenerate every legacy politics/regional snapshot.
 
 As remaining importers and calibration migrate, expose non-interactive commands
 reusable locally and on a standard Linux runner. A clean clone must acquire

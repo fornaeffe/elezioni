@@ -4,6 +4,8 @@ Public API: [`index.ts`](index.ts). Legal requirements and later stage boundarie
 [normative specification](../../../../../docs/politics-reform-2026-specification.md).
 This folder is independent of legacy politics contracts. The common
 [simulation registry](../simulation-scrutiny.ts) adapts both legal implementations.
+For R26-19 scenarios, historical/model preparation, generation APIs and replay,
+read only the [generation guide](../../../../../docs/politics-reform-2026-generation.md).
 
 | Task | File |
 | --- | --- |
@@ -43,7 +45,7 @@ This folder is independent of legacy politics contracts. The common
 
 `ReformScrutinyInput` uses `schemaVersion: 1` and the registered algorithm ID
 `politiche-reform-2026-v1`. This direct legal envelope remains separate from
-scenario schemas and production generation. No old file is migrated.
+scenario schemas and production generation. No old file is migrated automatically.
 
 ```ts
 import { validateReformScrutinyInput } from '$lib/politics/reform-2026';
@@ -871,7 +873,7 @@ The adapter checks supplied legacy `SIM` tags and calls the unchanged scrutiny
 implementation. Both return the actual algorithm and simulation identity.
 `politicsScrutinyAlgorithms` describes both real algorithms with a common
 `execute()` method; `resolvePoliticsSimulationAlgorithm(id, mode)` rejects unknown
-IDs and rejects reform in `production` mode while R26-19/20 are pending.
+IDs and rejects reform in `production` mode until R26-20 worker/UI integration.
 
 The older `resolvePoliticsScrutinyAlgorithm()` remains a compatibility adapter for
 the current legacy generator/worker. It retains the legacy default and its
@@ -918,4 +920,5 @@ ordinary Camera territorial allocation through R26-13, Senate regional
 allocation/cap through R26-14, Senate list/college allocation through R26-15,
 initial proclamations/multiple-election precedence through R26-16, and initial
 exhaustion/recovery through R26-17 and composition/registration through R26-18.
-Scenario/generator and production worker/UI integration follow R26-19/20.
+R26-19 scenarios/generators are documented in the generation guide linked above;
+production worker/UI integration follows in R26-20.
