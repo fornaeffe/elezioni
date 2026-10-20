@@ -97,6 +97,7 @@ describe('R26-18 complete direct-input composition', () => {
     expect(bonus.every(s => s.entitlement.subject.id === 'G' && s.entitlement.listId === null)).toBe(true);
     expect(new Set(r.chambers.flatMap(c => c.recovery!.retained.filter(e => e.role === 'bonus').map(e => e.affiliationListId)))).toEqual(new Set(['A', 'C']));
     for (const transfer of r.transfers) for (const at of [transfer.from, transfer.to]) {
+      if (!at) continue;
       if (at.listId === 'A' || at.listId === 'C') expect(at.subject).toEqual({ kind: 'coalition', id: 'G' });
     }
     for (const s of r.chambers) {

@@ -145,8 +145,11 @@ maximum-entropy convention; aggregate observations do not identify pairings or
 triple-preference behavior. Candidate outcomes are conditional model results,
 and profile spread is not a calibrated confidence interval.
 
-The existing N18 geographic-capacity blocker remains explicit. Never rescale
-legal endowments, reroll a failed simulation or omit it from the requested-run
+N18's cap-group geographic-capacity blocker and ordinary arithmetic/no-progress
+blockers remain explicit. Ordinary C83-bis(1)(b)(3) independently corrects list
+surpluses/deficits against the communicated targets, retaining the decree-based
+initial quotas. Never rescale legal endowments, reroll a failed simulation or
+omit it from the requested-run
 denominator. R26-20 must distinguish non-computability, vote-based entitlements,
 filled/unfilled seats and preference-dependent recovery. Production worker/UI
 availability stays disabled until that integration is completed.

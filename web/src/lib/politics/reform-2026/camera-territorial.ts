@@ -187,15 +187,19 @@ export function allocateCameraColleges(
   prerequisites(input); communication(input, lists);
   if (input.national.status !== 'complete' || lists.status !== 'complete') return blocked(stage(input), 'constituency-lists-non-computable');
   const national = input.national;
+  if (sum(lists.targets.map(l => l.ordinarySeats)) !== national.ordinarySeats || national.listTargets.some(t =>
+    sum(lists.targets.filter(l => l.listId === t.listId).map(l => l.ordinarySeats)) !== t.ordinarySeats)) {
+    throw new RangeError('Constituency list targets must preserve national list entitlements');
+  }
   const matrices: TerritorialMatrixResult[] = [];
   const rows: CameraCollegeTarget[] = [];
   for (const territory of sorted(input.chamber.territories.filter(t => t.kind === 'ordinary'))) {
     const colleges = sorted(input.chamber.colleges.filter(c => c.kind === 'ordinary' && c.territoryId === territory.id));
     const local = lists.targets.filter(l => l.territoryId === territory.id && l.ordinarySeats > 0);
     const capacity = (id: string) => { const c = colleges.find(c => c.id === id)!; return national.bonus ? c.seatsWithBonus : c.seatsWithoutBonus; };
-    if (sum(local.map(l => l.ordinarySeats)) !== sum(colleges.map(c => capacity(c.id)))) {
-      // A lawful cross-constituency h/i fallback can change the number of seats
-      // communicated locally. Do not silently rescale a fixed decree table.
+    if (national.path === 'bonus-with-cap' && sum(local.map(l => l.ordinarySeats)) !== sum(colleges.map(c => capacity(c.id)))) {
+      // C83-bis(1-bis)(c) transfers seats "nei medesimi collegi". Unlike
+      // independent b(3) list corrections, it cannot change the group total.
       return blocked(stage(input, matrices), 'constituency-capacity-target-mismatch', territory.id);
     }
     const runLists = (members: readonly CameraConstituencyListTarget[], capacities: ReadonlyMap<string, number>, suffix: string): string | null => {
@@ -205,7 +209,8 @@ export function allocateCameraColleges(
         targets: members.map(l => ({ id: l.listId, seats: l.ordinarySeats, votes: l.votes })),
         areas: colleges.map(c => ({ id: c.id, seats: capacities.get(c.id)!, entries: members.map(l => ({ id: l.listId,
           votes: votes(collegeFigures(input, c.id), list(l.listId)), tieVotes: l.votes })) })),
-        correction: 'colleges', initialTieFigure: 'constituency-electoral-figure'
+        correction: national.path === 'bonus-with-cap' ? 'colleges' : 'independent-colleges',
+        initialTieFigure: 'constituency-electoral-figure'
       }, execution);
       matrices.push(matrix);
       if (matrix.status !== 'complete') return matrix.reason;

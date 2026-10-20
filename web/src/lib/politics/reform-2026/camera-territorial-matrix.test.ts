@@ -91,7 +91,7 @@ describe('Camera territorial integer/remainder matrices and legal corrections', 
   it('prioritizes the larger surplus before the national electoral figure', () => {
     const f = fixture([1, 3, 4], [[80, 90, 30], [80, 90, 30], [80, 90, 30], [80, 90, 30]], [2, 2, 2, 2]);
     const r = complete(f, first); // B has more national votes but fewer excess seats.
-    expect(r.transfers.slice(0, 3).every(t => t.fromCellId.endsWith(',"A"]'))).toBe(true);
+    expect(r.transfers.slice(0, 3).every(t => t.fromCellId?.endsWith(',"A"]'))).toBe(true);
     expect(r.resolutions.find(r => r.steps.some(s => s.criterion === 'surplus-seats'))?.steps.map(s => s.criterion)).toEqual(['surplus-seats']);
   });
 
@@ -116,7 +116,7 @@ describe('Camera territorial integer/remainder matrices and legal corrections', 
     // Every area q100 gives A/B one residual each: surpluses A=2,B=2.
     const r = complete(f, first);
     expect(r.resolutions.find(r => r.steps.some(s => s.criterion === 'national-electoral-figure'))?.chosenId).toBe('A');
-    expect(r.transfers.slice(0, 2).every(t => t.fromCellId.endsWith(',"A"]'))).toBe(true);
+    expect(r.transfers.slice(0, 2).every(t => t.fromCellId?.endsWith(',"A"]'))).toBe(true);
     expect(r.cells.filter(c => c.targetId === 'C').reduce((s, c) => s + c.seats, 0)).toBe(4);
   });
 
@@ -153,6 +153,69 @@ describe('Camera territorial integer/remainder matrices and legal corrections', 
       indexQuotas: [{ id: 'A', quota: exactFraction(100) }, { id: 'B', quota: exactFraction(100) }] }, first);
     expect(r.transfers[0]).toMatchObject({ route: 'same-area', fromCellId: '["T0","A"]', toCellId: '["T0","B"]' });
     expect(r.areas.map(a => a.finalSeats)).toEqual([2, 2]);
+  });
+
+  const independent = (f: TerritorialMatrixInput): TerritorialMatrixInput => ({ ...f, chamber: 'camera', norm: 'N18',
+    lawReference: 'C83-bis(1)(b)(1)-(3)', correction: 'independent-colleges', initialTieFigure: 'constituency-electoral-figure' });
+
+  it('adds a missing ordinary seat without a donor, retaining the decree quota', () => {
+    const f = independent(fixture([2, 1], [[60, 40]], [2]));
+    const before = structuredClone(f), r = complete(f);
+    expect(counts(r)).toEqual([['T0', 'A', 2], ['T0', 'B', 1]]);
+    expect(r.areas).toEqual([{ id: 'T0', capacity: 2, rawQuota: exactFraction(50), quota: exactFraction(50), finalSeats: 3 }]);
+    expect(r.transfers).toEqual([{ fromCellId: null, toCellId: '["T0","A"]', route: 'addition',
+      fromSeatsBefore: null, toSeatsBefore: 1,
+      remainders: [{ id: '["T0","A"]', value: exactFraction(1, 5), before: 'unused', after: 'used' }], drawContextIds: [] }]);
+    expect(f).toEqual(before);
+  });
+
+  it('removes the smallest used ordinary remainder without a recipient', () => {
+    const r = complete(independent(fixture([1, 2], [[40, 60], [45, 55]], [2, 2])));
+    expect(counts(r)).toEqual([['T0', 'A', 0], ['T0', 'B', 1], ['T1', 'A', 1], ['T1', 'B', 1]]);
+    expect(r.transfers).toEqual([{ fromCellId: '["T0","A"]', toCellId: null, route: 'removal',
+      fromSeatsBefore: 1, toSeatsBefore: null,
+      remainders: [{ id: '["T0","A"]', value: exactFraction(4, 5), before: 'used', after: 'consumed' }], drawContextIds: [] }]);
+    expect(r.areas.map(a => [a.capacity, a.finalSeats])).toEqual([[2, 1], [2, 2]]);
+  });
+
+  it('corrects ordinary surpluses and deficits independently even when both exist', () => {
+    const r = complete(independent(fixture([2, 3, 1], [[40, 35, 25], [45, 40, 15], [47, 22, 31]], [2, 2, 2])));
+    expect(r.transfers.map(t => [t.route, t.fromCellId, t.toCellId])).toEqual([
+      ['removal', '["T0","A"]', null], ['addition', null, '["T2","B"]']]);
+    expect(r.areas.map(a => a.finalSeats)).toEqual([1, 2, 3]);
+  });
+
+  it.each([
+    ['no-eligible-donor-remainder', fixture([1], [[35]], [2])],
+    ['no-eligible-recipient-remainder', fixture([3, 1], [[60, 40]], [2])],
+    ['impossible-residual', fixture([1, 1, 2], [[40, 35, 25], [100, 100, 0]], [2, 2])],
+  ])('keeps independent ordinary %s cases blocked without fabricated targets', (reason, f) => {
+    const r = run(independent(f as TerritorialMatrixInput));
+    expect(r).toMatchObject({ status: 'non-computable', reason });
+    if (reason === 'no-eligible-recipient-remainder') {
+      expect(r.transfers).toHaveLength(1); // A's sole unused decimal cannot be used twice.
+      expect(r.cells[0]).toMatchObject({ seats: 2, remainderState: 'used' });
+    }
+  });
+
+  it('retains strict capacity checks outside independent Camera list corrections', () => {
+    const f = fixture([2, 1], [[60, 40]], [2]);
+    for (const correction of ['constituencies', 'colleges', 'college-groups'] as const) {
+      expect(() => run({ ...f, correction })).toThrow(/capacities must sum/);
+    }
+    expect(() => run({ ...independent(f), chamber: 'senato' })).toThrow(/Camera N18/);
+    expect(() => run({ ...independent(f), norm: 'N17' })).toThrow(/Camera N18/);
+  });
+
+  it('replays independent correction draws, remainder states and nullable traces after permutations', () => {
+    const f = independent(fixture([1, 3], [[60, 140], [60, 140]], [2, 2]));
+    const r = complete(f, createSeededDrawContext('independent-replay', 'legal'));
+    expect(r.draws).toHaveLength(2);
+    expect(r.draws.every(d => d.rule === 'I03')).toBe(true);
+    for (const t of r.transfers) expect(t.drawContextIds).toHaveLength(1);
+    const permuted = { ...f, targets: [...f.targets].reverse(), areas: [...f.areas].reverse().map(a => ({ ...a, entries: [...a.entries].reverse() })) };
+    expect(complete(permuted, createSeededDrawContext('independent-replay', 'legal'))).toEqual(r);
+    expect(JSON.parse(JSON.stringify(r))).toEqual(r);
   });
 
   it('truncates every active index at six decimals before local normalization', () => {

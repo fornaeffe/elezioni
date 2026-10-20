@@ -60,8 +60,9 @@ export interface SeatTransferTrace {
   readonly norm: NormId;
   readonly lawReference: string;
   readonly interpretationId: InterpretationId | null;
-  readonly from: SeatLocation;
-  readonly to: SeatLocation;
+  /** Independent C83-bis(1)(b)(3) additions/removals have one null endpoint. */
+  readonly from: SeatLocation | null;
+  readonly to: SeatLocation | null;
   readonly remainders: readonly RemainderTransition[];
   readonly drawContextIds: readonly string[];
 }

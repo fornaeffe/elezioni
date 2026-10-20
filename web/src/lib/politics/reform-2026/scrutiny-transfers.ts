@@ -13,9 +13,11 @@ export function allocationTransfers(chambers: readonly ChamberInput[], execution
       s.senateTerritorial ? [s.senateTerritorial.lists, s.senateTerritorial.colleges] : [];
     for (const stage of stages) for (const m of stage.matrices) {
       if (m.correction === 'college-groups') continue;
-      const location = (id: string): SeatLocation => {
+      const location = (id: string | null): SeatLocation | null => {
+        if (id === null) return null;
         const cell = m.cells.find(c => c.id === id)!;
-        const college = m.correction === 'colleges' ? chamber.colleges.find(c => c.id === cell.areaId) : undefined;
+        const college = m.correction === 'colleges' || m.correction === 'independent-colleges'
+          ? chamber.colleges.find(c => c.id === cell.areaId) : undefined;
         const isSubject = m.norm === 'N15' || m.norm === 'N17';
         const [kind, subjectId] = isSubject ? JSON.parse(cell.targetId) : ['list', cell.targetId];
         const member = !isSubject && s.admission?.status === 'complete' ? s.admission.lists.find(l => l.listId === cell.targetId) : undefined;

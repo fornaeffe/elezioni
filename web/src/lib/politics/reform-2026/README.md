@@ -494,25 +494,32 @@ Correction rules remain distinct:
   Same-constituency recipient ties use national figures; unspecified fallback
   destination ties use I03. National subject/list targets and total ordinary
   seats are conserved; a fallback can change individual constituency totals.
-- C83-bis(1)(b)(3): donor and recipient colleges follow their independent decimal
-  rankings. Constituency list targets and the constituency total are conserved;
-  individual college totals can change. This rule also applies inside each cap
-  group after its corrected college distribution.
+- C83-bis(1)(b)(3), ordinary path (no bonus or bonus without cap): remove
+  excess list seats and assign missing list seats independently, using ascending
+  used donor decimals and descending unused recipient decimals. The decree
+  endowments still determine initial quotas; final college and constituency
+  totals can differ from those initial endowments. Final constituency list
+  targets and national list entitlements must match their communications.
+  Remainders remain single-use; an integer-only surplus or an exhausted pool
+  remains a named no-progress blocker. Inside a cap group, retain the existing
+  paired college-list correction after the group distribution has reconciled.
 - C83-bis(1-bis)(c): cap-group transfers occur within the same college, conserving
   each college capacity and the constituency's group totals.
 
-Every movement records donor/recipient cell IDs, seat counts before transfer,
-same/cross-area route, exact remainder transitions and applicable draw context
-IDs. Donated remainders become consumed; recipient remainders become used.
+Every movement records donor/recipient cell IDs, seat counts before correction,
+route, exact remainder transitions and applicable draw context IDs. Independent
+ordinary removals have a null recipient; additions have a null donor, also in
+the composed `SeatTransferTrace`. Paired movements retain their same/cross-area
+route. Donated remainders become consumed; recipient remainders become used.
 These are allocation movements, separate from candidate-recovery seat ledgers.
 
-If an h/i cross-constituency fallback leaves the next constituency's communicated
-total incompatible with its fixed college endowment, N18 reports
-`constituency-capacity-target-mismatch`, retaining the completed N15/N16 results.
-There is no implicit decree-table rescaling or compensating transfer. Composition
-must preserve this non-computable state; any further reconciliation requires
-reviewed legal support. A correction without an eligible donor or unused
-recipient likewise reports its explicit no-progress reason.
+If an h/i cross-constituency fallback leaves the communicated total incompatible
+with the fixed college endowment, N18's cap-group branch still reports
+`constituency-capacity-target-mismatch`, retaining completed upstream results.
+Its statutory same-college transfers cannot change that total. Ordinary b(3)
+corrections instead attempt independent removals/additions without rescaling
+decree tables. Arithmetic, residual-pool and no-progress failures remain
+non-computable and publish no final college targets.
 
 See [camera-territorial-matrix.test.ts](camera-territorial-matrix.test.ts) for
 hand-worked matrices, correction ordering, changed local totals, truncation

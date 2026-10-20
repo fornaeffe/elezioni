@@ -11,6 +11,9 @@ import { aggregateElectoralFigures } from './figures';
 import type { Subject } from './input';
 import type { ScrutinyExecutionContext } from './result';
 import { createSeededDrawContext } from './ties';
+import { assembleRecoveryRemainders } from './recovery-communications';
+import { allocationTransfers } from './scrutiny-transfers';
+import type { ReformChamberExecution } from './scrutiny';
 
 const noDraw: ScrutinyExecutionContext = { draw() { throw new Error('Unexpected draw'); } };
 const first: ScrutinyExecutionContext = { draw(r) { return { ...r, chosenId: r.alternativeIds[0], streamId: 'controlled' }; } };
@@ -137,10 +140,10 @@ describe('N15-N18 Camera territorial stages', () => {
     const r = allocateCameraColleges(f, collegeCommunication(f), noDraw);
     expect(r.status).toBe('complete');
     expect(r.matrices[0].areas.map(a => a.finalSeats)).toEqual([1, 2, 3]);
-    expect(r.matrices[0].transfers[0]).toMatchObject({ route: 'cross-area' });
+    expect(r.matrices[0].transfers.map(t => t.route)).toEqual(['removal', 'addition']);
   });
 
-  it('retains cross-constituency corrections and reports an incompatible next-stage local capacity', () => {
+  it('retains cross-constituency corrections and reports a remaining ordinary donor blocker', () => {
     const f = fixture({ A: 2, B: 3, C: 2 }, [
       { territory: 'X', seats: 2, A: 40, B: 35, C: 25 },
       { territory: 'Y', seats: 2, A: 45, B: 40, C: 15 },
@@ -148,7 +151,78 @@ describe('N15-N18 Camera territorial stages', () => {
     const r = allocateCameraTerritorialSeats(f, noDraw);
     expect(r.constituencies.status).toBe('complete'); expect(r.lists.status).toBe('complete');
     expect(r.constituencies.matrices[0].areas.map(a => a.finalSeats)).toEqual([1, 2, 4]);
-    expect(r.colleges).toMatchObject({ status: 'non-computable', reason: 'constituency-capacity-target-mismatch', affectedId: 'X' });
+    expect(r.colleges).toMatchObject({ status: 'non-computable', reason: 'no-eligible-donor-remainder', affectedId: 'X' });
+    expect(r.colleges.matrices[0].areas[0]).toMatchObject({ capacity: 2, finalSeats: 2 });
+    expect(r.colleges).not.toHaveProperty('targets');
+  });
+
+  it('completes N15-N18 after a real cross-constituency correction changes local totals', () => {
+    // N15 gives A/B/C (1,2,1), (0,1,1), (1,2,1). B's used 51/60
+    // in X is removed; A's unused 4/80 in Y receives the cross-area seat.
+    const f = fixture({ A: 3, B: 4, C: 3 }, [
+      { territory: 'X', seats: 2, A: 38, B: 33, C: 76 },
+      { territory: 'X', seats: 2, A: 7, B: 78, C: 9 },
+      { territory: 'Y', seats: 2, A: 4, B: 91, C: 66 },
+      { territory: 'Z', seats: 2, A: 9, B: 36, C: 27 },
+      { territory: 'Z', seats: 2, A: 22, B: 25, C: 12 }]);
+    const before = structuredClone(f), r = allocateCameraTerritorialSeats(f, noDraw);
+    expect(r.status).toBe('complete');
+    expect(r.constituencies.matrices[0].areas.map(a => [a.capacity, a.finalSeats])).toEqual([[4, 3], [2, 3], [4, 4]]);
+    expect(r.constituencies.matrices[0].transfers[0]).toMatchObject({ route: 'cross-area' });
+    expect(r.colleges.matrices.map(m => m.areas.map(a => a.finalSeats))).toEqual([[2, 1], [3], [2, 2]]);
+    expect(r.colleges.matrices[0].transfers[0]).toMatchObject({ route: 'removal', fromCellId: '["P1","A"]', toCellId: null });
+    expect(r.colleges.matrices[1].transfers[0]).toMatchObject({ route: 'addition', fromCellId: null, toCellId: '["P2","A"]' });
+    if (r.colleges.status !== 'complete') throw new Error();
+    expect(['A', 'B', 'C'].map(id => r.colleges.status === 'complete' && r.colleges.targets.filter(t => t.listId === id)
+      .reduce((n, t) => n + t.ordinarySeats, 0))).toEqual([3, 4, 3]);
+    expect(f).toEqual(before);
+  });
+
+  it.each(['no-bonus', 'bonus-without-cap'] as const)('reconciles different ordinary local totals for %s and exports honest correction evidence', path => {
+    const f = fixture({ A: 3, B: 3 }, [
+      { territory: 'X', seats: 2, A: 40, B: 60 },
+      { territory: 'X', seats: 2, A: 45, B: 55 },
+      { territory: 'Y', seats: 2, A: 60, B: 40 }]);
+    if (f.national.status !== 'complete') throw new Error();
+    f.national.path = path;
+    f.national.bonus = path === 'no-bonus' ? null : { subject: list('A'), seats: 70 };
+    const lists: CameraConstituencyListResult = { ...collegeCommunication(f), status: 'complete', targets: [
+      { territoryId: 'X', subject: list('A'), listId: 'A', votes: 85, ordinarySeats: 1 },
+      { territoryId: 'X', subject: list('B'), listId: 'B', votes: 115, ordinarySeats: 2 },
+      { territoryId: 'Y', subject: list('A'), listId: 'A', votes: 60, ordinarySeats: 2 },
+      { territoryId: 'Y', subject: list('B'), listId: 'B', votes: 40, ordinarySeats: 1 }] };
+    const colleges = allocateCameraColleges(f, lists, noDraw);
+    expect(colleges.status).toBe('complete');
+    if (colleges.status !== 'complete') throw new Error();
+    expect(colleges.matrices.map(m => m.areas.map(a => [a.capacity, a.finalSeats]))).toEqual([[[2, 1], [2, 2]], [[2, 3]]]);
+    expect(['A', 'B'].map(id => colleges.targets.filter(t => t.listId === id).reduce((n, t) => n + t.ordinarySeats, 0))).toEqual([3, 3]);
+    const remainders = assembleRecoveryRemainders(f.chamber, { colleges });
+    expect(remainders.find(r => r.collegeId === 'P0' && r.subject.id === 'A')).toMatchObject({ state: 'consumed', value: exactFraction(4, 5) });
+    expect(remainders.find(r => r.collegeId === 'P2' && r.subject.id === 'A')).toMatchObject({ state: 'used', value: exactFraction(1, 5) });
+    const executions = [{ chamber: 'camera', cameraTerritorial: { constituencies: { matrices: [] }, lists: { matrices: [] }, colleges } }] as unknown as ReformChamberExecution[];
+    const transfers = allocationTransfers([f.chamber], executions);
+    expect(transfers).toMatchObject([
+      { from: { territoryId: 'X', collegeId: 'P0', listId: 'A' }, to: null },
+      { from: null, to: { territoryId: 'Y', collegeId: 'P2', listId: 'A' } }]);
+    expect(JSON.parse(JSON.stringify(transfers))).toEqual(transfers);
+  });
+
+  it('retains the cap-group local capacity blocker before any group allocation or draw', () => {
+    const f = fixture({ A: 3, B: 3 }, [{ territory: 'X', seats: 3, A: 180, B: 120 }, { territory: 'Y', seats: 3, A: 170, B: 130 }], {}, true);
+    const lists: CameraConstituencyListResult = { ...collegeCommunication(f), status: 'complete', targets: [
+      { territoryId: 'X', subject: list('A'), listId: 'A', votes: 180, ordinarySeats: 1 },
+      { territoryId: 'X', subject: list('B'), listId: 'B', votes: 120, ordinarySeats: 1 },
+      { territoryId: 'Y', subject: list('A'), listId: 'A', votes: 170, ordinarySeats: 2 },
+      { territoryId: 'Y', subject: list('B'), listId: 'B', votes: 130, ordinarySeats: 2 }] };
+    expect(allocateCameraColleges(f, lists, noDraw)).toMatchObject({ status: 'non-computable',
+      reason: 'constituency-capacity-target-mismatch', affectedId: 'X', matrices: [], draws: [] });
+  });
+
+  it('rejects communications that change national list entitlements', () => {
+    const f = fixture(), lists = collegeCommunication(f);
+    if (lists.status !== 'complete') throw new Error();
+    expect(() => allocateCameraColleges(f, { ...lists, targets: lists.targets.map(t => ({ ...t, ordinarySeats: t.ordinarySeats + 1 })) }, noDraw))
+      .toThrow(/preserve national list entitlements/);
   });
 
   it('blocks incomplete national prerequisites without consuming draws or publishing targets', () => {

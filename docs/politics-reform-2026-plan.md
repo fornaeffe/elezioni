@@ -336,10 +336,12 @@ fallback transfers across constituencies, used versus unused remainders,
 exclusion of subjects already at their target, and every tie criterion. Assert
 the specific national and territorial totals required at each correction stage;
 do not assume every intermediate transfer preserves every local total.
-Preserve explicit arithmetic/no-progress failures and the N18
-`constituency-capacity-target-mismatch` state when a cross-constituency correction
-is incompatible with the supplied fixed college endowment. Any further
-reconciliation requires reviewed legal support, not implicit table rescaling.
+For N18's ordinary path, apply the approved independent subtraction/addition
+reading of C83-bis(1)(b)(3), including different initial and communicated local
+totals. Retain decree endowments for initial quotas and preserve final national
+list entitlements. Preserve explicit arithmetic/no-progress failures and the
+`constituency-capacity-target-mismatch` state for the cap-group branch, whose
+same-college transfers cannot reconcile unequal totals. Never rescale tables.
 
 ### R26-14: Senato regional allocation
 
@@ -512,8 +514,9 @@ result imports, replay/export, candidate limitations, explanatory messages,
 and politics/regional browser regressions. Add comparison UI only as a separately
 requested feature; selecting the alternative is sufficient for this plan.
 Keep non-computable simulations in the requested-run denominator. Present the
-known N18 geographic-capacity blocker explicitly; never reroll it, rescale legal
-endowments or silently omit failed runs from conditional probabilities.
+known N18 cap-group capacity and ordinary no-progress blockers explicitly;
+never reroll them, rescale legal endowments or silently omit failed runs from
+conditional probabilities.
 
 ### R26-21: Acceptance and performance
 

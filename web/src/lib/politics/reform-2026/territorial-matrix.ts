@@ -17,9 +17,9 @@ export interface TerritorialMatrixInput {
     readonly seats: number;
     readonly entries: readonly { readonly id: string; readonly votes: number; readonly tieVotes: number }[];
   }[];
-  /** C83(h)/(i); C83-bis(b)(3)/S17(4)(c); or
-   * C83-bis(1-bis)(c)/S17(5)(c), respectively. */
-  readonly correction: 'constituencies' | 'colleges' | 'college-groups';
+  /** C83(h)/(i); paired college lists; C83-bis(1)(b)(3)'s independent
+   * Camera corrections; or C83-bis(1-bis)(c)/S17(5)(c), respectively. */
+  readonly correction: 'constituencies' | 'colleges' | 'independent-colleges' | 'college-groups';
   readonly initialTieFigure: 'national-electoral-figure' | 'constituency-electoral-figure' | 'college-electoral-figure';
   /** Absent: integer local quota. Present: truncated indices, then normalization.
    * null marks an inactive zero-target group; its quota/index is never divided. */
@@ -43,11 +43,12 @@ export interface TerritorialMatrixCell {
   readonly seats: number;
 }
 export interface TerritorialMatrixTransfer {
-  readonly fromCellId: string;
-  readonly toCellId: string;
-  readonly route: 'same-area' | 'cross-area';
-  readonly fromSeatsBefore: number;
-  readonly toSeatsBefore: number;
+  /** Independent b(3) corrections have only a donor or only a recipient. */
+  readonly fromCellId: string | null;
+  readonly toCellId: string | null;
+  readonly route: 'same-area' | 'cross-area' | 'removal' | 'addition';
+  readonly fromSeatsBefore: number | null;
+  readonly toSeatsBefore: number | null;
   readonly remainders: readonly { readonly id: string; readonly value: ExactFraction;
     readonly before: 'unused' | 'used' | 'consumed'; readonly after: 'used' | 'consumed' }[];
   readonly drawContextIds: readonly string[];
@@ -86,7 +87,15 @@ export function allocateTerritorialMatrix(input: TerritorialMatrixInput, executi
   if (!unique(targets.map(t => t.id)) || !unique(areas.map(a => a.id)) ||
       !Number.isSafeInteger(input.simulationId) || input.simulationId < 0) throw new RangeError('Invalid territorial matrix IDs');
   targets.forEach(t => sumVoteCounts([t.seats, t.votes]));
-  if (sumVoteCounts(targets.map(t => t.seats)) !== sumVoteCounts(areas.map(a => a.seats))) {
+  const independent = input.correction === 'independent-colleges';
+  if (independent && (input.chamber !== 'camera' || input.norm !== 'N18' || input.indexQuotas)) {
+    throw new RangeError('Independent college corrections require the Camera N18 list quota path');
+  }
+  // Endowments always determine the INITIAL quotas. Only Camera b(3) can
+  // independently remove/add seats to reach a different communicated total.
+  const capacity = sumVoteCounts(areas.map(a => a.seats));
+  const targetSeats = sumVoteCounts(targets.map(t => t.seats));
+  if (!independent && targetSeats !== capacity) {
     throw new RangeError('Territorial matrix capacities must sum to its targets');
   }
   for (const area of areas) {
@@ -184,6 +193,41 @@ export function allocateTerritorialMatrix(input: TerritorialMatrixInput, executi
       const c = cells.find(c => c.id === id)!;
       change(c, { remainderSeat: true, provisionalSeats: c.seats + 1, seats: c.seats + 1, remainderState: 'used' });
     }
+  }
+
+  if (independent) {
+    // C83-bis(1)(b)(3): "i seggi attribuiti in eccesso sono sottratti ...;
+    // alla lista cui sono stati attribuiti seggi in numero minore ... i seggi
+    // sono assegnati ... [con] parte decimale ... non utilizzata".
+    // Approved reading: subtraction and addition are independent, including
+    // when an upstream C83(h)/(i) fallback changed this constituency's total.
+    // Preserve the existing single-use donor/recipient remainder rules; a
+    // missing eligible remainder remains an explicit no-progress blocker.
+    for (const direction of ['removal', 'addition'] as const) {
+      let movement = 0;
+      const pending = () => new Set(targets.filter(t => direction === 'removal'
+        ? total(t.id) > t.seats : total(t.id) < t.seats).map(t => t.id));
+      while (pending().size) {
+        const ids = pending();
+        const pool = cells.filter(c => ids.has(c.targetId) && (direction === 'removal'
+          ? c.remainderSeat && c.remainderState === 'used' && c.seats > 0
+          : c.remainderState === 'unused' && c.decimalPart !== null));
+        if (!pool.length) return finish({ phase: 'correction', reason: direction === 'removal'
+          ? 'no-eligible-donor-remainder' : 'no-eligible-recipient-remainder' });
+        const id = choose(pool.map(c => ({ id: c.id, values: [remainder(c)] })),
+          [direction === 'removal' ? asc('donor-decimal-part') : desc('recipient-decimal-part')],
+          `${direction}-${++movement}`, 'I03');
+        const cell = cells.find(c => c.id === id)!;
+        const after = direction === 'removal' ? 'consumed' : 'used';
+        transfers.push({ fromCellId: direction === 'removal' ? id : null, toCellId: direction === 'addition' ? id : null,
+          route: direction, fromSeatsBefore: direction === 'removal' ? cell.seats : null,
+          toSeatsBefore: direction === 'addition' ? cell.seats : null,
+          remainders: [{ id, value: remainder(cell), before: cell.remainderState, after }],
+          drawContextIds: resolutions.at(-1)!.draws.map(d => d.contextId) });
+        change(cell, { seats: cell.seats + (direction === 'removal' ? -1 : 1), remainderState: after });
+      }
+    }
+    return finish();
   }
 
   // C83(h), ninth and following sentences: largest surplus, then national
