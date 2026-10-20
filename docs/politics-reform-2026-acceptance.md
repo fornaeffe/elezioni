@@ -69,6 +69,8 @@ archives are rejected because older aggregations retain only the first simulatio
 ID and cannot establish distinct-run frequencies. Reports separate `errors`, `warnings` and `information`.
 Each exact `(code, message)` reason records occurrence count, distinct affected
 simulations, context occurrences, and frequencies per requested/processed run.
+The additional `codes` summaries merge reasons while counting each simulation
+once per code; distinct-run counts must not be obtained by summing reason counts.
 Repeated notices within one simulation count once toward its frequency, while
 retaining all occurrences. Different reasons can overlap in the same run, so
 their frequencies need not sum to the total failure rate. Context notices have

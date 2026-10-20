@@ -2633,6 +2633,88 @@
               "frequencyPerRequested": 0.086,
               "frequencyPerProcessed": 0.086
             }
+          ],
+          "codes": [
+            {
+              "code": "R26_N18_NON_COMPUTABLE",
+              "occurrences": 159,
+              "simulations": 159,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.159,
+              "frequencyPerProcessed": 0.159
+            },
+            {
+              "code": "R26_N21_NON_COMPUTABLE",
+              "occurrences": 59,
+              "simulations": 59,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.059,
+              "frequencyPerProcessed": 0.059
+            },
+            {
+              "code": "R26_N22_NON_COMPUTABLE",
+              "occurrences": 57,
+              "simulations": 57,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.057,
+              "frequencyPerProcessed": 0.057
+            },
+            {
+              "code": "R26_N23_NON_COMPUTABLE",
+              "occurrences": 218,
+              "simulations": 216,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.216,
+              "frequencyPerProcessed": 0.216
+            },
+            {
+              "code": "R26_N24_NON_COMPUTABLE",
+              "occurrences": 218,
+              "simulations": 216,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.216,
+              "frequencyPerProcessed": 0.216
+            },
+            {
+              "code": "R26_N25_NON_COMPUTABLE",
+              "occurrences": 159,
+              "simulations": 159,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.159,
+              "frequencyPerProcessed": 0.159
+            },
+            {
+              "code": "R26_N26_NON_COMPUTABLE",
+              "occurrences": 159,
+              "simulations": 159,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.159,
+              "frequencyPerProcessed": 0.159
+            },
+            {
+              "code": "R26_N27_NON_COMPUTABLE",
+              "occurrences": 59,
+              "simulations": 59,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.059,
+              "frequencyPerProcessed": 0.059
+            },
+            {
+              "code": "R26_N28_NON_COMPUTABLE",
+              "occurrences": 216,
+              "simulations": 216,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.216,
+              "frequencyPerProcessed": 0.216
+            },
+            {
+              "code": "R26_RUN_ERROR",
+              "occurrences": 86,
+              "simulations": 86,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.086,
+              "frequencyPerProcessed": 0.086
+            }
           ]
         },
         "warnings": {
@@ -3056,6 +3138,48 @@
               "frequencyPerRequested": 0,
               "frequencyPerProcessed": 0
             }
+          ],
+          "codes": [
+            {
+              "code": "I03_DRAW",
+              "occurrences": 690,
+              "simulations": 55,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.055,
+              "frequencyPerProcessed": 0.055
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "occurrences": 93,
+              "simulations": 55,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.055,
+              "frequencyPerProcessed": 0.055
+            },
+            {
+              "code": "I08_PROVISIONAL_SEATS",
+              "occurrences": 1828,
+              "simulations": 914,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.914,
+              "frequencyPerProcessed": 0.914
+            },
+            {
+              "code": "R26_CONDITIONAL_CANDIDATES",
+              "occurrences": 1,
+              "simulations": 0,
+              "contextOccurrences": 1,
+              "frequencyPerRequested": 0,
+              "frequencyPerProcessed": 0
+            },
+            {
+              "code": "R26_SEAT_TABLE_3",
+              "occurrences": 1,
+              "simulations": 0,
+              "contextOccurrences": 1,
+              "frequencyPerRequested": 0,
+              "frequencyPerProcessed": 0
+            }
           ]
         },
         "information": {
@@ -3092,8 +3216,43 @@
               "frequencyPerRequested": 0,
               "frequencyPerProcessed": 0
             }
+          ],
+          "codes": [
+            {
+              "code": "R26_PAIRED_MEAN_MODE",
+              "occurrences": 1,
+              "simulations": 0,
+              "contextOccurrences": 1,
+              "frequencyPerRequested": 0,
+              "frequencyPerProcessed": 0
+            },
+            {
+              "code": "R26_SEAT_TABLE_1",
+              "occurrences": 1,
+              "simulations": 0,
+              "contextOccurrences": 1,
+              "frequencyPerRequested": 0,
+              "frequencyPerProcessed": 0
+            },
+            {
+              "code": "R26_SEAT_TABLE_2",
+              "occurrences": 1,
+              "simulations": 0,
+              "contextOccurrences": 1,
+              "frequencyPerRequested": 0,
+              "frequencyPerProcessed": 0
+            }
           ]
         }
+      },
+      "diagnosticCodeSummaryReplay": {
+        "created": "2026-10-20T14:58:36.588Z",
+        "seed": "r26-default-v1",
+        "snapshot": "r26-generation-v1-c5c4be9fafb5",
+        "model": "r26-models-v1-f71a72020aaa",
+        "computeWorkers": 4,
+        "matchingOriginalOverviewAndEveryReason": true,
+        "note": "Distinct simulations per code were counted in an identical seeded replay. Original benchmark timings and reason counts are preserved."
       }
     }
   ]

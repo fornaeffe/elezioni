@@ -12,6 +12,7 @@ export function createDiagnosticFrequency(requested: number, processed: number) 
     warning: new Map<string, Count & { code: string; reason: string }>(),
     info: new Map<string, Count & { code: string; reason: string }>() };
   const totals = { error: empty(), warning: empty(), info: empty() };
+  const codes = { error: new Map<string, Count>(), warning: new Map<string, Count>(), info: new Map<string, Count>() };
   function count(target: Count, occurrences: number, simulation: number | null) {
     target.occurrences += occurrences;
     if (simulation === null) target.contextOccurrences += occurrences;
@@ -31,12 +32,16 @@ export function createDiagnosticFrequency(requested: number, processed: number) 
       let entry = buckets[severity].get(key);
       if (!entry) { entry = { code, reason, ...empty() }; buckets[severity].set(key, entry); }
       count(entry, occurrences, simulation); count(totals[severity], occurrences, simulation);
+      let codeCount = codes[severity].get(code);
+      if (!codeCount) { codeCount = empty(); codes[severity].set(code, codeCount); }
+      count(codeCount, occurrences, simulation);
     },
     finish() {
       const summarize = (value: Count) => ({ occurrences: value.occurrences, simulations: value.simulations, contextOccurrences: value.contextOccurrences,
         frequencyPerRequested: value.simulations / requested,
         frequencyPerProcessed: processed ? value.simulations / processed : null });
       const group = (severity: keyof typeof buckets) => ({ ...summarize(totals[severity]),
+        codes: [...codes[severity]].map(([code, counts]) => ({ code, ...summarize(counts) })).sort((a, b) => a.code.localeCompare(b.code)),
         reasons: [...buckets[severity].values()].map(entry => ({ code: entry.code, reason: entry.reason, ...summarize(entry) }))
           .sort((a, b) => a.code.localeCompare(b.code) || a.reason.localeCompare(b.reason)) });
       return { requested, processed, errors: group('error'), warnings: group('warning'), information: group('info') };

@@ -15,6 +15,7 @@ describe('per-reason diagnostic frequency', () => {
     expect(result.errors.frequencyPerRequested).toBe(0.2);
     expect(result.errors.frequencyPerProcessed).toBe(2 / 3);
     expect(result.errors.reasons.map(r => [r.reason, r.occurrences, r.simulations])).toEqual([['reason A', 4, 2], ['reason B', 1, 1]]);
+    expect(result.errors.codes).toEqual([expect.objectContaining({ code: 'same-code', occurrences: 5, simulations: 2 })]);
     expect(result.warnings.contextOccurrences).toBe(1);
     expect(result.warnings.simulations).toBe(1);
     expect(result.information.occurrences).toBe(1);
