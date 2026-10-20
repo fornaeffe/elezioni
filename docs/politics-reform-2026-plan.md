@@ -69,9 +69,10 @@ R26-13 Camera territorial allocation, R26-14 Senato regional allocation/cap and
 R26-15 Senato list and college allocation, R26-16 proclamations and multiple
 elections, R26-17 exhaustion and replacements, R26-18 composition and registry,
 R26-19 scenarios and generation, and R26-20 worker/UI/explanation/export
-integration and R26-20a bounded parallel execution are complete; continue with
-R26-21 acceptance and performance. Use
-the generation guide for fitted
+integration, R26-20a bounded parallel execution and R26-21 local application/
+performance acceptance are complete. Acceptance uses explicitly provisional I08
+census tables and conditional synthetic preferences; the final whole-migration
+publication gate remains open. Use the generation guide for fitted
 preference parameters and explicitly assumed chamber profiles; neither model
 selection nor generator verification establishes production acceptance.
 R26-05 through R26-18 can use constructed legal inputs independently of R26-19
@@ -101,7 +102,7 @@ calibration and generation.
 | [x] | [R26-19](#r26-19-scenarios-and-generation) | Scenario compatibility and generators | 02-04 resolved, 07, 18 |
 | [x] | [R26-20](#r26-20-worker-results-and-ui) | Worker, selector, results, exports | 19 |
 | [x] | [R26-20a](#r26-20a-parallel-execution) | Bounded compute pool and resource-based worker choice | 20 |
-| [ ] | [R26-21](#r26-21-acceptance-and-performance) | Application and performance acceptance | 20a |
+| [x] | [R26-21](#r26-21-acceptance-and-performance) | Application and performance acceptance (provisional I08 tables) | 20a |
 
 ### R26-01: Normative specification
 
@@ -556,6 +557,9 @@ for implementation contracts and the benchmark command.
 
 ### R26-21: Acceptance and performance
 
+Use the [acceptance procedure](politics-reform-2026-acceptance.md) for required
+input generation, the no-skip application gate and diagnostic report semantics.
+
 Run focused tests during each step. At application completion run, from `web/`,
 `npm run check:data`, `npm run check`, `npm run test`, `npm run build`, then
 `npm run test:e2e`.
@@ -573,11 +577,12 @@ data-preparation migration; R26-21 does not enable deployment.
 
 Benchmark 10, 100, and 1000 simulations with data/model/algorithm versions,
 seed, environment, elapsed times, and peak memory where measurable. Separate
-generation, scrutiny, and presentation costs. Keep the existing comparable
-old-law R/browser gate; do not invent a reform R oracle or claim equal legal
-outputs across laws. If no matching R reform workflow exists, state the limit
-of performance comparisons and assess reform costs against the browser baseline.
-Apply the existing 10x stop rule where a matching full R workflow is available.
+generation, scrutiny, presentation and storage costs. Assess the browser workflow
+directly; R retirement is decided and requires neither an R/browser comparison
+nor a 10x stop rule. Keep existing historical measurements as evidence only.
+Record errors and warnings separately for each exact code/reason, including
+occurrences, affected simulations, requested/processed denominators and frequencies.
+Keep informational and session-wide context notes separate from per-run events.
 
 Acceptance requires the promised output scope to be implemented and accurately
 labelled. A candidate-limited model is not full candidate-level acceptance.

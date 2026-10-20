@@ -14,6 +14,9 @@ import type { ChamberInput, ReformScrutinyInput } from '../../src/lib/politics/r
 import { completeScrutinyFixture } from '../../src/lib/politics/reform-2026/scrutiny.fixture';
 
 const root = fileURLToPath(new URL('../../../', import.meta.url));
+const outputIndex = process.argv.indexOf('--output');
+if (outputIndex >= 0 && !process.argv[outputIndex + 1]) throw new Error('--output requires a directory');
+const outputDirectory = outputIndex < 0 ? resolve(root, 'data/derived') : resolve(process.argv[outputIndex + 1]);
 const catalog = JSON.parse(await readFile(resolve(root, 'web/src/lib/politics/reform-2026/data/generation-catalog.generated.json'), 'utf8'));
 const bytes = await readFile(resolve(root, 'web/static', catalog.path));
 if (sha256(bytes) !== catalog.sha256) throw new Error('Reform runtime checksum mismatch');
@@ -108,7 +111,7 @@ const report = { schemaVersion: 1, protocol: 'docs/politics-reform-2026-generati
   sourceVersions: production.sourceVersions, seeds: 'r26-19-validation-0..999',
   scope: 'Preference conditioning: independently worked completeScrutinyFixture(45), with fixed votes/candidatures and the real model bundle. Paired vote diagnostics: constructed twenty-region footprint. Production-data vertical slice is separate. Conditional joint-42 frequencies are not real-subject probabilities.',
   preferenceSummary, chamberSummary, referenceScopes: prepared.trace.references.length };
-await writeVersion(resolve(root, 'data/derived', `${production.models.version}-validation-v2.json`), report);
+await writeVersion(resolve(outputDirectory, `${production.models.version}-validation-v2.json`), report);
 console.log(JSON.stringify({ modelVersion: report.modelVersion, preferenceProfiles: preferenceSummary.length, preferenceRunsPerProfile: 100,
   chamberProfilesAndBenchmarks: chamberSummary.length, chamberRunsPerProfile: 1000,
-  report: `data/derived/${production.models.version}-validation-v2.json` }, null, 2));
+  report: resolve(outputDirectory, `${production.models.version}-validation-v2.json`) }, null, 2));

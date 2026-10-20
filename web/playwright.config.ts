@@ -10,9 +10,9 @@ export default defineConfig({
     trace: 'on-first-retry'
   },
   webServer: {
-    command: 'npm run build && npm run preview -- --host 127.0.0.1',
+    command: process.env.ACCEPTANCE_PREBUILT ? 'npm run preview -- --host 127.0.0.1' : 'npm run build && npm run preview -- --host 127.0.0.1',
     url: `http://127.0.0.1:4173${process.env.BASE_PATH ?? ''}/`,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: !process.env.CI && !process.env.ACCEPTANCE_PREBUILT,
     timeout: 120_000
   },
   projects: [

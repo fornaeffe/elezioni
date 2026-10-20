@@ -57,7 +57,8 @@ validates its defaults/models and runs generation through composed scrutiny.
 It fails on missing data or non-computable stages. Development unit tests may
 clearly skip the production-data test if the ignored bundle is absent; the
 release command never substitutes a debug snapshot or accepts that skip.
-Whole-application acceptance and performance remain R26-21.
+For whole-application acceptance and performance use the
+[R26-21 procedure](politics-reform-2026-acceptance.md).
 
 ## Source semantics
 
@@ -152,4 +153,5 @@ initial quotas. Never rescale legal endowments, reroll a failed simulation or
 omit it from the requested-run
 denominator. The application distinguishes non-computability, vote-based
 entitlements, filled/unfilled seats and preference-dependent recovery. Both
-algorithms are available in the worker/UI; R26-21 acceptance remains separate.
+algorithms are available in the worker/UI; application acceptance is documented
+in the [R26-21 procedure](politics-reform-2026-acceptance.md).

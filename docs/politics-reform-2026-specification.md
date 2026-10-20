@@ -2,9 +2,9 @@
 
 This is the legal boundary for the [implementation plan](politics-reform-2026-plan.md),
 verified on **16 October 2026**. Function names and test IDs below define stage
-boundaries; implementation status belongs to the plan. R26-05's
-[typed contracts and input validation](../web/src/lib/politics/reform-2026/README.md)
-are implemented; later scrutiny stages remain pending. The supported target is
+boundaries; implementation status belongs to the plan. Use the
+[legal core reading map](../web/src/lib/politics/reform-2026/README.md) for code
+and contracts. The supported target is
 the initial allocation and proclamation of **domestic elective seats** under
 the promulgated reform. The [transcription](politics-reform-2026.md) is the
 current consolidated working transcription of all and only provisions translated

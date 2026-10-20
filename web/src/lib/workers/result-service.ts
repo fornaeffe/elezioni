@@ -1,5 +1,6 @@
 import { loadVerifiedJson, requireSimulationCount } from '../core/runtime-data';
-import { appendResultBatch, cellsWarning, deleteStoredResult, getStoredResult, newResultStorage, saveStoredResult, storedTablePage, storedWarningPage, ResultChunkWriter, warningCells, type Cell, type StoredResult } from '../core/result-store';
+import { appendResultBatch, cellsWarning, deleteStoredResult, getStoredResult, newResultStorage, saveStoredResult, storedRows, storedTablePage, storedWarningPage, ResultChunkWriter, warningCells, type Cell, type StoredResult } from '../core/result-store';
+import { createDiagnosticFrequency } from '../core/result-diagnostics';
 import { importResultStream, streamStoredResult, type ExportScenario } from '../core/result-export';
 import { jsonFileStream } from '../core/json-stream';
 import type { SimulationProgress, SimulationRequest, SimulationResult } from '../core/types';
@@ -14,7 +15,7 @@ import { ReformComputeClient, runOrderedReformPool } from './reform-pool';
 
 export interface ResultServiceRequest {
   type: 'result-service'; requestId: number;
-  action: 'page' | 'warnings' | 'manifest' | 'delete' | 'cancel' | 'import' | 'export';
+  action: 'page' | 'warnings' | 'diagnostics' | 'manifest' | 'delete' | 'cancel' | 'import' | 'export';
   resultId: string; owner: string;
   table?: number; offset?: number; limit?: number; simulation?: number;
   file?: File; format?: 'json' | 'csv';
@@ -202,6 +203,18 @@ export async function handleResultService(request: ResultServiceRequest): Promis
           await saveStoredResult(record).catch(() => undefined);
         }
         data = record;
+      }
+      else if (request.action === 'diagnostics') {
+        if (active.has(record.id)) throw new Error('Wait for calculation completion before querying diagnostic frequencies');
+        const index = record.result.storage!.tables.findIndex(t => t.name === 'Warnings and errors');
+        if (index < 0) throw new Error('Diagnostic ledger is unavailable');
+        const descriptor = record.result.storage!.tables[index];
+        // Older/imported archives can contain a whole-run aggregation with only
+        // its first simulation ID. Do not invent distinct-run frequencies.
+        if (!descriptor.runIndexed) throw new Error('Per-simulation diagnostic ledger is unavailable for this imported result');
+        const frequencies = createDiagnosticFrequency(record.result.benchmark.simulations, record.result.storage!.completedSimulations);
+        for await (const cells of storedRows(record.id, index)) frequencies.add(Object.fromEntries(descriptor.columns.map((c, i) => [c, cells[i]])));
+        data = frequencies.finish();
       }
       else if (request.action === 'page') data = await storedTablePage(record, request.table ?? 0, request.offset ?? 0, request.limit ?? 50, request.simulation);
       else if (request.action === 'warnings') data = await storedWarningPage(record, request.offset ?? 0);

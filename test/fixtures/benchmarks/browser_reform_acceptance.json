@@ -1,0 +1,3100 @@
+{
+  "created": "2026-10-20T14:04:25.218Z",
+  "browser": "148.0.7778.96",
+  "node": "v24.20.0",
+  "platform": "win32",
+  "architecture": "x64",
+  "cpu": "Intel(R) Core(TM) i7-14700KF",
+  "physicalMemoryGiB": 63.79417037963867,
+  "algorithm": "politiche-reform-2026-v1",
+  "snapshot": "r26-generation-v1-c5c4be9fafb5",
+  "model": "r26-models-v1-f71a72020aaa",
+  "seed": "r26-default-v1",
+  "scenario": {
+    "schemaVersion": 1,
+    "kind": "politics-reform-scenario",
+    "algorithmId": "politiche-reform-2026-v1",
+    "snapshotVersion": "r26-generation-v1-c5c4be9fafb5",
+    "modelVersion": "r26-models-v1-f71a72020aaa",
+    "modelIds": {
+      "votes": "final-attributed-list-totals-v1",
+      "preferences": "preferences-empirical-synthetic-v1",
+      "chambers": "paired-chamber-votes-v1"
+    },
+    "preferenceProfileId": "central-v1",
+    "chamberProfileId": "central-v1",
+    "seed": "r26-default-v1",
+    "electionDate": "2027-09-25",
+    "projectionDate": "2026-10-19",
+    "mode": "mean",
+    "renewal": "joint",
+    "lists": {
+      "camera": [
+        {
+          "id": "list-8951166603702dcc",
+          "name": "FRATELLI D'ITALIA CON GIORGIA MELONI",
+          "coalitionId": "historical-coalition:list-8951166603702dcc:list-c9cecc92ab984510:list-f54cd757a71ca555",
+          "protectedMinority": null
+        },
+        {
+          "id": "list-59f35e92039ebed8",
+          "name": "PARTITO DEMOCRATICO - ITALIA DEMOCRATICA E PROGRESSISTA",
+          "coalitionId": "historical-coalition:list-4737a15e2c762fa0:list-59f35e92039ebed8:list-add076ceaad6d2a6",
+          "protectedMinority": null
+        },
+        {
+          "id": "list-27178b23de82c1fd",
+          "name": "MOVIMENTO 5 STELLE",
+          "coalitionId": null,
+          "protectedMinority": null
+        },
+        {
+          "id": "list-c9cecc92ab984510",
+          "name": "LEGA PER SALVINI PREMIER",
+          "coalitionId": "historical-coalition:list-8951166603702dcc:list-c9cecc92ab984510:list-f54cd757a71ca555",
+          "protectedMinority": null
+        },
+        {
+          "id": "list-f54cd757a71ca555",
+          "name": "FORZA ITALIA",
+          "coalitionId": "historical-coalition:list-8951166603702dcc:list-c9cecc92ab984510:list-f54cd757a71ca555",
+          "protectedMinority": null
+        },
+        {
+          "id": "list-56b7f5902a176380",
+          "name": "AZIONE - ITALIA VIVA - CALENDA",
+          "coalitionId": null,
+          "protectedMinority": null
+        },
+        {
+          "id": "list-add076ceaad6d2a6",
+          "name": "ALLEANZA VERDI E SINISTRA",
+          "coalitionId": "historical-coalition:list-4737a15e2c762fa0:list-59f35e92039ebed8:list-add076ceaad6d2a6",
+          "protectedMinority": null
+        },
+        {
+          "id": "list-4737a15e2c762fa0",
+          "name": "+EUROPA",
+          "coalitionId": "historical-coalition:list-4737a15e2c762fa0:list-59f35e92039ebed8:list-add076ceaad6d2a6",
+          "protectedMinority": null
+        },
+        {
+          "id": "list-10bc03a44a72d020",
+          "name": "UNIONE POPOLARE CON DE MAGISTRIS",
+          "coalitionId": null,
+          "protectedMinority": null
+        },
+        {
+          "id": "list-1379e84e454442d0",
+          "name": "NOI MODERATI/LUPI - TOTI - BRUGNARO - UDC",
+          "coalitionId": null,
+          "protectedMinority": null
+        },
+        {
+          "id": "list-3611b499087d6a1c",
+          "name": "SUDTIROLER VOLKSPARTEI (SVP) - PATT",
+          "coalitionId": null,
+          "protectedMinority": null
+        },
+        {
+          "id": "list-7ce25923f1b9031e",
+          "name": "IMPEGNO CIVICO LUIGI DI MAIO - CENTRO DEMOCRATICO",
+          "coalitionId": null,
+          "protectedMinority": null
+        },
+        {
+          "id": "list-d05eb9fcc38df227",
+          "name": "ITALEXIT PER L'ITALIA",
+          "coalitionId": null,
+          "protectedMinority": null
+        },
+        {
+          "id": "list-d25b82cf0233fff4",
+          "name": "VITA",
+          "coalitionId": null,
+          "protectedMinority": null
+        },
+        {
+          "id": "list-f8989a289f58ce20",
+          "name": "ITALIA SOVRANA E POPOLARE",
+          "coalitionId": null,
+          "protectedMinority": null
+        },
+        {
+          "id": "group-10bc03a44a72d020",
+          "name": "UNIONE POPOLARE CON DE MAGISTRIS",
+          "coalitionId": null,
+          "protectedMinority": null
+        },
+        {
+          "id": "group-128148407d8a37c0",
+          "name": "LA RENAISSANCE VALDOTAINE",
+          "coalitionId": null,
+          "protectedMinority": null
+        },
+        {
+          "id": "group-1d8be5ca53b668db",
+          "name": "PARTITO COMUNISTA ITALIANO",
+          "coalitionId": null,
+          "protectedMinority": null
+        },
+        {
+          "id": "group-43b088d90d6ed113",
+          "name": "VALLEE D?AOSTE ? AUTONOMIE PROGRES FEDERALISME",
+          "coalitionId": null,
+          "protectedMinority": null
+        },
+        {
+          "id": "group-a7259412b44957fd",
+          "name": "VALLE D'AOSTA APERTA",
+          "coalitionId": null,
+          "protectedMinority": null
+        },
+        {
+          "id": "group-cc1b0abb61869ad4",
+          "name": "LEGA PER SALVINI PREM.-FORZA IT.-NOI MODERATI-FRAT. D'ITALIA",
+          "coalitionId": null,
+          "protectedMinority": null
+        },
+        {
+          "id": "group-f8989a289f58ce20",
+          "name": "ITALIA SOVRANA E POPOLARE",
+          "coalitionId": null,
+          "protectedMinority": null
+        }
+      ],
+      "senato": [
+        {
+          "id": "list-8951166603702dcc",
+          "name": "FRATELLI D'ITALIA CON GIORGIA MELONI",
+          "coalitionId": "historical-coalition:list-8951166603702dcc:list-c9cecc92ab984510:list-f54cd757a71ca555",
+          "protectedMinority": null
+        },
+        {
+          "id": "list-59f35e92039ebed8",
+          "name": "PARTITO DEMOCRATICO - ITALIA DEMOCRATICA E PROGRESSISTA",
+          "coalitionId": "historical-coalition:list-4737a15e2c762fa0:list-59f35e92039ebed8:list-add076ceaad6d2a6",
+          "protectedMinority": null
+        },
+        {
+          "id": "list-27178b23de82c1fd",
+          "name": "MOVIMENTO 5 STELLE",
+          "coalitionId": null,
+          "protectedMinority": null
+        },
+        {
+          "id": "list-c9cecc92ab984510",
+          "name": "LEGA PER SALVINI PREMIER",
+          "coalitionId": "historical-coalition:list-8951166603702dcc:list-c9cecc92ab984510:list-f54cd757a71ca555",
+          "protectedMinority": null
+        },
+        {
+          "id": "list-f54cd757a71ca555",
+          "name": "FORZA ITALIA",
+          "coalitionId": "historical-coalition:list-8951166603702dcc:list-c9cecc92ab984510:list-f54cd757a71ca555",
+          "protectedMinority": null
+        },
+        {
+          "id": "list-56b7f5902a176380",
+          "name": "AZIONE - ITALIA VIVA - CALENDA",
+          "coalitionId": null,
+          "protectedMinority": null
+        },
+        {
+          "id": "list-add076ceaad6d2a6",
+          "name": "ALLEANZA VERDI E SINISTRA",
+          "coalitionId": "historical-coalition:list-4737a15e2c762fa0:list-59f35e92039ebed8:list-add076ceaad6d2a6",
+          "protectedMinority": null
+        },
+        {
+          "id": "list-4737a15e2c762fa0",
+          "name": "+EUROPA",
+          "coalitionId": "historical-coalition:list-4737a15e2c762fa0:list-59f35e92039ebed8:list-add076ceaad6d2a6",
+          "protectedMinority": null
+        },
+        {
+          "id": "group-10bc03a44a72d020",
+          "name": "UNIONE POPOLARE CON DE MAGISTRIS",
+          "coalitionId": null,
+          "protectedMinority": null
+        },
+        {
+          "id": "group-1d8be5ca53b668db",
+          "name": "PARTITO COMUNISTA ITALIANO",
+          "coalitionId": null,
+          "protectedMinority": null
+        },
+        {
+          "id": "group-27178b23de82c1fd",
+          "name": "MOVIMENTO 5 STELLE",
+          "coalitionId": null,
+          "protectedMinority": null
+        },
+        {
+          "id": "group-27c4c235b098f537",
+          "name": "TEAM K",
+          "coalitionId": null,
+          "protectedMinority": null
+        },
+        {
+          "id": "group-35442edc478ac27a",
+          "name": "CAMPOBASE +EUROPA-ALL.VERDI E SIN.? PD-AZIONE-ITALIA VIVA",
+          "coalitionId": null,
+          "protectedMinority": null
+        },
+        {
+          "id": "group-3611b499087d6a1c",
+          "name": "SUDTIROLER VOLKSPARTEI (SVP) - PATT",
+          "coalitionId": null,
+          "protectedMinority": null
+        },
+        {
+          "id": "group-43b088d90d6ed113",
+          "name": "VALLEE D?AOSTE ? AUTONOMIE PROGRES FEDERALISME",
+          "coalitionId": null,
+          "protectedMinority": null
+        },
+        {
+          "id": "group-56b7f5902a176380",
+          "name": "AZIONE - ITALIA VIVA - CALENDA",
+          "coalitionId": null,
+          "protectedMinority": null
+        },
+        {
+          "id": "group-59f35e92039ebed8",
+          "name": "PARTITO DEMOCRATICO - ITALIA DEMOCRATICA E PROGRESSISTA",
+          "coalitionId": null,
+          "protectedMinority": null
+        },
+        {
+          "id": "group-5bb5bafaa6c16f09",
+          "name": "DIE FREIHEITLICHEN",
+          "coalitionId": null,
+          "protectedMinority": null
+        },
+        {
+          "id": "group-a15f17b82fd3d1c8",
+          "name": "PARTITO DEMOCRATICO - +EUROPA - ALLEANZA VERDI E SINISTRA",
+          "coalitionId": null,
+          "protectedMinority": null
+        },
+        {
+          "id": "group-a7259412b44957fd",
+          "name": "VALLE D'AOSTA APERTA",
+          "coalitionId": null,
+          "protectedMinority": null
+        },
+        {
+          "id": "group-add076ceaad6d2a6",
+          "name": "ALLEANZA VERDI E SINISTRA",
+          "coalitionId": null,
+          "protectedMinority": null
+        },
+        {
+          "id": "group-cc1b0abb61869ad4",
+          "name": "LEGA PER SALVINI PREM.-FORZA IT.-NOI MODERATI-FRAT. D'ITALIA",
+          "coalitionId": null,
+          "protectedMinority": null
+        },
+        {
+          "id": "group-d25b82cf0233fff4",
+          "name": "VITA",
+          "coalitionId": null,
+          "protectedMinority": null
+        },
+        {
+          "id": "group-ebea6e1235ad02c4",
+          "name": "POUR L?AUTONOMIE ? PER L?AUTONOMIA",
+          "coalitionId": null,
+          "protectedMinority": null
+        },
+        {
+          "id": "group-f8989a289f58ce20",
+          "name": "ITALIA SOVRANA E POPOLARE",
+          "coalitionId": null,
+          "protectedMinority": null
+        }
+      ]
+    },
+    "coverage": [
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:010101",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:010102",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:010201",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:010202",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:030101",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:030102",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:030201",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:030202",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:030301",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:030302",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:030401",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:040001",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0",
+          "list-10bc03a44a72d020",
+          "list-1379e84e454442d0",
+          "list-3611b499087d6a1c",
+          "list-7ce25923f1b9031e",
+          "list-d05eb9fcc38df227",
+          "list-d25b82cf0233fff4",
+          "list-f8989a289f58ce20"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:050101",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:050201",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:050202",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:050203",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:060001",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:070001",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:080001",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:080002",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:080003",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:090001",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:090002",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:090003",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:100001",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:110001",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:120101",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:120102",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:120103",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:120201",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:120202",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:130001",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:140001",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:150101",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:150102",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:150201",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:150202",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:160001",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:160002",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:160003",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:160004",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:170001",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:180001",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:190101",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:190102",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:190201",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:190202",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:190203",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:P:200001",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:U:020001",
+        "listIds": [
+          "group-10bc03a44a72d020",
+          "group-128148407d8a37c0",
+          "group-1d8be5ca53b668db",
+          "group-43b088d90d6ed113",
+          "group-a7259412b44957fd",
+          "group-cc1b0abb61869ad4",
+          "group-f8989a289f58ce20"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:U:040001",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0",
+          "list-10bc03a44a72d020",
+          "list-1379e84e454442d0",
+          "list-3611b499087d6a1c",
+          "list-7ce25923f1b9031e",
+          "list-d05eb9fcc38df227",
+          "list-d25b82cf0233fff4",
+          "list-f8989a289f58ce20"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:U:040002",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0",
+          "list-10bc03a44a72d020",
+          "list-1379e84e454442d0",
+          "list-3611b499087d6a1c",
+          "list-7ce25923f1b9031e",
+          "list-d05eb9fcc38df227",
+          "list-d25b82cf0233fff4",
+          "list-f8989a289f58ce20"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:U:040003",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0",
+          "list-10bc03a44a72d020",
+          "list-1379e84e454442d0",
+          "list-3611b499087d6a1c",
+          "list-7ce25923f1b9031e",
+          "list-d05eb9fcc38df227",
+          "list-d25b82cf0233fff4",
+          "list-f8989a289f58ce20"
+        ]
+      },
+      {
+        "chamber": "camera",
+        "collegeId": "camera:U:040004",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0",
+          "list-10bc03a44a72d020",
+          "list-1379e84e454442d0",
+          "list-3611b499087d6a1c",
+          "list-7ce25923f1b9031e",
+          "list-d05eb9fcc38df227",
+          "list-d25b82cf0233fff4",
+          "list-f8989a289f58ce20"
+        ]
+      },
+      {
+        "chamber": "senato",
+        "collegeId": "senato:P:010001",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "senato",
+        "collegeId": "senato:P:010002",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "senato",
+        "collegeId": "senato:P:030001",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "senato",
+        "collegeId": "senato:P:030002",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "senato",
+        "collegeId": "senato:P:030003",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "senato",
+        "collegeId": "senato:P:050001",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "senato",
+        "collegeId": "senato:P:050002",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "senato",
+        "collegeId": "senato:P:060001",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "senato",
+        "collegeId": "senato:P:070001",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "senato",
+        "collegeId": "senato:P:080001",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "senato",
+        "collegeId": "senato:P:080002",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "senato",
+        "collegeId": "senato:P:090001",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "senato",
+        "collegeId": "senato:P:100001",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "senato",
+        "collegeId": "senato:P:110001",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "senato",
+        "collegeId": "senato:P:120001",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "senato",
+        "collegeId": "senato:P:120002",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "senato",
+        "collegeId": "senato:P:130001",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "senato",
+        "collegeId": "senato:P:140001",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "senato",
+        "collegeId": "senato:P:150001",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "senato",
+        "collegeId": "senato:P:150002",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "senato",
+        "collegeId": "senato:P:160001",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "senato",
+        "collegeId": "senato:P:170001",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "senato",
+        "collegeId": "senato:P:180001",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "senato",
+        "collegeId": "senato:P:190001",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "senato",
+        "collegeId": "senato:P:190002",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "senato",
+        "collegeId": "senato:P:200001",
+        "listIds": [
+          "list-8951166603702dcc",
+          "list-59f35e92039ebed8",
+          "list-27178b23de82c1fd",
+          "list-c9cecc92ab984510",
+          "list-f54cd757a71ca555",
+          "list-56b7f5902a176380",
+          "list-add076ceaad6d2a6",
+          "list-4737a15e2c762fa0"
+        ]
+      },
+      {
+        "chamber": "senato",
+        "collegeId": "senato:U:020001",
+        "listIds": [
+          "group-10bc03a44a72d020",
+          "group-1d8be5ca53b668db",
+          "group-43b088d90d6ed113",
+          "group-a7259412b44957fd",
+          "group-cc1b0abb61869ad4",
+          "group-d25b82cf0233fff4",
+          "group-ebea6e1235ad02c4",
+          "group-f8989a289f58ce20"
+        ]
+      },
+      {
+        "chamber": "senato",
+        "collegeId": "senato:U:040001",
+        "listIds": [
+          "group-10bc03a44a72d020",
+          "group-27178b23de82c1fd",
+          "group-35442edc478ac27a",
+          "group-3611b499087d6a1c",
+          "group-cc1b0abb61869ad4",
+          "group-f8989a289f58ce20"
+        ]
+      },
+      {
+        "chamber": "senato",
+        "collegeId": "senato:U:040002",
+        "listIds": [
+          "group-10bc03a44a72d020",
+          "group-27178b23de82c1fd",
+          "group-35442edc478ac27a",
+          "group-3611b499087d6a1c",
+          "group-cc1b0abb61869ad4",
+          "group-d25b82cf0233fff4",
+          "group-f8989a289f58ce20"
+        ]
+      },
+      {
+        "chamber": "senato",
+        "collegeId": "senato:U:040003",
+        "listIds": [
+          "group-10bc03a44a72d020",
+          "group-27178b23de82c1fd",
+          "group-35442edc478ac27a",
+          "group-3611b499087d6a1c",
+          "group-cc1b0abb61869ad4",
+          "group-f8989a289f58ce20"
+        ]
+      },
+      {
+        "chamber": "senato",
+        "collegeId": "senato:U:040004",
+        "listIds": [
+          "group-10bc03a44a72d020",
+          "group-27178b23de82c1fd",
+          "group-3611b499087d6a1c",
+          "group-56b7f5902a176380",
+          "group-5bb5bafaa6c16f09",
+          "group-a15f17b82fd3d1c8",
+          "group-cc1b0abb61869ad4",
+          "group-d25b82cf0233fff4",
+          "group-f8989a289f58ce20"
+        ]
+      },
+      {
+        "chamber": "senato",
+        "collegeId": "senato:U:040005",
+        "listIds": [
+          "group-10bc03a44a72d020",
+          "group-27178b23de82c1fd",
+          "group-27c4c235b098f537",
+          "group-3611b499087d6a1c",
+          "group-56b7f5902a176380",
+          "group-59f35e92039ebed8",
+          "group-5bb5bafaa6c16f09",
+          "group-a15f17b82fd3d1c8",
+          "group-add076ceaad6d2a6",
+          "group-cc1b0abb61869ad4",
+          "group-d25b82cf0233fff4",
+          "group-f8989a289f58ce20"
+        ]
+      },
+      {
+        "chamber": "senato",
+        "collegeId": "senato:U:040006",
+        "listIds": [
+          "group-10bc03a44a72d020",
+          "group-27178b23de82c1fd",
+          "group-27c4c235b098f537",
+          "group-3611b499087d6a1c",
+          "group-56b7f5902a176380",
+          "group-59f35e92039ebed8",
+          "group-5bb5bafaa6c16f09",
+          "group-a15f17b82fd3d1c8",
+          "group-add076ceaad6d2a6",
+          "group-cc1b0abb61869ad4",
+          "group-d25b82cf0233fff4",
+          "group-f8989a289f58ce20"
+        ]
+      }
+    ],
+    "correspondences": [
+      {
+        "chamber": "camera",
+        "pastListId": "list-8951166603702dcc",
+        "futureListId": "list-8951166603702dcc",
+        "factor": 1
+      },
+      {
+        "chamber": "camera",
+        "pastListId": "list-59f35e92039ebed8",
+        "futureListId": "list-59f35e92039ebed8",
+        "factor": 1
+      },
+      {
+        "chamber": "camera",
+        "pastListId": "list-27178b23de82c1fd",
+        "futureListId": "list-27178b23de82c1fd",
+        "factor": 1
+      },
+      {
+        "chamber": "camera",
+        "pastListId": "list-c9cecc92ab984510",
+        "futureListId": "list-c9cecc92ab984510",
+        "factor": 1
+      },
+      {
+        "chamber": "camera",
+        "pastListId": "list-f54cd757a71ca555",
+        "futureListId": "list-f54cd757a71ca555",
+        "factor": 1
+      },
+      {
+        "chamber": "camera",
+        "pastListId": "list-56b7f5902a176380",
+        "futureListId": "list-56b7f5902a176380",
+        "factor": 1
+      },
+      {
+        "chamber": "camera",
+        "pastListId": "list-add076ceaad6d2a6",
+        "futureListId": "list-add076ceaad6d2a6",
+        "factor": 1
+      },
+      {
+        "chamber": "camera",
+        "pastListId": "list-4737a15e2c762fa0",
+        "futureListId": "list-4737a15e2c762fa0",
+        "factor": 1
+      },
+      {
+        "chamber": "camera",
+        "pastListId": "list-10bc03a44a72d020",
+        "futureListId": "list-10bc03a44a72d020",
+        "factor": 1
+      },
+      {
+        "chamber": "camera",
+        "pastListId": "list-1379e84e454442d0",
+        "futureListId": "list-1379e84e454442d0",
+        "factor": 1
+      },
+      {
+        "chamber": "camera",
+        "pastListId": "list-3611b499087d6a1c",
+        "futureListId": "list-3611b499087d6a1c",
+        "factor": 1
+      },
+      {
+        "chamber": "camera",
+        "pastListId": "list-7ce25923f1b9031e",
+        "futureListId": "list-7ce25923f1b9031e",
+        "factor": 1
+      },
+      {
+        "chamber": "camera",
+        "pastListId": "list-d05eb9fcc38df227",
+        "futureListId": "list-d05eb9fcc38df227",
+        "factor": 1
+      },
+      {
+        "chamber": "camera",
+        "pastListId": "list-d25b82cf0233fff4",
+        "futureListId": "list-d25b82cf0233fff4",
+        "factor": 1
+      },
+      {
+        "chamber": "camera",
+        "pastListId": "list-f8989a289f58ce20",
+        "futureListId": "list-f8989a289f58ce20",
+        "factor": 1
+      },
+      {
+        "chamber": "camera",
+        "pastListId": "group-10bc03a44a72d020",
+        "futureListId": "group-10bc03a44a72d020",
+        "factor": 1
+      },
+      {
+        "chamber": "camera",
+        "pastListId": "group-128148407d8a37c0",
+        "futureListId": "group-128148407d8a37c0",
+        "factor": 1
+      },
+      {
+        "chamber": "camera",
+        "pastListId": "group-1d8be5ca53b668db",
+        "futureListId": "group-1d8be5ca53b668db",
+        "factor": 1
+      },
+      {
+        "chamber": "camera",
+        "pastListId": "group-43b088d90d6ed113",
+        "futureListId": "group-43b088d90d6ed113",
+        "factor": 1
+      },
+      {
+        "chamber": "camera",
+        "pastListId": "group-a7259412b44957fd",
+        "futureListId": "group-a7259412b44957fd",
+        "factor": 1
+      },
+      {
+        "chamber": "camera",
+        "pastListId": "group-cc1b0abb61869ad4",
+        "futureListId": "group-cc1b0abb61869ad4",
+        "factor": 1
+      },
+      {
+        "chamber": "camera",
+        "pastListId": "group-f8989a289f58ce20",
+        "futureListId": "group-f8989a289f58ce20",
+        "factor": 1
+      },
+      {
+        "chamber": "senato",
+        "pastListId": "list-8951166603702dcc",
+        "futureListId": "list-8951166603702dcc",
+        "factor": 1
+      },
+      {
+        "chamber": "senato",
+        "pastListId": "list-59f35e92039ebed8",
+        "futureListId": "list-59f35e92039ebed8",
+        "factor": 1
+      },
+      {
+        "chamber": "senato",
+        "pastListId": "list-27178b23de82c1fd",
+        "futureListId": "list-27178b23de82c1fd",
+        "factor": 1
+      },
+      {
+        "chamber": "senato",
+        "pastListId": "list-c9cecc92ab984510",
+        "futureListId": "list-c9cecc92ab984510",
+        "factor": 1
+      },
+      {
+        "chamber": "senato",
+        "pastListId": "list-f54cd757a71ca555",
+        "futureListId": "list-f54cd757a71ca555",
+        "factor": 1
+      },
+      {
+        "chamber": "senato",
+        "pastListId": "list-56b7f5902a176380",
+        "futureListId": "list-56b7f5902a176380",
+        "factor": 1
+      },
+      {
+        "chamber": "senato",
+        "pastListId": "list-add076ceaad6d2a6",
+        "futureListId": "list-add076ceaad6d2a6",
+        "factor": 1
+      },
+      {
+        "chamber": "senato",
+        "pastListId": "list-4737a15e2c762fa0",
+        "futureListId": "list-4737a15e2c762fa0",
+        "factor": 1
+      },
+      {
+        "chamber": "senato",
+        "pastListId": "group-10bc03a44a72d020",
+        "futureListId": "group-10bc03a44a72d020",
+        "factor": 1
+      },
+      {
+        "chamber": "senato",
+        "pastListId": "group-1d8be5ca53b668db",
+        "futureListId": "group-1d8be5ca53b668db",
+        "factor": 1
+      },
+      {
+        "chamber": "senato",
+        "pastListId": "group-27178b23de82c1fd",
+        "futureListId": "group-27178b23de82c1fd",
+        "factor": 1
+      },
+      {
+        "chamber": "senato",
+        "pastListId": "group-27c4c235b098f537",
+        "futureListId": "group-27c4c235b098f537",
+        "factor": 1
+      },
+      {
+        "chamber": "senato",
+        "pastListId": "group-35442edc478ac27a",
+        "futureListId": "group-35442edc478ac27a",
+        "factor": 1
+      },
+      {
+        "chamber": "senato",
+        "pastListId": "group-3611b499087d6a1c",
+        "futureListId": "group-3611b499087d6a1c",
+        "factor": 1
+      },
+      {
+        "chamber": "senato",
+        "pastListId": "group-43b088d90d6ed113",
+        "futureListId": "group-43b088d90d6ed113",
+        "factor": 1
+      },
+      {
+        "chamber": "senato",
+        "pastListId": "group-56b7f5902a176380",
+        "futureListId": "group-56b7f5902a176380",
+        "factor": 1
+      },
+      {
+        "chamber": "senato",
+        "pastListId": "group-59f35e92039ebed8",
+        "futureListId": "group-59f35e92039ebed8",
+        "factor": 1
+      },
+      {
+        "chamber": "senato",
+        "pastListId": "group-5bb5bafaa6c16f09",
+        "futureListId": "group-5bb5bafaa6c16f09",
+        "factor": 1
+      },
+      {
+        "chamber": "senato",
+        "pastListId": "group-a15f17b82fd3d1c8",
+        "futureListId": "group-a15f17b82fd3d1c8",
+        "factor": 1
+      },
+      {
+        "chamber": "senato",
+        "pastListId": "group-a7259412b44957fd",
+        "futureListId": "group-a7259412b44957fd",
+        "factor": 1
+      },
+      {
+        "chamber": "senato",
+        "pastListId": "group-add076ceaad6d2a6",
+        "futureListId": "group-add076ceaad6d2a6",
+        "factor": 1
+      },
+      {
+        "chamber": "senato",
+        "pastListId": "group-cc1b0abb61869ad4",
+        "futureListId": "group-cc1b0abb61869ad4",
+        "factor": 1
+      },
+      {
+        "chamber": "senato",
+        "pastListId": "group-d25b82cf0233fff4",
+        "futureListId": "group-d25b82cf0233fff4",
+        "factor": 1
+      },
+      {
+        "chamber": "senato",
+        "pastListId": "group-ebea6e1235ad02c4",
+        "futureListId": "group-ebea6e1235ad02c4",
+        "factor": 1
+      },
+      {
+        "chamber": "senato",
+        "pastListId": "group-f8989a289f58ce20",
+        "futureListId": "group-f8989a289f58ce20",
+        "factor": 1
+      }
+    ],
+    "shares": [],
+    "abstention": [],
+    "candidateGeneration": {
+      "reuseProbability": 0.2,
+      "maximumOrdinaryCandidacies": 5
+    },
+    "candidateTemplates": [],
+    "suppliedPreferences": [],
+    "suppliedVotes": [],
+    "bonusLinks": [
+      {
+        "camera": {
+          "kind": "coalition",
+          "id": "historical-coalition:list-8951166603702dcc:list-c9cecc92ab984510:list-f54cd757a71ca555"
+        },
+        "senato": {
+          "kind": "coalition",
+          "id": "historical-coalition:list-8951166603702dcc:list-c9cecc92ab984510:list-f54cd757a71ca555"
+        },
+        "cameraDeclares": true,
+        "senatoDeclares": true
+      },
+      {
+        "camera": {
+          "kind": "coalition",
+          "id": "historical-coalition:list-4737a15e2c762fa0:list-59f35e92039ebed8:list-add076ceaad6d2a6"
+        },
+        "senato": {
+          "kind": "coalition",
+          "id": "historical-coalition:list-4737a15e2c762fa0:list-59f35e92039ebed8:list-add076ceaad6d2a6"
+        },
+        "cameraDeclares": true,
+        "senatoDeclares": true
+      },
+      {
+        "camera": {
+          "kind": "list",
+          "id": "list-27178b23de82c1fd"
+        },
+        "senato": {
+          "kind": "list",
+          "id": "list-27178b23de82c1fd"
+        },
+        "cameraDeclares": true,
+        "senatoDeclares": true
+      },
+      {
+        "camera": {
+          "kind": "list",
+          "id": "list-56b7f5902a176380"
+        },
+        "senato": {
+          "kind": "list",
+          "id": "list-56b7f5902a176380"
+        },
+        "cameraDeclares": true,
+        "senatoDeclares": true
+      }
+    ],
+    "conversion": null
+  },
+  "defaultsVersion": "r26-defaults-v1-f204e831aad3",
+  "resourceHints": {
+    "hardwareConcurrency": 8,
+    "deviceMemory": 16,
+    "controlledForBenchmark": true
+  },
+  "notes": [
+    "Heaps are periodic unforced JavaScript samples, not absolute peaks or process RAM.",
+    "Phase totals accumulate performance.now() durations within workers; they overlap and are not measured process CPU time or end-to-end elapsed time.",
+    "Presentation includes row derivation; storage includes transport decoding, compression and durable writes.",
+    "Each measured run starts a new coordinator and compute pool; production load/verification/preparation is included in elapsed time."
+  ],
+  "runs": [
+    {
+      "simulations": 10,
+      "computeWorkers": 4,
+      "elapsedMs": 4872.5,
+      "execution": {
+        "requestedWorkers": 4,
+        "computeWorkers": 4,
+        "maximumWorkers": 5,
+        "estimatedWorkerMemoryMiB": 1536,
+        "estimateVersion": "r26-worker-memory-v1",
+        "generationMs": 5274.600000008941,
+        "scrutinyMs": 2136.60000000149,
+        "presentationMs": 41.899999994784594,
+        "storageMs": 1663.3000000528991
+      },
+      "maximumCombinedHeap": 571758700,
+      "maximumActiveComputeWorkers": 4,
+      "heaps": [
+        {
+          "role": "coordinator",
+          "maximumHeap": 41127764
+        },
+        {
+          "role": "compute",
+          "maximumHeap": 163604084
+        },
+        {
+          "role": "compute",
+          "maximumHeap": 152926396
+        },
+        {
+          "role": "compute",
+          "maximumHeap": 159878416
+        },
+        {
+          "role": "compute",
+          "maximumHeap": 141952060
+        }
+      ],
+      "overview": {
+        "Requested": 10,
+        "Complete": 8,
+        "Partial": 0,
+        "Non-computable": 2,
+        "Bonus awarded": 5,
+        "Joint bonus probability / requested": 0.5
+      },
+      "diagnostics": {
+        "requested": 10,
+        "processed": 10,
+        "errors": {
+          "occurrences": 12,
+          "simulations": 2,
+          "contextOccurrences": 0,
+          "frequencyPerRequested": 0.2,
+          "frequencyPerProcessed": 0.2,
+          "reasons": [
+            {
+              "code": "R26_N18_NON_COMPUTABLE",
+              "reason": "N18 camera: no-eligible-donor-remainder. La simulazione resta nel denominatore richiesto; nessuna riestrazione o modifica delle dotazioni.",
+              "occurrences": 2,
+              "simulations": 2,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.2,
+              "frequencyPerProcessed": 0.2
+            },
+            {
+              "code": "R26_N23_NON_COMPUTABLE",
+              "reason": "N23 camera: ordinary-allocation-non-computable. La simulazione resta nel denominatore richiesto; nessuna riestrazione o modifica delle dotazioni.",
+              "occurrences": 2,
+              "simulations": 2,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.2,
+              "frequencyPerProcessed": 0.2
+            },
+            {
+              "code": "R26_N24_NON_COMPUTABLE",
+              "reason": "N24 camera: ordinary-allocation-non-computable. La simulazione resta nel denominatore richiesto; nessuna riestrazione o modifica delle dotazioni.",
+              "occurrences": 2,
+              "simulations": 2,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.2,
+              "frequencyPerProcessed": 0.2
+            },
+            {
+              "code": "R26_N25_NON_COMPUTABLE",
+              "reason": "N25 camera: prerequisite-non-computable. La simulazione resta nel denominatore richiesto; nessuna riestrazione o modifica delle dotazioni.",
+              "occurrences": 2,
+              "simulations": 2,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.2,
+              "frequencyPerProcessed": 0.2
+            },
+            {
+              "code": "R26_N26_NON_COMPUTABLE",
+              "reason": "N26 camera: prerequisite-non-computable. La simulazione resta nel denominatore richiesto; nessuna riestrazione o modifica delle dotazioni.",
+              "occurrences": 2,
+              "simulations": 2,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.2,
+              "frequencyPerProcessed": 0.2
+            },
+            {
+              "code": "R26_N28_NON_COMPUTABLE",
+              "reason": "N28 : stage-prerequisite-non-computable. La simulazione resta nel denominatore richiesto; nessuna riestrazione o modifica delle dotazioni.",
+              "occurrences": 2,
+              "simulations": 2,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.2,
+              "frequencyPerProcessed": 0.2
+            }
+          ]
+        },
+        "warnings": {
+          "occurrences": 25,
+          "simulations": 10,
+          "contextOccurrences": 2,
+          "frequencyPerRequested": 1,
+          "frequencyPerProcessed": 1,
+          "reasons": [
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:01 -> senato:territory:05; retained. Original entitlement preserved.",
+              "occurrences": 1,
+              "simulations": 1,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.1,
+              "frequencyPerProcessed": 0.1
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:01 -> senato:territory:09; retained. Original entitlement preserved.",
+              "occurrences": 1,
+              "simulations": 1,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.1,
+              "frequencyPerProcessed": 0.1
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:01 -> senato:territory:16; retained. Original entitlement preserved.",
+              "occurrences": 1,
+              "simulations": 1,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.1,
+              "frequencyPerProcessed": 0.1
+            },
+            {
+              "code": "I08_PROVISIONAL_SEATS",
+              "reason": "Census-based provisional seat table r26-seats-census-2021-i08-v1-9672c20529b2; this is not an official decree allocation.",
+              "occurrences": 20,
+              "simulations": 10,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 1,
+              "frequencyPerProcessed": 1
+            },
+            {
+              "code": "R26_CONDITIONAL_CANDIDATES",
+              "reason": "Identità, seggi coperti e recuperi con preferenze sintetiche sono condizionati al modello e al profilo scelto; non sono previsioni individuali. I profili descrivono sensibilità, non intervalli di incertezza calibrata.",
+              "occurrences": 1,
+              "simulations": 0,
+              "contextOccurrences": 1,
+              "frequencyPerRequested": 0,
+              "frequencyPerProcessed": 0
+            },
+            {
+              "code": "R26_SEAT_TABLE_3",
+              "reason": "Popolazione dei collegi di Roma ricostruita dai dati censuari 2021 per zona urbanistica. Corrispondenza per codice delle zone con la geografia elettorale 2022; continuità dei confini assunta, non verificata geometricamente. Il totale comunale è conservato.",
+              "occurrences": 1,
+              "simulations": 0,
+              "contextOccurrences": 1,
+              "frequencyPerRequested": 0,
+              "frequencyPerProcessed": 0
+            }
+          ]
+        },
+        "information": {
+          "occurrences": 3,
+          "simulations": 0,
+          "contextOccurrences": 3,
+          "frequencyPerRequested": 0,
+          "frequencyPerProcessed": 0,
+          "reasons": [
+            {
+              "code": "R26_PAIRED_MEAN_MODE",
+              "reason": "La quota comune è un ancoraggio in log-odds; i riferimenti espliciti di Camera/Senato hanno precedenza. La modalità media conserva incertezza e covarianza tra rami. La frequenza del premio congiunto dipende dal profilo scelto: rieseguire gli stessi seed con profili diversi per valutarne la sensibilità.",
+              "occurrences": 1,
+              "simulations": 0,
+              "contextOccurrences": 1,
+              "frequencyPerRequested": 0,
+              "frequencyPerProcessed": 0
+            },
+            {
+              "code": "R26_SEAT_TABLE_1",
+              "reason": "Dotazioni provvisorie I08 basate sul censimento del 2021-12-31; non sono tabelle di un decreto di assegnazione.",
+              "occurrences": 1,
+              "simulations": 0,
+              "contextOccurrences": 1,
+              "frequencyPerRequested": 0,
+              "frequencyPerProcessed": 0
+            },
+            {
+              "code": "R26_SEAT_TABLE_2",
+              "reason": "Geografia ufficiale aggiornata al 2022: inclusi Misiliscemi e il passaggio di Montecopiolo e Sassofeltrio all’Emilia-Romagna. I codici catastali e amministrativi non sostituiscono i confini elettorali.",
+              "occurrences": 1,
+              "simulations": 0,
+              "contextOccurrences": 1,
+              "frequencyPerRequested": 0,
+              "frequencyPerProcessed": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "simulations": 100,
+      "computeWorkers": 4,
+      "elapsedMs": 22970.300000000745,
+      "execution": {
+        "requestedWorkers": 4,
+        "computeWorkers": 4,
+        "maximumWorkers": 5,
+        "estimatedWorkerMemoryMiB": 1536,
+        "estimateVersion": "r26-worker-memory-v1",
+        "generationMs": 49219.200000014156,
+        "scrutinyMs": 21064.10000000149,
+        "presentationMs": 451.90000000596046,
+        "storageMs": 6429.199999973178
+      },
+      "maximumCombinedHeap": 864885332,
+      "maximumActiveComputeWorkers": 4,
+      "heaps": [
+        {
+          "role": "coordinator",
+          "maximumHeap": 47318212
+        },
+        {
+          "role": "compute",
+          "maximumHeap": 209783648
+        },
+        {
+          "role": "compute",
+          "maximumHeap": 219192368
+        },
+        {
+          "role": "compute",
+          "maximumHeap": 223778296
+        },
+        {
+          "role": "compute",
+          "maximumHeap": 230082344
+        }
+      ],
+      "overview": {
+        "Requested": 100,
+        "Complete": 68,
+        "Partial": 0,
+        "Non-computable": 32,
+        "Bonus awarded": 54,
+        "Joint bonus probability / requested": 0.54
+      },
+      "diagnostics": {
+        "requested": 100,
+        "processed": 100,
+        "errors": {
+          "occurrences": 166,
+          "simulations": 32,
+          "contextOccurrences": 0,
+          "frequencyPerRequested": 0.32,
+          "frequencyPerProcessed": 0.32,
+          "reasons": [
+            {
+              "code": "R26_N18_NON_COMPUTABLE",
+              "reason": "N18 camera: no-eligible-donor-remainder. La simulazione resta nel denominatore richiesto; nessuna riestrazione o modifica delle dotazioni.",
+              "occurrences": 18,
+              "simulations": 18,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.18,
+              "frequencyPerProcessed": 0.18
+            },
+            {
+              "code": "R26_N18_NON_COMPUTABLE",
+              "reason": "N18 camera: no-eligible-recipient-remainder. La simulazione resta nel denominatore richiesto; nessuna riestrazione o modifica delle dotazioni.",
+              "occurrences": 1,
+              "simulations": 1,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.01,
+              "frequencyPerProcessed": 0.01
+            },
+            {
+              "code": "R26_N21_NON_COMPUTABLE",
+              "reason": "N21 senato: no-eligible-donor-remainder. La simulazione resta nel denominatore richiesto; nessuna riestrazione o modifica delle dotazioni.",
+              "occurrences": 8,
+              "simulations": 8,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.08,
+              "frequencyPerProcessed": 0.08
+            },
+            {
+              "code": "R26_N22_NON_COMPUTABLE",
+              "reason": "N22 senato: alternative-allocation-path. La simulazione resta nel denominatore richiesto; nessuna riestrazione o modifica delle dotazioni.",
+              "occurrences": 7,
+              "simulations": 7,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.07,
+              "frequencyPerProcessed": 0.07
+            },
+            {
+              "code": "R26_N23_NON_COMPUTABLE",
+              "reason": "N23 camera: ordinary-allocation-non-computable. La simulazione resta nel denominatore richiesto; nessuna riestrazione o modifica delle dotazioni.",
+              "occurrences": 19,
+              "simulations": 19,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.19,
+              "frequencyPerProcessed": 0.19
+            },
+            {
+              "code": "R26_N23_NON_COMPUTABLE",
+              "reason": "N23 senato: ordinary-allocation-non-computable. La simulazione resta nel denominatore richiesto; nessuna riestrazione o modifica delle dotazioni.",
+              "occurrences": 8,
+              "simulations": 8,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.08,
+              "frequencyPerProcessed": 0.08
+            },
+            {
+              "code": "R26_N24_NON_COMPUTABLE",
+              "reason": "N24 camera: ordinary-allocation-non-computable. La simulazione resta nel denominatore richiesto; nessuna riestrazione o modifica delle dotazioni.",
+              "occurrences": 19,
+              "simulations": 19,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.19,
+              "frequencyPerProcessed": 0.19
+            },
+            {
+              "code": "R26_N24_NON_COMPUTABLE",
+              "reason": "N24 senato: ordinary-allocation-non-computable. La simulazione resta nel denominatore richiesto; nessuna riestrazione o modifica delle dotazioni.",
+              "occurrences": 8,
+              "simulations": 8,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.08,
+              "frequencyPerProcessed": 0.08
+            },
+            {
+              "code": "R26_N25_NON_COMPUTABLE",
+              "reason": "N25 camera: prerequisite-non-computable. La simulazione resta nel denominatore richiesto; nessuna riestrazione o modifica delle dotazioni.",
+              "occurrences": 19,
+              "simulations": 19,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.19,
+              "frequencyPerProcessed": 0.19
+            },
+            {
+              "code": "R26_N26_NON_COMPUTABLE",
+              "reason": "N26 camera: prerequisite-non-computable. La simulazione resta nel denominatore richiesto; nessuna riestrazione o modifica delle dotazioni.",
+              "occurrences": 19,
+              "simulations": 19,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.19,
+              "frequencyPerProcessed": 0.19
+            },
+            {
+              "code": "R26_N27_NON_COMPUTABLE",
+              "reason": "N27 senato: prerequisite-non-computable. La simulazione resta nel denominatore richiesto; nessuna riestrazione o modifica delle dotazioni.",
+              "occurrences": 8,
+              "simulations": 8,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.08,
+              "frequencyPerProcessed": 0.08
+            },
+            {
+              "code": "R26_N28_NON_COMPUTABLE",
+              "reason": "N28 : stage-prerequisite-non-computable. La simulazione resta nel denominatore richiesto; nessuna riestrazione o modifica delle dotazioni.",
+              "occurrences": 26,
+              "simulations": 26,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.26,
+              "frequencyPerProcessed": 0.26
+            },
+            {
+              "code": "R26_RUN_ERROR",
+              "reason": "Supply a validated seven-slot slate and its college figures",
+              "occurrences": 6,
+              "simulations": 6,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.06,
+              "frequencyPerProcessed": 0.06
+            }
+          ]
+        },
+        "warnings": {
+          "occurrences": 328,
+          "simulations": 94,
+          "contextOccurrences": 2,
+          "frequencyPerRequested": 0.94,
+          "frequencyPerProcessed": 0.94,
+          "reasons": [
+            {
+              "code": "I03_DRAW",
+              "reason": "Final tie resolved by the provisional I03 seeded draw after all express legal criteria.",
+              "occurrences": 133,
+              "simulations": 7,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.07,
+              "frequencyPerProcessed": 0.07
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:01 -> senato:territory:05; retained. Original entitlement preserved.",
+              "occurrences": 1,
+              "simulations": 1,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.01,
+              "frequencyPerProcessed": 0.01
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:01 -> senato:territory:09; retained. Original entitlement preserved.",
+              "occurrences": 1,
+              "simulations": 1,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.01,
+              "frequencyPerProcessed": 0.01
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:01 -> senato:territory:16; retained. Original entitlement preserved.",
+              "occurrences": 1,
+              "simulations": 1,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.01,
+              "frequencyPerProcessed": 0.01
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:09 -> senato:territory:01; retained. Original entitlement preserved.",
+              "occurrences": 1,
+              "simulations": 1,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.01,
+              "frequencyPerProcessed": 0.01
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:16 -> senato:territory:10; retained. Original entitlement preserved.",
+              "occurrences": 1,
+              "simulations": 1,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.01,
+              "frequencyPerProcessed": 0.01
+            },
+            {
+              "code": "I08_PROVISIONAL_SEATS",
+              "reason": "Census-based provisional seat table r26-seats-census-2021-i08-v1-9672c20529b2; this is not an official decree allocation.",
+              "occurrences": 188,
+              "simulations": 94,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.94,
+              "frequencyPerProcessed": 0.94
+            },
+            {
+              "code": "R26_CONDITIONAL_CANDIDATES",
+              "reason": "Identità, seggi coperti e recuperi con preferenze sintetiche sono condizionati al modello e al profilo scelto; non sono previsioni individuali. I profili descrivono sensibilità, non intervalli di incertezza calibrata.",
+              "occurrences": 1,
+              "simulations": 0,
+              "contextOccurrences": 1,
+              "frequencyPerRequested": 0,
+              "frequencyPerProcessed": 0
+            },
+            {
+              "code": "R26_SEAT_TABLE_3",
+              "reason": "Popolazione dei collegi di Roma ricostruita dai dati censuari 2021 per zona urbanistica. Corrispondenza per codice delle zone con la geografia elettorale 2022; continuità dei confini assunta, non verificata geometricamente. Il totale comunale è conservato.",
+              "occurrences": 1,
+              "simulations": 0,
+              "contextOccurrences": 1,
+              "frequencyPerRequested": 0,
+              "frequencyPerProcessed": 0
+            }
+          ]
+        },
+        "information": {
+          "occurrences": 3,
+          "simulations": 0,
+          "contextOccurrences": 3,
+          "frequencyPerRequested": 0,
+          "frequencyPerProcessed": 0,
+          "reasons": [
+            {
+              "code": "R26_PAIRED_MEAN_MODE",
+              "reason": "La quota comune è un ancoraggio in log-odds; i riferimenti espliciti di Camera/Senato hanno precedenza. La modalità media conserva incertezza e covarianza tra rami. La frequenza del premio congiunto dipende dal profilo scelto: rieseguire gli stessi seed con profili diversi per valutarne la sensibilità.",
+              "occurrences": 1,
+              "simulations": 0,
+              "contextOccurrences": 1,
+              "frequencyPerRequested": 0,
+              "frequencyPerProcessed": 0
+            },
+            {
+              "code": "R26_SEAT_TABLE_1",
+              "reason": "Dotazioni provvisorie I08 basate sul censimento del 2021-12-31; non sono tabelle di un decreto di assegnazione.",
+              "occurrences": 1,
+              "simulations": 0,
+              "contextOccurrences": 1,
+              "frequencyPerRequested": 0,
+              "frequencyPerProcessed": 0
+            },
+            {
+              "code": "R26_SEAT_TABLE_2",
+              "reason": "Geografia ufficiale aggiornata al 2022: inclusi Misiliscemi e il passaggio di Montecopiolo e Sassofeltrio all’Emilia-Romagna. I codici catastali e amministrativi non sostituiscono i confini elettorali.",
+              "occurrences": 1,
+              "simulations": 0,
+              "contextOccurrences": 1,
+              "frequencyPerRequested": 0,
+              "frequencyPerProcessed": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "simulations": 1000,
+      "computeWorkers": 4,
+      "elapsedMs": 197350.90000000224,
+      "execution": {
+        "requestedWorkers": 4,
+        "computeWorkers": 4,
+        "maximumWorkers": 5,
+        "estimatedWorkerMemoryMiB": 1536,
+        "estimateVersion": "r26-worker-memory-v1",
+        "generationMs": 482152.19999998435,
+        "scrutinyMs": 199360.89999993145,
+        "presentationMs": 4115.600000031292,
+        "storageMs": 47236.80000016093
+      },
+      "maximumCombinedHeap": 885728388,
+      "maximumActiveComputeWorkers": 4,
+      "heaps": [
+        {
+          "role": "coordinator",
+          "maximumHeap": 51216956
+        },
+        {
+          "role": "compute",
+          "maximumHeap": 265940868
+        },
+        {
+          "role": "compute",
+          "maximumHeap": 261184948
+        },
+        {
+          "role": "compute",
+          "maximumHeap": 268239396
+        },
+        {
+          "role": "compute",
+          "maximumHeap": 267094768
+        }
+      ],
+      "overview": {
+        "Requested": 1000,
+        "Complete": 698,
+        "Partial": 0,
+        "Non-computable": 302,
+        "Bonus awarded": 468,
+        "Joint bonus probability / requested": 0.468
+      },
+      "diagnostics": {
+        "requested": 1000,
+        "processed": 1000,
+        "errors": {
+          "occurrences": 1390,
+          "simulations": 302,
+          "contextOccurrences": 0,
+          "frequencyPerRequested": 0.302,
+          "frequencyPerProcessed": 0.302,
+          "reasons": [
+            {
+              "code": "R26_N18_NON_COMPUTABLE",
+              "reason": "N18 camera: impossible-residual. La simulazione resta nel denominatore richiesto; nessuna riestrazione o modifica delle dotazioni.",
+              "occurrences": 7,
+              "simulations": 7,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.007,
+              "frequencyPerProcessed": 0.007
+            },
+            {
+              "code": "R26_N18_NON_COMPUTABLE",
+              "reason": "N18 camera: no-eligible-donor-remainder. La simulazione resta nel denominatore richiesto; nessuna riestrazione o modifica delle dotazioni.",
+              "occurrences": 151,
+              "simulations": 151,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.151,
+              "frequencyPerProcessed": 0.151
+            },
+            {
+              "code": "R26_N18_NON_COMPUTABLE",
+              "reason": "N18 camera: no-eligible-recipient-remainder. La simulazione resta nel denominatore richiesto; nessuna riestrazione o modifica delle dotazioni.",
+              "occurrences": 1,
+              "simulations": 1,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.001,
+              "frequencyPerProcessed": 0.001
+            },
+            {
+              "code": "R26_N21_NON_COMPUTABLE",
+              "reason": "N21 senato: no-eligible-donor-remainder. La simulazione resta nel denominatore richiesto; nessuna riestrazione o modifica delle dotazioni.",
+              "occurrences": 59,
+              "simulations": 59,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.059,
+              "frequencyPerProcessed": 0.059
+            },
+            {
+              "code": "R26_N22_NON_COMPUTABLE",
+              "reason": "N22 senato: alternative-allocation-path. La simulazione resta nel denominatore richiesto; nessuna riestrazione o modifica delle dotazioni.",
+              "occurrences": 57,
+              "simulations": 57,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.057,
+              "frequencyPerProcessed": 0.057
+            },
+            {
+              "code": "R26_N23_NON_COMPUTABLE",
+              "reason": "N23 camera: ordinary-allocation-non-computable. La simulazione resta nel denominatore richiesto; nessuna riestrazione o modifica delle dotazioni.",
+              "occurrences": 159,
+              "simulations": 159,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.159,
+              "frequencyPerProcessed": 0.159
+            },
+            {
+              "code": "R26_N23_NON_COMPUTABLE",
+              "reason": "N23 senato: ordinary-allocation-non-computable. La simulazione resta nel denominatore richiesto; nessuna riestrazione o modifica delle dotazioni.",
+              "occurrences": 59,
+              "simulations": 59,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.059,
+              "frequencyPerProcessed": 0.059
+            },
+            {
+              "code": "R26_N24_NON_COMPUTABLE",
+              "reason": "N24 camera: ordinary-allocation-non-computable. La simulazione resta nel denominatore richiesto; nessuna riestrazione o modifica delle dotazioni.",
+              "occurrences": 159,
+              "simulations": 159,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.159,
+              "frequencyPerProcessed": 0.159
+            },
+            {
+              "code": "R26_N24_NON_COMPUTABLE",
+              "reason": "N24 senato: ordinary-allocation-non-computable. La simulazione resta nel denominatore richiesto; nessuna riestrazione o modifica delle dotazioni.",
+              "occurrences": 59,
+              "simulations": 59,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.059,
+              "frequencyPerProcessed": 0.059
+            },
+            {
+              "code": "R26_N25_NON_COMPUTABLE",
+              "reason": "N25 camera: prerequisite-non-computable. La simulazione resta nel denominatore richiesto; nessuna riestrazione o modifica delle dotazioni.",
+              "occurrences": 159,
+              "simulations": 159,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.159,
+              "frequencyPerProcessed": 0.159
+            },
+            {
+              "code": "R26_N26_NON_COMPUTABLE",
+              "reason": "N26 camera: prerequisite-non-computable. La simulazione resta nel denominatore richiesto; nessuna riestrazione o modifica delle dotazioni.",
+              "occurrences": 159,
+              "simulations": 159,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.159,
+              "frequencyPerProcessed": 0.159
+            },
+            {
+              "code": "R26_N27_NON_COMPUTABLE",
+              "reason": "N27 senato: prerequisite-non-computable. La simulazione resta nel denominatore richiesto; nessuna riestrazione o modifica delle dotazioni.",
+              "occurrences": 59,
+              "simulations": 59,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.059,
+              "frequencyPerProcessed": 0.059
+            },
+            {
+              "code": "R26_N28_NON_COMPUTABLE",
+              "reason": "N28 : stage-prerequisite-non-computable. La simulazione resta nel denominatore richiesto; nessuna riestrazione o modifica delle dotazioni.",
+              "occurrences": 216,
+              "simulations": 216,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.216,
+              "frequencyPerProcessed": 0.216
+            },
+            {
+              "code": "R26_RUN_ERROR",
+              "reason": "Supply a validated seven-slot slate and its college figures",
+              "occurrences": 86,
+              "simulations": 86,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.086,
+              "frequencyPerProcessed": 0.086
+            }
+          ]
+        },
+        "warnings": {
+          "occurrences": 2613,
+          "simulations": 914,
+          "contextOccurrences": 2,
+          "frequencyPerRequested": 0.914,
+          "frequencyPerProcessed": 0.914,
+          "reasons": [
+            {
+              "code": "I03_DRAW",
+              "reason": "Final tie resolved by the provisional I03 seeded draw after all express legal criteria.",
+              "occurrences": 690,
+              "simulations": 55,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.055,
+              "frequencyPerProcessed": 0.055
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 coalition-original-college: senato:territory:09 -> senato:territory:08; retained. Original entitlement preserved.",
+              "occurrences": 1,
+              "simulations": 1,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.001,
+              "frequencyPerProcessed": 0.001
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 coalition-original-college: senato:territory:16 -> senato:territory:03; retained. Original entitlement preserved.",
+              "occurrences": 1,
+              "simulations": 1,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.001,
+              "frequencyPerProcessed": 0.001
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-college: senato:territory:16 -> senato:territory:01; retained. Original entitlement preserved.",
+              "occurrences": 1,
+              "simulations": 1,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.001,
+              "frequencyPerProcessed": 0.001
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:01 -> senato:territory:03; retained. Original entitlement preserved.",
+              "occurrences": 1,
+              "simulations": 1,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.001,
+              "frequencyPerProcessed": 0.001
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:01 -> senato:territory:05; retained. Original entitlement preserved.",
+              "occurrences": 1,
+              "simulations": 1,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.001,
+              "frequencyPerProcessed": 0.001
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:01 -> senato:territory:06; retained. Original entitlement preserved.",
+              "occurrences": 1,
+              "simulations": 1,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.001,
+              "frequencyPerProcessed": 0.001
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:01 -> senato:territory:09; retained. Original entitlement preserved.",
+              "occurrences": 1,
+              "simulations": 1,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.001,
+              "frequencyPerProcessed": 0.001
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:01 -> senato:territory:16; retained. Original entitlement preserved.",
+              "occurrences": 1,
+              "simulations": 1,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.001,
+              "frequencyPerProcessed": 0.001
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:03 -> senato:territory:05; retained. Original entitlement preserved.",
+              "occurrences": 1,
+              "simulations": 1,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.001,
+              "frequencyPerProcessed": 0.001
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:03 -> senato:territory:08; retained. Original entitlement preserved.",
+              "occurrences": 1,
+              "simulations": 1,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.001,
+              "frequencyPerProcessed": 0.001
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:03 -> senato:territory:13; retained. Original entitlement preserved.",
+              "occurrences": 2,
+              "simulations": 1,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.001,
+              "frequencyPerProcessed": 0.001
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:03 -> senato:territory:16; retained. Original entitlement preserved.",
+              "occurrences": 2,
+              "simulations": 1,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.001,
+              "frequencyPerProcessed": 0.001
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:09 -> senato:territory:01; retained. Original entitlement preserved.",
+              "occurrences": 2,
+              "simulations": 2,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.002,
+              "frequencyPerProcessed": 0.002
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:09 -> senato:territory:03; retained. Original entitlement preserved.",
+              "occurrences": 5,
+              "simulations": 4,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.004,
+              "frequencyPerProcessed": 0.004
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:09 -> senato:territory:05; retained. Original entitlement preserved.",
+              "occurrences": 5,
+              "simulations": 2,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.002,
+              "frequencyPerProcessed": 0.002
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:09 -> senato:territory:08; released. Original entitlement preserved.",
+              "occurrences": 1,
+              "simulations": 1,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.001,
+              "frequencyPerProcessed": 0.001
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:09 -> senato:territory:08; retained. Original entitlement preserved.",
+              "occurrences": 4,
+              "simulations": 2,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.002,
+              "frequencyPerProcessed": 0.002
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:09 -> senato:territory:12; retained. Original entitlement preserved.",
+              "occurrences": 2,
+              "simulations": 2,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.002,
+              "frequencyPerProcessed": 0.002
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:09 -> senato:territory:13; retained. Original entitlement preserved.",
+              "occurrences": 2,
+              "simulations": 2,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.002,
+              "frequencyPerProcessed": 0.002
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:09 -> senato:territory:15; retained. Original entitlement preserved.",
+              "occurrences": 1,
+              "simulations": 1,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.001,
+              "frequencyPerProcessed": 0.001
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:09 -> senato:territory:16; retained. Original entitlement preserved.",
+              "occurrences": 1,
+              "simulations": 1,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.001,
+              "frequencyPerProcessed": 0.001
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:09 -> senato:territory:20; retained. Original entitlement preserved.",
+              "occurrences": 1,
+              "simulations": 1,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.001,
+              "frequencyPerProcessed": 0.001
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:15 -> senato:territory:01; retained. Original entitlement preserved.",
+              "occurrences": 1,
+              "simulations": 1,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.001,
+              "frequencyPerProcessed": 0.001
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:15 -> senato:territory:12; retained. Original entitlement preserved.",
+              "occurrences": 2,
+              "simulations": 1,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.001,
+              "frequencyPerProcessed": 0.001
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:16 -> senato:territory:01; released. Original entitlement preserved.",
+              "occurrences": 1,
+              "simulations": 1,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.001,
+              "frequencyPerProcessed": 0.001
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:16 -> senato:territory:01; retained. Original entitlement preserved.",
+              "occurrences": 4,
+              "simulations": 3,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.003,
+              "frequencyPerProcessed": 0.003
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:16 -> senato:territory:03; released. Original entitlement preserved.",
+              "occurrences": 1,
+              "simulations": 1,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.001,
+              "frequencyPerProcessed": 0.001
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:16 -> senato:territory:03; retained. Original entitlement preserved.",
+              "occurrences": 2,
+              "simulations": 2,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.002,
+              "frequencyPerProcessed": 0.002
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:16 -> senato:territory:05; retained. Original entitlement preserved.",
+              "occurrences": 2,
+              "simulations": 2,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.002,
+              "frequencyPerProcessed": 0.002
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:16 -> senato:territory:06; retained. Original entitlement preserved.",
+              "occurrences": 4,
+              "simulations": 2,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.002,
+              "frequencyPerProcessed": 0.002
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:16 -> senato:territory:07; retained. Original entitlement preserved.",
+              "occurrences": 1,
+              "simulations": 1,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.001,
+              "frequencyPerProcessed": 0.001
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:16 -> senato:territory:08; retained. Original entitlement preserved.",
+              "occurrences": 4,
+              "simulations": 3,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.003,
+              "frequencyPerProcessed": 0.003
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:16 -> senato:territory:09; retained. Original entitlement preserved.",
+              "occurrences": 1,
+              "simulations": 1,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.001,
+              "frequencyPerProcessed": 0.001
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:16 -> senato:territory:10; retained. Original entitlement preserved.",
+              "occurrences": 1,
+              "simulations": 1,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.001,
+              "frequencyPerProcessed": 0.001
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:16 -> senato:territory:11; retained. Original entitlement preserved.",
+              "occurrences": 1,
+              "simulations": 1,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.001,
+              "frequencyPerProcessed": 0.001
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:16 -> senato:territory:12; retained. Original entitlement preserved.",
+              "occurrences": 4,
+              "simulations": 3,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.003,
+              "frequencyPerProcessed": 0.003
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:16 -> senato:territory:13; retained. Original entitlement preserved.",
+              "occurrences": 2,
+              "simulations": 2,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.002,
+              "frequencyPerProcessed": 0.002
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:16 -> senato:territory:15; retained. Original entitlement preserved.",
+              "occurrences": 4,
+              "simulations": 4,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.004,
+              "frequencyPerProcessed": 0.004
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:16 -> senato:territory:17; retained. Original entitlement preserved.",
+              "occurrences": 7,
+              "simulations": 5,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.005,
+              "frequencyPerProcessed": 0.005
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:16 -> senato:territory:18; retained. Original entitlement preserved.",
+              "occurrences": 4,
+              "simulations": 3,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.003,
+              "frequencyPerProcessed": 0.003
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:16 -> senato:territory:19; retained. Original entitlement preserved.",
+              "occurrences": 4,
+              "simulations": 3,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.003,
+              "frequencyPerProcessed": 0.003
+            },
+            {
+              "code": "I07_CROSS_REGION_RECOVERY",
+              "reason": "Provisional I07 same-list-other-territory: senato:territory:16 -> senato:territory:20; retained. Original entitlement preserved.",
+              "occurrences": 5,
+              "simulations": 2,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.002,
+              "frequencyPerProcessed": 0.002
+            },
+            {
+              "code": "I08_PROVISIONAL_SEATS",
+              "reason": "Census-based provisional seat table r26-seats-census-2021-i08-v1-9672c20529b2; this is not an official decree allocation.",
+              "occurrences": 1828,
+              "simulations": 914,
+              "contextOccurrences": 0,
+              "frequencyPerRequested": 0.914,
+              "frequencyPerProcessed": 0.914
+            },
+            {
+              "code": "R26_CONDITIONAL_CANDIDATES",
+              "reason": "Identità, seggi coperti e recuperi con preferenze sintetiche sono condizionati al modello e al profilo scelto; non sono previsioni individuali. I profili descrivono sensibilità, non intervalli di incertezza calibrata.",
+              "occurrences": 1,
+              "simulations": 0,
+              "contextOccurrences": 1,
+              "frequencyPerRequested": 0,
+              "frequencyPerProcessed": 0
+            },
+            {
+              "code": "R26_SEAT_TABLE_3",
+              "reason": "Popolazione dei collegi di Roma ricostruita dai dati censuari 2021 per zona urbanistica. Corrispondenza per codice delle zone con la geografia elettorale 2022; continuità dei confini assunta, non verificata geometricamente. Il totale comunale è conservato.",
+              "occurrences": 1,
+              "simulations": 0,
+              "contextOccurrences": 1,
+              "frequencyPerRequested": 0,
+              "frequencyPerProcessed": 0
+            }
+          ]
+        },
+        "information": {
+          "occurrences": 3,
+          "simulations": 0,
+          "contextOccurrences": 3,
+          "frequencyPerRequested": 0,
+          "frequencyPerProcessed": 0,
+          "reasons": [
+            {
+              "code": "R26_PAIRED_MEAN_MODE",
+              "reason": "La quota comune è un ancoraggio in log-odds; i riferimenti espliciti di Camera/Senato hanno precedenza. La modalità media conserva incertezza e covarianza tra rami. La frequenza del premio congiunto dipende dal profilo scelto: rieseguire gli stessi seed con profili diversi per valutarne la sensibilità.",
+              "occurrences": 1,
+              "simulations": 0,
+              "contextOccurrences": 1,
+              "frequencyPerRequested": 0,
+              "frequencyPerProcessed": 0
+            },
+            {
+              "code": "R26_SEAT_TABLE_1",
+              "reason": "Dotazioni provvisorie I08 basate sul censimento del 2021-12-31; non sono tabelle di un decreto di assegnazione.",
+              "occurrences": 1,
+              "simulations": 0,
+              "contextOccurrences": 1,
+              "frequencyPerRequested": 0,
+              "frequencyPerProcessed": 0
+            },
+            {
+              "code": "R26_SEAT_TABLE_2",
+              "reason": "Geografia ufficiale aggiornata al 2022: inclusi Misiliscemi e il passaggio di Montecopiolo e Sassofeltrio all’Emilia-Romagna. I codici catastali e amministrativi non sostituiscono i confini elettorali.",
+              "occurrences": 1,
+              "simulations": 0,
+              "contextOccurrences": 1,
+              "frequencyPerRequested": 0,
+              "frequencyPerProcessed": 0
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

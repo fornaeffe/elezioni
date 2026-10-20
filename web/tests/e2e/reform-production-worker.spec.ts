@@ -122,7 +122,11 @@ test('actual worker preserves paired global IDs over the 50-run chunk boundary a
       for (const sim of [1, 50, 51]) entitlements.push(...(await query(firstId, index('Vote-based entitlements'), sim)).rows);
       const firstLedger = await query(firstId, index('Seat entitlement and election locations'), 1);
       const replayLedger = await query(replayId, index('Seat entitlement and election locations'), 1);
-      return { first, replay, invalid, invalidWorkers, runs, entitlements, firstLedger, replayLedger };
+      const diagnostics = await new Promise<any>((resolve, reject) => {
+        worker.onmessage = event => event.data.ok ? resolve(event.data.data) : reject(new Error(event.data.error.message));
+        worker.postMessage({ type: 'result-service', requestId: 2, action: 'diagnostics', owner: 'direct-worker', resultId: firstId });
+      });
+      return { first, replay, invalid, invalidWorkers, runs, entitlements, firstLedger, replayLedger, diagnostics };
     }
     finally { worker.terminate(); }
   }, fixture.scenario);
@@ -130,6 +134,10 @@ test('actual worker preserves paired global IDs over the 50-run chunk boundary a
   expect(response.runs.rows.map(r => r.Simulation)).toEqual(Array.from({ length: 51 }, (_, i) => i + 1));
   for (const sim of [1, 50, 51]) expect(response.entitlements.filter(r => r.Simulation === sim).map(r => r.Chamber)).toEqual(['camera', 'senato']);
   expect(response.firstLedger.rows).toEqual(response.replayLedger.rows);
+  expect(response.diagnostics.requested).toBe(51);
+  expect(response.diagnostics.processed).toBe(51);
+  expect(response.diagnostics.warnings.reasons.length).toBeGreaterThan(0);
+  expect(response.diagnostics.warnings.reasons.reduce((sum: number, r: { occurrences: number }) => sum + r.occurrences, 0)).toBe(response.diagnostics.warnings.occurrences);
   expect(response.first.progress).toContainEqual(expect.objectContaining({ phase: 'scrutinize', completed: 51, total: 51 }));
   expect(response.invalid.result.warnings).toContainEqual(expect.objectContaining({ code: 'WORKER_ERROR', severity: 'error', message: expect.stringContaining('positive safe integer') }));
   expect(response.invalidWorkers.result.warnings).toContainEqual(expect.objectContaining({ code: 'WORKER_ERROR', severity: 'error', message: expect.stringContaining('1 to 5') }));
@@ -156,6 +164,20 @@ test('1/2/4 compute workers preserve all exported rows, warnings and shared occu
           worker.onmessage = event => event.data.ok ? resolve(event.data.data) : reject(new Error(event.data.error.message));
           worker.postMessage({ type: 'result-service', requestId: computeWorkers, action: 'export', resultId: result.storage!.id, owner: 'direct-worker', format: 'json' });
         });
+        if (computeWorkers === 1) {
+          // Imports may contain old all-run aggregations with only a first ID.
+          // Such data must never produce an invented affected-run frequency.
+          const resultId = crypto.randomUUID();
+          const service = (action: string, fields = {}) => new Promise<any>(resolve => {
+            worker.onmessage = event => resolve(event.data);
+            worker.postMessage({ type: 'result-service', requestId: 99, action, resultId, owner: 'direct-worker', ...fields });
+          });
+          const imported = await service('import', { file });
+          if (!imported.ok) throw new Error(imported.error.message);
+          const diagnostics = await service('diagnostics');
+          if (diagnostics.ok || !diagnostics.error.message.includes('Per-simulation diagnostic ledger')) throw new Error('Imported aggregation invented diagnostic frequencies');
+          await service('delete');
+        }
         const payload = await new Response(file.stream().pipeThrough(new DecompressionStream('gzip'))).json();
         payload.exportedAt = 'fixed';
         delete payload.result.benchmark.startedAt; delete payload.result.benchmark.elapsedMs; delete payload.result.benchmark.execution;

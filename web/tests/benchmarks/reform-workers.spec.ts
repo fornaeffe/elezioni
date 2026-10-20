@@ -47,15 +47,16 @@ test('production reform pool: throughput, phase costs, sampled heaps and outcome
     return response;
   };
   const report = { created: new Date().toISOString(), browser: browser.version(), node: process.version,
-    platform: process.platform, cpu: cpus()[0].model, physicalMemoryGiB: totalmem() / 1024 ** 3,
+    platform: process.platform, architecture: process.arch, cpu: cpus()[0].model, physicalMemoryGiB: totalmem() / 1024 ** 3,
     algorithm: scenario.algorithmId, snapshot: catalog.snapshotVersion, model: catalog.modelVersion, seed: scenario.seed,
+    scenario, defaultsVersion: catalog.defaultsVersion,
     resourceHints: { hardwareConcurrency: 8, deviceMemory: 16, controlledForBenchmark: true },
     notes: ['Heaps are periodic unforced JavaScript samples, not absolute peaks or process RAM.',
       'Phase totals accumulate performance.now() durations within workers; they overlap and are not measured process CPU time or end-to-end elapsed time.',
       'Presentation includes row derivation; storage includes transport decoding, compression and durable writes.',
       'Each measured run starts a new coordinator and compute pool; production load/verification/preparation is included in elapsed time.'],
     runs: [] as unknown[] };
-  const output = resolve('../test/fixtures/benchmarks/browser_reform_workers.json');
+  const output = resolve(process.env.REFORM_BENCHMARK_REPORT ?? '../test/fixtures/benchmarks/browser_reform_workers.json');
   const save = () => { mkdirSync(dirname(output), { recursive: true }); writeFileSync(output, `${JSON.stringify(report, null, 2)}\n`); };
   const references = new Map<number, unknown>();
   try {
@@ -77,12 +78,14 @@ test('production reform pool: throughput, phase costs, sampled heaps and outcome
               scrutinyAlgorithmId: scenario.algorithmId, seed: scenario.seed, electionDate: scenario.electionDate,
               dataVersion: scenario.snapshotVersion, simulations, computeWorkers });
           });
-          // Delete measured data outside the worker's benchmark interval.
-          if (result.storage) await new Promise<void>((resolve, reject) => {
-            worker.onmessage = event => event.data.ok ? resolve() : reject(new Error(event.data.error.message));
-            worker.postMessage({ type: 'result-service', requestId: 1, action: 'delete', resultId: result.storage!.id, owner: 'direct-worker' });
+          // Query all saved diagnostics and delete data outside the timed interval.
+          const request = (action: string) => new Promise<any>((resolve, reject) => {
+            worker.onmessage = event => event.data.ok ? resolve(event.data.data) : reject(new Error(event.data.error.message));
+            worker.postMessage({ type: 'result-service', requestId: 1, action, resultId: result.storage!.id, owner: 'direct-worker' });
           });
-          return result;
+          const diagnostics = result.storage ? await request('diagnostics') : null;
+          if (result.storage) await request('delete');
+          return { result, diagnostics };
         } finally { worker.terminate(); }
       }, { workerUrl, scenario, simulations, computeWorkers });
       void running.then(() => { finished = true; }, error => { failure = error; finished = true; });
@@ -112,18 +115,20 @@ test('production reform pool: throughput, phase costs, sampled heaps and outcome
         if (!finished) await page.waitForTimeout(250);
       }
       if (failure) throw failure;
-      const result = await running;
+      const { result, diagnostics } = await running;
       expect(result.status, JSON.stringify(result.warnings)).toBe('completed');
       expect(result.storage!.completedSimulations).toBe(simulations);
       expect(result.benchmark.execution!.computeWorkers).toBe(Math.min(computeWorkers, simulations));
-      const invariant = { tables: result.tables, rowCounts: result.storage!.tables.map(t => ({ name: t.name, rows: t.rows })), warningCounts: result.storage!.warningCounts };
+      expect(diagnostics.processed).toBe(simulations);
+      const invariant = { tables: result.tables, rowCounts: result.storage!.tables.map(t => ({ name: t.name, rows: t.rows })), warningCounts: result.storage!.warningCounts, diagnostics };
       if (references.has(simulations)) expect(invariant).toEqual(references.get(simulations));
       else references.set(simulations, invariant);
       report.runs.push({ simulations, computeWorkers, elapsedMs: result.benchmark.elapsedMs, execution: result.benchmark.execution,
         maximumCombinedHeap, maximumActiveComputeWorkers,
-        heaps: [...sessions.values()].map(({ role, maximumHeap }) => ({ role, maximumHeap })), overview: result.tables[0].rows[0] });
+        heaps: [...sessions.values()].map(({ role, maximumHeap }) => ({ role, maximumHeap })), overview: result.tables[0].rows[0], diagnostics });
       save();
-      console.log('REFORM_POOL_RESULT', JSON.stringify(report.runs.at(-1)));
+      console.log('REFORM_POOL_RESULT', JSON.stringify({ simulations, computeWorkers, elapsedMs: result.benchmark.elapsedMs,
+        errors: diagnostics.errors.simulations, warnings: diagnostics.warnings.simulations }));
     }
   } finally { save(); await cdp.detach(); }
 });

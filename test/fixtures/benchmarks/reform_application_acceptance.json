@@ -1,0 +1,112 @@
+{
+  "created": "2026-10-20T14:10:52.410Z",
+  "status": "passed",
+  "node": "v24.20.0",
+  "platform": "win32",
+  "scope": "Local production application acceptance; provisional I08 tables; conditional synthetic preferences; no deployment.",
+  "inputs": [
+    {
+      "path": "static/data/v1/politics-static.json",
+      "bytes": 75921415,
+      "sha256": "0792986f4bb1b09d9ad31982bf2492828bb8dab8a6d270a142bcfa64398f931a"
+    },
+    {
+      "path": "static/data/v1/regional-er-static.json",
+      "bytes": 5102281,
+      "sha256": "af83d65ba396f61cb40da7945f719ae35dbdfaf612e44f1a68b398f46c452ebd"
+    },
+    {
+      "path": "static/data/reform-2026/r26-generation-v1-c5c4be9fafb5.json.gz",
+      "bytes": 992943,
+      "sha256": "ba8d628268182fd7558a7f7b06aae19542b968c6e9950259ca66a3e78906423d"
+    }
+  ],
+  "checks": [
+    {
+      "name": "production reform checksums and vertical slice",
+      "elapsedMs": 2125.6335
+    },
+    {
+      "name": "preparation types",
+      "elapsedMs": 1528.9942
+    },
+    {
+      "name": "application types",
+      "elapsedMs": 5282.4384
+    },
+    {
+      "name": "unit suite",
+      "elapsedMs": 8376.997
+    },
+    {
+      "name": "unit acceptance",
+      "passed": 856,
+      "skipped": 0
+    },
+    {
+      "name": "static build /",
+      "elapsedMs": 4814.919099999999
+    },
+    {
+      "name": "browser suite /",
+      "elapsedMs": 16227.3409
+    },
+    {
+      "name": "browser acceptance /",
+      "passed": 21,
+      "skipped": 0
+    },
+    {
+      "name": "static build /elezioni",
+      "elapsedMs": 4814.889600000002
+    },
+    {
+      "name": "browser suite /elezioni",
+      "elapsedMs": 15520.901700000002
+    },
+    {
+      "name": "browser acceptance /elezioni",
+      "passed": 21,
+      "skipped": 0
+    },
+    {
+      "name": "restore root static build",
+      "elapsedMs": 4798.277400000006
+    }
+  ],
+  "baseRevision": "794b6fd10251de6ac31ccae74a2dd3bfc8ceff11",
+  "workingTreeModified": true,
+  "artifactFreeReformTests": {
+    "passed": 626,
+    "skipped": 1,
+    "reason": "Only the explicitly production-dependent test skipped; all three runtime bundles were absent."
+  },
+  "missingProductionGate": {
+    "result": "expected preflight failure",
+    "suitesStarted": 0,
+    "artifactsRestored": true
+  },
+  "modelValidation": {
+    "path": "data/derived/r26-21-acceptance/r26-models-v1-f71a72020aaa-validation-v2.json",
+    "sha256": "48473c9b29077c47e183d52faf5d51fd451b49c8f2801d39290a73b5f5540368",
+    "model": "r26-models-v1-f71a72020aaa",
+    "preferenceProfiles": 7,
+    "preferenceReplicatesPerProfile": 100,
+    "chamberProfilesAndBenchmarks": 7,
+    "chamberReplicatesPerProfile": 1000
+  },
+  "sourceReview": {
+    "asOf": "2026-10-20",
+    "correctionsOrDecreeVerified": false,
+    "seatTables": "provisional I08 census tables",
+    "republicationRecheck": "2026-10-23",
+    "source": "https://www.gazzettaufficiale.it/eli/id/2026/10/09/26G00201/sg"
+  },
+  "performanceReport": "test/fixtures/benchmarks/browser_reform_acceptance.json",
+  "limits": [
+    "Domestic elective seats only.",
+    "Synthetic candidate outcomes and chamber dependence remain conditional on selected models/profiles.",
+    "Non-computable runs remain in the requested denominator.",
+    "Local application acceptance; whole-migration hosting and publication remain open."
+  ]
+}

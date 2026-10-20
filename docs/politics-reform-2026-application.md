@@ -1,5 +1,8 @@
 # Politics algorithms, worker and results (R26-20)
 
+For production acceptance, source refresh, diagnostic frequencies and performance
+evidence, use the [R26-21 acceptance procedure](politics-reform-2026-acceptance.md).
+
 Use this guide for application integration. For preparation, schema versions,
 model fitting, constructed inputs and explicit legacy conversion, use the
 [generation guide](politics-reform-2026-generation.md). For legal logic use the
@@ -171,7 +174,8 @@ limits. It records accumulated phase timings, outcome/row-count invariance and
 periodic unforced Chromium worker-heap samples in
 `test/fixtures/benchmarks/browser_reform_workers.json`. Samples are not absolute
 peaks or process RAM; this benchmark does not replace R26-21 legal/application
-acceptance or the old-law R comparison. Run it without another build or CPU-heavy
+acceptance. R retirement requires no R/browser performance comparison or 10x
+stop rule. Run it without another build or CPU-heavy
 check in parallel.
 
 ## URLs, loading and verification

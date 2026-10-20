@@ -110,8 +110,8 @@ into `main`; public deployment follows that merge and a successful hosting gate.
   generation, worker behavior, scrutiny registries, or static snapshot schemas.
 - Run focused tests while developing, then the relevant full TypeScript check,
   unit tests, production build, and Playwright tests before declaring a phase
-  complete. Run the relevant R fixture exporters and benchmarks when changing
-  parity boundaries or performance-sensitive code.
+  complete. Run relevant R fixture exporters when changing parity boundaries,
+  and browser benchmarks when changing performance-sensitive code.
 - Run `cd web; npm run build` and `cd web; npm run test:e2e` sequentially. They
   both touch SvelteKit build/prerender output and can race on hashed assets.
 - Legacy politics and regional generation use 50-simulation chunks. Legacy
@@ -152,7 +152,7 @@ into `main`; public deployment follows that merge and a successful hosting gate.
 - [x] Migrate the Emilia-Romagna regional workflow with golden fixtures, static
   data, scenario defaults, generation, scrutiny, worker dispatch, UI, tests,
   and benchmarks.
-- [ ] **2026 politics reform** Follow the step-by-step
+- [x] **2026 politics reform** Follow the step-by-step
   [implementation plan](docs/politics-reform-2026-plan.md), using the
   [normative specification](docs/politics-reform-2026-specification.md),
   [current scoped transcription](docs/politics-reform-2026.md) and the
@@ -173,11 +173,13 @@ into `main`; public deployment follows that merge and a successful hosting gate.
   historical preparation and generation, and R26-20 worker/UI/explanation/export
   integration are complete, including bounded local result storage, lazy detail
   queries and streaming archive import/export. R26-20a bounded parallel execution
-  and resource-based worker choice are complete. Continue with R26-21 acceptance
-  and performance.
+  and resource-based worker choice, and R26-21 local application/performance
+  acceptance are complete, using explicitly provisional I08 census tables.
   Preserve conditional preference outcomes, explicit chamber-covariance assumptions and non-computable legal
-  paths when presenting simulation probabilities; production acceptance remains
-  R26-21.
+  paths when presenting simulation probabilities. Source refresh, required-data
+  checks and repeatable local acceptance follow the
+  [R26-21 procedure](docs/politics-reform-2026-acceptance.md); whole-migration
+  publication remains the final gate below.
 - [ ] Keep completed politics and regional vertical slices green while shared
   scenario, worker, result, and routing infrastructure evolves.
 - [ ] Preserve mean-mode global and local share semantics; do not expose fixed
@@ -188,11 +190,10 @@ into `main`; public deployment follows that merge and a successful hosting gate.
 - [ ] Add another politics scrutiny algorithm only for a concrete law-review or
   comparison need; expose algorithm selection only when two real algorithms for
   the same election kind exist.
-- [ ] Repeat the politics performance gate after major changes to scenarios,
-  schemas, snapshots, generation, scrutiny, or data preparation. If, after one
-  optimization pass, the browser workflow is at least 10 times slower than the
-  same full R workflow on the same machine, pause and present Python fallback
-  options before continuing.
+- [ ] Repeat browser performance measurements after major changes to scenarios,
+  schemas, snapshots, generation, scrutiny, or data preparation. R retirement is
+  decided: assess browser latency, phase costs and memory directly, without an
+  R comparison or a 10x stop rule.
 - [ ] Migrate the municipal workflow: create R golden fixtures and benchmarks
   first, preserve current behavior, and keep the runoff and councilor-candidate
   gaps explicit for later business and legal review.
