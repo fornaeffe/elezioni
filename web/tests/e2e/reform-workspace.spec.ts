@@ -8,6 +8,49 @@ const defaults = JSON.parse(readFileSync(new URL(`../../src/lib/politics/reform-
 const base = process.env.BASE_PATH ?? '';
 const hasBundle = existsSync(resolve(process.cwd(), 'static', catalog.path));
 
+test('compute-worker choice defaults to the resource maximum and remains separate from the scenario', async ({ page, context }) => {
+  let release = () => {};
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  await context.route(`**/${catalog.path}`, async route => { await gate; await route.continue(); });
+  await page.goto(`${base}/politics`);
+  await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-reform-2026-v1');
+  const choice = page.getByLabel('Processi di calcolo', { exact: true });
+  await expect(choice).toBeEnabled();
+  const options = await choice.locator('option').allTextContents();
+  expect(options[0]).toBe('1');
+  await expect(choice).toHaveValue(options.at(-1)!);
+  await expect(page.locator('#reform-worker-memory')).toContainText('1,5 GiB per processo');
+  await choice.selectOption('1');
+  await page.getByLabel('Simulazioni', { exact: true }).fill('1');
+  await page.getByRole('button', { name: 'Esegui riforma', exact: true }).click();
+  try { await expect(choice).toBeDisabled(); }
+  finally { release(); }
+  await expect(page.getByTestId('reform-phase')).toHaveText(/completed|not_implemented/, { timeout: 60000 });
+  await page.reload();
+  await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-reform-2026-v1');
+  await expect(choice).toHaveValue('1');
+});
+
+test('production execution supports the default resource-sized pool', async ({ page }) => {
+  test.skip(!hasBundle, 'Required generated reform runtime bundle is absent; release acceptance must not skip.');
+  test.setTimeout(120000);
+  await page.goto(`${base}/politics`);
+  await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-reform-2026-v1');
+  const choice = page.getByLabel('Processi di calcolo', { exact: true });
+  await expect(choice).toBeEnabled();
+  const maximum = Number(await choice.inputValue());
+  await page.getByLabel('Simulazioni', { exact: true }).fill(String(maximum));
+  await page.getByRole('button', { name: 'Esegui riforma', exact: true }).click();
+  await expect(page.getByTestId('reform-phase')).toHaveText('completed', { timeout: 100000 });
+  await expect(page.getByTestId('stored-result-status')).toContainText(`${maximum}/${maximum}`);
+  const download = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Scarica risultati JSON.gz', exact: true }).click();
+  const stream = await (await download).createReadStream(), chunks: Buffer[] = [];
+  for await (const chunk of stream!) chunks.push(Buffer.from(chunk));
+  const result = JSON.parse(new TextDecoder().decode(gunzipSync(Buffer.concat(chunks)))).result;
+  expect(result.benchmark.execution).toMatchObject({ requestedWorkers: maximum, computeWorkers: maximum, maximumWorkers: maximum });
+});
+
 test('both algorithms remain selectable; missing production bundle fails without debug fallback', async ({ page, context }) => {
   await page.goto(`${base}/`);
   await page.getByRole('link', { name: /Politiche/ }).click();

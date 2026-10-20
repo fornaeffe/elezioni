@@ -8,9 +8,11 @@ type Row = ResultTable['rows'][number];
 const json = (value: unknown): string => JSON.stringify(value);
 const subject = (value: { kind: string; id: string }): string => `${value.kind}:${value.id}`;
 
+export interface ReformPresentationCounts { complete: number; partial: number; failed: number; awarded: number }
+
 /** Retain transferable presentation rows, never all generated municipal inputs or
  * composed legal stage objects. Repeated provenance is stored once with a count. */
-export function createReformPresentation(scenario: ReformGenerationScenario, snapshot: ReformGenerationSnapshot, requested: number) {
+export function createReformPresentation(scenario: ReformGenerationScenario, snapshot: ReformGenerationSnapshot, requested: number, options: { includeContext?: boolean } = {}) {
   const tables: ResultTable[] = [];
   function table(name: string, columns: string[]) {
     const t: ResultTable = { name, columns, rows: [] }; tables.push(t); return t;
@@ -18,7 +20,7 @@ export function createReformPresentation(scenario: ReformGenerationScenario, sna
   const overview = table('Reform overview', ['Requested', 'Complete', 'Partial', 'Non-computable', 'Bonus awarded', 'Joint bonus probability / requested']);
   const sensitivity = table('Conditional profile sensitivity', ['Preference profile', 'Chamber profile', 'Requested', 'Joint bonus probability / requested', 'Complete candidate runs / requested', 'Interpretation']);
   const catalogue = table('Political subject names', ['Chamber', 'List', 'Name', 'Coalition']);
-  for (const chamber of ['camera', 'senato'] as const) for (const list of scenario.lists[chamber]) catalogue.rows.push({ Chamber: chamber, List: list.id, Name: list.name, Coalition: list.coalitionId });
+  if (options.includeContext !== false) for (const chamber of ['camera', 'senato'] as const) for (const list of scenario.lists[chamber]) catalogue.rows.push({ Chamber: chamber, List: list.id, Name: list.name, Coalition: list.coalitionId });
   const runs = table('Reform runs', ['Simulation', 'Status', 'Bonus', 'Reason']);
   const bonuses = table('Bonus eligibility', ['Simulation', 'Chamber', 'Subject', 'Votes', 'Valid votes', 'At least 42%', 'Status', 'Reason']);
   const votes = table('Reform vote shares', ['Simulation', 'Chamber', 'List', 'Votes', 'Valid votes', 'Vote share %']);
@@ -47,21 +49,27 @@ export function createReformPresentation(scenario: ReformGenerationScenario, sna
     if (existing) existing.occurrences++;
     else warnings.set(key, { ...w, occurrences: 1 });
   };
-  meta('Algorithm and model identity', { algorithm: scenario.algorithmId, models: scenario.modelIds, modelVersion: scenario.modelVersion,
-    snapshotVersion: scenario.snapshotVersion, preferenceProfile: scenario.preferenceProfileId, chamberProfile: scenario.chamberProfileId,
-    seed: scenario.seed, conversion: scenario.conversion, mode: scenario.mode });
-  meta('Preference profile (sensitivity assumption)', snapshot.models.preferences.profiles.find(p => p.id === scenario.preferenceProfileId));
-  meta('Chamber covariance profile (sensitivity assumption)', snapshot.models.chambers.profiles.find(p => p.id === scenario.chamberProfileId));
-  meta('Source versions', [...snapshot.sourceVersions, ...snapshot.models.sourceVersions]);
-  meta('Model and geography assumptions', [...snapshot.assumptions, ...snapshot.models.assumptions]);
-  seatTableMessages(snapshot.seats).forEach((notice, i) => warn({ code: `R26_SEAT_TABLE_${i + 1}`, electionKind: 'politiche', ...notice }));
-  warn({ code: 'R26_CONDITIONAL_CANDIDATES', electionKind: 'politiche', severity: 'warning', message:
-    'Identità, seggi coperti e recuperi con preferenze sintetiche sono condizionati al modello e al profilo scelto; non sono previsioni individuali. I profili descrivono sensibilità, non intervalli di incertezza calibrata.' });
-  warn({ code: 'R26_PAIRED_MEAN_MODE', electionKind: 'politiche', severity: 'info', message:
-    'La quota comune è un ancoraggio in log-odds; i riferimenti espliciti di Camera/Senato hanno precedenza. La modalità media conserva incertezza e covarianza tra rami. La frequenza del premio congiunto dipende dal profilo scelto: rieseguire gli stessi seed con profili diversi per valutarne la sensibilità.' });
+  if (options.includeContext !== false) {
+    meta('Algorithm and model identity', { algorithm: scenario.algorithmId, models: scenario.modelIds, modelVersion: scenario.modelVersion,
+      snapshotVersion: scenario.snapshotVersion, preferenceProfile: scenario.preferenceProfileId, chamberProfile: scenario.chamberProfileId,
+      seed: scenario.seed, conversion: scenario.conversion, mode: scenario.mode });
+    meta('Preference profile (sensitivity assumption)', snapshot.models.preferences.profiles.find(p => p.id === scenario.preferenceProfileId));
+    meta('Chamber covariance profile (sensitivity assumption)', snapshot.models.chambers.profiles.find(p => p.id === scenario.chamberProfileId));
+    meta('Source versions', [...snapshot.sourceVersions, ...snapshot.models.sourceVersions]);
+    meta('Model and geography assumptions', [...snapshot.assumptions, ...snapshot.models.assumptions]);
+    seatTableMessages(snapshot.seats).forEach((notice, i) => warn({ code: `R26_SEAT_TABLE_${i + 1}`, electionKind: 'politiche', ...notice }));
+    warn({ code: 'R26_CONDITIONAL_CANDIDATES', electionKind: 'politiche', severity: 'warning', message:
+      'Identità, seggi coperti e recuperi con preferenze sintetiche sono condizionati al modello e al profilo scelto; non sono previsioni individuali. I profili descrivono sensibilità, non intervalli di incertezza calibrata.' });
+    warn({ code: 'R26_PAIRED_MEAN_MODE', electionKind: 'politiche', severity: 'info', message:
+      'La quota comune è un ancoraggio in log-odds; i riferimenti espliciti di Camera/Senato hanno precedenza. La modalità media conserva incertezza e covarianza tra rami. La frequenza del premio congiunto dipende dal profilo scelto: rieseguire gli stessi seed con profili diversi per valutarne la sensibilità.' });
+  }
   const currentWarnings = () => [...warnings.values()].map(({ occurrences, ...w }) => ({ ...w, message: occurrences > 1 ? `${w.message} (${occurrences} occorrenze)` : w.message }));
   const warningRows = () => { warningTable.rows = [...warnings.values()].map(w => ({ Code: w.code, Severity: w.severity ?? 'warning', 'First simulation': w.simulationId ?? null, Message: w.message, Occurrences: w.occurrences })); };
   return {
+    counts(): ReformPresentationCounts { return { complete, partial, failed, awarded }; },
+    accumulate(counts: ReformPresentationCounts) {
+      complete += counts.complete; partial += counts.partial; failed += counts.failed; awarded += counts.awarded;
+    },
     /** Detach one simulation's rows after the caller durably saves them. Global
      * counters remain; repeated metadata is deduplicated within each batch. */
     drain() {

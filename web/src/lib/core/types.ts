@@ -90,6 +90,7 @@ export interface Scenario {
 }
 
 export interface SimulationRequest {
+  computeWorkers?: number;
   resultId?: string;
   resultOwner?: string;
   basePath?: string;
@@ -131,6 +132,17 @@ export interface ResultTable {
 }
 
 export interface SimulationBenchmark {
+  execution?: {
+    requestedWorkers: number;
+    computeWorkers: number;
+    maximumWorkers: number;
+    estimatedWorkerMemoryMiB: number;
+    estimateVersion: string;
+    generationMs: number;
+    scrutinyMs: number;
+    presentationMs: number;
+    storageMs: number;
+  };
   startedAt: string;
   elapsedMs: number;
   simulations: number;

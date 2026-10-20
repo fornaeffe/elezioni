@@ -9,6 +9,7 @@
   import type { ResultServiceReply } from '../../workers/result-service';
   import type { ResultTable, ScrutinyWarning, SimulationRequest, SimulationResult, SimulationWorkerMessage } from '../../core/types';
   import { requireSimulationCount } from '../../core/runtime-data';
+  import { estimateReformWorkerCapacity, requireReformWorkerCount } from '../../core/reform-worker-capacity';
   import { requireReformScenario, serializeReformScenario, parseReformScenario } from './generation-scenario';
   import type { ReformGenerationScenario } from './generation-types';
   import { bundledReformScenario, bundledReformModels } from './application-defaults';
@@ -34,6 +35,8 @@
   let savedResults = $state<{ id: string; label: string }[]>([]);
   let selectedSavedResult = $state('');
   let simulations = $state(10);
+  let workerCapacity = $state(estimateReformWorkerCapacity({}));
+  let computeWorkers = $state(1);
   let running = $state(false);
   let busyAction = $state('');
   let phase = $state('idle');
@@ -95,6 +98,11 @@
   }
   async function initialize() {
     try {
+      workerCapacity = estimateReformWorkerCapacity(navigator as Navigator & { deviceMemory?: number });
+      const savedWorkers = localStorage.getItem(`${storageKey}:compute-workers`);
+      const previousWorkers = savedWorkers === null ? workerCapacity.maximum : Number(savedWorkers);
+      computeWorkers = Number.isSafeInteger(previousWorkers) && previousWorkers >= 1
+        ? Math.min(previousWorkers, workerCapacity.maximum) : workerCapacity.maximum;
       const ownerKey = `${resultKey}:owner`;
       owner = sessionStorage.getItem(ownerKey) ?? crypto.randomUUID(); sessionStorage.setItem(ownerKey, owner);
       savedResults = JSON.parse(sessionStorage.getItem(resultKey) ?? '[]');
@@ -216,12 +224,14 @@
   }
   function run() {
     try {
-      error = ''; requireSimulationCount(simulations); const captured = copyScenario(scenario);
+      error = ''; requireSimulationCount(simulations); requireReformWorkerCount(computeWorkers, workerCapacity.maximum);
+      localStorage.setItem(`${storageKey}:compute-workers`, String(computeWorkers));
+      const captured = copyScenario(scenario);
       const worker = service().worker; currentRun = crypto.randomUUID();
       const id = currentRun; remember(id, `${new Date().toISOString()} · in corso`);
       running = true; phase = 'prepare';
       const request: SimulationRequest = { basePath: base, resultId: id, resultOwner: owner, kind: 'politiche', scenario: captured,
-        scrutinyAlgorithmId: captured.algorithmId, electionDate: captured.electionDate, seed: captured.seed, dataVersion: captured.snapshotVersion, simulations };
+        scrutinyAlgorithmId: captured.algorithmId, electionDate: captured.electionDate, seed: captured.seed, dataVersion: captured.snapshotVersion, simulations, computeWorkers };
       worker.onmessage = (event: MessageEvent<SimulationWorkerMessage | ResultServiceReply>) => {
         const m = event.data; if (m.type === 'result-service') return;
         if (m.type === 'progress') { phase = `${m.phase} ${m.completed}/${m.total}`; return; }
@@ -246,6 +256,9 @@
     <h2>Scenario riforma</h2>
     <div class="controls">
       <label>Simulazioni<input type="number" min="1" step="1" bind:value={simulations} disabled={isBusy} /></label>
+      <label>Processi di calcolo<select aria-label="Processi di calcolo" bind:value={computeWorkers} disabled={isBusy || !ready} aria-describedby="reform-worker-memory">
+        {#each Array.from({ length: workerCapacity.maximum }, (_, index) => index + 1) as count (count)}<option value={count}>{count}</option>{/each}
+      </select></label>
       <label>Seed<input bind:value={scenario.seed} disabled={isBusy} /></label>
       <label>Data proiezione<input type="date" bind:value={scenario.projectionDate} disabled={isBusy} /></label>
       <label>Data elezione<input type="date" bind:value={scenario.electionDate} disabled={isBusy} /></label>
@@ -254,6 +267,9 @@
       <button onclick={run} disabled={isBusy}>Esegui riforma</button>
       {#if running}<button onclick={cancel}>Annulla</button>{/if}
     </div>
+    <p id="reform-worker-memory">Massimo stimato: {workerCapacity.maximum}; circa {(workerCapacity.workerMemoryMiB / 1024).toLocaleString('it-IT')} GiB per processo.
+      {#if workerCapacity.reportedMemoryGiB === null}Il browser non comunica la memoria: limite prudenziale.{:else}Memoria del dispositivo indicata dal browser: {workerCapacity.reportedMemoryGiB} GiB.{/if}
+      La memoria libera effettiva può essere inferiore. Ridurre i processi lascia più risorse alle altre attività.</p>
     <p>I profili sono ipotesi di sensibilità. Le probabilità su candidati, copertura e recuperi sono condizionate alle preferenze sintetiche. Ripetere con gli stessi seed e altri profili per esplorare la sensibilità del premio congiunto.</p>
     <p>I totali attribuiti non specificano la composizione dei voti di sola lista del premio. La quota comune ancora entrambi i rami; le quote esplicite per ramo hanno precedenza e la modalità media conserva incertezza.</p>
     <div class="controls">

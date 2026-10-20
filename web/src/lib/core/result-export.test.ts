@@ -32,6 +32,19 @@ function sampleResult(): SimulationResult {
 }
 
 describe('result export helpers', () => {
+  test('preserves execution resources and phase timings through import while rejecting invalid metadata', () => {
+    const result = sampleResult();
+    result.benchmark.execution = { requestedWorkers: 4, computeWorkers: 2, maximumWorkers: 5,
+      estimatedWorkerMemoryMiB: 1536, estimateVersion: 'r26-worker-memory-v1',
+      generationMs: 10, scrutinyMs: 5, presentationMs: 2, storageMs: 3 };
+    const exported = createSimulationResultExport({ scenario: createDefaultPoliticsScenario(), result, exportedAt: '2026-10-20T00:00:00Z' });
+    expect(parseSimulationResultExport(JSON.stringify(exported)).result.benchmark.execution).toEqual(result.benchmark.execution);
+    for (const change of [{ computeWorkers: 6 }, { requestedWorkers: 0 }, { generationMs: -1 }, { maximumWorkers: 1.5 }]) {
+      const invalid = structuredClone(exported);
+      Object.assign(invalid.result.benchmark.execution!, change);
+      expect(() => parseSimulationResultExport(JSON.stringify(invalid))).toThrow();
+    }
+  });
   test('serializes result tables to sectioned CSV with escaped cells', () => {
     const tables: ResultTable[] = [
       {

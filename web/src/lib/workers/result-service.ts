@@ -1,14 +1,16 @@
 import { loadVerifiedJson, requireSimulationCount } from '../core/runtime-data';
-import { appendResultBatch, deleteStoredResult, getStoredResult, newResultStorage, saveStoredResult, storedTablePage, storedWarningPage, ResultChunkWriter, warningCells, type StoredResult } from '../core/result-store';
+import { appendResultBatch, cellsWarning, deleteStoredResult, getStoredResult, newResultStorage, saveStoredResult, storedTablePage, storedWarningPage, ResultChunkWriter, warningCells, type Cell, type StoredResult } from '../core/result-store';
 import { importResultStream, streamStoredResult, type ExportScenario } from '../core/result-export';
 import { jsonFileStream } from '../core/json-stream';
 import type { SimulationProgress, SimulationRequest, SimulationResult } from '../core/types';
 import catalog from '../politics/reform-2026/data/generation-catalog.generated.json';
-import { generateReformSimulation, prepareReformGeneration } from '../politics/reform-2026/generation';
+import { requireReformScenario, validateReformSnapshot } from '../politics/reform-2026/generation-scenario';
 import type { ReformGenerationSnapshot } from '../politics/reform-2026/generation-types';
 import { createReformPresentation } from '../politics/reform-2026/result-presentation';
-import { runPoliticsSimulation, resolvePoliticsSimulationAlgorithm } from '../politics/simulation-scrutiny';
+import { resolvePoliticsSimulationAlgorithm } from '../politics/simulation-scrutiny';
 import { REFORM_ALGORITHM_ID } from '../politics/reform-2026/input';
+import { estimateReformWorkerCapacity, requireReformWorkerCount } from '../core/reform-worker-capacity';
+import { ReformComputeClient, runOrderedReformPool } from './reform-pool';
 
 export interface ResultServiceRequest {
   type: 'result-service'; requestId: number;
@@ -29,67 +31,95 @@ export async function runStoredReform(request: SimulationRequest, emit: (progres
   requireSimulationCount(request.simulations);
   resolvePoliticsSimulationAlgorithm(REFORM_ALGORITHM_ID, 'production');
   if (!('kind' in request.scenario)) throw new Error('A reform request requires an explicit reform scenario');
+  const capacity = estimateReformWorkerCapacity(navigator as Navigator & { deviceMemory?: number });
+  const requestedWorkers = requireReformWorkerCount(request.computeWorkers ?? capacity.maximum, capacity.maximum);
+  const computeWorkers = Math.min(requestedWorkers, request.simulations);
   const started = performance.now(), startedAt = new Date().toISOString();
   const progress = (phase: SimulationProgress['phase'], completed: number) => emit({ type: 'progress', phase, completed, total: request.simulations, elapsedMs: performance.now() - started });
   progress('prepare', 0);
   const snapshot = await loadVerifiedJson(request.basePath ?? '', catalog) as ReformGenerationSnapshot;
-  const prepared = prepareReformGeneration(request.scenario, snapshot);
-  if (prepared.scenario.seed !== request.seed || prepared.scenario.electionDate !== request.electionDate) throw new Error('Request seed/date must match the reform scenario');
+  const errors = validateReformSnapshot(snapshot);
+  if (errors.length) throw new RangeError(`Invalid reform snapshot: ${errors.join('; ')}`);
+  const scenario = requireReformScenario(request.scenario, snapshot);
+  if (scenario.seed !== request.seed || scenario.electionDate !== request.electionDate) throw new Error('Request seed/date must match the reform scenario');
   const id = request.resultId ?? crypto.randomUUID(), owner = request.resultOwner ?? 'direct-worker';
-  const record: StoredResult = { id, owner, scenario: prepared.scenario, exports: [], result: {
+  const execution = { requestedWorkers, computeWorkers, maximumWorkers: capacity.maximum,
+    estimatedWorkerMemoryMiB: capacity.workerMemoryMiB, estimateVersion: capacity.estimateVersion,
+    generationMs: 0, scrutinyMs: 0, presentationMs: 0, storageMs: 0 };
+  const record: StoredResult = { id, owner, scenario, exports: [], result: {
     type: 'result', status: 'not_implemented', tables: [], warnings: [], storage: newResultStorage(id),
-    benchmark: { startedAt, elapsedMs: 0, simulations: request.simulations, dataVersion: snapshot.version, scrutinyAlgorithmId: REFORM_ALGORITHM_ID, seed: request.seed }
+    benchmark: { startedAt, elapsedMs: 0, simulations: request.simulations, dataVersion: snapshot.version, scrutinyAlgorithmId: REFORM_ALGORITHM_ID, seed: request.seed, execution }
   } };
   await saveStoredResult(record);
-  const presentation = createReformPresentation(prepared.scenario, snapshot, request.simulations);
+  // Simulation 1 supplies shared context once, independent of pool size. Only
+  // small aggregate counters live here; run details stay in compute workers.
+  const presentation = createReformPresentation(scenario, snapshot, request.simulations, { includeContext: false });
+  const workers: ReformComputeClient[] = [];
+  let failureCode = 'RESULT_EXECUTION_ERROR';
   active.add(id);
   try {
-    for (let simulation = 1; simulation <= request.simulations; simulation++) {
-      if (cancelled.has(id)) break;
-      let generated: ReturnType<typeof generateReformSimulation> | undefined;
-      let output: ReturnType<typeof runPoliticsSimulation> | undefined;
-      try {
-        generated = generateReformSimulation(prepared, simulation);
-        progress('simulate', simulation);
-        output = runPoliticsSimulation({ algorithmId: REFORM_ALGORITHM_ID, simulationId: simulation, input: generated.input });
-      } catch (error) { presentation.failure(simulation, error); }
-      if (output && generated) {
-        if (output.algorithmId !== REFORM_ALGORITHM_ID) throw new Error('Unexpected reform result');
-        presentation.add(generated.input, output.result, generated.trace);
+    for (let index = 0; index < computeWorkers; index++) {
+      workers.push(new ReformComputeClient(new Worker(new URL('./reform-compute.worker.ts', import.meta.url), { type: 'module', name: `reform-compute-${index + 1}` })));
+    }
+    await Promise.all(workers.map(worker => worker.initialize(scenario, request.basePath ?? '')));
+    await runOrderedReformPool(workers, request.simulations, () => cancelled.has(id), async (simulation, worker, ready) => {
+      execution.generationMs += ready.timings.generationMs;
+      execution.scrutinyMs += ready.timings.scrutinyMs;
+      execution.presentationMs += ready.timings.presentationMs;
+      for (;;) {
+        const chunk = await worker.pull();
+        if (!chunk) break;
+        const storageStarted = performance.now();
+        const cells = JSON.parse(new TextDecoder().decode(chunk.buffer)) as Cell[][];
+        const tables = ready.tables.map(table => ({ ...table, rows: [] as SimulationResult['tables'][number]['rows'] }));
+        const warnings = chunk.table === -1 ? cells.map(cellsWarning) : [];
+        if (chunk.table !== -1) {
+          const table = tables[chunk.table];
+          if (!table) throw new Error('Unknown compute result table');
+          table.rows = cells.map(row => Object.fromEntries(table.columns.map((column, index) => [column, row[index]])));
+        }
+        try { await appendResultBatch(record, tables, warnings, simulation); }
+        catch (error) { failureCode = 'RESULT_STORAGE_ERROR'; throw error; }
+        record.result.warnings.push(...warnings.filter(w => w.severity === 'info').slice(0, Math.max(0, 20 - record.result.warnings.length)));
+        execution.storageMs += performance.now() - storageStarted;
       }
-      const batch = presentation.drain();
-      await appendResultBatch(record, batch.tables, batch.warnings, simulation);
-      record.result.warnings.push(...batch.warnings.filter(w => w.severity === 'info').slice(0, Math.max(0, 20 - record.result.warnings.length)));
       record.result.storage!.completedSimulations = simulation;
       record.result.benchmark.elapsedMs = performance.now() - started;
       record.result.tables = record.result.storage!.tables.map(t => ({ name: t.name, columns: t.columns, rows: [] }));
       // Publishing this manifest is the commit marker for the complete run.
       // Readers ignore chunks beyond its counters after any interrupted write.
-      await saveStoredResult(record);
+      const storageStarted = performance.now();
+      try { await saveStoredResult(record); }
+      catch (error) { failureCode = 'RESULT_STORAGE_ERROR'; throw error; }
+      execution.storageMs += performance.now() - storageStarted;
+      presentation.accumulate(ready.counts);
+      progress('simulate', simulation);
       if (simulation % 10 === 0 || simulation === request.simulations) progress('scrutinize', simulation);
-    }
+    });
     if (cancelled.has(id)) {
       record.result.storage!.state = 'interrupted';
       record.result.warnings.push({ code: 'RESULT_CANCELLED', electionKind: 'politiche', severity: 'warning', message: `Calcolo annullato; conservate ${record.result.storage!.completedSimulations} simulazioni su ${request.simulations} richieste.` });
     } else {
       progress('summarize', request.simulations);
       const final = presentation.finish();
-      await appendResultBatch(record, final.tables, final.warnings, 0);
+      try { await appendResultBatch(record, final.tables, final.warnings, 0); }
+      catch (error) { failureCode = 'RESULT_STORAGE_ERROR'; throw error; }
       record.result.tables = final.tables.map(t => ({ ...t, rows: t.name === 'Reform overview' || t.name === 'Conditional profile sensitivity' ? t.rows : [] }));
       record.result.storage!.state = 'complete'; record.result.status = 'completed';
     }
     record.result.benchmark.elapsedMs = performance.now() - started;
-    await saveStoredResult(record);
+    try { await saveStoredResult(record); }
+    catch (error) { failureCode = 'RESULT_STORAGE_ERROR'; throw error; }
     return record.result;
   } catch (error) {
     // Storage/transport failures never become legal non-computability or cause
     // a reroll. Recover only the last durably published manifest.
     const saved = await getStoredResult(id, owner);
     saved.result.storage!.state = 'interrupted'; saved.result.status = 'not_implemented';
-    saved.result.warnings.push({ code: 'RESULT_STORAGE_ERROR', electionKind: 'politiche', severity: 'error', message: `${describe(error)}. Conservate ${saved.result.storage!.completedSimulations} simulazioni; il denominatore richiesto resta ${request.simulations}.` });
+    saved.result.warnings.push({ code: failureCode, electionKind: 'politiche', severity: 'error', message: `${describe(error)}. Conservate ${saved.result.storage!.completedSimulations} simulazioni; il denominatore richiesto resta ${request.simulations}.` });
     await saveStoredResult(saved).catch(() => undefined);
     return saved.result;
-  } finally { active.delete(id); cancelled.delete(id); }
+  } finally { for (const worker of workers) worker.close(); active.delete(id); cancelled.delete(id); }
 }
 
 async function importStoredFile(file: File, id: string, owner: string): Promise<StoredResult> {

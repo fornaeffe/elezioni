@@ -69,7 +69,8 @@ R26-13 Camera territorial allocation, R26-14 Senato regional allocation/cap and
 R26-15 Senato list and college allocation, R26-16 proclamations and multiple
 elections, R26-17 exhaustion and replacements, R26-18 composition and registry,
 R26-19 scenarios and generation, and R26-20 worker/UI/explanation/export
-integration are complete; continue with R26-21 acceptance and performance. Use
+integration and R26-20a bounded parallel execution are complete; continue with
+R26-21 acceptance and performance. Use
 the generation guide for fitted
 preference parameters and explicitly assumed chamber profiles; neither model
 selection nor generator verification establishes production acceptance.
@@ -99,7 +100,8 @@ calibration and generation.
 | [x] | [R26-18](#r26-18-composition-and-registry) | Composed scrutiny and algorithm registration | 06-17 |
 | [x] | [R26-19](#r26-19-scenarios-and-generation) | Scenario compatibility and generators | 02-04 resolved, 07, 18 |
 | [x] | [R26-20](#r26-20-worker-results-and-ui) | Worker, selector, results, exports | 19 |
-| [ ] | [R26-21](#r26-21-acceptance-and-performance) | Application and performance acceptance | 20 |
+| [x] | [R26-20a](#r26-20a-parallel-execution) | Bounded compute pool and resource-based worker choice | 20 |
+| [ ] | [R26-21](#r26-21-acceptance-and-performance) | Application and performance acceptance | 20a |
 
 ### R26-01: Normative specification
 
@@ -535,6 +537,22 @@ Keep non-computable simulations in the requested-run denominator. Present the
 known N18 cap-group capacity and ordinary no-progress blockers explicitly;
 never reroll them, rescale legal endowments or silently omit failed runs from
 conditional probabilities.
+
+### R26-20a: Parallel execution
+
+Implement independent complete reform simulations in a bounded compute-worker
+pool, retaining paired chambers, global IDs and unchanged generation/legal RNG
+streams. Keep one coordinator/storage writer, ascending durable commits, bounded
+transfer chunks and cancellation/interruption recovery without rerolls.
+
+Let the user choose from one worker to a maximum which is also the default.
+Estimate the maximum from `hardwareConcurrency`, `deviceMemory` and a documented
+per-worker transient-memory budget; handle missing hints conservatively. Keep
+execution settings outside the legal scenario and preserve them in benchmark
+metadata and archive roundtrips. Verify serial/parallel output equivalence,
+out-of-order completion, failures, resource limits, root/project-base workers,
+production timing and memory. Use the [application guide](politics-reform-2026-application.md#parallel-execution)
+for implementation contracts and the benchmark command.
 
 ### R26-21: Acceptance and performance
 

@@ -114,9 +114,9 @@ into `main`; public deployment follows that merge and a successful hosting gate.
   parity boundaries or performance-sensitive code.
 - Run `cd web; npm run build` and `cd web; npm run test:e2e` sequentially. They
   both touch SvelteKit build/prerender output and can race on hashed assets.
-- The generated worker currently uses 50-simulation chunks and caps runs at
-  1000. Revisit this only when larger runs are required or columnar packaging
-  changes the trade-off.
+- Legacy politics and regional generation use 50-simulation chunks. Legacy
+  politics retains its 1000-run plot limit. Reform uses bounded per-simulation
+  compute workers and local result storage without an arbitrary run cap.
 - Record commands, counts, timing, environment, and outcomes in
   `docs/migration-history.md`; do not turn this file into a status log.
 
@@ -172,7 +172,8 @@ into `main`; public deployment follows that merge and a successful hosting gate.
   and replacements, R26-18 composition and registry, R26-19 scenarios,
   historical preparation and generation, and R26-20 worker/UI/explanation/export
   integration are complete, including bounded local result storage, lazy detail
-  queries and streaming archive import/export. Continue with R26-21 acceptance
+  queries and streaming archive import/export. R26-20a bounded parallel execution
+  and resource-based worker choice are complete. Continue with R26-21 acceptance
   and performance.
   Preserve conditional preference outcomes, explicit chamber-covariance assumptions and non-computable legal
   paths when presenting simulation probabilities; production acceptance remains

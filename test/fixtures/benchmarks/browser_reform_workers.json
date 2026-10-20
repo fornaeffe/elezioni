@@ -1,0 +1,397 @@
+{
+  "created": "2026-10-20T13:03:34.045Z",
+  "browser": "148.0.7778.96",
+  "node": "v24.20.0",
+  "platform": "win32",
+  "cpu": "Intel(R) Core(TM) i7-14700KF",
+  "physicalMemoryGiB": 63.79417037963867,
+  "snapshot": "r26-generation-v1-c5c4be9fafb5",
+  "model": "r26-models-v1-f71a72020aaa",
+  "seed": "r26-default-v1",
+  "resourceHints": {
+    "hardwareConcurrency": 8,
+    "deviceMemory": 16,
+    "controlledForBenchmark": true
+  },
+  "notes": [
+    "Heaps are periodic unforced JavaScript samples, not absolute peaks or process RAM.",
+    "Phase totals accumulate performance.now() durations within workers; they overlap and are not measured process CPU time or end-to-end elapsed time.",
+    "Presentation includes row derivation; storage includes transport decoding, compression and durable writes.",
+    "Each measured run starts a new coordinator and compute pool; production load/verification/preparation is included in elapsed time."
+  ],
+  "runs": [
+    {
+      "simulations": 10,
+      "computeWorkers": 1,
+      "elapsedMs": 16228.400000002235,
+      "execution": {
+        "requestedWorkers": 1,
+        "computeWorkers": 1,
+        "maximumWorkers": 5,
+        "estimatedWorkerMemoryMiB": 1536,
+        "estimateVersion": "r26-worker-memory-v1",
+        "generationMs": 8995.799999993294,
+        "scrutinyMs": 3744.0000000037253,
+        "presentationMs": 102.49999999627471,
+        "storageMs": 2129.3999999538064
+      },
+      "maximumCombinedHeap": 224012868,
+      "maximumActiveComputeWorkers": 1,
+      "heaps": [
+        {
+          "role": "coordinator",
+          "maximumHeap": 33092468
+        },
+        {
+          "role": "compute",
+          "maximumHeap": 198143116
+        }
+      ],
+      "overview": {
+        "Requested": 10,
+        "Complete": 8,
+        "Partial": 0,
+        "Non-computable": 2,
+        "Bonus awarded": 5,
+        "Joint bonus probability / requested": 0.5
+      }
+    },
+    {
+      "simulations": 10,
+      "computeWorkers": 2,
+      "elapsedMs": 14438.60000000149,
+      "execution": {
+        "requestedWorkers": 2,
+        "computeWorkers": 2,
+        "maximumWorkers": 5,
+        "estimatedWorkerMemoryMiB": 1536,
+        "estimateVersion": "r26-worker-memory-v1",
+        "generationMs": 9325.900000002235,
+        "scrutinyMs": 4072.099999997765,
+        "presentationMs": 85.40000000223517,
+        "storageMs": 5508.000000055879
+      },
+      "maximumCombinedHeap": 352595096,
+      "maximumActiveComputeWorkers": 2,
+      "heaps": [
+        {
+          "role": "coordinator",
+          "maximumHeap": 41324296
+        },
+        {
+          "role": "compute",
+          "maximumHeap": 201985220
+        },
+        {
+          "role": "compute",
+          "maximumHeap": 176033884
+        }
+      ],
+      "overview": {
+        "Requested": 10,
+        "Complete": 8,
+        "Partial": 0,
+        "Non-computable": 2,
+        "Bonus awarded": 5,
+        "Joint bonus probability / requested": 0.5
+      }
+    },
+    {
+      "simulations": 10,
+      "computeWorkers": 4,
+      "elapsedMs": 12690.10000000149,
+      "execution": {
+        "requestedWorkers": 4,
+        "computeWorkers": 4,
+        "maximumWorkers": 5,
+        "estimatedWorkerMemoryMiB": 1536,
+        "estimateVersion": "r26-worker-memory-v1",
+        "generationMs": 9815.50000000745,
+        "scrutinyMs": 4030.1999999955297,
+        "presentationMs": 85.19999999925494,
+        "storageMs": 6852.80000000447
+      },
+      "maximumCombinedHeap": 629686756,
+      "maximumActiveComputeWorkers": 4,
+      "heaps": [
+        {
+          "role": "coordinator",
+          "maximumHeap": 37664564
+        },
+        {
+          "role": "compute",
+          "maximumHeap": 137122828
+        },
+        {
+          "role": "compute",
+          "maximumHeap": 124909264
+        },
+        {
+          "role": "compute",
+          "maximumHeap": 164880832
+        },
+        {
+          "role": "compute",
+          "maximumHeap": 180855400
+        }
+      ],
+      "overview": {
+        "Requested": 10,
+        "Complete": 8,
+        "Partial": 0,
+        "Non-computable": 2,
+        "Bonus awarded": 5,
+        "Joint bonus probability / requested": 0.5
+      }
+    },
+    {
+      "simulations": 100,
+      "computeWorkers": 1,
+      "elapsedMs": 110948.30000000075,
+      "execution": {
+        "requestedWorkers": 1,
+        "computeWorkers": 1,
+        "maximumWorkers": 5,
+        "estimatedWorkerMemoryMiB": 1536,
+        "estimateVersion": "r26-worker-memory-v1",
+        "generationMs": 65378.90000002459,
+        "scrutinyMs": 28226.099999971688,
+        "presentationMs": 568.1000000052154,
+        "storageMs": 11948.700000014156
+      },
+      "maximumCombinedHeap": 300308728,
+      "maximumActiveComputeWorkers": 1,
+      "heaps": [
+        {
+          "role": "coordinator",
+          "maximumHeap": 47143796
+        },
+        {
+          "role": "compute",
+          "maximumHeap": 258230176
+        }
+      ],
+      "overview": {
+        "Requested": 100,
+        "Complete": 68,
+        "Partial": 0,
+        "Non-computable": 32,
+        "Bonus awarded": 54,
+        "Joint bonus probability / requested": 0.54
+      }
+    },
+    {
+      "simulations": 100,
+      "computeWorkers": 2,
+      "elapsedMs": 41309.900000002235,
+      "execution": {
+        "requestedWorkers": 2,
+        "computeWorkers": 2,
+        "maximumWorkers": 5,
+        "estimatedWorkerMemoryMiB": 1536,
+        "estimateVersion": "r26-worker-memory-v1",
+        "generationMs": 48862.60000004619,
+        "scrutinyMs": 20520.199999976903,
+        "presentationMs": 428.7999999895692,
+        "storageMs": 6395.099999975413
+      },
+      "maximumCombinedHeap": 452381988,
+      "maximumActiveComputeWorkers": 2,
+      "heaps": [
+        {
+          "role": "coordinator",
+          "maximumHeap": 48575776
+        },
+        {
+          "role": "compute",
+          "maximumHeap": 223209168
+        },
+        {
+          "role": "compute",
+          "maximumHeap": 213710856
+        }
+      ],
+      "overview": {
+        "Requested": 100,
+        "Complete": 68,
+        "Partial": 0,
+        "Non-computable": 32,
+        "Bonus awarded": 54,
+        "Joint bonus probability / requested": 0.54
+      }
+    },
+    {
+      "simulations": 100,
+      "computeWorkers": 4,
+      "elapsedMs": 24261.900000002235,
+      "execution": {
+        "requestedWorkers": 4,
+        "computeWorkers": 4,
+        "maximumWorkers": 5,
+        "estimatedWorkerMemoryMiB": 1536,
+        "estimateVersion": "r26-worker-memory-v1",
+        "generationMs": 51574.79999998212,
+        "scrutinyMs": 22040.200000006706,
+        "presentationMs": 470.90000000596046,
+        "storageMs": 6934.099999964237
+      },
+      "maximumCombinedHeap": 740365308,
+      "maximumActiveComputeWorkers": 4,
+      "heaps": [
+        {
+          "role": "coordinator",
+          "maximumHeap": 48515952
+        },
+        {
+          "role": "compute",
+          "maximumHeap": 228417436
+        },
+        {
+          "role": "compute",
+          "maximumHeap": 205973424
+        },
+        {
+          "role": "compute",
+          "maximumHeap": 201433132
+        },
+        {
+          "role": "compute",
+          "maximumHeap": 240223672
+        }
+      ],
+      "overview": {
+        "Requested": 100,
+        "Complete": 68,
+        "Partial": 0,
+        "Non-computable": 32,
+        "Bonus awarded": 54,
+        "Joint bonus probability / requested": 0.54
+      }
+    },
+    {
+      "simulations": 1000,
+      "computeWorkers": 1,
+      "elapsedMs": 1033859,
+      "execution": {
+        "requestedWorkers": 1,
+        "computeWorkers": 1,
+        "maximumWorkers": 5,
+        "estimatedWorkerMemoryMiB": 1536,
+        "estimateVersion": "r26-worker-memory-v1",
+        "generationMs": 655721.9999999888,
+        "scrutinyMs": 277761.1000000164,
+        "presentationMs": 5502.999999959022,
+        "storageMs": 62324.30000027642
+      },
+      "maximumCombinedHeap": 309434004,
+      "maximumActiveComputeWorkers": 1,
+      "heaps": [
+        {
+          "role": "coordinator",
+          "maximumHeap": 49615076
+        },
+        {
+          "role": "compute",
+          "maximumHeap": 276872076
+        }
+      ],
+      "overview": {
+        "Requested": 1000,
+        "Complete": 698,
+        "Partial": 0,
+        "Non-computable": 302,
+        "Bonus awarded": 468,
+        "Joint bonus probability / requested": 0.468
+      }
+    },
+    {
+      "simulations": 1000,
+      "computeWorkers": 2,
+      "elapsedMs": 380101.200000003,
+      "execution": {
+        "requestedWorkers": 2,
+        "computeWorkers": 2,
+        "maximumWorkers": 5,
+        "estimatedWorkerMemoryMiB": 1536,
+        "estimateVersion": "r26-worker-memory-v1",
+        "generationMs": 479248.6000000201,
+        "scrutinyMs": 195348.7000000961,
+        "presentationMs": 4027.3999998904765,
+        "storageMs": 48177.00000026822
+      },
+      "maximumCombinedHeap": 544541832,
+      "maximumActiveComputeWorkers": 2,
+      "heaps": [
+        {
+          "role": "coordinator",
+          "maximumHeap": 51155856
+        },
+        {
+          "role": "compute",
+          "maximumHeap": 266801336
+        },
+        {
+          "role": "compute",
+          "maximumHeap": 265208640
+        }
+      ],
+      "overview": {
+        "Requested": 1000,
+        "Complete": 698,
+        "Partial": 0,
+        "Non-computable": 302,
+        "Bonus awarded": 468,
+        "Joint bonus probability / requested": 0.468
+      }
+    },
+    {
+      "simulations": 1000,
+      "computeWorkers": 4,
+      "elapsedMs": 206563.5,
+      "execution": {
+        "requestedWorkers": 4,
+        "computeWorkers": 4,
+        "maximumWorkers": 5,
+        "estimatedWorkerMemoryMiB": 1536,
+        "estimateVersion": "r26-worker-memory-v1",
+        "generationMs": 502868.3999999985,
+        "scrutinyMs": 209248.7000000067,
+        "presentationMs": 4422.0999999940395,
+        "storageMs": 49550.800000078976
+      },
+      "maximumCombinedHeap": 901346232,
+      "maximumActiveComputeWorkers": 4,
+      "heaps": [
+        {
+          "role": "coordinator",
+          "maximumHeap": 49350428
+        },
+        {
+          "role": "compute",
+          "maximumHeap": 278217576
+        },
+        {
+          "role": "compute",
+          "maximumHeap": 254156428
+        },
+        {
+          "role": "compute",
+          "maximumHeap": 264036180
+        },
+        {
+          "role": "compute",
+          "maximumHeap": 264813000
+        }
+      ],
+      "overview": {
+        "Requested": 1000,
+        "Complete": 698,
+        "Partial": 0,
+        "Non-computable": 302,
+        "Bonus awarded": 468,
+        "Joint bonus probability / requested": 0.468
+      }
+    }
+  ],
+  "algorithm": "politiche-reform-2026-v1"
+}

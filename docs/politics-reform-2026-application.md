@@ -19,7 +19,7 @@ model fitting, constructed inputs and explicit legacy conversion, use the
   back to debug snapshots. Reform data must match the pinned compressed/decoded
   digests, schema and scenario snapshot/model versions.
 - Reform execution uses consistent global simulation IDs. Each ID generates
-  both chambers before the common scrutiny entry point decides the joint bonus.
+  its requested chamber(s) before the common scrutiny entry point decides the bonus.
   Presentation rows are saved and released after each run. Non-computable runs
   remain in the requested denominator; no reroll, legal-endowment rescaling or
   successful-run renormalization occurs.
@@ -62,15 +62,17 @@ each run; inspect the legal core directly when full internal stages are needed.
 compressed chunks targeted at 256 KiB or 256 rows. A larger individual record
 occupies its own chunk; records above 16 MiB fail explicitly. Shared model,
 source and reference metadata is stored once with occurrence-count vectors.
-The worker retains one generated/scrutinized run and bounded encoding buffers,
-not the presentation details of every requested run. `ReformWorkspace.svelte`
-queries selected pages and simulation ledgers through `core/result-service-client.ts`;
+Each compute worker retains one generated/scrutinized run and bounded encoding
+buffers, not the presentation details of every requested run.
+`ReformWorkspace.svelte` queries selected pages and simulation ledgers through
+`core/result-service-client.ts`;
 `workers/result-service.ts` owns execution, storage and query orchestration.
 
 Publishing a manifest commits a complete run. Readers ignore chunks beyond its
 published counters, including partially written runs after quota/write failure.
-Cancellation finishes the current durable run. Cancellation, storage failure or
-worker loss leaves an explicitly interrupted session with its saved-run count
+Cancellation stops new dispatch and finishes the bounded prefix already assigned
+to compute workers. Cancellation, storage failure or worker loss leaves an
+explicitly interrupted session with its saved-run count
 and the original requested denominator; it never retries legal draws. Reloading
 the same tab restores its locally recorded sessions. The owner token and session
 list live in session storage; this is local recovery, not cross-device storage.
@@ -88,6 +90,89 @@ columnar format and strict scenario/algorithm/seed/data checks. Imports of both
 plain JSON and JSON.gz parse rows incrementally through `core/json-stream.ts`
 and build a new staging session. Invalid imports delete only that staging
 session. Legacy result imports keep their existing route and semantics.
+
+## Parallel execution
+
+`ReformWorkspace.svelte` offers **Processi di calcolo** from 1 to the estimated
+maximum, initially selecting that maximum. A chosen value is remembered locally
+after execution and clamped to the current maximum on reload. This is an
+execution preference, outside the scenario, model and RNG identity. Runs shorter
+than the chosen pool size start only as many compute workers as simulations.
+
+`core/reform-worker-capacity.ts` owns the versioned resource policy. Budget
+**1,536 MiB per compute worker** and **512 MiB for the coordinator**. Use half
+the reported device RAM, reserving the other half for the system and other tabs:
+
+```text
+cpuMaximum = max(1, floor(hardwareConcurrency) - 1)
+memoryMaximum = max(1, floor((deviceMemoryGiB * 1024 / 2 - 512) / 1536))
+maximum = min(cpuMaximum, memoryMaximum)
+```
+
+Missing/invalid hints use two logical CPUs and 2 GiB, giving one compute worker.
+The one-worker minimum permits execution; it is not a guarantee that a very
+small device can run the model. Both browser hints are approximate rather than
+free-memory measurements. `deviceMemory` has limited browser availability and
+may be privacy-coarsened; do not treat an absent hint as abundant RAM. See
+[device memory](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/deviceMemory)
+and [logical processors](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/hardwareConcurrency).
+The UI explains the estimate. The coordinator independently validates the chosen
+integer against the same policy; it never silently reduces an excessive request.
+
+The initial 1.5 GiB budget is deliberately above retained-heap measurements.
+A Windows/Node 24.20.0 production-data probe of simulations 1–20, sampling after
+generation, scrutiny, presentation and whole-batch encoding without forced GC,
+observed 929,540,912 bytes of used heap and 1,147,371,520 bytes of process RSS.
+It retained both decoded and prepared snapshots and included Node/loader costs.
+These stage samples are neither absolute peaks nor browser process measurements.
+The budget includes transient work and one pending presentation run; browser
+sampling in the reform benchmark provides separate evidence. Revisit the budget
+when data/model shape or observed transient memory changes, updating its version.
+
+`workers/reform-compute.ts` executes one complete simulation, using the unchanged
+generator and common scrutiny registry. Each ID keeps jointly renewed Camera and
+Senato together; single-chamber renewals remain single.
+Simulation 1 emits shared catalogue/context notes once; all tasks emit the same
+per-run rows, warnings and aggregate counters as serial execution. The presenter
+keeps legal/result aggregation out of worker orchestration.
+
+`workers/reform-pool.ts` permits one outstanding simulation per compute worker.
+Results may finish out of order, but the single result-service coordinator drains
+and commits them in ascending ID order. A slot is reused only after its durable
+commit, so a slow run cannot create an unbounded queue. Compute workers retain
+their own verified/prepared data and one pending run. Pull requests transfer one
+columnar byte buffer at a time, targeted at 256 KiB/256 rows, with the existing
+16 MiB individual-record guard. The coordinator performs compression and writes
+through the existing chunk store; UI messages remain compact manifests/pages.
+
+Cancellation stops dispatch and finishes the already assigned contiguous prefix.
+Compute initialization, native worker, encoding and messaging failures interrupt
+the session with `RESULT_EXECUTION_ERROR`; storage failures use
+`RESULT_STORAGE_ERROR`. Unpublished chunks stay invisible. Legal/model failures
+keep their per-run representation and requested denominator. Neither failure
+class triggers a retry, seed change or reroll. Pools terminate on completion,
+cancellation or failure; descendants also terminate when their coordinator closes.
+
+Archives preserve optional execution metadata: chosen/actual/maximum worker
+counts, memory-estimate version and per-worker budget, accumulated generation/
+scrutiny/presentation phase durations, and coordinator storage time. Phase
+durations use `performance.now()` within each worker, can overlap and must not
+be summed as end-to-end elapsed time or interpreted as measured process CPU time.
+Older archives remain valid.
+Normalized legal/result content is invariant across worker counts; timestamps,
+timings and resource metadata are deliberately execution-specific.
+
+Run `npm run benchmark:reform` for the production 1/2/4-worker × 10/100/1000-run
+matrix. Required production data must exist; this check never skips. Optional
+`REFORM_BENCHMARK_WORKERS` and `REFORM_BENCHMARK_COUNTS` are comma-separated
+subsets for focused runs. The test uses explicitly recorded controlled resource
+hints so the four-worker case can be exercised independently of browser privacy
+limits. It records accumulated phase timings, outcome/row-count invariance and
+periodic unforced Chromium worker-heap samples in
+`test/fixtures/benchmarks/browser_reform_workers.json`. Samples are not absolute
+peaks or process RAM; this benchmark does not replace R26-21 legal/application
+acceptance or the old-law R comparison. Run it without another build or CPU-heavy
+check in parallel.
 
 ## URLs, loading and verification
 

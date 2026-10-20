@@ -235,6 +235,26 @@ function parseSimulationResult(value: unknown): SimulationResult {
   if (scrutinyAlgorithmId !== undefined) parsedResult.benchmark.scrutinyAlgorithmId = scrutinyAlgorithmId;
   const seed = requireOptionalString(benchmark.seed, 'result.benchmark.seed');
   if (seed !== undefined) parsedResult.benchmark.seed = seed;
+  if (benchmark.execution !== undefined) {
+    const execution = requireRecord(benchmark.execution, 'result.benchmark.execution');
+    const positiveInteger = (key: string) => {
+      const value = requireFiniteNumber(execution[key], `result.benchmark.execution.${key}`);
+      if (!Number.isSafeInteger(value) || value < 1) throw new Error(`result.benchmark.execution.${key} must be a positive integer.`);
+      return value;
+    };
+    const nonnegative = (key: string) => {
+      const value = requireFiniteNumber(execution[key], `result.benchmark.execution.${key}`);
+      if (value < 0) throw new Error(`result.benchmark.execution.${key} must be nonnegative.`);
+      return value;
+    };
+    const parsed = { requestedWorkers: positiveInteger('requestedWorkers'), computeWorkers: positiveInteger('computeWorkers'),
+      maximumWorkers: positiveInteger('maximumWorkers'), estimatedWorkerMemoryMiB: positiveInteger('estimatedWorkerMemoryMiB'),
+      estimateVersion: requireString(execution.estimateVersion, 'result.benchmark.execution.estimateVersion'),
+      generationMs: nonnegative('generationMs'), scrutinyMs: nonnegative('scrutinyMs'),
+      presentationMs: nonnegative('presentationMs'), storageMs: nonnegative('storageMs') };
+    if (parsed.computeWorkers > parsed.requestedWorkers || parsed.requestedWorkers > parsed.maximumWorkers) throw new Error('Inconsistent compute worker counts.');
+    parsedResult.benchmark.execution = parsed;
+  }
 
   return parsedResult;
 }
