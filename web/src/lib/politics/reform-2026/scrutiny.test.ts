@@ -243,3 +243,24 @@ describe('R26-18 complete direct-input composition', () => {
     expect(r.conditions.some(c => c.kind === 'missing-preferences')).toBe(true);
   });
 });
+it('I12 preserves national Senate admission for a special-only group without assigning it ordinary regional seats', () => {
+  const input = completeScrutinyFixture(60);
+  if (input.renewal.kind !== 'joint') throw new Error();
+  const c = input.renewal.senato;
+  const vda = c.territories.find(t => t.kind === 'vda')!;
+  const college = c.colleges.find(p => p.territoryId === vda.id)!;
+  c.lists.push({ id: 'D', name: 'Special-only group', coalitionId: null, protectedMinority: null });
+  const candidate = c.specialCandidatures.find(s => s.collegeId === college.id && s.affiliationListId === 'B')!;
+  candidate.affiliationListId = 'D'; candidate.linkedListIds = ['D'];
+  const row = c.specialVotes.find(r => r.collegeId === college.id)!;
+  if (row.votes.kind !== 'attributed') throw new Error();
+  row.votes.listVotes.find(l => l.listId === 'B')!.listId = 'D';
+  const result = runPoliticsReformScrutiny(input);
+  expect(result.status).toBe('complete');
+  expect(result.seats).toHaveLength(588);
+  const senate = result.chambers.find(c => c.chamber === 'senato')!;
+  expect(senate.admission?.status === 'complete' && senate.admission.lists.find(l => l.listId === 'D')).toMatchObject({ admitted: true, reasons: ['regional-20-percent'] });
+  expect(senate.regional?.status === 'complete' && senate.regional.targets.filter(t => t.subject.id === 'D').every(t => t.ordinarySeats === 0)).toBe(true);
+  expect(result.interpretations).toContainEqual({ id: 'I12', version: 'I12-v1' });
+  expect(result.warnings).toContainEqual(expect.objectContaining({ code: 'I12_TERRITORIAL_ELIGIBILITY', chamber: 'senato' }));
+});

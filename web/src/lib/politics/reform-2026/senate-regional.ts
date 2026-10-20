@@ -7,6 +7,7 @@ import type { ChamberInput, SeatTableSource, Subject } from './input';
 import type { DrawTrace, ExactFraction, ReformWarning, ScrutinyExecutionContext } from './result';
 import type { SpecialSeatTotals } from './special-seats';
 import { resolveTie, type TieResolution } from './ties';
+import { territorialEligibility } from './territorial-eligibility';
 
 const key = (s: Subject) => JSON.stringify([s.kind, s.id]);
 const ordered = <T extends { readonly regionId: string }>(rows: readonly T[]) =>
@@ -25,7 +26,9 @@ export interface SenateRegionAllocation {
   readonly ordinarySeats: number;
   /** All regional list votes, including excluded lists; denominator for N20. */
   readonly validVotes: number;
-  readonly subjects: readonly { readonly subject: Subject; readonly votes: number }[];
+  readonly subjects: readonly { readonly subject: Subject; readonly votes: number;
+    /** I12: at least one ordinary filed member in this region. */
+    readonly eligible: boolean }[];
   readonly allocation: QuotaAllocationResult;
 }
 export interface SenateRegionTarget {
@@ -122,7 +125,7 @@ export type SenateRegionalAllocationResult = RegionalBase & (
 );
 
 function targets(regions: readonly SenateRegionAllocation[]): SenateRegionTarget[] {
-  return regions.flatMap(r => r.subjects.map(s => ({ regionId: r.regionId, ...s,
+  return regions.flatMap(r => r.subjects.map(s => ({ regionId: r.regionId, subject: s.subject, votes: s.votes,
     ordinarySeats: r.allocation.assignments.find(a => a.id === key(s.subject))!.seats })));
 }
 
@@ -176,7 +179,9 @@ export function applySenateCap(input: {
         new Set(assignments.map(a => a.id)).size !== ids.length || assignments.some(a => !ids.includes(a.id)) ||
         sum(assignments.map(a => a.seats)) !== r.ordinarySeats || sum(r.subjects.map(s => s.votes)) > sum([r.validVotes]) ||
         assignments.some(a => a.remainderSeats !== (a.remainderState === 'used' ? 1 : 0) || a.seats !== a.integerSeats + a.remainderSeats ||
-          (r.ordinarySeats > 0 && a.remainder === null))) {
+          (r.ordinarySeats > 0 && a.remainder === null)) ||
+        r.subjects.some(s => typeof s.eligible !== 'boolean' || (!s.eligible &&
+          (s.votes !== 0 || assignments.find(a => a.id === key(s.subject))?.seats !== 0)))) {
       throw new RangeError('Supply complete, consistent Senate regional allocations');
     }
   }
@@ -211,7 +216,12 @@ export function applySenateCap(input: {
   const removedByRemainder = new Set<string>();
   const move = (regionId: string, route: SenateCapMovement['removal']['route'], pass: number, rankValue: ExactFraction, resolution: TieResolution) => {
     const donor = majority(regionId), donorState = state(regionId, subject);
-    const minority = final.filter(t => t.regionId === regionId && key(t.subject) !== key(subject));
+    const region = regions.find(r => r.regionId === regionId)!;
+    // I12-v1: both remainder and vote-fallback recipients require a filed
+    // regional list/member. This is not an exclusion of arithmetic zero rests.
+    const minority = final.filter(t => t.regionId === regionId && key(t.subject) !== key(subject) &&
+      region.subjects.find(s => key(s.subject) === key(t.subject))!.eligible);
+    if (!minority.length) return false;
     const unused = minority.filter(t => state(regionId, t.subject).state === 'unused' && state(regionId, t.subject).remainder !== null);
     // S16-bis(1-ter)(b): "maggiore resto non utilizzato, ovvero ... maggiore
     // cifra elettorale regionale". No express secondary recipient criterion:
@@ -233,6 +243,7 @@ export function applySenateCap(input: {
     donorState.state = removal.remainderAfter; recipientState.state = reassignment.remainderAfter;
     movements.push({ sequence: movements.length + 1, regionId, removal, recipient: reassignment });
     remaining--;
+    return true;
   };
   // S16-bis(1-ter)(a), second sentence: used remainders first, once each.
   // Last-seat protection is prescribed for the percentage passes, not here.
@@ -241,7 +252,7 @@ export function applySenateCap(input: {
     if (!available.length) break;
     const resolution = choose(available.map(r => ({ id: r.regionId, value: r.remainder })), 'used-remainder', 'ascending', `removal-${movements.length + 1}`);
     const r = available.find(r => r.regionId === resolution.chosenId)!;
-    move(r.regionId, 'used-remainder', 0, r.remainder, resolution);
+    if (!move(r.regionId, 'used-remainder', 0, r.remainder, resolution)) return blocked('no-eligible-recipient', r.regionId);
     removedByRemainder.add(r.regionId);
   }
   // S16-bis(1-ter)(a), six sentences: (1) excess, (2) used-remainder removal,
@@ -261,7 +272,7 @@ export function applySenateCap(input: {
     while (remaining > 0 && available.length) {
       const resolution = choose(available, 'regional-percentage', 'ascending', `pass-${pass}:removal-${movements.length + 1}`);
       const r = available.find(r => r.id === resolution.chosenId)!;
-      move(r.id, 'regional-percentage', pass, r.value, resolution);
+      if (!move(r.id, 'regional-percentage', pass, r.value, resolution)) return blocked('no-eligible-recipient', r.id);
       available = available.filter(item => item.id !== r.id);
     }
   }
@@ -323,6 +334,7 @@ export function allocateSenateRegions(input: SenateRegionalInput, execution: Scr
     throw new RangeError('Special entitlements must account for all seven Senate seats once');
   }
   const subjects = [...admission.admittedSubjects].sort((a, b) => key(a) < key(b) ? -1 : 1);
+  const eligible = territorialEligibility(chamber);
   const members = subjects.map(s => {
     const ids = s.kind === 'list' ? chamber.lists.filter(l => l.id === s.id).map(l => l.id) : chamber.coalitions.find(c => c.id === s.id)?.listIds;
     if (!ids?.length || ids.some(id => !chamber.lists.some(l => l.id === id))) throw new RangeError('Unknown admitted Senate subject');
@@ -341,11 +353,15 @@ export function allocateSenateRegions(input: SenateRegionalInput, execution: Scr
     }
     const colleges = prepared.ordinary.filter(c => prepared.territories.get(c.territoryId)!.regionId === regionId);
     return { regionId, ordinarySeats: sum(colleges.map(c => award ? c.seatsWithBonus : c.seatsWithoutBonus)), validVotes: f.validVotes,
-      subjects: subjects.map((subject, i) => ({ subject, votes: sum(members[i].map(id => f.lists.find(l => l.listId === id)!.votes)) })) };
+      subjects: subjects.map((subject, i) => ({ subject, votes: sum(members[i].map(id => f.lists.find(l => l.listId === id)!.votes)),
+        eligible: chamber.territories.some(t => t.kind === 'ordinary' && t.regionId === regionId && eligible.subject(t.id, subject)) })) };
   });
   for (const r of inputs) {
     const allocation = allocateByQuotaAndRemainders({ seats: r.ordinarySeats, quotaMode: 'integer',
-      subjects: r.subjects.map(s => ({ id: key(s.subject), figure: exactFraction(s.votes), tieValues: [exactFraction(s.votes)] })),
+      subjects: r.subjects.map(s => {
+        if (!s.eligible && s.votes !== 0) throw new RangeError('Absent regional subjects cannot have votes');
+        return { id: key(s.subject), figure: exactFraction(s.votes), tieValues: [exactFraction(s.votes)], remainderEligible: s.eligible };
+      }),
       tieCriteria: [{ name: 'regional-electoral-figure', direction: 'descending' }],
       context: { simulationId, request: { contextId: JSON.stringify(['N19', 'senato', simulationId, r.regionId]), chamber: 'senato', norm: 'N19',
         rule: 'statutory', lawReference: award ? 'S16-bis(1)(f)' : 'S16-bis(1-bis),(1-quater)' } } }, execution);

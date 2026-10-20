@@ -1,6 +1,7 @@
 import type { AdmissionResult } from './admission';
 import { allocateByQuotaAndRemainders, type QuotaAllocationResult } from './allocation';
 import { exactFraction, floorExact } from './exact';
+import { territorialEligibility } from './territorial-eligibility';
 import { sumVoteCounts as sum, type AggregatedElectoralFigures, type ElectoralFigures } from './figures';
 import type { ChamberInput, SeatTableSource, Subject } from './input';
 import type { DrawTrace, ReformWarning, ScrutinyExecutionContext } from './result';
@@ -142,6 +143,7 @@ export function allocateSenateRegionalLists(input: SenateTerritorialInput, execu
   if (input.admission.status !== 'complete') return blocked(stage(input), 'admission-non-computable');
   const allocations: TerritorialBase['coalitionAllocations'][number][] = [];
   const targets: SenateRegionalListTarget[] = [];
+  const coverage = territorialEligibility(input.chamber);
   for (const regionId of regions(input)) {
     const f = regionalFigure(input, regionId);
     for (const t of sorted(input.regional.targets.filter(t => t.regionId === regionId).map(t => ({ ...t, id: key(t.subject) })))) {
@@ -151,7 +153,8 @@ export function allocateSenateRegionalLists(input: SenateTerritorialInput, execu
         continue;
       }
       const allocation = allocateByQuotaAndRemainders({ seats: t.ordinarySeats, quotaMode: 'integer',
-        subjects: ids.map(id => ({ id, figure: exactFraction(votes(f, id)), tieValues: [exactFraction(votes(f, id))] })),
+        subjects: ids.map(id => ({ id, figure: exactFraction(votes(f, id)), tieValues: [exactFraction(votes(f, id))],
+          remainderEligible: input.chamber.territories.some(t => t.kind === 'ordinary' && t.regionId === regionId && coverage.list(t.id, id)) })),
         tieCriteria: [{ name: 'regional-electoral-figure', direction: 'descending' }],
         context: { simulationId: input.regional.simulationId, request: { chamber: 'senato', norm: 'N21', rule: 'statutory',
           lawReference: 'S17(1)(b),(2)', contextId: JSON.stringify(['N21', input.regional.simulationId, regionId, t.subject]) } }

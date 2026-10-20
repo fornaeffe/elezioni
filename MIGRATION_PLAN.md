@@ -160,6 +160,7 @@ into `main`; public deployment follows that merge and a successful hosting gate.
   scrutiny algorithm as a selectable alternative. Apply the approved provisional
   I07 Senate recovery policy, provisional I10 coalition-college recovery reading,
   I11 exclusion of zero-territorial-entitlement lists from recovery,
+  and provisional I12 exclusion of absent lists from ordinary territorial allocation,
   and approved R26-02/03/04 models: attributed list
   totals, historically informed synthetic preferences and paired chamber votes
   with common anchors and explicit chamber precedence. R26-05 contracts and

@@ -1,6 +1,7 @@
 import type { CameraNationalAllocationResult } from './camera-national';
 import { allocateTerritorialMatrix, type TerritorialMatrixResult } from './territorial-matrix';
 import { exactFraction, floorExact } from './exact';
+import { territorialEligibility } from './territorial-eligibility';
 import { sumVoteCounts, type AggregatedElectoralFigures, type ElectoralFigures } from './figures';
 import type { ChamberInput, SeatTableSource, Subject } from './input';
 import type { DrawTrace, ReformWarning, ScrutinyExecutionContext } from './result';
@@ -128,13 +129,15 @@ function constituencies(input: CameraTerritorialInput, execution: ScrutinyExecut
   const { chamber, national } = input;
   if (national.status !== 'complete') throw new Error('Incomplete national communication');
   const targets = national.subjectTargets;
+  const eligible = territorialEligibility(chamber);
   const result = allocateTerritorialMatrix({ chamber: 'camera', contextId: `camera/${national.simulationId}/constituencies`,
     simulationId: national.simulationId, norm: cap ? 'N17' : 'N15',
     lawReference: cap ? 'C83(1-ter)(d), I05-v1' : 'C83(1)(h),(1-bis)',
     targets: targets.map(t => ({ id: key(t.subject), seats: t.ordinarySeats, votes: t.votes })),
     areas: sorted(chamber.territories.filter(t => t.kind === 'ordinary')).map(t => ({ id: t.id,
       seats: sum(chamber.colleges.filter(c => c.kind === 'ordinary' && c.territoryId === t.id).map(c => national.bonus ? c.seatsWithBonus : c.seatsWithoutBonus)),
-      entries: targets.map(s => ({ id: key(s.subject), votes: votes(territoryFigures(input, t.id), s.subject), tieVotes: s.votes })) })),
+      entries: targets.map(s => ({ id: key(s.subject), votes: votes(territoryFigures(input, t.id), s.subject), tieVotes: s.votes,
+        eligible: eligible.subject(t.id, s.subject) })) })),
     correction: 'constituencies', initialTieFigure: 'national-electoral-figure',
     ...(cap ? { indexQuotas: targets.map(t => ({ id: key(t.subject), quota: t.ordinarySeats === 0 ? null :
       same(t.subject, national.bonus!.subject) ? national.capCorrection!.majorityQuota : national.capCorrection!.minorityAllocation.quota })) } : {})
@@ -156,6 +159,7 @@ export function allocateCameraCoalitionListsInConstituencies(
   if (input.national.status !== 'complete' || constituencies.status !== 'complete') return blocked(base, 'constituency-allocation-non-computable');
   const matrices: TerritorialMatrixResult[] = [];
   const rows: CameraConstituencyListTarget[] = [];
+  const eligible = territorialEligibility(input.chamber);
   for (const t of sorted(input.national.subjectTargets.map(t => ({ ...t, id: key(t.subject) })))) {
     const local = constituencies.targets.filter(c => same(c.subject, t.subject));
     if (sum(local.map(c => c.ordinarySeats)) !== t.ordinarySeats) throw new RangeError('Constituency subject targets do not match national targets');
@@ -168,7 +172,8 @@ export function allocateCameraCoalitionListsInConstituencies(
       simulationId: base.simulationId, norm: 'N16', lawReference: 'C83(1)(i),(1-ter)(e); C83(1)(h), periods 9+',
       targets: members.map(l => ({ id: l.listId, seats: l.ordinarySeats, votes: l.votes })),
       areas: local.map(c => ({ id: c.territoryId, seats: c.ordinarySeats, entries: members.map(l => ({ id: l.listId,
-        votes: votes(territoryFigures(input, c.territoryId), list(l.listId)), tieVotes: votes(territoryFigures(input, c.territoryId), list(l.listId)) })) })),
+        votes: votes(territoryFigures(input, c.territoryId), list(l.listId)), tieVotes: votes(territoryFigures(input, c.territoryId), list(l.listId)),
+        eligible: eligible.list(c.territoryId, l.listId) })) })),
       correction: 'constituencies', initialTieFigure: 'constituency-electoral-figure'
     }, execution);
     matrices.push(m);

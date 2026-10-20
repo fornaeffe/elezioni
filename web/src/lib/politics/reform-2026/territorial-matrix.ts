@@ -15,7 +15,9 @@ export interface TerritorialMatrixInput {
   readonly areas: readonly {
     readonly id: string;
     readonly seats: number;
-    readonly entries: readonly { readonly id: string; readonly votes: number; readonly tieVotes: number }[];
+    readonly entries: readonly { readonly id: string; readonly votes: number; readonly tieVotes: number;
+      /** I12: filed territorial coverage, independent of a zero vote figure. */
+      readonly eligible?: boolean }[];
   }[];
   /** C83(h)/(i); paired college lists; C83-bis(1)(b)(3)'s independent
    * Camera corrections; or C83-bis(1-bis)(c)/S17(5)(c), respectively. */
@@ -31,6 +33,7 @@ export interface TerritorialMatrixCell {
   readonly areaId: string;
   readonly targetId: string;
   readonly votes: number;
+  readonly allocationEligible: boolean;
   readonly rawIndex: ExactFraction | null;
   readonly index: ExactFraction | null;
   readonly quotient: ExactFraction | null;
@@ -101,7 +104,10 @@ export function allocateTerritorialMatrix(input: TerritorialMatrixInput, executi
   for (const area of areas) {
     if (!unique(area.entries.map(e => e.id)) || area.entries.length !== targets.length ||
         targets.some(t => !area.entries.some(e => e.id === t.id))) throw new RangeError('Supply every matrix figure once');
-    area.entries.forEach(e => sumVoteCounts([e.votes, e.tieVotes]));
+    area.entries.forEach(e => {
+      sumVoteCounts([e.votes, e.tieVotes]);
+      if (e.eligible === false && e.votes !== 0) throw new RangeError('Absent territorial lists cannot have votes');
+    });
   }
   if (input.indexQuotas && (!unique(input.indexQuotas.map(q => q.id)) || input.indexQuotas.length !== targets.length ||
       targets.some(t => !input.indexQuotas!.some(q => q.id === t.id)))) throw new RangeError('Supply every index quota once');
@@ -143,6 +149,7 @@ export function allocateTerritorialMatrix(input: TerritorialMatrixInput, executi
     const indices: { raw: ExactFraction | null; applied: ExactFraction }[] = [];
     for (const t of targets) {
       const e = area.entries.find(e => e.id === t.id)!;
+      if (e.eligible === false) { indices.push({ raw: null, applied: zero }); continue; }
       const q = input.indexQuotas?.find(q => q.id === t.id);
       if (q && t.seats > 0 && (!q.quota || q.quota.numerator === '0')) {
         return finish({ phase: 'initial', reason: 'zero-index-quota' });
@@ -161,10 +168,12 @@ export function allocateTerritorialMatrix(input: TerritorialMatrixInput, executi
     quotas.push({ id: area.id, capacity: area.seats, rawQuota, quota });
     if (area.seats > 0 && sum.numerator === '0') return finish({ phase: 'initial', reason: 'zero-vote-total' });
     if (area.seats > 0 && quota!.numerator === '0') return finish({ phase: 'initial', reason: 'zero-quota' });
-    const quotients = indices.map(i => quota ? divideExact(i.applied, quota) : null);
+    const quotients = indices.map((i, n) => quota && area.entries.find(e => e.id === targets[n].id)!.eligible !== false
+      ? divideExact(i.applied, quota) : null);
     const integers = quotients.map(q => q ? BigInt(floorExact(q)) : 0n);
     if (integers.reduce((s, n) => s + n, 0n) > BigInt(area.seats)) return finish({ phase: 'initial', reason: 'initial-overallocation' });
     targets.forEach((t, i) => cells.push({ id: cellId(area.id, t.id), areaId: area.id, targetId: t.id,
+      allocationEligible: area.entries.find(e => e.id === t.id)!.eligible !== false,
       votes: area.entries.find(e => e.id === t.id)!.votes, rawIndex: indices[i].raw,
       index: input.indexQuotas ? indices[i].applied : null, quotient: quotients[i], integerSeats: Number(integers[i]),
       decimalPart: quotients[i] ? fractionalPart(quotients[i]) : null,
@@ -174,7 +183,8 @@ export function allocateTerritorialMatrix(input: TerritorialMatrixInput, executi
   // Exclusion is based on the completed integer allocation across all areas,
   // before their parallel remainder allocations; no arbitrary area wins priority.
   const reached = new Set(targets.filter(t => total(t.id) >= t.seats).map(t => t.id));
-  cells = cells.map(c => ({ ...c, remainderExcluded: input.correction !== 'college-groups' && reached.has(c.targetId) }));
+  cells = cells.map(c => ({ ...c, remainderExcluded: !c.allocationEligible ||
+    (input.correction !== 'college-groups' && reached.has(c.targetId)) }));
   // Preflight every residual pool before consuming any initial draw (I04).
   for (const area of areas) {
     const rows = cells.filter(c => c.areaId === area.id);
@@ -272,7 +282,7 @@ export function allocateTerritorialMatrix(input: TerritorialMatrixInput, executi
     if (input.correction === 'constituencies' && recipients.some(r => r.areaId === donor.areaId)) {
       pool = recipients.filter(r => r.areaId === donor.areaId);
     } else if (input.correction === 'college-groups') {
-      pool = cells.filter(c => deficits.has(c.targetId) && c.areaId === donor.areaId);
+      pool = cells.filter(c => c.allocationEligible && deficits.has(c.targetId) && c.areaId === donor.areaId);
     }
     if (!pool.length) return finish({ phase: 'correction', reason: 'no-eligible-recipient-remainder' });
     const localRecipient = donor.areaId === pool[0].areaId && pool.every(c => c.areaId === donor.areaId);

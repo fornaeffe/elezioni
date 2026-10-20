@@ -60,7 +60,7 @@ function cap(regions: SenateRegionAllocation[], specialSeats = 0, execution = no
 }
 function region(regionId: string, ordinarySeats: number, votes: Record<string, number>, validVotes?: number): SenateRegionAllocation {
   return { regionId, ordinarySeats, validVotes: validVotes ?? Object.values(votes).reduce((n, v) => n + v, 0),
-    subjects: Object.entries(votes).map(([id, votes]) => ({ subject: list(id), votes })),
+    subjects: Object.entries(votes).map(([id, votes]) => ({ subject: list(id), votes, eligible: true })),
     allocation: allocateByQuotaAndRemainders({ seats: ordinarySeats, quotaMode: 'integer',
       subjects: Object.entries(votes).map(([id, v]) => ({ id: JSON.stringify(['list', id]), figure: f(v), tieValues: [f(v)] })),
       tieCriteria: [{ name: 'regional-votes', direction: 'descending' }],
@@ -76,6 +76,15 @@ function conservation(r: SenateCapResult, regions: readonly SenateRegionAllocati
 }
 
 describe('N19 Senate regional allocation', () => {
+  it('keeps national admission separate from filed regional allocation coverage', () => {
+    const input = fixture({ R: { A: 80000, B: 20000, Z: 0 }, S: { A: 40000, B: 10000, Z: 40000 } },
+      false, 0, { R: 100, S: 54 });
+    input.chamber.ordinarySlates = input.chamber.ordinarySlates.filter(s => !(s.collegeId === 'R0' && s.listId === 'Z'));
+    const result = complete(input, first);
+    expect(result.regions.find(r => r.regionId === 'R')?.subjects.find(s => s.subject.id === 'Z')).toMatchObject({ votes: 0, eligible: false });
+    expect(result.targets.find(t => t.regionId === 'R' && t.subject.id === 'Z')?.ordinarySeats).toBe(0);
+    expect(result.targets.find(t => t.regionId === 'S' && t.subject.id === 'Z')!.ordinarySeats).toBeGreaterThan(0);
+  });
   it('uses all 189 ordinary seats without bonus, independently in each region', () => {
     const r = complete(fixture({ R: { A: 80000, B: 55000 }, S: { A: 10000, B: 44000 } }, false, 0, { R: 100, S: 54 }));
     expect(r).toMatchObject({ path: 'no-bonus', ordinarySeats: 189, bonus: null, cap: null });
@@ -122,7 +131,7 @@ describe('N19 Senate regional allocation', () => {
   });
   it('counts every coalition member at subject level and leaves internal list targets to N21', () => {
     const r = complete(fixture({ R: { A: 69500, D: 20000, E: 1000, F: 500, B: 63000 } }, true, 0, { R: 154 }, { G: ['A', 'D', 'E', 'F'] }), first);
-    expect(r.regions[0].subjects).toContainEqual({ subject: { kind: 'coalition', id: 'G' }, votes: 91000 });
+    expect(r.regions[0].subjects).toContainEqual({ subject: { kind: 'coalition', id: 'G' }, votes: 91000, eligible: true });
     expect(r.bonus?.subject).toEqual({ kind: 'coalition', id: 'G' });
     expect(r.targets).toHaveLength(2);
     expect(r).not.toHaveProperty('listTargets');
@@ -145,6 +154,9 @@ describe('N19 Senate regional allocation', () => {
     const input = fixture();
     const bundle = getBundledReformSeatTables().chambers.find(c => c.chamber === 'senato')!;
     input.chamber = structuredClone({ ...input.chamber, ...bundle }) as Mutable<SenateRegionalInput['chamber']>;
+    input.chamber.ordinarySlates = input.chamber.colleges.filter(c => c.kind === 'ordinary').flatMap(c =>
+      input.chamber.lists.map(l => ({ collegeId: c.id, listId: l.id, candidateIds: [],
+        preferences: { kind: 'missing', reason: 'Entitlements only' } })));
     input.figures.regions = input.chamber.regions.map(r => ({ regionId: r.id, figures: structuredClone(input.figures.regions[0].figures) }));
     const r = complete(input, first);
     expect(r.seatTable).toEqual(bundle.seatTable);
@@ -154,6 +166,32 @@ describe('N19 Senate regional allocation', () => {
 });
 
 describe('N20 Senate cap progression under I06', () => {
+  it('I12 excludes an absent regional list from cap recipients, then uses the vote fallback', () => {
+    const original = region('R', 100, { A: 9500, B: 500, Z: 0 });
+    const r = { ...original, subjects: original.subjects.map(s => ({ ...s, eligible: s.subject.id !== 'Z' })) };
+    const result = cap([r]);
+    conservation(result, [r]);
+    expect(result.status === 'complete' && result.targets.find(t => t.subject.id === 'Z')?.ordinarySeats).toBe(0);
+    expect(result.movements[0].recipient).toMatchObject({ subject: list('B'), route: 'unused-remainder' });
+    expect(result.movements.slice(1).every(m => m.recipient.subject.id === 'B' && m.recipient.route === 'regional-votes')).toBe(true);
+  });
+
+  it('retains zero-vote and zero-valued unused remainders for filed regional lists', () => {
+    const r = region('R', 100, { A: 9500, B: 500, Z: 0 });
+    const result = cap([r], 0, first);
+    conservation(result, [r]);
+    expect(result.movements.slice(0, 2).map(m => [m.recipient.subject.id, m.recipient.route])).toEqual([
+      ['B', 'unused-remainder'], ['Z', 'unused-remainder']
+    ]);
+    expect(result.remainders.find(s => s.subject.id === 'Z')).toMatchObject({ remainder: f(0), state: 'used' });
+  });
+
+  it('reports no eligible regional recipient before changing a seat when every minority is absent', () => {
+    const original = region('R', 100, { A: 10000, B: 0 });
+    const r = { ...original, subjects: original.subjects.map(s => ({ ...s, eligible: s.subject.id === 'A' })) };
+    const result = cap([r]);
+    expect(result).toMatchObject({ status: 'non-computable', reason: 'no-eligible-recipient', affectedRegionId: 'R', movements: [] });
+  });
   it('ranks raw used vote remainders across regions, rather than normalized decimals', () => {
     const regions = [region('R', 100, { A: 51500, B: 48500 }), region('S', 54, { A: 2755, B: 2645 })];
     const r = cap(regions);

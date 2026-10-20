@@ -62,6 +62,22 @@ function collegeCommunication(f: CameraTerritorialInput): CameraConstituencyList
 }
 
 describe('N15-N18 Camera territorial stages', () => {
+  it.each([false, true])('I12 constrains constituency subject and coalition-list corrections to filed territories (coalition=%s)', coalition => {
+    const f = coalition ? fixture({ A: 0, B: 1, C: 1, E: 0 }, [
+      { territory: 'X', seats: 1, A: 0, B: 0, C: 1, E: 99 },
+      { territory: 'Y', seats: 1, A: 0, B: 0, C: 1, E: 99 }
+    ], { G: ['B', 'C', 'E'] }) : fixture({ A: 0, B: 1, C: 1 }, [
+      { territory: 'X', seats: 1, A: 99, B: 0, C: 1 },
+      { territory: 'Y', seats: 1, A: 99, B: 0, C: 1 }
+    ]);
+    f.chamber.ordinarySlates = f.chamber.ordinarySlates.filter(s => !(s.listId === 'B' && s.collegeId === 'P1'));
+    const constituencies = allocateCameraConstituencies(f, first);
+    const lists = allocateCameraCoalitionListsInConstituencies(f, constituencies, first);
+    expect(lists.status).toBe('complete');
+    if (lists.status !== 'complete') throw new Error();
+    expect(lists.targets.find(t => t.listId === 'B' && t.territoryId === 'X')?.ordinarySeats).toBe(1);
+    expect(lists.targets.find(t => t.listId === 'B' && t.territoryId === 'Y')?.ordinarySeats).toBe(0);
+  });
   it('composes constituency/list/college entitlements without preferences or candidate proclamations', () => {
     const r = allocateCameraTerritorialSeats(fixture(), noDraw);
     expect(r.status).toBe('complete');

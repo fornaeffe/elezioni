@@ -46,7 +46,7 @@ time and leave subsequent application features inactive.
 - Keep ordinary seats, bonus seats, special-territory seats, and candidate
   identities distinguishable. A coalition bonus slate is not an arbitrary
   proportional distribution of bonus seats between member lists.
-- Apply the provisional I03/I05/I06/I07/I08/I10/I11 policies in the specification, keeping
+- Apply the provisional I03/I05/I06/I07/I08/I10/I11/I12 policies in the specification, keeping
   them distinguishable from express statutory rules and revisable on further
   legal evidence. Warn in affected simulations when an I03 fallback draw or an
   I07 cross-region recovery is used.

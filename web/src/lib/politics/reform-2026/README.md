@@ -27,6 +27,7 @@ For worker dispatch, UI, base URLs, results and exports, use the
 | Allocate Camera national subjects/lists and apply the 220-seat cap | [camera-national.ts](camera-national.ts) |
 | Allocate Camera constituencies, coalition lists and colleges | [camera-territorial.ts](camera-territorial.ts) |
 | Inspect shared territorial matrix numerics and correction movements | [territorial-matrix.ts](territorial-matrix.ts) |
+| Determine provisional I12 filed constituency/region eligibility | [territorial-eligibility.ts](territorial-eligibility.ts), [source review](../../../../../docs/politics-reform-2026-specification.md#territorial-eligibility-and-zero-remainders-i12) |
 | Allocate Senato regional subjects and apply the 113-seat cap | [senate-regional.ts](senate-regional.ts) |
 | Allocate Senato regional coalition lists and ordinary/cap colleges | [senate-territorial.ts](senate-territorial.ts) |
 | Attribute special candidate-only votes | [special-attribution.ts](special-attribution.ts) |
@@ -553,6 +554,12 @@ For coalition-to-list and college allocation, continue with N21/N22 below.
 
 `applySenateCap()` is independently callable with completed N19 regional
 allocations, the bonus subject, its special entitlement count and simulation ID.
+Every regional subject must include an explicit `eligible` flag supplied from
+filed ordinary coverage under provisional I12-v1. Preserve all admitted subject
+rows, including absent subjects' zero targets; never infer coverage from votes.
+Both remainder and regional-vote fallback recipients require this flag. A filed
+zero-vote list or zero-valued remainder retains its existing arithmetic and
+eligibility rules. See the [I12 source review](../../../../../docs/politics-reform-2026-specification.md#territorial-eligibility-and-zero-remainders-i12).
 It does not re-emit N19 events. Exactly 113 domestic seats need no correction;
 above that, the ordinary target is `78 - specialSeats`, retaining all 35 bonus
 seats. Cap checking uses entitlements even when candidate identities are missing.

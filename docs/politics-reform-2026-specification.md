@@ -19,6 +19,7 @@ Read only the relevant part:
 - Legal stages and their tests: [matrix](#norm-to-functiontest-matrix).
 - Numerical operations and tie rules: [numerics](#numerical-and-tie-contracts).
 - Provisional policies and unresolved cases: [interpretation register](#interpretation-register).
+- Absent territorial lists and zero remainders: [I12 source review](#territorial-eligibility-and-zero-remainders-i12).
 
 ## Sources and version reconciliation
 
@@ -403,6 +404,8 @@ in reproducible runs. I03 requires a warning whenever its fallback draw is used;
 I07 requires a warning whenever its cross-region recovery is used.
 The additional I10-v1 and I11-v1 recovery readings were authorized on 19 October
 2026 and remain provisional pending definitive official interpretations.
+I12-v1 territorial eligibility was authorized on 20 October 2026 and is also
+provisional; its official-source review is below.
 Other genuinely non-computable inputs still return a structured partial result.
 
 | ID / status | Reading or explicit boundary | Downstream effect and required test |
@@ -418,6 +421,7 @@ Other genuinely non-computable inputs still return a structured partial result.
 | I09 / delimited candidature validation | C93-quinquies(6)/S9 refer to Camera filing rules only insofar as compatible; S9 expressly permits a single region. Do not impose Camera's nationwide coverage requirement on Senate inputs, or require bonus slates in special territories/single-chamber renewals. Special ordinary candidacy restrictions and seven-slot/gender rules still need focused compatibility checks. The three-preference gender wording concerns upstream ballot validity, not a license to infer valid preference counts from totals. | R26-05/10: write separate chamber/special-territory validation fixtures and record any remaining compatibility reading before rejecting a legally supplied slate. R26-03's separate valid-combination generator must produce realizable preference aggregates under these constraints; invalid-ballot generation/adjudication remains outside scope. |
 | I10 / provisional decision, coalition college recovery | For C84(5), rank each candidate-bearing destination college by the greatest unused decimal of any admitted member list filed there; only if none is unused use the greatest already-used decimal, treating consumed as already-used. Then choose the eligible member list within that college under C84(5)'s first sentence. Use all applicable member-list allocation records for college priority, including a member exhausted there; availability determines which colleges can receive a candidate, not the original decimal. Do not sum votes/decimals or invent a coalition quotient. | R26-17/18/20: retain the actual member-list source record/state, emit an I10 warning whenever applied, and record `I10-v1` in composed results. Equal college priorities use C84(8)'s statutory draw; equal member witnesses for the same college value need no additional draw. A single eligible alternative needs no comparison. Preserve I07's route order and cross-region warnings. See the [source/R audit and remaining zero-entitlement limit](migration-history.md#2026-10-19-recovery-evidence-handoffs-and-provisional-i10). |
 | I11 / provisional decision, zero territorial entitlement | A list with zero final territorial ordinary entitlement has no college-level quotient and cannot receive a recovery seat. Apply this to Camera constituency and Senate regional list targets and TAA proportional targets, after cap/territorial allocation and before recovery. Admission alone is insufficient. Exclude the list from all candidate destinations and I10 member witnesses, including singleton selection and bonus replacements; a zero college allocation alone does not exclude a list with positive territorial entitlement. | R26-17/18/20: communicate explicit nonnegative `ordinarySeats` targets, never infer a missing target as zero. Preserve the original targets during recovery; report excluded territory/list pairs and `I11-v1` in the recovery/composed metadata. Do not create single-college aliases for zero targets. Continue the permitted routes and report unfilled entitlements if they exhaust; preserve genuinely missing-input states separately. User-authorized on 19 October 2026; no claim that this reading is an official interpretation. |
+| I12 / provisional decision, filed territorial eligibility | National admission does not confer ordinary seat eligibility in a Camera constituency or Senate region where a list has no filed ordinary slate. A coalition participates where at least one member has a filed slate; its internal list allocation still requires that member's own territorial presence. Special-only candidature links do not establish ordinary coverage elsewhere. Determine presence from filed slates, never from positive votes or available candidate counts. | N15/N16/N17 constituency matrices and N19/N20/N21 regional allocations exclude absent recipients from initial remainders, corrective transfers and the Senate cap's regional-vote fallback. Preserve explicit zero targets and national admission/special votes. Record `I12-v1` in composed results and warn with `I12_TERRITORIAL_ELIGIBILITY` in chambers with admitted lists absent from ordinary territories. Keep existing zero-vote/zero-remainder arithmetic for filed lists and existing candidate-recovery routes. [Source review and precise scope below](#territorial-eligibility-and-zero-remainders-i12). User-authorized on 20 October 2026; no definitive official interpretation of the cap edge case was found. |
 
 I10 evidence: the [2017 Senate comparison](https://www.parlamento.it/show-doc?id=1046530&leg=17&part=dossier_dossier1-sezione_sezione11-h2_h21&tipodoc=DOSSIER)
 confirms the earlier wording; the [2026 Camera dossier](https://documenti.camera.it/leg19/dossier/testi/AC0469b.htm)
@@ -434,3 +438,47 @@ The approved provisional decisions govern dependent work;
 they do not mark those implementation steps complete. Changes to this document
 must preserve source/version provenance and keep later statistical decisions in
 the [modelling document](politics-reform-2026-modelling.md).
+
+### Territorial eligibility and zero remainders (I12)
+
+Official-source review on **20 October 2026**, separate from the working
+transcription:
+
+- [Promulgated law, article 1](https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticolo?art.codiceRedazionale=26G00201&art.dataPubblicazioneGazzetta=2026-10-09&art.flagTipoArticolo=0&art.idArticolo=1&art.idGruppo=0&art.idSottoArticolo=1&art.idSottoArticolo1=10&art.progressivo=0&art.versione=1),
+  amendments to C18-bis(2-bis), C31(4-bis), C83-bis and C84: filing, ballot
+  presence and proclamation are tied to actual territorial candidatures.
+  C31(4-bis) expressly omits the bonus slate too where no linked ordinary
+  candidature was filed in a college. These are structural support for
+  territorial eligibility, not an express exclusion clause for every
+  corrective remainder operation.
+- [Promulgated law, article 2](https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticolo?art.codiceRedazionale=26G00201&art.dataPubblicazioneGazzetta=2026-10-09&art.flagTipoArticolo=0&art.idArticolo=2&art.idGruppo=0&art.idSottoArticolo=1&art.idSottoArticolo1=10&art.progressivo=0&art.versione=1),
+  S1(4-ter), S9(2), S11(3-bis), S16-bis(1)(f)/(1-ter)(b), S17 and S17-bis:
+  the law allows single-region filing and special-only groups without
+  candidatures elsewhere. Their special votes still count for national access.
+  S11(3-bis) ties ballot presence to filed candidatures. The cap rule orders
+  assignment by greatest unused remainder, otherwise regional votes, but does
+  not expressly address an absent list represented numerically by a zero row.
+- Targeted searches of official GU, Camera, Senato, Interior Ministry and
+  judicial material found no decisive instruction expressly authorizing or
+  excluding an absent list in that cap edge case. Adjacent filing/ballot rules
+  support the coverage reading; the cap's reference to admitted subjects is
+  insufficient by itself to settle it. I12 therefore remains a **provisional
+  implementation policy**, as authorized, rather than an amendment of the
+  legal transcription or a claimed binding interpretation.
+- Neither operative remainder provisions nor the official material located
+  established that zero votes produce no remainder, or that an arithmetic
+  remainder of zero is categorically ineligible. Searches included zero/null/
+  positive remainders and absent-list seat allocation. This is a dated negative
+  finding, not proof that no guidance exists. **Apply neither proposed
+  zero-remainder exclusion.** A filed list with zero votes still has its
+  existing arithmetic zero remainder; positive votes divisible exactly by the
+  quota likewise retain their zero remainder and existing eligibility rules.
+
+I12 constrains **ordinary territorial entitlement** before proclamation; it
+does not change national thresholds, first place, bonus eligibility, special
+seats, candidate availability/exhaustion or authorized cross-region recovery.
+The eligibility unit is the Camera constituency/Senate region. Partial college
+coverage inside an otherwise filed territory continues through the existing
+college-allocation and recovery rules; I12 introduces no further college-level
+exclusion. Infeasible communications remain explicit non-computable results,
+without moving an entitlement to an absent territory or rescaling capacities.

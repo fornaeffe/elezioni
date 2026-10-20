@@ -1,6 +1,7 @@
 import type { ChamberInput, Provenance, ReformScrutinyInput } from './input';
 import type { ReformScrutinyResult, ReformWarning } from './result';
 import type { ReformChamberExecution } from './scrutiny';
+import { territorialEligibility } from './territorial-eligibility';
 
 export function scrutinyMetadata(input: ReformScrutinyInput, renewed: readonly ChamberInput[],
   executions: readonly ReformChamberExecution[], warnings: ReformWarning[]) {
@@ -32,6 +33,13 @@ export function scrutinyMetadata(input: ReformScrutinyInput, renewed: readonly C
     }
     const s = executions.find(s => s.chamber === c.chamber)!;
     if (s.admission?.status === 'complete') {
+      const coverage = territorialEligibility(c);
+      if (c.territories.some(t => t.kind === 'ordinary' && s.admission?.status === 'complete' &&
+          s.admission.lists.some(l => l.admitted && !coverage.list(t.id, l.listId)))) {
+        warnings.push({ code: 'I12_TERRITORIAL_ELIGIBILITY', electionKind: 'politiche', simulationId: input.simulationId,
+          chamber: c.chamber, severity: 'warning', interpretationId: 'I12',
+          message: 'Provisional I12-v1: national admission does not permit ordinary seat allocation to a list absent from the constituency/region. Eligibility uses filed slates, independently of zero votes or zero remainders.' });
+      }
       for (const l of s.admission.lists) decisions.push({ norm: s.admission.norm, chamber: c.chamber, subject: { kind: 'list', id: l.listId },
         decision: l.admitted ? 'admitted' : 'excluded', reason: l.reasons.join(','), lawReference: l.lawReference });
       for (const g of s.admission.coalitions) decisions.push({ norm: s.admission.norm, chamber: c.chamber, subject: { kind: 'coalition', id: g.coalitionId },
@@ -46,6 +54,7 @@ export function scrutinyMetadata(input: ReformScrutinyInput, renewed: readonly C
     affectedIds: [], reference: JSON.stringify(input.chamberModel) });
   // These policies govern all accepted inputs, including candidature validation.
   policies.set('I01', 'I01-v1'); policies.set('I04', 'I04-v1'); policies.set('I09', 'I09-v1');
+  policies.set('I12', 'I12-v1');
   if (renewed.some(c => c.chamber === 'senato')) policies.set('I02', 'I02-v1');
   for (const w of warnings) if (w.interpretationId) policies.set(w.interpretationId,
     w.interpretationId === 'I07' ? 'approved-2026-10-16' : `${w.interpretationId}-v1`);
