@@ -46,6 +46,8 @@ export interface TerritorialMatrixCell {
   readonly seats: number;
 }
 export interface TerritorialMatrixTransfer {
+  /** Warned loose reading of Camera C83-bis donor eligibility. */
+  readonly interpretationId?: 'I13';
   /** Independent b(3) corrections have only a donor or only a recipient. */
   readonly fromCellId: string | null;
   readonly toCellId: string | null;
@@ -53,7 +55,7 @@ export interface TerritorialMatrixTransfer {
   readonly fromSeatsBefore: number | null;
   readonly toSeatsBefore: number | null;
   readonly remainders: readonly { readonly id: string; readonly value: ExactFraction;
-    readonly before: 'unused' | 'used' | 'consumed'; readonly after: 'used' | 'consumed' }[];
+    readonly before: 'unused' | 'used' | 'consumed'; readonly after: 'unused' | 'used' | 'consumed' }[];
   readonly drawContextIds: readonly string[];
 }
 interface MatrixTrace {
@@ -115,6 +117,7 @@ export function allocateTerritorialMatrix(input: TerritorialMatrixInput, executi
   let cells: TerritorialMatrixCell[] = [];
   const quotas: { id: string; capacity: number; rawQuota: ExactFraction | null; quota: ExactFraction | null }[] = [];
   const transfers: TerritorialMatrixTransfer[] = [];
+  const warnings: ReformWarning[] = [];
   const resolutions: TieResolution[] = [];
   const finish = (failure?: { phase: 'initial' | 'remainders' | 'correction'; reason: string }): TerritorialMatrixResult => structuredClone({
     chamber: input.chamber, norm: input.norm, lawReference: input.lawReference, contextId: input.contextId,
@@ -122,7 +125,7 @@ export function allocateTerritorialMatrix(input: TerritorialMatrixInput, executi
     indexQuotas: input.indexQuotas ? [...input.indexQuotas].sort((a, b) => a.id < b.id ? -1 : a.id > b.id ? 1 : 0) : null,
     targets, cells, transfers, resolutions,
     areas: quotas.map(a => ({ ...a, finalSeats: sumVoteCounts(cells.filter(c => c.areaId === a.id).map(c => c.seats)) })),
-    draws: resolutions.flatMap(r => r.draws), warnings: resolutions.flatMap(r => r.warnings),
+    draws: resolutions.flatMap(r => r.draws), warnings: [...resolutions.flatMap(r => r.warnings), ...warnings],
     ...(failure ? { status: 'non-computable' as const, ...failure } : { status: 'complete' as const })
   });
   const choose = (options: readonly { id: string; values: readonly ExactFraction[] }[], criteria: readonly TieCriterion[],
@@ -141,6 +144,20 @@ export function allocateTerritorialMatrix(input: TerritorialMatrixInput, executi
     cells[cells.findIndex(row => row.id === c.id)] = updated;
     return updated;
   };
+  // Strict reading of C83-bis(1)(b)(3), also imported by (1-bis)(d),
+  // and the express wording of (1-bis)(c): remove remainder-awarded seats.
+  // Approved provisional I13-v1: only when those donors are exhausted,
+  // rank positive-seat donors by their existing decimal, including integer
+  // seats. Repeated removals are bounded by the surplus and available seats;
+  // they do not consume or invent a remainder. Other chambers/stages stay strict.
+  const looseDonors = input.chamber === 'camera' && input.norm === 'N18' && input.correction !== 'constituencies';
+  const integerDonors = (ids: ReadonlySet<string>) => looseDonors
+    ? cells.filter(c => ids.has(c.targetId) && c.allocationEligible && c.seats > 0 && c.decimalPart !== null) : [];
+  const warnIntegerRemoval = (cell: TerritorialMatrixCell) => warnings.push({
+    code: 'I13_INTEGER_SEAT_REMOVAL', severity: 'warning', electionKind: 'politiche',
+    simulationId: input.simulationId, chamber: input.chamber, interpretationId: 'I13', lawReference: input.lawReference,
+    message: `Provisional I13-v1: ${input.contextId}; remove an integer seat from ${cell.targetId} in ${cell.areaId} by ascending decimal part after eligible remainder-seat donors are exhausted (${cell.seats} -> ${cell.seats - 1}). Decimal value and remainder state preserved.`
+  });
 
   // C83(h)/(i), C83-bis(1)(b), S17(4)(a): "non tiene conto ... parte frazionaria".
   // Calculate ALL integer parts before applying reached-target exclusions.
@@ -211,29 +228,32 @@ export function allocateTerritorialMatrix(input: TerritorialMatrixInput, executi
     // sono assegnati ... [con] parte decimale ... non utilizzata".
     // Approved reading: subtraction and addition are independent, including
     // when an upstream C83(h)/(i) fallback changed this constituency's total.
-    // Preserve the existing single-use donor/recipient remainder rules; a
-    // missing eligible remainder remains an explicit no-progress blocker.
+    // Preserve single-use remainders; I13 separately permits integer removals.
     for (const direction of ['removal', 'addition'] as const) {
       let movement = 0;
       const pending = () => new Set(targets.filter(t => direction === 'removal'
         ? total(t.id) > t.seats : total(t.id) < t.seats).map(t => t.id));
       while (pending().size) {
         const ids = pending();
-        const pool = cells.filter(c => ids.has(c.targetId) && (direction === 'removal'
+        let pool = cells.filter(c => ids.has(c.targetId) && (direction === 'removal'
           ? c.remainderSeat && c.remainderState === 'used' && c.seats > 0
           : c.remainderState === 'unused' && c.decimalPart !== null));
+        const fallback = direction === 'removal' && !pool.length && looseDonors;
+        if (fallback) pool = integerDonors(ids);
         if (!pool.length) return finish({ phase: 'correction', reason: direction === 'removal'
           ? 'no-eligible-donor-remainder' : 'no-eligible-recipient-remainder' });
         const id = choose(pool.map(c => ({ id: c.id, values: [remainder(c)] })),
           [direction === 'removal' ? asc('donor-decimal-part') : desc('recipient-decimal-part')],
           `${direction}-${++movement}`, 'I03');
         const cell = cells.find(c => c.id === id)!;
-        const after = direction === 'removal' ? 'consumed' : 'used';
+        const after = fallback ? cell.remainderState : direction === 'removal' ? 'consumed' : 'used';
         transfers.push({ fromCellId: direction === 'removal' ? id : null, toCellId: direction === 'addition' ? id : null,
+          ...(fallback ? { interpretationId: 'I13' as const } : {}),
           route: direction, fromSeatsBefore: direction === 'removal' ? cell.seats : null,
           toSeatsBefore: direction === 'addition' ? cell.seats : null,
           remainders: [{ id, value: remainder(cell), before: cell.remainderState, after }],
           drawContextIds: resolutions.at(-1)!.draws.map(d => d.contextId) });
+        if (fallback) warnIntegerRemoval(cell);
         change(cell, { seats: cell.seats + (direction === 'removal' ? -1 : 1), remainderState: after });
       }
     }
@@ -267,6 +287,9 @@ export function allocateTerritorialMatrix(input: TerritorialMatrixInput, executi
     const ordered = surplusOrder.find(id => surplus.has(id));
     let donors = cells.filter(c => surplus.has(c.targetId) && (!ordered || c.targetId === ordered) &&
       c.remainderSeat && c.remainderState === 'used' && c.seats > 0);
+    const fallback = !donors.length && looseDonors;
+    if (fallback) donors = integerDonors(surplus).filter(d => input.correction !== 'college-groups' ||
+      cells.some(r => r.areaId === d.areaId && r.allocationEligible && deficits.has(r.targetId)));
     const recipients = cells.filter(c => deficits.has(c.targetId) && c.remainderState === 'unused' && c.decimalPart !== null);
     if (input.correction === 'constituencies') {
       const local = donors.filter(d => recipients.some(r => r.areaId === d.areaId));
@@ -294,14 +317,17 @@ export function allocateTerritorialMatrix(input: TerritorialMatrixInput, executi
       [remainder(c), ...(nationalRecipientCriterion ? [exactFraction(target(c.targetId).votes)] : [])] })),
       recipientCriteria, `movement-${movement}/recipient`, 'I03');
     const recipient = cells.find(c => c.id === recipientId)!;
+    const donorAfter = fallback ? donor.remainderState : 'consumed';
     transfers.push({ fromCellId: donor.id, toCellId: recipient.id,
+      ...(fallback ? { interpretationId: 'I13' as const } : {}),
       route: donor.areaId === recipient.areaId ? 'same-area' : 'cross-area',
       fromSeatsBefore: donor.seats, toSeatsBefore: recipient.seats,
-      remainders: [{ id: donor.id, value: remainder(donor), before: donor.remainderState, after: 'consumed' },
+      remainders: [{ id: donor.id, value: remainder(donor), before: donor.remainderState, after: donorAfter },
         { id: recipient.id, value: recipient.decimalPart ?? zero, before: recipient.remainderState, after: 'used' }],
       drawContextIds: [...(surplusDrawContexts.get(donor.targetId) ?? []),
         ...resolutions.slice(resolutionStart).flatMap(r => r.draws.map(d => d.contextId))] });
-    change(donor, { seats: donor.seats - 1, remainderState: 'consumed' });
+    if (fallback) warnIntegerRemoval(donor);
+    change(donor, { seats: donor.seats - 1, remainderState: donorAfter });
     change(recipient, { seats: recipient.seats + 1, remainderState: 'used' });
     movement++;
   }

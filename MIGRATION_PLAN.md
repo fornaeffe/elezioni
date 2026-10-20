@@ -160,10 +160,13 @@ into `main`; public deployment follows that merge and a successful hosting gate.
   scrutiny algorithm as a selectable alternative. Apply the approved provisional
   I07 Senate recovery policy, provisional I10 coalition-college recovery reading,
   I11 exclusion of zero-territorial-entitlement lists from recovery,
-  and provisional I12 exclusion of absent lists from ordinary territorial allocation,
+  provisional I12 exclusion of absent lists from ordinary territorial allocation,
+  I13 warned Camera ordinary/cap integer-seat donor fallback,
   and approved R26-02/03/04 models: attributed list
   totals, historically informed synthetic preferences and paired chamber votes
-  with common anchors and explicit chamber precedence. R26-05 contracts and
+  with common anchors and explicit chamber precedence. Maintain the
+  [legal-gap register](docs/politics-reform-2026-legal-gaps.md) as gaps are verified.
+  R26-05 contracts and
   validation, R26-06 numerical primitives, R26-07 versioned geography/seat
   tables, R26-08 electoral figures/rankings, R26-09 admission/preliminary
   special winners, R26-10 special territories, R26-11 joint bonus decision and

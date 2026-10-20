@@ -9,6 +9,7 @@ promulgato e le rettifiche ufficiali.
 - Per ordine di lavoro e verifiche: [piano operativo](politics-reform-2026-plan.md).
 - Per funzioni, test e interpretazioni provvisorie: [specifica](politics-reform-2026-specification.md).
 - Per le scelte statistiche: [decisioni di modellazione](politics-reform-2026-modelling.md).
+- Per le lacune che impediscono uno scrutinio completo e le deroghe approvate: [registro delle lacune](politics-reform-2026-legal-gaps.md).
 
 Le parentesi `[...]` delimitano parti estranee al perimetro. Si assumono voti e
 preferenze validi e candidature già ammesse quanto ai requisiti amministrativi e alle

@@ -27,7 +27,7 @@ export function allocationTransfers(chambers: readonly ChamberInput[], execution
           subject, listId: isSubject ? subject.kind === 'list' ? subject.id : null : cell.targetId };
       };
       m.transfers.forEach((t, i) => transfers.push({ seatId: JSON.stringify(['allocation', m.contextId, i]), chamber: s.chamber,
-        norm: m.norm, lawReference: m.lawReference, interpretationId: m.norm === 'N17' ? 'I05' : null,
+        norm: m.norm, lawReference: m.lawReference, interpretationId: t.interpretationId ?? (m.norm === 'N17' ? 'I05' : null),
         from: location(t.fromCellId), to: location(t.toCellId), remainders: t.remainders, drawContextIds: t.drawContextIds }));
     }
     if (s.regional?.cap) for (const move of s.regional.cap.movements) {

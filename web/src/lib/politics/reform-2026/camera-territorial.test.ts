@@ -159,7 +159,7 @@ describe('N15-N18 Camera territorial stages', () => {
     expect(r.matrices[0].transfers.map(t => t.route)).toEqual(['removal', 'addition']);
   });
 
-  it('retains cross-constituency corrections and reports a remaining ordinary donor blocker', () => {
+  it('retains cross-constituency corrections and resolves the integer donor gap under I13', () => {
     const f = fixture({ A: 2, B: 3, C: 2 }, [
       { territory: 'X', seats: 2, A: 40, B: 35, C: 25 },
       { territory: 'Y', seats: 2, A: 45, B: 40, C: 15 },
@@ -167,9 +167,35 @@ describe('N15-N18 Camera territorial stages', () => {
     const r = allocateCameraTerritorialSeats(f, noDraw);
     expect(r.constituencies.status).toBe('complete'); expect(r.lists.status).toBe('complete');
     expect(r.constituencies.matrices[0].areas.map(a => a.finalSeats)).toEqual([1, 2, 4]);
-    expect(r.colleges).toMatchObject({ status: 'non-computable', reason: 'no-eligible-donor-remainder', affectedId: 'X' });
-    expect(r.colleges.matrices[0].areas[0]).toMatchObject({ capacity: 2, finalSeats: 2 });
-    expect(r.colleges).not.toHaveProperty('targets');
+    expect(r.colleges.status).toBe('complete');
+    expect(r.colleges.matrices[0].areas[0]).toMatchObject({ capacity: 2, finalSeats: 1 });
+    expect(r.colleges.warnings).toContainEqual(expect.objectContaining({ code: 'I13_INTEGER_SEAT_REMOVAL', severity: 'warning' }));
+    const remainders = assembleRecoveryRemainders(f.chamber, r);
+    expect(remainders.find(row => row.collegeId === 'P0' && row.subject.id === 'B'))
+      .toMatchObject({ value: exactFraction(1, 17), state: 'unused' });
+    const transfers = allocationTransfers([f.chamber], [{ chamber: 'camera', cameraTerritorial: r } as ReformChamberExecution]);
+    expect(transfers).toContainEqual(expect.objectContaining({ interpretationId: 'I13',
+      from: expect.objectContaining({ collegeId: 'P0', listId: 'B' }), to: null,
+      remainders: [expect.objectContaining({ before: 'unused', after: 'unused' })] }));
+  });
+
+  it('carries I13 cap-group corrections into list targets and recovery without changing college capacities', () => {
+    // Group quotas A=100/1, B=500/5. P0/P1 give A both seats, P2 gives
+    // B both seats. After two remainder removals, A must cede an integer seat.
+    const f = fixture({ A: 1, B: 5 }, [
+      { territory: 'O', seats: 2, A: 50, B: 10 },
+      { territory: 'O', seats: 2, A: 50, B: 10 },
+      { territory: 'O', seats: 2, A: 0, B: 480 }], {}, true);
+    const r = allocateCameraColleges(f, collegeCommunication(f), first);
+    expect(r.status).toBe('complete');
+    expect(r.matrices[0].transfers[2]).toMatchObject({ interpretationId: 'I13',
+      fromCellId: '["P0","majority"]', toCellId: '["P0","minority"]', route: 'same-area',
+      remainders: [expect.objectContaining({ before: 'consumed', after: 'consumed' }), expect.anything()] });
+    expect(r.matrices[0].areas.map(a => a.finalSeats)).toEqual([2, 2, 2]);
+    if (r.status !== 'complete') throw new Error();
+    expect(['A', 'B'].map(id => r.targets.filter(t => t.listId === id).reduce((n, t) => n + t.ordinarySeats, 0))).toEqual([1, 5]);
+    expect(assembleRecoveryRemainders(f.chamber, { colleges: r }).every(row => !row.id.includes('/groups'))).toBe(true);
+    expect(r.warnings.filter(w => w.interpretationId === 'I13')).toHaveLength(1);
   });
 
   it('completes N15-N18 after a real cross-constituency correction changes local totals', () => {

@@ -503,17 +503,24 @@ Correction rules remain distinct:
   endowments still determine initial quotas; final college and constituency
   totals can differ from those initial endowments. Final constituency list
   targets and national list entitlements must match their communications.
-  Remainders remain single-use; an integer-only surplus or an exhausted pool
-  remains a named no-progress blocker. Inside a cap group, retain the existing
+  Remainders remain single-use. Provisional I13-v1 permits warned integer-seat
+  removals after eligible remainder donors are exhausted, preserving their
+  decimal values and states for recovery. Inside a cap group, retain the existing
   paired college-list correction after the group distribution has reconciled.
 - C83-bis(1-bis)(c): cap-group transfers occur within the same college, conserving
-  each college capacity and the constituency's group totals.
+  each college capacity and the constituency's group totals. I13's integer-seat
+  donor fallback also applies here and to internal cap-list b(3) corrections.
+
+See the [legal-gap register](../../../../../docs/politics-reform-2026-legal-gaps.md)
+for strict readings, approved workarounds and the unresolved C3 capacity gap.
 
 Every movement records donor/recipient cell IDs, seat counts before correction,
 route, exact remainder transitions and applicable draw context IDs. Independent
 ordinary removals have a null recipient; additions have a null donor, also in
 the composed `SeatTransferTrace`. Paired movements retain their same/cross-area
 route. Donated remainders become consumed; recipient remainders become used.
+I13 integer removals preserve the donor remainder state, mark the transfer and
+emit `I13_INTEGER_SEAT_REMOVAL` with severity `warning` per removal.
 These are allocation movements, separate from candidate-recovery seat ledgers.
 
 If an h/i cross-constituency fallback leaves the communicated total incompatible

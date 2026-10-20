@@ -16,9 +16,19 @@ it.skipIf(!present)('R26-19 required production bundle: acquire/generate with da
   const bytes = gunzipSync(compressed); expect(hash(bytes)).toBe(catalog.uncompressedSha256);
   const snapshot: ReformGenerationSnapshot = JSON.parse(new TextDecoder().decode(bytes));
   const defaults = JSON.parse(await readFile(new URL(`./data/${catalog.defaultsPath}`, import.meta.url), 'utf8'));
-  const generated = generateReformSimulation(prepareReformGeneration(defaults, snapshot), 1);
+  const prepared = prepareReformGeneration(defaults, snapshot);
+  const generated = generateReformSimulation(prepared, 1);
   expect(generated.input.chamberModel.kind).toBe('generated');
   const result = runPoliticsReformScrutiny(generated.input);
   expect(result.seats).toHaveLength(588);
   expect(result.stages.filter(s => s.status === 'non-computable')).toEqual([]);
-});
+  // Recorded benchmark simulation 4: ordinary Basilicata integer-seat donor.
+  const replay = runPoliticsReformScrutiny(generateReformSimulation(prepared, 4).input);
+  expect(replay.status).toBe('complete');
+  expect(replay.seats).toHaveLength(588);
+  expect(new Set(replay.seats.flatMap(s => s.status === 'filled' ? [s.candidateId] : [])).size).toBe(588);
+  expect(replay.warnings).toContainEqual(expect.objectContaining({ code: 'I13_INTEGER_SEAT_REMOVAL', chamber: 'camera', severity: 'warning' }));
+  expect(replay.interpretations).toContainEqual({ id: 'I13', version: 'I13-v1' });
+  expect(replay.transfers).toContainEqual(expect.objectContaining({ interpretationId: 'I13',
+    remainders: [expect.objectContaining({ before: 'unused', after: 'unused' })] }));
+}, 30000);

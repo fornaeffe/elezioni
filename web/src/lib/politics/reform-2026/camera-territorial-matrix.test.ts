@@ -186,7 +186,6 @@ describe('Camera territorial integer/remainder matrices and legal corrections', 
   });
 
   it.each([
-    ['no-eligible-donor-remainder', fixture([1], [[35]], [2])],
     ['no-eligible-recipient-remainder', fixture([3, 1], [[60, 40]], [2])],
     ['impossible-residual', fixture([1, 1, 2], [[40, 35, 25], [100, 100, 0]], [2, 2])],
   ])('keeps independent ordinary %s cases blocked without fabricated targets', (reason, f) => {
@@ -267,10 +266,68 @@ describe('Camera territorial integer/remainder matrices and legal corrections', 
     expect(r).toMatchObject({ status: 'non-computable', reason: 'zero-index-quota', draws: [] });
   });
 
-  it('does not fabricate an integer-seat donor if corrections have no lawful progress', () => {
-    const r = run({ ...fixture([1, 3], [[140, 60], [140, 60]], [2, 2]), correction: 'college-groups',
-      indexQuotas: [{ id: 'A', quota: exactFraction(100) }, { id: 'B', quota: exactFraction(100) }] }, first);
-    expect(r).toMatchObject({ status: 'non-computable', phase: 'correction', reason: 'no-eligible-donor-remainder' });
+  it('I13 completes the Basilicata integer-donor gap without consuming its unused decimal', () => {
+    const r = complete(independent(fixture([1, 1, 1, 1], [[88446, 45804, 28436, 7630]], [4])));
+    expect(r.cells.map(c => c.seats)).toEqual([1, 1, 1, 1]);
+    expect(r.areas[0]).toMatchObject({ quota: exactFraction(42579), finalSeats: 4 });
+    expect(r.transfers[0]).toMatchObject({ route: 'removal', interpretationId: 'I13',
+      remainders: [{ before: 'unused', after: 'unused' }] });
+    expect(r.transfers[1]).toMatchObject({ route: 'addition', toCellId: '["T0","D"]' });
+    expect(r.warnings).toEqual([expect.objectContaining({ code: 'I13_INTEGER_SEAT_REMOVAL', severity: 'warning', interpretationId: 'I13' })]);
+  });
+
+  it('I13 can repeatedly remove integer seats from one college without negative seats', () => {
+    const r = complete(independent(fixture([1], [[400]], [4])));
+    expect(r.cells[0]).toMatchObject({ integerSeats: 4, seats: 1, remainderState: 'unused' });
+    expect(r.transfers.map(t => t.fromSeatsBefore)).toEqual([4, 3, 2]);
+    expect(r.warnings).toHaveLength(3);
+    expect(r.areas[0]).toMatchObject({ capacity: 4, finalSeats: 1 });
+  });
+
+  it('I13 supports the cap intra-group list rule imported from ordinary b(3)', () => {
+    const r = complete({ ...independent(fixture([1, 1, 1, 1], [[88446, 45804, 28436, 7630]], [4])), correction: 'colleges' });
+    expect(r.transfers[0]).toMatchObject({ interpretationId: 'I13', fromCellId: '["T0","A"]', toCellId: '["T0","D"]' });
+    expect(r.cells.map(c => c.seats)).toEqual([1, 1, 1, 1]);
+  });
+
+  it('I13 supports cap-group corrections while preserving each college total', () => {
+    const f: TerritorialMatrixInput = { ...fixture([1, 3], [[140, 60], [130, 70]], [2, 2]), norm: 'N18', correction: 'college-groups',
+      initialTieFigure: 'constituency-electoral-figure',
+      indexQuotas: [{ id: 'A', quota: exactFraction(100) }, { id: 'B', quota: exactFraction(100) }] };
+    const r = complete(f);
+    expect(r.transfers[0]).toMatchObject({ fromCellId: '["T1","A"]', toCellId: '["T1","B"]', interpretationId: 'I13', route: 'same-area' });
+    expect(r.areas.map(a => a.finalSeats)).toEqual([2, 2]);
+    expect(r.cells.filter(c => c.targetId === 'A').map(c => c.seats)).toEqual([1, 0]);
+    expect(r.warnings.filter(w => w.code === 'I13_INTEGER_SEAT_REMOVAL')).toHaveLength(1);
+  });
+
+  it('I13 exhausts strict donors first, then ranks integer donors, preserving consumed evidence', () => {
+    // A has an integer surplus; B has two remainder seats for a target of one.
+    // C has room for both corrections. B's used decimal must be removed first.
+    const f = independent(fixture([1, 1, 4], [[250, 40, 10], [0, 60, 140]], [3, 3]));
+    const r = complete(f);
+    expect(r.transfers.filter(t => t.route === 'removal').map(t => [t.fromCellId, t.interpretationId]))
+      .toEqual([['["T0","B"]', undefined], ['["T0","A"]', 'I13']]);
+    expect(r.warnings.filter(w => w.interpretationId === 'I13')).toHaveLength(1);
+  });
+
+  it('keeps Senate and Camera constituency donors strict', () => {
+    const f = fixture([1, 3], [[140, 60], [130, 70]], [2, 2]);
+    for (const input of [f, { ...f, chamber: 'senato' as const, norm: 'N22' as const, correction: 'college-groups' as const }]) {
+      const r = run(input);
+      expect(r).toMatchObject({ status: 'non-computable', reason: 'no-eligible-donor-remainder' });
+      expect(r.warnings.some(w => w.interpretationId === 'I13')).toBe(false);
+    }
+  });
+
+  it('replays I13 tied integer removals with unchanged decimal states after permutations', () => {
+    const f = independent(fixture([1], [[200], [200]], [2, 2]));
+    const runSeeded = (input: TerritorialMatrixInput) => complete(input, createSeededDrawContext('I13-replay', 'legal'));
+    const r = runSeeded(f);
+    expect(r.warnings.some(w => w.interpretationId === 'I13')).toBe(true);
+    expect(r.draws.every(d => d.rule === 'I03')).toBe(true);
+    expect(runSeeded({ ...f, targets: [...f.targets].reverse(), areas: [...f.areas].reverse().map(a => ({ ...a, entries: [...a.entries].reverse() })) })).toEqual(r);
+    expect(JSON.parse(JSON.stringify(r))).toEqual(r);
   });
 
   it('replays with canonical traces after area, subject and figure permutations', () => {
