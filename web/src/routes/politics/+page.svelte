@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { isReformFile } from '$lib/core/json-stream';
   import { base } from '$app/paths';
   import ReformWorkspace from '$lib/politics/reform-2026/ReformWorkspace.svelte';
   import { REFORM_ALGORITHM_ID } from '$lib/politics/reform-2026/input';
@@ -107,6 +108,7 @@
   const candidateTemplateKindOptions: ScenarioCandidateTemplateKind[] = ['uninominal', 'plurinominal'];
 
   let algorithmId = $state(legacyPoliticsScrutinyAlgorithmId as string);
+  let importedReformFile = $state.raw<File | null>(null);
   let importedReform = $state<SimulationResultExport | null>(null);
   let importedReformScenario = $state<ReformGenerationScenario | null>(null);
   let simulations = $state(10);
@@ -872,6 +874,7 @@
 
     try {
       await withBusy('Carico il file...', async () => {
+        if (await isReformFile(file)) { importedReformFile = file; importedReform = null; importedReformScenario = null; algorithmId = REFORM_ALGORITHM_ID; return; }
         const text = await readJsonFile(file);
         const candidate = JSON.parse(text);
         if (candidate.kind === 'politics-reform-scenario') {
@@ -909,9 +912,10 @@
     try {
       if (!isGzipFile(file)) throw new Error('I risultati devono essere caricati come file .json.gz.');
 
-      await withBusy('Carico i risultati...', async () =>
-        applyResultExport(parseSimulationResultExport(await readJsonFile(file)))
-      );
+      await withBusy('Carico i risultati...', async () => {
+        if (await isReformFile(file)) { importedReformFile = file; importedReform = null; importedReformScenario = null; algorithmId = REFORM_ALGORITHM_ID; return; }
+        applyResultExport(parseSimulationResultExport(await readJsonFile(file)));
+      });
     } catch (error) {
       messages = [uiMessage('RESULT_LOAD_ERROR', error instanceof Error ? error.message : String(error), 'error')];
     } finally {
@@ -1014,8 +1018,8 @@
   <p>I file precedenti conservano la legge precedente. Selezionare la riforma apre uno scenario distinto.</p>
 </nav>
 {#if algorithmId === REFORM_ALGORITHM_ID}
-  <ReformWorkspace imported={importedReform} importedScenario={importedReformScenario} onLegacyImport={applyResultExport}
-    onImportConsumed={() => { importedReform = null; importedReformScenario = null; }} />
+  <ReformWorkspace importedFile={importedReformFile} imported={importedReform} importedScenario={importedReformScenario} onLegacyImport={applyResultExport}
+    onImportConsumed={() => { importedReform = null; importedReformScenario = null; importedReformFile = null; }} />
 {:else}
 <main class="workspace">
   <section class="toolbar" aria-label="Simulazione">

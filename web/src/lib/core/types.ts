@@ -90,6 +90,8 @@ export interface Scenario {
 }
 
 export interface SimulationRequest {
+  resultId?: string;
+  resultOwner?: string;
   basePath?: string;
   kind: ElectionKind;
   scenario: Scenario | import('../politics/reform-2026/generation-types').ReformGenerationScenario;
@@ -138,6 +140,7 @@ export interface SimulationBenchmark {
 }
 
 export interface SimulationResult {
+  storage?: import('./result-store').ResultStorage;
   type: 'result';
   status: 'completed' | 'not_implemented';
   tables: ResultTable[];

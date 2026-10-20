@@ -171,7 +171,9 @@ into `main`; public deployment follows that merge and a successful hosting gate.
   allocation, R26-16 proclamations and multiple elections, R26-17 exhaustion
   and replacements, R26-18 composition and registry, R26-19 scenarios,
   historical preparation and generation, and R26-20 worker/UI/explanation/export
-  integration are complete. Continue with R26-21 acceptance and performance.
+  integration are complete, including bounded local result storage, lazy detail
+  queries and streaming archive import/export. Continue with R26-21 acceptance
+  and performance.
   Preserve conditional preference outcomes, explicit chamber-covariance assumptions and non-computable legal
   paths when presenting simulation probabilities; production acceptance remains
   R26-21.

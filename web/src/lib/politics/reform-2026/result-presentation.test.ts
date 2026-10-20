@@ -53,3 +53,26 @@ it('preserves vote-based entitlements when preference-dependent candidate identi
   expect(result.tables.find(t => t.name === 'Models, references and conditions')!.rows).toContainEqual(expect.objectContaining({ Kind: 'Candidate/vote condition', Value: expect.stringContaining('missing-preferences') }));
   expect(result.tables.find(t => t.name === 'Reform overview')!.rows[0]).toMatchObject({ Requested: 1, Partial: 1 });
 });
+
+it('releases drained detail while keeping detached batches and cumulative requested-run summaries', () => {
+  const { scenario, snapshot } = generationFixture(), input = completeScrutinyFixture(60);
+  const legal = runPoliticsReformScrutiny(input);
+  const presentation = createReformPresentation(scenario, snapshot, 3);
+  presentation.add(input, legal, { warnings: [], references: [], normalization: [], streamVersion: 'test', snapshotVersion: snapshot.version, modelVersion: snapshot.models.version });
+  const first = presentation.drain();
+  const firstLedger = first.tables.find(t => t.name === 'Seat entitlement and election locations')!;
+  expect(firstLedger.rows).toHaveLength(588);
+  expect(presentation.drain().tables.every(t => t.rows.length === 0)).toBe(true);
+  presentation.failure(2, new Error('No legal progress'));
+  const failed = presentation.drain();
+  expect(failed.tables.find(t => t.name === 'Reform runs')!.rows).toEqual([
+    { Simulation: 2, Status: 'non-computable', Bonus: 'unknown', Reason: 'No legal progress' }
+  ]);
+  expect(failed.warnings).toContainEqual(expect.objectContaining({ code: 'R26_RUN_ERROR', simulationId: 2 }));
+  const final = presentation.finish();
+  expect(firstLedger.rows).toHaveLength(588);
+  expect(final.tables.find(t => t.name === 'Seat entitlement and election locations')!.rows).toEqual([]);
+  expect(final.tables.find(t => t.name === 'Reform overview')!.rows[0]).toMatchObject({
+    Requested: 3, Complete: 1, 'Non-computable': 1, 'Joint bonus probability / requested': 1 / 3
+  });
+});

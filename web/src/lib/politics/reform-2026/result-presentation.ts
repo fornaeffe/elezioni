@@ -33,6 +33,7 @@ export function createReformPresentation(scenario: ReformGenerationScenario, sna
   const exclusions = table('I11 zero-entitlement exclusions', ['Simulation', 'Chamber', 'Territory', 'List', 'Reason']);
   const draws = table('Legal draws (including I03)', ['Simulation', 'Rule', 'Norm', 'Context', 'Chosen', 'Alternatives', 'Stream']);
   const metadata = table('Models, references and conditions', ['Kind', 'Value', 'Occurrences']);
+  const warningTable = table('Warnings and errors', ['Code', 'Severity', 'First simulation', 'Message', 'Occurrences']);
   const metadataRows = new Map<string, Row>();
   const warnings = new Map<string, ScrutinyWarning & { occurrences: number }>();
   let complete = 0, partial = 0, failed = 0, awarded = 0;
@@ -58,7 +59,18 @@ export function createReformPresentation(scenario: ReformGenerationScenario, sna
     'Identità, seggi coperti e recuperi con preferenze sintetiche sono condizionati al modello e al profilo scelto; non sono previsioni individuali. I profili descrivono sensibilità, non intervalli di incertezza calibrata.' });
   warn({ code: 'R26_PAIRED_MEAN_MODE', electionKind: 'politiche', severity: 'info', message:
     'La quota comune è un ancoraggio in log-odds; i riferimenti espliciti di Camera/Senato hanno precedenza. La modalità media conserva incertezza e covarianza tra rami. La frequenza del premio congiunto dipende dal profilo scelto: rieseguire gli stessi seed con profili diversi per valutarne la sensibilità.' });
+  const currentWarnings = () => [...warnings.values()].map(({ occurrences, ...w }) => ({ ...w, message: occurrences > 1 ? `${w.message} (${occurrences} occorrenze)` : w.message }));
+  const warningRows = () => { warningTable.rows = [...warnings.values()].map(w => ({ Code: w.code, Severity: w.severity ?? 'warning', 'First simulation': w.simulationId ?? null, Message: w.message, Occurrences: w.occurrences })); };
   return {
+    /** Detach one simulation's rows after the caller durably saves them. Global
+     * counters remain; repeated metadata is deduplicated within each batch. */
+    drain() {
+      warningRows();
+      const batch = { tables: tables.map(t => ({ ...t, rows: t.rows })), warnings: currentWarnings() };
+      for (const table of tables) table.rows = [];
+      metadataRows.clear(); warnings.clear();
+      return batch;
+    },
     add(input: ReformScrutinyInput, result: ComposedReformScrutinyResult, trace: GenerationTrace) {
       const sim = input.simulationId;
       if (result.status === 'complete') complete++; else if (result.status === 'partial') partial++; else failed++;
@@ -125,9 +137,8 @@ export function createReformPresentation(scenario: ReformGenerationScenario, sna
       sensitivity.rows = [{ 'Preference profile': scenario.preferenceProfileId, 'Chamber profile': scenario.chamberProfileId, Requested: requested,
         'Joint bonus probability / requested': awarded / requested, 'Complete candidate runs / requested': complete / requested,
         Interpretation: 'Conditional on this profile pair; compare reruns with the same seed and alternative profiles. These are not calibrated uncertainty intervals.' }];
-      const warningTable = table('Warnings and errors', ['Code', 'Severity', 'First simulation', 'Message', 'Occurrences']);
-      warningTable.rows = [...warnings.values()].map(w => ({ Code: w.code, Severity: w.severity ?? 'warning', 'First simulation': w.simulationId ?? null, Message: w.message, Occurrences: w.occurrences }));
-      return { tables, warnings: [...warnings.values()].map(({ occurrences, ...w }) => ({ ...w, message: occurrences > 1 ? `${w.message} (${occurrences} occorrenze)` : w.message })) };
+      warningRows();
+      return { tables, warnings: currentWarnings() };
     }
   };
 }

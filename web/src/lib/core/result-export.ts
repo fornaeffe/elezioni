@@ -1,6 +1,8 @@
 import { requireReformScenario } from '../politics/reform-2026/generation-scenario';
 import type { ReformGenerationScenario } from '../politics/reform-2026/generation-types';
 import type { ResultTable, Scenario, SimulationResult } from './types';
+import { JsonStreamReader } from './json-stream';
+import { cellsWarning, storedRows, type Cell, type StoredResult, type StoredTable } from './result-store';
 
 export type ExportScenario = Scenario | ReformGenerationScenario;
 
@@ -255,6 +257,7 @@ export function createSimulationResultExport<T extends ExportScenario>(params: {
   scenario: T;
   exportedAt: string;
 }): SerializedSimulationResultExportV2<T> {
+  if (params.result.storage) throw new Error('Stored results must use the streaming export boundary.');
   const result = jsonClone(params.result);
 
   return {
@@ -328,4 +331,98 @@ export function resultTablesToCsv(tables: readonly ResultTable[]): string {
   }
 
   return lines.join('\r\n');
+}
+
+/** Same schema-v2 columnar JSON as the synchronous small-result API, emitted
+ * a row at a time. No full-result copy or whole-file string is constructed. */
+export async function* streamStoredResult(record: StoredResult, format: 'json' | 'csv'): AsyncGenerator<string> {
+  const tables = record.result.storage!.tables;
+  if (format === 'csv') {
+    let first = true;
+    for (let i = 0; i < tables.length; i++) {
+      const table = tables[i];
+      if (!first) yield '\r\n\r\n'; first = false;
+      yield `${csvRow(['Table', table.name])}\r\n${csvRow(table.columns)}`;
+      for await (const cells of storedRows(record.id, i)) yield `\r\n${csvRow(cells)}`;
+    }
+    return;
+  }
+  yield `{"schema_version":2,"exportedAt":${JSON.stringify(new Date().toISOString())},"scenario":${JSON.stringify(record.scenario)},"result":{"type":"result","status":${JSON.stringify(record.result.status)},"benchmark":${JSON.stringify(record.result.benchmark)},"warnings":[`;
+  let first = true;
+  for await (const cells of storedRows(record.id, -1)) {
+    if (!first) yield ','; first = false;
+    yield JSON.stringify(cellsWarning(cells));
+  }
+  for (const warning of record.result.warnings.filter(w => w.code.startsWith('RESULT_'))) {
+    if (!first) yield ','; first = false; yield JSON.stringify(warning);
+  }
+  yield '],"tables":[';
+  for (let i = 0; i < tables.length; i++) {
+    const table = tables[i];
+    if (i) yield ',';
+    yield `{"name":${JSON.stringify(table.name)},"columns":${JSON.stringify(table.columns)},"rows":[`;
+    let firstRow = true;
+    for await (const cells of storedRows(record.id, i)) {
+      if (!firstRow) yield ','; firstRow = false;
+      yield JSON.stringify(cells);
+    }
+    yield ']}';
+  }
+  yield ']}}';
+}
+
+export interface StreamingResultSink {
+  table(index: number, descriptor: Pick<StoredTable, 'name' | 'columns'>): Promise<void>;
+  row(index: number, cells: Cell[]): Promise<void>;
+  warning(warning: SimulationResult['warnings'][number]): Promise<void>;
+}
+export async function importResultStream(stream: ReadableStream<Uint8Array<ArrayBuffer>>, sink: StreamingResultSink): Promise<SimulationResultExport> {
+  const reader = new JsonStreamReader(stream);
+  const root: JsonRecord = {}, result: JsonRecord = {};
+  let sawTables = false, sawWarnings = false;
+  try {
+    await reader.object(async key => {
+      if (key !== 'result') {
+        if (['schema_version', 'exportedAt', 'scenario'].includes(key)) root[key] = await reader.value();
+        else await reader.skip();
+        return;
+      }
+      await reader.object(async field => {
+        if (field === 'warnings') {
+          sawWarnings = true;
+          await reader.array(async index => sink.warning(parseWarning(await reader.value(), index)));
+        } else if (field === 'tables') {
+          sawTables = true;
+          await reader.array(async index => {
+            let name = '', columns: string[] | undefined, sawRows = false;
+            const widths = new Set<number>();
+            await reader.object(async property => {
+              if (property === 'name') {
+                name = requireString(await reader.value(), `result.tables[${index}].name`);
+                await sink.table(index, { name, columns: columns ?? [] });
+              } else if (property === 'columns') {
+                columns = requireStringArray(await reader.value(), `result.tables[${index}].columns`);
+                await sink.table(index, { name, columns });
+              } else if (property === 'rows') {
+                sawRows = true;
+                await reader.array(async rowIndex => {
+                  const values = requireArray(await reader.value(), `result.tables[${index}].rows[${rowIndex}]`);
+                  if (values.length > 4096) throw new Error('Result row has too many cells');
+                  const cells = values.map((v, c) => requireCell(v, `result.tables[${index}].rows[${rowIndex}][${c}]`));
+                  widths.add(cells.length); await sink.row(index, cells);
+                });
+              } else await reader.skip();
+            });
+            if (!name || !columns || !sawRows || [...widths].some(n => n !== columns!.length)) throw new Error(`Invalid columnar result table ${index}`);
+            await sink.table(index, { name, columns });
+          });
+        } else if (['type', 'status', 'benchmark'].includes(field)) result[field] = await reader.value();
+        else await reader.skip();
+      });
+    });
+    await reader.finish();
+    if (!sawTables || !sawWarnings) throw new Error('Result export must include tables and warnings');
+    // Reuse the existing strict envelope and identity validation on small headers.
+    return parseSimulationResultExport(JSON.stringify({ ...root, result: { ...result, tables: [], warnings: [] } }));
+  } finally { await reader.close(); }
 }

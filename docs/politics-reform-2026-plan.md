@@ -485,6 +485,15 @@ existing chunking, and positive safe-integer run-count validation. Keep the
 legacy 1000-run bound while its simultaneous SVG scatter plots mount every
 subject/run point; do not impose that arbitrary bound on paginated reform
 results. Reject over-limit legacy requests explicitly rather than truncating.
+Persist reform presentation rows incrementally in byte-bounded local chunks;
+release each run after its durable commit. Send only compact manifests and
+requested pages/run details across the worker boundary. Keep complete tables,
+traces and warnings on disk, deduplicating shared metadata without losing
+occurrence counts. Stream full schema-v2 JSON/gzip and CSV export and JSON/gzip
+import without whole-result clones or whole-file parsing. Preserve partial
+sessions and the requested denominator after cancellation, worker loss or quota
+failure; provide scoped cleanup and never rerun draws during recovery. Keep the
+existing visible plots and tables; pagination must not remove existing views.
 Expose the two real algorithms in a selector only when both work end to end. Make the default and old saved-file
 behavior explicit; do not silently reinterpret a legacy run as the reform.
 
@@ -517,7 +526,10 @@ module; keep CSV table-oriented. Apply the existing severity conventions.
 
 Tests: both algorithm selections, paired worker execution, old/new scenario and
 result imports, replay/export, candidate limitations, explanatory messages,
-and politics/regional browser regressions. Add comparison UI only as a separately
+and politics/regional browser regressions. Exercise real IndexedDB chunk/page
+boundaries, shared metadata, interrupted-session recovery, quota isolation,
+malformed import cleanup and complete 1000-run browser gzip roundtrip with
+bounded retained heap measurements. Add comparison UI only as a separately
 requested feature; selecting the alternative is sufficient for this plan.
 Keep non-computable simulations in the requested-run denominator. Present the
 known N18 cap-group capacity and ordinary no-progress blockers explicitly;

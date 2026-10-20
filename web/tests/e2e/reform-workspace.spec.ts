@@ -61,6 +61,12 @@ test('production paired worker, bounded detail rendering, scenario/results round
   await expect(page.getByLabel('Algoritmo di scrutinio')).toHaveValue('politiche-reform-2026-v1');
   await expect(page.getByTestId('reform-phase')).toHaveText('imported');
   await expect(page.getByLabel('Seed', { exact: true })).toHaveValue(defaults.seed);
+  // A second import starts from an already-imported status. Wait for the new
+  // session, rather than accepting the previous result's status immediately.
+  const previousImportId = await page.getByLabel('Risultati locali').inputValue();
+  await page.getByTestId('reform-file-input').setInputFiles({ name: 'r26-results.json.gz', mimeType: 'application/gzip', buffer: compressed });
+  await expect(page.getByLabel('Risultati locali')).not.toHaveValue(previousImportId);
+  await expect(page.getByTestId('reform-phase')).toHaveText('imported');
   await page.getByRole('button', { name: 'Esegui riforma', exact: true }).click();
   await expect(page.getByTestId('reform-phase')).toHaveText(/completed|not_implemented/, { timeout: 60000 });
   expect(await page.getByTestId('reform-phase').textContent(), await page.locator('body').innerText()).toBe('completed');

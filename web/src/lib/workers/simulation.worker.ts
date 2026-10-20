@@ -1,10 +1,7 @@
-import { loadVerifiedJson, runtimeDataUrl, requireSimulationCount } from '$lib/core/runtime-data';
-import reformCatalog from '$lib/politics/reform-2026/data/generation-catalog.generated.json';
+import { runtimeDataUrl, requireSimulationCount } from '$lib/core/runtime-data';
+import { runStoredReform, handleResultService, type ResultServiceRequest } from './result-service';
 import { REFORM_ALGORITHM_ID } from '$lib/politics/reform-2026/input';
-import type { ReformGenerationSnapshot } from '$lib/politics/reform-2026/generation-types';
-import { prepareReformGeneration, generateReformSimulation } from '$lib/politics/reform-2026/generation';
-import { createReformPresentation } from '$lib/politics/reform-2026/result-presentation';
-import { runPoliticsSimulation, resolvePoliticsSimulationAlgorithm } from '$lib/politics/simulation-scrutiny';
+import { runPoliticsSimulation } from '$lib/politics/simulation-scrutiny';
 import type {
   ResultTable,
   ScrutinyWarning,
@@ -131,37 +128,7 @@ async function handleRequest(request: SimulationRequest): Promise<void> {
   progress(startedAt, 'validate', 0, request.simulations);
   requireSimulationCount(request.simulations);
   if (request.kind === 'politiche' && request.scrutinyAlgorithmId === REFORM_ALGORITHM_ID) {
-    resolvePoliticsSimulationAlgorithm(REFORM_ALGORITHM_ID, 'production');
-    if (!('kind' in request.scenario)) throw new Error('A reform request requires an explicit reform scenario; legacy scenarios are never reinterpreted.');
-    progress(startedAt, 'prepare', 0, request.simulations);
-    const snapshot = await loadVerifiedJson(base, reformCatalog) as ReformGenerationSnapshot;
-    const prepared = prepareReformGeneration(request.scenario, snapshot);
-    if (prepared.scenario.seed !== request.seed || prepared.scenario.electionDate !== request.electionDate) throw new Error('Request seed/date must match the reform scenario');
-    const presentation = createReformPresentation(prepared.scenario, snapshot, request.simulations);
-    for (let start = 1; start <= request.simulations; start += politicsGeneratedChunkSize) {
-      const end = Math.min(start + politicsGeneratedChunkSize - 1, request.simulations);
-      for (let sim = start; sim <= end; sim++) {
-        let generated: ReturnType<typeof generateReformSimulation>;
-        let output: ReturnType<typeof runPoliticsSimulation>;
-        try {
-          generated = generateReformSimulation(prepared, sim);
-          progress(startedAt, 'simulate', sim, request.simulations);
-          output = runPoliticsSimulation({ algorithmId: REFORM_ALGORITHM_ID, simulationId: sim, input: generated.input });
-        } catch (error) {
-          presentation.failure(sim, error);
-          progress(startedAt, 'scrutinize', sim, request.simulations);
-          continue;
-        }
-        if (output.algorithmId !== REFORM_ALGORITHM_ID) throw new Error('Unexpected reform algorithm result');
-        presentation.add(generated.input, output.result, generated.trace);
-        if (sim % 10 === 0 || sim === request.simulations) progress(startedAt, 'scrutinize', sim, request.simulations);
-      }
-    }
-    progress(startedAt, 'summarize', request.simulations, request.simulations);
-    post({ type: 'result', status: 'completed', ...presentation.finish(), benchmark: {
-      startedAt: startedIso, elapsedMs: performance.now() - startedAt, simulations: request.simulations,
-      dataVersion: snapshot.version, scrutinyAlgorithmId: REFORM_ALGORITHM_ID, seed: request.seed
-    } });
+    post(await runStoredReform(request, post));
     return;
   }
   if ('kind' in request.scenario) throw new Error('Reform scenario requires the reform algorithm');
@@ -455,8 +422,13 @@ async function handleRequest(request: SimulationRequest): Promise<void> {
   post(result);
 }
 
-self.onmessage = (event: MessageEvent<SimulationRequest>) => {
-  handleRequest(event.data).catch((error) => {
+self.onmessage = (event: MessageEvent<SimulationRequest | ResultServiceRequest>) => {
+  const request = event.data;
+  if ('type' in request && request.type === 'result-service') {
+    void handleResultService(request).then(reply => self.postMessage(reply)); return;
+  }
+  const simulationRequest = request as SimulationRequest;
+  handleRequest(simulationRequest).catch((error) => {
     post({
       type: 'result',
       status: 'not_implemented',
@@ -464,7 +436,7 @@ self.onmessage = (event: MessageEvent<SimulationRequest>) => {
       warnings: [
         {
           code: 'WORKER_ERROR',
-          electionKind: event.data.kind,
+          electionKind: simulationRequest.kind,
           severity: 'error',
           message: error instanceof Error ? error.message : String(error)
         }
@@ -472,10 +444,10 @@ self.onmessage = (event: MessageEvent<SimulationRequest>) => {
       benchmark: {
         startedAt: new Date().toISOString(),
         elapsedMs: 0,
-        simulations: event.data.simulations,
-        dataVersion: event.data.dataVersion,
-        scrutinyAlgorithmId: event.data.scrutinyAlgorithmId,
-        seed: event.data.seed
+        simulations: simulationRequest.simulations,
+        dataVersion: simulationRequest.dataVersion,
+        scrutinyAlgorithmId: simulationRequest.scrutinyAlgorithmId,
+        seed: simulationRequest.seed
       }
     });
   });

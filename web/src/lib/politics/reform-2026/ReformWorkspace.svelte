@@ -2,28 +2,40 @@
   import { base } from '$app/paths';
   import { onMount, onDestroy } from 'svelte';
   import SimulationWorker from '../../workers/simulation.worker?worker';
-  import { createSimulationResultExport, parseSimulationResultExport, resultTablesToCsv, type SimulationResultExport } from '../../core/result-export';
-  import type { SimulationRequest, SimulationResult, SimulationWorkerMessage } from '../../core/types';
+  import { createSimulationResultExport, parseSimulationResultExport, type SimulationResultExport } from '../../core/result-export';
+  import { isReformFile, jsonFileStream } from '../../core/json-stream';
+  import { ResultServiceClient } from '../../core/result-service-client';
+  import type { StoredResult } from '../../core/result-store';
+  import type { ResultServiceReply } from '../../workers/result-service';
+  import type { ResultTable, ScrutinyWarning, SimulationRequest, SimulationResult, SimulationWorkerMessage } from '../../core/types';
   import { requireSimulationCount } from '../../core/runtime-data';
   import { requireReformScenario, serializeReformScenario, parseReformScenario } from './generation-scenario';
   import type { ReformGenerationScenario } from './generation-types';
   import { bundledReformScenario, bundledReformModels } from './application-defaults';
   import { buildReformSeatChart } from './result-presentation';
 
-  let { imported = null, importedScenario = null, onLegacyImport, onImportConsumed }: {
+  let { imported = null, importedScenario = null, importedFile = null, onLegacyImport, onImportConsumed }: {
     imported?: SimulationResultExport | null;
     importedScenario?: ReformGenerationScenario | null;
+    importedFile?: File | null;
     onLegacyImport: (payload: SimulationResultExport) => void;
     onImportConsumed: () => void;
   } = $props();
   function copyScenario(value: unknown) { return requireReformScenario($state.snapshot(value)); }
   const models = bundledReformModels();
   const storageKey = 'elezioni:politics-reform-2026:scenario:v1';
+  const resultKey = 'elezioni:politics-reform-2026:results:v1';
   let scenario = $state<ReformGenerationScenario>(bundledReformScenario());
   let resultScenario = $state<ReformGenerationScenario | null>(null);
   let result = $state.raw<SimulationResult | null>(null);
+  let table = $state.raw<ResultTable | undefined>();
+  let chartTable = $state.raw<ResultTable | undefined>();
+  let shownWarnings = $state.raw<ScrutinyWarning[]>([]);
+  let savedResults = $state<{ id: string; label: string }[]>([]);
+  let selectedSavedResult = $state('');
   let simulations = $state(10);
   let running = $state(false);
+  let busyAction = $state('');
   let phase = $state('idle');
   let error = $state('');
   let ready = $state(false);
@@ -38,71 +50,154 @@
   let commonShare = $state<number | undefined>();
   let cameraShare = $state<number | undefined>();
   let senateShare = $state<number | undefined>();
-  let worker: Worker | null = null;
+  let client: ResultServiceClient | undefined;
+  let owner = '', currentRun = '', alive = true;
+  let tableRequest = 0, chartRequest = 0, warningRequest = 0;
   const pageSize = 50;
-  const warnings = $derived((result?.warnings ?? []).filter(w => w.severity !== 'info').toSorted((a, b) => Number(b.severity === 'error') - Number(a.severity === 'error')));
-  const shownWarnings = $derived(warnings.slice(warningPage * 10, warningPage * 10 + 10));
-  const table = $derived(result?.tables[tableIndex]);
-  const pageCount = $derived(Math.max(1, Math.ceil((table?.rows.length ?? 0) / pageSize)));
+  const isBusy = $derived(running || busyAction !== '');
+  const descriptor = $derived(result?.storage?.tables[tableIndex]);
+  const warningCount = $derived(result?.storage ? result.storage.warningCounts.error + result.storage.warningCounts.warning : result?.warnings.filter(w => w.severity !== 'info').length ?? 0);
+  const pageCount = $derived(Math.max(1, Math.ceil((descriptor?.rows ?? table?.rows.length ?? 0) / pageSize)));
   const safePage = $derived(Math.min(pageIndex, pageCount - 1));
-  const rows = $derived(table?.rows.slice(safePage * pageSize, (safePage + 1) * pageSize) ?? []);
-  const chart = $derived(buildReformSeatChart(result?.tables.find(t => t.name === 'Seat entitlement and election locations'), selectedChamber, selectedRun, resultScenario ?? scenario));
-  // Drafts may temporarily contain empty/invalid form values. Validate only at
-  // action boundaries, so editing a seed/date cannot throw during rendering.
+  const rows = $derived(table?.rows ?? []);
+  const chart = $derived(buildReformSeatChart(chartTable, selectedChamber, selectedRun, resultScenario ?? scenario));
   const fingerprint = $derived(JSON.stringify(scenario));
   const stale = $derived(resultScenario !== null && fingerprint !== JSON.stringify(resultScenario));
 
-  onMount(() => {
+  onMount(() => { void initialize(); });
+  onDestroy(() => { alive = false; client?.close(); });
+  $effect(() => { if (ready) localStorage.setItem(storageKey, fingerprint); });
+  $effect(() => {
+    const id = result?.storage?.id, index = tableIndex, page = safePage;
+    if (id) void fetchTable(id, index, page);
+    else table = result?.tables[index];
+  });
+  $effect(() => {
+    const id = result?.storage?.id, simulation = selectedRun;
+    const index = result?.storage?.tables.findIndex(t => t.name === 'Seat entitlement and election locations') ?? -1;
+    if (id && index >= 0) void fetchChart(id, index, simulation);
+    else chartTable = result?.tables.find(t => t.name === 'Seat entitlement and election locations');
+  });
+  $effect(() => {
+    const id = result?.storage?.id, page = warningPage;
+    if (id) void fetchWarnings(id, page);
+    else shownWarnings = result?.warnings.filter(w => w.severity !== 'info').slice(page * 10, page * 10 + 10) ?? [];
+  });
+  function describe(e: unknown) { return e instanceof Error ? e.message : String(e); }
+  function service() {
+    if (!client) client = new ResultServiceClient(new SimulationWorker());
+    return client;
+  }
+  function remember(id: string, label: string) {
+    savedResults = [...savedResults.filter(r => r.id !== id), { id, label }];
+    selectedSavedResult = id;
+    sessionStorage.setItem(resultKey, JSON.stringify(savedResults));
+  }
+  async function initialize() {
     try {
-      if (imported) applyImport(imported);
-      else if (importedScenario) scenario = copyScenario(importedScenario);
-      else {
+      const ownerKey = `${resultKey}:owner`;
+      owner = sessionStorage.getItem(ownerKey) ?? crypto.randomUUID(); sessionStorage.setItem(ownerKey, owner);
+      savedResults = JSON.parse(sessionStorage.getItem(resultKey) ?? '[]');
+      if (importedFile) await importFile(importedFile);
+      else if (imported) {
+        const payload = createSimulationResultExport({ scenario: imported.scenario, result: imported.result, exportedAt: imported.exportedAt });
+        await importFile(new File([JSON.stringify(payload)], 'import.json'));
+      } else {
         const saved = localStorage.getItem(storageKey);
-        if (saved) scenario = parseReformScenario(saved);
+        if (importedScenario) scenario = copyScenario(importedScenario);
+        else if (saved) scenario = parseReformScenario(saved);
+        if (!importedScenario && savedResults.length) await restoreSaved(savedResults.at(-1)!.id);
       }
     } catch (e) { error = describe(e); }
-    onImportConsumed();
-    ready = true;
-  });
-  onDestroy(() => worker?.terminate());
-  $effect(() => { if (ready) localStorage.setItem(storageKey, fingerprint); });
-
-  function describe(e: unknown) { return e instanceof Error ? e.message : String(e); }
-  function download(content: BlobPart, filename: string, type: string) {
-    const url = URL.createObjectURL(new Blob([content], { type }));
-    const a = document.createElement('a'); a.href = url; a.download = filename; a.click(); URL.revokeObjectURL(url);
+    finally { if (alive) { onImportConsumed(); ready = true; } }
   }
-  function exportScenario() {
-    try { download(serializeReformScenario($state.snapshot(scenario)), 'r26-scenario.json', 'application/json'); }
+  async function fetchTable(id: string, index: number, page: number) {
+    const version = ++tableRequest;
+    try {
+      const loaded = await service().call<ResultTable>('page', { resultId: id, owner, table: index, offset: page * pageSize });
+      if (alive && version === tableRequest) table = loaded;
+    } catch (e) { if (alive && version === tableRequest) error = describe(e); }
+  }
+  async function fetchChart(id: string, index: number, simulation: number) {
+    const version = ++chartRequest;
+    if (!Number.isSafeInteger(simulation) || simulation < 1) { chartTable = undefined; return; }
+    try {
+      const loaded = await service().call<ResultTable>('page', { resultId: id, owner, table: index, offset: 0, limit: 1000, simulation });
+      if (alive && version === chartRequest) chartTable = loaded;
+    } catch (e) { if (alive && version === chartRequest) error = describe(e); }
+  }
+  async function fetchWarnings(id: string, page: number) {
+    const version = ++warningRequest;
+    try {
+      const loaded = await service().call<ScrutinyWarning[]>('warnings', { resultId: id, owner, offset: page * 10 });
+      if (alive && version === warningRequest) shownWarnings = loaded;
+    } catch (e) { if (alive && version === warningRequest) error = describe(e); }
+  }
+  function attach(record: StoredResult, label: string) {
+    if (!('kind' in record.scenario)) throw new Error('Expected an explicit reform scenario');
+    scenario = copyScenario(record.scenario); resultScenario = copyScenario(record.scenario);
+    result = record.result; simulations = record.result.benchmark.simulations;
+    tableIndex = 0; pageIndex = 0; warningPage = 0; phase = label;
+    if (record.result.storage?.state === 'interrupted') error = record.result.warnings.filter(w => w.code.startsWith('RESULT_')).map(w => w.message).join('\n') || 'Risultato parziale: il calcolo precedente e stato interrotto.';
+    remember(record.id, `${record.result.benchmark.startedAt} · ${record.result.storage?.completedSimulations}/${simulations}`);
+  }
+  async function restoreSaved(id: string) {
+    error = '';
+    try { attach(await service().call<StoredResult>('manifest', { resultId: id, owner }), 'imported'); }
     catch (e) { error = describe(e); }
   }
-  async function exportResult() {
-    if (!result || !resultScenario) return;
-    try {
-      const payload = createSimulationResultExport({ scenario: resultScenario, result, exportedAt: new Date().toISOString() });
-      const stream = new Blob([JSON.stringify(payload)]).stream().pipeThrough(new CompressionStream('gzip'));
-      download(await new Response(stream).arrayBuffer(), 'r26-risultati.json.gz', 'application/gzip');
-    } catch (e) { error = describe(e); }
+  function download(blob: Blob, filename: string) {
+    const url = URL.createObjectURL(blob), link = document.createElement('a');
+    link.href = url; link.download = filename; link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
   }
-  function applyImport(payload: SimulationResultExport) {
-    if (!('kind' in payload.scenario)) { onLegacyImport(payload); return; }
-    scenario = copyScenario(payload.scenario);
-    resultScenario = copyScenario(payload.scenario);
-    result = payload.result; simulations = payload.result.benchmark.simulations;
-    phase = 'imported'; tableIndex = 0; pageIndex = 0; warningPage = 0;
+  function exportScenario() {
+    try { download(new Blob([serializeReformScenario($state.snapshot(scenario))], { type: 'application/json' }), 'r26-scenario.json'); }
+    catch (e) { error = describe(e); }
+  }
+  async function exportResult(format: 'json' | 'csv') {
+    if (!result?.storage) { error = 'Nessun risultato locale da esportare.'; return; }
+    busyAction = 'Preparo il file dai risultati locali…'; error = '';
+    try {
+      const file = await service().call<File>('export', { resultId: result.storage.id, owner, format });
+      download(file, format === 'json' ? 'r26-risultati.json.gz' : 'r26-risultati.csv');
+    } catch (e) { error = describe(e); }
+    finally { if (alive) busyAction = ''; }
+  }
+  async function importFile(file: File) {
+    busyAction = 'Importo i risultati in blocchi…'; error = '';
+    try {
+      if (!await isReformFile(file)) {
+        onLegacyImport(parseSimulationResultExport(await new Response(jsonFileStream(file)).text())); return;
+      }
+      // Standalone scenarios remain small input envelopes, not result archives.
+      const header = await inspectStandalone(file);
+      if (header) { scenario = header; return; }
+      const id = crypto.randomUUID();
+      const record = await service().call<StoredResult>('import', { resultId: id, owner, file });
+      attach(record, 'imported');
+    } finally { if (alive) busyAction = ''; }
+  }
+  async function inspectStandalone(file: File): Promise<ReformGenerationScenario | null> {
+    const { JsonStreamReader } = await import('../../core/json-stream');
+    const reader = new JsonStreamReader(jsonFileStream(file)); const stop = Symbol('header'); let standalone = false;
+    try { await reader.object(async key => { if (key === 'kind') { standalone = await reader.value() === 'politics-reform-scenario'; throw stop; } if (key === 'scenario' || key === 'result') throw stop; await reader.skip(); }); }
+    catch (e) { if (e !== stop) throw e; }
+    finally { await reader.close(); }
+    return standalone ? parseReformScenario(await new Response(jsonFileStream(file)).text()) : null;
   }
   async function loadFile(event: Event) {
-    const input = event.currentTarget as HTMLInputElement, file = input.files?.[0];
-    if (!file) return;
+    const input = event.currentTarget as HTMLInputElement, file = input.files?.[0]; if (!file) return;
+    try { await importFile(file); } catch (e) { error = describe(e); } finally { input.value = ''; }
+  }
+  async function clearResult() {
+    if (!result?.storage) return;
+    const id = result.storage.id;
     try {
-      error = '';
-      const text = file.name.endsWith('.gz') ? await new Response(file.stream().pipeThrough(new DecompressionStream('gzip'))).text() : await file.text();
-      const value = JSON.parse(text);
-      if ('result' in value) applyImport(parseSimulationResultExport(text));
-      else if (value.kind === 'politics-reform-scenario') { scenario = parseReformScenario(text); result = null; resultScenario = null; }
-      else throw new Error('Scenario precedente: caricarlo nel flusso Legge precedente. La conversione alla riforma richiede una mappatura esplicita.');
+      await service().call('delete', { resultId: id, owner });
+      savedResults = savedResults.filter(r => r.id !== id); sessionStorage.setItem(resultKey, JSON.stringify(savedResults));
+      result = null; resultScenario = null; table = undefined; chartTable = undefined; selectedSavedResult = '';
     } catch (e) { error = describe(e); }
-    input.value = '';
   }
   function applyReference() {
     try {
@@ -114,26 +209,33 @@
       scenario = copyScenario(next); error = '';
     } catch (e) { error = describe(e); }
   }
-  function applyDraft() {
-    try { scenario = parseReformScenario(draft); advanced = false; error = ''; } catch (e) { error = describe(e); }
+  function applyDraft() { try { scenario = parseReformScenario(draft); advanced = false; error = ''; } catch (e) { error = describe(e); } }
+  async function cancel() {
+    try { if (currentRun) await service().call('cancel', { resultId: currentRun, owner }); }
+    catch (e) { if (alive) error = describe(e); }
   }
   function run() {
     try {
-      error = ''; requireSimulationCount(simulations);
-      const captured = copyScenario(scenario);
-      worker?.terminate(); worker = new SimulationWorker(); running = true; phase = 'prepare';
-      const request: SimulationRequest = { basePath: base, kind: 'politiche', scenario: captured,
-        scrutinyAlgorithmId: captured.algorithmId, electionDate: captured.electionDate, seed: captured.seed,
-        dataVersion: captured.snapshotVersion, simulations };
-      worker.onmessage = (event: MessageEvent<SimulationWorkerMessage>) => {
-        const m = event.data;
+      error = ''; requireSimulationCount(simulations); const captured = copyScenario(scenario);
+      const worker = service().worker; currentRun = crypto.randomUUID();
+      const id = currentRun; remember(id, `${new Date().toISOString()} · in corso`);
+      running = true; phase = 'prepare';
+      const request: SimulationRequest = { basePath: base, resultId: id, resultOwner: owner, kind: 'politiche', scenario: captured,
+        scrutinyAlgorithmId: captured.algorithmId, electionDate: captured.electionDate, seed: captured.seed, dataVersion: captured.snapshotVersion, simulations };
+      worker.onmessage = (event: MessageEvent<SimulationWorkerMessage | ResultServiceReply>) => {
+        const m = event.data; if (m.type === 'result-service') return;
         if (m.type === 'progress') { phase = `${m.phase} ${m.completed}/${m.total}`; return; }
-        result = m; resultScenario = captured; phase = m.status; running = false; tableIndex = 0; pageIndex = 0; warningPage = 0;
-        worker?.terminate(); worker = null;
+        running = false; phase = m.status; currentRun = '';
+        if (m.storage) {
+          if (m.storage.state === 'interrupted') error = m.warnings.filter(w => w.code.startsWith('RESULT_')).map(w => w.message).join('\n');
+          result = m; resultScenario = captured; tableIndex = 0; pageIndex = 0; warningPage = 0;
+          remember(id, `${m.benchmark.startedAt} · ${m.storage.completedSimulations}/${m.benchmark.simulations}`);
+        } else if (!result) { result = m; resultScenario = captured; }
+        else error = m.warnings.map(w => `${w.code}: ${w.message}`).join('\n');
       };
-      worker.onerror = e => { error = e.message; running = false; worker?.terminate(); worker = null; };
+      worker.onerror = event => { error = event.message; running = false; phase = 'error'; };
       worker.postMessage(request);
-    } catch (e) { error = describe(e); running = false; worker?.terminate(); worker = null; }
+    } catch (e) { error = describe(e); running = false; }
   }
 </script>
 
@@ -143,14 +245,14 @@
   <section aria-label="Scenario riforma">
     <h2>Scenario riforma</h2>
     <div class="controls">
-      <label>Simulazioni<input type="number" min="1" step="1" bind:value={simulations} disabled={running} /></label>
-      <label>Seed<input bind:value={scenario.seed} disabled={running} /></label>
-      <label>Data proiezione<input type="date" bind:value={scenario.projectionDate} disabled={running} /></label>
-      <label>Data elezione<input type="date" bind:value={scenario.electionDate} disabled={running} /></label>
-      <label>Profilo preferenze<select bind:value={scenario.preferenceProfileId} disabled={running}>{#each models.preferences.profiles as p (p.id)}<option value={p.id}>{p.id}</option>{/each}</select></label>
-      <label>Profilo dipendenza Camera-Senato<select bind:value={scenario.chamberProfileId} disabled={running}>{#each models.chambers.profiles as p (p.id)}<option value={p.id}>{p.id}</option>{/each}</select></label>
-      <button onclick={run} disabled={running}>Esegui riforma</button>
-      {#if running}<button onclick={() => { worker?.terminate(); worker = null; running = false; phase = 'cancelled'; }}>Annulla</button>{/if}
+      <label>Simulazioni<input type="number" min="1" step="1" bind:value={simulations} disabled={isBusy} /></label>
+      <label>Seed<input bind:value={scenario.seed} disabled={isBusy} /></label>
+      <label>Data proiezione<input type="date" bind:value={scenario.projectionDate} disabled={isBusy} /></label>
+      <label>Data elezione<input type="date" bind:value={scenario.electionDate} disabled={isBusy} /></label>
+      <label>Profilo preferenze<select bind:value={scenario.preferenceProfileId} disabled={isBusy}>{#each models.preferences.profiles as p (p.id)}<option value={p.id}>{p.id}</option>{/each}</select></label>
+      <label>Profilo dipendenza Camera-Senato<select bind:value={scenario.chamberProfileId} disabled={isBusy}>{#each models.chambers.profiles as p (p.id)}<option value={p.id}>{p.id}</option>{/each}</select></label>
+      <button onclick={run} disabled={isBusy}>Esegui riforma</button>
+      {#if running}<button onclick={cancel}>Annulla</button>{/if}
     </div>
     <p>I profili sono ipotesi di sensibilità. Le probabilità su candidati, copertura e recuperi sono condizionate alle preferenze sintetiche. Ripetere con gli stessi seed e altri profili per esplorare la sensibilità del premio congiunto.</p>
     <p>I totali attribuiti non specificano la composizione dei voti di sola lista del premio. La quota comune ancora entrambi i rami; le quote esplicite per ramo hanno precedenza e la modalità media conserva incertezza.</p>
@@ -159,35 +261,39 @@
       <label>Quota comune %<input type="number" min="0" max="100" bind:value={commonShare} /></label>
       <label>Quota Camera %<input type="number" min="0" max="100" bind:value={cameraShare} /></label>
       <label>Quota Senato %<input type="number" min="0" max="100" bind:value={senateShare} /></label>
-      <button onclick={applyReference} disabled={running}>Applica riferimento</button>
+      <button onclick={applyReference} disabled={isBusy}>Applica riferimento</button>
     </div>
     <p>Lasciare vuote le quote non specificate. Il file scenario contiene liste, coalizioni, candidature, riferimenti geografici, dati forniti e tutte le ipotesi riproducibili.</p>
     <div class="controls">
-      <label>Carica scenario o risultati<input type="file" accept=".json,.gz" onchange={loadFile} disabled={running} data-testid="reform-file-input" /></label>
+      <label>Carica scenario o risultati<input type="file" accept=".json,.gz" onchange={loadFile} disabled={isBusy} data-testid="reform-file-input" /></label>
       <button onclick={exportScenario}>Scarica scenario</button>
       <button onclick={() => { draft = JSON.stringify(scenario, null, 2); advanced = !advanced; }}>Modifica scenario completo</button>
     </div>
     {#if advanced}
       <label>Scenario completo JSON<textarea bind:value={draft} rows="18"></textarea></label>
-      <button onclick={applyDraft} disabled={running}>Applica scenario completo</button>
+      <button onclick={applyDraft} disabled={isBusy}>Applica scenario completo</button>
     {/if}
   </section>
   <p role="status" data-testid="reform-phase">{phase}</p>
+  {#if busyAction}<p role="status">{busyAction}</p>{/if}
+  {#if savedResults.length}<label>Risultati locali<select bind:value={selectedSavedResult} onchange={() => restoreSaved(selectedSavedResult)} disabled={isBusy}>{#each savedResults as saved (saved.id)}<option value={saved.id}>{saved.label}</option>{/each}</select></label>{/if}
   {#if error}<p role="alert">{error}</p>{/if}
   {#if result}
     <section aria-label="Risultati riforma">
       <h2>Risultati riforma</h2>
+      {#if result.storage}<p data-testid="stored-result-status">{result.storage.completedSimulations}/{result.benchmark.simulations} simulazioni conservate · stato {result.storage.state} · {(result.storage.compressedBytes / 1024 / 1024).toFixed(1)} MiB in blocchi compressi</p>{/if}
       <p>{result.benchmark.scrutinyAlgorithmId} · {result.benchmark.dataVersion} · {result.benchmark.simulations} simulazioni richieste · {result.benchmark.elapsedMs.toFixed(0)} ms</p>
       {#if stale}<p role="alert">Scenario modificato. I risultati e gli export si riferiscono allo scenario eseguito.</p><button onclick={() => { if (resultScenario) scenario = copyScenario(resultScenario); }}>Ripristina scenario dei risultati</button>{/if}
-      <button onclick={exportResult}>Scarica risultati JSON.gz</button>
-      <button onclick={() => { if (result) download(resultTablesToCsv(result.tables), 'r26-risultati.csv', 'text/csv'); }}>Scarica risultati CSV</button>
+      <button onclick={() => exportResult('json')} disabled={isBusy}>Scarica risultati JSON.gz</button>
+      <button onclick={() => exportResult('csv')} disabled={isBusy}>Scarica risultati CSV</button>
+      <button onclick={clearResult} disabled={isBusy}>Elimina risultato locale</button>
       <div aria-label="Note riforma">{#each result.warnings.filter(w => w.severity === 'info') as w (w.code + w.message)}<p><strong>{w.code}</strong>: {w.message}</p>{/each}</div>
       <div aria-label="Avvisi riforma">
-        <p>{warnings.length} avvisi/errori. Visualizzati al massimo 10 alla volta.</p>
-        {#each shownWarnings as w (w.code + w.message)}<p><strong>{w.severity}: {w.code}</strong>: {w.message}</p>{/each}
-        {#if warnings.length > 10}
+        <p>{warningCount} avvisi/errori. Visualizzati al massimo 10 alla volta.</p>
+        {#each shownWarnings as w, i (warningPage * 10 + i)}<p><strong>{w.severity}: {w.code}</strong>: {w.message}</p>{/each}
+        {#if warningCount > 10}
           <button disabled={warningPage === 0} onclick={() => { warningPage--; }}>Avvisi precedenti</button>
-          <button disabled={(warningPage + 1) * 10 >= warnings.length} onclick={() => { warningPage++; }}>Avvisi successivi</button>
+          <button disabled={(warningPage + 1) * 10 >= warningCount} onclick={() => { warningPage++; }}>Avvisi successivi</button>
         {/if}
       </div>
       <div class="controls">
@@ -199,7 +305,7 @@
         {#each chart as bar (bar.id)}<div class="bar-row"><span>{bar.label}</span><meter min="0" max={selectedChamber === 'camera' ? 392 : 196} value={bar.seats}>{bar.seats}</meter><span>{bar.seats}</span></div>{:else}<p>Seggi non disponibili per questa simulazione. Consultare gli stadi e i blocchi; nessun risultato è ricostruito o riestratto.</p>{/each}
       </figure>
       <label>Tabella riforma<select bind:value={tableIndex} onchange={() => { pageIndex = 0; }}>
-        {#each result.tables as t, i (t.name)}<option value={i}>{t.name} ({t.rows.length})</option>{/each}
+        {#each result.tables as t, i (t.name)}<option value={i}>{t.name} ({result.storage?.tables[i]?.rows ?? t.rows.length})</option>{/each}
       </select></label>
       <div class="controls">
         <button disabled={safePage === 0} onclick={() => { pageIndex = safePage - 1; }}>Pagina precedente</button>

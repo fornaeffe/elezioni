@@ -1,0 +1,160 @@
+{
+  "created": "2026-10-20T10:00:42.764Z",
+  "browser": "148.0.7778.96",
+  "node": "v24.20.0",
+  "platform": "win32",
+  "arch": "x64",
+  "algorithm": "politiche-reform-2026-v1",
+  "seed": "r26-default-v1",
+  "snapshot": "r26-generation-v1-c5c4be9fafb5",
+  "model": "r26-models-v1-f71a72020aaa",
+  "verificationResumedFromArchive": true,
+  "computationSeconds": 714.3438000000008,
+  "exportSeconds": 53.251,
+  "importSeconds": null,
+  "compressedArchiveBytes": 83637510,
+  "uncompressedBytes": 2144543961,
+  "archiveSha256": "f7537fe10b347988b98cd18f22f477f39e3fb3cfb9483092e1a0bc438ecc353d",
+  "samples": [
+    {
+      "completed": 100,
+      "elapsedSeconds": 73.386,
+      "main": {
+        "usedSize": 4923492
+      },
+      "worker": {
+        "usedSize": 75099112
+      }
+    },
+    {
+      "completed": 201,
+      "elapsedSeconds": 146.361,
+      "main": {
+        "usedSize": 4987548
+      },
+      "worker": {
+        "usedSize": 80048896
+      }
+    },
+    {
+      "completed": 300,
+      "elapsedSeconds": 217.817,
+      "main": {
+        "usedSize": 5007836
+      },
+      "worker": {
+        "usedSize": 61172840
+      }
+    },
+    {
+      "completed": 401,
+      "elapsedSeconds": 290.234,
+      "main": {
+        "usedSize": 5032236
+      },
+      "worker": {
+        "usedSize": 71803224
+      }
+    },
+    {
+      "completed": 501,
+      "elapsedSeconds": 360.764,
+      "main": {
+        "usedSize": 5048532
+      },
+      "worker": {
+        "usedSize": 80232944
+      }
+    },
+    {
+      "completed": 601,
+      "elapsedSeconds": 431.875,
+      "main": {
+        "usedSize": 5052764
+      },
+      "worker": {
+        "usedSize": 78935440
+      }
+    },
+    {
+      "completed": 700,
+      "elapsedSeconds": 504.118,
+      "main": {
+        "usedSize": 5081248
+      },
+      "worker": {
+        "usedSize": 72822140
+      }
+    },
+    {
+      "completed": 800,
+      "elapsedSeconds": 574.369,
+      "main": {
+        "usedSize": 5087292
+      },
+      "worker": {
+        "usedSize": 80646516
+      }
+    },
+    {
+      "completed": 900,
+      "elapsedSeconds": 643.304,
+      "main": {
+        "usedSize": 5080724
+      },
+      "worker": {
+        "usedSize": 50202992
+      }
+    },
+    {
+      "phase": "roundtrip-complete",
+      "main": {
+        "usedSize": 6625684,
+        "totalSize": 7176192,
+        "embedderHeapUsedSize": 1657544,
+        "backingStorageSize": 1002395
+      },
+      "worker": {
+        "usedSize": 983240,
+        "totalSize": 1835008,
+        "embedderHeapUsedSize": 22080,
+        "backingStorageSize": 560777
+      }
+    }
+  ],
+  "errors": [],
+  "tableOptions": [
+    "Reform overview (1)",
+    "Conditional profile sensitivity (1)",
+    "Political subject names (47)",
+    "Reform runs (1000)",
+    "Bonus eligibility (1828)",
+    "Reform vote shares (42958)",
+    "Vote-based entitlements (1828)",
+    "Ordinary territorial entitlements (844503)",
+    "Seat entitlement and election locations (465225)",
+    "Candidate outcomes (conditional) (465225)",
+    "Legal stages and blockers (37474)",
+    "Admission decisions (48442)",
+    "Cap and territorial transfers (53766)",
+    "Candidate recovery traces (44584)",
+    "I11 zero-entitlement exclusions (85911)",
+    "Legal draws (including I03) (700)",
+    "Models, references and conditions (751)",
+    "Warnings and errors (2436)"
+  ],
+  "notes": [
+    "Computation heap samples recovered from the original run console after a table-text assertion failed; archive verification resumed without rerunning simulations.",
+    "Computation elapsed time is the archived worker benchmark, not wall-clock import time.",
+    "Import duration is omitted: its timer saw a pre-existing imported status. Export controls waited for the new import to finish, and both archive hashes matched. The test now waits for the result-session ID to change.",
+    "Post-GC heap samples measure retained JavaScript memory, not peak process memory. R26-21 performance acceptance remains open."
+  ],
+  "overview": {
+    "requested": 1000,
+    "complete": 698,
+    "partial": 0,
+    "nonComputable": 302,
+    "bonusAwarded": 468,
+    "bonusProbabilityPerRequested": 0.468
+  }
+}
