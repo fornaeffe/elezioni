@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { base } from '$app/paths';
   import { ArrowRight } from '@lucide/svelte';
 </script>
 
@@ -13,7 +14,7 @@
   </section>
 
   <nav class="workflow-grid" aria-label="Tipi di elezione">
-    <a class="workflow" href="/politics">
+    <a class="workflow" href={`${base}/politics`}>
       <span>
         <strong>Politiche</strong>
         <small>Camera e Senato, scenario nazionale e risultati per ramo.</small>
@@ -21,7 +22,7 @@
       <ArrowRight size={20} aria-hidden="true" />
     </a>
 
-    <a class="workflow" href="/emilia-romagna">
+    <a class="workflow" href={`${base}/emilia-romagna`}>
       <span>
         <strong>Regionali Emilia-Romagna</strong>
         <small>Consiglio regionale, coalizioni, liste provinciali e premio di maggioranza.</small>

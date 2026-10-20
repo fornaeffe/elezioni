@@ -59,7 +59,7 @@ function bundledResultJson(): string {
 }
 
 test('rejects uncompressed result JSON from the Results panel', async ({ page }) => {
-  await page.goto('/politics');
+  await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
 
   await page.getByTestId('result-file-input').setInputFiles({
     name: 'imported-results.json',
@@ -73,7 +73,7 @@ test('rejects uncompressed result JSON from the Results panel', async ({ page })
 });
 
 test('imports compressed columnar result JSON from the Results panel', async ({ page }) => {
-  await page.goto('/politics');
+  await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
 
   await page.getByTestId('result-file-input').setInputFiles({
     name: 'imported-results.json.gz',
@@ -88,7 +88,7 @@ test('imports compressed columnar result JSON from the Results panel', async ({ 
 });
 
 test('warns when the imported result scenario is modified and can restore it', async ({ page }) => {
-  await page.goto('/politics');
+  await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
 
   await page.getByTestId('result-file-input').setInputFiles({
     name: 'imported-results.json.gz',
@@ -110,7 +110,7 @@ test('warns when the imported result scenario is modified and can restore it', a
 });
 
 test('scenario upload accepts compressed bundled result JSON and shows the imported results', async ({ page }) => {
-  await page.goto('/politics');
+  await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
 
   await page.getByTestId('scenario-file-input').setInputFiles({
     name: 'scenario-and-results.json.gz',

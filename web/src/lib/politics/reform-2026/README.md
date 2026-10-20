@@ -6,6 +6,8 @@ This folder is independent of legacy politics contracts. The common
 [simulation registry](../simulation-scrutiny.ts) adapts both legal implementations.
 For R26-19 scenarios, historical/model preparation, generation APIs and replay,
 read only the [generation guide](../../../../../docs/politics-reform-2026-generation.md).
+For worker dispatch, UI, base URLs, results and exports, use the
+[application guide](../../../../../docs/politics-reform-2026-application.md).
 
 | Task | File |
 | --- | --- |
@@ -880,22 +882,24 @@ The adapter checks supplied legacy `SIM` tags and calls the unchanged scrutiny
 implementation. Both return the actual algorithm and simulation identity.
 `politicsScrutinyAlgorithms` describes both real algorithms with a common
 `execute()` method; `resolvePoliticsSimulationAlgorithm(id, mode)` rejects unknown
-IDs and rejects reform in `production` mode until R26-20 worker/UI integration.
+IDs. Both algorithms support production dispatch through R26-20 integration.
 
 The older `resolvePoliticsScrutinyAlgorithm()` remains a compatibility adapter for
 the current legacy generator/worker. It retains the legacy default and its
 explicitly reported unknown-ID fallback, but rejects the known reform ID as
 `production-unavailable`. Its `.run()` contract is intentionally legacy-only.
-The new common direct-input resolver never falls back. No UI selector, saved-file
-conversion or production reform worker dispatch is activated here.
+The common resolver never falls back. The application selector and production
+worker dispatch use that common boundary; legacy conversion remains explicit.
 
 Verification entry points: [scrutiny.test.ts](scrutiny.test.ts) contains independently
 worked full elections and recovery/failure cases; [simulation-scrutiny.test.ts](../simulation-scrutiny.test.ts)
 covers registry rejection and the ten paired legacy golden cases;
 [reform-core.spec.ts](../../../../tests/e2e/reform-core.spec.ts) executes the common
-registry in a real browser module worker without production activation.
+registry in a real browser module worker. Production dispatch and chunking are
+covered by `reform-production-worker.spec.ts`; UI/import/replay by
+`reform-workspace.spec.ts`.
 
-## Output and remaining integration
+## Output and application boundary
 
 `ReformScrutinyResult` is the composed result contract, with complete/partial/non-computable
 status, stage status, admission/bonus reasons, conditions on candidate conclusions,
@@ -917,8 +921,8 @@ structures, 70/35 bonuses and alternative capacities. `getBundledReformSeatTable
 and `chamberGeography()` return owned data without requiring downloaded archives.
 `constructed` inputs remain usable independently for legal fixtures. The additive
 optional `SeatTableSource.populationNotes` preserves user-facing reconstruction
-warnings in the existing schema version. Scenario/result integration must retain
-the referenced immutable artifact and display `seatTableMessages()` in R26-20.
+warnings in the existing schema version. Application results retain
+the referenced immutable artifact and display `seatTableMessages()` notices.
 Ordinary attribution, figures and rankings are available through R26-08 above;
 admission and preliminary special winners through R26-09; special attribution,
 TAA proportional allocation and entitlement summaries through R26-10; the paired
@@ -928,4 +932,4 @@ allocation/cap through R26-14, Senate list/college allocation through R26-15,
 initial proclamations/multiple-election precedence through R26-16, and initial
 exhaustion/recovery through R26-17 and composition/registration through R26-18.
 R26-19 scenarios/generators are documented in the generation guide linked above;
-production worker/UI integration follows in R26-20.
+production worker/UI integration is documented in the application guide above.

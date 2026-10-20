@@ -10,7 +10,7 @@ test.skip(
 );
 
 test('runs the Emilia-Romagna regional worker path from the scenario editor', async ({ page }) => {
-  await page.goto('/emilia-romagna');
+  await page.goto(`${process.env.BASE_PATH ?? ''}/emilia-romagna`);
 
   await expect(page.getByRole('heading', { name: /Emilia-Romagna/ })).toBeVisible();
   await expect(page.getByText('senza generazione di candidati individuali')).toBeVisible();

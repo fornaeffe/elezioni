@@ -90,8 +90,9 @@ export interface Scenario {
 }
 
 export interface SimulationRequest {
+  basePath?: string;
   kind: ElectionKind;
-  scenario: Scenario;
+  scenario: Scenario | import('../politics/reform-2026/generation-types').ReformGenerationScenario;
   electionDate: string;
   simulations: number;
   seed: string;
@@ -115,6 +116,10 @@ export interface ScrutinyWarning {
   message: string;
   lawReference?: string;
   todoReference?: string;
+  chamber?: 'camera' | 'senato';
+  interpretationId?: string;
+  seatId?: string;
+  drawContextId?: string;
 }
 
 export interface ResultTable {
@@ -129,6 +134,7 @@ export interface SimulationBenchmark {
   simulations: number;
   dataVersion: string;
   scrutinyAlgorithmId?: string;
+  seed?: string;
 }
 
 export interface SimulationResult {

@@ -1,4 +1,11 @@
 <script lang="ts">
+  import { base } from '$app/paths';
+  import ReformWorkspace from '$lib/politics/reform-2026/ReformWorkspace.svelte';
+  import { REFORM_ALGORITHM_ID } from '$lib/politics/reform-2026/input';
+  import { requireReformScenario } from '$lib/politics/reform-2026/generation-scenario';
+  import type { ReformGenerationScenario } from '$lib/politics/reform-2026/generation-types';
+  import { legacyPoliticsScrutinyAlgorithmId, politicsScrutinyAlgorithms } from '$lib/politics/simulation-scrutiny';
+
   import { ChevronDown, ChevronUp, Download, Plus, Play, RotateCcw, Trash2, Upload } from '@lucide/svelte';
   import { browser } from '$app/environment';
   import { onMount, tick } from 'svelte';
@@ -99,6 +106,9 @@
   const candidateTemplateRamoOptions: ScenarioCandidateTemplateRamo[] = ['camera', 'senato'];
   const candidateTemplateKindOptions: ScenarioCandidateTemplateKind[] = ['uninominal', 'plurinominal'];
 
+  let algorithmId = $state(legacyPoliticsScrutinyAlgorithmId as string);
+  let importedReform = $state<SimulationResultExport | null>(null);
+  let importedReformScenario = $state<ReformGenerationScenario | null>(null);
   let simulations = $state(10);
   let seed = $state('politiche-2027');
   let running = $state(false);
@@ -131,8 +141,8 @@
   let resultScenarioFingerprint = $state('');
   let scenarioStorageReady = $state(false);
   let compressionSupported = $state(false);
-  let fileInput: HTMLInputElement | undefined;
-  let resultFileInput: HTMLInputElement | undefined;
+  let fileInput = $state<HTMLInputElement | undefined>();
+  let resultFileInput = $state<HTMLInputElement | undefined>();
 
   const scenario = $derived(cloneScenario(scenarioDraft));
   const scenarioFingerprint = $derived(serializeScenario(scenario));
@@ -738,7 +748,7 @@
 
     return createSimulationResultExport({
       result: lastResult,
-      scenario,
+      scenario: resultScenario ?? scenario,
       exportedAt: new Date().toISOString()
     });
   }
@@ -820,6 +830,10 @@
   }
 
   function applyResultExport(payload: SimulationResultExport): void {
+    if ('kind' in payload.scenario) {
+      importedReform = payload; importedReformScenario = null; algorithmId = REFORM_ALGORITHM_ID; return;
+    }
+    algorithmId = legacyPoliticsScrutinyAlgorithmId;
     const importedScenario = parseScenario(JSON.stringify({ scenario: payload.scenario }));
 
     scenarioDraft = importedScenario;
@@ -859,6 +873,10 @@
     try {
       await withBusy('Carico il file...', async () => {
         const text = await readJsonFile(file);
+        const candidate = JSON.parse(text);
+        if (candidate.kind === 'politics-reform-scenario') {
+          importedReformScenario = requireReformScenario(candidate); importedReform = null; algorithmId = REFORM_ALGORITHM_ID; return;
+        }
 
         if (isGzipFile(file)) {
           try {
@@ -909,7 +927,7 @@
 
     const worker = new SimulationWorker();
     const scenarioSnapshot = cloneScenario(scenarioDraft);
-    const request: SimulationRequest = {
+    const request: SimulationRequest = { basePath: base,
       kind: 'politiche',
       scenario: scenarioSnapshot,
       electionDate: scenarioSnapshot.electionDate,
@@ -987,6 +1005,18 @@
   <title>Elezioni</title>
 </svelte:head>
 
+<nav class="algorithm-selection" aria-label="Legge elettorale">
+  <label>Algoritmo di scrutinio
+    <select bind:value={algorithmId} disabled={running || busyAction !== ''}>
+      {#each politicsScrutinyAlgorithms as algorithm (algorithm.id)}<option value={algorithm.id}>{algorithm.id === legacyPoliticsScrutinyAlgorithmId ? 'Legge precedente (R parity, predefinita)' : 'Riforma 2026'}</option>{/each}
+    </select>
+  </label>
+  <p>I file precedenti conservano la legge precedente. Selezionare la riforma apre uno scenario distinto.</p>
+</nav>
+{#if algorithmId === REFORM_ALGORITHM_ID}
+  <ReformWorkspace imported={importedReform} importedScenario={importedReformScenario} onLegacyImport={applyResultExport}
+    onImportConsumed={() => { importedReform = null; importedReformScenario = null; }} />
+{:else}
 <main class="workspace">
   <section class="toolbar" aria-label="Simulazione">
     <div>
@@ -2104,8 +2134,11 @@
     </div>
   </section>
 </main>
+{/if}
 
 <style>
+  .algorithm-selection { padding: 1rem 1.5rem; font-family: system-ui, sans-serif; }
+  .algorithm-selection select { margin-left: .5rem; padding: .5rem; }
   :global(body) {
     margin: 0;
     background: #f4f6f7;

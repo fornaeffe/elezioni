@@ -23,13 +23,14 @@ export type PoliticsSimulationResult = {
   readonly simulationId: number;
   readonly result: ComposedReformScrutinyResult;
 };
+export type PoliticsChamberObserver = (chamber: Chamber, elapsedMs: number) => void;
 export interface PoliticsSimulationAlgorithm {
   readonly id: PoliticsSimulationRequest['algorithmId'];
   readonly name: string;
   readonly description: string;
   readonly lawReference: string;
   readonly productionAvailable: boolean;
-  execute(request: PoliticsSimulationRequest, execution?: ScrutinyExecutionContext): PoliticsSimulationResult;
+  execute(request: PoliticsSimulationRequest, execution?: ScrutinyExecutionContext, observer?: PoliticsChamberObserver): PoliticsSimulationResult;
 }
 export class PoliticsAlgorithmUnavailableError extends Error {
   constructor(readonly algorithmId: string, readonly reason: 'unknown-algorithm' | 'production-unavailable') {
@@ -41,7 +42,7 @@ export const politicsScrutinyAlgorithms: readonly PoliticsSimulationAlgorithm[] 
   { id: legacyPoliticsScrutinyAlgorithmId, name: 'R parity', productionAvailable: true,
     description: 'Legacy scrutiny adapter preserving the R golden-master behavior.',
     lawReference: 'R/politiche/scrutinio.R and translated comments in scrutiny.ts',
-    execute(request) {
+    execute(request, _execution, observer) {
       if (request.algorithmId !== legacyPoliticsScrutinyAlgorithmId) throw new RangeError('Legacy adapter requires legacy input');
       if (!request.chambers.length || request.chambers.length > 2 || new Set(request.chambers.map(c => c.context.ramo)).size !== request.chambers.length) {
         throw new RangeError('Supply one legacy communication per renewed chamber');
@@ -51,10 +52,15 @@ export const politicsScrutinyAlgorithms: readonly PoliticsSimulationAlgorithm[] 
       }
       return { algorithmId: request.algorithmId, simulationId: request.simulationId,
         chambers: [...request.chambers].sort((a, b) => a.context.ramo < b.context.ramo ? -1 : 1)
-          .map(c => ({ chamber: c.context.ramo, output: runPoliticsScrutiny(c.input, c.context) })) };
+          .map(c => {
+            const startedAt = observer ? performance.now() : 0;
+            const output = runPoliticsScrutiny(c.input, c.context);
+            observer?.(c.context.ramo, performance.now() - startedAt);
+            return { chamber: c.context.ramo, output };
+          }) };
     } },
-  { id: REFORM_ALGORITHM_ID, name: 'Reform 2026', productionAvailable: false,
-    description: 'Paired domestic scrutiny and R26-19 generation; production worker/UI integration is pending R26-20.',
+  { id: REFORM_ALGORITHM_ID, name: 'Reform 2026', productionAvailable: true,
+    description: 'Paired domestic scrutiny and R26-19 generation; production worker and UI integration.',
     lawReference: 'docs/politics-reform-2026-specification.md; stage-local law comments',
     execute(request, execution) {
       if (request.algorithmId !== REFORM_ALGORITHM_ID || request.input.algorithmId !== REFORM_ALGORITHM_ID || request.input.simulationId !== request.simulationId) {
@@ -72,7 +78,7 @@ export function resolvePoliticsSimulationAlgorithm(id: string, mode: 'direct' | 
   if (mode === 'production' && !algorithm.productionAvailable) throw new PoliticsAlgorithmUnavailableError(id, 'production-unavailable');
   return algorithm;
 }
-export function runPoliticsSimulation(request: PoliticsSimulationRequest, execution?: ScrutinyExecutionContext): PoliticsSimulationResult {
+export function runPoliticsSimulation(request: PoliticsSimulationRequest, execution?: ScrutinyExecutionContext, observer?: PoliticsChamberObserver): PoliticsSimulationResult {
   if (!Number.isSafeInteger(request.simulationId) || request.simulationId < 0) throw new RangeError('Expected one nonnegative safe simulation ID');
-  return resolvePoliticsSimulationAlgorithm(request.algorithmId).execute(request, execution);
+  return resolvePoliticsSimulationAlgorithm(request.algorithmId).execute(request, execution, observer);
 }

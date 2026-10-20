@@ -15,7 +15,7 @@
     "politics-pipeline-source-debug.json is a compact real-source generation bridge derived from dati/debug_scrutinio.RData.",
     "politics-static-debug.json is a production-shaped bridge snapshot split into reusable data and a default scenario; it is still derived from the debug source.",
     "politics-static.json is exported from the current R politics preparation pipeline using dati/dati.RData and scenari/politiche_2027.xlsx.",
-    "The worker currently prefers politics-static.json and falls back to politics-static-debug.json if the production bridge snapshot is absent.",
+    "The production worker requires politics-static.json and fails explicitly when it is absent; debug snapshots remain development fixtures only.",
     "regional-er-static.json is exported from the current R Emilia-Romagna regional preparation pipeline using dati/dati.RData and scenari/BO_insieme.xlsx."
   ]
 }

@@ -95,7 +95,7 @@ describe('result export helpers', () => {
       schema_version: 2,
       exportedAt: payload.exportedAt,
       scenario: payload.scenario,
-      result: sampleResult()
+      result: { ...sampleResult(), benchmark: { ...sampleResult().benchmark, scrutinyAlgorithmId: 'politiche-r-parity-v1' } }
     });
   });
 
@@ -150,7 +150,7 @@ describe('result export helpers', () => {
           schema_version: 1,
           exportedAt: '2026-06-04T01:00:00.000Z',
           scenario: createDefaultPoliticsScenario(),
-          result: sampleResult()
+          result: { ...sampleResult(), benchmark: { ...sampleResult().benchmark, scrutinyAlgorithmId: 'politiche-r-parity-v1' } }
         })
       )
     ).toThrow(/Unsupported result export schema_version: 1/);

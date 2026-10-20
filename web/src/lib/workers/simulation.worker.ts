@@ -1,3 +1,10 @@
+import { loadVerifiedJson, runtimeDataUrl, requireSimulationCount } from '$lib/core/runtime-data';
+import reformCatalog from '$lib/politics/reform-2026/data/generation-catalog.generated.json';
+import { REFORM_ALGORITHM_ID } from '$lib/politics/reform-2026/input';
+import type { ReformGenerationSnapshot } from '$lib/politics/reform-2026/generation-types';
+import { prepareReformGeneration, generateReformSimulation } from '$lib/politics/reform-2026/generation';
+import { createReformPresentation } from '$lib/politics/reform-2026/result-presentation';
+import { runPoliticsSimulation, resolvePoliticsSimulationAlgorithm } from '$lib/politics/simulation-scrutiny';
 import type {
   ResultTable,
   ScrutinyWarning,
@@ -34,18 +41,14 @@ import { runRegionalErScrutiny } from '$lib/regional-er/scrutiny';
 import { buildRegionalErPipelineSourceFromSnapshot } from '$lib/regional-er/static-snapshot';
 import type { RegionalErScenarioProjectionRow, RegionalErStaticSnapshot } from '$lib/regional-er/types';
 
-const politicsGeneratedSimulationLimit = 1000;
 const politicsGeneratedChunkSize = 50;
 const politicsStaticSnapshotPath = '/data/v1/politics-static.json';
-const politicsDebugStaticSnapshotPath = '/data/v1/politics-static-debug.json';
-const regionalErGeneratedSimulationLimit = 1000;
 const regionalErGeneratedChunkSize = 50;
 const regionalErStaticSnapshotPath = '/data/v1/regional-er-static.json';
 
 interface LoadedPoliticsStaticSnapshot {
   snapshot: PoliticsStaticSnapshot;
   path: string;
-  fallback: boolean;
 }
 
 interface LoadedRegionalErStaticSnapshot {
@@ -88,42 +91,32 @@ function scenarioProjectionTable(rows: Array<PoliticsScenarioProjectionRow | Reg
   };
 }
 
-async function fetchPoliticsStaticSnapshot(path: string): Promise<PoliticsStaticSnapshot | null> {
-  const response = await fetch(path);
+async function fetchPoliticsStaticSnapshot(path: string, base: string): Promise<PoliticsStaticSnapshot | null> {
+  const response = await fetch(runtimeDataUrl(base, path));
   if (!response.ok) return null;
   return (await response.json()) as PoliticsStaticSnapshot;
 }
 
-async function loadPoliticsStaticSnapshot(): Promise<LoadedPoliticsStaticSnapshot> {
-  const productionSnapshot = await fetchPoliticsStaticSnapshot(politicsStaticSnapshotPath);
+async function loadPoliticsStaticSnapshot(base: string): Promise<LoadedPoliticsStaticSnapshot> {
+  const productionSnapshot = await fetchPoliticsStaticSnapshot(politicsStaticSnapshotPath, base);
   if (productionSnapshot) {
     return {
       snapshot: productionSnapshot,
-      path: politicsStaticSnapshotPath,
-      fallback: false
+      path: politicsStaticSnapshotPath
     };
   }
 
-  const debugSnapshot = await fetchPoliticsStaticSnapshot(politicsDebugStaticSnapshotPath);
-  if (debugSnapshot) {
-    return {
-      snapshot: debugSnapshot,
-      path: politicsDebugStaticSnapshotPath,
-      fallback: true
-    };
-  }
-
-  throw new Error(`Unable to load politics static snapshot from ${politicsStaticSnapshotPath} or ${politicsDebugStaticSnapshotPath}`);
+  throw new Error(`Missing production politics snapshot ${runtimeDataUrl(base, politicsStaticSnapshotPath)}. Run the production data generators.`);
 }
 
-async function fetchRegionalErStaticSnapshot(path: string): Promise<RegionalErStaticSnapshot | null> {
-  const response = await fetch(path);
+async function fetchRegionalErStaticSnapshot(path: string, base: string): Promise<RegionalErStaticSnapshot | null> {
+  const response = await fetch(runtimeDataUrl(base, path));
   if (!response.ok) return null;
   return (await response.json()) as RegionalErStaticSnapshot;
 }
 
-async function loadRegionalErStaticSnapshot(): Promise<LoadedRegionalErStaticSnapshot> {
-  const snapshot = await fetchRegionalErStaticSnapshot(regionalErStaticSnapshotPath);
+async function loadRegionalErStaticSnapshot(base: string): Promise<LoadedRegionalErStaticSnapshot> {
+  const snapshot = await fetchRegionalErStaticSnapshot(regionalErStaticSnapshotPath, base);
   if (!snapshot) {
     throw new Error(`Unable to load Emilia-Romagna regional static snapshot from ${regionalErStaticSnapshotPath}. Run scripts/export_regional_er_static_snapshot.R.`);
   }
@@ -133,7 +126,52 @@ async function loadRegionalErStaticSnapshot(): Promise<LoadedRegionalErStaticSna
 async function handleRequest(request: SimulationRequest): Promise<void> {
   const startedAt = performance.now();
   const startedIso = new Date().toISOString();
+  const base = request.basePath ?? '';
 
+  progress(startedAt, 'validate', 0, request.simulations);
+  requireSimulationCount(request.simulations);
+  if (request.kind === 'politiche' && request.scrutinyAlgorithmId === REFORM_ALGORITHM_ID) {
+    resolvePoliticsSimulationAlgorithm(REFORM_ALGORITHM_ID, 'production');
+    if (!('kind' in request.scenario)) throw new Error('A reform request requires an explicit reform scenario; legacy scenarios are never reinterpreted.');
+    progress(startedAt, 'prepare', 0, request.simulations);
+    const snapshot = await loadVerifiedJson(base, reformCatalog) as ReformGenerationSnapshot;
+    const prepared = prepareReformGeneration(request.scenario, snapshot);
+    if (prepared.scenario.seed !== request.seed || prepared.scenario.electionDate !== request.electionDate) throw new Error('Request seed/date must match the reform scenario');
+    const presentation = createReformPresentation(prepared.scenario, snapshot, request.simulations);
+    for (let start = 1; start <= request.simulations; start += politicsGeneratedChunkSize) {
+      const end = Math.min(start + politicsGeneratedChunkSize - 1, request.simulations);
+      for (let sim = start; sim <= end; sim++) {
+        let generated: ReturnType<typeof generateReformSimulation>;
+        let output: ReturnType<typeof runPoliticsSimulation>;
+        try {
+          generated = generateReformSimulation(prepared, sim);
+          progress(startedAt, 'simulate', sim, request.simulations);
+          output = runPoliticsSimulation({ algorithmId: REFORM_ALGORITHM_ID, simulationId: sim, input: generated.input });
+        } catch (error) {
+          presentation.failure(sim, error);
+          progress(startedAt, 'scrutinize', sim, request.simulations);
+          continue;
+        }
+        if (output.algorithmId !== REFORM_ALGORITHM_ID) throw new Error('Unexpected reform algorithm result');
+        presentation.add(generated.input, output.result, generated.trace);
+        if (sim % 10 === 0 || sim === request.simulations) progress(startedAt, 'scrutinize', sim, request.simulations);
+      }
+    }
+    progress(startedAt, 'summarize', request.simulations, request.simulations);
+    post({ type: 'result', status: 'completed', ...presentation.finish(), benchmark: {
+      startedAt: startedIso, elapsedMs: performance.now() - startedAt, simulations: request.simulations,
+      dataVersion: snapshot.version, scrutinyAlgorithmId: REFORM_ALGORITHM_ID, seed: request.seed
+    } });
+    return;
+  }
+  if ('kind' in request.scenario) throw new Error('Reform scenario requires the reform algorithm');
+  const scenario = request.scenario;
+  // The unchanged legacy scatter plots mount every subject/run SVG point.
+  // Keep their existing DOM bound until that view has a separate rendering
+  // redesign. Reform details are paginated and have no arbitrary run cap.
+  if (request.kind === 'politiche' && request.simulations > 1000) {
+    throw new RangeError('La legge precedente ammette al massimo 1000 simulazioni: i grafici esistenti visualizzano un elemento SVG per ogni punto. La riforma usa dettagli paginati senza questo limite.');
+  }
   progress(startedAt, 'validate', 0, 5);
 
   if (request.kind !== 'politiche' && request.kind !== 'regionali-er') {
@@ -143,7 +181,7 @@ async function handleRequest(request: SimulationRequest): Promise<void> {
       status: 'not_implemented',
       tables: [
         scenarioProjectionTable(
-          request.scenario.lists.map((row) => ({
+          scenario.lists.map((row) => ({
             list: row.name,
             coalition: row.coalition,
             scenarioShare: row.startingShare,
@@ -175,14 +213,11 @@ async function handleRequest(request: SimulationRequest): Promise<void> {
 
   if (request.kind === 'regionali-er') {
     progress(startedAt, 'prepare', 1, 5);
-    const loadedSnapshot = await loadRegionalErStaticSnapshot();
+    const loadedSnapshot = await loadRegionalErStaticSnapshot(base);
     const staticSnapshot = loadedSnapshot.snapshot;
-    const requestedSimulationInput = Math.floor(Number(request.simulations));
-    const requestedSimulations =
-      Number.isFinite(requestedSimulationInput) && requestedSimulationInput > 0 ? requestedSimulationInput : 1;
-    const simulationCount = Math.min(requestedSimulations, regionalErGeneratedSimulationLimit);
+    const simulationCount = request.simulations;
     const source = buildRegionalErPipelineSourceFromSnapshot(staticSnapshot, { simulations: simulationCount });
-    const projection = projectScenarioOntoRegionalErSource(source, request.scenario, {
+    const projection = projectScenarioOntoRegionalErSource(source, scenario, {
       currentDate: startedIso,
       electionDate: request.electionDate,
       historicalVotes: staticSnapshot.data.comuni_liste_elezioni,
@@ -265,15 +300,6 @@ async function handleRequest(request: SimulationRequest): Promise<void> {
       });
     }
 
-    if (requestedSimulations > simulationCount) {
-      resultWarnings.push({
-        code: 'REGIONAL_ER_GENERATED_PIPELINE_LIMIT',
-        electionKind: request.kind,
-        severity: 'warning',
-        message: `Requested ${requestedSimulations} simulations, but the regional generated worker path is capped at ${simulationCount}.`,
-        todoReference: 'MIGRATION_PLAN.md#next-work'
-      });
-    }
 
     const result: SimulationResult = {
       type: 'result',
@@ -301,14 +327,11 @@ async function handleRequest(request: SimulationRequest): Promise<void> {
   progress(startedAt, 'prepare', 1, 5);
   const algorithmResolution = resolvePoliticsScrutinyAlgorithm(request.scrutinyAlgorithmId);
   const scrutinyAlgorithm = algorithmResolution.algorithm;
-  const loadedSnapshot = await loadPoliticsStaticSnapshot();
+  const loadedSnapshot = await loadPoliticsStaticSnapshot(base);
   const staticSnapshot = loadedSnapshot.snapshot;
-  const requestedSimulationInput = Math.floor(Number(request.simulations));
-  const requestedSimulations =
-    Number.isFinite(requestedSimulationInput) && requestedSimulationInput > 0 ? requestedSimulationInput : 1;
-  const simulationCount = Math.min(requestedSimulations, politicsGeneratedSimulationLimit);
+  const simulationCount = request.simulations;
   const source = buildPoliticsPipelineSourceFromSnapshot(staticSnapshot, { simulations: simulationCount });
-  const projection = projectScenarioOntoPoliticsSource(source, request.scenario, {
+  const projection = projectScenarioOntoPoliticsSource(source, scenario, {
     currentDate: startedIso,
     electionDate: request.electionDate,
     historicalVotes: staticSnapshot.data.comuni_liste_elezioni,
@@ -339,33 +362,30 @@ async function handleRequest(request: SimulationRequest): Promise<void> {
     progress(startedAt, 'simulate', generatedSimulations, simulationCount);
     progress(startedAt, 'scrutinize', scrutinizedRuns, totalScrutinyRuns);
 
-    for (const ramo of ['camera', 'senato'] as Ramo[]) {
-      const ramoSnapshot = snapshot.rami[ramo];
-      for (const simulation of ramoSnapshot.simulations) {
-        const runStartedAt = performance.now();
-        const output = scrutinyAlgorithm.run(simulation.input, {
-          ramo,
-          liste_naz: ramoSnapshot.liste_naz,
-          totali_pluri: ramoSnapshot.totali_pluri,
-          totale_seggi: ramoSnapshot.totale_seggi
-        });
-        const globalSimulation = chunkStart + simulation.sim - 1;
-        runs.push(
-          summarizePoliticsScrutinyRun({
-            ramo,
-            sim: globalSimulation,
-            elapsedMs: performance.now() - runStartedAt,
-            input: simulation.input,
-            output,
-            listeNaz: ramoSnapshot.liste_naz
-          })
-        );
-
-        scrutinizedRuns += 1;
-        if (scrutinizedRuns % 10 === 0 || scrutinizedRuns === totalScrutinyRuns) {
-          progress(startedAt, 'scrutinize', scrutinizedRuns, totalScrutinyRuns);
-        }
+    for (let localSim = 1; localSim <= chunkSize; localSim++) {
+      const globalSimulation = chunkStart + localSim - 1;
+      const pairs = (['camera', 'senato'] as Ramo[]).map(ramo => {
+        const data = snapshot.rami[ramo];
+        const simulation = data.simulations.find(s => s.sim === localSim);
+        if (!simulation) throw new Error(`Missing paired legacy chamber ${ramo}/${globalSimulation}`);
+        const withGlobalId = <T extends { SIM?: number }>(rows: T[]): T[] => rows.map(r => ({ ...r, SIM: globalSimulation }));
+        return { ramo, data, input: { ...simulation.input, liste_uni: withGlobalId(simulation.input.liste_uni),
+          candidati_uni: withGlobalId(simulation.input.candidati_uni), candidati_pluri: withGlobalId(simulation.input.candidati_pluri) } };
+      });
+      const chamberTimes = new Map<Ramo, number>();
+      const output = runPoliticsSimulation({ algorithmId: 'politiche-r-parity-v1', simulationId: globalSimulation,
+        chambers: pairs.map(p => ({ input: p.input, context: { ramo: p.ramo, liste_naz: p.data.liste_naz,
+          totali_pluri: p.data.totali_pluri, totale_seggi: p.data.totale_seggi } })) }, undefined,
+        (chamber, elapsedMs) => chamberTimes.set(chamber, elapsedMs));
+      if (output.algorithmId !== 'politiche-r-parity-v1') throw new Error('Unexpected legacy result');
+      for (const chamber of output.chambers) {
+        const pair = pairs.find(p => p.ramo === chamber.chamber)!;
+        runs.push(summarizePoliticsScrutinyRun({ ramo: pair.ramo, sim: globalSimulation,
+          elapsedMs: chamberTimes.get(pair.ramo)!, input: pair.input,
+          output: chamber.output, listeNaz: pair.data.liste_naz }));
+        scrutinizedRuns++;
       }
+      if (scrutinizedRuns % 10 === 0 || scrutinizedRuns === totalScrutinyRuns) progress(startedAt, 'scrutinize', scrutinizedRuns, totalScrutinyRuns);
     }
   }
 
@@ -384,12 +404,10 @@ async function handleRequest(request: SimulationRequest): Promise<void> {
 
   resultWarnings.push(
     {
-      code: loadedSnapshot.fallback ? 'POLITICS_DEBUG_STATIC_SNAPSHOT' : 'POLITICS_STATIC_SNAPSHOT',
+      code: 'POLITICS_STATIC_SNAPSHOT',
       electionKind: request.kind,
-      severity: loadedSnapshot.fallback ? 'warning' : 'info',
-      message: loadedSnapshot.fallback
-        ? 'Running the TypeScript generated pipeline on the debug static snapshot because the production static snapshot was not available.'
-        : `Running the TypeScript generated pipeline on ${loadedSnapshot.path} exported from the current R preparation pipeline.`,
+      severity: 'info',
+      message: `Running the TypeScript generated pipeline on ${loadedSnapshot.path} exported from the current R preparation pipeline.`,
       todoReference: 'MIGRATION_PLAN.md#current-caveats'
     },
     {
@@ -412,15 +430,6 @@ async function handleRequest(request: SimulationRequest): Promise<void> {
     });
   }
 
-  if (requestedSimulations > simulationCount) {
-    resultWarnings.push({
-      code: 'POLITICS_GENERATED_PIPELINE_LIMIT',
-      electionKind: request.kind,
-      severity: 'warning',
-      message: `Requested ${requestedSimulations} simulations, but the generated worker path is capped at ${simulationCount}.`,
-      todoReference: 'MIGRATION_PLAN.md#current-caveats'
-    });
-  }
 
   const result: SimulationResult = {
     type: 'result',
@@ -437,7 +446,8 @@ async function handleRequest(request: SimulationRequest): Promise<void> {
       elapsedMs: performance.now() - startedAt,
       simulations: simulationCount,
       dataVersion: request.dataVersion,
-      scrutinyAlgorithmId: scrutinyAlgorithm.id
+      scrutinyAlgorithmId: scrutinyAlgorithm.id,
+      seed: request.seed
     }
   };
 
@@ -464,7 +474,8 @@ self.onmessage = (event: MessageEvent<SimulationRequest>) => {
         elapsedMs: 0,
         simulations: event.data.simulations,
         dataVersion: event.data.dataVersion,
-        scrutinyAlgorithmId: event.data.scrutinyAlgorithmId
+        scrutinyAlgorithmId: event.data.scrutinyAlgorithmId,
+        seed: event.data.seed
       }
     });
   });

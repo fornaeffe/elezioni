@@ -10,11 +10,11 @@ import { runPoliticsScrutiny } from './scrutiny';
 describe('simulation-level scrutiny registry', () => {
   it('registers both real algorithms with explicit production availability', () => {
     expect(politicsScrutinyAlgorithms.map(a => [a.id, a.productionAvailable])).toEqual([
-      ['politiche-r-parity-v1', true], ['politiche-reform-2026-v1', false]
+      ['politiche-r-parity-v1', true], ['politiche-reform-2026-v1', true]
     ]);
     expect(resolvePoliticsSimulationAlgorithm('politiche-reform-2026-v1').id).toBe('politiche-reform-2026-v1');
     expect(() => resolvePoliticsSimulationAlgorithm('unknown')).toThrow(/unknown-algorithm/);
-    expect(() => resolvePoliticsSimulationAlgorithm('politiche-reform-2026-v1', 'production')).toThrow(/production-unavailable/);
+    expect(resolvePoliticsSimulationAlgorithm('politiche-reform-2026-v1', 'production').productionAvailable).toBe(true);
     expect(() => resolvePoliticsScrutinyAlgorithm('politiche-reform-2026-v1')).toThrow(/production-unavailable/);
     expect(() => runPoliticsSimulation({ algorithmId: 'unknown', simulationId: 1 } as unknown as PoliticsSimulationRequest)).toThrow(/unknown-algorithm/);
   });

@@ -24,7 +24,7 @@ test.beforeAll(async () => {
 
 test('direct reform registry runs in a browser module worker and transfers replayable paired results', async ({ page, context }) => {
   await context.route('**/r26-test-worker.js', route => route.fulfill({ contentType: 'text/javascript', body: workerCode }));
-  await page.goto('/');
+  await page.goto(`${process.env.BASE_PATH ?? ''}/`);
   const input = completeScrutinyFixture(60);
   const result = await page.evaluate(async input => {
     const worker = new Worker('/r26-test-worker.js', { type: 'module' });
@@ -49,13 +49,13 @@ test('direct reform registry runs in a browser module worker and transfers repla
   expect(result.first.result.result.interpretations).toContainEqual({ id: 'I11', version: 'I11-v1' });
   expect(result.first.result.result.chambers[0].recovery!.excludedLists).toContainEqual({ territoryId: 'T', listId: 'C', reason: 'zero-territorial-entitlement' });
   expect(result.deterministic).toBe(true);
-  expect(result.unavailable).toMatchObject({ ok: false, message: expect.stringContaining('production-unavailable') });
+  expect(result.unavailable.ok).toBe(true);
   expect(result.unknown).toMatchObject({ ok: false, message: expect.stringContaining('unknown-algorithm') });
 });
 
 test('provisional I10 resolves coalition recovery in the browser and preserves policy warnings', async ({ page, context }) => {
   await context.route('**/r26-test-worker.js', route => route.fulfill({ contentType: 'text/javascript', body: workerCode }));
-  await page.goto('/');
+  await page.goto(`${process.env.BASE_PATH ?? ''}/`);
   const input = coalitionScrutinyFixture();
   if (input.renewal.kind !== 'joint') throw new Error();
   const unavailable = new Set(input.renewal.camera.ordinarySlates.filter(s => s.listId === 'A' || s.listId === 'C' && s.collegeId === 'P00').flatMap(s => s.candidateIds));
@@ -76,7 +76,7 @@ test('provisional I10 resolves coalition recovery in the browser and preserves p
 
 test('reform scenario generation and full scrutiny replay identically in a browser worker', async ({ page, context }) => {
   await context.route('**/r26-test-worker.js', route => route.fulfill({ contentType: 'text/javascript', body: workerCode }));
-  await page.goto('/');
+  await page.goto(`${process.env.BASE_PATH ?? ''}/`);
   const fixture = generationFixture();
   const expected = runPoliticsReformScrutiny(generateReformSimulation(prepareReformGeneration(fixture.scenario, fixture.snapshot), 7).input);
   const reply = await page.evaluate(generation => new Promise<WorkerResponse>((resolve, reject) => {

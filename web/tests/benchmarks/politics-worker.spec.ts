@@ -14,8 +14,7 @@ const outputPath = fileURLToPath(
   new URL('../../../test/fixtures/benchmarks/browser_politics_worker.json', import.meta.url)
 );
 const hasPoliticsStaticSnapshot =
-  existsSync(resolve(process.cwd(), 'static/data/v1/politics-static.json')) ||
-  existsSync(resolve(process.cwd(), 'static/data/v1/politics-static-debug.json'));
+  existsSync(resolve(process.cwd(), 'static/data/v1/politics-static.json'));
 
 test.skip(!hasPoliticsStaticSnapshot, 'Generated politics static snapshot is missing. Run scripts/export_politics_static_snapshot.R first.');
 

@@ -1,9 +1,13 @@
+import { requireReformScenario } from '../politics/reform-2026/generation-scenario';
+import type { ReformGenerationScenario } from '../politics/reform-2026/generation-types';
 import type { ResultTable, Scenario, SimulationResult } from './types';
+
+export type ExportScenario = Scenario | ReformGenerationScenario;
 
 export interface SimulationResultExport {
   schema_version: 2;
   exportedAt: string;
-  scenario: Scenario;
+  scenario: ExportScenario;
   result: SimulationResult;
 }
 
@@ -17,10 +21,10 @@ interface ColumnarSimulationResult extends Omit<SimulationResult, 'tables'> {
   tables: ColumnarResultTable[];
 }
 
-export interface SerializedSimulationResultExportV2 {
+export interface SerializedSimulationResultExportV2<T extends ExportScenario = ExportScenario> {
   schema_version: 2;
   exportedAt: string;
-  scenario: Scenario;
+  scenario: T;
   result: ColumnarSimulationResult;
 }
 
@@ -114,8 +118,9 @@ function tableCell(value: string | number | boolean | null | undefined): JsonCel
   return value ?? null;
 }
 
-function parseExportedScenario(value: unknown): Scenario {
+function parseExportedScenario(value: unknown): ExportScenario {
   const scenario = requireRecord(value, 'scenario');
+  if (scenario.kind === 'politics-reform-scenario') return requireReformScenario(scenario);
   const defaultSource = requireRecord(scenario.defaultSource, 'scenario.defaultSource');
 
   requireString(scenario.id, 'scenario.id');
@@ -194,6 +199,12 @@ function parseWarning(value: unknown, index: number): SimulationResult['warnings
   if (severity !== undefined) parsedWarning.severity = severity;
   if (lawReference !== undefined) parsedWarning.lawReference = lawReference;
   if (todoReference !== undefined) parsedWarning.todoReference = todoReference;
+  const chamber = requireOptionalEnum(warning.chamber, `result.warnings[${index}].chamber`, ['camera', 'senato']);
+  if (chamber !== undefined) parsedWarning.chamber = chamber;
+  for (const key of ['interpretationId', 'seatId', 'drawContextId'] as const) {
+    const value = requireOptionalString(warning[key], `result.warnings[${index}].${key}`);
+    if (value !== undefined) parsedWarning[key] = value;
+  }
 
   return parsedWarning;
 }
@@ -220,6 +231,8 @@ function parseSimulationResult(value: unknown): SimulationResult {
   };
 
   if (scrutinyAlgorithmId !== undefined) parsedResult.benchmark.scrutinyAlgorithmId = scrutinyAlgorithmId;
+  const seed = requireOptionalString(benchmark.seed, 'result.benchmark.seed');
+  if (seed !== undefined) parsedResult.benchmark.seed = seed;
 
   return parsedResult;
 }
@@ -237,11 +250,11 @@ function csvRow(values: ReadonlyArray<string | number | boolean | null | undefin
   return values.map(csvCell).join(',');
 }
 
-export function createSimulationResultExport(params: {
+export function createSimulationResultExport<T extends ExportScenario>(params: {
   result: SimulationResult;
-  scenario: Scenario;
+  scenario: T;
   exportedAt: string;
-}): SerializedSimulationResultExportV2 {
+}): SerializedSimulationResultExportV2<T> {
   const result = jsonClone(params.result);
 
   return {
@@ -283,11 +296,20 @@ export function parseSimulationResultExport(text: string): SimulationResultExpor
   const exportedAt = requireString(payload.exportedAt, 'exportedAt');
   if (Number.isNaN(Date.parse(exportedAt))) throw new Error('exportedAt must be a valid date string.');
 
+  const scenario = parseExportedScenario(payload.scenario), result = parseSimulationResult(payload.result);
+  if ('kind' in scenario && scenario.kind === 'politics-reform-scenario') {
+    if (result.benchmark.scrutinyAlgorithmId !== scenario.algorithmId || result.benchmark.seed !== scenario.seed || result.benchmark.dataVersion !== scenario.snapshotVersion) {
+      throw new Error('Reform scenario and result algorithm/seed/data identity mismatch.');
+    }
+  } else {
+    if (result.benchmark.scrutinyAlgorithmId === 'politiche-reform-2026-v1') throw new Error('Reform result requires an explicit reform scenario.');
+    if ('defaultSource' in scenario && scenario.defaultSource.electionKind === 'politiche' && !result.benchmark.scrutinyAlgorithmId) result.benchmark.scrutinyAlgorithmId = 'politiche-r-parity-v1';
+  }
   return {
     schema_version: payload.schema_version,
     exportedAt,
-    scenario: parseExportedScenario(payload.scenario),
-    result: parseSimulationResult(payload.result)
+    scenario,
+    result
   };
 }
 

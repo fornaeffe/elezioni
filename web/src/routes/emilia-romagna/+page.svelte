@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { base } from '$app/paths';
   import { Download, Play, Plus, RotateCcw, Trash2, Upload } from '@lucide/svelte';
   import { browser } from '$app/environment';
   import { onMount, tick } from 'svelte';
@@ -347,7 +348,7 @@
     if (!lastResult) return null;
     return createSimulationResultExport({
       result: lastResult,
-      scenario,
+      scenario: resultScenario ?? scenario,
       exportedAt: new Date().toISOString()
     });
   }
@@ -478,7 +479,7 @@
 
     const worker = new SimulationWorker();
     const scenarioSnapshot = cloneRegionalErScenario(scenarioDraft);
-    const request: SimulationRequest = {
+    const request: SimulationRequest = { basePath: base,
       kind: 'regionali-er',
       scenario: scenarioSnapshot,
       electionDate: scenarioSnapshot.electionDate,
@@ -535,14 +536,14 @@
 <main>
   <section class="toolbar" aria-label="Simulazione">
     <div>
-      <a class="back-link" href="/">Simulatore elezioni</a>
+      <a class="back-link" href={`${base}/`}>Simulatore elezioni</a>
       <h1>{scenarioDraft.name || 'Regionali Emilia-Romagna'}</h1>
       <p>Workflow regionale Emilia-Romagna senza generazione di candidati individuali.</p>
     </div>
     <div class="run-controls">
       <label>
         Simulazioni
-        <input type="number" min="1" max="1000" bind:value={simulations} />
+        <input type="number" min="1" bind:value={simulations} />
       </label>
       <label>
         Seed

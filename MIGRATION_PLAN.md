@@ -169,10 +169,10 @@ into `main`; public deployment follows that merge and a successful hosting gate.
   R26-12 Camera national allocation/cap, R26-13 Camera territorial allocation and
   R26-14 Senato regional allocation/cap, R26-15 Senato list and college
   allocation, R26-16 proclamations and multiple elections, R26-17 exhaustion
-  and replacements, R26-18 composition and registry and R26-19 scenarios,
-  historical preparation and generation are complete. Continue with R26-20
-  worker/UI/explanation/export integration. Preserve conditional preference
-  outcomes, explicit chamber-covariance assumptions and non-computable legal
+  and replacements, R26-18 composition and registry, R26-19 scenarios,
+  historical preparation and generation, and R26-20 worker/UI/explanation/export
+  integration are complete. Continue with R26-21 acceptance and performance.
+  Preserve conditional preference outcomes, explicit chamber-covariance assumptions and non-computable legal
   paths when presenting simulation probabilities; production acceptance remains
   R26-21.
 - [ ] Keep completed politics and regional vertical slices green while shared

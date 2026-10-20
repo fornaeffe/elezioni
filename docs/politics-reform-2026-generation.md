@@ -4,7 +4,7 @@ Use this guide for generation work. Legal scrutiny stays in the stage modules;
 the [modelling decisions](politics-reform-2026-modelling.md) define semantics.
 Use the [validation protocol](politics-reform-2026-generation-protocol.md) for
 diagnostics and [migration history](migration-history.md#2026-10-19-r26-19-scenarios-historical-preparation-and-generation)
-for measured evidence, versions and limitations. Worker/UI integration is R26-20.
+for measured evidence, versions and limitations. For worker/UI/export use the [application guide](politics-reform-2026-application.md).
 
 ## Task map
 
@@ -99,7 +99,7 @@ const result = runPoliticsReformScrutiny(input);
 All three boundaries are browser-worker compatible. Reuse prepared references
 across simulation IDs/chunks. No global RNG or Node dependency enters runtime
 generation. Persist the full scenario, snapshot/model/catalog identities, input
-provenance, trace and worker result when integrating exports in R26-20. Resolve
+provenance, trace and worker result through the R26-20 export contract. Resolve
 the catalog's relative data path against the configured project base.
 
 Generated list votes are final attributed totals with unspecified ballot
@@ -150,6 +150,6 @@ blockers remain explicit. Ordinary C83-bis(1)(b)(3) independently corrects list
 surpluses/deficits against the communicated targets, retaining the decree-based
 initial quotas. Never rescale legal endowments, reroll a failed simulation or
 omit it from the requested-run
-denominator. R26-20 must distinguish non-computability, vote-based entitlements,
-filled/unfilled seats and preference-dependent recovery. Production worker/UI
-availability stays disabled until that integration is completed.
+denominator. The application distinguishes non-computability, vote-based
+entitlements, filled/unfilled seats and preference-dependent recovery. Both
+algorithms are available in the worker/UI; R26-21 acceptance remains separate.

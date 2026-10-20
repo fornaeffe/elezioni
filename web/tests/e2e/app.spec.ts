@@ -3,13 +3,12 @@ import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const hasPoliticsStaticSnapshot =
-  existsSync(resolve(process.cwd(), 'static/data/v1/politics-static.json')) ||
-  existsSync(resolve(process.cwd(), 'static/data/v1/politics-static-debug.json'));
+  existsSync(resolve(process.cwd(), 'static/data/v1/politics-static.json'));
 
 test.skip(!hasPoliticsStaticSnapshot, 'Generated politics static snapshot is missing. Run scripts/export_politics_static_snapshot.R first.');
 
 test('runs the worker smoke path from the scenario editor', async ({ page }) => {
-  await page.goto('/politics');
+  await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
 
   await page.getByRole('button', { name: 'Impostazioni avanzate' }).click();
   await page.getByLabel('Astensione elettori').fill('50');
