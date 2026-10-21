@@ -187,7 +187,7 @@ describe('Camera territorial integer/remainder matrices and legal corrections', 
 
   it.each([
     ['no-eligible-recipient-remainder', fixture([3, 1], [[60, 40]], [2])],
-    ['impossible-residual', fixture([1, 1, 2], [[40, 35, 25], [100, 100, 0]], [2, 2])],
+    ['impossible-residual', fixture([1, 1], [[100, 100]], [3])],
   ])('keeps independent ordinary %s cases blocked without fabricated targets', (reason, f) => {
     const r = run(independent(f as TerritorialMatrixInput));
     expect(r).toMatchObject({ status: 'non-computable', reason });
@@ -195,6 +195,67 @@ describe('Camera territorial integer/remainder matrices and legal corrections', 
       expect(r.transfers).toHaveLength(1); // A's sole unused decimal cannot be used twice.
       expect(r.cells[0]).toMatchObject({ seats: 2, remainderState: 'used' });
     }
+  });
+
+  it.each(['independent-colleges', 'colleges'] as const)('I14 repeats initial list remainders in %s, including cap-internal lists', correction => {
+    const f = { ...independent(fixture([1, 1, 2], [[40, 35, 25], [100, 100, 0]], [2, 2])), correction };
+    const r = complete(f);
+    expect(r.cells.find(c => c.areaId === 'T0' && c.targetId === 'C')).toMatchObject({
+      integerSeats: 0, provisionalSeats: 2, seats: 2, remainderSeat: true, remainderState: 'used', decimalPart: exactFraction(1, 2) });
+    expect(r.areas.map(a => a.finalSeats)).toEqual([2, 2]);
+    expect(r.warnings).toEqual([expect.objectContaining({ code: 'I14_REPEATED_REMAINDER_PASS', interpretationId: 'I14', severity: 'warning' })]);
+    expect(r.transfers).toEqual([]);
+    expect(r.draws).toEqual([]);
+  });
+
+  it('I14 supports more than two passes and preserves the existing JSON contract', () => {
+    const f = independent(fixture([1, 1, 1, 3], [[25, 25, 25, 25], [100, 100, 100, 0]], [3, 3]));
+    const r = complete(f);
+    expect(r.cells.find(c => c.areaId === 'T0' && c.targetId === 'D')).toMatchObject({ provisionalSeats: 3, seats: 3, remainderState: 'used' });
+    expect(r.warnings.filter(w => w.interpretationId === 'I14')).toHaveLength(2);
+    expect(JSON.parse(JSON.stringify(r))).toEqual(r);
+  });
+
+  it('I14 excludes newly reached targets before another pass', () => {
+    const f = independent(fixture([1, 2, 1, 1, 1], [[21, 19, 20, 20, 20], [0, 0, 100, 100, 100]], [3, 3]));
+    const r = complete(f);
+    expect(r.cells.filter(c => c.areaId === 'T0').map(c => c.seats)).toEqual([1, 2, 0, 0, 0]);
+    expect(r.transfers).toEqual([]);
+  });
+
+  it('I14 retains established tie order across passes and permutations without redrawing', () => {
+    const f = independent(fixture([2, 1, 1, 1, 1], [[20, 20, 20, 20, 20], [0, 0, 100, 100, 100]], [3, 3]));
+    const r = complete(f, first);
+    expect(r.draws).toHaveLength(1); // A/B tie is drawn only in the first pass.
+    expect(r.cells.filter(c => c.areaId === 'T0').map(c => c.seats)).toEqual([2, 1, 0, 0, 0]);
+    const permuted = { ...f, targets: [...f.targets].reverse(), areas: [...f.areas].reverse().map(a => ({ ...a, entries: [...a.entries].reverse() })) };
+    expect(complete(permuted, first)).toEqual(r);
+  });
+
+  it('I14 removes each repeated initial award before integer fallback and preserves final recovery state', () => {
+    const f = independent(fixture([1, 4, 1, 1, 1, 1], [
+      [20, 19, 16, 15, 15, 15], [20, 19, 16, 15, 15, 15], [20, 19, 16, 15, 15, 15], [0, 0, 100, 100, 100, 100]
+    ], [3, 3, 3, 4]));
+    const r = complete(f, first);
+    const removals = r.transfers.filter(t => t.interpretationId === 'I14');
+    expect(removals).toHaveLength(2);
+    expect(removals.map(t => t.fromCellId)).toEqual(['["T0","B"]', '["T0","B"]']);
+    expect(removals.map(t => t.remainders[0])).toMatchObject([
+      { before: 'used', after: 'used' }, { before: 'used', after: 'consumed' }]);
+    expect(r.cells.find(c => c.areaId === 'T0' && c.targetId === 'B')).toMatchObject({
+      integerSeats: 0, provisionalSeats: 2, seats: 0, remainderState: 'consumed' });
+    expect(r.warnings.some(w => w.interpretationId === 'I13')).toBe(false);
+    expect(f.targets.map(t => r.cells.filter(c => c.targetId === t.id).reduce((s, c) => s + c.seats, 0))).toEqual([1, 4, 1, 1, 1, 1]);
+  });
+
+  it('I14 stops if every list reaches its communicated target before college capacity is filled', () => {
+    const r = run(independent(fixture([1, 1, 1, 1], [[21, 19, 30, 30], [0, 0, 100, 100]], [3, 2])));
+    expect(r).toMatchObject({ status: 'non-computable', phase: 'remainders', reason: 'impossible-residual' });
+    expect(r.warnings.some(w => w.interpretationId === 'I14')).toBe(false);
+  });
+
+  it('does not emit I14 when one ordinary remainder pass suffices', () => {
+    expect(complete(independent(fixture())).warnings.some(w => w.interpretationId === 'I14')).toBe(false);
   });
 
   it('retains strict capacity checks outside independent Camera list corrections', () => {

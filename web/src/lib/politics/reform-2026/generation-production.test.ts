@@ -31,4 +31,17 @@ it.skipIf(!present)('R26-19 required production bundle: acquire/generate with da
   expect(replay.interpretations).toContainEqual({ id: 'I13', version: 'I13-v1' });
   expect(replay.transfers).toContainEqual(expect.objectContaining({ interpretationId: 'I13',
     remainders: [expect.objectContaining({ before: 'unused', after: 'unused' })] }));
+  // Recorded benchmark 165: Veneto 1's +Europa target needs a second pass.
+  const repeated = runPoliticsReformScrutiny(generateReformSimulation(prepared, 165).input);
+  expect(repeated.status).toBe('complete');
+  expect(repeated.seats).toHaveLength(588);
+  expect(repeated.interpretations).toContainEqual({ id: 'I14', version: 'I14-v1' });
+  expect(repeated.warnings).toContainEqual(expect.objectContaining({ code: 'I14_REPEATED_REMAINDER_PASS', severity: 'warning', chamber: 'camera' }));
+  const matrix = repeated.chambers[0].cameraTerritorial!.colleges.matrices.find(m => m.contextId.endsWith('camera:territory:07/lists'))!;
+  const europa = matrix.cells.find(c => c.targetId === 'list-4737a15e2c762fa0')!;
+  expect(europa).toMatchObject({ integerSeats: 1, provisionalSeats: 3, seats: 3, remainderState: 'used' });
+  expect(repeated.chambers[0].recovery!.remainders).toContainEqual(expect.objectContaining({
+    collegeId: europa.areaId, subject: { kind: 'list', id: europa.targetId }, value: europa.decimalPart, state: 'used' }));
+  expect(new Set(repeated.seats.flatMap(s => s.status === 'filled' ? [s.candidateId] : [])).size).toBe(588);
+  expect(JSON.parse(JSON.stringify(repeated)).interpretations).toContainEqual({ id: 'I14', version: 'I14-v1' });
 }, 30000);

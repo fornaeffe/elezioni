@@ -476,8 +476,11 @@ divisors, raw/truncated indices, normalized attribution quotients, integer seats
 decimal parts, reached-target exclusions, provisional/final seats and remainder
 states. It computes integer parts across all areas before excluding targets
 already reached from their parallel remainder allocations. This avoids assigning
-an arbitrary constituency/college priority. Each initial remainder is usable
-once. Zero-seat divisions are skipped; I04 arithmetic failures are explicit.
+an arbitrary constituency/college priority. N18 list allocation uses warned
+I14-v1 additional passes when one pass cannot fill a college, also inside cap
+groups. Reuse the established ranking/ties and exclude reached constituency
+targets before each additional simultaneous pass. Other initial remainders are
+single-use. Zero-seat divisions and empty eligible pools retain I04 failures.
 
 Initial constituency subject ties use ordinary national figures; initial
 coalition-list ties use constituency figures. N16 corrections import C83(h)'s
@@ -503,7 +506,7 @@ Correction rules remain distinct:
   endowments still determine initial quotas; final college and constituency
   totals can differ from those initial endowments. Final constituency list
   targets and national list entitlements must match their communications.
-  Remainders remain single-use. Provisional I13-v1 permits warned integer-seat
+  Correction recipients still require unused decimals. Provisional I13-v1 permits warned integer-seat
   removals after eligible remainder donors are exhausted, preserving their
   decimal values and states for recovery. Inside a cap group, retain the existing
   paired college-list correction after the group distribution has reconciled.
@@ -518,10 +521,18 @@ Every movement records donor/recipient cell IDs, seat counts before correction,
 route, exact remainder transitions and applicable draw context IDs. Independent
 ordinary removals have a null recipient; additions have a null donor, also in
 the composed `SeatTransferTrace`. Paired movements retain their same/cross-area
-route. Donated remainders become consumed; recipient remainders become used.
+route. For an I14 cell, `provisionalSeats - integerSeats` records the number of
+initial remainder awards; `remainderSeat` means at least one. Removing one of
+several awards retains `used`; removing the last marks `consumed`. Those
+removals carry `interpretationId: 'I14'` through composed transfer exports.
+Recipient remainders become used and are not reusable by corrections.
+Recovery uses the unchanged decimal and final state, without a schema change.
 I13 integer removals preserve the donor remainder state, mark the transfer and
 emit `I13_INTEGER_SEAT_REMOVAL` with severity `warning` per removal.
 These are allocation movements, separate from candidate-recovery seat ledgers.
+Each additional initial college pass emits `I14_REPEATED_REMAINDER_PASS` with
+severity `warning`; composed metadata records `I14-v1`. See the
+[interpretation contract](../../../../../docs/politics-reform-2026-specification.md#initial-camera-list-remainder-passes-i14).
 
 If an h/i cross-constituency fallback leaves the communicated total incompatible
 with the fixed college endowment, N18's cap-group branch still reports

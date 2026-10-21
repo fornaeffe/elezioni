@@ -137,6 +137,23 @@ describe('N15-N18 Camera territorial stages', () => {
     expect(r.colleges.matrices).toHaveLength(2); // groups and active majority
   });
 
+  it('imports I14 into cap-group list splits and carries used decimals into recovery', () => {
+    const f = fixture({ A: 1, B: 1, C: 2, D: 2 }, [
+      { territory: 'O', seats: 3, A: 40, B: 35, C: 25, D: 50 },
+      { territory: 'O', seats: 3, A: 100, B: 100, C: 0, D: 50 }
+    ], { G: ['A', 'B', 'C'] }, true);
+    const r = allocateCameraColleges(f, collegeCommunication(f), noDraw);
+    expect(r.status).toBe('complete');
+    const group = r.matrices[0], lists = r.matrices[1];
+    expect(group.cells.filter(c => c.targetId === 'majority').map(c => c.seats)).toEqual([2, 2]);
+    expect(group.warnings.some(w => w.interpretationId === 'I14')).toBe(false);
+    expect(lists.cells.find(c => c.targetId === 'C' && c.areaId === 'P0')).toMatchObject({
+      integerSeats: 0, provisionalSeats: 2, seats: 2, remainderState: 'used' });
+    expect(r.warnings).toContainEqual(expect.objectContaining({ interpretationId: 'I14', severity: 'warning' }));
+    expect(assembleRecoveryRemainders(f.chamber, { colleges: r })).toContainEqual(expect.objectContaining({
+      collegeId: 'P0', subject: list('C'), value: exactFraction(1, 2), state: 'used' }));
+  });
+
   it('keeps bonus-without-cap on the ordinary formula and selects the reduced college capacities', () => {
     const f = fixture();
     if (f.national.status !== 'complete') throw new Error();

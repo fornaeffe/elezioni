@@ -162,6 +162,7 @@ into `main`; public deployment follows that merge and a successful hosting gate.
   I11 exclusion of zero-territorial-entitlement lists from recovery,
   provisional I12 exclusion of absent lists from ordinary territorial allocation,
   I13 warned Camera ordinary/cap integer-seat donor fallback,
+  provisional I14 repeated initial Camera list remainder passes,
   and approved R26-02/03/04 models: attributed list
   totals, historically informed synthetic preferences and paired chamber votes
   with common anchors and explicit chamber precedence. Maintain the

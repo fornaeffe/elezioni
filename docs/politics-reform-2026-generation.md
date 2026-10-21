@@ -149,9 +149,11 @@ and profile spread is not a calibrated confidence interval.
 N18's cap-group geographic-capacity blocker and ordinary arithmetic/no-progress
 blockers remain explicit. Ordinary C83-bis(1)(b)(3) independently corrects list
 surpluses/deficits against the communicated targets, retaining the decree-based
-initial quotas. Never rescale legal endowments, reroll a failed simulation or
-omit it from the requested-run
-denominator. The application distinguishes non-computability, vote-based
+initial quotas. Apply scoped I14 initial list ranking passes when one pass
+cannot fill a college; warnings identify provisional repeated-pass outcomes.
+Empty pools and other unchanged no-progress conditions remain non-computable.
+Never rescale legal endowments, reroll a failed simulation or omit it from the
+requested-run denominator. The application distinguishes non-computability, vote-based
 entitlements, filled/unfilled seats and preference-dependent recovery. Both
 algorithms are available in the worker/UI; application acceptance is documented
 in the [R26-21 procedure](politics-reform-2026-acceptance.md).

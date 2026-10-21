@@ -348,6 +348,10 @@ totals. Retain decree endowments for initial quotas and preserve final national
 list entitlements. Preserve explicit arithmetic/no-progress failures and the
 `constituency-capacity-target-mismatch` state for the cap-group branch, whose
 same-college transfers cannot reconcile unequal totals. Never rescale tables.
+Apply [I14-v1](politics-reform-2026-specification.md#initial-camera-list-remainder-passes-i14)
+to insufficient initial N18 list remainder pools, including lists within cap
+groups. Keep repeated passes, donor award counts and downstream remainder states
+consistent; do not extend reuse to correction recipients or other stages.
 
 ### R26-14: Senato regional allocation
 
