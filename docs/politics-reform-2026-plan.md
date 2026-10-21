@@ -346,13 +346,16 @@ For N18's ordinary path, apply the approved independent subtraction/addition
 reading of C83-bis(1)(b)(3), including different initial and communicated local
 totals. Retain decree endowments for initial quotas and preserve final national
 list entitlements. For the cap-group branch's unequal constituency/C3 totals,
-apply [I15-v1](politics-reform-2026-specification.md#disjoined-camera-cap-group-corrections-i15)
+apply [I15-v2](politics-reform-2026-specification.md#disjoined-camera-cap-group-corrections-i15)
 with a warning, preserving original C3 quotas and upstream entitlements.
 Preserve explicit arithmetic/no-progress failures. Never rescale tables.
 Apply [I14-v1](politics-reform-2026-specification.md#initial-camera-list-remainder-passes-i14)
 to insufficient initial N18 list remainder pools, including lists within cap
 groups. Keep repeated passes, donor award counts and downstream remainder states
-consistent; do not extend reuse to correction recipients or other stages.
+consistent. Correction recipients use the separately approved
+[I16-v1](politics-reform-2026-specification.md#reused-list-correction-recipients-i16)
+unused-first, repeated descending used-decimal passes in N18/N21/N22 list
+corrections. Warn on reuse; preserve upstream targets and recovery states.
 
 ### R26-14: Senato regional allocation
 

@@ -42,9 +42,10 @@ describe('I15 Camera cap-group capacity mismatch', () => {
   });
 
   it('exhausts the largest unused decimals across groups before ranking used decimals', () => {
-    const result = complete(fixture([6, 1], [[400, 100], [450, 50]], [2, 2]));
+    const result = complete(fixture([8, 1], [[400, 100], [450, 50]], [2, 2]));
     expect(result.transfers.map(t => [t.toCellId, t.remainders[0].before])).toEqual([
-      ['["P0","minority"]', 'unused'], ['["P1","majority"]', 'used'], ['["P0","majority"]', 'used']]);
+      ['["P0","minority"]', 'unused'], ['["P1","majority"]', 'used'], ['["P0","majority"]', 'used'],
+      ['["P1","majority"]', 'used'], ['["P0","majority"]', 'used']]);
   });
 
   it('retains I13 integer donor fallback and preserves its remainder state', () => {
@@ -55,17 +56,17 @@ describe('I15 Camera cap-group capacity mismatch', () => {
     expect(result.warnings.filter(w => w.interpretationId === 'I13')).toHaveLength(3);
   });
 
-  it('bounds reuse to one used-decimal pass and retains explicit exhaustion', () => {
-    const result = run(fixture([6, 1]));
-    expect(result).toMatchObject({ status: 'non-computable', reason: 'no-eligible-recipient-remainder' });
-    expect(result.transfers).toHaveLength(2);
+  it('I15-v2 repeats used-decimal passes without a reuse limit', () => {
+    const result = complete(fixture([9, 1]));
+    expect(result.transfers).toHaveLength(6);
+    expect(result.transfers.slice(1).every(t => t.remainders[0].before === 'used' && t.remainders[0].after === 'used')).toBe(true);
+    expect(result.cells.find(c => c.targetId === 'majority')).toMatchObject({ integerSeats: 3, provisionalSeats: 3, seats: 9 });
     expect(result.warnings.some(w => w.interpretationId === 'I15')).toBe(true);
   });
 
   it('handles simultaneous surplus and deficit groups independently', () => {
-    const result = run(fixture([1, 5]));
-    expect(result).toMatchObject({ status: 'non-computable', reason: 'no-eligible-recipient-remainder' });
-    expect(result.transfers.map(t => t.route)).toEqual(['removal', 'removal', 'addition']);
+    const result = complete(fixture([1, 5]));
+    expect(result.transfers.map(t => t.route)).toEqual(['removal', 'removal', 'addition', 'addition', 'addition', 'addition']);
     expect(result.transfers.at(-1)?.remainders[0]).toMatchObject({ before: 'used', after: 'used' });
   });
 

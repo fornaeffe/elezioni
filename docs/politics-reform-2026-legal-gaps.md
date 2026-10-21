@@ -7,7 +7,7 @@ assumptions belong elsewhere. Add gaps only after checking the controlling text
 and a worked example; do not infer them from benchmark counts alone.
 
 Source: [law 180/2026, article 1(23), amending C83-bis](https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticolo?art.codiceRedazionale=26G00201&art.dataPubblicazioneGazzetta=2026-10-09&art.flagTipoArticolo=0&art.idArticolo=1&art.idGruppo=0&art.idSottoArticolo=1&art.idSottoArticolo1=10&art.progressivo=0&art.versione=1),
-checked on 20 October 2026; [article 2(10), amending S17](https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticolo?art.codiceRedazionale=26G00201&art.dataPubblicazioneGazzetta=2026-10-09&art.flagTipoArticolo=0&art.idArticolo=2&art.idGruppo=0&art.idSottoArticolo=1&art.idSottoArticolo1=10&art.progressivo=0&art.versione=1),
+checked again on 21 October 2026; [article 2(10), amending S17](https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticolo?art.codiceRedazionale=26G00201&art.dataPubblicazioneGazzetta=2026-10-09&art.flagTipoArticolo=0&art.idArticolo=2&art.idGruppo=0&art.idSottoArticolo=1&art.idSottoArticolo1=10&art.progressivo=0&art.versione=1),
 checked on 21 October 2026. The simulator policies below are Luca's explicit
 decisions, not established administrative practice or binding interpretations.
 Keep operative contracts in the [specification](politics-reform-2026-specification.md)
@@ -17,7 +17,8 @@ and verification history in [migration history](migration-history.md).
 | --- | --- | --- |
 | LG01 | C83-bis(1)(b)(3) and S17(4)(c), including imports by C83-bis(1-bis)(d) and S17(5)(d): excess list seats with no remaining remainder-awarded donor | Warned integer-seat removal under provisional I13-v1 in Camera N18 and Senate N21/N22 |
 | LG02 | C83-bis(1-bis)(c) and S17(5)(c): excess cap-group seats with no remaining remainder-awarded donor | Warned integer-seat removal under provisional I13-v1 in Camera N18 and Senate N22, within the same college |
-| LG03 | C83-bis(1-bis)(b)-(c), C3: fixed college capacity differs from the constituency entitlement communicated upstream | Warned disjoined Camera cap-group corrections under provisional I15-v1 |
+| LG03 | C83-bis(1-bis)(b)-(c), C3: fixed college capacity differs from the constituency entitlement communicated upstream | Warned disjoined Camera cap-group corrections under provisional I15-v2 |
+| LG04 | C83-bis(1)(b)(3) and S17(4)(c), including their cap-list imports: a deficient list has exhausted all unused college decimals | Warned repeated used-decimal recipient passes under provisional I16-v1 |
 
 ## LG01: ordinary list donor exhaustion
 
@@ -88,14 +89,16 @@ cross-constituency correction. These were blocked by
 
 **Approved workaround, 21 October 2026:** Luca authorized applying (1-bis)(c)
 disjoined when the constituency's communicated group total differs from C3.
-I15-v1 retains the original college capacities for initial indices and quotas,
+I15-v2 retains the original college capacities for initial indices and quotas,
 then independently removes all group surpluses in ascending used-remainder
 order and fills all group deficits in descending unused-remainder order. After
-unused recipients exhaust, make one descending pass over used decimals,
-including decimals used by an earlier addition. Each used decimal can receive
-one additional seat in that pass; consumed decimals cannot receive seats.
+unused recipients exhaust, repeat descending passes over used decimals,
+including decimals used by an earlier addition. Each eligible cell is visited
+once per pass; there is no limit on reuses. Consumed decimals cannot receive seats.
 Recheck group deficits after every addition. Equal correction ranks use I03.
 Existing I13 integer donor fallback remains available after strict donors exhaust.
+Luca removed I15-v1's one-pass limit on 21 October 2026 alongside approval of
+I16; applied metadata now records I15-v2.
 
 Final college totals may differ from C3; both upstream group targets and all
 constituency/national list entitlements remain binding. The corrected group
@@ -107,7 +110,7 @@ remain explicit non-computable results.
 
 Emit `I15_DISJOINED_GROUP_CORRECTION` with severity `warning` once per affected
 constituency, including simulation, context and C3/communicated totals. Preserve
-it if a later stage fails; record applied `I15-v1` in composed metadata.
+it if a later stage fails; record applied `I15-v2` in composed metadata.
 Disjoined movements have a null donor or recipient and I15 trace metadata;
 integer removals retain I13 metadata. Group movements remain in the detailed
 group matrix, separate from candidate-seat transfers.
@@ -118,6 +121,72 @@ additions is expressly prescribed by (1-bis)(c). This is the approved simulator
 policy, not a claim about electoral-office practice. It needs no input/output
 schema or downstream algorithm change; relaxing final local C3 totals is its
 explicit substantive tradeoff. See the [I15 contract](politics-reform-2026-specification.md#disjoined-camera-cap-group-corrections-i15).
+
+## LG04: ordinary list recipient exhaustion
+
+**Strict reading:** correction awards a missing list seat in the college with
+its greatest unused quotient decimal. Both C83-bis(1)(b)(3) and S17(4)(c)
+expressly require that decimal to be unused; C83-bis(1-bis)(d) and S17(5)(d)
+import the same rule into internal cap-group list splits. The controlling
+articles were rechecked on 21 October 2026. They provide no fallback when all
+of the deficient list's college decimals have already been used.
+
+**Verified boundary:** in all six currently replayed cases, the deficient
+list's target exceeds its total integer seats plus one remainder award per
+college by exactly one seat. Initial college allocations are already full;
+even awarding that list every available decimal once cannot reach its target.
+This is not caused by correction order, ties, absent candidature or candidate
+exhaustion. It is an uncovered state under the adopted single-use recipient
+reading, rather than an observed arithmetic defect. This classification does
+not establish a binding interpretation or electoral-office practice.
+
+**Camera example:** production simulation 42, seed `r26-default-v1`, Calabria,
+cap path. Upstream targets are majority/minority 4/6; within the minority,
+M5S/PD must receive 4/2. The sole college's minority votes are 210,634/32,554.
+Quota `floor(243188/6) = 40531` produces integer seats 5/0 and decimals
+7,979/40,531 and 32,554/40,531. PD receives the remaining initial seat, using
+its only decimal. Allocation 5/1 still needs M5S -1 and PD +1. I13 can supply
+an integer donor, but PD has no unused recipient, so correction fails before
+any transfer. Simulation 792 has the same structure.
+
+**Senate example:** simulation 242, same seed, Emilia-Romagna. N19 initially
+allocates the 11 ordinary seats as winning coalition/M5S/PD 10/1/0. N20's
+national cap correction removes four coalition seats: its first regional
+movement gives PD one seat through its unused remainder, then three subsequent
+regional-vote fallback movements give M5S three seats. Final targets are 6/4/1.
+N22's group split assigns minority capacities 2/3 to colleges 080001/080002.
+Internal minority quotas 48,025/45,929 produce M5S/PD integer seats 0/1 and
+1/1. PD already exceeds its regional target and receives no initial remainder;
+M5S uses both its decimals, reaching only 1+2 = 3 seats instead of four.
+PD has an I13 integer donor, but no M5S decimal remains unused. No minority
+transfer occurs. N21's aggregate and N22's active cap stage both report this
+one root blocker; subsequent non-computable stages propagate it.
+
+**Other verified cases:** Camera 80 (no bonus, Lombardia 1) and 598 (bonus
+without cap, Lazio 2) also exhaust PD's decimals, after independent removal
+and addition movements. Senate 49 (cap path, Lombardia) needs four PD seats
+across three colleges with no PD integer seats; all three PD decimals are
+used initially. One Azione-IV-to-M5S correction completes before PD's remaining
+deficit blocks the next movement.
+
+**Approved workaround, 21 October 2026:** Luca confirmed LG04 and authorized
+I16-v1 for Camera N18 and Senate N21/N22 ordinary/internal list correction.
+Exhaust unused recipient decimals first, then make repeated descending passes
+over eligible used decimals without a reuse limit. Visit each eligible cell
+once per pass, exclude reached targets after every seat, and use I03 for ties.
+Preserve decimal values, initial allocation evidence and final `used` state;
+do not admit consumed, absent or undefined decimals. Warn per reused list seat
+and record I16-v1, retaining both donor and recipient policies when I13/I14
+also applies. All upstream entitlements remain binding. See the
+[I16 contract](politics-reform-2026-specification.md#reused-list-correction-recipients-i16).
+I13 still governs donors; I14 governs only initial Camera list passes.
+I15-v2 uses unlimited used-decimal passes in mismatched Camera cap groups.
+Pre-workaround inputs/results, scoped matrices and independent arithmetic/
+transfer verification are retained under
+`data/derived/r26-recipient-review-20261021/`. The current implementation and
+isolated pre-I16 baseline comparison are reproduced by
+`data/derived/r26-i16-review-20261021/replay.mjs`; see migration history for
+versions and verification scope.
 
 ## I13 evidence and downstream constraints
 
@@ -135,6 +204,7 @@ consume the corrected targets and unchanged remainder evidence.
 
 I13 applies to Camera N18 and Senate N21/N22 college list corrections, including
 internal cap lists, and Camera N18/Senate N22 cap-group corrections. Camera
-constituency and Senate regional/cap-stage corrections retain their existing policies. Recipient
-exhaustion, undefined quotas and impossible residuals remain separate
-non-computable paths. LG03 is handled by the narrowly scoped I15 policy above.
+constituency and Senate regional/cap-stage corrections retain their existing policies.
+I16 handles LG04 recipient reuse; genuinely empty recipient pools, undefined
+quotas and impossible residuals remain explicit non-computable paths. LG03 is
+handled by the narrowly scoped I15 policy above.

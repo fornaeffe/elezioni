@@ -181,10 +181,15 @@ describe('N21 ordinary Senate college allocation', () => {
     expect(r.colleges.matrices.map(m => m.norm)).toEqual(['N21']);
     expect(r.colleges.matrices[0].areas.map(a => a.capacity)).toEqual([3, 2]);
   });
-  it('retains recipient exhaustion after enabling integer-seat donors', () => {
-    const r = run(worked([1, 3], [[140, 60], [140, 60]], [2, 2]));
-    expect(r.colleges).toMatchObject({ status: 'non-computable', reason: 'no-eligible-recipient-remainder', affectedRegionId: 'R' });
-    expect(r.colleges).not.toHaveProperty('targets');
+  it('I16 combines with integer donors and carries used recipient evidence into recovery and transfers', () => {
+    const input = worked([1, 3], [[140, 60], [130, 70]], [2, 2]);
+    const r = complete(input), m = r.colleges.matrices[0];
+    expect(m.transfers[0]).toMatchObject({ interpretationId: 'I13', interpretationIds: ['I13', 'I16'],
+      toCellId: '["P1","B"]', remainders: [{ before: 'unused', after: 'unused' }, { before: 'used', after: 'used' }] });
+    expect(r.colleges.warnings).toContainEqual(expect.objectContaining({ code: 'I16_REUSED_RECIPIENT_REMAINDER', severity: 'warning', interpretationId: 'I16' }));
+    expect(assembleRecoveryRemainders(input.chamber, r)).toContainEqual(expect.objectContaining({ collegeId: 'P1', subject: list('B'), state: 'used', value: f(7, 10) }));
+    expect(allocationTransfers([input.chamber], [{ chamber: 'senato', senateTerritorial: r, admission: input.admission } as unknown as Parameters<typeof allocationTransfers>[1][number]]))
+      .toContainEqual(expect.objectContaining({ interpretationId: 'I13', interpretationIds: ['I13', 'I16'] }));
   });
   it('I13 completes Campania 31 after strict donors, exporting unchanged unused donor evidence', () => {
     const input = worked([11, 3, 1, 2, 1], [

@@ -28,6 +28,7 @@ export function allocationTransfers(chambers: readonly ChamberInput[], execution
       };
       m.transfers.forEach((t, i) => transfers.push({ seatId: JSON.stringify(['allocation', m.contextId, i]), chamber: s.chamber,
         norm: m.norm, lawReference: m.lawReference, interpretationId: t.interpretationId ?? (m.norm === 'N17' ? 'I05' : null),
+        ...(t.interpretationIds ? { interpretationIds: t.interpretationIds } : {}),
         from: location(t.fromCellId), to: location(t.toCellId), remainders: t.remainders, drawContextIds: t.drawContextIds }));
     }
     if (s.regional?.cap) for (const move of s.regional.cap.movements) {

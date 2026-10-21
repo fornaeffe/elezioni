@@ -432,7 +432,8 @@ b(3), its cap-list import through (1-bis)(d), and cap-group (1-bis)(c), plus
 Senate S17(4)(c), its import through S17(5)(d), and cap-group S17(5)(c). Cap-group
 transfers remain in the same college; ordinary Camera independent corrections,
 Senate paired corrections with independently ranked colleges, and
-recipient rules remain unchanged. Preserve decimal/remainder state for integer
+I13 itself does not change recipient rules; I16 separately handles LG04 list
+recipients. Preserve decimal/remainder state for integer
 removals, mark transfers and emit `I13_INTEGER_SEAT_REMOVAL` per removal.
 Record applied `I13-v1` in composed metadata. Test repeated removals, strict
 donor priority, seeded replay, exports and recovery; I15 governs LG03 separately.
@@ -526,8 +527,8 @@ cap-group indices, Senate allocation or other stages.
   `unused`. Corrections remove every outstanding remainder-awarded seat before
   I13 integer fallback, retaining `used` until the last is removed and only then
   marking it `consumed`. Mark removals from multiply-awarded cells with I14.
-- Correction recipients still require an **unused** decimal. I14 does not
-  authorize repeated correction additions or recovery remainder consumption.
+- I14 does not authorize repeated correction additions or recovery remainder
+  consumption. I16 separately governs used-decimal correction recipients.
   Recovery retains the original decimal and final used/consumed state; no
   additional quotient, synthetic remainder or input/output version is needed.
 
@@ -537,7 +538,7 @@ the historical `impossible-residual` label alone as proof of a legal gap.
 
 ### Disjoined Camera cap-group corrections (I15)
 
-I15-v1, authorized by Luca on 21 October 2026, handles LG03 only in Camera N18
+I15-v2, authorized by Luca on 21 October 2026, handles LG03 only in Camera N18
 cap-group matrices whose communicated constituency target differs from the sum
 of C3 college capacities. C83-bis(1-bis)(c) expressly pairs same-college transfers;
 this is a provisional simulator workaround, not the literal statutory rule.
@@ -548,8 +549,9 @@ this is a provisional simulator workaround, not the literal statutory rule.
 - Independently remove surplus group seats by ascending existing used decimal,
   then existing I13 integer fallback if necessary. Do not reassign removed seats.
 - Independently add deficit group seats by descending existing unused decimal.
-  Once unused recipients exhaust, make one descending pass over used decimals,
-  including those used by earlier additions; reuse each at most once. Consumed
+  Once unused recipients exhaust, repeat descending passes over used decimals,
+  including those used by earlier additions, without a limit on reuses. Visit
+  each eligible cell at most once per pass, then restart the ranking. Consumed
   decimals stay ineligible. Recheck deficits after every seat; equal correction
   ranks use I03. Exhaustion or undefined arithmetic remains non-computable.
 - Final college totals may differ from C3; retain `areas.capacity` alongside
@@ -558,14 +560,52 @@ this is a provisional simulator workaround, not the literal statutory rule.
   final list targets and list remainder evidence, never group indices.
 - Emit `I15_DISJOINED_GROUP_CORRECTION` (`warning`) per affected constituency,
   including context and C3/target totals, even if a later step blocks. Composed
-  metadata records `I15-v1`; group traces mark I15 disjoined movements with one
+  metadata records `I15-v2`; group traces mark I15 disjoined movements with one
   null endpoint, retaining I13 metadata on integer removals. Existing wire
   fields and schema versions suffice; group traces remain separate from
   candidate-seat transfers.
-- Balanced Camera constituencies, Senate matrices, ordinary b(3) recipient
-  eligibility and I14's initial list passes retain their existing behavior.
+- Balanced Camera group matrices, Senate group matrices and I14's initial list
+  passes retain their existing behavior. I16 governs list correction recipients.
 
-Use `camera-capacity-mismatch.test.ts` for donor/recipient rankings, bounded
+Version 2 removes version 1's one-pass reuse limit; the other scope and
+conservation rules remain binding.
+
+Use `camera-capacity-mismatch.test.ts` for donor/recipient rankings, repeated
 used-decimal reuse, I13 interaction, scope guards, ties and permutation replay;
 `camera-territorial.test.ts` verifies opposite local mismatches, internal lists,
 recovery communications and national conservation.
+
+### Reused list correction recipients (I16)
+
+I16-v1, authorized by Luca on 21 October 2026 for LG04, applies only to Camera
+N18 and Senate N21/N22 ordinary college-list corrections, including both
+internal cap-group list imports. C83-bis(1)(b)(3) and S17(4)(c) require unused
+recipient decimals without an exhaustion fallback. This provisional policy
+supplies that fallback, rather than claiming a literal statutory rule.
+
+- Preserve initial quotas, integer/provisional seats, exact decimals and every
+  upstream constituency/region/list entitlement. Exhaust eligible unused
+  recipient decimals first, even when a used decimal is larger.
+- If deficits remain, rank eligible used decimals descending. Visit each cell
+  once per pass; restart after a pass exhausts, without a reuse limit. Exclude
+  targets as soon as reached and recheck deficits after each seat. Equal ranks
+  retain warned seeded I03 draws. Missing, absent and consumed decimals remain
+  ineligible; genuinely empty pools remain non-computable.
+- Each addition reduces the total deficit by one, so unlimited reuse does not
+  introduce an unbounded correction loop. A deficient target cannot become a
+  donor: correction additions stop at its target, and no quotient is recomputed.
+  Reused decimals remain `used -> used`; initial `remainderSeat` and
+  `provisionalSeats` retain their original meanings. Recovery consumes the
+  final list decimal/state without needing a reuse counter.
+- Emit `I16_REUSED_RECIPIENT_REMAINDER` with severity `warning` per reused
+  list seat, including context, college, list, pass and before/after seats.
+  Record applied `I16-v1` even if a later stage blocks. Reuse-only transfers
+  carry `interpretationId: 'I16'`; when a donor also requires I13 or I14,
+  preserve its primary `interpretationId` and add the optional
+  `interpretationIds: [donorPolicy, 'I16']` to matrix and located transfers.
+  JSON/CSV traces retain both policies through the existing presentation path.
+- Ordinary Camera corrections remain independent; cap-internal Camera and
+  Senate list corrections remain paired with independently ranked colleges.
+  I13 donor rules remain intact. I15-v2 separately covers mismatched Camera
+  cap groups; balanced cap-group, constituency, regional and candidate-recovery
+  algorithms are outside I16. No input or result schema version changes.

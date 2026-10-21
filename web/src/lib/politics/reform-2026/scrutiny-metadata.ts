@@ -57,7 +57,7 @@ export function scrutinyMetadata(input: ReformScrutinyInput, renewed: readonly C
   policies.set('I12', 'I12-v1');
   if (renewed.some(c => c.chamber === 'senato')) policies.set('I02', 'I02-v1');
   for (const w of warnings) if (w.interpretationId) policies.set(w.interpretationId,
-    w.interpretationId === 'I07' ? 'approved-2026-10-16' : `${w.interpretationId}-v1`);
+    w.interpretationId === 'I07' ? 'approved-2026-10-16' : w.interpretationId === 'I15' ? 'I15-v2' : `${w.interpretationId}-v1`);
   return { conditions, provenance: [...provenance.values()], subjectDecisions: decisions,
     interpretations: [...policies].sort(([a], [b]) => a < b ? -1 : 1).map(([id, version]) => ({ id, version })) };
 }

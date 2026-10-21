@@ -2,7 +2,7 @@ import type { ScrutinyWarning } from '$lib/core/types';
 import type { Chamber, ChamberModel, Provenance, SeatTableSource, Subject } from './input';
 import { REFORM_ALGORITHM_ID, REFORM_INPUT_VERSION } from './input';
 
-export type InterpretationId = 'I01' | 'I02' | 'I03' | 'I04' | 'I05' | 'I06' | 'I07' | 'I08' | 'I09' | 'I10' | 'I11' | 'I12' | 'I13' | 'I14' | 'I15';
+export type InterpretationId = 'I01' | 'I02' | 'I03' | 'I04' | 'I05' | 'I06' | 'I07' | 'I08' | 'I09' | 'I10' | 'I11' | 'I12' | 'I13' | 'I14' | 'I15' | 'I16';
 type Digit = '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9';
 export type NormId = `N0${Exclude<Digit, '0'>}` | `N${'1' | '2'}${Digit}`;
 /** Decimal strings preserve exact fractions in JSON, workers and exports (R26-06). */
@@ -60,6 +60,8 @@ export interface SeatTransferTrace {
   readonly norm: NormId;
   readonly lawReference: string;
   readonly interpretationId: InterpretationId | null;
+  /** All applicable policies for a transfer with multiple provisional steps. */
+  readonly interpretationIds?: readonly InterpretationId[];
   /** Independent C83-bis(1)(b)(3) additions/removals have one null endpoint. */
   readonly from: SeatLocation | null;
   readonly to: SeatLocation | null;

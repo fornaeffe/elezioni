@@ -55,29 +55,45 @@ it.skipIf(!present)('R26-19 required production bundle: acquire/generate with da
   expect(senateReplay.interpretations).toContainEqual({ id: 'I13', version: 'I13-v1' });
   expect(senateReplay.transfers).toContainEqual(expect.objectContaining({ chamber: 'senato', norm: 'N21', interpretationId: 'I13',
     remainders: [expect.objectContaining({ before: 'unused', after: 'unused' }), expect.anything()] }));
-  // Recorded benchmark 242: active N22 minority-list correction fails in region 08.
-  const failedInput = generateReformSimulation(prepared, 242), failed = runPoliticsReformScrutiny(failedInput.input);
-  const senate = failed.chambers.find(c => c.chamber === 'senato')!;
-  expect(failed.status).toBe('non-computable');
+  // Former LG04 blockers: I16 completes all six with original territorial targets.
+  for (const id of [42, 80, 598, 792, 49]) {
+    const input = generateReformSimulation(prepared, id).input, result = runPoliticsReformScrutiny(input);
+    expect(result.status).toBe('complete');
+    expect(result.seats).toHaveLength(588);
+    expect(new Set(result.seats.flatMap(s => s.status === 'filled' ? [s.candidateId] : [])).size).toBe(588);
+    expect(result.interpretations).toContainEqual({ id: 'I16', version: 'I16-v1' });
+    expect(result.warnings).toContainEqual(expect.objectContaining({ code: 'I16_REUSED_RECIPIENT_REMAINDER', severity: 'warning' }));
+  }
+  // Recorded benchmark 242: N22 uses I13's donor and I16's used recipient.
+  const completedInput = generateReformSimulation(prepared, 242), completed = runPoliticsReformScrutiny(completedInput.input);
+  const senate = completed.chambers.find(c => c.chamber === 'senato')!;
+  expect(completed.status).toBe('complete');
+  expect(completed.seats).toHaveLength(588);
   expect(senate.regional).toMatchObject({ status: 'complete', path: 'bonus-with-cap' });
   expect(senate.senateTerritorial!.lists.status).toBe('complete');
-  expect(senate.senateTerritorial!.colleges).toMatchObject({ status: 'non-computable',
-    reason: 'no-eligible-recipient-remainder', affectedRegionId: '08' });
-  expect(failed.stages).toContainEqual({ norm: 'N22', chamber: 'senato', status: 'non-computable',
-    reason: 'no-eligible-recipient-remainder', affectedIds: ['08'] });
+  expect(senate.senateTerritorial!.colleges.status).toBe('complete');
+  expect(completed.stages).toContainEqual({ norm: 'N22', chamber: 'senato', status: 'complete' });
+  expect(completed.interpretations).toContainEqual({ id: 'I16', version: 'I16-v1' });
+  const reused = completed.transfers.find(t => t.interpretationIds?.includes('I16'))!;
+  expect(reused).toMatchObject({ norm: 'N22', interpretationId: 'I13', interpretationIds: ['I13', 'I16'],
+    remainders: [{ before: 'unused', after: 'unused' }, { before: 'used', after: 'used' }] });
+  expect(senate.recovery!.remainders).toContainEqual(expect.objectContaining({
+    collegeId: reused.to!.collegeId, subject: { kind: 'list', id: reused.to!.listId }, value: reused.remainders[1].value, state: 'used' }));
   const presentation = createReformPresentation(defaults, snapshot, 1);
-  presentation.add(failedInput.input, failed, failedInput.trace);
+  presentation.add(completedInput.input, completed, completedInput.trace);
   const output = presentation.finish();
-  const expectedRow = { Simulation: 242, Chamber: 'senato', Norm: 'N22', Status: 'non-computable',
-    Reason: 'no-eligible-recipient-remainder', 'Affected IDs': '["08"]' };
+  const expectedRow = { Simulation: 242, Chamber: 'senato', Norm: 'N22', Status: 'complete',
+    Reason: null, 'Affected IDs': null };
   expect(output.tables.find(t => t.name === 'Legal stages and blockers')!.rows).toContainEqual(expectedRow);
-  const error = output.warnings.find(w => w.code === 'R26_N22_NON_COMPUTABLE')!;
-  expect(error).toMatchObject({ severity: 'error', simulationId: 242 });
-  expect(error.message).toContain('no-eligible-recipient-remainder');
-  expect(error.message).not.toContain('alternative-allocation-path');
+  const warning = output.warnings.find(w => w.code === 'I16_REUSED_RECIPIENT_REMAINDER')!;
+  expect(warning).toMatchObject({ severity: 'warning', simulationId: 242 });
+  expect(output.warnings.some(w => w.code === 'R26_N22_NON_COMPUTABLE')).toBe(false);
   const exported = createSimulationResultExport({ scenario: defaults, exportedAt: '2026-10-21T00:00:00Z',
     result: { type: 'result', status: 'completed', ...output, benchmark: { startedAt: '2026-10-21T00:00:00Z',
       elapsedMs: 0, simulations: 1, dataVersion: defaults.snapshotVersion, scrutinyAlgorithmId: defaults.algorithmId, seed: defaults.seed } } });
   const imported = parseSimulationResultExport(JSON.stringify(exported));
   expect(imported.result.tables.find(t => t.name === 'Legal stages and blockers')!.rows).toContainEqual(expectedRow);
+  expect(imported.result.warnings).toContainEqual(warning);
+  expect(imported.result.tables.find(t => t.name === 'Cap and territorial transfers')!.rows)
+    .toContainEqual({ Simulation: 242, Trace: JSON.stringify(reused) });
 }, 30000);

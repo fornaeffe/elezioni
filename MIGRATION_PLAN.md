@@ -163,6 +163,8 @@ into `main`; public deployment follows that merge and a successful hosting gate.
   provisional I12 exclusion of absent lists from ordinary territorial allocation,
   I13 warned integer-seat donor fallback in Camera/Senate college corrections,
   provisional I14 repeated initial Camera list remainder passes,
+  I15-v2 disjoined Camera cap-group corrections, I16-v1 repeated used-decimal
+  list correction recipients after unused decimals exhaust,
   and approved R26-02/03/04 models: attributed list
   totals, historically informed synthetic preferences and paired chamber votes
   with common anchors and explicit chamber precedence. Maintain the
@@ -185,17 +187,19 @@ into `main`; public deployment follows that merge and a successful hosting gate.
   checks and repeatable local acceptance follow the
   [R26-21 procedure](docs/politics-reform-2026-acceptance.md); whole-migration
   publication remains the final gate below.
-- [ ] Investigate errors: if they represent genuine gaps in the regulatory texts,
+- [x] Investigate errors: if they represent genuine gaps in the regulatory texts,
   describe the gap in `docs\politics-reform-2026-legal-gaps.md`, let Luca decide
   a provisional workaround, and apply that workaround with a warning for affected
   simulations. If they instead are situation fully covered by the regulatory
   texts and the errors come from our implementation, correct the implementation
-  following the regulatory text. Errors still to be investigated:
+  following the regulatory text. Investigated errors and approved resolutions:
   - [x] LG03—college capacity versus upstream territorial entitlement: apply
-  warned I15-v1 disjoined Camera cap-group corrections; retain initial C3 quotas
+  warned I15-v2 disjoined Camera cap-group corrections; retain initial C3 quotas
   and upstream entitlements. See the legal-gap register for scope and limits.
-  - [ ] N18 `no-eligible-recipient-remainder`
-  - [ ] N21/N22: `no-eligible-recipient-remainder`
+  - [x] N18 `no-eligible-recipient-remainder`: LG04 handled by warned I16-v1
+    repeated descending used-decimal passes after unused recipients exhaust.
+  - [x] N21/N22 `no-eligible-recipient-remainder`: apply the same I16-v1 to
+    ordinary/internal cap lists; preserve upstream targets and recovery states.
 - [ ] Align pre-2026 reform and 2026 reform UI: 
   - [ ] adapt the pre-2026 reform scenario editor UI for the 2026 reform, 
     extending it with components for

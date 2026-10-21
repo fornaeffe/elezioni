@@ -185,17 +185,61 @@ describe('Camera territorial integer/remainder matrices and legal corrections', 
     expect(r.areas.map(a => a.finalSeats)).toEqual([1, 2, 3]);
   });
 
-  it.each([
-    ['no-eligible-recipient-remainder', fixture([3, 1], [[60, 40]], [2])],
-    ['impossible-residual', fixture([1, 1], [[100, 100]], [3])],
-  ])('keeps independent ordinary %s cases blocked without fabricated targets', (reason, f) => {
-    const r = run(independent(f as TerritorialMatrixInput));
-    expect(r).toMatchObject({ status: 'non-computable', reason });
-    if (reason === 'no-eligible-recipient-remainder') {
-      expect(r.transfers).toHaveLength(1); // A's sole unused decimal cannot be used twice.
-      expect(r.cells[0]).toMatchObject({ seats: 2, remainderState: 'used' });
-    }
+  it('keeps initial impossible residuals blocked', () => {
+    expect(run(independent(fixture([1, 1], [[100, 100]], [3]))))
+      .toMatchObject({ status: 'non-computable', reason: 'impossible-residual' });
   });
+
+  it('I16 reuses a single ordinary recipient repeatedly after its unused addition', () => {
+    const r = complete(independent(fixture([6, 1], [[60, 40]], [2])));
+    expect(r.cells[0]).toMatchObject({ integerSeats: 1, provisionalSeats: 1, seats: 6, remainderState: 'used', decimalPart: exactFraction(1, 5) });
+    expect(r.transfers).toHaveLength(5);
+    expect(r.transfers[0].interpretationId).toBeUndefined();
+    expect(r.transfers.slice(1).every(t => t.interpretationId === 'I16' && t.remainders[0].before === 'used' && t.remainders[0].after === 'used')).toBe(true);
+    expect(r.warnings.filter(w => w.interpretationId === 'I16')).toHaveLength(4);
+  });
+
+  it('I16 exhausts unused recipients before larger used decimals and stops at each target', () => {
+    const r = complete(independent(fixture([4, 3, 1], [[400, 90, 10]], [5])));
+    expect(r.transfers.map(t => t.toCellId)).toEqual(['["T0","C"]', '["T0","B"]', '["T0","B"]']);
+    expect(r.transfers.map(t => t.interpretationId)).toEqual([undefined, 'I16', 'I16']);
+    expect(r.cells.map(c => c.seats)).toEqual([4, 3, 1]);
+  });
+
+  it('I16 repeats descending passes across colleges rather than repeatedly choosing just the greatest decimal', () => {
+    const r = complete(independent(fixture([1, 7], [[120, 80], [130, 70]], [2, 2])));
+    expect(r.transfers.filter(t => t.interpretationId === 'I16').map(t => t.toCellId))
+      .toEqual(['["T0","B"]', '["T1","B"]', '["T0","B"]', '["T1","B"]', '["T0","B"]']);
+    expect(r.cells.filter(c => c.targetId === 'B').map(c => c.seats)).toEqual([4, 3]);
+  });
+
+  it('I16 preserves explicit failure when deficient lists have no eligible computed decimal', () => {
+    const f = independent(fixture([0, 4], [[400, 0]], [4]));
+    const absent = { ...f, areas: f.areas.map(a => ({ ...a, entries: a.entries.map(c => ({ ...c, eligible: c.id !== 'B' })) })) };
+    expect(run(absent)).toMatchObject({ status: 'non-computable', reason: 'no-eligible-recipient-remainder' });
+  });
+
+  it('I16 replays tied reuse across repeated passes and permutations with unchanged JSON evidence', () => {
+    const f = independent(fixture([2, 6], [[140, 60], [140, 60]], [2, 2]));
+    const seeded = (input: TerritorialMatrixInput) => complete(input, createSeededDrawContext('I16-replay', 'legal'));
+    const r = seeded(f);
+    expect(r.draws.some(d => d.rule === 'I03')).toBe(true);
+    expect(r.warnings.filter(w => w.interpretationId === 'I16')).toHaveLength(4);
+    expect(seeded({ ...f, targets: [...f.targets].reverse(), areas: [...f.areas].reverse().map(a => ({ ...a, entries: [...a.entries].reverse() })) })).toEqual(r);
+    expect(JSON.parse(JSON.stringify(r))).toEqual(r);
+  });
+
+  it.each([['camera', 'N18'], ['senato', 'N21'], ['senato', 'N22']] as const)(
+    'I16 repeatedly pairs %s %s recipients with I13 donors without overshooting targets', (chamber, norm) => {
+      const r = complete({ ...fixture([1, 7], [[360, 40], [350, 50]], [4, 4]), chamber, norm,
+        correction: 'colleges', initialTieFigure: chamber === 'camera' ? 'constituency-electoral-figure' : 'college-electoral-figure' });
+      expect(r.transfers).toHaveLength(5);
+      expect(r.transfers.every(t => t.interpretationId === 'I13' && JSON.stringify(t.interpretationIds) === '["I13","I16"]')).toBe(true);
+      expect(r.transfers.map(t => t.toCellId)).toEqual(['["T1","B"]', '["T0","B"]', '["T1","B"]', '["T0","B"]', '["T1","B"]']);
+      expect(r.cells.every(c => c.seats >= 0)).toBe(true);
+      expect(r.cells.filter(c => c.targetId === 'B').reduce((n, c) => n + c.seats, 0)).toBe(7);
+      expect(r.warnings.filter(w => w.interpretationId === 'I16')).toHaveLength(5);
+    });
 
   it.each(['independent-colleges', 'colleges'] as const)('I14 repeats initial list remainders in %s, including cap-internal lists', correction => {
     const f = { ...independent(fixture([1, 1, 2], [[40, 35, 25], [100, 100, 0]], [2, 2])), correction };

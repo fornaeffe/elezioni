@@ -506,7 +506,8 @@ Correction rules remain distinct:
   endowments still determine initial quotas; final college and constituency
   totals can differ from those initial endowments. Final constituency list
   targets and national list entitlements must match their communications.
-  Correction recipients still require unused decimals. Provisional I13-v1 permits warned integer-seat
+  I16 exhausts unused recipients, then repeats descending used-decimal passes
+  without a reuse limit. Provisional I13-v1 permits warned integer-seat
   removals after eligible remainder donors are exhausted, preserving their
   decimal values and states for recovery. Inside a cap group, retain the existing
   paired college-list correction after the group distribution has reconciled.
@@ -528,8 +529,15 @@ route. For an I14 cell, `provisionalSeats - integerSeats` records the number of
 initial remainder awards; `remainderSeat` means at least one. Removing one of
 several awards retains `used`; removing the last marks `consumed`. Those
 removals carry `interpretationId: 'I14'` through composed transfer exports.
-List recipient remainders become used and are not reusable by corrections.
-Only I15 mismatched cap groups permit one additional used-decimal recipient pass.
+I16-v1 list corrections exhaust unused recipient decimals, then repeat
+descending passes over used decimals without a reuse limit. Recheck deficits
+after each seat and visit each eligible cell once per pass. Emit
+`I16_REUSED_RECIPIENT_REMAINDER` (`warning`) per reused seat; retain the original
+decimal and `used -> used` state. Missing, absent and consumed decimals stay
+ineligible. I15-v2 applies the same repeated passes to mismatched cap groups.
+Reuse-only list transfers mark I16; a transfer that also needs I13/I14 preserves
+its primary donor `interpretationId` and adds `interpretationIds` containing
+both policies. Located transfers and JSON/CSV traces preserve that optional field.
 Recovery uses the unchanged decimal and final state, without a schema change.
 I13 integer removals preserve the donor remainder state, mark the transfer and
 emit `I13_INTEGER_SEAT_REMOVAL` with severity `warning` per removal.
@@ -540,9 +548,9 @@ severity `warning`; composed metadata records `I14-v1`. See the
 
 If an h/i cross-constituency fallback leaves the communicated total incompatible
 with the fixed college endowment, N18's cap-group branch applies provisional
-`I15-v1` and emits `I15_DISJOINED_GROUP_CORRECTION` per affected constituency.
+`I15-v2` and emits `I15_DISJOINED_GROUP_CORRECTION` per affected constituency.
 Remove surplus seats by ascending used decimals; add deficits by descending
-unused decimals, then one pass over used decimals. Retain I13 donor fallback,
+unused decimals, then repeated used-decimal passes without a reuse limit. Retain I13 donor fallback,
 original C3 capacity evidence and corrected group capacities for internal lists.
 Group movements remain in the detailed matrix. Ordinary b(3) corrections retain
 their existing independent removals/additions. Arithmetic, residual-pool and
@@ -666,7 +674,11 @@ Provisional I13-v1, extended to Senate on 21 October 2026, exhausts eligible
 remainder-awarded donors before removing integer seats by ascending existing
 decimal. Each integer removal preserves the donor decimal/state, marks its
 transfer and emits `I13_INTEGER_SEAT_REMOVAL`; composed metadata records I13-v1.
-Recipient decimals still require unused state. See [LG01/LG02](../../../../../docs/politics-reform-2026-legal-gaps.md).
+I16-v1 first exhausts unused recipient decimals, then repeats descending passes
+over eligible used decimals without a reuse limit, stopping each list at its
+regional target. Reused states stay `used`; warnings, compound donor/recipient
+policy traces and recovery evidence follow the same Camera contract above.
+See [LG01/LG02/LG04](../../../../../docs/politics-reform-2026-legal-gaps.md).
 
 After an actual cap correction, S17(5) first divides the region's positive-target
 lists into majority and minority groups. Both regional group quotas discard
