@@ -345,9 +345,10 @@ do not assume every intermediate transfer preserves every local total.
 For N18's ordinary path, apply the approved independent subtraction/addition
 reading of C83-bis(1)(b)(3), including different initial and communicated local
 totals. Retain decree endowments for initial quotas and preserve final national
-list entitlements. Preserve explicit arithmetic/no-progress failures and the
-`constituency-capacity-target-mismatch` state for the cap-group branch, whose
-same-college transfers cannot reconcile unequal totals. Never rescale tables.
+list entitlements. For the cap-group branch's unequal constituency/C3 totals,
+apply [I15-v1](politics-reform-2026-specification.md#disjoined-camera-cap-group-corrections-i15)
+with a warning, preserving original C3 quotas and upstream entitlements.
+Preserve explicit arithmetic/no-progress failures. Never rescale tables.
 Apply [I14-v1](politics-reform-2026-specification.md#initial-camera-list-remainder-passes-i14)
 to insufficient initial N18 list remainder pools, including lists within cap
 groups. Keep repeated passes, donor award counts and downstream remainder states
@@ -539,7 +540,8 @@ malformed import cleanup and complete 1000-run browser gzip roundtrip with
 bounded retained heap measurements. Add comparison UI only as a separately
 requested feature; selecting the alternative is sufficient for this plan.
 Keep non-computable simulations in the requested-run denominator. Present the
-known N18 cap-group capacity and ordinary no-progress blockers explicitly;
+known legal blockers explicitly, applying only the approved warned workarounds
+in the specification and legal-gap register (including I15 for N18 capacity);
 never reroll them, rescale legal endowments or silently omit failed runs from
 conditional probabilities.
 

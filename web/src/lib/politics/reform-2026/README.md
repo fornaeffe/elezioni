@@ -510,12 +510,15 @@ Correction rules remain distinct:
   removals after eligible remainder donors are exhausted, preserving their
   decimal values and states for recovery. Inside a cap group, retain the existing
   paired college-list correction after the group distribution has reconciled.
-- C83-bis(1-bis)(c): cap-group transfers occur within the same college, conserving
-  each college capacity and the constituency's group totals. I13's integer-seat
-  donor fallback also applies here and to internal cap-list b(3) corrections.
+- C83-bis(1-bis)(c): balanced cap-group transfers occur within the same college,
+  conserving each college capacity and the constituency's group totals. When
+  upstream constituency and C3 totals differ, warned I15 independently removes
+  surpluses and fills deficits, retaining initial quotas and upstream targets;
+  final college totals may change. I13's integer-seat donor fallback also applies
+  here and to internal cap-list b(3) corrections.
 
 See the [legal-gap register](../../../../../docs/politics-reform-2026-legal-gaps.md)
-for strict readings, approved workarounds and the unresolved C3 capacity gap.
+for strict readings and approved workarounds, including the C3 capacity gap.
 
 Every movement records donor/recipient cell IDs, seat counts before correction,
 route, exact remainder transitions and applicable draw context IDs. Independent
@@ -525,7 +528,8 @@ route. For an I14 cell, `provisionalSeats - integerSeats` records the number of
 initial remainder awards; `remainderSeat` means at least one. Removing one of
 several awards retains `used`; removing the last marks `consumed`. Those
 removals carry `interpretationId: 'I14'` through composed transfer exports.
-Recipient remainders become used and are not reusable by corrections.
+List recipient remainders become used and are not reusable by corrections.
+Only I15 mismatched cap groups permit one additional used-decimal recipient pass.
 Recovery uses the unchanged decimal and final state, without a schema change.
 I13 integer removals preserve the donor remainder state, mark the transfer and
 emit `I13_INTEGER_SEAT_REMOVAL` with severity `warning` per removal.
@@ -535,12 +539,16 @@ severity `warning`; composed metadata records `I14-v1`. See the
 [interpretation contract](../../../../../docs/politics-reform-2026-specification.md#initial-camera-list-remainder-passes-i14).
 
 If an h/i cross-constituency fallback leaves the communicated total incompatible
-with the fixed college endowment, N18's cap-group branch still reports
-`constituency-capacity-target-mismatch`, retaining completed upstream results.
-Its statutory same-college transfers cannot change that total. Ordinary b(3)
-corrections instead attempt independent removals/additions without rescaling
-decree tables. Arithmetic, residual-pool and no-progress failures remain
-non-computable and publish no final college targets.
+with the fixed college endowment, N18's cap-group branch applies provisional
+`I15-v1` and emits `I15_DISJOINED_GROUP_CORRECTION` per affected constituency.
+Remove surplus seats by ascending used decimals; add deficits by descending
+unused decimals, then one pass over used decimals. Retain I13 donor fallback,
+original C3 capacity evidence and corrected group capacities for internal lists.
+Group movements remain in the detailed matrix. Ordinary b(3) corrections retain
+their existing independent removals/additions. Arithmetic, residual-pool and
+no-progress failures remain non-computable and publish no final college targets.
+See the [I15 contract](../../../../../docs/politics-reform-2026-specification.md#disjoined-camera-cap-group-corrections-i15)
+and [camera-capacity-mismatch.test.ts](camera-capacity-mismatch.test.ts).
 
 See [camera-territorial-matrix.test.ts](camera-territorial-matrix.test.ts) for
 hand-worked matrices, correction ordering, changed local totals, truncation

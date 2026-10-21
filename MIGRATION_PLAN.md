@@ -191,8 +191,9 @@ into `main`; public deployment follows that merge and a successful hosting gate.
   simulations. If they instead are situation fully covered by the regulatory
   texts and the errors come from our implementation, correct the implementation
   following the regulatory text. Errors still to be investigated:
-  - [ ] LG03—college capacity versus upstream territorial entitlement—remains 
-  unresolved: already investigated and reported, still need a workaround.
+  - [x] LG03—college capacity versus upstream territorial entitlement: apply
+  warned I15-v1 disjoined Camera cap-group corrections; retain initial C3 quotas
+  and upstream entitlements. See the legal-gap register for scope and limits.
   - [ ] N18 `no-eligible-recipient-remainder`
   - [ ] N21/N22: `no-eligible-recipient-remainder`
 - [ ] Align pre-2026 reform and 2026 reform UI: 

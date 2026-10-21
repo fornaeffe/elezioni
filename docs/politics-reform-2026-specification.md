@@ -316,7 +316,7 @@ changing that list's national admission decision.
 | N15 / 13 | C83(1)(h) (68-70) | `allocateCameraConstituencies`: subject targets, constituency votes/capacities -> provisional matrix and national-target correction movements | `N15`: integer quota, decimal parts, then national votes/draw; exclude targets already met from residual allocation. Verify excess-order, eligible unused remainders, same-constituency transfer and prescribed cross-constituency fallback. Missing terminal tie-breaks: provisional warned seeded draws under I03. |
 | N16 / 13 | C83(1)(i),(1-ter)(e) (70-71, 74) | `allocateCameraCoalitionListsInConstituencies`: national list targets and coalition's constituency seats -> list matrix and corrections | `N16`: integer quota; initial remainder tie uses **constituency** votes then draw; correction reuses h's ninth and following sentences. Trace the switch of criteria rather than assuming one universal national/local comparator. |
 | N17 / 13 | C83(1-ter)(d) (73-74) | `allocateCameraCapConstituencies`: majority/minority national quotas, local figures/capacities -> indices, normalized local allocations and corrected matrix | `N17`: truncate majority and minority indices at six decimals under provisional I05; normalized quotas `index*capacity/sum(indices)`; remainders then national votes/draw; h correction; test values where the symmetric truncation changes a result and retain the provisional policy ID in run metadata. |
-| N18 / 13 | C83-bis(1)(b),(1-bis)(a)-(d) (76-78) | `allocateCameraColleges`: constituency list targets, local votes/capacities, cap branch -> ordinary college matrix | `N18`: normal integer quota, remainder then **constituency** votes/draw and reached-target exclusion. Warned I14 repeats insufficient initial list remainder rankings, also through (1-bis)(d); see the interpretation contract below. Ordinary b(3) corrections subtract/add independently, retaining decree quotas. Cap correction preserves each college capacity. Provisional I13 permits warned integer-seat removals only after remainder donors are exhausted, in ordinary lists, cap groups and their internal list splits; preserve donor decimal state. Unequal cap-group totals retain `constituency-capacity-target-mismatch`. See the [legal-gap register](politics-reform-2026-legal-gaps.md). I03 supplies warned seeded draws for unspecified correction ties. |
+| N18 / 13 | C83-bis(1)(b),(1-bis)(a)-(d) (76-78) | `allocateCameraColleges`: constituency list targets, local votes/capacities, cap branch -> ordinary college matrix | `N18`: normal integer quota, remainder then **constituency** votes/draw and reached-target exclusion. Warned I14 repeats insufficient initial list remainder rankings, also through (1-bis)(d); see the interpretation contract below. Ordinary b(3) corrections subtract/add independently, retaining decree quotas. Balanced cap-group correction preserves each college capacity; unequal constituency/C3 totals use warned disjoined I15 corrections. Provisional I13 permits warned integer-seat removals only after remainder donors are exhausted, in ordinary lists, cap groups and their internal list splits; preserve donor decimal state. See the [legal-gap register](politics-reform-2026-legal-gaps.md) and I15 contract below. I03 supplies warned seeded draws for unspecified correction ties. |
 | N19 / 14 | S16-bis(1)(f),(1-bis),(1-quater) (118-120, 121) | `allocateSenateRegions`: admitted subjects, regional figures/capacities and bonus decision -> provisional region matrix and ascending national ranking of winner's **used** remainders | `N19`: full vs reduced capacities; integer quota, regional votes then draw after remainder ties; aggregate subject totals; never use national Camera-style proportional allocation for regional targets. |
 | N20 / 14 | S16-bis(1)(f-bis)-(f-quater),(1-ter) (119-121) | `applySenateCap`: N19 traces, bonus, special ledger and all regional valid totals -> removals and corresponding regional reassignment | `N20`: 113 unchanged, 114 corrected; ordinary plus special target=78, bonus=35 retained; used-remainder removals, then ascending regional percentages, exclusions and repeated passes; apply the statutory one-seat protection in the percentage passes. Recipient: largest unused remainder, otherwise regional votes. Region capacities unchanged; I03/I06 for provisional seeded ties and single-use remainder state; explicit failure if no lawful progress. |
 | N21 / 15 | S17(1)(b),(2)-(4) (123-125) | `allocateSenateListsAndColleges`: corrected regional subject targets, admitted internal lists, college votes/capacities -> list targets and college matrix | `N21`: regional coalition-list integer quota, remainder/regional votes/draw; single college takes regional targets; normal college allocation uses integer quota, remainder/**college** votes/draw, target exclusion and correction movements. Do not copy Camera's constituency tie-break into S17(4)(b). |
@@ -435,9 +435,9 @@ Senate paired corrections with independently ranked colleges, and
 recipient rules remain unchanged. Preserve decimal/remainder state for integer
 removals, mark transfers and emit `I13_INTEGER_SEAT_REMOVAL` per removal.
 Record applied `I13-v1` in composed metadata. Test repeated removals, strict
-donor priority, seeded replay, exports, recovery and unchanged capacity blockers.
+donor priority, seeded replay, exports and recovery; I15 governs LG03 separately.
 This is a warned workaround for [LG01/LG02](politics-reform-2026-legal-gaps.md),
-not a binding legal interpretation; LG03 remains unresolved. Camera constituency
+not a binding legal interpretation. Camera constituency
 and Senate regional/cap-stage donor policies are unchanged; I14 remains Camera-only.
 
 I10 evidence: the [2017 Senate comparison](https://www.parlamento.it/show-doc?id=1046530&leg=17&part=dossier_dossier1-sezione_sezione11-h2_h21&tipodoc=DOSSIER)
@@ -534,3 +534,38 @@ cap-group indices, Senate allocation or other stages.
 This supersedes the earlier single-pass-based diagnosis of benchmark 165 as an
 intrinsic legal defect. Recheck other failures individually rather than treating
 the historical `impossible-residual` label alone as proof of a legal gap.
+
+### Disjoined Camera cap-group corrections (I15)
+
+I15-v1, authorized by Luca on 21 October 2026, handles LG03 only in Camera N18
+cap-group matrices whose communicated constituency target differs from the sum
+of C3 college capacities. C83-bis(1-bis)(c) expressly pairs same-college transfers;
+this is a provisional simulator workaround, not the literal statutory rule.
+
+- Retain C3 capacities and the original truncated group indices/normalized
+  quotas for initial allocation. Preserve upstream constituency/group/list
+  targets and national entitlements.
+- Independently remove surplus group seats by ascending existing used decimal,
+  then existing I13 integer fallback if necessary. Do not reassign removed seats.
+- Independently add deficit group seats by descending existing unused decimal.
+  Once unused recipients exhaust, make one descending pass over used decimals,
+  including those used by earlier additions; reuse each at most once. Consumed
+  decimals stay ineligible. Recheck deficits after every seat; equal correction
+  ranks use I03. Exhaustion or undefined arithmetic remains non-computable.
+- Final college totals may differ from C3; retain `areas.capacity` alongside
+  `areas.finalSeats`. Feed corrected group counts to (1-bis)(d) internal list
+  allocation. Proclamation/recovery retain their existing rules and consume the
+  final list targets and list remainder evidence, never group indices.
+- Emit `I15_DISJOINED_GROUP_CORRECTION` (`warning`) per affected constituency,
+  including context and C3/target totals, even if a later step blocks. Composed
+  metadata records `I15-v1`; group traces mark I15 disjoined movements with one
+  null endpoint, retaining I13 metadata on integer removals. Existing wire
+  fields and schema versions suffice; group traces remain separate from
+  candidate-seat transfers.
+- Balanced Camera constituencies, Senate matrices, ordinary b(3) recipient
+  eligibility and I14's initial list passes retain their existing behavior.
+
+Use `camera-capacity-mismatch.test.ts` for donor/recipient rankings, bounded
+used-decimal reuse, I13 interaction, scope guards, ties and permutation replay;
+`camera-territorial.test.ts` verifies opposite local mismatches, internal lists,
+recovery communications and national conservation.

@@ -17,7 +17,7 @@ and verification history in [migration history](migration-history.md).
 | --- | --- | --- |
 | LG01 | C83-bis(1)(b)(3) and S17(4)(c), including imports by C83-bis(1-bis)(d) and S17(5)(d): excess list seats with no remaining remainder-awarded donor | Warned integer-seat removal under provisional I13-v1 in Camera N18 and Senate N21/N22 |
 | LG02 | C83-bis(1-bis)(c) and S17(5)(c): excess cap-group seats with no remaining remainder-awarded donor | Warned integer-seat removal under provisional I13-v1 in Camera N18 and Senate N22, within the same college |
-| LG03 | C83-bis(1-bis)(b)-(c), C3: fixed college capacity differs from the constituency entitlement communicated upstream | Unresolved; retain `constituency-capacity-target-mismatch` |
+| LG03 | C83-bis(1-bis)(b)-(c), C3: fixed college capacity differs from the constituency entitlement communicated upstream | Warned disjoined Camera cap-group corrections under provisional I15-v1 |
 
 ## LG01: ordinary list donor exhaustion
 
@@ -79,13 +79,45 @@ under C3. Upstream national-to-constituency correction can communicate a differe
 constituency total. The same-college transfers required by (1-bis)(c) cannot
 alter the sum, so both totals cannot be satisfied.
 
-**Evidence:** `camera-territorial.test.ts` retains a constructed case with fixed
+**Evidence:** `camera-territorial.test.ts` has a constructed case with fixed
 capacities 3/3 but communicated constituency totals 2/4, conserving six seats
-nationally. The first constituency blocks before group allocation or draws.
+nationally. The full constructed N18 investigation reproduces Veneto 1 capacity
+11 / entitlement 12 and Puglia capacity 21 / entitlement 20 after N16's
+cross-constituency correction. These were blocked by
+`constituency-capacity-target-mismatch` before I15.
 
-**Treatment:** no workaround has been approved. Preserve upstream results and
-report `constituency-capacity-target-mismatch`. I13 does not resize C3 tables,
-change constituency targets, or authorize cross-college cap-group transfers.
+**Approved workaround, 21 October 2026:** Luca authorized applying (1-bis)(c)
+disjoined when the constituency's communicated group total differs from C3.
+I15-v1 retains the original college capacities for initial indices and quotas,
+then independently removes all group surpluses in ascending used-remainder
+order and fills all group deficits in descending unused-remainder order. After
+unused recipients exhaust, make one descending pass over used decimals,
+including decimals used by an earlier addition. Each used decimal can receive
+one additional seat in that pass; consumed decimals cannot receive seats.
+Recheck group deficits after every addition. Equal correction ranks use I03.
+Existing I13 integer donor fallback remains available after strict donors exhaust.
+
+Final college totals may differ from C3; both upstream group targets and all
+constituency/national list entitlements remain binding. The corrected group
+counts become the capacities for the subsequent (1-bis)(d) internal list split.
+Recovery consumes that split's existing list decimals, never group indices.
+No decree table is rewritten. Balanced constituencies and Senate rules retain
+paired group transfers. Arithmetic failures and exhausted recipient passes
+remain explicit non-computable results.
+
+Emit `I15_DISJOINED_GROUP_CORRECTION` with severity `warning` once per affected
+constituency, including simulation, context and C3/communicated totals. Preserve
+it if a later stage fails; record applied `I15-v1` in composed metadata.
+Disjoined movements have a null donor or recipient and I15 trace metadata;
+integer removals retain I13 metadata. Group movements remain in the detailed
+group matrix, separate from candidate-seat transfers.
+
+**Applicability:** the controlling text, rechecked on 21 October 2026, requires
+same-college reassignment; neither disjoining movements nor used-decimal
+additions is expressly prescribed by (1-bis)(c). This is the approved simulator
+policy, not a claim about electoral-office practice. It needs no input/output
+schema or downstream algorithm change; relaxing final local C3 totals is its
+explicit substantive tradeoff. See the [I15 contract](politics-reform-2026-specification.md#disjoined-camera-cap-group-corrections-i15).
 
 ## I13 evidence and downstream constraints
 
@@ -104,5 +136,5 @@ consume the corrected targets and unchanged remainder evidence.
 I13 applies to Camera N18 and Senate N21/N22 college list corrections, including
 internal cap lists, and Camera N18/Senate N22 cap-group corrections. Camera
 constituency and Senate regional/cap-stage corrections retain their existing policies. Recipient
-exhaustion, undefined quotas, impossible residuals and LG03 remain separate
-non-computable paths.
+exhaustion, undefined quotas and impossible residuals remain separate
+non-computable paths. LG03 is handled by the narrowly scoped I15 policy above.

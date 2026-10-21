@@ -47,9 +47,9 @@ export interface TerritorialMatrixCell {
   readonly seats: number;
 }
 export interface TerritorialMatrixTransfer {
-  /** I13 integer donor fallback, or removal from an I14 multiply-awarded cell. */
-  readonly interpretationId?: 'I13' | 'I14';
-  /** Independent b(3) corrections have only a donor or only a recipient. */
+  /** Provisional integer removal, repeated remainder, or disjoined cap correction. */
+  readonly interpretationId?: 'I13' | 'I14' | 'I15';
+  /** Independent b(3) / I15 corrections have only a donor or only a recipient. */
   readonly fromCellId: string | null;
   readonly toCellId: string | null;
   readonly route: 'same-area' | 'cross-area' | 'removal' | 'addition';
@@ -97,11 +97,13 @@ export function allocateTerritorialMatrix(input: TerritorialMatrixInput, executi
   if (independent && (input.chamber !== 'camera' || input.norm !== 'N18' || input.indexQuotas)) {
     throw new RangeError('Independent college corrections require the Camera N18 list quota path');
   }
-  // Endowments always determine the INITIAL quotas. Only Camera b(3) can
-  // independently remove/add seats to reach a different communicated total.
+  // Endowments always determine the INITIAL quotas. Camera b(3) and warned
+  // I15 cap-group corrections can reach a different communicated local total.
   const capacity = sumVoteCounts(areas.map(a => a.seats));
   const targetSeats = sumVoteCounts(targets.map(t => t.seats));
-  if (!independent && targetSeats !== capacity) {
+  const disjoinedGroups = input.chamber === 'camera' && input.norm === 'N18' &&
+    input.correction === 'college-groups' && !!input.indexQuotas && targetSeats !== capacity;
+  if (!independent && !disjoinedGroups && targetSeats !== capacity) {
     throw new RangeError('Territorial matrix capacities must sum to its targets');
   }
   for (const area of areas) {
@@ -119,6 +121,10 @@ export function allocateTerritorialMatrix(input: TerritorialMatrixInput, executi
   const quotas: { id: string; capacity: number; rawQuota: ExactFraction | null; quota: ExactFraction | null }[] = [];
   const transfers: TerritorialMatrixTransfer[] = [];
   const warnings: ReformWarning[] = [];
+  if (disjoinedGroups) warnings.push({ code: 'I15_DISJOINED_GROUP_CORRECTION', severity: 'warning',
+    electionKind: 'politiche', simulationId: input.simulationId, chamber: 'camera', interpretationId: 'I15',
+    lawReference: input.lawReference,
+    message: `Provisional I15-v1: ${input.contextId}; C3 college capacity ${capacity}, communicated constituency entitlement ${targetSeats}. Independently remove surplus group seats and add deficit group seats by descending unused, then used decimals. Initial C3 quotas retained; final college totals may differ. Upstream group/list entitlements remain binding.` });
   const resolutions: TieResolution[] = [];
   const finish = (failure?: { phase: 'initial' | 'remainders' | 'correction'; reason: string }): TerritorialMatrixResult => structuredClone({
     chamber: input.chamber, norm: input.norm, lawReference: input.lawReference, contextId: input.contextId,
@@ -265,14 +271,20 @@ export function allocateTerritorialMatrix(input: TerritorialMatrixInput, executi
     }
   }
 
-  if (independent) {
+  if (independent || disjoinedGroups) {
     // C83-bis(1)(b)(3): "i seggi attribuiti in eccesso sono sottratti ...;
     // alla lista cui sono stati attribuiti seggi in numero minore ... i seggi
     // sono assegnati ... [con] parte decimale ... non utilizzata".
     // Approved reading: subtraction and addition are independent, including
     // when an upstream C83(h)/(i) fallback changed this constituency's total.
     // I14 may supply several initial seats from one decimal. Remove each award
-    // before I13 integer fallback; recipient decimals remain single-use.
+    // before I13 integer fallback; list recipient decimals remain single-use.
+    // C83-bis(1-bis)(c) expressly pairs movements "nei medesimi collegi".
+    // Luca's provisional I15-v1 (21 October 2026) disjoins them ONLY when
+    // constituency entitlement differs from C3 capacity. Use original group
+    // decimals; exhaust unused recipients before one pass over used decimals.
+    // Never reuse a consumed donor decimal. I13 still handles donor exhaustion.
+    const reusedRecipients = new Set<string>();
     for (const direction of ['removal', 'addition'] as const) {
       let movement = 0;
       const pending = () => new Set(targets.filter(t => direction === 'removal'
@@ -282,6 +294,9 @@ export function allocateTerritorialMatrix(input: TerritorialMatrixInput, executi
         let pool = cells.filter(c => ids.has(c.targetId) && (direction === 'removal'
           ? c.remainderSeat && c.remainderState === 'used' && c.seats > 0
           : c.remainderState === 'unused' && c.decimalPart !== null));
+        const reuse = disjoinedGroups && direction === 'addition' && !pool.length;
+        if (reuse) pool = cells.filter(c => ids.has(c.targetId) && c.allocationEligible &&
+          c.remainderState === 'used' && c.decimalPart !== null && !reusedRecipients.has(c.id));
         const fallback = direction === 'removal' && !pool.length && looseDonors;
         if (fallback) pool = integerDonors(ids);
         if (!pool.length) return finish({ phase: 'correction', reason: direction === 'removal'
@@ -292,12 +307,14 @@ export function allocateTerritorialMatrix(input: TerritorialMatrixInput, executi
         const cell = cells.find(c => c.id === id)!;
         const after = fallback ? cell.remainderState : direction === 'removal' ? donorAfterRemoval(cell) : 'used';
         transfers.push({ fromCellId: direction === 'removal' ? id : null, toCellId: direction === 'addition' ? id : null,
-          ...(fallback ? { interpretationId: 'I13' as const } : direction === 'removal' ? donorInterpretation(cell) : {}),
+          ...(fallback ? { interpretationId: 'I13' as const } : disjoinedGroups ? { interpretationId: 'I15' as const }
+            : direction === 'removal' ? donorInterpretation(cell) : {}),
           route: direction, fromSeatsBefore: direction === 'removal' ? cell.seats : null,
           toSeatsBefore: direction === 'addition' ? cell.seats : null,
           remainders: [{ id, value: remainder(cell), before: cell.remainderState, after }],
           drawContextIds: resolutions.at(-1)!.draws.map(d => d.contextId) });
         if (fallback) warnIntegerRemoval(cell);
+        if (reuse) reusedRecipients.add(cell.id);
         change(cell, { seats: cell.seats + (direction === 'removal' ? -1 : 1), remainderState: after });
       }
     }

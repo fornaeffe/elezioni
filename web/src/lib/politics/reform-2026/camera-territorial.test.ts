@@ -266,15 +266,28 @@ describe('N15-N18 Camera territorial stages', () => {
     expect(JSON.parse(JSON.stringify(transfers))).toEqual(transfers);
   });
 
-  it('retains the cap-group local capacity blocker before any group allocation or draw', () => {
+  it('I15 reconciles opposite cap-group capacity mismatches and propagates corrected list/recovery targets', () => {
     const f = fixture({ A: 3, B: 3 }, [{ territory: 'X', seats: 3, A: 180, B: 120 }, { territory: 'Y', seats: 3, A: 170, B: 130 }], {}, true);
     const lists: CameraConstituencyListResult = { ...collegeCommunication(f), status: 'complete', targets: [
       { territoryId: 'X', subject: list('A'), listId: 'A', votes: 180, ordinarySeats: 1 },
       { territoryId: 'X', subject: list('B'), listId: 'B', votes: 120, ordinarySeats: 1 },
       { territoryId: 'Y', subject: list('A'), listId: 'A', votes: 170, ordinarySeats: 2 },
       { territoryId: 'Y', subject: list('B'), listId: 'B', votes: 130, ordinarySeats: 2 }] };
-    expect(allocateCameraColleges(f, lists, noDraw)).toMatchObject({ status: 'non-computable',
-      reason: 'constituency-capacity-target-mismatch', affectedId: 'X', matrices: [], draws: [] });
+    const original = structuredClone(f);
+    const r = allocateCameraColleges(f, lists, noDraw);
+    expect(r.status).toBe('complete');
+    if (r.status !== 'complete') throw new Error();
+    expect(r.matrices.filter(m => m.correction === 'college-groups').map(m => m.areas.map(a => [a.capacity, a.finalSeats])))
+      .toEqual([[[3, 2]], [[3, 4]]]);
+    expect(r.warnings.filter(w => w.interpretationId === 'I15')).toEqual([
+      expect.objectContaining({ code: 'I15_DISJOINED_GROUP_CORRECTION', severity: 'warning', chamber: 'camera', simulationId: 13 }),
+      expect.objectContaining({ code: 'I15_DISJOINED_GROUP_CORRECTION', severity: 'warning', chamber: 'camera', simulationId: 13 })]);
+    for (const target of lists.targets) expect(r.targets.filter(t => t.territoryId === target.territoryId && t.listId === target.listId)
+      .reduce((n, t) => n + t.ordinarySeats, 0)).toBe(target.ordinarySeats);
+    expect(['A', 'B'].map(id => r.targets.filter(t => t.listId === id).reduce((n, t) => n + t.ordinarySeats, 0))).toEqual([3, 3]);
+    expect(assembleRecoveryRemainders(f.chamber, { colleges: r })).toHaveLength(4);
+    expect(JSON.parse(JSON.stringify(r))).toEqual(r);
+    expect(f).toEqual(original);
   });
 
   it('rejects communications that change national list entitlements', () => {

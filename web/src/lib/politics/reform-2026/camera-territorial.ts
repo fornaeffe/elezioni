@@ -184,8 +184,9 @@ export function allocateCameraCoalitionListsInConstituencies(
 }
 
 /** N18: C83-bis(1)(b),(1-bis). Only lists with positive constituency
- * entitlement enter college denominators. Group corrections preserve each
- * college; subsequent list corrections may move seats across colleges. */
+ * entitlement enter college denominators. Balanced group corrections preserve
+ * each college; I15 reconciles unequal constituency/C3 totals independently.
+ * Subsequent list corrections may move seats across colleges. */
 export function allocateCameraColleges(
   input: CameraTerritorialInput, lists: CameraConstituencyListResult, execution: ScrutinyExecutionContext
 ): CameraCollegeResult {
@@ -202,11 +203,6 @@ export function allocateCameraColleges(
     const colleges = sorted(input.chamber.colleges.filter(c => c.kind === 'ordinary' && c.territoryId === territory.id));
     const local = lists.targets.filter(l => l.territoryId === territory.id && l.ordinarySeats > 0);
     const capacity = (id: string) => { const c = colleges.find(c => c.id === id)!; return national.bonus ? c.seatsWithBonus : c.seatsWithoutBonus; };
-    if (national.path === 'bonus-with-cap' && sum(local.map(l => l.ordinarySeats)) !== sum(colleges.map(c => capacity(c.id)))) {
-      // C83-bis(1-bis)(c) transfers seats "nei medesimi collegi". Unlike
-      // independent b(3) list corrections, it cannot change the group total.
-      return blocked(stage(input, matrices), 'constituency-capacity-target-mismatch', territory.id);
-    }
     const runLists = (members: readonly CameraConstituencyListTarget[], capacities: ReadonlyMap<string, number>, suffix: string): string | null => {
       const matrix = allocateTerritorialMatrix({ chamber: 'camera', contextId: `camera/${national.simulationId}/colleges/${territory.id}/${suffix}`,
         simulationId: national.simulationId, norm: 'N18', lawReference: national.path === 'bonus-with-cap'
