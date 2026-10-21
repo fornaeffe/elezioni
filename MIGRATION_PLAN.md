@@ -185,23 +185,30 @@ into `main`; public deployment follows that merge and a successful hosting gate.
   checks and repeatable local acceptance follow the
   [R26-21 procedure](docs/politics-reform-2026-acceptance.md); whole-migration
   publication remains the final gate below.
-- [ ] Keep completed politics and regional vertical slices green while shared
-  scenario, worker, result, and routing infrastructure evolves.
-- [ ] Preserve mean-mode global and local share semantics; do not expose fixed
-  modes until their interaction with geographic variation and uncertainty has
-  a dedicated design and test pass.
-- [ ] Refactor the large politics scrutiny implementation into stage-focused
-  modules only when stable tested boundaries make the change lower-risk.
-- [ ] Add another politics scrutiny algorithm only for a concrete law-review or
-  comparison need; expose algorithm selection only when two real algorithms for
-  the same election kind exist.
-- [ ] Repeat browser performance measurements after major changes to scenarios,
-  schemas, snapshots, generation, scrutiny, or data preparation. R retirement is
-  decided: assess browser latency, phase costs and memory directly, without an
-  R comparison or a 10x stop rule.
-- [ ] Migrate the municipal workflow: create R golden fixtures and benchmarks
-  first, preserve current behavior, and keep the runoff and councilor-candidate
-  gaps explicit for later business and legal review.
+- [ ] Investigate errors: if they represent genuine gaps in the regulatory texts,
+  describe the gap in `docs\politics-reform-2026-legal-gaps.md`, let Luca decide
+  a provisional workaround, and apply that workaround with a warning for affected
+  simulations. If they instead are situation fully covered by the regulatory
+  texts and the errors come from our implementation, correct the implementation
+  following the regulatory text. Errors still to be investigated:
+  - [ ] LG03—college capacity versus upstream territorial entitlement—remains 
+  unresolved: already investigated and reported, still need a workaround.
+  - [ ] N18 `no-eligible-recipient-remainder`
+  - [ ] N21/N22: `no-eligible-recipient-remainder`
+- [ ] Align pre-2026 reform and 2026 reform UI: 
+  - [ ] adapt the pre-2026 reform scenario editor UI for the 2026 reform, 
+    extending it with components for
+    new scenario data that was not needed pre-2026.
+  - [ ] adapt tables and plots from pre-2026 to 2026 reform, where applicable, especially:
+    - mean elected candidates per list, paired with mean percentages over valid votes
+      (if possible, show all elected candidates, both ordinary and bonus, where pre-2026
+      plot showed only candidates elected in plurinominal colleges).
+    - simulated percentages boxplots
+    - elected vs percentage xy plot, one plot per chamber * list and one 
+      plot per chamber * coalition
+    - elected vs percentage spinograms, one plot per chamber * list and a 
+      selectable chamber * list * college plot, as in pre-2026 plots
+  Generalize reusable components where appropriate.
 - [ ] Generalize routing, snapshot selection, scenario defaults, validation,
   worker dispatch, result components, and shared UI patterns across election
   kinds. Preserve configurable project-base navigation and worker/data loading
@@ -256,3 +263,6 @@ implementation or municipal parity scope.
   electors/votes without double counting, and test geographic and joint-bonus
   sensitivity. Distinguish voting-population movement from legal census data
   used for seat apportionment.
+- [ ] Migrate the municipal workflow: create R golden fixtures and benchmarks
+  first, preserve current behavior, and keep the runoff and councilor-candidate
+  gaps explicit for later business and legal review.

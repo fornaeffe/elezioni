@@ -151,7 +151,15 @@ export function runPoliticsReformScrutiny(value: unknown, execution?: ScrutinyEx
       const territorial = allocateSenateListsAndColleges({ ...args, regional }, context);
       events(territorial.lists); events(territorial.colleges);
       record(s.chamber, 'N21', territorial.status, territorial.colleges.status === 'non-computable' ? territorial.colleges.reason : '');
-      record(s.chamber, 'N22', regional.status === 'complete' && regional.path === 'bonus-with-cap' ? territorial.colleges.status : 'not-run', 'alternative-allocation-path');
+      if (regional.status !== 'complete') {
+        record(s.chamber, 'N22', 'not-run', 'regional-allocation-non-computable');
+      } else if (regional.path !== 'bonus-with-cap') {
+        record(s.chamber, 'N22', 'not-run', 'alternative-allocation-path');
+      } else {
+        const colleges = territorial.colleges;
+        record(s.chamber, 'N22', colleges.status, colleges.status === 'non-computable' ? colleges.reason : '',
+          colleges.status === 'non-computable' && colleges.affectedRegionId !== null ? [colleges.affectedRegionId] : []);
+      }
       ordinary = territorial.colleges; allocation = { regional, senateTerritorial: territorial };
       remainders = assembleRecoveryRemainders(chamber, { ...territorial, regional });
       eligibleLists = assembleRecoveryEligibility(chamber, s.admission, { ...territorial, regional });

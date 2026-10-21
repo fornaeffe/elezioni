@@ -7,6 +7,8 @@ import catalog from './data/generation-catalog.generated.json';
 import { generateReformSimulation, prepareReformGeneration } from './generation';
 import { runPoliticsReformScrutiny } from './scrutiny';
 import type { ReformGenerationSnapshot } from './generation-types';
+import { createReformPresentation } from './result-presentation';
+import { createSimulationResultExport, parseSimulationResultExport } from '../../core/result-export';
 
 const path = fileURLToPath(new URL(`../../../../static/${catalog.path}`, import.meta.url));
 const present = await access(path).then(() => true, () => false);
@@ -53,4 +55,29 @@ it.skipIf(!present)('R26-19 required production bundle: acquire/generate with da
   expect(senateReplay.interpretations).toContainEqual({ id: 'I13', version: 'I13-v1' });
   expect(senateReplay.transfers).toContainEqual(expect.objectContaining({ chamber: 'senato', norm: 'N21', interpretationId: 'I13',
     remainders: [expect.objectContaining({ before: 'unused', after: 'unused' }), expect.anything()] }));
+  // Recorded benchmark 242: active N22 minority-list correction fails in region 08.
+  const failedInput = generateReformSimulation(prepared, 242), failed = runPoliticsReformScrutiny(failedInput.input);
+  const senate = failed.chambers.find(c => c.chamber === 'senato')!;
+  expect(failed.status).toBe('non-computable');
+  expect(senate.regional).toMatchObject({ status: 'complete', path: 'bonus-with-cap' });
+  expect(senate.senateTerritorial!.lists.status).toBe('complete');
+  expect(senate.senateTerritorial!.colleges).toMatchObject({ status: 'non-computable',
+    reason: 'no-eligible-recipient-remainder', affectedRegionId: '08' });
+  expect(failed.stages).toContainEqual({ norm: 'N22', chamber: 'senato', status: 'non-computable',
+    reason: 'no-eligible-recipient-remainder', affectedIds: ['08'] });
+  const presentation = createReformPresentation(defaults, snapshot, 1);
+  presentation.add(failedInput.input, failed, failedInput.trace);
+  const output = presentation.finish();
+  const expectedRow = { Simulation: 242, Chamber: 'senato', Norm: 'N22', Status: 'non-computable',
+    Reason: 'no-eligible-recipient-remainder', 'Affected IDs': '["08"]' };
+  expect(output.tables.find(t => t.name === 'Legal stages and blockers')!.rows).toContainEqual(expectedRow);
+  const error = output.warnings.find(w => w.code === 'R26_N22_NON_COMPUTABLE')!;
+  expect(error).toMatchObject({ severity: 'error', simulationId: 242 });
+  expect(error.message).toContain('no-eligible-recipient-remainder');
+  expect(error.message).not.toContain('alternative-allocation-path');
+  const exported = createSimulationResultExport({ scenario: defaults, exportedAt: '2026-10-21T00:00:00Z',
+    result: { type: 'result', status: 'completed', ...output, benchmark: { startedAt: '2026-10-21T00:00:00Z',
+      elapsedMs: 0, simulations: 1, dataVersion: defaults.snapshotVersion, scrutinyAlgorithmId: defaults.algorithmId, seed: defaults.seed } } });
+  const imported = parseSimulationResultExport(JSON.stringify(exported));
+  expect(imported.result.tables.find(t => t.name === 'Legal stages and blockers')!.rows).toContainEqual(expectedRow);
 }, 30000);

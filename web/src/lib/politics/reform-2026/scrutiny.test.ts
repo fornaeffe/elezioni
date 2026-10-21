@@ -14,6 +14,9 @@ describe('R26-18 complete direct-input composition', () => {
     expect(r.seats).toHaveLength(588);
     expect(r.chambers[0].national).toMatchObject({ status: 'complete', path });
     expect(r.chambers[1].regional).toMatchObject({ status: 'complete', path });
+    expect(r.stages.find(s => s.chamber === 'senato' && s.norm === 'N22')).toEqual(path === 'bonus-with-cap'
+      ? { norm: 'N22', chamber: 'senato', status: 'complete' }
+      : { norm: 'N22', chamber: 'senato', status: 'not-run', reason: 'alternative-allocation-path', affectedIds: [] });
     // Independent quota arithmetic: 384/314 Camera ordinary and 189/154 Senate
     // ordinary. TAA adds A/B/C=1/1/1 at 45%, 2/1/0 at 60%; all uni wins A.
     // Senate's cap gives B the first unused remainder, then regional-vote priority.
@@ -239,6 +242,9 @@ describe('R26-18 complete direct-input composition', () => {
     const r = runPoliticsReformScrutiny(input);
     expect(r.status).toBe('non-computable'); expect(r.seats.filter(s => s.category === 'special-uninominal')).toHaveLength(12);
     expect(r.bonus.status).toBe('non-computable');
+    expect(r.chambers[1].regional?.status).toBe('non-computable');
+    expect(r.stages).toContainEqual({ norm: 'N22', chamber: 'senato', status: 'not-run',
+      reason: 'regional-allocation-non-computable', affectedIds: [] });
     expect(r.stages.some(s => s.status === 'non-computable')).toBe(true);
     expect(r.conditions.some(c => c.kind === 'missing-preferences')).toBe(true);
   });
