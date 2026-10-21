@@ -161,7 +161,7 @@ into `main`; public deployment follows that merge and a successful hosting gate.
   I07 Senate recovery policy, provisional I10 coalition-college recovery reading,
   I11 exclusion of zero-territorial-entitlement lists from recovery,
   provisional I12 exclusion of absent lists from ordinary territorial allocation,
-  I13 warned Camera ordinary/cap integer-seat donor fallback,
+  I13 warned integer-seat donor fallback in Camera/Senate college corrections,
   provisional I14 repeated initial Camera list remainder passes,
   and approved R26-02/03/04 models: attributed list
   totals, historically informed synthetic preferences and paired chamber votes

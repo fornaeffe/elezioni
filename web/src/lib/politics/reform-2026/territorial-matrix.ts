@@ -146,12 +146,16 @@ export function allocateTerritorialMatrix(input: TerritorialMatrixInput, executi
     return updated;
   };
   // Strict reading of C83-bis(1)(b)(3), also imported by (1-bis)(d),
-  // and the express wording of (1-bis)(c): remove remainder-awarded seats.
+  // S17(4)(c), and the express cap-group wording of C83-bis(1-bis)(c)
+  // and S17(5)(c): remove remainder-awarded seats.
   // Approved provisional I13-v1: only when those donors are exhausted,
   // rank positive-seat donors by their existing decimal, including integer
   // seats. Repeated removals are bounded by the surplus and available seats;
-  // they do not consume or invent a remainder. Other chambers/stages stay strict.
-  const looseDonors = input.chamber === 'camera' && input.norm === 'N18' && input.correction !== 'constituencies';
+  // they do not consume or invent a remainder. Senate extension authorized
+  // 21 October 2026 covers N21 lists and N22 groups/internal lists only.
+  const looseDonors = (input.chamber === 'camera' && input.norm === 'N18' && input.correction !== 'constituencies') ||
+    (input.chamber === 'senato' && (input.norm === 'N21' || input.norm === 'N22') &&
+      (input.correction === 'colleges' || input.correction === 'college-groups'));
   const integerDonors = (ids: ReadonlySet<string>) => looseDonors
     ? cells.filter(c => ids.has(c.targetId) && c.allocationEligible && c.seats > 0 && c.decimalPart !== null) : [];
   // I14 counts individual initial remainder-awarded seats without changing the

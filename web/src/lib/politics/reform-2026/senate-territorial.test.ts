@@ -12,6 +12,8 @@ import {
   type SenateTerritorialInput, type SenateCollegeResult
 } from './senate-territorial';
 import { createSeededDrawContext } from './ties';
+import { assembleRecoveryRemainders } from './recovery-communications';
+import { allocationTransfers } from './scrutiny-transfers';
 
 const noDraw: ScrutinyExecutionContext = { draw() { throw new Error('Unexpected draw'); } };
 const first: ScrutinyExecutionContext = { draw(r) { return { ...r, chosenId: r.alternativeIds[0], streamId: 'controlled' }; } };
@@ -179,10 +181,34 @@ describe('N21 ordinary Senate college allocation', () => {
     expect(r.colleges.matrices.map(m => m.norm)).toEqual(['N21']);
     expect(r.colleges.matrices[0].areas.map(a => a.capacity)).toEqual([3, 2]);
   });
-  it('retains no-progress corrections without fabricating an integer-seat donor', () => {
+  it('retains recipient exhaustion after enabling integer-seat donors', () => {
     const r = run(worked([1, 3], [[140, 60], [140, 60]], [2, 2]));
-    expect(r.colleges).toMatchObject({ status: 'non-computable', reason: 'no-eligible-donor-remainder', affectedRegionId: 'R' });
+    expect(r.colleges).toMatchObject({ status: 'non-computable', reason: 'no-eligible-recipient-remainder', affectedRegionId: 'R' });
     expect(r.colleges).not.toHaveProperty('targets');
+  });
+  it('I13 completes Campania 31 after strict donors, exporting unchanged unused donor evidence', () => {
+    const input = worked([11, 3, 1, 2, 1], [
+      [1204066, 201193, 71775, 105738, 89770],
+      [758885, 168070, 60688, 148719, 70725]
+    ], [10, 8]);
+    const r = complete(input), m = r.colleges.matrices[0];
+    expect(m.transfers.map(t => [t.fromCellId, t.toCellId, t.interpretationId])).toEqual([
+      ['["P1","E"]', '["P0","C"]', undefined], ['["P1","A"]', '["P0","B"]', 'I13']
+    ]);
+    expect(m.cells.find(c => c.id === '["P1","A"]')).toMatchObject({
+      integerSeats: 5, provisionalSeats: 5, seats: 4, remainderState: 'unused', decimalPart: f(892, 30177)
+    });
+    expect(r.colleges.warnings.filter(w => w.interpretationId === 'I13')).toEqual([
+      expect.objectContaining({ code: 'I13_INTEGER_SEAT_REMOVAL', severity: 'warning', chamber: 'senato', lawReference: 'S17(4)(a)-(c)' })
+    ]);
+    expect(assembleRecoveryRemainders(input.chamber, r)).toContainEqual(expect.objectContaining({
+      collegeId: 'P1', subject: list('A'), value: f(892, 30177), state: 'unused'
+    }));
+    const transfers = allocationTransfers([input.chamber], [{ chamber: 'senato', senateTerritorial: r, admission: input.admission } as unknown as Parameters<typeof allocationTransfers>[1][number]]);
+    expect(transfers).toContainEqual(expect.objectContaining({ chamber: 'senato', norm: 'N21', interpretationId: 'I13',
+      from: expect.objectContaining({ collegeId: 'P1', listId: 'A' }),
+      remainders: [expect.objectContaining({ before: 'unused', after: 'unused' }), expect.anything()] }));
+    expect(m.draws).toEqual([]);
   });
   it('skips zero-capacity college divisions while preserving positive regional targets', () => {
     const r = complete(worked([3, 2], [[0, 0], [300, 200]], [0, 5]));
@@ -218,6 +244,37 @@ describe('N21 ordinary Senate college allocation', () => {
 });
 
 describe('N22 Senate cap college groups and lists', () => {
+  it('replays repeated I13 group removals with I03 draws after input permutations', () => {
+    const input = worked([1, 9], [[50, 4], [50, 4], [50, 4], [0, 888]], [2, 2, 2, 4], 'bonus-with-cap');
+    const seeded = () => createSeededDrawContext('senate-I13', 'legal');
+    const r = complete(input, seeded()), m = r.colleges.matrices[0];
+    expect(m.transfers.filter(t => t.interpretationId === 'I13')).toHaveLength(2);
+    expect(m.transfers.slice(0, 3).every(t => !t.interpretationId)).toBe(true);
+    expect(m.transfers.slice(3).every(t => t.route === 'same-area' &&
+      t.remainders[0].before === 'consumed' && t.remainders[0].after === 'consumed')).toBe(true);
+    expect(m.areas.map(a => a.finalSeats)).toEqual([2, 2, 2, 4]);
+    expect(m.cells.every(c => c.seats >= 0)).toBe(true);
+    expect(m.draws.length).toBeGreaterThan(0);
+    expect(m.draws.every(d => d.rule === 'I03')).toBe(true);
+    expect(JSON.parse(JSON.stringify(r))).toEqual(r);
+    input.chamber.colleges.reverse(); input.chamber.lists.reverse(); input.figures.colleges.reverse();
+    input.figures.colleges.forEach(c => c.figures.lists.reverse());
+    expect(complete(input, seeded())).toEqual(r);
+  });
+  it('I13 removes an integer group seat after strict donors and completes internal lists and recovery evidence', () => {
+    const input = worked([1, 5], [[50, 10], [50, 10], [0, 480]], [2, 2, 2], 'bonus-with-cap');
+    const r = complete(input, first), m = r.colleges.matrices[0];
+    expect(m.transfers.map(t => t.interpretationId)).toEqual([undefined, undefined, 'I13']);
+    expect(m.transfers[2]).toMatchObject({ route: 'same-area', fromCellId: '["P0","majority"]', toCellId: '["P0","minority"]',
+      remainders: [expect.objectContaining({ before: 'consumed', after: 'consumed' }), expect.anything()] });
+    expect(m.areas.map(a => a.finalSeats)).toEqual([2, 2, 2]);
+    expect(m.cells.every(c => c.seats >= 0)).toBe(true);
+    expect(r.colleges.matrices).toHaveLength(3);
+    expect(r.colleges.warnings.filter(w => w.interpretationId === 'I13')).toEqual([
+      expect.objectContaining({ chamber: 'senato', severity: 'warning', lawReference: 'S17(5)(a)-(c)' })
+    ]);
+    expect(assembleRecoveryRemainders(input.chamber, r).every(row => !row.id.includes('groups'))).toBe(true);
+  });
   it('truncates both indices before normalization, changing a provisional seat', () => {
     const input = worked([1, 1], [[1000000, 2000000], [500001, 1000003]], [1, 1], 'bonus-with-cap');
     const r = complete(input, first), m = r.colleges.matrices[0];

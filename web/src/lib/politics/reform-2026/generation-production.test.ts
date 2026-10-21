@@ -44,4 +44,13 @@ it.skipIf(!present)('R26-19 required production bundle: acquire/generate with da
     collegeId: europa.areaId, subject: { kind: 'list', id: europa.targetId }, value: europa.decimalPart, state: 'used' }));
   expect(new Set(repeated.seats.flatMap(s => s.status === 'filled' ? [s.candidateId] : [])).size).toBe(588);
   expect(JSON.parse(JSON.stringify(repeated)).interpretations).toContainEqual({ id: 'I14', version: 'I14-v1' });
+  // Recorded benchmark 31: Campania's M5S integer surplus in Senate N21.
+  const senateReplay = runPoliticsReformScrutiny(generateReformSimulation(prepared, 31).input);
+  expect(senateReplay.status).toBe('complete');
+  expect(senateReplay.seats).toHaveLength(588);
+  expect(new Set(senateReplay.seats.flatMap(s => s.status === 'filled' ? [s.candidateId] : [])).size).toBe(588);
+  expect(senateReplay.warnings).toContainEqual(expect.objectContaining({ code: 'I13_INTEGER_SEAT_REMOVAL', chamber: 'senato', severity: 'warning' }));
+  expect(senateReplay.interpretations).toContainEqual({ id: 'I13', version: 'I13-v1' });
+  expect(senateReplay.transfers).toContainEqual(expect.objectContaining({ chamber: 'senato', norm: 'N21', interpretationId: 'I13',
+    remainders: [expect.objectContaining({ before: 'unused', after: 'unused' }), expect.anything()] }));
 }, 30000);

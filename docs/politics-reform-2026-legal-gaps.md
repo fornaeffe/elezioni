@@ -7,15 +7,16 @@ assumptions belong elsewhere. Add gaps only after checking the controlling text
 and a worked example; do not infer them from benchmark counts alone.
 
 Source: [law 180/2026, article 1(23), amending C83-bis](https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticolo?art.codiceRedazionale=26G00201&art.dataPubblicazioneGazzetta=2026-10-09&art.flagTipoArticolo=0&art.idArticolo=1&art.idGruppo=0&art.idSottoArticolo=1&art.idSottoArticolo1=10&art.progressivo=0&art.versione=1),
-checked on 20 October 2026. The simulator policies below are Luca's explicit
+checked on 20 October 2026; [article 2(10), amending S17](https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticolo?art.codiceRedazionale=26G00201&art.dataPubblicazioneGazzetta=2026-10-09&art.flagTipoArticolo=0&art.idArticolo=2&art.idGruppo=0&art.idSottoArticolo=1&art.idSottoArticolo1=10&art.progressivo=0&art.versione=1),
+checked on 21 October 2026. The simulator policies below are Luca's explicit
 decisions, not established administrative practice or binding interpretations.
 Keep operative contracts in the [specification](politics-reform-2026-specification.md)
 and verification history in [migration history](migration-history.md).
 
 | Gap | Rule | Simulator treatment |
 | --- | --- | --- |
-| LG01 | C83-bis(1)(b)(3), including its import by (1-bis)(d): excess list seats with no remaining remainder-awarded donor | Warned integer-seat removal under provisional I13-v1 |
-| LG02 | C83-bis(1-bis)(c): excess cap-group seats with no remaining remainder-awarded donor | Warned integer-seat removal under provisional I13-v1, within the same college |
+| LG01 | C83-bis(1)(b)(3) and S17(4)(c), including imports by C83-bis(1-bis)(d) and S17(5)(d): excess list seats with no remaining remainder-awarded donor | Warned integer-seat removal under provisional I13-v1 in Camera N18 and Senate N21/N22 |
+| LG02 | C83-bis(1-bis)(c) and S17(5)(c): excess cap-group seats with no remaining remainder-awarded donor | Warned integer-seat removal under provisional I13-v1 in Camera N18 and Senate N22, within the same college |
 | LG03 | C83-bis(1-bis)(b)-(c), C3: fixed college capacity differs from the constituency entitlement communicated upstream | Unresolved; retain `constituency-capacity-target-mismatch` |
 
 ## LG01: ordinary list donor exhaustion
@@ -23,6 +24,8 @@ and verification history in [migration history](migration-history.md).
 **Strict reading:** excess seats must be removed where obtained through decimal
 parts. An integer-only surplus, or a surplus remaining after eligible remainder
 seats have been removed, has no permitted donor.
+This is the adopted reading of both ordinary list provisions; reading the
+decimal as merely a donor-college ranking would yield a different interpretation.
 
 **Example:** benchmark simulation 4, seed `r26-default-v1`, Basilicata. Four
 positive-entitlement lists have votes 88,446 / 45,804 / 28,436 / 7,630 and targets
@@ -36,6 +39,19 @@ smallest existing decimal part. Repeat only while surplus and positive seats
 remain; resolve equal ranks reproducibly under I03. Apply also to list splits
 inside cap groups through (1-bis)(d). Recipient eligibility remains unchanged.
 Ordinary b(3) removals/additions remain independent.
+
+**Senate extension, approved 21 October 2026:** apply the same fallback to
+S17(4)(c), also imported by S17(5)(d). Ordinary Senate corrections retain their
+paired subtraction/addition and independently ranked colleges; preserve regional
+list targets and totals. Recipient decimals must still be unused.
+
+**Senate example:** benchmark simulation 31, same seed, Campania. Regional
+M5S/+Europa/Azione-IV/FdI/FI targets are 11/3/1/2/1. College quotas
+167,254/150,885 give M5S 7+5 integer seats. After FI's remainder seat corrects
+Azione-IV's deficit, M5S still has one excess and +Europa one missing seat.
+I13 removes M5S's integer seat in college 150002 (decimal 892/30177), preserving
+its unused state, and assigns a seat to +Europa's unused decimal in 150001.
+The composed production run completes with 588 domestic seats.
 
 ## LG02: cap-group donor exhaustion
 
@@ -52,6 +68,9 @@ leaves an excess integer seat.
 transferring each removed seat to the deficit group in the same college.
 Every college capacity and the communicated group/list targets remain binding.
 The example then completes the list-allocation and recovery communications.
+Luca extended this workaround to Senate S17(5)(c) on 21 October 2026.
+The same constructed example completes Senate group and internal list allocation;
+group corrections preserve every college capacity and regional group/list target.
 
 ## LG03: C3 capacity and upstream constituency totals disagree
 
@@ -82,7 +101,8 @@ reduces surplus by one, never takes a seat below zero, and retains original
 integer/provisional counts as evidence. Candidate proclamation and recovery
 consume the corrected targets and unchanged remainder evidence.
 
-I13 applies only to Camera N18 list and cap-group corrections. Senate rules and
-Camera constituency corrections retain their existing policies. Recipient
+I13 applies to Camera N18 and Senate N21/N22 college list corrections, including
+internal cap lists, and Camera N18/Senate N22 cap-group corrections. Camera
+constituency and Senate regional/cap-stage corrections retain their existing policies. Recipient
 exhaustion, undefined quotas, impossible residuals and LG03 remain separate
 non-computable paths.

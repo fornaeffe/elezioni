@@ -345,8 +345,9 @@ describe('Camera territorial integer/remainder matrices and legal corrections', 
     expect(r.areas[0]).toMatchObject({ capacity: 4, finalSeats: 1 });
   });
 
-  it('I13 supports the cap intra-group list rule imported from ordinary b(3)', () => {
-    const r = complete({ ...independent(fixture([1, 1, 1, 1], [[88446, 45804, 28436, 7630]], [4])), correction: 'colleges' });
+  it.each(['camera', 'senato'] as const)('I13 supports the %s cap intra-group list rule', chamber => {
+    const r = complete({ ...independent(fixture([1, 1, 1, 1], [[88446, 45804, 28436, 7630]], [4])),
+      chamber, norm: chamber === 'camera' ? 'N18' : 'N22', correction: 'colleges' });
     expect(r.transfers[0]).toMatchObject({ interpretationId: 'I13', fromCellId: '["T0","A"]', toCellId: '["T0","D"]' });
     expect(r.cells.map(c => c.seats)).toEqual([1, 1, 1, 1]);
   });
@@ -372,9 +373,9 @@ describe('Camera territorial integer/remainder matrices and legal corrections', 
     expect(r.warnings.filter(w => w.interpretationId === 'I13')).toHaveLength(1);
   });
 
-  it('keeps Senate and Camera constituency donors strict', () => {
+  it('keeps constituency donors strict in either chamber', () => {
     const f = fixture([1, 3], [[140, 60], [130, 70]], [2, 2]);
-    for (const input of [f, { ...f, chamber: 'senato' as const, norm: 'N22' as const, correction: 'college-groups' as const }]) {
+    for (const input of [f, { ...f, chamber: 'senato' as const, norm: 'N21' as const }]) {
       const r = run(input);
       expect(r).toMatchObject({ status: 'non-computable', reason: 'no-eligible-donor-remainder' });
       expect(r.warnings.some(w => w.interpretationId === 'I13')).toBe(false);

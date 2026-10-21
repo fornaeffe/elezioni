@@ -4652,3 +4652,104 @@ The reproducible comparison and exact summary are in
 `data/derived/r26-i14-review-20261021/` (`replay.mjs`, `replay-summary.json`).
 Historical reports and the previous investigation artifacts remain unchanged.
 No commit, deployment or publication was performed.
+
+## 2026-10-21: N21 donor-exhaustion investigation
+
+Replayed recorded benchmark IDs from 1 until the first current Senate
+`no-eligible-donor-remainder`: simulation **31**, seed `r26-default-v1`,
+digest-verified snapshot `r26-generation-v1-c5c4be9fafb5`, model
+`r26-models-v1-f71a72020aaa`. This is an investigative Node replay, not a new
+browser benchmark or a remeasurement of the historical 59 occurrences. The
+existing post-I14 1,000-ID comparison records ten current donor-exhaustion
+failures; this investigation independently checks one of them.
+
+No bonus is awarded. Campania has 18 ordinary seats. Regional subject allocation
+uses integer quota 168,720; coalition splitting yields M5S/+Europa/Azione-IV/
+FdI/FI targets **11/3/1/2/1**. PD, AVS and Lega receive zero seats, so S17(4)(a)
+excludes their combined 157,332 votes from the college denominators. The two
+colleges have capacities 10/8, included votes 1,672,542/1,207,087 and integer
+quotas **167,254/150,885**. M5S receives **7+5 integer seats**, already exceeding
+its regional target. Reached-target exclusion prevents further remainder seats
+but cannot undo this integer surplus. Initial complete college allocations are
+M5S/+Europa/Azione-IV/FdI/FI **7/1/0/1/1** and **5/1/0/1/1**.
+
+The first correction removes FI's remainder seat in `senato:P:150002`
+(decimal about 0.468734) and gives it to Azione-IV in `senato:P:150001`
+(about 0.429138). M5S remains at 12 instead of 11; +Europa remains at two
+instead of three. Neither M5S cell was awarded a remainder seat, so the donor
+pool is empty. Both +Europa recipient decimals remain unused. No draw occurs.
+N21 blocks, followed by Senate N23/N24/N27 and joint N28 prerequisite failures.
+
+Reopened the [controlling Senate amendment, article 2(10)](https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticolo?art.codiceRedazionale=26G00201&art.dataPubblicazioneGazzetta=2026-10-09&art.flagTipoArticolo=0&art.idArticolo=2&art.idGruppo=0&art.idSottoArticolo=1&art.idSottoArticolo1=10&art.progressivo=0&art.versione=1).
+S17(4)(c) has the same relevant donor wording as C83-bis(1)(b)(3). Under the
+strict remainder-awarded-seat reading adopted for Camera LG01, this is the same
+kind of legal gap, not an arithmetic defect in this replay. The ordinary list
+wording remains interpretive: reading it as ranking donor colleges regardless
+of seat origin would instead make the predicate an implementation restriction.
+Do not confuse that alternative with the more explicit S17(5)(c) cap-group rule.
+I13 remains expressly scoped to Camera; no Senate workaround was applied and
+no new gap-register entry was added during this analysis.
+
+Evidence under `data/derived/r26-n21-review-20261021/`: reproducible `inspect.mjs`,
+full `simulation-31.json`, scoped `summary.json`, and `verify.mjs` with independent
+BigInt quota/floor/decimal assertions, initial capacity checks, exact transfer
+identities and donor/recipient pool checks (`arithmetic-verification.json`).
+All assertions passed. No scrutiny implementation changed.
+
+## 2026-10-21: extend I13 to Senate N21/N22
+
+Luca authorized extending I13 to Senate and updating LG01/LG02. The shared
+matrix now enables the existing warned fallback for Senate N21 college lists
+and N22 cap groups/internal lists. Strict remainder-awarded donors retain
+priority; only their exhaustion enables positive-seat donors ranked by ascending
+existing decimal, with warned seeded I03 draws for equal ranks. The same I13-v1
+warning, transfer and metadata contracts apply. Integer removal preserves the
+donor decimal and unused/used/consumed state. Senate list transfers retain their
+paired corrections and regional targets; cap-group transfers stay within the
+same college and preserve its capacity. Recipient eligibility, Senate regional
+and cap stages, Camera constituency rules and Camera-only I14 are unchanged.
+
+Expanded LG01 to S17(4)(c) and its S17(5)(d) import, with simulation 31 as the
+worked Senate example. Expanded LG02 to S17(5)(c), backed by constructed Senate
+group corrections through internal list allocation/recovery communication.
+Updated the operative specification, code reading map and migration-plan
+boundary. LG03 remains unresolved. Existing warning-driven metadata and located
+transfer exports already support Senate, so no schema or UI change was needed.
+
+Verification:
+
+- `npm run check`: zero errors/warnings; `npm run check:data`: passed.
+- `npm test`: **61 files / 885 passed, no skips**. Covers strict-donor priority,
+  unused and consumed donor-state preservation, repeated cap-group integer
+  removals, nonnegative seats, college capacities, seeded draws, permutation/JSON
+  replay, N22 internal list fallback, recovery evidence and located N21 exports.
+  A first tiny-vote repeated-removal fixture encountered an unrelated internal
+  list arithmetic blocker; replaced its vote figures with a case that verifies
+  repeated removals and full internal allocation without relaxing that blocker.
+- Production simulation **31** completes **588 domestic seats**, all elected
+  identities unique, with a Senate I13 warning, metadata and located transfer.
+- `npm run build`: passed; then prebuilt `npm run test:e2e -- --reporter=line`:
+  **21 Chromium tests passed**. Build plugin-timing/color notices were informational.
+- Compared **all 1,000 recorded IDs** before/after the extension, using the same
+  generated inputs and digest-verified snapshot/model/seed. The saved pre-change
+  matrix forms an isolated baseline module graph. Results improve from
+  **985 complete / 15 non-computable** to **994 complete / 6 non-computable**,
+  with zero partials/exceptions. Full serialized results for **990 IDs are
+  identical**. Nine IDs complete with 588 seats and one Senate I13 removal each:
+  **31, 173, 350, 593, 610, 664, 940, 970, 980**. ID **242** changes from donor
+  exhaustion to recipient exhaustion before any fallback transfer; no recipient
+  workaround was added. The remaining root blockers are four Camera and two
+  Senate recipient-exhaustion cases. No donor-exhaustion blocker remains in this
+  sample. Senate cap-group fallback is verified by constructed tests rather
+  than claimed as observed in this production sample.
+- Production browser check, **100 simulations / four compute workers**:
+  **97 complete / 3 non-computable**, all three recipient-exhaustion cases;
+  **23 I13 removals in 18 simulations** across both chambers. The Node replay
+  ran concurrently, so the 25.802 s browser elapsed time is execution evidence,
+  not an isolated performance comparison.
+
+Reproducible baseline/comparison and exact reports are under
+`data/derived/r26-i13-senate-review-20261021/` (`baseline-territorial-matrix.ts`,
+`replay.mjs`, `replay-summary.json`, `browser-100.json`). Prior investigation
+artifacts and historical benchmark reports remain unchanged. No commit,
+deployment or publication was performed.

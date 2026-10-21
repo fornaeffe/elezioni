@@ -654,6 +654,11 @@ integer targets are excluded from the parallel remainder allocations. Donor
 used decimals ascend and recipient unused decimals descend independently;
 transfers conserve regional list targets and region totals but can change
 individual college totals. Missing correction tie-breaks use warned I03 draws.
+Provisional I13-v1, extended to Senate on 21 October 2026, exhausts eligible
+remainder-awarded donors before removing integer seats by ascending existing
+decimal. Each integer removal preserves the donor decimal/state, marks its
+transfer and emits `I13_INTEGER_SEAT_REMOVAL`; composed metadata records I13-v1.
+Recipient decimals still require unused state. See [LG01/LG02](../../../../../docs/politics-reform-2026-legal-gaps.md).
 
 After an actual cap correction, S17(5) first divides the region's positive-target
 lists into majority and minority groups. Both regional group quotas discard
@@ -663,6 +668,10 @@ group** votes, then statutory draws. Group corrections transfer seats within the
 same college; S17(4) then allocates lists separately within each corrected group.
 Zero-target groups are inactive and their undefined quotas/indices are skipped.
 Both truncations are express statutory rules here, requiring no I05 policy.
+I13 also covers these same-college cap-group corrections and their internal
+list corrections. Group fallback preserves every college capacity; its trace
+stays in the group matrix. Senate regional/cap stages and Camera-only I14
+initial repeated remainder passes retain their existing policies.
 
 The shared `territorial-matrix.ts` engine takes an explicit chamber, statutory
 references, vote tie criterion and correction route. Camera retains its existing
