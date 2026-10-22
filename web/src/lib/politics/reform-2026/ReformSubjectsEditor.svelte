@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Trash2 } from '@lucide/svelte';
   import type { PoliticalList } from './input';
   import type { ReformGenerationScenario } from './generation-types';
   import type { ReformEditorCatalog } from './editor-catalog';
@@ -20,10 +21,10 @@
   <h3>Coalizioni</h3>
   <p>Nomi e colori sono comuni. L'appartenenza delle liste segue l'ambito di modifica selezionato.</p>
   {#each scenario.presentation?.coalitions ?? [] as coalition (coalition.id)}
-    <div class="editor-row">
+    <div class="editor-row subject-row coalition-row">
       <input type="color" aria-label={`Colore coalizione ${coalition.name}`} value={coalition.color} {disabled} onchange={e => metadata(n => { n.presentation!.coalitions.find(c => c.id === coalition.id)!.color = e.currentTarget.value; })} />
-      <label>Nome coalizione<input value={coalition.name} {disabled} onchange={e => { const name = e.currentTarget.value; metadata(n => { n.presentation!.coalitions.find(c => c.id === coalition.id)!.name = name; }); }} /></label>
-      <button type="button" {disabled} onclick={() => onaction(() => removeReformCoalition(scenario, coalition.id))}>Rimuovi coalizione {coalition.name}</button>
+      <label class="subject-name">Nome coalizione<input value={coalition.name} {disabled} onchange={e => { const name = e.currentTarget.value; metadata(n => { n.presentation!.coalitions.find(c => c.id === coalition.id)!.name = name; }); }} /></label>
+      <button type="button" title={`Rimuovi coalizione ${coalition.name}`} aria-label={`Rimuovi coalizione ${coalition.name}`} {disabled} onclick={() => onaction(() => removeReformCoalition(scenario, coalition.id))}><Trash2 size={18} aria-hidden="true" /></button>
     </div>
   {/each}
   <button type="button" {disabled} onclick={() => onaction(() => addReformCoalition(scenario))}>Aggiungi coalizione</button>
@@ -33,15 +34,15 @@
   <p>{matching.length} liste; fino a 10 per pagina, compresi i riferimenti storici speciali.</p>
   {#each matching.slice(safePage * 10, (safePage + 1) * 10) as list (list.id)}
     <div class="editor-card" data-testid="reform-list-row">
-      <div class="editor-row">
+      <div class="editor-row subject-row list-row">
         <input type="color" aria-label={`Colore lista ${list.name}`} value={scenario.presentation?.lists.find(l => l.id === list.id)?.color ?? '#64748b'} {disabled}
           onchange={e => { const color = e.currentTarget.value; metadata(n => { n.presentation!.lists.find(l => l.id === list.id)!.color = color; }); }} />
-        <label>Nome lista<input value={list.name} {disabled} onchange={e => patch(list.id, { name: e.currentTarget.value })} /></label>
-        <label>Coalizione di {list.name}<select value={list.coalitionId ?? ''} {disabled} onchange={e => patch(list.id, { coalitionId: e.currentTarget.value || null })}>
+        <label class="subject-name">Nome lista<input value={list.name} {disabled} onchange={e => patch(list.id, { name: e.currentTarget.value })} /></label>
+        <label class="subject-coalition">Coalizione<select value={list.coalitionId ?? ''} {disabled} onchange={e => patch(list.id, { coalitionId: e.currentTarget.value || null })}>
           <option value="">Lista autonoma</option>
           {#each scenario.presentation?.coalitions ?? [] as coalition (coalition.id)}<option value={coalition.id}>{coalition.name}</option>{/each}
         </select></label>
-        <button type="button" {disabled} onclick={() => onaction(() => removeReformList(scenario, scope, list.id))}>Rimuovi lista {list.name}</button>
+        <button type="button" title={`Rimuovi lista ${list.name}`} aria-label={`Rimuovi lista ${list.name}`} {disabled} onclick={() => onaction(() => removeReformList(scenario, scope, list.id))}><Trash2 size={18} aria-hidden="true" /></button>
       </div>
       {#if scope === 'common'}
         {@const camera = scenario.lists.camera.find(l => l.id === list.id)}

@@ -18,5 +18,12 @@
 .scenario-editor table { border-collapse: collapse; width: 100%; font-size: .9rem; }
 .scenario-editor td, .scenario-editor th { text-align: left; padding: .5rem; border-bottom: 1px solid var(--editor-border); overflow-wrap: anywhere; }
 .scenario-editor small { color: #475569; }
+.scenario-editor .subject-row { flex-wrap: nowrap; width: 100%; max-width: 72rem; }
+.scenario-editor .subject-row > input[type=color], .scenario-editor .subject-row > button { flex: 0 0 auto; }
+.scenario-editor .subject-row .subject-name { flex: 1 1 18rem; min-width: 8rem; }
+.scenario-editor .subject-row .subject-coalition { flex: 0 1 24rem; min-width: 10rem; overflow: hidden; }
+.scenario-editor .subject-row .subject-name input, .scenario-editor .subject-row .subject-coalition select { width: 100%; min-width: 0; }
+.scenario-editor .subject-coalition { white-space: nowrap; }
 .scenario-editor input:focus-visible, .scenario-editor select:focus-visible, .scenario-editor button:focus-visible, .scenario-editor summary:focus-visible { outline: 3px solid #0284c7; outline-offset: 2px; }
 @media (max-width: 600px) { .scenario-editor section, .scenario-editor > details, .scenario-editor fieldset { padding: .65rem; } .scenario-editor .editor-row > label { width: 100%; } }
+@media (max-width: 600px) { .scenario-editor .list-row { flex-wrap: wrap; } .scenario-editor .subject-row .subject-name { width: auto; } .scenario-editor .list-row .subject-coalition { flex: 1 1 10rem; width: auto; } }
