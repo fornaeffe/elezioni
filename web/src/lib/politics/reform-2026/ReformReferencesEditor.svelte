@@ -34,13 +34,18 @@
   <p>Precedenza: Italia → regione → provincia → comune. I campi mostrano l'override di quest'area; i valori ereditati e derivati sono disponibili in Verifica e anteprima.</p>
   {#if reference}
     <h4>{label(reference)} — {scope === 'common' ? 'Comune ai rami' : scope === 'camera' ? 'Camera' : 'Senato'}</h4>
+    <h4>Liste — percentuali sui voti validi</h4>
     <div class="editor-reference-grid">
       {#each lists as list (list.id)}
         <label>{list.name}<PercentageInput label={`Quota ${list.name}`} value={referenceValue(scenario.shares, reference, scope, list.id)} onchange={v => set(list.id, v)} {disabled} /></label>
       {/each}
-      <label>Astensione elettori<PercentageInput label="Astensione elettori" value={referenceValue(scenario.abstention, reference, scope)} onchange={v => set(null, v)} {disabled} /></label>
     </div>
-    <p>L'astensione comprende anche schede non valide e voti storici non mappati, secondo la convenzione dello scenario.</p>
+    <div class="editor-abstention">
+      <h4>Astensione — percentuale sul totale degli elettori</h4>
+      <p>La base è il totale degli elettori, non i voti validi. Questa percentuale è separata dalle quote delle liste e non si somma a esse.</p>
+      <label>Astensione (% degli elettori)<PercentageInput label="Astensione elettori" value={referenceValue(scenario.abstention, reference, scope)} onchange={v => set(null, v)} {disabled} /></label>
+      <p>Secondo la convenzione dello scenario, questa voce comprende anche schede non valide e voti storici non mappati.</p>
+    </div>
   {/if}
   {#if localGroups.length}<details><summary>Aree con riferimenti ({localGroups.length})</summary>
     {#each localGroups as group (referenceKey(group))}<button type="button" {disabled} onclick={() => { kind = group.kind; location = group.kind === 'national' ? '' : group.code; }}>{label(group)}</button>{/each}

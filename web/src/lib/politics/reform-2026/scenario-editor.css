@@ -9,7 +9,10 @@
 .scenario-editor button { cursor: pointer; background: #f1f5f9; color: #17344a; }
 .scenario-editor button[aria-pressed=true] { background: #155e75; color: white; }
 .scenario-editor :disabled { opacity: .6; cursor: default; }
-.scenario-editor .editor-reference-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: .75rem; }
+.scenario-editor .editor-reference-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: .75rem; max-width: 48rem; }
+.scenario-editor .editor-reference-grid > label { display: grid; grid-template-columns: minmax(0, 1fr) 9rem; align-items: center; gap: 1rem; }
+.scenario-editor .editor-abstention { margin-top: 1.5rem; padding: 1rem; border-top: 3px solid #94a3b8; background: #f1f5f9; border-radius: .3rem; }
+.scenario-editor .editor-abstention > label { max-width: 18rem; }
 .scenario-editor .editor-card { padding: .75rem; border-bottom: 1px solid var(--editor-border); }
 .scenario-editor .editor-notice { padding: .65rem; background: #fff7df; border-left: 3px solid #a16207; }
 .scenario-editor .editor-error { padding: .65rem; background: #fff1f2; border-left: 3px solid #be123c; overflow-wrap: anywhere; }
