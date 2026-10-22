@@ -80,8 +80,8 @@ test('production paired worker, bounded detail rendering, scenario/results round
   await expect(page.getByRole('table', { name: 'Reform overview' })).toContainText('2');
   await expect(page.getByLabel('Avvisi riforma')).toContainText('R26_CONDITIONAL_CANDIDATES');
   await page.getByLabel('Tabella riforma').selectOption({ label: 'Seat entitlement and election locations (1176)' });
-  await expect(page.locator('tbody tr')).toHaveCount(50);
-  await expect(page.getByRole('table')).toHaveCount(1);
+  await expect(page.getByRole('table', { name: 'Seat entitlement and election locations', exact: true }).locator('tbody tr')).toHaveCount(50);
+  await expect(page.getByRole('table', { name: 'Riepilogo dei messaggi', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Pagina successiva', exact: true }).click();
   await expect(page.getByText('Pagina 2 di 24')).toBeVisible();
   await page.getByLabel('Ramo grafico').selectOption('senato');

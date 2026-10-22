@@ -4,6 +4,8 @@ Use this guide for the results alignment at `MIGRATION_PLAN.md:209`. For
 execution, local session recovery and archive transport use the
 [application guide](politics-reform-2026-application.md). For legal allocation
 and recovery use the [core reading map](../web/src/lib/politics/reform-2026/README.md).
+For global conditions, message frequencies and affected IDs use the
+[messages guide](politics-reform-2026-messages.md).
 
 ## Views and counting definitions
 

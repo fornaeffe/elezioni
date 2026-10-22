@@ -123,6 +123,10 @@ export interface ScrutinyWarning {
   interpretationId?: string;
   seatId?: string;
   drawContextId?: string;
+  /** Absence in older archives does not imply global scope. */
+  scope?: 'global' | 'simulation' | 'execution';
+  occurrences?: number;
+  reason?: string;
 }
 
 export interface ResultTable {
@@ -152,6 +156,8 @@ export interface SimulationBenchmark {
 }
 
 export interface SimulationResult {
+  /** Optional archive coverage, including interruption before the first run. */
+  completedSimulations?: number;
   storage?: import('./result-store').ResultStorage;
   type: 'result';
   status: 'completed' | 'not_implemented';

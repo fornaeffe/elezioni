@@ -7,7 +7,8 @@
   import { ResultServiceClient } from '../../core/result-service-client';
   import type { StoredResult } from '../../core/result-store';
   import type { ResultServiceReply } from '../../workers/result-service';
-  import type { ResultTable, ScrutinyWarning, SimulationRequest, SimulationResult, SimulationWorkerMessage } from '../../core/types';
+  import type { ResultTable, SimulationRequest, SimulationResult, SimulationWorkerMessage } from '../../core/types';
+  import DiagnosticMessages from '../../results/DiagnosticMessages.svelte';
   import { requireSimulationCount } from '../../core/runtime-data';
   import { estimateReformWorkerCapacity, requireReformWorkerCount } from '../../core/reform-worker-capacity';
   import { requireReformScenario, serializeReformScenario, parseReformScenario } from './generation-scenario';
@@ -34,7 +35,6 @@
   let result = $state.raw<SimulationResult | null>(null);
   let table = $state.raw<ResultTable | undefined>();
   let chartTable = $state.raw<ResultTable | undefined>();
-  let shownWarnings = $state.raw<ScrutinyWarning[]>([]);
   let savedResults = $state<{ id: string; label: string }[]>([]);
   let selectedSavedResult = $state('');
   let simulations = $state(10);
@@ -47,17 +47,15 @@
   let ready = $state(false);
   let tableIndex = $state(0);
   let pageIndex = $state(0);
-  let warningPage = $state(0);
   let selectedRun = $state(1);
   let selectedChamber = $state('camera');
   let client: ResultServiceClient | undefined;
   let owner = $state('');
   let currentRun = '', alive = true;
-  let tableRequest = 0, chartRequest = 0, warningRequest = 0;
+  let tableRequest = 0, chartRequest = 0;
   const pageSize = 50;
   const isBusy = $derived(running || busyAction !== '');
   const descriptor = $derived(result?.storage?.tables[tableIndex]);
-  const warningCount = $derived(result?.storage ? result.storage.warningCounts.error + result.storage.warningCounts.warning : result?.warnings.filter(w => w.severity !== 'info').length ?? 0);
   const pageCount = $derived(Math.max(1, Math.ceil((descriptor?.rows ?? table?.rows.length ?? 0) / pageSize)));
   const safePage = $derived(Math.min(pageIndex, pageCount - 1));
   const rows = $derived(table?.rows ?? []);
@@ -71,7 +69,7 @@
   $effect(() => { if (ready && validation.length === 0) localStorage.setItem(storageKey, fingerprint); });
   $effect(() => {
     const id = result?.storage?.id, index = tableIndex, page = safePage;
-    if (id) void fetchTable(id, index, page);
+    if (id && result?.storage?.tables[index]) void fetchTable(id, index, page);
     else table = result?.tables[index];
   });
   $effect(() => {
@@ -79,11 +77,6 @@
     const index = result?.storage?.tables.findIndex(t => t.name === 'Seat entitlement and election locations') ?? -1;
     if (id && index >= 0) void fetchChart(id, index, simulation);
     else chartTable = result?.tables.find(t => t.name === 'Seat entitlement and election locations');
-  });
-  $effect(() => {
-    const id = result?.storage?.id, page = warningPage;
-    if (id) void fetchWarnings(id, page);
-    else shownWarnings = result?.warnings.filter(w => w.severity !== 'info').slice(page * 10, page * 10 + 10) ?? [];
   });
   function describe(e: unknown) { return e instanceof Error ? e.message : String(e); }
   function service() {
@@ -133,18 +126,11 @@
       if (alive && version === chartRequest) chartTable = loaded;
     } catch (e) { if (alive && version === chartRequest) error = describe(e); }
   }
-  async function fetchWarnings(id: string, page: number) {
-    const version = ++warningRequest;
-    try {
-      const loaded = await service().call<ScrutinyWarning[]>('warnings', { resultId: id, owner, offset: page * 10 });
-      if (alive && version === warningRequest) shownWarnings = loaded;
-    } catch (e) { if (alive && version === warningRequest) error = describe(e); }
-  }
   function attach(record: StoredResult, label: string) {
     if (!('kind' in record.scenario)) throw new Error('Expected an explicit reform scenario');
     scenario = upgradeReformDraft(copyScenario(record.scenario)); resultScenario = copyScenario(record.scenario);
     result = record.result; simulations = record.result.benchmark.simulations;
-    tableIndex = 0; pageIndex = 0; warningPage = 0; phase = label;
+    tableIndex = 0; pageIndex = 0; phase = label;
     if (record.result.storage?.state === 'interrupted') error = record.result.warnings.filter(w => w.code.startsWith('RESULT_')).map(w => w.message).join('\n') || 'Risultato parziale: il calcolo precedente e stato interrotto.';
     remember(record.id, `${record.result.benchmark.startedAt} · ${record.result.storage?.completedSimulations}/${simulations}`);
   }
@@ -226,7 +212,7 @@
         running = false; phase = m.status; currentRun = '';
         if (m.storage) {
           if (m.storage.state === 'interrupted') error = m.warnings.filter(w => w.code.startsWith('RESULT_')).map(w => w.message).join('\n');
-          result = m; resultScenario = captured; tableIndex = 0; pageIndex = 0; warningPage = 0;
+          result = m; resultScenario = captured; tableIndex = 0; pageIndex = 0;
           remember(id, `${m.benchmark.startedAt} · ${m.storage.completedSimulations}/${m.benchmark.simulations}`);
         } else if (!result) { result = m; resultScenario = captured; }
         else error = m.warnings.map(w => `${w.code}: ${w.message}`).join('\n');
@@ -272,18 +258,16 @@
       <button onclick={() => exportResult('json')} disabled={isBusy}>Scarica risultati JSON.gz</button>
       <button onclick={() => exportResult('csv')} disabled={isBusy}>Scarica risultati CSV</button>
       <button onclick={clearResult} disabled={isBusy}>Elimina risultato locale</button>
-      <div aria-label="Note riforma">{#each result.warnings.filter(w => w.severity === 'info') as w (w.code + w.message)}<p><strong>{w.code}</strong>: {w.message}</p>{/each}</div>
-      <div aria-label="Avvisi riforma">
-        <p>{warningCount} avvisi/errori. Visualizzati al massimo 10 alla volta.</p>
-        {#each shownWarnings as w, i (warningPage * 10 + i)}<p><strong>{w.severity}: {w.code}</strong>: {w.message}</p>{/each}
-        {#if warningCount > 10}
-          <button disabled={warningPage === 0} onclick={() => { warningPage--; }}>Avvisi precedenti</button>
-          <button disabled={(warningPage + 1) * 10 >= warningCount} onclick={() => { warningPage++; }}>Avvisi successivi</button>
-        {/if}
-      </div>
+      {#key result.storage?.id ?? result.benchmark.startedAt}
+        <DiagnosticMessages client={service()} {result} {owner} onInspect={(simulation, chamber) => {
+          selectedRun = simulation; if (chamber) selectedChamber = chamber;
+          document.getElementById('reform-selected-simulation')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          document.getElementById('reform-selected-simulation')?.focus({ preventScroll: true });
+        }} />
+      {/key}
       {#if result.storage}{#key result.storage.id}<ReformResultCharts client={service()} resultId={result.storage.id} {owner} />{/key}{/if}
       <div class="controls">
-        <label>Simulazione grafico<input type="number" min="1" max={result.benchmark.simulations} step="1" bind:value={selectedRun} /></label>
+        <label>Simulazione grafico<input id="reform-selected-simulation" type="number" min="1" max={result.benchmark.simulations} step="1" bind:value={selectedRun} /></label>
         <label>Ramo grafico<select bind:value={selectedChamber}><option value="camera">Camera</option><option value="senato">Senato</option></select></label>
       </div>
       <figure aria-label="Seggi per categoria e titolare">

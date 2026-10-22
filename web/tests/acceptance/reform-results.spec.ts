@@ -73,14 +73,38 @@ test('1000 production reform simulations: bounded memory, detail queries, comple
   writeFileSync(resolve(output, 'checkpoint.json'), JSON.stringify({ computationSeconds, samples }, null, 2));
   await expect(page.getByTestId('stored-result-status')).toContainText('1000/1000');
   await expect(page.getByRole('table', { name: 'Reform overview' })).toContainText('1000');
+  const messages = page.getByRole('region', { name: 'Messaggi delle simulazioni', exact: true });
+  const messageTable = messages.getByRole('table');
+  await expect(messageTable).toBeVisible({ timeout: 120000 });
+  const messageSummaryText = await messageTable.innerText();
+  const diagnostic = messages.getByRole('button', { name: /^Simulazioni per / }).first();
+  let affectedCount: number | null = null;
+  if (await diagnostic.count()) {
+    affectedCount = Number((await diagnostic.innerText()).match(/^(\d+)\/1000/)?.[1]);
+    expect(affectedCount).toBeGreaterThan(0);
+    await diagnostic.click();
+    const affected = page.getByRole('region', { name: 'Simulazioni interessate', exact: true });
+    await expect(affected.locator('.ids li')).toHaveCount(Math.min(50, affectedCount), { timeout: 120000 });
+    const idsDownload = page.waitForEvent('download', { timeout: 120000 });
+    await affected.getByRole('button', { name: 'Scarica tutti gli ID filtrati CSV', exact: true }).click();
+    const idsStream = await (await idsDownload).createReadStream(); let idsCsv = '';
+    for await (const chunk of idsStream!) idsCsv += chunk.toString();
+    const messageIds = idsCsv.trim().split('\r\n').slice(1).map(Number);
+    expect(messageIds).toHaveLength(affectedCount);
+    expect(messageIds.every((id, i) => id >= 1 && id <= 1000 && (i === 0 || id > messageIds[i - 1]))).toBe(true);
+  } else {
+    expect(!!process.env.RESULT_ARCHIVE, 'New production results must provide exact diagnostics').toBe(true);
+    await expect(messages).toContainText('Frequenze e ID esatti non ricostruibili');
+  }
   const tableOptions = await page.getByLabel('Tabella riforma').locator('option').allTextContents();
   const recovery = tableOptions.find(t => t.startsWith('Candidate recovery traces'))!;
   await page.getByLabel('Tabella riforma').selectOption({ label: recovery });
-  await expect(page.locator('tbody tr')).toHaveCount(50);
-  const firstRow = await page.locator('tbody tr').first().innerText();
+  const detail = page.locator('.table-scroll > table');
+  await expect(detail.locator('tbody tr')).toHaveCount(50);
+  const firstRow = await detail.locator('tbody tr').first().innerText();
   await page.getByRole('button', { name: 'Pagina successiva', exact: true }).click();
   await expect(page.getByText(/Pagina 2 di/)).toBeVisible();
-  await expect.poll(() => page.locator('tbody tr').first().innerText()).not.toBe(firstRow);
+  await expect.poll(() => detail.locator('tbody tr').first().innerText()).not.toBe(firstRow);
   await page.getByLabel('Simulazione grafico').fill('1000');
   await page.getByLabel('Ramo grafico').selectOption('senato');
   await expect(page.getByRole('figure')).toContainText('1000, senato');
@@ -103,7 +127,7 @@ test('1000 production reform simulations: bounded memory, detail queries, comple
   await expect(page.getByRole('dialog')).toBeVisible(); await page.keyboard.press('Escape');
   await spine.locator(':scope > summary').click();
   const chartQuerySeconds = (Date.now() - chartStarted) / 1000;
-  const pageDigest = async () => createHash('sha256').update(await page.getByRole('table').innerText()).digest('hex');
+  const pageDigest = async () => createHash('sha256').update(await page.locator('.table-scroll > table').innerText()).digest('hex');
   const originalPage = await pageDigest();
   const exportStarted = Date.now(), download = page.waitForEvent('download', { timeout: 15 * 60 * 1000 });
   await page.getByRole('button', { name: 'Scarica risultati JSON.gz', exact: true }).click();
@@ -116,6 +140,7 @@ test('1000 production reform simulations: bounded memory, detail queries, comple
   await page.getByTestId('reform-file-input').setInputFiles(archive);
   await expect(page.getByLabel('Risultati locali')).not.toHaveValue(previousResultId, { timeout: 15 * 60 * 1000 });
   await expect(page.getByTestId('reform-phase')).toHaveText('imported', { timeout: 15 * 60 * 1000 });
+  await expect(messageTable).toHaveText(messageSummaryText, { useInnerText: true, timeout: 120000 });
   expect(await page.getByLabel('Tabella riforma').locator('option').allTextContents()).toEqual(tableOptions);
   await page.getByLabel('Tabella riforma').selectOption({ label: recovery });
   await page.getByRole('button', { name: 'Pagina successiva', exact: true }).click();
@@ -136,7 +161,7 @@ test('1000 production reform simulations: bounded memory, detail queries, comple
   const report = { created: new Date().toISOString(), browser: context.browser()?.version(), node: process.version, platform: process.platform, arch: process.arch,
     algorithm: scenario.algorithmId, seed: scenario.seed, snapshot: catalog.snapshotVersion, model: catalog.modelVersion,
     verificationResumedFromArchive: !!process.env.RESULT_ARCHIVE, notes: previous?.notes ?? [], computationSeconds, exportSeconds, importSeconds, chartQuerySeconds, scatterKnownPoints,
-    compressedArchiveBytes: statSync(archive).size, uncompressedBytes: exported.bytes, archiveSha256: exported.sha256, samples, errors, tableOptions };
+    compressedArchiveBytes: statSync(archive).size, uncompressedBytes: exported.bytes, archiveSha256: exported.sha256, samples, errors, tableOptions, affectedCount, messageSummaryText };
   writeFileSync(resolve(output, 'report.json'), JSON.stringify(report, null, 2));
   await testInfo.attach('result-memory-report', { body: JSON.stringify(report, null, 2), contentType: 'application/json' });
   } finally {

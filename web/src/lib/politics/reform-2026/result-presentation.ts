@@ -5,6 +5,7 @@ import type { ComposedReformScrutinyResult } from './scrutiny';
 import { seatTableMessages } from './endowments';
 import { finalAffiliations, reformRunSeries, reformSeriesColumns, reformSeriesTable, reformCollegeSeriesTable } from './result-series';
 import { summaryTableName, summaryColumns } from '../../results/statistics';
+import { diagnosticTableName, diagnosticColumns, diagnosticCells } from '../../core/diagnostic-messages';
 
 type Row = ResultTable['rows'][number];
 const json = (value: unknown): string => JSON.stringify(value);
@@ -41,6 +42,7 @@ export function createReformPresentation(scenario: ReformGenerationScenario, sna
   const series = table(reformSeriesTable, reformSeriesColumns);
   const collegeSeries = table(reformCollegeSeriesTable, reformSeriesColumns);
   table(summaryTableName, summaryColumns);
+  const diagnosticTable = table(diagnosticTableName, diagnosticColumns);
   const metadataRows = new Map<string, Row>();
   const warnings = new Map<string, ScrutinyWarning & { occurrences: number }>();
   let complete = 0, partial = 0, failed = 0, awarded = 0;
@@ -50,9 +52,11 @@ export function createReformPresentation(scenario: ReformGenerationScenario, sna
     else { const row = { Kind: kind, Value: text, Occurrences: 1 }; metadataRows.set(key, row); metadata.rows.push(row); }
   };
   const warn = (w: ScrutinyWarning) => {
-    const key = json([w.code, w.severity, w.message]), existing = warnings.get(key);
-    if (existing) existing.occurrences++;
-    else warnings.set(key, { ...w, occurrences: 1 });
+    const { occurrences = 1, ...context } = w;
+    const key = json([context.code, context.severity, context.message, context.simulationId, context.chamber,
+      context.lawReference, context.todoReference, context.interpretationId, context.seatId, context.drawContextId, context.scope, context.reason]), existing = warnings.get(key);
+    if (existing) existing.occurrences += occurrences;
+    else warnings.set(key, { ...context, scope: context.scope ?? (context.simulationId ? 'simulation' : undefined), occurrences });
   };
   if (options.includeContext !== false) {
     meta('Result presentation contract', { version: 1, series: reformSeriesTable, affiliation: 'final-personal', local: 'actual-election-location' });
@@ -63,14 +67,20 @@ export function createReformPresentation(scenario: ReformGenerationScenario, sna
     meta('Chamber covariance profile (sensitivity assumption)', snapshot.models.chambers.profiles.find(p => p.id === scenario.chamberProfileId));
     meta('Source versions', [...snapshot.sourceVersions, ...snapshot.models.sourceVersions]);
     meta('Model and geography assumptions', [...snapshot.assumptions, ...snapshot.models.assumptions]);
-    seatTableMessages(snapshot.seats).forEach((notice, i) => warn({ code: `R26_SEAT_TABLE_${i + 1}`, electionKind: 'politiche', ...notice }));
-    warn({ code: 'R26_CONDITIONAL_CANDIDATES', electionKind: 'politiche', severity: 'warning', message:
+    seatTableMessages(snapshot.seats).forEach((notice, i) => warn({ code: `R26_SEAT_TABLE_${i + 1}`, electionKind: 'politiche', ...notice, scope: 'global' }));
+    warn({ code: 'R26_CONDITIONAL_CANDIDATES', scope: 'global', electionKind: 'politiche', severity: 'warning', message:
       'Identità, seggi coperti e recuperi con preferenze sintetiche sono condizionati al modello e al profilo scelto; non sono previsioni individuali. I profili descrivono sensibilità, non intervalli di incertezza calibrata.' });
-    warn({ code: 'R26_PAIRED_MEAN_MODE', electionKind: 'politiche', severity: 'info', message:
+    warn({ code: 'R26_PAIRED_MEAN_MODE', scope: 'global', electionKind: 'politiche', severity: 'info', message:
       'La quota comune è un ancoraggio in log-odds; i riferimenti espliciti di Camera/Senato hanno precedenza. La modalità media conserva incertezza e covarianza tra rami. La frequenza del premio congiunto dipende dal profilo scelto: rieseguire gli stessi seed con profili diversi per valutarne la sensibilità.' });
   }
-  const currentWarnings = () => [...warnings.values()].map(({ occurrences, ...w }) => ({ ...w, message: occurrences > 1 ? `${w.message} (${occurrences} occorrenze)` : w.message }));
-  const warningRows = () => { warningTable.rows = [...warnings.values()].map(w => ({ Code: w.code, Severity: w.severity ?? 'warning', 'First simulation': w.simulationId ?? null, Message: w.message, Occurrences: w.occurrences })); };
+  const currentWarnings = (): ScrutinyWarning[] => [...warnings.values()];
+  const warningRows = () => {
+    warningTable.rows = [...warnings.values()].map(w => ({ Code: w.code, Severity: w.severity ?? 'warning', 'First simulation': w.simulationId ?? null, Message: w.message, Occurrences: w.occurrences }));
+    diagnosticTable.rows = [...warnings.values()].map(w => {
+      const cells = diagnosticCells(w);
+      return Object.fromEntries(diagnosticColumns.map((column, i) => [column, cells[i]]));
+    });
+  };
   return {
     counts(): ReformPresentationCounts { return { complete, partial, failed, awarded }; },
     accumulate(counts: ReformPresentationCounts) {
@@ -121,13 +131,13 @@ export function createReformPresentation(scenario: ReformGenerationScenario, sna
       }
       for (const s of result.stages) {
         stages.rows.push({ Simulation: sim, Chamber: s.chamber, Norm: s.norm, Status: s.status, Reason: s.status === 'complete' ? null : s.reason, 'Affected IDs': s.status === 'complete' ? null : json(s.affectedIds) });
-        if (s.status === 'non-computable') warn({ code: `R26_${s.norm}_NON_COMPUTABLE`, electionKind: 'politiche', simulationId: sim, severity: 'error', message: `${s.norm} ${s.chamber ?? ''}: ${s.reason}. La simulazione resta nel denominatore richiesto; nessuna riestrazione o modifica delle dotazioni.` });
+        if (s.status === 'non-computable') warn({ code: `R26_${s.norm}_NON_COMPUTABLE`, electionKind: 'politiche', simulationId: sim, chamber: s.chamber ?? undefined, reason: s.reason, severity: 'error', message: `${s.norm} ${s.chamber ?? ''}: ${s.reason}. La simulazione resta nel denominatore richiesto; nessuna riestrazione o modifica delle dotazioni.` });
       }
       for (const d of result.subjectDecisions) decisions.rows.push({ Simulation: sim, Chamber: d.chamber, Subject: subject(d.subject), Decision: d.decision, Reason: d.reason, Law: d.lawReference });
       for (const t of result.transfers) transfers.rows.push({ Simulation: sim, Trace: json(t) });
       for (const t of result.recoveries) recovery.rows.push({ Simulation: sim, Trace: json(t) });
       for (const d of result.draws) draws.rows.push({ Simulation: sim, Rule: d.rule, Norm: d.norm, Context: d.contextId, Chosen: d.chosenId, Alternatives: json(d.alternativeIds), Stream: d.streamId });
-      result.warnings.forEach(warn);
+      result.warnings.forEach(w => warn({ ...w, simulationId: w.simulationId ?? sim }));
       trace.warnings.forEach(w => warn({ ...w, severity: 'warning', simulationId: sim, electionKind: 'politiche' }));
       result.provenance.forEach(p => meta('Supplied/generated provenance', p));
       result.conditions.forEach(c => meta('Candidate/vote condition', c));

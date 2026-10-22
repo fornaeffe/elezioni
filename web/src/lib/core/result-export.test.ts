@@ -32,6 +32,20 @@ function sampleResult(): SimulationResult {
 }
 
 describe('result export helpers', () => {
+  test('preserves zero saved coverage and explicit diagnostic scope/count/context in schema v2', () => {
+    const result = sampleResult(); result.status = 'not_implemented'; result.completedSimulations = 0;
+    result.warnings[0] = { ...result.warnings[0], scope: 'execution', occurrences: 2, reason: 'storage unavailable' };
+    const exported = createSimulationResultExport({ scenario: createDefaultPoliticsScenario(), result, exportedAt: '2026-10-20T00:00:00Z' });
+    expect(parseSimulationResultExport(JSON.stringify(exported)).result).toMatchObject({ completedSimulations: 0, warnings: [result.warnings[0]] });
+    for (const value of [-1, .5, 2]) {
+      const invalid = structuredClone(exported); invalid.result.completedSimulations = value;
+      expect(() => parseSimulationResultExport(JSON.stringify(invalid))).toThrow('coverage');
+    }
+    for (const value of [0, .5, -1]) {
+      const invalid = structuredClone(exported); invalid.result.warnings[0].occurrences = value;
+      expect(() => parseSimulationResultExport(JSON.stringify(invalid))).toThrow('occurrence');
+    }
+  });
   test('preserves execution resources and phase timings through import while rejecting invalid metadata', () => {
     const result = sampleResult();
     result.benchmark.execution = { requestedWorkers: 4, computeWorkers: 2, maximumWorkers: 5,

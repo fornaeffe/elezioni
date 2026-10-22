@@ -4,6 +4,21 @@ import { completeScrutinyFixture } from './scrutiny.fixture';
 import { runPoliticsReformScrutiny } from './scrutiny';
 import { createReformPresentation, buildReformSeatChart } from './result-presentation';
 import { createSimulationResultExport, parseSimulationResultExport } from '../../core/result-export';
+import { diagnosticTableName } from '../../core/diagnostic-messages';
+
+it('retains different message contexts, deduplicates only identical events, and scopes global conditions explicitly', () => {
+  const { scenario, snapshot } = generationFixture(), input = completeScrutinyFixture(60);
+  const legal = runPoliticsReformScrutiny(input), presentation = createReformPresentation(scenario, snapshot, 1);
+  const warning = { code: 'SAME', simulationId: input.simulationId, electionKind: 'politiche' as const, severity: 'warning' as const, message: 'Original wording', chamber: 'camera' as const, seatId: 'A' };
+  presentation.add(input, { ...legal, warnings: [warning, warning, { ...warning, chamber: 'senato' }, { ...warning, seatId: 'B' }] }, { warnings: [], references: [], normalization: [], streamVersion: 'test', snapshotVersion: snapshot.version, modelVersion: snapshot.models.version });
+  const batch = presentation.drain();
+  expect(batch.warnings.filter(w => w.code === 'SAME').map(w => [w.message, w.chamber, w.seatId, w.occurrences])).toEqual([
+    ['Original wording', 'camera', 'A', 2], ['Original wording', 'senato', 'A', 1], ['Original wording', 'camera', 'B', 1]
+  ]);
+  expect(batch.warnings.find(w => w.code === 'R26_CONDITIONAL_CANDIDATES')?.scope).toBe('global');
+  const rows = batch.tables.find(t => t.name === diagnosticTableName)!.rows.filter(r => r.Code === 'SAME');
+  expect(rows).toHaveLength(3); expect(rows[0]).toMatchObject({ Simulation: input.simulationId, Scope: 'simulation', Occurrences: 2, Seat: 'A' });
+});
 
 it('keeps failed/partial runs in the requested denominator and exports distinct legal and conditional outcomes', () => {
   const { scenario, snapshot } = generationFixture(), input = completeScrutinyFixture(60);

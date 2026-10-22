@@ -219,6 +219,10 @@ into `main`; public deployment follows that merge and a successful hosting gate.
   archive compatibility are implemented. See the
   [results guide](docs/politics-reform-2026-results.md) for counting definitions
   and saved-archive limits; verification is in migration history.
+  - [x] Present global conditions first, then message frequencies by severity/code,
+    then affected simulation IDs on demand. Preserve exact context, requested
+    denominators and explicit legacy-archive limits. See the
+    [messages guide](docs/politics-reform-2026-messages.md).
 - [ ] Generalize routing, snapshot selection, scenario defaults, validation,
   worker dispatch, result components, and shared UI patterns across election
   kinds. Preserve configurable project-base navigation and worker/data loading

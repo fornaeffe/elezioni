@@ -177,6 +177,15 @@ function parseColumnarResultTable(value: unknown, index: number): ResultTable {
   };
 }
 
+/** Numeric IDs are streamed separately from complete result archives. */
+export async function* streamDiagnosticIdsCsv(ids: AsyncIterable<number>): AsyncGenerator<string> {
+  yield 'Simulation\r\n';
+  for await (const id of ids) {
+    if (!Number.isSafeInteger(id) || id < 1) throw new Error('Invalid simulation ID');
+    yield `${id}\r\n`;
+  }
+}
+
 function parseWarning(value: unknown, index: number): SimulationResult['warnings'][number] {
   const warning = requireRecord(value, `result.warnings[${index}]`);
   const simulationId = requireOptionalFiniteNumber(warning.simulationId, `result.warnings[${index}].simulationId`);
@@ -203,7 +212,14 @@ function parseWarning(value: unknown, index: number): SimulationResult['warnings
   if (todoReference !== undefined) parsedWarning.todoReference = todoReference;
   const chamber = requireOptionalEnum(warning.chamber, `result.warnings[${index}].chamber`, ['camera', 'senato']);
   if (chamber !== undefined) parsedWarning.chamber = chamber;
-  for (const key of ['interpretationId', 'seatId', 'drawContextId'] as const) {
+  const scope = requireOptionalEnum(warning.scope, `result.warnings[${index}].scope`, ['global', 'simulation', 'execution']);
+  if (scope !== undefined) parsedWarning.scope = scope;
+  const occurrences = requireOptionalFiniteNumber(warning.occurrences, `result.warnings[${index}].occurrences`);
+  if (occurrences !== undefined) {
+    if (!Number.isSafeInteger(occurrences) || occurrences < 1) throw new Error('Invalid diagnostic occurrence count');
+    parsedWarning.occurrences = occurrences;
+  }
+  for (const key of ['interpretationId', 'seatId', 'drawContextId', 'reason'] as const) {
     const value = requireOptionalString(warning[key], `result.warnings[${index}].${key}`);
     if (value !== undefined) parsedWarning[key] = value;
   }
@@ -231,6 +247,12 @@ function parseSimulationResult(value: unknown): SimulationResult {
       dataVersion: requireString(benchmark.dataVersion, 'result.benchmark.dataVersion')
     }
   };
+
+  const completed = requireOptionalFiniteNumber(result.completedSimulations, 'result.completedSimulations');
+  if (completed !== undefined) {
+    if (!Number.isSafeInteger(completed) || completed < 0 || completed > parsedResult.benchmark.simulations) throw new Error('Invalid completed simulation coverage');
+    parsedResult.completedSimulations = completed;
+  }
 
   if (scrutinyAlgorithmId !== undefined) parsedResult.benchmark.scrutinyAlgorithmId = scrutinyAlgorithmId;
   const seed = requireOptionalString(benchmark.seed, 'result.benchmark.seed');
@@ -367,7 +389,8 @@ export async function* streamStoredResult(record: StoredResult, format: 'json' |
     }
     return;
   }
-  yield `{"schema_version":2,"exportedAt":${JSON.stringify(new Date().toISOString())},"scenario":${JSON.stringify(record.scenario)},"result":{"type":"result","status":${JSON.stringify(record.result.status)},"benchmark":${JSON.stringify(record.result.benchmark)},"warnings":[`;
+  const coverage = record.result.completedSimulations === undefined ? '' : `,"completedSimulations":${record.result.storage!.completedSimulations}`;
+  yield `{"schema_version":2,"exportedAt":${JSON.stringify(new Date().toISOString())},"scenario":${JSON.stringify(record.scenario)},"result":{"type":"result","status":${JSON.stringify(record.result.status)}${coverage},"benchmark":${JSON.stringify(record.result.benchmark)},"warnings":[`;
   let first = true;
   for await (const cells of storedRows(record.id, -1)) {
     if (!first) yield ','; first = false;
@@ -436,7 +459,7 @@ export async function importResultStream(stream: ReadableStream<Uint8Array<Array
             if (!name || !columns || !sawRows || [...widths].some(n => n !== columns!.length)) throw new Error(`Invalid columnar result table ${index}`);
             await sink.table(index, { name, columns });
           });
-        } else if (['type', 'status', 'benchmark'].includes(field)) result[field] = await reader.value();
+        } else if (['type', 'status', 'benchmark', 'completedSimulations'].includes(field)) result[field] = await reader.value();
         else await reader.skip();
       });
     });

@@ -26,7 +26,7 @@ interface Chunk {
   resultId: string; table: number; sequence: number; start: number; count: number;
   simulation: number; bytes: Uint8Array;
 }
-export const warningColumns = ['code', 'electionKind', 'simulationId', 'severity', 'message', 'lawReference', 'todoReference', 'chamber', 'interpretationId', 'seatId', 'drawContextId'];
+export const warningColumns = ['code', 'electionKind', 'simulationId', 'severity', 'message', 'lawReference', 'todoReference', 'chamber', 'interpretationId', 'seatId', 'drawContextId', 'scope', 'occurrences', 'reason'];
 export const resultChunkBytes = 256 * 1024;
 export const resultChunkRows = 256;
 export const maximumResultRecordBytes = 16 * 1024 * 1024;
@@ -72,6 +72,15 @@ export async function getStoredResult(id: string, owner?: string): Promise<Store
   if (!record || owner !== undefined && record.owner !== owner) throw new Error('Local result session is unavailable');
   return record;
 }
+/** Full-result and ID exports can finish concurrently. Register each temporary
+ * file atomically without replacing the other export's manifest update. */
+export async function registerStoredExport(id: string, owner: string, filename: string): Promise<void> {
+  const tx = (await db()).transaction('results', 'readwrite'), store = tx.objectStore('results');
+  const record = await value(store.get(id)) as StoredResult | undefined;
+  if (!record || record.owner !== owner) throw new Error('Local result session is unavailable');
+  const done = committed(tx);
+  record.exports.push(filename); store.put(record); await done;
+}
 export async function saveStoredResult(record: StoredResult): Promise<void> {
   const pending = pendingMetadata.get(record) ?? [];
   const tx = (await db()).transaction(['results', 'metadata'], 'readwrite'), done = committed(tx);
@@ -98,7 +107,7 @@ export function warningCells(w: ScrutinyWarning): Cell[] {
   return warningColumns.map(c => (w as unknown as Record<string, Cell>)[c] ?? null);
 }
 export function cellsWarning(cells: Cell[]): ScrutinyWarning {
-  return Object.fromEntries(warningColumns.flatMap((c, i) => cells[i] === null ? [] : [[c, cells[i]]])) as unknown as ScrutinyWarning;
+  return Object.fromEntries(warningColumns.flatMap((c, i) => cells[i] == null ? [] : [[c, cells[i]]])) as unknown as ScrutinyWarning;
 }
 
 /** One bounded buffer. Encoding is columnar at the storage boundary, not after

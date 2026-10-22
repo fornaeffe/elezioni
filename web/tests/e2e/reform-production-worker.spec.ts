@@ -164,9 +164,10 @@ test('1/2/4 compute workers preserve all exported rows, warnings and shared occu
           worker.onmessage = event => event.data.ok ? resolve(event.data.data) : reject(new Error(event.data.error.message));
           worker.postMessage({ type: 'result-service', requestId: computeWorkers, action: 'export', resultId: result.storage!.id, owner: 'direct-worker', format: 'json' });
         });
+        const payload = await new Response(file.stream().pipeThrough(new DecompressionStream('gzip'))).json();
         if (computeWorkers === 1) {
-          // Imports may contain old all-run aggregations with only a first ID.
-          // Such data must never produce an invented affected-run frequency.
+          // Versioned events prove exact membership after import. The legacy
+          // ledger alone may only retain the first affected simulation.
           const resultId = crypto.randomUUID();
           const service = (action: string, fields = {}) => new Promise<any>(resolve => {
             worker.onmessage = event => resolve(event.data);
@@ -175,10 +176,18 @@ test('1/2/4 compute workers preserve all exported rows, warnings and shared occu
           const imported = await service('import', { file });
           if (!imported.ok) throw new Error(imported.error.message);
           const diagnostics = await service('diagnostics');
-          if (diagnostics.ok || !diagnostics.error.message.includes('Per-simulation diagnostic ledger')) throw new Error('Imported aggregation invented diagnostic frequencies');
+          const native = await service('diagnostics', { resultId: result.storage!.id });
+          if (!diagnostics.ok || !native.ok || JSON.stringify(diagnostics.data) !== JSON.stringify(native.data)) throw new Error('Versioned import lost diagnostic membership');
           await service('delete');
+          const legacyId = crypto.randomUUID();
+          const legacy = structuredClone(payload);
+          legacy.result.tables = legacy.result.tables.filter((table: { name: string }) => table.name !== 'Diagnostic events v1');
+          const oldImport = await service('import', { resultId: legacyId, file: new File([JSON.stringify(legacy)], 'legacy.json') });
+          if (!oldImport.ok) throw new Error(oldImport.error.message);
+          const unknown = await service('diagnostics', { resultId: legacyId });
+          if (unknown.ok || !unknown.error.message.includes('Per-simulation diagnostic ledger')) throw new Error('Imported aggregation invented diagnostic frequencies');
+          await service('delete', { resultId: legacyId });
         }
-        const payload = await new Response(file.stream().pipeThrough(new DecompressionStream('gzip'))).json();
         payload.exportedAt = 'fixed';
         delete payload.result.benchmark.startedAt; delete payload.result.benchmark.elapsedMs; delete payload.result.benchmark.execution;
         const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(payload)));

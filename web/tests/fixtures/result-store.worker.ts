@@ -1,4 +1,4 @@
-import { appendResultBatch, deleteStoredResult, getStoredResult, newResultStorage, saveStoredResult, storedTablePage, type StoredResult } from '../../src/lib/core/result-store';
+import { appendResultBatch, deleteStoredResult, getStoredResult, newResultStorage, registerStoredExport, saveStoredResult, storedTablePage, type StoredResult } from '../../src/lib/core/result-store';
 import { importResultStream, resultTablesToCsv, streamStoredResult } from '../../src/lib/core/result-export';
 import { createDefaultPoliticsScenario } from '../../src/lib/scenario/politics';
 import type { ResultTable } from '../../src/lib/core/types';
@@ -19,6 +19,9 @@ self.onmessage = async () => {
     const boundaryPage = await storedTablePage(record, 0, 250, 50);
     await appendResultBatch(record, [{ ...tables[0], rows: [] }, tables[1]], [], 2);
     record.result.storage!.completedSimulations = 2; await saveStoredResult(record);
+    await Promise.all([registerStoredExport(record.id, record.owner, 'export-A.csv'), registerStoredExport(record.id, record.owner, 'export-B.json.gz')]);
+    const registered = (await getStoredResult(record.id, record.owner)).exports;
+    if (registered.length !== 2 || !registered.includes('export-A.csv') || !registered.includes('export-B.json.gz')) throw new Error('Concurrent export registration lost a file');
     const metadata = await storedTablePage(record, 1, 0);
     let json = '', csv = '';
     for await (const text of streamStoredResult(record, 'json')) json += text;
