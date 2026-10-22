@@ -1,7 +1,7 @@
 import type { Scenario } from '../../core/types';
 import { REFORM_ALGORITHM_ID, type Chamber, type Candidate } from './input';
 import { REFORM_MODEL_IDS, REFORM_SCENARIO_VERSION, type ReformGenerationScenario, type ReformGenerationSnapshot } from './generation-types';
-import { array, chamber, count, date, literal, nullable, object, ordinaryVotes, preferences, scalar, share, specialVotes, subject, text, union, type Schema, type ValidationIssue } from './shape';
+import { optional, array, chamber, count, date, literal, nullable, object, ordinaryVotes, preferences, scalar, share, specialVotes, subject, text, union, type Schema, type ValidationIssue } from './shape';
 import { validateSeatTableBundle } from './endowments';
 import { sum } from './generation-math';
 import { reformPresentation } from './presentation-metadata';
@@ -36,7 +36,7 @@ const color = scalar<string>(v => typeof v === 'string' && /^#[0-9a-f]{6}$/i.tes
 const scenarioShape: Schema<JsonReadonly<ReformGenerationScenario>> = union(
   object({ ...scenarioFields, schemaVersion: literal(1) }),
   object({ ...scenarioFields, schemaVersion: literal(REFORM_SCENARIO_VERSION), presentation: object({ name: text,
-    lists: array(object({ id: text, color })), coalitions: array(object({ id: text, name: text, color })) }) })
+    lists: array(object({ id: text, color })), coalitions: array(object({ id: text, name: text, color, chambers: optional(array(chamber)) })) }) })
 );
 
 const parameters = object({ intensity: nonnegative, strengthSigma: nonnegative, localSigma: nonnegative });
@@ -72,6 +72,10 @@ export function validateReformScenario(value: unknown, snapshot?: ReformGenerati
   if (s.presentation) {
     unique(s.presentation.lists, l => l.id, 'presentation list');
     unique(s.presentation.coalitions, c => c.id, 'presentation coalition');
+    for (const c of s.presentation.coalitions) if (c.chambers) {
+      unique(c.chambers, ch => ch, 'coalition chamber');
+      if (['camera', 'senato'].some(ch => !c.chambers!.includes(ch as Chamber) && s.lists[ch as Chamber].some(l => l.coalitionId === c.id))) errors.push('Coalition membership conflicts with declared chamber presence');
+    }
     const ids = new Set([...s.lists.camera, ...s.lists.senato].map(l => l.id));
     if (s.presentation.lists.some(l => !ids.has(l.id)) || [...ids].some(id => !s.presentation!.lists.some(l => l.id === id))) errors.push('Presentation lists must match scenario list identities');
     if ([...s.lists.camera, ...s.lists.senato].some(l => l.coalitionId && !s.presentation!.coalitions.some(c => c.id === l.coalitionId))) errors.push('Missing coalition presentation');

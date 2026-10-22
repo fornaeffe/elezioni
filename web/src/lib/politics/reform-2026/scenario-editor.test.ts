@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { generationFixture } from './generation.fixture';
 import { parseReformScenario, serializeReformScenario, validateReformScenario } from './generation-scenario';
 import { upgradeReformDraft } from './presentation-metadata';
-import { addReformCoalition, addReformList, copyReformPoliticalConfiguration, removeReformList, removedDependencies, saveReformCandidate, setReformCorrespondence, setReformCoverage, setReformReference, updateReformList } from './scenario-editor';
+import { setCoalitionPresence, setListPresence, updatePresentList, coalitionChambers, addReformCoalition, addReformList, copyReformPoliticalConfiguration, removeReformList, removedDependencies, saveReformCandidate, setReformCorrespondence, setReformCoverage, setReformReference, updateReformList } from './scenario-editor';
 import { createReformEditorCatalog } from './editor-catalog';
 import { previewReformScenario } from './editor-preview';
 import { generateReformSimulation, prepareReformGeneration } from './generation';
@@ -108,5 +108,39 @@ describe('dependent edits and candidate planning', () => {
     const changed = updateReformList(n, 'common', 'A', { coalitionId: n.presentation!.coalitions.at(-1)!.id });
     expect(changed.bonusLinks.some(l => l.camera.id === 'A')).toBe(false);
     expect(changed.presentation!.coalitions).toHaveLength(1);
+  });
+});
+
+
+describe('row-local chamber presence', () => {
+  it('changes a list presence without resurrecting it on name edits; restoration is explicit and unfiled', () => {
+    const { scenario, snapshot } = generationFixture();
+    const cameraCoverage = scenario.coverage.filter(c => c.chamber === 'camera');
+    let n = setListPresence(scenario, 'A', 'senato', false);
+    expect(n.lists.senato.some(l => l.id === 'A')).toBe(false);
+    expect(n.coverage.filter(c => c.chamber === 'camera')).toEqual(cameraCoverage);
+    n = updatePresentList(n, 'A', { name: 'Only Camera' });
+    expect(n.lists.senato.some(l => l.id === 'A')).toBe(false);
+    expect(() => setListPresence(n, 'A', 'camera', false)).toThrow('cestino');
+    n = setListPresence(n, 'A', 'senato', true);
+    expect(n.lists.senato.find(l => l.id === 'A')?.name).toBe('Only Camera');
+    expect(n.coverage.filter(c => c.chamber === 'senato').every(c => !c.listIds.includes('A'))).toBe(true);
+    expect(validateReformScenario(n, snapshot)).toEqual([]);
+  });
+  it('persists empty coalition declarations and automatically links populated coalitions in both chambers', () => {
+    const { scenario, snapshot } = generationFixture();
+    let n = addReformCoalition(scenario);
+    const id = n.presentation!.coalitions.at(-1)!.id;
+    expect(coalitionChambers(n, id)).toEqual(['camera', 'senato']);
+    n = updatePresentList(n, 'A', { coalitionId: id });
+    expect(n.bonusLinks).toContainEqual({ camera: { kind: 'coalition', id }, senato: { kind: 'coalition', id }, cameraDeclares: true, senatoDeclares: true });
+    n = setCoalitionPresence(n, id, 'senato', false);
+    expect(n.lists.senato.find(l => l.id === 'A')!.coalitionId).toBeNull();
+    expect(n.bonusLinks.some(l => l.camera.id === id)).toBe(false);
+    n = setCoalitionPresence(n, id, 'senato', true);
+    expect(n.lists.senato.find(l => l.id === 'A')!.coalitionId).toBe(id);
+    expect(n.bonusLinks.some(l => l.camera.id === id && l.senato.id === id)).toBe(true);
+    expect(validateReformScenario(n, snapshot)).toEqual([]);
+    expect(parseReformScenario(serializeReformScenario(n))).toEqual(n);
   });
 });

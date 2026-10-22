@@ -15,17 +15,16 @@ async function stored(page: Page): Promise<ReformGenerationScenario> { return pa
 test('common editing is the default, chamber overrides are explicit, and presentation survives reload/export', async ({ page }) => {
   const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
   await open(page);
-  await expect(page.getByRole('button', { name: 'Comune ai rami', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('combobox', { name: 'Ramo riferimenti', exact: true })).toHaveValue('common');
   await expect(page.getByRole('button', { name: 'Camera', exact: true })).toHaveCount(0);
   const lead = defaults.lists.camera[0];
   await page.getByLabel('Nome scenario', { exact: true }).fill('Scenario condiviso');
   await page.getByLabel('Nome scenario', { exact: true }).press('Tab');
   await page.getByLabel(`Quota ${lead.name}`, { exact: true }).fill('37');
   await expect.poll(async () => (await stored(page)).shares.find(r => r.listId === lead.id)?.common).toBe(.37);
-  await page.getByLabel('Abilita modifiche avanzate per Camera/Senato').check();
-  await page.getByRole('button', { name: 'Senato', exact: true }).click();
+  await page.getByRole('combobox', { name: 'Ramo riferimenti', exact: true }).selectOption('senato');
   await page.getByLabel(`Quota ${lead.name}`, { exact: true }).fill('39');
-  await page.getByRole('button', { name: 'Comune ai rami', exact: true }).click();
+  await page.getByRole('combobox', { name: 'Ramo riferimenti', exact: true }).selectOption('common');
   await page.getByLabel(`Quota ${lead.name}`, { exact: true }).fill('0');
   await expect.poll(async () => (await stored(page)).shares.find(r => r.listId === lead.id)).toMatchObject({ common: 0, camera: null, senato: .39 });
   await page.getByLabel(`Quota ${lead.name}`, { exact: true }).fill('');
@@ -102,4 +101,34 @@ test('production worker previews actual bonus prefixes and accepts a compatible 
   await expect(page.getByRole('table', { name: 'Riferimenti risolti — quote sui voti validi', exact: true })).toBeVisible();
   expect(errors).toEqual([]);
   await page.screenshot({ path: 'test-results/reform-editor-preview.png', fullPage: true });
+});
+
+
+test('row details control presence and badges while editor scopes stay local', async ({ page }) => {
+  await open(page);
+  await expect(page.getByLabel('Abilita modifiche avanzate per Camera/Senato')).toHaveCount(0);
+  const lead = defaults.lists.camera[0];
+  const row = page.getByTestId('reform-list-row').first();
+  const settings = row.getByRole('button', { name: `Impostazioni lista ${lead.name}`, exact: true });
+  await expect(settings).toHaveAttribute('aria-expanded', 'false');
+  await settings.click();
+  await row.getByRole('checkbox', { name: `Presenza lista ${lead.name} senato`, exact: true }).uncheck();
+  await page.getByRole('button', { name: 'Applica modifica e rimuovi dipendenze' }).click();
+  await expect.poll(async () => (await stored(page)).lists.senato.some(l => l.id === lead.id)).toBe(false);
+  await expect(settings.locator('.subject-badge')).toBeVisible();
+  await row.getByLabel('Nome lista', { exact: true }).fill('Lista Camera');
+  await row.getByLabel('Nome lista', { exact: true }).press('Tab');
+  expect((await stored(page)).lists.senato.some(l => l.id === lead.id)).toBe(false);
+  await row.getByRole('checkbox', { name: 'Presenza lista Lista Camera senato', exact: true }).check();
+  await expect(row.locator('.subject-badge')).toHaveCount(0);
+  await row.getByRole('checkbox', { name: 'Dichiara tutela', exact: true }).check();
+  await expect(row.locator('.subject-badge')).toBeVisible();
+  await row.getByLabel('Riferimento tutela').fill('Dichiarazione di prova'); await row.getByLabel('Riferimento tutela').press('Tab');
+  await page.getByRole('combobox', { name: 'Ramo riferimenti', exact: true }).selectOption('camera');
+  await page.getByText('Depositi delle liste', { exact: true }).click();
+  await page.getByRole('combobox', { name: 'Ramo deposito', exact: true }).selectOption('senato');
+  await expect(page.getByRole('table', { name: 'Depositi della lista selezionata' }).locator('tbody tr').first()).toContainText('senato');
+  await page.getByText('Corrispondenze storiche', { exact: true }).first().click();
+  await expect(page.getByRole('combobox', { name: 'Ramo corrispondenze', exact: true })).toHaveValue('common');
+  await expect(page.getByRole('combobox', { name: 'Ramo riferimenti', exact: true })).toHaveValue('camera');
 });

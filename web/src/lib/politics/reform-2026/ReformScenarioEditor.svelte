@@ -11,15 +11,13 @@
   import { bundledReformEditorCatalog, bundledReformModels, bundledReformScenario } from './application-defaults';
   import { parseReformScenario, validateReformScenario } from './generation-scenario';
   import { upgradeReformDraft } from './presentation-metadata';
-  import { removedDependencies, type EditingScope } from './scenario-editor';
+  import { removedDependencies } from './scenario-editor';
   import type { ReformGenerationScenario } from './generation-types';
   import type { PreviewSelection, ReformEditorPreview } from './editor-preview';
   import './scenario-editor.css';
 
   let { scenario, onchange, disabled = false }: { scenario: ReformGenerationScenario; onchange: (scenario: ReformGenerationScenario) => void; disabled?: boolean } = $props();
   const catalog = bundledReformEditorCatalog(), models = bundledReformModels(), defaults = bundledReformScenario();
-  let scope = $state<EditingScope>('common');
-  let chamberEditing = $state(false);
   let error = $state('');
   let pending = $state<ReformGenerationScenario | null>(null);
   let dependencies = $state<string[]>([]);
@@ -41,7 +39,6 @@
   const validation = $derived(validateReformScenario(scenario));
   const blocked = $derived(disabled || previewBusy || pending !== null);
   const previewCurrent = $derived(preview !== null && previewFingerprint === fingerprint);
-  const chamberOverrideCount = $derived([...scenario.shares, ...scenario.abstention].filter(r => r.camera !== null || r.senato !== null).length);
   const previewRows = $derived(previewCurrent ? preview!.references.slice(previewPage * 30, (previewPage + 1) * 30) : []);
   const preference = $derived(models.preferences.profiles.find(p => p.id === scenario.preferenceProfileId));
   const chamber = $derived(models.chambers.profiles.find(p => p.id === scenario.chamberProfileId));
@@ -100,12 +97,6 @@
       <p>Ipotesi di sensibilità, non intervalli di confidenza calibrati. Gli esiti dei candidati sono condizionati alle preferenze sintetiche.</p>
     </details>
   </fieldset>
-  <label><input type="checkbox" bind:checked={chamberEditing} disabled={blocked} onchange={() => { scope = 'common'; }} />Abilita modifiche avanzate per Camera/Senato</label>
-  <div class="editor-row" aria-label="Ambito modifica">
-    <button type="button" aria-pressed={scope === 'common'} disabled={blocked} onclick={() => { scope = 'common'; }}>Comune ai rami</button>
-    {#if chamberEditing}<button type="button" aria-pressed={scope === 'camera'} disabled={blocked} onclick={() => { scope = 'camera'; }}>Camera</button><button type="button" aria-pressed={scope === 'senato'} disabled={blocked} onclick={() => { scope = 'senato'; }}>Senato</button>{/if}
-  </div>
-  <p>Ambito attivo: <strong>{scope === 'common' ? 'Comune ai rami' : scope === 'camera' ? 'Camera' : 'Senato'}</strong>. Le modifiche comuni aggiornano entrambi i rami. Le quote esplicite per ramo restano prioritarie: {chamberOverrideCount} riferimenti con override per ramo.</p>
   {#if error}<p role="alert" class="editor-error">{error}</p>{/if}
   {#if pending}<div role="alert" class="editor-notice">
     <p>La modifica rimuove anche: {dependencies.join(', ')}. Controlla questi effetti prima di applicarla.</p>
@@ -113,10 +104,10 @@
     <button type="button" onclick={() => { pending = null; }}>Mantieni scenario</button>
   </div>{/if}
   {#if validation.length}<div role="alert" class="editor-error" data-testid="reform-scenario-validation"><p>Correggi lo scenario prima di eseguire:</p><ul>{#each validation as message (message)}<li><a href={errorTarget(message)}>{message}</a></li>{/each}</ul></div>{/if}
-  <ReformSubjectsEditor {scenario} {scope} {catalog} disabled={blocked} onaction={change} />
-  <ReformReferencesEditor {scenario} {scope} {catalog} disabled={blocked} onaction={change} />
-  <details bind:open={correspondencesOpen}><summary>Corrispondenze storiche</summary>{#if correspondencesOpen}<ReformCorrespondenceEditor {scenario} {scope} {catalog} {defaults} disabled={blocked} onaction={change} />{/if}</details>
-  <details bind:open={coverageOpen}><summary>Depositi delle liste</summary>{#if coverageOpen}<ReformCoverageEditor {scenario} {scope} {catalog} disabled={blocked} onaction={change} />{/if}</details>
+  <ReformSubjectsEditor {scenario} {catalog} disabled={blocked} onaction={change} />
+  <ReformReferencesEditor {scenario} {catalog} disabled={blocked} onaction={change} />
+  <details bind:open={correspondencesOpen}><summary>Corrispondenze storiche</summary>{#if correspondencesOpen}<ReformCorrespondenceEditor {scenario} {catalog} {defaults} disabled={blocked} onaction={change} />{/if}</details>
+  <details bind:open={coverageOpen}><summary>Depositi delle liste</summary>{#if coverageOpen}<ReformCoverageEditor {scenario} {catalog} disabled={blocked} onaction={change} />{/if}</details>
   <details bind:open={linksOpen}><summary>Collegamenti per il premio</summary>{#if linksOpen}<ReformBonusLinksEditor {scenario} disabled={blocked} onaction={change} />{/if}</details>
   <details bind:open={candidatesOpen}><summary>Candidature e anteprima del premio</summary>{#if candidatesOpen}<ReformCandidatesEditor {scenario} {catalog} disabled={blocked} onaction={change} onpreview={runPreview} preview={previewCurrent ? preview : null} {previewSelection} />{/if}</details>
   <section aria-label="Verifica scenario riforma">

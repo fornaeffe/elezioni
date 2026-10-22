@@ -202,7 +202,7 @@ into `main`; public deployment follows that merge and a successful hosting gate.
     ordinary/internal cap lists; preserve upstream targets and recovery states.
 - [ ] Align pre-2026 reform and 2026 reform UI: 
   - [x] adapt the pre-2026 reform scenario editor UI for the 2026 reform,
-    with common editing by default, explicit advanced chamber scopes,
+    with row-local chamber presence, editor-local reference/history scopes,
     persisted presentation metadata, filings, bonus links and compatible
     candidate/planner previews. Supplied data remains JSON; legacy conversion
     UI is deferred. See the [editor guide](docs/politics-reform-2026-editor.md).

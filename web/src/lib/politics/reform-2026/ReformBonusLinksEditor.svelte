@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { ReformGenerationScenario } from './generation-types';
-  import { reformSubjects, subjectKey, subjectLabel } from './scenario-editor';
+  import { coalitionChambers, reformSubjects, subjectKey, subjectLabel } from './scenario-editor';
   import { upgradeReformDraft } from './presentation-metadata';
   let { scenario, disabled, onaction }: { scenario: ReformGenerationScenario; disabled: boolean; onaction: (action: () => ReformGenerationScenario) => void } = $props();
   let camera = $state('');
@@ -15,11 +15,12 @@
 </script>
 <section aria-label="Collegamenti premio">
   <h3>Collegamenti per il premio congiunto</h3>
-  <p>Ogni collegamento rappresenta due dichiarazioni reciproche esplicite. Nomi o appartenenze simili non creano automaticamente un collegamento.</p>
+  <p>Le coalizioni dichiarate presenti in entrambi i rami sono collegate automaticamente quando hanno liste in entrambi. Gli altri collegamenti sono dichiarazioni reciproche esplicite.</p>
   {#if scenario.renewal !== 'joint'}<p>Il premio congiunto non si applica al rinnovo di un solo ramo. I collegamenti salvati restano disponibili per il successivo rinnovo congiunto.</p>{/if}
   {#each scenario.bonusLinks as link, index (subjectKey(link.camera))}<div class="editor-row">
     <span>{subjectLabel(scenario, link.camera, 'camera')} ↔ {subjectLabel(scenario, link.senato, 'senato')}</span>
-    <button type="button" {disabled} onclick={() => onaction(() => { const n = upgradeReformDraft(scenario); n.bonusLinks = n.bonusLinks.filter((_, i) => i !== index); return n; })}>Rimuovi collegamento {index + 1}</button>
+    {#if link.camera.kind === 'coalition' && link.senato.kind === 'coalition' && link.camera.id === link.senato.id && coalitionChambers(scenario, link.camera.id).length === 2}<span>Automatico dalla presenza</span>{:else}
+    <button type="button" {disabled} onclick={() => onaction(() => { const n = upgradeReformDraft(scenario); n.bonusLinks = n.bonusLinks.filter((_, i) => i !== index); return n; })}>Rimuovi collegamento {index + 1}</button>{/if}
   </div>{/each}
   <div class="editor-row">
     <label>Soggetto Camera<select bind:value={camera} {disabled}><option value="">Seleziona</option>{#each reformSubjects(scenario, 'camera') as subject (subjectKey(subject))}<option value={subjectKey(subject)}>{subjectLabel(scenario, subject, 'camera')}</option>{/each}</select></label>

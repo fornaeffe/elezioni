@@ -6,21 +6,29 @@ storage, execution and exports use [application](politics-reform-2026-applicatio
 
 ## User workflow
 
-- **Comune ai rami** is the initial editing scope. List names, membership,
-  historical mappings and share/abstention references apply to both chambers.
-  Enable **modifiche avanzate per Camera/Senato** to expose chamber buttons.
-  Explicit chamber share overrides retain precedence after common edits; clear
-  their fields in that chamber to inherit again. Labels/colors are shared
-  presentation metadata. The advanced subject section can explicitly copy lists
-  and correspondences from the other chamber, without inventing new filings.
+- Lists and coalitions have row-local **Settings** icon buttons. Normally hidden
+  details declare Camera/Senato presence; list details also contain protected
+  minority controls. A badge marks limited chamber presence or list protection.
+  Names, colors and the main membership control edit existing list occurrences
+  without restoring an absent chamber. At least one chamber must retain a list;
+  use the trash button to remove it entirely.
+- Coalition presence declarations are persisted in optional v2 presentation
+  `coalitions[].chambers`; older files infer presence from member lists. Turning
+  off a chamber unassigns its coalition members. Turning it back on restores
+  matching member identities already present there; absent lists are not invented.
+  A populated coalition declared in both chambers is automatically linked.
+  Empty declarations are retained but cannot form legal links until populated.
+- **Ramo riferimenti** defaults to common and affects only shares/abstention.
+  Historical mappings have an independent **Ramo corrispondenze** selector.
+  Candidate placement already selects its own chamber. There is no global mode.
 - Blank percentage fields inherit; zero is explicit. Common shares are model
   anchors, not necessarily identical chamber percentages. Geographic references
   apply in national, region, province, municipality order. Mean mode retains
   election-day uncertainty. Profile descriptions explain the versioned sensitivity
   assumptions; parameters are not edited or fitted in the browser.
 - New lists start unfiled. **Depositi** filters by geography and college kind;
-  common bulk actions affect both chambers. Individual filings are editable in
-  the explicit chamber scope. Absent lists remain distinct from filed zero votes.
+  a chamber filter joins the region/type filters. Each row edits its own chamber,
+  and bulk actions affect only filtered colleges in which the list is present. Absent lists remain distinct from filed zero votes.
 - Coalition/filing/list changes may remove dependent mappings, references,
   templates or bonus links. A preview requires an explicit apply action before
   these removals. Supplied vote/preference data blocks structural changes until
@@ -69,7 +77,7 @@ All reform paths below are under `web/src/lib/politics/reform-2026/`.
 | Task | Entry point |
 | --- | --- |
 | Workspace execution/import/export | `ReformWorkspace.svelte` |
-| Draft coordination, validation, advanced scopes and JSON | `ReformScenarioEditor.svelte` |
+| Draft coordination, validation, local scopes and JSON | `ReformScenarioEditor.svelte` |
 | Subject, reference, history, filing, link and candidate UI | Corresponding `Reform*Editor.svelte` files |
 | Atomic editing operations and dependency summaries | `scenario-editor.ts` |
 | Presentation defaults, proxy-safe cloning and explicit draft upgrade | `presentation-metadata.ts` |

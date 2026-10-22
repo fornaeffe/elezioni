@@ -119,7 +119,7 @@ export interface ReformGenerationScenario {
 export interface ReformPresentation {
   name: string;
   lists: { id: string; color: string }[];
-  coalitions: { id: string; name: string; color: string }[];
+  coalitions: { id: string; name: string; color: string; chambers?: Chamber[] }[];
 }
 export interface GenerationTrace {
   warnings: { code: string; message: string }[];

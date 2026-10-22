@@ -24,6 +24,9 @@
 .scenario-editor .subject-row .subject-coalition { flex: 0 1 24rem; min-width: 10rem; overflow: hidden; }
 .scenario-editor .subject-row .subject-name input, .scenario-editor .subject-row .subject-coalition select { width: 100%; min-width: 0; }
 .scenario-editor .subject-coalition { white-space: nowrap; }
+.scenario-editor .subject-settings { position: relative; flex: 0 0 auto; }
+.scenario-editor .subject-badge { position: absolute; right: -.35rem; top: -.4rem; border-radius: 50%; min-width: 1rem; height: 1rem; background: #a16207; color: white; font-size: .75rem; line-height: 1rem; text-align: center; }
+.scenario-editor .subject-details { padding: .75rem; border-left: 2px solid var(--editor-border); }
 .scenario-editor input:focus-visible, .scenario-editor select:focus-visible, .scenario-editor button:focus-visible, .scenario-editor summary:focus-visible { outline: 3px solid #0284c7; outline-offset: 2px; }
 @media (max-width: 600px) { .scenario-editor section, .scenario-editor > details, .scenario-editor fieldset { padding: .65rem; } .scenario-editor .editor-row > label { width: 100%; } }
 @media (max-width: 600px) { .scenario-editor .list-row { flex-wrap: wrap; } .scenario-editor .subject-row .subject-name { width: auto; } .scenario-editor .list-row .subject-coalition { flex: 1 1 10rem; width: auto; } }

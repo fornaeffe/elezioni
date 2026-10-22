@@ -3,10 +3,11 @@
   import type { ReformGenerationScenario } from './generation-types';
   import type { ReformEditorCatalog } from './editor-catalog';
   import { editableLists, editingChambers, resetReformCorrespondences, setReformCorrespondence, type EditingScope } from './scenario-editor';
-  let { scenario, defaults, scope, catalog, disabled, onaction }: {
-    scenario: ReformGenerationScenario; defaults: ReformGenerationScenario; scope: EditingScope; catalog: ReformEditorCatalog; disabled: boolean;
+  let { scenario, defaults, catalog, disabled, onaction }: {
+    scenario: ReformGenerationScenario; defaults: ReformGenerationScenario; catalog: ReformEditorCatalog; disabled: boolean;
     onaction: (action: () => ReformGenerationScenario) => void;
   } = $props();
+  let scope = $state<EditingScope>('common');
   let past = $state('');
   let destination = $state('');
   let factor = $state<number | undefined>(1);
@@ -17,6 +18,7 @@
 </script>
 <section aria-label="Corrispondenze storiche">
   <h3>Corrispondenze storiche</h3>
+  <label>Ramo corrispondenze<select bind:value={scope} {disabled}><option value="common">Comune ai rami</option><option value="camera">Camera</option><option value="senato">Senato</option></select></label>
   <p>Base {catalog.historicalDate}. I pesi si normalizzano per lista storica e ramo. Più origini possono confluire nella stessa lista; le origini senza destinazioni confluiscono nell'astensione. I gruppi speciali non vengono scomposti in liste inventate.</p>
   {#each unmapped as row (row.ch)}<p>{row.ch}: {row.count} origini senza corrispondenza.</p>{/each}
   <SearchSelect label="lista storica" {options} value={past} onchange={v => { past = v; }} {disabled} />

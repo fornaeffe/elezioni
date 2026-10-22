@@ -19,6 +19,49 @@ export function subjectLabel(s: ReformGenerationScenario, sub: Subject, ch: Cham
 export function editableLists(s: ReformGenerationScenario, scope: EditingScope): PoliticalList[] {
   return [...new Map(editingChambers(scope).flatMap(ch => s.lists[ch]).map(l => [l.id, l])).values()];
 }
+export function coalitionChambers(s: ReformGenerationScenario, id: string): Chamber[] {
+  return s.presentation?.coalitions.find(c => c.id === id)?.chambers ?? editingChambers('common').filter(ch => s.lists[ch].some(l => l.coalitionId === id));
+}
+export function syncCoalitionLinks(s: ReformGenerationScenario) {
+  for (const coalition of s.presentation?.coalitions ?? []) {
+    const active = coalitionChambers(s, coalition.id);
+    if (active.length !== 2 || !editingChambers('common').every(ch => s.lists[ch].some(l => l.coalitionId === coalition.id))) continue;
+    s.bonusLinks = [...s.bonusLinks.filter(l => !(l.camera.kind === 'coalition' && l.camera.id === coalition.id) && !(l.senato.kind === 'coalition' && l.senato.id === coalition.id)),
+      { camera: { kind: 'coalition', id: coalition.id }, senato: { kind: 'coalition', id: coalition.id }, cameraDeclares: true, senatoDeclares: true }];
+  }
+}
+export function setCoalitionPresence(s: ReformGenerationScenario, id: string, ch: Chamber, present: boolean) {
+  requireGeneratedData(s);
+  return edit(s, n => {
+    const active = coalitionChambers(n, id);
+    n.presentation!.coalitions.find(c => c.id === id)!.chambers = editingChambers('common').filter(side => side === ch ? present : active.includes(side));
+    if (!present) n.lists[ch] = n.lists[ch].map(l => l.coalitionId === id ? { ...l, coalitionId: null } : l);
+    else {
+      const members = new Set([...n.lists.camera, ...n.lists.senato].filter(l => l.coalitionId === id).map(l => l.id));
+      n.lists[ch] = n.lists[ch].map(l => members.has(l.id) ? { ...l, coalitionId: id } : l);
+    }
+    reconcile(n); syncCoalitionLinks(n);
+  });
+}
+export function setListPresence(s: ReformGenerationScenario, id: string, ch: Chamber, present: boolean) {
+  requireGeneratedData(s);
+  if (!present && !s.lists[ch === 'camera' ? 'senato' : 'camera'].some(l => l.id === id)) throw new Error('Mantieni almeno un ramo oppure rimuovi la lista con il cestino.');
+  return edit(s, n => {
+    if (present && !n.lists[ch].some(l => l.id === id)) {
+      const source = editableLists(n, 'common').find(l => l.id === id)!;
+      n.lists[ch].push({ ...cloneReformValue(source), coalitionId: source.coalitionId && coalitionChambers(n, source.coalitionId).includes(ch) ? source.coalitionId : null });
+    } else if (!present) n.lists[ch] = n.lists[ch].filter(l => l.id !== id);
+    reconcile(n); syncCoalitionLinks(n);
+  });
+}
+export function updatePresentList(s: ReformGenerationScenario, id: string, patch: Partial<Omit<PoliticalList, 'id'>>) {
+  if ('coalitionId' in patch) requireGeneratedData(s);
+  return edit(s, n => {
+    for (const ch of editingChambers('common')) n.lists[ch] = n.lists[ch].map(l => l.id !== id ? l : { ...l, ...patch,
+      coalitionId: patch.coalitionId ? (coalitionChambers(n, patch.coalitionId).includes(ch) ? patch.coalitionId : null) : patch.coalitionId === null ? null : l.coalitionId });
+    reconcile(n); syncCoalitionLinks(n);
+  });
+}
 function nextId(prefix: string, ids: string[]): string {
   let i = 1;
   while (ids.includes(`${prefix}-${i}`)) i++;
@@ -82,7 +125,7 @@ export function copyReformPoliticalConfiguration(s: ReformGenerationScenario, so
 }
 export function addReformCoalition(s: ReformGenerationScenario) {
   return edit(s, n => { const id = nextId('coalizione', n.presentation!.coalitions.map(c => c.id));
-    n.presentation!.coalitions.push({ id, name: `Nuova coalizione ${id.split('-').at(-1)}`, color: subjectColor(id) }); });
+    n.presentation!.coalitions.push({ id, name: `Nuova coalizione ${id.split('-').at(-1)}`, color: subjectColor(id), chambers: ['camera', 'senato'] }); });
 }
 export function removeReformCoalition(s: ReformGenerationScenario, id: string) {
   requireGeneratedData(s);

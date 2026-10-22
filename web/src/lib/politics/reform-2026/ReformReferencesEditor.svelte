@@ -5,10 +5,11 @@
   import type { ReformGenerationScenario } from './generation-types';
   import type { ReformEditorCatalog } from './editor-catalog';
   import { editableLists, referenceKey, referenceValue, setReformReference, type EditingScope } from './scenario-editor';
-  let { scenario, scope, catalog, disabled, onaction }: {
-    scenario: ReformGenerationScenario; scope: EditingScope; catalog: ReformEditorCatalog; disabled: boolean;
+  let { scenario, catalog, disabled, onaction }: {
+    scenario: ReformGenerationScenario; catalog: ReformEditorCatalog; disabled: boolean;
     onaction: (action: () => ReformGenerationScenario) => void;
   } = $props();
+  let scope = $state<EditingScope>('common');
   let kind = $state<ReferenceScope['kind']>('national');
   let location = $state('');
   const options = $derived(kind === 'region' ? catalog.regions.map(r => ({ id: r.id, label: r.name })) : kind === 'province'
@@ -22,6 +23,7 @@
 </script>
 <section id="r26-references" aria-label="Quote e astensione">
   <h3>Quote e astensione</h3>
+  <label>Ramo riferimenti<select bind:value={scope} {disabled}><option value="common">Comune ai rami</option><option value="camera">Camera</option><option value="senato">Senato</option></select></label>
   <p>Quote sui voti validi, in percentuale. Vuoto = eredita; 0 = zero esplicito. La quota comune è un'ancora: il modello deriva quote Camera/Senato diverse; un valore esplicito per ramo ha precedenza.</p>
   <div class="editor-row">
     <label>Ambito geografico<select bind:value={kind} onchange={() => { location = ''; }} {disabled}>

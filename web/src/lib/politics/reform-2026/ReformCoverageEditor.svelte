@@ -1,25 +1,26 @@
 <script lang="ts">
   import type { ReformGenerationScenario } from './generation-types';
   import type { ReformEditorCatalog } from './editor-catalog';
-  import { editableLists, editingChambers, setReformCoverage, type EditingScope } from './scenario-editor';
-  let { scenario, scope, catalog, disabled, onaction }: {
-    scenario: ReformGenerationScenario; scope: EditingScope; catalog: ReformEditorCatalog; disabled: boolean;
+  import { editableLists, setReformCoverage } from './scenario-editor';
+  let { scenario, catalog, disabled, onaction }: {
+    scenario: ReformGenerationScenario; catalog: ReformEditorCatalog; disabled: boolean;
     onaction: (action: () => ReformGenerationScenario) => void;
   } = $props();
+  let chamber = $state<'' | 'camera' | 'senato'>('');
   let listId = $state('');
   let regionId = $state('');
   let kind = $state('ordinary');
   let page = $state(0);
-  const lists = $derived(editableLists(scenario, scope));
+  const lists = $derived(editableLists(scenario, 'common'));
   const selected = $derived(lists.find(l => l.id === listId)?.id ?? lists[0]?.id ?? '');
-  const colleges = $derived(catalog.colleges.filter(c => editingChambers(scope).includes(c.chamber) && (!kind || c.kind === kind)
+  const colleges = $derived(catalog.colleges.filter(c => (!chamber || chamber === c.chamber) && scenario.lists[c.chamber].some(l => l.id === selected) && (!kind || c.kind === kind)
     && (!regionId || catalog.territories.find(t => t.id === c.territoryId)?.regionId === regionId)));
   const safePage = $derived(Math.min(page, Math.max(0, Math.ceil(colleges.length / 25) - 1)));
   const rows = $derived(colleges.slice(safePage * 25, (safePage + 1) * 25));
   function apply(filed: boolean, collegeId?: string) { onaction(() => {
     let n = scenario;
-    for (const ch of editingChambers(scope)) {
-      if (!n.lists[ch].some(l => l.id === selected)) throw new Error(`Lista assente in ${ch}: aggiungila prima oppure usa la modifica per ramo.`);
+    for (const ch of ['camera', 'senato'] as const) {
+      if (!n.lists[ch].some(l => l.id === selected)) continue;
       n = setReformCoverage(n, ch, colleges.filter(c => c.chamber === ch && (!collegeId || c.id === collegeId)).map(c => c.id), selected, filed);
     }
     return n;
@@ -29,6 +30,7 @@
   <h3>Depositi</h3>
   <p>Assente dal collegio e depositata con zero voti sono condizioni diverse. In modalità comune le azioni filtrate riguardano entrambi i rami; per modificare un singolo collegio abilita Camera/Senato.</p>
   <div class="editor-row">
+    <label>Ramo deposito<select bind:value={chamber} onchange={() => { page = 0; }} {disabled}><option value="">Tutti i rami</option><option value="camera">Camera</option><option value="senato">Senato</option></select></label>
     <label>Lista deposito<select value={selected} {disabled} onchange={e => { listId = e.currentTarget.value; }}>{#each lists as list (list.id)}<option value={list.id}>{list.name}</option>{/each}</select></label>
     <label>Regione deposito<select bind:value={regionId} onchange={() => { page = 0; }} {disabled}><option value="">Tutte</option>{#each catalog.regions as r (r.id)}<option value={r.id}>{r.name}</option>{/each}</select></label>
     <label>Tipo collegio<select bind:value={kind} onchange={() => { page = 0; }} {disabled}><option value="ordinary">Ordinario</option><option value="special-uninominal">Uninominale speciale</option><option value="taa-proportional">Proporzionale TAA</option><option value="">Tutti</option></select></label>
@@ -39,7 +41,7 @@
     {#each rows as college (college.id)}
       {@const filed = scenario.coverage.some(c => c.chamber === college.chamber && c.collegeId === college.id && c.listIds.includes(selected))}
       <tr><td>{college.chamber}</td><td>{college.name}</td><td>
-      {#if scope === 'common'}{filed ? 'Sì' : 'No'}{:else}<input type="checkbox" aria-label={`Deposito ${college.name}`} checked={filed} {disabled} onchange={e => apply(e.currentTarget.checked, college.id)} />{/if}
+      <input type="checkbox" aria-label={`Deposito ${college.name}`} checked={filed} {disabled} onchange={e => apply(e.currentTarget.checked, college.id)} />
     </td></tr>{/each}
   </tbody></table></div>
   <button type="button" disabled={safePage === 0} onclick={() => { page = safePage - 1; }}>Depositi precedenti</button>

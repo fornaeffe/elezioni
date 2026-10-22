@@ -14,8 +14,8 @@ model fitting, constructed inputs and explicit legacy conversion, use the
   2026** opens a separate scenario/workspace with its own local storage. Existing
   legacy plots and tables retain their visibility. This selector does not compare
   algorithms or convert scenarios.
-- The [structured scenario editor](politics-reform-2026-editor.md) defaults to
-  common Camera/Senato editing, with explicit advanced chamber scopes. It edits
+- The [structured scenario editor](politics-reform-2026-editor.md) uses
+  row-local chamber presence and independent reference/history scopes. It edits
   persisted labels/colors, political subjects, national/local references,
   historical mappings, filings, bonus links and compatible candidate templates.
   Supplied votes/preferences remain in JSON. Shares in files are fractions;
