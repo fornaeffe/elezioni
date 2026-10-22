@@ -11,8 +11,11 @@
   import { requireSimulationCount } from '../../core/runtime-data';
   import { estimateReformWorkerCapacity, requireReformWorkerCount } from '../../core/reform-worker-capacity';
   import { requireReformScenario, serializeReformScenario, parseReformScenario } from './generation-scenario';
+  import { validateReformScenario } from './generation-scenario';
+  import { upgradeReformDraft } from './presentation-metadata';
+  import ReformScenarioEditor from './ReformScenarioEditor.svelte';
   import type { ReformGenerationScenario } from './generation-types';
-  import { bundledReformScenario, bundledReformModels } from './application-defaults';
+  import { bundledReformScenario } from './application-defaults';
   import { buildReformSeatChart } from './result-presentation';
 
   let { imported = null, importedScenario = null, importedFile = null, onLegacyImport, onImportConsumed }: {
@@ -23,7 +26,6 @@
     onImportConsumed: () => void;
   } = $props();
   function copyScenario(value: unknown) { return requireReformScenario($state.snapshot(value)); }
-  const models = bundledReformModels();
   const storageKey = 'elezioni:politics-reform-2026:scenario:v1';
   const resultKey = 'elezioni:politics-reform-2026:results:v1';
   let scenario = $state<ReformGenerationScenario>(bundledReformScenario());
@@ -42,17 +44,11 @@
   let phase = $state('idle');
   let error = $state('');
   let ready = $state(false);
-  let advanced = $state(false);
-  let draft = $state('');
   let tableIndex = $state(0);
   let pageIndex = $state(0);
   let warningPage = $state(0);
   let selectedRun = $state(1);
   let selectedChamber = $state('camera');
-  let referenceList = $state('');
-  let commonShare = $state<number | undefined>();
-  let cameraShare = $state<number | undefined>();
-  let senateShare = $state<number | undefined>();
   let client: ResultServiceClient | undefined;
   let owner = '', currentRun = '', alive = true;
   let tableRequest = 0, chartRequest = 0, warningRequest = 0;
@@ -65,11 +61,12 @@
   const rows = $derived(table?.rows ?? []);
   const chart = $derived(buildReformSeatChart(chartTable, selectedChamber, selectedRun, resultScenario ?? scenario));
   const fingerprint = $derived(JSON.stringify(scenario));
-  const stale = $derived(resultScenario !== null && fingerprint !== JSON.stringify(resultScenario));
+  const stale = $derived(resultScenario !== null && fingerprint !== JSON.stringify(upgradeReformDraft($state.snapshot(resultScenario))));
+  const validation = $derived(validateReformScenario(scenario));
 
   onMount(() => { void initialize(); });
   onDestroy(() => { alive = false; client?.close(); });
-  $effect(() => { if (ready) localStorage.setItem(storageKey, fingerprint); });
+  $effect(() => { if (ready && validation.length === 0) localStorage.setItem(storageKey, fingerprint); });
   $effect(() => {
     const id = result?.storage?.id, index = tableIndex, page = safePage;
     if (id) void fetchTable(id, index, page);
@@ -112,8 +109,8 @@
         await importFile(new File([JSON.stringify(payload)], 'import.json'));
       } else {
         const saved = localStorage.getItem(storageKey);
-        if (importedScenario) scenario = copyScenario(importedScenario);
-        else if (saved) scenario = parseReformScenario(saved);
+        if (importedScenario) scenario = upgradeReformDraft(copyScenario(importedScenario));
+        else if (saved) scenario = upgradeReformDraft(parseReformScenario(saved));
         if (!importedScenario && savedResults.length) await restoreSaved(savedResults.at(-1)!.id);
       }
     } catch (e) { error = describe(e); }
@@ -143,7 +140,7 @@
   }
   function attach(record: StoredResult, label: string) {
     if (!('kind' in record.scenario)) throw new Error('Expected an explicit reform scenario');
-    scenario = copyScenario(record.scenario); resultScenario = copyScenario(record.scenario);
+    scenario = upgradeReformDraft(copyScenario(record.scenario)); resultScenario = copyScenario(record.scenario);
     result = record.result; simulations = record.result.benchmark.simulations;
     tableIndex = 0; pageIndex = 0; warningPage = 0; phase = label;
     if (record.result.storage?.state === 'interrupted') error = record.result.warnings.filter(w => w.code.startsWith('RESULT_')).map(w => w.message).join('\n') || 'Risultato parziale: il calcolo precedente e stato interrotto.';
@@ -180,7 +177,7 @@
       }
       // Standalone scenarios remain small input envelopes, not result archives.
       const header = await inspectStandalone(file);
-      if (header) { scenario = header; return; }
+      if (header) { scenario = upgradeReformDraft(header); return; }
       const id = crypto.randomUUID();
       const record = await service().call<StoredResult>('import', { resultId: id, owner, file });
       attach(record, 'imported');
@@ -207,17 +204,6 @@
       result = null; resultScenario = null; table = undefined; chartTable = undefined; selectedSavedResult = '';
     } catch (e) { error = describe(e); }
   }
-  function applyReference() {
-    try {
-      if (!referenceList) throw new Error('Seleziona una lista');
-      const share = (v: number | undefined) => v === undefined ? null : v / 100;
-      const next = copyScenario(scenario);
-      next.shares = next.shares.filter(r => r.scope.kind !== 'national' || r.listId !== referenceList);
-      next.shares.push({ scope: { kind: 'national' }, listId: referenceList, common: share(commonShare), camera: share(cameraShare), senato: share(senateShare) });
-      scenario = copyScenario(next); error = '';
-    } catch (e) { error = describe(e); }
-  }
-  function applyDraft() { try { scenario = parseReformScenario(draft); advanced = false; error = ''; } catch (e) { error = describe(e); } }
   async function cancel() {
     try { if (currentRun) await service().call('cancel', { resultId: currentRun, owner }); }
     catch (e) { if (alive) error = describe(e); }
@@ -259,36 +245,17 @@
       <label>Processi di calcolo<select aria-label="Processi di calcolo" bind:value={computeWorkers} disabled={isBusy || !ready} aria-describedby="reform-worker-memory">
         {#each Array.from({ length: workerCapacity.maximum }, (_, index) => index + 1) as count (count)}<option value={count}>{count}</option>{/each}
       </select></label>
-      <label>Seed<input bind:value={scenario.seed} disabled={isBusy} /></label>
-      <label>Data proiezione<input type="date" bind:value={scenario.projectionDate} disabled={isBusy} /></label>
-      <label>Data elezione<input type="date" bind:value={scenario.electionDate} disabled={isBusy} /></label>
-      <label>Profilo preferenze<select bind:value={scenario.preferenceProfileId} disabled={isBusy}>{#each models.preferences.profiles as p (p.id)}<option value={p.id}>{p.id}</option>{/each}</select></label>
-      <label>Profilo dipendenza Camera-Senato<select bind:value={scenario.chamberProfileId} disabled={isBusy}>{#each models.chambers.profiles as p (p.id)}<option value={p.id}>{p.id}</option>{/each}</select></label>
-      <button onclick={run} disabled={isBusy}>Esegui riforma</button>
+      <button onclick={run} disabled={isBusy || validation.length > 0}>Esegui riforma</button>
       {#if running}<button onclick={cancel}>Annulla</button>{/if}
     </div>
     <p id="reform-worker-memory">Massimo stimato: {workerCapacity.maximum}; circa {(workerCapacity.workerMemoryMiB / 1024).toLocaleString('it-IT')} GiB per processo.
       {#if workerCapacity.reportedMemoryGiB === null}Il browser non comunica la memoria: limite prudenziale.{:else}Memoria del dispositivo indicata dal browser: {workerCapacity.reportedMemoryGiB} GiB.{/if}
       La memoria libera effettiva può essere inferiore. Ridurre i processi lascia più risorse alle altre attività.</p>
-    <p>I profili sono ipotesi di sensibilità. Le probabilità su candidati, copertura e recuperi sono condizionate alle preferenze sintetiche. Ripetere con gli stessi seed e altri profili per esplorare la sensibilità del premio congiunto.</p>
-    <p>I totali attribuiti non specificano la composizione dei voti di sola lista del premio. La quota comune ancora entrambi i rami; le quote esplicite per ramo hanno precedenza e la modalità media conserva incertezza.</p>
-    <div class="controls">
-      <label>Lista riferimento nazionale<select bind:value={referenceList}><option value="">Seleziona</option>{#each scenario.lists.camera as l (l.id)}<option value={l.id}>{l.name}</option>{/each}</select></label>
-      <label>Quota comune %<input type="number" min="0" max="100" bind:value={commonShare} /></label>
-      <label>Quota Camera %<input type="number" min="0" max="100" bind:value={cameraShare} /></label>
-      <label>Quota Senato %<input type="number" min="0" max="100" bind:value={senateShare} /></label>
-      <button onclick={applyReference} disabled={isBusy}>Applica riferimento</button>
-    </div>
-    <p>Lasciare vuote le quote non specificate. Il file scenario contiene liste, coalizioni, candidature, riferimenti geografici, dati forniti e tutte le ipotesi riproducibili.</p>
     <div class="controls">
       <label>Carica scenario o risultati<input type="file" accept=".json,.gz" onchange={loadFile} disabled={isBusy} data-testid="reform-file-input" /></label>
       <button onclick={exportScenario}>Scarica scenario</button>
-      <button onclick={() => { draft = JSON.stringify(scenario, null, 2); advanced = !advanced; }}>Modifica scenario completo</button>
     </div>
-    {#if advanced}
-      <label>Scenario completo JSON<textarea bind:value={draft} rows="18"></textarea></label>
-      <button onclick={applyDraft} disabled={isBusy}>Applica scenario completo</button>
-    {/if}
+    <ReformScenarioEditor {scenario} onchange={next => { scenario = next; }} disabled={isBusy} />
   </section>
   <p role="status" data-testid="reform-phase">{phase}</p>
   {#if busyAction}<p role="status">{busyAction}</p>{/if}
@@ -342,9 +309,8 @@
   section { background: white; border: 1px solid #d7e0e5; border-radius: 8px; padding: 1.25rem; margin: 1rem 0; }
   .controls { display: flex; flex-wrap: wrap; gap: 1rem; align-items: end; margin: 1rem 0; }
   label { display: grid; gap: .4rem; }
-  input, select, button, textarea { font: inherit; padding: .5rem; border: 1px solid #a8bac6; border-radius: 4px; }
+  input, select, button { font: inherit; padding: .5rem; border: 1px solid #a8bac6; border-radius: 4px; }
   button { cursor: pointer; background: #edf3f7; }
-  textarea { width: 100%; box-sizing: border-box; }
   .table-scroll { overflow: auto; }
   table { border-collapse: collapse; width: 100%; }
   th, td { text-align: left; border-bottom: 1px solid #d7e0e5; padding: .5rem; max-width: 40rem; overflow-wrap: anywhere; }

@@ -4,6 +4,7 @@ import { REFORM_MODEL_IDS, REFORM_SCENARIO_VERSION, type ReformGenerationScenari
 import { array, chamber, count, date, literal, nullable, object, ordinaryVotes, preferences, scalar, share, specialVotes, subject, text, union, type Schema, type ValidationIssue } from './shape';
 import { validateSeatTableBundle } from './endowments';
 import { sum } from './generation-math';
+import { reformPresentation } from './presentation-metadata';
 
 const nonnegative = scalar<number>(v => typeof v === 'number' && Number.isFinite(v) && v >= 0, 'a finite nonnegative number');
 const scope = union(object({ kind: literal('national') }), object({ kind: literal('region', 'province', 'municipality'), code: text }));
@@ -13,8 +14,8 @@ const candidate: Schema<Candidate> = object({ id: text, name: text, birthDate: d
   availability: union(object({ kind: literal('available') }), object({ kind: literal('unavailable'), reason: text })),
   externalCandidacies: array(object({ chamber, kind: literal('domestic', 'foreign') })) });
 type JsonReadonly<T> = T extends object ? { readonly [K in keyof T]: JsonReadonly<T[K]> } : T;
-const scenarioShape: Schema<JsonReadonly<ReformGenerationScenario>> = object({
-  schemaVersion: literal(REFORM_SCENARIO_VERSION), kind: literal('politics-reform-scenario'), algorithmId: literal(REFORM_ALGORITHM_ID),
+const scenarioFields = {
+  kind: literal('politics-reform-scenario'), algorithmId: literal(REFORM_ALGORITHM_ID),
   snapshotVersion: text, modelVersion: text, modelIds, preferenceProfileId: text, chamberProfileId: text, seed: text,
   electionDate: date, projectionDate: date, mode: literal('mean'), renewal: literal('joint', 'camera', 'senato'),
   lists: object({ camera: array(list), senato: array(list) }),
@@ -30,7 +31,13 @@ const scenarioShape: Schema<JsonReadonly<ReformGenerationScenario>> = object({
   suppliedVotes: array(object({ chamber, collegeId: text, votes: union(ordinaryVotes, specialVotes) })),
   bonusLinks: array(object({ camera: subject, senato: subject, cameraDeclares: scalar<true>(v => v === true, 'true'), senatoDeclares: scalar<true>(v => v === true, 'true') })),
   conversion: nullable(object({ from: text, assumptions: array(text) }))
-});
+};
+const color = scalar<string>(v => typeof v === 'string' && /^#[0-9a-f]{6}$/i.test(v), 'a six-digit hex color');
+const scenarioShape: Schema<JsonReadonly<ReformGenerationScenario>> = union(
+  object({ ...scenarioFields, schemaVersion: literal(1) }),
+  object({ ...scenarioFields, schemaVersion: literal(REFORM_SCENARIO_VERSION), presentation: object({ name: text,
+    lists: array(object({ id: text, color })), coalitions: array(object({ id: text, name: text, color })) }) })
+);
 
 const parameters = object({ intensity: nonnegative, strengthSigma: nonnegative, localSigma: nonnegative });
 const historical = object({ electors: count, votes: array(object({ listId: text, votes: count })) });
@@ -62,6 +69,18 @@ export function validateReformScenario(value: unknown, snapshot?: ReformGenerati
   const key = (v: unknown) => JSON.stringify(v);
   if (s.projectionDate > s.electionDate) errors.push('Projection date is after election date');
   for (const ch of ['camera', 'senato'] as const) unique(s.lists[ch], l => l.id, `${ch} list`);
+  if (s.presentation) {
+    unique(s.presentation.lists, l => l.id, 'presentation list');
+    unique(s.presentation.coalitions, c => c.id, 'presentation coalition');
+    const ids = new Set([...s.lists.camera, ...s.lists.senato].map(l => l.id));
+    if (s.presentation.lists.some(l => !ids.has(l.id)) || [...ids].some(id => !s.presentation!.lists.some(l => l.id === id))) errors.push('Presentation lists must match scenario list identities');
+    if ([...s.lists.camera, ...s.lists.senato].some(l => l.coalitionId && !s.presentation!.coalitions.some(c => c.id === l.coalitionId))) errors.push('Missing coalition presentation');
+  }
+  for (const ch of ['camera', 'senato'] as const) {
+    const subjects = new Set(s.lists[ch].map(l => key([l.coalitionId ? 'coalition' : 'list', l.coalitionId ?? l.id])));
+    unique(s.bonusLinks, l => key([l[ch].kind, l[ch].id]), `${ch} bonus link`);
+    if (s.bonusLinks.some(l => !subjects.has(key([l[ch].kind, l[ch].id])))) errors.push(`Unknown ${ch} bonus subject`);
+  }
   unique(s.coverage, r => key([r.chamber, r.collegeId]), 'coverage');
   for (const c of s.coverage) {
     unique(c.listIds, id => id, 'coverage list');
@@ -126,7 +145,7 @@ export function parseReformScenario(text: string, snapshot?: ReformGenerationSna
  * Ordinary filing is a future scenario assumption. Special historical ballot
  * groups stay distinct: no invented coalition-to-list decomposition. */
 export function createDefaultReformScenario(snapshot: ReformGenerationSnapshot, projectionDate: string, electionDate: string, seed = 'r26-default-v1'): ReformGenerationScenario {
-  const s: ReformGenerationScenario = { schemaVersion: 1, kind: 'politics-reform-scenario', algorithmId: REFORM_ALGORITHM_ID,
+  const s: ReformGenerationScenario = { schemaVersion: REFORM_SCENARIO_VERSION, kind: 'politics-reform-scenario', algorithmId: REFORM_ALGORITHM_ID,
     snapshotVersion: snapshot.version, modelVersion: snapshot.models.version, modelIds: REFORM_MODEL_IDS,
     preferenceProfileId: 'central-v1', chamberProfileId: 'central-v1', seed, electionDate, projectionDate, mode: 'mean', renewal: 'joint',
     lists: { camera: [], senato: [] }, coverage: [], correspondences: [], shares: [], abstention: [], candidateGeneration: { reuseProbability: 0.2, maximumOrdinaryCandidacies: 5 },
@@ -162,6 +181,7 @@ export function createDefaultReformScenario(snapshot: ReformGenerationSnapshot, 
   })).values()];
   s.bonusLinks = subjects('camera').filter(a => subjects('senato').some(b => b.id === a.id && b.kind === a.kind))
     .map(subject => ({ camera: subject, senato: subject, cameraDeclares: true, senatoDeclares: true }));
+  s.presentation = reformPresentation(s);
   return requireReformScenario(s, snapshot);
 }
 
@@ -201,6 +221,8 @@ export function convertLegacyScenarioToReform(legacy: Scenario, snapshot: Reform
     .map(s => ({ camera: s, senato: s, cameraDeclares: true, senatoDeclares: true }));
   result.conversion = { from: 'politiche-r-parity-v1/scenario-v7', assumptions: ['Explicit user mapping; reform final attributed totals and paired mean-mode interpretation.',
     'Legacy historical input and candidate generation parameters are not calibrated reform parameters; reform defaults are recorded in this scenario.'] };
+  delete result.presentation;
+  result.presentation = reformPresentation(result);
   return requireReformScenario(result, snapshot);
 }
 

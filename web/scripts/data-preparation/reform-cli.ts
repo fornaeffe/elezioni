@@ -7,6 +7,7 @@ import { prepareReformModels, readReformManifest } from './reform-models';
 import { prepareReformGeneration, generateReformSimulation } from '../../src/lib/politics/reform-2026/generation';
 import { runPoliticsReformScrutiny } from '../../src/lib/politics/reform-2026/scrutiny';
 import type { ReformGenerationSnapshot } from '../../src/lib/politics/reform-2026/generation-types';
+import { createReformEditorCatalog } from '../../src/lib/politics/reform-2026/editor-catalog';
 
 const root = fileURLToPath(new URL('../../../', import.meta.url));
 const [command, ...args] = process.argv.slice(2);
@@ -25,7 +26,10 @@ if (command === 'download') {
   for (const s of selected) { await acquireSource(sources, s); console.log(`Verified ${s.id}`); }
 } else if (command === 'generate') {
   const prepared = await prepareReformModels(root, sources);
-  const defaultsVersion = `r26-defaults-v1-${sha256(JSON.stringify(prepared.defaults)).slice(0, 12)}`;
+  const defaultsVersion = `r26-defaults-v${prepared.defaults.schemaVersion}-${sha256(JSON.stringify(prepared.defaults)).slice(0, 12)}`;
+  const editor = createReformEditorCatalog(prepared.snapshot);
+  const editorVersion = `r26-editor-v1-${sha256(JSON.stringify(editor)).slice(0, 12)}`;
+  await writeVersion(resolve(output, `${editorVersion}.json`), editor);
   await writeVersion(resolve(output, `${prepared.snapshot.version}.json`), prepared.snapshot);
   await writeVersion(resolve(output, `${prepared.snapshot.version}-audit.json`), prepared.audit);
   await writeVersion(resolve(output, `${prepared.models.version}.json`), prepared.models);
@@ -34,12 +38,13 @@ if (command === 'download') {
   const compressed = gzipSync(bytes, { level: 9, mtime: 0 });
   const catalog = { schemaVersion: 1, kind: 'politics-reform-generation', snapshotVersion: prepared.snapshot.version, modelVersion: prepared.models.version, defaultsVersion,
     path: `data/reform-2026/${prepared.snapshot.version}.json.gz`, sha256: sha256(compressed), bytes: compressed.length, uncompressedSha256: sha256(bytes),
-    defaultsPath: `${defaultsVersion}.json`, modelsPath: `${prepared.models.version}.json` };
+    defaultsPath: `${defaultsVersion}.json`, modelsPath: `${prepared.models.version}.json`, editorPath: `${editorVersion}.json`, editorVersion };
   await writeVersion(resolve(output, `${prepared.snapshot.version}-${defaultsVersion}-catalog.json`), catalog);
   if (args.includes('--publish')) {
     await writeImmutableBytes(resolve(runtimeDirectory, `${prepared.snapshot.version}.json.gz`), compressed);
     await writeVersion(resolve(root, `web/src/lib/politics/reform-2026/data/${prepared.models.version}.json`), prepared.models);
     await writeVersion(resolve(root, `web/src/lib/politics/reform-2026/data/${defaultsVersion}.json`), prepared.defaults);
+    await writeVersion(resolve(root, `web/src/lib/politics/reform-2026/data/${editorVersion}.json`), editor);
     // The catalog pointer is generated; immutable contents use versioned paths.
     await writeFile(resolve(root, 'web/src/lib/politics/reform-2026/data/generation-catalog.generated.json'), `${JSON.stringify(catalog, null, 2)}\n`);
   }
@@ -56,7 +61,9 @@ if (command === 'download') {
   const defaults = JSON.parse(await readFile(resolve(root, 'web/src/lib/politics/reform-2026/data', catalog.defaultsPath), 'utf8'));
   const models = JSON.parse(await readFile(resolve(root, 'web/src/lib/politics/reform-2026/data', catalog.modelsPath), 'utf8'));
   if (JSON.stringify(models) !== JSON.stringify(snapshot.models) || snapshot.version !== catalog.snapshotVersion) throw new Error('Catalog/default/model versions differ');
-  if (catalog.defaultsVersion !== `r26-defaults-v1-${sha256(JSON.stringify(defaults)).slice(0, 12)}`) throw new Error('Generated defaults fingerprint mismatch');
+  if (catalog.defaultsVersion !== `r26-defaults-v${defaults.schemaVersion}-${sha256(JSON.stringify(defaults)).slice(0, 12)}`) throw new Error('Generated defaults fingerprint mismatch');
+  const editor = JSON.parse(await readFile(resolve(root, 'web/src/lib/politics/reform-2026/data', catalog.editorPath), 'utf8'));
+  if (JSON.stringify(editor) !== JSON.stringify(createReformEditorCatalog(snapshot)) || catalog.editorVersion !== `r26-editor-v1-${sha256(JSON.stringify(editor)).slice(0, 12)}`) throw new Error('Editor catalog fingerprint mismatch');
   const input = generateReformSimulation(prepareReformGeneration(defaults, snapshot), 1).input;
   const result = runPoliticsReformScrutiny(input);
   if (result.stages.some(s => s.status === 'non-computable')) throw new Error(`Production vertical slice is non-computable: ${JSON.stringify(result.stages)}`);

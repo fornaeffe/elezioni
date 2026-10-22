@@ -162,6 +162,8 @@ export function buildReformSeatChart(table: ResultTable | undefined, chamber: st
   const lists = scenario?.lists[chamber === 'camera' ? 'camera' : 'senato'] ?? [];
   const name = (owner: string) => {
     if (owner.startsWith('coalition:')) {
+      const label = scenario?.presentation?.coalitions.find(c => c.id === owner.slice('coalition:'.length))?.name;
+      if (label) return `Coalizione: ${label}`;
       const members = lists.filter(l => l.coalitionId === owner.slice('coalition:'.length));
       return members.length ? `Coalizione: ${members.map(l => l.name).join(' + ')}` : owner;
     }

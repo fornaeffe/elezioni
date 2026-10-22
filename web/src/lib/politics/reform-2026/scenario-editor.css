@@ -1,0 +1,22 @@
+.scenario-editor { --editor-border: #cbd5e1; color: #17344a; }
+.scenario-editor section, .scenario-editor > details, .scenario-editor fieldset { margin: 1rem 0; padding: 1rem; border: 1px solid var(--editor-border); border-radius: .5rem; min-width: 0; }
+.scenario-editor summary { cursor: pointer; font-weight: 600; padding: .35rem 0; }
+.scenario-editor .editor-row { display: flex; flex-wrap: wrap; align-items: end; gap: .65rem; margin: .6rem 0; }
+.scenario-editor label { display: flex; flex-direction: column; gap: .25rem; max-width: 100%; }
+.scenario-editor label:has(input[type=checkbox]) { flex-direction: row; align-items: center; margin: .5rem 0; }
+.scenario-editor input, .scenario-editor select, .scenario-editor button, .scenario-editor textarea { font: inherit; padding: .5rem; border: 1px solid #94a3b8; border-radius: .3rem; max-width: 100%; box-sizing: border-box; }
+.scenario-editor input[type=color] { width: 3rem; height: 2.5rem; padding: .2rem; }
+.scenario-editor button { cursor: pointer; background: #f1f5f9; color: #17344a; }
+.scenario-editor button[aria-pressed=true] { background: #155e75; color: white; }
+.scenario-editor :disabled { opacity: .6; cursor: default; }
+.scenario-editor .editor-reference-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: .75rem; }
+.scenario-editor .editor-card { padding: .75rem; border-bottom: 1px solid var(--editor-border); }
+.scenario-editor .editor-notice { padding: .65rem; background: #fff7df; border-left: 3px solid #a16207; }
+.scenario-editor .editor-error { padding: .65rem; background: #fff1f2; border-left: 3px solid #be123c; overflow-wrap: anywhere; }
+.scenario-editor textarea { width: 100%; font-family: monospace; }
+.scenario-editor .editor-table-wrap { overflow-x: auto; }
+.scenario-editor table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+.scenario-editor td, .scenario-editor th { text-align: left; padding: .5rem; border-bottom: 1px solid var(--editor-border); overflow-wrap: anywhere; }
+.scenario-editor small { color: #475569; }
+.scenario-editor input:focus-visible, .scenario-editor select:focus-visible, .scenario-editor button:focus-visible, .scenario-editor summary:focus-visible { outline: 3px solid #0284c7; outline-offset: 2px; }
+@media (max-width: 600px) { .scenario-editor section, .scenario-editor > details, .scenario-editor fieldset { padding: .65rem; } .scenario-editor .editor-row > label { width: 100%; } }

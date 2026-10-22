@@ -5,6 +5,8 @@ the [modelling decisions](politics-reform-2026-modelling.md) define semantics.
 Use the [validation protocol](politics-reform-2026-generation-protocol.md) for
 diagnostics and [migration history](migration-history.md#2026-10-19-r26-19-scenarios-historical-preparation-and-generation)
 for measured evidence, versions and limitations. For worker/UI/export use the [application guide](politics-reform-2026-application.md).
+For common/chamber editing, v1/v2 presentation metadata compatibility and planner
+previews, use the [scenario editor guide](politics-reform-2026-editor.md).
 
 ## Task map
 

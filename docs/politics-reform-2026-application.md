@@ -14,10 +14,12 @@ model fitting, constructed inputs and explicit legacy conversion, use the
   2026** opens a separate scenario/workspace with its own local storage. Existing
   legacy plots and tables retain their visibility. This selector does not compare
   algorithms or convert scenarios.
-- Reform controls edit dates, seed, model profiles and national common/per-chamber
-  shares. The complete scenario editor/import exposes coalition/filing choices,
-  geographic references, candidates, supplied votes/preferences and conversion
-  provenance. Shares in files are fractions; share inputs display percentages.
+- The [structured scenario editor](politics-reform-2026-editor.md) defaults to
+  common Camera/Senato editing, with explicit advanced chamber scopes. It edits
+  persisted labels/colors, political subjects, national/local references,
+  historical mappings, filings, bonus links and compatible candidate templates.
+  Supplied votes/preferences remain in JSON. Shares in files are fractions;
+  inputs display percentages. Legacy conversion UI remains deferred.
 - Missing production data fails explicitly. The legacy worker no longer falls
   back to debug snapshots. Reform data must match the pinned compressed/decoded
   digests, schema and scenario snapshot/model versions.

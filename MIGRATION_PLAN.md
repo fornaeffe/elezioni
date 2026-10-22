@@ -201,9 +201,11 @@ into `main`; public deployment follows that merge and a successful hosting gate.
   - [x] N21/N22 `no-eligible-recipient-remainder`: apply the same I16-v1 to
     ordinary/internal cap lists; preserve upstream targets and recovery states.
 - [ ] Align pre-2026 reform and 2026 reform UI: 
-  - [ ] adapt the pre-2026 reform scenario editor UI for the 2026 reform, 
-    extending it with components for
-    new scenario data that was not needed pre-2026.
+  - [x] adapt the pre-2026 reform scenario editor UI for the 2026 reform,
+    with common editing by default, explicit advanced chamber scopes,
+    persisted presentation metadata, filings, bonus links and compatible
+    candidate/planner previews. Supplied data remains JSON; legacy conversion
+    UI is deferred. See the [editor guide](docs/politics-reform-2026-editor.md).
   - [ ] adapt tables and plots from pre-2026 to 2026 reform, where applicable, especially:
     - mean elected candidates per list, paired with mean percentages over valid votes
       (if possible, show all elected candidates, both ordinary and bonus, where pre-2026

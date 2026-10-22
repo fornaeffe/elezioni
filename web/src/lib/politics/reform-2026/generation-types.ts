@@ -2,7 +2,7 @@ import type { Candidate, Chamber, ChamberModel, OrdinaryVotes, PoliticalList, Pr
 import type { SeatTableBundle } from './endowments';
 
 export const REFORM_SNAPSHOT_VERSION = 1 as const;
-export const REFORM_SCENARIO_VERSION = 1 as const;
+export const REFORM_SCENARIO_VERSION = 2 as const;
 export const REFORM_MODEL_IDS = { votes: 'final-attributed-list-totals-v1', preferences: 'preferences-empirical-synthetic-v1', chambers: 'paired-chamber-votes-v1' } as const;
 export interface PreferenceParameters {
   intensity: number;
@@ -87,7 +87,9 @@ export type ReformCandidateTemplate = {
   candidate: Candidate;
 };
 export interface ReformGenerationScenario {
-  schemaVersion: typeof REFORM_SCENARIO_VERSION;
+  /** Version 1 remains readable verbatim in historical result archives. */
+  schemaVersion: 1 | typeof REFORM_SCENARIO_VERSION;
+  presentation?: ReformPresentation;
   kind: 'politics-reform-scenario';
   algorithmId: 'politiche-reform-2026-v1';
   snapshotVersion: string;
@@ -113,6 +115,11 @@ export interface ReformGenerationScenario {
   suppliedVotes: { chamber: Chamber; collegeId: string; votes: OrdinaryVotes | SpecialVotes }[];
   bonusLinks: ReformScrutinyInput['bonusLinks'];
   conversion: { from: string; assumptions: string[] } | null;
+}
+export interface ReformPresentation {
+  name: string;
+  lists: { id: string; color: string }[];
+  coalitions: { id: string; name: string; color: string }[];
 }
 export interface GenerationTrace {
   warnings: { code: string; message: string }[];

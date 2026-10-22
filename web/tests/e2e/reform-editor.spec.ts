@@ -1,0 +1,105 @@
+import { readFileSync } from 'node:fs';
+import { expect, test, type Page } from '@playwright/test';
+import catalog from '../../src/lib/politics/reform-2026/data/generation-catalog.generated.json' with { type: 'json' };
+import type { ReformGenerationScenario } from '../../src/lib/politics/reform-2026/generation-types';
+const defaults: ReformGenerationScenario = JSON.parse(readFileSync(new URL(`../../src/lib/politics/reform-2026/data/${catalog.defaultsPath}`, import.meta.url), 'utf8'));
+const editorCatalog = JSON.parse(readFileSync(new URL(`../../src/lib/politics/reform-2026/data/${catalog.editorPath}`, import.meta.url), 'utf8'));
+const key = 'elezioni:politics-reform-2026:scenario:v1';
+async function open(page: Page) {
+  await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
+  await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-reform-2026-v1');
+  await expect(page.getByRole('button', { name: 'Esegui riforma', exact: true })).toBeEnabled();
+}
+async function stored(page: Page): Promise<ReformGenerationScenario> { return page.evaluate(key => JSON.parse(localStorage.getItem(key)!), key); }
+
+test('common editing is the default, chamber overrides are explicit, and presentation survives reload/export', async ({ page }) => {
+  const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
+  await open(page);
+  await expect(page.getByRole('button', { name: 'Comune ai rami', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', { name: 'Camera', exact: true })).toHaveCount(0);
+  const lead = defaults.lists.camera[0];
+  await page.getByLabel('Nome scenario', { exact: true }).fill('Scenario condiviso');
+  await page.getByLabel('Nome scenario', { exact: true }).press('Tab');
+  await page.getByLabel(`Quota ${lead.name}`, { exact: true }).fill('37');
+  await expect.poll(async () => (await stored(page)).shares.find(r => r.listId === lead.id)?.common).toBe(.37);
+  await page.getByLabel('Abilita modifiche avanzate per Camera/Senato').check();
+  await page.getByRole('button', { name: 'Senato', exact: true }).click();
+  await page.getByLabel(`Quota ${lead.name}`, { exact: true }).fill('39');
+  await page.getByRole('button', { name: 'Comune ai rami', exact: true }).click();
+  await page.getByLabel(`Quota ${lead.name}`, { exact: true }).fill('0');
+  await expect.poll(async () => (await stored(page)).shares.find(r => r.listId === lead.id)).toMatchObject({ common: 0, camera: null, senato: .39 });
+  await page.getByLabel(`Quota ${lead.name}`, { exact: true }).fill('');
+  await expect.poll(async () => (await stored(page)).shares.find(r => r.listId === lead.id)).toMatchObject({ common: null, senato: .39 });
+  const row = page.getByTestId('reform-list-row').filter({ has: page.getByLabel(`Colore lista ${lead.name}`, { exact: true }) });
+  await row.getByLabel('Nome lista', { exact: true }).fill('Lista comune'); await row.getByLabel('Nome lista', { exact: true }).press('Tab');
+  await expect.poll(async () => (await stored(page)).lists.senato.find(l => l.id === lead.id)?.name).toBe('Lista comune');
+  const payload = await stored(page);
+  expect(payload.lists.camera.find(l => l.id === lead.id)?.name).toBe('Lista comune');
+  await page.reload(); await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-reform-2026-v1');
+  await expect(page.getByLabel('Nome scenario', { exact: true })).toHaveValue('Scenario condiviso');
+  await expect(page.getByRole('button', { name: 'Camera', exact: true })).toHaveCount(0);
+  const download = page.waitForEvent('download'); await page.getByRole('button', { name: 'Scarica scenario', exact: true }).click();
+  const stream = await (await download).createReadStream(), chunks: Buffer[] = []; for await (const chunk of stream!) chunks.push(Buffer.from(chunk));
+  expect(JSON.parse(Buffer.concat(chunks).toString())).toEqual(payload);
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await page.screenshot({ path: 'test-results/reform-editor-mobile.png', fullPage: true });
+  expect(errors).toEqual([]);
+});
+
+test('dependency removal is reviewable and invalid drafts do not overwrite the last valid saved scenario', async ({ page }) => {
+  await open(page);
+  const lead = defaults.lists.camera[0];
+  await page.getByRole('button', { name: `Rimuovi lista ${lead.name}`, exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Applica modifica e rimuovi dipendenze' })).toBeVisible();
+  expect((await stored(page)).lists.camera.some(l => l.id === lead.id)).toBe(true);
+  await page.getByRole('button', { name: 'Mantieni scenario' }).click();
+  await page.getByRole('button', { name: `Rimuovi lista ${lead.name}`, exact: true }).click();
+  await page.getByRole('button', { name: 'Applica modifica e rimuovi dipendenze' }).click();
+  await expect.poll(async () => (await stored(page)).lists.camera.some(l => l.id === lead.id)).toBe(false);
+  await page.getByLabel('Data proiezione', { exact: true }).fill('2099-01-01'); await page.getByLabel('Data proiezione', { exact: true }).press('Tab');
+  await expect(page.getByTestId('reform-scenario-validation')).toContainText('Projection date is after election date');
+  await expect(page.getByRole('button', { name: 'Esegui riforma', exact: true })).toBeDisabled();
+  expect((await stored(page)).projectionDate).toBe(defaults.projectionDate);
+});
+
+test('version 1 JSON imports upgrade the editable draft and supplied data stays in JSON', async ({ page }) => {
+  await open(page);
+  const old = { ...defaults, schemaVersion: 1 }; delete old.presentation;
+  await page.getByTestId('reform-file-input').setInputFiles({ name: 'v1.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(old)) });
+  await expect.poll(async () => (await stored(page)).schemaVersion).toBe(2);
+  await page.getByText('Scenario completo e dati forniti (JSON)', { exact: true }).click();
+  await page.getByRole('button', { name: 'Modifica scenario completo', exact: true }).click();
+  const supplied = structuredClone(await stored(page));
+  const coverage = supplied.coverage.find(c => c.chamber === 'camera' && c.listIds.length)!;
+  supplied.suppliedPreferences = [{ chamber: 'camera', collegeId: coverage.collegeId, listId: coverage.listIds[0], preferences: { kind: 'missing', reason: 'Non disponibili' } }];
+  await page.getByLabel('Scenario completo JSON').fill(JSON.stringify(supplied));
+  await page.getByRole('button', { name: 'Applica scenario completo', exact: true }).click();
+  await expect.poll(async () => (await stored(page)).suppliedPreferences.length).toBe(1);
+  await page.getByRole('button', { name: 'Aggiungi lista', exact: true }).click();
+  await expect(page.getByRole('alert')).toContainText('JSON completo');
+});
+
+test('production worker previews actual bonus prefixes and accepts a compatible pinned candidate', async ({ page }) => {
+  test.setTimeout(90000);
+  const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
+  await open(page);
+  await page.getByText('Candidature e anteprima del premio', { exact: true }).click();
+  await page.getByRole('combobox', { name: 'Ruolo candidatura', exact: true }).selectOption('bonus');
+  const territory = editorCatalog.territories.find((t: { chamber: string; kind: string }) => t.chamber === 'camera' && t.kind === 'ordinary');
+  await page.getByRole('combobox', { name: 'collegio o territorio candidatura', exact: true }).selectOption(territory.id);
+  const lead = defaults.lists.camera[0];
+  await page.getByRole('combobox', { name: 'Titolare candidatura', exact: true }).selectOption(lead.coalitionId ?? lead.id);
+  await page.getByRole('button', { name: 'Anteprima posizioni', exact: true }).click();
+  await expect(page.getByRole('table', { name: 'Posizioni pianificate', exact: true })).toBeVisible({ timeout: 60000 });
+  await page.getByRole('button', { name: 'Usa posizione 1', exact: true }).click();
+  await page.getByLabel('Nome candidato', { exact: true }).fill('Persona di prova');
+  await page.getByLabel('Data nascita', { exact: true }).fill('1970-01-01');
+  await page.getByRole('button', { name: 'Salva template candidato', exact: true }).click();
+  await expect.poll(async () => (await stored(page)).candidateTemplates.length).toBe(1);
+  await page.getByRole('button', { name: 'Anteprima posizioni', exact: true }).click();
+  await expect(page.getByRole('table', { name: 'Posizioni pianificate', exact: true })).toContainText('Persona di prova', { timeout: 60000 });
+  await expect(page.getByRole('table', { name: 'Riferimenti risolti — quote sui voti validi', exact: true })).toBeVisible();
+  expect(errors).toEqual([]);
+  await page.screenshot({ path: 'test-results/reform-editor-preview.png', fullPage: true });
+});

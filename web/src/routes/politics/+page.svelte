@@ -2,6 +2,7 @@
   import { isReformFile } from '$lib/core/json-stream';
   import { base } from '$app/paths';
   import ReformWorkspace from '$lib/politics/reform-2026/ReformWorkspace.svelte';
+  import PercentageInput from '$lib/scenario/PercentageInput.svelte';
   import { REFORM_ALGORITHM_ID } from '$lib/politics/reform-2026/input';
   import { requireReformScenario } from '$lib/politics/reform-2026/generation-scenario';
   import type { ReformGenerationScenario } from '$lib/politics/reform-2026/generation-types';
@@ -1179,16 +1180,8 @@
                 <option value={coalition.name}>{coalition.name}</option>
               {/each}
             </select>
-            <input
-              class="share"
-              type="number"
-              min="0"
-              max="100"
-              step="0.1"
-              bind:value={list.startingShare}
-              oninput={() => (list.shareOverride = true)}
-              aria-label="Quota iniziale"
-            />
+            <PercentageInput label="Quota iniziale" value={list.startingShare} step="0.1" placeholder=""
+              onchange={value => { list.startingShare = value ?? Number.NaN; list.shareOverride = true; }} />
             <label class="override-toggle">
               <input
                 type="checkbox"
@@ -2756,10 +2749,6 @@
   .color {
     width: 40px;
     padding: 3px;
-  }
-
-  .share {
-    text-align: right;
   }
 
   .override-toggle {
