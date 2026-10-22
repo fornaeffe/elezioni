@@ -84,6 +84,25 @@ test('1000 production reform simulations: bounded memory, detail queries, comple
   await page.getByLabel('Simulazione grafico').fill('1000');
   await page.getByLabel('Ramo grafico').selectOption('senato');
   await expect(page.getByRole('figure')).toContainText('1000, senato');
+  const chartStarted = Date.now();
+  const statistics = page.getByLabel('Statistiche riforma', { exact: true });
+  await expect(statistics.getByRole('heading', { name: 'Eletti medi e percentuali sui voti validi' })).toBeVisible();
+  await expect(statistics.getByRole('region', { name: 'Percentuali simulate per lista', exact: true })).toBeVisible();
+  const scatter = statistics.getByRole('region', { name: 'Eletti e percentuali per lista', exact: true });
+  await scatter.locator(':scope > summary').click();
+  const firstCanvas = scatter.locator('canvas').first();
+  await expect(firstCanvas).toBeAttached({ timeout: 120000 }); await firstCanvas.scrollIntoViewIfNeeded();
+  await expect(firstCanvas).toHaveAttribute('data-complete', 'true', { timeout: 120000 });
+  const scatterKnownPoints = Number(await firstCanvas.getAttribute('data-points'));
+  expect(scatterKnownPoints).toBeGreaterThan(0); expect(scatterKnownPoints).toBeLessThanOrEqual(1000);
+  await scatter.locator(':scope > summary').click(); await expect(scatter.locator('canvas')).toHaveCount(0);
+  const spine = statistics.getByRole('region', { name: 'Spinogrammi degli eletti per lista', exact: true });
+  await spine.locator(':scope > summary').click();
+  const firstSpine = spine.getByRole('button').first(); await expect(firstSpine).toBeAttached({ timeout: 120000 });
+  await firstSpine.scrollIntoViewIfNeeded(); await firstSpine.click();
+  await expect(page.getByRole('dialog')).toBeVisible(); await page.keyboard.press('Escape');
+  await spine.locator(':scope > summary').click();
+  const chartQuerySeconds = (Date.now() - chartStarted) / 1000;
   const pageDigest = async () => createHash('sha256').update(await page.getByRole('table').innerText()).digest('hex');
   const originalPage = await pageDigest();
   const exportStarted = Date.now(), download = page.waitForEvent('download', { timeout: 15 * 60 * 1000 });
@@ -116,7 +135,7 @@ test('1000 production reform simulations: bounded memory, detail queries, comple
   const scenario = JSON.parse(readFileSync(resolve('src/lib/politics/reform-2026/data', catalog.defaultsPath), 'utf8'));
   const report = { created: new Date().toISOString(), browser: context.browser()?.version(), node: process.version, platform: process.platform, arch: process.arch,
     algorithm: scenario.algorithmId, seed: scenario.seed, snapshot: catalog.snapshotVersion, model: catalog.modelVersion,
-    verificationResumedFromArchive: !!process.env.RESULT_ARCHIVE, notes: previous?.notes ?? [], computationSeconds, exportSeconds, importSeconds,
+    verificationResumedFromArchive: !!process.env.RESULT_ARCHIVE, notes: previous?.notes ?? [], computationSeconds, exportSeconds, importSeconds, chartQuerySeconds, scatterKnownPoints,
     compressedArchiveBytes: statSync(archive).size, uncompressedBytes: exported.bytes, archiveSha256: exported.sha256, samples, errors, tableOptions };
   writeFileSync(resolve(output, 'report.json'), JSON.stringify(report, null, 2));
   await testInfo.attach('result-memory-report', { body: JSON.stringify(report, null, 2), contentType: 'application/json' });

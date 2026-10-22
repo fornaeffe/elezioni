@@ -12,13 +12,17 @@ import { resolvePoliticsSimulationAlgorithm } from '../politics/simulation-scrut
 import { REFORM_ALGORITHM_ID } from '../politics/reform-2026/input';
 import { estimateReformWorkerCapacity, requireReformWorkerCount } from '../core/reform-worker-capacity';
 import { ReformComputeClient, runOrderedReformPool } from './reform-pool';
+import { ensureStatistics, requireSeries, seriesStatistics, statisticalDistribution, storedSummaryTable } from '../politics/reform-2026/stored-statistics';
+import { summaryTableName } from '../results/statistics';
+import { samplePage } from '../core/statistics-cache';
 
 export interface ResultServiceRequest {
   type: 'result-service'; requestId: number;
-  action: 'page' | 'warnings' | 'diagnostics' | 'manifest' | 'delete' | 'cancel' | 'import' | 'export';
+  action: 'page' | 'warnings' | 'diagnostics' | 'manifest' | 'delete' | 'cancel' | 'import' | 'export' | 'statistics' | 'statistics-series' | 'statistics-points' | 'statistics-box';
   resultId: string; owner: string;
   table?: number; offset?: number; limit?: number; simulation?: number;
   file?: File; format?: 'json' | 'csv';
+  series?: string; measure?: 'elected' | 'entitled';
 }
 export interface ResultServiceReply {
   type: 'result-service'; requestId: number; ok: boolean; data?: unknown;
@@ -26,6 +30,8 @@ export interface ResultServiceReply {
 }
 const cancelled = new Set<string>();
 const active = new Set<string>();
+const deleting = new Set<string>();
+const statisticsJobs = new Map<string, Set<Promise<unknown>>>();
 const describe = (error: unknown) => error instanceof Error ? `${error.name}: ${error.message}` : String(error);
 
 export async function runStoredReform(request: SimulationRequest, emit: (progress: SimulationProgress) => void): Promise<SimulationResult> {
@@ -103,6 +109,9 @@ export async function runStoredReform(request: SimulationRequest, emit: (progres
     } else {
       progress('summarize', request.simulations);
       const final = presentation.finish();
+      // The same table contract is used by charts and CSV. Canonical rows are
+      // already committed; rebuildable point/value indexes are never exported.
+      final.tables[final.tables.findIndex(t => t.name === summaryTableName)] = await storedSummaryTable(record);
       try { await appendResultBatch(record, final.tables, final.warnings, 0); }
       catch (error) { failureCode = 'RESULT_STORAGE_ERROR'; throw error; }
       record.result.tables = final.tables.map(t => ({ ...t, rows: t.name === 'Reform overview' || t.name === 'Conditional profile sensitivity' ? t.rows : [] }));
@@ -216,6 +225,20 @@ export async function handleResultService(request: ResultServiceRequest): Promis
         for await (const cells of storedRows(record.id, index)) frequencies.add(Object.fromEntries(descriptor.columns.map((c, i) => [c, cells[i]])));
         data = frequencies.finish();
       }
+      else if (request.action.startsWith('statistics')) {
+        if (active.has(record.id)) throw new Error('Wait for calculation completion before querying statistics');
+        if (deleting.has(record.id)) throw new Error('Result session is being deleted');
+        const job = (async () => {
+          if (request.action === 'statistics') return (await ensureStatistics(record)).overview;
+          if (!request.series) throw new Error('Missing statistical series');
+          const summary = await requireSeries(record, request.series);
+          if (request.action === 'statistics-points') return samplePage(record.id, request.series, request.offset ?? 0, request.limit ?? 256);
+          if (request.action === 'statistics-box') return statisticalDistribution(record, summary);
+          return seriesStatistics(record, request.series, request.measure);
+        })();
+        const jobs = statisticsJobs.get(record.id) ?? new Set<Promise<unknown>>(); statisticsJobs.set(record.id, jobs); jobs.add(job);
+        try { data = await job; } finally { jobs.delete(job); if (!jobs.size) statisticsJobs.delete(record.id); }
+      }
       else if (request.action === 'page') data = await storedTablePage(record, request.table ?? 0, request.offset ?? 0, request.limit ?? 50, request.simulation);
       else if (request.action === 'warnings') data = await storedWarningPage(record, request.offset ?? 0);
       else if (request.action === 'export') {
@@ -223,7 +246,9 @@ export async function handleResultService(request: ResultServiceRequest): Promis
         data = await exportStoredFile(record, request.format ?? 'json');
       } else if (request.action === 'delete') {
         if (active.has(record.id)) throw new Error('Cancel the calculation before deleting its result');
-        await deleteStoredResult(record.id, request.owner); data = null;
+        deleting.add(record.id);
+        try { await Promise.allSettled([...(statisticsJobs.get(record.id) ?? [])]); await deleteStoredResult(record.id, request.owner); data = null; }
+        finally { deleting.delete(record.id); }
       } else throw new Error('Unknown result operation');
     }
     return { type: 'result-service', requestId: request.requestId, ok: true, data };

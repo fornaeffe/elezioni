@@ -17,6 +17,7 @@
   import type { ReformGenerationScenario } from './generation-types';
   import { bundledReformScenario } from './application-defaults';
   import { buildReformSeatChart } from './result-presentation';
+  import ReformResultCharts from './ReformResultCharts.svelte';
 
   let { imported = null, importedScenario = null, importedFile = null, onLegacyImport, onImportConsumed }: {
     imported?: SimulationResultExport | null;
@@ -50,7 +51,8 @@
   let selectedRun = $state(1);
   let selectedChamber = $state('camera');
   let client: ResultServiceClient | undefined;
-  let owner = '', currentRun = '', alive = true;
+  let owner = $state('');
+  let currentRun = '', alive = true;
   let tableRequest = 0, chartRequest = 0, warningRequest = 0;
   const pageSize = 50;
   const isBusy = $derived(running || busyAction !== '');
@@ -279,6 +281,7 @@
           <button disabled={(warningPage + 1) * 10 >= warningCount} onclick={() => { warningPage++; }}>Avvisi successivi</button>
         {/if}
       </div>
+      {#if result.storage}{#key result.storage.id}<ReformResultCharts client={service()} resultId={result.storage.id} {owner} />{/key}{/if}
       <div class="controls">
         <label>Simulazione grafico<input type="number" min="1" max={result.benchmark.simulations} step="1" bind:value={selectedRun} /></label>
         <label>Ramo grafico<select bind:value={selectedChamber}><option value="camera">Camera</option><option value="senato">Senato</option></select></label>

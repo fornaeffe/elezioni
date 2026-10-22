@@ -3,6 +3,8 @@ import type { GenerationTrace, ReformGenerationScenario, ReformGenerationSnapsho
 import type { ReformScrutinyInput } from './input';
 import type { ComposedReformScrutinyResult } from './scrutiny';
 import { seatTableMessages } from './endowments';
+import { finalAffiliations, reformRunSeries, reformSeriesColumns, reformSeriesTable, reformCollegeSeriesTable } from './result-series';
+import { summaryTableName, summaryColumns } from '../../results/statistics';
 
 type Row = ResultTable['rows'][number];
 const json = (value: unknown): string => JSON.stringify(value);
@@ -27,7 +29,7 @@ export function createReformPresentation(scenario: ReformGenerationScenario, sna
   const entitlement = table('Vote-based entitlements', ['Simulation', 'Chamber', 'Status', 'Ordinary allocation', 'Bonus allocation', 'Special allocation', 'Cap check', 'Cap effects']);
   const territorial = table('Ordinary territorial entitlements', ['Simulation', 'Chamber', 'Level', 'Territory', 'College', 'Subject', 'List', 'Seats']);
   const ledger = table('Seat entitlement and election locations', ['Simulation', 'Seat', 'Category', 'Chamber', 'Subject', 'List', 'Entitlement territory', 'Entitlement college', 'Status', 'Candidate', 'Election subject', 'Election list', 'Election territory', 'Election college', 'Reason']);
-  const candidates = table('Candidate outcomes (conditional)', ['Simulation', 'Chamber', 'Candidate', 'Name', 'Seat', 'Category']);
+  const candidates = table('Candidate outcomes (conditional)', ['Simulation', 'Chamber', 'Candidate', 'Name', 'Seat', 'Category', 'Affiliation list']);
   const stages = table('Legal stages and blockers', ['Simulation', 'Chamber', 'Norm', 'Status', 'Reason', 'Affected IDs']);
   const decisions = table('Admission decisions', ['Simulation', 'Chamber', 'Subject', 'Decision', 'Reason', 'Law']);
   const transfers = table('Cap and territorial transfers', ['Simulation', 'Trace']);
@@ -36,6 +38,9 @@ export function createReformPresentation(scenario: ReformGenerationScenario, sna
   const draws = table('Legal draws (including I03)', ['Simulation', 'Rule', 'Norm', 'Context', 'Chosen', 'Alternatives', 'Stream']);
   const metadata = table('Models, references and conditions', ['Kind', 'Value', 'Occurrences']);
   const warningTable = table('Warnings and errors', ['Code', 'Severity', 'First simulation', 'Message', 'Occurrences']);
+  const series = table(reformSeriesTable, reformSeriesColumns);
+  const collegeSeries = table(reformCollegeSeriesTable, reformSeriesColumns);
+  table(summaryTableName, summaryColumns);
   const metadataRows = new Map<string, Row>();
   const warnings = new Map<string, ScrutinyWarning & { occurrences: number }>();
   let complete = 0, partial = 0, failed = 0, awarded = 0;
@@ -50,6 +55,7 @@ export function createReformPresentation(scenario: ReformGenerationScenario, sna
     else warnings.set(key, { ...w, occurrences: 1 });
   };
   if (options.includeContext !== false) {
+    meta('Result presentation contract', { version: 1, series: reformSeriesTable, affiliation: 'final-personal', local: 'actual-election-location' });
     meta('Algorithm and model identity', { algorithm: scenario.algorithmId, models: scenario.modelIds, modelVersion: scenario.modelVersion,
       snapshotVersion: scenario.snapshotVersion, preferenceProfile: scenario.preferenceProfileId, chamberProfile: scenario.chamberProfileId,
       seed: scenario.seed, conversion: scenario.conversion, mode: scenario.mode });
@@ -81,6 +87,8 @@ export function createReformPresentation(scenario: ReformGenerationScenario, sna
     },
     add(input: ReformScrutinyInput, result: ComposedReformScrutinyResult, trace: GenerationTrace) {
       const sim = input.simulationId;
+      const affiliations = finalAffiliations(input, result);
+      for (const row of reformRunSeries(input, result, scenario, snapshot, affiliations)) (row.Kind === 'college' ? collegeSeries : series).rows.push(row);
       if (result.status === 'complete') complete++; else if (result.status === 'partial') partial++; else failed++;
       if (result.bonus.status === 'awarded') awarded++;
       const reason = result.bonus.status === 'not-awarded' ? result.bonus.reasons : result.bonus.status === 'non-computable' ? result.bonus.blockers : [];
@@ -109,7 +117,7 @@ export function createReformPresentation(scenario: ReformGenerationScenario, sna
           'Entitlement territory': e.territoryId, 'Entitlement college': e.collegeId, Status: seat.status, Candidate: seat.status === 'filled' ? seat.candidateId : null,
           'Election subject': at ? subject(at.subject) : null, 'Election list': at?.listId ?? null, 'Election territory': at?.territoryId ?? null,
           'Election college': at?.collegeId ?? null, Reason: seat.status === 'filled' ? null : seat.reason });
-        if (seat.status === 'filled') candidates.rows.push({ Simulation: sim, Chamber: e.chamber, Candidate: seat.candidateId, Name: names.get(seat.candidateId) ?? seat.candidateId, Seat: seat.seatId, Category: seat.category });
+        if (seat.status === 'filled') candidates.rows.push({ Simulation: sim, Chamber: e.chamber, Candidate: seat.candidateId, Name: names.get(seat.candidateId) ?? seat.candidateId, Seat: seat.seatId, Category: seat.category, 'Affiliation list': affiliations.get(seat.seatId) ?? null });
       }
       for (const s of result.stages) {
         stages.rows.push({ Simulation: sim, Chamber: s.chamber, Norm: s.norm, Status: s.status, Reason: s.status === 'complete' ? null : s.reason, 'Affected IDs': s.status === 'complete' ? null : json(s.affectedIds) });

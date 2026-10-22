@@ -1,3 +1,4 @@
+import { spineColor, readableTextColor } from '../results/chart-colors';
 import type { ResultTable, Scenario } from '$lib/core/types';
 import {
   politicsCoalitionSeatVotePlotTableName,
@@ -6,133 +7,8 @@ import {
 } from './result-presentation';
 import type { Ramo } from './types';
 
-export interface PoliticsResultChartBar {
-  label: string;
-  value: number;
-  displayValue: string;
-  color: string;
-  widthPercent: number;
-}
-
-export interface PoliticsResultChartGroup {
-  label: Ramo;
-  bars: PoliticsResultChartBar[];
-}
-
-export interface PoliticsChartTick {
-  value: number;
-  label: string;
-  positionPercent: number;
-}
-
-export interface PoliticsBarResultChart {
-  kind: 'bar';
-  id: string;
-  title: string;
-  groups: PoliticsResultChartGroup[];
-}
-
-export interface PoliticsBoxPlotItem {
-  label: string;
-  color: string;
-  whiskerLow: number;
-  q1: number;
-  median: number;
-  q3: number;
-  whiskerHigh: number;
-  average: number;
-  whiskerLowPercent: number;
-  q1Percent: number;
-  medianPercent: number;
-  q3Percent: number;
-  whiskerHighPercent: number;
-  averagePercent: number;
-  outlierPercents: number[];
-}
-
-export interface PoliticsBoxPlotPanel {
-  label: Ramo;
-  ticks: PoliticsChartTick[];
-  items: PoliticsBoxPlotItem[];
-}
-
-export interface PoliticsBoxPlotResultChart {
-  kind: 'boxplot';
-  id: string;
-  title: string;
-  xLabel: string;
-  panels: PoliticsBoxPlotPanel[];
-}
-
-export interface PoliticsScatterPoint {
-  x: number;
-  y: number;
-  xPercent: number;
-  yPercent: number;
-}
-
-export interface PoliticsScatterPanel {
-  label: string;
-  color: string;
-  xTicks: PoliticsChartTick[];
-  yTicks: PoliticsChartTick[];
-  points: PoliticsScatterPoint[];
-}
-
-export interface PoliticsScatterResultChart {
-  kind: 'scatter';
-  id: string;
-  title: string;
-  xLabel: string;
-  yLabel: string;
-  panels: PoliticsScatterPanel[];
-}
-
-export interface PoliticsSpineCell {
-  seats: number;
-  count: number;
-  label: string;
-  color: string;
-  textColor: string;
-  yPercent: number;
-  heightPercent: number;
-}
-
-export interface PoliticsSpineBin {
-  label: string;
-  xPercent: number;
-  widthPercent: number;
-  cells: PoliticsSpineCell[];
-}
-
-export interface PoliticsSpinePanel {
-  label: string;
-  ticks: PoliticsChartTick[];
-  bins: PoliticsSpineBin[];
-}
-
-export interface PoliticsSpineResultChart {
-  kind: 'spine';
-  id: string;
-  title: string;
-  xLabel: string;
-  panels: PoliticsSpinePanel[];
-}
-
-export type PoliticsResultChart =
-  | PoliticsBarResultChart
-  | PoliticsBoxPlotResultChart
-  | PoliticsScatterResultChart
-  | PoliticsSpineResultChart;
-
-export interface PoliticsPlurinominalChartOption {
-  id: string;
-  ramo: Ramo;
-  list: string;
-  circoscrizione: string;
-  collegioPlurinominale: string;
-  label: string;
-}
+import type { ResultChartBar as PoliticsResultChartBar, ResultChartGroup as PoliticsResultChartGroup, ChartTick as PoliticsChartTick, BarResultChart as PoliticsBarResultChart, BoxPlotItem as PoliticsBoxPlotItem, BoxPlotPanel as PoliticsBoxPlotPanel, BoxPlotResultChart as PoliticsBoxPlotResultChart, ScatterPoint as PoliticsScatterPoint, ScatterPanel as PoliticsScatterPanel, ScatterResultChart as PoliticsScatterResultChart, SpineCell as PoliticsSpineCell, SpineBin as PoliticsSpineBin, SpinePanel as PoliticsSpinePanel, SpineResultChart as PoliticsSpineResultChart, ResultChart as PoliticsResultChart, CollegeChartOption as PoliticsPlurinominalChartOption } from '../results/chart-types';
+export type { ResultChartBar as PoliticsResultChartBar, ResultChartGroup as PoliticsResultChartGroup, ChartTick as PoliticsChartTick, BarResultChart as PoliticsBarResultChart, BoxPlotItem as PoliticsBoxPlotItem, BoxPlotPanel as PoliticsBoxPlotPanel, BoxPlotResultChart as PoliticsBoxPlotResultChart, ScatterPoint as PoliticsScatterPoint, ScatterPanel as PoliticsScatterPanel, ScatterResultChart as PoliticsScatterResultChart, SpineCell as PoliticsSpineCell, SpineBin as PoliticsSpineBin, SpinePanel as PoliticsSpinePanel, SpineResultChart as PoliticsSpineResultChart, ResultChart as PoliticsResultChart, CollegeChartOption as PoliticsPlurinominalChartOption } from '../results/chart-types';
 
 type NumericRow = Record<string, string | number | boolean | null>;
 
@@ -505,41 +381,6 @@ function buildScatterChart(params: {
     yLabel: 'Eletti',
     panels
   };
-}
-
-function parseHexColor(color: string): [number, number, number] {
-  const safe = safeColor(color).slice(1);
-  return [0, 2, 4].map((index) => Number.parseInt(safe.slice(index, index + 2), 16)) as [number, number, number];
-}
-
-function toHex(value: number): string {
-  return Math.round(Math.max(0, Math.min(255, value)))
-    .toString(16)
-    .padStart(2, '0');
-}
-
-function mixColor(left: string, right: string, amount: number): string {
-  const l = parseHexColor(left);
-  const r = parseHexColor(right);
-  const mixed = l.map((value, index) => value + (r[index] - value) * amount);
-  return `#${mixed.map(toHex).join('')}`;
-}
-
-function readableTextColor(backgroundColor: string): string {
-  const [red, green, blue] = parseHexColor(backgroundColor).map((value) => {
-    const normalized = value / 255;
-    return normalized <= 0.03928 ? normalized / 12.92 : ((normalized + 0.055) / 1.055) ** 2.4;
-  });
-  const luminance = 0.2126 * red + 0.7152 * green + 0.0722 * blue;
-  return luminance < 0.42 ? '#ffffff' : '#182026';
-}
-
-function spineColor(baseColor: string, index: number, total: number): string {
-  if (total <= 1) return mixColor(baseColor, '#ffffff', 0.35);
-  const amount = index / (total - 1);
-  return amount < 0.5
-    ? mixColor('#000000', baseColor, amount * 2)
-    : mixColor(baseColor, '#ffffff', (amount - 0.5) * 2);
 }
 
 function binBoundaries(values: readonly number[]): number[] {

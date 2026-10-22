@@ -200,13 +200,13 @@ into `main`; public deployment follows that merge and a successful hosting gate.
     repeated descending used-decimal passes after unused recipients exhaust.
   - [x] N21/N22 `no-eligible-recipient-remainder`: apply the same I16-v1 to
     ordinary/internal cap lists; preserve upstream targets and recovery states.
-- [ ] Align pre-2026 reform and 2026 reform UI: 
+- [x] Align pre-2026 reform and 2026 reform UI:
   - [x] adapt the pre-2026 reform scenario editor UI for the 2026 reform,
     with row-local chamber presence, editor-local reference/history scopes,
     persisted presentation metadata, filings, bonus links and compatible
     candidate/planner previews. Supplied data remains JSON; legacy conversion
     UI is deferred. See the [editor guide](docs/politics-reform-2026-editor.md).
-  - [ ] adapt tables and plots from pre-2026 to 2026 reform, where applicable, especially:
+  - [x] adapt tables and plots from pre-2026 to 2026 reform, where applicable, especially:
     - mean elected candidates per list, paired with mean percentages over valid votes
       (if possible, show all elected candidates, both ordinary and bonus, where pre-2026
       plot showed only candidates elected in plurinominal colleges).
@@ -215,7 +215,10 @@ into `main`; public deployment follows that merge and a successful hosting gate.
       plot per chamber * coalition
     - elected vs percentage spinograms, one plot per chamber * list and a 
       selectable chamber * list * college plot, as in pre-2026 plots
-  Generalize reusable components where appropriate.
+  Shared chart rendering, bounded statistical queries, explicit coverage and
+  archive compatibility are implemented. See the
+  [results guide](docs/politics-reform-2026-results.md) for counting definitions
+  and saved-archive limits; verification is in migration history.
 - [ ] Generalize routing, snapshot selection, scenario defaults, validation,
   worker dispatch, result components, and shared UI patterns across election
   kinds. Preserve configurable project-base navigation and worker/data loading

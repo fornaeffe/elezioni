@@ -2,6 +2,8 @@
 
 For production acceptance, source refresh, diagnostic frequencies and performance
 evidence, use the [R26-21 acceptance procedure](politics-reform-2026-acceptance.md).
+For summary tables, plots, counting definitions and older-archive limitations,
+use the [results guide](politics-reform-2026-results.md).
 
 Use this guide for application integration. For preparation, schema versions,
 model fitting, constructed inputs and explicit legacy conversion, use the
@@ -28,10 +30,13 @@ model fitting, constructed inputs and explicit legacy conversion, use the
   Presentation rows are saved and released after each run. Non-computable runs
   remain in the requested denominator; no reroll, legal-endowment rescaling or
   successful-run renormalization occurs.
-- Reform has no arbitrary run cap. Its new viewer mounts one selected table,
-  at most 50 detail rows, one selected simulation/chamber chart and at most ten
-  warnings at once. Worker messages contain a compact manifest or the requested
-  page/run, never the full detail collection. Stored/exported detail grows on
+- Reform has no arbitrary run cap. The viewer offers paired mean bars, percentage
+  boxplots, list/coalition scatter panels and national/selectable-college
+  spinograms. Statistical panels load lazily; scatter/outlier points stream to
+  canvas in bounded pages. It retains one selected detail table (at most 50 rows),
+  one selected simulation/chamber chart and at most ten warnings at once.
+  Worker messages contain compact manifests/statistics or requested bounded
+  pages, never the full detail collection. Stored/exported detail grows on
   disk with requested runs; general performance acceptance belongs to R26-21.
 - Legacy politics retains its 1,000-run limit because its unchanged simultaneous
   scatter plots mount an SVG point per subject/run. Requests above the limit

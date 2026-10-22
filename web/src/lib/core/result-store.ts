@@ -1,6 +1,7 @@
 import { gzipSync, gunzipSync } from 'fflate';
 import type { ExportScenario } from './result-export';
 import type { ResultTable, SimulationResult, ScrutinyWarning } from './types';
+import { deleteStatisticsCache } from './statistics-cache';
 
 export type Cell = string | number | boolean | null;
 export interface StoredTable { name: string; columns: string[]; rows: number; chunks: number; shared?: boolean; runIndexed?: boolean }
@@ -233,6 +234,7 @@ export async function deleteStoredResult(id: string, owner: string): Promise<voi
   tx.objectStore('chunks').delete(IDBKeyRange.bound([id, -1, 0], [id, Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER]));
   tx.objectStore('metadata').delete(IDBKeyRange.bound([id, 0, 0], [id, Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER]));
   await done;
+  await deleteStatisticsCache(id);
   if (record.exports.length && navigator.storage.getDirectory) {
     const root = await navigator.storage.getDirectory();
     const directory = await root.getDirectoryHandle('elezioni-result-exports', { create: true });
