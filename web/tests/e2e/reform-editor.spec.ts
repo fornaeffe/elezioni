@@ -5,6 +5,23 @@ import type { ReformGenerationScenario } from '../../src/lib/politics/reform-202
 const defaults: ReformGenerationScenario = JSON.parse(readFileSync(new URL(`../../src/lib/politics/reform-2026/data/${catalog.defaultsPath}`, import.meta.url), 'utf8'));
 const editorCatalog = JSON.parse(readFileSync(new URL(`../../src/lib/politics/reform-2026/data/${catalog.editorPath}`, import.meta.url), 'utf8'));
 const key = 'elezioni:politics-reform-2026:scenario:v1';
+test('poll reference v3 survives JSON import, ordinary editing, reload and export', async ({ page }) => {
+  await open(page);
+  const scenario: ReformGenerationScenario = { ...structuredClone(defaults), schemaVersion: 3,
+    pollReferences: { version: 'constructed-poll-reference', archiveVersion: 'constructed-archive', policyVersion: 'poll-reference-v1', date: defaults.projectionDate,
+      sourceQuestionIds: ['constructed-question'], assumptions: ['Constructed browser compatibility fixture.'],
+      rows: (['camera', 'senato'] as const).map(chamber => ({ chamber, listId: defaults.lists[chamber][0].id, share: 1, sigma: .1, donorHistoricalListIds: [] })) } };
+  await page.getByTestId('reform-file-input').setInputFiles({ name: 'polls.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(scenario)) });
+  await expect.poll(async () => (await stored(page)).schemaVersion).toBe(3);
+  await page.getByLabel('Nome scenario', { exact: true }).fill('Con sondaggi');
+  await page.getByLabel('Nome scenario', { exact: true }).press('Tab');
+  expect((await stored(page)).pollReferences).toEqual(scenario.pollReferences);
+  await page.reload(); await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-reform-2026-v1');
+  await expect(page.getByLabel('Nome scenario', { exact: true })).toHaveValue('Con sondaggi');
+  const download = page.waitForEvent('download'); await page.getByRole('button', { name: 'Scarica scenario', exact: true }).click();
+  const stream = await (await download).createReadStream(), chunks: Buffer[] = []; for await (const chunk of stream!) chunks.push(Buffer.from(chunk));
+  expect(JSON.parse(Buffer.concat(chunks).toString()).pollReferences).toEqual(scenario.pollReferences);
+});
 async function open(page: Page) {
   await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
   await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-reform-2026-v1');

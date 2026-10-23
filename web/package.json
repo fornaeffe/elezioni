@@ -12,6 +12,8 @@
     "data:download": "tsx --tsconfig tsconfig.json scripts/data-preparation/cli.ts download",
     "data:import": "tsx --tsconfig tsconfig.json scripts/data-preparation/cli.ts import",
     "data:generate": "tsx --tsconfig tsconfig.json scripts/data-preparation/cli.ts generate",
+    "data:polls:generate": "tsx --tsconfig tsconfig.json scripts/data-preparation/polls-cli.ts generate",
+    "data:polls:check": "tsx --tsconfig tsconfig.json scripts/data-preparation/polls-cli.ts check",
     "data:reform:download": "tsx --tsconfig tsconfig.json scripts/data-preparation/reform-cli.ts download",
     "data:reform:generate": "tsx --tsconfig tsconfig.json scripts/data-preparation/reform-cli.ts generate",
     "data:reform:check": "tsx --tsconfig tsconfig.json scripts/data-preparation/reform-cli.ts check",
@@ -23,7 +25,13 @@
     "acceptance:reform": "tsx --tsconfig tsconfig.json scripts/acceptance/reform.ts",
     "benchmark:politics": "playwright test --config playwright.benchmark.config.ts politics-worker.spec.ts",
     "benchmark:reform": "playwright test --config playwright.benchmark.config.ts reform-workers.spec.ts --workers=1",
-    "benchmark:regional-er": "playwright test --config playwright.benchmark.config.ts regional-er-worker.spec.ts"
+    "benchmark:regional-er": "playwright test --config playwright.benchmark.config.ts regional-er-worker.spec.ts",
+    "data:polls:references": "tsx --tsconfig tsconfig.json scripts/data-preparation/poll-references-cli.ts",
+    "data:polls:calibration:check": "tsx --tsconfig tsconfig.json scripts/data-preparation/poll-calibration-cli.ts check",
+    "data:polls:calibration:generate": "tsx --tsconfig tsconfig.json scripts/data-preparation/poll-calibration-cli.ts generate",
+    "data:polls:calibration:download": "tsx --tsconfig tsconfig.json scripts/data-preparation/poll-calibration-cli.ts download",
+    "data:polls:calibration:verify-results": "tsx --tsconfig tsconfig.json scripts/data-preparation/poll-calibration-cli.ts verify-results",
+    "data:polls:calibration:freeze-results": "tsx --tsconfig tsconfig.json scripts/data-preparation/poll-calibration-cli.ts freeze-results"
   },
   "devDependencies": {
     "@playwright/test": "1.60.0",

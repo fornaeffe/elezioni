@@ -42,7 +42,16 @@ vignettes/*.pdf
 
 # Downloaded data
 /dati/
-/data/sources/
+/data/sources/*
+!/data/sources/polls/
+# Poll JSON is authoritative; downloaded PDFs remain ignored.
+/data/sources/polls/*
+!/data/sources/polls/archive.json
+!/data/sources/polls/entities.json
+!/data/sources/polls/manifest.json
+!/data/sources/polls/history/
+/data/sources/polls/history/*
+!/data/sources/polls/history/*.json
 /data/derived/
 
 # Large generated migration data

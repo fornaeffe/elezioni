@@ -5268,3 +5268,276 @@ The final acceptance replay passed with the same 925 unit tests and 29 browser
 tests at each base, including the zero-run guard. The root build was restored
 and `git diff --check` passed. Build chunk-size/plugin-timing notices remain
 informational. No commit, deployment or publication was performed.
+
+## 2026-10-23 — Selected poll archive and reconciliation pilot
+
+Added the approved three-substep poll task immediately after completed migration
+steps. Completed only import/reconciliation; poll-informed live references and
+historical bias calibration remain open. The focused code/operation map is in
+[`polls-preparation.md`](polls-preparation.md).
+
+Selected the government archive rather than YouTrend aggregates: the seven
+user-supplied PDFs retain individual pollster metadata and cost only 117,701
+bytes. Together with reviewed metadata, question translations and entity aliases,
+the selected Git source set is 163,233 bytes (159.4 KiB), below its enforced 1 MiB
+budget. `.gitignore` allows only those selected files and `.gitattributes` pins
+JSON LF/PDF binary bytes. Other downloaded sources and derived output stay ignored.
+Fresh clones verify and prepare this archive offline; there is no recurring
+website scrape, PDF dependency or poll-specific executable parser.
+
+Eight reviewed questions span fieldwork 6–19 October 2026 and five pollsters.
+There are seven survey groups and three conditional questions: LAB21's reform
+question and SWG's two leader alternatives. These groups prevent alternatives
+from acquiring separate sample sizes; they do not assert independence between
+repeated waves. Coalition totals/nonresponse remain source metadata, simulated
+seats and unrelated questions are excluded, and Eumetra's attached cross-page
+table is transcribed. Effective question sample sizes remain unknown rather
+than silently becoming full-survey N. Repeated labels and the substring shared
+by the Italian start/end-date headings made automatic field extraction unsafe;
+the retained metadata was reviewed/corrected against the PDFs, with distinct
+start/end dates and known source totals asserted in tests.
+
+The common typed helper reuses verified aliases and normalized historical
+correspondences, sums many-to-one mappings and records inferred splits. Missing
+support becomes an explicit residual, allocated by available baseline weights
+or equal eligible-list weights. The reviewed FN/Lega proxy is an assumption,
+not measured voter transfer. Present FN keeps its polled support; missing
+geography uses a recorded donor/uniform-filed-support recipe for substep 2.
+Corrupt sources, malformed contracts and absent legal target support still fail;
+missing political evidence does not make reconciliation non-computable.
+
+`data:polls:check` verifies every selected byte and produces 16 separate ordinary
+Camera/Senato previews against tracked defaults, with 86 estimated assignments.
+`data:polls:generate` writes immutable observation/audit/preview artifacts under
+`data/derived/polls/`. Observation version is
+`poll-observations-v1-e2965f1e70d1`; preview version is
+`poll-reconciliation-v1-46440e3c9230`. Two generations retained identical SHA-256
+values: observations `50ce506230750e241a01fa695a3432f3bd13ec24b33559325919c75f5cf306e5`,
+preview `d53f1e95376068e86de2037f558e1e51fb341a1aa06289d6d42e9e6616fd01dd`.
+All 16 vectors were finite/nonnegative and conserved total support to 1e-12.
+The preview applies no live shares/turnout, alters no scenario/default and makes
+no accuracy/calibration claim. Special-territory inputs keep their own boundary.
+
+Verification on Windows/Node 24: 14 focused tests passed, including an isolated
+source-only copy with networking forbidden, checksum corruption, size-budget
+failure, conditional questions, rounding/missing totals, mapping precedence,
+splits, proxies and mass conservation. `npm run check:data` and `npm run check`
+passed (zero Svelte errors/warnings). The full suite passed 939 tests in 67 files
+without skips (13.52 s). `npm run build` passed; the subsequent
+`npm run test:e2e` passed all 29 root-base Chromium tests (28.5 s). Chunk-size,
+plugin-timing and terminal-color notices were informational. No UI/worker/legal
+generation changes, commit or publication were made.
+
+
+## 2026-10-23 — Poll-informed references (substep 2)
+
+Implemented explicit poll-informed scenario preparation, leaving historical bias
+calibration open. `data:polls:references` consumes verified production history and
+the selected archive, writes immutable report/scenario JSON under ignored
+`data/derived/polls/`, and validates one paired generation/full scrutiny before
+writing. Defaults and existing saved scenarios remain unchanged. The operation
+and exact assumed policy are documented in `polls-preparation.md`.
+
+`poll-reference-v1` uses compatible questions available at the reference date,
+one recent wave per pollster, generic ballots by default and explicitly selected
+conditional alternatives. It combines recency/effective-N weights with a weak
+historical prior. All weights, exclusions, inferred decided samples, reconciled
+mass/proxies and source versions survive in the report. No house-effect or
+historical-accuracy correction is asserted. The numerical policy is an assumption
+awaiting substep 3, not calibrated confidence coverage.
+
+Opt-in scenario v3 stores date, rows, reference-date uncertainty and territorial
+donors. Versions 1/2 keep existing interpretation and streams. A presentation
+upgrade initially forced every draft to v2; it now retains v3, with an import,
+edit, reload and export browser regression. Generated vote/chamber provenance
+includes polling source/reference versions and assumptions. The generator applies
+poll targets only in ordinary geography before explicit national/local user
+references, preserves historical turnout/special inputs, and records donor or
+uniform-filed-support estimates for newly supported parties. Unmapped history
+with observed raw valid votes uses those totals as a labelled turnout proxy.
+Reference-date error has shared chamber draws and compositional normalization;
+future movement stays in the existing independent named streams. National
+polling refreshes the national date while territorial uncertainty retains its
+historical date. User-supplied
+references remove polling measurement error only in their own scope/chamber.
+
+The 23 October preparation selected Eumetra 14358/q4, Piepoli 14364/q1, Only
+Numbers 14362/q1 and SWG 14346/q1. Conditional SWG/LAB21 questions were excluded
+by default. The produced reference is `poll-reference-v1-2a6c7e0ef629`; the scenario
+fingerprint suffix is `475ad8234360`. Its production paired generation and composed
+scrutiny were computable. Repeating preparation reproduced the immutable output.
+
+Verification: preparation and application type checks passed (zero Svelte
+errors/warnings); 947 unit tests in 68 files passed, including eight new tests
+for selection/as-of dates, conditional replacement, round trips, geographic
+fallbacks, override precedence, zero-horizon measurement variance, shared-chamber
+errors and deterministic replay. Production build passed. The existing 29
+root-base Chromium tests passed (40.2 s); the additional focused v3 browser
+compatibility test passed (8.0 s). Chunk/plugin/color notices remain informational.
+No new UI control, default activation, historical fitting, commit or deployment
+was performed.
+
+
+## 2026-10-23 — Historical poll calibration pipeline (substep 3)
+
+Implemented matched historical inputs, official-result import, partially pooled
+candidate fitting and chronological validation. The pipeline substep is complete;
+the parent forecasting task and forecast acceptance remain open. Current v1
+parameters remain assumptions: no unsupported correction was enabled. Operations
+and statistical boundaries are in [polls-calibration.md](polls-calibration.md).
+
+Selected 16 original government-submitted PDFs: SWG/Demos/Tecnè for Camera
+2013/2018/2022; SWG/Demos for European 2014; all three for European 2019;
+SWG/Tecnè for European 2024. The retained historical selection includes reviewed
+question/page IDs, dates, methods, sample bases, translations and checksums.
+PDFs total 275,342 bytes; the complete historical source/target set is 380,434
+bytes (371.5 KiB), below its enforced 1 MiB budget. Together with current polls,
+tracked selected inputs total 543,667 bytes. Ordinary preparation needs no
+network, PDF parser, Python, R or ignored caches.
+
+Archive fieldwork filters also return local and later-published surveys.
+Excluded Demos 11857 (post-election Veneto autonomy), 12931 (Veneto vote),
+SWG 1350 (Bari), later Demos 2019 topic releases, and Tecnè 1331 (generic
+political-party table without an established European ballot). Correct national
+Demos 2022 source is 11839. PDF publication dates control eligibility, not archive
+insertion dates. SWG 2018/Tecnè 2019 range midpoints are labelled estimates;
+Demos decision certainty is not a vote-table nonresponse fraction. Complete PDF
+text was inspected; representative attachment/range tables were also rendered
+and visually reviewed. Metadata N/methods were checked against the sources.
+
+Downloaded eight pinned Interior Ministry archives: Camera 2008/2013/2018/2022
+and European 2009/2014/2019/2024. Earlier same-kind elections supply baselines.
+Large originals remain ignored under `data/sources/poll-history/`; tracked
+`results.json` retains full list totals, denominators, member/source hashes and
+the comparable panel. Node `verify-results` reproduced it exactly from all eight
+originals; download/cache verification passed. `freeze-results` is an explicit
+reviewed input refresh, never part of normal check/generate. Candidate-preference
+members repeat list votes and are excluded. Camera excludes Valle d'Aosta and
+overseas; European totals include domestic Valle d'Aosta and separate 2024
+out-of-town voters, excluding overseas. Adult poll frames approximate these scopes.
+
+Camera 2018 uses attributed national totals. Camera 2022 reuses the existing
+original-college candidate-only attribution: restore 1,027,135 candidate-only
+votes, yielding 28,096,790 valid list votes. An initial test used an incorrect
+remembered M5S total; independent source candidature summation confirmed
+4,336,660, and the expectation was corrected. Pinned open-data snapshots are
+not asserted to equal every later/live proclamation release. Baseline snapshots
+are current frozen historical results, not reconstructed download vintages.
+
+The comparable partition is PD, M5S, Lega and all other lists. Each selected poll
+observes the three parties separately; other is a changing exact complement,
+not a transferable party identity. Missing FdI detail is not zero or inferred
+from future results. European translations retain this panel and complete PDFs;
+Camera translations retain fuller tables. Empty 2008/2009 M5S result mappings
+explicitly mean ballot absence. Selection is purposive, not a complete poll census.
+
+Five expanding chronological holdouts run from European 2014 through 2024,
+including two Camera holdouts. Each fold trains only on earlier elections;
+election scores have equal weight regardless of house count. Reuse production
+v1 weighting/prior code. Center house deviations within elections, then shrink
+house and aggregate bias toward zero with three prior election equivalents.
+Fit separate error floors for corrected/uncorrected means, subtracting existing
+measurement/prior variance and assumed future movement before adding a
+nonnegative floor. Blackout movement, shared response bias and electorate
+mismatch cannot be identified separately from these endpoint errors.
+
+Held-out MAE in percentage points and pointwise nominal 90% interval coverage,
+with four equally weighted panel categories per election:
+
+| Candidate | All-event MAE | Coverage | Camera MAE | Camera coverage |
+| --- | ---: | ---: | ---: | ---: |
+| Previous same-kind election | 14.26 | — | 11.55 | — |
+| Weighted polls alone | 3.21 | — | 3.48 | — |
+| V1 historical/poll blend | 4.36 | 35% | 4.09 | 25% |
+| Pooled bias/house correction | 4.70 | 45% | 4.07 | 50% |
+| Additional error floor only | 4.36 | 70% | 4.09 | 87.5% |
+| Bias plus error floor | 4.70 | 55% | 4.07 | 62.5% |
+
+The uncertainty-only interval score improves from 42.76 to 22.59 percentage
+points overall, and 36.21 to 16.96 for Camera. Its Camera metric check passes;
+bias/combined candidates fail improvement requirements. Intervals use 4,000
+deterministic joint logistic-normal draws per event/candidate: a compositional
+national valid-share surrogate, not municipal/turnout/chamber generator or
+simultaneous coverage. There are six independent events, not independent
+party-survey trials. The current v1 intervals under-cover this panel.
+
+Report `poll-calibration-v1-854b5ebc5454` replays deterministically. Acceptance
+requires three Camera holdouts, improved interval score, >=80% empirical Camera
+coverage and full-generator coverage validation; mean corrections also need
+>=5% Camera MAE improvement, while uncertainty-only must preserve MAE. Only two
+Camera holdouts and no full-generator validation are available, so corrections
+remain withheld. Reference preparation writes the calibration report/receipt and
+embeds rejection reasons while retaining v1 shares, proxies and computability.
+The production generation/composed scrutiny passed for reference
+`poll-reference-v1-f09e53578bd2`, scenario suffix `373d6c1df654`. Expand same-kind
+evidence, revisit prior strength and validate full-generator intervals before
+forecast acceptance. No calibrated forecast or default activation is claimed.
+
+Verification on Windows/Node 24: 954 unit tests in 69 files passed, including seven
+calibration tests for chronological leakage, whole-event pooling, source totals,
+offline source-only copies, corruption rejection and receipt behavior.
+Preparation/application checks passed with zero Svelte errors/warnings. Build
+passed, followed sequentially by all 30 root-base Chromium tests (47.8 s),
+including poll-v3 import/edit/reload/export. Official-result replay, calibration
+generation and the production reference vertical slice passed. Chunk/plugin/color
+notices were informational. A legacy non-UTF8 dash in the preceding history
+heading was normalized while appending this entry. No commit, publication,
+legal scrutiny change, default activation or persistent user-data change occurred.
+
+
+## 2026-10-23 — Authoritative poll JSON and optional manual audits
+
+At Luca's request, the poll archive's three JSON files are now the local source
+of truth: `archive.json`, `manifest.json`, `entities.json`, in both the current
+and historical selections. This supersedes the PDF retention/checksum policy in
+the preceding poll entries. Survey facts, percentages, mappings and statistical
+assumptions remain unchanged.
+
+The v2 poll manifests replace document path/SHA-256/byte-size fields with a
+human survey `reference` such as `Sondaggio14362`. They retain government URL,
+retrieval instructions, title, pollster, dates and methodological metadata for
+optional manual audits. Question/page numbers remain available. Removed
+`reviewedFiles` checksum pins too: accepted JSON edits must not require repinning
+a manifest that is itself an authoritative source. Strict schema, date,
+uniqueness, source/question/entity linkage, sample-base and support-total checks
+remain active. Missing/malformed JSON still fails; missing or invalid optional
+PDF downloads cannot affect preparation, size accounting or output identity.
+
+Preparation reads exactly three JSON files, with no network or source-document
+access. Generated source/version fingerprints are computed from that JSON for
+replay and immutable output naming; they are not upstream audit hashes or
+maintainer-updated pins. Observation/preparation schemas and identifiers are v2;
+the archive/entity question schemas and saved scenario-v3 contract remain valid.
+The independent official election-result manifests, ZIP hashes and target-table
+pins remain unchanged.
+
+Removed PDF allowlists and PDF-specific Git attributes. No poll PDF was already
+in the Git index, so there was nothing to remove from it. Existing local PDFs
+were preserved as ignored optional downloads. Verified that Git lists no tracked
+poll PDFs and ignores both current and historical downloads. Updated the active
+plan and focused preparation/calibration guides to describe JSON maintenance and
+optional government-reference audits.
+
+Current poll JSON totals 45,433 bytes; historical poll JSON plus separate election
+target inputs totals 106,378 bytes. Observation version is
+`poll-observations-v2-ff126a8195d4`, calibration version
+`poll-calibration-v1-7b7af9479543`, and production reference version
+`poll-reference-v1-c13ddf5cede1` (scenario suffix `16ae1353f5fd`). Compared against
+the preceding generated artifacts: every calibration fold, fitted parameter,
+metric, acceptance decision and production poll-reference row is identical.
+Only source representation, provenance/version metadata and archive byte counts
+changed. Production paired generation/composed scrutiny remained computable.
+
+Verification on Windows/Node 24: all 31 focused poll tests passed, then all 956
+unit tests in 69 files passed (13.71 s). New coverage proves that only JSON is
+needed, optional malformed PDFs are ignored, valid observation/manifest/entity
+edits are consumed without repinning and get new derived identities, and missing
+or malformed JSON, unusable/duplicate references and invalid links/dates fail.
+Historical calibration is tested from six JSON files with no PDFs; separate
+corrupt election-target pins still fail. Preparation/application type checks
+passed with zero Svelte errors/warnings. Production build passed (12.77 s SSR),
+as did actual poll generation and the production reference vertical slice.
+The subsequent full root-base Chromium suite passed all 30 tests (46.8 s).
+Git diff whitespace checks passed; build chunk/plugin/color notices remained
+informational. No commit, publication, default activation or legal scrutiny
+change was performed.

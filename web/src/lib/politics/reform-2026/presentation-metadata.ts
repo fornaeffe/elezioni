@@ -24,5 +24,5 @@ export function reformPresentation(s: ReformGenerationScenario): ReformPresentat
 /** Explicit presentation-only upgrade for editable drafts. Parsers preserve v1
  * executed scenarios, including their archive fingerprint and original seed. */
 export function upgradeReformDraft(s: ReformGenerationScenario): ReformGenerationScenario {
-  return { ...cloneReformValue(s), schemaVersion: 2, presentation: cloneReformValue(reformPresentation(s)) };
+  return { ...cloneReformValue(s), schemaVersion: s.pollReferences ? 3 : 2, presentation: cloneReformValue(reformPresentation(s)) };
 }

@@ -1,4 +1,18 @@
-# Geography and census preparation
+# Data preparation entry points
+
+| Task | Guide |
+| --- | --- |
+| Geography, census and seat tables | Workflow below |
+| Historical votes/preferences and reform generation models | [Generation guide](../docs/politics-reform-2026-generation.md#clean-clone-preparation) |
+| Selected poll archive and reconciliation | [Poll preparation](../docs/polls-preparation.md) |
+
+The reviewed poll JSON is the explicit small Git-tracked exception under
+`sources/polls/`; fresh clones prepare it offline from these authoritative files.
+Survey references in each poll manifest support optional manual audits on the
+government website. Poll PDFs are ignored and have no checksum requirement.
+Other downloaded originals remain ignored caches.
+
+## Geography and census preparation
 
 Use this workflow for R26-07 geography and seat tables. For the paired historical
 vote/preference importers, fitting and R26-19 runtime bundles, use the separate
@@ -17,7 +31,8 @@ regenerate every legacy politics/regional snapshot.
 
 As remaining importers and calibration migrate, expose non-interactive commands
 reusable locally and on a standard Linux runner. A clean clone must acquire
-pinned sources, verify checksums and reproduce all required versioned bundles,
+pinned sources (or consume the reviewed poll JSON), verify applicable checksums
+and reproduce all required versioned bundles,
 fitted profiles, defaults and catalogs without legacy R caches, manual exports
 or local-only files. Preserve source/method provenance and deterministic seeds.
 Cache by manifest and preparation/model versions; a cache miss must remain
@@ -43,7 +58,8 @@ npm run data:generate
 
 - `source-manifest.json` pins original URLs, request headers, sizes and SHA-256.
 - `sources/` caches downloaded originals; `derived/` holds normalized catalogs,
-  extraction audits and complete seat-table artifacts. Both directories are ignored.
+  extraction audits and complete seat-table artifacts. These are ignored except
+  for the explicitly selected poll JSON and election-target review files above.
 - The download command verifies existing files and fetches missing files only.
   It never silently accepts changed bytes. Total pinned downloads are about 145 MB;
   the government geography ZIP is about 98 MB despite its page's smaller size label.
@@ -141,6 +157,16 @@ and `validateSeatTableBundle()` using `method: 'official-decree'`, the exact
 reference, a new version, `seed: null` and empty I08 traces/draws/warnings. Validate
 the complete catalog, special structures, minima and totals; retain old artifacts
 for replay. Do not silently force a conflicting decree into the Camera 314 pool.
+
+## Historical poll calibration
+
+The tracked selected archive and compact official targets under
+`data/sources/polls/history/` support offline calibration checks and chronological
+backtests. Large pinned government archives remain an ignored optional replay
+cache under `data/sources/poll-history/`. See only the focused
+[calibration guide](../docs/polls-calibration.md) for commands, result denominators,
+source selection and acceptance limits. Current fitted corrections are rejected;
+reference preparation records this decision while preserving computability.
 
 ## Checks
 

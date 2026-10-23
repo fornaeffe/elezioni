@@ -88,7 +88,8 @@ export type ReformCandidateTemplate = {
 };
 export interface ReformGenerationScenario {
   /** Version 1 remains readable verbatim in historical result archives. */
-  schemaVersion: 1 | typeof REFORM_SCENARIO_VERSION;
+  schemaVersion: 1 | typeof REFORM_SCENARIO_VERSION | 3;
+  pollReferences?: PollReferences;
   presentation?: ReformPresentation;
   kind: 'politics-reform-scenario';
   algorithmId: 'politiche-reform-2026-v1';
@@ -128,4 +129,14 @@ export interface GenerationTrace {
   streamVersion: string;
   snapshotVersion: string;
   modelVersion: string;
+}
+
+export interface PollReferences {
+  version: string;
+  archiveVersion: string;
+  policyVersion: 'poll-reference-v1';
+  date: string;
+  sourceQuestionIds: string[];
+  assumptions: string[];
+  rows: { chamber: Chamber; listId: string; share: number; sigma: number; donorHistoricalListIds: string[] }[];
 }

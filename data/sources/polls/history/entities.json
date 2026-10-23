@@ -1,0 +1,226 @@
+{
+  "schemaVersion": 1,
+  "version": "poll-historical-entities-v1",
+  "entities": [
+    {
+      "id": "avs",
+      "name": "avs",
+      "aliases": [],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "azione-italia-viva",
+      "name": "azione-italia-viva",
+      "aliases": [],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "civica-popolare",
+      "name": "civica-popolare",
+      "aliases": [],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "fare",
+      "name": "fare",
+      "aliases": [],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "fdi",
+      "name": "Fratelli d’Italia",
+      "aliases": [
+        "fdi"
+      ],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "fi",
+      "name": "Forza Italia",
+      "aliases": [
+        "fi"
+      ],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "fli",
+      "name": "fli",
+      "aliases": [],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "impegno-civico",
+      "name": "impegno-civico",
+      "aliases": [],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "insieme",
+      "name": "insieme",
+      "aliases": [],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "italexit",
+      "name": "italexit",
+      "aliases": [],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "la-destra",
+      "name": "la-destra",
+      "aliases": [],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "lega",
+      "name": "Lega",
+      "aliases": [
+        "lega"
+      ],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "leu",
+      "name": "leu",
+      "aliases": [],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "m5s",
+      "name": "Movimento 5 Stelle",
+      "aliases": [
+        "m5s"
+      ],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "noi-italia",
+      "name": "noi-italia",
+      "aliases": [],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "noi-moderati",
+      "name": "noi-moderati",
+      "aliases": [],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "pap",
+      "name": "pap",
+      "aliases": [],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "pd",
+      "name": "Partito Democratico",
+      "aliases": [
+        "pd"
+      ],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "pdl",
+      "name": "Popolo della Libertà",
+      "aliases": [
+        "pdl"
+      ],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "piu-europa",
+      "name": "piu-europa",
+      "aliases": [],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "rivoluzione-civile",
+      "name": "rivoluzione-civile",
+      "aliases": [],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "scelta-civica",
+      "name": "scelta-civica",
+      "aliases": [],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "sel",
+      "name": "sel",
+      "aliases": [],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "svp",
+      "name": "svp",
+      "aliases": [],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "udc",
+      "name": "udc",
+      "aliases": [],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "unione-popolare",
+      "name": "unione-popolare",
+      "aliases": [],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    }
+  ]
+}

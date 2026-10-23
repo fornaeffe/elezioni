@@ -1,0 +1,198 @@
+{
+  "schemaVersion": 1,
+  "version": "poll-entities-2026-10-v1",
+  "entities": [
+    {
+      "id": "fdi",
+      "name": "Fratelli d'Italia",
+      "aliases": [
+        "FRATELLI D'ITALIA CON GIORGIA MELONI",
+        "FRATELLI D'ITALIA-GIORGIA MELONI"
+      ],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "pd",
+      "name": "Partito Democratico",
+      "aliases": [
+        "PD",
+        "P. DEMOCRATICO",
+        "PD (Partito Democratico)",
+        "PARTITO DEMOCRATICO - ITALIA DEMOCRATICA E PROGRESSISTA",
+        "PARTITO DEMOCRATICO-PSE-SOCIALISTI & DEMOCRATICI"
+      ],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "m5s",
+      "name": "Movimento 5 Stelle",
+      "aliases": [
+        "MOV. 5 STELLE",
+        "MOVIMENTO 5 STELLE-2050-#PACE"
+      ],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "fi",
+      "name": "Forza Italia",
+      "aliases": [
+        "FORZA ITALIA-BERLUSCONI PRESIDENTE-PPE"
+      ],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "lega",
+      "name": "Lega",
+      "aliases": [
+        "LEGA-SALVINI PREMIER",
+        "LEGA PER SALVINI PREMIER"
+      ],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "avs",
+      "name": "Alleanza Verdi Sinistra",
+      "aliases": [
+        "ALLEANZA VERDI E SINISTRA",
+        "VERDI E SINISTRA",
+        "AVS",
+        "ALLEANZA VERDI E SINISTRA-EUROPA VERDE-SINISTRA ITALIANA"
+      ],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "azione",
+      "name": "Azione",
+      "aliases": [
+        "Azione (Carlo Calenda)",
+        "AZIONE CON CALENDA SIAMO EUROPEI-RENEW EUROPE",
+        "AZIONE con Spazio P. (Calenda)"
+      ],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "italia-viva",
+      "name": "Italia Viva",
+      "aliases": [
+        "CASA RIFORMISTA-ITALIA VIVA-RENZI",
+        "ITALIA VIVA-C.RIF."
+      ],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "piu-europa",
+      "name": "+Europa",
+      "aliases": [
+        "PIU' EUROPA"
+      ],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "noi-moderati",
+      "name": "Noi Moderati",
+      "aliases": [
+        "NO MODERATI",
+        "NOI MODERATI/LUPI - TOTI - BRUGNARO - UDC"
+      ],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "sud-chiama-nord",
+      "name": "Sud Chiama Nord",
+      "aliases": [],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "futuro-nazionale",
+      "name": "Futuro Nazionale",
+      "aliases": [
+        "FUTURO NAZIONALE VANNACCI",
+        "Futuro nazionale (Vannacci)"
+      ],
+      "components": [],
+      "proxyEntityIds": [
+        "lega"
+      ],
+      "proxyNote": "Use Lega as a declared geographic donor, or as the absent-option allocation proxy when Futuro Nazionale is not in the scenario. This is a computability convention, not an observed transfer or measured territorial pattern."
+    },
+    {
+      "id": "progetto-civico",
+      "name": "Progetto Civico",
+      "aliases": [
+        "Pr.Civ."
+      ],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "piu-uno",
+      "name": "Più Uno",
+      "aliases": [
+        "PIU' UNO"
+      ],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "psi",
+      "name": "PSI",
+      "aliases": [],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "libdem",
+      "name": "Partito Liberaldemocratico",
+      "aliases": [
+        "LibDem"
+      ],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "ora",
+      "name": "ORA!",
+      "aliases": [],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "azione-italia-viva",
+      "name": "Azione - Italia Viva - Calenda",
+      "aliases": [],
+      "components": [
+        "azione",
+        "italia-viva"
+      ],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    }
+  ]
+}

@@ -70,8 +70,8 @@ export function generateReformSimulation(prepared: PreparedReformGeneration, sim
   const counts = aggregateReformCollegeVotes(s, snapshot, votes, simulationId);
   const candidatures = generateReformCandidatures(s, snapshot, simulationId);
   const provenance = (modelId: string, parameterVersion: string, profileId: string): Provenance => ({ kind: 'generated', modelId, parameterVersion,
-    profileId, sourceVersions: [...snapshot.sourceVersions, snapshot.version, snapshot.models.version], seed: s.seed,
-    assumptions: [...snapshot.assumptions, ...snapshot.models.assumptions, ...(s.conversion?.assumptions ?? [])] });
+    profileId, sourceVersions: [...snapshot.sourceVersions, snapshot.version, snapshot.models.version, ...(s.pollReferences ? [s.pollReferences.archiveVersion, s.pollReferences.version] : [])], seed: s.seed,
+    assumptions: [...snapshot.assumptions, ...snapshot.models.assumptions, ...(s.conversion?.assumptions ?? []), ...(s.pollReferences?.assumptions ?? [])] });
   const voteProvenance = provenance(REFORM_MODEL_IDS.votes, snapshot.models.chambers.parameterVersion, s.chamberProfileId);
   const preferenceProvenance = provenance(REFORM_MODEL_IDS.preferences, snapshot.models.preferences.parameterVersion, s.preferenceProfileId);
   const chambers = renewedChamberIds(s).map((ch): ChamberInput => {
@@ -126,8 +126,8 @@ export function generateReformSimulation(prepared: PreparedReformGeneration, sim
     renewal: s.renewal === 'joint' ? { kind: 'joint', camera: camera!, senato: senato! } : { kind: 'single', chamber: chambers[0] },
     bonusLinks: s.renewal === 'joint' ? s.bonusLinks : [], chamberModel: { kind: 'generated', modelId: REFORM_MODEL_IDS.chambers,
       parameterVersion: snapshot.models.chambers.parameterVersion, covarianceProfileVersion: s.chamberProfileId,
-      sourceVersions: [...snapshot.sourceVersions, snapshot.version, snapshot.models.version], seed: s.seed, mode: 'mean',
-      assumptions: [...snapshot.models.assumptions, ...snapshot.assumptions], references: trace.references } };
+      sourceVersions: [...snapshot.sourceVersions, snapshot.version, snapshot.models.version, ...(s.pollReferences ? [s.pollReferences.archiveVersion, s.pollReferences.version] : [])], seed: s.seed, mode: 'mean',
+      assumptions: [...snapshot.models.assumptions, ...snapshot.assumptions, ...(s.pollReferences?.assumptions ?? [])], references: trace.references } };
   const checked = validateReformScrutinyInput(input);
   if (!checked.valid) throw new RangeError(`Generated reform input is invalid: ${checked.issues.map(i => `${i.path}: ${i.message}`).join('; ')}`);
   return { input: checked.input, trace };

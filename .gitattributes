@@ -1,0 +1,3 @@
+# Keep reviewed poll JSON consistent across Windows and Linux.
+data/sources/polls/*.json text eol=lf
+data/sources/polls/history/*.json text eol=lf

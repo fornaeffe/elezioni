@@ -33,10 +33,15 @@ const scenarioFields = {
   conversion: nullable(object({ from: text, assumptions: array(text) }))
 };
 const color = scalar<string>(v => typeof v === 'string' && /^#[0-9a-f]{6}$/i.test(v), 'a six-digit hex color');
+const presentationShape = object({ name: text,
+  lists: array(object({ id: text, color })), coalitions: array(object({ id: text, name: text, color, chambers: optional(array(chamber)) })) });
 const scenarioShape: Schema<JsonReadonly<ReformGenerationScenario>> = union(
   object({ ...scenarioFields, schemaVersion: literal(1) }),
-  object({ ...scenarioFields, schemaVersion: literal(REFORM_SCENARIO_VERSION), presentation: object({ name: text,
-    lists: array(object({ id: text, color })), coalitions: array(object({ id: text, name: text, color, chambers: optional(array(chamber)) })) }) })
+  object({ ...scenarioFields, schemaVersion: literal(REFORM_SCENARIO_VERSION), presentation: presentationShape }),
+  object({ ...scenarioFields, schemaVersion: literal(3), presentation: presentationShape,
+    pollReferences: object({ version: text, archiveVersion: text, policyVersion: literal('poll-reference-v1'), date,
+      sourceQuestionIds: array(text), assumptions: array(text),
+      rows: array(object({ chamber, listId: text, share, sigma: nonnegative, donorHistoricalListIds: array(text) })) }) })
 );
 
 const parameters = object({ intensity: nonnegative, strengthSigma: nonnegative, localSigma: nonnegative });
@@ -105,6 +110,19 @@ export function validateReformScenario(value: unknown, snapshot?: ReformGenerati
   }
   for (const r of s.shares) for (const ch of ['camera', 'senato'] as const) {
     if ((r[ch] !== null || (r.common !== null && (s.renewal === 'joint' || s.renewal === ch))) && !s.lists[ch].some(l => l.id === r.listId)) errors.push(`Share refers to absent ${ch} list ${r.listId}`);
+  }
+  if (s.pollReferences) {
+    const p = s.pollReferences;
+    if (p.date !== s.projectionDate || !p.sourceQuestionIds.length || !p.assumptions.length || !p.rows.length) errors.push('Invalid poll reference provenance/date');
+    unique(p.sourceQuestionIds, id => id, 'poll question');
+    unique(p.rows, r => key([r.chamber, r.listId]), 'poll reference');
+    for (const r of p.rows) if (!s.lists[r.chamber].some(l => l.id === r.listId)) errors.push('Poll reference names absent list');
+    for (const ch of new Set(p.rows.map(r => r.chamber))) if (Math.abs(sum(p.rows.filter(r => r.chamber === ch).map(r => r.share)) - 1) > 1e-9) errors.push('Poll reference shares must sum to one');
+    if (snapshot) for (const r of p.rows) {
+      const ordinary = new Set(snapshot.seats.geography.colleges.filter(c => c.chamber === r.chamber && c.kind === 'ordinary').map(c => c.id));
+      if (s.renewal !== 'joint' && s.renewal !== r.chamber || !s.coverage.some(c => c.chamber === r.chamber && ordinary.has(c.collegeId) && c.listIds.includes(r.listId))) errors.push('Poll reference lacks ordinary filing support');
+    }
+    if (snapshot) for (const r of p.rows) if (r.donorHistoricalListIds.some(id => !snapshot.historicalLists.some(l => l.id === id))) errors.push('Unknown poll geographic donor');
   }
   if (snapshot) {
     if (s.snapshotVersion !== snapshot.version || s.modelVersion !== snapshot.models.version) errors.push('Scenario data/model version mismatch; explicit conversion is required');

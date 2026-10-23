@@ -4,8 +4,8 @@ import { apportion, generationNormal, generationRng, logistic, logit, sum } from
 
 export interface ProjectedMunicipality {
   municipality: HistoricalMunicipality;
-  camera: { shares: Map<string, number>; abstention: number; dates: Map<string, string>; abstentionDate: string };
-  senato: { shares: Map<string, number>; abstention: number; dates: Map<string, string>; abstentionDate: string };
+  camera: { shares: Map<string, number>; abstention: number; dates: Map<string, string>; measurement?: Map<string, number>; abstentionDate: string };
+  senato: { shares: Map<string, number>; abstention: number; dates: Map<string, string>; measurement?: Map<string, number>; abstentionDate: string };
 }
 const scopeKey = (s: ReferenceScope) => JSON.stringify([s.kind, s.kind === 'national' ? null : s.code]);
 const matches = (m: HistoricalMunicipality, s: ReferenceScope) => s.kind === 'national' ||
@@ -74,7 +74,7 @@ export function preparePairedVoteReferences(scenario: ReformGenerationScenario, 
     filing.set(k, new Set([...(filing.get(k) ?? []), ...c.listIds]));
   }
   const available = (u: ProjectedMunicipality, id: string, ch: Chamber) => !!filing.get(`${ch}:${u.municipality.code}`)?.has(id);
-  const units = snapshot.municipalities.map(m => {
+  const units: ProjectedMunicipality[] = snapshot.municipalities.map(m => {
     const project = (ch: Chamber) => {
       const votes = new Map(s.lists[ch].map(l => [l.id, 0]));
       for (const historical of m[ch].votes) {
@@ -90,6 +90,43 @@ export function preparePairedVoteReferences(scenario: ReformGenerationScenario, 
   });
   const trace: GenerationTrace = { warnings: [], references: [], normalization: [], streamVersion: 'r26-generation-streams-v1', snapshotVersion: snapshot.version, modelVersion: snapshot.models.version };
   const historicalUnits = structuredClone(units);
+  if (s.pollReferences) {
+    trace.warnings.push({ code: 'POLL_REFERENCE_ASSUMPTIONS', message: `Quote informate dai sondaggi (${s.pollReferences.version}); incertezza e proxy non calibrati.` });
+    for (const ch of active) {
+      const ordinary = new Set(snapshot.seats.geography.colleges.filter(c => c.chamber === ch && c.kind === 'ordinary').map(c => c.id));
+      const codes = new Set(snapshot.memberships.filter(m => m.chamber === ch && ordinary.has(m.collegeId)).map(m => m.municipalityCode));
+      const group = units.filter(u => codes.has(u.municipality.code));
+      const rows = s.pollReferences.rows.filter(r => r.chamber === ch);
+      if (!rows.length) continue;
+      const targets = new Map(rows.map(r => [r.listId, r.share]));
+      for (const u of group) if (u[ch].abstention === 1 && sum(u.municipality[ch].votes.map(v => v.votes)) > 0) {
+        u[ch].abstention = 1 - sum(u.municipality[ch].votes.map(v => v.votes)) / u.municipality[ch].electors;
+        for (const r of rows) if (available(u, r.listId, ch)) u[ch].shares.set(r.listId, r.share);
+        trace.warnings.push({ code: 'POLL_UNMAPPED_HISTORY_PROXY', message: `Affluenza storica e supporto stimato usati per ${ch}/${u.municipality.code}, senza corrispondenze disponibili.` });
+      }
+
+      // Seed genuinely absent support from a declared donor profile, then uniform
+      // filed support. Existing local abstention and special ballots are retained.
+      for (const r of rows) if (!aggregate(group, ch, r.listId) && r.share > 0) {
+        for (const u of group) if (available(u, r.listId, ch)) {
+          const donors = sum(u.municipality[ch].votes.filter(v => r.donorHistoricalListIds.includes(v.listId)).map(v => v.votes));
+          u[ch].shares.set(r.listId, Math.max(1e-12, donors / Math.max(1, u.municipality[ch].electors)));
+        }
+        trace.warnings.push({ code: 'POLL_TERRITORIAL_PROXY', message: `Profilo territoriale stimato per ${ch}/${r.listId}.` });
+      }
+      // Keep historical mass of special/local-only lists within ordinary units.
+      const ids = s.lists[ch].map(l => l.id);
+      const otherMass = sum(ids.filter(id => !targets.has(id)).map(id => aggregate(group, ch, id)));
+      for (const [id, p] of targets) targets.set(id, p * (1 - otherMass));
+      for (const id of ids) if (!targets.has(id)) targets.set(id, aggregate(group, ch, id));
+      reconcileReferences(group, ch, targets, (u, id) => available(u, id, ch));
+      for (const u of group) {
+        u[ch].measurement = new Map(rows.map(r => [r.listId, r.sigma]));
+        for (const r of rows) u[ch].dates.set(r.listId, s.pollReferences.date);
+      }
+    }
+  }
+
   const scopes = [...new Map([{ kind: 'national' } as ReferenceScope, ...s.shares.map(r => r.scope), ...s.abstention.map(r => r.scope)].map(sc => [scopeKey(sc), sc])).values()]
     .sort((a, b) => rank(a) - rank(b) || (scopeKey(a) < scopeKey(b) ? -1 : 1));
   for (const scope of scopes) {
@@ -134,14 +171,14 @@ export function preparePairedVoteReferences(scenario: ReformGenerationScenario, 
       if (remaining > 1e-12 && free.length && !mass) throw new RangeError('Partial share overrides leave no historical support for the remainder');
       for (const id of eligible) targets.set(id, supplied.get(id)?.share ?? (mass ? remaining * aggregate(group, ch, id) / mass : 0));
       reconcileReferences(group, ch, targets, (u, id) => available(u, id, ch));
-      for (const u of group) for (const id of supplied.keys()) u[ch].dates.set(id, s.projectionDate);
+      for (const u of group) for (const id of supplied.keys()) { u[ch].dates.set(id, s.projectionDate); u[ch].measurement?.delete(id); }
     }
     const ids = new Set(scope.kind === 'national' ? active.flatMap(ch => s.lists[ch].map(l => l.id)) : rows.map(r => r.listId));
     for (const id of ids) {
       const ref = (ch: Chamber): ResolvedChamberReference | null => {
         if (!active.includes(ch) || !s.lists[ch].some(l => l.id === id)) return null;
         if (scope.kind !== 'national' && !resolved.get(ch)?.has(id)) return null;
-        return resolved.get(ch)?.get(id) ?? { share: aggregate(group, ch, id), referenceDate: snapshot.historicalDate, origin: 'model-derived' };
+        return resolved.get(ch)?.get(id) ?? { share: aggregate(group, ch, id), referenceDate: s.pollReferences?.rows.some(r => r.chamber === ch && r.listId === id) ? s.pollReferences.date : snapshot.historicalDate, origin: 'model-derived' };
       };
       const camera = ref('camera'), senato = ref('senato'), common = rows.find(r => r.listId === id)?.common;
       trace.references.push({ scope, listIds: { camera: camera ? id : null, senato: senato ? id : null },
@@ -160,11 +197,14 @@ export function generatePairedMunicipalVotes(s: ReformGenerationScenario, snapsh
     const k = JSON.stringify(scope); let v = shocks.get(k);
     if (!v) { v = pairedStandardShock(s.seed, simulationId, profile, ...scope); shocks.set(k, v); } return v;
   };
-  const shock = (id: string, date: string, m: HistoricalMunicipality, ch: Chamber) => {
+  const shock = (id: string, date: string, m: HistoricalMunicipality, ch: Chamber, territorialDate = date) => {
     const days = (Date.parse(s.electionDate) - Date.parse(date)) / 86400000;
     if (days < 0) throw new RangeError('Vote reference date is after election date');
-    return Math.sqrt(days) * (sigma.national * component('national', id)[ch] +
+    if (territorialDate === date) return Math.sqrt(days) * (sigma.national * component('national', id)[ch] +
       sigma.region * component('region', m.regionId, id)[ch] + sigma.local * component('local', m.code, id)[ch]);
+    const territorialDays = (Date.parse(s.electionDate) - Date.parse(territorialDate)) / 86400000;
+    return Math.sqrt(days) * sigma.national * component('national', id)[ch] +
+      Math.sqrt(territorialDays) * (sigma.region * component('region', m.regionId, id)[ch] + sigma.local * component('local', m.code, id)[ch]);
   };
   const output: GeneratedMunicipalVotes[] = [];
   for (const u of prepared) for (const ch of renewedChamberIds(s)) {
@@ -173,7 +213,7 @@ export function generatePairedMunicipalVotes(s: ReformGenerationScenario, snapsh
     // matches existing mean-mode semantics; supplied references still drift.
     const probabilities = ids.map(id => {
       const electorShare = (p.shares.get(id) ?? 0) * (1 - p.abstention);
-      return electorShare === 0 ? 0 : logistic(logit(electorShare) + shock(id, p.dates.get(id)!, m, ch));
+      return electorShare === 0 ? 0 : logistic(logit(electorShare) + shock(id, p.dates.get(id)!, m, ch, p.measurement?.has(id) ? snapshot.historicalDate : p.dates.get(id)!) + (p.measurement?.has(id) ? p.measurement.get(id)! * generationNormal(s.seed, simulationId, 'poll-measurement-v1', id) : 0));
     });
     probabilities.push(p.abstention === 0 ? 0 : p.abstention === 1 ? 1 : logistic(logit(p.abstention) + shock('abstention', p.abstentionDate, m, ch)));
     const counts = apportion(m[ch].electors, probabilities.map(p => Math.round(p * 1e12)), generationRng(s.seed, simulationId, 'vote-rounding', ch, m.code));

@@ -223,6 +223,29 @@ into `main`; public deployment follows that merge and a successful hosting gate.
     then affected simulation IDs on demand. Preserve exact context, requested
     denominators and explicit legacy-archive limits. See the
     [messages guide](docs/politics-reform-2026-messages.md).
+- [ ] **Poll-informed vote-share preparation and forecasting.** Follow the
+  [poll preparation guide](docs/polls-preparation.md). Prioritize simulation
+  computability: fill missing mappings, splits and territorial support with
+  explicit, versioned estimates/proxies and retain their provenance.
+  - [x] Import and reconciliation pilot: maintain an authoritative JSON archive
+    with government survey references for optional manual audits (no tracked
+    PDFs or document checksums),
+    retain reviewed source/question metadata and normalized observations,
+    reproduce preparation offline, reuse verified historical correspondences,
+    and test mass-conserving reconciliation including estimated fallbacks.
+  - [x] Poll-informed references: combine historical baselines and compatible
+    polls, preserve user overrides and chamber/geographic semantics, and add
+    reference-date measurement uncertainty separately from future movement.
+  - [x] Historical calibration pipeline: retain matched past-election polls and
+    official results, fit partially pooled house/election-error candidates, and
+    compare chronological held-out forecasts and intervals. Follow the
+    [calibration guide](docs/polls-calibration.md); retain explicit rejection of
+    corrections that lack support.
+
+  Forecast acceptance remains open: expand Camera holdouts, reassess historical
+  prior strength and validate intervals in the full generator before enabling
+  corrections or treating opt-in poll scenarios as calibrated forecasts.
+
 - [ ] Generalize routing, snapshot selection, scenario defaults, validation,
   worker dispatch, result components, and shared UI patterns across election
   kinds. Preserve configurable project-base navigation and worker/data loading
