@@ -238,13 +238,18 @@ into `main`; public deployment follows that merge and a successful hosting gate.
     reference-date measurement uncertainty separately from future movement.
   - [x] Historical calibration pipeline: retain matched past-election polls and
     official results, fit partially pooled house/election-error candidates, and
-    compare chronological held-out forecasts and intervals. Follow the
+    compare chronological held-out forecasts and intervals, including original
+    national uncertainty and separately fitted floors for history/poll-only
+    benchmarks. Follow the
     [calibration guide](docs/polls-calibration.md); retain explicit rejection of
     corrections that lack support.
 
   Forecast acceptance remains open: expand Camera holdouts, reassess historical
   prior strength and validate intervals in the full generator before enabling
   corrections or treating opt-in poll scenarios as calibrated forecasts.
+  Use the [uncertainty study](docs/polls-uncertainty.md) for tested joint endpoint
+  candidates. Before integration, condition regional/local draws on the sampled
+  national margins; retain filing, turnout, override and chamber semantics.
 
 - [ ] Generalize routing, snapshot selection, scenario defaults, validation,
   worker dispatch, result components, and shared UI patterns across election

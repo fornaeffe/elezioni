@@ -4,7 +4,7 @@ import { basename, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { prepareSelectedPolls } from './polls';
-import { preparePollCalibration, evaluateCalibration, fitCalibration, type CalibrationCase } from './poll-calibration';
+import { preparePollCalibration, evaluateCalibration, fitCalibration, calibrationBaselineDate, type CalibrationCase } from './poll-calibration';
 import { readCalibrationResults } from './poll-calibration-sources';
 import { createPollInformedScenario } from './poll-references';
 import { generationFixture } from '../../src/lib/politics/reform-2026/generation.fixture';
@@ -13,6 +13,7 @@ const root = fileURLToPath(new URL('../../../', import.meta.url));
 const archive = await prepareSelectedPolls(root, resolve(root, 'data/sources/polls/history'));
 const inputs = await readCalibrationResults(root);
 const cases: CalibrationCase[] = inputs.manifest.elections.map(e => ({ ...e,
+  baselineDate: calibrationBaselineDate(e.baselineSourceId),
   truth: inputs.results.find(r => r.sourceId === e.resultSourceId)!.panel.map(p => p.share),
   baseline: inputs.results.find(r => r.sourceId === e.baselineSourceId)!.panel.map(p => p.share),
   questions: e.questionIds.map(id => archive.bundle.questions.find(q => q.id === id)!) }));
@@ -44,6 +45,40 @@ describe('historical poll calibration', () => {
     for (const r of inputs.results) expect(r.panel.reduce((n, p) => n + p.share, 0)).toBeCloseTo(1);
     expect(inputs.results.find(r => r.sourceId === 'europee-20240609')!.members).toHaveLength(2);
   });
+  it('compares original national uncertainty from the correct reference dates without changing benchmark means', () => {
+    const r = evaluateCalibration(cases);
+    for (const f of r.folds) {
+      const c = cases.find(c => c.id === f.electionId)!;
+      for (const prefix of ['history', 'poll-only']) {
+        const point = f.scores.find(s => s.mode === prefix)!;
+        const original = f.scores.find(s => s.mode === `${prefix}-original`)!;
+        const floor = f.scores.find(s => s.mode === `${prefix}-floor`)!;
+        expect(original.mae).toBe(point.mae); expect(floor.mae).toBe(point.mae);
+        expect(original.rows.map(r => r.share)).toEqual(point.rows.map(r => r.share));
+        expect(floor.rows.map(r => r.share)).toEqual(point.rows.map(r => r.share));
+        if (!('uncertainty' in original) || !original.uncertainty || !('uncertainty' in floor) || !floor.uncertainty) throw new Error('Missing benchmark uncertainty audit');
+        const date = prefix === 'history' ? c.baselineDate : c.cutoff;
+        expect(original.uncertainty.referenceDate).toBe(date);
+        expect(original.uncertainty.nationalVariance).toBeCloseTo(.02 ** 2 * (Date.parse(c.date) - Date.parse(date)) / 86400000);
+        expect(original.uncertainty.extraSigma).toEqual([0, 0, 0, 0]);
+        expect(floor.uncertainty.extraSigma).toEqual(f.model.benchmarkFloors[prefix === 'history' ? 'history' : 'pollOnly']);
+        expect(floor.uncertainty.extraSigma.every(s => Number.isFinite(s) && s >= 0)).toBe(true);
+        expect(original.coverage).toBeGreaterThanOrEqual(0); expect(floor.coverage).toBeLessThanOrEqual(1);
+      }
+    }
+  });
+  it('preserves structural zero support and records unavailable historical logit-floor observations', () => {
+    const f = evaluateCalibration(cases).folds[0];
+    expect(f.electionId).toBe('european-2014');
+    expect(f.model.benchmarkFloorTrainingCounts.history[1]).toBe(0);
+    expect(f.model.benchmarkFloors.history[1]).toBe(0);
+    for (const mode of ['history-original', 'history-floor']) {
+      const row = f.scores.find(s => s.mode === mode)!.rows.find(r => r.id === 'm5s')!;
+      expect(row).toMatchObject({ share: 0, lower: 0, upper: 0, covered: false });
+    }
+    const bad = structuredClone(cases); bad[0].baselineDate = bad[0].date;
+    expect(() => evaluateCalibration(bad)).toThrow('Invalid calibration');
+  });
   it('never lets the held-out or future election train its prediction or intervals', () => {
     const before = evaluateCalibration(cases), changed = structuredClone(cases);
     const c = changed.find(c => c.id === 'camera-2022')!;
@@ -54,6 +89,8 @@ describe('historical poll calibration', () => {
     expect(a.model).toEqual(b.model);
     expect(a.scores.map(s => s.rows.map(r => r.share))).toEqual(b.scores.map(s => s.rows.map(r => r.share)));
     expect(a.scores[2].rows.map(r => 'lower' in r ? r.lower : null)).toEqual(b.scores[2].rows.map(r => 'lower' in r ? r.lower : null));
+    expect(a.scores.slice(6).map(s => s.rows.map(r => 'lower' in r ? [r.lower, r.upper] : [])))
+      .toEqual(b.scores.slice(6).map(s => s.rows.map(r => 'lower' in r ? [r.lower, r.upper] : [])));
     expect(a.scores[2].mae).not.toBe(b.scores[2].mae);
     expect(after.folds[4].model).not.toEqual(before.folds[4].model);
     for (const f of before.folds) expect(f.trainingElectionIds).not.toContain(f.electionId);

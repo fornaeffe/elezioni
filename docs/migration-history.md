@@ -5452,6 +5452,20 @@ with four equally weighted panel categories per election:
 | Pooled bias/house correction | 4.70 | 45% | 4.07 | 50% |
 | Additional error floor only | 4.36 | 70% | 4.09 | 87.5% |
 | Bias plus error floor | 4.70 | 55% | 4.07 | 62.5% |
+| Previous election + original national uncertainty | 14.26 | 65% | 11.55 | 75% |
+| Weighted polls + original national uncertainty | 3.21 | 20% | 3.48 | 0% |
+| Previous election + original uncertainty + fitted floor | 14.26 | 70% | 11.55 | 75% |
+| Weighted polls + original uncertainty + fitted floor | 3.21 | 65% | 3.48 | 62.5% |
+
+The last four rows were added in the later comparison extension, report
+`poll-calibration-v2-d9116fb3de48`; the six original rows are unchanged. Original
+uncertainty here means the simulator's national component (0.02 logit units per
+square-root day), measured from the previous election date for historical
+references and from the cutoff for weighted polls. This is the same national
+surrogate boundary as the existing rows, not full municipal-generator coverage.
+Additional floors are fitted separately for each benchmark using earlier events
+only. See the extension entry below for structural-zero handling and interval
+scores.
 
 The uncertainty-only interval score improves from 42.76 to 22.59 percentage
 points overall, and 36.21 to 16.96 for Camera. Its Camera metric check passes;
@@ -5541,3 +5555,167 @@ The subsequent full root-base Chromium suite passed all 30 tests (46.8 s).
 Git diff whitespace checks passed; build chunk/plugin/color notices remained
 informational. No commit, publication, default activation or legal scrutiny
 change was performed.
+
+
+## 2026-10-23 — Original-uncertainty and error-floor benchmark comparison
+
+Extended the historical comparison with four requested rows: previous same-kind
+election and weighted polls alone, each with original uncertainty and with
+original uncertainty plus a separately fitted error floor. Retained the existing
+two point-only rows and all four blend/correction rows. The earlier comparison
+table above now includes the four added rows, explicitly labelled as this later
+extension. The focused calibration guide documents their timing and scope.
+
+Original uncertainty uses the simulator's pre-poll national logit movement
+component, sigma=0.02 per square-root day, inside the same compositional national
+surrogate as the existing comparisons. Previous-election references accumulate
+movement from the actual previous election date (read from the official source
+ID), not merely from the polling cutoff. Weighted polls alone are treated as
+references supplied at the cutoff and accumulate movement until election day.
+No v1 poll measurement variance, pseudo-sample variance or shared-error term is
+silently attached to these original-uncertainty rows. Regional/local shocks,
+elector-share/turnout normalization and chamber coupling are outside this
+surrogate; these are not claimed as exact full-generator coverage measurements.
+
+Fit each benchmark floor from its own earlier-event errors, subtracting its own
+original movement variance and pooling with three prior election equivalents.
+Held-out outcomes never enter their prediction, intervals or fitted floors.
+Structural zero/one references remain boundaries, matching original generator
+support semantics. Their unbounded logit errors are excluded from floor fitting;
+usable-event counts and zero fallback floors are explicit. In particular, a
+historical-only M5S reference absent from the 2008/2009 ballots cannot be invented
+by noise. These new rows are diagnostic; existing runtime acceptance checks and
+active scenarios are unchanged.
+
+Added results: MAE and interval scores below are in percentage points; coverage
+is pointwise at a nominal 90%, over five holdout events/four categories (Camera:
+two holdouts/four categories). Lower interval score is better.
+
+| Benchmark | All MAE | All coverage | All interval score | Camera MAE | Camera coverage | Camera interval score |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Previous election + original national uncertainty | 14.26 | 65% | 98.76 | 11.55 | 75% | 56.00 |
+| Weighted polls + original national uncertainty | 3.21 | 20% | 33.13 | 3.48 | 0% | 36.51 |
+| Previous election + original uncertainty + fitted floor | 14.26 | 70% | 92.54 | 11.55 | 75% | 55.58 |
+| Weighted polls + original uncertainty + fitted floor | 3.21 | 65% | 14.85 | 3.48 | 62.5% | 12.39 |
+
+The historical reference's long uncertainty horizon gives broad intervals but
+poor central accuracy and interval score; higher coverage alone is not better
+forecast quality. Poll-only cutoff-to-election movement is insufficient for
+empirical error in this panel. Its own fitted floor improves intervals while
+preserving its central estimates, but does not validate 90% coverage. All six
+previous score rows, original fitted bias/house/error parameters, acceptance
+checks and actual production reference rows were compared with the preceding
+report and are unchanged.
+
+Comparison policy/report is now v2: `poll-calibration-v2-d9116fb3de48`. The
+production reference receipt is `poll-reference-v1-3396faf5e852`, scenario suffix
+`0786c2ae3948`; actual paired generation and composed scrutiny passed. New report
+provenance records baseline dates, original movement variances, extra floors and
+per-category training counts. Repeating generation preserves the immutable
+version. No poll inputs or source-of-truth policy changed.
+
+Verification on Windows/Node 24: nine focused calibration tests passed, followed
+by all 958 unit tests in 69 files (12.40 s). Added tests assert reference dates,
+original variance formula, unchanged benchmark means, floor provenance,
+structural-zero behavior and held-out interval independence. Preparation and
+application type checks passed with zero Svelte errors/warnings. Production
+build passed (4.39 s SSR); production reference generation/scrutiny and original
+six-row regression comparisons passed. Browser verification follows below.
+The subsequent full root-base Chromium suite passed all 30 tests (46.2 s).
+Git diff whitespace checks passed. Build chunk/plugin/color notices were
+informational. No commit, deployment, default change or correction activation
+was performed.
+
+
+## 2026-10-23 — Weighted-poll joint uncertainty study and geographic integration proposal
+
+At Luca's request, researched uncertainty estimators appropriate to the six
+available independent elections and retested weighted polling under each practical
+candidate. Added a focused proposal in `docs/polls-uncertainty.md`, with primary
+research references, equations, prior/horizon restrictions, source-extension
+priorities and regional/local compatibility. Runtime policy and source JSON are
+unchanged. The active plan now identifies conditional geographic reconciliation
+as a dependency before integrating a calibrated joint national distribution.
+
+Added deterministic offline `data:polls:uncertainty:check` / `:generate` commands.
+They reuse the verified calibration cases and existing weighted-poll point
+function, then fit only on earlier elections in five expanding holdouts. New
+research modules implement joint log-ratio error fitting, simulation and scoring;
+no third-party numerical dependency or new source download is required. Existing
+calibration report remains exactly `poll-calibration-v2-d9116fb3de48` after
+extracting its case loader; original comparison values are unchanged.
+
+Compared regularized Gaussian errors, covariance-integrated Student-t prediction,
+symmetrized whole-election residual resampling and exact-rank conformal boxes.
+The first two share a zero-mean Gaussian/inverse-Wishart covariance model in
+three orthonormal log-ratio coordinates, prior df=5, scale=0.2^2 I. Student-t
+predictive df is n+3; Gaussian uses the same posterior mean covariance. Prior
+0.1/0.3 and same-kind-only fits were prespecified sensitivities, not tuned on the
+held-out outcomes. Keep complete election vectors and uncentered errors; no
+partisan/house mean correction is fitted. Bootstrap symmetry is an assumption,
+and only 2n residual vectors exist. Conformal rank ceil(0.9*(n+1)) exceeds n for
+all folds, so its 90% bounds are 0-100%; exchangeability is also unverified.
+
+All fits target total near-election endpoint error, including sampling, shared
+polling errors, blackout movement and electorate mismatch. Adding the old
+national movement/measurement variance again would double count error. The
+selected 15-16 day horizons do not identify a separate time-series diffusion or
+justify year-ahead extrapolation. Four-category dependence cannot be transferred
+independently to each party inside other. The weighted point is retained, but
+inverse log-ratio predictive means/medians can differ and are scored separately.
+
+Pointwise nominal 90% results below, over five events/four categories (Camera:
+two events/four categories). Width and interval scores are percentage points;
+lower interval score is better. Fixed-point MAE stays 3.21 pp overall / 3.48 Camera.
+
+| Weighted-poll uncertainty | Overall coverage | Average width | Interval score | Camera coverage | Camera interval score |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Original national uncertainty | 20% | 3.75 | 33.13 | 0% | 36.51 |
+| Previous additional floor | 65% | 8.49 | 14.85 | 62.5% | 12.39 |
+| Regularized joint Gaussian | 100% | 13.29 | 13.29 | 100% | 12.87 |
+| Joint Student-t, central prior | 100% | 12.72 | 12.72 | 100% | 12.47 |
+| Whole-election bootstrap | 85% | 10.68 | 15.06 | 87.5% | 12.21 |
+| Exact conformal box | 100% | 100.00 | 100.00 | 100% | 100.00 |
+
+Joint coverage of all categories is 5/5 events for Gaussian/Student-t, 3/5 for
+bootstrap. Gaussian/Student-t energy scores are close (4.83/4.85 pp); the small
+panel does not establish a decisive ranking. Student-t prior 0.1 and same-kind
+fits give 90% overall coverage, prior 0.3 gives 100%; all cover 8/8 Camera
+categories. Default Student-t predictive-mean MAE is 3.25/3.45 pp overall/Camera.
+Bootstrap marginal-median MAE is 4.30 pp overall, exposing its discrete small-sample
+instability. Twenty correlated category outcomes are not twenty independent
+elections, and perfect historical coverage is not a future guarantee.
+
+A separate constructed-fixture audit exercises the actual paired municipal
+generator, with national/measurement noise disabled. Across 1,000 simulations,
+regional-only effects move the national share by 2.13 pp RMS, local-only by
+2.15 pp, and both by 2.90 pp (maximum 10.30 pp); all-zero effects give zero drift.
+The equal-sized one-municipality-per-region fixture is a mechanical counterexample,
+not an empirical estimate of Italian geographic error. Current IPF aligns
+references before sampling, so later geographic/turnout shocks can alter national
+margins. None of the new joint distributions is a drop-in diagonal sigma map.
+
+Recommend Student-t as the first integration candidate, with Gaussian as a close
+comparator and bootstrap as a sensitivity diagnostic. Rework statistical
+composition: draw the national endpoint vector once, draw turnout and geographic
+residuals conditional on it, then reconcile each realization to those national
+valid-vote margins using legal filing support and realized turnout weights. Reuse
+IPF, historical profiles/donors and legal scrutiny; preserve overrides and shared
+chamber dependence. This redesign is proposed, not activated. Official municipal
+archives already available can inform spatial residuals after harmonizing party
+and geographic definitions; earlier within-campaign poll waves can inform time
+and sampling components but do not increase independent-election counts.
+
+Study version `poll-uncertainty-v1-b93db6c425fe` regenerated with identical bytes.
+The JSON report retains all folds, covariance fits, intervals, prior sensitivities,
+proper interval/energy scores, predictive summaries and geographic audit evidence.
+Verification: all 965 unit tests in 70 files passed (12.24 s); the seven research
+tests also passed after the final overlap guard check. Tests cover ILR geometry,
+closed-form covariance/Cholesky identities, chronological leakage, prior/kind
+isolation, unsupported horizons, conformal rank and actual geographic leakage.
+Preparation/application type checks passed, zero Svelte errors/warnings. Build
+passed (4.45 s SSR). Browser verification follows below. No active uncertainty,
+default, legal algorithm, deployment or source-policy change was made.
+The subsequent full root-base Chromium suite passed all 30 tests (50.1 s).
+Git diff whitespace checks passed; chunk/plugin/color notices remained
+informational. No commit or publication was performed.

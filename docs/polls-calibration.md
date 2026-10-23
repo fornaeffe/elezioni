@@ -6,6 +6,9 @@ reference scenarios, see [poll preparation](polls-preparation.md). Measured scor
 and verification are in the
 [calibration history](migration-history.md#2026-10-23--historical-poll-calibration-pipeline-substep-3).
 
+For the later weighted-poll uncertainty estimators, retests and regional/local
+integration proposal, use [poll uncertainty research](polls-uncertainty.md).
+
 From `web/`, with no network, raw government caches, R or Python:
 
 ```powershell
@@ -18,7 +21,7 @@ event pairings, then fits and evaluates the candidates without writing files.
 Poll-survey references support optional manual government-site audits; PDFs and
 their checksums are not inputs. Official election-result pins are separate and
 remain unchanged.
-`generate` writes an immutable `poll-calibration-v1-<hash>.json` report under
+`generate` writes an immutable `poll-calibration-v2-<hash>.json` report under
 `data/derived/polls/`. The reference-scenario command also runs this audit,
 writes its report, and embeds its version and rejection reasons in scenario
 assumptions. It preserves the active v1 shares and uncertainty. It refuses a
@@ -87,7 +90,31 @@ parties and multiple houses are not additional independent elections.
 
 Compare previous-election shares, recency/sample-weighted polls alone, the
 actual v1 historical/poll blend, pooled bias correction, additional uncertainty,
-and their combination. Relative house deviations are centered within elections
+and their combination. Four additional benchmarks attach original national
+uncertainty or original national uncertainty plus a separately fitted error floor
+to previous-election shares and weighted polls alone. The original point-only
+rows remain for continuity.
+
+For these four rows, original uncertainty is `0.02 × sqrt(elapsed days)` on the
+logit scale, with no polling measurement variance, historical pseudo-sample
+variance or v1 shared-error allowance. Historical elapsed time starts at the
+previous election's date, parsed from its pinned source ID. Weighted polls are
+references supplied at the cutoff, so their elapsed time runs from the cutoff
+to election day. This reproduces the original **national component** within the
+same four-category surrogate; it does not reproduce regional/local shocks,
+elector-share/turnout normalization or chamber coupling of the full simulator.
+
+Each benchmark's additional floor is estimated from its own earlier-event logit
+errors, after subtracting its own original movement variance, and shrunk with
+three prior election equivalents. No fitted bias correction is added to these
+four rows. Exact zero/one reference shares stay structural boundaries, as in the
+original generator: noise cannot invent a missing party. Boundary observations
+are excluded from logit-floor fitting; per-category usable-event counts and zero
+fallback floors are reported. This matters for M5S before its first election.
+These benchmark rows are diagnostic and do not expand automatic correction
+acceptance to new scenario/runtime policies.
+
+Relative house deviations are centered within elections
 and shrunk toward zero with three prior election equivalents. Aggregate bias
 is fitted after house adjustment, with the same shrinkage. This is a regularized
 method-of-moments candidate, not an identified causal house-effect model.

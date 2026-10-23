@@ -9,15 +9,23 @@ import { generationNormal, logistic, logit } from '../../src/lib/politics/reform
 const average = (v: number[]) => v.reduce((a, b) => a + b, 0) / Math.max(1, v.length);
 const normalize = (v: number[]) => { const s = v.reduce((a, b) => a + b, 0); return v.map(p => p / s); };
 const day = (s: string) => Date.parse(s) / 86400000;
-export const CALIBRATION_POLICY = { version: 'poll-calibration-v1', poolingElectionCount: 3,
+export const CALIBRATION_POLICY = { version: 'poll-calibration-v2', poolingElectionCount: 3,
   nationalSigmaPerSqrtDay: .02, intervalLevel: .9, simulations: 4000,
   minimumCameraHoldouts: 3, minimumRelativeImprovement: .05 } as const;
 const catalog: PollEntityCatalog = { schemaVersion: 1, version: 'calibration-panel-v1', entities: PANEL.map(id =>
   ({ id, name: id, aliases: [], components: [], proxyEntityIds: [], proxyNote: null })) };
 
 export interface CalibrationCase extends CalibrationElection {
-  baseline: number[]; truth: number[]; questions: NormalizedPollQuestion[];
+  baselineDate: string; baseline: number[]; truth: number[]; questions: NormalizedPollQuestion[];
 }
+export function calibrationBaselineDate(sourceId: string) {
+  const match = /-(\d{4})(\d{2})(\d{2})$/.exec(sourceId);
+  if (!match) throw new Error('Invalid calibration baseline source date');
+  return `${match[1]}-${match[2]}-${match[3]}`;
+}
+const MODES = ['history', 'poll-only', 'v1', 'bias', 'uncertainty', 'combined',
+  'history-original', 'poll-only-original', 'history-floor', 'poll-only-floor'] as const;
+type Mode = typeof MODES[number];
 /** Only these three parties are observed separately in every selected survey.
  * Other is a changing complement, never a historical party correspondence.
  * Collapsing full source tables avoids guessed within-group party splits. */
@@ -37,7 +45,17 @@ function reference(c: CalibrationCase) {
 }
 type Reference = ReturnType<typeof reference>;
 interface FittedModel { trainingElectionIds: string[]; bias: number[]; extraSigma: number[]; uncorrectedExtraSigma: number[];
+  benchmarkFloors: { history: number[]; pollOnly: number[] };
+  benchmarkFloorTrainingCounts: { history: number[]; pollOnly: number[] };
   houses: { pollster: string; elections: number; offsets: number[] }[]; }
+function originalBenchmark(c: CalibrationCase, r: Reference, history: boolean) {
+  const total = r.evidence.reduce((n, e) => n + e.weight, 0);
+  if (!total) throw new Error('Poll benchmark requires usable evidence');
+  const share = history ? c.baseline : PANEL.map((_, i) =>
+    r.evidence.reduce((n, e) => n + e.weight * e.reconciliation.shares[i].share, 0) / total);
+  const referenceDate = history ? c.baselineDate : c.cutoff;
+  return { share, referenceDate, nationalVariance: (day(c.date) - day(referenceDate)) * CALIBRATION_POLICY.nationalSigmaPerSqrtDay ** 2 };
+}
 function houseExposure(r: Reference, model: FittedModel) {
   const total = r.evidence.reduce((n, e) => n + e.weight, 0);
   return PANEL.map((_, i) => total ? r.evidence.reduce((n, e) => n + e.weight *
@@ -63,7 +81,8 @@ export function fitCalibration(cases: CalibrationCase[]): FittedModel {
     });
     return { pollster, elections: offsets.length, offsets: PANEL.map((_, i) => average(offsets.map(o => o[i])) * offsets.length / (offsets.length + k)) };
   });
-  const model: FittedModel = { trainingElectionIds: cases.map(c => c.id), houses, bias: PANEL.map(() => 0), extraSigma: [], uncorrectedExtraSigma: [] };
+  const model: FittedModel = { trainingElectionIds: cases.map(c => c.id), houses, bias: PANEL.map(() => 0), extraSigma: [], uncorrectedExtraSigma: [],
+    benchmarkFloors: { history: [], pollOnly: [] }, benchmarkFloorTrainingCounts: { history: [], pollOnly: [] } };
   const houseAdjusted = refs.map(r => predict(r, model));
   model.bias = PANEL.map((_, i) => average(cases.map((c, n) => logit(houseAdjusted[n][i]) - logit(c.truth[i]))) * cases.length / (cases.length + k));
   const errorFloor = (correctBias: boolean) => PANEL.map((_, i) => {
@@ -75,27 +94,43 @@ export function fitCalibration(cases: CalibrationCase[]): FittedModel {
   });
   model.extraSigma = errorFloor(true);
   model.uncorrectedExtraSigma = errorFloor(false);
+  for (const kind of ['history', 'pollOnly'] as const) {
+    const benchmarks = cases.map((c, i) => originalBenchmark(c, refs[i], kind === 'history'));
+    for (const i of PANEL.keys()) {
+      // The original generator preserves structural zero support. Such a
+      // category has no estimable logit error and cannot be revived by noise.
+      const excess = benchmarks.flatMap((b, j) => b.share[i] > 0 && b.share[i] < 1 && cases[j].truth[i] > 0 && cases[j].truth[i] < 1
+        ? [(logit(b.share[i]) - logit(cases[j].truth[i])) ** 2 - b.nationalVariance] : []);
+      model.benchmarkFloorTrainingCounts[kind].push(excess.length);
+      model.benchmarkFloors[kind].push(Math.sqrt(Math.max(0, average(excess) * excess.length / (excess.length + k))));
+    }
+  }
   return model;
 }
-function score(c: CalibrationCase, r: Reference, mode: 'history' | 'poll-only' | 'v1' | 'bias' | 'uncertainty' | 'combined', model: FittedModel) {
-  const share = mode === 'history' ? c.baseline : mode === 'poll-only' ? PANEL.map((_, i) => {
+function score(c: CalibrationCase, r: Reference, mode: Mode, model: FittedModel) {
+  const benchmark = ['history-original', 'poll-only-original', 'history-floor', 'poll-only-floor'].includes(mode)
+    ? originalBenchmark(c, r, mode.startsWith('history-')) : null;
+  const share = benchmark?.share ?? (mode === 'history' ? c.baseline : mode === 'poll-only' ? PANEL.map((_, i) => {
     const total = r.evidence.reduce((n, e) => n + e.weight, 0);
     return r.evidence.reduce((n, e) => n + e.weight * e.reconciliation.shares[i].share, 0) / total;
-  }) : predict(r, mode === 'bias' || mode === 'combined' ? model : undefined);
+  }) : predict(r, mode === 'bias' || mode === 'combined' ? model : undefined));
   if (mode === 'history' || mode === 'poll-only') return { mode, mae: average(share.map((p, i) => Math.abs(p - c.truth[i]))), rows: PANEL.map((id, i) => ({ id, share: share[i], truth: c.truth[i] })) };
-  const sigma = r.rows.map((row, i) => Math.sqrt(row.sigma ** 2 + (day(c.date) - day(c.cutoff)) * CALIBRATION_POLICY.nationalSigmaPerSqrtDay ** 2 +
+  const benchmarkExtra = PANEL.map((_, i) => mode.endsWith('-floor') ? model.benchmarkFloors[mode.startsWith('history-') ? 'history' : 'pollOnly'][i] : 0);
+  const sigma = benchmark ? benchmarkExtra.map(extra => Math.sqrt(benchmark.nationalVariance + extra ** 2)) : r.rows.map((row, i) => Math.sqrt(row.sigma ** 2 + (day(c.date) - day(c.cutoff)) * CALIBRATION_POLICY.nationalSigmaPerSqrtDay ** 2 +
     (mode === 'uncertainty' ? model.uncorrectedExtraSigma[i] ** 2 : mode === 'combined' ? model.extraSigma[i] ** 2 : 0)));
   // National valid-share surrogate, not full municipal/turnout/chamber runtime.
   // Same seeded draws for all candidates make interval-score comparisons stable.
   const samples = Array.from({ length: CALIBRATION_POLICY.simulations }, (_, n) => normalize(share.map((p, i) =>
-    logistic(logit(p) + sigma[i] * generationNormal('poll-calibration-interval-v1', n + 1, c.id, PANEL[i])))));
+    benchmark && (p === 0 || p === 1) ? p : logistic(logit(p) + sigma[i] * generationNormal('poll-calibration-interval-v1', n + 1, c.id, PANEL[i])))));
   const rows = PANEL.map((id, i) => {
     const sorted = samples.map(s => s[i]).sort((a, b) => a - b);
     const lower = sorted[Math.floor(.05 * sorted.length)], upper = sorted[Math.floor(.95 * sorted.length)];
     const truth = c.truth[i], intervalScore = upper - lower + 20 * Math.max(0, lower - truth, truth - upper);
     return { id, share: share[i], truth, lower, upper, covered: truth >= lower && truth <= upper, intervalScore };
   });
-  return { mode, mae: average(rows.map(r => Math.abs(r.share - r.truth))), coverage: average(rows.map(r => Number(r.covered))),
+  return { mode, ...(benchmark ? { uncertainty: { referenceDate: benchmark.referenceDate, nationalVariance: benchmark.nationalVariance, extraSigma: benchmarkExtra,
+    method: 'original-national-component', structuralZerosPreserved: true } } : {}),
+    mae: average(rows.map(r => Math.abs(r.share - r.truth))), coverage: average(rows.map(r => Number(r.covered))),
     intervalScore: average(rows.map(r => r.intervalScore)), rows };
 }
 /** Expanding window: every forecast is fitted only on earlier elections. */
@@ -103,7 +138,9 @@ export function evaluateCalibration(cases: CalibrationCase[]) {
   const ordered = [...cases].sort((a, b) => a.date.localeCompare(b.date));
   if (new Set(ordered.map(c => c.id)).size !== ordered.length || ordered.length < 2) throw new Error('Calibration requires distinct election events');
   for (const c of ordered) {
-    if (c.cutoff >= c.date || c.truth.length !== 4 || c.baseline.length !== 4 ||
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(c.baselineDate) || !Number.isFinite(Date.parse(c.baselineDate)) ||
+      new Date(c.baselineDate).toISOString().slice(0, 10) !== c.baselineDate || c.baselineDate >= c.cutoff ||
+      c.cutoff >= c.date || c.truth.length !== 4 || c.baseline.length !== 4 ||
       [c.truth, c.baseline].some(ps => ps.some(p => !Number.isFinite(p) || p < 0 || p > 1) || Math.abs(ps.reduce((a, b) => a + b, 0) - 1) > 1e-9) ||
       !c.questions.length || c.questions.some(q => q.source.publicationDate > c.cutoff || q.source.fieldworkEnd > c.cutoff)) throw new Error('Invalid calibration case or post-cutoff information');
   }
@@ -112,9 +149,9 @@ export function evaluateCalibration(cases: CalibrationCase[]) {
     return { electionId: c.id, kind: c.kind, cutoff: c.cutoff, electionDate: c.date, horizonDays: day(c.date) - day(c.cutoff),
       trainingElectionIds: model.trainingElectionIds, model,
       selectedQuestionIds: r.evidence.map(e => e.questionId),
-      scores: (['history', 'poll-only', 'v1', 'bias', 'uncertainty', 'combined'] as const).map(mode => score(c, r, mode, model)) };
+      scores: MODES.map(mode => score(c, r, mode, model)) };
   });
-  const metrics = (fs: typeof folds) => ['history', 'poll-only', 'v1', 'bias', 'uncertainty', 'combined'].map(mode => {
+  const metrics = (fs: typeof folds) => MODES.map(mode => {
     const ss = fs.map(f => f.scores.find(s => s.mode === mode)!);
     return { mode, elections: fs.length, mae: average(ss.map(s => s.mae)),
       coverage: ss.every(s => 'coverage' in s) && ss.length ? average(ss.map(s => s.coverage!)) : null,
@@ -139,7 +176,11 @@ export function evaluateCalibration(cases: CalibrationCase[]) {
         'Panel intervals are a national valid-share surrogate; full generator interval coverage and transfer to other lists/chambers remain unvalidated.'] } };
 }
 
-export async function preparePollCalibration(root: string) {
+export function weightedPollPoint(c: CalibrationCase) {
+  return originalBenchmark(c, reference(c), false).share;
+}
+
+export async function loadPollCalibrationCases(root: string) {
   const archive = await prepareSelectedPolls(root, resolve(root, 'data/sources/polls/history'));
   const { manifest, results, sourceVersions, archiveBytes } = await readCalibrationResults(root);
   const cases = manifest.elections.map(e => {
@@ -149,12 +190,17 @@ export async function preparePollCalibration(root: string) {
       if (!q) throw new Error(`Missing historical question ${id}`);
       return q;
     });
-    return { ...e, baseline: shares(e.baselineSourceId), truth: shares(e.resultSourceId), questions };
+    return { ...e, baselineDate: calibrationBaselineDate(e.baselineSourceId), baseline: shares(e.baselineSourceId), truth: shares(e.resultSourceId), questions };
   });
   const questionIds = cases.flatMap(c => c.questionIds);
   if (new Set(questionIds).size !== questionIds.length || questionIds.length !== archive.bundle.questions.length) throw new Error('Historical questions must pair to exactly one election');
   const totalArchiveBytes = archive.audit.archiveBytes + archiveBytes;
   if (totalArchiveBytes > archive.audit.maximumArchiveBytes) throw new Error('Historical poll/target archive exceeds size budget');
+  return { archive, cases, sourceVersions, totalArchiveBytes };
+}
+
+export async function preparePollCalibration(root: string) {
+  const { archive, cases, sourceVersions, totalArchiveBytes } = await loadPollCalibrationCases(root);
   const report = { schemaVersion: 1, kind: 'poll-historical-calibration', archiveVersion: archive.bundle.version, sourceVersions,
     archiveBytes: totalArchiveBytes, panel: PANEL, elections: cases.map(({ questions, ...c }) => ({ ...c, sources: questions.map(q => ({
       questionId: q.id, pollster: q.source.pollster, fieldworkStart: q.source.fieldworkStart, fieldworkEnd: q.source.fieldworkEnd, publicationDate: q.source.publicationDate })) })),
@@ -167,7 +213,9 @@ export async function preparePollCalibration(root: string) {
       'Election-endpoint errors mix house bias, common sampling/nonresponse effects, blackout movement and electorate differences; these are not separately identified.',
       'Partial pooling uses three prior election equivalents. Extra measurement variance subtracts existing variance and assumed future national movement; territorial movement is not fitted.',
       'Intervals use a compositional national logistic-normal surrogate with the same future national movement convention; they are not whole-generator or simultaneous coverage.',
+      'Original uncertainty benchmarks use only the pre-poll national logit movement component (0.02 per sqrt day), without poll measurement/prior variance. Historical references start at the previous election date; weighted poll references start at the cutoff. Regional/local movement, turnout coupling and chamber effects are outside this national surrogate.',
+      'Benchmark error floors are fitted separately using earlier elections only, after subtracting original national movement variance. Structural zero shares remain zero; boundary observations are excluded from logit-floor fitting and training counts are reported.',
       'Corrections remain research candidates. Unsupported parties retain existing explicit uncertainty assumptions and simulation computability.'
     ] };
-  return { ...report, version: `poll-calibration-v1-${sha256(JSON.stringify(report)).slice(0, 12)}` };
+  return { ...report, version: `poll-calibration-v2-${sha256(JSON.stringify(report)).slice(0, 12)}` };
 }

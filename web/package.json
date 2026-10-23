@@ -31,7 +31,9 @@
     "data:polls:calibration:generate": "tsx --tsconfig tsconfig.json scripts/data-preparation/poll-calibration-cli.ts generate",
     "data:polls:calibration:download": "tsx --tsconfig tsconfig.json scripts/data-preparation/poll-calibration-cli.ts download",
     "data:polls:calibration:verify-results": "tsx --tsconfig tsconfig.json scripts/data-preparation/poll-calibration-cli.ts verify-results",
-    "data:polls:calibration:freeze-results": "tsx --tsconfig tsconfig.json scripts/data-preparation/poll-calibration-cli.ts freeze-results"
+    "data:polls:calibration:freeze-results": "tsx --tsconfig tsconfig.json scripts/data-preparation/poll-calibration-cli.ts freeze-results",
+    "data:polls:uncertainty:check": "tsx --tsconfig tsconfig.json scripts/data-preparation/poll-uncertainty-cli.ts check",
+    "data:polls:uncertainty:generate": "tsx --tsconfig tsconfig.json scripts/data-preparation/poll-uncertainty-cli.ts generate"
   },
   "devDependencies": {
     "@playwright/test": "1.60.0",
