@@ -6,6 +6,11 @@ sensitivity and production work, use the
 [research report](vote-generation-research.md). These commands do not activate
 a runtime model or change scenario defaults.
 
+For the current proposal, accepted modelling requirements and staged future
+comparisons, go directly to the
+[revised drift model](vote-generation-drift-model.md). The completed endpoint
+experiments below retain their original definitions and results.
+
 ## Reproduce and locate
 
 Run from `web/` after the pinned election ZIPs are available in
@@ -195,6 +200,19 @@ older study-selected poll while retaining prior-derived sigma. The estimator's
 historical-blend centre is intentionally replaced by the common polling centre:
 this compares generation mechanics rather than reproducing unchanged defaults.
 
+## Revised drift proposal — 24 October 2026
+
+The corrected formulation now lives in the focused
+[drift-model document](vote-generation-drift-model.md). It distinguishes latent
+multinomial log scores from observed counts, identifies score coordinates,
+specifies independent process increments and uncertain initial states, and
+records the accepted polling requirements and comparison hierarchy.
+
+The proposed electorate-wide outcome set adds a combined non-valid category;
+polling links condition on political valid votes. This permits observed zeros
+through a multinomial count layer without treating undecided respondents or
+unmapped political lists as non-valid electors. No new backtests or runtime
+integration are claimed.
 ## Metrics in the requested priority order
 
 1. **Plausibility:** count nonfinite/out-of-range shares, noninteger/negative
@@ -236,15 +254,17 @@ a dedicated variogram/seat-level assessment.
 
 ## Interpretation and next-stage boundary
 
-The fifth state component is **valid votes/electors**, not turnout: it combines
-nonvoting, invalid ballots and any unmapped votes. A production redesign should
-separately represent voters and valid ballots, model future electorates and
-geographic changes, preserve legal filing zeros, and retain editable,
-source-specific list correspondences with explicit new-party donors. Neither
-the changing other category nor its covariance can be copied independently to
-each future list. The six-category sensitivity belongs to the research report;
-it does not by itself validate arbitrary full-list scenarios, Senate contrasts,
-municipal-candidate elections, regional elections or seat probabilities.
+In the completed experiments, the fifth state component is **valid
+votes/electors**, not turnout. The current
+[drift proposal](vote-generation-drift-model.md) instead includes a combined
+non-valid outcome in the electorate simplex; it need not separately generate
+abstention and invalid ballots unless those distinct outputs are required.
+Future electorates, geography, filing support and editable source-specific
+correspondences remain necessary. Neither the changing other category nor its
+covariance can be copied independently to each future list. The six-category
+sensitivity belongs to the research report; it does not by itself validate
+arbitrary full-list scenarios, Senate contrasts, municipal-candidate elections,
+regional elections or seat probabilities.
 
 ## Statistical references
 

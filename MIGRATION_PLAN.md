@@ -248,22 +248,27 @@ into `main`; public deployment follows that merge and a successful hosting gate.
   prior strength and validate intervals in the full generator before enabling
   corrections or treating opt-in poll scenarios as calibrated forecasts.
   Use the [uncertainty study](docs/polls-uncertainty.md) for tested joint endpoint
-  candidates. Before integration, condition regional/local draws on the sampled
-  national margins; retain filing, turnout, override and chamber semantics.
+  candidates. The [revised drift proposal](docs/vote-generation-drift-model.md)
+  instead derives national results from joint municipal elector outcomes;
+  sampled-endpoint reconciliation is not its invariant. Retain filing,
+  denominator, override and chamber semantics.
 
-- [ ] **Vote-generation redesign: national endpoints and conditional geography.**
-  Follow the [comparison](docs/vote-generation-research.md) and focused
-  [methods](docs/vote-generation-methods.md). Research compares the actual current
-  generator with joint Gaussian, joint Student-t and spatial transition-block
-  alternatives at 730/365/90/15-day cutoffs, with Camera-only and mixed histories.
-  Preserve editable, source-specific historical-list correspondence defaults.
-  - [x] Complete reproducible historical comparison and recommend a model family:
-    joint Gaussian with conditional geography; retain Student-t sensitivity and
-    explicit rejection of unchanged long-horizon deployment. Include six-category
-    Camera sensitivity and preserve current runtime pending implementation.
-  - [ ] After model selection, implement the approved runtime design with full-list
-    split uncertainty, dated geography, separate turnout/invalid ballots, compatible
-    overrides, filing support, paired-chamber dependence and per-draw reconciliation.
+- [ ] **Vote-generation redesign: electorate-wide latent national/local drift.**
+  Follow the [current formulation and staged comparisons](docs/vote-generation-drift-model.md).
+  Preserve editable, source-specific correspondence defaults and the observed
+  count layer; keep state/process uncertainty distinct from polling measurement.
+  - [x] Complete the [earlier endpoint comparison](docs/vote-generation-research.md)
+    and six-category sensitivity. Luca has not selected those models for adoption.
+  - [x] Correct the drift formulation and record the accepted observation/polling
+    requirements, comparison hierarchy and proposed combined non-valid outcome.
+  - [ ] After the non-valid treatment review, implement the research fit/backtest
+    path using downloaded compatible Camera/European elections and polls only.
+    Follow stages 1–6, then test both regional innovations and mean-reverting
+    local differences separately at stage 7; avoid a full combination grid.
+  - [ ] After selection, implement the approved runtime design with full-list
+    split uncertainty, dated geography/electorates, compatible overrides,
+    filing support and paired-chamber dependence. Derive national aggregates
+    from municipal counts; do not force them to softmax of the national factor.
   - [ ] Validate full-list/municipal/regional and seat distributions before changing
     defaults; keep sparse-event, new-party and long-horizon limitations visible.
 

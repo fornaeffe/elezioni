@@ -1,12 +1,18 @@
 # National and municipal vote-generation comparison
 
+**Status, 24 October 2026:** Luca has not selected any of these models for
+adoption. The active proposal and desired research plan are the
+[revised latent-drift model](vote-generation-drift-model.md). This report retains
+the completed experiments and their original conclusions as historical evidence.
+
 This report owns the model-selection findings and proposed runtime redesign.
 The [methods](vote-generation-methods.md) own equations, metric definitions,
 source caveats and implementation pointers. All code added for this study runs
 offline in Node/TypeScript; the production generator remains unchanged.
 
-**Recommendation:** take the **joint Gaussian endpoint plus conditional Gaussian
-geography and post-draw reconciliation** forward as the primary redesign
+**23 October recommendation, not selected for adoption:** take the **joint
+Gaussian endpoint plus conditional Gaussian geography and post-draw
+reconciliation** forward as the primary redesign
 candidate. Keep Student-t as a close sensitivity. Mixed Camera/European history
 is useful, particularly for municipal geography; the experiment does not support
 excluding European evidence in advance.
