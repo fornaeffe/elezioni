@@ -174,6 +174,15 @@ reference preparation records this decision while preserving computability.
 
 ## Checks
 
+For latent vote-generation research, use the separate
+[measured report](../docs/vote-generation-drift-results.md) and
+[testing guide](../docs/vote-generation-drift-testing.md). The offline
+runner consumes pinned historical elections and already downloaded polls,
+writes reproducible case artifacts under `data/derived/drift/`, and leaves
+production snapshots/defaults unchanged. Source-election correspondence
+defaults remain editable in the existing scenario editor; research grouping
+does not replace that contract.
+
 From `web/`, run `npm run check:data`, `npm run check`, and `npm run test`.
 Preparation tests cover cached/manual/HTTP acquisition, immutable output, source
 formats, full municipal coverage and explicit missing-data estimation. Real-source

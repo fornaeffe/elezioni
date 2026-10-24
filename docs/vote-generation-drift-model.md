@@ -14,12 +14,13 @@ fieldwork measurement dates distinct from publication availability; and polling
 noise confined to the polling likelihood. Both stage-7 variants below belong
 to the planned research.
 
-The electorate-wide formulation below implements the proposed combined
-non-valid outcome mathematically for review. It does not assert a choice of
-polling link or volatility structure, fitted parameters, approved backtest
-results or an activated runtime model. Implementation and new historical
-backtests have not started. Use the already downloaded compatible polls; do
-not acquire more polling data for this research round.
+Luca subsequently authorized research execution and confirmed the combined
+non-valid outcome as its baseline. The
+[testing protocol and execution record](vote-generation-drift-testing.md)
+contains implementation details, diagnostics and measured comparisons.
+Research selection does not activate a runtime model or change production
+defaults. Use the already downloaded compatible polls; do not acquire more
+polling data for this research round.
 
 ## Electorate outcomes and observed counts
 

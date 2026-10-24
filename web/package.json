@@ -39,7 +39,11 @@
     "data:forecast:check": "tsx --tsconfig tsconfig.json scripts/data-preparation/generation-study-cli.ts check",
     "data:forecast:generate": "tsx --tsconfig tsconfig.json scripts/data-preparation/generation-study-cli.ts generate",
     "data:forecast:six:check": "tsx --tsconfig tsconfig.json scripts/data-preparation/generation-six-category-cli.ts check",
-    "data:forecast:six:generate": "tsx --tsconfig tsconfig.json scripts/data-preparation/generation-six-category-cli.ts generate"
+    "data:forecast:six:generate": "tsx --tsconfig tsconfig.json scripts/data-preparation/generation-six-category-cli.ts generate",
+    "data:forecast:drift:check": "tsx --tsconfig tsconfig.json scripts/data-preparation/drift-study-cli.ts check",
+    "data:forecast:drift:generate": "tsx --tsconfig tsconfig.json scripts/data-preparation/drift-study-cli.ts generate",
+    "data:forecast:drift:compare": "tsx --tsconfig tsconfig.json scripts/data-preparation/drift-comparison-cli.ts",
+    "data:forecast:drift:validate": "tsx --tsconfig tsconfig.json scripts/data-preparation/drift-bayesian-check.ts"
   },
   "devDependencies": {
     "@playwright/test": "1.60.0",

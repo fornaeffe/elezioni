@@ -260,11 +260,12 @@ into `main`; public deployment follows that merge and a successful hosting gate.
   - [x] Complete the [earlier endpoint comparison](docs/vote-generation-research.md)
     and six-category sensitivity. Luca has not selected those models for adoption.
   - [x] Correct the drift formulation and record the accepted observation/polling
-    requirements, comparison hierarchy and proposed combined non-valid outcome.
-  - [ ] After the non-valid treatment review, implement the research fit/backtest
-    path using downloaded compatible Camera/European elections and polls only.
-    Follow stages 1–6, then test both regional innovations and mean-reverting
-    local differences separately at stage 7; avoid a full combination grid.
+    requirements, comparison hierarchy and confirmed combined non-valid baseline.
+  - [x] Implement the research fit/backtest path using downloaded compatible
+    Camera/European elections and polls. Complete stages 1–6 and both separate
+    stage-7 branches, retaining the conditional stage-5 trigger. See the
+    [measured comparison and limitations](docs/vote-generation-drift-results.md)
+    and [reproduction protocol](docs/vote-generation-drift-testing.md).
   - [ ] After selection, implement the approved runtime design with full-list
     split uncertainty, dated geography/electorates, compatible overrides,
     filing support and paired-chamber dependence. Derive national aggregates
