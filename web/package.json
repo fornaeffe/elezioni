@@ -33,7 +33,13 @@
     "data:polls:calibration:verify-results": "tsx --tsconfig tsconfig.json scripts/data-preparation/poll-calibration-cli.ts verify-results",
     "data:polls:calibration:freeze-results": "tsx --tsconfig tsconfig.json scripts/data-preparation/poll-calibration-cli.ts freeze-results",
     "data:polls:uncertainty:check": "tsx --tsconfig tsconfig.json scripts/data-preparation/poll-uncertainty-cli.ts check",
-    "data:polls:uncertainty:generate": "tsx --tsconfig tsconfig.json scripts/data-preparation/poll-uncertainty-cli.ts generate"
+    "data:polls:uncertainty:generate": "tsx --tsconfig tsconfig.json scripts/data-preparation/poll-uncertainty-cli.ts generate",
+    "data:forecast:history:check": "tsx --tsconfig tsconfig.json scripts/data-preparation/generation-history-cli.ts check",
+    "data:forecast:history:generate": "tsx --tsconfig tsconfig.json scripts/data-preparation/generation-history-cli.ts generate",
+    "data:forecast:check": "tsx --tsconfig tsconfig.json scripts/data-preparation/generation-study-cli.ts check",
+    "data:forecast:generate": "tsx --tsconfig tsconfig.json scripts/data-preparation/generation-study-cli.ts generate",
+    "data:forecast:six:check": "tsx --tsconfig tsconfig.json scripts/data-preparation/generation-six-category-cli.ts check",
+    "data:forecast:six:generate": "tsx --tsconfig tsconfig.json scripts/data-preparation/generation-six-category-cli.ts generate"
   },
   "devDependencies": {
     "@playwright/test": "1.60.0",

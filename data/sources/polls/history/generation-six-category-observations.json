@@ -1,0 +1,1067 @@
+{
+  "schemaVersion": 1,
+  "version": "generation-six-category-observations-v1",
+  "reviewedOn": "2026-10-23",
+  "panel": [
+    "pd",
+    "m5s",
+    "lega",
+    "fdi",
+    "fi-pdl",
+    "other"
+  ],
+  "shareUnit": "fraction",
+  "observations": [
+    {
+      "id": "pcm-551-q1",
+      "electionId": "camera-2013",
+      "electionDate": "2013-02-24",
+      "cutoff": "2013-02-08",
+      "publicationDate": "2013-02-08",
+      "fieldworkStart": "2013-02-05",
+      "fieldworkEnd": "2013-02-06",
+      "shares": [
+        0.295,
+        0.188,
+        0.052000000000000005,
+        0.01,
+        0.195,
+        0.26
+      ],
+      "sampleSize": 1500,
+      "questionSampleSize": null,
+      "sourceUrl": "https://www.sondaggipoliticoelettorali.it/ListaSondaggi.aspx",
+      "sourceId": "pcm-551",
+      "pollster": "SWG",
+      "sourceReference": "Sondaggio551",
+      "sourcePages": [
+        2
+      ],
+      "instrumentKind": "camera-compatible-national-party-intentions",
+      "reportedCorePercentages": {
+        "pd": 29.5,
+        "m5s": 18.8,
+        "lega": 5.2,
+        "fdi": 1,
+        "fi-pdl": 19.5
+      },
+      "supportDenominatorPercentage": 100.0,
+      "denominatorBasis": "reported",
+      "provenance": "Derived only from the reviewed authoritative government archive question. All five named core categories are explicitly reported; coalition subtotals and nonresponse are excluded. Original question-specific methodology and notes remain in archive.json and manifest.json.",
+      "sourceNotes": [
+        "Combined 31% nonresponse includes 18.5% undecided and 12.5% abstention/blank/null; components are not added again. Exclude Senate coalition question and opinion questions."
+      ]
+    },
+    {
+      "id": "pcm-7154-q1",
+      "electionId": "camera-2018",
+      "electionDate": "2018-03-04",
+      "cutoff": "2018-02-16",
+      "publicationDate": "2018-02-16",
+      "fieldworkStart": "2018-02-12",
+      "fieldworkEnd": "2018-02-14",
+      "shares": [
+        0.235,
+        0.28300000000000003,
+        0.134,
+        0.044000000000000004,
+        0.152,
+        0.15200000000000002
+      ],
+      "sampleSize": 2000,
+      "questionSampleSize": null,
+      "sourceUrl": "https://www.sondaggipoliticoelettorali.it/ListaSondaggi.aspx",
+      "sourceId": "pcm-7154",
+      "pollster": "SWG",
+      "sourceReference": "Sondaggio7154",
+      "sourcePages": [
+        2
+      ],
+      "instrumentKind": "camera-compatible-national-party-intentions",
+      "reportedCorePercentages": {
+        "pd": 23.5,
+        "m5s": 28.3,
+        "lega": 13.4,
+        "fdi": 4.4,
+        "fi-pdl": 15.2
+      },
+      "supportDenominatorPercentage": 100.0,
+      "denominatorBasis": "estimated",
+      "provenance": "Derived only from the reviewed authoritative government archive question. All five named core categories are explicitly reported; coalition subtotals and nonresponse are excluded. Midpoints of published support ranges are estimates, not extra confidence intervals. Original question-specific methodology and notes remain in archive.json and manifest.json.",
+      "sourceNotes": [
+        "All support levels are explicit midpoint estimates of published ranges: FI 14.2–16.2; Lega 12.4–14.4; FdI 4.2–4.6; Noi Italia 2.0–2.4; PD 22.5–24.5; Civica 0.8–1.2; +Europa 2.7–3.1; Insieme 0.6–1.0; SVP 0.3–0.5; M5S 27.3–29.3; LeU 5.6–6.2; PaP 0.7–1.1; other 0.9–1.3. These ranges are not additional sampling confidence intervals. Exclude coalition subtotals and Senate question. Undecided 18% does not identify all abstainers; sample-base adjustment remains an estimate."
+      ]
+    },
+    {
+      "id": "pcm-7145-q1",
+      "electionId": "camera-2018",
+      "electionDate": "2018-03-04",
+      "cutoff": "2018-02-16",
+      "publicationDate": "2018-02-16",
+      "fieldworkStart": "2018-02-12",
+      "fieldworkEnd": "2018-02-14",
+      "shares": [
+        0.21899999999999997,
+        0.278,
+        0.132,
+        0.048,
+        0.163,
+        0.16
+      ],
+      "sampleSize": 1014,
+      "questionSampleSize": null,
+      "sourceUrl": "https://www.sondaggipoliticoelettorali.it/ListaSondaggi.aspx",
+      "sourceId": "pcm-7145",
+      "pollster": "Demos",
+      "sourceReference": "Sondaggio7145",
+      "sourcePages": [
+        2
+      ],
+      "instrumentKind": "camera-compatible-national-party-intentions",
+      "reportedCorePercentages": {
+        "pd": 21.9,
+        "m5s": 27.8,
+        "lega": 13.2,
+        "fdi": 4.8,
+        "fi-pdl": 16.3
+      },
+      "supportDenominatorPercentage": 100.0,
+      "denominatorBasis": "reported",
+      "provenance": "Derived only from the reviewed authoritative government archive question. All five named core categories are explicitly reported; coalition subtotals and nonresponse are excluded. Original question-specific methodology and notes remain in archive.json and manifest.json.",
+      "sourceNotes": [
+        "Only the Camera vote table. The separate 53% decided / 45% uncertain / 2% no-answer question measures decision certainty, not the vote-table response base; it is not used as nonresponse."
+      ]
+    },
+    {
+      "id": "pcm-7135-q2",
+      "electionId": "camera-2018",
+      "electionDate": "2018-03-04",
+      "cutoff": "2018-02-16",
+      "publicationDate": "2018-02-14",
+      "fieldworkStart": "2018-02-12",
+      "fieldworkEnd": "2018-02-13",
+      "shares": [
+        0.218,
+        0.28300000000000003,
+        0.128,
+        0.05,
+        0.183,
+        0.13799999999999998
+      ],
+      "sampleSize": 1001,
+      "questionSampleSize": null,
+      "sourceUrl": "https://www.sondaggipoliticoelettorali.it/ListaSondaggi.aspx",
+      "sourceId": "pcm-7135",
+      "pollster": "Tecnè",
+      "sourceReference": "Sondaggio7135",
+      "sourcePages": [
+        2,
+        3
+      ],
+      "instrumentKind": "camera-compatible-national-party-intentions",
+      "reportedCorePercentages": {
+        "pd": 21.8,
+        "m5s": 28.3,
+        "lega": 12.8,
+        "fdi": 5,
+        "fi-pdl": 18.3
+      },
+      "supportDenominatorPercentage": 100.0,
+      "denominatorBasis": "reported",
+      "provenance": "Derived only from the reviewed authoritative government archive question. All five named core categories are explicitly reported; coalition subtotals and nonresponse are excluded. Original question-specific methodology and notes remain in archive.json and manifest.json.",
+      "sourceNotes": [
+        "Use question 2 proportional OGGI levels only. Exclude UNA SETTIMANA FA comparison, uninominal coalition table, and decision-certainty question."
+      ]
+    },
+    {
+      "id": "pcm-11848-q1",
+      "electionId": "camera-2022",
+      "electionDate": "2022-09-25",
+      "cutoff": "2022-09-09",
+      "publicationDate": "2022-09-09",
+      "fieldworkStart": "2022-09-06",
+      "fieldworkEnd": "2022-09-09",
+      "shares": [
+        0.204,
+        0.12,
+        0.121,
+        0.27,
+        0.067,
+        0.21799999999999997
+      ],
+      "sampleSize": 1200,
+      "questionSampleSize": null,
+      "sourceUrl": "https://www.sondaggipoliticoelettorali.it/ListaSondaggi.aspx",
+      "sourceId": "pcm-11848",
+      "pollster": "SWG",
+      "sourceReference": "Sondaggio11848",
+      "sourcePages": [
+        2
+      ],
+      "instrumentKind": "camera-compatible-national-party-intentions",
+      "reportedCorePercentages": {
+        "pd": 20.4,
+        "m5s": 12,
+        "lega": 12.1,
+        "fdi": 27,
+        "fi-pdl": 6.7
+      },
+      "supportDenominatorPercentage": 100.0,
+      "denominatorBasis": "reported",
+      "provenance": "Derived only from the reviewed authoritative government archive question. All five named core categories are explicitly reported; coalition subtotals and nonresponse are excluded. Original question-specific methodology and notes remain in archive.json and manifest.json.",
+      "sourceNotes": [
+        "Generic national party wording is treated as Camera-compatible for adult list shares; explicit ballot proxy."
+      ]
+    },
+    {
+      "id": "pcm-11839-q1",
+      "electionId": "camera-2022",
+      "electionDate": "2022-09-25",
+      "cutoff": "2022-09-09",
+      "publicationDate": "2022-09-09",
+      "fieldworkStart": "2022-09-05",
+      "fieldworkEnd": "2022-09-07",
+      "shares": [
+        0.22399999999999998,
+        0.138,
+        0.12,
+        0.24600000000000002,
+        0.077,
+        0.195
+      ],
+      "sampleSize": 1001,
+      "questionSampleSize": null,
+      "sourceUrl": "https://www.sondaggipoliticoelettorali.it/ListaSondaggi.aspx",
+      "sourceId": "pcm-11839",
+      "pollster": "Demos",
+      "sourceReference": "Sondaggio11839",
+      "sourcePages": [
+        2
+      ],
+      "instrumentKind": "camera-compatible-national-party-intentions",
+      "reportedCorePercentages": {
+        "pd": 22.4,
+        "m5s": 13.8,
+        "lega": 12,
+        "fdi": 24.6,
+        "fi-pdl": 7.7
+      },
+      "supportDenominatorPercentage": 100.0,
+      "denominatorBasis": "reported",
+      "provenance": "Derived only from the reviewed authoritative government archive question. All five named core categories are explicitly reported; coalition subtotals and nonresponse are excluded. Original question-specific methodology and notes remain in archive.json and manifest.json.",
+      "sourceNotes": [
+        "Only Camera vote table. Not the Veneto autonomy survey (11857) or Veneto vote estimate returned by the same archive search."
+      ]
+    },
+    {
+      "id": "pcm-11832-q2",
+      "electionId": "camera-2022",
+      "electionDate": "2022-09-25",
+      "cutoff": "2022-09-09",
+      "publicationDate": "2022-09-08",
+      "fieldworkStart": "2022-09-06",
+      "fieldworkEnd": "2022-09-08",
+      "shares": [
+        0.21600000000000003,
+        0.122,
+        0.114,
+        0.254,
+        0.102,
+        0.19200000000000003
+      ],
+      "sampleSize": 2003,
+      "questionSampleSize": null,
+      "sourceUrl": "https://www.sondaggipoliticoelettorali.it/ListaSondaggi.aspx",
+      "sourceId": "pcm-11832",
+      "pollster": "Tecnè",
+      "sourceReference": "Sondaggio11832",
+      "sourcePages": [
+        2,
+        3
+      ],
+      "instrumentKind": "camera-compatible-national-party-intentions",
+      "reportedCorePercentages": {
+        "pd": 21.6,
+        "m5s": 12.2,
+        "lega": 11.4,
+        "fdi": 25.4,
+        "fi-pdl": 10.2
+      },
+      "supportDenominatorPercentage": 100.0,
+      "denominatorBasis": "reported",
+      "provenance": "Derived only from the reviewed authoritative government archive question. All five named core categories are explicitly reported; coalition subtotals and nonresponse are excluded. Original question-specific methodology and notes remain in archive.json and manifest.json.",
+      "sourceNotes": [
+        "Question 2 proportional Camera levels only. 43.2% nonresponse is from question 1; exclude turnout prediction, uninominal coalitions and seats."
+      ]
+    }
+  ],
+  "earlyObservations": [
+    {
+      "id": "demos-a00856",
+      "electionId": null,
+      "publicationDate": "2013-05-11",
+      "fieldworkStart": "2013-05-07",
+      "fieldworkEnd": "2013-05-09",
+      "shares": [
+        0.25,
+        0.229,
+        0.032,
+        0.021,
+        0.266,
+        0.20199999999999996
+      ],
+      "sampleSize": 1009,
+      "questionSampleSize": null,
+      "sourceUrl": "https://www.demos.it/a00856.php",
+      "tableUrl": "https://www.demos.it/2013/img/2671ap38_20130511_01.png",
+      "sourceId": "demos-a00856",
+      "pollster": "Demos & Pi",
+      "instrumentKind": "camera",
+      "reportedCorePercentages": {
+        "pd": 25.0,
+        "m5s": 22.9,
+        "lega": 3.2,
+        "fdi": 2.1,
+        "fi-pdl": 26.6
+      },
+      "supportDenominatorPercentage": 100,
+      "denominatorBasis": "reported",
+      "provenance": "Current-column national Camera vote-intention table in primary Demos & Pi report. PD, M5S, Lega, FdI and FI/PdL are individually reported; other is the complement of all five, not the table row Altri. European targets use these Camera intentions as a cross-kind predictor.",
+      "evidenceUrl": "https://www.demos.it/2013/img/2671ap38_20130511_01.png",
+      "evidenceSha256": "e9fd0ee48c8143b0f296a9765a72bee05309ce2428d3b1c79b2ff00924ede8ca",
+      "evidenceBytes": 9631,
+      "sourcePages": []
+    },
+    {
+      "id": "demos-a00942",
+      "electionId": null,
+      "publicationDate": "2014-01-20",
+      "fieldworkStart": "2014-01-08",
+      "fieldworkEnd": "2014-01-15",
+      "shares": [
+        0.342,
+        0.212,
+        0.032,
+        0.02,
+        0.21899999999999997,
+        0.17500000000000004
+      ],
+      "sampleSize": 1919,
+      "questionSampleSize": null,
+      "sourceUrl": "https://www.demos.it/a00942.php",
+      "tableUrl": "https://www.demos.it/2014/img/2922mappa20140120_1.png",
+      "sourceId": "demos-a00942",
+      "pollster": "Demos & Pi",
+      "instrumentKind": "camera",
+      "reportedCorePercentages": {
+        "pd": 34.2,
+        "m5s": 21.2,
+        "lega": 3.2,
+        "fdi": 2.0,
+        "fi-pdl": 21.9
+      },
+      "supportDenominatorPercentage": 100,
+      "denominatorBasis": "reported",
+      "provenance": "Current-column national Camera vote-intention table in primary Demos & Pi report. PD, M5S, Lega, FdI and FI/PdL are individually reported; other is the complement of all five, not the table row Altri. European targets use these Camera intentions as a cross-kind predictor.",
+      "evidenceUrl": "https://www.demos.it/2014/img/2922mappa20140120_1.png",
+      "evidenceSha256": "bfa9d24524965dcdf8810856ee4c5e66d6bd2724eeb530d94153aa028b223d7a",
+      "evidenceBytes": 41500,
+      "sourcePages": []
+    },
+    {
+      "id": "demos-a01231",
+      "electionId": null,
+      "publicationDate": "2016-02-27",
+      "fieldworkStart": "2016-02-22",
+      "fieldworkEnd": "2016-02-25",
+      "shares": [
+        0.322,
+        0.258,
+        0.132,
+        0.055,
+        0.133,
+        0.09999999999999998
+      ],
+      "sampleSize": 1014,
+      "questionSampleSize": null,
+      "sourceUrl": "https://www.demos.it/a01231.php",
+      "tableUrl": "https://www.demos.it/2016/img/3769m01.jpg",
+      "sourceId": "demos-a01231",
+      "pollster": "Demos & Pi",
+      "instrumentKind": "camera",
+      "reportedCorePercentages": {
+        "pd": 32.2,
+        "m5s": 25.8,
+        "lega": 13.2,
+        "fdi": 5.5,
+        "fi-pdl": 13.3
+      },
+      "supportDenominatorPercentage": 100,
+      "denominatorBasis": "reported",
+      "provenance": "Current-column national Camera vote-intention table in primary Demos & Pi report. PD, M5S, Lega, FdI and FI/PdL are individually reported; other is the complement of all five, not the table row Altri. European targets use these Camera intentions as a cross-kind predictor.",
+      "evidenceUrl": "https://www.demos.it/2016/img/3769m01.jpg",
+      "evidenceSha256": "f9e7f7febff33f1cc4e545541cd93f94ae78e3088e924403c9b0fad46cc2ea4b",
+      "evidenceBytes": 72716,
+      "sourcePages": []
+    },
+    {
+      "id": "demos-a01362",
+      "electionId": null,
+      "publicationDate": "2017-03-04",
+      "fieldworkStart": "2017-03-01",
+      "fieldworkEnd": "2017-03-02",
+      "shares": [
+        0.272,
+        0.288,
+        0.106,
+        0.067,
+        0.115,
+        0.15200000000000002
+      ],
+      "sampleSize": 1010,
+      "questionSampleSize": null,
+      "sourceUrl": "https://www.demos.it/a01362.php",
+      "tableUrl": "https://www.demos.it/2017/pdf/4242ap63_20170304_scissione.pdf#page=8",
+      "sourceId": "demos-a01362",
+      "pollster": "Demos & Pi",
+      "instrumentKind": "camera",
+      "reportedCorePercentages": {
+        "pd": 27.2,
+        "m5s": 28.8,
+        "lega": 10.6,
+        "fdi": 6.7,
+        "fi-pdl": 11.5
+      },
+      "supportDenominatorPercentage": 100,
+      "denominatorBasis": "reported",
+      "provenance": "Current-column national Camera vote-intention table in primary Demos & Pi report. PD, M5S, Lega, FdI and FI/PdL are individually reported; other is the complement of all five, not the table row Altri. European targets use these Camera intentions as a cross-kind predictor.",
+      "evidenceUrl": "https://www.demos.it/2017/pdf/4242ap63_20170304_scissione.pdf",
+      "evidenceSha256": "91377ee24810dc668beb4bb15c1dbfeb3e857dd9b651acd2908f0940465a5eae",
+      "evidenceBytes": 989153,
+      "sourcePages": [
+        8
+      ]
+    },
+    {
+      "id": "demos-a01384",
+      "electionId": null,
+      "publicationDate": "2017-05-13",
+      "fieldworkStart": "2017-05-08",
+      "fieldworkEnd": "2017-05-11",
+      "shares": [
+        0.285,
+        0.275,
+        0.129,
+        0.04,
+        0.133,
+        0.138
+      ],
+      "sampleSize": 1014,
+      "questionSampleSize": null,
+      "sourceUrl": "https://www.demos.it/a01384.php",
+      "tableUrl": "https://www.demos.it/2017/pdf/4324ap64_20171305_paese_confuso.pdf#page=7",
+      "sourceId": "demos-a01384",
+      "pollster": "Demos & Pi",
+      "instrumentKind": "camera",
+      "reportedCorePercentages": {
+        "pd": 28.5,
+        "m5s": 27.5,
+        "lega": 12.9,
+        "fdi": 4.0,
+        "fi-pdl": 13.3
+      },
+      "supportDenominatorPercentage": 100,
+      "denominatorBasis": "reported",
+      "provenance": "Current-column national Camera vote-intention table in primary Demos & Pi report. PD, M5S, Lega, FdI and FI/PdL are individually reported; other is the complement of all five, not the table row Altri. European targets use these Camera intentions as a cross-kind predictor.",
+      "evidenceUrl": "https://www.demos.it/2017/pdf/4324ap64_20171305_paese_confuso.pdf",
+      "evidenceSha256": "3b780c236a18a8fcdddf79657b2e402a42738667a225fd8506f362df3bbf1920",
+      "evidenceBytes": 1088844,
+      "sourcePages": [
+        7
+      ]
+    },
+    {
+      "id": "demos-a01438",
+      "electionId": null,
+      "publicationDate": "2017-10-16",
+      "fieldworkStart": "2017-10-09",
+      "fieldworkEnd": "2017-10-12",
+      "shares": [
+        0.263,
+        0.276,
+        0.146,
+        0.05,
+        0.142,
+        0.123
+      ],
+      "sampleSize": 1227,
+      "questionSampleSize": null,
+      "sourceUrl": "https://www.demos.it/a01438.php",
+      "tableUrl": "https://www.demos.it/2017/pdf/4510ap67_20171016.pdf#page=14",
+      "sourceId": "demos-a01438",
+      "pollster": "Demos & Pi",
+      "instrumentKind": "camera",
+      "reportedCorePercentages": {
+        "pd": 26.3,
+        "m5s": 27.6,
+        "lega": 14.6,
+        "fdi": 5.0,
+        "fi-pdl": 14.2
+      },
+      "supportDenominatorPercentage": 100,
+      "denominatorBasis": "reported",
+      "provenance": "Current-column national Camera vote-intention table in primary Demos & Pi report. PD, M5S, Lega, FdI and FI/PdL are individually reported; other is the complement of all five, not the table row Altri. European targets use these Camera intentions as a cross-kind predictor.",
+      "evidenceUrl": "https://www.demos.it/2017/pdf/4510ap67_20171016.pdf",
+      "evidenceSha256": "3a6ad57979e92b7e28a1add9c38317c2ca1382fbbaf13cf19681ed582d41b718",
+      "evidenceBytes": 1025919,
+      "sourcePages": [
+        14
+      ]
+    },
+    {
+      "id": "demos-a01506",
+      "electionId": null,
+      "publicationDate": "2018-05-20",
+      "fieldworkStart": "2018-05-17",
+      "fieldworkEnd": "2018-05-18",
+      "shares": [
+        0.176,
+        0.311,
+        0.221,
+        0.037000000000000005,
+        0.132,
+        0.123
+      ],
+      "sampleSize": 1006,
+      "questionSampleSize": null,
+      "sourceUrl": "https://www.demos.it/a01506.php",
+      "tableUrl": "https://www.demos.it/2018/img/4734ap75_20180520_1.png",
+      "sourceId": "demos-a01506",
+      "pollster": "Demos & Pi",
+      "instrumentKind": "camera",
+      "reportedCorePercentages": {
+        "pd": 17.6,
+        "m5s": 31.1,
+        "lega": 22.1,
+        "fdi": 3.7,
+        "fi-pdl": 13.2
+      },
+      "supportDenominatorPercentage": 100,
+      "denominatorBasis": "reported",
+      "provenance": "Current-column national Camera vote-intention table in primary Demos & Pi report. PD, M5S, Lega, FdI and FI/PdL are individually reported; other is the complement of all five, not the table row Altri. European targets use these Camera intentions as a cross-kind predictor.",
+      "evidenceUrl": "https://www.demos.it/2018/img/4734ap75_20180520_1.png",
+      "evidenceSha256": "f41f7453477d526fd852d3d4182eb83db91d64b4803f170d8cf21645a1cc4195",
+      "evidenceBytes": 42256,
+      "sourcePages": []
+    },
+    {
+      "id": "demos-a01570",
+      "electionId": null,
+      "publicationDate": "2019-02-02",
+      "fieldworkStart": "2019-01-28",
+      "fieldworkEnd": "2019-01-30",
+      "shares": [
+        0.182,
+        0.249,
+        0.337,
+        0.033,
+        0.094,
+        0.10499999999999998
+      ],
+      "sampleSize": 1006,
+      "questionSampleSize": null,
+      "sourceUrl": "https://www.demos.it/a01570.php",
+      "tableUrl": "https://www.demos.it/2019/img/4961ap78_20190202_1.png",
+      "sourceId": "demos-a01570",
+      "pollster": "Demos & Pi",
+      "instrumentKind": "camera",
+      "reportedCorePercentages": {
+        "pd": 18.2,
+        "m5s": 24.9,
+        "lega": 33.7,
+        "fdi": 3.3,
+        "fi-pdl": 9.4
+      },
+      "supportDenominatorPercentage": 100,
+      "denominatorBasis": "reported",
+      "provenance": "Current-column national Camera vote-intention table in primary Demos & Pi report. PD, M5S, Lega, FdI and FI/PdL are individually reported; other is the complement of all five, not the table row Altri. European targets use these Camera intentions as a cross-kind predictor.",
+      "evidenceUrl": "https://www.demos.it/2019/img/4961ap78_20190202_1.png",
+      "evidenceSha256": "211a1ecade3e5cd2338ae681c3577312d7cb98bcaaa14c495056daa0b07db0af",
+      "evidenceBytes": 52487,
+      "sourcePages": []
+    },
+    {
+      "id": "demos-a01757",
+      "electionId": null,
+      "publicationDate": "2020-08-29",
+      "fieldworkStart": "2020-08-24",
+      "fieldworkEnd": "2020-08-26",
+      "shares": [
+        0.207,
+        0.162,
+        0.245,
+        0.154,
+        0.07200000000000001,
+        0.16000000000000003
+      ],
+      "sampleSize": 1014,
+      "questionSampleSize": null,
+      "sourceUrl": "https://www.demos.it/a01757.php",
+      "tableUrl": "https://www.demos.it/2020/pdf/5450ap89_20200929.pdf#page=7",
+      "sourceId": "demos-a01757",
+      "pollster": "Demos & Pi",
+      "instrumentKind": "camera",
+      "reportedCorePercentages": {
+        "pd": 20.7,
+        "m5s": 16.2,
+        "lega": 24.5,
+        "fdi": 15.4,
+        "fi-pdl": 7.2
+      },
+      "supportDenominatorPercentage": 100,
+      "denominatorBasis": "reported",
+      "provenance": "Current-column national Camera vote-intention table in primary Demos & Pi report. PD, M5S, Lega, FdI and FI/PdL are individually reported; other is the complement of all five, not the table row Altri. European targets use these Camera intentions as a cross-kind predictor.",
+      "evidenceUrl": "https://www.demos.it/2020/pdf/5450ap89_20200929.pdf",
+      "evidenceSha256": "3cd52e0245c175e79aa0ce429e867b48147b7c6e1f0d1313843f5965d5373b27",
+      "evidenceBytes": 1033283,
+      "sourcePages": [
+        7
+      ]
+    },
+    {
+      "id": "demos-a01886",
+      "electionId": null,
+      "publicationDate": "2021-09-04",
+      "fieldworkStart": "2021-08-30",
+      "fieldworkEnd": "2021-09-02",
+      "shares": [
+        0.193,
+        0.166,
+        0.196,
+        0.20800000000000002,
+        0.077,
+        0.15999999999999992
+      ],
+      "sampleSize": 1014,
+      "questionSampleSize": null,
+      "sourceUrl": "https://www.demos.it/a01886.php",
+      "tableUrl": "https://www.demos.it/2021/pdf/5834ap96_20210904.pdf#page=7",
+      "sourceId": "demos-a01886",
+      "pollster": "Demos & Pi",
+      "instrumentKind": "camera",
+      "reportedCorePercentages": {
+        "pd": 19.3,
+        "m5s": 16.6,
+        "lega": 19.6,
+        "fdi": 20.8,
+        "fi-pdl": 7.7
+      },
+      "supportDenominatorPercentage": 100,
+      "denominatorBasis": "reported",
+      "provenance": "Current-column national Camera vote-intention table in primary Demos & Pi report. PD, M5S, Lega, FdI and FI/PdL are individually reported; other is the complement of all five, not the table row Altri. European targets use these Camera intentions as a cross-kind predictor.",
+      "evidenceUrl": "https://www.demos.it/2021/pdf/5834ap96_20210904.pdf",
+      "evidenceSha256": "3552b3b805daef5cbd91add7a79cece67c260f6cd302240d5239e20af7981b05",
+      "evidenceBytes": 642271,
+      "sourcePages": [
+        7
+      ]
+    },
+    {
+      "id": "demos-a01988",
+      "electionId": null,
+      "publicationDate": "2022-05-27",
+      "fieldworkStart": "2022-05-23",
+      "fieldworkEnd": "2022-05-25",
+      "shares": [
+        0.21,
+        0.134,
+        0.156,
+        0.223,
+        0.08,
+        0.19699999999999995
+      ],
+      "sampleSize": 1004,
+      "questionSampleSize": null,
+      "sourceUrl": "https://www.demos.it/a01988.php",
+      "tableUrl": "https://www.demos.it/2022/pdf/6120ap101_20220527.pdf#page=6",
+      "sourceId": "demos-a01988",
+      "pollster": "Demos & Pi",
+      "instrumentKind": "camera",
+      "reportedCorePercentages": {
+        "pd": 21.0,
+        "m5s": 13.4,
+        "lega": 15.6,
+        "fdi": 22.3,
+        "fi-pdl": 8.0
+      },
+      "supportDenominatorPercentage": 100,
+      "denominatorBasis": "reported",
+      "provenance": "Current-column national Camera vote-intention table in primary Demos & Pi report. PD, M5S, Lega, FdI and FI/PdL are individually reported; other is the complement of all five, not the table row Altri. European targets use these Camera intentions as a cross-kind predictor.",
+      "evidenceUrl": "https://www.demos.it/2022/pdf/6120ap101_20220527.pdf",
+      "evidenceSha256": "9459fbab20d7ecbca07da2d97f2131e162a3ef2dc1e106437a0271d577ebdd3c",
+      "evidenceBytes": 709539,
+      "sourcePages": [
+        6
+      ]
+    },
+    {
+      "id": "demos-a02093",
+      "electionId": null,
+      "publicationDate": "2023-04-29",
+      "fieldworkStart": "2023-04-26",
+      "fieldworkEnd": "2023-04-27",
+      "shares": [
+        0.201,
+        0.156,
+        0.082,
+        0.293,
+        0.076,
+        0.19199999999999995
+      ],
+      "sampleSize": 1007,
+      "questionSampleSize": null,
+      "sourceUrl": "https://www.demos.it/a02093.php",
+      "tableUrl": "https://www.demos.it/2023/pdf/6396ap108_20230429.pdf#page=7",
+      "sourceId": "demos-a02093",
+      "pollster": "Demos & Pi",
+      "instrumentKind": "camera",
+      "reportedCorePercentages": {
+        "pd": 20.1,
+        "m5s": 15.6,
+        "lega": 8.2,
+        "fdi": 29.3,
+        "fi-pdl": 7.6
+      },
+      "supportDenominatorPercentage": 100,
+      "denominatorBasis": "reported",
+      "provenance": "Current-column national Camera vote-intention table in primary Demos & Pi report. PD, M5S, Lega, FdI and FI/PdL are individually reported; other is the complement of all five, not the table row Altri. European targets use these Camera intentions as a cross-kind predictor.",
+      "evidenceUrl": "https://www.demos.it/2023/pdf/6396ap108_20230429.pdf",
+      "evidenceSha256": "fd5299009b241df8eb413d8b2aba2c4fcf3c2ec0ae54a9ae01e530485b2179b3",
+      "evidenceBytes": 424686,
+      "sourcePages": [
+        7
+      ]
+    },
+    {
+      "id": "demos-a02187",
+      "electionId": null,
+      "publicationDate": "2024-02-10",
+      "fieldworkStart": "2024-02-05",
+      "fieldworkEnd": "2024-02-08",
+      "shares": [
+        0.196,
+        0.169,
+        0.083,
+        0.282,
+        0.07,
+        0.19999999999999996
+      ],
+      "sampleSize": 1001,
+      "questionSampleSize": null,
+      "sourceUrl": "https://www.demos.it/a02187.php",
+      "tableUrl": "https://www.demos.it/2024/pdf/6653ap112_20240210.pdf#page=7",
+      "sourceId": "demos-a02187",
+      "pollster": "Demos & Pi",
+      "instrumentKind": "camera",
+      "reportedCorePercentages": {
+        "pd": 19.6,
+        "m5s": 16.9,
+        "lega": 8.3,
+        "fdi": 28.2,
+        "fi-pdl": 7.0
+      },
+      "supportDenominatorPercentage": 100,
+      "denominatorBasis": "reported",
+      "provenance": "Current-column national Camera vote-intention table in primary Demos & Pi report. PD, M5S, Lega, FdI and FI/PdL are individually reported; other is the complement of all five, not the table row Altri. European targets use these Camera intentions as a cross-kind predictor.",
+      "evidenceUrl": "https://www.demos.it/2024/pdf/6653ap112_20240210.pdf",
+      "evidenceSha256": "7652a007553d30fd1444f0e37674cb7b5ad80bd74ece32f2185281a8b66bdcab",
+      "evidenceBytes": 432518,
+      "sourcePages": [
+        7
+      ]
+    }
+  ],
+  "earlySelections": [
+    {
+      "electionId": "camera-2013",
+      "electionDate": "2013-02-24",
+      "horizonDays": 730,
+      "cutoff": "2011-02-25",
+      "observationId": null,
+      "publicationAgeAtCutoffDays": 11,
+      "fieldworkAgeAtCutoffDays": 14,
+      "actualFieldworkHorizonDays": 744,
+      "unavailableObservationId": "demos-a00558",
+      "reason": "FdI is not individually reported in this pre-2013 table; no six-category poll vector available at this selected cutoff."
+    },
+    {
+      "electionId": "camera-2013",
+      "electionDate": "2013-02-24",
+      "horizonDays": 365,
+      "cutoff": "2012-02-25",
+      "observationId": null,
+      "publicationAgeAtCutoffDays": 97,
+      "fieldworkAgeAtCutoffDays": 99,
+      "actualFieldworkHorizonDays": 464,
+      "unavailableObservationId": "demos-a00652",
+      "reason": "FdI is not individually reported in this pre-2013 table; no six-category poll vector available at this selected cutoff."
+    },
+    {
+      "electionId": "camera-2013",
+      "electionDate": "2013-02-24",
+      "horizonDays": 90,
+      "cutoff": "2012-11-26",
+      "observationId": null,
+      "publicationAgeAtCutoffDays": 77,
+      "fieldworkAgeAtCutoffDays": 80,
+      "actualFieldworkHorizonDays": 170,
+      "unavailableObservationId": "demos-a00753",
+      "reason": "FdI is not individually reported in this pre-2013 table; no six-category poll vector available at this selected cutoff."
+    },
+    {
+      "electionId": "european-2014",
+      "electionDate": "2014-05-25",
+      "horizonDays": 730,
+      "cutoff": "2012-05-25",
+      "observationId": null,
+      "publicationAgeAtCutoffDays": 67,
+      "fieldworkAgeAtCutoffDays": 71,
+      "actualFieldworkHorizonDays": 801,
+      "unavailableObservationId": "demos-a00693",
+      "reason": "FdI is not individually reported in this pre-2013 table; no six-category poll vector available at this selected cutoff."
+    },
+    {
+      "electionId": "european-2014",
+      "electionDate": "2014-05-25",
+      "horizonDays": 365,
+      "cutoff": "2013-05-25",
+      "observationId": "demos-a00856",
+      "publicationAgeAtCutoffDays": 14,
+      "fieldworkAgeAtCutoffDays": 16,
+      "actualFieldworkHorizonDays": 381
+    },
+    {
+      "electionId": "european-2014",
+      "electionDate": "2014-05-25",
+      "horizonDays": 90,
+      "cutoff": "2014-02-24",
+      "observationId": "demos-a00942",
+      "publicationAgeAtCutoffDays": 35,
+      "fieldworkAgeAtCutoffDays": 40,
+      "actualFieldworkHorizonDays": 130
+    },
+    {
+      "electionId": "camera-2018",
+      "electionDate": "2018-03-04",
+      "horizonDays": 730,
+      "cutoff": "2016-03-04",
+      "observationId": "demos-a01231",
+      "publicationAgeAtCutoffDays": 6,
+      "fieldworkAgeAtCutoffDays": 8,
+      "actualFieldworkHorizonDays": 738
+    },
+    {
+      "electionId": "camera-2018",
+      "electionDate": "2018-03-04",
+      "horizonDays": 365,
+      "cutoff": "2017-03-04",
+      "observationId": "demos-a01362",
+      "publicationAgeAtCutoffDays": 0,
+      "fieldworkAgeAtCutoffDays": 2,
+      "actualFieldworkHorizonDays": 367
+    },
+    {
+      "electionId": "camera-2018",
+      "electionDate": "2018-03-04",
+      "horizonDays": 90,
+      "cutoff": "2017-12-04",
+      "observationId": "demos-a01438",
+      "publicationAgeAtCutoffDays": 49,
+      "fieldworkAgeAtCutoffDays": 53,
+      "actualFieldworkHorizonDays": 143
+    },
+    {
+      "electionId": "european-2019",
+      "electionDate": "2019-05-26",
+      "horizonDays": 730,
+      "cutoff": "2017-05-26",
+      "observationId": "demos-a01384",
+      "publicationAgeAtCutoffDays": 13,
+      "fieldworkAgeAtCutoffDays": 15,
+      "actualFieldworkHorizonDays": 745
+    },
+    {
+      "electionId": "european-2019",
+      "electionDate": "2019-05-26",
+      "horizonDays": 365,
+      "cutoff": "2018-05-26",
+      "observationId": "demos-a01506",
+      "publicationAgeAtCutoffDays": 6,
+      "fieldworkAgeAtCutoffDays": 8,
+      "actualFieldworkHorizonDays": 373
+    },
+    {
+      "electionId": "european-2019",
+      "electionDate": "2019-05-26",
+      "horizonDays": 90,
+      "cutoff": "2019-02-25",
+      "observationId": "demos-a01570",
+      "publicationAgeAtCutoffDays": 23,
+      "fieldworkAgeAtCutoffDays": 26,
+      "actualFieldworkHorizonDays": 116
+    },
+    {
+      "electionId": "camera-2022",
+      "electionDate": "2022-09-25",
+      "horizonDays": 730,
+      "cutoff": "2020-09-25",
+      "observationId": "demos-a01757",
+      "publicationAgeAtCutoffDays": 27,
+      "fieldworkAgeAtCutoffDays": 30,
+      "actualFieldworkHorizonDays": 760
+    },
+    {
+      "electionId": "camera-2022",
+      "electionDate": "2022-09-25",
+      "horizonDays": 365,
+      "cutoff": "2021-09-25",
+      "observationId": "demos-a01886",
+      "publicationAgeAtCutoffDays": 21,
+      "fieldworkAgeAtCutoffDays": 23,
+      "actualFieldworkHorizonDays": 388
+    },
+    {
+      "electionId": "camera-2022",
+      "electionDate": "2022-09-25",
+      "horizonDays": 90,
+      "cutoff": "2022-06-27",
+      "observationId": "demos-a01988",
+      "publicationAgeAtCutoffDays": 31,
+      "fieldworkAgeAtCutoffDays": 33,
+      "actualFieldworkHorizonDays": 123
+    },
+    {
+      "electionId": "european-2024",
+      "electionDate": "2024-06-08",
+      "horizonDays": 730,
+      "cutoff": "2022-06-09",
+      "observationId": "demos-a01988",
+      "publicationAgeAtCutoffDays": 13,
+      "fieldworkAgeAtCutoffDays": 15,
+      "actualFieldworkHorizonDays": 745
+    },
+    {
+      "electionId": "european-2024",
+      "electionDate": "2024-06-08",
+      "horizonDays": 365,
+      "cutoff": "2023-06-09",
+      "observationId": "demos-a02093",
+      "publicationAgeAtCutoffDays": 41,
+      "fieldworkAgeAtCutoffDays": 43,
+      "actualFieldworkHorizonDays": 408
+    },
+    {
+      "electionId": "european-2024",
+      "electionDate": "2024-06-08",
+      "horizonDays": 90,
+      "cutoff": "2024-03-10",
+      "observationId": "demos-a02187",
+      "publicationAgeAtCutoffDays": 29,
+      "fieldworkAgeAtCutoffDays": 31,
+      "actualFieldworkHorizonDays": 121
+    }
+  ],
+  "excludedObservations": [
+    {
+      "id": "pcm-553-q1",
+      "electionId": "camera-2013",
+      "reason": "Required core category is not individually reported; pooled residual support cannot be assigned to it.",
+      "missingCategories": [
+        "fdi"
+      ]
+    },
+    {
+      "id": "pcm-566-q1",
+      "electionId": "camera-2013",
+      "reason": "Required core category is not individually reported; pooled residual support cannot be assigned to it.",
+      "missingCategories": [
+        "fdi"
+      ]
+    },
+    {
+      "id": "demos-a00558",
+      "electionId": null,
+      "reason": "Pre-2013 table does not individually report FdI. No zero support is inferred and no six-category vector is emitted.",
+      "missingCategories": [
+        "fdi"
+      ]
+    },
+    {
+      "id": "demos-a00652",
+      "electionId": null,
+      "reason": "Pre-2013 table does not individually report FdI. No zero support is inferred and no six-category vector is emitted.",
+      "missingCategories": [
+        "fdi"
+      ]
+    },
+    {
+      "id": "demos-a00693",
+      "electionId": null,
+      "reason": "Pre-2013 table does not individually report FdI. No zero support is inferred and no six-category vector is emitted.",
+      "missingCategories": [
+        "fdi"
+      ]
+    },
+    {
+      "id": "demos-a00753",
+      "electionId": null,
+      "reason": "Pre-2013 table does not individually report FdI. No zero support is inferred and no six-category vector is emitted.",
+      "missingCategories": [
+        "fdi"
+      ]
+    }
+  ],
+  "inputPins": [
+    {
+      "path": "archive.json",
+      "version": "pcm-historical-camera-european-2013-2024-v2",
+      "sha256": "2072695f0baadee807fd34ccdee834455ec406d14642f423cf20df31d0b80123"
+    },
+    {
+      "path": "manifest.json",
+      "version": "pcm-historical-camera-european-2013-2024-v2",
+      "sha256": "86f801d9a71ec9c874dc3123cf10b1a7b12c009f0abdbafeb877e3baf43e03fa"
+    },
+    {
+      "path": "elections-manifest.json",
+      "version": "camera-european-calibration-targets-v1",
+      "sha256": "c2b3acde94158b48170b7b1d39c45fa8fbe0f6b028bce2c8a010bef64789483c"
+    },
+    {
+      "path": "generation-horizon-observations.json",
+      "version": "demos-generation-horizons-2011-2024-v1",
+      "sha256": "8ff0178c1a1bd5e9df4b0ca3ff2688dc7d392b6d183d207523e428e92c2bd9fd"
+    },
+    {
+      "path": "generation-horizon-manifest.json",
+      "version": "demos-generation-horizons-source-manifest-v1",
+      "sha256": "29c131bbba6a786f06a3a30a88577514dc91bf768b680b204ab9557b466a2a63"
+    }
+  ],
+  "auditRules": [
+    "A six-category poll row is emitted only when PD, M5S, Lega, FdI and FI/PdL are all explicitly and individually reported. An unreported party is unknown, never zero.",
+    "FI and PdL are mapped into one declared research category. This is an editable party-correspondence assumption, not a legal or voter-flow identity.",
+    "Other is the complement of the five core categories across mutually exclusive declared party intentions. Do not copy a source row labelled Altri, since remaining named parties also belong here.",
+    "Exclude coalition subtotals, previous-wave comparisons, nonresponse, turnout, majority-district coalitions and seat tables. Normalize only the disjoint list/residual support rows.",
+    "The SWG 2018 source gives support ranges. This source retains the existing reviewed midpoint estimates and marks denominatorBasis estimated; those ranges are not extra confidence intervals.",
+    "All inputs must satisfy publicationDate <= cutoff and fieldworkEnd <= cutoff. Early selections retain their real observation age.",
+    "Full sample N is provenance only: the number of decided-voter responses to each party-intention question is unknown.",
+    "Historical election results in 2008 do not observe a future FdI category. A model must supply and disclose an editable donor/correspondence rule; no missing poll or historical category is converted silently to zero."
+  ],
+  "limitations": [
+    "Near-election Camera 2013 has only one admissible six-category poll, SWG pcm-551-q1; the other two terminal questions pool FdI within residual categories.",
+    "The four pre-2013 early Demos observations are excluded because they do not individually report FdI. This yields no early six-category poll input for Camera 2013 or the 730-day European 2014 cutoff.",
+    "The 13 early Demos observations come from one polling house and all ask about Camera, including those used to predict European targets.",
+    "This is a major-party sensitivity input, not a complete municipality-level or coalition-list validation."
+  ]
+}

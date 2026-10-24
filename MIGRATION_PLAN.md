@@ -251,6 +251,22 @@ into `main`; public deployment follows that merge and a successful hosting gate.
   candidates. Before integration, condition regional/local draws on the sampled
   national margins; retain filing, turnout, override and chamber semantics.
 
+- [ ] **Vote-generation redesign: national endpoints and conditional geography.**
+  Follow the [comparison](docs/vote-generation-research.md) and focused
+  [methods](docs/vote-generation-methods.md). Research compares the actual current
+  generator with joint Gaussian, joint Student-t and spatial transition-block
+  alternatives at 730/365/90/15-day cutoffs, with Camera-only and mixed histories.
+  Preserve editable, source-specific historical-list correspondence defaults.
+  - [x] Complete reproducible historical comparison and recommend a model family:
+    joint Gaussian with conditional geography; retain Student-t sensitivity and
+    explicit rejection of unchanged long-horizon deployment. Include six-category
+    Camera sensitivity and preserve current runtime pending implementation.
+  - [ ] After model selection, implement the approved runtime design with full-list
+    split uncertainty, dated geography, separate turnout/invalid ballots, compatible
+    overrides, filing support, paired-chamber dependence and per-draw reconciliation.
+  - [ ] Validate full-list/municipal/regional and seat distributions before changing
+    defaults; keep sparse-event, new-party and long-horizon limitations visible.
+
 - [ ] Generalize routing, snapshot selection, scenario defaults, validation,
   worker dispatch, result components, and shared UI patterns across election
   kinds. Preserve configurable project-base navigation and worker/data loading

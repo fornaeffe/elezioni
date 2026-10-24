@@ -4,6 +4,11 @@ Use this guide for uncertainty-model choice and geographic compatibility. The
 [calibration guide](polls-calibration.md) owns source selection and the earlier
 benchmarks. This study adds research commands; it does not activate a model.
 
+For the later complete municipal-generation experiments and longer-horizon
+polling, use the [generation comparison](vote-generation-research.md). Its
+conditional geographic tests supersede this study's constructed-fixture audit
+as empirical evidence; the terminal-only results below keep their original scope.
+
 ## Recommendation
 
 Keep weighted polling as the central estimate. The first candidate for runtime

@@ -5,12 +5,16 @@
 | Geography, census and seat tables | Workflow below |
 | Historical votes/preferences and reform generation models | [Generation guide](../docs/politics-reform-2026-generation.md#clean-clone-preparation) |
 | Selected poll archive and reconciliation | [Poll preparation](../docs/polls-preparation.md) |
+| Historical municipal forecasting research | [Comparison and replay](../docs/vote-generation-research.md) |
 
 The reviewed poll JSON is the explicit small Git-tracked exception under
 `sources/polls/`; fresh clones prepare it offline from these authoritative files.
 Survey references in each poll manifest support optional manual audits on the
 government website. Poll PDFs are ignored and have no checksum requirement.
 Other downloaded originals remain ignored caches.
+The separate forecasting research JSON adds primary Demos observations and
+optional PDF/image evidence pins; these do not change the government poll
+archive's JSON-only preparation contract.
 
 ## Geography and census preparation
 
