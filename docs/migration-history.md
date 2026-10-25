@@ -5933,3 +5933,15 @@ from Laplace are at most 0.53 percentage points in its two examples. Preparation
 and Svelte checks pass; all 1,002 unit tests pass; static build and then all
 30 browser tests pass. No production model/default activation, commit, push or
 publication was performed.
+
+
+## 25 October 2026 - Markdown math delimiter compatibility
+
+Replaced LaTeX inline and display delimiters in
+`docs/vote-generation-drift-model.md` with single-dollar inline delimiters and
+double-dollar display blocks for GitHub and VS Code native Markdown previews.
+Scanned all files under `docs/`; no other documentation used the same delimiters.
+Verified all 41 inline formulas and 9 display formulas retain their exact
+contents, including whitespace; only their delimiters changed. No mathematical
+or model semantics changed. Rendering in the two preview applications was not
+manually exercised.
