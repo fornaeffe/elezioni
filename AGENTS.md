@@ -75,4 +75,7 @@ to stable instructions that apply across migration steps.
   execution paths. Present informational notes separately from warnings and
   errors.
 
+## Other general instructions
+
+- Use $...$ and $$...$$ syntax for markdown math formulas.
 
