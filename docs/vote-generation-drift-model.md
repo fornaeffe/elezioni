@@ -7,7 +7,7 @@ and [testing protocol](vote-generation-drift-testing.md) only for the earlier
 fixed-outcome experiments; their fitted parameters and calibration do not
 automatically carry over to this party-level model.
 
-## Decision status — 25 October 2026
+## Decision status — 26 October 2026
 
 Luca approves party-level latent support, list-level observations, a combined
 non-valid outcome, and scenario ownership of the complete membership table.
@@ -15,15 +15,21 @@ The scenario may revise historical decompositions as well as the future ballot.
 Historical source counts remain unchanged. No voter-movement studies, voter-flow
 matrices or origin–destination parameters enter this model.
 
+Use weakly informative, proper reference-date priors: political contrasts are
+exchangeable and zero-centered, and prior expected non-valid probability is
+0.5 in the declared reference context. Construct historical trajectories backward
+from that date and forecasts forward. Moving the scenario reference date resets
+the prior and requires a new fit, rather than propagating the previous fit.
+
 Availability uses the choice set defined below: removing a component from the
 softmax denominator redistributes its probability proportionally across all
-remaining outcomes, including non-valid voting. This replaces the earlier
-exit-to-non-valid projection assumption.
+remaining outcomes, including non-valid voting.
 
 The planned production workflow estimates the scenario-specific model in browser
-workers after semantic membership edits. A matching precomputed default fit may
-be served to avoid that computation. Browser fitting, its latency and posterior
-accuracy have not yet been implemented or verified. This specification changes
+workers after semantic membership or reference-date edits. A matching precomputed
+default fit with a fixed reference date may be served to avoid that computation.
+Browser fitting, its latency and posterior accuracy have not yet been implemented
+or verified. This specification changes
 neither the existing generator nor legal scrutiny defaults. Use already downloaded
 compatible polls for the next research round.
 
@@ -156,7 +162,7 @@ electorates and territorial coverage. The model predicts valid-vote participatio
 not separate abstention and ballot-validity processes. A shared softmax couples
 participation with political scores; keeping $s_0$ fixed does not fix $p_0$.
 
-## Identified party dynamics, births and split uncertainty
+## Reference-date priors, party dynamics and split uncertainty
 
 Use a fixed component basis for a fit, with $J=1+|P|$. To avoid confusing the
 party set with a projection matrix, write
@@ -164,7 +170,24 @@ $C_J=I-\boldsymbol1\boldsymbol1^\top/J$. Store centered scores and implement
 inference in $J-1$ orthonormal contrasts. Availability changes the observation
 normalizer, not the meaning of the retained component coordinates.
 
-For consecutive state times, use elapsed time in years:
+Let $r$ be the scenario reference date and use elapsed time in years. Place
+proper Gaussian priors on the national and pooled local score contrasts at $r$,
+then construct historical trajectories backward. For $t_i<t_{i+1}\le r$,
+
+$$
+\boldsymbol\eta_n(t_i)
+=\boldsymbol\eta_n(t_{i+1})
++\sqrt{t_{i+1}-t_i}\,C_JD_\eta\boldsymbol\epsilon^{\leftarrow}_{\eta,i},
+$$
+
+$$
+\boldsymbol\delta_c(t_i)
+=\boldsymbol\delta_c(t_{i+1})
++\sqrt{t_{i+1}-t_i}\,C_JD_{\delta,c}
+\boldsymbol\epsilon^{\leftarrow}_{\delta,c,i}.
+$$
+
+After $r$, forecast forward. For $t\ge r$,
 
 $$
 \boldsymbol\eta_n(t+\Delta)
@@ -182,18 +205,92 @@ $D_{\delta,c}=\operatorname{diag}(\sigma_{\delta,j,c})$, including $j=0$.
 The scales describe independent innovations before centering. For a contrast
 matrix $H$, national innovation covariance is
 $H^\top D_\eta^2H\,\Delta$. National innovations are shared across municipalities.
-Baseline innovations are independent across components, municipalities, national/
-local processes and disjoint time intervals before centering. Overlapping
-intervals use increments of the same process.
-Apply these equations to initialized component trajectories. An existing but
-unoffered component may drift unobserved; omission from a poll does not reset
-its state. Do not extrapolate a genuine component's trajectory before birth.
+Conditional on covariance parameters, baseline backward innovations and future
+forward innovations are independent of the reference states and each other,
+and independent across components, municipalities, national/local processes
+and disjoint intervals in their construction direction before centering.
+National innovations remain shared across municipalities. Overlapping intervals
+on either side of $r$ use increments of the same trajectory, not independent
+redraws. Historical forward conditional innovations do not retain the original
+independence assumptions: this is a reference-anchored backward model for history,
+not a reparameterization of the earlier birth-anchored forward prior.
+
+For a scalar contrast with reference variance $v_r$ and fixed volatility
+$\sigma$, prior variance at a historical date $t$ is
+$v_r+\sigma^2(r-t)$, while at a future date $f$ it is
+$v_r+\sigma^2(f-r)$. Extending an unobserved historical window does not inflate
+the prior at $r$. Retain normalized transition densities, including their
+scale-dependent terms, so integrating out extra unobserved historical states
+does not change the fit. Additional actual historical evidence may change it.
 
 Use regularized $\gamma_{j,k}$ effects with Camera as reference, including outcome
-$0$, when the adjusted-kind model is selected. Proper initial priors and covariance
-assumptions also identify the national/local decomposition. Do not force the
+$0$, when the adjusted-kind model is selected. Proper reference-state priors and
+covariance assumptions regularize the national/local decomposition; they do not
+make it identifiable from observations alone. Do not force the
 municipal mean of local innovations to zero without carrying the changed
 covariance into the national process.
+
+### Neutral, weakly informative reference priors
+
+The political prior is invariant under permutation of component identities:
+political score contrasts have mean zero, with exchangeable covariance and
+proper, pooled scale hyperpriors. Zero contrast means no prior preference for
+one component over another, not equal support in every draw. Do not introduce
+party-specific prior centers by classifying components as minor or major.
+Historical observations, polls and explicit scenario reference information
+update these neutral priors through their declared likelihoods or constraints.
+
+Outcome $0$ is not exchangeable with individual political components. Before
+conditioning on observations or scenario share constraints, calibrate its score
+offset to give prior expected non-valid elector share 0.5 at $r$ in the declared
+scenario reference-ballot context. For a national context use the municipal
+aggregation operator $F_{0,S,b,r}$ defined below: require
+$E_{\mathrm{prior}}[F_{0,S,b,r}]=0.5$, including national, local and selected
+kind/chamber uncertainty. Political symmetry applies before structural
+availability restrictions; those restrictions can impose unequal support.
+With a common set of $K$ available components and exchangeable political priors,
+each has expected elector share $0.5/K$, and expected valid-voter share $1/K$.
+
+For illustration in one common-choice context, let $b_j$ be exchangeable
+Gaussian political scores and $a$ a zero-centered Gaussian variable independent
+of them. Set $s_j=b_j$ and $s_0=m+a$, choosing $m$ so that
+
+$$
+E\!\left[
+\frac{\exp(m+a)}{\exp(m+a)+\sum_{j=1}^{K}\exp(b_j)}
+\right]=0.5.
+$$
+
+Use the corresponding aggregate expectation for the full municipal model.
+For a feasible context it is a monotone scalar calibration; do not substitute
+softmax of mean scores for expected probabilities. Conditional on scale
+hyperparameters, calibrate the offset accounting for the associated covariance;
+gauge centering then preserves Gaussian score contrasts. With deterministic
+zero political scores, $m=\log K$ suffices; with uncertain scores it generally
+does not. This is a prior expectation, not the hard constraint $p_0=0.5$ in
+every draw. It does not require that expectation to persist after time evolution
+or a change of availability.
+
+Use neutral, zero-centered, regularized geographic and kind-effect contrasts.
+All reference priors must be proper and weakly informative: they regularize
+otherwise unidentified directions, while informative likelihoods can readily
+override them. Use finite, versioned scales and proper hyperpriors rather than
+improper flat priors or near-degenerate equality constraints. Excessively broad
+Gaussian scores can concentrate softmax probabilities near zero or one; verify
+weakness on the induced probability scale, not only the score scale. Calibrate
+shared scales on development data only and check prior sensitivity and prior
+predictive plausibility. If observations cannot distinguish components, their
+posterior remains prior-sensitive and uncertain; a finite estimate is not
+evidence of data identification.
+
+Moving $r$ resets this neutral prior at the new reference date and triggers
+estimation anew using the evidence available at that cutoff. Do not use the old
+posterior as the new prior or propagate its prior covariance to claim sequential
+Bayesian updating. This deliberate family of reference-specific fits must be
+applied consistently in every backtest horizon; future observations remain
+excluded. A previous solution may initialize computation, but is not evidence.
+
+### Birth support and joint-list uncertainty
 
 Within an observed joint list C, the split is already implied by the scores:
 
@@ -212,21 +309,22 @@ local differences; independent municipal splits must not manufacture national
 certainty through averaging. Proper priors do not turn prior-driven parameters
 into data-identified estimates. No voter-movement information is used.
 
-For a genuine historical birth, introduce a proper initial distribution at its
-first relevant modeled support date; do not accumulate unobserved Brownian noise
-from an arbitrary earlier dataset start. Components already existing at the
-window start receive initial priors there; a known birth within the window
-starts its trajectory at that date. If the birth date is unavailable, use the
-first supported appearance as an explicit initialization convention. Use a
-weak, finite Gaussian prior in gauge-fixed initial score-contrast coordinates,
-with location/scale pooled from comparable components using cutoff-available
-evidence and proper hyperpriors. Use neutral,
-zero-centered, regularized geographic and kind-effect priors unless supported
-information justifies a different centre. In insufficient data, use versioned
-proper fallback scales rather than an improper flat prior. Condition on the first
-real observation once; do not require a user-supplied historical share or invent
-pseudo-votes. Carry initial uncertainty into forecasts. Prior scales need
-recalibration on the new party basis.
+For a genuine historical birth before $r$, extend its reference-anchored
+trajectory backward only to its first relevant modeled support date. A known
+birth within the window bounds that history; if unknown, use the first supported
+appearance as an explicit support-date convention, not proof of actual birth.
+Components already existing at the window start are traced back to that start
+without another initial-state prior there. The reference prior and backward
+transitions induce the birth-state distribution: do not add an independent birth
+prior or accumulate noise before birth. An existing but unoffered component may
+drift unobserved; omission from a poll does not reset its state. Retain auxiliary
+reference coordinates for historical identities no longer offered at $r$, without
+inventing observations or ballot availability for them. A genuinely future-born
+component has no pre-birth support; declare its birth-date reference information
+and forward initialization explicitly rather than extrapolating a meaningful
+trajectory before birth. Condition on each real observation once; do not require
+a user-supplied historical share or invent pseudo-votes. Carry reference-state
+uncertainty into forecasts. Prior scales need recalibration on the new party basis.
 
 A retrospectively introduced component within an old joint list starts with that
 joint history and an uncertain decomposition; its first separate future label is
@@ -396,8 +494,10 @@ independent post-fit rescaling is not a substitute for conditioning.
 For new components use proper, pooled defaults for municipal differences,
 volatility and cross-chamber behavior, with a neutral geographic prior unless
 an explicit supported pattern is supplied. A national reference value alone
-does not estimate those quantities. Initialize genuine new support at its relevant
-date; distinguish it from a retrospective decomposition of an old joint list.
+does not estimate those quantities. Reference-share input dates do not replace
+the scenario prior anchor $r$ or create additional independent initial priors.
+Respect genuine birth support; distinguish it from a retrospective decomposition
+of an old joint list.
 Preserve real observation dates and no-look-ahead rules in backtests.
 
 Political share inputs are among valid voters. Any non-valid override remains
@@ -418,22 +518,27 @@ in cancellable workers with progress, deterministic seeds, numerical diagnostics
 and versioned outputs; keep editing/rendering responsive. Benchmark real party
 counts and geographic scale before claiming acceptable fitting latency.
 
-Preparation may publish a precomputed default fit. It must include the posterior
-state/uncertainty representation and innovation-parameter uncertainty needed for
-generation, not just point estimates. A browser may reuse it only when the
-complete fitting fingerprint matches: source data and cutoff, identities,
-historical/question/future memberships and availability, kind/chamber/geography,
-birth/initial priors, fitting policy/version and effective reference constraints.
+Preparation may publish a precomputed default fit with a fixed scenario reference
+date. It must include the posterior state/uncertainty representation and
+innovation-parameter uncertainty needed for generation, not just point estimates.
+A browser may reuse it only when the
+complete fitting fingerprint matches: source data, explicit scenario reference
+date and cutoff, identities, historical/question/future memberships and
+availability, kind/chamber/geography, birth-support conventions,
+reference-prior/covariance calibration policy,
+fitting policy/version and effective reference constraints.
 A reproducible fit also records its inference algorithm, tolerances and seed;
 changing only a forecast Monte Carlo seed does not redefine the fitted model.
 A pinned-default-plus-overrides representation must resolve to this same
 effective fingerprint.
 
 A semantic membership edit, including adding a retrospective split component,
-invalidates the old fit. Tell the user that editing memberships requires a new
-parameter estimation and may take substantial time; make the stale/estimating/
-ready/failed state visible. Never silently generate from the old parameter bundle
-or convert it with the edited table. Pure presentation renames that preserve
+or any scenario reference-date change invalidates the old fit. A date edit resets
+the prior and requires parameter re-estimation even when it admits no additional
+observations. Tell the user that editing memberships or the reference date
+requires a new parameter estimation and may take substantial time; make the
+stale/estimating/ready/failed state visible. Never silently generate from the old
+parameter bundle or convert it with the edited table. Pure presentation renames that preserve
 identity and membership need not invalidate inference. Warm starts and verified
 dependency-based reuse may reduce work without treating an incompatible fit as
 valid.
@@ -478,7 +583,7 @@ earlier comparison. Its results remain evidence about the old outcome basis.
 
 | Stage | Compare | Hold fixed / limit |
 | --- | --- | --- |
-| 0 | Validate party memberships, choice sets, births, split uncertainty and reference constraints | Count conservation, observed zeros, Other complements and reduced-problem posterior checks |
+| 0 | Validate memberships, reference priors/backward walks, birth support, splits and reference constraints | Count/observed-zero checks, symmetry and expected non-valid share 0.5, empty-window invariance, prior sensitivity, Other complements and reduced-problem posterior checks |
 | 1 | Literal versus aggregate polling link | Common national/local volatility; compatible question grouping |
 | 2 | Direct Camera/European pooling versus regularized kind effects | Selected link; common volatilities |
 | 3 | Common versus partially pooled component-specific national volatility | Common local volatility |
@@ -503,6 +608,9 @@ $$
 
 Estimate the persistent centre only from training data; reversion toward zero
 would erase geography. Include non-valid voting in the same declared construction.
+The reversion variant must specify its historical backward transition law and
+reference-state prior consistently; do not obtain it by simply using negative
+elapsed time in a forward transition.
 
 Use cutoff-available Camera/European counts and polls, consistent time laws at
 730/365/90/15-day horizons, and chronological development/confirmation separation.
@@ -536,8 +644,9 @@ Do not impose an independent national endpoint or post-draw IPF.
 
 Retain plausibility, coverage/width/proper scores and predictive-mean accuracy
 in Luca's priority order. Check integer/elector conservation, aggregate consistency,
-hard-reference constraints at their own dates, split uncertainty and calibration
-of political and non-valid outcomes. Full-list, override, paired-chamber, seat and
+hard-reference constraints at their own dates, reference-date reset/invalidation,
+split uncertainty and calibration of political and non-valid outcomes.
+Full-list, override, paired-chamber, seat and
 browser-fitting acceptance remain required before changing runtime defaults.
 
 ## References
