@@ -261,12 +261,20 @@ into `main`; public deployment follows that merge and a successful hosting gate.
     and six-category sensitivity. Luca has not selected those models for adoption.
   - [x] Correct the drift formulation and record the accepted observation/polling
     requirements, comparison hierarchy and confirmed combined non-valid baseline.
-  - [x] Implement the research fit/backtest path using downloaded compatible
+  - [x] Implement the earlier fixed-outcome research fit/backtest path using compatible
     Camera/European elections and polls. Complete stages 1–6 and both separate
     stage-7 branches, retaining the conditional stage-5 trigger. See the
     [measured comparison and limitations](docs/vote-generation-drift-results.md)
     and [reproduction protocol](docs/vote-generation-drift-testing.md).
-  - [ ] After selection, implement the approved runtime design with full-list
+  - [x] Approve the party-level correspondence revision: scenario-owned complete
+    memberships, grouped list observations, choice-set redistribution and
+    aggregate reference-share constraints; record it in the current model contract.
+  - [ ] Implement the versioned membership/scenario contract and grouped fitting
+    in browser workers, with validated default-posterior reuse and invalidation.
+    Revalidate split uncertainty, priors, poll Other and hard/soft reference inputs;
+    repeat the staged comparisons and measure browser fitting accuracy, memory
+    and latency before runtime adoption.
+  - [ ] After revalidation and selection, implement the approved runtime design with full-list
     split uncertainty, dated geography/electorates, compatible overrides,
     filing support and paired-chamber dependence. Derive national aggregates
     from municipal counts; do not force them to softmax of the national factor.

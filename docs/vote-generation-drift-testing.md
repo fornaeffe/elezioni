@@ -1,7 +1,10 @@
 # Drift-model testing protocol
 
-This is the execution record for the [agreed model](vote-generation-drift-model.md).
-It does not change production generation. No additional polling data are acquired.
+This is the execution record for the 24 October fixed-outcome research model.
+The [current party-level specification](vote-generation-drift-model.md), approved
+on 25 October, changes memberships, grouped likelihoods and fitting ownership;
+it has not been implemented or revalidated by these experiments. This record
+does not change production generation. No additional polling data are acquired.
 
 ## Protocol fixed before inspecting predictive results
 
@@ -230,11 +233,12 @@ method and reproduction details here; update measured findings in that report.
 
 ## Runtime boundary
 
-These fits belong to data preparation. Runtime adoption would export a compact
-reference-state posterior and fitted innovation parameters for seeded browser
-generation, instead of refitting historical states in every browser. It still
-needs full-list split uncertainty, dated electorate/geography inputs, filing
-masks, aggregate-to-latent user overrides and the agreed paired-chamber marginal
-variance construction. The existing correspondence editor stays available.
+The completed fits ran in data preparation. The revised production plan uses
+scenario-owned memberships and browser-worker estimation after semantic edits,
+with a compatible precomputed default posterior as an optimization. Browser
+fitting accuracy, memory and latency remain unmeasured; see the current model
+contract for invalidation and reference-constraint requirements. Runtime adoption
+still needs dated electorate/geography inputs, filing support, overrides and
+the agreed paired-chamber marginal variance construction.
 These backtests do not validate Senate dependence, seat distributions or a
 separate decomposition of non-valid voting into abstention and invalid ballots.

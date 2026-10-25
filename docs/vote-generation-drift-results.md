@@ -1,5 +1,10 @@
 # Historical drift-model comparison — 24 October 2026
 
+Scope: these measurements concern the earlier fixed-outcome research model.
+The [party-level specification](vote-generation-drift-model.md) approved on
+25 October requires new grouped-likelihood fitting and backtests. The findings
+below are retained historical evidence, not validation of that revision.
+
 The recommended research baseline is the **combined non-valid outcome +
 aggregate polling link + regularized Camera/European effects + common national
 and local Brownian volatilities**. It improves political-share coverage and

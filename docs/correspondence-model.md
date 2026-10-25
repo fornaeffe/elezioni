@@ -1,3 +1,10 @@
+# Original correspondence proposal
+
+This draft is retained as the proposal discussed with Luca. The
+[approved consolidated specification](vote-generation-drift-model.md) supersedes
+it, including scenario ownership of the full membership table and browser
+re-estimation after edits. The original proposal follows unchanged.
+
 Let $P$ be the set of all individual political parties that were present at least once in the considered timespan in an election or poll as a single list.
 
 For $j\in \{0\}\cup P$, define latent log score

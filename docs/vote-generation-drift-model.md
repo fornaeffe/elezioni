@@ -1,314 +1,544 @@
-# Revised vote-generation drift model
+# Party-level vote-generation drift model
 
-Use this document for the current mathematical proposal, implementation
-requirements and staged research plan. The [previous comparison](vote-generation-research.md)
-and its [methods](vote-generation-methods.md) retain their measured historical
-results; their endpoint-reconciliation architecture is not the selected design.
+This is the current model contract, consolidating the
+[original correspondence proposal](correspondence-model.md) and the decisions
+below. Use the [historical research report](vote-generation-drift-results.md)
+and [testing protocol](vote-generation-drift-testing.md) only for the earlier
+fixed-outcome experiments; their fitted parameters and calibration do not
+automatically carry over to this party-level model.
 
-## Decision status — 24 October 2026
+## Decision status — 25 October 2026
 
-Luca accepts the observed-count layer, corrected identification/time/innovation
-conventions, the staged comparison hierarchy and these polling requirements:
-separate sample-dependent uncertainty; an error component shared by polls;
-fieldwork measurement dates distinct from publication availability; and polling
-noise confined to the polling likelihood. Both stage-7 variants below belong
-to the planned research.
+Luca approves party-level latent support, list-level observations, a combined
+non-valid outcome, and scenario ownership of the complete membership table.
+The scenario may revise historical decompositions as well as the future ballot.
+Historical source counts remain unchanged. No voter-movement studies, voter-flow
+matrices or origin–destination parameters enter this model.
 
-Luca subsequently authorized research execution and confirmed the combined
-non-valid outcome as its baseline. The
-[testing protocol and execution record](vote-generation-drift-testing.md)
-contains implementation details, diagnostics and measured comparisons.
-Research selection does not activate a runtime model or change production
-defaults. Use the already downloaded compatible polls; do not acquire more
-polling data for this research round.
+Availability uses the choice set defined below: removing a component from the
+softmax denominator redistributes its probability proportionally across all
+remaining outcomes, including non-valid voting. This replaces the earlier
+exit-to-non-valid projection assumption.
 
-## Electorate outcomes and observed counts
+The planned production workflow estimates the scenario-specific model in browser
+workers after semantic membership edits. A matching precomputed default fit may
+be served to avoid that computation. Browser fitting, its latency and posterior
+accuracy have not yet been implemented or verified. This specification changes
+neither the existing generator nor legal scrutiny defaults. Use already downloaded
+compatible polls for the next research round.
 
-For municipality $c$, election kind $k$ and time $t$, let $L_{c,k,t}$
-be the political lists present on that ballot. Add outcome $0$: an elector
-without a valid vote attributable to a political list in the modeled scope.
-Its intended meaning is abstention plus blank/invalid ballots, after applicable
-valid candidate-only vote attribution has been reconciled.
+## Political components and scenario-owned memberships
 
-Let $E_{c,e}$ be electors, $V_{c,e}$ actual valid attributed votes and
-$y_{l,c,e}$ the corresponding observed list counts. Then
+Let $P$ contain every stable political component needed to represent the
+historical observations and the scenario ballot. A component need not previously
+have stood alone. Include scenario-defined new components and retain an explicit
+unresolved political component where the sources cannot support a finer identity.
+An opaque joint group may remain atomic when neither observations nor the future
+scenario distinguish its members. A requested future split does justify historical
+latent components even without separate past observations; retain their uncertainty.
+Party identity and its available statistical evidence are separate concepts.
 
-$$
-y_{0,c,e}=E_{c,e}-V_{c,e},\qquad
-V_{c,e}=\sum_{l\in L_{c,k(e),t_e}}y_{l,c,e}.
-$$
+Identity rules:
 
-Incomplete list extraction, an unmapped party or undecided survey respondents
-must not become outcome $0$. Retain missing political support through an
-explicit observed residual/group or report the unresolved source mismatch.
-Conserve all valid attributed votes before deriving the non-valid complement.
-Source turnout-denominator anomalies require an audit, not silent correction.
-The legacy scenario fallback for unmapped history is a separate, versioned
-semantics issue; this document does not modify that runtime behavior.
+- A rename retains the same identity.
+- A joint electoral list groups its constituent identities.
+- An organizational merger retains historical components beneath the new list
+  label; it does not introduce an additional independent support component for
+  the same voters.
+- A scenario-created split component can already belong to historical joint
+  lists, even though it will first stand separately in the future. This is a
+  retrospective decomposition, not necessarily a historical party birth.
 
-For $j\in \{0\}\cup L_{c,k,t}$, define latent log scores
+The scenario owns the complete effective identity, availability and membership
+specification for every modeled election and poll question, plus the future
+ballot. Preparation supplies versioned defaults and original observations.
+Storage may use a pinned default plus overrides, but the effective table must be
+fully reproducible, inspectable and included in scenario exports.
 
-$$
-s_{j,c,k,t}=\eta_{j,n,t}+\delta_{j,c,t}+\gamma_{j,k},
-\qquad
-\pi_{j,c,k,t}
-=\frac{\exp(s_{j,c,k,t})}
-{\sum_{h\in\{0\}\cup L_{c,k,t}}\exp(s_{h,c,k,t})}.
-$$
-
-Here $\gamma_{j,k}=0$ under direct election-kind pooling. The adjusted variant
-uses regularized kind effects with Camera as the reference, including an effect
-for outcome $0$. Center those effect vectors too. This allows kind-related
-participation differences as well
-as political differences without assuming that Camera and European votes
-cannot inform the same process.
-
-Latent probabilities and observed elector shares are different quantities:
+Index membership by observation/question or ballot, date, election kind/chamber
+and geography. Let $c$ denote a municipality or, where its ballots differ, the
+municipality–college part used for generation. Let $A_{c,e}\subseteq P$ be the
+available components for election $e$, and $L_{c,e}$ its lists. The member sets
+$G_{l,c,e}$ must form a partition:
 
 $$
-\boldsymbol y_{c,e}\mid E_{c,e},\boldsymbol\pi_{c,k(e),t_e}
-\sim \operatorname{Multinomial}(E_{c,e},\boldsymbol\pi_{c,k(e),t_e}),
-\qquad
-\widehat p_{j,c,e}=y_{j,c,e}/E_{c,e}.
+G_{l,c,e}\ne\varnothing,\qquad
+\bigcup_{l\in L_{c,e}}G_{l,c,e}=A_{c,e},\qquad
+G_{l,c,e}\cap G_{m,c,e}=\varnothing\quad(l\ne m).
 $$
 
-This observation layer permits observed zeros with finite latent scores and
-conserves the electorate. Outcome $0$ is a statistical outcome, not a political
-list: exclude it from candidatures, thresholds, coalitions and seat allocation,
-and expose it separately in the UI. The combined model predicts
-valid-vote participation $1-\pi_0$, not actual voter turnout separately from
-ballot validity.
+A component belongs to zero or one list on each local ballot. In an incidence
+matrix $M_{l,j,c,e}$, membership entries are zero or one; available-component
+columns sum to one. There are no partition coefficients in this table.
+A coalition of distinct lists does not turn those lists into one joint list.
 
-Future $E_{c,t}$ remains an input or a separate demographic forecast. Adding
-outcome $0$ does not estimate the size or geography of the future electorate.
-Keep denominators and territorial coverage aligned for each election/chamber.
+When an editor creates a historical component split, update the relevant
+historical election and poll memberships explicitly. Preserve each original
+source count once; the corresponding likelihood now observes a sum of component
+probabilities. Never duplicate a source count or replace it with fixed fractional
+pseudo-counts. Keep all original observations instead of successively overwriting
+them through intervening merged lists.
 
-One softmax also couples participation with political scores: keeping the
-non-valid score unchanged does not keep its probability unchanged when political
-scores move. This is a feature of the proposed joint model to evaluate, not a
-mathematical reason to require a separate turnout process. The count-layer
-factorization into valid/non-valid totals and conditional party counts is
-equivalent; independently specifying Gaussian dynamics for a valid-rate logit
-and party scores would generally define a different process model.
+## Party probabilities, list probabilities and observed counts
 
-## Identified dynamics and initial states
+For $j\in\{0\}\cup P$, define latent log scores
 
-Use a stable outcome basis for each fitted model, with $J$ outcomes including
-$0$. Let $P=I-\boldsymbol1\boldsymbol1^\top/J$. Store centered scores and
-implement inference in $J-1$ orthonormal contrasts. Scores are multinomial
-log scores, not componentwise binary logits of observed shares.
+$$
+s_{j,c,k,t}=\eta_{j,n,t}+\delta_{j,c,t}+\gamma_{j,k}.
+$$
 
-For consecutive observation/state times, use elapsed time in years:
+Here $k$ denotes the election-kind context; chamber-specific states/gaps follow
+the paired-chamber contract below. Outcome $0$ means abstention plus blank/invalid
+voting in the reconciled modeled electorate. It is not a political component.
+
+Use $\pi$ for component probabilities and $p$ for list probabilities. For an
+election at $t_e$, put
+
+$$
+Z_{c,e}=\exp(s_{0,c,k(e),t_e})
++\sum_{h\in A_{c,e}}\exp(s_{h,c,k(e),t_e}),
+$$
+
+$$
+\pi_{j,c,e}=
+\begin{cases}
+\exp(s_{j,c,k(e),t_e})/Z_{c,e}, & j\in\{0\}\cup A_{c,e},\\
+0, & j\in P\setminus A_{c,e}.
+\end{cases}
+$$
+
+Aggregate into the actual ballot lists:
+
+$$
+p_{l,c,e}=\sum_{j\in G_{l,c,e}}\pi_{j,c,e},
+\qquad p_{0,c,e}=\pi_{0,c,e},
+\qquad p_{0,c,e}+\sum_{l\in L_{c,e}}p_{l,c,e}=1.
+$$
+
+Grouping a fixed available set leaves $p_0$ unchanged. Changing availability does
+not: at unchanged scores, removing a component with probability $a$ divides each
+remaining probability by $1-a$. For example, A = 20%, B = 50%, non-valid = 30%
+becomes B = 62.5%, non-valid = 37.5% when A is excluded. This approved
+choice-set substitution rule is not a measured voter-flow statement. Joining
+the same components under one label introduces no additional alliance effect
+by itself.
+
+Let $E_{c,e}$ be electors, $V_{c,e}$ valid attributed votes and $y_{l,c,e}$ the
+observed list counts. After reconciling valid candidate-only attribution,
+
+$$
+V_{c,e}=\sum_{l\in L_{c,e}}y_{l,c,e},
+\qquad y_{0,c,e}=E_{c,e}-V_{c,e},
+$$
+
+$$
+\left(y_{0,c,e},(y_{l,c,e})_{l\in L_{c,e}}\right)
+\mid E_{c,e},\boldsymbol p_{c,e}
+\sim \operatorname{Multinomial}
+\left(E_{c,e},\left(p_{0,c,e},(p_{l,c,e})_{l\in L_{c,e}}\right)\right).
+$$
+
+This includes observed non-valid counts and allows observed zeros with finite
+latent scores. Historical valid votes remain valid observations even when their
+party is unavailable on the future ballot. Incomplete extraction, unresolved
+memberships and survey nonresponse never become historical outcome $0$.
+Retain political residuals or report source mismatches; audit inconsistent
+turnout denominators rather than silently correcting them.
+
+Outcome $0$ stays outside candidatures, coalitions, thresholds and seat allocation.
+A poll's Other answer is defined below and is not an ineligible synthetic party.
+An optional pooled minor-list scenario feature is a separate contract: preserve
+valid-vote totals and relevant coalition identities, and do not let a pooled
+group qualify as one fictitious list.
+
+Future $E_{c,t}$ remains an input or a separate demographic forecast. Align
+electorates and territorial coverage. The model predicts valid-vote participation,
+not separate abstention and ballot-validity processes. A shared softmax couples
+participation with political scores; keeping $s_0$ fixed does not fix $p_0$.
+
+## Identified party dynamics, births and split uncertainty
+
+Use a fixed component basis for a fit, with $J=1+|P|$. To avoid confusing the
+party set with a projection matrix, write
+$C_J=I-\boldsymbol1\boldsymbol1^\top/J$. Store centered scores and implement
+inference in $J-1$ orthonormal contrasts. Availability changes the observation
+normalizer, not the meaning of the retained component coordinates.
+
+For consecutive state times, use elapsed time in years:
 
 $$
 \boldsymbol\eta_n(t+\Delta)
-=\boldsymbol\eta_n(t)
-+\sqrt{\Delta}\,P D_\eta\boldsymbol\epsilon_{\eta,t},
+=\boldsymbol\eta_n(t)+\sqrt{\Delta}\,C_JD_\eta\boldsymbol\epsilon_{\eta,t},
 $$
 
 $$
 \boldsymbol\delta_c(t+\Delta)
-=\boldsymbol\delta_c(t)
-+\sqrt{\Delta}\,P D_{\delta,c}\boldsymbol\epsilon_{\delta,c,t},
+=\boldsymbol\delta_c(t)+\sqrt{\Delta}\,C_JD_{\delta,c}
+\boldsymbol\epsilon_{\delta,c,t}.
 $$
 
-where $D_\eta=\operatorname{diag}(\sigma_{\eta,j})$ and
-$D_{\delta,c}=\operatorname{diag}(\sigma_{\delta,j,c})$.
-The scales refer to independent innovations before score centering. For a
-contrast matrix $H$, their identifiable national covariance is
-$H^\top D_\eta^2H\,\Delta$, not independent per-reference-list noise.
+Here $D_\eta=\operatorname{diag}(\sigma_{\eta,j})$ and
+$D_{\delta,c}=\operatorname{diag}(\sigma_{\delta,j,c})$, including $j=0$.
+The scales describe independent innovations before centering. For a contrast
+matrix $H$, national innovation covariance is
+$H^\top D_\eta^2H\,\Delta$. National innovations are shared across municipalities.
+Baseline innovations are independent across components, municipalities, national/
+local processes and disjoint time intervals before centering. Overlapping
+intervals use increments of the same process.
+Apply these equations to initialized component trajectories. An existing but
+unoffered component may drift unobserved; omission from a poll does not reset
+its state. Do not extrapolate a genuine component's trajectory before birth.
 
-Before projection, standard-normal innovations are independent across outcomes,
-municipalities and disjoint time intervals, and between national and local
-components in the baseline. The national vector is shared by all municipalities.
-Overlapping intervals must use consistent increments from the same process,
-not fresh unrelated endpoint draws. Correlated chamber and regional variants
-modify the stated independence explicitly.
+Use regularized $\gamma_{j,k}$ effects with Camera as reference, including outcome
+$0$, when the adjusted-kind model is selected. Proper initial priors and covariance
+assumptions also identify the national/local decomposition. Do not force the
+municipal mean of local innovations to zero without carrying the changed
+covariance into the national process.
 
-Give national and municipal initial contrasts proper, regularized distributions,
-whose centres and geographic donor information use only data available before
-the forecast cutoff. Propagate their posterior uncertainty along with future
-innovations and volatility uncertainty.
-
-Category centering removes the arbitrary common score level. Separating a
-national effect from a common shift of all local effects additionally relies
-on the observation link, initial priors and covariance assumptions. Do not
-silently force the municipal mean of every local innovation to zero; that would
-change the independent-local-drift model unless the resulting covariance is
-carried into the national/local decomposition.
-
-## Polling links conditional on a valid political vote
-
-Define the municipal conditional party share
+Within an observed joint list C, the split is already implied by the scores:
 
 $$
-r_{l,c,k,t}
-=\frac{\pi_{l,c,k,t}}{1-\pi_{0,c,k,t}}
-=\frac{\exp(s_{l,c,k,t})}
-{\sum_{h\in L_{c,k,t}}\exp(s_{h,c,k,t})}.
+\rho_{j\mid C,c,e}
+=\frac{\exp(s_{j,c,k(e),t_e})}
+{\sum_{h\in G_{C,c,e}}\exp(s_{h,c,k(e),t_e})}.
 $$
 
-The non-valid score cancels from this municipal conditional share. Thus a
-party-preference-only poll does not directly measure the absolute participation
-contrast or the non-valid fraction. Historical elector/valid counts inform
-that part of the model; polling-derived state correlations can provide indirect
-information, but survey nonresponse is not an observation of outcome $0$.
+Do not add independent split coefficients. Joint counts identify the aggregate,
+not every internal contrast. Separate-party elections and ordinary party-intention
+polls available at the cutoff may inform that contrast through the temporal model.
+Otherwise exchangeable proper priors give equal expected contributions with
+uncertainty. Preserve shared national split uncertainty and pool weakly informed
+local differences; independent municipal splits must not manufacture national
+certainty through averaging. Proper priors do not turn prior-driven parameters
+into data-identified estimates. No voter-movement information is used.
 
-Stage 1 compares these two links, with other model choices held fixed:
+For a genuine historical birth, introduce a proper initial distribution at its
+first relevant modeled support date; do not accumulate unobserved Brownian noise
+from an arbitrary earlier dataset start. Components already existing at the
+window start receive initial priors there; a known birth within the window
+starts its trajectory at that date. If the birth date is unavailable, use the
+first supported appearance as an explicit initialization convention. Use a
+weak, finite Gaussian prior in gauge-fixed initial score-contrast coordinates,
+with location/scale pooled from comparable components using cutoff-available
+evidence and proper hyperpriors. Use neutral,
+zero-centered, regularized geographic and kind-effect priors unless supported
+information justifies a different centre. In insufficient data, use versioned
+proper fallback scales rather than an improper flat prior. Condition on the first
+real observation once; do not require a user-supplied historical share or invent
+pseudo-votes. Carry initial uncertainty into forecasts. Prior scales need
+recalibration on the new party basis.
 
-| Link | Centre of the poll's political log scores |
-| --- | --- |
-| Literal latent-index link | The political components of $\boldsymbol\eta_n(t)+\boldsymbol\gamma_k$, excluding outcome $0$ and re-centering over political outcomes |
-| Aggregate-support link | Centered logs of the electorate model's aggregate conditional valid-vote shares below |
+A retrospectively introduced component within an old joint list starts with that
+joint history and an uncertain decomposition; its first separate future label is
+not a reason to discard those observations or reset its history.
 
-For a poll covering municipalities $S_q$, the aggregate link is
+Party aggregation induces list dynamics. In particular, a joint-list log score
+contains a log-sum-exp of component scores and generally is not itself a
+constant-volatility Brownian process. This is an intended consequence of defining
+the process on parties. Earlier list-level scales and calibration do not transfer
+automatically.
+
+## Poll choice sets, Other and the observation link
+
+For each poll question $q$, assume that its reported political answers are the
+offered political choice set. This is the approved observation assumption, not a
+statement that unnamed parties have ceased to exist. Distinguish questions in one
+survey and retain their shared dependence. Exclude undecided, abstention and other
+nonresponse answers from the political-intention denominator; they do not observe
+outcome $0$.
+
+Retain fieldwork measurement time $t_q$ (midpoint or an explicit fieldwork-average
+model), publication/fieldwork-end availability at the forecast cutoff, kind/chamber,
+geographic coverage $S_q$, and original answer groups. Without a political Other
+answer, $A_{c,q}$ is the union of the reported political groups. The question then
+informs relative support within that offered set. Do not invent an unreported
+residual or treat exclusion from that question as permanent party absence.
+
+Where an answer means other political parties, let $B_{c,q}$ be the modeled
+components existing and geographically relevant in that question's context.
+Its membership is
 
 $$
-r^{\mathrm{agg}}_{l,q}
-=
-\frac{\sum_{c\in S_q}E_{c,t}\pi_{l,c,k,t}}
-{\sum_{c\in S_q}E_{c,t}(1-\pi_{0,c,k,t})}.
+G_{\mathrm{Other},c,q}
+=B_{c,q}\setminus
+\bigcup_{a\in\mathcal R_q}G_{a,c,q},
 $$
 
-Equivalently, aggregate municipal $r_{l,c,k,t}$ with weights proportional to
-$E_{c,t}(1-\pi_{0,c,k,t})$. Elector weights alone are generally incorrect for
-conditional party support. Heterogeneous participation changes these weights,
-so national polls can constrain participation patterns indirectly without
-directly observing the total non-valid rate.
+where $\mathcal R_q$ contains the explicitly named political answers. Then
+$A_{c,q}=B_{c,q}$ and the named groups plus Other partition that set. Newly created
+historical split components can belong to an old named group; a genuinely not-yet-
+existing party is outside $B_{c,q}$. Scope/date these distinctions in the scenario.
 
-For a common full political panel, let $\boldsymbol m_q$ be the chosen
-centered poll-score centre and write the logistic-normal observation layer as
+Other contains neither nonresponse nor non-valid voting. It is a grouping of
+components, not an additional duplicate component. Positive reported Other with
+an empty modeled complement is a membership/source mismatch; represent unresolved
+political support explicitly instead of assigning it to $0$. Preserve source
+normalization/rounding and audit unexplained gaps or overlapping answer groups.
+
+A small Other observation constrains the combined unreported support and hence
+each nonnegative contribution at that date/context, subject to observation error.
+It does not identify the internal split, provide a universal future upper bound,
+or prevent later drift. Proper priors and volatility pooling remain necessary.
+
+Apply the component softmax using the question's available set, then sum component
+probabilities into answer probabilities $p_{a,c,q}$. The aggregate link is
 
 $$
-\boldsymbol h_q=\boldsymbol m_q+\boldsymbol b_{g(q)}+\boldsymbol e_q,\qquad
-\boldsymbol b_g\sim N(\boldsymbol0,B),\quad
-\boldsymbol e_q\sim N(\boldsymbol0,R_q),\qquad
-\boldsymbol p_q^{\mathrm{poll}}=\operatorname{softmax}(\boldsymbol h_q).
+r^{\mathrm{agg}}_{a,q}
+=\frac{\sum_{c\in S_q}E_{c,t_q}p_{a,c,q}}
+{\sum_{c\in S_q}E_{c,t_q}(1-\pi_{0,c,q})}.
 $$
 
-Covariances operate in political contrast space; no non-valid survey category
-is fabricated. $R_q$ accounts for sample-dependent uncertainty using the
-reported or explicitly estimated effective decided sample. Shared campaign or
-survey-period errors $b_g$ keep additional polls from eliminating common
-polling uncertainty. Group definitions and covariance regularization must be
-fixed before fitting. Any additional independent polling-error floor belongs
-in this likelihood, not in political drift.
+Equivalently, weight municipal conditional political shares by expected valid
+votes $E_{c,t_q}(1-\pi_{0,c,q})$. Elector weights alone are generally incorrect.
+The non-valid score cancels from a municipal conditional political share; poll
+preferences do not directly identify participation, though heterogeneous valid
+weights and state correlations can provide indirect information.
 
-Map grouped/partial questions to sums of underlying political probabilities
-before computing their likelihood; define shared errors on a compatible stable
-basis rather than equating different questions' contrast coordinates. Respect
-rounding and unavailable decided counts without inventing respondent counts.
-Deduplicate derived archive views and retain same-survey dependence. Conditional
-ballot alternatives must not be treated as independent generic observations.
+Keep shared polling error on a compatible component-contrast basis. One coherent
+implementation tilts municipal conditional political probabilities with a shared
+Gaussian contrast $b_{g(q),j}$ before grouping, retaining the unperturbed expected
+valid-vote weights:
 
-Use fieldwork periods for measurement time (an explicit midpoint approximation
-or a fieldwork-average observation); use publication and fieldwork-end dates
-to determine availability at the forecast cutoff. Do not refresh a stale poll
-to the cutoff. Vote-intention polls condition on declared support, which is an
-approximation to future valid voting; retain that mismatch in the polling
-assumptions/error model. Forecast election votes from latent political states
-and the count layer, without a new poll-noise draw.
+$$
+r^{(b)}_{j,c,q}
+=\frac{\pi_{j,c,q}\exp(b_{g(q),j})}
+{\sum_{h\in A_{c,q}}\pi_{h,c,q}\exp(b_{g(q),h})},
+$$
+
+$$
+\widetilde r_{a,q}
+=\frac{\sum_{c\in S_q}E_{c,t_q}(1-\pi_{0,c,q})
+\sum_{j\in G_{a,c,q}}r^{(b)}_{j,c,q}}
+{\sum_{c\in S_q}E_{c,t_q}(1-\pi_{0,c,q})}.
+$$
+
+At $b=0$ this reduces to the aggregate link. Shared-error grouping and covariance
+regularization are fixed in the fitting policy. Apply sample-dependent uncertainty
+in the observed answer-contrast space, using the reported or explicitly estimated
+effective decided sample, rounding and appropriate handling of printed zeros.
+Do not fabricate respondent counts. Any additional independent poll-error floor
+belongs here. The shared bias and sampling noise remain observation quantities:
+condition latent states on polls, but add no new poll-error draw when generating
+election votes.
+
+The literal national-index link remains a comparison diagnostic on a common
+choice set: normalize the political $\eta_{j,n}(t)+\gamma_{j,k}$ components and
+group them into the reported answers. The aggregate link is the reference
+operator for scenario shares and handles geographic availability explicitly.
+
+## Scenario reference shares and new components
+
+Use the same aggregate operator for polls and scenario shares, with each input's
+own date, geography and ballot context. For a component or list group $G$, scope
+$S$, reference date $t$ and declared scenario ballot $b$, define
+
+$$
+F_{G,S,b,t}(\boldsymbol s)
+=\frac{\sum_{c\in S}E_{c,t}\sum_{j\in G_{c,b}}\pi_{j,c,b,t}}
+{\sum_{c\in S}E_{c,t}(1-\pi_{0,c,b,t})}.
+$$
+
+The default context is the modeled future ballot evaluated at the input's
+reference date. Polls retain their own question contexts. This permits direct
+reuse of the link without pretending that scenario inputs are surveys. The same
+availability-softmax construction applies to any such context $b$ and date $t$.
+
+Reference targets explicitly distinguish component identities from ballot lists;
+matching display labels do not make them interchangeable after a split.
+Every genuinely brand-new scenario party requires a national valid-voter share, reference
+date (default: scenario reference date) and uncertainty (default: zero).
+Geographically scoped overrides are optional. Use this contract for all
+scenario-defined national shares, not only new components. A joint-list total
+constrains the sum of its members and does not determine their internal split.
+A new component record representing support inside historical joint lists is
+a retrospective decomposition, not automatically a genuinely new party: use
+that grouped history and proper priors, with optional reference targets.
+
+Store uncertainty with explicit units; use standard deviation in percentage
+points of valid-voter share at the input boundary. Zero means the exact latent
+reference-support constraint
+
+$$
+F_{G,S,b,t}(\boldsymbol s)=a.
+$$
+
+Positive uncertainty supplies soft reference information through a bounded
+logistic-normal reference factor, calibrated numerically to the entered mean
+and share-scale standard deviation. Its uncertainty describes the
+reference information; other evidence and priors can shift posterior moments.
+Use a coherent joint simplex/contrast specification for exhaustive groups and
+reject infeasible moments (for one interior share, $0<u^2<a(1-a)$ with
+$u$ expressed as a fraction). Do not interpret a percentage-point uncertainty as a
+raw logit standard deviation.
+
+These are scenario constraints, with no synthetic poll sample, shared poll-bias
+term or automatic polling-error floor. A hard constraint fixes aggregate latent
+support at that date/context; municipal probabilities remain uncertain and
+future drift and multinomial count variation remain active. It does not fix
+future realized national vote counts.
+
+Resolve supplied-data, chamber and geographic override precedence before building
+the active constraint set. Validate hard constraints jointly with filing support,
+normalization and any scoped overrides; reject or explain incompatible active
+targets rather than silently relaxing them. Record superseded targets explicitly.
+An interior available component needs an interior share with finite scores;
+exact endpoints require structurally compatible support or an explicit fixed-
+support rule, not an undisclosed epsilon substitution.
+
+Translate targets by solving the aggregate-to-latent problem. Never assign a
+national input directly to $\eta_{j,n}$ or uniformly to every municipality.
+A common reference-score shift for a group provides a useful scalar root solve
+when all other quantities are fixed and the target is feasible. A fitted posterior
+must retain the dependence and uncertainty implied by its hard/soft constraints;
+independent post-fit rescaling is not a substitute for conditioning.
+
+For new components use proper, pooled defaults for municipal differences,
+volatility and cross-chamber behavior, with a neutral geographic prior unless
+an explicit supported pattern is supplied. A national reference value alone
+does not estimate those quantities. Initialize genuine new support at its relevant
+date; distinguish it from a retrospective decomposition of an old joint list.
+Preserve real observation dates and no-look-ahead rules in backtests.
+
+Political share inputs are among valid voters. Any non-valid override remains
+an elector share and uses its own aggregate operator,
+
+$$
+F_{0,S,b,t}=\frac{\sum_{c\in S}E_{c,t}\pi_{0,c,b,t}}
+{\sum_{c\in S}E_{c,t}}.
+$$
+
+It follows the same declared hard/soft and precedence rules, without conditioning
+non-valid support on valid voting or claiming separate turnout identification.
+
+## Browser estimation, default fits and invalidation
+
+The browser is the production fitting target after scenario editing. Run fitting
+in cancellable workers with progress, deterministic seeds, numerical diagnostics
+and versioned outputs; keep editing/rendering responsive. Benchmark real party
+counts and geographic scale before claiming acceptable fitting latency.
+
+Preparation may publish a precomputed default fit. It must include the posterior
+state/uncertainty representation and innovation-parameter uncertainty needed for
+generation, not just point estimates. A browser may reuse it only when the
+complete fitting fingerprint matches: source data and cutoff, identities,
+historical/question/future memberships and availability, kind/chamber/geography,
+birth/initial priors, fitting policy/version and effective reference constraints.
+A reproducible fit also records its inference algorithm, tolerances and seed;
+changing only a forecast Monte Carlo seed does not redefine the fitted model.
+A pinned-default-plus-overrides representation must resolve to this same
+effective fingerprint.
+
+A semantic membership edit, including adding a retrospective split component,
+invalidates the old fit. Tell the user that editing memberships requires a new
+parameter estimation and may take substantial time; make the stale/estimating/
+ready/failed state visible. Never silently generate from the old parameter bundle
+or convert it with the edited table. Pure presentation renames that preserve
+identity and membership need not invalidate inference. Warm starts and verified
+dependency-based reuse may reduce work without treating an incompatible fit as
+valid.
+
+Implement this as a new versioned scenario/fitting contract. The current
+past-list/future-list factor schema and generator are legacy behavior, not the
+membership model. Preserve archived scenarios/results through explicit adapters;
+do not reinterpret old factors as memberships or claim browser fitting already
+exists.
 
 ## Volatility comparisons and chamber compatibility
 
-National comparisons are common $\sigma_\eta$ versus partially pooled
-outcome-specific $\sigma_{\eta,j}$. Local candidates are:
+Compare common $\sigma_\eta$ with partially pooled component-specific
+$\sigma_{\eta,j}$. Local candidates are:
 
 | Local structure | Parameterization |
 | --- | --- |
 | Common | $\sigma_{\delta,j,c}=s_\delta$ |
-| Outcome-specific | $\log\sigma_{\delta,j,c}=\mu_\delta+u_j$ |
+| Component-specific | $\log\sigma_{\delta,j,c}=\mu_\delta+u_j$ |
 | Municipality-specific | $\log\sigma_{\delta,j,c}=\mu_\delta+v_c$ |
-| Separable outcome + municipality | $\log\sigma_{\delta,j,c}=\mu_\delta+u_j+v_c$ |
+| Separable component + municipality | $\log\sigma_{\delta,j,c}=\mu_\delta+u_j+v_c$ |
 
-Center the log-scale effects and shrink them toward zero. Outcome-specific
-effects include the non-valid outcome; report whether improvement is mainly
-participation-related or political. Common scales are a baseline assumption,
-not a claim that non-valid voting is equally volatile. Do not add unrestricted
-outcome-by-municipality interactions in this comparison round.
+Center and shrink log-scale effects. Include the non-valid outcome and report
+whether improvements concern participation or political support. Begin with
+pooled scales where component evidence is weak; a standalone appearance alone
+does not identify volatility, local geography or kind effects. Do not add
+unrestricted component-by-municipality interactions in this comparison round.
 
 The [paired-chamber decision](politics-reform-2026-modelling.md#camera-senato-votes-r26-04)
-remains applicable in contrast coordinates. Include outcome $0$ in the
-joint chamber covariance, preserve each chamber's marginal variance budget,
-retain historical gap regularization, distinct electorates/filings and existing
-override precedence. Camera/European observations do not by themselves identify
-Camera/Senato temporal divergence. A combined non-valid category cannot enforce
-separate cross-chamber abstention/invalid-ballot identities without modeling
-those components.
+applies to component contrasts including $0$. Couple national/local innovations
+on that basis, preserve each chamber's marginal variance budget and historical-gap
+regularization, then aggregate through each chamber's ballot memberships.
+Keep distinct electorates, filings and override precedence. Do not duplicate a
+chamber gap already represented elsewhere when adding kind effects. Camera/
+European observations alone do not identify Camera/Senato divergence. A combined
+non-valid outcome cannot enforce separate abstention/invalid-ballot identities.
 
 ## Desired staged research plan
 
+Revalidate the party/grouped-observation implementation before extending the
+earlier comparison. Its results remain evidence about the old outcome basis.
+
 | Stage | Compare | Hold fixed / limit |
 | --- | --- | --- |
-| 0 | Review the electorate-wide combined-outcome formulation above | Record denominator, observation and identification requirements before new backtests |
-| 1 | Literal versus aggregate polling link | Common national and local volatility |
-| 2 | Direct Camera/European pooling versus regularized kind effects | Selected polling link; common volatilities |
-| 3 | Common versus partially pooled outcome-specific national volatility | Common local volatility |
-| 4 | Common, outcome-specific and municipality-specific local volatility | Selected national structure |
-| 5 | Separable outcome + municipality local volatility if both effects help | No unrestricted interaction grid |
+| 0 | Validate party memberships, choice sets, births, split uncertainty and reference constraints | Count conservation, observed zeros, Other complements and reduced-problem posterior checks |
+| 1 | Literal versus aggregate polling link | Common national/local volatility; compatible question grouping |
+| 2 | Direct Camera/European pooling versus regularized kind effects | Selected link; common volatilities |
+| 3 | Common versus partially pooled component-specific national volatility | Common local volatility |
+| 4 | Common, component-specific and municipality-specific local volatility | Selected national structure |
+| 5 | Separable component + municipality local volatility if both help | No unrestricted interaction grid |
 | 6 | Recheck the alternative national structure at the winning local structure | One limited interaction check |
-| 7a | Regional innovation component versus selected simpler model | Split the local variance budget; test spatial dependence |
-| 7b | Mean-reverting local differences versus selected simpler model | One pooled reversion rate around persistent historical geography |
+| 7a | Regional innovations versus the selected simpler model | Split the local variance budget |
+| 7b | Local mean reversion versus the selected simpler model | One pooled rate around persistent historical geography |
 
-Both 7a and 7b are planned comparisons, run separately; do not automatically
-cross them with every earlier variant or combine them. Keep the all-common
-drift model and the current production generator as benchmarks. Initial
-identification, count observations and the accepted polling requirements are
-common requirements, not extra branches of the comparison grid.
+Run both stage-7 branches separately, without automatically combining them or
+crossing every earlier variant. Retain the all-common and current-generator
+benchmarks. Regional innovations replace part of the municipal residual budget,
+rather than adding unconstrained marginal variance.
 
-For 7a, decompose a local score difference into a shared regional process and
-a municipal residual, allocating the existing marginal local variance budget
-between them instead of simply adding more variance. For 7b, compare the
-Brownian baseline with
+For reversion compare Brownian local differences with
 
 $$
 d\boldsymbol\delta_c
 =-\kappa(\boldsymbol\delta_c-\overline{\boldsymbol\delta}_c)\,dt
-+P D_{\delta,c}\,d\boldsymbol W_c,\qquad \kappa\geq0.
++C_JD_{\delta,c}\,d\boldsymbol W_c,\qquad \kappa\ge0.
 $$
 
-Use one pooled reversion rate and a regularized persistent geographic centre
-estimated only from training data. Reversion toward zero would erase geography
-and is not the proposed variant. The non-valid outcome follows the same declared
-regional/reversion construction in this comparison.
+Estimate the persistent centre only from training data; reversion toward zero
+would erase geography. Include non-valid voting in the same declared construction.
 
-Fit each forecast using all compatible downloaded Camera/European election
-and poll evidence available at its historical cutoff. Use the same time-law
-across 730/365/90/15-day horizons, not separate horizon-tuned volatility
-parameters. Count whole elections as independent validation events; report
-Camera and European outcomes separately. Distinguish exploratory model
-selection from an untouched test. No new poll downloads are required now.
+Use cutoff-available Camera/European counts and polls, consistent time laws at
+730/365/90/15-day horizons, and chronological development/confirmation separation.
+Count elections as independent validation events, and report kinds separately.
+Membership choices, priors and default hyperparameters must not use held-out
+results. No new polling acquisition is required for this round.
 
-Keep source-election correspondence defaults editable, dated and reproducible.
-Mappings define observed groups/donors and uncertain splits, not measured voter
-flows. Never use held-out municipality votes to choose a split or initialize a
-new list; never map an unobserved/unmapped political list to non-valid voting
-merely to complete a source table.
+## Estimation, generation and runtime boundary
 
-## Estimation and evaluation
+The model remains latent Gaussian with non-Gaussian observations. Joint-list
+counts constrain sums of component probabilities; their likelihood can be
+non-concave in the component scores and weakly identify internal contrasts.
+The existing direct-outcome count IRLS and local log-ratio moment estimator
+cannot be reused unchanged. Never treat inferred component counts as measured
+data when estimating volatility or posterior covariance.
 
-The accepted multinomial count likelihood makes this a latent-Gaussian model
-with a non-Gaussian observation layer. The aggregate poll link is nonlinear too.
-Use sparse Laplace estimation as the first scalable fitting candidate, validate
-against Bayesian sampling on reduced problems, and propagate state/scale
-uncertainty. Exact Kalman marginalization applies only to a positive-share
-Gaussian log-ratio approximation with linear observations; it is a useful
-diagnostic, not an exact solver for the accepted count model.
+Use proper priors/pooling and a sparse Laplace or suitable nonlinear latent-
+Gaussian fitting approach, checking modes and validating against sampling on
+reduced problems, especially inseparable components and newly introduced splits.
+Optimization aids such as latent allocations do not replace uncertainty from the
+original grouped likelihood. Exact Kalman marginalization is only a Gaussian
+approximation diagnostic. Browser implementation requires measured numerical
+accuracy, memory and execution behavior before runtime acceptance.
 
-At generation, draw future latent states and counts jointly over outcomes
-including $0$. Compute national elector shares by aggregating municipality
-counts, and national political valid-vote shares by conditioning the resulting
-valid totals. Neither is required to be softmax of the national latent factor.
-Do not impose a sampled national endpoint or post-draw IPF to such a vector.
-Reference-date user overrides need the correct aggregate-to-latent conversion;
-future movement stays active.
+At generation draw latent component states, aggregate into future-list
+probabilities and draw multinomial counts including $0$. Pass list counts to
+the legal scrutiny boundary; party-level fitting alone requires no legal-rule
+change. Compute national results from municipal counts. Neither national valid
+shares nor elector shares need equal softmax of the national latent factor.
+Do not impose an independent national endpoint or post-draw IPF.
 
 Retain plausibility, coverage/width/proper scores and predictive-mean accuracy
-in Luca's priority order. Check support, integer/elector conservation and
-consistency of national summaries with municipal counts. Replace the former
-sampled-margin matching diagnostic: it is not an invariant of this model.
-Score non-valid/valid participation as well as political shares. Separate
-abstention and ballot-validity outputs would require a later decomposition.
+in Luca's priority order. Check integer/elector conservation, aggregate consistency,
+hard-reference constraints at their own dates, split uncertainty and calibration
+of political and non-valid outcomes. Full-list, override, paired-chamber, seat and
+browser-fitting acceptance remain required before changing runtime defaults.
 
 ## References
 
