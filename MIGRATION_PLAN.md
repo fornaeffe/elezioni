@@ -315,6 +315,45 @@ into `main`; public deployment follows that merge and a successful hosting gate.
   - [ ] Validate full-list/municipal/regional and seat distributions before changing
     defaults; keep sparse-event, new-party and long-horizon limitations visible.
 
+- [ ] **Refine UI**
+  - [ ] Do not show many small multiple plots, show one plot at a time and offer a selector:
+    - For mean elected and mean valid votes percentage plot, offer a control to switch between camera and senate
+    - The same for simulated percentage per lists boxplots
+    - For elected vs percentage xy-plots, offer controls for
+      - lists or coalitions/single lists
+      - Camera or Senato
+      - list (or coalition/single list)
+
+      With these controls, it will be unnecessary a separate section for coalition xy-plots
+    - The same as above for spinograms
+  - [ ] Add an election probability table: the user selects list and chamber,
+    the UI will plot a table with one college per row and seven columns (one per list position) plus college name column. The list position columns represents, from left to right:
+    - the election probability for _capolista_
+    - the election probability for the first candidate in decreasing preference order
+    - the election probability for the second candidate in decreasing preference order
+    - the election probability for the third candidate in decreasing preference order
+    ...and so on
+    Election probability includes:
+    - a candidate elected because a seat is assigned to this college
+    - a candidate elected because a recovery selected this college
+    Election probability does not include a candidate elected in another college,
+    but also present in this list.
+  - [ ] UI state (idle/loading/calculating...) should be presented in a collapsible
+    compact fixed overlay near a corner of the window.
+  - [ ] UI messages (e.g. scenario editor errors) should be presented as dismissable
+    toasts. Toasts should be dedicated to interaction messages: result's infos, warnings
+    and errors should stay in the result section.
+  - [ ] Extend the current mean elected / mean valid votes plots for coalitions/single lists: offer a selector to switch between lists view and coalitions/single lists view.
+  - [ ] Extend the current simulate percentages boxplots for coalitions/single lists,
+  with selector as above.
+  - [ ] add a bonus winner plot: a barplot with a bar for each coalition 
+    or autonomous list representing the percentage of simulations in which that coalition
+    won the bonus. Aside the bar there should be the percentage, as in existing mean valid
+    votes plots.
+  - [ ] change the college selection for the spinogram of elected in a single college:
+    make it a three-part selector: one for the chamber, one for the college, one for the list. When possible, changing the college should not change the list (unless, e.g.,
+    the list is not present in the new college).
+  - [ ] move the single simulation seats plot in a collapsible section
 - [ ] Generalize routing, snapshot selection, scenario defaults, validation,
   worker dispatch, result components, and shared UI patterns across election
   kinds. Preserve configurable project-base navigation and worker/data loading
