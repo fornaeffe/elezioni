@@ -272,13 +272,25 @@ into `main`; public deployment follows that merge and a successful hosting gate.
   - [x] Specify weakly informative reference-date priors: exchangeable centered
     political contrasts, expected non-valid share 0.5, backward historical walks
     and prior reset/refitting whenever the scenario reference date changes.
-  - [ ] Implement the versioned membership/scenario contract and grouped fitting
-    in browser workers, with validated default-posterior reuse and invalidation.
+  - [x] Add the research-only membership/count kernel and reduced stage-0
+    posterior-validation harness, separately from production generation.
+  - [x] Require cutoff-available distinguishing information for requested
+    components; recheck the restricted class, alternative estimation and
+    reduced Stan reference. Record the [follow-up](docs/vote-generation-party-drift-restricted.md).
+  - [x] Prepare a minimal provisional source-backed joint-list membership table
+    for review and the authorized admissible chronological research panels.
+  - [ ] Pass the real-data stage-0 posterior/computability gate before full-data
+    fitting and stages 1–7. Retain the 30-minute limit for approximate alternatives;
+    the authorized final offline Stan fallback has that time gate waived.
+    **Paused at Luca's request on 26 October 2026; resume from the follow-up checkpoint.**
+  - [ ] Implement the versioned membership/scenario contract and validated grouped
+    fitting/posterior reuse and invalidation for the selected engine. Offline Stan
+    requires preparation after semantic edits; it does not supply browser refitting.
     Revalidate split uncertainty, prior symmetry/participation calibration,
     historical-window invariance, reference-date invalidation, poll Other and
     hard/soft reference inputs; repeat the staged comparisons and measure
-    browser fitting accuracy, memory
-    and latency before runtime adoption.
+    fitting accuracy, memory and latency before runtime adoption. Browser fitting
+    requires its own acceptance if retained as an implementation candidate.
   - [ ] After revalidation and selection, implement the approved runtime design with full-list
     split uncertainty, dated geography/electorates, compatible overrides,
     filing support and paired-chamber dependence. Derive national aggregates

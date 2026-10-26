@@ -174,7 +174,14 @@ reference preparation records this decision while preserving computability.
 
 ## Checks
 
-For latent vote-generation research, use the separate
+For the current party-level vote-generation research, start with the
+[restricted-scenario results and reproduction commands](../docs/vote-generation-party-drift-restricted.md)
+and [provisional membership review](../docs/vote-generation-party-memberships.md).
+Curated policies, public-source notes and restored cached poll answers are under
+`data/sources/party-drift/`; generated panels and Stan chains remain ignored under
+`data/derived/party-drift/`. The earlier
+[stage-0 stop](../docs/vote-generation-party-drift-stage0.md) remains historical evidence.
+For the earlier fixed-outcome research, use the separate
 [measured report](../docs/vote-generation-drift-results.md) and
 [testing guide](../docs/vote-generation-drift-testing.md). The offline
 runner consumes pinned historical elections and already downloaded polls,

@@ -1,6 +1,6 @@
 # Migration History
 
-Record through: 2026-10-22
+Record through: 2026-10-26
 
 This file preserves the detailed migration record: completed implementation,
 decisions and rationale, verification results, encountered problems,
@@ -6030,3 +6030,97 @@ Versioning and fitting fingerprints remain required for the new contract.
 Verification: checked the focused documentation diff and whitespace; model math
 is unchanged. No runtime code or data changed. The active plan has no party-model
 legacy-adapter requirement to remove; its pre-existing edits were preserved.
+
+## 2026-10-26 — Party drift stage-0 implementation and inference stop
+
+Implemented a separate offline research path in
+`web/scripts/data-preparation/party-drift-*.ts`: versioned count/membership
+validation and semantic fingerprints; exact original grouped multinomial
+likelihood/gradient/observed Hessian; availability, Other and expected-valid-vote
+aggregate operators; conditional-scale neutral reference-prior calibration and
+backward/forward Gaussian construction; multiple-start reduced Laplace fitting,
+exact-likelihood elliptical slice sampling, chain diagnostics and independent
+aggregate/split-coordinate quadrature. Added focused unit tests and
+`data:forecast:party:validate` / `data:forecast:party:profile` commands. No source
+counts are split or converted to inferred component observations.
+
+Stopped at the requested preliminary gate. The separate-component posterior
+passes, but five inseparable-list fixtures fail the prespecified Laplace
+accuracy limits. A balanced 40% joint list has exact posterior mean 39.98%
+versus Laplace 52.38%; across fixtures the largest component mean discrepancy
+is 11.53 percentage points and largest 90% width ratio 2.47. All 54 starts reach
+gradient tolerance; 53 have positive-definite curvature and one symmetric
+saddle is excluded. Reference maximum split R-hat is 1.0073 and minimum ESS 684.
+Independent fine/coarse quadrature agrees to below 3e-13 in means and with
+sampling to 0.075 percentage points. This isolates a curved grouped-posterior
+approximation problem rather than a routine optimizer failure.
+
+The reduced validation takes 7.29 seconds on the i7-14700KF/64 GiB machine.
+Original-data census and 256/1,024/4,096-row kernel probes cover 63,426 usable
+municipality/election observations. Extrapolated countrywide count-only
+likelihood scans take 0.081 seconds. Direct reference-sampler expansion projects
+to 2.7 hours serial even with one proposal per iteration, or 14–18 hours using
+observed reduced proposal counts, before latent-state/poll/hyperparameter costs.
+This exceeds the 30-minute threshold; no countrywide fit was launched. Faster
+sparse inference has no accepted total-time estimate while its accuracy is open.
+
+Recommend retaining the probabilistic model while investigating explicit
+non-Gaussian integration of weak split directions, with sparse approximations
+only in validated directions. Did not tighten priors, collapse requested
+identities or select an alternative engine automatically. The decision, exact
+measurements, artifact paths, commands and remaining scope are in
+`docs/vote-generation-party-drift-stage0.md`; the active plan now requires
+resolving this blocker before full-data fitting or stages 1–7. Complete scenario
+and browser contracts, joint scale fitting, hard/soft constraint posterior
+conditioning, grouped poll/temporal posterior checks and prior sensitivity
+remain open. Earlier fixed-outcome results are unchanged.
+
+Verification: `npm run check:data` passes; all 1,018 tests in 77 files pass,
+including 16 new research tests. The separate research validation command saves
+its evidence and exits nonzero for the measured accuracy failure; a passing
+unit suite does not approve the approximation. No UI/browser acceptance was
+run for these offline-only scripts. Production generator, defaults and source
+data are unchanged; stages 1–7, full-data fitting, commit and publication were
+not performed.
+
+## 2026-10-26 — Restricted components, offline Stan and user-requested pause
+
+Added Luca's admissible-component restriction to the model and research-v2
+contract: collective distinguishing information must be available at each
+cutoff; neutral priors alone do not authorize a requested split. Implemented
+share-scale soft-reference calibration and exact aggregate hard conditioning.
+All eight restricted reference samplers pass their diagnostics. Laplace passes
+seven fixtures but misses the broad soft-reference within-list mean by 7.75 pp
+(largest elector component error 4.35 pp). Exact-density Student-t importance
+correction passes the one-city case but fails ESS/weight gates at eight cities.
+The authorized final offline Stan fallback passes reduced soft/hard references;
+its 30-minute gate is waived. Detailed measurements and reproduction are in
+`docs/vote-generation-party-drift-restricted.md`.
+
+Prepared the source-backed provisional membership proposal for Luca's later
+review: 189 source-label rows, 107 statistical identities, original counts
+conserved. Restored full answer lists from two already cached 2024 survey PDFs
+only in a research sidecar, without duplicate surveys or production-source
+changes. The full-list cutoff audit leaves 23/24 cases unresolved. Luca chose
+admissible research panels; implemented conservative cutoff-specific pooling,
+original-basis Other complements and source-preserving outcome coarsening. The
+first 24-panel structural preflight passes with 5–28 components. Final geography
+preparation also retains future-only municipalities as missing-history units.
+
+Implemented a conditional-scale real-data Stan pilot with original grouped
+counts, backward Gaussian priors, common volatility inference and literal polls.
+Independent NumPy density/gradient checks pass. A 47-parameter real case completes
+in 1.13 seconds with R-hat 1.0045, minimum ESS 1,266 and no divergence/depth hits.
+Its rough city-linear full-size estimate is 75.8 minutes; this is not an estimate
+or convergence result for the larger later models. Corrected the initial metric's
+array serialization after two explicitly unusable interrupted engineering runs.
+
+**Luca requested pausing on 26 October 2026 at 16:10 Europe/Rome.** Stopped all
+four verified active chain processes and preserved the checkpoint under
+`data/derived/party-drift/stan-real-673eff932932/paused-attempt.json`. That larger
+16-municipality/4,762-parameter pilot reached warmup iteration 100 in all chains;
+its 349-second interrupted run supplies no accepted posterior or convergence
+failure. No countrywide fitting, stages 1–7, production changes, commit or
+publication occurred. Resume with fresh warmup from the saved prepared inputs.
+Focused verification reached 23 passing research tests and a passing preparation
+type check; the full suite was not rerun after the follow-up's final edits.

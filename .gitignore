@@ -43,6 +43,11 @@ vignettes/*.pdf
 # Downloaded data
 /dati/
 /data/sources/*
+!/data/sources/party-drift/
+/data/sources/party-drift/*
+!/data/sources/party-drift/memberships-policy.json
+!/data/sources/party-drift/membership-sources.json
+!/data/sources/party-drift/poll-refinements.json
 !/data/sources/polls/
 # Poll JSON is authoritative; downloaded PDFs remain ignored.
 /data/sources/polls/*

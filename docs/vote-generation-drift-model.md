@@ -29,7 +29,11 @@ The planned production workflow estimates the scenario-specific model in browser
 workers after semantic membership or reference-date edits. A matching precomputed
 default fit with a fixed reference date may be served to avoid that computation.
 Browser fitting, its latency and posterior accuracy have not yet been implemented
-or verified. This specification changes
+or verified. The authorized research fallback has now reached offline Stan;
+see the [restricted-scenario results](vote-generation-party-drift-restricted.md).
+Where that fallback is required, semantic scenario edits require a newly prepared
+posterior before generation. Serving a prepared fit does not supply arbitrary
+interactive browser refitting. This specification changes
 neither the existing generator nor legal scrutiny defaults. Use already downloaded
 compatible polls for the next research round.
 
@@ -40,9 +44,51 @@ historical observations and the scenario ballot. A component need not previously
 have stood alone. Include scenario-defined new components and retain an explicit
 unresolved political component where the sources cannot support a finer identity.
 An opaque joint group may remain atomic when neither observations nor the future
-scenario distinguish its members. A requested future split does justify historical
-latent components even without separate past observations; retain their uncertainty.
+scenario distinguish its members. A requested future split justifies historical
+latent components only with the distinguishing information required below;
+retain the uncertainty remaining after that information is supplied.
 Party identity and its available statistical evidence are separate concepts.
+
+### Admissible component resolution
+
+Do not expose separately represented political components that the effective
+scenario cannot distinguish. Components that always occur jointly and whose
+separate results are not needed remain one atomic statistical component.
+Otherwise require distinguishing information from cutoff-available separate
+election observations, compatible poll answers, or explicit user reference
+shares. Validate the independent within-group contrasts collectively: a group
+of $m$ otherwise inseparable components generally needs $m-1$ independent
+distinguishing inputs. A joint-list total supplies no internal split information.
+An Other answer can contribute through its declared complement and overlapping
+information; a component need not be explicitly named in a poll. Merely placing
+several otherwise indistinguishable components in Other does not resolve them.
+
+Apply this check to the evidence actually available at each reference cutoff,
+not to later elections or polls. A future separate ballot by itself is not an
+observation. Proper neutral priors alone do not satisfy the requirement. Reject
+unresolved requested splits with an explanation of the missing inputs rather
+than silently manufacturing shares, votes or extra components. The preparation
+membership table is a minimal, source-backed proposal for Luca's review; do not
+decompose every organizational ancestor or candidate endorsement into a component.
+
+Distinguish structural resolution from information strength. A broad soft
+reference may supply a distinguishing input while leaving a difficult posterior;
+measure that weakness and validate the estimator rather than declaring it
+accurate from a rank check. A national reference constrains an aggregate, not
+every municipal split, historical trajectory or component-specific volatility.
+Proper pooling remains necessary for these latent quantities and for the
+national/local decomposition; the restriction does not require all latent
+coordinates to be independently identified by observations.
+
+For the chronological research, Luca authorizes cutoff-specific admissible
+panels. Retain distinguishable core components and the supported joint-list
+closure. Pool unsupported or unresolved identities into explicitly named atomic
+research outcomes, coarsening intersecting source groups while conserving their
+counts once. Construct Other complements before pooling. Future ballot
+memberships and electorates are conditional scenario inputs; held-out vote
+shares cannot determine the panel or its priors. Score pooled outcomes only at
+their declared aggregate resolution. This research convention does not alter
+original source counts, production ballots or the full scenario contract.
 
 Identity rules:
 
@@ -304,7 +350,8 @@ Do not add independent split coefficients. Joint counts identify the aggregate,
 not every internal contrast. Separate-party elections and ordinary party-intention
 polls available at the cutoff may inform that contrast through the temporal model.
 Otherwise exchangeable proper priors give equal expected contributions with
-uncertainty. Preserve shared national split uncertainty and pool weakly informed
+uncertainty, but a requested separate representation must additionally satisfy
+the admissible-resolution requirement above. Preserve shared national split uncertainty and pool weakly informed
 local differences; independent municipal splits must not manufacture national
 certainty through averaging. Proper priors do not turn prior-driven parameters
 into data-identified estimates. No voter-movement information is used.
@@ -513,7 +560,7 @@ non-valid support on valid voting or claiming separate turnout identification.
 
 ## Browser estimation, default fits and invalidation
 
-The browser is the production fitting target after scenario editing. Run fitting
+The browser is the preferred production fitting target after scenario editing. Run fitting
 in cancellable workers with progress, deterministic seeds, numerical diagnostics
 and versioned outputs; keep editing/rendering responsive. Benchmark real party
 counts and geographic scale before claiming acceptable fitting latency.
@@ -551,6 +598,24 @@ are required. Existing artifacts are tests and may be replayed with the old app
 version when needed. Do not reinterpret old factors as memberships or claim
 browser fitting already exists.
 
+### Authorized research fallback order
+
+Test the admissible scenario class with distinguishing observations and exact
+or soft aggregate reference shares before selecting inference. Try sparse
+Laplace first and compare it against reduced sampling/integration, including
+weak but structurally resolved cases. If accuracy fails, or measured full-data
+fitting is estimated above 30 minutes on Luca's machine, try reasonable
+alternative estimators while preserving the approved probability model and
+original grouped likelihood. Keep the 30-minute gate for these candidates.
+
+Stan sampling is the final gold-standard fallback. If the earlier candidates
+fail, Luca authorizes moving fitting to offline data preparation and waives the
+30-minute gate for that fallback. Record actual convergence, accuracy, memory
+and elapsed time; elapsed time alone cannot certify a fit. In that case revise
+the planned scenario-specific fitting workflow explicitly: serving a posterior
+from preparation does not implement browser refitting after arbitrary edits.
+Production generation remains unchanged throughout this research.
+
 ## Volatility comparisons and chamber compatibility
 
 Compare common $\sigma_\eta$ with partially pooled component-specific
@@ -579,6 +644,16 @@ European observations alone do not identify Camera/Senato divergence. A combined
 non-valid outcome cannot enforce separate abstention/invalid-ballot identities.
 
 ## Desired staged research plan
+
+Execution status, 26 October 2026: the
+[restricted-scenario follow-up](vote-generation-party-drift-restricted.md)
+records a remaining Laplace accuracy failure despite structural resolution,
+failure of a global importance correction as geography increases, and passing
+reduced offline Stan checks. The provisional source-backed membership table
+and authorized admissible panels are prepared. Real-data computability and
+posterior validation still gate full-data fitting and stages 1–7. The
+[original stage-0 report](vote-generation-party-drift-stage0.md) remains historical
+evidence. Runtime adoption and the complete scenario/fitting workflow are pending.
 
 Revalidate the party/grouped-observation implementation before extending the
 earlier comparison. Its results remain evidence about the old outcome basis.

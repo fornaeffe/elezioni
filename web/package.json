@@ -43,7 +43,16 @@
     "data:forecast:drift:check": "tsx --tsconfig tsconfig.json scripts/data-preparation/drift-study-cli.ts check",
     "data:forecast:drift:generate": "tsx --tsconfig tsconfig.json scripts/data-preparation/drift-study-cli.ts generate",
     "data:forecast:drift:compare": "tsx --tsconfig tsconfig.json scripts/data-preparation/drift-comparison-cli.ts",
-    "data:forecast:drift:validate": "tsx --tsconfig tsconfig.json scripts/data-preparation/drift-bayesian-check.ts"
+    "data:forecast:drift:validate": "tsx --tsconfig tsconfig.json scripts/data-preparation/drift-bayesian-check.ts",
+    "data:forecast:party:validate": "tsx --tsconfig tsconfig.json scripts/data-preparation/party-drift-research-cli.ts validate",
+    "data:forecast:party:profile": "tsx --tsconfig tsconfig.json scripts/data-preparation/party-drift-research-cli.ts profile",
+    "data:forecast:party:restricted": "tsx --tsconfig tsconfig.json scripts/data-preparation/party-drift-restricted-cli.ts",
+    "data:forecast:party:importance": "tsx --tsconfig tsconfig.json scripts/data-preparation/party-drift-importance-stress-cli.ts",
+    "data:forecast:party:memberships": "tsx --tsconfig tsconfig.json scripts/data-preparation/party-drift-memberships-cli.ts generate",
+    "data:forecast:party:cutoffs": "tsx --tsconfig tsconfig.json scripts/data-preparation/party-drift-cutoff-audit-cli.ts",
+    "data:forecast:party:panels": "tsx --tsconfig tsconfig.json scripts/data-preparation/party-drift-panel-cli.ts",
+    "data:forecast:party:stan:prepare": "tsx --tsconfig tsconfig.json scripts/data-preparation/party-drift-stan-export-cli.ts",
+    "data:forecast:party:real:prepare": "tsx --tsconfig tsconfig.json scripts/data-preparation/party-drift-real-export-cli.ts"
   },
   "devDependencies": {
     "@playwright/test": "1.60.0",
