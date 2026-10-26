@@ -203,11 +203,16 @@ into `main`; public deployment follows that merge and a successful hosting gate.
     ordinary/internal cap lists; preserve upstream targets and recovery states.
   - [x] LG05 N16 integer-only surplus donors: extend warned I13 while retaining
     ordered surplus lists and existing recipient rules; do not extend I16.
+  - [x] LG06 observed zero-vote cap-group chain: apply warned I17 only to
+    Camera cap-path N16 corrective recipients with zero constituency votes;
+    search other recipients and retain explicit exhaustion. Other zero-vote
+    seat cases require separate review.
 - [ ] Correct meaningful local support for future filed lists without historical
   candidature/support, including Sud chiama Nord in Molise/Basilicata. Separate
   historical absence from future filing zeros; choose an explicit local estimate
-  or scenario reference before implementation. Keep the LG06 zero-quota blocker;
-  Luca rejected an automatic sole-college pass. See the
+  or scenario reference before implementation. I17 prevents the observed
+  corrective zero-vote award without correcting generation; keep other zero-quota
+  blockers. Luca rejected an automatic sole-college pass. See the
   [generation diagnosis](docs/politics-reform-2026-generation.md#filed-lists-without-local-history).
 - [x] Align pre-2026 reform and 2026 reform UI:
   - [x] adapt the pre-2026 reform scenario editor UI for the 2026 reform,

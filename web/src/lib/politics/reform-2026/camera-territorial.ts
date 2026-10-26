@@ -170,6 +170,7 @@ export function allocateCameraCoalitionListsInConstituencies(
     }
     const m = allocateTerritorialMatrix({ chamber: 'camera', contextId: `camera/${base.simulationId}/coalition/${t.subject.id}`,
       simulationId: base.simulationId, norm: 'N16', lawReference: 'C83(1)(i),(1-ter)(e); C83(1)(h), periods 9+',
+      ...(input.national.path === 'bonus-with-cap' ? { correctionRecipientPolicy: 'camera-cap-positive-votes' as const } : {}),
       targets: members.map(l => ({ id: l.listId, seats: l.ordinarySeats, votes: l.votes })),
       areas: local.map(c => ({ id: c.territoryId, seats: c.ordinarySeats, entries: members.map(l => ({ id: l.listId,
         votes: votes(territoryFigures(input, c.territoryId), list(l.listId)), tieVotes: votes(territoryFigures(input, c.territoryId), list(l.listId)),

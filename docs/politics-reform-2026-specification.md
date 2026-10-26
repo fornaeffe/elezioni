@@ -436,7 +436,8 @@ and Senate paired corrections retain their independently ranked colleges.
 N16 retains h's surplus-list ordering, including national-vote/I03 ties,
 same-constituency recipient preference and cross-constituency fallback. Integer
 fallback considers only the currently ordered surplus list. Recipient decimals
-must remain unused; the donor extension does not extend I16 to N16.
+must remain unused; the donor extension does not extend I16 to N16. I17 adds
+the separately approved positive-vote recipient requirement only on the cap path.
 I13 itself does not change recipient rules; I16 separately handles LG04 list
 recipients. Preserve decimal/remainder state for integer
 removals, mark transfers and emit `I13_INTEGER_SEAT_REMOVAL` per removal.
@@ -496,6 +497,8 @@ transcription:
   zero-remainder exclusion.** A filed list with zero votes still has its
   existing arithmetic zero remainder; positive votes divisible exactly by the
   quota likewise retain their zero remainder and existing eligibility rules.
+  The later I17 exception below applies only to zero-vote corrective recipients
+  in Camera's cap-path N16 list split, not to zero decimals generally.
 
 I12 constrains **ordinary territorial entitlement** before proclamation; it
 does not change national thresholds, first place, bonus eligibility, special
@@ -614,3 +617,35 @@ supplies that fallback, rather than claiming a literal statutory rule.
   I13 donor rules remain intact. I15-v2 separately covers mismatched Camera
   cap groups; balanced cap-group, constituency, regional and candidate-recovery
   algorithms are outside I16. No input or result schema version changes.
+
+### Zero-vote recipients in Camera cap-path N16 corrections (I17)
+
+I17-v1, authorized by Luca on 26 October 2026, addresses the observed LG06
+chain: C83(1-ter)(e)'s N16 internal-list correction assigns a seat to a list
+with zero constituency votes, leaving N18 a positive-seat zero-vote cap group.
+This is a provisional simulator interpretation, not an official reading.
+
+- Enable the policy only in Camera N16 coalition-list correction matrices when
+  the national path is `bonus-with-cap`. Zero constituency votes imply zero
+  votes in every college there. Exclude those zero-vote list/constituency cells
+  from the unused corrective recipient pool before same-area donor preference.
+  Continue the existing search through other donor constituencies and the
+  cross-constituency route. Retain list priority, I03 draws, I13 donors and every
+  national list entitlement. I16 reuse remains unavailable in N16.
+- Test actual votes, not decimal size. A positive vote count with an exact zero
+  decimal remains eligible. Exclusion changes neither filing eligibility nor
+  the cell's exact decimal/remainder state. Do not fabricate votes or quotas.
+- If recipients exhaust, return `no-eligible-recipient-remainder`, retaining
+  the warning and completed evidence; do not reroll or relax the restriction.
+- Emit one `I17_ZERO_VOTE_CORRECTION_RECIPIENT` warning per correction matrix
+  that excludes candidates, listing the excluded list/constituency cells.
+  Record `I17-v1` in composed metadata. Affected transfers carry I17; preserve
+  an I13/I14 donor's primary interpretation and list both policies in
+  `interpretationIds`. Warnings and transfer context remain exportable.
+- Initial N16 allocation, non-cap N16, N15/N17 subject allocation, N18 college
+  allocation, Senate, special seats, proclamation and recovery keep their current
+  rules. A list with positive constituency votes but zero votes in one college
+  is also outside this change. Other positive-seat zero-vote cases require
+  separate review. The undefined N18 quota remains blocked if supplied through
+  another route; neither a sole-college bypass nor neutral allocation weights
+  are implemented.

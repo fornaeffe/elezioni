@@ -23,6 +23,8 @@ export interface TerritorialMatrixInput {
    * Camera corrections; or C83-bis(1-bis)(c)/S17(5)(c), respectively. */
   readonly correction: 'constituencies' | 'colleges' | 'independent-colleges' | 'college-groups';
   readonly initialTieFigure: 'national-electoral-figure' | 'constituency-electoral-figure' | 'college-electoral-figure';
+  /** I17 is opted into only by Camera's cap-path N16 internal list correction. */
+  readonly correctionRecipientPolicy?: 'camera-cap-positive-votes';
   /** Absent: integer local quota. Present: truncated indices, then normalization.
    * null marks an inactive zero-target group; its quota/index is never divided. */
   readonly indexQuotas?: readonly { readonly id: string; readonly quota: ExactFraction | null }[];
@@ -48,9 +50,9 @@ export interface TerritorialMatrixCell {
 }
 export interface TerritorialMatrixTransfer {
   /** Provisional integer removal, initial/recipient reuse, or disjoined cap correction. */
-  readonly interpretationId?: 'I13' | 'I14' | 'I15' | 'I16';
+  readonly interpretationId?: 'I13' | 'I14' | 'I15' | 'I16' | 'I17';
   /** All policies when donor and recipient need different fallbacks. */
-  readonly interpretationIds?: readonly ('I13' | 'I14' | 'I15' | 'I16')[];
+  readonly interpretationIds?: readonly ('I13' | 'I14' | 'I15' | 'I16' | 'I17')[];
   /** Independent b(3) / I15 corrections have only a donor or only a recipient. */
   readonly fromCellId: string | null;
   readonly toCellId: string | null;
@@ -68,6 +70,7 @@ interface MatrixTrace {
   readonly contextId: string;
   readonly initialTieFigure: TerritorialMatrixInput['initialTieFigure'];
   readonly correction: TerritorialMatrixInput['correction'];
+  readonly correctionRecipientPolicy?: TerritorialMatrixInput['correctionRecipientPolicy'];
   readonly indexQuotas: TerritorialMatrixInput['indexQuotas'] | null;
   readonly areas: readonly { readonly id: string; readonly capacity: number; readonly rawQuota: ExactFraction | null;
     readonly quota: ExactFraction | null; readonly finalSeats: number }[];
@@ -96,6 +99,10 @@ export function allocateTerritorialMatrix(input: TerritorialMatrixInput, executi
       !Number.isSafeInteger(input.simulationId) || input.simulationId < 0) throw new RangeError('Invalid territorial matrix IDs');
   targets.forEach(t => sumVoteCounts([t.seats, t.votes]));
   const independent = input.correction === 'independent-colleges';
+  if (input.correctionRecipientPolicy !== undefined && (input.correctionRecipientPolicy !== 'camera-cap-positive-votes' ||
+      input.chamber !== 'camera' || input.norm !== 'N16' || input.correction !== 'constituencies' || input.indexQuotas)) {
+    throw new RangeError('Positive-vote correction recipients require the Camera cap-path N16 list matrix');
+  }
   if (independent && (input.chamber !== 'camera' || input.norm !== 'N18' || input.indexQuotas)) {
     throw new RangeError('Independent college corrections require the Camera N18 list quota path');
   }
@@ -123,6 +130,7 @@ export function allocateTerritorialMatrix(input: TerritorialMatrixInput, executi
   const quotas: { id: string; capacity: number; rawQuota: ExactFraction | null; quota: ExactFraction | null }[] = [];
   const transfers: TerritorialMatrixTransfer[] = [];
   const warnings: ReformWarning[] = [];
+  const excludedZeroVoteRecipients = new Set<string>();
   if (disjoinedGroups) warnings.push({ code: 'I15_DISJOINED_GROUP_CORRECTION', severity: 'warning',
     electionKind: 'politiche', simulationId: input.simulationId, chamber: 'camera', interpretationId: 'I15',
     lawReference: input.lawReference,
@@ -131,10 +139,15 @@ export function allocateTerritorialMatrix(input: TerritorialMatrixInput, executi
   const finish = (failure?: { phase: 'initial' | 'remainders' | 'correction'; reason: string }): TerritorialMatrixResult => structuredClone({
     chamber: input.chamber, norm: input.norm, lawReference: input.lawReference, contextId: input.contextId,
     initialTieFigure: input.initialTieFigure, correction: input.correction,
+    ...(input.correctionRecipientPolicy ? { correctionRecipientPolicy: input.correctionRecipientPolicy } : {}),
     indexQuotas: input.indexQuotas ? [...input.indexQuotas].sort((a, b) => a.id < b.id ? -1 : a.id > b.id ? 1 : 0) : null,
     targets, cells, transfers, resolutions,
     areas: quotas.map(a => ({ ...a, finalSeats: sumVoteCounts(cells.filter(c => c.areaId === a.id).map(c => c.seats)) })),
-    draws: resolutions.flatMap(r => r.draws), warnings: [...resolutions.flatMap(r => r.warnings), ...warnings],
+    draws: resolutions.flatMap(r => r.draws), warnings: [...resolutions.flatMap(r => r.warnings), ...warnings,
+      ...(excludedZeroVoteRecipients.size ? [{ code: 'I17_ZERO_VOTE_CORRECTION_RECIPIENT', severity: 'warning' as const,
+        electionKind: 'politiche' as const, simulationId: input.simulationId, chamber: input.chamber,
+        interpretationId: 'I17' as const, lawReference: input.lawReference, reason: 'zero-vote-correction-recipient',
+        message: `Provisional I17-v1: ${input.contextId}; Camera cap-path N16 corrections exclude zero-vote list/constituency recipients ${JSON.stringify([...excludedZeroVoteRecipients].sort())}; search other eligible recipients using the existing same-area/cross-area rules. No fallback if recipients exhaust.` }] : [])],
     ...(failure ? { status: 'non-computable' as const, ...failure } : { status: 'complete' as const })
   });
   const choose = (options: readonly { id: string; values: readonly ExactFraction[] }[], criteria: readonly TieCriterion[],
@@ -191,6 +204,14 @@ export function allocateTerritorialMatrix(input: TerritorialMatrixInput, executi
   const recipientPool = (ids: ReadonlySet<string>, allowReuse: boolean) => {
     let pool = cells.filter(c => ids.has(c.targetId) && c.allocationEligible &&
       c.remainderState === 'unused' && c.decimalPart !== null);
+    // C83(1-ter)(e) imports i/h's corrective recipient search. Approved
+    // provisional I17-v1 (26 October 2026) excludes zero-VOTE recipients
+    // only here, before same-area donor preference. Zero constituency votes
+    // imply zero votes in all its colleges. Initial remainders, other paths,
+    // and positive votes with an arithmetic zero decimal retain their rules.
+    const excluded = input.correctionRecipientPolicy ? pool.filter(c => c.votes === 0) : [];
+    excluded.forEach(c => excludedZeroVoteRecipients.add(c.id));
+    if (excluded.length) pool = pool.filter(c => c.votes > 0);
     const reuse = allowReuse && !pool.length;
     if (reuse) {
       const used = cells.filter(c => ids.has(c.targetId) && c.allocationEligible &&
@@ -201,7 +222,7 @@ export function allocateTerritorialMatrix(input: TerritorialMatrixInput, executi
         pool = used;
       }
     }
-    return { pool, reuse };
+    return { pool, reuse, zeroVoteExclusion: excluded.length > 0 };
   };
   const warnRecipientReuse = (cell: TerritorialMatrixCell) => warnings.push({
     code: 'I16_REUSED_RECIPIENT_REMAINDER', severity: 'warning', electionKind: 'politiche',
@@ -387,7 +408,7 @@ export function allocateTerritorialMatrix(input: TerritorialMatrixInput, executi
     if (fallback) donors = integerDonors(surplus).filter(d => (!ordered || d.targetId === ordered) &&
       (input.correction !== 'college-groups' ||
         cells.some(r => r.areaId === d.areaId && r.allocationEligible && deficits.has(r.targetId))));
-    const { pool: recipients, reuse } = recipientPool(deficits, reuseLists);
+    const { pool: recipients, reuse, zeroVoteExclusion } = recipientPool(deficits, reuseLists);
     if (input.correction === 'constituencies') {
       const local = donors.filter(d => recipients.some(r => r.areaId === d.areaId));
       if (local.length) donors = local;
@@ -416,9 +437,11 @@ export function allocateTerritorialMatrix(input: TerritorialMatrixInput, executi
     const recipient = cells.find(c => c.id === recipientId)!;
     const donorAfter = fallback ? donor.remainderState : donorAfterRemoval(donor);
     const donorPolicy = fallback ? 'I13' as const : donorInterpretation(donor).interpretationId;
+    const movementPolicies = [...(donorPolicy ? [donorPolicy] : []), ...(reuse ? ['I16' as const] : []),
+      ...(zeroVoteExclusion ? ['I17' as const] : [])];
     transfers.push({ fromCellId: donor.id, toCellId: recipient.id,
-      ...(donorPolicy ? { interpretationId: donorPolicy } : reuse ? { interpretationId: 'I16' as const } : {}),
-      ...(reuse && donorPolicy ? { interpretationIds: [donorPolicy, 'I16' as const] } : {}),
+      ...(movementPolicies.length ? { interpretationId: movementPolicies[0] } : {}),
+      ...(movementPolicies.length > 1 ? { interpretationIds: movementPolicies } : {}),
       route: donor.areaId === recipient.areaId ? 'same-area' : 'cross-area',
       fromSeatsBefore: donor.seats, toSeatsBefore: recipient.seats,
       remainders: [{ id: donor.id, value: remainder(donor), before: donor.remainderState, after: donorAfter },

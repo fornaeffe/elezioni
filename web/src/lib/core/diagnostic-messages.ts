@@ -33,6 +33,7 @@ export function diagnosticTitle(code: string): string {
     R26_RUN_ERROR: 'Simulazione non eseguita',
     I15_DISJOINED_GROUP_CORRECTION: 'Correzione dei gruppi disgiunti',
     I16_REUSED_RECIPIENT_REMAINDER: 'Riutilizzo dei resti dei destinatari',
+    I17_ZERO_VOTE_CORRECTION_RECIPIENT: 'Esclusione di destinatari senza voti nelle correzioni N16 con tetto',
     I13_INTEGER_SEAT_REMOVAL: 'Sottrazione di seggi interi',
     I14_REPEATED_REMAINDER_PASS: 'Passaggi ripetuti sui resti',
     I03_DRAW: 'Parità risolta mediante sorteggio',

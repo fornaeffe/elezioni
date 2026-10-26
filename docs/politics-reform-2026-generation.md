@@ -177,7 +177,11 @@ epsilon is not a reviewed estimate. Keep future unfiled cells at zero, preserve
 turnout and reference precedence, and test national/local reconciliation. No
 support-model or scenario correction has yet been selected or applied.
 The N18 positive-seat zero-vote blocker remains; the sole-college bypass was
-explicitly rejected. Detailed input/source/replay evidence is in migration
+explicitly rejected. The later approved I17 legal workaround excludes zero-vote
+recipients only in Camera cap-path N16 corrective transfers, preventing the
+observed eight failures without changing this generation model. Other zero-vote
+seat cases retain their existing treatment pending separate review.
+Detailed input/source/replay evidence is in migration
 history and `data/derived/r26-manual-tests/scn-molise-trace.json`.
 
 ## Interpretation limits

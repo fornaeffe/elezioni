@@ -20,7 +20,7 @@ and verification history in [migration history](migration-history.md).
 | LG03 | C83-bis(1-bis)(b)-(c), C3: fixed college capacity differs from the constituency entitlement communicated upstream | Warned disjoined Camera cap-group corrections under provisional I15-v2 |
 | LG04 | C83-bis(1)(b)(3) and S17(4)(c), including their cap-list imports: a deficient list has exhausted all unused college decimals | Warned repeated used-decimal recipient passes under provisional I16-v1 |
 | LG05 | C83(1)(i), importing C83(1)(h), also through C83(1-ter)(e): a surplus internal list has only integer constituency seats | Warned I13-v1 extension to Camera N16, approved 26 October 2026 |
-| LG06 | C83-bis(1-bis)(a)-(b): a positive-seat cap group has zero votes after upstream list corrections | I04 still blocks; sole-college bypass rejected; the observed case requires an upstream support-model correction |
+| LG06 | C83-bis(1-bis)(a)-(b): a positive-seat cap group has zero votes after upstream list corrections | Warned I17-v1 excludes zero-vote recipients only in Camera cap-path N16 corrective transfers; other zero-vote cases remain unchanged |
 
 ## LG01: ordinary list donor exhaustion
 
@@ -221,7 +221,7 @@ republication, requires a group quota and then division by it. It supplies no
 fallback for a positive-seat group whose eligible list votes sum to zero.
 This differs from the inactive zero-seat group already handled by I04.
 
-**Example:** simulation 311, same archive/seed. N16 transfers an FdI remainder
+**Pre-I17 example:** simulation 311, same archive/seed. N16 transfers an FdI remainder
 seat in Molise to Sud chiama Nord, which has a filed slate but zero votes there.
 Same-area correction takes precedence over larger recipient decimals elsewhere;
 zero is a defined unused decimal under the current contract. Final local list
@@ -232,7 +232,7 @@ Basilicata. In each, Sud chiama Nord is the sole positive-entitlement list in
 the zero-vote group. Lists with zero territorial seats are excluded from these
 group vote totals, as required by the current N18 contract.
 
-**Luca's decision, 26 October 2026:** do not bypass the zero-vote calculation
+**Initial decision, 26 October 2026:** do not bypass the zero-vote calculation
 by passing targets directly to the sole college. Correct the scenario/support
 model upstream; keep I04's explicit zero-quota blocker. The traced case has no
 historical Sud chiama Nord rows in Molise/Basilicata, despite future filed
@@ -242,6 +242,25 @@ not evidence that a new downstream legal workaround is required. See the
 [generation limitation](politics-reform-2026-generation.md#filed-lists-without-local-history).
 Changing recipient eligibility or inventing local support is not part of the
 approved N16 donor extension.
+
+**Subsequent approved treatment, 26 October 2026:** Luca chose to prevent the
+observed corrective zero-vote seat award, allowing recipient exhaustion to
+remain non-computable. Implemented I17-v1 only for Camera N16 internal-list
+corrections on the `bonus-with-cap` path. Exclude recipients with zero
+constituency list votes before searching same-area and cross-area alternatives.
+This prevents awarding a seat in a constituency where every college has zero
+votes for that list. Preserve positive votes with an arithmetic zero decimal.
+The [I17 contract](politics-reform-2026-specification.md#zero-vote-recipients-in-camera-cap-path-n16-corrections-i17)
+defines warnings, transfer metadata, exhaustion and scope exclusions. Initial
+awards, non-cap N16, N18, Senate and candidate recovery are not generalized to
+a positive-vote requirement. Other positive-seat zero-vote cases need separate
+discussion. The source-generation shortcoming remains independently open.
+
+An isolated counterfactual completed all eight zero-quota examples before the
+runtime change. Production replay after implementation completes all 19 original
+failures with 588 distinct elected candidates each; the eleven I13-completed runs
+retain their seat targets, and the eight new completions carry I17 warnings.
+Evidence is under `data/derived/r26-manual-tests/`; see migration history.
 
 ## I13 evidence and downstream constraints
 

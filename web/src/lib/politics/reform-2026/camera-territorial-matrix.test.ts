@@ -430,6 +430,68 @@ describe('Camera territorial integer/remainder matrices and legal corrections', 
     lawReference: 'C83(1)(i),(1-ter)(e); C83(1)(h), periods 9+', initialTieFigure: 'constituency-electoral-figure',
     areas: f.areas.map(a => ({ ...a, entries: a.entries.map(e => ({ ...e, tieVotes: e.votes })) })) });
 
+  const capRecipients = (f: TerritorialMatrixInput): TerritorialMatrixInput => ({ ...coalitionLists(f),
+    correctionRecipientPolicy: 'camera-cap-positive-votes' });
+
+  it('I17 searches another donor area before assigning a zero-vote cap-path N16 recipient', () => {
+    const f = fixture([1, 1, 1], [[60, 0, 40], [70, 30, 0], [0, 10, 90]], [1, 1, 1]);
+    const ordinary = complete(coalitionLists(f)), input = capRecipients(f), before = structuredClone(input), r = complete(input);
+    expect(ordinary.transfers[0]).toMatchObject({ fromCellId: '["T0","A"]', toCellId: '["T0","B"]' });
+    expect(r.transfers[0]).toMatchObject({ fromCellId: '["T1","A"]', toCellId: '["T1","B"]',
+      route: 'same-area', interpretationId: 'I17' });
+    expect(r.cells.find(c => c.id === '["T0","B"]')).toMatchObject({ votes: 0, seats: 0, decimalPart: exactFraction(0), remainderState: 'unused', allocationEligible: true });
+    expect(r.warnings).toEqual([expect.objectContaining({ code: 'I17_ZERO_VOTE_CORRECTION_RECIPIENT',
+      severity: 'warning', interpretationId: 'I17', reason: 'zero-vote-correction-recipient' })]);
+    expect(r.areas.map(a => a.finalSeats)).toEqual([1, 1, 1]);
+    expect(input).toEqual(before);
+  });
+
+  it('I17 retains a positive-vote recipient whose arithmetic decimal is zero', () => {
+    const r = complete(capRecipients(fixture([1, 3, 1], [[60, 0, 40], [80, 100, 20], [0, 100, 100]], [1, 2, 2])));
+    expect(r.transfers[0]).toMatchObject({ toCellId: '["T1","B"]', interpretationId: 'I17' });
+    expect(r.cells.find(c => c.id === '["T1","B"]')).toMatchObject({ votes: 100, seats: 2, decimalPart: exactFraction(0) });
+  });
+
+  it('I17 preserves I13 integer-removal evidence and both policies on a cross-area transfer', () => {
+    const r = complete(capRecipients(fixture([1, 1, 2], [[210, 0, 90], [0, 40, 60]], [3, 1])));
+    expect(r.transfers[0]).toMatchObject({ fromCellId: '["T0","A"]', toCellId: '["T1","B"]',
+      route: 'cross-area', interpretationId: 'I13', interpretationIds: ['I13', 'I17'],
+      remainders: [expect.objectContaining({ before: 'unused', after: 'unused' }), expect.anything()] });
+    expect(r.warnings.filter(w => w.interpretationId === 'I13')).toHaveLength(1);
+    expect(r.warnings.filter(w => w.interpretationId === 'I17')).toHaveLength(1);
+  });
+
+  it('I17 retains explicit recipient exhaustion and its warning without consuming a donor', () => {
+    const r = run(capRecipients(fixture([1, 1, 1], [[60, 0, 40], [70, 0, 30], [0, 0, 100]], [1, 1, 1])));
+    expect(r).toMatchObject({ status: 'non-computable', phase: 'correction', reason: 'no-eligible-recipient-remainder' });
+    expect(r.transfers).toEqual([]);
+    expect(r.cells.find(c => c.id === '["T0","A"]')).toMatchObject({ seats: 1, remainderState: 'used' });
+    expect(r.warnings).toEqual([expect.objectContaining({ interpretationId: 'I17', severity: 'warning' })]);
+  });
+
+  it('I17 leaves initial zero-vote remainder awards unchanged', () => {
+    const f = fixture([1, 1, 0], [[60, 0, 40]], [2]);
+    const r = complete(capRecipients(f));
+    expect(r.cells.find(c => c.targetId === 'B')).toMatchObject({ votes: 0, seats: 1, remainderSeat: true });
+    expect(r.transfers).toEqual([]);
+    expect(r.warnings).toEqual([]);
+  });
+
+  it.each(['N15', 'N17', 'N18', 'N21', 'N22'] as const)('rejects activating I17 on %s', norm => {
+    expect(() => run({ ...capRecipients(fixture()), norm })).toThrow('Camera cap-path N16');
+  });
+
+  it('rejects activating I17 on Senate corrections', () => {
+    expect(() => run({ ...capRecipients(fixture()), chamber: 'senato' })).toThrow('Camera cap-path N16');
+  });
+
+  it('replays I17 warnings and transfer traces after input permutations and JSON serialization', () => {
+    const f = capRecipients(fixture([1, 1, 1], [[60, 0, 40], [70, 30, 0], [0, 10, 90]], [1, 1, 1]));
+    const r = complete(f);
+    expect(complete({ ...f, targets: [...f.targets].reverse(), areas: [...f.areas].reverse().map(a => ({ ...a, entries: [...a.entries].reverse() })) })).toEqual(r);
+    expect(JSON.parse(JSON.stringify(r))).toEqual(r);
+  });
+
   it('extends I13 to N16 integer donors while retaining same-area priority and decimal evidence', () => {
     // A has two integer seats for target one. B already used T0's decimal;
     // T1 permits a local transfer despite A's smaller decimal in T0.

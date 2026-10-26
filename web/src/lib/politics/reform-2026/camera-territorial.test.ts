@@ -105,6 +105,22 @@ describe('N15-N18 Camera territorial stages', () => {
       remainders: [expect.objectContaining({ before: 'unused', after: 'unused' }), expect.anything()] }));
   });
 
+  it('opts only the Camera cap path into I17 and exports its changed N16 transfer', () => {
+    const areas = [{ territory: 'X', seats: 1, A: 60, B: 0, C: 40, D: 0 },
+      { territory: 'Y', seats: 1, A: 70, B: 30, C: 0, D: 0 }, { territory: 'Z', seats: 1, A: 0, B: 10, C: 90, D: 0 }];
+    const ordinary = allocateCameraTerritorialSeats(fixture({ A: 1, B: 1, C: 1, D: 0 }, areas, { G: ['A', 'B', 'C'] }), noDraw);
+    const f = fixture({ A: 1, B: 1, C: 1, D: 0 }, areas, { G: ['A', 'B', 'C'] }, true);
+    const r = allocateCameraTerritorialSeats(f, noDraw);
+    expect(ordinary.lists.matrices[0].correctionRecipientPolicy).toBeUndefined();
+    expect(ordinary.lists.matrices[0].transfers[0]).toMatchObject({ toCellId: '["X","B"]' });
+    expect(r.status).toBe('complete');
+    expect(r.lists.matrices[0].correctionRecipientPolicy).toBe('camera-cap-positive-votes');
+    expect(r.lists.warnings).toContainEqual(expect.objectContaining({ code: 'I17_ZERO_VOTE_CORRECTION_RECIPIENT', severity: 'warning' }));
+    const transfers = allocationTransfers([f.chamber], [{ chamber: 'camera', cameraTerritorial: r } as ReformChamberExecution]);
+    expect(transfers).toContainEqual(expect.objectContaining({ norm: 'N16', interpretationId: 'I17',
+      from: expect.objectContaining({ territoryId: 'Y', listId: 'A' }), to: expect.objectContaining({ territoryId: 'Y', listId: 'B' }) }));
+  });
+
   it('passes corrected constituency targets into one-college constituencies', () => {
     const f = fixture({ A: 3, B: 3 }, [{ territory: 'X', seats: 3, A: 180, B: 120 }, { territory: 'Y', seats: 3, A: 170, B: 130 }]);
     const r = allocateCameraTerritorialSeats(f, noDraw);
