@@ -26,3 +26,23 @@ export function statisticalResult(scenario: ReformGenerationScenario, count = 12
     result: { type: 'result', status: 'completed', tables: tables.map(t => ({ ...t, rows: t.rows.map(r => t.columns.map(c => r[c] ?? null)) })), warnings: [],
       benchmark: { startedAt: '2026-10-22T00:00:00Z', elapsedMs: 1, simulations: count, dataVersion: scenario.snapshotVersion, scrutinyAlgorithmId: scenario.algorithmId, seed: scenario.seed } } };
 }
+
+/** Distinct national series to detect stale plots and accidental multiple rendering. */
+export function multipleSeriesResult(scenario: ReformGenerationScenario) {
+  const archive = statisticalResult(scenario, 12);
+  const national = archive.result.tables.find(t => t.name === reformSeriesTable)!;
+  const source = national.rows.filter(row => row[national.columns.indexOf('Kind')] === 'list');
+  national.rows = [];
+  let index = 0;
+  for (const chamber of ['camera', 'senato']) for (const kind of ['list', 'subject']) for (let entity = 1; entity <= 2; entity++) {
+    const unknown = index++;
+    for (const row of source) {
+      const values = Object.fromEntries(national.columns.map((column, i) => [column, row[i]]));
+      Object.assign(values, { Chamber: chamber, Kind: kind, Owner: `${kind}:constructed-${entity}`,
+        Name: `${chamber} ${kind} ${entity}`, Order: entity,
+        Elected: Number(values.Simulation) <= unknown ? null : entity });
+      national.rows.push(national.columns.map(column => values[column]));
+    }
+  }
+  return archive;
+}

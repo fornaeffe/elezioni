@@ -11,10 +11,14 @@
   import StreamedPlot from '../../results/StreamedPlot.svelte';
   import SearchSelect from '../../scenario/SearchSelect.svelte';
   import ReformSeriesPanel from './ReformSeriesPanel.svelte';
+  import ReformSeriesChart from './ReformSeriesChart.svelte';
   let { client, resultId, owner }: { client: ResultServiceClient; resultId: string; owner: string } = $props();
   let overview = $state.raw<StatisticsOverview | null>(null), boxes = $state.raw<BoxPlotResultChart[]>([]);
   let error = $state(''), selectedCollege = $state(''), localMeasure = $state<'elected' | 'entitled'>('elected');
-  let listScatter = $state(false), subjectScatter = $state(false), nationalSpines = $state(false), localSpine = $state(false), showSummary = $state(false), summaryPage = $state(0);
+  let scatter = $state(false), nationalSpines = $state(false), localSpine = $state(false), showSummary = $state(false), summaryPage = $state(0);
+  let meanChamber = $state<'camera' | 'senato'>('camera'), boxChamber = $state<'camera' | 'senato'>('camera');
+  const meanLists = $derived(overview?.series.filter(s => s.chamber === meanChamber && s.kind === 'list') ?? []);
+  const selectedBoxes = $derived(boxes.map(chart => ({ ...chart, panels: chart.panels.filter(panel => panel.label === boxChamber) })));
   const selected = $derived(overview?.colleges.find(c => c.id === selectedCollege));
   const table = $derived(overview ? summaryTable(overview) : null);
   const headings: Record<string, string> = { Chamber: 'Ramo', Name: 'Lista', Requested: 'Richieste', 'Vote observations': 'Percentuali note', 'Election observations': 'Esiti noti',
@@ -58,12 +62,12 @@
     <p>{o.saved}/{o.requested} simulazioni conservate. Eletti per affiliazione personale finale; coalizioni per titolarità del seggio. Sono inclusi ordinari, premio, uninominali speciali e proporzionali TAA; Estero escluso.</p>
     <p>≥ indica una media minima di eletti confermati sulle simulazioni richieste. Le medie complete richiedono tutti gli esiti noti; dati mancanti e preferenze irrisolte non valgono zero. Identità e recuperi restano condizionati ai dati/modelli delle preferenze.</p>
     {#if o.legacy}<p role="note">Archivio precedente: alcune affiliazioni non sono ricostruibili; i grafici locali richiedono una nuova esecuzione. L’apertura dell’archivio non esegue simulazioni.</p>{/if}
-    {#each ['camera', 'senato'] as chamber (chamber)}
-      {@const lists = o.series.filter(s => s.chamber === chamber && s.kind === 'list')}
-      {#if lists.length}<h4>{chamber}</h4><PairedBars rows={lists.map(s => ({ id: s.id, label: s.name, color: s.color,
+    <label>Ramo delle medie<select bind:value={meanChamber}><option value="camera">Camera</option><option value="senato">Senato</option></select></label>
+    {#if meanLists.length}
+      <h4>{meanChamber === 'camera' ? 'Camera' : 'Senato'}</h4><PairedBars rows={meanLists.map(s => ({ id: s.id, label: s.name, color: s.color,
         elected: s.electedKnown === o.requested ? s.electedSum / o.requested : null, minimum: s.confirmed / o.requested,
-        share: s.votesKnown === o.requested ? s.voteSum / o.requested : null }))} />{/if}
-    {/each}
+        share: s.votesKnown === o.requested ? s.voteSum / o.requested : null }))} />
+    {:else}<p role="status">Nessuna lista disponibile per questo ramo.</p>{/if}
     <details ontoggle={e => { showSummary = toggle(e); }}><summary>Tabella riepilogativa degli eletti e delle percentuali</summary>
       {#if showSummary && table}
         <div class="table-scroll"><table><caption>Eletti e percentuali medi per lista</caption><thead><tr>{#each table.columns.filter(c => c !== 'List') as column (column)}<th>{headings[column] ?? column}</th>{/each}</tr></thead>
@@ -73,21 +77,22 @@
       {/if}
     </details>
     {#if boxes.length}
-      <ResultCharts charts={boxes}>
-        {#snippet outliers(item)}
-          {@const b = boxBySeries.get(item.streamId!)!}
-          <StreamedPlot {client} {resultId} {owner} series={item.streamId!} label={`Valori anomali ${item.label}`} color={item.color} variant="outliers" maxX={b.max} whiskerLow={b.distribution.whiskerLow!} whiskerHigh={b.distribution.whiskerHigh!} />
-        {/snippet}
-      </ResultCharts>
+      <label>Ramo dei boxplot<select bind:value={boxChamber}><option value="camera">Camera</option><option value="senato">Senato</option></select></label>
+      {#key boxChamber}
+        <ResultCharts charts={selectedBoxes}>
+          {#snippet outliers(item)}
+            {@const b = boxBySeries.get(item.streamId!)!}
+            <StreamedPlot {client} {resultId} {owner} series={item.streamId!} label={`Valori anomali ${item.label}`} color={item.color} variant="outliers" maxX={b.max} whiskerLow={b.distribution.whiskerLow!} whiskerHigh={b.distribution.whiskerHigh!} />
+          {/snippet}
+        </ResultCharts>
+        {#if !selectedBoxes[0]?.panels.length}<p role="status">Nessuna percentuale disponibile per questo ramo.</p>{/if}
+      {/key}
     {/if}
-    <details role="region" aria-label="Eletti e percentuali per lista" ontoggle={e => { listScatter = toggle(e); }}><summary>Eletti e percentuali per lista</summary>
-      {#if listScatter}<div class="multiples">{#each o.series.filter(s => s.kind === 'list' && s.votesKnown) as descriptor (descriptor.id)}<ReformSeriesPanel {client} {resultId} {owner} {descriptor} variant="scatter" />{/each}</div>{/if}
+    <details role="region" aria-label="Eletti e percentuali" ontoggle={e => { scatter = toggle(e); }}><summary>Eletti e percentuali</summary>
+      {#if scatter}<ReformSeriesChart {client} {resultId} {owner} series={o.series} variant="scatter" />{/if}
     </details>
-    <details role="region" aria-label="Eletti e percentuali per coalizione" ontoggle={e => { subjectScatter = toggle(e); }}><summary>Eletti e percentuali per coalizione</summary>
-      {#if subjectScatter}<div class="multiples">{#each o.series.filter(s => s.kind === 'subject') as descriptor (descriptor.id)}<ReformSeriesPanel {client} {resultId} {owner} {descriptor} variant="scatter" />{/each}</div>{/if}
-    </details>
-    <details role="region" aria-label="Spinogrammi degli eletti per lista" ontoggle={e => { nationalSpines = toggle(e); }}><summary>Spinogrammi degli eletti per lista</summary>
-      {#if nationalSpines}<div class="multiples">{#each o.series.filter(s => s.kind === 'list' && s.votesKnown) as descriptor (descriptor.id)}<ReformSeriesPanel {client} {resultId} {owner} {descriptor} variant="spine" />{/each}</div>{/if}
+    <details role="region" aria-label="Spinogrammi degli eletti" ontoggle={e => { nationalSpines = toggle(e); }}><summary>Spinogrammi degli eletti</summary>
+      {#if nationalSpines}<ReformSeriesChart {client} {resultId} {owner} series={o.series} variant="spine" />{/if}
     </details>
     <details ontoggle={e => { localSpine = toggle(e); }}><summary>Eletti nel collegio plurinominale</summary>
       {#if localSpine}
@@ -107,11 +112,11 @@
   p { font-size: .85rem; line-height: 1.5; color: #4d5963; }
   details { border-bottom: 1px solid #e5e9ed; padding: 1rem 0; }
   summary { cursor: pointer; color: #4d5963; font-size: .9rem; font-weight: 750; }
-  .multiples { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 1rem; }
   label { display: grid; gap: .5rem; margin: 1rem 0; }
   .college-control :global(label) { display: grid; gap: .5rem; margin: 1rem 0; }
   .college-control :global(input), .college-control :global(select) { box-sizing: border-box; width: 100%; max-width: 100%; min-width: 0; font: inherit; padding: .5rem; }
   select, button { font: inherit; padding: .5rem; }
+  select { box-sizing: border-box; width: 100%; min-width: 0; }
   .table-scroll { overflow: auto; }
   table { border-collapse: collapse; font-size: .8rem; }
   th, td { padding: .5rem; border-bottom: 1px solid #e5e9ed; text-align: left; }

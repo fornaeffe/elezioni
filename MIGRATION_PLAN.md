@@ -316,7 +316,7 @@ into `main`; public deployment follows that merge and a successful hosting gate.
     defaults; keep sparse-event, new-party and long-horizon limitations visible.
 
 - [ ] **Refine UI**
-  - [ ] Do not show many small multiple plots, show one plot at a time and offer a selector:
+  - [x] Show one plot at a time per chart family and offer a selector:
     - For mean elected and mean valid votes percentage plot, offer a control to switch between camera and senate
     - The same for simulated percentage per lists boxplots
     - For elected vs percentage xy-plots, offer controls for
@@ -354,6 +354,7 @@ into `main`; public deployment follows that merge and a successful hosting gate.
     make it a three-part selector: one for the chamber, one for the college, one for the list. When possible, changing the college should not change the list (unless, e.g.,
     the list is not present in the new college).
   - [ ] move the single simulation seats plot in a collapsible section
+  - [ ] better describe the meaning of columns in table of elected and shares
 - [ ] Generalize routing, snapshot selection, scenario defaults, validation,
   worker dispatch, result components, and shared UI patterns across election
   kinds. Preserve configurable project-base navigation and worker/data loading

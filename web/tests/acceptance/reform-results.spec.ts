@@ -112,7 +112,7 @@ test('1000 production reform simulations: bounded memory, detail queries, comple
   const statistics = page.getByLabel('Statistiche riforma', { exact: true });
   await expect(statistics.getByRole('heading', { name: 'Eletti medi e percentuali sui voti validi' })).toBeVisible();
   await expect(statistics.getByRole('region', { name: 'Percentuali simulate per lista', exact: true })).toBeVisible();
-  const scatter = statistics.getByRole('region', { name: 'Eletti e percentuali per lista', exact: true });
+  const scatter = statistics.getByRole('region', { name: 'Eletti e percentuali', exact: true });
   await scatter.locator(':scope > summary').click();
   const firstCanvas = scatter.locator('canvas').first();
   await expect(firstCanvas).toBeAttached({ timeout: 120000 }); await firstCanvas.scrollIntoViewIfNeeded();
@@ -120,7 +120,7 @@ test('1000 production reform simulations: bounded memory, detail queries, comple
   const scatterKnownPoints = Number(await firstCanvas.getAttribute('data-points'));
   expect(scatterKnownPoints).toBeGreaterThan(0); expect(scatterKnownPoints).toBeLessThanOrEqual(1000);
   await scatter.locator(':scope > summary').click(); await expect(scatter.locator('canvas')).toHaveCount(0);
-  const spine = statistics.getByRole('region', { name: 'Spinogrammi degli eletti per lista', exact: true });
+  const spine = statistics.getByRole('region', { name: 'Spinogrammi degli eletti', exact: true });
   await spine.locator(':scope > summary').click();
   const firstSpine = spine.getByRole('button').first(); await expect(firstSpine).toBeAttached({ timeout: 120000 });
   await firstSpine.scrollIntoViewIfNeeded(); await firstSpine.click();
