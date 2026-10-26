@@ -6,6 +6,10 @@ failure, such as N28, is not a separate gap. Implementation bugs and statistical
 assumptions belong elsewhere. Add gaps only after checking the controlling text
 and a worked example; do not infer them from benchmark counts alone.
 
+For policymakers, see the [Italian briefing](politics-reform-2026-nota-legislatore.md)
+and its [Word edition](politics-reform-2026-nota-legislatore.docx), with legal
+references, worked examples and frequencies from the 26 October 2026 simulations.
+
 Source: [law 180/2026, article 1(23), amending C83-bis](https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticolo?art.codiceRedazionale=26G00201&art.dataPubblicazioneGazzetta=2026-10-09&art.flagTipoArticolo=0&art.idArticolo=1&art.idGruppo=0&art.idSottoArticolo=1&art.idSottoArticolo1=10&art.progressivo=0&art.versione=1),
 checked again on 21 October 2026; [article 2(10), amending S17](https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticolo?art.codiceRedazionale=26G00201&art.dataPubblicazioneGazzetta=2026-10-09&art.flagTipoArticolo=0&art.idArticolo=2&art.idGruppo=0&art.idSottoArticolo=1&art.idSottoArticolo1=10&art.progressivo=0&art.versione=1),
 checked on 21 October 2026. The simulator policies below are Luca's explicit
