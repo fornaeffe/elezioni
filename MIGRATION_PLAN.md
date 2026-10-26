@@ -340,6 +340,13 @@ implementation or municipal parity scope.
   electors/votes without double counting, and test geographic and joint-bonus
   sensitivity. Distinguish voting-population movement from legal census data
   used for seat apportionment.
+- [ ] Let the user add polls
+- [ ] Let the user enter fixed vote counts and perform a single scrutiny (e.g. applying a new scrutiny algorithm to a previous election result, possibly adapted; or setting national fixed shares and choosing a deterministic algorithm to calculate the
+local votes)
+- [ ] Evaluate modelling of the $0$ component from poll's "will abstain" answers.
+- [ ] Evaluate explicit modelling of party cessation date (i.e. a ceased party
+  is not included in poll's "other" component). Discuss the date to which priors
+  should refer to, for parties ceased at the reference date.
 - [ ] Migrate the municipal workflow: create R golden fixtures and benchmarks
   first, preserve current behavior, and keep the runoff and councilor-candidate
   gaps explicit for later business and legal review.

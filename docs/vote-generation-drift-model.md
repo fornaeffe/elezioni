@@ -545,9 +545,11 @@ valid.
 
 Implement this as a new versioned scenario/fitting contract. The current
 past-list/future-list factor schema and generator are legacy behavior, not the
-membership model. Preserve archived scenarios/results through explicit adapters;
-do not reinterpret old factors as memberships or claim browser fitting already
-exists.
+membership model. This early-development transition may break compatibility
+with previous scenarios and results; no legacy adapters or migration support
+are required. Existing artifacts are tests and may be replayed with the old app
+version when needed. Do not reinterpret old factors as memberships or claim
+browser fitting already exists.
 
 ## Volatility comparisons and chamber compatibility
 
