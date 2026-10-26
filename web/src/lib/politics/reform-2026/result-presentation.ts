@@ -7,6 +7,8 @@ import { finalAffiliations, reformRunSeries, reformSeriesColumns, reformSeriesTa
 import { summaryTableName, summaryColumns } from '../../results/statistics';
 import { diagnosticTableName, diagnosticColumns, diagnosticCells } from '../../core/diagnostic-messages';
 
+import { electionPositionRows, electionPositionColumns, positionTable } from './election-probability';
+
 type Row = ResultTable['rows'][number];
 const json = (value: unknown): string => JSON.stringify(value);
 const subject = (value: { kind: string; id: string }): string => `${value.kind}:${value.id}`;
@@ -41,6 +43,7 @@ export function createReformPresentation(scenario: ReformGenerationScenario, sna
   const warningTable = table('Warnings and errors', ['Code', 'Severity', 'First simulation', 'Message', 'Occurrences']);
   const series = table(reformSeriesTable, reformSeriesColumns);
   const collegeSeries = table(reformCollegeSeriesTable, reformSeriesColumns);
+  const positions = table(positionTable, electionPositionColumns);
   table(summaryTableName, summaryColumns);
   const diagnosticTable = table(diagnosticTableName, diagnosticColumns);
   const metadataRows = new Map<string, Row>();
@@ -98,6 +101,7 @@ export function createReformPresentation(scenario: ReformGenerationScenario, sna
     add(input: ReformScrutinyInput, result: ComposedReformScrutinyResult, trace: GenerationTrace) {
       const sim = input.simulationId;
       const affiliations = finalAffiliations(input, result);
+      positions.rows.push(...electionPositionRows(input, result, snapshot));
       for (const row of reformRunSeries(input, result, scenario, snapshot, affiliations)) (row.Kind === 'college' ? collegeSeries : series).rows.push(row);
       if (result.status === 'complete') complete++; else if (result.status === 'partial') partial++; else failed++;
       if (result.bonus.status === 'awarded') awarded++;

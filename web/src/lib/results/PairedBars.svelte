@@ -1,12 +1,12 @@
 <script lang="ts">
   import { displayNumber } from './chart-builders';
-  let { rows }: { rows: { id: string; label: string; color: string; elected: number | null; minimum: number; share: number | null }[] } = $props();
+  let { rows, entityLabel = 'Lista' }: { entityLabel?: string; rows: { id: string; label: string; color: string; elected: number | null; minimum: number; share: number | null }[] } = $props();
   const maxElected = $derived(Math.max(1, ...rows.map(r => r.elected ?? r.minimum)));
   const maxShare = $derived(Math.max(1, ...rows.map(r => r.share ?? 0)));
 </script>
 
 <div class="paired-bars">
-  <div class="heading"><span>Lista</span><span>Eletti medi</span><span>Voti validi medi %</span></div>
+  <div class="heading"><span>{entityLabel}</span><span>Eletti medi</span><span>Voti validi medi %</span></div>
   {#each rows as row (row.id)}
     <div class="row">
       <span class="label" title={row.label}>{row.label}</span>

@@ -1,3 +1,4 @@
+import { electionPositionColumns, positionColumns, positionTable } from '../../src/lib/politics/reform-2026/election-probability';
 import type { ResultTable } from '../../src/lib/core/types';
 import type { ReformGenerationScenario } from '../../src/lib/politics/reform-2026/generation-types';
 import { reformSeriesColumns, reformSeriesTable, reformCollegeSeriesTable } from '../../src/lib/politics/reform-2026/result-series';
@@ -44,5 +45,32 @@ export function multipleSeriesResult(scenario: ReformGenerationScenario) {
       national.rows.push(national.columns.map(column => values[column]));
     }
   }
+  return archive;
+}
+
+/** Synthetic evidence for position probabilities, bonus decisions and local selectors. */
+export function refinementResult(scenario: ReformGenerationScenario) {
+  const archive = multipleSeriesResult(scenario);
+  const local = archive.result.tables.find(t => t.name === reformCollegeSeriesTable)!;
+  local.rows = [];
+  const positions: ResultTable = { name: positionTable, columns: electionPositionColumns, rows: [] };
+  const eligibility: ResultTable = { name: 'Bonus eligibility', columns: ['Simulation', 'Chamber', 'Subject', 'Status'], rows: [] };
+  for (const chamber of ['camera', 'senato']) for (let college = 1; college <= 3; college++) for (let entity = 1; entity <= 2; entity++) {
+    if (college === 3 && entity === 1) continue;
+    for (let simulation = 1; simulation <= 12; simulation++) {
+      const row = { Simulation: simulation, Chamber: chamber, Kind: 'college', Owner: `list:constructed-${entity}`, College: `college-${college}`, Territory: 'test', Name: `${chamber} list ${entity} · Collegio ${college}`, Color: '#336699', Order: entity,
+        Votes: 100, 'Valid votes': 1000, 'Vote share %': 10, Elected: entity, Confirmed: entity, Ordinary: entity, Bonus: 0, Special: 0, TAA: 0, Entitled: entity };
+      local.rows.push(local.columns.map(c => row[c as keyof typeof row]));
+      positions.rows.push({ Simulation: simulation, Chamber: chamber, List: `constructed-${entity}`, College: `college-${college}`, Name: `Collegio ${college}`,
+        ...Object.fromEntries(positionColumns.map((column, i) => [column, i === 0 ? chamber === 'camera' ? Number(simulation <= 6) : 1 : i === 1 ? simulation <= 4 ? 1 : simulation <= 8 ? 0 : null : 'absent'])) });
+    }
+  }
+  // Canonical series must remain in simulation order for disk-backed scans.
+  local.rows.sort((a, b) => Number(a[0]) - Number(b[0]));
+  const runs = archive.result.tables.find(t => t.name === 'Reform runs')!;
+  runs.columns = ['Simulation', 'Status', 'Bonus'];
+  runs.rows = Array.from({ length: 12 }, (_, i) => [i + 1, 'complete', i < 6 ? 'awarded' : i < 11 ? 'not-awarded' : 'non-computable']);
+  for (let simulation = 1; simulation <= 6; simulation++) for (const chamber of ['camera', 'senato']) eligibility.rows.push({ Simulation: simulation, Chamber: chamber, Subject: `subject:constructed-${simulation <= 3 ? 1 : 2}`, Status: 'awarded' });
+  for (const table of [positions, eligibility]) archive.result.tables.push({ ...table, rows: table.rows.map(row => table.columns.map(c => row[c] ?? null)) });
   return archive;
 }

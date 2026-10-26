@@ -1,4 +1,6 @@
 <script lang="ts">
+  import ActivityOverlay from '../../results/ActivityOverlay.svelte';
+  import InteractionToasts from '../../results/InteractionToasts.svelte';
   import { base } from '$app/paths';
   import { onMount, onDestroy } from 'svelte';
   import SimulationWorker from '../../workers/simulation.worker?worker';
@@ -43,8 +45,10 @@
   let running = $state(false);
   let busyAction = $state('');
   let phase = $state('idle');
-  let error = $state('');
-  let ready = $state(false);
+  let error = $state(''), executionError = $state('');
+  let ready = $state(false), singleOpen = $state(false), editorBusy = $state(false), dismissedValidation = $state('');
+  const phaseLabel = $derived(phase.replace(/^[a-z_]+/, code => ({ idle: 'Pronto', prepare: 'Preparazione', simulate: 'Simulazione', scrutinize: 'Scrutinio', summarize: 'Riepilogo', completed: 'Calcolo completato', imported: 'Risultati importati', not_implemented: 'Calcolo non completato', error: 'Errore' })[code] ?? code));
+  const activityLabel = $derived(!ready ? 'Caricamento…' : busyAction || (editorBusy ? 'Verifica scenario…' : phaseLabel));
   let tableIndex = $state(0);
   let pageIndex = $state(0);
   let selectedRun = $state(1);
@@ -63,6 +67,8 @@
   const fingerprint = $derived(JSON.stringify(scenario));
   const stale = $derived(resultScenario !== null && fingerprint !== JSON.stringify(upgradeReformDraft($state.snapshot(resultScenario))));
   const validation = $derived(validateReformScenario(scenario));
+  const validationMessage = $derived(validation.length ? `Correggi lo scenario prima di eseguire:\n${validation.join('\n')}` : '');
+  const interactionMessages = $derived([{ id: 'error', text: error }, { id: 'validation', text: fingerprint === dismissedValidation ? '' : validationMessage }].filter(m => m.text));
 
   onMount(() => { void initialize(); });
   onDestroy(() => { alive = false; client?.close(); });
@@ -75,7 +81,7 @@
   $effect(() => {
     const id = result?.storage?.id, simulation = selectedRun;
     const index = result?.storage?.tables.findIndex(t => t.name === 'Seat entitlement and election locations') ?? -1;
-    if (id && index >= 0) void fetchChart(id, index, simulation);
+    if (singleOpen && id && index >= 0) void fetchChart(id, index, simulation);
     else chartTable = result?.tables.find(t => t.name === 'Seat entitlement and election locations');
   });
   function describe(e: unknown) { return e instanceof Error ? e.message : String(e); }
@@ -130,8 +136,7 @@
     if (!('kind' in record.scenario)) throw new Error('Expected an explicit reform scenario');
     scenario = upgradeReformDraft(copyScenario(record.scenario)); resultScenario = copyScenario(record.scenario);
     result = record.result; simulations = record.result.benchmark.simulations;
-    tableIndex = 0; pageIndex = 0; phase = label;
-    if (record.result.storage?.state === 'interrupted') error = record.result.warnings.filter(w => w.code.startsWith('RESULT_')).map(w => w.message).join('\n') || 'Risultato parziale: il calcolo precedente e stato interrotto.';
+    tableIndex = 0; pageIndex = 0; phase = label; executionError = '';
     remember(record.id, `${record.result.benchmark.startedAt} · ${record.result.storage?.completedSimulations}/${simulations}`);
   }
   async function restoreSaved(id: string) {
@@ -198,7 +203,7 @@
   }
   function run() {
     try {
-      error = ''; requireSimulationCount(simulations); requireReformWorkerCount(computeWorkers, workerCapacity.maximum);
+      error = ''; executionError = ''; requireSimulationCount(simulations); requireReformWorkerCount(computeWorkers, workerCapacity.maximum);
       localStorage.setItem(`${storageKey}:compute-workers`, String(computeWorkers));
       const captured = copyScenario(scenario);
       const worker = service().worker; currentRun = crypto.randomUUID();
@@ -211,11 +216,10 @@
         if (m.type === 'progress') { phase = `${m.phase} ${m.completed}/${m.total}`; return; }
         running = false; phase = m.status; currentRun = '';
         if (m.storage) {
-          if (m.storage.state === 'interrupted') error = m.warnings.filter(w => w.code.startsWith('RESULT_')).map(w => w.message).join('\n');
           result = m; resultScenario = captured; tableIndex = 0; pageIndex = 0;
           remember(id, `${m.benchmark.startedAt} · ${m.storage.completedSimulations}/${m.benchmark.simulations}`);
         } else if (!result) { result = m; resultScenario = captured; }
-        else error = m.warnings.map(w => `${w.code}: ${w.message}`).join('\n');
+        else executionError = m.warnings.map(w => `${w.code}: ${w.message}`).join('\n');
       };
       worker.onerror = event => { error = event.message; running = false; phase = 'error'; };
       worker.postMessage(request);
@@ -243,15 +247,15 @@
       <label>Carica scenario o risultati<input type="file" accept=".json,.gz" onchange={loadFile} disabled={isBusy} data-testid="reform-file-input" /></label>
       <button onclick={exportScenario}>Scarica scenario</button>
     </div>
-    <ReformScenarioEditor {scenario} onchange={next => { scenario = next; }} disabled={isBusy} />
+    <ReformScenarioEditor {scenario} onchange={next => { scenario = next; }} onmessage={message => { error = message; }} onactivity={busy => { editorBusy = busy; }} disabled={isBusy} />
   </section>
-  <p role="status" data-testid="reform-phase">{phase}</p>
-  {#if busyAction}<p role="status">{busyAction}</p>{/if}
+  <ActivityOverlay label={activityLabel}><p>Ultima fase: <span data-testid="reform-phase">{phase}</span></p><p>{result?.storage?.completedSimulations ?? 0}/{simulations} simulazioni conservate</p>{#if running}<button onclick={cancel}>Annulla calcolo</button>{/if}</ActivityOverlay>
+  <InteractionToasts messages={interactionMessages} ondismiss={id => { if (id === 'error') error = ''; else dismissedValidation = fingerprint; }} />
   {#if savedResults.length}<label>Risultati locali<select bind:value={selectedSavedResult} onchange={() => restoreSaved(selectedSavedResult)} disabled={isBusy}>{#each savedResults as saved (saved.id)}<option value={saved.id}>{saved.label}</option>{/each}</select></label>{/if}
-  {#if error}<p role="alert">{error}</p>{/if}
   {#if result}
     <section aria-label="Risultati riforma">
       <h2>Risultati riforma</h2>
+      {#if executionError}<p role="alert">{executionError}</p>{/if}
       {#if result.storage}<p data-testid="stored-result-status">{result.storage.completedSimulations}/{result.benchmark.simulations} simulazioni conservate · stato {result.storage.state} · {(result.storage.compressedBytes / 1024 / 1024).toFixed(1)} MiB in blocchi compressi</p>{/if}
       <p>{result.benchmark.scrutinyAlgorithmId} · {result.benchmark.dataVersion} · {result.benchmark.simulations} simulazioni richieste · {result.benchmark.elapsedMs.toFixed(0)} ms</p>
       {#if stale}<p role="alert">Scenario modificato. I risultati e gli export si riferiscono allo scenario eseguito.</p><button onclick={() => { if (resultScenario) scenario = copyScenario(resultScenario); }}>Ripristina scenario dei risultati</button>{/if}
@@ -261,11 +265,15 @@
       {#key result.storage?.id ?? result.benchmark.startedAt}
         <DiagnosticMessages client={service()} {result} {owner} onInspect={(simulation, chamber) => {
           selectedRun = simulation; if (chamber) selectedChamber = chamber;
-          document.getElementById('reform-selected-simulation')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          document.getElementById('reform-selected-simulation')?.focus({ preventScroll: true });
+          singleOpen = true;
+          requestAnimationFrame(() => {
+            document.getElementById('reform-selected-simulation')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            document.getElementById('reform-selected-simulation')?.focus({ preventScroll: true });
+          });
         }} />
       {/key}
       {#if result.storage}{#key result.storage.id}<ReformResultCharts client={service()} resultId={result.storage.id} {owner} />{/key}{/if}
+      <details bind:open={singleOpen}><summary>Seggi della singola simulazione</summary>
       <div class="controls">
         <label>Simulazione grafico<input id="reform-selected-simulation" type="number" min="1" max={result.benchmark.simulations} step="1" bind:value={selectedRun} /></label>
         <label>Ramo grafico<select bind:value={selectedChamber}><option value="camera">Camera</option><option value="senato">Senato</option></select></label>
@@ -274,6 +282,7 @@
         <figcaption>Seggi per categoria e titolare — simulazione {selectedRun}, {selectedChamber}</figcaption>
         {#each chart as bar (bar.id)}<div class="bar-row"><span>{bar.label}</span><meter min="0" max={selectedChamber === 'camera' ? 392 : 196} value={bar.seats}>{bar.seats}</meter><span>{bar.seats}</span></div>{:else}<p>Seggi non disponibili per questa simulazione. Consultare gli stadi e i blocchi; nessun risultato è ricostruito o riestratto.</p>{/each}
       </figure>
+      </details>
       <label>Tabella riforma<select bind:value={tableIndex} onchange={() => { pageIndex = 0; }}>
         {#each result.tables as t, i (t.name)}<option value={i}>{t.name} ({result.storage?.tables[i]?.rows ?? t.rows.length})</option>{/each}
       </select></label>
@@ -292,8 +301,9 @@
 </main>
 
 <style>
-  .reform-workspace { max-width: 1500px; margin: auto; padding: 1.5rem; color: #15232d; font-family: system-ui, sans-serif; }
+  .reform-workspace { max-width: 1500px; margin: auto; padding: 1.5rem 1.5rem 5rem; color: #15232d; font-family: system-ui, sans-serif; }
   section { background: white; border: 1px solid #d7e0e5; border-radius: 8px; padding: 1.25rem; margin: 1rem 0; }
+  summary { cursor: pointer; font-weight: 650; margin: 1rem 0; }
   .controls { display: flex; flex-wrap: wrap; gap: 1rem; align-items: end; margin: 1rem 0; }
   label { display: grid; gap: .4rem; }
   input, select, button { font: inherit; padding: .5rem; border: 1px solid #a8bac6; border-radius: 4px; }

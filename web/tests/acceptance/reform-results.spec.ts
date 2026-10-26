@@ -105,6 +105,7 @@ test('1000 production reform simulations: bounded memory, detail queries, comple
   await page.getByRole('button', { name: 'Pagina successiva', exact: true }).click();
   await expect(page.getByText(/Pagina 2 di/)).toBeVisible();
   await expect.poll(() => detail.locator('tbody tr').first().innerText()).not.toBe(firstRow);
+  await page.getByText('Seggi della singola simulazione', { exact: true }).click();
   await page.getByLabel('Simulazione grafico').fill('1000');
   await page.getByLabel('Ramo grafico').selectOption('senato');
   await expect(page.getByRole('figure')).toContainText('1000, senato');

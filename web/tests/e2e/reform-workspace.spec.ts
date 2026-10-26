@@ -84,6 +84,7 @@ test('production paired worker, bounded detail rendering, scenario/results round
   await expect(page.getByRole('table', { name: 'Riepilogo dei messaggi', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Pagina successiva', exact: true }).click();
   await expect(page.getByText('Pagina 2 di 24')).toBeVisible();
+  await page.getByText('Seggi della singola simulazione', { exact: true }).click();
   await page.getByLabel('Ramo grafico').selectOption('senato');
   await expect(page.getByRole('figure')).toContainText('senato');
 

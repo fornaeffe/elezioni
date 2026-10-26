@@ -1,3 +1,4 @@
+import { storedPositionProbabilities, storedBonusProbabilities } from '../politics/reform-2026/stored-probabilities';
 import { loadVerifiedJson, requireSimulationCount } from '../core/runtime-data';
 import { appendResultBatch, cellsWarning, deleteStoredResult, getStoredResult, newResultStorage, registerStoredExport, saveStoredResult, storedRows, storedTablePage, storedWarningPage, ResultChunkWriter, warningCells, type Cell, type StoredResult } from '../core/result-store';
 import { createDiagnosticFrequency } from '../core/result-diagnostics';
@@ -21,10 +22,11 @@ import { samplePage } from '../core/statistics-cache';
 
 export interface ResultServiceRequest {
   type: 'result-service'; requestId: number;
-  action: 'page' | 'warnings' | 'diagnostics' | 'messages-summary' | 'messages-general' | 'messages-context' | 'messages-ids' | 'messages-export' | 'manifest' | 'delete' | 'cancel' | 'import' | 'export' | 'statistics' | 'statistics-series' | 'statistics-points' | 'statistics-box';
+  action: 'page' | 'warnings' | 'diagnostics' | 'messages-summary' | 'messages-general' | 'messages-context' | 'messages-ids' | 'messages-export' | 'manifest' | 'delete' | 'cancel' | 'import' | 'export' | 'statistics' | 'statistics-series' | 'statistics-points' | 'statistics-box' | 'statistics-positions' | 'statistics-bonus';
   resultId: string; owner: string;
   table?: number; offset?: number; limit?: number; simulation?: number;
   file?: File; format?: 'json' | 'csv';
+  list?: string; chamber?: string;
   series?: string; measure?: 'elected' | 'entitled';
   filter?: DiagnosticFilter;
 }
@@ -256,6 +258,8 @@ export async function handleResultService(request: ResultServiceRequest): Promis
         if (active.has(record.id)) throw new Error('Wait for calculation completion before querying statistics');
         if (deleting.has(record.id)) throw new Error('Result session is being deleted');
         const job = (async () => {
+          if (request.action === 'statistics-positions') return await storedPositionProbabilities(record, request.chamber ?? '', request.list ?? '');
+          if (request.action === 'statistics-bonus') return await storedBonusProbabilities(record);
           if (request.action === 'statistics') return (await ensureStatistics(record)).overview;
           if (!request.series) throw new Error('Missing statistical series');
           const summary = await requireSeries(record, request.series);
