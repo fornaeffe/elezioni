@@ -459,6 +459,10 @@ legal draws. Preserve approved mean-mode shares, abstention, correspondences, an
 local overrides. Adapt list coverage, candidate templates, seven-slot lists,
 bonus slates, affiliations, and compatible multiple candidacies.
 
+New candidature preparation follows the approved
+[reference-based bonus policy](politics-reform-2026-candidates.md), including
+explicit ordinary/bonus declarations and archive-compatible policy selection.
+
 Add explicit version conversions and validation for scenario/snapshot changes;
 preserve old algorithm scenarios and prevent silent model switches. Persist
 model identifiers, assumptions, seeds, and data version so runs can be reproduced.

@@ -1,4 +1,4 @@
-import type { Candidate, Chamber, ChamberModel, OrdinaryVotes, PoliticalList, Preferences, ReferenceScope, ReformScrutinyInput, SpecialVotes } from './input';
+import type { Candidate, Chamber, ChamberModel, OrdinaryVotes, PoliticalList, Preferences, ReferenceScope, ReformScrutinyInput, SpecialVotes, Subject } from './input';
 import type { SeatTableBundle } from './endowments';
 
 export const REFORM_SNAPSHOT_VERSION = 1 as const;
@@ -110,7 +110,12 @@ export interface ReformGenerationScenario {
   /** Valid votes are list shares; abstention includes invalid/unmapped ballots,
    * following the existing scenario convention. null preserves historical rates. */
   abstention: { scope: ReferenceScope; common: number | null; camera: number | null; senato: number | null }[];
-  candidateGeneration: { reuseProbability: number; maximumOrdinaryCandidacies: number };
+  candidateGeneration: {
+    reuseProbability: number;
+    maximumOrdinaryCandidacies: number;
+    /** Absence preserves the original filed-prefix generator for archive replay. */
+    bonusPolicy?: 'reference-proportional-v1';
+  };
   candidateTemplates: ReformCandidateTemplate[];
   suppliedPreferences: { chamber: Chamber; collegeId: string; listId: string; preferences: Preferences }[];
   suppliedVotes: { chamber: Chamber; collegeId: string; votes: OrdinaryVotes | SpecialVotes }[];
@@ -123,6 +128,11 @@ export interface ReformPresentation {
   coalitions: { id: string; name: string; color: string; chambers?: Chamber[] }[];
 }
 export interface GenerationTrace {
+  bonusSelection?: {
+    policy: 'reference-proportional-v1'; referenceDate: string;
+    slates: { chamber: Chamber; territoryId: string; subject: Subject;
+      allocations: { listId: string; expectedVotes: number; share: number; referenceSlots: number; slots: number; female: number }[] }[];
+  };
   warnings: { code: string; message: string }[];
   references: Extract<ChamberModel, { kind: 'generated' }>['references'][number][];
   normalization: { scope: ReferenceScope; chamber: Chamber; reason: string; before: number; after: number }[];

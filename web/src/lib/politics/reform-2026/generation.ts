@@ -7,6 +7,7 @@ import { generateReformCandidatures } from './reform-candidate-generation';
 import { generateSyntheticPreferences, preferenceParametersForRegion } from './preference-generation';
 import { requireReformScenario, validateReformSnapshot } from './generation-scenario';
 import { validateReformScrutinyInput } from './validation';
+import { prepareReferenceBonusPlan, type PreparedBonusPlan } from './reference-bonus-plan';
 
 interface CollegeCounts { electors: number; votes: Map<string, number> }
 /** Controlled integer reconstruction of historical municipal support to the
@@ -56,19 +57,28 @@ export interface PreparedReformGeneration {
   scenario: ReformGenerationScenario;
   snapshot: ReformGenerationSnapshot;
   references: ReturnType<typeof preparePairedVoteReferences>;
+  bonusPlan?: PreparedBonusPlan;
 }
 export function prepareReformGeneration(value: unknown, snapshot: ReformGenerationSnapshot): PreparedReformGeneration {
   const errors = validateReformSnapshot(snapshot);
   if (errors.length) throw new RangeError(`Invalid reform snapshot: ${errors.join('; ')}`);
   const scenario = requireReformScenario(value, snapshot), owned = structuredClone(snapshot);
-  return { scenario, snapshot: owned, references: preparePairedVoteReferences(scenario, owned) };
+  const references = preparePairedVoteReferences(scenario, owned);
+  const bonusPlan = scenario.candidateGeneration.bonusPolicy ? prepareReferenceBonusPlan(scenario, owned, references.units) : undefined;
+  if (bonusPlan) {
+    references.trace.bonusSelection = { policy: bonusPlan.policy, referenceDate: bonusPlan.referenceDate,
+      slates: bonusPlan.slates.map(({ chamber, territoryId, subject, allocations }) => ({ chamber, territoryId, subject, allocations })) };
+    if (bonusPlan.slates.some(b => b.allocations.some(a => a.slots !== a.referenceSlots))) references.trace.warnings.push({
+      code: 'BONUS_SELECTION_CONSTRAINTS', message: 'Composizione del premio adattata ai candidati forniti, ai prefissi disponibili o ai vincoli di genere; le quote di riferimento restano distinte dalle candidature.' });
+  }
+  return { scenario, snapshot: owned, references, ...(bonusPlan ? { bonusPlan } : {}) };
 }
 export function generateReformSimulation(prepared: PreparedReformGeneration, simulationId: number): { input: ReformScrutinyInput; trace: GenerationTrace } {
   if (!Number.isSafeInteger(simulationId) || simulationId < 1) throw new RangeError('Expected a positive simulation ID');
   const { scenario: s, snapshot } = prepared, trace = structuredClone(prepared.references.trace);
   const votes = generatePairedMunicipalVotes(s, snapshot, prepared.references.units, simulationId);
   const counts = aggregateReformCollegeVotes(s, snapshot, votes, simulationId);
-  const candidatures = generateReformCandidatures(s, snapshot, simulationId);
+  const candidatures = generateReformCandidatures(s, snapshot, simulationId, prepared.bonusPlan);
   const provenance = (modelId: string, parameterVersion: string, profileId: string): Provenance => ({ kind: 'generated', modelId, parameterVersion,
     profileId, sourceVersions: [...snapshot.sourceVersions, snapshot.version, snapshot.models.version, ...(s.pollReferences ? [s.pollReferences.archiveVersion, s.pollReferences.version] : [])], seed: s.seed,
     assumptions: [...snapshot.assumptions, ...snapshot.models.assumptions, ...(s.conversion?.assumptions ?? []), ...(s.pollReferences?.assumptions ?? [])] });
@@ -127,7 +137,8 @@ export function generateReformSimulation(prepared: PreparedReformGeneration, sim
     bonusLinks: s.renewal === 'joint' ? s.bonusLinks : [], chamberModel: { kind: 'generated', modelId: REFORM_MODEL_IDS.chambers,
       parameterVersion: snapshot.models.chambers.parameterVersion, covarianceProfileVersion: s.chamberProfileId,
       sourceVersions: [...snapshot.sourceVersions, snapshot.version, snapshot.models.version, ...(s.pollReferences ? [s.pollReferences.archiveVersion, s.pollReferences.version] : [])], seed: s.seed, mode: 'mean',
-      assumptions: [...snapshot.models.assumptions, ...snapshot.assumptions, ...(s.pollReferences?.assumptions ?? [])], references: trace.references } };
+      assumptions: [...snapshot.models.assumptions, ...snapshot.assumptions, ...(s.pollReferences?.assumptions ?? []),
+        ...(prepared.bonusPlan ? [`Bonus candidatures: ${prepared.bonusPlan.policy}, central support at ${prepared.bonusPlan.referenceDate}; constrained candidate allocations are not legal coalition-member entitlements.`] : [])], references: trace.references } };
   const checked = validateReformScrutinyInput(input);
   if (!checked.valid) throw new RangeError(`Generated reform input is invalid: ${checked.issues.map(i => `${i.path}: ${i.message}`).join('; ')}`);
   return { input: checked.input, trace };

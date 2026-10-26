@@ -122,6 +122,10 @@ into `main`; public deployment follows that merge and a successful hosting gate.
 
 ## Plan
 
+- [x] Implement [reference-based bonus candidate selection](docs/politics-reform-2026-candidates.md),
+  with supplied positions/declarations, legal ordinary reuse, explicit archive
+  compatibility and regenerated production defaults; leave territorial-support
+  estimation corrections to parameter preparation.
 - [x] Establish migration guidance, a living plan, and a detailed history.
 - [x] Measure repeatable R baselines and add browser benchmark coverage.
 - [x] Freeze politics R behavior in golden fixtures before translation.

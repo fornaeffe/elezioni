@@ -153,6 +153,7 @@ export function createReformPresentation(scenario: ReformGenerationScenario, sna
         references.forEach(r => meta('Resolved chamber reference', r));
       } else meta('Supplied chamber provenance', result.chamberModel);
       meta('Generation versions', { streamVersion: trace.streamVersion, snapshotVersion: trace.snapshotVersion, modelVersion: trace.modelVersion });
+      if (trace.bonusSelection) meta('Bonus candidate selection', trace.bonusSelection);
       trace.normalization.forEach(n => meta('Reference normalization', n));
     },
     failure(sim: number, error: unknown) {

@@ -1,0 +1,2059 @@
+{
+  "schemaVersion": 2,
+  "kind": "politics-reform-scenario",
+  "algorithmId": "politiche-reform-2026-v1",
+  "snapshotVersion": "r26-generation-v1-c5c4be9fafb5",
+  "modelVersion": "r26-models-v1-f71a72020aaa",
+  "modelIds": {
+    "votes": "final-attributed-list-totals-v1",
+    "preferences": "preferences-empirical-synthetic-v1",
+    "chambers": "paired-chamber-votes-v1"
+  },
+  "preferenceProfileId": "central-v1",
+  "chamberProfileId": "central-v1",
+  "seed": "r26-default-v1",
+  "electionDate": "2027-09-25",
+  "projectionDate": "2026-10-19",
+  "mode": "mean",
+  "renewal": "joint",
+  "lists": {
+    "camera": [
+      {
+        "id": "list-8951166603702dcc",
+        "name": "FRATELLI D'ITALIA CON GIORGIA MELONI",
+        "coalitionId": "historical-coalition:list-8951166603702dcc:list-c9cecc92ab984510:list-f54cd757a71ca555",
+        "protectedMinority": null
+      },
+      {
+        "id": "list-59f35e92039ebed8",
+        "name": "PARTITO DEMOCRATICO - ITALIA DEMOCRATICA E PROGRESSISTA",
+        "coalitionId": "historical-coalition:list-4737a15e2c762fa0:list-59f35e92039ebed8:list-add076ceaad6d2a6",
+        "protectedMinority": null
+      },
+      {
+        "id": "list-27178b23de82c1fd",
+        "name": "MOVIMENTO 5 STELLE",
+        "coalitionId": null,
+        "protectedMinority": null
+      },
+      {
+        "id": "list-c9cecc92ab984510",
+        "name": "LEGA PER SALVINI PREMIER",
+        "coalitionId": "historical-coalition:list-8951166603702dcc:list-c9cecc92ab984510:list-f54cd757a71ca555",
+        "protectedMinority": null
+      },
+      {
+        "id": "list-f54cd757a71ca555",
+        "name": "FORZA ITALIA",
+        "coalitionId": "historical-coalition:list-8951166603702dcc:list-c9cecc92ab984510:list-f54cd757a71ca555",
+        "protectedMinority": null
+      },
+      {
+        "id": "list-56b7f5902a176380",
+        "name": "AZIONE - ITALIA VIVA - CALENDA",
+        "coalitionId": null,
+        "protectedMinority": null
+      },
+      {
+        "id": "list-add076ceaad6d2a6",
+        "name": "ALLEANZA VERDI E SINISTRA",
+        "coalitionId": "historical-coalition:list-4737a15e2c762fa0:list-59f35e92039ebed8:list-add076ceaad6d2a6",
+        "protectedMinority": null
+      },
+      {
+        "id": "list-4737a15e2c762fa0",
+        "name": "+EUROPA",
+        "coalitionId": "historical-coalition:list-4737a15e2c762fa0:list-59f35e92039ebed8:list-add076ceaad6d2a6",
+        "protectedMinority": null
+      },
+      {
+        "id": "list-10bc03a44a72d020",
+        "name": "UNIONE POPOLARE CON DE MAGISTRIS",
+        "coalitionId": null,
+        "protectedMinority": null
+      },
+      {
+        "id": "list-1379e84e454442d0",
+        "name": "NOI MODERATI/LUPI - TOTI - BRUGNARO - UDC",
+        "coalitionId": null,
+        "protectedMinority": null
+      },
+      {
+        "id": "list-3611b499087d6a1c",
+        "name": "SUDTIROLER VOLKSPARTEI (SVP) - PATT",
+        "coalitionId": null,
+        "protectedMinority": null
+      },
+      {
+        "id": "list-7ce25923f1b9031e",
+        "name": "IMPEGNO CIVICO LUIGI DI MAIO - CENTRO DEMOCRATICO",
+        "coalitionId": null,
+        "protectedMinority": null
+      },
+      {
+        "id": "list-d05eb9fcc38df227",
+        "name": "ITALEXIT PER L'ITALIA",
+        "coalitionId": null,
+        "protectedMinority": null
+      },
+      {
+        "id": "list-d25b82cf0233fff4",
+        "name": "VITA",
+        "coalitionId": null,
+        "protectedMinority": null
+      },
+      {
+        "id": "list-f8989a289f58ce20",
+        "name": "ITALIA SOVRANA E POPOLARE",
+        "coalitionId": null,
+        "protectedMinority": null
+      },
+      {
+        "id": "group-10bc03a44a72d020",
+        "name": "UNIONE POPOLARE CON DE MAGISTRIS",
+        "coalitionId": null,
+        "protectedMinority": null
+      },
+      {
+        "id": "group-128148407d8a37c0",
+        "name": "LA RENAISSANCE VALDOTAINE",
+        "coalitionId": null,
+        "protectedMinority": null
+      },
+      {
+        "id": "group-1d8be5ca53b668db",
+        "name": "PARTITO COMUNISTA ITALIANO",
+        "coalitionId": null,
+        "protectedMinority": null
+      },
+      {
+        "id": "group-43b088d90d6ed113",
+        "name": "VALLEE D?AOSTE ? AUTONOMIE PROGRES FEDERALISME",
+        "coalitionId": null,
+        "protectedMinority": null
+      },
+      {
+        "id": "group-a7259412b44957fd",
+        "name": "VALLE D'AOSTA APERTA",
+        "coalitionId": null,
+        "protectedMinority": null
+      },
+      {
+        "id": "group-cc1b0abb61869ad4",
+        "name": "LEGA PER SALVINI PREM.-FORZA IT.-NOI MODERATI-FRAT. D'ITALIA",
+        "coalitionId": null,
+        "protectedMinority": null
+      },
+      {
+        "id": "group-f8989a289f58ce20",
+        "name": "ITALIA SOVRANA E POPOLARE",
+        "coalitionId": null,
+        "protectedMinority": null
+      }
+    ],
+    "senato": [
+      {
+        "id": "list-8951166603702dcc",
+        "name": "FRATELLI D'ITALIA CON GIORGIA MELONI",
+        "coalitionId": "historical-coalition:list-8951166603702dcc:list-c9cecc92ab984510:list-f54cd757a71ca555",
+        "protectedMinority": null
+      },
+      {
+        "id": "list-59f35e92039ebed8",
+        "name": "PARTITO DEMOCRATICO - ITALIA DEMOCRATICA E PROGRESSISTA",
+        "coalitionId": "historical-coalition:list-4737a15e2c762fa0:list-59f35e92039ebed8:list-add076ceaad6d2a6",
+        "protectedMinority": null
+      },
+      {
+        "id": "list-27178b23de82c1fd",
+        "name": "MOVIMENTO 5 STELLE",
+        "coalitionId": null,
+        "protectedMinority": null
+      },
+      {
+        "id": "list-c9cecc92ab984510",
+        "name": "LEGA PER SALVINI PREMIER",
+        "coalitionId": "historical-coalition:list-8951166603702dcc:list-c9cecc92ab984510:list-f54cd757a71ca555",
+        "protectedMinority": null
+      },
+      {
+        "id": "list-f54cd757a71ca555",
+        "name": "FORZA ITALIA",
+        "coalitionId": "historical-coalition:list-8951166603702dcc:list-c9cecc92ab984510:list-f54cd757a71ca555",
+        "protectedMinority": null
+      },
+      {
+        "id": "list-56b7f5902a176380",
+        "name": "AZIONE - ITALIA VIVA - CALENDA",
+        "coalitionId": null,
+        "protectedMinority": null
+      },
+      {
+        "id": "list-add076ceaad6d2a6",
+        "name": "ALLEANZA VERDI E SINISTRA",
+        "coalitionId": "historical-coalition:list-4737a15e2c762fa0:list-59f35e92039ebed8:list-add076ceaad6d2a6",
+        "protectedMinority": null
+      },
+      {
+        "id": "list-4737a15e2c762fa0",
+        "name": "+EUROPA",
+        "coalitionId": "historical-coalition:list-4737a15e2c762fa0:list-59f35e92039ebed8:list-add076ceaad6d2a6",
+        "protectedMinority": null
+      },
+      {
+        "id": "group-10bc03a44a72d020",
+        "name": "UNIONE POPOLARE CON DE MAGISTRIS",
+        "coalitionId": null,
+        "protectedMinority": null
+      },
+      {
+        "id": "group-1d8be5ca53b668db",
+        "name": "PARTITO COMUNISTA ITALIANO",
+        "coalitionId": null,
+        "protectedMinority": null
+      },
+      {
+        "id": "group-27178b23de82c1fd",
+        "name": "MOVIMENTO 5 STELLE",
+        "coalitionId": null,
+        "protectedMinority": null
+      },
+      {
+        "id": "group-27c4c235b098f537",
+        "name": "TEAM K",
+        "coalitionId": null,
+        "protectedMinority": null
+      },
+      {
+        "id": "group-35442edc478ac27a",
+        "name": "CAMPOBASE +EUROPA-ALL.VERDI E SIN.? PD-AZIONE-ITALIA VIVA",
+        "coalitionId": null,
+        "protectedMinority": null
+      },
+      {
+        "id": "group-3611b499087d6a1c",
+        "name": "SUDTIROLER VOLKSPARTEI (SVP) - PATT",
+        "coalitionId": null,
+        "protectedMinority": null
+      },
+      {
+        "id": "group-43b088d90d6ed113",
+        "name": "VALLEE D?AOSTE ? AUTONOMIE PROGRES FEDERALISME",
+        "coalitionId": null,
+        "protectedMinority": null
+      },
+      {
+        "id": "group-56b7f5902a176380",
+        "name": "AZIONE - ITALIA VIVA - CALENDA",
+        "coalitionId": null,
+        "protectedMinority": null
+      },
+      {
+        "id": "group-59f35e92039ebed8",
+        "name": "PARTITO DEMOCRATICO - ITALIA DEMOCRATICA E PROGRESSISTA",
+        "coalitionId": null,
+        "protectedMinority": null
+      },
+      {
+        "id": "group-5bb5bafaa6c16f09",
+        "name": "DIE FREIHEITLICHEN",
+        "coalitionId": null,
+        "protectedMinority": null
+      },
+      {
+        "id": "group-a15f17b82fd3d1c8",
+        "name": "PARTITO DEMOCRATICO - +EUROPA - ALLEANZA VERDI E SINISTRA",
+        "coalitionId": null,
+        "protectedMinority": null
+      },
+      {
+        "id": "group-a7259412b44957fd",
+        "name": "VALLE D'AOSTA APERTA",
+        "coalitionId": null,
+        "protectedMinority": null
+      },
+      {
+        "id": "group-add076ceaad6d2a6",
+        "name": "ALLEANZA VERDI E SINISTRA",
+        "coalitionId": null,
+        "protectedMinority": null
+      },
+      {
+        "id": "group-cc1b0abb61869ad4",
+        "name": "LEGA PER SALVINI PREM.-FORZA IT.-NOI MODERATI-FRAT. D'ITALIA",
+        "coalitionId": null,
+        "protectedMinority": null
+      },
+      {
+        "id": "group-d25b82cf0233fff4",
+        "name": "VITA",
+        "coalitionId": null,
+        "protectedMinority": null
+      },
+      {
+        "id": "group-ebea6e1235ad02c4",
+        "name": "POUR L?AUTONOMIE ? PER L?AUTONOMIA",
+        "coalitionId": null,
+        "protectedMinority": null
+      },
+      {
+        "id": "group-f8989a289f58ce20",
+        "name": "ITALIA SOVRANA E POPOLARE",
+        "coalitionId": null,
+        "protectedMinority": null
+      }
+    ]
+  },
+  "coverage": [
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:010101",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:010102",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:010201",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:010202",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:030101",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:030102",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:030201",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:030202",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:030301",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:030302",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:030401",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:040001",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0",
+        "list-10bc03a44a72d020",
+        "list-1379e84e454442d0",
+        "list-3611b499087d6a1c",
+        "list-7ce25923f1b9031e",
+        "list-d05eb9fcc38df227",
+        "list-d25b82cf0233fff4",
+        "list-f8989a289f58ce20"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:050101",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:050201",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:050202",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:050203",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:060001",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:070001",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:080001",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:080002",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:080003",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:090001",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:090002",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:090003",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:100001",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:110001",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:120101",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:120102",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:120103",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:120201",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:120202",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:130001",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:140001",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:150101",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:150102",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:150201",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:150202",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:160001",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:160002",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:160003",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:160004",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:170001",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:180001",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:190101",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:190102",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:190201",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:190202",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:190203",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:P:200001",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:U:020001",
+      "listIds": [
+        "group-10bc03a44a72d020",
+        "group-128148407d8a37c0",
+        "group-1d8be5ca53b668db",
+        "group-43b088d90d6ed113",
+        "group-a7259412b44957fd",
+        "group-cc1b0abb61869ad4",
+        "group-f8989a289f58ce20"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:U:040001",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0",
+        "list-10bc03a44a72d020",
+        "list-1379e84e454442d0",
+        "list-3611b499087d6a1c",
+        "list-7ce25923f1b9031e",
+        "list-d05eb9fcc38df227",
+        "list-d25b82cf0233fff4",
+        "list-f8989a289f58ce20"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:U:040002",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0",
+        "list-10bc03a44a72d020",
+        "list-1379e84e454442d0",
+        "list-3611b499087d6a1c",
+        "list-7ce25923f1b9031e",
+        "list-d05eb9fcc38df227",
+        "list-d25b82cf0233fff4",
+        "list-f8989a289f58ce20"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:U:040003",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0",
+        "list-10bc03a44a72d020",
+        "list-1379e84e454442d0",
+        "list-3611b499087d6a1c",
+        "list-7ce25923f1b9031e",
+        "list-d05eb9fcc38df227",
+        "list-d25b82cf0233fff4",
+        "list-f8989a289f58ce20"
+      ]
+    },
+    {
+      "chamber": "camera",
+      "collegeId": "camera:U:040004",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0",
+        "list-10bc03a44a72d020",
+        "list-1379e84e454442d0",
+        "list-3611b499087d6a1c",
+        "list-7ce25923f1b9031e",
+        "list-d05eb9fcc38df227",
+        "list-d25b82cf0233fff4",
+        "list-f8989a289f58ce20"
+      ]
+    },
+    {
+      "chamber": "senato",
+      "collegeId": "senato:P:010001",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "senato",
+      "collegeId": "senato:P:010002",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "senato",
+      "collegeId": "senato:P:030001",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "senato",
+      "collegeId": "senato:P:030002",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "senato",
+      "collegeId": "senato:P:030003",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "senato",
+      "collegeId": "senato:P:050001",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "senato",
+      "collegeId": "senato:P:050002",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "senato",
+      "collegeId": "senato:P:060001",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "senato",
+      "collegeId": "senato:P:070001",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "senato",
+      "collegeId": "senato:P:080001",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "senato",
+      "collegeId": "senato:P:080002",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "senato",
+      "collegeId": "senato:P:090001",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "senato",
+      "collegeId": "senato:P:100001",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "senato",
+      "collegeId": "senato:P:110001",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "senato",
+      "collegeId": "senato:P:120001",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "senato",
+      "collegeId": "senato:P:120002",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "senato",
+      "collegeId": "senato:P:130001",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "senato",
+      "collegeId": "senato:P:140001",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "senato",
+      "collegeId": "senato:P:150001",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "senato",
+      "collegeId": "senato:P:150002",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "senato",
+      "collegeId": "senato:P:160001",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "senato",
+      "collegeId": "senato:P:170001",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "senato",
+      "collegeId": "senato:P:180001",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "senato",
+      "collegeId": "senato:P:190001",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "senato",
+      "collegeId": "senato:P:190002",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "senato",
+      "collegeId": "senato:P:200001",
+      "listIds": [
+        "list-8951166603702dcc",
+        "list-59f35e92039ebed8",
+        "list-27178b23de82c1fd",
+        "list-c9cecc92ab984510",
+        "list-f54cd757a71ca555",
+        "list-56b7f5902a176380",
+        "list-add076ceaad6d2a6",
+        "list-4737a15e2c762fa0"
+      ]
+    },
+    {
+      "chamber": "senato",
+      "collegeId": "senato:U:020001",
+      "listIds": [
+        "group-10bc03a44a72d020",
+        "group-1d8be5ca53b668db",
+        "group-43b088d90d6ed113",
+        "group-a7259412b44957fd",
+        "group-cc1b0abb61869ad4",
+        "group-d25b82cf0233fff4",
+        "group-ebea6e1235ad02c4",
+        "group-f8989a289f58ce20"
+      ]
+    },
+    {
+      "chamber": "senato",
+      "collegeId": "senato:U:040001",
+      "listIds": [
+        "group-10bc03a44a72d020",
+        "group-27178b23de82c1fd",
+        "group-35442edc478ac27a",
+        "group-3611b499087d6a1c",
+        "group-cc1b0abb61869ad4",
+        "group-f8989a289f58ce20"
+      ]
+    },
+    {
+      "chamber": "senato",
+      "collegeId": "senato:U:040002",
+      "listIds": [
+        "group-10bc03a44a72d020",
+        "group-27178b23de82c1fd",
+        "group-35442edc478ac27a",
+        "group-3611b499087d6a1c",
+        "group-cc1b0abb61869ad4",
+        "group-d25b82cf0233fff4",
+        "group-f8989a289f58ce20"
+      ]
+    },
+    {
+      "chamber": "senato",
+      "collegeId": "senato:U:040003",
+      "listIds": [
+        "group-10bc03a44a72d020",
+        "group-27178b23de82c1fd",
+        "group-35442edc478ac27a",
+        "group-3611b499087d6a1c",
+        "group-cc1b0abb61869ad4",
+        "group-f8989a289f58ce20"
+      ]
+    },
+    {
+      "chamber": "senato",
+      "collegeId": "senato:U:040004",
+      "listIds": [
+        "group-10bc03a44a72d020",
+        "group-27178b23de82c1fd",
+        "group-3611b499087d6a1c",
+        "group-56b7f5902a176380",
+        "group-5bb5bafaa6c16f09",
+        "group-a15f17b82fd3d1c8",
+        "group-cc1b0abb61869ad4",
+        "group-d25b82cf0233fff4",
+        "group-f8989a289f58ce20"
+      ]
+    },
+    {
+      "chamber": "senato",
+      "collegeId": "senato:U:040005",
+      "listIds": [
+        "group-10bc03a44a72d020",
+        "group-27178b23de82c1fd",
+        "group-27c4c235b098f537",
+        "group-3611b499087d6a1c",
+        "group-56b7f5902a176380",
+        "group-59f35e92039ebed8",
+        "group-5bb5bafaa6c16f09",
+        "group-a15f17b82fd3d1c8",
+        "group-add076ceaad6d2a6",
+        "group-cc1b0abb61869ad4",
+        "group-d25b82cf0233fff4",
+        "group-f8989a289f58ce20"
+      ]
+    },
+    {
+      "chamber": "senato",
+      "collegeId": "senato:U:040006",
+      "listIds": [
+        "group-10bc03a44a72d020",
+        "group-27178b23de82c1fd",
+        "group-27c4c235b098f537",
+        "group-3611b499087d6a1c",
+        "group-56b7f5902a176380",
+        "group-59f35e92039ebed8",
+        "group-5bb5bafaa6c16f09",
+        "group-a15f17b82fd3d1c8",
+        "group-add076ceaad6d2a6",
+        "group-cc1b0abb61869ad4",
+        "group-d25b82cf0233fff4",
+        "group-f8989a289f58ce20"
+      ]
+    }
+  ],
+  "correspondences": [
+    {
+      "chamber": "camera",
+      "pastListId": "list-8951166603702dcc",
+      "futureListId": "list-8951166603702dcc",
+      "factor": 1
+    },
+    {
+      "chamber": "camera",
+      "pastListId": "list-59f35e92039ebed8",
+      "futureListId": "list-59f35e92039ebed8",
+      "factor": 1
+    },
+    {
+      "chamber": "camera",
+      "pastListId": "list-27178b23de82c1fd",
+      "futureListId": "list-27178b23de82c1fd",
+      "factor": 1
+    },
+    {
+      "chamber": "camera",
+      "pastListId": "list-c9cecc92ab984510",
+      "futureListId": "list-c9cecc92ab984510",
+      "factor": 1
+    },
+    {
+      "chamber": "camera",
+      "pastListId": "list-f54cd757a71ca555",
+      "futureListId": "list-f54cd757a71ca555",
+      "factor": 1
+    },
+    {
+      "chamber": "camera",
+      "pastListId": "list-56b7f5902a176380",
+      "futureListId": "list-56b7f5902a176380",
+      "factor": 1
+    },
+    {
+      "chamber": "camera",
+      "pastListId": "list-add076ceaad6d2a6",
+      "futureListId": "list-add076ceaad6d2a6",
+      "factor": 1
+    },
+    {
+      "chamber": "camera",
+      "pastListId": "list-4737a15e2c762fa0",
+      "futureListId": "list-4737a15e2c762fa0",
+      "factor": 1
+    },
+    {
+      "chamber": "camera",
+      "pastListId": "list-10bc03a44a72d020",
+      "futureListId": "list-10bc03a44a72d020",
+      "factor": 1
+    },
+    {
+      "chamber": "camera",
+      "pastListId": "list-1379e84e454442d0",
+      "futureListId": "list-1379e84e454442d0",
+      "factor": 1
+    },
+    {
+      "chamber": "camera",
+      "pastListId": "list-3611b499087d6a1c",
+      "futureListId": "list-3611b499087d6a1c",
+      "factor": 1
+    },
+    {
+      "chamber": "camera",
+      "pastListId": "list-7ce25923f1b9031e",
+      "futureListId": "list-7ce25923f1b9031e",
+      "factor": 1
+    },
+    {
+      "chamber": "camera",
+      "pastListId": "list-d05eb9fcc38df227",
+      "futureListId": "list-d05eb9fcc38df227",
+      "factor": 1
+    },
+    {
+      "chamber": "camera",
+      "pastListId": "list-d25b82cf0233fff4",
+      "futureListId": "list-d25b82cf0233fff4",
+      "factor": 1
+    },
+    {
+      "chamber": "camera",
+      "pastListId": "list-f8989a289f58ce20",
+      "futureListId": "list-f8989a289f58ce20",
+      "factor": 1
+    },
+    {
+      "chamber": "camera",
+      "pastListId": "group-10bc03a44a72d020",
+      "futureListId": "group-10bc03a44a72d020",
+      "factor": 1
+    },
+    {
+      "chamber": "camera",
+      "pastListId": "group-128148407d8a37c0",
+      "futureListId": "group-128148407d8a37c0",
+      "factor": 1
+    },
+    {
+      "chamber": "camera",
+      "pastListId": "group-1d8be5ca53b668db",
+      "futureListId": "group-1d8be5ca53b668db",
+      "factor": 1
+    },
+    {
+      "chamber": "camera",
+      "pastListId": "group-43b088d90d6ed113",
+      "futureListId": "group-43b088d90d6ed113",
+      "factor": 1
+    },
+    {
+      "chamber": "camera",
+      "pastListId": "group-a7259412b44957fd",
+      "futureListId": "group-a7259412b44957fd",
+      "factor": 1
+    },
+    {
+      "chamber": "camera",
+      "pastListId": "group-cc1b0abb61869ad4",
+      "futureListId": "group-cc1b0abb61869ad4",
+      "factor": 1
+    },
+    {
+      "chamber": "camera",
+      "pastListId": "group-f8989a289f58ce20",
+      "futureListId": "group-f8989a289f58ce20",
+      "factor": 1
+    },
+    {
+      "chamber": "senato",
+      "pastListId": "list-8951166603702dcc",
+      "futureListId": "list-8951166603702dcc",
+      "factor": 1
+    },
+    {
+      "chamber": "senato",
+      "pastListId": "list-59f35e92039ebed8",
+      "futureListId": "list-59f35e92039ebed8",
+      "factor": 1
+    },
+    {
+      "chamber": "senato",
+      "pastListId": "list-27178b23de82c1fd",
+      "futureListId": "list-27178b23de82c1fd",
+      "factor": 1
+    },
+    {
+      "chamber": "senato",
+      "pastListId": "list-c9cecc92ab984510",
+      "futureListId": "list-c9cecc92ab984510",
+      "factor": 1
+    },
+    {
+      "chamber": "senato",
+      "pastListId": "list-f54cd757a71ca555",
+      "futureListId": "list-f54cd757a71ca555",
+      "factor": 1
+    },
+    {
+      "chamber": "senato",
+      "pastListId": "list-56b7f5902a176380",
+      "futureListId": "list-56b7f5902a176380",
+      "factor": 1
+    },
+    {
+      "chamber": "senato",
+      "pastListId": "list-add076ceaad6d2a6",
+      "futureListId": "list-add076ceaad6d2a6",
+      "factor": 1
+    },
+    {
+      "chamber": "senato",
+      "pastListId": "list-4737a15e2c762fa0",
+      "futureListId": "list-4737a15e2c762fa0",
+      "factor": 1
+    },
+    {
+      "chamber": "senato",
+      "pastListId": "group-10bc03a44a72d020",
+      "futureListId": "group-10bc03a44a72d020",
+      "factor": 1
+    },
+    {
+      "chamber": "senato",
+      "pastListId": "group-1d8be5ca53b668db",
+      "futureListId": "group-1d8be5ca53b668db",
+      "factor": 1
+    },
+    {
+      "chamber": "senato",
+      "pastListId": "group-27178b23de82c1fd",
+      "futureListId": "group-27178b23de82c1fd",
+      "factor": 1
+    },
+    {
+      "chamber": "senato",
+      "pastListId": "group-27c4c235b098f537",
+      "futureListId": "group-27c4c235b098f537",
+      "factor": 1
+    },
+    {
+      "chamber": "senato",
+      "pastListId": "group-35442edc478ac27a",
+      "futureListId": "group-35442edc478ac27a",
+      "factor": 1
+    },
+    {
+      "chamber": "senato",
+      "pastListId": "group-3611b499087d6a1c",
+      "futureListId": "group-3611b499087d6a1c",
+      "factor": 1
+    },
+    {
+      "chamber": "senato",
+      "pastListId": "group-43b088d90d6ed113",
+      "futureListId": "group-43b088d90d6ed113",
+      "factor": 1
+    },
+    {
+      "chamber": "senato",
+      "pastListId": "group-56b7f5902a176380",
+      "futureListId": "group-56b7f5902a176380",
+      "factor": 1
+    },
+    {
+      "chamber": "senato",
+      "pastListId": "group-59f35e92039ebed8",
+      "futureListId": "group-59f35e92039ebed8",
+      "factor": 1
+    },
+    {
+      "chamber": "senato",
+      "pastListId": "group-5bb5bafaa6c16f09",
+      "futureListId": "group-5bb5bafaa6c16f09",
+      "factor": 1
+    },
+    {
+      "chamber": "senato",
+      "pastListId": "group-a15f17b82fd3d1c8",
+      "futureListId": "group-a15f17b82fd3d1c8",
+      "factor": 1
+    },
+    {
+      "chamber": "senato",
+      "pastListId": "group-a7259412b44957fd",
+      "futureListId": "group-a7259412b44957fd",
+      "factor": 1
+    },
+    {
+      "chamber": "senato",
+      "pastListId": "group-add076ceaad6d2a6",
+      "futureListId": "group-add076ceaad6d2a6",
+      "factor": 1
+    },
+    {
+      "chamber": "senato",
+      "pastListId": "group-cc1b0abb61869ad4",
+      "futureListId": "group-cc1b0abb61869ad4",
+      "factor": 1
+    },
+    {
+      "chamber": "senato",
+      "pastListId": "group-d25b82cf0233fff4",
+      "futureListId": "group-d25b82cf0233fff4",
+      "factor": 1
+    },
+    {
+      "chamber": "senato",
+      "pastListId": "group-ebea6e1235ad02c4",
+      "futureListId": "group-ebea6e1235ad02c4",
+      "factor": 1
+    },
+    {
+      "chamber": "senato",
+      "pastListId": "group-f8989a289f58ce20",
+      "futureListId": "group-f8989a289f58ce20",
+      "factor": 1
+    }
+  ],
+  "shares": [],
+  "abstention": [],
+  "candidateGeneration": {
+    "reuseProbability": 0.2,
+    "maximumOrdinaryCandidacies": 5,
+    "bonusPolicy": "reference-proportional-v1"
+  },
+  "candidateTemplates": [],
+  "suppliedPreferences": [],
+  "suppliedVotes": [],
+  "bonusLinks": [
+    {
+      "camera": {
+        "kind": "coalition",
+        "id": "historical-coalition:list-8951166603702dcc:list-c9cecc92ab984510:list-f54cd757a71ca555"
+      },
+      "senato": {
+        "kind": "coalition",
+        "id": "historical-coalition:list-8951166603702dcc:list-c9cecc92ab984510:list-f54cd757a71ca555"
+      },
+      "cameraDeclares": true,
+      "senatoDeclares": true
+    },
+    {
+      "camera": {
+        "kind": "coalition",
+        "id": "historical-coalition:list-4737a15e2c762fa0:list-59f35e92039ebed8:list-add076ceaad6d2a6"
+      },
+      "senato": {
+        "kind": "coalition",
+        "id": "historical-coalition:list-4737a15e2c762fa0:list-59f35e92039ebed8:list-add076ceaad6d2a6"
+      },
+      "cameraDeclares": true,
+      "senatoDeclares": true
+    },
+    {
+      "camera": {
+        "kind": "list",
+        "id": "list-27178b23de82c1fd"
+      },
+      "senato": {
+        "kind": "list",
+        "id": "list-27178b23de82c1fd"
+      },
+      "cameraDeclares": true,
+      "senatoDeclares": true
+    },
+    {
+      "camera": {
+        "kind": "list",
+        "id": "list-56b7f5902a176380"
+      },
+      "senato": {
+        "kind": "list",
+        "id": "list-56b7f5902a176380"
+      },
+      "cameraDeclares": true,
+      "senatoDeclares": true
+    }
+  ],
+  "conversion": null,
+  "presentation": {
+    "name": "Scenario riforma 2026",
+    "lists": [
+      {
+        "id": "list-8951166603702dcc",
+        "color": "#64748b"
+      },
+      {
+        "id": "list-59f35e92039ebed8",
+        "color": "#64748b"
+      },
+      {
+        "id": "list-27178b23de82c1fd",
+        "color": "#ea580c"
+      },
+      {
+        "id": "list-c9cecc92ab984510",
+        "color": "#2563eb"
+      },
+      {
+        "id": "list-f54cd757a71ca555",
+        "color": "#be185d"
+      },
+      {
+        "id": "list-56b7f5902a176380",
+        "color": "#0891b2"
+      },
+      {
+        "id": "list-add076ceaad6d2a6",
+        "color": "#ea580c"
+      },
+      {
+        "id": "list-4737a15e2c762fa0",
+        "color": "#dc2626"
+      },
+      {
+        "id": "list-10bc03a44a72d020",
+        "color": "#64748b"
+      },
+      {
+        "id": "list-1379e84e454442d0",
+        "color": "#16a34a"
+      },
+      {
+        "id": "list-3611b499087d6a1c",
+        "color": "#be185d"
+      },
+      {
+        "id": "list-7ce25923f1b9031e",
+        "color": "#be185d"
+      },
+      {
+        "id": "list-d05eb9fcc38df227",
+        "color": "#ea580c"
+      },
+      {
+        "id": "list-d25b82cf0233fff4",
+        "color": "#64748b"
+      },
+      {
+        "id": "list-f8989a289f58ce20",
+        "color": "#be185d"
+      },
+      {
+        "id": "group-10bc03a44a72d020",
+        "color": "#be185d"
+      },
+      {
+        "id": "group-128148407d8a37c0",
+        "color": "#64748b"
+      },
+      {
+        "id": "group-1d8be5ca53b668db",
+        "color": "#9333ea"
+      },
+      {
+        "id": "group-43b088d90d6ed113",
+        "color": "#16a34a"
+      },
+      {
+        "id": "group-a7259412b44957fd",
+        "color": "#16a34a"
+      },
+      {
+        "id": "group-cc1b0abb61869ad4",
+        "color": "#dc2626"
+      },
+      {
+        "id": "group-f8989a289f58ce20",
+        "color": "#0891b2"
+      },
+      {
+        "id": "group-27178b23de82c1fd",
+        "color": "#9333ea"
+      },
+      {
+        "id": "group-27c4c235b098f537",
+        "color": "#0891b2"
+      },
+      {
+        "id": "group-35442edc478ac27a",
+        "color": "#64748b"
+      },
+      {
+        "id": "group-3611b499087d6a1c",
+        "color": "#0891b2"
+      },
+      {
+        "id": "group-56b7f5902a176380",
+        "color": "#ea580c"
+      },
+      {
+        "id": "group-59f35e92039ebed8",
+        "color": "#be185d"
+      },
+      {
+        "id": "group-5bb5bafaa6c16f09",
+        "color": "#ea580c"
+      },
+      {
+        "id": "group-a15f17b82fd3d1c8",
+        "color": "#2563eb"
+      },
+      {
+        "id": "group-add076ceaad6d2a6",
+        "color": "#9333ea"
+      },
+      {
+        "id": "group-d25b82cf0233fff4",
+        "color": "#be185d"
+      },
+      {
+        "id": "group-ebea6e1235ad02c4",
+        "color": "#64748b"
+      }
+    ],
+    "coalitions": [
+      {
+        "id": "historical-coalition:list-8951166603702dcc:list-c9cecc92ab984510:list-f54cd757a71ca555",
+        "name": "FRATELLI D'ITALIA CON GIORGIA MELONI + LEGA PER SALVINI PREMIER + FORZA ITALIA",
+        "color": "#16a34a"
+      },
+      {
+        "id": "historical-coalition:list-4737a15e2c762fa0:list-59f35e92039ebed8:list-add076ceaad6d2a6",
+        "name": "PARTITO DEMOCRATICO - ITALIA DEMOCRATICA E PROGRESSISTA + ALLEANZA VERDI E SINISTRA + +EUROPA",
+        "color": "#dc2626"
+      }
+    ]
+  }
+}

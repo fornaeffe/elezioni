@@ -40,9 +40,12 @@ storage, execution and exports use [application](politics-reform-2026-applicatio
   reconciled through JSON. Reciprocal bonus links are explicit declarations.
 - **Candidature** edits stable person identities and ordinary/bonus/special
   placements. Editing an existing identity updates its templates together.
-  Availability retains filed positions. Bonus previews follow the existing
-  planner's ordinary prefixes; compatible templates pin people without changing
-  bonus composition/order. The preview is conditional on simulation 1 and the
+  Availability retains filed positions. The [candidate policy](politics-reform-2026-candidates.md)
+  places supplied people first and fills remaining bonus slots from frozen
+  proportional reference allocations and ordinary prefixes. An ordinary supplied
+  person remains outside the bonus unless its identity also has a bonus template.
+  **Aggiorna selezione del premio** explicitly upgrades an old policy; parsing or
+  editing presentation alone retains archive behaviour. The preview is conditional on simulation 1 and the
   current seed; it is not a scrutiny result or a probability estimate.
 - **Verifica e anteprima** loads the checksum-verified runtime snapshot in a
   separate worker and checks one generated input. It shows resolved share

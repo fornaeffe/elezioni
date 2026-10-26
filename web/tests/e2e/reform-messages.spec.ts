@@ -83,7 +83,7 @@ test('global context precedes exact frequencies and bounded ID inspection, filte
   await expect(page.getByLabel('Risultati locali')).not.toHaveValue(beforeZero);
   await expect(general).toContainText('Calcolo interrotto: 0/1500', { timeout: 30000 });
   await expect(summary.locator('.totals')).toContainText('Errore: 0/1500');
-  await expect(page.getByRole('alert')).not.toContainText('Unknown result table');
+  await expect(page.getByRole('alert').filter({ hasText: 'Unknown result table' })).toHaveCount(0);
   const zeroDownload = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Scarica risultati JSON.gz', exact: true }).click();
   const zeroStream = await (await zeroDownload).createReadStream(), zeroChunks: Buffer[] = [];

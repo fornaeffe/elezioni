@@ -16,7 +16,7 @@ previews, use the [scenario editor guide](politics-reform-2026-editor.md).
 | Strict validation, serialization, defaults, explicit legacy conversion | `generation-scenario.ts` in the same directory |
 | Prepare references, then generate one paired simulation | `generation.ts` |
 | Correspondences, common anchors, geographic overrides and paired shocks | `paired-vote-generation.ts` |
-| Filed seven-slot lists, bonus prefixes, templates and compatible reuse | `reform-candidate-generation.ts` |
+| Bonus reference allocations, supplied candidates, witness prefixes and ordinary reuse | [Candidate generation guide](politics-reform-2026-candidates.md) |
 | Valid combinations, maximum entropy and shared person strength | `preference-generation.ts` |
 | Entity-addressed streams and aggregate integer sampling | `generation-math.ts` |
 | Pinned acquisition and offline preparation | `web/scripts/data-preparation/reform-cli.ts`, `reform-models.ts` |
@@ -132,8 +132,12 @@ Defaults use the eight leading ordinary lists, retained special-territory lists
 and ballot groups, and historical candidate-link coalition metadata. Ordinary
 filing and reciprocal bonus links are explicit editable future assumptions.
 Retaining a special-territory list does not automatically assert protected
-minority status. Bonus affiliations come from filed ordinary prefixes; they are
-not proportional coalition seat quotas. Templates can pin names, birth dates,
+minority status. New defaults select bonus candidatures proportionally to frozen
+reference support, constrained by supplied people, ordinary prefixes and gender;
+see the [candidate policy](politics-reform-2026-candidates.md) for rounding,
+explicit bonus declarations, multiple ordinary candidacies and archive replay.
+These candidate affiliations are not legal coalition-member seat entitlements.
+Templates can pin names, birth dates,
 gender, availability and compatible shared identities. Special templates can
 declare independent affiliation. Conflicting or unmatched templates fail.
 

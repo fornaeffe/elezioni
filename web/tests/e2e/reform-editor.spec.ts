@@ -120,6 +120,19 @@ test('production worker previews actual bonus prefixes and accepts a compatible 
   await page.screenshot({ path: 'test-results/reform-editor-preview.png', fullPage: true });
 });
 
+test('old candidate policy upgrades explicitly and explains ordinary-only supplied people', async ({ page }) => {
+  await open(page);
+  const old = structuredClone(defaults); delete old.candidateGeneration.bonusPolicy;
+  await page.getByTestId('reform-file-input').setInputFiles({ name: 'old-selection.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(old)) });
+  await expect.poll(async () => (await stored(page)).candidateGeneration.bonusPolicy ?? 'original').toBe('original');
+  await page.getByText('Candidature e anteprima del premio', { exact: true }).click();
+  await page.getByRole('button', { name: 'Aggiorna selezione del premio', exact: true }).click();
+  await expect.poll(async () => (await stored(page)).candidateGeneration.bonusPolicy).toBe('reference-proportional-v1');
+  await expect(page.getByText('Un candidato ordinario fornito resta escluso dal premio', { exact: false })).toBeVisible();
+  await page.reload(); await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-reform-2026-v1');
+  expect((await stored(page)).candidateGeneration.bonusPolicy).toBe('reference-proportional-v1');
+});
+
 
 test('row details control presence and badges while editor scopes stay local', async ({ page }) => {
   await open(page);

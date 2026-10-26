@@ -23,7 +23,7 @@ const scenarioFields = {
   correspondences: array(object({ chamber, pastListId: text, futureListId: text, factor: nonnegative })),
   shares: array(object({ scope, listId: text, common: nullable(share), camera: nullable(share), senato: nullable(share) })),
   abstention: array(object({ scope, common: nullable(share), camera: nullable(share), senato: nullable(share) })),
-  candidateGeneration: object({ reuseProbability: share,
+  candidateGeneration: object({ reuseProbability: share, bonusPolicy: optional(literal('reference-proportional-v1')),
     maximumOrdinaryCandidacies: scalar<number>(v => Number.isInteger(v) && Number(v) >= 1 && Number(v) <= 5, '1 through 5') }),
   candidateTemplates: array(object({ chamber, role: literal('ordinary', 'bonus', 'special'), locationId: text, ownerId: text,
     position: scalar<number>(v => Number.isSafeInteger(v) && Number(v) > 0, 'a positive position'), affiliationListId: nullable(text), candidate })),
@@ -170,7 +170,7 @@ export function createDefaultReformScenario(snapshot: ReformGenerationSnapshot, 
   const s: ReformGenerationScenario = { schemaVersion: REFORM_SCENARIO_VERSION, kind: 'politics-reform-scenario', algorithmId: REFORM_ALGORITHM_ID,
     snapshotVersion: snapshot.version, modelVersion: snapshot.models.version, modelIds: REFORM_MODEL_IDS,
     preferenceProfileId: 'central-v1', chamberProfileId: 'central-v1', seed, electionDate, projectionDate, mode: 'mean', renewal: 'joint',
-    lists: { camera: [], senato: [] }, coverage: [], correspondences: [], shares: [], abstention: [], candidateGeneration: { reuseProbability: 0.2, maximumOrdinaryCandidacies: 5 },
+    lists: { camera: [], senato: [] }, coverage: [], correspondences: [], shares: [], abstention: [], candidateGeneration: { reuseProbability: 0.2, maximumOrdinaryCandidacies: 5, bonusPolicy: 'reference-proportional-v1' },
     candidateTemplates: [], suppliedPreferences: [], suppliedVotes: [], bonusLinks: [], conversion: null };
   for (const ch of ['camera', 'senato'] as const) {
     const totals = new Map<string, number>();

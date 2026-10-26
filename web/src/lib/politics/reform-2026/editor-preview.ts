@@ -15,7 +15,12 @@ export function previewReformScenario(s: ReformGenerationScenario, snapshot: Ref
   if (ch && selection) {
     const add = (id: string, position: number, listId: string | null) => {
       const p = people.get(id)!;
-      const ordinary = ch.ordinarySlates.find(o => o.candidateIds.includes(id) && (listId === null || o.listId === listId));
+      const bonusTerritory = selection.role === 'bonus' ? selection.locationId : null;
+      const bonusPeople = new Set(ch.bonusSlates.flatMap(b => b.candidates.map(c => c.candidateId)));
+      const ordinary = ch.ordinarySlates.find(o => o.candidateIds.includes(id) && (listId === null || o.listId === listId) &&
+        (selection.role !== 'ordinary' || o.collegeId === selection.locationId) &&
+        (bonusTerritory === null || ch.colleges.find(c => c.id === o.collegeId)?.territoryId === bonusTerritory &&
+          o.candidateIds.slice(0, o.candidateIds.indexOf(id)).every(id => bonusPeople.has(id))));
       placements.push({ position, candidateId: id, name: p.name, gender: p.gender, birthDate: p.birthDate, listId,
         ordinaryLocation: ordinary?.collegeId ?? null, ordinaryPosition: ordinary ? ordinary.candidateIds.indexOf(id) + 1 : null });
     };
@@ -33,6 +38,7 @@ export function previewReformScenario(s: ReformGenerationScenario, snapshot: Ref
     };
     return { scope, camera: value('camera'), senato: value('senato') };
   });
-  return { references: trace.references, abstention, warnings: trace.warnings, normalization: trace.normalization, placements };
+  return { references: trace.references, abstention, warnings: trace.warnings, normalization: trace.normalization, placements,
+    bonusSelection: trace.bonusSelection };
 }
 export type ReformEditorPreview = ReturnType<typeof previewReformScenario>;

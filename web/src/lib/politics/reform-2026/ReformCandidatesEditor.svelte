@@ -47,6 +47,12 @@
 <section aria-label="Candidature riforma">
   <h3>Candidature e planner del premio</h3>
   <p>I collegi e le posizioni sono propri di ciascun ramo. I template fissano persone; le posizioni rimanenti sono generate. La stessa identità mantiene gli stessi dati in tutte le sue candidature.</p>
+  {#if scenario.candidateGeneration.bonusPolicy}
+    <p>Le quote di candidati del premio seguono il sostegno stimato alla data di proiezione e restano uguali in tutte le simulazioni. I collegi sono ordinati casualmente per ogni simulazione. Un candidato ordinario fornito resta escluso dal premio finché non viene inserito anche come candidato del premio con la stessa identità.</p>
+  {:else}
+    <p>Questo scenario conserva la selezione originaria del premio.</p>
+    <button type="button" {disabled} onclick={() => onaction(() => { const n = upgradeReformDraft(scenario); n.candidateGeneration.bonusPolicy = 'reference-proportional-v1'; return n; })}>Aggiorna selezione del premio</button>
+  {/if}
   <div class="editor-row">
     <label>Probabilità riuso candidati<input type="number" min="0" max="1" step="0.01" value={scenario.candidateGeneration.reuseProbability} {disabled} onchange={e => { const value = e.currentTarget.valueAsNumber; onaction(() => { const n = upgradeReformDraft(scenario); n.candidateGeneration.reuseProbability = value; return n; }); }} /></label>
     <label>Massimo candidature ordinarie<select value={scenario.candidateGeneration.maximumOrdinaryCandidacies} {disabled} onchange={e => { const value = Number(e.currentTarget.value); onaction(() => { const n = upgradeReformDraft(scenario); n.candidateGeneration.maximumOrdinaryCandidacies = value; return n; }); }}>{#each [1, 2, 3, 4, 5] as value (value)}<option {value}>{value}</option>{/each}</select></label>
@@ -55,7 +61,7 @@
     <label>Ramo candidature<select bind:value={chamber} {disabled} onchange={() => { locationId = ''; ownerId = ''; page = 0; }}><option value="camera">Camera</option><option value="senato">Senato</option></select></label>
     <label>Ruolo candidatura<select bind:value={role} {disabled} onchange={() => { locationId = ''; ownerId = ''; position = 1; page = 0; }}><option value="ordinary">Ordinaria</option><option value="bonus">Premio</option><option value="special">Uninominale speciale</option></select></label>
   </div>
-  {#if role === 'bonus'}<p>Il planner usa i prefissi delle liste ordinarie depositate. Il template sostituisce una persona nella posizione pianificata; non cambia l'ordine o inventa quote di premio per lista.</p>{/if}
+  {#if role === 'bonus'}<p>I candidati forniti occupano le posizioni indicate. Il planner completa il premio rispettando le candidature ordinarie, i prefissi e i vincoli di genere. Le quote possono adattarsi ai candidati forniti; non sono diritti ai seggi delle liste coalizzate.</p>{/if}
   <div class="editor-row">
     <SearchSelect label="collegio o territorio candidatura" options={places} value={locationId} onchange={v => { locationId = v; ownerId = ''; }} {disabled} />
     <label>Titolare candidatura<select bind:value={ownerId} {disabled}><option value="">Seleziona</option>{#each owners as owner (owner.id)}<option value={owner.id}>{owner.label}</option>{/each}</select></label>
@@ -79,7 +85,7 @@
       <label>Data nascita<input type="date" bind:value={person.birthDate} /></label>
       <label>Genere candidato<select bind:value={person.gender}><option value="female">Femminile</option><option value="male">Maschile</option></select></label>
       <label>Posizione candidatura<input type="number" min="1" max={role === 'ordinary' ? 7 : role === 'special' ? 1 : undefined} bind:value={position} /></label>
-      {#if role !== 'ordinary'}<label>Affiliazione candidatura<select bind:value={affiliation}><option value="">{role === 'special' ? 'Indipendente' : 'Dal prefisso ordinario'}</option>{#each scenario.lists[chamber] as list (list.id)}<option value={list.id}>{list.name}</option>{/each}</select></label>{/if}
+      {#if role !== 'ordinary'}<label>Affiliazione candidatura<select bind:value={affiliation}><option value="">{role === 'special' ? 'Indipendente' : 'Automatica'}</option>{#each scenario.lists[chamber] as list (list.id)}<option value={list.id}>{list.name}</option>{/each}</select></label>{/if}
     </div>
     <label><input type="checkbox" checked={person.availability.kind === 'unavailable'} onchange={e => { person = { ...person, availability: e.currentTarget.checked ? { kind: 'unavailable', reason: '' } : { kind: 'available' } }; }} />Indisponibile</label>
     {#if person.availability.kind === 'unavailable'}<label>Motivo indisponibilità<input value={person.availability.reason} onchange={e => { person = { ...person, availability: { kind: 'unavailable', reason: e.currentTarget.value } }; }} /></label>{/if}
