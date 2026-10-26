@@ -6454,3 +6454,18 @@ Verification:
 
 Static builds passed as part of both browser runs, retaining the existing
 large-chunk advisory. No scrutiny, generation or archived-result data changed.
+
+### Follow-up: remove the nested national-spinogram toggle
+
+The selected plot in **Spinogrammi degli eletti** now renders directly inside
+the outer collapsible section. The shared chart renderer supports an optional
+non-collapsible wrapper, enabled only for the national series selector; other
+chart sections retain their existing behavior. The plot, coverage notes and
+click-to-enlarge dialog are preserved. Added an assertion to the existing
+browser check that this section contains no nested `details` element.
+
+Verification: `npm run check` reported zero errors/warnings. All three
+`reform-statistics.spec.ts` browser tests passed, including plot visibility,
+selector changes and opening/closing the enlargement dialog; the static build
+also passed. The Svelte autofixer found no issues in the three affected
+components (its existing `bind:this` refactoring suggestion was outside scope).

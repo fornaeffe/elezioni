@@ -5,9 +5,9 @@
   import { spineChart } from '../../results/chart-builders';
   import ResultCharts from '../../results/ResultCharts.svelte';
   import StreamedPlot from '../../results/StreamedPlot.svelte';
-  let { client, resultId, owner, descriptor, variant, measure = 'elected' }: {
+  let { client, resultId, owner, descriptor, variant, measure = 'elected', collapsible = true }: {
     client: ResultServiceClient; resultId: string; owner: string; descriptor: SeriesDescriptor;
-    variant: 'scatter' | 'spine'; measure?: 'elected' | 'entitled';
+    variant: 'scatter' | 'spine'; measure?: 'elected' | 'entitled'; collapsible?: boolean;
   } = $props();
   let element: HTMLDivElement;
   let statistics = $state.raw<SeriesStatistics | null>(null), error = $state('');
@@ -31,7 +31,7 @@
       <StreamedPlot {client} {resultId} {owner} series={descriptor.id} label={`${descriptor.chamber} · ${descriptor.name}`} color={descriptor.color}
         maxX={Math.max(1, Math.ceil(s.distribution.max ?? 1))} maxY={Math.max(1, s.yMax)} {measure} />
     {:else if s.distribution.count}
-      <ResultCharts charts={[spineChart(s, `${descriptor.chamber} · ${descriptor.name}`)]} initialOpen={true} />
+      <ResultCharts charts={[spineChart(s, `${descriptor.chamber} · ${descriptor.name}`)]} initialOpen={true} {collapsible} />
     {/if}
     <p class="coverage">{s.known}/{s.requested} coppie note · {s.missingY} esiti ignoti con percentuale nota · {s.missingX} percentuali non disponibili. Il grigio (?) indica esiti ignoti.</p>
   {:else if error}<p role="alert">{error}</p>

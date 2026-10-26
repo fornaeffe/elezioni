@@ -17,6 +17,7 @@
     onSelectPlurinominalOption?: (id: string) => void;
     outliers?: Snippet<[BoxPlotItem]>;
     initialOpen?: boolean;
+    collapsible?: boolean;
   }
 
   let {
@@ -26,7 +27,8 @@
     plurinominalChart = null,
     onSelectPlurinominalOption = () => {},
     outliers,
-    initialOpen
+    initialOpen,
+    collapsible = true
   }: Props = $props();
 
   interface EnlargedSpinogram {
@@ -80,13 +82,14 @@
 
 <div class="result-charts">
   {#each charts as chart, index (index)}
-    <details
+    <svelte:element
+      this={collapsible ? 'details' : 'section'}
       class={{ 'wide-chart': chart.kind === 'scatter' || chart.kind === 'spine' }}
-      open={detailOpen(chart)}
+      open={collapsible ? detailOpen(chart) : undefined}
       role="region"
       aria-label={chart.title}
     >
-      <summary>{chart.title}</summary>
+      {#if collapsible}<summary>{chart.title}</summary>{/if}
 
       {#if chart.kind === 'bar'}
         <div class="bar-chart">
@@ -238,7 +241,7 @@
           {/each}
         </div>
       {/if}
-    </details>
+    </svelte:element>
   {/each}
 
   {#if plurinominalOptions.length > 0 && plurinominalChart}

@@ -62,6 +62,7 @@ test('reform chart families render all available points lazily and keep old arch
   await spines.locator(':scope > summary').click();
   await spines.locator('.series-panel').scrollIntoViewIfNeeded();
   await expect(spines.getByText('?', { exact: true })).toBeVisible();
+  await expect(spines.locator('details')).toHaveCount(0);
   await spines.getByRole('button').first().click(); await expect(page.getByRole('dialog')).toBeVisible();
   await page.keyboard.press('Escape'); await expect(page.getByRole('dialog')).toHaveCount(0);
   await statistics.getByText('Eletti nel collegio plurinominale', { exact: true }).click();

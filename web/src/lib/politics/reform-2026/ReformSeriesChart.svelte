@@ -38,7 +38,7 @@
 
 {#if selected}
   {#key selected.id}
-    <ReformSeriesPanel {client} {resultId} {owner} descriptor={selected} {variant} />
+    <ReformSeriesPanel {client} {resultId} {owner} descriptor={selected} {variant} collapsible={false} />
   {/key}
 {:else}
   <p role="status">Nessuna percentuale disponibile per questo ramo e raggruppamento.</p>
