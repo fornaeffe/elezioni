@@ -39,19 +39,36 @@ function aggregate(units: readonly ProjectedMunicipality[], ch: Chamber, id: str
   return sum(units.map((u, i) => valid[i] * (u[ch].shares.get(id) ?? 0))) / (sum(valid) || 1);
 }
 
-/** IPF reconciles target valid shares with geographic support and preserves
- * every municipality's abstention and historical odds ratios. Structural zeros
- * from absent filing remain zeros; infeasible overrides are explicit errors. */
+/** IPF fixes only the supplied margins. Unspecified lists retain their local
+ * relative proportions, rather than acquiring artificial national targets.
+ * Municipal turnout and structural filing zeros remain fixed. */
 function reconcileReferences(units: readonly ProjectedMunicipality[], ch: Chamber, targets: Map<string, number>, available: (u: ProjectedMunicipality, id: string) => boolean) {
-  const ids = [...targets.keys()], weights = units.map(u => u.municipality[ch].electors * (1 - u[ch].abstention));
+  const ids = [...new Set(units.flatMap(u => [...u[ch].shares.keys()]))], targetIds = [...targets.keys()];
+  const weights = units.map(u => u.municipality[ch].electors * (1 - u[ch].abstention));
   const total = sum(weights);
   if (!total) return;
-  for (const u of units) for (const id of ids) if (targets.get(id)! > 0 && available(u, id) && !u[ch].shares.get(id)) u[ch].shares.set(id, 1e-12);
+  // At 100% supplied mass the free remainder is exactly zero. Remove it
+  // directly: multiplicative fitting would otherwise approach zero only slowly.
+  const fullMass = Math.abs(sum([...targets.values()]) - 1) < 1e-12;
+  for (const u of units) for (const id of ids) {
+    if (targets.get(id) === 0 || fullMass && !targets.has(id)) u[ch].shares.set(id, 0);
+    else if (targets.has(id) && available(u, id) && !u[ch].shares.get(id)) u[ch].shares.set(id, 1e-12);
+  }
+  for (const id of targetIds) {
+    const maximum = sum(units.map((u, i) => available(u, id) ? weights[i] : 0)) / total;
+    const desired = targets.get(id)!;
+    if (desired > maximum + 1e-12) throw new RangeError(`Share reference exceeds filed geographic support: ${ch}/${id} requests ${(desired * 100).toFixed(6)}%, but available valid votes allow at most ${(maximum * 100).toFixed(6)}%`);
+    // A reference at its geographic maximum owns every valid vote there.
+    // Remove competing mass exactly instead of approaching that boundary slowly.
+    if (desired > 0 && Math.abs(desired - maximum) < 1e-12) {
+      for (const u of units) if (available(u, id)) for (const other of ids) if (other !== id) u[ch].shares.set(other, 0);
+    }
+  }
   for (let iteration = 0; iteration < 1000; iteration++) {
-    const totals = ids.map(id => sum(units.map((u, i) => weights[i] * (u[ch].shares.get(id) ?? 0))));
-    ids.forEach((id, j) => {
+    const totals = targetIds.map(id => sum(units.map((u, i) => weights[i] * (u[ch].shares.get(id) ?? 0))));
+    targetIds.forEach((id, j) => {
       const desired = targets.get(id)! * total;
-      if (desired && !totals[j]) throw new RangeError(`Share override has no filed geographic support: ${ch}/${id}`);
+      if (desired && !totals[j]) throw new RangeError(`Share references leave no valid-vote capacity: ${ch}/${id}`);
       const factor = totals[j] ? desired / totals[j] : 0;
       for (const u of units) u[ch].shares.set(id, (u[ch].shares.get(id) ?? 0) * factor);
     });
@@ -60,7 +77,7 @@ function reconcileReferences(units: readonly ProjectedMunicipality[], ch: Chambe
       if (!mass && u.municipality[ch].electors * (1 - u[ch].abstention) > 0) throw new RangeError('Override removes all locally filed support');
       for (const id of ids) u[ch].shares.set(id, mass ? (u[ch].shares.get(id) ?? 0) / mass : 0);
     }
-    const error = Math.max(...ids.map(id => Math.abs(aggregate(units, ch, id) - targets.get(id)!)));
+    const error = Math.max(...targetIds.map(id => Math.abs(aggregate(units, ch, id) - targets.get(id)!)));
     if (error < 1e-9) return;
   }
   throw new RangeError('Share references conflict with filed geographic support; reconciliation did not converge');
@@ -158,7 +175,7 @@ export function preparePairedVoteReferences(scenario: ReformGenerationScenario, 
         group.forEach((u, i) => { u[ch].abstention = a === 0 || a === 1 ? a : logistic(logit(baseline[i]) + (lower + upper) / 2); u[ch].abstentionDate = s.projectionDate; });
       }
       if (!supplied.size) continue;
-      const eligible = s.lists[ch].map(l => l.id), targets = new Map<string, number>();
+      const eligible = s.lists[ch].map(l => l.id);
       const inputTotal = sum([...supplied.values()].map(r => r.share));
       if (inputTotal > 1 + 1e-12 || supplied.size === eligible.length && Math.abs(inputTotal - 1) > 1e-12) {
         if (!inputTotal) throw new RangeError('All overridden valid shares are zero');
@@ -169,7 +186,9 @@ export function preparePairedVoteReferences(scenario: ReformGenerationScenario, 
       const remaining = Math.max(0, 1 - sum([...supplied.values()].map(r => r.share)));
       const free = eligible.filter(id => !supplied.has(id)), mass = sum(free.map(id => aggregate(group, ch, id)));
       if (remaining > 1e-12 && free.length && !mass) throw new RangeError('Partial share overrides leave no historical support for the remainder');
-      for (const id of eligible) targets.set(id, supplied.get(id)?.share ?? (mass ? remaining * aggregate(group, ch, id) / mass : 0));
+      // Historical support is a prior for the remainder, not a set of hard
+      // margins: special-territory lists cannot exchange votes with mainland lists.
+      const targets = new Map([...supplied].map(([id, r]) => [id, r.share]));
       reconcileReferences(group, ch, targets, (u, id) => available(u, id, ch));
       for (const u of group) for (const id of supplied.keys()) { u[ch].dates.set(id, s.projectionDate); u[ch].measurement?.delete(id); }
     }

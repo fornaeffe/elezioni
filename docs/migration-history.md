@@ -6124,3 +6124,163 @@ failure. No countrywide fitting, stages 1–7, production changes, commit or
 publication occurred. Resume with fresh warmup from the saved prepared inputs.
 Focused verification reached 23 passing research tests and a passing preparation
 type check; the full suite was not rerun after the follow-up's final edits.
+
+## 2026-10-26 — Partial reform share references and special-territory capacity
+
+Fixed the approved reform editor reference-share bug in
+`paired-vote-generation.ts`. The former remainder calculation promoted every
+unspecified list to a hard national target. Entering a common FdI anchor of
+26.7% in the bundled scenario implicitly demanded about 54,743 Camera votes
+from Valle d'Aosta ballot groups, despite their fixed 53,746 valid votes and
+exclusive territorial support; 1,000 reconciliation passes could not satisfy
+those contradictory targets.
+
+Reconciliation now constrains only entered shares and chamber shares derived
+from common anchors. Unspecified lists keep their local relative proportions
+while their aggregate shares adjust to geographic capacity. Preserved local
+turnout, filing zeros, explicit zero references, scope/chamber precedence and
+fully supplied normalization. Exactly exhausted supplied mass removes the free
+remainder directly; a reference exactly at its filed capacity removes competing
+local mass. These feasible boundary references do not converge only
+asymptotically. References exceeding their filed valid-vote capacity fail with
+the requested and maximum possible shares; other infeasible combinations still
+fail rather than receiving votes outside their filings. Poll-reference setup
+continues to supply its existing complete target map.
+
+Added nine constructed regressions for disconnected ballots, common and
+chamber-specific 26.7% inputs, higher/lower anchors, turnout and structural zeros,
+infeasible references, geographic capacity boundaries and 0%/100% endpoints.
+Three required-bundle regressions also prepare each production FdI 26.7% editor
+variant and generate a validated
+simulation input. These tests clearly skip if the production bundle is absent;
+the release acceptance gate continues to require it. Updated the editor and
+generation guides and marked the corrective task complete in the active plan.
+
+Verification: all 1,037 tests in 78 files passed with no skips; `npm run check`
+reported zero errors/warnings; the static production build and `git diff --check`
+passed. The build reported plugin timing and chunk-size warnings. No browser
+acceptance was run for this TypeScript reconciliation change. No source data,
+generated defaults, legal scrutiny rules or saved archives were rewritten.
+Re-running scenarios with partial references uses the corrected reconciliation;
+existing exported results retain their stored outcomes. No commit or publication
+was performed.
+
+## 2026-10-26 — Manual archive: 19 non-computable runs traced to LG05/LG06
+
+Inspected `data/derived/r26-manual-tests/r26-risultati (2).json.gz`
+(135,131,224 bytes; SHA-256
+`681673ac7027d62618f86625eecf8f56be810ad89fa7bb7ebfe086a5a8700045`).
+The archive reports 1,000 requested, 981 complete, zero partial and 19
+non-computable runs. All root blockers are in Camera; Senate has no
+non-computable stage in these runs. Later N18/proclamation/recovery/N28 failures
+propagate the first blocker and are not additional independent defects.
+
+| Root stage/reason | Simulation IDs |
+| --- | --- |
+| N16 `no-eligible-donor-remainder` | 163, 251, 299, 331, 375, 381, 416, 767, 910, 932, 989 |
+| N18 `zero-index-quota`, Molise | 311, 323, 571, 660, 819 |
+| N18 `zero-index-quota`, Basilicata | 421, 449, 974 |
+
+All eleven N16 failures have Sud chiama Nord exceeding its national entitlement
+by one seat, with all its current seats obtained through integer quotas in
+Sicilia 1/2. There is no remainder-awarded donor. Example 163 has target four,
+initial/current five (two plus three); Lega is one seat short. Existing I13
+is expressly limited to college corrections and does not cover N16. Registered
+this constituency-level analogue of LG01 as LG05, with an unapproved proposal
+to extend the donor policy narrowly while preserving N16 correction criteria.
+
+All eight N18 first failures follow an N16 correction awarding Sud chiama Nord
+a seat in a constituency where it is filed but has zero votes. N16's same-area
+route can select its defined zero decimal before considering positive decimals
+elsewhere. On the cap path, only positive-entitlement local lists enter the
+group denominator. Sud chiama Nord is then alone in one group with one seat
+and zero votes. Its quota is zero; the required index would divide zero by zero.
+Example 311 has Molise targets Sud chiama Nord 1 / PD 1, and group vote totals
+0 / 18,514. Registered LG06 after reviewing C83-bis(1-bis)(a)-(b), with an
+unapproved single-college direct-communication proposal; all eight first-failure
+constituencies contain one college. This is distinct from an inactive group
+with zero seats. Sparse historical support and nationwide filed coverage are
+both present in the supplied scenario; zero votes do not mean missing filings.
+
+Verified C83(1)(h)/(i) and C83-bis against the official annotated republication
+of 23 October 2026, linked in the gap register. No statutory fallback covering
+these cases was identified; current explicit blockers agree with the adopted
+contracts. No scrutiny implementation correction was applied.
+
+Verification: streamed the gzip archive, then regenerated all 19 affected IDs
+using its exact scenario and installed production snapshot. All 1,254 archived
+national list vote counts match, as do every first-failure stage/reason and
+394 Camera allocation transfers' remainder evidence/draw contexts. Independent
+Python integer arithmetic confirms each N16 surplus is one integer-only seat;
+all eight failed N18 groups have zero votes and one seat. Local evidence and
+replay/verification scripts are under `data/derived/r26-manual-tests/`, including
+`r26-risultati-2-verification.json`. The one-off streaming extractor used Python
+`ijson` installed under the OS temporary directory; no project dependency was
+added. No runtime code, scenario, generated bundle or input archive was changed;
+no workaround, full acceptance, commit or publication was performed.
+
+## 2026-10-26 — Approved I13 N16 extension and Sud chiama Nord support trace
+
+Luca approved extending I13 to N16 and explicitly rejected passing positive-seat
+zero-vote targets automatically to a sole college. Implemented the N16 donor
+extension in `territorial-matrix.ts`, preserving C83(1)(h)'s surplus-list order,
+same-area recipient preference and cross-area fallback. Only the currently
+ordered surplus list supplies integer donors after its strict donors exhaust.
+Retained existing decimal/remainder states, seeded I03 ties and per-removal
+`I13_INTEGER_SEAT_REMOVAL` warnings/transfer metadata. Separated the existing
+college donor scope from the new N16 scope so I16 recipient reuse is not enabled
+in N16 accidentally. N15/N17 subject donor policies remain strict.
+
+Replayed all 19 archived failures against the approved extension. All eleven
+former N16 failures now complete, each with 588 seats, 588 distinct elected
+candidates and one N16 I13 integer-removal warning. All 1,254 national list vote
+counts remain identical to the archive. The other eight retain exactly the same
+Camera territorial communications and N18 `zero-index-quota` blockers as before.
+Evidence is in `data/derived/r26-manual-tests/r26-risultati-2-after-i13-n16.json`
+and `i13-n16-verification.json`; the original archive and pre-change replay were
+preserved. This was a replay of the 19 affected IDs, not a new 1,000-run archive
+or browser performance acceptance.
+
+Reconstructed the zero Molise votes from source through municipal generation:
+
+1. The scenario maps future `lista-3` only to historical `list-847ac39a103a9017`
+   (`SUD CHIAMA NORD`), with factor one in both chambers. It supplies a common
+   national reference of 1.4%, no geographic share overrides and no poll proxy.
+   The Camera/Senato Molise colleges both include the future filed list.
+2. Both pinned ministerial 2022 ZIPs have 1,768 Molise rows over 136 municipalities,
+   but no Sud chiama Nord row. Basilicata also has no row for that list. Verified
+   both ZIP SHA-256 values against the manifest/snapshot source versions.
+   Therefore this absence originates in the historical source, not the importer.
+   It is historical absence, not an observed positive-candidature zero to impose
+   on future support.
+3. Historical projection initializes future municipal support to zero where no
+   mapped row exists. National reference reconciliation seeds available zero
+   cells with `1e-12`; fitting national totals multiplicatively mostly rescales
+   existing support elsewhere. The common reference resolves to Camera
+   1.313881112% and Senate 1.491678265%. Molise's prepared Camera valid shares
+   remain only `1.703282e-12`–`2.984495e-12`, corresponding to about `2.464847e-7`
+   votes before future drift. The numerical seed is not a meaningful territorial
+   prior for a newly filed area.
+4. In simulation 311, the generator's logit floor and actual paired shocks produce
+   normalized Camera Molise weights equivalent to about 0.000471070 votes in
+   total, at most 0.000107148 in one municipality. Largest-remainder integer
+   apportionment awards zero in all 136 municipalities. Municipal and college
+   totals are both zero in both chambers for all eight inspected zero-quota IDs;
+   college aggregation does not discard positive municipal votes.
+
+The defect is the absence of a meaningful territorial-support estimate when a
+future filed list has no historical local candidature/support. Filing only
+defines eligibility, while a national anchor does not identify a local profile.
+Luca requested diagnosis rather than a new support rule: no generator, scenario,
+filing, source or bundle changes were made in this follow-up. Documented the
+limitation in the generation guide and replaced LG06's proposed sole-college
+bypass with the explicit rejection and upstream-correction requirement. Kept the
+plan open for a selected local estimate/reference policy; the unrelated drift
+research remains paused. Source and numerical traces/scripts are retained as
+`scn-source-audit.json` and `scn-molise-trace.json` in the manual-test directory.
+
+Verification: added seven regressions for N16 fallback ordering, same/cross-area
+routes, preserved evidence, I03 replay, unchanged I16 scope, transfer export and
+the retained sole-college zero-vote blocker. All 1,044 tests in 78 files pass
+without skips; `npm run check` reports zero errors/warnings; `git diff --check`
+passes. No browser acceptance, commit or publication was performed.

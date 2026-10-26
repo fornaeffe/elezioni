@@ -86,6 +86,25 @@ describe('N15-N18 Camera territorial stages', () => {
     expect(r.constituencies.interpretations).toEqual([]);
   });
 
+  it('carries the N16 I13 extension through coalition list targets and exported transfer evidence', () => {
+    const f = fixture({ A: 1, B: 1, C: 4 }, [
+      { territory: 'X', seats: 3, A: 250, B: 40, C: 10 },
+      { territory: 'Y', seats: 3, A: 0, B: 60, C: 140 }
+    ], { G: ['A', 'B', 'C'] });
+    const r = allocateCameraTerritorialSeats(f, noDraw);
+    expect(r.status).toBe('complete');
+    expect(r.lists.warnings).toContainEqual(expect.objectContaining({ code: 'I13_INTEGER_SEAT_REMOVAL', severity: 'warning' }));
+    if (r.lists.status !== 'complete') throw new Error();
+    for (const [id, expected] of [['A', 1], ['B', 1], ['C', 4]] as const) {
+      expect(r.lists.targets.filter(t => t.listId === id).reduce((s, t) => s + t.ordinarySeats, 0)).toBe(expected);
+    }
+    const transfers = allocationTransfers([f.chamber], [{ chamber: 'camera', cameraTerritorial: r } as ReformChamberExecution]);
+    expect(transfers).toContainEqual(expect.objectContaining({ norm: 'N16', interpretationId: 'I13',
+      from: expect.objectContaining({ territoryId: 'X', collegeId: null, listId: 'A' }),
+      to: expect.objectContaining({ territoryId: 'X', collegeId: null, listId: 'C' }),
+      remainders: [expect.objectContaining({ before: 'unused', after: 'unused' }), expect.anything()] }));
+  });
+
   it('passes corrected constituency targets into one-college constituencies', () => {
     const f = fixture({ A: 3, B: 3 }, [{ territory: 'X', seats: 3, A: 180, B: 120 }, { territory: 'Y', seats: 3, A: 170, B: 130 }]);
     const r = allocateCameraTerritorialSeats(f, noDraw);
@@ -135,6 +154,14 @@ describe('N15-N18 Camera territorial stages', () => {
     expect(r.status).toBe('complete');
     expect(r.colleges.matrices[0].cells.filter(c => c.targetId === 'minority').every(c => c.rawIndex === null && c.seats === 0)).toBe(true);
     expect(r.colleges.matrices).toHaveLength(2); // groups and active majority
+  });
+
+  it('keeps a positive-seat zero-vote cap group blocked even with a sole college', () => {
+    const f = fixture({ A: 1, B: 1 }, [{ territory: 'O', seats: 2, A: 0, B: 200 }], {}, true);
+    const r = allocateCameraColleges(f, collegeCommunication(f), noDraw);
+    expect(r).toMatchObject({ status: 'non-computable', reason: 'zero-index-quota', affectedId: 'O' });
+    expect(r.matrices[0]).toMatchObject({ status: 'non-computable', phase: 'initial', reason: 'zero-index-quota' });
+    expect(r.matrices[0].transfers).toEqual([]);
   });
 
   it('imports I14 into cap-group list splits and carries used decimals into recovery', () => {

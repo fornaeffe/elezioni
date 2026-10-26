@@ -155,15 +155,20 @@ export function allocateTerritorialMatrix(input: TerritorialMatrixInput, executi
   };
   // Strict reading of C83-bis(1)(b)(3), also imported by (1-bis)(d),
   // S17(4)(c), and the express cap-group wording of C83-bis(1-bis)(c)
-  // and S17(5)(c): remove remainder-awarded seats.
+  // and S17(5)(c), and C83(1)(i)'s import of C83(1)(h): remove
+  // remainder-awarded seats.
   // Approved provisional I13-v1: only when those donors are exhausted,
   // rank positive-seat donors by their existing decimal, including integer
   // seats. Repeated removals are bounded by the surplus and available seats;
   // they do not consume or invent a remainder. Senate extension authorized
-  // 21 October 2026 covers N21 lists and N22 groups/internal lists only.
-  const looseDonors = (input.chamber === 'camera' && input.norm === 'N18' && input.correction !== 'constituencies') ||
+  // 21 October 2026 covers N21 lists and N22 groups/internal lists. Camera
+  // N16 extension authorized 26 October 2026 retains h's surplus-list order
+  // and same-area/cross-area recipient rules; it does not extend I16 reuse.
+  const looseCollegeDonors = (input.chamber === 'camera' && input.norm === 'N18' && input.correction !== 'constituencies') ||
     (input.chamber === 'senato' && (input.norm === 'N21' || input.norm === 'N22') &&
       (input.correction === 'colleges' || input.correction === 'college-groups'));
+  const looseDonors = looseCollegeDonors ||
+    (input.chamber === 'camera' && input.norm === 'N16' && input.correction === 'constituencies');
   const integerDonors = (ids: ReadonlySet<string>) => looseDonors
     ? cells.filter(c => ids.has(c.targetId) && c.allocationEligible && c.seats > 0 && c.decimalPart !== null) : [];
   // I14 counts individual initial remainder-awarded seats without changing the
@@ -180,7 +185,7 @@ export function allocateTerritorialMatrix(input: TerritorialMatrixInput, executi
   // decimals without a reuse limit, excluding reached targets after every seat.
   // I15-v2 uses the same policy only for disjoined Camera cap groups. Each
   // addition reduces the remaining deficit; consumed/absent/null cells stay out.
-  const reuseLists = looseDonors && input.correction !== 'college-groups' && !input.indexQuotas;
+  const reuseLists = looseCollegeDonors && input.correction !== 'college-groups' && !input.indexQuotas;
   const reusedRecipients = new Set<string>();
   let recipientPass = 1;
   const recipientPool = (ids: ReadonlySet<string>, allowReuse: boolean) => {
@@ -379,8 +384,9 @@ export function allocateTerritorialMatrix(input: TerritorialMatrixInput, executi
     let donors = cells.filter(c => surplus.has(c.targetId) && (!ordered || c.targetId === ordered) &&
       c.remainderSeat && c.remainderState === 'used' && c.seats > 0);
     const fallback = !donors.length && looseDonors;
-    if (fallback) donors = integerDonors(surplus).filter(d => input.correction !== 'college-groups' ||
-      cells.some(r => r.areaId === d.areaId && r.allocationEligible && deficits.has(r.targetId)));
+    if (fallback) donors = integerDonors(surplus).filter(d => (!ordered || d.targetId === ordered) &&
+      (input.correction !== 'college-groups' ||
+        cells.some(r => r.areaId === d.areaId && r.allocationEligible && deficits.has(r.targetId))));
     const { pool: recipients, reuse } = recipientPool(deficits, reuseLists);
     if (input.correction === 'constituencies') {
       const local = donors.filter(d => recipients.some(r => r.areaId === d.areaId));

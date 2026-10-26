@@ -426,6 +426,55 @@ describe('Camera territorial integer/remainder matrices and legal corrections', 
     }
   });
 
+  const coalitionLists = (f: TerritorialMatrixInput): TerritorialMatrixInput => ({ ...f, norm: 'N16',
+    lawReference: 'C83(1)(i),(1-ter)(e); C83(1)(h), periods 9+', initialTieFigure: 'constituency-electoral-figure',
+    areas: f.areas.map(a => ({ ...a, entries: a.entries.map(e => ({ ...e, tieVotes: e.votes })) })) });
+
+  it('extends I13 to N16 integer donors while retaining same-area priority and decimal evidence', () => {
+    // A has two integer seats for target one. B already used T0's decimal;
+    // T1 permits a local transfer despite A's smaller decimal in T0.
+    const f = coalitionLists(fixture([1, 2, 1], [[110, 60, 30], [130, 20, 50]], [2, 2]));
+    const before = structuredClone(f), r = complete(f);
+    expect(r.transfers).toEqual([expect.objectContaining({ interpretationId: 'I13',
+      fromCellId: '["T1","A"]', toCellId: '["T1","B"]', route: 'same-area', remainders: [
+        { id: '["T1","A"]', value: exactFraction(3, 10), before: 'unused', after: 'unused' },
+        { id: '["T1","B"]', value: exactFraction(1, 5), before: 'unused', after: 'used' }] })]);
+    expect(r.cells.find(c => c.id === '["T1","A"]')).toMatchObject({ integerSeats: 1, provisionalSeats: 1, seats: 0 });
+    expect(r.warnings).toEqual([expect.objectContaining({ code: 'I13_INTEGER_SEAT_REMOVAL', severity: 'warning', interpretationId: 'I13' })]);
+    expect(r.areas.map(a => a.finalSeats)).toEqual([2, 2]);
+    expect(f).toEqual(before);
+  });
+
+  it('retains N16 surplus-list priority through integer fallback before a lower-priority strict donor', () => {
+    const r = complete(coalitionLists(fixture([1, 1, 4], [[250, 40, 10], [0, 60, 140]], [3, 3])));
+    expect(r.transfers.map(t => [t.fromCellId, t.interpretationId]))
+      .toEqual([['["T0","A"]', 'I13'], ['["T1","B"]', undefined]]);
+    expect(r.cells.filter(c => c.targetId === 'C').reduce((s, c) => s + c.seats, 0)).toBe(4);
+  });
+
+  it('retains the N16 cross-constituency route when integer donors have no local recipient', () => {
+    const r = complete(coalitionLists(fixture([1, 2, 3], [[250, 40, 10], [0, 45, 255]], [3, 3])));
+    expect(r.transfers).toEqual([expect.objectContaining({ interpretationId: 'I13',
+      fromCellId: '["T0","A"]', toCellId: '["T1","B"]', route: 'cross-area' })]);
+    expect(r.areas.map(a => [a.capacity, a.finalSeats])).toEqual([[3, 2], [3, 4]]);
+  });
+
+  it('does not extend I16 recipient reuse to N16 with the donor extension', () => {
+    const r = run(coalitionLists(fixture([1, 3], [[140, 60], [130, 70]], [2, 2])));
+    expect(r).toMatchObject({ status: 'non-computable', reason: 'no-eligible-recipient-remainder' });
+    expect(r.transfers).toEqual([]);
+    expect(r.warnings).toEqual([]);
+  });
+
+  it('replays tied N16 integer donors under I03 after input permutations', () => {
+    const f = coalitionLists(fixture([2, 2, 2], [[130, 40, 30], [130, 20, 50], [130, 20, 50]], [2, 2, 2]));
+    const seeded = (input: TerritorialMatrixInput) => complete(input, createSeededDrawContext('I13-N16', 'legal'));
+    const r = seeded(f);
+    expect(r.draws).toContainEqual(expect.objectContaining({ rule: 'I03', alternativeIds: ['["T1","A"]', '["T2","A"]'] }));
+    expect(r.transfers[0].interpretationId).toBe('I13');
+    expect(seeded({ ...f, targets: [...f.targets].reverse(), areas: [...f.areas].reverse().map(a => ({ ...a, entries: [...a.entries].reverse() })) })).toEqual(r);
+  });
+
   it('replays I13 tied integer removals with unchanged decimal states after permutations', () => {
     const f = independent(fixture([1], [[200], [200]], [2, 2]));
     const runSeeded = (input: TerritorialMatrixInput) => complete(input, createSeededDrawContext('I13-replay', 'legal'));

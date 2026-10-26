@@ -19,6 +19,8 @@ and verification history in [migration history](migration-history.md).
 | LG02 | C83-bis(1-bis)(c) and S17(5)(c): excess cap-group seats with no remaining remainder-awarded donor | Warned integer-seat removal under provisional I13-v1 in Camera N18 and Senate N22, within the same college |
 | LG03 | C83-bis(1-bis)(b)-(c), C3: fixed college capacity differs from the constituency entitlement communicated upstream | Warned disjoined Camera cap-group corrections under provisional I15-v2 |
 | LG04 | C83-bis(1)(b)(3) and S17(4)(c), including their cap-list imports: a deficient list has exhausted all unused college decimals | Warned repeated used-decimal recipient passes under provisional I16-v1 |
+| LG05 | C83(1)(i), importing C83(1)(h), also through C83(1-ter)(e): a surplus internal list has only integer constituency seats | Warned I13-v1 extension to Camera N16, approved 26 October 2026 |
+| LG06 | C83-bis(1-bis)(a)-(b): a positive-seat cap group has zero votes after upstream list corrections | I04 still blocks; sole-college bypass rejected; the observed case requires an upstream support-model correction |
 
 ## LG01: ordinary list donor exhaustion
 
@@ -188,6 +190,59 @@ isolated pre-I16 baseline comparison are reproduced by
 `data/derived/r26-i16-review-20261021/replay.mjs`; see migration history for
 versions and verification scope.
 
+## LG05: N16 internal-list integer donor exhaustion
+
+**Verified 26 October 2026:** the [official annotated republication](https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticoloDefault/originario?atto.codiceRedazionale=26A05611&atto.dataPubblicazioneGazzetta=2026-10-23&atto.tipoProvvedimento=LEGGE)
+confirms C83(1)(i)'s correction referral to h, including its remainder-awarded
+donor restriction. No integer-seat fallback is specified. This is the
+constituency-level analogue of LG01, outside I13's original college scope.
+
+**Example:** simulation 163 in `r26-manual-tests/r26-risultati (2).json.gz`,
+seed `r26-default-v1`. Sud chiama Nord has a national target of four seats,
+but N16 initially gives it two integer seats in Sicilia 1 and three in Sicilia 2.
+Its constituency votes are 131,233 and 199,166; coalition quotas are 62,612
+and 65,522. None of its five seats was remainder-awarded. Lega is short one
+seat (12 versus 13). The only surplus list therefore has no eligible donor,
+and N16 returns `no-eligible-donor-remainder`. Ten other runs have the same
+one-seat Sud chiama Nord excess; the deficient partner varies.
+
+**Approved and implemented, 26 October 2026:** extend the warned integer donor
+policy to Camera N16, retaining h's list priority, same-area preference,
+cross-area route, recipient rules and final national targets. Exhaust strict
+donors for the currently ordered surplus list, then rank its positive-seat
+integer donors by ascending existing decimal, with I03 ties. Preserve donor
+decimal/remainder state and emit the existing I13 warning/transfer metadata.
+N15/N17 subject allocation remains strict. I16 recipient reuse is not extended.
+
+## LG06: zero-vote cap group with positive constituency entitlement
+
+**Verified 26 October 2026:** C83-bis(1-bis)(a)-(b), in the same official
+republication, requires a group quota and then division by it. It supplies no
+fallback for a positive-seat group whose eligible list votes sum to zero.
+This differs from the inactive zero-seat group already handled by I04.
+
+**Example:** simulation 311, same archive/seed. N16 transfers an FdI remainder
+seat in Molise to Sud chiama Nord, which has a filed slate but zero votes there.
+Same-area correction takes precedence over larger recipient decimals elsewhere;
+zero is a defined unused decimal under the current contract. Final local list
+targets are Sud chiama Nord 1 and PD 1. The majority group then has zero votes
+and one seat: its quota is zero and its next index would be $0/0$. N18 correctly
+reports `zero-index-quota`. The other seven examples first fail in Molise or
+Basilicata. In each, Sud chiama Nord is the sole positive-entitlement list in
+the zero-vote group. Lists with zero territorial seats are excluded from these
+group vote totals, as required by the current N18 contract.
+
+**Luca's decision, 26 October 2026:** do not bypass the zero-vote calculation
+by passing targets directly to the sole college. Correct the scenario/support
+model upstream; keep I04's explicit zero-quota blocker. The traced case has no
+historical Sud chiama Nord rows in Molise/Basilicata, despite future filed
+coverage. A national reference seeds only numerical epsilon support there,
+which rounds to zero municipal votes. This is a generation-model limitation,
+not evidence that a new downstream legal workaround is required. See the
+[generation limitation](politics-reform-2026-generation.md#filed-lists-without-local-history).
+Changing recipient eligibility or inventing local support is not part of the
+approved N16 donor extension.
+
 ## I13 evidence and downstream constraints
 
 Every integer-seat removal emits `I13_INTEGER_SEAT_REMOVAL` with severity
@@ -202,9 +257,10 @@ reduces surplus by one, never takes a seat below zero, and retains original
 integer/provisional counts as evidence. Candidate proclamation and recovery
 consume the corrected targets and unchanged remainder evidence.
 
-I13 applies to Camera N18 and Senate N21/N22 college list corrections, including
+I13 applies to Camera N16 constituency list corrections and Camera N18 and
+Senate N21/N22 college list corrections, including
 internal cap lists, and Camera N18/Senate N22 cap-group corrections. Camera
-constituency and Senate regional/cap-stage corrections retain their existing policies.
+N15/N17 subject allocation and Senate regional/cap-stage corrections retain their existing policies.
 I16 handles LG04 recipient reuse; genuinely empty recipient pools, undefined
 quotas and impossible residuals remain explicit non-computable paths. LG03 is
 handled by the narrowly scoped I15 policy above.

@@ -26,6 +26,11 @@ storage, execution and exports use [application](politics-reform-2026-applicatio
   apply in national, region, province, municipality order. Mean mode retains
   election-day uncertainty. Profile descriptions explain the versioned sensitivity
   assumptions; parameters are not edited or fitted in the browser.
+- Partial share references constrain only the entered lists. Other lists fill
+  the remainder using their local historical proportions and filing support;
+  their national shares may adjust differently across disconnected territories.
+  Local turnout stays fixed unless separately overridden. References that exceed
+  all valid votes in a list's filed geography report the maximum available share.
 - New lists start unfiled. **Depositi** filters by geography and college kind;
   a chamber filter joins the region/type filters. Each row edits its own chamber,
   and bulk actions affect only filtered colleges in which the list is present. Absent lists remain distinct from filed zero votes.

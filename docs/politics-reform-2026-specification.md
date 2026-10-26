@@ -424,21 +424,26 @@ Other genuinely non-computable inputs still return a structured partial result.
 | I11 / provisional decision, zero territorial entitlement | A list with zero final territorial ordinary entitlement has no college-level quotient and cannot receive a recovery seat. Apply this to Camera constituency and Senate regional list targets and TAA proportional targets, after cap/territorial allocation and before recovery. Admission alone is insufficient. Exclude the list from all candidate destinations and I10 member witnesses, including singleton selection and bonus replacements; a zero college allocation alone does not exclude a list with positive territorial entitlement. | R26-17/18/20: communicate explicit nonnegative `ordinarySeats` targets, never infer a missing target as zero. Preserve the original targets during recovery; report excluded territory/list pairs and `I11-v1` in the recovery/composed metadata. Do not create single-college aliases for zero targets. Continue the permitted routes and report unfilled entitlements if they exhaust; preserve genuinely missing-input states separately. User-authorized on 19 October 2026; no claim that this reading is an official interpretation. |
 | I12 / provisional decision, filed territorial eligibility | National admission does not confer ordinary seat eligibility in a Camera constituency or Senate region where a list has no filed ordinary slate. A coalition participates where at least one member has a filed slate; its internal list allocation still requires that member's own territorial presence. Special-only candidature links do not establish ordinary coverage elsewhere. Determine presence from filed slates, never from positive votes or available candidate counts. | N15/N16/N17 constituency matrices and N19/N20/N21 regional allocations exclude absent recipients from initial remainders, corrective transfers and the Senate cap's regional-vote fallback. Preserve explicit zero targets and national admission/special votes. Record `I12-v1` in composed results and warn with `I12_TERRITORIAL_ELIGIBILITY` in chambers with admitted lists absent from ordinary territories. Keep existing zero-vote/zero-remainder arithmetic for filed lists and existing candidate-recovery routes. [Source review and precise scope below](#territorial-eligibility-and-zero-remainders-i12). User-authorized on 20 October 2026; no definitive official interpretation of the cap edge case was found. |
 
-I13-v1, approved by Luca on 20 October 2026 and extended to Senate on
-21 October 2026: in Camera N18 and Senate N21/N22 college corrections, exhaust eligible
+I13-v1, approved by Luca on 20 October 2026, extended to Senate on
+21 October 2026 and Camera N16 on 26 October 2026: in Camera N16 constituency
+list corrections, Camera N18 and Senate N21/N22 college corrections, exhaust eligible
 remainder-seat donors first. If surplus remains, remove positive integer seats
 by ascending existing decimal, using I03 for equal ranks. This covers ordinary
 b(3), its cap-list import through (1-bis)(d), and cap-group (1-bis)(c), plus
 Senate S17(4)(c), its import through S17(5)(d), and cap-group S17(5)(c). Cap-group
-transfers remain in the same college; ordinary Camera independent corrections,
-Senate paired corrections with independently ranked colleges, and
+transfers remain in the same college; ordinary Camera independent corrections
+and Senate paired corrections retain their independently ranked colleges.
+N16 retains h's surplus-list ordering, including national-vote/I03 ties,
+same-constituency recipient preference and cross-constituency fallback. Integer
+fallback considers only the currently ordered surplus list. Recipient decimals
+must remain unused; the donor extension does not extend I16 to N16.
 I13 itself does not change recipient rules; I16 separately handles LG04 list
 recipients. Preserve decimal/remainder state for integer
 removals, mark transfers and emit `I13_INTEGER_SEAT_REMOVAL` per removal.
 Record applied `I13-v1` in composed metadata. Test repeated removals, strict
 donor priority, seeded replay, exports and recovery; I15 governs LG03 separately.
-This is a warned workaround for [LG01/LG02](politics-reform-2026-legal-gaps.md),
-not a binding legal interpretation. Camera constituency
+This is a warned workaround for [LG01/LG02/LG05](politics-reform-2026-legal-gaps.md),
+not a binding legal interpretation. Camera N15/N17 subject allocation
 and Senate regional/cap-stage donor policies are unchanged; I14 remains Camera-only.
 
 I10 evidence: the [2017 Senate comparison](https://www.parlamento.it/show-doc?id=1046530&leg=17&part=dossier_dossier1-sezione_sezione11-h2_h21&tipodoc=DOSSIER)

@@ -161,7 +161,8 @@ into `main`; public deployment follows that merge and a successful hosting gate.
   I07 Senate recovery policy, provisional I10 coalition-college recovery reading,
   I11 exclusion of zero-territorial-entitlement lists from recovery,
   provisional I12 exclusion of absent lists from ordinary territorial allocation,
-  I13 warned integer-seat donor fallback in Camera/Senate college corrections,
+  I13 warned integer-seat donor fallback in Camera N16 constituency list and
+  Camera/Senate college corrections,
   provisional I14 repeated initial Camera list remainder passes,
   I15-v2 disjoined Camera cap-group corrections, I16-v1 repeated used-decimal
   list correction recipients after unused decimals exhaust,
@@ -200,12 +201,23 @@ into `main`; public deployment follows that merge and a successful hosting gate.
     repeated descending used-decimal passes after unused recipients exhaust.
   - [x] N21/N22 `no-eligible-recipient-remainder`: apply the same I16-v1 to
     ordinary/internal cap lists; preserve upstream targets and recovery states.
+  - [x] LG05 N16 integer-only surplus donors: extend warned I13 while retaining
+    ordered surplus lists and existing recipient rules; do not extend I16.
+- [ ] Correct meaningful local support for future filed lists without historical
+  candidature/support, including Sud chiama Nord in Molise/Basilicata. Separate
+  historical absence from future filing zeros; choose an explicit local estimate
+  or scenario reference before implementation. Keep the LG06 zero-quota blocker;
+  Luca rejected an automatic sole-college pass. See the
+  [generation diagnosis](docs/politics-reform-2026-generation.md#filed-lists-without-local-history).
 - [x] Align pre-2026 reform and 2026 reform UI:
   - [x] adapt the pre-2026 reform scenario editor UI for the 2026 reform,
     with row-local chamber presence, editor-local reference/history scopes,
     persisted presentation metadata, filings, bonus links and compatible
     candidate/planner previews. Supplied data remains JSON; legacy conversion
     UI is deferred. See the [editor guide](docs/politics-reform-2026-editor.md).
+  - [x] Reconcile partial reference shares as supplied constraints, retaining
+    unspecified local proportions and disconnected special-ballot capacity;
+    preserve turnout, filing zeros, chamber derivation and scope precedence.
   - [x] adapt tables and plots from pre-2026 to 2026 reform, where applicable, especially:
     - mean elected candidates per list, paired with mean percentages over valid votes
       (if possible, show all elected candidates, both ordinary and bonus, where pre-2026
