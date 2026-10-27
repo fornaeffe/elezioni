@@ -28,10 +28,77 @@ test('disk statistics preserve exact ranks, unknown outcomes, bounded pages, own
   expect(result.college.bins).toHaveLength(1);
   expect(result.entitlement.known).toBe(1201);
   expect(result.entitlement.bins[0].outcomes).toEqual([{ seats: 1, count: 1201 }]);
+  for (const filter of ['awarded', 'not-awarded']) {
+    const subset = Array.from({ length: 600 }, (_, i) => ((2 * i + (filter === 'awarded' ? 1 : 2)) % 101) / 10).sort((a, b) => a - b);
+    const quantile = (p: number) => { const rank = 599 * p, lower = Math.floor(rank); return subset[lower] + (subset[Math.ceil(rank)] - subset[lower]) * (rank - lower); };
+    expect(result.filtered[filter]).toMatchObject({ requested: 600, known: filter === 'awarded' ? 600 : 599, missingX: 0, missingY: filter === 'awarded' ? 0 : 1,
+      distribution: { count: 600, min: subset[0], max: subset[599], q1: quantile(.25), median: quantile(.5), q3: quantile(.75) } });
+    expect(result.filtered[filter].bins.reduce((n: number, b: any) => n + b.count, 0)).toBe(600);
+    expect(result.filtered[filter].bins[0].high).toBe(quantile(.1));
+  }
+  expect(result.filteredEntitlement).toMatchObject({ requested: 600, known: 600 });
+  expect(result.filteredEntitlement.bins[0].outcomes).toEqual([{ seats: 1, count: 600 }]);
   expect(result.pages.map((p: any) => p.length)).toEqual([256, 256, 256, 256, 177]);
   expect(result.pages.at(-1).last).toBe(1201);
   expect(result.foreignDenied).toBe(true); expect(result.archiveUnchanged).toBe(true); expect(result.removed).toBe(true);
   expect(result.cacheFailure).toBe(true); expect(result.canonicalRetained).toBe(true); expect(result.partialCacheRemoved).toBe(true); expect(result.rebuiltKnown).toBe(1201);
+});
+
+test('college spinogram filters joint bonus decisions and reports plotted simulations, missing values and empty subsets', async ({ page }) => {
+  const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
+  const scenario = JSON.parse(readFileSync(resolve('src/lib/politics/reform-2026/data', catalog.defaultsPath), 'utf8')) as ReformGenerationScenario;
+  const archive = refinementResult(scenario), localTable = archive.result.tables.find(t => t.name === 'Reform college series v1')!;
+  for (const row of localTable.rows) {
+    const simulation = Number(row[localTable.columns.indexOf('Simulation')]);
+    row[localTable.columns.indexOf('Vote share %')] = simulation === 7 ? null : simulation;
+    row[localTable.columns.indexOf('Elected')] = simulation === 2 ? null : simulation % 3;
+  }
+  await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
+  await page.getByLabel('Algoritmo di scrutinio').selectOption(scenario.algorithmId);
+  await page.getByTestId('reform-file-input').setInputFiles({ name: 'bonus-filter.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(archive)) });
+  const statistics = page.getByLabel('Statistiche riforma', { exact: true });
+  const local = statistics.locator('details').filter({ has: page.locator('summary', { hasText: /^Eletti nel collegio plurinominale$/ }) });
+  await local.locator(':scope > summary').click();
+  const filter = local.getByRole('combobox', { name: 'Simulazioni del collegio', exact: true });
+  const panel = local.locator('.series-panel');
+  await panel.scrollIntoViewIfNeeded();
+  await expect(filter).toHaveValue('all');
+  await expect(panel).toContainText('Simulazioni nel grafico: 11 · Simulazioni selezionate: 12');
+  await expect(panel).toContainText('10/12 coppie note · 1 esiti ignoti con percentuale nota · 1 percentuali non disponibili');
+  await filter.selectOption('awarded');
+  await expect(panel).toContainText('Simulazioni nel grafico: 6 · Simulazioni selezionate: 6');
+  await expect(panel).toContainText('5/6 coppie note');
+  await expect(panel.locator('.spine-plot')).toHaveCount(1);
+  await local.getByLabel('Misura del collegio').selectOption('entitled');
+  await expect(filter).toHaveValue('awarded');
+  await expect(panel).toContainText('6/6 coppie note');
+  await filter.selectOption('not-awarded');
+  await expect(panel).toContainText('Simulazioni nel grafico: 4 · Simulazioni selezionate: 5');
+  await expect(panel).toContainText('4/5 coppie note · 0 esiti ignoti con percentuale nota · 1 percentuali non disponibili');
+  await local.getByLabel('Ramo del collegio').selectOption('senato');
+  await local.getByLabel('Lista del collegio').selectOption('list:constructed-2');
+  await local.getByRole('combobox', { name: 'Collegio del grafico', exact: true }).selectOption('college-2');
+  await expect(filter).toHaveValue('not-awarded');
+  await expect(panel).toContainText('Simulazioni nel grafico: 4 · Simulazioni selezionate: 5');
+  await filter.selectOption('all');
+  await expect(panel).toContainText('Simulazioni nel grafico: 11 · Simulazioni selezionate: 12');
+  await page.setViewportSize({ width: 390, height: 844 });
+  await filter.scrollIntoViewIfNeeded();
+  expect(await filter.evaluate(e => e.getBoundingClientRect().right)).toBeLessThanOrEqual(390);
+  await local.screenshot({ path: 'test-results/reform-college-bonus-filter-mobile.png' });
+  // An older archive with no bonus decision cannot establish either subset.
+  await page.getByTestId('reform-file-input').setInputFiles({ name: 'unknown-bonus.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(statisticalResult(scenario, 12))) });
+  await local.locator(':scope > summary').click();
+  for (const value of ['awarded', 'not-awarded']) {
+    await filter.selectOption(value);
+    await panel.scrollIntoViewIfNeeded();
+    await expect(panel).toContainText('Simulazioni nel grafico: 0 · Simulazioni selezionate: 0');
+    await expect(panel).toContainText('Nessun dato disponibile per il filtro selezionato.');
+    await expect(panel.locator('.spine-plot')).toHaveCount(0);
+  }
+  await filter.selectOption('all');
+  await expect(panel).toContainText('Simulazioni nel grafico: 12 · Simulazioni selezionate: 12');
+  expect(errors).toEqual([]);
 });
 
 test('reform chart families render all available points lazily and keep old archives readable', async ({ page }) => {

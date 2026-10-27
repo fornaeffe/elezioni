@@ -50,6 +50,17 @@ export async function* samples(id: string, series: string): AsyncGenerator<Stati
     after = page.at(-1)!.simulation;
   }
 }
+/** Stream the value index in bounded pages, retaining equal values by simulation. */
+export async function* samplesByValue(id: string, series: string): AsyncGenerator<StatisticalSample> {
+  let after: IDBValidKey = [id, series, 0, 0];
+  for (;;) {
+    const index = (await db()).transaction('samples').objectStore('samples').index('values');
+    const page: StatisticalSample[] = await value(index.getAll(IDBKeyRange.bound(after, [id, series, 100, Number.MAX_SAFE_INTEGER], true), 256));
+    if (!page.length) return;
+    for (const sample of page) yield sample;
+    const last = page.at(-1)!; after = [id, series, last.x!, last.simulation];
+  }
+}
 export async function orderedValue(id: string, series: string, rank: number, bounds?: { low: number; high: number }, direction: IDBCursorDirection = 'next'): Promise<number | null> {
   const index = (await db()).transaction('samples').objectStore('samples').index('values');
   const range = IDBKeyRange.bound([id, series, bounds?.low ?? 0, 0], [id, series, bounds?.high ?? 100, Number.MAX_SAFE_INTEGER]);

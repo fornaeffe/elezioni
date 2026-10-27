@@ -1,6 +1,8 @@
 import type { ResultTable } from '../core/types';
 import type { SeriesKind } from '../politics/reform-2026/result-series';
 
+export type BonusFilter = 'all' | 'awarded' | 'not-awarded';
+
 export interface SeriesDescriptor {
   id: string; chamber: 'camera' | 'senato'; kind: SeriesKind; owner: string;
   college: string | null; territory: string | null; name: string; color: string; order: number;

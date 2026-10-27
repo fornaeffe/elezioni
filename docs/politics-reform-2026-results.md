@@ -30,6 +30,13 @@ For global conditions, message frequencies and affected IDs use the
   The selector covers filed ordinary and TAA proportional slates, including
   zero-seat outcomes, rather than inventing plurinominal observations for
   special uninominal contests.
+  A simulation selector offers all runs (the default), only joint bonus awards,
+  or only joint non-awards, using `Reform runs.Bonus` independently of the
+  selected list's bonus seats. Unknown/missing decisions belong to neither
+  filtered subset. Bin boundaries and frequencies are recalculated for that
+  subset. The panel reports simulations plotted (available vote percentages,
+  including grey unknown outcomes) and simulations selected; missing percentages
+  and known pairs use the selected count. An empty subset shows zero and no plot.
 
 National list counts use final personal affiliation after multiple-election
 resolution and recovery. Coalition/subject counts use the legal supporting
@@ -58,7 +65,8 @@ simulation. The paired bars use `>=`/`≥` for confirmed elected totals divided 
 the original requested count when the complete mean is unavailable. Vote means
 remain unavailable when coverage is incomplete. Boxplots describe available
 percentages and label their observation count; scatter/spinogram panels report
-known pairs, missing outcomes and missing percentages against requested runs.
+known pairs, missing outcomes and missing percentages against requested runs
+(or the selected bonus subset for the college spinogram).
 There is no successful-run renormalization of probabilities, reroll or implicit
 zero for a failed/interrupted simulation. Candidate conclusions retain their
 supplied/generated/missing-preference conditions.

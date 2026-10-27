@@ -17,7 +17,7 @@ import { REFORM_ALGORITHM_ID } from '../politics/reform-2026/input';
 import { estimateReformWorkerCapacity, requireReformWorkerCount } from '../core/reform-worker-capacity';
 import { ReformComputeClient, runOrderedReformPool } from './reform-pool';
 import { ensureStatistics, requireSeries, seriesStatistics, statisticalDistribution, storedSummaryTable } from '../politics/reform-2026/stored-statistics';
-import { summaryTableName } from '../results/statistics';
+import { summaryTableName, type BonusFilter } from '../results/statistics';
 import { samplePage } from '../core/statistics-cache';
 
 export interface ResultServiceRequest {
@@ -28,6 +28,7 @@ export interface ResultServiceRequest {
   file?: File; format?: 'json' | 'csv';
   list?: string; chamber?: string;
   series?: string; measure?: 'elected' | 'entitled';
+  bonusFilter?: BonusFilter;
   filter?: DiagnosticFilter;
 }
 export interface ResultServiceReply {
@@ -265,7 +266,7 @@ export async function handleResultService(request: ResultServiceRequest): Promis
           const summary = await requireSeries(record, request.series);
           if (request.action === 'statistics-points') return samplePage(record.id, request.series, request.offset ?? 0, request.limit ?? 256);
           if (request.action === 'statistics-box') return statisticalDistribution(record, summary);
-          return seriesStatistics(record, request.series, request.measure);
+          return seriesStatistics(record, request.series, request.measure, request.bonusFilter);
         })();
         const jobs = resultJobs.get(record.id) ?? new Set<Promise<unknown>>(); resultJobs.set(record.id, jobs); jobs.add(job);
         try { data = await job; } finally { jobs.delete(job); if (!jobs.size) resultJobs.delete(record.id); }

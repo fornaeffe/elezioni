@@ -5,7 +5,7 @@
   import { onMount } from 'svelte';
   import { SvelteMap } from 'svelte/reactivity';
   import type { ResultServiceClient } from '../../core/result-service-client';
-  import type { Distribution, SeriesSummary, StatisticsOverview } from '../../results/statistics';
+  import type { BonusFilter, Distribution, SeriesSummary, StatisticsOverview } from '../../results/statistics';
   import type { BoxPlotResultChart, BoxPlotItem } from '../../results/chart-types';
   import { boxPlotItem, chartTicks, displayNumber } from '../../results/chart-builders';
   import { summaryTable } from '../../results/statistics';
@@ -21,6 +21,7 @@
   let bonus = $state.raw<Awaited<ReturnType<typeof storedBonusProbabilities>>>([]);
   let meanKind = $state('list'), boxKind = $state('list');
   let error = $state(''), selectedCollege = $state(''), localMeasure = $state<'elected' | 'entitled'>('elected');
+  let localBonusFilter = $state<BonusFilter>('all');
   let scatter = $state(false), nationalSpines = $state(false), localSpine = $state(false), showSummary = $state(false), summaryPage = $state(0);
   let meanChamber = $state<'camera' | 'senato'>('camera'), boxChamber = $state<'camera' | 'senato'>('camera');
   const meanLists = $derived(overview?.series.filter(s => s.chamber === meanChamber && s.kind === meanKind) ?? []);
@@ -130,8 +131,10 @@
           <div class="college-control"><SearchSelect label="Collegio del grafico" options={collegeOptions} value={college ?? ''} onchange={value => { localList = selected?.owner ?? localList; selectedCollege = value; }} /></div>
           <label>Lista del collegio<select value={selected?.owner ?? ''} onchange={e => { localList = e.currentTarget.value; }}>{#each localListOptions as item (item.id)}<option value={item.id}>{item.label}</option>{/each}</select></label>
           <label>Misura del collegio<select bind:value={localMeasure}><option value="elected">Eletti nella sede effettiva</option><option value="entitled">Seggi spettanti nella sede originaria</option></select></label>
+          <label>Simulazioni del collegio<select bind:value={localBonusFilter}><option value="all">Tutte le simulazioni</option><option value="awarded">Solo con premio attribuito</option><option value="not-awarded">Solo senza premio attribuito</option></select></label>
+          <p>Il filtro usa l’attribuzione del premio congiunto, indipendentemente dalla lista selezionata. Le decisioni sul premio mancanti o non calcolabili sono escluse dai due sottoinsiemi.</p>
           <p>Gli eletti sono contati nella sede finale, inclusi i recuperi del premio. Il premio senza collegio resta nei grafici nazionali. I seggi spettanti seguono la sede originaria e non vengono trasferiti dal grafico.</p>
-          {#if selected}{#key selected.id + localMeasure}<ReformSeriesPanel {client} {resultId} {owner} descriptor={selected} variant="spine" measure={localMeasure} />{/key}{:else}<p>Nessun collegio disponibile per questo ramo.</p>{/if}
+          {#if selected}{#key selected.id + localMeasure + localBonusFilter}<ReformSeriesPanel {client} {resultId} {owner} descriptor={selected} variant="spine" measure={localMeasure} bonusFilter={localBonusFilter} />{/key}{:else}<p>Nessun collegio disponibile per questo ramo.</p>{/if}
         {:else}<p>Dati locali non disponibili nell’archivio. È necessaria una nuova esecuzione per produrli.</p>{/if}
       {/if}
     </details>

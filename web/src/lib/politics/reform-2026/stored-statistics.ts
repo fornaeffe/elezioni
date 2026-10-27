@@ -1,6 +1,6 @@
 import { storedRows, type StoredResult } from '../../core/result-store';
-import { deleteStatisticsCache, orderedValue, readStatisticsCache, samples, saveStatisticsCache, writeStatisticalSamples, type StatisticsCache } from '../../core/statistics-cache';
-import { addSample, binFor, emptySummary, finiteNumber, interpolated, quantileRanks, summaryTable, type Distribution, type SeriesDescriptor, type SeriesStatistics, type SeriesSummary, type StatisticalSample } from '../../results/statistics';
+import { deleteStatisticsCache, orderedValue, readStatisticsCache, samples, samplesByValue, saveStatisticsCache, writeStatisticalSamples, type StatisticsCache } from '../../core/statistics-cache';
+import { addSample, binFor, emptySummary, finiteNumber, interpolated, quantileRanks, summaryTable, type BonusFilter, type Distribution, type SeriesDescriptor, type SeriesStatistics, type SeriesSummary, type StatisticalSample } from '../../results/statistics';
 import type { ResultTable } from '../../core/types';
 import { reformCollegeSeriesTable, reformSeriesTable, seriesKey, unaffiliatedOwner } from './result-series';
 import { reformPresentation, subjectColor } from './presentation-metadata';
@@ -151,10 +151,44 @@ export async function statisticalDistribution(record: StoredResult, summary: Ser
   const [whiskerLow, whiskerHigh] = count ? await Promise.all([orderedValue(id, series, 0, bounds), orderedValue(id, series, 0, bounds, 'prev')]) : [null, null];
   return { count, min, max, mean: count ? summary.voteSum / count : null, q1, median, q3, p05, p95, whiskerLow, whiskerHigh };
 }
-export async function seriesStatistics(record: StoredResult, id: string, measure: 'elected' | 'entitled' = 'elected'): Promise<SeriesStatistics> {
-  const summary = await requireSeries(record, id), distribution = await statisticalDistribution(record, summary);
+/** Retain only the ranks needed for exact filtered quantiles, not the full series. */
+async function filteredDistribution(record: StoredResult, id: string, simulations: ReadonlySet<number>) {
+  let count = 0, sum = 0;
+  for await (const p of samples(record.id, id)) if (simulations.has(p.simulation) && p.x !== null) { count++; sum += p.x; }
+  const probabilities = [0, 1, .25, .5, .75, .05, .95, ...Array.from({ length: 11 }, (_, i) => i / 10)];
+  const ranks = new Set(probabilities.flatMap(p => { const r = quantileRanks(count, p); return [r.lower, r.upper]; }));
+  const values = new Map<number, number>();
+  if (count) {
+    let rank = 0;
+    for await (const p of samplesByValue(record.id, id)) if (simulations.has(p.simulation)) {
+      if (ranks.has(rank)) values.set(rank, p.x!);
+      rank++;
+    }
+  }
+  const quantile = (p: number) => {
+    if (!count) return null;
+    const r = quantileRanks(count, p);
+    return interpolated(values.get(r.lower)!, values.get(r.upper)!, r.fraction);
+  };
+  const distribution: Distribution = { count, min: quantile(0), max: quantile(1), mean: count ? sum / count : null,
+    q1: quantile(.25), median: quantile(.5), q3: quantile(.75), p05: quantile(.05), p95: quantile(.95), whiskerLow: null, whiskerHigh: null };
+  return { distribution, deciles: count ? Array.from({ length: 11 }, (_, i) => quantile(i / 10)!) : [] };
+}
+export async function seriesStatistics(record: StoredResult, id: string, measure: 'elected' | 'entitled' = 'elected', bonusFilter: BonusFilter = 'all'): Promise<SeriesStatistics> {
+  if (!['all', 'awarded', 'not-awarded'].includes(bonusFilter)) throw new Error('Invalid bonus filter');
+  const summary = await requireSeries(record, id);
+  let simulations: Set<number> | undefined;
+  if (bonusFilter !== 'all') {
+    simulations = new Set<number>();
+    // Use the joint legal decision, never the selected list's filled bonus seats.
+    // Missing/non-computable decisions belong to neither filtered subset.
+    for await (const row of tableRows(record, 'Reform runs')) if (row.Bonus === bonusFilter) simulations.add(Number(row.Simulation));
+  }
+  const filtered = simulations ? await filteredDistribution(record, id, simulations) : undefined;
+  const distribution = filtered?.distribution ?? await statisticalDistribution(record, summary);
   const boundaries: number[] = [];
-  for (let i = 0; i <= 10 && distribution.count; i++) {
+  if (filtered) boundaries.push(...new Set(filtered.deciles));
+  else for (let i = 0; i <= 10 && distribution.count; i++) {
     const r = quantileRanks(distribution.count, i / 10), a = (await orderedValue(record.id, id, r.lower))!, b = (await orderedValue(record.id, id, r.upper))!;
     const v = interpolated(a, b, r.fraction); if (boundaries.at(-1) !== v) boundaries.push(v);
   }
@@ -162,12 +196,20 @@ export async function seriesStatistics(record: StoredResult, id: string, measure
   const bins = Array.from({ length: Math.max(0, boundaries.length - 1) }, (_, i) => ({ low: boundaries[i], high: boundaries[i + 1], count: 0, outcomes: [] as { seats: number | null; count: number }[] }));
   let known = 0, missingY = 0, yMax = 0;
   for await (const p of samples(record.id, id)) {
-    if (p.x === null) continue;
+    if (p.x === null || simulations && !simulations.has(p.simulation)) continue;
+    if (filtered) {
+      const spread = (distribution.q3! - distribution.q1!) * 1.5;
+      if (p.x >= distribution.q1! - spread && p.x <= distribution.q3! + spread) {
+        distribution.whiskerLow = Math.min(distribution.whiskerLow ?? p.x, p.x);
+        distribution.whiskerHigh = Math.max(distribution.whiskerHigh ?? p.x, p.x);
+      }
+    }
     const y = measure === 'entitled' ? p.entitled : p.y, bin = bins[binFor(p.x, boundaries)];
     if (y === null) missingY++; else { known++; yMax = Math.max(yMax, y); }
     bin.count++; const outcome = bin.outcomes.find(o => o.seats === y);
     if (outcome) outcome.count++; else bin.outcomes.push({ seats: y, count: 1 });
   }
   for (const bin of bins) bin.outcomes.sort((a, b) => (a.seats ?? Infinity) - (b.seats ?? Infinity));
-  return { descriptor: summary, requested: record.result.benchmark.simulations, known, missingX: record.result.benchmark.simulations - distribution.count, missingY, distribution, bins, yMax };
+  const requested = simulations?.size ?? record.result.benchmark.simulations;
+  return { descriptor: summary, requested, known, missingX: requested - distribution.count, missingY, distribution, bins, yMax };
 }
