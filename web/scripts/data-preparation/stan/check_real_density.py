@@ -12,7 +12,7 @@ import cmdstanpy
 
 p=argparse.ArgumentParser();p.add_argument('directory',type=Path);p.add_argument('--cmdstan',type=Path,required=True);p.add_argument('--cache',type=Path,required=True);args=p.parse_args()
 m=json.loads((args.directory/'manifest.json').read_text());d=json.loads((args.directory/'data.json').read_text());initial=json.loads((args.directory/'initial.json').read_text())
-cmdstanpy.set_cmdstan_path(str(args.cmdstan));model=cmdstanpy.CmdStanModel(exe_file=str(args.cache/m['modelHash'][:12]/'real-party-drift'))
+cmdstanpy.set_cmdstan_path(str(args.cmdstan));model=cmdstanpy.CmdStanModel(exe_file=str(args.cache/m['modelHash'][:12]/Path(m.get('modelSource','real-party-drift.stan')).stem))
 J,C,T,U,B=d['J'],d['C'],d['T'],d['U'],d['B'];D=J-1;H=np.array(d['H'])
 def decode(v,groups,offset):
     s=np.r_[0,np.array(v,dtype=float)]
@@ -22,9 +22,9 @@ def decode(v,groups,offset):
         s[members]=v[first-1]+within-logsumexp(within)
     s[0]-=offset
     return s
-def independent(x):
+def independent_original(x):
     raw=np.array(x['national_raw']);bias=np.array(x['bias_raw']).reshape(B,D);coordinate=np.array(x['coordinate'])
-    sn=math.exp(x['log_sigma_n']);sl=math.exp(x['log_sigma_l'])
+    sn=math.exp(x['log_sigma_n']) if d.get('fit_scales',1) else d['fixed_sigma_n'];sl=math.exp(x['log_sigma_l']) if d.get('fit_scales',1) else d['fixed_sigma_l']
     national=np.empty((U,D));national[-1]=1.5*raw[-1]
     for u in range(U-2,-1,-1):national[u]=national[u+1]+sn*np.sqrt(d['dt'][u])*raw[u]
     value=-.5*(np.square(raw).sum()+np.square(bias).sum())-.5*((x['log_sigma_n']-np.log(.35))/.7)**2-.5*((x['log_sigma_l']-np.log(.25))/.7)**2
@@ -43,6 +43,25 @@ def independent(x):
         residual=(np.array(d['poll_H'][q]).T@(a-d['poll_log_shares'][q]))[:G-1]
         value-=.5*np.square(np.linalg.solve(np.array(d['poll_L'][q])[:G-1,:G-1],residual)).sum()
     return float(value)
+
+def independent(x):
+    if m.get('variant') not in ('collapsed','fixed'):return independent_original(x)
+    sn=math.exp(x['log_sigma_n']) if d.get('fit_scales',1) else d['fixed_sigma_n'];sl=math.exp(x['log_sigma_l']) if d.get('fit_scales',1) else d['fixed_sigma_l']
+    local=.25+sl*sl*np.array(d['backward_cov'])
+    kn=2.25+sn*sn*np.array(d['backward_cov'])
+    cross=2.25+sn*sn*np.array(d['backward_cross'])
+    all_cov=2.25+sn*sn*np.array(d['backward_all'])
+    states=np.array([[decode(x['coordinate'][c][t],d['coord_group'][c][t],d['state_offset'])@H for t in range(T)] for c in range(C)])
+    gain=np.linalg.solve(kn+local/C,cross.T).T
+    conditional=all_cov-gain@cross.T;conditional=(conditional+conditional.T)/2
+    lc=np.linalg.cholesky(conditional)
+    eta=gain@states.mean(axis=0)+lc@np.array(x['national_raw'])
+    old=copy.deepcopy(x);raw=np.empty((U,D));raw[-1]=eta[-1]/1.5
+    for u in range(U-1):raw[u]=(eta[u]-eta[u+1])/(sn*np.sqrt(d['dt'][u]))
+    old['national_raw']=raw.tolist()
+    # Independent original hierarchical density plus the exact coordinate
+    # change Jacobian, rather than repeating Stan's collapsed quadratic form.
+    return independent_original(old)+D*(np.log(np.diag(lc)).sum()-np.log(1.5)-np.log(sn*np.sqrt(d['dt'])).sum())
 def flatten(x):
     return np.r_[*[np.array(a).flatten(order='F') for a in x['coordinate']],np.array(x['national_raw']).flatten(order='F'),np.array(x['bias_raw']).flatten(order='F'),x['log_sigma_n'],x['log_sigma_l']]
 def unflatten(v):

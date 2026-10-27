@@ -10,6 +10,7 @@ import { componentResolution } from './party-drift-identifiability';
 import { calibrateSoftReference, logisticNormalMoments, softReferenceLogDensity, eliminateHardReference, referenceValue } from './party-drift-reference';
 import { membershipFor, buildMembershipTable, type MembershipPolicy } from './party-drift-memberships';
 import { coarsenGroups, makeAdmissiblePanel } from './party-drift-panel';
+import { reviewedEarlyShares } from './party-drift-panel-data';
 
 function contract(): PartyResearchContract {
   return { schema: PARTY_DRIFT_SCHEMA, referenceDate: '2010-01-01', cutoff: '2010-01-01',
@@ -20,6 +21,14 @@ function contract(): PartyResearchContract {
     priorPolicy: { version: 'reference-test' }, fittingPolicy: { version: 'test' } };
 }
 describe('party-level research contract and original grouped likelihood', () => {
+  it('replaces a coarse early view with the reviewed named answers from the same survey', () => {
+    const original={id:'survey',shares:[.2,.16,.25,.39]},refined={id:'survey',shares:[.2,.16,.25,.15,.07,.17]};
+    const projected=reviewedEarlyShares(original,refined);
+    expect(projected.groups).toEqual([['pd'],['m5s'],['lega'],['fdi'],['fi-pdl']]);
+    expect(projected.shares).toEqual([.2,.16,.25,.15,.07]);expect(projected.other).toBe(.17);
+    expect(reviewedEarlyShares(original).groups).toHaveLength(3);
+    expect(()=>reviewedEarlyShares(original,{...refined,shares:[.21,.15,.25,.15,.07,.17]})).toThrow(/Inconsistent/);
+  });
   it('pools unsupported future distinctions without treating future memberships as evidence', () => {
     const panel=makeAdmissiblePanel(['a','b','new','minor'],[{id:'past',groups:[['a','b'],['minor']]}],new Set(['a','b','minor']),['a','b'],[['a'],['b'],['new']]);
     expect(panel.audit?.resolved).toBe(true);
@@ -31,6 +40,10 @@ describe('party-level research contract and original grouped likelihood', () => 
     const panel=makeAdmissiblePanel(['a','b','c'],[{id:'joint',groups:[['a','b'],['c']]},{id:'separate',groups:[['a'],['b'],['c']]}],new Set(['a','b','c']),['a']);
     expect(panel.mapping.a).not.toBe(panel.mapping.b);
     expect(panel.mapping.c).toBe('research-other');
+  });
+  it('rejects a future-only residual when the whole historical catalog leaves it unobserved', () => {
+    expect(()=>makeAdmissiblePanel(['a','b','new'],[{id:'past',groups:[['a'],['b']]}],
+      new Set(['a','b']),['a','b'],[['a'],['b'],['new']])).toThrow(/Unsupported research residual/);
   });
   it('combines overlapping research outcomes once and retains original source indices', () => {
     const result=coarsenGroups([['a'],['minor'],['unnamed']], [40,10,50], id=>id==='a'?id:'research-other');

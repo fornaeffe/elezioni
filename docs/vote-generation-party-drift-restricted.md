@@ -1,5 +1,9 @@
 # Restricted party-drift research
 
+Resumed on 27 October with authorization to simplify the model. Continue from
+the [fast research report](vote-generation-fast-research.md); the pause and
+measurements below remain the historical checkpoint.
+
 Research checkpoint, 26 October 2026. The identifiable-component restriction
 improves several reduced fits but does **not** make a single Gaussian posterior
 approximation reliable throughout the admitted class. A broad, informative soft

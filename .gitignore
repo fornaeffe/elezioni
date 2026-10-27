@@ -73,6 +73,7 @@ vignettes/*.pdf
 /test/fixtures/regionali-er/debug_scrutiny.json
 
 # Output
+__pycache__/
 /_output/
 /*_files/
 /*.html

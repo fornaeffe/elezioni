@@ -1,6 +1,13 @@
 # Party-level vote-generation drift model
 
-This is the current model contract, consolidating the
+**Research revision, 27 October 2026:** Luca authorizes model simplification to
+meet the unchanged forecasting and scenario capabilities. The
+[fast research alternative](vote-generation-fast-research.md) records the new
+candidate, explicit observation/prior/geography changes and validation. The
+formulation below remains the earlier approved drift candidate and comparison
+baseline; its probability model is not silently attributed to the alternative.
+
+This earlier candidate consolidates the
 [original correspondence proposal](correspondence-model.md) and the decisions
 below. Use the [historical research report](vote-generation-drift-results.md)
 and [testing protocol](vote-generation-drift-testing.md) only for the earlier

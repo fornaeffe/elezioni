@@ -275,7 +275,8 @@ into `main`; public deployment follows that merge and a successful hosting gate.
   denominator, override and chamber semantics.
 
 - [ ] **Vote-generation redesign: electorate-wide latent national/local drift.**
-  Follow the [current formulation and staged comparisons](docs/vote-generation-drift-model.md).
+  Follow the [current formulation and staged comparisons](docs/vote-generation-drift-model.md)
+  and the authorized [fast model alternative](docs/vote-generation-fast-research.md).
   Preserve editable, source-specific correspondence defaults and the observed
   count layer; keep state/process uncertainty distinct from polling measurement.
   - [x] Complete the [earlier endpoint comparison](docs/vote-generation-research.md)
@@ -300,10 +301,20 @@ into `main`; public deployment follows that merge and a successful hosting gate.
     reduced Stan reference. Record the [follow-up](docs/vote-generation-party-drift-restricted.md).
   - [x] Prepare a minimal provisional source-backed joint-list membership table
     for review and the authorized admissible chronological research panels.
-  - [ ] Pass the real-data stage-0 posterior/computability gate before full-data
-    fitting and stages 1–7. Retain the 30-minute limit for approximate alternatives;
+  - [ ] Pass the original joint-state model's real-data stage-0 posterior gate
+    before its full-data fitting and stages 1–7. Retain the 30-minute limit for approximate alternatives;
     the authorized final offline Stan fallback has that time gate waived.
-    **Paused at Luca's request on 26 October 2026; resume from the follow-up checkpoint.**
+    Research resumed on 27 October with authority to simplify the model while
+    preserving forecast quality and historical/joint/new-list scenario support.
+  - [x] Implement and validate the fast bounded reference-share research kernel,
+    mean-preserving forecast dynamics and scenario composition prototype.
+  - [x] Complete the frozen fast candidate's corrected predictive replays and
+    complete compatible municipal benchmark; record approximation, source-fix,
+    pooled-outcome, mean-error and sparse-event limits in its research report.
+  - [ ] Review predictive quality, the provisional membership table and fuller
+    list/source coverage before selecting a production design. The fast candidate
+    is computationally practical; universal calibration and unbiased means are
+    not established by the six-election research panel.
   - [ ] Implement the versioned membership/scenario contract and validated grouped
     fitting/posterior reuse and invalidation for the selected engine. Offline Stan
     requires preparation after semantic edits; it does not supply browser refitting.

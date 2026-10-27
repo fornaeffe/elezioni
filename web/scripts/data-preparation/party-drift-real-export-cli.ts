@@ -12,6 +12,9 @@ import { sha256 } from './sources';
 
 const root=fileURLToPath(new URL('../../../',import.meta.url)),input=await loadPartyResearchData(root);
 const args=process.argv.slice(2),cities=Number(args[0]??16),target=args[1]??'european-2024',horizon=Number(args[2]??15);
+const variant=args[3]??'original';
+if(!['original','collapsed','fixed'].includes(variant))throw new Error('Unknown parameterization');
+const modelSource=variant!=='original'?'collapsed-party-drift.stan':'real-party-drift.stan';
 if(!Number.isInteger(cities)||cities<2)throw new Error('Municipality pilot size must be an integer >=2');
 const panel=prepareAdmissibleCase(input,target,horizon,cities),ids=panel.panel.ids,J=ids.length+1,D=J-1,C=panel.cities.length,T=panel.elections.length;
 const index=(s:string)=>{const i=ids.indexOf(s);if(i<0)throw new Error('Unknown fitted component');return i+1;};
@@ -43,9 +46,11 @@ const futureHistogram=new Map<number,number>();for(const c of panel.truth){const
 // Marginal expectation is linear in municipalities. One representative cell per
 // available-component count suffices for common independent reference scales.
 const calibration=calibrateReferenceOffset({components:D,cells:[...futureHistogram].map(([k,electors])=>({electors,available:Array.from({length:k},(_,i)=>i+1)})),nationalSd:1.5,localSd:.5,kindSd:0});
-const data={J,C,T,U:times.length,Q,N:cells.length,B:biasGroups.length,H,state_offset:calibration.offset,
+const data={J,C,T,U:times.length,Q,N:cells.length,B:biasGroups.length,H,state_offset:calibration.offset,fit_scales:Number(variant!=='fixed'),fixed_sigma_n:.35,fixed_sigma_l:.25,
   dt:times.slice(1).map((t,i)=>(Date.parse(t)-Date.parse(times[i]))/(365.25*86400000)),
   count_time:panel.elections.map(e=>times.indexOf(e.date)+1),backward_cov:r.map(a=>r.map(b=>Math.min(a,b))),
+  backward_all:times.map(a=>times.map(b=>Math.min(years(a),years(b)))),
+  backward_cross:times.map(a=>r.map(b=>Math.min(years(a),b))),
   cell_c:cells.map(c=>c.c),cell_t:cells.map(c=>c.t),cell_group:cells.map(c=>c.group),cell_groups:cells.map(c=>c.groups),y:cells.map(c=>c.counts),
   poll_time:poll_data.map(p=>p.time),poll_group:poll_data.map(p=>p.group),poll_groups:poll_data.map(p=>p.groups),poll_bias:poll_data.map(p=>p.bias),
   poll_log_shares:poll_data.map(p=>p.logShares),poll_H:poll_data.map(p=>p.H),poll_L:poll_data.map(p=>p.L),
@@ -70,7 +75,7 @@ const national=times.map(time=>{
   const a=Date.parse(panel.elections[next-1].date),b=Date.parse(panel.elections[next].date),w=(x-a)/(b-a);
   return mean[next].map((m,j)=>mean[next-1][j]*(1-w)+m*w);
 });
-const nationalRaw=national.map((v,i)=>v.map((x,j)=>i===times.length-1?x/1.5:(x-national[i+1][j])/(.35*Math.sqrt(data.dt[i]))));
+const nationalRaw=national.map((v,i)=>v.map((x,j)=>variant!=='original'?0:i===times.length-1?x/1.5:(x-national[i+1][j])/(.35*Math.sqrt(data.dt[i]))));
 const metric=[];
 // Stan's unconstrained serializer visits each array element, then the matrix
 // column/row. This DIFFERS from CSV column order (which interleaves cities).
@@ -81,15 +86,15 @@ for(let c=0;c<C;c++)for(let j=0;j<D;j++)for(let t=0;t<T;t++){
   if(!row){const s=H.map(h=>h.reduce((sum,a,k)=>sum+a*mean[t][k],0));initial[c][t][j]=s[j+1]-s[0]-calibration.offset;}
 }
 metric.push(...Array((times.length+biasGroups.length)*D).fill(1),.25,.25);
-const sources=['party-drift-real-export-cli.ts','party-drift-panel-data.ts','party-drift-panel.ts','party-drift-prior.ts','party-drift-likelihood.ts','stan/real-party-drift.stan','stan/run_real.py','stan/check_real_density.py'];
+const sources=['party-drift-real-export-cli.ts','party-drift-panel-data.ts','party-drift-panel.ts','party-drift-prior.ts','party-drift-likelihood.ts','stan/'+modelSource,'stan/run_real.py','stan/check_real_density.py'];
 const sourceVersions=await Promise.all(sources.map(async path=>({path,sha256:sha256(await readFile(resolve(root,'web/scripts/data-preparation',path)))})));
-const version=sha256(JSON.stringify({inputs:input.versions,sourceVersions,target,horizon,cities})).slice(0,12),directory=resolve(root,'data/derived/party-drift/stan-real-'+version);
+const version=sha256(JSON.stringify({inputs:input.versions,sourceVersions,target,horizon,cities,variant})).slice(0,12),directory=resolve(root,'data/derived/party-drift/stan-real-'+version);
 await mkdir(directory,{recursive:true});
 const bytes=JSON.stringify(data)+'\n';await writeFile(resolve(directory,'data.json'),bytes);
 await writeFile(resolve(directory,'initial.json'),JSON.stringify({coordinate:initial,log_sigma_n:Math.log(.35),log_sigma_l:Math.log(.25),national_raw:nationalRaw,bias_raw:Array.from({length:biasGroups.length},()=>Array(D).fill(0))})+'\n');
 await writeFile(resolve(directory,'metric.json'),JSON.stringify({inv_metric:metric})+'\n');
 const auxiliaryHashes=await Promise.all(['initial.json','metric.json'].map(async path=>({path,sha256:sha256(await readFile(resolve(directory,path)))})));
-await writeFile(resolve(directory,'manifest.json'),JSON.stringify({version,modelHash:sourceVersions.find(s=>s.path.endsWith('.stan'))!.sha256,sourceVersions,inputs:input.versions,dataHash:sha256(Buffer.from(bytes)),auxiliaryHashes,
+await writeFile(resolve(directory,'manifest.json'),JSON.stringify({version,variant,modelSource,modelHash:sourceVersions.find(s=>s.path.endsWith('.stan'))!.sha256,sourceVersions,inputs:input.versions,dataHash:sha256(Buffer.from(bytes)),auxiliaryHashes,
   target,horizon,cutoff:panel.cutoff,components:ids,cities:panel.cities,fullCities:panel.totalCities,countCells:cells.length,nationalTimes:times.length,polls:Q,calibration,resolution,
   scope:'Real-data common-volatility literal-link conditional-scale stage-0 pilot; no fit acceptance for stages 1-7',
   policy:{chains:4,warmup:1000,sampling:1000,adaptDelta:.95,maxTreedepth:12,seed:20261026,maxRhat:1.05,minEss:400}},null,2)+'\n');

@@ -11,9 +11,11 @@ p.add_argument('--cmdstan',required=True,type=Path)
 p.add_argument('--cache',required=True,type=Path)
 p.add_argument('--warmup',type=int)
 p.add_argument('--sampling',type=int)
+p.add_argument('--timeout',type=float,help='Per-chain profiling timeout; an interrupted run is never accepted')
+p.add_argument('--console',action='store_true')
 args=p.parse_args()
 manifest=json.loads((args.directory/'manifest.json').read_text())
-source=Path(__file__).with_name('real-party-drift.stan')
+source=Path(__file__).with_name(manifest.get('modelSource','real-party-drift.stan'))
 for item in manifest['sourceVersions']:
     if hashlib.sha256((source.parent.parent/item['path']).read_bytes()).hexdigest()!=item['sha256']:
         raise RuntimeError('Research implementation changed; prepare a new fingerprint: '+item['path'])
@@ -50,7 +52,7 @@ tic=time.monotonic()
 try:
     fit=model.sample(data=str(args.directory/'data.json'),inits=str(args.directory/'initial.json'),metric='diag_e',inv_metric=str(args.directory/'metric.json'),step_size=.05,seed=policy['seed'],chains=4,parallel_chains=4,
         iter_warmup=policy['warmup'],iter_sampling=policy['sampling'],adapt_delta=policy['adaptDelta'],max_treedepth=policy['maxTreedepth'],
-        output_dir=str(out),show_progress=False,show_console=True,refresh=100)
+        output_dir=str(out),show_progress=False,show_console=args.console,refresh=100,timeout=args.timeout)
 except Exception as error:
     (args.directory/'stan-error.json').write_text(json.dumps({'modelHash':digest,'policy':policy,'seconds':time.monotonic()-tic,
         'peakSamplingProcessBytes':peak[0],'error':str(error),'passed':False,'fullDataFitStarted':False},indent=2)+'\n')
@@ -65,6 +67,7 @@ row={'modelHash':digest,'dataHash':manifest['dataHash'],'policy':policy,'seconds
     'divergences':int(diagnostics['divergent__'].sum()),'maxTreedepthHits':int((diagnostics['treedepth__']>=policy['maxTreedepth']).sum()),
     'minBfmi':float(bfmi.min()),'csvBytes':sum(Path(x).stat().st_size for x in fit.runset.csv_files),
     'scaleSummary':{k:summary.loc[k].to_dict() for k in ['sigma_n','sigma_l']},
+    'meanLeapfrogSteps':float(diagnostics['n_leapfrog__'].mean()),'meanAcceptance':float(diagnostics['accept_stat__'].mean()),
     'platform':platform.platform(),'cmdstan':cmdstanpy.cmdstan_version(),'cmdstanpy':cmdstanpy.__version__,
     'fullDataFitStarted':False,'timeGateWaived':True,'scope':manifest['scope']}
 row['passed']=row['maxRhat']<=policy['maxRhat'] and row['minEss']>=policy['minEss'] and row['divergences']==0 and row['maxTreedepthHits']==0 and row['minBfmi']>=.3

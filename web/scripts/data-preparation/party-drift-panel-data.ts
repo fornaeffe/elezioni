@@ -9,6 +9,13 @@ import { sha256 } from './sources';
 
 export interface PanelPoll { id:string; surveyId:string; date:string; available:string; end:string; kind:'camera'|'european';
   groups:string[][]; shares:number[]; other:number|null; sample:number; source:string; group:string; }
+export function reviewedEarlyShares(original:{id:string;shares:number[]},refined?:{id:string;shares:number[]}){
+  if(!refined)return{groups:[['pd'],['m5s'],['lega']],shares:original.shares.slice(0,3),other:original.shares[3]};
+  if(refined.id!==original.id||refined.shares.length!==6||refined.shares.some(x=>!Number.isFinite(x)||x<0)||
+    Math.abs(refined.shares.reduce((s,x)=>s+x,0)-1)>1e-8||original.shares.slice(0,3).some((x,i)=>Math.abs(x-refined.shares[i])>1e-8)||
+    Math.abs(original.shares[3]-refined.shares.slice(3).reduce((s,x)=>s+x,0))>1e-8)throw new Error('Inconsistent reviewed early poll view: '+original.id);
+  return{groups:[['pd'],['m5s'],['lega'],['fdi'],['fi-pdl']],shares:refined.shares.slice(0,5),other:refined.shares[5]};
+}
 export async function loadPartyResearchData(root:string) {
   const history=await loadGenerationHistory(root), inputs=await loadMembershipPolicy(root);
   const refinementBytes=await readFile(resolve(root,'data/sources/party-drift/poll-refinements.json'));
@@ -45,12 +52,22 @@ export async function loadPartyResearchData(root:string) {
     }
   }
   const earlyBytes=await readFile(resolve(root,'data/sources/polls/history/generation-horizon-observations.json'));versions.push('early:'+sha256(earlyBytes));
-  for(const p of JSON.parse(earlyBytes.toString('utf8')).observations)polls.push({id:p.id,surveyId:p.id,date:new Date((Date.parse(p.fieldworkStart)+Date.parse(p.fieldworkEnd))/2).toISOString(),available:p.publicationDate,end:p.fieldworkEnd,kind:'camera',
-    groups:[['pd'],['m5s'],['lega']],shares:p.shares.slice(0,3),other:p.shares[3],sample:Math.min(POLL_POLICY.maximumEffectiveSample,p.sampleSize*POLL_POLICY.unknownDecidedFraction/POLL_POLICY.designEffect),source:p.sourceUrl,group:p.fieldworkEnd.slice(0,4)+'-H'+(Number(p.fieldworkEnd.slice(5,7))<=6?1:2)+'-camera'});
+  const sixBytes=await readFile(resolve(root,'data/sources/polls/history/generation-six-category-observations.json'));
+  const six=JSON.parse(sixBytes.toString('utf8')) as {panel:string[];earlyObservations:{id:string;shares:number[];publicationDate:string;fieldworkStart:string;fieldworkEnd:string}[];inputPins:{path:string;sha256:string}[]};
+  if(six.panel.join(',')!=='pd,m5s,lega,fdi,fi-pdl,other')throw new Error('Unknown reviewed early poll panel');
+  for(const pin of six.inputPins){if(!['archive.json','manifest.json','elections-manifest.json','generation-horizon-observations.json','generation-horizon-manifest.json'].includes(pin.path)||
+    sha256(await readFile(resolve(root,'data/sources/polls/history',pin.path)))!==pin.sha256)throw new Error('Reviewed early poll input pin changed');}
+  versions.push('reviewed-early-six:'+sha256(sixBytes));
+  for(const p of JSON.parse(earlyBytes.toString('utf8')).observations){
+    const refined=six.earlyObservations.find(x=>x.id===p.id);
+    if(refined&&['publicationDate','fieldworkStart','fieldworkEnd'].some(key=>refined[key as keyof typeof refined]!==p[key]))throw new Error('Reviewed early poll dates changed: '+p.id);
+    polls.push({id:p.id,surveyId:p.id,date:new Date((Date.parse(p.fieldworkStart)+Date.parse(p.fieldworkEnd))/2).toISOString(),available:p.publicationDate,end:p.fieldworkEnd,kind:'camera',
+      ...reviewedEarlyShares(p,refined),sample:Math.min(POLL_POLICY.maximumEffectiveSample,p.sampleSize*POLL_POLICY.unknownDecidedFraction/POLL_POLICY.designEffect),source:p.sourceUrl,group:p.fieldworkEnd.slice(0,4)+'-H'+(Number(p.fieldworkEnd.slice(5,7))<=6?1:2)+'-camera'});
+  }
   if(new Set(polls.map(p=>p.surveyId)).size!==polls.length)throw new Error('Duplicate survey evidence in panel input');
   return{history,policy:inputs.policy,versions,polls,excluded};
 }
-export function prepareAdmissibleCase(input:Awaited<ReturnType<typeof loadPartyResearchData>>,targetId:string,horizon:number,maximumCities=Infinity){
+export function prepareAdmissibleCase(input:Awaited<ReturnType<typeof loadPartyResearchData>>,targetId:string,horizon:number,maximumCities=Infinity,componentScope:'main'|'all'='main'){
   const target=input.history.events.find(e=>e.id===targetId);if(!target)throw new Error('Unknown target');
   const targetDate=targetId==='european-2024'?'2024-06-08':target.date,cutoff=new Date(Date.parse(targetDate)-horizon*86400000).toISOString().slice(0,10);
   const elections=input.history.events.filter(e=>e.date<cutoff),polls=input.polls.filter(p=>p.available<=cutoff&&p.end<=cutoff&&Date.parse(p.date)<=Date.parse(cutoff));
@@ -58,7 +75,7 @@ export function prepareAdmissibleCase(input:Awaited<ReturnType<typeof loadPartyR
   const sourceGroups=(event:typeof target)=>[...new Set(event.municipalities.filter(usable).flatMap(c=>c.lists.map(l=>l.name)))].map(label=>membershipFor(input.policy,event.id,label).members);
   const information=[...elections.map(e=>({id:e.id,groups:sourceGroups(e)})),...polls.map(p=>({id:p.id,groups:p.groups}))];
   const basis=[...new Set([...information.flatMap(r=>r.groups.flat()),...sourceGroups(target).flat()])].sort(),explicit=new Set(information.flatMap(r=>r.groups.flat()));
-  const panel=makeAdmissiblePanel(basis,information,explicit,undefined,sourceGroups(target));
+  const panel=makeAdmissiblePanel(basis,information,explicit,componentScope==='all'?basis.filter(id=>explicit.has(id)):undefined,sourceGroups(target));
   if(!panel.audit?.resolved)throw new Error('Research panel failed structural resolution');
   const mapping=(id:string)=>panel.mapping[id]??'research-other';
   const latest=elections.at(-1)!;if(!latest)throw new Error('No training election');

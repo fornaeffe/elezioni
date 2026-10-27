@@ -41,6 +41,8 @@ export function makeAdmissiblePanel(basis: string[], information: { id: string; 
       const root = ids.includes('research-other') || ids.length === 1 ? 'research-other' : [...ids].sort()[0];
       ids.forEach(id=>parent.set(id,root));
     }
+    if (new Set(basis.map(find)).size === ids.length)
+      throw new Error('Unsupported research residual: no cutoff evidence distinguishes this support. Supply reference information or retain an observed residual group.');
     if (iteration === basis.length) throw new Error('Panel resolution did not stabilize');
   }
   const mapping = Object.fromEntries(basis.map(id=>[id,find(id)]));

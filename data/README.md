@@ -175,8 +175,11 @@ reference preparation records this decision while preserving computability.
 ## Checks
 
 For the current party-level vote-generation research, start with the
+[fast alternative and commands](../docs/vote-generation-fast-research.md).
+The preceding
 [restricted-scenario results and reproduction commands](../docs/vote-generation-party-drift-restricted.md)
-and [provisional membership review](../docs/vote-generation-party-memberships.md).
+and [provisional membership review](../docs/vote-generation-party-memberships.md)
+remain available for prior evidence and table review.
 Curated policies, public-source notes and restored cached poll answers are under
 `data/sources/party-drift/`; generated panels and Stan chains remain ignored under
 `data/derived/party-drift/`. The earlier
