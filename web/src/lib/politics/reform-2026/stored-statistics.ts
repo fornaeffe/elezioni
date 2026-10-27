@@ -1,6 +1,6 @@
 import { storedRows, type StoredResult } from '../../core/result-store';
 import { deleteStatisticsCache, orderedValue, readStatisticsCache, samples, samplesByValue, saveStatisticsCache, writeStatisticalSamples, type StatisticsCache } from '../../core/statistics-cache';
-import { addSample, binFor, emptySummary, finiteNumber, interpolated, quantileRanks, summaryTable, type BonusFilter, type Distribution, type SeriesDescriptor, type SeriesStatistics, type SeriesSummary, type StatisticalSample } from '../../results/statistics';
+import { addSample, binFor, emptySummary, finiteNumber, interpolated, pairStatisticalSamples, quantileRanks, summaryTable, type BonusFilter, type Distribution, type SeriesDescriptor, type SeriesStatistics, type SeriesSummary, type StatisticalSample } from '../../results/statistics';
 import type { ResultTable } from '../../core/types';
 import { reformCollegeSeriesTable, reformSeriesTable, seriesKey, unaffiliatedOwner } from './result-series';
 import { reformPresentation, subjectColor } from './presentation-metadata';
@@ -174,9 +174,11 @@ async function filteredDistribution(record: StoredResult, id: string, simulation
     q1: quantile(.25), median: quantile(.5), q3: quantile(.75), p05: quantile(.05), p95: quantile(.95), whiskerLow: null, whiskerHigh: null };
   return { distribution, deciles: count ? Array.from({ length: 11 }, (_, i) => quantile(i / 10)!) : [] };
 }
-export async function seriesStatistics(record: StoredResult, id: string, measure: 'elected' | 'entitled' = 'elected', bonusFilter: BonusFilter = 'all'): Promise<SeriesStatistics> {
+export async function seriesStatistics(record: StoredResult, id: string, measure: 'elected' | 'entitled' = 'elected', bonusFilter: BonusFilter = 'all', xSeries = id): Promise<SeriesStatistics> {
   if (!['all', 'awarded', 'not-awarded'].includes(bonusFilter)) throw new Error('Invalid bonus filter');
   const summary = await requireSeries(record, id);
+  const xSummary = xSeries === id ? summary : await requireSeries(record, xSeries);
+  if (xSeries !== id && (summary.kind !== 'college' || xSummary.kind !== 'college' || summary.chamber !== xSummary.chamber)) throw new Error('Select share and outcome colleges in the same chamber');
   let simulations: Set<number> | undefined;
   if (bonusFilter !== 'all') {
     simulations = new Set<number>();
@@ -184,18 +186,19 @@ export async function seriesStatistics(record: StoredResult, id: string, measure
     // Missing/non-computable decisions belong to neither filtered subset.
     for await (const row of tableRows(record, 'Reform runs')) if (row.Bonus === bonusFilter) simulations.add(Number(row.Simulation));
   }
-  const filtered = simulations ? await filteredDistribution(record, id, simulations) : undefined;
-  const distribution = filtered?.distribution ?? await statisticalDistribution(record, summary);
+  const filtered = simulations ? await filteredDistribution(record, xSeries, simulations) : undefined;
+  const distribution = filtered?.distribution ?? await statisticalDistribution(record, xSummary);
   const boundaries: number[] = [];
   if (filtered) boundaries.push(...new Set(filtered.deciles));
   else for (let i = 0; i <= 10 && distribution.count; i++) {
-    const r = quantileRanks(distribution.count, i / 10), a = (await orderedValue(record.id, id, r.lower))!, b = (await orderedValue(record.id, id, r.upper))!;
+    const r = quantileRanks(distribution.count, i / 10), a = (await orderedValue(record.id, xSeries, r.lower))!, b = (await orderedValue(record.id, xSeries, r.upper))!;
     const v = interpolated(a, b, r.fraction); if (boundaries.at(-1) !== v) boundaries.push(v);
   }
   if (boundaries.length === 1) boundaries.push(boundaries[0]);
   const bins = Array.from({ length: Math.max(0, boundaries.length - 1) }, (_, i) => ({ low: boundaries[i], high: boundaries[i + 1], count: 0, outcomes: [] as { seats: number | null; count: number }[] }));
   let known = 0, missingY = 0, yMax = 0;
-  for await (const p of samples(record.id, id)) {
+  const observations = xSeries === id ? samples(record.id, id) : pairStatisticalSamples(samples(record.id, id), samples(record.id, xSeries));
+  for await (const p of observations) {
     if (p.x === null || simulations && !simulations.has(p.simulation)) continue;
     if (filtered) {
       const spread = (distribution.q3! - distribution.q1!) * 1.5;
@@ -211,5 +214,5 @@ export async function seriesStatistics(record: StoredResult, id: string, measure
   }
   for (const bin of bins) bin.outcomes.sort((a, b) => (a.seats ?? Infinity) - (b.seats ?? Infinity));
   const requested = simulations?.size ?? record.result.benchmark.simulations;
-  return { descriptor: summary, requested, known, missingX: requested - distribution.count, missingY, distribution, bins, yMax };
+  return { descriptor: summary, xDescriptor: xSummary, requested, known, missingX: requested - distribution.count, missingY, distribution, bins, yMax };
 }

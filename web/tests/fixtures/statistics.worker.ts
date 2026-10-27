@@ -13,6 +13,18 @@ self.onmessage = async () => {
     const runs = payload.result.tables.find(t => t.name === 'Reform runs')!;
     runs.columns.push('Bonus');
     for (const row of runs.rows) row.push(Number(row[0]) === 1201 ? 'non-computable' : Number(row[0]) % 2 ? 'awarded' : 'not-awarded');
+    const locals = payload.result.tables.find(t => t.name === 'Reform college series v1')!;
+    const source = locals.rows.filter(r => r[locals.columns.indexOf('College')] === 'constructed-1');
+    for (const row of source) for (const axis of ['x', 'y']) {
+      const simulation = Number(row[0]);
+      if (simulation === (axis === 'x' ? 2 : 3)) continue;
+      const values = Object.fromEntries(locals.columns.map((c, i) => [c, row[i]]));
+      Object.assign(values, { Owner: `list:paired-${axis}`, College: `paired-${axis}`, Name: `Paired ${axis}`,
+        'Vote share %': axis === 'x' ? simulation === 7 ? null : simulation % 101 : 50,
+        Elected: axis === 'x' ? 99 : simulation === 5 ? null : simulation % 4, Entitled: axis === 'x' ? 98 : simulation % 3 });
+      locals.rows.push(locals.columns.map(c => values[c]));
+    }
+    locals.rows.sort((a, b) => Number(a[0]) - Number(b[0]));
     id = crypto.randomUUID();
     const imported = await handleResultService({ type: 'result-service', requestId: 1, action: 'import', resultId: id, owner, file: new File([JSON.stringify(payload)], 'statistics.json') });
     if (!imported.ok) throw new Error(imported.error!.message);
@@ -27,6 +39,14 @@ self.onmessage = async () => {
       filtered[filter] = response.data;
     }
     const filteredEntitlement = await seriesStatistics(record, cache.overview.colleges[0].id, 'entitled', 'awarded');
+    const ySeries = cache.overview.colleges.find(c => c.college === 'paired-y')!.id, xSeries = cache.overview.colleges.find(c => c.college === 'paired-x')!.id;
+    const paired = {} as Record<string, unknown>;
+    for (const filter of ['all', 'awarded', 'not-awarded'] as const) {
+      const response = await handleResultService({ type: 'result-service', requestId: 11, action: 'statistics-series', resultId: id, owner, series: ySeries, xSeries, bonusFilter: filter });
+      if (!response.ok) throw new Error(response.error!.message);
+      paired[filter] = response.data;
+    }
+    const pairedEntitlement = await seriesStatistics(record, ySeries, 'entitled', 'awarded', xSeries);
     const pages = []; let after = 0;
     for (;;) { const page = await samplePage(id, summary.id, after); if (!page.length) break; pages.push({ length: page.length, first: page[0].simulation, last: page.at(-1)!.simulation }); after = page.at(-1)!.simulation; }
     const foreign = await handleResultService({ type: 'result-service', requestId: 2, action: 'statistics', resultId: id, owner: 'foreign' });
@@ -46,7 +66,7 @@ self.onmessage = async () => {
     const rebuilt = await ensureStatistics(record);
     await deleteStoredResult(id, owner);
     const removed = await readStatisticsCache(id) === undefined && (await samplePage(id, summary.id)).length === 0;
-    self.postMessage({ ok: true, overview: cache.overview, stats, college, entitlement, filtered, filteredEntitlement, pages, foreignDenied: !foreign.ok, archiveUnchanged: before.join('') === afterExport.join(''), removed,
+    self.postMessage({ ok: true, overview: cache.overview, stats, college, entitlement, filtered, filteredEntitlement, paired, pairedEntitlement, pages, foreignDenied: !foreign.ok, archiveUnchanged: before.join('') === afterExport.join(''), removed,
       cacheFailure: !cacheFailure?.ok, canonicalRetained, partialCacheRemoved, rebuiltKnown: rebuilt.overview.series[0].votesKnown });
   } catch (e) { self.postMessage({ ok: false, error: String(e) }); }
 };

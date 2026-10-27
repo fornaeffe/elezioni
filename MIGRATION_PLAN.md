@@ -370,6 +370,8 @@ into `main`; public deployment follows that merge and a successful hosting gate.
     the list is not present in the new college).
   - [x] Filter the single-college spinogram by all simulations, bonus awarded,
     or bonus not awarded; display the plotted and selected simulation counts.
+  - [x] Offer collapsed advanced controls for an independent college/list share
+    on the X axis; keep the college plot outside any nested collapsible section.
   - [x] move the single simulation seats plot in a collapsible section
   - [x] better describe the meaning of columns in table of elected and shares
 - [ ] Generalize routing, snapshot selection, scenario defaults, validation,

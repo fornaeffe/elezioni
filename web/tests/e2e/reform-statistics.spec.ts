@@ -38,6 +38,16 @@ test('disk statistics preserve exact ranks, unknown outcomes, bounded pages, own
   }
   expect(result.filteredEntitlement).toMatchObject({ requested: 600, known: 600 });
   expect(result.filteredEntitlement.bins[0].outcomes).toEqual([{ seats: 1, count: 600 }]);
+  for (const filter of ['all', 'awarded', 'not-awarded']) {
+    const included = Array.from({ length: 1201 }, (_, i) => i + 1).filter(i => i !== 2 && i !== 7 && (filter === 'all' || i <= 1200 && i % 2 === (filter === 'awarded' ? 1 : 0)));
+    const paired = result.paired[filter];
+    expect(paired).toMatchObject({ descriptor: { college: 'paired-y' }, xDescriptor: { college: 'paired-x' }, requested: filter === 'all' ? 1201 : 600,
+      known: included.filter(i => i !== 3 && i !== 5).length, missingY: filter === 'not-awarded' ? 0 : 2, yMax: filter === 'not-awarded' ? 2 : 3, distribution: { count: included.length, min: 0, max: 100 } });
+    const outcomes = new Map<number | null, number>();
+    for (const simulation of included) { const y = simulation === 3 || simulation === 5 ? null : simulation % 4; outcomes.set(y, (outcomes.get(y) ?? 0) + 1); }
+    for (const [seats, count] of outcomes) expect(paired.bins.flatMap((b: any) => b.outcomes).filter((o: any) => o.seats === seats).reduce((n: number, o: any) => n + o.count, 0)).toBe(count);
+  }
+  expect(result.pairedEntitlement).toMatchObject({ known: 598, missingY: 1, missingX: 1, yMax: 2, distribution: { count: 599 } });
   expect(result.pages.map((p: any) => p.length)).toEqual([256, 256, 256, 256, 177]);
   expect(result.pages.at(-1).last).toBe(1201);
   expect(result.foreignDenied).toBe(true); expect(result.archiveUnchanged).toBe(true); expect(result.removed).toBe(true);
@@ -98,6 +108,75 @@ test('college spinogram filters joint bonus decisions and reports plotted simula
   }
   await filter.selectOption('all');
   await expect(panel).toContainText('Simulazioni nel grafico: 12 · Simulazioni selezionate: 12');
+  expect(errors).toEqual([]);
+});
+
+test('advanced college shares use an independent source and keep the plot alongside its controls', async ({ page }) => {
+  const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
+  const scenario = JSON.parse(readFileSync(resolve('src/lib/politics/reform-2026/data', catalog.defaultsPath), 'utf8')) as ReformGenerationScenario;
+  const archive = refinementResult(scenario), table = archive.result.tables.find(t => t.name === 'Reform college series v1')!;
+  const column = (name: string) => table.columns.indexOf(name);
+  table.rows = table.rows.filter(row => !(row[column('College')] === 'college-1' && row[column('Owner')] === 'list:constructed-1' && row[0] === 5)
+    && !(row[column('College')] === 'college-2' && row[column('Owner')] === 'list:constructed-2' && row[0] === 7));
+  for (const row of table.rows) {
+    const simulation = Number(row[0]);
+    row[column('Vote share %')] = row[column('Owner')] === 'list:constructed-2' && row[column('College')] === 'college-2' ? simulation === 8 ? null : 40 + simulation : 10;
+    row[column('Elected')] = row[column('Owner')] === 'list:constructed-1' ? simulation % 3 : 8;
+  }
+  await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
+  await page.getByLabel('Algoritmo di scrutinio').selectOption(scenario.algorithmId);
+  await page.getByTestId('reform-file-input').setInputFiles({ name: 'cross-college.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(archive)) });
+  const local = page.getByLabel('Statistiche riforma', { exact: true }).locator('details').filter({ has: page.locator('summary', { hasText: /^Eletti nel collegio plurinominale$/ }) });
+  await local.locator(':scope > summary').click();
+  const panel = local.locator('.series-panel'), advanced = local.locator('.advanced-share');
+  await panel.scrollIntoViewIfNeeded();
+  await expect(advanced).not.toHaveAttribute('open');
+  await expect(panel.locator('.spine-plot')).toBeVisible();
+  await expect(panel.locator('details')).toHaveCount(0);
+  await advanced.locator('summary').click();
+  const enable = advanced.getByRole('checkbox');
+  await expect(enable).not.toBeChecked();
+  await enable.check();
+  const college = advanced.getByRole('combobox', { name: 'Collegio delle percentuali (asse X)', exact: true });
+  const list = advanced.getByRole('combobox', { name: 'Lista delle percentuali (asse X)', exact: true });
+  await expect(college).toHaveValue('college-1');
+  await expect(list).toHaveValue('list:constructed-1');
+  await college.selectOption('college-2');
+  await list.selectOption('list:constructed-2');
+  await panel.scrollIntoViewIfNeeded();
+  await expect(panel).toContainText('Simulazioni nel grafico: 10 · Simulazioni selezionate: 12');
+  await expect(panel).toContainText('9/12 coppie note · 1 esiti ignoti con percentuale nota · 2 percentuali non disponibili');
+  await expect(local.locator('.axis-sources')).toContainText('Asse Y: eletti · camera · camera list 1 · Collegio 1');
+  await expect(local.locator('.axis-sources')).toContainText('Asse X: percentuale sui voti validi · camera · camera list 2 · Collegio 2');
+  await expect(panel.locator('.spine-axis')).toContainText('41%');
+  await expect(panel.locator('.spine-axis')).toContainText('52%');
+  await expect(panel.locator('.spine-cell').filter({ hasText: /^8$/ })).toHaveCount(0);
+  await advanced.locator('summary').click();
+  await expect(panel.locator('.spine-plot')).toBeVisible();
+  await expect(panel.locator('details')).toHaveCount(0);
+  await local.getByLabel('Simulazioni del collegio').selectOption('awarded');
+  await expect(panel).toContainText('5/6 coppie note · 1 esiti ignoti con percentuale nota · 0 percentuali non disponibili');
+  await local.getByLabel('Misura del collegio').selectOption('entitled');
+  await expect(panel.locator('.spine-cell').filter({ hasText: /^1$/ })).toHaveCount(5);
+  await expect(panel.locator('.spine-cell').filter({ hasText: /^2$/ })).toHaveCount(0);
+  await panel.getByRole('button').click();
+  await expect(page.getByRole('dialog')).toContainText('camera list 2 · Collegio 2');
+  await page.keyboard.press('Escape');
+  await advanced.locator('summary').click();
+  await college.selectOption('college-3');
+  await expect(list).toHaveValue('list:constructed-2');
+  await local.getByLabel('Ramo del collegio').selectOption('senato');
+  await expect(college).toHaveValue('college-3');
+  await expect(list).toHaveValue('list:constructed-2');
+  await page.setViewportSize({ width: 390, height: 844 });
+  await advanced.scrollIntoViewIfNeeded();
+  for (const control of [college, list]) expect(await control.evaluate(e => e.getBoundingClientRect().right)).toBeLessThanOrEqual(390);
+  await local.screenshot({ path: 'test-results/reform-college-independent-share-mobile.png' });
+  await enable.uncheck();
+  await expect(college).toHaveCount(0);
+  await panel.scrollIntoViewIfNeeded();
+  await expect(local.locator('.axis-sources')).toContainText('Asse X: percentuale sui voti validi · senato · senato list 1 · Collegio 1');
+  await expect(panel.locator('.spine-axis')).toContainText('10%');
   expect(errors).toEqual([]);
 });
 

@@ -31,6 +31,7 @@ export function spineChart(s: SeriesStatistics, title: string): SpineResultChart
     const bin = { label: `${displayNumber(b.low)}–${displayNumber(b.high)}% · ${b.count}/${s.requested} richieste`, xPercent: x, widthPercent: width, cells };
     x += width; ticks.push({ value: b.high, label: `${displayNumber(b.high)}%`, positionPercent: x }); return bin;
   });
-  return { kind: 'spine', id: `spine-${s.descriptor.id}`, title, xLabel: 'Percentuale sui voti validi · larghezza proporzionale alle osservazioni con percentuale nota',
+  const shareLabel = s.xDescriptor && s.xDescriptor.id !== s.descriptor.id ? ` · ${s.xDescriptor.chamber} · ${s.xDescriptor.name}` : '';
+  return { kind: 'spine', id: `spine-${s.descriptor.id}`, title, xLabel: `Percentuale sui voti validi${shareLabel} · larghezza proporzionale alle osservazioni con percentuale nota`,
     panels: [{ label: `${s.descriptor.chamber} · ${s.descriptor.name}`, ticks, bins }] };
 }

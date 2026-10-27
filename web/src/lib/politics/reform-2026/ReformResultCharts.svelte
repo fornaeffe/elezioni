@@ -22,6 +22,7 @@
   let meanKind = $state('list'), boxKind = $state('list');
   let error = $state(''), selectedCollege = $state(''), localMeasure = $state<'elected' | 'entitled'>('elected');
   let localBonusFilter = $state<BonusFilter>('all');
+  let separateShare = $state(false), shareCollege = $state(''), shareList = $state('');
   let scatter = $state(false), nationalSpines = $state(false), localSpine = $state(false), showSummary = $state(false), summaryPage = $state(0);
   let meanChamber = $state<'camera' | 'senato'>('camera'), boxChamber = $state<'camera' | 'senato'>('camera');
   const meanLists = $derived(overview?.series.filter(s => s.chamber === meanChamber && s.kind === meanKind) ?? []);
@@ -31,12 +32,16 @@
   const college = $derived(chamberColleges.find(c => c.college === selectedCollege)?.college ?? chamberColleges[0]?.college);
   const collegeLists = $derived(chamberColleges.filter(c => c.college === college));
   const selected = $derived(collegeLists.find(c => c.owner === localList) ?? collegeLists[0]);
+  const xCollege = $derived(chamberColleges.find(c => c.college === shareCollege)?.college ?? college);
+  const shareCollegeLists = $derived(chamberColleges.filter(c => c.college === xCollege));
+  const selectedShare = $derived(separateShare ? shareCollegeLists.find(c => c.owner === shareList) ?? shareCollegeLists[0] : selected);
   const table = $derived(overview ? summaryTable(overview) : null);
   const headings: Record<string, string> = { Chamber: 'Ramo', Name: 'Lista', Requested: 'Richieste', 'Vote observations': 'Percentuali note', 'Election observations': 'Esiti noti',
     'Mean vote share %': 'Percentuale media %', 'Mean elected': 'Eletti medi', 'Confirmed elected minimum / requested': 'Eletti confermati minimi / richieste',
     'Ordinary minimum / requested': 'Ordinari minimi / richieste', 'Bonus minimum / requested': 'Premio minimo / richieste', 'Special minimum / requested': 'Uninominali speciali minimi / richieste', 'TAA minimum / requested': 'Proporzionali TAA minimi / richieste' };
   const collegeOptions = $derived([...new Map(chamberColleges.map(c => [c.college!, { id: c.college!, label: c.name.split(' · ').slice(1).join(' · ') || c.college! }])).values()]);
   const localListOptions = $derived(collegeLists.map(c => ({ id: c.owner, label: overview?.series.find(s => s.chamber === c.chamber && s.kind === 'list' && s.owner === c.owner)?.name ?? c.name.split(' · ')[0] })));
+  const shareListOptions = $derived(shareCollegeLists.map(c => ({ id: c.owner, label: overview?.series.find(s => s.chamber === c.chamber && s.kind === 'list' && s.owner === c.owner)?.name ?? c.name.split(' · ')[0] })));
   const boxBySeries = new SvelteMap<string, { distribution: Distribution; max: number }>();
   onMount(() => {
     let alive = true;
@@ -134,7 +139,21 @@
           <label>Simulazioni del collegio<select bind:value={localBonusFilter}><option value="all">Tutte le simulazioni</option><option value="awarded">Solo con premio attribuito</option><option value="not-awarded">Solo senza premio attribuito</option></select></label>
           <p>Il filtro usa l’attribuzione del premio congiunto, indipendentemente dalla lista selezionata. Le decisioni sul premio mancanti o non calcolabili sono escluse dai due sottoinsiemi.</p>
           <p>Gli eletti sono contati nella sede finale, inclusi i recuperi del premio. Il premio senza collegio resta nei grafici nazionali. I seggi spettanti seguono la sede originaria e non vengono trasferiti dal grafico.</p>
-          {#if selected}{#key selected.id + localMeasure + localBonusFilter}<ReformSeriesPanel {client} {resultId} {owner} descriptor={selected} variant="spine" measure={localMeasure} bonusFilter={localBonusFilter} />{/key}{:else}<p>Nessun collegio disponibile per questo ramo.</p>{/if}
+          <details class="advanced-share"><summary>Opzioni avanzate dell’asse X</summary>
+            <label class="checkbox-label"><input type="checkbox" checked={separateShare} onchange={e => {
+              if (e.currentTarget.checked) { shareCollege = selected?.college ?? ''; shareList = selected?.owner ?? ''; }
+              separateShare = e.currentTarget.checked;
+            }} />Usa un collegio e una lista diversi per le percentuali</label>
+            {#if separateShare}
+              <div class="college-control"><SearchSelect label="Collegio delle percentuali (asse X)" options={collegeOptions} value={xCollege ?? ''} onchange={value => { shareList = selectedShare?.owner ?? shareList; shareCollege = value; }} /></div>
+              <label>Lista delle percentuali (asse X)<select value={selectedShare?.owner ?? ''} onchange={e => { shareList = e.currentTarget.value; }}>{#each shareListOptions as item (item.id)}<option value={item.id}>{item.label}</option>{/each}</select></label>
+              <p>Il ramo resta quello selezionato. Percentuali ed esiti sono abbinati nella stessa simulazione. Chiudere queste opzioni mantiene la selezione; disattivare l’opzione ripristina la lista e il collegio degli eletti.</p>
+            {/if}
+          </details>
+          {#if selected && selectedShare}
+            <p class="axis-sources">Asse Y: {localMeasure === 'elected' ? 'eletti' : 'seggi spettanti'} · {selected.chamber} · {selected.name}<br />Asse X: percentuale sui voti validi · {selectedShare.chamber} · {selectedShare.name}</p>
+            {#key JSON.stringify([selected.id, selectedShare.id, localMeasure, localBonusFilter])}<ReformSeriesPanel {client} {resultId} {owner} descriptor={selected} xDescriptor={selectedShare} variant="spine" measure={localMeasure} bonusFilter={localBonusFilter} collapsible={false} />{/key}
+          {:else}<p>Nessun collegio disponibile per questo ramo.</p>{/if}
         {:else}<p>Dati locali non disponibili nell’archivio. È necessaria una nuova esecuzione per produrli.</p>{/if}
       {/if}
     </details>
@@ -147,6 +166,7 @@
   details { border-bottom: 1px solid #e5e9ed; padding: 1rem 0; }
   summary { cursor: pointer; color: #4d5963; font-size: .9rem; font-weight: 750; }
   label { display: grid; gap: .5rem; margin: 1rem 0; }
+  .checkbox-label { display: flex; align-items: center; gap: .5rem; }
   .college-control :global(label) { display: grid; gap: .5rem; margin: 1rem 0; }
   .college-control :global(input), .college-control :global(select) { box-sizing: border-box; width: 100%; max-width: 100%; min-width: 0; font: inherit; padding: .5rem; }
   select, button { font: inherit; padding: .5rem; }

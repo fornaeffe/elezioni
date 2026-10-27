@@ -27,7 +27,7 @@ export interface ResultServiceRequest {
   table?: number; offset?: number; limit?: number; simulation?: number;
   file?: File; format?: 'json' | 'csv';
   list?: string; chamber?: string;
-  series?: string; measure?: 'elected' | 'entitled';
+  series?: string; xSeries?: string; measure?: 'elected' | 'entitled';
   bonusFilter?: BonusFilter;
   filter?: DiagnosticFilter;
 }
@@ -266,7 +266,7 @@ export async function handleResultService(request: ResultServiceRequest): Promis
           const summary = await requireSeries(record, request.series);
           if (request.action === 'statistics-points') return samplePage(record.id, request.series, request.offset ?? 0, request.limit ?? 256);
           if (request.action === 'statistics-box') return statisticalDistribution(record, summary);
-          return seriesStatistics(record, request.series, request.measure, request.bonusFilter);
+          return seriesStatistics(record, request.series, request.measure, request.bonusFilter, request.xSeries);
         })();
         const jobs = resultJobs.get(record.id) ?? new Set<Promise<unknown>>(); resultJobs.set(record.id, jobs); jobs.add(job);
         try { data = await job; } finally { jobs.delete(job); if (!jobs.size) resultJobs.delete(record.id); }

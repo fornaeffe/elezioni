@@ -37,6 +37,15 @@ For global conditions, message frequencies and affected IDs use the
   subset. The panel reports simulations plotted (available vote percentages,
   including grey unknown outcomes) and simulations selected; missing percentages
   and known pairs use the selected count. An empty subset shows zero and no plot.
+  Normally collapsed advanced controls can enable a separate college and list
+  for the X-axis share within the selected chamber. The main college/list still
+  supplies Y-axis elected counts (or original entitlements). The worker pairs
+  both series by simulation ID, retaining missing outcomes as grey unknowns;
+  absent shares remain missing percentages. Bonus filtering applies to the
+  paired observations. Both active sources stay labelled above the plot, and
+  the X source is also identified in its enlarged view. Collapsing the advanced
+  controls retains the selection; disabling the option restores matching axes.
+  The plot shares the main section with its controls and has no inner toggle.
 
 National list counts use final personal affiliation after multiple-election
 resolution and recovery. Coalition/subject counts use the legal supporting

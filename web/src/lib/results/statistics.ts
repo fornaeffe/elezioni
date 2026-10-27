@@ -27,7 +27,21 @@ export interface Distribution {
 export interface SpineBinData { low: number; high: number; count: number; outcomes: { seats: number | null; count: number }[] }
 export interface SeriesStatistics {
   descriptor: SeriesDescriptor; requested: number; known: number; missingX: number; missingY: number;
+  xDescriptor?: SeriesDescriptor;
   distribution: Distribution; bins: SpineBinData[]; yMax: number;
+}
+
+/** Merge ordered series by simulation identity; missing outcomes remain unknown. */
+export async function* pairStatisticalSamples(outcomes: AsyncIterable<StatisticalSample>, shares: AsyncIterable<StatisticalSample>): AsyncGenerator<StatisticalSample> {
+  const iterator = outcomes[Symbol.asyncIterator]();
+  try {
+    let outcome = await iterator.next();
+    for await (const share of shares) {
+      while (!outcome.done && outcome.value.simulation < share.simulation) outcome = await iterator.next();
+      const match = !outcome.done && outcome.value.simulation === share.simulation ? outcome.value : undefined;
+      yield { ...share, y: match?.y ?? null, entitled: match?.entitled ?? null };
+    }
+  } finally { await iterator.return?.(); }
 }
 export const summaryTableName = 'Reform list summary';
 export const summaryColumns = ['Chamber', 'List', 'Name', 'Requested', 'Vote observations', 'Election observations', 'Mean vote share %', 'Mean elected', 'Confirmed elected minimum / requested', 'Ordinary minimum / requested', 'Bonus minimum / requested', 'Special minimum / requested', 'TAA minimum / requested'];

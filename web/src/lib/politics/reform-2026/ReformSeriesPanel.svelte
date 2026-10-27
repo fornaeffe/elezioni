@@ -5,9 +5,10 @@
   import { spineChart } from '../../results/chart-builders';
   import ResultCharts from '../../results/ResultCharts.svelte';
   import StreamedPlot from '../../results/StreamedPlot.svelte';
-  let { client, resultId, owner, descriptor, variant, measure = 'elected', collapsible = true, bonusFilter = 'all' }: {
+  let { client, resultId, owner, descriptor, variant, measure = 'elected', collapsible = true, bonusFilter = 'all', xDescriptor }: {
     client: ResultServiceClient; resultId: string; owner: string; descriptor: SeriesDescriptor;
     variant: 'scatter' | 'spine'; measure?: 'elected' | 'entitled'; collapsible?: boolean; bonusFilter?: BonusFilter;
+    xDescriptor?: SeriesDescriptor;
   } = $props();
   let element: HTMLDivElement;
   let statistics = $state.raw<SeriesStatistics | null>(null), error = $state('');
@@ -16,7 +17,7 @@
     const observer = new IntersectionObserver(entries => {
       if (!entries.some(e => e.isIntersecting)) return;
       observer.disconnect();
-      void client.call<SeriesStatistics>('statistics-series', { resultId, owner, series: descriptor.id, measure, bonusFilter })
+      void client.call<SeriesStatistics>('statistics-series', { resultId, owner, series: descriptor.id, measure, bonusFilter, xSeries: xDescriptor?.id })
         .then(s => { if (alive) statistics = s; }).catch(e => { if (alive) error = String(e); });
     }, { rootMargin: '200px' });
     observer.observe(element); return () => { alive = false; observer.disconnect(); };
