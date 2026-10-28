@@ -289,8 +289,13 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   and the [approved report](docs/vote-generation-fast-research.md).
   - [x] Select the fast `kind-common-conservative` model for this implementation.
     Original joint-state/Stan research gates no longer block the selected model.
-  - [ ] **FV-01:** Freeze production scenario/model/reuse contracts, numerical and
-    acceptance protocols; preserve the research inventory/evidence.
+  - [x] **FV-01:** Freeze production scenario/model/reuse contracts, numerical and
+    acceptance protocols; preserve the research inventory/evidence. Read the
+    [maintained model](docs/vote-generation-fast-model.md),
+    [scenario/data contract](docs/vote-generation-fast-contracts.md),
+    [reference/chamber rules](docs/vote-generation-fast-references.md),
+    [validation protocol](docs/vote-generation-fast-validation.md) or
+    [evidence index](research/vote-generation/README.md) for the specific task.
   - [ ] **FV-02:** Port fitting/profile estimation to one browser-safe TypeScript
     engine; pass independent reduced numerical and browser-computability gates.
   - [ ] **FV-03:** Produce compact source-backed historical/poll records supporting

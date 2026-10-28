@@ -1,0 +1,174 @@
+{
+  "six": {
+    "current": {
+      "nationalPoliticalValid": {
+        "coverage90": 0.3333333333333333,
+        "width90": 0.06097178939263057,
+        "wis": 0.027473042572869064,
+        "meanMae": 0.04337157904419076
+      },
+      "municipalPoliticalValid": {
+        "coverage90": 0.6969528718507546,
+        "width90": 0.16329714357966266,
+        "wis": 0.031112655093266526,
+        "meanMae": 0.0566970244971194
+      },
+      "nationalNonvalid": {
+        "coverage90": 0.8333333333333334,
+        "width90": 0.2272018983592821,
+        "wis": 0.02387621030423458,
+        "meanMae": 0.057370517511758465
+      }
+    },
+    "literal.pooled.common.common.independent.brownian": {
+      "nationalPoliticalValid": {
+        "coverage90": 0.7222222222222222,
+        "width90": 0.11836834986363737,
+        "wis": 0.022798904395260826,
+        "meanMae": 0.03910098586497752
+      },
+      "municipalPoliticalValid": {
+        "coverage90": 0.8766177740264249,
+        "width90": 0.2466819805298549,
+        "wis": 0.028300217785974194,
+        "meanMae": 0.05321209697898814
+      },
+      "nationalNonvalid": {
+        "coverage90": 1,
+        "width90": 0.4384375148096333,
+        "wis": 0.05367380725497002,
+        "meanMae": 0.12754066099564954
+      }
+    },
+    "aggregate.adjusted.common.common.independent.brownian": {
+      "nationalPoliticalValid": {
+        "coverage90": 0.7222222222222222,
+        "width90": 0.08050699184441305,
+        "wis": 0.013423920208436937,
+        "meanMae": 0.028407999190706985
+      },
+      "municipalPoliticalValid": {
+        "coverage90": 0.9226751547190466,
+        "width90": 0.23398053394476967,
+        "wis": 0.02370079532534281,
+        "meanMae": 0.04362947061033332
+      },
+      "nationalNonvalid": {
+        "coverage90": 1,
+        "width90": 0.4658092574566186,
+        "wis": 0.0341899199487841,
+        "meanMae": 0.059041551286203
+      }
+    }
+  },
+  "mixed": {
+    "nationalPoliticalValid": {
+      "coverage90": 0.78125,
+      "width90": 0.23217418723621677,
+      "wis": 0.02784462714686997,
+      "meanMae": 0.05808417068594777
+    },
+    "municipalPoliticalValid": {
+      "coverage90": 0.9362223209902596,
+      "width90": 0.41808731396061116,
+      "wis": 0.04014000099586622,
+      "meanMae": 0.0779395235708408
+    },
+    "nationalNonvalid": {
+      "coverage90": 1,
+      "width90": 0.5342147712350838,
+      "wis": 0.04180870319908218,
+      "meanMae": 0.07823275287162074
+    }
+  },
+  "camera": {
+    "nationalPoliticalValid": {
+      "coverage90": 0.875,
+      "width90": 0.2556034080620197,
+      "wis": 0.02782740897524656,
+      "meanMae": 0.06041709289996203
+    },
+    "municipalPoliticalValid": {
+      "coverage90": 0.8846361197225344,
+      "width90": 0.35497619894200394,
+      "wis": 0.04235987221225823,
+      "meanMae": 0.08674823787083097
+    },
+    "nationalNonvalid": {
+      "coverage90": 1,
+      "width90": 0.622298140146768,
+      "wis": 0.04766764809999403,
+      "meanMae": 0.08702420517410481
+    }
+  },
+  "localScale": {
+    "1": {
+      "nationalPoliticalValid": {
+        "coverage90": 0.75,
+        "width90": 0.07692184268208874,
+        "wis": 0.015567539242744583,
+        "meanMae": 0.030996010821687764
+      },
+      "municipalPoliticalValid": {
+        "coverage90": 0.9472212711638579,
+        "width90": 0.27087936596875706,
+        "wis": 0.025532199124829978,
+        "meanMae": 0.05094532121345003
+      },
+      "nationalNonvalid": {
+        "coverage90": 1,
+        "width90": 0.4590190140351473,
+        "wis": 0.033647114680630905,
+        "meanMae": 0.04540561111708863
+      }
+    },
+    "0.85": {
+      "nationalPoliticalValid": {
+        "coverage90": 0.75,
+        "width90": 0.07675321387390913,
+        "wis": 0.01496323214315473,
+        "meanMae": 0.030209096504676264
+      },
+      "municipalPoliticalValid": {
+        "coverage90": 0.9274043089103535,
+        "width90": 0.23851761005756322,
+        "wis": 0.02456606212802566,
+        "meanMae": 0.04983918858087116
+      },
+      "nationalNonvalid": {
+        "coverage90": 1,
+        "width90": 0.4603170114966223,
+        "wis": 0.0336263315855097,
+        "meanMae": 0.043432246459702756
+      }
+    },
+    "1.15": {
+      "nationalPoliticalValid": {
+        "coverage90": 0.75,
+        "width90": 0.07606957731737403,
+        "wis": 0.016223142618576727,
+        "meanMae": 0.03186205092536716
+      },
+      "municipalPoliticalValid": {
+        "coverage90": 0.9607703489964641,
+        "width90": 0.30305551039398904,
+        "wis": 0.02672550826609953,
+        "meanMae": 0.05218055664701933
+      },
+      "nationalNonvalid": {
+        "coverage90": 1,
+        "width90": 0.4496416040775819,
+        "wis": 0.0338883600092767,
+        "meanMae": 0.046630215999510255
+      }
+    }
+  },
+  "versions": {
+    "[128,[]]": "latent-drift-v1-367ca6e3b6a9",
+    "[512,[]]": "latent-drift-v1-53927eca1222",
+    "[128,[\"--panel=six\",\"--horizon=15\"]]": "latent-drift-v1-332c7730d812",
+    "[128,[\"--history=camera\"]]": "latent-drift-v1-5f9e284c584f",
+    "[128,[\"--localScale=0.85\",\"--horizon=15\"]]": "latent-drift-v1-6d271dc99b8e",
+    "[128,[\"--localScale=1.15\",\"--horizon=15\"]]": "latent-drift-v1-774466388e5e"
+  }
+}

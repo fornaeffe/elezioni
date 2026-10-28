@@ -1,0 +1,68 @@
+{
+  "phase": "development",
+  "draws": 128,
+  "summaries": [
+    {
+      "variant": "kind-common-regional",
+      "cases": 16,
+      "failedFits": 0,
+      "nationalCoverage90": 0.8770833333333334,
+      "municipalCoverage90": 0.8847777347385936,
+      "coverageShortfall": 0.02201825396825395,
+      "wis": 0.03239490222300502,
+      "meanMae": 0.059811533042287764,
+      "tailRate": 0.0078125,
+      "maxFitSeconds": 0.44394377900000137,
+      "maxGenerationSeconds": 0.07393158299999669
+    },
+    {
+      "variant": "kind-common-conservative",
+      "cases": 16,
+      "failedFits": 0,
+      "nationalCoverage90": 0.9006944444444445,
+      "municipalCoverage90": 0.8928651524699138,
+      "coverageShortfall": 0.014472222222222206,
+      "wis": 0.03258744418863,
+      "meanMae": 0.06022167536209269,
+      "tailRate": 0.0078125,
+      "maxFitSeconds": 0.44394377900000137,
+      "maxGenerationSeconds": 0.07236399199999966
+    },
+    {
+      "variant": "kind-component-regional",
+      "cases": 16,
+      "failedFits": 0,
+      "nationalCoverage90": 0.8770833333333334,
+      "municipalCoverage90": 0.8865466033537615,
+      "coverageShortfall": 0.022067460317460305,
+      "wis": 0.03232917288961945,
+      "meanMae": 0.05973034147885317,
+      "tailRate": 0.0078125,
+      "maxFitSeconds": 0.44394377900000137,
+      "maxGenerationSeconds": 0.07052951600000057
+    },
+    {
+      "variant": "pooled-common-regional",
+      "cases": 16,
+      "failedFits": 0,
+      "nationalCoverage90": 0.8472222222222223,
+      "municipalCoverage90": 0.8734250286241464,
+      "coverageShortfall": 0.03772321428571428,
+      "wis": 0.0319278860159247,
+      "meanMae": 0.05879864266209545,
+      "tailRate": 0.0078125,
+      "maxFitSeconds": 0.17542019499999384,
+      "maxGenerationSeconds": 0.07526047399999669
+    }
+  ],
+  "selected": "kind-common-conservative",
+  "seconds": 36.207823675,
+  "sourceHashes": {
+    "study_fast.py": "1ce3baca3e0cd2fd54dd2b644af60ea7fe16b8dfe30067988708b53e83e16372",
+    "run_fast.py": "181564bf264a8b13b6c34074932a339393d6233e0c238f6b53266c07bd986e6d",
+    "fast_party_model.py": "ac9dfdcffe045fcfb6007278aec6f1f213ef7b98e66300cbc72753cc935aa6e0",
+    "modular_geography.py": "816cba385d0a1327694319944a2c85576ef5a3a527a8ed5b87a33473c8ee76d9",
+    "simplex_gibbs.cpp": "6a6deef1c9547105b14ac802bacc496f4964708079ca6ac77cb16c836ec44707"
+  },
+  "interpretation": "Research comparison only; 128 draws are screening, small election counts limit calibration claims; no production acceptance"
+}

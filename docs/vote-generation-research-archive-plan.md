@@ -8,6 +8,11 @@ are executed by this document. Inventory and preserve small evidence before
 implementation; move code and remove outputs after production acceptance and
 dependency separation. Keep active production instructions short and task-local.
 
+FV-01's [evidence index](../research/vote-generation/README.md) now provides the
+frozen exact inventory, selected evidence/omission manifest and default physical
+domain. Research source locations are unchanged; this is preservation before
+FV-09, not an executed archive or deletion authorization.
+
 Archive the endpoint, six-category, fixed-outcome drift, party-level exact/
 Laplace/importance/Stan and fast share-model **research** together. Keep the fast
 model's maintained production contract, engine, source data and acceptance tests

@@ -12,10 +12,10 @@ checklist is in [MIGRATION_PLAN.md](../MIGRATION_PLAN.md); record evidence in
 
 | Task | Read |
 | --- | --- |
-| Implement the numerical model | Approved report, sections National reference estimation through Municipal predictive module; FV-01/02/04 below |
-| Prepare or load production assets | Delivery and bundle contracts; FV-03/05/06 |
-| Edit scenarios or integrate workers/results | Reuse table and FV-06/07; existing [application guide](politics-reform-2026-application.md) |
-| Validate and switch defaults | FV-08 |
+| Implement the numerical model | [Maintained equations](vote-generation-fast-model.md), then FV-02/04 below |
+| Prepare or load production assets | [Frozen data/scenario contracts](vote-generation-fast-contracts.md); FV-03/05/06 |
+| Edit scenarios or integrate workers/results | [Reference/chamber rules](vote-generation-fast-references.md), contract reuse matrix and FV-06/07; existing [application guide](politics-reform-2026-application.md) |
+| Validate and switch defaults | [Frozen validation protocol](vote-generation-fast-validation.md), then FV-08 |
 | Archive research or reclaim generated files | Separate [archive plan](vote-generation-research-archive-plan.md) and FV-09 |
 
 The earlier latent-state/Stan model, its posterior gate and its staged research
@@ -108,8 +108,8 @@ The new scenario owns:
 - Separate reference and election dates, reference shares and uncertainty units
   (valid-vote fractions, SD in percentage points), turnout/non-valid inputs,
   national/local uncertainty controls and common/chamber/geographic overrides.
-  Reference inputs are interventions on latent reference support, not fictitious
-  polls or claims that historical information was reconditioned.
+Reference inputs are interventions on latent reference support, not fictitious
+polls or claims that historical information was reconditioned.
 - Bundled poll selections plus user-entered poll observations and provenance:
   question/choices, fieldwork and publication dates, election context, survey
   identity/error group, sample/effective sample policy and normalization.
@@ -124,9 +124,11 @@ zero, and supplied vote/preference precedence. Translate these into documented
 fast-model operations; do not accidentally retain old log-odds noise on top of
 the new uncertainty budget. An exact reference constrains the aggregate latent
 reference share, not every municipal share or later integer count. The research
-prototype handles disjoint exact references and only one uncertain reference;
-FV-01 must specify and FV-04 must validate the production combination of multiple
-uncertain references, common/chamber constraints and local scopes. Reject
+prototype handles disjoint exact references and only one uncertain reference.
+The [FV-01 reference contract](vote-generation-fast-references.md) specifies the
+production combination of multiple uncertain references, common/chamber
+constraints and local scopes; FV-04 must implement and validate it. List-reference
+edits preserve turnout; non-valid changes use a separate input. Reject
 inconsistent constraints explicitly; do not silently ignore an input or impose
 that prototype limitation on the existing multi-list editor.
 
@@ -388,6 +390,8 @@ storage. Report transfer, decompression, fit and generation separately. Measure
 the full current default, maximum supported components/polls and worker counts;
 bound supported input sizes explicitly if necessary. These are targets, not
 claims derived from Python timings. Record changes before accepting defaults.
+Use the [FV-01 validation protocol](vote-generation-fast-validation.md) for
+predeclared seeds, numerical/Monte Carlo gates, predictive comparisons and limits.
 
 Require `check`, `check:data`, meaningful unit/numerical tests, production data
 checks, static build and browser workflow/result/export checks at `/` and

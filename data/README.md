@@ -5,7 +5,7 @@
 | Geography, census and seat tables | Workflow below |
 | Historical votes/preferences and reform generation models | [Generation guide](../docs/politics-reform-2026-generation.md#clean-clone-preparation) |
 | Selected poll archive and reconciliation | [Poll preparation](../docs/polls-preparation.md) |
-| New fast vote model, compact data and browser refitting (2026 reform only) | [Production plan](../docs/vote-generation-production-plan.md) |
+| New fast vote model, compact data and browser refitting (2026 reform only) | [Data/scenario contract](../docs/vote-generation-fast-contracts.md), [production plan](../docs/vote-generation-production-plan.md) |
 | Historical vote-generation research retention and cleanup | [Archive plan](../docs/vote-generation-research-archive-plan.md) |
 
 The reviewed poll JSON is the explicit small Git-tracked exception under

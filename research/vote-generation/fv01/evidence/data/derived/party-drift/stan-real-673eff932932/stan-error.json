@@ -1,0 +1,18 @@
+{
+  "modelHash": "9b5fe67195f0366140f4cee785a713199780a4d905fb9f8d6a329acdc1caef23",
+  "policy": {
+    "chains": 4,
+    "warmup": 1000,
+    "sampling": 1000,
+    "adaptDelta": 0.95,
+    "maxTreedepth": 12,
+    "seed": 20261026,
+    "maxRhat": 1.05,
+    "minEss": 400
+  },
+  "seconds": 349.55027634,
+  "peakSamplingProcessBytes": 87990272,
+  "error": "Error during sampling:\n\nCommand and output files:\nRunSet: chains=4, chain_ids=[1, 2, 3, 4], num_processes=4\n cmd (chain 1):\n\t['/home/forna/.cache/elezioni-research/models/9b5fe67195f0/real-party-drift', 'id=1', 'random', 'seed=20261026', 'data', 'file=/mnt/c/Users/forna/Repos/elezioni/data/derived/party-drift/stan-real-673eff932932/data.json', 'init=/mnt/c/Users/forna/Repos/elezioni/data/derived/party-drift/stan-real-673eff932932/initial.json', 'output', 'file=/home/forna/.cache/elezioni-research/models/9b5fe67195f0/20261026-150411/real-party-drift-20261026160411_1.csv', 'refresh=100', 'method=sample', 'num_samples=1000', 'num_warmup=1000', 'algorithm=hmc', 'engine=nuts', 'max_depth=12', 'stepsize=0.05', 'metric=diag_e', 'metric_file=/mnt/c/Users/forna/Repos/elezioni/data/derived/party-drift/stan-real-673eff932932/metric.json', 'adapt', 'engaged=1', 'delta=0.95']\n retcodes=[-2, -2, -2, -2]\n per-chain output files (showing chain 1 only):\n csv_file:\n\t/home/forna/.cache/elezioni-research/models/9b5fe67195f0/20261026-150411/real-party-drift-20261026160411_1.csv\n console_msgs (if any):\n\t/home/forna/.cache/elezioni-research/models/9b5fe67195f0/20261026-150411/real-party-drift-20261026160411_0-stdout.txt",
+  "passed": false,
+  "fullDataFitStarted": false
+}

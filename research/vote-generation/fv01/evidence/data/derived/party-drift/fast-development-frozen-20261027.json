@@ -1,0 +1,14 @@
+{
+  "frozenOn": "2026-10-27",
+  "selected": "kind-common-conservative",
+  "selectionSource": "fast-development-all-20261027/summary.json",
+  "sourceHashes": {
+    "study_fast.py": "1ce3baca3e0cd2fd54dd2b644af60ea7fe16b8dfe30067988708b53e83e16372",
+    "run_fast.py": "181564bf264a8b13b6c34074932a339393d6233e0c238f6b53266c07bd986e6d",
+    "fast_party_model.py": "ac9dfdcffe045fcfb6007278aec6f1f213ef7b98e66300cbc72753cc935aa6e0",
+    "modular_geography.py": "816cba385d0a1327694319944a2c85576ef5a3a527a8ed5b87a33473c8ee76d9",
+    "simplex_gibbs.cpp": "6a6deef1c9547105b14ac802bacc496f4964708079ca6ac77cb16c836ec44707"
+  },
+  "rule": "Freeze variant before 512-draw refinement and confirmation; no retuning from confirmation",
+  "scope": "Research only; production unchanged"
+}

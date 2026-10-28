@@ -1,0 +1,75 @@
+{
+  "modelHash": "bf8d88dd867fd706b0de97670e904d60c2d5420f339f6d0974cec5aca7358444",
+  "dataHash": "814c793bce3d5d3bdff66dd09eb875f2683c65e452a0a9dd5401cf9c4cfc62af",
+  "policy": {
+    "chains": 4,
+    "warmup": 512,
+    "sampling": 512,
+    "adaptDelta": 0.95,
+    "maxTreedepth": 12,
+    "seed": 20261026,
+    "maxRhat": 1.05,
+    "minEss": 400
+  },
+  "seconds": 0.717306697999998,
+  "peakSamplingProcessBytes": 30507008,
+  "maxRhat": 1.01012,
+  "minEss": 839.982,
+  "divergences": 0,
+  "maxTreedepthHits": 0,
+  "minBfmi": 0.9775551011509733,
+  "csvBytes": 1245300,
+  "scaleSummary": {
+    "sigma_n": {
+      "Mean": 0.300717,
+      "MCSE": 0.00443988,
+      "StdDev": 0.168518,
+      "MAD": 0.143104,
+      "5%": 0.102517,
+      "50%": 0.265832,
+      "95%": 0.624873,
+      "ESS_bulk": 1605.12,
+      "ESS_tail": 1550.94,
+      "ESS_bulk/s": 1483.48,
+      "R_hat": 1.00014
+    },
+    "sigma_l": {
+      "Mean": 0.602801,
+      "MCSE": 0.0047945,
+      "StdDev": 0.173547,
+      "MAD": 0.167831,
+      "5%": 0.350789,
+      "50%": 0.585342,
+      "95%": 0.91179,
+      "ESS_bulk": 1347.07,
+      "ESS_tail": 1472.53,
+      "ESS_bulk/s": 1244.98,
+      "R_hat": 1.00094
+    }
+  },
+  "meanLeapfrogSteps": 31.921875,
+  "meanAcceptance": 0.953385104921875,
+  "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+  "cmdstan": [
+    2,
+    37
+  ],
+  "cmdstanpy": "1.3.0",
+  "fullDataFitStarted": false,
+  "timeGateWaived": true,
+  "scope": "Real-data common-volatility literal-link conditional-scale stage-0 pilot; no fit acceptance for stages 1-7",
+  "passed": true,
+  "roughFullScaleEstimate": {
+    "municipalityRatio": 4025.5,
+    "secondsLinear": 2887.518112798992,
+    "peakBytesLinear": 122805960704.0,
+    "csvBytesLinear": 5012955150.0,
+    "caveat": "Gross city-linear extrapolation only; NUTS step size, mixing and shared national work need not scale linearly; full hyperprior/aggregate variants add work"
+  },
+  "csvFiles": [
+    "/mnt/c/Users/forna/Repos/elezioni/data/derived/party-drift/stan-real-89175c20f1ea/stan-csv/collapsed-party-drift-20261027005529_1.csv",
+    "/mnt/c/Users/forna/Repos/elezioni/data/derived/party-drift/stan-real-89175c20f1ea/stan-csv/collapsed-party-drift-20261027005529_2.csv",
+    "/mnt/c/Users/forna/Repos/elezioni/data/derived/party-drift/stan-real-89175c20f1ea/stan-csv/collapsed-party-drift-20261027005529_3.csv",
+    "/mnt/c/Users/forna/Repos/elezioni/data/derived/party-drift/stan-real-89175c20f1ea/stan-csv/collapsed-party-drift-20261027005529_4.csv"
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "version": "importance-geography-465f924ff57e",
+  "versions": [
+    {
+      "path": "party-drift-importance-stress-cli.ts",
+      "sha256": "ded5fd03666d573b170baa88e547cc51799eceb5418ae465409a6a18fd1a6df9"
+    },
+    {
+      "path": "party-drift-fit.ts",
+      "sha256": "6ac7c354d1708278d174f6d3225090dd431e94a43d4e6119a90de83936d4fd21"
+    },
+    {
+      "path": "party-drift-importance.ts",
+      "sha256": "c82480363fd1fa547c359567741aeb208294af4e635b1cac13a42ec801577021"
+    },
+    {
+      "path": "party-drift-reference.ts",
+      "sha256": "698a9a15f99ed37d9258d089e8efea3c057b29dabcc25ecce89efc6ff92d7b56"
+    },
+    {
+      "path": "party-drift-likelihood.ts",
+      "sha256": "ffbeb6412cbc88978ad864a372ed3df48fa163ee888c9f4f01b7fa25ad0e76a2"
+    },
+    {
+      "path": "party-drift-prior.ts",
+      "sha256": "5dd9fc0b6bb9f7bb73b3c0af6801a56a17b89d48578cf9e5eba9813ada65ff50"
+    },
+    {
+      "path": "drift-math.ts",
+      "sha256": "1209cc3d9bf5385946c587504f1130d5cd4aee9f7738611d65f8b8198aeafc89"
+    },
+    {
+      "path": "drift-gaussian.ts",
+      "sha256": "260e12defdeca8d804131f63a92c556b51635142f3a281cfa2a351145f11c381"
+    }
+  ],
+  "policy": {
+    "cities": [
+      1,
+      8,
+      32,
+      60
+    ],
+    "draws": 32768,
+    "minEss": 1000,
+    "maxWeight": 0.02,
+    "share": 0.2,
+    "sdPp": 15
+  },
+  "results": [
+    {
+      "cities": 1,
+      "dimension": 6,
+      "fitSeconds": 0.003453000000000003,
+      "replicate": [
+        {
+          "ess": 1749.4890897759371,
+          "maxWeight": 0.011455493300531396,
+          "seconds": 0.12538169999999996,
+          "evaluations": 32768
+        },
+        {
+          "ess": 1804.679281963048,
+          "maxWeight": 0.014541332363201476,
+          "seconds": 0.11188499999999998,
+          "evaluations": 32768
+        }
+      ],
+      "passed": true
+    },
+    {
+      "cities": 8,
+      "dimension": 27,
+      "fitSeconds": 0.1987611,
+      "replicate": [
+        {
+          "ess": 174.0624651491965,
+          "maxWeight": 0.04753830117457192,
+          "seconds": 0.6500189000000001,
+          "evaluations": 32768
+        },
+        {
+          "ess": 596.2080843464499,
+          "maxWeight": 0.02348828949938546,
+          "seconds": 0.6674336000000001,
+          "evaluations": 32768
+        }
+      ],
+      "passed": false
+    }
+  ],
+  "productionChanged": false
+}

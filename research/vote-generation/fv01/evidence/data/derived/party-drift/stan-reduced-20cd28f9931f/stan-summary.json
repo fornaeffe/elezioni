@@ -1,0 +1,258 @@
+{
+  "modelHash": "6e389344933f58a1956e00123708d31fa7c5f835aa28bbd02784ca2641bbdcd8",
+  "cmdstanVersion": [
+    2,
+    37
+  ],
+  "cmdstanpyVersion": "1.3.0",
+  "python": "3.12.12",
+  "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+  "policy": {
+    "chains": 4,
+    "warmup": 1000,
+    "sampling": 2000,
+    "adaptDelta": 0.95,
+    "maxTreedepth": 12,
+    "seed": 20261026,
+    "maxRhat": 1.05,
+    "minEss": 400,
+    "maxDivergences": 0
+  },
+  "results": [
+    {
+      "case": "soft-15pp-one-city",
+      "seconds": 0.17063521599999998,
+      "passed": true,
+      "maxRhat": 1.00157,
+      "minEss": 2853.76,
+      "divergences": 0,
+      "maxTreedepthHits": 0,
+      "ebfmi": [
+        0.9721110789089841,
+        0.9537111565199637,
+        0.9483904191266302,
+        0.9510957823922753
+      ],
+      "hardResidual": null,
+      "outputs": [
+        {
+          "mean": 0.302995179415,
+          "lower90": 0.2290597935,
+          "upper90": 0.38395252749999986,
+          "width90": 0.15489273399999987
+        },
+        {
+          "mean": 0.1209151287953875,
+          "lower90": 0.0177782889,
+          "upper90": 0.3310553355,
+          "width90": 0.3132770466
+        },
+        {
+          "mean": 0.27580746532861755,
+          "lower90": 0.056895747900000015,
+          "upper90": 0.4170491815,
+          "width90": 0.36015343359999996
+        },
+        {
+          "mean": 0.30028222654500003,
+          "lower90": 0.228054776,
+          "upper90": 0.3767177505,
+          "width90": 0.14866297450000002
+        },
+        {
+          "mean": 0.30804943297212495,
+          "lower90": 0.045405460450000004,
+          "upper90": 0.8499841664999992,
+          "width90": 0.8045787060499991
+        },
+        {
+          "mean": -1.0278461023517411,
+          "lower90": -3.045654335,
+          "upper90": 1.7344781499999935,
+          "width90": 4.780132484999994
+        }
+      ],
+      "independentReferenceComparison": [
+        {
+          "meanDifference": -0.0005735504694309723,
+          "widthRatio": 1.0285682058401195
+        },
+        {
+          "meanDifference": 0.002952906388624346,
+          "widthRatio": 1.0322226132890313
+        },
+        {
+          "meanDifference": -0.002916249171338259,
+          "widthRatio": 1.013133835696432
+        },
+        {
+          "meanDifference": 0.0005368933361508121,
+          "widthRatio": 0.9931682285921106
+        },
+        {
+          "meanDifference": 0.007584985879888095,
+          "widthRatio": 1.0210196152503894
+        },
+        {
+          "meanDifference": 0.04213063795321781,
+          "widthRatio": 1.023660463973023
+        }
+      ],
+      "csvFiles": [
+        "/mnt/c/Users/forna/Repos/elezioni/data/derived/party-drift/stan-reduced-20cd28f9931f/stan-csv/soft-15pp-one-city/restricted-party-drift-20261026142850_1.csv",
+        "/mnt/c/Users/forna/Repos/elezioni/data/derived/party-drift/stan-reduced-20cd28f9931f/stan-csv/soft-15pp-one-city/restricted-party-drift-20261026142850_2.csv",
+        "/mnt/c/Users/forna/Repos/elezioni/data/derived/party-drift/stan-reduced-20cd28f9931f/stan-csv/soft-15pp-one-city/restricted-party-drift-20261026142850_3.csv",
+        "/mnt/c/Users/forna/Repos/elezioni/data/derived/party-drift/stan-reduced-20cd28f9931f/stan-csv/soft-15pp-one-city/restricted-party-drift-20261026142850_4.csv"
+      ]
+    },
+    {
+      "case": "soft-15pp-eight-cities",
+      "seconds": 1.4291870270000002,
+      "passed": true,
+      "maxRhat": 1.00226,
+      "minEss": 2242.65,
+      "divergences": 0,
+      "maxTreedepthHits": 0,
+      "ebfmi": [
+        0.9599025224378652,
+        1.0254511169164056,
+        1.0202710182241328,
+        1.067986227317995
+      ],
+      "hardResidual": null,
+      "outputs": [
+        {
+          "mean": 0.30052743083625,
+          "lower90": 0.273866896,
+          "upper90": 0.3272916384999999,
+          "width90": 0.0534247424999999
+        },
+        {
+          "mean": 0.1373561032881,
+          "lower90": 0.0261195598,
+          "upper90": 0.30510336599999993,
+          "width90": 0.2789838061999999
+        },
+        {
+          "mean": 0.26210732735975,
+          "lower90": 0.09356280405,
+          "upper90": 0.377731382,
+          "width90": 0.28416857795
+        },
+        {
+          "mean": 0.30000913848125005,
+          "lower90": 0.27352347450000003,
+          "upper90": 0.3274158715,
+          "width90": 0.05389239699999998
+        },
+        {
+          "mean": 0.34409451373766253,
+          "lower90": 0.0654747059,
+          "upper90": 0.7660288299999999,
+          "width90": 0.7005541240999998
+        },
+        {
+          "mean": -0.8513861811423038,
+          "lower90": -3.06199976,
+          "upper90": 1.5520900449999997,
+          "width90": 4.614089805
+        }
+      ],
+      "independentReferenceComparison": null,
+      "csvFiles": [
+        "/mnt/c/Users/forna/Repos/elezioni/data/derived/party-drift/stan-reduced-20cd28f9931f/stan-csv/soft-15pp-eight-cities/restricted-party-drift-20261026142851_1.csv",
+        "/mnt/c/Users/forna/Repos/elezioni/data/derived/party-drift/stan-reduced-20cd28f9931f/stan-csv/soft-15pp-eight-cities/restricted-party-drift-20261026142851_2.csv",
+        "/mnt/c/Users/forna/Repos/elezioni/data/derived/party-drift/stan-reduced-20cd28f9931f/stan-csv/soft-15pp-eight-cities/restricted-party-drift-20261026142851_3.csv",
+        "/mnt/c/Users/forna/Repos/elezioni/data/derived/party-drift/stan-reduced-20cd28f9931f/stan-csv/soft-15pp-eight-cities/restricted-party-drift-20261026142851_4.csv"
+      ]
+    },
+    {
+      "case": "hard-one-city",
+      "seconds": 0.17847568599999963,
+      "passed": true,
+      "maxRhat": 1.00147,
+      "minEss": 3173.09,
+      "divergences": 0,
+      "maxTreedepthHits": 0,
+      "ebfmi": [
+        1.0198058283785698,
+        1.0708665992677795,
+        1.005861798776431,
+        0.9864091384631068
+      ],
+      "hardResidual": 0.0,
+      "outputs": [
+        {
+          "mean": 0.30435007216,
+          "lower90": 0.2298870975,
+          "upper90": 0.3820878345,
+          "width90": 0.152200737
+        },
+        {
+          "mean": 0.13912998558624998,
+          "lower90": 0.123582431,
+          "upper90": 0.15402257849999998,
+          "width90": 0.030440147499999973
+        },
+        {
+          "mean": 0.255879966053125,
+          "lower90": 0.18375367950000002,
+          "upper90": 0.33267350199999995,
+          "width90": 0.14891982249999994
+        },
+        {
+          "mean": 0.300639976175,
+          "lower90": 0.2271600925,
+          "upper90": 0.3788585905,
+          "width90": 0.151698498
+        },
+        {
+          "mean": 0.35634351796875,
+          "lower90": 0.30064765499999996,
+          "upper90": 0.42685285399999995,
+          "width90": 0.126205199
+        },
+        {
+          "mean": -0.5951702456880088,
+          "lower90": -0.844215693,
+          "upper90": -0.2947031495000003,
+          "width90": 0.5495125434999997
+        }
+      ],
+      "independentReferenceComparison": [
+        {
+          "meanDifference": 0.0003669598097375548,
+          "widthRatio": 1.0220871420858764
+        },
+        {
+          "meanDifference": -7.339194369809787e-05,
+          "widthRatio": 1.022087145447308
+        },
+        {
+          "meanDifference": -0.000105421511191639,
+          "widthRatio": 1.0196809549243397
+        },
+        {
+          "meanDifference": -0.0001881463804730421,
+          "widthRatio": 1.0095742142593718
+        },
+        {
+          "meanDifference": 0.0001321928441838094,
+          "widthRatio": 1.0148058852729145
+        },
+        {
+          "meanDifference": 0.000492472103301278,
+          "widthRatio": 1.0148740213676828
+        }
+      ],
+      "csvFiles": [
+        "/mnt/c/Users/forna/Repos/elezioni/data/derived/party-drift/stan-reduced-20cd28f9931f/stan-csv/hard-one-city/restricted-party-drift-20261026142854_1.csv",
+        "/mnt/c/Users/forna/Repos/elezioni/data/derived/party-drift/stan-reduced-20cd28f9931f/stan-csv/hard-one-city/restricted-party-drift-20261026142854_2.csv",
+        "/mnt/c/Users/forna/Repos/elezioni/data/derived/party-drift/stan-reduced-20cd28f9931f/stan-csv/hard-one-city/restricted-party-drift-20261026142854_3.csv",
+        "/mnt/c/Users/forna/Repos/elezioni/data/derived/party-drift/stan-reduced-20cd28f9931f/stan-csv/hard-one-city/restricted-party-drift-20261026142854_4.csv"
+      ]
+    }
+  ],
+  "timeGateWaived": true,
+  "fullDataFitStarted": false
+}

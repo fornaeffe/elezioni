@@ -1,0 +1,784 @@
+{
+  "current": {
+    "development": {
+      "nationalPoliticalValid": {
+        "coverage50": 0.140625,
+        "coverage80": 0.46875,
+        "coverage90": 0.515625,
+        "coverage95": 0.609375,
+        "width90": 0.17744242141853386,
+        "intervalScore90": 0.9327294835765121,
+        "wis": 0.06102961592515098,
+        "meanMae": 0.09912717906842347,
+        "meanRmse": 0.12139637116121679,
+        "meanBias": 0.0
+      },
+      "regionalPoliticalValid": {
+        "coverage50": 0.28700657894736825,
+        "coverage80": 0.5205592105263157,
+        "coverage90": 0.6167763157894737,
+        "coverage95": 0.6825657894736844,
+        "width90": 0.22353708065000308,
+        "intervalScore90": 0.9215094612116791,
+        "wis": 0.06224030164997856,
+        "meanMae": 0.10260237521854804,
+        "meanRmse": 0.13041299543864662,
+        "meanBias": -1.4026865606531214e-18
+      },
+      "municipalPoliticalValid": {
+        "coverage50": 0.34603134067848473,
+        "coverage80": 0.5822036923918298,
+        "coverage90": 0.6733997013769314,
+        "coverage95": 0.7322361881227311,
+        "width90": 0.268504031778356,
+        "intervalScore90": 0.8876448524042625,
+        "wis": 0.06228128140216615,
+        "meanMae": 0.10548652023416866,
+        "meanRmse": 0.13571387913128524,
+        "meanBias": 1.0494215438333648e-17
+      },
+      "nationalNonvalid": {
+        "predictiveMean": 0.3255890043027289,
+        "predictiveMedian": 0.324169401052106,
+        "coverage50": 0.8125,
+        "coverage80": 1,
+        "coverage90": 1,
+        "coverage95": 1,
+        "width90": 0.27407770035775075,
+        "intervalScore90": 0.27407770035775075,
+        "wis": 0.0223732921113028,
+        "meanMae": 0.04241989218793675,
+        "meanRmse": 0.04704708654404067,
+        "meanBias": -0.04241989218793675
+      },
+      "regionalNonvalid": {
+        "coverage50": 0.7532894736842103,
+        "coverage80": 0.9605263157894732,
+        "coverage90": 0.9769736842105259,
+        "coverage95": 0.9934210526315785,
+        "width90": 0.3132108017972857,
+        "intervalScore90": 0.31943588039360177,
+        "wis": 0.0253635165861356,
+        "meanMae": 0.042200898799833055,
+        "meanRmse": 0.05173234148719911,
+        "meanBias": -0.040260208271334204
+      },
+      "municipalNonvalid": {
+        "coverage50": 0.7113361318637261,
+        "coverage80": 0.910329008138313,
+        "coverage90": 0.9467261937849433,
+        "coverage95": 0.9642824823852283,
+        "width90": 0.3430873848039893,
+        "intervalScore90": 0.40098582530389765,
+        "wis": 0.03250904581262647,
+        "meanMae": 0.05479389846610455,
+        "meanRmse": 0.07483679223801142,
+        "meanBias": -0.041801063184253945
+      }
+    },
+    "confirmation": {
+      "nationalPoliticalValid": {
+        "coverage50": 0.21875,
+        "coverage80": 0.3125,
+        "coverage90": 0.375,
+        "coverage95": 0.40625,
+        "width90": 0.18026703310396844,
+        "intervalScore90": 0.9524457331546761,
+        "wis": 0.06427025537594891,
+        "meanMae": 0.10463880747230038,
+        "meanRmse": 0.13526300686351952,
+        "meanBias": -3.0357660829594124e-18
+      },
+      "regionalPoliticalValid": {
+        "coverage50": 0.3141447368421051,
+        "coverage80": 0.4835526315789472,
+        "coverage90": 0.6200657894736843,
+        "coverage95": 0.7203947368421055,
+        "width90": 0.2428264355294707,
+        "intervalScore90": 0.7063575852542,
+        "wis": 0.05580627434054455,
+        "meanMae": 0.10564687761336186,
+        "meanRmse": 0.1375752506251233,
+        "meanBias": 1.8079071226195786e-17
+      },
+      "municipalPoliticalValid": {
+        "coverage50": 0.3417765843930907,
+        "coverage80": 0.5522031490696095,
+        "coverage90": 0.6683919106147689,
+        "coverage95": 0.748633101388546,
+        "width90": 0.2851431006476489,
+        "intervalScore90": 0.7720750112632536,
+        "wis": 0.06176277464409926,
+        "meanMae": 0.11935169034724614,
+        "meanRmse": 0.15887161301375377,
+        "meanBias": 1.3066449358353045e-17
+      },
+      "nationalNonvalid": {
+        "predictiveMean": 0.36304424693333504,
+        "predictiveMedian": 0.36408130835843966,
+        "coverage50": 0,
+        "coverage80": 0.875,
+        "coverage90": 1,
+        "coverage95": 1,
+        "width90": 0.278209949122627,
+        "intervalScore90": 0.278209949122627,
+        "wis": 0.03536312592575648,
+        "meanMae": 0.09650855032250583,
+        "meanRmse": 0.0973206452702616,
+        "meanBias": -0.09650855032250583
+      },
+      "regionalNonvalid": {
+        "coverage50": 0.09868421052631579,
+        "coverage80": 0.8092105263157893,
+        "coverage90": 0.9868421052631575,
+        "coverage95": 0.9934210526315785,
+        "width90": 0.3159715681462697,
+        "intervalScore90": 0.31920545858849003,
+        "wis": 0.038031199682555035,
+        "meanMae": 0.1010747745662768,
+        "meanRmse": 0.1057564467568262,
+        "meanBias": -0.1010747745662768
+      },
+      "municipalNonvalid": {
+        "coverage50": 0.2746098669108584,
+        "coverage80": 0.7928573578975284,
+        "coverage90": 0.9180188086795933,
+        "coverage95": 0.9621735270518205,
+        "width90": 0.3507813735012943,
+        "intervalScore90": 0.407314625481897,
+        "wis": 0.042768578059050016,
+        "meanMae": 0.10311236005504505,
+        "meanRmse": 0.11438948112321441,
+        "meanBias": -0.09933314813151978
+      }
+    }
+  },
+  "literal.pooled.common.common.independent.brownian": {
+    "development": {
+      "nationalPoliticalValid": {
+        "coverage50": 0.359375,
+        "coverage80": 0.640625,
+        "coverage90": 0.75,
+        "coverage95": 0.796875,
+        "width90": 0.2741274791632232,
+        "intervalScore90": 0.5790462158081199,
+        "wis": 0.04507350195562026,
+        "meanMae": 0.0837571478285876,
+        "meanRmse": 0.10487902983421139,
+        "meanBias": -2.2876665839444144e-17
+      },
+      "regionalPoliticalValid": {
+        "coverage50": 0.3618421052631577,
+        "coverage80": 0.5962171052631579,
+        "coverage90": 0.6817434210526317,
+        "coverage95": 0.7500000000000003,
+        "width90": 0.2740751245652802,
+        "intervalScore90": 0.6666672079883831,
+        "wis": 0.04973680252123748,
+        "meanMae": 0.088902780702672,
+        "meanRmse": 0.11377648312343291,
+        "meanBias": 3.818424526222386e-18
+      },
+      "municipalPoliticalValid": {
+        "coverage50": 0.5263514668738856,
+        "coverage80": 0.7642443877470795,
+        "coverage90": 0.8505173347755403,
+        "coverage95": 0.9006590903203254,
+        "width90": 0.39992959180514137,
+        "intervalScore90": 0.605469918806534,
+        "wis": 0.049264208640380294,
+        "meanMae": 0.0902639845309164,
+        "meanRmse": 0.11624622569437966,
+        "meanBias": 1.0065385156451457e-17
+      },
+      "nationalNonvalid": {
+        "predictiveMean": 0.3668088024294168,
+        "predictiveMedian": 0.3578240807878887,
+        "coverage50": 0.3125,
+        "coverage80": 0.625,
+        "coverage90": 1,
+        "coverage95": 1,
+        "width90": 0.49693262978902575,
+        "intervalScore90": 0.49693262978902575,
+        "wis": 0.05564864186249583,
+        "meanMae": 0.1340815990067839,
+        "meanRmse": 0.13987443741743655,
+        "meanBias": -0.0012000940612488034
+      },
+      "regionalNonvalid": {
+        "coverage50": 0.36842105263157887,
+        "coverage80": 0.720394736842105,
+        "coverage90": 0.8914473684210523,
+        "coverage95": 0.9703947368421049,
+        "width90": 0.50780595549263,
+        "intervalScore90": 0.5771633482170355,
+        "wis": 0.06101427551116407,
+        "meanMae": 0.14179271618459036,
+        "meanRmse": 0.15326338908871542,
+        "meanBias": 0.0007077204772055724
+      },
+      "municipalNonvalid": {
+        "coverage50": 0.596170353506261,
+        "coverage80": 0.8366111333414713,
+        "coverage90": 0.9190178679668985,
+        "coverage95": 0.9656402764155002,
+        "width90": 0.6002275296241996,
+        "intervalScore90": 0.6864690567292331,
+        "wis": 0.06385007677771805,
+        "meanMae": 0.12737366603714603,
+        "meanRmse": 0.1553561520154,
+        "meanBias": -0.0017970587296606427
+      }
+    },
+    "confirmation": {
+      "nationalPoliticalValid": {
+        "coverage50": 0.40625,
+        "coverage80": 0.8125,
+        "coverage90": 0.90625,
+        "coverage95": 0.9375,
+        "width90": 0.256786169446394,
+        "intervalScore90": 0.30589057157418775,
+        "wis": 0.02777683987453251,
+        "meanMae": 0.06330375383856145,
+        "meanRmse": 0.08028692772635271,
+        "meanBias": 4.5102810375396984e-17
+      },
+      "regionalPoliticalValid": {
+        "coverage50": 0.47039473684210503,
+        "coverage80": 0.7467105263157898,
+        "coverage90": 0.8618421052631586,
+        "coverage95": 0.9210526315789482,
+        "width90": 0.26358045669213725,
+        "intervalScore90": 0.34431283645260824,
+        "wis": 0.030659838374495384,
+        "meanMae": 0.06553386740440692,
+        "meanRmse": 0.08738032021314036,
+        "meanBias": -3.876022766635678e-18
+      },
+      "municipalPoliticalValid": {
+        "coverage50": 0.6502755550953024,
+        "coverage80": 0.9080762238764075,
+        "coverage90": 0.9598165431325397,
+        "coverage95": 0.9773107537937634,
+        "width90": 0.38549934431016686,
+        "intervalScore90": 0.41723287114692076,
+        "wis": 0.03575675479054489,
+        "meanMae": 0.07685768426099555,
+        "meanRmse": 0.1043016723017885,
+        "meanBias": 1.2108110987873609e-17
+      },
+      "nationalNonvalid": {
+        "predictiveMean": 0.40326814234086866,
+        "predictiveMedian": 0.3872012549663371,
+        "coverage50": 0.625,
+        "coverage80": 1,
+        "coverage90": 1,
+        "coverage95": 1,
+        "width90": 0.5470171390183015,
+        "intervalScore90": 0.5470171390183015,
+        "wis": 0.047605046942699486,
+        "meanMae": 0.08500571628349973,
+        "meanRmse": 0.10261783223899625,
+        "meanBias": -0.05628465491497218
+      },
+      "regionalNonvalid": {
+        "coverage50": 0.5921052631578945,
+        "coverage80": 0.9868421052631575,
+        "coverage90": 0.9999999999999996,
+        "coverage95": 0.9999999999999996,
+        "width90": 0.5534102582414473,
+        "intervalScore90": 0.5534102582414473,
+        "wis": 0.04868514716159753,
+        "meanMae": 0.08898472163557854,
+        "meanRmse": 0.1076806678342189,
+        "meanBias": -0.06029874110651392
+      },
+      "municipalNonvalid": {
+        "coverage50": 0.7269714858158298,
+        "coverage80": 0.9391732774359659,
+        "coverage90": 0.9849731782242154,
+        "coverage95": 0.9952310843680313,
+        "width90": 0.6436618059869755,
+        "intervalScore90": 0.6547153051407285,
+        "wis": 0.05814979146291084,
+        "meanMae": 0.10179465484514237,
+        "meanRmse": 0.1273691393860008,
+        "meanBias": -0.053128335230565676
+      }
+    }
+  },
+  "aggregate.adjusted.common.common.independent.brownian": {
+    "development": {
+      "nationalPoliticalValid": {
+        "coverage50": 0.296875,
+        "coverage80": 0.6875,
+        "coverage90": 0.828125,
+        "coverage95": 0.90625,
+        "width90": 0.24423191957715173,
+        "intervalScore90": 0.3789887705207309,
+        "wis": 0.033403325333623515,
+        "meanMae": 0.06822585701283362,
+        "meanRmse": 0.08855184757615091,
+        "meanBias": 9.75781955236954e-18
+      },
+      "regionalPoliticalValid": {
+        "coverage50": 0.3675986842105261,
+        "coverage80": 0.6291118421052632,
+        "coverage90": 0.7335526315789477,
+        "coverage95": 0.7861842105263163,
+        "width90": 0.24967764197611444,
+        "intervalScore90": 0.5089898938738522,
+        "wis": 0.04066182613205118,
+        "meanMae": 0.07600642629279836,
+        "meanRmse": 0.1007793010191119,
+        "meanBias": -3.739332824772516e-18
+      },
+      "municipalPoliticalValid": {
+        "coverage50": 0.5821290596772907,
+        "coverage80": 0.8381625700762618,
+        "coverage90": 0.9059008625110169,
+        "coverage95": 0.9426229028547849,
+        "width90": 0.39450812402582736,
+        "intervalScore90": 0.49850291491309534,
+        "wis": 0.042079132932211445,
+        "meanMae": 0.07798384398333486,
+        "meanRmse": 0.10420521671918306,
+        "meanBias": 1.0739919513125174e-17
+      },
+      "nationalNonvalid": {
+        "predictiveMean": 0.3772373655735308,
+        "predictiveMedian": 0.36277284567884904,
+        "coverage50": 0.875,
+        "coverage80": 1,
+        "coverage90": 1,
+        "coverage95": 1,
+        "width90": 0.5306421852964781,
+        "intervalScore90": 0.5306421852964781,
+        "wis": 0.03976883618185295,
+        "meanMae": 0.0729771761187672,
+        "meanRmse": 0.08002647245240421,
+        "meanBias": 0.009228469082865166
+      },
+      "regionalNonvalid": {
+        "coverage50": 0.7894736842105261,
+        "coverage80": 0.9934210526315785,
+        "coverage90": 0.9999999999999996,
+        "coverage95": 0.9999999999999996,
+        "width90": 0.5404570089151496,
+        "intervalScore90": 0.5404570089151496,
+        "wis": 0.04255981039056843,
+        "meanMae": 0.0813142348504163,
+        "meanRmse": 0.09538559439259924,
+        "meanBias": 0.011551047660481907
+      },
+      "municipalNonvalid": {
+        "coverage50": 0.7926852739642276,
+        "coverage80": 0.9737272967111407,
+        "coverage90": 0.9945553387914075,
+        "coverage95": 0.9987959965286836,
+        "width90": 0.6287653959036863,
+        "intervalScore90": 0.6326204230634371,
+        "wis": 0.05156782831137831,
+        "meanMae": 0.08706429559480884,
+        "meanRmse": 0.11155281510117973,
+        "meanBias": 0.006524532073209214
+      }
+    },
+    "confirmation": {
+      "nationalPoliticalValid": {
+        "coverage50": 0.5,
+        "coverage80": 0.75,
+        "coverage90": 0.84375,
+        "coverage95": 0.875,
+        "width90": 0.22210100451997752,
+        "intervalScore90": 0.26665663406443163,
+        "wis": 0.025151545642660242,
+        "meanMae": 0.0537893206358385,
+        "meanRmse": 0.07492474643721432,
+        "meanBias": -2.168404344971009e-18
+      },
+      "regionalPoliticalValid": {
+        "coverage50": 0.5246710526315788,
+        "coverage80": 0.7006578947368423,
+        "coverage90": 0.8009868421052636,
+        "coverage95": 0.8733552631578955,
+        "width90": 0.23195643365296756,
+        "intervalScore90": 0.31936498728580076,
+        "wis": 0.02826588306613311,
+        "meanMae": 0.05831359391303129,
+        "meanRmse": 0.0815043283598112,
+        "meanBias": 2.9002408113987244e-18
+      },
+      "municipalPoliticalValid": {
+        "coverage50": 0.6652988919615966,
+        "coverage80": 0.9089252890903698,
+        "coverage90": 0.9674548410309077,
+        "coverage95": 0.9843505811034172,
+        "width90": 0.36700552963552635,
+        "intervalScore90": 0.3891350327766454,
+        "wis": 0.034157549409479605,
+        "meanMae": 0.07305135240600696,
+        "meanRmse": 0.10322469343158532,
+        "meanBias": 1.1859705341201485e-17
+      },
+      "nationalNonvalid": {
+        "predictiveMean": 0.4015455393920752,
+        "predictiveMedian": 0.3923155987703815,
+        "coverage50": 1,
+        "coverage80": 1,
+        "coverage90": 1,
+        "coverage95": 1,
+        "width90": 0.4968362890744199,
+        "intervalScore90": 0.4968362890744199,
+        "wis": 0.0369037072200037,
+        "meanMae": 0.058007257863765635,
+        "meanRmse": 0.06445310288668187,
+        "meanBias": -0.058007257863765635
+      },
+      "regionalNonvalid": {
+        "coverage50": 0.8815789473684208,
+        "coverage80": 0.9999999999999996,
+        "coverage90": 0.9999999999999996,
+        "coverage95": 0.9999999999999996,
+        "width90": 0.5017760705720486,
+        "intervalScore90": 0.5017760705720486,
+        "wis": 0.03836458174014407,
+        "meanMae": 0.06339364360139929,
+        "meanRmse": 0.07402524443766374,
+        "meanBias": -0.061573845046456556
+      },
+      "municipalNonvalid": {
+        "coverage50": 0.7464469325278581,
+        "coverage80": 0.9709917564921443,
+        "coverage90": 0.9942264920488949,
+        "coverage95": 0.9989602299765692,
+        "width90": 0.5962514406423705,
+        "intervalScore90": 0.6000253909728335,
+        "wis": 0.051696353279274514,
+        "meanMae": 0.0885251755078506,
+        "meanRmse": 0.10838206102797142,
+        "meanBias": -0.057364088438258236
+      }
+    }
+  },
+  "aggregate.adjusted.common.common.regional.brownian": {
+    "development": {
+      "nationalPoliticalValid": {
+        "coverage50": 0.421875,
+        "coverage80": 0.734375,
+        "coverage90": 0.875,
+        "coverage95": 0.953125,
+        "width90": 0.267402515272169,
+        "intervalScore90": 0.38609196981013666,
+        "wis": 0.0334322798617453,
+        "meanMae": 0.0668573935220472,
+        "meanRmse": 0.08778640227554523,
+        "meanBias": 2.7430314963883262e-17
+      },
+      "regionalPoliticalValid": {
+        "coverage50": 0.49588815789473667,
+        "coverage80": 0.7656250000000003,
+        "coverage90": 0.8314144736842111,
+        "coverage95": 0.8791118421052639,
+        "width90": 0.33091693283098234,
+        "intervalScore90": 0.49400507122556664,
+        "wis": 0.04018605739060219,
+        "meanMae": 0.07489199805910272,
+        "meanRmse": 0.09966254146387468,
+        "meanBias": -1.1534471159235435e-18
+      },
+      "municipalPoliticalValid": {
+        "coverage50": 0.5916026351081474,
+        "coverage80": 0.8452003407473742,
+        "coverage90": 0.9087297929405982,
+        "coverage95": 0.944887719095294,
+        "width90": 0.40438752284868923,
+        "intervalScore90": 0.5016564359421116,
+        "wis": 0.04229725327121719,
+        "meanMae": 0.0774578394981225,
+        "meanRmse": 0.10430158385128152,
+        "meanBias": 1.0529981073659215e-17
+      },
+      "nationalNonvalid": {
+        "predictiveMean": 0.36950671043533095,
+        "predictiveMedian": 0.34822843636506845,
+        "coverage50": 0.9375,
+        "coverage80": 1,
+        "coverage90": 1,
+        "coverage95": 1,
+        "width90": 0.5731110254951365,
+        "intervalScore90": 0.5731110254951365,
+        "wis": 0.04064270117358866,
+        "meanMae": 0.06019763854441506,
+        "meanRmse": 0.0666766200739763,
+        "meanBias": 0.0014978139446652841
+      },
+      "regionalNonvalid": {
+        "coverage50": 0.921052631578947,
+        "coverage80": 0.9999999999999996,
+        "coverage90": 0.9999999999999996,
+        "coverage95": 0.9999999999999996,
+        "width90": 0.6203444096776313,
+        "intervalScore90": 0.6203444096776313,
+        "wis": 0.04561086706751895,
+        "meanMae": 0.06887593896545105,
+        "meanRmse": 0.08280292513033426,
+        "meanBias": 0.0032606364160855995
+      },
+      "municipalNonvalid": {
+        "coverage50": 0.8372940522831257,
+        "coverage80": 0.9843172865724166,
+        "coverage90": 0.9973733436965921,
+        "coverage95": 0.9994455626037022,
+        "width90": 0.6560649878586655,
+        "intervalScore90": 0.657756387371122,
+        "wis": 0.052191373296278404,
+        "meanMae": 0.08030123613632867,
+        "meanRmse": 0.10365924320872047,
+        "meanBias": -0.0005662400231164352
+      }
+    },
+    "confirmation": {
+      "nationalPoliticalValid": {
+        "coverage50": 0.5,
+        "coverage80": 0.8125,
+        "coverage90": 0.90625,
+        "coverage95": 0.9375,
+        "width90": 0.24232884224207504,
+        "intervalScore90": 0.26954064610049017,
+        "wis": 0.02475676633096987,
+        "meanMae": 0.05225421666564934,
+        "meanRmse": 0.07399031430131689,
+        "meanBias": 6.5052130349130266e-18
+      },
+      "regionalPoliticalValid": {
+        "coverage50": 0.649671052631579,
+        "coverage80": 0.8898026315789481,
+        "coverage90": 0.9736842105263168,
+        "coverage95": 0.986842105263159,
+        "width90": 0.3148155363920518,
+        "intervalScore90": 0.3233368012250365,
+        "wis": 0.02816580658290333,
+        "meanMae": 0.058132057127483795,
+        "meanRmse": 0.08159953770910937,
+        "meanBias": -9.581636699340645e-18
+      },
+      "municipalPoliticalValid": {
+        "coverage50": 0.6840505793820234,
+        "coverage80": 0.9211095355447579,
+        "coverage90": 0.972399395756966,
+        "coverage95": 0.9858738033685633,
+        "width90": 0.37577123988969285,
+        "intervalScore90": 0.3951621135528432,
+        "wis": 0.034034851299500415,
+        "meanMae": 0.07159823041908496,
+        "meanRmse": 0.10171949721422036,
+        "meanBias": 1.23918802600936e-17
+      },
+      "nationalNonvalid": {
+        "predictiveMean": 0.39656338627483095,
+        "predictiveMedian": 0.38359214439561024,
+        "coverage50": 1,
+        "coverage80": 1,
+        "coverage90": 1,
+        "coverage95": 1,
+        "width90": 0.5376334834118759,
+        "intervalScore90": 0.5376334834118759,
+        "wis": 0.04042291797915646,
+        "meanMae": 0.06298941098100991,
+        "meanRmse": 0.07052492218380818,
+        "meanBias": -0.06298941098100991
+      },
+      "regionalNonvalid": {
+        "coverage50": 0.9013157894736838,
+        "coverage80": 0.9999999999999996,
+        "coverage90": 0.9999999999999996,
+        "coverage95": 0.9999999999999996,
+        "width90": 0.5826738779741025,
+        "intervalScore90": 0.5826738779741025,
+        "wis": 0.04498145816404922,
+        "meanMae": 0.0688433535634449,
+        "meanRmse": 0.08033727414110552,
+        "meanBias": -0.067006712068838
+      },
+      "municipalNonvalid": {
+        "coverage50": 0.7477112643800972,
+        "coverage80": 0.9772626572323673,
+        "coverage90": 0.9968499524084424,
+        "coverage95": 0.9995682239649629,
+        "width90": 0.6255402907308582,
+        "intervalScore90": 0.6276439239290661,
+        "wis": 0.054164108638249116,
+        "meanMae": 0.09224352042027982,
+        "meanRmse": 0.11161657023094325,
+        "meanBias": -0.062328209754737456
+      }
+    }
+  },
+  "aggregate.adjusted.common.common.independent.ou": {
+    "development": {
+      "nationalPoliticalValid": {
+        "coverage50": 0.3125,
+        "coverage80": 0.6875,
+        "coverage90": 0.828125,
+        "coverage95": 0.921875,
+        "width90": 0.24664162367483866,
+        "intervalScore90": 0.37149626609091213,
+        "wis": 0.033343536874766,
+        "meanMae": 0.06823164843871048,
+        "meanRmse": 0.08841911181718445,
+        "meanBias": 1.4094628242311558e-17
+      },
+      "regionalPoliticalValid": {
+        "coverage50": 0.3675986842105261,
+        "coverage80": 0.6315789473684211,
+        "coverage90": 0.7335526315789477,
+        "coverage95": 0.7960526315789478,
+        "width90": 0.25060916492318497,
+        "intervalScore90": 0.49845224475194916,
+        "wis": 0.040373658730342224,
+        "meanMae": 0.07630132993265377,
+        "meanRmse": 0.10109784427605907,
+        "meanBias": -2.7794327372965798e-18
+      },
+      "municipalPoliticalValid": {
+        "coverage50": 0.5684647971081837,
+        "coverage80": 0.8400156328254664,
+        "coverage90": 0.9122053607867313,
+        "coverage95": 0.9486656322884383,
+        "width90": 0.381899676639865,
+        "intervalScore90": 0.47549865001365116,
+        "wis": 0.04083407037959689,
+        "meanMae": 0.07736998347522853,
+        "meanRmse": 0.10329488816465439,
+        "meanBias": 1.1290610042848677e-17
+      },
+      "nationalNonvalid": {
+        "predictiveMean": 0.37883134379956435,
+        "predictiveMedian": 0.36334221876576506,
+        "coverage50": 0.875,
+        "coverage80": 1,
+        "coverage90": 1,
+        "coverage95": 1,
+        "width90": 0.5383548727358941,
+        "intervalScore90": 0.5383548727358941,
+        "wis": 0.04040059281614363,
+        "meanMae": 0.0739492799172872,
+        "meanRmse": 0.08092048458561998,
+        "meanBias": 0.010822447308898673
+      },
+      "regionalNonvalid": {
+        "coverage50": 0.8092105263157892,
+        "coverage80": 0.990131578947368,
+        "coverage90": 0.9999999999999996,
+        "coverage95": 0.9999999999999996,
+        "width90": 0.5483343886465826,
+        "intervalScore90": 0.5483343886465826,
+        "wis": 0.04310599982619145,
+        "meanMae": 0.08266276365026051,
+        "meanRmse": 0.09612355625340456,
+        "meanBias": 0.013821970629258128
+      },
+      "municipalNonvalid": {
+        "coverage50": 0.7989035530259895,
+        "coverage80": 0.9737990886217115,
+        "coverage90": 0.9942512312363345,
+        "coverage95": 0.9987879939678641,
+        "width90": 0.6245994381315697,
+        "intervalScore90": 0.6285315024352331,
+        "wis": 0.05077371797530752,
+        "meanMae": 0.08744492517913041,
+        "meanRmse": 0.10982407634780438,
+        "meanBias": 0.008738141467798149
+      }
+    },
+    "confirmation": {
+      "nationalPoliticalValid": {
+        "coverage50": 0.5,
+        "coverage80": 0.75,
+        "coverage90": 0.84375,
+        "coverage95": 0.875,
+        "width90": 0.22243159644145344,
+        "intervalScore90": 0.27126024390156855,
+        "wis": 0.025142873881991396,
+        "meanMae": 0.053113922322183434,
+        "meanRmse": 0.07475922279172656,
+        "meanBias": 1.734723475976807e-18
+      },
+      "regionalPoliticalValid": {
+        "coverage50": 0.5032894736842104,
+        "coverage80": 0.7105263157894739,
+        "coverage90": 0.8059210526315794,
+        "coverage95": 0.8684210526315796,
+        "width90": 0.22944587017064516,
+        "intervalScore90": 0.3129675171575129,
+        "wis": 0.027421242427366696,
+        "meanMae": 0.05646684553045549,
+        "meanRmse": 0.0786037567904304,
+        "meanBias": -4.1335207826009857e-19
+      },
+      "municipalPoliticalValid": {
+        "coverage50": 0.6067191914251617,
+        "coverage80": 0.8696322779955138,
+        "coverage90": 0.9513600834299188,
+        "coverage95": 0.9799179728508143,
+        "width90": 0.3418126021388043,
+        "intervalScore90": 0.37080169971483734,
+        "wis": 0.033945574062598204,
+        "meanMae": 0.07423208981846662,
+        "meanRmse": 0.10476432263360608,
+        "meanBias": 1.3225916545563468e-17
+      },
+      "nationalNonvalid": {
+        "predictiveMean": 0.4035732983934928,
+        "predictiveMedian": 0.39402211925823716,
+        "coverage50": 1,
+        "coverage80": 1,
+        "coverage90": 1,
+        "coverage95": 1,
+        "width90": 0.5030389285571769,
+        "intervalScore90": 0.5030389285571769,
+        "wis": 0.037117441841890114,
+        "meanMae": 0.05597949886234806,
+        "meanRmse": 0.06242260618779581,
+        "meanBias": -0.05597949886234806
+      },
+      "regionalNonvalid": {
+        "coverage50": 0.927631578947368,
+        "coverage80": 0.9999999999999996,
+        "coverage90": 0.9999999999999996,
+        "coverage95": 0.9999999999999996,
+        "width90": 0.5116413059203945,
+        "intervalScore90": 0.5116413059203945,
+        "wis": 0.038353867593430006,
+        "meanMae": 0.06002104286513579,
+        "meanRmse": 0.06975852206488886,
+        "meanBias": -0.05766459662056359
+      },
+      "municipalNonvalid": {
+        "coverage50": 0.7551049967900585,
+        "coverage80": 0.9805168610450864,
+        "coverage90": 0.9962402805630577,
+        "coverage95": 0.9993119701868177,
+        "width90": 0.5830929733019161,
+        "intervalScore90": 0.5851276930602904,
+        "wis": 0.0493087744867646,
+        "meanMae": 0.08511278549099704,
+        "meanRmse": 0.1034482656286841,
+        "meanBias": -0.0555059123933694
+      }
+    }
+  },
+  "audit": {
+    "cases": 120,
+    "maxRhat": 1.0928844026290248,
+    "minEss": 49.7314064441253,
+    "maxModeChange": 0.0016101416659770607,
+    "maxBridgeJitter": 1e-12,
+    "fitSeconds": [
+      5.974471099999999,
+      60.509216450000004,
+      359.3398626000001
+    ]
+  }
+}

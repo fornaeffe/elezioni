@@ -8,6 +8,16 @@ for research retention/cleanup. The research results and implementation status
 below are the recorded baseline; approval does not imply that browser integration
 or production acceptance has already happened.
 
+FV-01 extracted the unchanged numerical definition into the maintained
+[model contract](vote-generation-fast-model.md). Use the separate
+[data/scenario](vote-generation-fast-contracts.md),
+[reference/chamber](vote-generation-fast-references.md) and
+[validation](vote-generation-fast-validation.md) contracts for production work.
+The reference contract records Luca's subsequent fixed-turnout clarification;
+the prototype and results below remain historical evidence. The
+[FV-01 evidence index](../research/vote-generation/README.md) preserves selected
+summaries/failures and the exact file/default-domain inventory before FV-09.
+
 ## Objective and authority
 
 On **27 October 2026**, Luca resumed research and authorized simplifying or

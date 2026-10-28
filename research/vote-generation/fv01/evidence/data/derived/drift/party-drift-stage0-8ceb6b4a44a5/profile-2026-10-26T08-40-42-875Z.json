@@ -1,0 +1,250 @@
+{
+  "version": "party-drift-stage0-8ceb6b4a44a5",
+  "machine": {
+    "cpu": "Intel(R) Core(TM) i7-14700KF",
+    "logicalProcessors": 28,
+    "memoryBytes": 68498468864,
+    "node": "v24.20.0",
+    "platform": "win32"
+  },
+  "versions": [
+    {
+      "path": "web/scripts/data-preparation/party-drift-contract.ts",
+      "sha256": "68a38022df17dc2bd8a835d3ee1b480da07561beebb327386f3dc8c265a00ab7"
+    },
+    {
+      "path": "web/scripts/data-preparation/party-drift-likelihood.ts",
+      "sha256": "ffbeb6412cbc88978ad864a372ed3df48fa163ee888c9f4f01b7fa25ad0e76a2"
+    },
+    {
+      "path": "web/scripts/data-preparation/party-drift-prior.ts",
+      "sha256": "5dd9fc0b6bb9f7bb73b3c0af6801a56a17b89d48578cf9e5eba9813ada65ff50"
+    },
+    {
+      "path": "web/scripts/data-preparation/party-drift-fit.ts",
+      "sha256": "a13c49bcd3457a17ca421019f5e459f8bc856d3b33fd92daa0f43e66adfe45a5"
+    },
+    {
+      "path": "web/scripts/data-preparation/party-drift-research-cli.ts",
+      "sha256": "334596e810ed6e746c1932e62fea058fed0ac9cf9d2fcbaedbbe3230476350a7"
+    },
+    {
+      "path": "web/scripts/data-preparation/party-drift-quadrature.ts",
+      "sha256": "5592bb6e4984425eef031d81922d629a4b4a15cf9c52450bd92b71e321ac8341"
+    },
+    {
+      "path": "web/scripts/data-preparation/drift-math.ts",
+      "sha256": "1209cc3d9bf5385946c587504f1130d5cd4aee9f7738611d65f8b8198aeafc89"
+    },
+    {
+      "path": "web/scripts/data-preparation/drift-gaussian.ts",
+      "sha256": "260e12defdeca8d804131f63a92c556b51635142f3a281cfa2a351145f11c381"
+    },
+    {
+      "path": "web/scripts/data-preparation/generation-metrics.ts",
+      "sha256": "a3ffdf6130c6273654570755331ecd050112f23a19c7913b159d4c9bec3f73c3"
+    },
+    {
+      "path": "web/scripts/data-preparation/sources.ts",
+      "sha256": "3c90989885970b80fa49da4eddded22b384cc976ce93b359c0f1cef0817f636e"
+    },
+    {
+      "path": "web/scripts/data-preparation/generation-history.ts",
+      "sha256": "ab69e895a2bddc235e139464bde235f52a22cbb3fb2c9c51729c81e1f0370599"
+    },
+    {
+      "path": "web/scripts/data-preparation/poll-calibration-sources.ts",
+      "sha256": "911d614aa3eb3f81f8b98682cef402601fb7300c4b40652b5118d55fee89da5e"
+    },
+    {
+      "path": "web/scripts/data-preparation/reform-history.ts",
+      "sha256": "782ea8a46273c47f5a15318fa40aa087b3dee943da014945c0160a7b88021bf3"
+    },
+    {
+      "path": "web/scripts/data-preparation/formats.ts",
+      "sha256": "4ef48c03ab7277e0e74ca0e19928c91788eb40ac2f2c2d4c7029124897677ed0"
+    },
+    {
+      "path": "web/src/lib/core/rng.ts",
+      "sha256": "8c0bb91a79beffde408e90359aabe4d5b5bad4ff93d80f425910e3a62d55ef6e"
+    },
+    {
+      "path": "web/package-lock.json",
+      "sha256": "c653b9a886821ed14ecf0a33caeaa6c8374aab80039fefda0d9685d0b9bee38b"
+    }
+  ],
+  "policy": {
+    "prior": {
+      "version": "neutral-reference-conditional-v1",
+      "nationalSd": 1.5,
+      "localSd": 0.5,
+      "kindSd": 0.5,
+      "nationalInnovationSd": 0.35,
+      "localInnovationSd": 0.25,
+      "calibrationDraws": 32768,
+      "calibrationSeed": "party-drift-prior-calibration-v1",
+      "scaleLogPriorSd": 0.7,
+      "effectLogPriorSd": 0.35
+    },
+    "fit": {
+      "version": "exact-grouped-laplace-reference-v1",
+      "maxDimension": 192,
+      "maxIterations": 120,
+      "gradientTolerance": 0.000001,
+      "maxRidge": 100000000,
+      "posteriorMeanTolerance": 0.025,
+      "posteriorWidthRatio": [
+        0.65,
+        1.5
+      ],
+      "maxRhat": 1.05,
+      "minEss": 400
+    },
+    "reference": {
+      "chains": 4,
+      "burn": 6000,
+      "draws": 12000,
+      "thin": 2
+    },
+    "starts": 9,
+    "quadrature": {
+      "step": 0.04,
+      "splitStep": 0.06,
+      "coarseStep": 0.08,
+      "coarseSplitStep": 0.12,
+      "meanTolerance": 0.005,
+      "resolutionTolerance": 0.0001
+    }
+  },
+  "phase": "profile-only",
+  "historyVersion": "municipality-generation-history-v1-fc077457a304e3ab",
+  "sourceVersions": [
+    "elections-manifest:c2b3acde94158b48170b7b1d39c45fa8fbe0f6b028bce2c8a010bef64789483c",
+    "camera-20080413:d9edb7e7d82de98ce025598cead45e75cec3ca1775f0e3c054f41b04e0b4592f",
+    "europee-20090607:54c7befc2463d9a8e9e8e06b11a95883fac7a7015d4c4330782882efe8788df7",
+    "camera-20130224:19749e05cead3a8d41ba7829fc0272962835ecd8fb73ced9e3a9eb727106a03a",
+    "europee-20140525:a54aa5ae6f25af865162f494a45530d71580d5718f16aa62619703913388f974",
+    "camera-20180304:98b2dc30821f96d640497421f9bfaeb62aba8013b29cb1bbea29352bfe329372",
+    "europee-20190526:81d21e26d5761ba81797a726316718ef82aa56894c0cdbd3ad236535148daa19",
+    "camera-20220925:dd8ede158ea3f7b0aae65024135a27e34ab9e959728df95f0e977cd56edf88ff",
+    "europee-20240609:1ea7b128447208691427af01443c9ba7b4bfc8d9e07cee361a9f87b3def460a5"
+  ],
+  "loadSeconds": 8.2312485,
+  "events": [
+    {
+      "id": "camera-2008",
+      "date": "2008-04-13",
+      "municipalities": 8027,
+      "sourceLists": 30,
+      "maxLocalLists": 18
+    },
+    {
+      "id": "european-2009",
+      "date": "2009-06-07",
+      "municipalities": 8024,
+      "sourceLists": 16,
+      "maxLocalLists": 15
+    },
+    {
+      "id": "camera-2013",
+      "date": "2013-02-24",
+      "municipalities": 8018,
+      "sourceLists": 47,
+      "maxLocalLists": 26
+    },
+    {
+      "id": "european-2014",
+      "date": "2014-05-25",
+      "municipalities": 7982,
+      "sourceLists": 12,
+      "maxLocalLists": 12
+    },
+    {
+      "id": "camera-2018",
+      "date": "2018-03-04",
+      "municipalities": 7883,
+      "sourceLists": 28,
+      "maxLocalLists": 22
+    },
+    {
+      "id": "european-2019",
+      "date": "2019-05-26",
+      "municipalities": 7841,
+      "sourceLists": 18,
+      "maxLocalLists": 17
+    },
+    {
+      "id": "camera-2022",
+      "date": "2022-09-25",
+      "municipalities": 7830,
+      "sourceLists": 23,
+      "maxLocalLists": 20
+    },
+    {
+      "id": "european-2024",
+      "date": "2024-06-09",
+      "municipalities": 7821,
+      "sourceLists": 15,
+      "maxLocalLists": 12
+    }
+  ],
+  "totalRows": 63426,
+  "uniqueMunicipalities": 8194,
+  "distinctSourceLabels": 146,
+  "benchmarks": [
+    {
+      "rows": 256,
+      "medianSeconds": 0.0019255999999995767,
+      "minSeconds": 0.001735899999999674,
+      "maxSeconds": 0.006365700000000288,
+      "likelihoodMedianSeconds": 0.0003331500000003871,
+      "checksum": -51311847.59447434
+    },
+    {
+      "rows": 1024,
+      "medianSeconds": 0.0073106500000003505,
+      "minSeconds": 0.006593899999999849,
+      "maxSeconds": 0.011458399999999529,
+      "likelihoodMedianSeconds": 0.0013328999999994266,
+      "checksum": -175085996.47568145
+    },
+    {
+      "rows": 4096,
+      "medianSeconds": 0.025252849999999855,
+      "minSeconds": 0.02469959999999992,
+      "maxSeconds": 0.025951300000000628,
+      "likelihoodMedianSeconds": 0.00521979999999985,
+      "checksum": -744081238.0155672
+    }
+  ],
+  "samplePolicy": "Systematic municipal midpoints across each source event; no fitted values or target scores",
+  "timing": {
+    "estimatedCountDerivativeSweepSeconds": 0.3910369297119118,
+    "estimatedCountLikelihoodSweepSeconds": 0.08082788935546643,
+    "hundredSweepsSeconds": 39.10369297119118,
+    "referenceSamplingMinimumEvaluations": 120004,
+    "referenceSamplingOptimisticSerialSeconds": 9699.670034213394,
+    "referenceSamplingExceeds30Minutes": true,
+    "observedReferenceEvaluations": [
+      761911,
+      712115,
+      676399,
+      617967,
+      672638,
+      809848
+    ],
+    "projectionUsingReducedProposalCountsSerialSeconds": [
+      61583.65800671279,
+      57558.75242836798,
+      54671.90353214814,
+      49948.96830132953,
+      54367.909840282235,
+      65458.30453874578
+    ],
+    "projectionAssumption": "Same four-chain iteration protocol and reduced-problem proposal counts; single-thread count kernel only. No claim that countrywide mixing or state evaluation would be as fast.",
+    "fullFitSeconds": null,
+    "comparisonPlanSeconds": null,
+    "reason": "A count-kernel sweep omits sparse factorization, nonlinear polls, hyperparameter integration, mode exploration and posterior draws. Accuracy gate must pass before a defensible fitting-time estimate exists."
+  },
+  "fullFitStarted": false
+}

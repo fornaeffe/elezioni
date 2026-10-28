@@ -1,0 +1,29 @@
+{
+  "phase": "development",
+  "draws": 512,
+  "summaries": [
+    {
+      "variant": "kind-common-conservative",
+      "cases": 16,
+      "failedFits": 0,
+      "nationalCoverage90": 0.9006944444444445,
+      "municipalCoverage90": 0.9015986843703924,
+      "coverageShortfall": 0.013913690476190461,
+      "wis": 0.03163844832892382,
+      "meanMae": 0.0599155020555504,
+      "tailRate": 0.001953125,
+      "maxFitSeconds": 0.34552030099999875,
+      "maxGenerationSeconds": 0.28604544600000104
+    }
+  ],
+  "selected": "kind-common-conservative",
+  "seconds": 8.830256649,
+  "sourceHashes": {
+    "study_fast.py": "c961f1aaad4acc464de65fa0ba06969681c485a28e82342a74f5ee9a184ed99e",
+    "run_fast.py": "181564bf264a8b13b6c34074932a339393d6233e0c238f6b53266c07bd986e6d",
+    "fast_party_model.py": "7fc7c79a1d4c819cb8a5a832a63fc2c8cbf348b7cc658ac074aa11aedcb5ba7b",
+    "modular_geography.py": "816cba385d0a1327694319944a2c85576ef5a3a527a8ed5b87a33473c8ee76d9",
+    "simplex_gibbs.cpp": "6a6deef1c9547105b14ac802bacc496f4964708079ca6ac77cb16c836ec44707"
+  },
+  "interpretation": "Research comparison only; 128 draws are screening, small election counts limit calibration claims; no production acceptance"
+}
