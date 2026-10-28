@@ -97,10 +97,7 @@ ancora uno; Sud chiama Nord resta l'unica lista eccedentaria.
 
 Occorre dunque sottrarre un seggio a Sud chiama Nord, ma nessuno dei suoi cinque
 seggi è stato ottenuto con parti decimali. La correzione richiamata da C83(1)(i)
-non dispone di un donatore consentito. Il simulatore prosegue solo applicando
-la soluzione provvisoria I13: toglie un seggio intero in Sicilia 1 e lo assegna
-alla Lega nella stessa circoscrizione. La parte decimale di Sud chiama Nord,
-$6\,009/62\,612$, era e rimane non utilizzata: non è il seggio che viene tolto.
+non dispone di un donatore consentito. 
 
 
 ### b. Riparto tra i collegi di una circoscrizione alla Camera
@@ -138,10 +135,7 @@ assegnano quattro seggi; i due residui vanno ad Azione e Lega. Restano quindi
 due seggi a Fratelli d'Italia, entrambi interi, e nessuno a Italia Viva.
 Per rispettare i seggi comunicati dal riparto nazionale occorre togliere un
 seggio a Fratelli d'Italia e aggiungerne uno a Italia Viva. Nella lettura
-adottata dalla nota, manca un seggio decimale da sottrarre. Il simulatore
-conclude con I13, rimuovendo un seggio intero di Fratelli d'Italia; Italia Viva
-riceve poi il seggio attraverso la sua parte decimale ancora non utilizzata,
-$10\,962/50\,875$.
+adottata dalla nota, manca un seggio decimale da sottrarre.
 
 
 ### c. Riparto tra i collegi di una circoscrizione al Senato
@@ -167,12 +161,7 @@ tolgono i seggi decimali di Fratelli d'Italia e AVS nel collegio 190001,
 assegnando rispettivamente un seggio a Futuro Nazionale e al PD nel 190002.
 
 Resta da trasferire un seggio dal M5S a Noi Moderati, ma entrambi i collegi
-hanno assegnato al M5S soltanto seggi interi. Il simulatore applica I13 al
-collegio 190002, dove il decimale M5S è il minore
-($7\,585/145\,575$ contro $36\,021/141\,531$), e assegna il seggio a Noi Moderati
-nello stesso collegio tramite il suo decimale non utilizzato
-$26\,906/145\,575$. Senza la rimozione provvisoria di un seggio intero, la
-correzione si fermerebbe.
+hanno assegnato al M5S soltanto seggi interi.
 
 
 ### d. Spostamento di seggi dal gruppo di maggioranza al gruppo di minoranza nella circoscrizione alla Camera
@@ -244,10 +233,6 @@ La correzione rimuove prima un seggio decimale di Forza Italia nel 190203 e
 due del PD nei collegi 190202 e 190201. Assegna poi i seggi mancanti a Futuro
 Nazionale e Italia Viva, entrambi nel 190202. Resta da aggiungere il settimo
 seggio a FdI, ma non esiste un suo decimale non utilizzato in alcun collegio.
-Non è un problema di ordine delle correzioni: tre parti intere più un solo
-uso di ciascuno dei tre decimali possono dare al massimo sei seggi.
-Il simulatore arriva a sette solo tramite I16, riutilizzando il decimale
-$48\,853/53\,528$ di FdI nel 190202, dove la lista passa da due a tre seggi.
 
 ### b. Riparto tra i collegi di una circoscrizione al Senato
 
@@ -272,11 +257,7 @@ Il riparto iniziale dà inoltre due seggi al PD anziché uno, quattro al M5S
 anziché tre e nessuno ad AVS anziché uno. La prima correzione sottrae il
 seggio decimale del PD nel 190002 e lo attribuisce ad AVS nel 190001.
 La successiva dovrebbe togliere il seggio eccedentario del M5S e assegnarlo
-a FdI, ma questa lista non ha più decimali non utilizzati. Il simulatore
-conclude grazie a I16: toglie il seggio decimale del M5S nel 190002 e riusa,
-nello stesso collegio, il decimale FdI $135\,718/151\,452$, già impiegato nel
-riparto iniziale. FdI passa così da due a tre seggi nel collegio e raggiunge
-i cinque spettanti nella regione.
+a FdI, ma questa lista non ha più decimali non utilizzati.
 
 ## 3. Spareggio necessario ma nessun metodo di spareggio indicato
 
@@ -374,12 +355,6 @@ In Puglia manca un seggio alla maggioranza, mentre la minoranza ha già tutti
 gli undici spettanti. In Sicilia 2 la maggioranza deve perdere un seggio,
 ma la minoranza ha già i sei spettanti. Nessun trasferimento tra gruppi
 **nello stesso collegio** può correggere questi totali.
-
-Il simulatore conclude solo con I15: aggiunge un seggio al gruppo di
-maggioranza in Puglia e ne toglie uno in Sicilia 2 con operazioni separate,
-accettando che i totali locali finali differiscano dalle dotazioni iniziali.
-Questa scelta provvisoria non è l'operazione abbinata prescritta da
-C83-bis(1-bis)(c).
 
 ## 5. Esaurimento dei candidati presenti in una regione per il Senato
 
