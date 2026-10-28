@@ -18,19 +18,6 @@ L'articolo verrà indicato di seguito a C o S; comma, lettera e numero verranno 
 
 Ad esempio C83-bis(1)(b)(3) significherà DPR 361/1957, art. 83-bis, comma 1, lettera b, numero 3.
 
-I riferimenti sono verificati sulla ripubblicazione annotata della legge nella
-Gazzetta Ufficiale del 23 ottobre 2026: [disposizioni per la Camera][fonte-camera]
-e [disposizioni per il Senato][fonte-senato].
-
-Salvo diversa indicazione nel singolo esempio, gli esempi numerati provengono da
-[`r26-risultati (2).json.gz`](../data/derived/r26-manual-tests/r26-risultati%20(2).json.gz),
-esportato il 27 ottobre 2026 (00:33, ora italiana), con seme `r26-default-v1`. Il numero della
-simulazione è quello della colonna `Simulation` nell'archivio. Le dotazioni
-territoriali sono quelle provvisorie del simulatore, ricostruite dal censimento,
-non quelle di un decreto di assegnazione. L'archivio contiene anche soluzioni
-interpretative provvisorie: il completamento di una simulazione non implica
-che la situazione descritta sia risolta dal testo della legge.
-
 ## 1. Esaurimento dei seggi ottenuti con parti decimali
 
 ### a. Riparto tra le circoscrizioni
@@ -77,9 +64,27 @@ con parti decimali.
 
 **Esempio:**
 
-<!-- esempio non trovato: nella nuova serie scn-autonoma-20261028 non risultano
-esaurimenti dei donatori decimali nel riparto tra circoscrizioni. Negli archivi
-precedenti esaminati i casi individuati coinvolgono tutti Sud chiama Nord. -->
+Simulazione **163, Camera, senza premio di governabilità**. Il riparto nazionale
+assegna a Sud chiama Nord **4 seggi**. Il successivo riparto dei seggi della
+coalizione tra le sue liste nelle circoscrizioni produce invece:
+
+| Circoscrizione | Voti di Sud chiama Nord | Quoziente di coalizione | Seggi interi | Seggi con parti decimali |
+| --- | ---: | ---: | ---: | ---: |
+| Sicilia 1 | 131.233 | 62.612 | 2 | 0 |
+| Sicilia 2 | 199.166 | 65.522 | 3 | 0 |
+| Altre circoscrizioni, complessivamente | 11.331 | — | 0 | 0 |
+
+Sud chiama Nord ottiene così **5 seggi, tutti interi**, uno più dei quattro
+spettanti. Anche le altre liste della coalizione richiedono correzioni:
+Forza Italia ha inizialmente 32 seggi anziché 28, Fratelli d'Italia 123 anziché
+124 e Lega 9 anziché 13. Vengono prima sottratti quattro seggi decimali a
+Forza Italia: uno va a Fratelli d'Italia in Sicilia 1 e tre alla Lega in
+Lazio 2, Sicilia 2 e Lombardia 1. La Lega arriva così a 12 seggi e ne manca
+ancora uno; Sud chiama Nord resta l'unica lista eccedentaria.
+
+Occorre dunque sottrarre un seggio a Sud chiama Nord, ma nessuno dei suoi cinque
+seggi è stato ottenuto con parti decimali. La correzione richiamata da C83(1)(i)
+non dispone di un donatore consentito. 
 
 ### b. Riparto tra i collegi di una circoscrizione alla Camera
 
@@ -161,19 +166,10 @@ Può però verificarsi il caso in cui i seggi da rimuovere siano superiori al
 numero di seggi ottenuti con parti decimali. La legge non indica cosa fare
 in questo caso.
 
-**Esempio:**
-
-<!-- esempio non trovato: nessuna occorrenza nei gruppi alla Camera, né nella
-nuova serie scn-autonoma-20261028 né negli archivi precedenti esaminati. -->
-
 ### e. Spostamento di seggi dal gruppo di maggioranza al gruppo di minoranza nella circoscrizione al Senato
 
 Situazione analoga al Senato, secondo S17(5)(c).
 
-**Esempio:**
-
-<!-- esempio non trovato: nessuna occorrenza nei gruppi al Senato, né nella
-nuova serie scn-autonoma-20261028 né negli archivi precedenti esaminati. -->
 
 ## 2. Esaurimento delle parti decimali non utilizzate
 
@@ -255,22 +251,14 @@ indichi una modalità di spareggio:
 | Elezioni multiple | C85(1), richiamato da S17-bis(3) | Uguali percentuali di lista tra elezioni da capolista, o individuali tra altre elezioni. |
 | Sostituzioni e recuperi dei seggi del premio | C86(1), C83(1-quinquies); S16-bis(1-quinquies), S19(2) | Uguali decimali tra liste o circoscrizioni; uguali percentuali tra collegi; più seggi del premio destinati alla stessa persona. |
 
-I riferimenti relativi al Trentino-Alto Adige e alle elezioni multiple sono
-riscontrabili anche nel [testo a fronte parlamentare, pp. 82, 94-95 e
-129-130](https://documenti.camera.it/leg19/dossier/Pdf/AC0469g.pdf#page=84).
-Qui si considera la parità rimasta **dopo** tutti i criteri espressi: i
-sorteggi già previsti per i riparti iniziali e da C84(8) per i recuperi
-ordinari sono casi distinti.
 
 **Esempio:**
 
-Simulazione **332, Senato, Valle d'Aosta, collegio uninominale 020001**,
-nell'archivio precedente
-[`r26-risultati (1).json.gz`](../data/derived/r26-manual-tests/r26-risultati%20(1).json.gz).
+Simulazione **332, Senato, Valle d'Aosta, collegio uninominale 020001**.
 La somma dei voti attribuiti ai candidati nel collegio dà questa graduatoria
 nelle prime posizioni:
 
-| Candidato sintetico collegato a | Voti | Data di nascita sintetica |
+| Candidato collegato a | Voti | Data di nascita |
 | --- | ---: | --- |
 | Vallée d'Aoste – Autonomie Progrès Fédéralisme | 10.930 | 1 gennaio 1977 |
 | Pour l'Autonomie – Per l'Autonomia | 10.930 | 1 gennaio 1977 |
@@ -279,10 +267,9 @@ nelle prime posizioni:
 Occorre proclamare un solo senatore. I primi due candidati hanno il medesimo
 numero di voti, superiore a quello di tutti gli altri candidati. S21(2)
 impone quindi di preferire il più anziano, ma anche la data di nascita
-coincide: nessuno dei due prevale applicando i criteri espressamente previsti.
+coincide (in questo caso perché, nella simulazione, sono state inserite date di nascita tutte uguali): 
+nessuno dei due prevale applicando i criteri espressamente previsti.
 La disposizione non indica un criterio ulteriore per risolvere questa parità.
-Le date di nascita sono sintetiche, come le candidature dello scenario;
-i voti dei candidati in parità sono entrambi positivi.
 
 ## 4. La differenza tra i seggi spettanti ad una circoscrizione e quelli assegnati dal riparto nazionale rende impossibile il rispetto del tetto massimo
 
@@ -303,10 +290,35 @@ arrivare a soddisfare il riparto nazionale effettuando solo questa operazione.
 
 **Esempio:**
 
-<!-- esempio non trovato: nessun conflitto tra dotazione dei collegi e totale
-circoscrizionale nella nuova serie scn-autonoma-20261028. Nei sette casi
-individuati nell'archivio precedente r26-risultati (2).json.gz, il trasferimento
-tra circoscrizioni che produce il conflitto coinvolge sempre Sud chiama Nord. -->
+Simulazione **19, Camera, Puglia e Sicilia 2**. La coalizione di centrodestra
+vince il premio e ottiene inizialmente 150 seggi ordinari, un seggio speciale
+e 70 del premio: **221**, oltre il tetto di 220. La correzione nazionale
+riduce quindi a 149 i suoi seggi ordinari e attiva il riparto per gruppi.
+
+Nel riparto territoriale delle liste della coalizione, Sud chiama Nord ha
+inizialmente cinque seggi anziché quattro, mentre FdI ne ha 99 anziché 101.
+Le prime due correzioni tra liste sistemano le eccedenze della Lega,
+assegnando un seggio a Forza Italia e uno a FdI. Resta un seggio da togliere
+a Sud chiama Nord e uno da aggiungere a FdI. Non è possibile completare la
+correzione nella stessa circoscrizione: si applica il trasferimento tra
+circoscrizioni richiamato da C83(1)(i).
+
+Viene sottratto il terzo seggio di Sud chiama Nord in **Sicilia 2**, ottenuto
+con il decimale $35\,019/56\,975$, e viene assegnato l'ottavo seggio a FdI in
+**Puglia**, attraverso il decimale non utilizzato $27\,466/54\,545$.
+Il totale nazionale è conservato, ma la Puglia passa da 21 a **22 seggi
+ordinari** e Sicilia 2 da 14 a **13**. Il successivo riparto nei collegi parte
+invece ancora dalle dotazioni fisse:
+
+| Circoscrizione | Dotazioni dei collegi | Totale fisso | Obiettivi maggioranza/minoranza dopo la correzione tra circoscrizioni | Gruppi dopo il riparto iniziale nei collegi |
+| --- | --- | ---: | --- | --- |
+| Puglia | 5 + 5 + 5 + 6 | 21 | 11 / 11 = 22 | 10 / 11 = 21 |
+| Sicilia 2 | 4 + 5 + 5 | 14 | 7 / 6 = 13 | 8 / 6 = 14 |
+
+In Puglia manca un seggio alla maggioranza, mentre la minoranza ha già tutti
+gli undici spettanti. In Sicilia 2 la maggioranza deve perdere un seggio,
+ma la minoranza ha già i sei spettanti. Nessun trasferimento tra gruppi
+**nello stesso collegio** può correggere questi totali.
 
 ## 5. Esaurimento dei candidati presenti in una regione per il Senato
 
@@ -336,13 +348,7 @@ Il singolo caso è stato risolto con la decisione del Senato, ma il vuoto normat
 
 Sono state svolte 1000 simulazioni con un set di liste verosimile, generando voti sulla base dei sondaggi e delle ultime elezioni.
 
-La tabella seguente si riferisce alla serie originale di
-[`r26-risultati (2).json.gz`](../data/derived/r26-manual-tests/r26-risultati%20(2).json.gz),
-non alla nuova serie con Sud chiama Nord come lista singola. I conteggi originari
-comprendono anche le situazioni con Sud chiama Nord descritte nella precedente
-versione della nota; non sono stati ricalcolati escludendole.
-
-Nella tabella è presente il numero di simulazioni nelle quali ciascuno di questi problemi si è verificato:
+Nella tabella seguente è presente il numero di simulazioni nelle quali ciascuno di questi problemi si è verificato:
 
 | Problema | Simulazioni interessate |
 | --- | --- |
@@ -352,5 +358,13 @@ Nella tabella è presente il numero di simulazioni nelle quali ciascuno di quest
 | 4. La differenza tra i seggi spettanti ad una circoscrizione e quelli assegnati dal riparto nazionale rende impossibile il rispetto del tetto massimo | 7/1000 |
 | 5. Esaurimento dei candidati presenti in una regione per il Senato | 5/1000 |
 
-[fonte-camera]: https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticoloDefault/originario?atto.codiceRedazionale=26A05611&atto.dataPubblicazioneGazzetta=2026-10-23&atto.tipoProvvedimento=LEGGE
-[fonte-senato]: https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticolo?art.codiceRedazionale=26A05611&art.dataPubblicazioneGazzetta=2026-10-23&art.flagTipoArticolo=0&art.idArticolo=2&art.idGruppo=0&art.idSottoArticolo=1&art.idSottoArticolo1=10&art.progressivo=0&art.versione=1
+## Nota tecnica
+
+Simulazione e analisi effettuati da Luca Fornasari, con l'utilizzo di intelligenza artificiale.
+Per informazioni: fornaeffe@gmail.com
+
+Il simulatore usato è su https://github.com/fornaeffe/elezioni, branch `migrazione`, commit `5b675b4`.
+
+Gli esempi numerati provengono da
+`r26-risultati (2).json.gz`,
+esportato il 27 ottobre 2026 (00:33, ora italiana), con seme `r26-default-v1`.
