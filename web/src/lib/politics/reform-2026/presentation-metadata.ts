@@ -1,3 +1,4 @@
+import { OTHER_LIST_ID, OTHER_LIST_COLOR } from '../../core/other-list';
 import type { ReformGenerationScenario, ReformPresentation } from './generation-types';
 
 const palette = ['#2563eb', '#dc2626', '#16a34a', '#9333ea', '#ea580c', '#0891b2', '#be185d', '#64748b'];
@@ -10,6 +11,7 @@ export function cloneReformValue<T>(value: T): T {
 }
 /** Stable defaults depend on identity, never list order or the RNG streams. */
 export function subjectColor(id: string): string {
+  if (id === OTHER_LIST_ID) return OTHER_LIST_COLOR;
   let hash = 0;
   for (const char of id) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
   return palette[hash % palette.length];

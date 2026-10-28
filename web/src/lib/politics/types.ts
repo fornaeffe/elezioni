@@ -7,7 +7,7 @@ export interface ListeUniRow {
   CIRCOSCRIZIONE: AdministrativeCode;
   COLLEGIOPLURINOMINALE: AdministrativeCode;
   COLLEGIOUNINOMINALE: AdministrativeCode;
-  CANDIDATO: string;
+  CANDIDATO: string | null;
   CAND_MINORANZA: boolean;
   LISTA: string;
   MINORANZA: boolean;
@@ -59,6 +59,7 @@ export interface TotaliPluriRow {
 }
 
 export interface ListaNazRow {
+  kind?: import('../core/other-list').ListKind;
   LISTA: string;
   COALIZIONE: string | null;
   MINORANZA: boolean;
@@ -90,7 +91,7 @@ export interface ListeUniCifreTraceRow {
   CIRCOSCRIZIONE: AdministrativeCode;
   COLLEGIOPLURINOMINALE: AdministrativeCode;
   COLLEGIOUNINOMINALE: AdministrativeCode;
-  CANDIDATO: string;
+  CANDIDATO: string | null;
   LISTA: string;
   VOTI_LISTA: number;
   ELETTO: boolean;
@@ -537,6 +538,7 @@ export interface PoliticsCollegePluriRow {
 }
 
 export interface PoliticsGeneratedListRow {
+  kind?: import('../core/other-list').ListKind;
   LISTA: string;
   COALIZIONE: string | null;
 }

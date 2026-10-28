@@ -1,3 +1,4 @@
+import { validateOtherScenarioLists } from '$lib/core/other-list';
 import type {
   ElectionKind,
   Scenario,
@@ -15,7 +16,7 @@ import type {
 import { generatedDefaultRegionalErScenario } from './regional-er-defaults.generated';
 
 export const regionalErScenarioStorageKey = 'elezioni:web:regional-er-scenario:v1';
-export const regionalErScenarioSchemaVersion = 1;
+export const regionalErScenarioSchemaVersion = 2;
 export const regionalErAbstentionListName = 'astensione';
 export const defaultRegionalErScenario: Scenario = generatedDefaultRegionalErScenario;
 
@@ -363,6 +364,7 @@ export function normalizeRegionalErScenario(value: unknown): Scenario {
       const name = cleanString(source.name);
       return {
         id: cleanString(source.id) || stableId('list', name, index + 1),
+        ...(source.kind === undefined ? {} : { kind: source.kind }),
         name,
         coalition: source.coalition === null ? null : cleanString(source.coalition),
         color: cleanColor(source.color, '#6f7f8f'),
@@ -409,7 +411,7 @@ export function normalizeRegionalErScenario(value: unknown): Scenario {
 }
 
 export function validateRegionalErScenario(scenario: Scenario): string[] {
-  const messages: string[] = [];
+  const messages: string[] = validateOtherScenarioLists(scenario);
   const coalitionNames = scenario.coalitions.map((coalition) => coalition.name.trim()).filter(Boolean);
   const coalitionNameSet = new Set(coalitionNames);
   const listNames = scenario.lists.map((list) => list.name.trim()).filter(Boolean);
@@ -444,7 +446,7 @@ export function validateRegionalErScenario(scenario: Scenario): string[] {
   for (const list of scenario.lists) {
     const share = Number(list.startingShare);
     if (!Number.isFinite(share) || share < 0 || share > 100) messages.push(`Quota non valida per ${list.name || 'lista senza nome'}.`);
-    if (!list.coalition || !coalitionNameSet.has(list.coalition)) {
+    if (list.kind !== 'other' && (!list.coalition || !coalitionNameSet.has(list.coalition))) {
       messages.push(`Coalizione mancante o sconosciuta per ${list.name || 'lista senza nome'}.`);
     }
   }
@@ -501,7 +503,7 @@ export function validateRegionalErScenario(scenario: Scenario): string[] {
 
 export function serializeRegionalErScenario(scenario: Scenario): string {
   const payload: SerializedScenario = {
-    schema_version: regionalErScenarioSchemaVersion,
+    schema_version: scenario.lists.some(l => l.kind === 'other') ? regionalErScenarioSchemaVersion : 1,
     scenario: cloneRegionalErScenario(scenario)
   };
   return `${JSON.stringify(payload, null, 2)}\n`;
@@ -509,6 +511,8 @@ export function serializeRegionalErScenario(scenario: Scenario): string {
 
 export function parseRegionalErScenario(text: string): Scenario {
   const parsed = JSON.parse(text) as unknown;
+  if (parsed !== null && typeof parsed === 'object' && 'schema_version' in parsed &&
+      (!Number.isSafeInteger(parsed.schema_version) || Number(parsed.schema_version) < 1 || Number(parsed.schema_version) > regionalErScenarioSchemaVersion)) throw new Error('Versione scenario regionale non supportata.');
   const scenarioInput =
     parsed !== null && typeof parsed === 'object' && 'scenario' in parsed
       ? (parsed as Partial<SerializedScenario>).scenario

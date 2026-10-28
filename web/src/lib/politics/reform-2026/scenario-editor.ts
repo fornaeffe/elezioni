@@ -1,3 +1,4 @@
+import { OTHER_LIST_ID, OTHER_LIST_NAME, OTHER_LIST_COLOR } from '../../core/other-list';
 import type { Candidate, Chamber, PoliticalList, ReferenceScope, Subject } from './input';
 import type { ReformCandidateTemplate, ReformGenerationScenario, ReformShareOverride } from './generation-types';
 import { upgradeReformDraft, subjectColor, cloneReformValue } from './presentation-metadata';
@@ -7,7 +8,7 @@ export const editingChambers = (scope: EditingScope): Chamber[] => scope === 'co
 export const referenceKey = (scope: ReferenceScope) => JSON.stringify([scope.kind, scope.kind === 'national' ? '' : scope.code]);
 export const subjectKey = (s: Subject) => JSON.stringify([s.kind, s.id]);
 export function reformSubjects(s: ReformGenerationScenario, ch: Chamber): Subject[] {
-  return [...new Map(s.lists[ch].map(l => {
+  return [...new Map(s.lists[ch].filter(l => l.kind !== 'other').map(l => {
     const sub: Subject = { kind: l.coalitionId ? 'coalition' : 'list', id: l.coalitionId ?? l.id };
     return [subjectKey(sub), sub];
   })).values()];
@@ -55,6 +56,7 @@ export function setListPresence(s: ReformGenerationScenario, id: string, ch: Cha
   });
 }
 export function updatePresentList(s: ReformGenerationScenario, id: string, patch: Partial<Omit<PoliticalList, 'id'>>) {
+  if (editableLists(s, 'common').some(l => l.id === id && l.kind === 'other')) throw new Error('Nome, colore e tipo di Altre liste sono fissi.');
   if ('coalitionId' in patch) requireGeneratedData(s);
   return edit(s, n => {
     for (const ch of editingChambers('common')) n.lists[ch] = n.lists[ch].map(l => l.id !== id ? l : { ...l, ...patch,
@@ -99,6 +101,7 @@ export function addReformList(s: ReformGenerationScenario, scope: EditingScope) 
   });
 }
 export function updateReformList(s: ReformGenerationScenario, scope: EditingScope, id: string, patch: Partial<Omit<PoliticalList, 'id'>>) {
+  if (editableLists(s, 'common').some(l => l.id === id && l.kind === 'other')) throw new Error('Nome, colore e tipo di Altre liste sono fissi.');
   if ('coalitionId' in patch) requireGeneratedData(s);
   return edit(s, n => {
     for (const ch of editingChambers(scope)) {
@@ -193,4 +196,16 @@ export function removedDependencies(before: ReformGenerationScenario, after: Ref
     ['collegamenti premio', before.bonusLinks.length - after.bonusLinks.length],
     ['depositi', before.coverage.reduce((n, c) => n + c.listIds.length, 0) - after.coverage.reduce((n, c) => n + c.listIds.length, 0)]] as [string, number][])
     .filter(([, count]) => count > 0).map(([label, count]) => `${count} ${label}`);
+}
+
+export function setReformOtherListEnabled(s: ReformGenerationScenario, enabled: boolean) {
+  requireGeneratedData(s);
+  if (!enabled) return removeReformList(s, 'common', OTHER_LIST_ID);
+  if ([...s.lists.camera, ...s.lists.senato].some(l => l.kind === 'other')) return s;
+  return edit(s, n => {
+    for (const ch of editingChambers('common')) n.lists[ch].push({ id: OTHER_LIST_ID, kind: 'other', name: OTHER_LIST_NAME, coalitionId: null, protectedMinority: null });
+    n.presentation!.lists.push({ id: OTHER_LIST_ID, color: OTHER_LIST_COLOR });
+    // Available everywhere initially; users may restrict voting support in Coverage.
+    n.coverage = n.coverage.map(c => ({ ...c, listIds: [...c.listIds, OTHER_LIST_ID] }));
+  });
 }

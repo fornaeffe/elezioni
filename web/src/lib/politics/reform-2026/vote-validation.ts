@@ -1,3 +1,4 @@
+import { otherListsInCollege } from './other-list';
 import type { ListVotes, OrdinarySlate } from './input';
 import { ChamberContext, key } from './validation-context';
 
@@ -28,7 +29,7 @@ export function validateVotes(c: ChamberContext): void {
     const slates = d.ordinarySlates.filter(s => s.collegeId === row.collegeId);
     const votes = row.votes;
     const listRows = votes.kind === 'components' ? votes.directListVotes : votes.listVotes;
-    const byList = lists(listRows, slates.map(s => s.listId), path);
+    const byList = lists(listRows, [...slates.map(s => s.listId), ...otherListsInCollege(d, row.collegeId)], path);
     let total = v.sum(listRows.map(x => x.votes), path);
     if (votes.kind === 'components') {
       v.index(votes.bonusOnlyVotes, x => key(x.subject.kind, x.subject.id), `${path}.bonusOnlyVotes`);
@@ -61,7 +62,7 @@ export function validateVotes(c: ChamberContext): void {
     const college = v.reference(c.colleges, row.collegeId, path);
     if (college && college.kind !== 'special-uninominal') v.add('INVALID_VOTES', path, 'Special vote rows require a uninominal college.');
     const contenders = d.specialCandidatures.filter(x => x.collegeId === row.collegeId);
-    const expectedLists = [...new Set(contenders.flatMap(x => x.linkedListIds))];
+    const expectedLists = [...new Set([...contenders.flatMap(x => x.linkedListIds), ...otherListsInCollege(d, row.collegeId)])];
     const votes = row.votes;
     const listRows = votes.kind === 'components' ? votes.directListVotes : votes.listVotes;
     const byList = lists(listRows, expectedLists, path);
@@ -78,7 +79,7 @@ export function validateVotes(c: ChamberContext): void {
       if (totals.get(candidate.candidateId)?.votes !== expected) v.add('INVALID_VOTES', path, 'Candidate totals disagree with their linked lists and candidate-only components.', 'C92/C93-sexies; S20/S21');
     }
     // Candidate totals partition valid ballots: do not add list votes again.
-    electorate(v.sum(votes.candidateTotals.map(x => x.votes), path), row.electorate.electors, path);
+    electorate(v.sum([...votes.candidateTotals.map(x => x.votes), ...listRows.filter(l => otherListsInCollege(d, row.collegeId).includes(l.listId)).map(l => l.votes)], path), row.electorate.electors, path);
   }
 }
 

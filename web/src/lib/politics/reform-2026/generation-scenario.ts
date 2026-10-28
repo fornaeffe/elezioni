@@ -1,3 +1,5 @@
+import { OTHER_LIST_COLOR, OTHER_LIST_ID, OTHER_LIST_NAME } from '../../core/other-list';
+import { otherListErrors } from './other-list';
 import type { Scenario } from '../../core/types';
 import { REFORM_ALGORITHM_ID, type Chamber, type Candidate } from './input';
 import { REFORM_MODEL_IDS, REFORM_SCENARIO_VERSION, type ReformGenerationScenario, type ReformGenerationSnapshot } from './generation-types';
@@ -9,7 +11,7 @@ import { reformPresentation } from './presentation-metadata';
 const nonnegative = scalar<number>(v => typeof v === 'number' && Number.isFinite(v) && v >= 0, 'a finite nonnegative number');
 const scope = union(object({ kind: literal('national') }), object({ kind: literal('region', 'province', 'municipality'), code: text }));
 const modelIds = object({ votes: literal(REFORM_MODEL_IDS.votes), preferences: literal(REFORM_MODEL_IDS.preferences), chambers: literal(REFORM_MODEL_IDS.chambers) });
-const list = object({ id: text, name: text, coalitionId: nullable(text), protectedMinority: nullable(object({ regionId: text, legalReference: text })) });
+const list = object({ kind: optional(literal('list', 'other')), id: text, name: text, coalitionId: nullable(text), protectedMinority: nullable(object({ regionId: text, legalReference: text })) });
 const candidate: Schema<Candidate> = object({ id: text, name: text, birthDate: date, gender: literal('female', 'male'),
   availability: union(object({ kind: literal('available') }), object({ kind: literal('unavailable'), reason: text })),
   externalCandidacies: array(object({ chamber, kind: literal('domestic', 'foreign') })) });
@@ -73,7 +75,18 @@ export function validateReformScenario(value: unknown, snapshot?: ReformGenerati
   };
   const key = (v: unknown) => JSON.stringify(v);
   if (s.projectionDate > s.electionDate) errors.push('Projection date is after election date');
-  for (const ch of ['camera', 'senato'] as const) unique(s.lists[ch], l => l.id, `${ch} list`);
+  for (const ch of ['camera', 'senato'] as const) {
+    unique(s.lists[ch], l => l.id, `${ch} list`);
+    errors.push(...otherListErrors(s.lists[ch]));
+    const others = s.lists[ch].filter(l => l.kind === 'other');
+    for (const l of others) {
+      if (s.presentation && s.presentation.lists.find(p => p.id === l.id)?.color !== OTHER_LIST_COLOR) errors.push('Other requires its fixed grey color');
+      if (s.candidateTemplates.some(t => t.chamber === ch && (t.ownerId === l.id || t.affiliationListId === l.id)) ||
+          s.suppliedPreferences.some(p => p.chamber === ch && p.listId === l.id)) errors.push('Other cannot have candidates or preferences');
+      if (s.bonusLinks.some(b => b[ch].kind === 'list' && b[ch].id === l.id)) errors.push('Other cannot have bonus links');
+      if (s.lists[ch === 'camera' ? 'senato' : 'camera'].some(x => x.id === l.id && x.kind !== 'other')) errors.push('Other kind must agree between chambers');
+    }
+  }
   if (s.presentation) {
     unique(s.presentation.lists, l => l.id, 'presentation list');
     unique(s.presentation.coalitions, c => c.id, 'presentation coalition');
@@ -86,7 +99,7 @@ export function validateReformScenario(value: unknown, snapshot?: ReformGenerati
     if ([...s.lists.camera, ...s.lists.senato].some(l => l.coalitionId && !s.presentation!.coalitions.some(c => c.id === l.coalitionId))) errors.push('Missing coalition presentation');
   }
   for (const ch of ['camera', 'senato'] as const) {
-    const subjects = new Set(s.lists[ch].map(l => key([l.coalitionId ? 'coalition' : 'list', l.coalitionId ?? l.id])));
+    const subjects = new Set(s.lists[ch].filter(l => l.kind !== 'other').map(l => key([l.coalitionId ? 'coalition' : 'list', l.coalitionId ?? l.id])));
     unique(s.bonusLinks, l => key([l[ch].kind, l[ch].id]), `${ch} bonus link`);
     if (s.bonusLinks.some(l => !subjects.has(key([l[ch].kind, l[ch].id])))) errors.push(`Unknown ${ch} bonus subject`);
   }
@@ -217,11 +230,16 @@ export function convertLegacyScenarioToReform(legacy: Scenario, snapshot: Reform
   if (options.sourceAlgorithmId !== 'politiche-r-parity-v1' || legacy.candidateTemplates.length) throw new RangeError('Legacy conversion needs old-law identity and separately resolved candidate templates with recorded gender');
   const result = createDefaultReformScenario(snapshot, options.projectionDate, legacy.electionDate, options.seed);
   const id = (name: string) => {
+    if (name === OTHER_LIST_NAME && legacy.lists.some(l => l.name === name && l.kind === 'other')) return OTHER_LIST_ID;
     const mapped = options.listMap[name]; if (!mapped) throw new RangeError(`Missing explicit reform mapping for ${name}`); return mapped;
   };
   for (const l of legacy.lists) {
     const mapped = id(l.name);
     for (const ch of ['camera', 'senato'] as const) {
+      if (l.kind === 'other') {
+        result.lists[ch].push({ id: OTHER_LIST_ID, name: OTHER_LIST_NAME, kind: 'other', coalitionId: null, protectedMinority: null });
+        result.coverage = result.coverage.map(c => c.chamber === ch ? { ...c, listIds: [...c.listIds, OTHER_LIST_ID] } : c);
+      }
       const target = result.lists[ch].find(r => r.id === mapped);
       if (!target) throw new RangeError(`Mapped reform list is absent in ${ch}: ${mapped}`);
       result.lists[ch] = result.lists[ch].map(r => r.id === mapped ? { ...r, coalitionId: l.coalition } : r);
@@ -237,7 +255,7 @@ export function convertLegacyScenarioToReform(legacy: Scenario, snapshot: Reform
   for (const ch of ['camera', 'senato'] as const) result.lists[ch] = result.lists[ch].filter(l => active.has(l.id));
   result.coverage = result.coverage.map(c => ({ ...c, listIds: c.listIds.filter(i => active.has(i)) }));
   result.correspondences = result.correspondences.filter(c => active.has(c.futureListId));
-  const subjects = (ch: Chamber) => [...new Map(result.lists[ch].map(l => [l.coalitionId ?? l.id,
+  const subjects = (ch: Chamber) => [...new Map(result.lists[ch].filter(l => l.kind !== 'other').map(l => [l.coalitionId ?? l.id,
     { kind: l.coalitionId ? 'coalition' as const : 'list' as const, id: l.coalitionId ?? l.id }])).values()];
   result.bonusLinks = subjects('camera').filter(s => subjects('senato').some(t => t.id === s.id && t.kind === s.kind))
     .map(s => ({ camera: s, senato: s, cameraDeclares: true, senatoDeclares: true }));

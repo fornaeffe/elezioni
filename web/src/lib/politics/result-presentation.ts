@@ -65,7 +65,7 @@ function collegeCandidateKey(row: {
   CIRCOSCRIZIONE: unknown;
   COLLEGIOPLURINOMINALE: unknown;
   COLLEGIOUNINOMINALE: unknown;
-  CANDIDATO: string;
+  CANDIDATO: string | null;
 }): string {
   return `${String(row.CIRCOSCRIZIONE)}\u001f${String(row.COLLEGIOPLURINOMINALE)}\u001f${String(
     row.COLLEGIOUNINOMINALE

@@ -1,3 +1,4 @@
+import { OTHER_LIST_ID } from '../../core/other-list';
 import { storedRows, type StoredResult } from '../../core/result-store';
 import type { ResultTable } from '../../core/types';
 import { positionAccumulator, positionTable } from './election-probability';
@@ -16,7 +17,7 @@ export async function storedPositionProbabilities(record: StoredResult, chamber:
 }
 export async function storedBonusProbabilities(record: StoredResult) {
   const { overview } = await ensureStatistics(record);
-  const subjects = overview.series.filter(s => s.kind === 'subject').map(s => ({ ...s, wins: 0, known: 0, absent: 0 }));
+  const subjects = overview.series.filter(s => s.kind === 'subject' && s.owner !== `list:${OTHER_LIST_ID}`).map(s => ({ ...s, wins: 0, known: 0, absent: 0 }));
   // Eligibility retains the actual first subject and the JOINT award decision;
   // do not infer a bonus from seats eventually filled or from vote thresholds.
   let known = 0;

@@ -1,10 +1,11 @@
 <script lang="ts">
+  import { OTHER_LIST_ID } from '../../core/other-list';
   import type { ResultServiceClient } from '../../core/result-service-client';
   import type { SeriesSummary } from '../../results/statistics';
   import { probabilityLabel, type PositionProbabilities } from './election-probability';
   let { client, resultId, owner, series }: { client: ResultServiceClient; resultId: string; owner: string; series: SeriesSummary[] } = $props();
   let chamber = $state('camera'), list = $state('');
-  const lists = $derived(series.filter(s => s.chamber === chamber && s.kind === 'list' && s.owner.startsWith('list:')));
+  const lists = $derived(series.filter(s => s.chamber === chamber && s.kind === 'list' && s.owner.startsWith('list:') && s.owner !== `list:${OTHER_LIST_ID}`));
   const selected = $derived(lists.find(s => s.owner === list) ?? lists[0]);
   let data = $state.raw<PositionProbabilities | null>(null), error = $state('');
   $effect(() => {

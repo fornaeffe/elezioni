@@ -4,6 +4,9 @@ scrutinio_regionali_ER <- function(
   pop_legale,
   liste
 ) {
+  # Approved simulator category, excluded from candidates and every allocation.
+  other_names <- if ("kind" %in% names(liste)) as.character(liste$LISTA[which(liste$kind == "other")]) else character()
+  if (length(other_names) > 1L || any(other_names != "Altre liste") || any(!is.na(liste$COALIZIONE[liste$LISTA %in% other_names]))) stop("Invalid Other list metadata")
   data.table::setDTthreads(1)
   
   prov_lista <- comuni_liste[
@@ -16,6 +19,13 @@ scrutinio_regionali_ER <- function(
   
   prov_lista <- prov_lista[prov_lista$LISTA != "astensione", ]
   
+  other_provinces <- prov_lista[prov_lista$LISTA %in% other_names, ]
+  other_total <- sum(other_provinces$VOTI_LISTA_ITER)
+  if (length(other_names)) {
+    prov_lista <- prov_lista[!prov_lista$LISTA %in% other_names, ]
+    liste <- liste[!liste$LISTA %in% other_names, ]
+  }
+
   # Art. 3
   # Individuazione dei seggi e delle circoscrizioni provinciali
   
@@ -66,7 +76,7 @@ scrutinio_regionali_ER <- function(
     aggregate(VOTI_LISTA_ITER ~ LISTA, data = prov_lista, sum)
   )
   
-  voti_validi <- sum(liste$VOTI_LISTA_ITER)
+  voti_validi <- sum(liste$VOTI_LISTA_ITER) + other_total
   
   liste$PERCENTUALE_DEI_VOTI_VALIDI <- liste$VOTI_LISTA_ITER / voti_validi
   
@@ -95,6 +105,7 @@ scrutinio_regionali_ER <- function(
   liste$SOGLIA <- liste$SOGLIA_3 | liste$SOGLIA_COALIZIONE
   
   liste$VOTI_UTILI <- liste$VOTI_LISTA_ITER * liste$SOGLIA
+  if (length(other_names) && !any(liste$VOTI_UTILI > 0)) stop("No eligible lists: Other is always excluded")
   
   prov_lista <- merge(
     prov_lista,
@@ -723,6 +734,18 @@ scrutinio_regionali_ER <- function(
     coalizioni$MIGLIOR_PERDENTE +
     coalizioni$ELETTI
   
+  if (length(other_names)) {
+    # Restore vote rows only after all seat and presidential operations.
+    other_provinces$ELETTI <- 0
+    prov_lista <- data.table::rbindlist(list(prov_lista, other_provinces), use.names = TRUE, fill = TRUE)
+    province_totals <- prov_lista[, .(TOTAL = sum(VOTI_LISTA_ITER)), by = PROVINCIA]
+    prov_lista$PERCENTUALE <- prov_lista$VOTI_LISTA_ITER / province_totals$TOTAL[match(prov_lista$PROVINCIA, province_totals$PROVINCIA)]
+    other_row <- data.frame(LISTA = other_names, COALIZIONE = NA_character_, VOTI_LISTA_ITER = other_total, PERCENTUALE = other_total / voti_validi, ELETTI = 0)
+    liste <- data.table::rbindlist(list(liste, other_row), use.names = TRUE, fill = TRUE)
+    liste$PERCENTUALE <- liste$VOTI_LISTA_ITER / voti_validi
+    coalizioni$PERCENTUALE <- coalizioni$VOTI_LISTA_ITER / voti_validi
+  }
+
   return(list(
     coalizioni = coalizioni[, c(
       "COALIZIONE",

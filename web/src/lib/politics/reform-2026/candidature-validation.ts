@@ -27,7 +27,7 @@ export function validateCandidatures(c: ChamberContext): Map<string, CandidateUs
   for (const slate of d.ordinarySlates) {
     const path = `${p}.ordinarySlates.${slate.collegeId}.${slate.listId}`;
     const college = v.reference(c.colleges, slate.collegeId, path);
-    v.reference(c.lists, slate.listId, path);
+    if (v.reference(c.lists, slate.listId, path)?.kind === 'other') v.add('INVALID_CANDIDATURE', path, 'Other cannot have ordinary candidates.');
     if (college?.kind === 'special-uninominal') v.add('INVALID_CANDIDATURE', path, 'Ordinary slates cannot be filed in uninominal colleges.');
     v.index(slate.candidateIds, x => x, `${path}.candidateIds`);
     // C18-bis(3), S9(4): «pari a sette, compreso il capolista»;
@@ -56,7 +56,7 @@ export function validateCandidatures(c: ChamberContext): Map<string, CandidateUs
         slate.candidates.length !== territory.bonusSeats) v.add('INVALID_CANDIDATURE', path, 'Filed bonus slate size must equal an eligible territorial bonus endowment.', 'C18-bis(2-bis)/S9');
     if (!d.ordinarySlates.some(s => members.includes(s.listId) && c.colleges.get(s.collegeId)?.territoryId === slate.territoryId)) v.add('INVALID_COVERAGE', path, 'A bonus slate requires linked ordinary coverage in its territory.', 'C18-bis(2-bis)/S11(3-bis)');
     for (const slot of slate.candidates) {
-      v.reference(c.lists, slot.affiliationListId, path);
+      if (v.reference(c.lists, slot.affiliationListId, path)?.kind === 'other') v.add('INVALID_CANDIDATURE', path, 'Other cannot have bonus candidates.');
       if (!members.includes(slot.affiliationListId)) v.add('INVALID_LINK', path, 'Bonus affiliation must belong to the bonus-winning subject.');
       // C19(4): «almeno un collegio ... della circoscrizione»; preceding candidates
       // «siano candidati nelle liste circoscrizionali ... del premio».

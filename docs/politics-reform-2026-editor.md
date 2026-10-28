@@ -6,6 +6,11 @@ storage, execution and exports use [application](politics-reform-2026-applicatio
 
 ## User workflow
 
+- **Includi Altre liste** toggles one fixed grey, candidate-free vote category.
+  It retains reference, history, geography and chamber-presence controls but
+  cannot join coalitions or receive seats. See the shared
+  [Other category contract](other-list.md) for accounting and compatibility.
+
 - **Ripristina scenario predefinito** restores the bundled scenario after
   confirmation, including its locally saved draft. It discards pending editor
   changes and previews, preserves calculated results and their executed scenario,

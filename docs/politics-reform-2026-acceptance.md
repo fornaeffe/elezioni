@@ -46,6 +46,12 @@ cannot pass this gate. Ordinary development tests retain explicit artifact skips
 Stop other preview servers before acceptance. Reports and input SHA-256 values
 are in `data/derived/r26-21-acceptance/`; preserve them before another run.
 
+On hosts with many cores, set `$env:ACCEPTANCE_TEST_WORKERS='1'` (or another
+integer from 1 to 64) to bound simultaneous Vitest and Playwright test processes.
+This leaves the production compute-worker matrix and acceptance assertions
+unchanged; it does not enable retries or skips. Without this setting, both test
+runners keep their defaults.
+
 ## Performance and diagnostic frequencies
 
 From `web/`, run `npm run benchmark:reform` for the production 1/2/4-worker

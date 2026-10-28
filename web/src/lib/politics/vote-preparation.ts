@@ -81,7 +81,7 @@ function enrichListVotes(source: PoliticsVotePreparationSource): EnrichedUniList
     .map((row) => {
       const uni = uniByCode.get(codeKey(row.UNI_COD));
       const coalition = coalitionByList.get(row.LISTA) ?? null;
-      const candidate = candidateBySimUniCoalition.get(joinKey(row.SIM, row.UNI_COD, coalition));
+      const candidate = source.liste.some(l => l.LISTA === row.LISTA && l.kind === 'other') ? undefined : candidateBySimUniCoalition.get(joinKey(row.SIM, row.UNI_COD, coalition));
 
       return {
         SIM: row.SIM,
@@ -193,7 +193,8 @@ export function preparePoliticsVoteTables(source: PoliticsVotePreparationSource)
   const candidateVoteTotals = aggregateCandidateVotes(enrichedListVotes);
 
   return {
-    uni_liste_sim: prepareListVotes(enrichedListVotes, uniqueValidPlurinominalRows(source.candidati_pluri_template)),
+    uni_liste_sim: [...prepareListVotes(enrichedListVotes, uniqueValidPlurinominalRows(source.candidati_pluri_template)),
+      ...enrichedListVotes.filter(r => source.liste.some(l => l.LISTA === r.LISTA && l.kind === 'other')).map(r => ({ ...r, MINORANZA: false }))],
     candidati_uni_sim: prepareCandidateVotes(source.candidati_uni_sim, candidateVoteTotals)
   };
 }

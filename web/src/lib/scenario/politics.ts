@@ -1,3 +1,4 @@
+import { validateOtherScenarioLists } from '$lib/core/other-list';
 import type {
   ElectionKind,
   Scenario,
@@ -19,7 +20,7 @@ import type {
 import { generatedDefaultPoliticsScenario } from './politics-defaults.generated';
 
 export const politicsScenarioStorageKey = 'elezioni:web:politics-scenario:v1';
-export const politicsScenarioSchemaVersion = 7;
+export const politicsScenarioSchemaVersion = 8;
 
 export const defaultPoliticsScenario: Scenario = generatedDefaultPoliticsScenario;
 export const politicsAbstentionListName = 'astensione';
@@ -796,6 +797,7 @@ export function normalizeScenario(value: unknown): Scenario {
       const name = cleanString(source.name);
       return {
         id: cleanString(source.id) || stableId('list', name, index + 1),
+        ...(source.kind === undefined ? {} : { kind: source.kind }),
         name,
         coalition: source.coalition === null ? null : cleanString(source.coalition),
         color: cleanColor(source.color, '#6f7f8f'),
@@ -860,7 +862,7 @@ export function normalizeScenario(value: unknown): Scenario {
 }
 
 export function validateScenario(scenario: Scenario): string[] {
-  const messages: string[] = [];
+  const messages: string[] = validateOtherScenarioLists(scenario);
   const coalitionNames = scenario.coalitions.map((coalition) => coalition.name.trim()).filter(Boolean);
   const coalitionNameSet = new Set(coalitionNames);
   const listNames = scenario.lists.map((list) => list.name.trim()).filter(Boolean);
@@ -916,7 +918,7 @@ export function validateScenario(scenario: Scenario): string[] {
     if (!Number.isFinite(share) || share < 0 || share > 100) {
       messages.push(`Quota non valida per ${list.name || 'lista senza nome'}.`);
     }
-    if (!list.coalition || !coalitionNameSet.has(list.coalition)) {
+    if (list.kind !== 'other' && (!list.coalition || !coalitionNameSet.has(list.coalition))) {
       messages.push(`Coalizione mancante o sconosciuta per ${list.name || 'lista senza nome'}.`);
     }
   }
@@ -1025,7 +1027,7 @@ export function validateScenario(scenario: Scenario): string[] {
 
 export function serializeScenario(scenario: Scenario): string {
   const payload: SerializedScenario = {
-    schema_version: politicsScenarioSchemaVersion,
+    schema_version: scenario.lists.some(l => l.kind === 'other') ? politicsScenarioSchemaVersion : 7,
     scenario: cloneScenario(scenario)
   };
   return `${JSON.stringify(payload, null, 2)}\n`;

@@ -1,3 +1,4 @@
+import { otherListsInCollege } from './other-list';
 import { exactFraction } from './exact';
 import type { ChamberInput, ListVotes, PoliticalList, Coalition } from './input';
 import type { ExactFraction } from './result';
@@ -108,9 +109,10 @@ export function aggregateElectoralFigures(
   const special = indexRows(specialFigures, chamber.colleges.filter(c => c.kind === 'special-uninominal').map(c => c.id));
   const rows = [...ordinary.values(), ...special.values()];
   for (const row of rows) {
-    const expected = ordinary.has(row.collegeId)
+    const candidateLists = ordinary.has(row.collegeId)
       ? chamber.ordinarySlates.filter(s => s.collegeId === row.collegeId).map(s => s.listId)
       : [...new Set(chamber.specialCandidatures.filter(c => c.collegeId === row.collegeId).flatMap(c => c.linkedListIds))];
+    const expected = [...candidateLists, ...otherListsInCollege(chamber, row.collegeId)];
     const ids = row.listVotes.map(v => v.listId);
     if (ids.length !== expected.length || new Set(ids).size !== ids.length || expected.some(id => !ids.includes(id))) {
       throw new RangeError('Supply all contesting list figures, including explicit zeros');

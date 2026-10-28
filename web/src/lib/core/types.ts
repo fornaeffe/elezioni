@@ -1,6 +1,7 @@
 export type ElectionKind = 'politiche' | 'regionali-er' | 'comunali';
 
 export interface ScenarioList {
+  kind?: import('./other-list').ListKind;
   id: string;
   name: string;
   coalition: string | null;

@@ -21,7 +21,7 @@
   let page = $state(0);
   const places = $derived(role === 'bonus' ? catalog.territories.filter(t => t.chamber === chamber && t.kind === 'ordinary').map(t => ({ id: t.id, label: t.name }))
     : catalog.colleges.filter(c => c.chamber === chamber && (role === 'special' ? c.kind === 'special-uninominal' : c.kind !== 'special-uninominal')).map(c => ({ id: c.id, label: c.name })));
-  const owners = $derived(role === 'ordinary' ? scenario.lists[chamber].filter(l => scenario.coverage.some(c => c.chamber === chamber && c.collegeId === locationId && c.listIds.includes(l.id))).map(l => ({ id: l.id, label: l.name }))
+  const owners = $derived(role === 'ordinary' ? scenario.lists[chamber].filter(l => l.kind !== 'other').filter(l => scenario.coverage.some(c => c.chamber === chamber && c.collegeId === locationId && c.listIds.includes(l.id))).map(l => ({ id: l.id, label: l.name }))
     : reformSubjects(scenario, chamber).filter(sub => scenario.coverage.some(c => c.chamber === chamber && (role === 'special' ? c.collegeId === locationId : catalog.colleges.find(college => college.id === c.collegeId)?.territoryId === locationId)
       && c.listIds.some(id => { const l = scenario.lists[chamber].find(l => l.id === id); return l && (l.coalitionId ?? l.id) === sub.id; }))).map(sub => ({ id: sub.id, label: subjectLabel(scenario, sub, chamber) })));
   const selection = $derived<PreviewSelection>({ chamber, role, locationId, ownerId });
@@ -85,7 +85,7 @@
       <label>Data nascita<input type="date" bind:value={person.birthDate} /></label>
       <label>Genere candidato<select bind:value={person.gender}><option value="female">Femminile</option><option value="male">Maschile</option></select></label>
       <label>Posizione candidatura<input type="number" min="1" max={role === 'ordinary' ? 7 : role === 'special' ? 1 : undefined} bind:value={position} /></label>
-      {#if role !== 'ordinary'}<label>Affiliazione candidatura<select bind:value={affiliation}><option value="">{role === 'special' ? 'Indipendente' : 'Automatica'}</option>{#each scenario.lists[chamber] as list (list.id)}<option value={list.id}>{list.name}</option>{/each}</select></label>{/if}
+      {#if role !== 'ordinary'}<label>Affiliazione candidatura<select bind:value={affiliation}><option value="">{role === 'special' ? 'Indipendente' : 'Automatica'}</option>{#each scenario.lists[chamber].filter(l => l.kind !== 'other') as list (list.id)}<option value={list.id}>{list.name}</option>{/each}</select></label>{/if}
     </div>
     <label><input type="checkbox" checked={person.availability.kind === 'unavailable'} onchange={e => { person = { ...person, availability: e.currentTarget.checked ? { kind: 'unavailable', reason: '' } : { kind: 'available' } }; }} />Indisponibile</label>
     {#if person.availability.kind === 'unavailable'}<label>Motivo indisponibilità<input value={person.availability.reason} onchange={e => { person = { ...person, availability: { kind: 'unavailable', reason: e.currentTarget.value } }; }} /></label>{/if}

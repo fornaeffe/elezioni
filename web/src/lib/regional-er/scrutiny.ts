@@ -24,6 +24,7 @@ interface ProvinceWorkRow {
 }
 
 interface ListWorkRow {
+  kind?: import('../core/other-list').ListKind;
   LISTA: string;
   COALIZIONE: string | null;
   VOTI_LISTA_ITER: number;
@@ -204,6 +205,7 @@ function buildListRows(
       const percentage = validVotes > 0 ? votes / validVotes : 0;
       return {
         LISTA: row.LISTA,
+        ...(row.kind === undefined ? {} : { kind: row.kind }),
         COALIZIONE: row.COALIZIONE,
         VOTI_LISTA_ITER: votes,
         PERCENTUALE_DEI_VOTI_VALIDI: percentage,
@@ -228,8 +230,8 @@ function buildListRows(
 }
 
 function buildCoalitionRows(liste: readonly ListWorkRow[], rng: Rng): CoalitionWorkRow[] {
-  const votesByCoalition = groupSum(liste, (row) => coalitionName(row.COALIZIONE), (row) => row.VOTI_LISTA_ITER);
-  const totalVotes = sum([...votesByCoalition.values()]);
+  const votesByCoalition = groupSum(liste.filter(l => l.kind !== 'other'), (row) => coalitionName(row.COALIZIONE), (row) => row.VOTI_LISTA_ITER);
+  const totalVotes = sum(liste.map(l => l.VOTI_LISTA_ITER));
   const rows = [...votesByCoalition.entries()]
     .map(([coalition, votes]) => ({
       COALIZIONE: coalition,
@@ -268,7 +270,7 @@ function applyThresholds(liste: ListWorkRow[], coalizioni: readonly CoalitionWor
 
   for (const row of liste) {
     row.SOGLIA_COALIZIONE = coalitionByName.get(coalitionName(row.COALIZIONE))?.SOGLIA_COALIZIONE ?? false;
-    row.SOGLIA = row.SOGLIA_3 || row.SOGLIA_COALIZIONE;
+    row.SOGLIA = row.kind !== 'other' && (row.SOGLIA_3 || row.SOGLIA_COALIZIONE);
     row.VOTI_UTILI = row.SOGLIA ? row.VOTI_LISTA_ITER : 0;
   }
 
@@ -599,12 +601,14 @@ function buildFinalListRows(liste: readonly ListWorkRow[], provLista: readonly P
 
 function buildFinalCoalitionRows(
   coalizioni: readonly CoalitionWorkRow[],
-  liste: readonly RegionalErListResultRow[]
+  liste: readonly RegionalErListResultRow[],
+  otherListNames: readonly string[] = []
 ): RegionalErCoalitionResultRow[] {
   const flagsByCoalition = rowByCoalition(coalizioni);
   const totals = new Map<string, { votes: number; seats: number }>();
 
   for (const row of liste) {
+    if (otherListNames.includes(row.LISTA) || !flagsByCoalition.has(coalitionName(row.COALIZIONE))) continue;
     const coalition = coalitionName(row.COALIZIONE);
     const existing = totals.get(coalition) ?? { votes: 0, seats: 0 };
     existing.votes += row.VOTI_LISTA_ITER;
@@ -612,7 +616,7 @@ function buildFinalCoalitionRows(
     totals.set(coalition, existing);
   }
 
-  const totalVotes = sum([...totals.values()].map((row) => row.votes));
+  const totalVotes = sum(liste.map(row => row.VOTI_LISTA_ITER));
   return [...totals.entries()]
     .map(([coalition, row]) => {
       const flags = flagsByCoalition.get(coalition);
@@ -657,17 +661,23 @@ export function runRegionalErScrutiny(
    * Art. 11: lists below 3% regionally are excluded unless linked to a
    * presidential coalition/list group reaching 5%.
    */
-  const liste = buildListRows(context.liste, provLista);
-  const coalizioni = buildCoalitionRows(liste, rng);
-  applyThresholds(liste, coalizioni, provLista);
+  const otherMetadata = context.liste.filter(l => l.kind === 'other');
+  if (otherMetadata.length > 1 || otherMetadata.some(l => l.COALIZIONE !== null || l.LISTA !== 'Altre liste')) throw new Error('Invalid Other list metadata');
+  const allLists = buildListRows(context.liste, provLista);
+  const liste = allLists.filter(l => l.kind !== 'other');
+  const otherProvinceRows = provLista.filter(r => otherMetadata.some(l => l.LISTA === r.LISTA));
+  const allocationProvinceRows = provLista.filter(r => !otherMetadata.some(l => l.LISTA === r.LISTA));
+  const coalizioni = buildCoalitionRows(allLists, rng);
+  applyThresholds(liste, coalizioni, allocationProvinceRows);
+  if (otherMetadata.length && !liste.some(l => l.SOGLIA && l.VOTI_UTILI > 0)) throw new Error('No eligible lists: Other is always excluded');
 
   /*
    * Art. 12 and art. 13 comma 1: provincial quotient allocation first,
    * then regional recovery of residual votes.
    */
-  const residualSeats = applyProvincialSeats(province, provLista);
-  applyResidualSeats(liste, provLista, residualSeats, rng);
-  applyCoalitionTotals(liste, coalizioni, provLista);
+  const residualSeats = applyProvincialSeats(province, allocationProvinceRows);
+  applyResidualSeats(liste, allocationProvinceRows, residualSeats, rng);
+  applyCoalitionTotals(liste, coalizioni, allocationProvinceRows);
 
   /*
    * Art. 13 comma 2 and 3: presidential ranking, majority bonus/guarantee,
@@ -681,11 +691,11 @@ export function runRegionalErScrutiny(
    * available candidate slots. The current R code uses the province's
    * proportional seat count as candidate availability; preserve that behavior.
    */
-  applyProvincePlacement(liste, province, provLista, rng);
+  applyProvincePlacement(liste, province, allocationProvinceRows, rng);
 
-  const finalProvLista = buildFinalProvinceListRows(provLista);
-  const finalListe = buildFinalListRows(liste, provLista);
-  const finalCoalizioni = buildFinalCoalitionRows(coalizioni, finalListe);
+  const finalProvLista = buildFinalProvinceListRows([...allocationProvinceRows, ...otherProvinceRows]);
+  const finalListe = buildFinalListRows(allLists, [...allocationProvinceRows, ...otherProvinceRows]);
+  const finalCoalizioni = buildFinalCoalitionRows(coalizioni, finalListe, otherMetadata.map(l => l.LISTA));
 
   return {
     coalizioni: finalCoalizioni,

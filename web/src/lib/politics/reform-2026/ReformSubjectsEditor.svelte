@@ -3,7 +3,7 @@
   import type { PoliticalList } from './input';
   import type { ReformGenerationScenario } from './generation-types';
   import type { ReformEditorCatalog } from './editor-catalog';
-  import { addReformCoalition, addReformList, editableLists, removeReformCoalition, removeReformList, updatePresentList, coalitionChambers, setCoalitionPresence, setListPresence } from './scenario-editor';
+  import { addReformCoalition, addReformList, editableLists, removeReformCoalition, removeReformList, updatePresentList, coalitionChambers, setCoalitionPresence, setListPresence, setReformOtherListEnabled } from './scenario-editor';
   import { upgradeReformDraft } from './presentation-metadata';
   let { scenario, catalog, disabled, onaction }: {
     scenario: ReformGenerationScenario; catalog: ReformEditorCatalog; disabled: boolean;
@@ -14,7 +14,7 @@
   function toggle(id: string) { openDetails = openDetails.includes(id) ? openDetails.filter(v => v !== id) : [...openDetails, id]; }
   let search = $state('');
   let page = $state(0);
-  const matching = $derived(lists.filter(l => `${l.name} ${l.id}`.toLocaleLowerCase('it-IT').includes(search.toLocaleLowerCase('it-IT'))));
+  const matching = $derived(lists.filter(l => l.kind !== 'other').filter(l => `${l.name} ${l.id}`.toLocaleLowerCase('it-IT').includes(search.toLocaleLowerCase('it-IT'))));
   const safePage = $derived(Math.min(page, Math.max(0, Math.ceil(matching.length / 10) - 1)));
   function metadata(change: (s: ReformGenerationScenario) => void) { onaction(() => { const n = upgradeReformDraft(scenario); change(n); return n; }); }
   function patch(id: string, value: Partial<Omit<PoliticalList, 'id'>>) { onaction(() => updatePresentList(scenario, id, value)); }
@@ -36,6 +36,12 @@
   {/each}
   <button type="button" {disabled} onclick={() => onaction(() => addReformCoalition(scenario))}>Aggiungi coalizione</button>
   <h3>Liste</h3>
+  <label><input type="checkbox" role="switch" aria-label="Includi Altre liste" checked={lists.some(l => l.kind === 'other')} {disabled} onchange={e => onaction(() => setReformOtherListEnabled(scenario, e.currentTarget.checked))} />Includi Altre liste</label>
+  {#each lists.filter(l => l.kind === 'other') as other (other.id)}
+    <div class="editor-card" data-testid="other-list-row"><strong><span style:color="#9ca3af" aria-hidden="true">●</span> Altre liste</strong><p>Categoria di voti validi sempre esclusa dai seggi, senza candidati e coalizione. Quote, copertura geografica e corrispondenze sono nelle rispettive sezioni.</p>
+      {#each ['camera', 'senato'] as ch (ch)}<label><input type="checkbox" aria-label={`Presenza lista Altre liste ${ch}`} checked={scenario.lists[ch as 'camera' | 'senato'].some(l => l.id === other.id)} {disabled} onchange={e => onaction(() => setListPresence(scenario, other.id, ch as 'camera' | 'senato', e.currentTarget.checked))} />{ch === 'camera' ? 'Camera' : 'Senato'}</label>{/each}
+    </div>
+  {/each}
   <p>Le nuove liste iniziano senza depositi: seleziona i collegi nella sezione Depositi. I nomi non cambiano le identità salvate.</p>
   <label>Cerca lista<input type="search" bind:value={search} oninput={() => { page = 0; }} {disabled} /></label>
   <p>{matching.length} liste; fino a 10 per pagina, compresi i riferimenti storici speciali.</p>

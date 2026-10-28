@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { isOtherList, setOtherListEnabled, OTHER_LIST_COLOR } from '$lib/core/other-list';
   import { base } from '$app/paths';
   import { Download, Play, Plus, RotateCcw, Trash2, Upload } from '@lucide/svelte';
   import { browser } from '$app/environment';
@@ -666,7 +667,14 @@
       </button>
     </div>
     <div class="rows">
+      <label class="checkbox"><input type="checkbox" role="switch" aria-label="Includi Altre liste" checked={scenarioDraft.lists.some(isOtherList)} onchange={e => { scenarioDraft = setOtherListEnabled(scenarioDraft, e.currentTarget.checked); }} />Includi Altre liste</label>
       {#each scenarioDraft.lists as list (list.id)}
+        {#if isOtherList(list)}
+          <div class="list-row other-list-row" data-testid="other-list-row"><span><span style:color={OTHER_LIST_COLOR} aria-hidden="true">●</span> Altre liste</span><span>Escluse dai seggi</span>
+            <input aria-label="Quota Altre liste" type="number" min="0" max="100" step="0.1" bind:value={list.startingShare} oninput={() => { list.shareOverride = true; }} />
+            <label><input type="checkbox" bind:checked={list.shareOverride} aria-label="Usa quota Altre liste" />Usa quota</label>
+          </div>
+        {:else}
         <div class="list-row">
           <input
             aria-label="Nome lista"
@@ -697,6 +705,7 @@
             <Trash2 size={16} aria-hidden="true" />
           </button>
         </div>
+        {/if}
       {/each}
     </div>
 
@@ -1261,4 +1270,13 @@
       grid-template-columns: 1fr;
     }
   }
+  .list-row.other-list-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .other-list-row > span:first-child { min-width: 8rem; font-weight: 600; }
+  .other-list-row > input { width: 6rem; }
+  .other-list-row > label { display: flex; align-items: center; gap: 0.4rem; }
 </style>

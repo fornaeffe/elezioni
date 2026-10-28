@@ -18,6 +18,8 @@ type PlannedSlate = { collegeId: string; territoryId: string; listId: string; pr
  * bonus uses. Filed affiliations describe persons, never proportional bonus
  * entitlements to coalition members. Final legal validation checks all uses. */
 export function generateLegacyReformCandidatures(s: ReformGenerationScenario, snapshot: ReformGenerationSnapshot, simulationId: number): GeneratedCandidatures {
+  const voteLists = s.lists;
+  s = { ...s, coverage: s.coverage.map(c => ({ ...c, listIds: c.listIds.filter(id => !voteLists[c.chamber].some(l => l.id === id && l.kind === 'other')) })) };
   const people = new Map<string, Candidate>(), ordinaryUses = new Map<string, number>();
   const chambers: GeneratedCandidatures['chambers'] = new Map();
   function own(person: Candidate) {

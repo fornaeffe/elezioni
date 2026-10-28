@@ -14,6 +14,12 @@ const report = { created: new Date().toISOString(), status: 'running', node: pro
 const save = () => writeFile(resolve(output, 'report.json'), `${JSON.stringify(report, null, 2)}\n`);
 const npmCli = process.env.npm_execpath;
 if (!npmCli) throw new Error('Run through npm run acceptance:reform');
+// Production worker tests already size their own compute pools. Allow a bounded
+// test pool on large desktop hosts instead of multiplying both pool sizes.
+const testWorkers = process.env.ACCEPTANCE_TEST_WORKERS;
+if (testWorkers !== undefined && (!/^\d+$/.test(testWorkers) || Number(testWorkers) < 1 || Number(testWorkers) > 64)) {
+  throw new Error('ACCEPTANCE_TEST_WORKERS must be an integer from 1 through 64');
+}
 async function run(name: string, args: string[], environment: Record<string, string> = {}) {
   console.log(`ACCEPTANCE ${name}`);
   const started = performance.now();
@@ -36,13 +42,13 @@ try {
   await run('preparation types', ['run', 'check:data']);
   await run('application types', ['run', 'check']);
   const units = resolve(output, 'unit.json');
-  await run('unit suite', ['run', 'test', '--', '--reporter=json', `--outputFile=${units}`]);
+  await run('unit suite', ['run', 'test', '--', '--reporter=json', `--outputFile=${units}`, ...(testWorkers ? ['--maxWorkers', testWorkers] : [])]);
   report.checks.push({ name: 'unit acceptance', ...requireUnitAcceptance(JSON.parse(await readFile(units, 'utf8'))) });
   for (const base of ['', '/elezioni']) {
     const browserReport = resolve(output, base ? 'browser-project.json' : 'browser-root.json');
     const env = { BASE_PATH: base, ACCEPTANCE_PREBUILT: '1', PLAYWRIGHT_JSON_OUTPUT_NAME: browserReport };
     await run(`static build ${base || '/'}`, ['run', 'build'], env);
-    await run(`browser suite ${base || '/'}`, ['run', 'test:e2e', '--', '--reporter=json', '--retries=0'], env);
+    await run(`browser suite ${base || '/'}`, ['run', 'test:e2e', '--', '--reporter=json', '--retries=0', ...(testWorkers ? ['--workers', testWorkers] : [])], env);
     report.checks.push({ name: `browser acceptance ${base || '/'}`, ...requireBrowserAcceptance(JSON.parse(await readFile(browserReport, 'utf8'))) });
   }
   await run('restore root static build', ['run', 'build']);

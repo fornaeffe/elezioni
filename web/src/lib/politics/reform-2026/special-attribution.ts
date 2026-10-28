@@ -1,3 +1,4 @@
+import { otherListsInCollege } from './other-list';
 import { allocateByQuotaAndRemainders, type QuotaAllocationResult } from './allocation';
 import { exactFraction } from './exact';
 import { sumVoteCounts, type CollegeListFigure } from './figures';
@@ -55,7 +56,7 @@ export function attributeSpecialVotes(
   const totals = new Map(listRows.map(r => [r.listId, r.votes]));
   const filed = chamber.specialCandidatures.filter(c => c.collegeId === collegeId).slice()
     .sort((a, b) => a.candidateId < b.candidateId ? -1 : 1);
-  const linked = filed.flatMap(c => c.linkedListIds);
+  const linked = [...filed.flatMap(c => c.linkedListIds), ...otherListsInCollege(chamber, collegeId)];
   if (!filed.length || new Set(filed.map(c => c.candidateId)).size !== filed.length ||
       new Set(linked).size !== linked.length || linked.length !== listRows.length ||
       totals.size !== listRows.length || linked.some(id => !totals.has(id) || !chamber.lists.some(l => l.id === id))) {
@@ -67,7 +68,7 @@ export function attributeSpecialVotes(
       (votes.kind === 'components' && (only!.size !== votes.candidateOnlyVotes.length || only!.size !== filed.length))) {
     throw new RangeError('Supply all special candidate counts exactly once');
   }
-  const validVotes = sumVoteCounts(votes.candidateTotals.map(c => c.votes));
+  const validVotes = sumVoteCounts([...votes.candidateTotals.map(c => c.votes), ...listRows.filter(l => otherListsInCollege(chamber, collegeId).includes(l.listId)).map(l => l.votes)]);
   sumVoteCounts(listRows.map(r => r.votes));
   // Preflight the entire college, including a later zero-support group, before draws.
   const groups = filed.map(c => {

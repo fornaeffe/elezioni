@@ -457,6 +457,7 @@ export function projectScenarioOntoRegionalErSource(
     const parameter = baseParameter ?? sourceParameter ?? {
       LISTA: scenarioRow.name,
       COALIZIONE: scenarioRow.coalition,
+        ...(scenarioRow.kind === undefined ? {} : { kind: scenarioRow.kind }),
       DATA: fallbackListDate,
       LOGIT_P: logit(0),
       SIGMA_GLOBAL: fallbackSigmaGlobal,
@@ -467,7 +468,8 @@ export function projectScenarioOntoRegionalErSource(
       source: {
         ...parameter,
         LISTA: scenarioRow.name,
-        COALIZIONE: scenarioRow.coalition
+        COALIZIONE: scenarioRow.coalition,
+        ...(scenarioRow.kind === undefined ? {} : { kind: scenarioRow.kind })
       },
       scenario: scenarioRow,
       projectedListName: scenarioRow.name,

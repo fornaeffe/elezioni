@@ -104,7 +104,7 @@ function createSeededSampler(seed: string | number): { sample: CandidateSampler;
 }
 
 function normalizeLists(lists: readonly PoliticsCandidateGenerationListRow[]): NormalizedListRow[] {
-  const filtered = lists.filter((row) => row.LISTA !== 'astensione');
+  const filtered = lists.filter((row) => row.LISTA !== 'astensione' && row.kind !== 'other');
   const totalsByCoalition = new Map<string, number>();
 
   for (const row of filtered) {
@@ -369,6 +369,8 @@ export function generatePoliticsCandidates(
   source: PoliticsCandidateGenerationSource,
   options: { sample?: CandidateSampler; seed?: string | number } = {}
 ): PoliticsGeneratedCandidates {
+  const others = new Set(source.liste.filter(l => l.kind === 'other').map(l => l.LISTA));
+  if (['camera', 'senato'].some(ch => source[ch as 'camera' | 'senato'].candidati_pluri.some(c => others.has(c.LISTA)))) throw new Error('Other cannot have candidate templates');
   validateCandidateGenerationInput(source);
   const seeded = createSeededSampler(options.seed ?? 'politics-candidate-generation-default');
   const sample = options.sample ?? seeded.sample;

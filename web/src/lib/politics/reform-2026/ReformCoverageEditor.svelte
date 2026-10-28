@@ -28,6 +28,7 @@
 </script>
 <section aria-label="Depositi liste">
   <h3>Depositi</h3>
+  <p>Per Altre liste la copertura indica dove simulare i voti e non genera candidature.</p>
   <p>Assente dal collegio e depositata con zero voti sono condizioni diverse. In modalità comune le azioni filtrate riguardano entrambi i rami; per modificare un singolo collegio abilita Camera/Senato.</p>
   <div class="editor-row">
     <label>Ramo deposito<select bind:value={chamber} onchange={() => { page = 0; }} {disabled}><option value="">Tutti i rami</option><option value="camera">Camera</option><option value="senato">Senato</option></select></label>

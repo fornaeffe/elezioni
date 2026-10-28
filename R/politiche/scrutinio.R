@@ -42,6 +42,18 @@ scrutinio_politiche <- function(
   ramo
   
 ) {
+  # Approved simulator category: valid list votes, never an electoral subject.
+  other_names <- if ("kind" %in% names(liste_naz)) as.character(liste_naz$LISTA[which(liste_naz$kind == "other")]) else character()
+  if (length(other_names) > 1L || any(other_names != "Altre liste")) stop("Invalid Other list metadata")
+  other_votes <- NULL
+  if (length(other_names)) {
+    meta <- liste_naz[liste_naz$LISTA %in% other_names, ]
+    if (any(!is.na(meta$COALIZIONE)) || any(meta$MINORANZA) || any(candidati_pluri$LISTA %in% other_names)) stop("Other cannot have coalitions or candidates")
+    other_votes <- as.data.frame(liste_uni[liste_uni$LISTA %in% other_names, ])
+    if (any(!is.na(other_votes$CANDIDATO)) || any(other_votes$CAND_MINORANZA) || any(other_votes$MINORANZA)) stop("Other cannot have candidates")
+    liste_uni <- liste_uni[!liste_uni$LISTA %in% other_names, ]
+  }
+
   
   message("Scrutinio del ramo: ", ramo, ifelse("SIM" %in% names(liste_uni), paste0(" SIM: ", liste_uni$SIM[1]), ""))
   
@@ -241,6 +253,18 @@ scrutinio_politiche <- function(
     liste_uni$PARTE_INTERA + 
     liste_uni$VOTO_DA_RESTO
   
+  if (!is.null(other_votes) && nrow(other_votes)) {
+    other_votes$ELETTO <- FALSE
+    other_votes$QUOZIENTE <- NA_real_
+    other_votes$PARTE_INTERA <- 0
+    other_votes$RESTO <- NA_real_
+    other_votes$DA_ASSEGNARE <- 0
+    other_votes$ORDINE <- 0
+    other_votes$VOTO_DA_RESTO <- 0
+    other_votes$CIFRA <- other_votes$VOTI_LISTA
+    liste_uni <- as.data.frame(data.table::rbindlist(list(liste_uni, other_votes), use.names = TRUE, fill = TRUE))
+  }
+
   #### Cifre di collegio plurinominale ####
   
   # d) determina la cifra elettorale di collegio plurinominale di
@@ -464,6 +488,9 @@ scrutinio_politiche <- function(
   liste_circ$SOGLIA_MINORANZA <- 
     liste_circ$ELETTI_MINORANZA >= ceiling(liste_circ$COLLEGI_UNI / 4)
 
+  liste_circ$SOGLIA20[liste_circ$LISTA %in% other_names] <- FALSE
+  liste_circ$SOGLIA_MINORANZA[liste_circ$LISTA %in% other_names] <- FALSE
+
   liste_naz <- merge(
     liste_naz,
     aggregate(
@@ -487,6 +514,8 @@ scrutinio_politiche <- function(
     ( liste_naz$SOGLIA20 & ( liste_naz$MINORANZA | ramo == "senato" ) ) |
     liste_naz$SOGLIA_MINORANZA
   
+  liste_naz$SOGLIA1M[liste_naz$LISTA %in% other_names] <- FALSE
+
   if (nrow(liste_naz[liste_naz$SOGLIA1M,]) == 0) stop("Errore alla riga 476")
   
   coal_naz <- aggregate(
@@ -589,6 +618,11 @@ scrutinio_politiche <- function(
     ( liste_naz$SOGLIA20 & ( liste_naz$MINORANZA | ramo == "senato" ) ) |
     liste_naz$SOGLIA_MINORANZA
   
+  if (length(other_names)) {
+    for (field in c("SOGLIA20", "SOGLIA_MINORANZA", "SOGLIA3", "SOGLIA3M")) liste_naz[liste_naz$LISTA %in% other_names, field] <- FALSE
+    if (!any(liste_naz$SOGLIA3M & liste_naz$CIFRA > 0)) stop("No eligible lists: Other is always excluded")
+  }
+
   coal_naz <- merge(
     coal_naz,
     aggregate(

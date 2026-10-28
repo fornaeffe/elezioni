@@ -35,6 +35,7 @@ export interface Candidate {
 }
 
 export interface PoliticalList {
+  readonly kind?: import('../../core/other-list').ListKind;
   readonly id: string;
   readonly name: string;
   readonly coalitionId: string | null;
@@ -153,6 +154,8 @@ export interface Electorate {
 }
 
 export interface ChamberInput {
+  /** Explicit voting support for the candidate-free Other category. */
+  readonly otherListCoverage?: readonly { readonly collegeId: string; readonly listId: string }[];
   readonly chamber: Chamber;
   readonly regions: readonly { readonly id: string; readonly autonomous: boolean }[];
   readonly territories: readonly Territory[];

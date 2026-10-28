@@ -1,3 +1,4 @@
+import { OTHER_LIST_ID } from '../../core/other-list';
 import type { ResultTable } from '../../core/types';
 import type { ReformGenerationScenario, ReformGenerationSnapshot } from './generation-types';
 import type { ChamberInput, ReformScrutinyInput } from './input';
@@ -45,7 +46,7 @@ export function reformRunSeries(input: ReformScrutinyInput, result: ComposedRefo
       rows.push({ Simulation: input.simulationId, Chamber: c.chamber, Kind: kind, Owner: owner, College: college, Territory: territory,
         Name: name, Color: /^#[0-9a-f]{6}$/i.test(colour) ? colour : '#64748b', Order: order, Votes: votes, 'Valid votes': valid,
         'Vote share %': valid !== null && valid > 0 && votes !== null ? votes / valid * 100 : null,
-        Elected: known ? selected.length : null, Confirmed: selected.length, Ordinary: count('ordinary'), Bonus: count('bonus'),
+        Elected: owner === `list:${OTHER_LIST_ID}` ? 0 : known ? selected.length : null, Confirmed: selected.length, Ordinary: count('ordinary'), Bonus: count('bonus'),
         Special: count('special-uninominal'), TAA: count('taa-proportional'), Entitled: entitled });
     };
     source.lists.forEach((l, i) => {
@@ -62,13 +63,15 @@ export function reformRunSeries(input: ReformScrutinyInput, result: ComposedRefo
     subjects.forEach((s, i) => add('subject', s.id, s.name, s.color, i, null, null,
       c.figures ? s.members.reduce((n, id) => n + (c.figures!.national.lists.find(l => l.listId === id)?.votes ?? 0), 0) : null,
       c.figures?.national.validVotes ?? null, filled.filter(e => `${e.entitlement.subject.kind}:${e.entitlement.subject.id}` === s.id), null));
-    for (const slate of source.ordinarySlates) {
+    // Other has geographic vote support without an ordinary candidate slate.
+    const collegeLists = [...source.ordinarySlates, ...(source.otherListCoverage ?? []).filter(r => source.colleges.find(c => c.id === r.collegeId)?.kind !== 'special-uninominal')];
+    for (const slate of collegeLists) {
       const college = source.colleges.find(c => c.id === slate.collegeId)!;
       const geography = snapshot.seats.geography.colleges.find(c => c.chamber === source.chamber && c.id === college.id);
       const l = source.lists.find(l => l.id === slate.listId)!;
       const figures = [...c.figures?.colleges ?? [], ...c.figures?.taaProportional ?? []].find(f => f.collegeId === college.id)?.figures;
       const targets = c.cameraTerritorial?.colleges ?? c.senateTerritorial?.colleges;
-      const entitled = college.kind === 'taa-proportional'
+      const entitled = l.kind === 'other' ? 0 : college.kind === 'taa-proportional'
         ? c.taa && c.taa.status !== 'non-computable' ? c.taa.listEntitlements.find(t => t.listId === l.id)?.seats ?? 0 : null
         : targets?.status === 'complete' ? targets.targets.find(t => t.collegeId === college.id && t.listId === l.id)?.ordinarySeats ?? 0 : null;
       add('college', `list:${l.id}`, `${l.name} · ${geography?.name ?? college.id}`, color(l.id), source.lists.indexOf(l), college.id, college.territoryId,

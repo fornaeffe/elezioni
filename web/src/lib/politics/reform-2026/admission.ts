@@ -7,7 +7,7 @@ import { resolveTie } from './ties';
 
 export type ListAdmissionReason = 'national-3-percent' | 'regional-20-percent' |
   'minority-regional-20-percent' | 'minority-quarter-uninominal-wins' | 'best-excluded-list' |
-  'below-access-thresholds' | 'not-best-excluded-list' | 'failed-coalition-no-independent-access';
+  'other-list-excluded' | 'below-access-thresholds' | 'not-best-excluded-list' | 'failed-coalition-no-independent-access';
 export interface ListAdmissionDecision {
   readonly listId: string;
   readonly coalitionId: string | null;
@@ -172,6 +172,9 @@ function determineAdmission(input: AdmissionInput, execution: ScrutinyExecutionC
   });
   const decisions: ListAdmissionDecision[] = lists.map(list => {
     const e = evidence.get(list.id)!;
+    if (list.kind === 'other') return { listId: list.id, coalitionId: null, admitted: false, admittedAs: null,
+      reasons: ['other-list-excluded'], lawReference: 'scenario:other-list', nationalVotes: e.votes,
+      nationalPercentage: calculatePercentages([e.votes], figures.national.validVotes)[0], qualifyingRegionIds: [], minorityQualification: null };
     const coalition = coalitions.find(c => c.coalitionId === list.coalitionId);
     let reasons = [...e.reasons];
     let admittedAs: ListAdmissionDecision['admittedAs'] = null;

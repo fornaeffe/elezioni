@@ -1,3 +1,4 @@
+import { otherListErrors } from './other-list';
 import type { Candidate, ChamberInput, College, PoliticalList, ReformScrutinyInput, Subject, Territory } from './input';
 import type { ValidationIssue } from './shape';
 
@@ -51,6 +52,7 @@ export class ChamberContext {
     const v = this.validation;
     if (ref.kind === 'coalition') return v.reference(this.coalitions, ref.id, path)?.listIds ?? [];
     const list = v.reference(this.lists, ref.id, path);
+    if (list?.kind === 'other') v.add('INVALID_LINK', path, 'Other cannot act as an electoral subject.');
     if (list?.coalitionId) v.add('INVALID_LINK', path, 'A coalition member cannot also act as a standalone subject.', 'C14-bis/S8');
     return list ? [list.id] : [];
   }
@@ -66,6 +68,12 @@ export class ChamberContext {
 
 export function validatePoliticalLinks(c: ChamberContext): void {
   const { validation: v, data: d, path: p } = c;
+  for (const message of otherListErrors(d.lists)) v.add('INVALID_LINK', `${p}.lists`, message);
+  v.index(d.otherListCoverage ?? [], r => key(r.collegeId, r.listId), `${p}.otherListCoverage`);
+  for (const r of d.otherListCoverage ?? []) {
+    v.reference(c.colleges, r.collegeId, `${p}.otherListCoverage`);
+    if (v.reference(c.lists, r.listId, `${p}.otherListCoverage`)?.kind !== 'other') v.add('INVALID_COVERAGE', p, 'Candidate-free coverage is reserved for Other.');
+  }
   // C14-bis(1): «Le dichiarazioni di collegamento devono essere reciproche».
   for (const list of d.lists) {
     if (list.coalitionId) {

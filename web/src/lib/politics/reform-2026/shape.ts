@@ -121,9 +121,10 @@ const chamberInput = object({
     object({ kind: literal('provisional-census'), reference: text, version: text, censusDate: date,
       geographyVersion: text, method: literal('I08-v1'), populationNotes: optional(array(text)) })
   ),
-  lists: array(object({ id: text, name: text, coalitionId: nullable(text),
+  lists: array(object({ kind: optional(literal('list', 'other')), id: text, name: text, coalitionId: nullable(text),
     protectedMinority: nullable(object({ regionId: text, legalReference: text })) })),
   coalitions: array(object({ id: text, listIds: array(text) })),
+  otherListCoverage: optional(array(object({ collegeId: text, listId: text }))),
   ordinarySlates: array(object({ collegeId: text, listId: text, candidateIds: array(text), preferences })),
   bonusSlates: array(object({ territoryId: text, subject,
     candidates: array(object({ candidateId: text, affiliationListId: text })) })),

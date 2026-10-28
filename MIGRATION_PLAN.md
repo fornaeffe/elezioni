@@ -122,6 +122,11 @@ into `main`; public deployment follows that merge and a successful hosting gate.
 
 ## Plan
 
+- [x] Add the approved unique, fixed **Altre liste** category across legacy
+  politics, reform politics and Emilia-Romagna editors, generation, scrutiny,
+  persistence and exports. Follow the [category contract](docs/other-list.md);
+  require candidate-free valid-vote accounting and unconditional seat exclusion.
+
 - [x] Implement [reference-based bonus candidate selection](docs/politics-reform-2026-candidates.md),
   with supplied positions/declarations, legal ordinary reuse, explicit archive
   compatibility and regenerated production defaults; leave territorial-support

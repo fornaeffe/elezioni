@@ -96,7 +96,8 @@ function buildListMetadata(ramo: Ramo, source: PoliticsGeneratedRamoSource): Lis
   return source.liste.map((row) => ({
     LISTA: row.LISTA,
     COALIZIONE: row.COALIZIONE,
-    MINORANZA: minorityLists.has(row.LISTA)
+    MINORANZA: minorityLists.has(row.LISTA),
+    ...(row.kind === undefined ? {} : { kind: row.kind })
   }));
 }
 
@@ -123,7 +124,7 @@ function adaptListVotes(
       CIRCOSCRIZIONE: requireCode(circ, 'CIRC_COD', row),
       COLLEGIOPLURINOMINALE: requireNullableCode(pluri, 'PLURI_COD', row),
       COLLEGIOUNINOMINALE: row.UNI_COD,
-      CANDIDATO: requireString(row.CANDIDATO_ID, 'CANDIDATO_ID', row),
+      CANDIDATO: source.liste.some(l => l.LISTA === row.LISTA && l.kind === 'other') ? null : requireString(row.CANDIDATO_ID, 'CANDIDATO_ID', row),
       CAND_MINORANZA: row.CAND_MINORANZA === true,
       LISTA: row.LISTA,
       MINORANZA: row.MINORANZA === true,
@@ -208,6 +209,8 @@ function splitAdaptedSimulations(
 }
 
 export function adaptGeneratedPoliticsRamo(ramo: Ramo, source: PoliticsGeneratedRamoSource): AdaptedPoliticsRamo {
+  const others = new Set(source.liste.filter(l => l.kind === 'other').map(l => l.LISTA));
+  if (source.candidati_pluri_sim.some(c => others.has(c.LISTA)) || source.uni_liste_sim.some(l => others.has(l.LISTA) && l.CANDIDATO_ID !== null)) throw new Error('Other cannot have candidates');
   const listeUni = adaptListVotes(source.uni_liste_sim, source);
   const candidatiUni = adaptUninominalCandidates(source.candidati_uni_sim, source);
   const candidatiPluri = adaptPlurinominalCandidates(source.candidati_pluri_sim, source);

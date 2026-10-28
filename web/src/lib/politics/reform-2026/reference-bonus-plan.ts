@@ -20,7 +20,7 @@ export interface PreparedBonusPlan {
 export function ordinaryPlans(s: ReformGenerationScenario, snapshot: ReformGenerationSnapshot, ch: Chamber): OrdinaryPlan[] {
   const geo = snapshot.seats.chambers.find(c => c.chamber === ch)!;
   const plans = geo.colleges.filter(c => c.kind !== 'special-uninominal').map(c =>
-    s.coverage.find(r => r.chamber === ch && r.collegeId === c.id)!.listIds.slice().sort().map(listId => ({
+    s.coverage.find(r => r.chamber === ch && r.collegeId === c.id)!.listIds.filter(id => !s.lists[ch].some(l => l.id === id && l.kind === 'other')).slice().sort().map(listId => ({
       collegeId: c.id, territoryId: c.territoryId, listId, people: Array<Candidate | undefined>(7).fill(undefined)
     }) as OrdinaryPlan)).flat();
   for (const t of s.candidateTemplates.filter(t => t.chamber === ch && t.role === 'ordinary')) {

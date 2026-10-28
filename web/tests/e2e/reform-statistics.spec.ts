@@ -97,7 +97,10 @@ test('college spinogram filters joint bonus decisions and reports plotted simula
   expect(await filter.evaluate(e => e.getBoundingClientRect().right)).toBeLessThanOrEqual(390);
   await local.screenshot({ path: 'test-results/reform-college-bonus-filter-mobile.png' });
   // An older archive with no bonus decision cannot establish either subset.
+  const previousResult = await page.getByLabel('Risultati locali').inputValue();
   await page.getByTestId('reform-file-input').setInputFiles({ name: 'unknown-bonus.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(statisticalResult(scenario, 12))) });
+  await expect(page.getByLabel('Risultati locali')).not.toHaveValue(previousResult);
+  await expect(statistics.getByRole('heading', { name: 'Eletti medi e percentuali sui voti validi' })).toBeVisible();
   await local.locator(':scope > summary').click();
   for (const value of ['awarded', 'not-awarded']) {
     await filter.selectOption(value);

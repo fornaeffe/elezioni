@@ -113,8 +113,8 @@ function keyOf(...parts: AdministrativeCode[]): string {
   return parts.map((part) => String(part)).join('\u001f');
 }
 
-function candidateKey(row: { COLLEGIOUNINOMINALE: AdministrativeCode; CANDIDATO: string }): string {
-  return keyOf(row.COLLEGIOUNINOMINALE, row.CANDIDATO);
+function candidateKey(row: { COLLEGIOUNINOMINALE: AdministrativeCode; CANDIDATO: string | null }): string {
+  return keyOf(row.COLLEGIOUNINOMINALE, row.CANDIDATO ?? '<no-candidate>');
 }
 
 function collegeKey(row: { COLLEGIOUNINOMINALE: AdministrativeCode }): string {
@@ -269,6 +269,9 @@ function buildListeUniCifre(
 ): ListeUniCifreWorkingRow[] {
   const candidateByKey = new Map(candidates.map((candidate) => [candidateKey(candidate), candidate]));
   const rows = lists.map((list) => {
+    // Other is a list-only vote category: no candidate-only attribution.
+    if (list.CANDIDATO === null) return { ...list, ELETTO: false, QUOZIENTE: 0, PARTE_INTERA: 0,
+      RESTO: 0, DA_ASSEGNARE: 0, ORDINE: 0, VOTO_DA_RESTO: 0, CIFRA: list.VOTI_LISTA };
     const candidate = candidateByKey.get(candidateKey(list));
     if (!candidate) {
       throw new Error(`Missing uninominal candidate for list row: ${candidateKey(list)}`);
@@ -297,7 +300,7 @@ function buildListeUniCifre(
     const byUni = compareAscending(left.COLLEGIOUNINOMINALE, right.COLLEGIOUNINOMINALE);
     if (byUni !== 0) return byUni;
 
-    const byCandidate = compareAscending(left.CANDIDATO, right.CANDIDATO);
+    const byCandidate = compareAscending(left.CANDIDATO ?? '', right.CANDIDATO ?? '');
     if (byCandidate !== 0) return byCandidate;
 
     /*
@@ -486,6 +489,7 @@ function buildListeNazSoglie(
     collegesByCirc.set(groupKey, colleges);
   }
 
+  const otherNames = new Set(listeNazInput.filter(l => l.kind === 'other').map(l => l.LISTA));
   const listeCircWithThresholds = sortGroupedRows(
     listeCirc.map((row) => {
       const circKey = keyOf(row.CIRCOSCRIZIONE);
@@ -504,8 +508,8 @@ function buildListeNazSoglie(
         CIFRA_PERCENTUALE: cifraPercentuale,
         ELETTI_MINORANZA: electedMinority,
         COLLEGI_UNI: colleges,
-        SOGLIA20: cifraPercentuale >= 20,
-        SOGLIA_MINORANZA: electedMinority >= Math.ceil(colleges / 4)
+        SOGLIA20: !otherNames.has(row.LISTA) && cifraPercentuale >= 20,
+        SOGLIA_MINORANZA: !otherNames.has(row.LISTA) && electedMinority >= Math.ceil(colleges / 4)
       };
     }),
     [(row) => row.CIRCOSCRIZIONE, (row) => row.LISTA]
@@ -534,11 +538,11 @@ function buildListeNazSoglie(
     return {
       ...row,
       CIFRA_PERCENTUALE: cifraPercentuale,
-      SOGLIA20: soglia20,
-      SOGLIA_MINORANZA: sogliaMinoranza,
-      SOGLIA1M: soglia1M,
-      SOGLIA3: soglia3,
-      SOGLIA3M: soglia3M
+      SOGLIA20: row.kind !== 'other' && soglia20,
+      SOGLIA_MINORANZA: row.kind !== 'other' && sogliaMinoranza,
+      SOGLIA1M: row.kind !== 'other' && soglia1M,
+      SOGLIA3: row.kind !== 'other' && soglia3,
+      SOGLIA3M: row.kind !== 'other' && soglia3M
     };
   });
 
@@ -2085,7 +2089,7 @@ function buildPoliticsScrutinyOutput(
   const uniCandidatesByList = new Map<string, Set<string>>();
   for (const row of input.liste_uni) {
     const candidates = uniCandidatesByList.get(row.LISTA) ?? new Set<string>();
-    candidates.add(row.CANDIDATO);
+    if (row.CANDIDATO !== null) candidates.add(row.CANDIDATO);
     uniCandidatesByList.set(row.LISTA, candidates);
   }
 
@@ -2393,7 +2397,7 @@ function buildPoliticsScrutinyOutput(
       const byAvailable = compareDescending(Number(left.DISPONIBILE), Number(right.DISPONIBILE));
       if (byAvailable !== 0) return byAvailable;
 
-      const byCandidate = compareAscending(left.CANDIDATO, right.CANDIDATO);
+      const byCandidate = compareAscending(left.CANDIDATO ?? '', right.CANDIDATO ?? '');
       if (byCandidate !== 0) return byCandidate;
 
       const byElected = compareDescending(Number(left.ELETTO), Number(right.ELETTO));
@@ -2521,7 +2525,7 @@ export function runEarlyPoliticsScrutiny(input: PoliticsScrutinyInput): Politics
    *   votes in the uninominal college.
    */
   const electedCandidates = electUninominalCandidateRows(input.candidati_uni);
-  const candidatesWithAttribution = addCandidateListVoteAttribution(electedCandidates, input.liste_uni);
+  const candidatesWithAttribution = addCandidateListVoteAttribution(electedCandidates, input.liste_uni.filter(l => l.CANDIDATO !== null));
   const listeUniCifre = buildListeUniCifre(input.liste_uni, candidatesWithAttribution);
   const listePluriCifre = buildListePluriCifre(listeUniCifre);
   const listeCircCifre = buildListeCircCifre(listePluriCifre);
@@ -2550,6 +2554,10 @@ export function runPoliticsScrutinyTrace(
    * 1% for coalition contribution, 3% for list admission, 10% for coalition
    * admission, plus the regional/minority safeguards described in the law.
    */
+  const others = context.liste_naz.filter(l => l.kind === 'other');
+  if (others.length > 1 || others.some(l => l.COALIZIONE !== null || l.MINORANZA || l.LISTA !== 'Altre liste')) throw new Error('Invalid Other list metadata');
+  for (const other of others) if (input.candidati_pluri.some(c => c.LISTA === other.LISTA) || input.liste_uni.some(l => l.LISTA === other.LISTA && (l.CANDIDATO !== null || l.CAND_MINORANZA || l.MINORANZA))) throw new Error('Other cannot have candidates');
+  if (input.liste_uni.some(l => l.CANDIDATO === null && !others.some(o => o.LISTA === l.LISTA))) throw new Error('Only Other may have candidate-free votes');
   const earlyTrace = runEarlyPoliticsScrutiny(input);
   const thresholds = buildListeNazSoglie(
     context.liste_naz,
@@ -2559,6 +2567,7 @@ export function runPoliticsScrutinyTrace(
     earlyTrace.candidati_uni_elezione,
     context.ramo
   );
+  if (others.length && !thresholds.listeNaz.some(l => l.SOGLIA3M && l.CIFRA > 0)) throw new Error('No eligible lists: Other is always excluded');
   const cameraRiparto = buildCameraRiparto(thresholds, earlyTrace.candidati_uni_elezione, context);
   const circRiparto = buildCircRiparto(thresholds, cameraRiparto, context);
   const internalCircRiparto = buildInternalCircRiparto(thresholds, circRiparto, cameraRiparto, context);

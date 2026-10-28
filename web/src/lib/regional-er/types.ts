@@ -3,6 +3,7 @@ import type { Scenario } from '$lib/core/types';
 export type RegionalErAdministrativeCode = string | number;
 
 export interface RegionalErListParameterRow {
+  kind?: import('../core/other-list').ListKind;
   LISTA: string;
   COALIZIONE: string | null;
   COLORE?: string | null;

@@ -10,6 +10,8 @@ export type { GeneratedCandidatures } from './legacy-candidate-generation';
 
 export function generateReformCandidatures(s: ReformGenerationScenario, snapshot: ReformGenerationSnapshot,
   simulationId: number, prepared?: PreparedBonusPlan): GeneratedCandidatures {
+  const voteLists = s.lists;
+  s = { ...s, coverage: s.coverage.map(c => ({ ...c, listIds: c.listIds.filter(id => !voteLists[c.chamber].some(l => l.id === id && l.kind === 'other')) })) };
   if (!s.candidateGeneration.bonusPolicy) return generateLegacyReformCandidatures(s, snapshot, simulationId);
   if (!prepared) throw new RangeError('Prepare reference bonus allocations before candidature generation');
   const people = new Map<string, Candidate>();

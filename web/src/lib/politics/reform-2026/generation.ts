@@ -110,8 +110,8 @@ export function generateReformSimulation(prepared: PreparedReformGeneration, sim
       if (s.suppliedVotes.some(r => r.chamber === ch && r.collegeId === college.id)) continue;
       const r = ordinaryVotes.find(r => r.collegeId === college.id)!;
       const physical = specialVotes.filter(r => geo.colleges.find(c => c.id === r.collegeId)?.territoryId === college.territoryId);
-      const listVotes = candidates.ordinarySlates.filter(s => s.collegeId === college.id).map(slate => ({ listId: slate.listId,
-        votes: sum(physical.flatMap(p => (p.votes.kind === 'components' ? p.votes.directListVotes : p.votes.listVotes).filter(l => l.listId === slate.listId).map(l => l.votes))) }));
+      const listVotes = s.coverage.find(c => c.chamber === ch && c.collegeId === college.id)!.listIds.map(listId => ({ listId,
+        votes: sum(physical.flatMap(p => (p.votes.kind === 'components' ? p.votes.directListVotes : p.votes.listVotes).filter(l => l.listId === listId).map(l => l.votes))) }));
       ordinaryVotes[ordinaryVotes.indexOf(r)] = { ...r, votes: { kind: 'attributed', listVotes, provenance: voteProvenance } };
     }
     const people = new Map(candidatures.candidates.map(p => [p.id, p]));
@@ -127,7 +127,8 @@ export function generateReformSimulation(prepared: PreparedReformGeneration, sim
         parameters, profile: snapshot.models.preferences.profiles.find(p => p.id === s.preferenceProfileId)!,
         provenance: preferenceProvenance, supplied: supplied?.preferences }) };
     });
-    return { ...geo, ...candidates, ordinarySlates, ordinaryVotes, specialVotes };
+    const otherListCoverage = s.coverage.filter(c => c.chamber === ch).flatMap(c => c.listIds.filter(id => s.lists[ch].some(l => l.id === id && l.kind === 'other')).map(listId => ({ collegeId: c.collegeId, listId })));
+    return { ...geo, ...candidates, ordinarySlates, ordinaryVotes, specialVotes, ...(otherListCoverage.length ? { otherListCoverage } : {}) };
   });
   const camera = chambers.find(c => c.chamber === 'camera'), senato = chambers.find(c => c.chamber === 'senato');
   const input: ReformScrutinyInput = { schemaVersion: 1, algorithmId: REFORM_ALGORITHM_ID, simulationId, electionDate: s.electionDate,
