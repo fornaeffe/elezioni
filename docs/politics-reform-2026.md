@@ -509,7 +509,9 @@ dall’attribuzione di cui al periodo precedente le coalizioni di liste o singol
 alle quali è stato già attribuito il numero di seggi ad esse assegnato a seguito delle
 operazioni di cui alla lettera f). Successivamente l’Ufficio accerta se il numero dei
 seggi assegnati in tutte le circoscrizioni a ciascuna coalizione di liste o singola
-lista corrisponda al numero di seggi determinato ai sensi della lettera f). In caso
+lista corrisponda al numero di seggi determinato ai sensi della lettera f).
+<!-- Periodo nono: -->
+In caso
 negativo, procede alle seguenti operazioni, iniziando dalla coalizione di liste o
 singola lista che abbia il maggior numero di seggi eccedenti e, in caso di parità di
 seggi eccedenti da parte di più coalizioni di liste o singole liste, da quella che abbia
@@ -1443,9 +1445,13 @@ corrispondentemente assegnato un seggio alla coalizione o alla lista singola div
 quella cui è stato attribuito il premio di governabilità che, a seguito della
 ripartizione regionale di cui al comma 1, lettera f), presenta il maggiore resto non
 utilizzato, ovvero, nel caso in cui non vi siano resti non utilizzati, a quella che
-presenta la maggiore cifra elettorale regionale. 1-quater. L'Ufficio elettorale centrale
+presenta la maggiore cifra elettorale regionale. 
+
+1-quater. L'Ufficio elettorale centrale
 nazionale procede ai sensi del comma 1-bis anche qualora si siano svolte le elezioni per
-il rinnovo del solo Senato della Repubblica. 1-quinquies. Qualora, per qualsiasi motivo,
+il rinnovo del solo Senato della Repubblica. 
+
+1-quinquies. Qualora, per qualsiasi motivo,
 la coalizione o lista singola cui è attribuito il premio di governabilità ai sensi del
 comma 1, lettera e-quinquies), non disponga del prescritto numero di candidati
 all’interno delle liste circoscrizionali presentate ai fini dell’attribuzione del premio

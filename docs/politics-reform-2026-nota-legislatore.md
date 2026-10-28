@@ -1,142 +1,225 @@
 # Lacune e ambiguità della riforma elettorale del 2026
 
-Nota per i decisori pubblici · 26 ottobre 2026
+Elenco di seguito alcune situazioni nelle quali l'applicazione letterale delle norme 
+riformate dalla Legge 9 ottobre 2026, n. 180 porta all'impossibilità di concludere
+lo scrutinio.
 
-## Le decisioni da assumere prima del voto
+Si tratta di osservazioni emerse durante lo studio della legge elettorale e la 
+realizzazione di una serie di simulazioni di scrutinio. Non ha la pretesa di essere un 
+elenco esaustivo, ed è opportuno che ogni lacuna individuata sia sottoposta a revisione
+da parte di altre persone.
 
-La disciplina introdotta dalla legge 9 ottobre 2026, n. 180, presenta situazioni nelle quali il riparto dei seggi richiede una regola integrativa o una scelta interpretativa non univoca. Occorre chiarire come correggere le assegnazioni quando si esauriscono i seggi attribuiti con i resti, come conciliare i totali territoriali con le dotazioni dei collegi e come procedere in assenza di voti utili al calcolo dei quozienti. Vanno inoltre completati i criteri per le parità e coordinati i rinvii sul recupero dei seggi del Senato fuori regione.
+Per brevità, indicheremo con
 
-Queste scelte possono cambiare la collocazione territoriale dei seggi e, in alcuni casi, la lista o il candidato eletto. È quindi opportuno definirle con una disposizione espressa prima delle operazioni elettorali. Le criticità illustrate distinguono le lacune procedurali dalle ambiguità che ammettono letture diverse; non costituiscono un accertamento di illegittimità costituzionale.
+- C il DPR 361/1957, così come modificato dalla L. 180/2026;
+- S il D.Lgs. 533/1993, così come modificato dalla L. 180/2026
 
-Abbiamo simulato 1.000 elezioni congiunte di Camera e Senato partendo da dati storici. Le frequenze seguenti misurano le situazioni incontrate nello scenario esaminato. Per concludere le simulazioni sono state necessarie anche ipotesi interpretative aggiuntive.
+L'articolo verrà indicato di seguito a C o S; comma, lettera e numero verranno indicati tra parentesi di seguito.
 
-| Situazione | Elezioni interessate su 1.000 | Frequenza |
-| --- | ---: | ---: |
-| Liste con seggi eccedenti nei collegi e nessun seggio con i resti ancora sottraibile | 328 | 32,8% |
-| Gruppi di maggioranza o minoranza con la stessa difficoltà | 0 | 0,0% |
-| Totali circoscrizionali incompatibili con la somma delle dotazioni dei collegi | 7 | 0,7% |
-| Liste deficitarie che hanno già utilizzato tutti i resti disponibili nei collegi | 16 | 1,6% |
-| Liste coalizzate con seggi circoscrizionali eccedenti ottenuti tutti con quozienti interi | 11 | 1,1% |
-| Gruppo con seggi da distribuire e nessun voto utile al calcolo del quoziente | Non determinabile¹ | — |
-| Parità senza criterio normativo conclusivo | 8 | 0,8% |
-| Recupero di un seggio del Senato in un’altra regione | 1 | 0,1% |
+Ad esempio C83-bis(1)(b)(3) significherà DPR 361/1957, art. 83-bis, comma 1, lettera b, numero 3.
 
-Le righe possono riguardare la stessa elezione e non vanno sommate. L’assenza di casi osservati non esclude la possibilità aritmetica della situazione.
+## 1. Esaurimento dei seggi ottenuti con parti decimali
 
-¹ In 60 elezioni, pari al 6,0%, sono state escluse preventivamente destinazioni con zero voti durante le correzioni circoscrizionali della Camera. Questo dato misura una precauzione adottata, non il numero di casi in cui si sarebbe necessariamente formato un gruppo con quoziente nullo.
+### a. Riparto tra le circoscrizioni
 
-## Seggi eccedenti e quozienti interi
+Nel riparto dei seggi tra le circoscrizioni, dopo aver distribuito, in
+ciascuna circoscrizione, i seggi della circoscrizione tra le coalizioni e le liste
+singole in base ai voti nella circoscrizione, C83(1)(h) stabilisce che, se il totale
+nazionale di ciascuna coalizione o lista singola non corrisponde al numero che il
+riparto nazionale le ha assegnato,
 
-### Liste nei collegi plurinominali
+> sottrae i seggi
+> eccedenti alla coalizione di liste o singola lista nelle circoscrizioni nelle quali essa
+> li ha ottenuti con le parti decimali dei quozienti di attribuzione, secondo il loro
+> ordine crescente, e nelle quali inoltre le coalizioni di liste o singole liste, che non
+> abbiano ottenuto il numero di seggi spettante, abbiano parti decimali dei quozienti non
+> utilizzate. Conseguentemente, assegna i seggi a tali coalizioni di liste o singole
+> liste. Qualora nella medesima circoscrizione due o più coalizioni di liste o singole
+> liste abbiano parti decimali dei quozienti non utilizzate, il seggio è attribuito alla
+> coalizione di liste o alla singola lista con la più alta parte decimale del quoziente
+> non utilizzata o, in caso di parità, a quella con la maggiore cifra elettorale
+> nazionale. Nel caso in cui non sia possibile attribuire il seggio eccedentario nella
+> medesima circoscrizione, in quanto non vi siano coalizioni di liste o singole liste
+> deficitarie con parti decimali di quozienti non utilizzate, l’Ufficio prosegue, per la
+> stessa coalizione di liste o singola lista eccedentaria, nell’ordine dei decimali
+> crescenti, a individuare un’altra circoscrizione, fino a quando non sia possibile
+> sottrarre il seggio eccedentario e attribuirlo ad una coalizione di liste o singola
+> lista deficitaria nella medesima circoscrizione. Nel caso in cui non sia possibile fare
+> riferimento alla medesima circoscrizione ai fini del completamento delle operazioni
+> precedenti, fino a concorrenza dei seggi ancora da cedere, alla coalizione di liste o
+> singola lista eccedentaria vengono sottratti i seggi nelle circoscrizioni nelle quali li
+> ha ottenuti con le minori parti decimali del quoziente di attribuzione e alla coalizione
+> di liste o singola lista deficitaria sono conseguentemente attribuiti seggi nelle altre
+> circoscrizioni nelle quali abbia le maggiori parti decimali del quoziente di
+> attribuzione non utilizzate
 
-**Problema.** Una lista può ottenere nei collegi più seggi di quanti le spettino complessivamente nella circoscrizione o nella regione, anche quando tutti i seggi ancora sottraibili derivano dalla parte intera del quoziente. Il riferimento alle parti decimali può essere letto come limite ai seggi sottraibili oppure come semplice criterio per scegliere il collegio. La prima lettura lascia senza soluzione il caso dei soli seggi interi; la seconda richiede di esplicitare che possono essere sottratti anche questi.
+Può però verificarsi il caso in cui i seggi da rimuovere siano superiori al
+numero di seggi ottenuti con parti decimali. La legge non indica cosa fare
+in questo caso.
 
-**Riferimenti.** Articolo 83-bis, comma 1, lettera b), numero 3), del d.P.R. 30 marzo 1957, n. 361; articolo 17, comma 4, lettera c), del d.lgs. 20 dicembre 1993, n. 533. Le disposizioni sono richiamate anche per il riparto interno ai gruppi, rispettivamente dall’articolo 83-bis, comma 1-bis, lettera d), e dall’articolo 17, comma 5, lettera d).
+Lo stesso procedimento è richiamato da C83(1)(i) nel riparto tra le circoscrizioni 
+dei seggi delle singole liste interne alle coalizioni, anche in questo caso può 
+verificarsi il caso in cui i seggi da rimuovere siano superiori al numero di seggi ottenuti
+con parti decimali.
 
-**Esempio numerico.** In un collegio da quattro seggi, quattro liste hanno 88.446, 45.804, 28.436 e 7.630 voti. A ciascuna spetta un seggio nel riparto complessivo. Il quoziente è 42.579: la prima assegnazione attribuisce due seggi interi alla prima lista, uno alla seconda e un seggio con i resti alla terza. La quarta resta senza seggio. Per ottenere un seggio per lista occorre sottrarre alla prima un seggio intero: non possiede alcun seggio assegnato con i resti.
+**Esempio:**
 
-**Chiarimento richiesto.** Precisare se e in quale ordine sia ammessa la sottrazione di seggi interi dopo l’esaurimento di quelli attribuiti con i resti. Nelle simulazioni questa necessità è stata registrata in 328 elezioni: 323 alla Camera e 12 al Senato, con sovrapposizione in alcune elezioni; le sottrazioni sono state complessivamente 446.
+<!-- Qui ci va un esempio di LG05 / I13 in N16 -->
 
-### Liste coalizzate nel riparto tra circoscrizioni della Camera
 
-**Problema.** La stessa difficoltà si presenta prima del riparto nei collegi, quando si riconciliano i seggi delle liste coalizzate nelle circoscrizioni con il numero loro spettante a livello nazionale. Qui il rinvio alla procedura di correzione individua seggi ottenuti con i resti, senza dettare una soluzione residuale per una lista eccedentaria che abbia soltanto seggi interi.
+### b. Riparto tra i collegi di una circoscrizione alla Camera
 
-**Riferimenti.** Articolo 83, comma 1, lettera i), mediante il rinvio alla lettera h), periodi nono e seguenti, del d.P.R. n. 361 del 1957; richiamo anche nel comma 1-ter, lettera e).
+Nel riparto dei seggi tra i collegi di una circoscrizione,
+dopo aver distribuito, in ciascun collegio, i seggi del collegio tra le liste
+in base ai voti nel collegio, C83-bis(1)(b)(3) stabilisce che, se il totale 
+circoscrizionale di ciascuna lista non corrisponde al numero che il riparto
+nazionale ha assegnato a quella lista nella circoscrizione,
 
-**Esempio osservato.** A Sud chiama Nord spettano quattro seggi nazionali. Il primo riparto ne assegna due in Sicilia 1 e tre in Sicilia 2, tutti interi, mentre alla Lega manca un seggio rispetto al totale spettante. Occorre correggere l’eccedenza di Sud chiama Nord, ma nessuno dei suoi cinque seggi è stato ottenuto con i resti.
+> i seggi attribuiti in eccesso sono
+> sottratti alla lista nei collegi in cui li ha ottenuti con la minore parte decimale dei
+> quozienti di attribuzione
 
-**Chiarimento richiesto.** Prevedere una regola residuale anche per questa fase, precisando la priorità tra circoscrizioni e il coordinamento con la lista deficitaria. Il caso ricorre in 11 elezioni simulate, pari all’1,1%.
+Può però verificarsi il caso in cui i seggi da rimuovere siano superiori al
+numero di seggi ottenuti con parti decimali. La legge non indica cosa fare
+in questo caso.
 
-## Riparto tra gruppi di maggioranza e minoranza
+**Esempio:**
 
-Il limite massimo dei seggi del beneficiario del premio comporta un riparto distinto tra il gruppo di liste di maggioranza e quello di minoranza. Le correzioni tra questi gruppi pongono due problemi diversi.
+<!-- Qui ci va un esempio di LG01 / I13 in N18 nell'applicazione di C83-bis(1)(b)(3) -->
 
-### Esaurimento dei seggi attribuiti con i resti
 
-**Problema.** La norma prescrive di sottrarre al gruppo eccedentario seggi ottenuti con le parti decimali e di assegnarli al gruppo deficitario negli stessi collegi. Se l’eccedenza supera i seggi ottenuti con i resti, manca una regola per completare la correzione.
+### c. Riparto tra i collegi di una circoscrizione al Senato
 
-**Riferimenti.** Articolo 83-bis, comma 1-bis, lettera c), del d.P.R. n. 361 del 1957; articolo 17, comma 5, lettera c), del d.lgs. n. 533 del 1993.
+La stessa situazione può verificarsi nel riparto del Senato, secondo S17(4)(c).
 
-**Esempio numerico.** Tre collegi hanno due seggi ciascuno. I voti dei due gruppi sono rispettivamente 50 contro 10, 50 contro 10 e 0 contro 480. Al gruppo di maggioranza spetta un seggio complessivo, al gruppo di minoranza cinque; entrambi i quozienti di gruppo sono 100. Il riparto iniziale attribuisce due seggi alla maggioranza in ciascuno dei primi due collegi e due alla minoranza nel terzo. La maggioranza ha quindi quattro seggi, due interi e due con i resti. Togliere entrambi i seggi con i resti la lascia ancora con due seggi, uno più del dovuto.
+**Esempio:**
 
-**Chiarimento richiesto.** Stabilire come rimuovere l’eccedenza residua, anche quando occorra incidere sui seggi interi. Il caso non si è verificato nelle 1.000 elezioni esaminate, ma l’esempio ne dimostra la possibilità aritmetica.
+<!-- Qui ci va un esempi di LG01 / I13 in N21/N22 nell'applicazione di S17(4)(c) -->
 
-### Incompatibilità tra dotazioni dei collegi e totali circoscrizionali
 
-**Problema.** Le correzioni nazionali della Camera possono comunicare a una circoscrizione un totale diverso dalla somma dei seggi dei suoi collegi. Il successivo riparto parte dalle dotazioni dei collegi e consente trasferimenti tra gruppi soltanto nello stesso collegio. Questi trasferimenti non possono modificare il totale circoscrizionale: i due vincoli diventano incompatibili.
+### d. Spostamento di seggi dal gruppo di maggioranza al gruppo di minoranza nella circoscrizione alla Camera
 
-**Riferimenti.** Articoli 3 e 83 del d.P.R. n. 361 del 1957, in coordinamento con l’articolo 83-bis, comma 1-bis, lettere b) e c).
+Situazione simile si può verificare nello spostamento di seggi dal gruppo di maggioranza
+al gruppo di minoranza per rispettare il tetto massimo di seggi: dopo aver distribuito,
+in ciascun collegio, i seggi del collegio tra i gruppi di minoranza e maggioranza
+in base ai voti nel collegio, C83-bis(1-bis)(b) stabilisce che, se il totale dei seggi
+di ciascun gruppo nella circoscrizione non corrisponde a quanto stabilito dal riparto nazionale
 
-**Esempio semplificato.** Due circoscrizioni hanno collegi con dotazioni complessive di tre seggi ciascuna. Una correzione nazionale porta i seggi loro spettanti a due e quattro, conservando i sei seggi nazionali. Nessun trasferimento tra maggioranza e minoranza all’interno dei collegi può trasformare i totali di tre e tre in due e quattro.
+> al gruppo di liste che abbia seggi
+> eccedenti sottrae i seggi nei collegi nei quali i seggi stessi sono stati ottenuti con
+> le parti decimali dei quozienti di attribuzione, secondo il loro ordine crescente
 
-**Chiarimento richiesto.** Scegliere quale vincolo prevalga e indicare la procedura conseguente: impedire a monte lo scostamento oppure disciplinare espressamente la variazione dei totali dei collegi. Sono state registrate sette elezioni interessate, pari allo 0,7%, con 14 circoscrizioni coinvolte.
+Può però verificarsi il caso in cui i seggi da rimuovere siano superiori al
+numero di seggi ottenuti con parti decimali. La legge non indica cosa fare
+in questo caso.
 
-## Resti esauriti e assenza di voti
+**Esempio:**
 
-### Liste deficitarie senza resti ancora utilizzabili
+<!-- Qui ci va un esempio di LG02 / I13 in N18 nell'applicazione di C83-bis(1-bis)(b) -->
 
-**Problema.** Una lista può avere diritto a più seggi di quanti ne ottenga sommando i seggi interi e un’assegnazione con i resti in ciascun collegio. La correzione richiede però un resto non utilizzato. Una volta utilizzati tutti i resti, manca il criterio per assegnare gli ulteriori seggi dovuti, anche se un’altra lista può cederli.
+### e. Spostamento di seggi dal gruppo di maggioranza al gruppo di minoranza nella circoscrizione al Senato
 
-**Riferimenti.** Articolo 83-bis, comma 1, lettera b), numero 3), e comma 1-bis, lettera d), del d.P.R. n. 361 del 1957; articolo 17, comma 4, lettera c), e comma 5, lettera d), del d.lgs. n. 533 del 1993.
+Situazione analoga al Senato, secondo S17(5)(c).
 
-**Esempio numerico.** In un unico collegio, due liste devono dividersi sei seggi con spettanze finali di quattro e due. Hanno 210.634 e 32.554 voti; il quoziente intero è 40.531. Ottengono inizialmente cinque e zero seggi interi. Il seggio residuo va alla seconda lista, che usa così il proprio unico resto, ma resta a un seggio anziché due. Anche ammettendo di togliere un seggio intero alla prima, non esiste più un resto inutilizzato della seconda.
+**Esempio:**
 
-**Chiarimento richiesto.** Disciplinare gli ulteriori turni di assegnazione o introdurre un diverso criterio residuale, specificando se e come riutilizzare i resti. La situazione ricorre in 16 elezioni, pari all’1,6%: 12 alla Camera e quattro al Senato, per 17 assegnazioni aggiuntive.
+<!-- Qui ci va un esempio di LG02 / I13 in N22 nell'applicazione di S17(5)(c) -->
 
-### Gruppo con seggi ma senza voti utili al calcolo
+## 2. Esaurimento delle parti decimali non utilizzate
 
-**Problema.** Le correzioni circoscrizionali possono assegnare un seggio a una lista presentata nel territorio ma priva di voti locali. Se quella lista è l’unica con seggi nel proprio gruppo, la somma dei voti utili del gruppo è zero. Il quoziente di gruppo è quindi nullo e la successiva divisione dei voti di collegio per quel quoziente non è definita.
+### a. Riparto tra i collegi di una circoscrizione alla Camera
 
-**Riferimenti.** Articolo 83, comma 1, lettere h) e i), e comma 1-ter, lettera e), in relazione all’articolo 83-bis, comma 1-bis, lettere a) e b), del d.P.R. n. 361 del 1957.
+Simmetricamente al punto 1, C83-bis(1)(b)(3) stabilisce che, se il totale 
+circoscrizionale di ciascuna lista non corrisponde al numero che il riparto
+nazionale ha assegnato a quella lista nella circoscrizione,
 
-**Esempio.** Una correzione attribuisce in Molise un seggio a una lista con candidature ma zero voti. Se le altre liste del gruppo non hanno seggi nella circoscrizione, il calcolo del gruppo deve distribuire un seggio sulla base di zero voti e conduce a una divisione di zero per zero.
+> alla lista cui sono stati attribuiti seggi in numero minore
+> di quelli spettanti, i seggi sono assegnati nel collegio in cui essa ha la maggiore
+> parte decimale del quoziente di attribuzione non utilizzata
 
-**Chiarimento richiesto.** Stabilire l’ammissibilità delle destinazioni a zero voti e una disciplina residuale per i quozienti nulli. Va distinta l’assenza di voti dal caso di voti positivi con parte decimale nulla. L’archivio segnala 60 elezioni con esclusioni preventive di destinazioni a zero voti, ma non consente di misurare quante avrebbero prodotto questa specifica impossibilità di calcolo. Il fenomeno è inoltre sensibile alle ipotesi di distribuzione territoriale dei voti.
+Può però verificarsi il caso in cui i seggi da aggiungere siano superiori al
+numero di parti decimali non utilizzate. La legge non indica cosa fare
+in questo caso.
 
-## Parità e recupero dei seggi del Senato
+**Esempio:**
 
-### Parità senza criterio conclusivo
+<!-- Qui ci va un esempio di LG04 / I16 nell'applicazione di C83-bis(1)(b)(3) -->
 
-**Problema.** Alcune disposizioni prevedono espressamente il sorteggio; altre indicano una graduatoria senza risolvere l’eventuale parità finale. Non è automatico che il sorteggio stabilito per una fase si estenda a tutte le altre. Le conseguenze possono riguardare l’individuazione del collegio che perde o riceve un seggio, la scelta tra plurielezioni e, in ipotesi, l’individuazione dei soggetti concorrenti al premio.
+### b. Riparto tra i collegi di una circoscrizione al Senato
 
-**Riferimenti.** Tra le disposizioni da completare: articolo 83-bis, comma 1, lettera b), numero 3), e comma 1-bis, lettera c), e articolo 85 del d.P.R. n. 361 del 1957; articolo 17, commi 4, lettera c), e 5, lettera c), e articolo 17-bis, comma 3, del d.lgs. n. 533 del 1993. Per il premio rilevano l’articolo 83, comma 1, lettere e-ter) e seguenti, e l’articolo 16-bis, comma 1, lettere e-bis) e seguenti.
+La stessa cosa può capitare al Senato, secondo S17(4)(c).
 
-**Esempio.** Una lista deficitaria presenta la stessa parte decimale non utilizzata in due collegi. La regola di correzione richiede di scegliere il valore maggiore, ma non distingue i due collegi. La decisione può cambiare il candidato eletto.
+**Esempio:**
 
-**Chiarimento richiesto.** Introdurre un criterio conclusivo espresso, eventualmente un sorteggio dopo l’esaurimento dei criteri sostanziali, con modalità di verbalizzazione. Nelle simulazioni si è resa necessaria una scelta integrativa in otto elezioni, pari allo 0,8%: sette alla Camera e una al Senato. Questo conteggio esclude i sorteggi già previsti espressamente dalla legge.
+<!-- Qui ci va un esempio di LG04 / I16 nell'applicazione di S17(4)(c) -->
 
-### Recupero fuori regione dopo l’esaurimento dei candidati
+## 3. Spareggio necessario ma nessun metodo di spareggio indicato
 
-**Problema.** Per il Senato, la norma sull’esaurimento iniziale dei candidati richiama le disposizioni della Camera ma esclude i commi sul recupero in altre circoscrizioni. Un altro rinvio, relativo ai seggi rimasti vacanti per qualsiasi causa, anche sopravvenuta, può invece ricondurre a quel recupero. Occorre stabilire il rapporto tra i due rinvii e la priorità tra la stessa lista in un’altra regione e le liste coalizzate nella regione originaria.
+In diversi punti dello scrutinio possono essere richiesti spareggi senza che la norma
+indichi una modalità di spareggio: 
 
-**Riferimenti.** Articoli 17-bis, comma 2, e 19, comma 2, del d.lgs. n. 533 del 1993; articoli 86, comma 2, e 84, commi 2, 4 e 5, del d.P.R. n. 361 del 1957; articolo 57 della Costituzione. La carenza di candidati nelle liste del premio ha un distinto rinvio nell’articolo 16-bis, comma 1-quinquies, all’articolo 83, comma 1-quinquies, del testo unico della Camera.
+<!-- Qui ci va un elenco dei riferimenti normativi dei passaggi che possono richiedere uno
+spareggio senza che la modalità di questo sia specificata -->
 
-**Esempio osservato.** In un’elezione simulata, esaurite le possibilità regionali, un seggio ordinario spettante in Toscana è stato coperto dalla stessa lista in Emilia-Romagna. La frequenza è una su 1.000, pari allo 0,1%; dipende anche dalle ipotesi sulle candidature e sulle plurielezioni.
+**Esempio:**
 
-**Chiarimento richiesto.** Disciplinare espressamente condizioni, ordine dei rimedi e imputazione territoriale del seggio, distinguendo assegnazione iniziale, premio e vacanze successive. Il precedente Pavanelli del 2019 mostra che il problema si è già posto. L’ordinanza della Corte costituzionale n. 86 del 2020 ha dichiarato inammissibile il relativo conflitto di attribuzione, senza decidere nel merito la compatibilità del trasferimento con la base regionale del Senato.
+<!-- Qui ci va un esempio di situazione che richiede I03 -->
 
-## Portata dei risultati e riferimenti
+## 4. La differenza tra i seggi spettanti ad una circoscrizione e quelli assegnti dal riparto nazionale rende impossibile il rispetto del tetto massimo
 
-### Come leggere le frequenze
+Nella Camera, è possibile che il riparto nazionale assegni ad una regione seggi in più o in meno rispetto
+a quanto previsto dalle tabelle di cui all'art. 3 di C. Se però è necessario rispettare il tetto massimo
+togliendo seggi alle liste eccedentarie e assegnandoli a quelle deficitarie in una circoscrizione,
+e nella stessa circoscrizione il riparto nazionale aveva assegnato un seggio in più o uno in meno,
+l'operazione risulterà impossibile: C83-bis(1-bis)(c) stabilisce che, se il numero di seggi attribuito nei collegi
+non corrisponde al numero di seggi da riparto nazionale,
 
-Le 1.000 elezioni simulate riguardano l’assegnazione iniziale dei seggi nazionali sul territorio italiano, esclusa la circoscrizione Estero. La base comprende risultati storici della Camera e del Senato, con ipotesi sulle quote di voto, sulle coalizioni e sulla presenza territoriale delle liste. Candidature e preferenze sono simulate; le dotazioni territoriali sono ricostruite sulla popolazione censuaria del 2021 e non costituiscono un decreto di assegnazione dei seggi per una futura elezione.
+> al gruppo di liste che abbia seggi
+> eccedenti sottrae i seggi nei collegi nei quali i seggi stessi sono stati ottenuti con
+> le parti decimali dei quozienti di attribuzione, secondo il loro ordine crescente, e li
+> assegna, **nei medesimi collegi**, al gruppo di liste deficitario;
 
-Le frequenze si riferiscono a un unico scenario, nell’archivio dei risultati del 26 ottobre 2026. Per ciascuna situazione, un’elezione è conteggiata una sola volta anche se comprende più operazioni o entrambi i rami del Parlamento. Le percentuali non sono stime della probabilità di un problema nelle prossime elezioni. Le scelte interpretative necessarie per superare una criticità possono influenzare quelle incontrate nelle fasi successive.
+Questa operazione però lascia invariato il numero di seggi totali del collegio e della circoscrizione: di conseguenza non si potrà mai
+arrivare a soddisfare il riparto nazionale effettuando solo questa operazione.
 
-Il completamento delle simulazioni non prova che la disciplina sia autosufficiente: le regole integrative servono a esplorare gli effetti delle lacune, ma la loro adozione nel procedimento elettorale richiede una base giuridica adeguata. Gli esempi numerici dimostrano la possibilità delle situazioni descritte; quelli qualificati come osservati provengono dalle simulazioni. Il riferimento a una lista non implica alcuna valutazione politica.
+**Esempio:**
 
-### Intervento normativo suggerito
+<!-- Qui ci va un esempio di LG03 / I15 -->
 
-È opportuno coordinare le disposizioni di riparto e recupero con regole residuali espresse, applicabili dopo l’esaurimento dei criteri ordinari. L’intervento dovrebbe indicare quali seggi possono essere sottratti, come assegnare quelli ancora mancanti, quale totale territoriale prevale in caso di conflitto e come risolvere le parità. Per il Senato dovrebbe rendere univoco il rapporto tra il recupero nella regione e quello in altre regioni. La verifica dovrebbe comprendere anche esempi nei quali resti e candidati disponibili si esauriscono.
+## 5. Esaurimento dei candidati presenti in una regione per il Senato
 
-### Fonti normative
+### a. Proclamazione degli eletti ordinari al Senato
 
-Tutti i riferimenti agli articoli dei due testi unici si intendono nel testo risultante dalla legge n. 180 del 2026. I riferimenti puntuali sono riportati accanto a ciascuna criticità.
+Se, nella proclamazione degli eletti al Senato, è necessario proclamare eletto
+un candidato in un collegio dove la lista ha già esaurito il numero di candidati
+presentati, S17-bis(2) rimanda a C84 escludendo C84(4) e C84(7), cioè:
 
-- [Legge 9 ottobre 2026 n. 180 nella pubblicazione originaria](https://www.gazzettaufficiale.it/eli/id/2026/10/09/26G00201/sg), Gazzetta Ufficiale, Serie generale n. 235 del 9 ottobre 2026.
-- [Ripubblicazione con note del 23 ottobre 2026 per la Camera](https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticoloDefault/originario?atto.codiceRedazionale=26A05611&atto.dataPubblicazioneGazzetta=2026-10-23&atto.tipoProvvedimento=LEGGE), contenente i testi coordinati degli articoli richiamati del d.P.R. n. 361 del 1957.
-- [Ripubblicazione con note del 23 ottobre 2026 per il Senato](https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticolo?art.codiceRedazionale=26A05611&art.dataPubblicazioneGazzetta=2026-10-23&art.flagTipoArticolo=0&art.idArticolo=2&art.idGruppo=0&art.idSottoArticolo=1&art.idSottoArticolo1=10&art.progressivo=0&art.versione=1), contenente i testi coordinati degli articoli richiamati del d.lgs. n. 533 del 1993.
-- [Costituzione della Repubblica italiana](https://www.quirinale.it/allegati_statici/costituzione/costituzione.pdf), articolo 57, sulla base regionale dell’elezione del Senato.
-- [Corte costituzionale ordinanza n. 86 del 2020](https://www.cortecostituzionale.it/scheda-pronuncia/2020/86), per il precedente sul seggio non attribuito in Sicilia e recuperato in Umbria.
+1. C84(2): ripesca i candidati della stessa lista negli altri collegi della regione;
+2. se questi sono esauriti passa a C84(5): ripesca i candidati di altre liste della
+  stessa coalizione nello stesso collegio o nella stessa regione.
 
-Testi ufficiali consultati il 26 ottobre 2026.
+E' però possibile che la lista abbia esaurito tutti i candidati nella regione, e
+che non ci siano altre liste di coalizione, o abbiano anch'esse esaurito i candidati.
+
+**Esempio:**
+
+La situazione si è realmente verificata nel 2019 nel caso dell'elezione della senatrice
+Emma Pavanelli (decisione della Giunta delle elezioni e delle immunità parlamentari del Senato
+del 31 luglio 2019), in cui il Movimento 5 Stelle in Sicilia aveva ottenuto un numero di seggi
+superiore al totale dei candidati.
+
+Il singolo caso è stato risolto con la decisione del Senato, ma il vuoto normativo rimane.
+
+## Frequenza con cui si verificano le situazioni problematiche
+
+Sono state svolte 1000 simulazioni con un set di liste verosimile, generando voti sulla base dei sondaggi e delle ultime elezioni.
+
+Nella tabella seguente è presente il numero di simulazioni nelle quali ciascuno di questi problemi si è verificato:
+
+| Problema | Simulazioni interessate |
+| --- | --- |
+| 1. Esaurimento dei seggi ottenuti con parti decimali | 333/1000 |
+| 2. Esaurimento delle parti decimali non utilizzate | 16/1000 |
+| 3. Spareggio necessario ma nessun metodo di spareggio indicato | 8/1000 |
+| 4. La differenza tra i seggi spettanti ad una circoscrizione e quelli assegnti dal riparto nazionale rende impossibile il rispetto del tetto massimo | 7/1000 |
+| 5. Esaurimento dei candidati presenti in una regione per il Senato | 5/1000 |
