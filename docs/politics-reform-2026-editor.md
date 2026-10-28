@@ -6,6 +6,10 @@ storage, execution and exports use [application](politics-reform-2026-applicatio
 
 ## User workflow
 
+- **Ripristina scenario predefinito** restores the bundled scenario after
+  confirmation, including its locally saved draft. It discards pending editor
+  changes and previews, preserves calculated results and their executed scenario,
+  and is unavailable during loading, execution, import/export or preview checks.
 - Lists and coalitions have row-local **Settings** icon buttons. Normally hidden
   details declare Camera/Senato presence; list details also contain protected
   minority controls. A badge marks limited chamber presence or list protection.

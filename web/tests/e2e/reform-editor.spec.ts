@@ -29,6 +29,39 @@ async function open(page: Page) {
 }
 async function stored(page: Page): Promise<ReformGenerationScenario> { return page.evaluate(key => JSON.parse(localStorage.getItem(key)!), key); }
 
+test('reset requires confirmation, restores all bundled defaults and discards an open JSON draft', async ({ page }) => {
+  await open(page);
+  await page.getByLabel('Nome scenario', { exact: true }).fill('Scenario modificato');
+  await page.getByLabel('Nome scenario', { exact: true }).press('Tab');
+  await page.getByLabel('Seed', { exact: true }).fill('modified-reset-seed');
+  const lead = defaults.lists.camera[0];
+  await page.getByLabel(`Quota ${lead.name}`, { exact: true }).fill('37');
+  await expect.poll(async () => (await stored(page)).shares.find(r => r.listId === lead.id)?.common).toBe(.37);
+  const modified = await stored(page);
+  await page.getByText('Scenario completo e dati forniti (JSON)', { exact: true }).click();
+  await page.getByRole('button', { name: 'Modifica scenario completo', exact: true }).click();
+  await page.getByLabel('Scenario completo JSON', { exact: true }).fill('unsaved JSON draft');
+  const reset = page.getByRole('button', { name: 'Ripristina scenario predefinito', exact: true });
+  page.once('dialog', async dialog => {
+    expect(dialog.type()).toBe('confirm');
+    expect(dialog.message()).toContain('Tutte le modifiche allo scenario corrente saranno perse');
+    await dialog.dismiss();
+  });
+  await reset.click();
+  expect(await stored(page)).toEqual(modified);
+  await expect(page.getByLabel('Seed', { exact: true })).toHaveValue('modified-reset-seed');
+  await expect(page.getByLabel('Scenario completo JSON', { exact: true })).toHaveValue('unsaved JSON draft');
+  page.once('dialog', dialog => dialog.accept());
+  await reset.click();
+  await expect.poll(() => stored(page)).toEqual(defaults);
+  await expect(page.getByLabel('Seed', { exact: true })).toHaveValue(defaults.seed);
+  await expect(page.getByLabel('Scenario completo JSON', { exact: true })).toHaveCount(0);
+  await page.reload();
+  await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-reform-2026-v1');
+  await expect(page.getByLabel('Seed', { exact: true })).toHaveValue(defaults.seed);
+  expect(await stored(page)).toEqual(defaults);
+});
+
 test('common editing is the default, chamber overrides are explicit, and presentation survives reload/export', async ({ page }) => {
   const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
   await open(page);

@@ -33,6 +33,7 @@
   const storageKey = 'elezioni:politics-reform-2026:scenario:v1';
   const resultKey = 'elezioni:politics-reform-2026:results:v1';
   let scenario = $state<ReformGenerationScenario>(bundledReformScenario());
+  let editorRevision = $state(0);
   let resultScenario = $state<ReformGenerationScenario | null>(null);
   let result = $state.raw<SimulationResult | null>(null);
   let table = $state.raw<ResultTable | undefined>();
@@ -112,7 +113,12 @@
         const saved = localStorage.getItem(storageKey);
         if (importedScenario) scenario = upgradeReformDraft(copyScenario(importedScenario));
         else if (saved) scenario = upgradeReformDraft(parseReformScenario(saved));
-        if (!importedScenario && savedResults.length) await restoreSaved(savedResults.at(-1)!.id);
+        if (!importedScenario && savedResults.length) {
+          const draft = scenario;
+          await restoreSaved(savedResults.at(-1)!.id);
+          // Restoring result tables must not replace a saved edit or reset.
+          if (saved) scenario = draft;
+        }
       }
     } catch (e) { error = describe(e); }
     finally { if (alive) { onImportConsumed(); ready = true; } }
@@ -152,6 +158,14 @@
   function exportScenario() {
     try { download(new Blob([serializeReformScenario($state.snapshot(scenario))], { type: 'application/json' }), 'r26-scenario.json'); }
     catch (e) { error = describe(e); }
+  }
+  function resetScenario() {
+    if (!ready || isBusy || editorBusy) return;
+    if (!window.confirm('Ripristinare lo scenario predefinito? Tutte le modifiche allo scenario corrente saranno perse. I risultati già calcolati saranno conservati.')) return;
+    scenario = bundledReformScenario();
+    // Discard pending structural changes, JSON drafts and preview state too.
+    editorRevision++;
+    error = ''; dismissedValidation = '';
   }
   async function exportResult(format: 'json' | 'csv') {
     if (!result?.storage) { error = 'Nessun risultato locale da esportare.'; return; }
@@ -246,8 +260,11 @@
     <div class="controls">
       <label>Carica scenario o risultati<input type="file" accept=".json,.gz" onchange={loadFile} disabled={isBusy} data-testid="reform-file-input" /></label>
       <button onclick={exportScenario}>Scarica scenario</button>
+      <button type="button" onclick={resetScenario} disabled={!ready || isBusy || editorBusy}>Ripristina scenario predefinito</button>
     </div>
+    {#key editorRevision}
     <ReformScenarioEditor {scenario} onchange={next => { scenario = next; }} onmessage={message => { error = message; }} onactivity={busy => { editorBusy = busy; }} disabled={isBusy} />
+    {/key}
   </section>
   <ActivityOverlay label={activityLabel}><p>Ultima fase: <span data-testid="reform-phase">{phase}</span></p><p>{result?.storage?.completedSimulations ?? 0}/{simulations} simulazioni conservate</p>{#if running}<button onclick={cancel}>Annulla calcolo</button>{/if}</ActivityOverlay>
   <InteractionToasts messages={interactionMessages} ondismiss={id => { if (id === 'error') error = ''; else dismissedValidation = fingerprint; }} />

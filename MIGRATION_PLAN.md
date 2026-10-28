@@ -331,6 +331,8 @@ into `main`; public deployment follows that merge and a successful hosting gate.
     defaults; keep sparse-event, new-party and long-horizon limitations visible.
 
 - [x] **Refine UI**
+  - [x] Restore the bundled reform scenario with an explicit confirmation,
+    preserving calculated results and discarding pending editor drafts.
   - [x] Show one plot at a time per chart family and offer a selector:
     - For mean elected and mean valid votes percentage plot, offer a control to switch between camera and senate
     - The same for simulated percentage per lists boxplots

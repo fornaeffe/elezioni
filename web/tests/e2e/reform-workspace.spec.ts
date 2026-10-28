@@ -23,7 +23,10 @@ test('compute-worker choice defaults to the resource maximum and remains separat
   await choice.selectOption('1');
   await page.getByLabel('Simulazioni', { exact: true }).fill('1');
   await page.getByRole('button', { name: 'Esegui riforma', exact: true }).click();
-  try { await expect(choice).toBeDisabled(); }
+  try {
+    await expect(choice).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Ripristina scenario predefinito', exact: true })).toBeDisabled();
+  }
   finally { release(); }
   await expect(page.getByTestId('reform-phase')).toHaveText(/completed|not_implemented/, { timeout: 60000 });
   await page.reload();
@@ -74,6 +77,8 @@ test('production paired worker, bounded detail rendering, scenario/results round
   await page.goto(`${base}/politics`);
   await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-reform-2026-v1');
   await page.getByLabel('Simulazioni', { exact: true }).fill('2');
+  const runSeed = 'executed-before-reset';
+  await page.getByLabel('Seed', { exact: true }).fill(runSeed);
   await page.getByRole('button', { name: 'Esegui riforma', exact: true }).click();
   await expect(page.getByTestId('reform-phase')).toHaveText(/completed|not_implemented/, { timeout: 60000 });
   expect(await page.getByTestId('reform-phase').textContent(), await page.locator('body').innerText()).toBe('completed');
@@ -96,7 +101,7 @@ test('production paired worker, bounded detail rendering, scenario/results round
   const download = await downloadPromise, stream = await download.createReadStream(), chunks: Buffer[] = [];
   for await (const chunk of stream!) chunks.push(Buffer.from(chunk));
   const compressed = Buffer.concat(chunks), payload = JSON.parse(new TextDecoder().decode(gunzipSync(compressed)));
-  expect(payload.scenario.seed).toBe(defaults.seed);
+  expect(payload.scenario.seed).toBe(runSeed);
   expect(payload.result.benchmark.scrutinyAlgorithmId).toBe('politiche-reform-2026-v1');
   expect(payload.result.tables.find((t: { name: string }) => t.name === 'Reform runs').rows.map((r: unknown[]) => r[0])).toEqual([1, 2]);
   const firstTables = payload.result.tables;
@@ -104,7 +109,7 @@ test('production paired worker, bounded detail rendering, scenario/results round
   await page.getByTestId('result-file-input').setInputFiles({ name: 'r26-results.json.gz', mimeType: 'application/gzip', buffer: compressed });
   await expect(page.getByLabel('Algoritmo di scrutinio')).toHaveValue('politiche-reform-2026-v1');
   await expect(page.getByTestId('reform-phase')).toHaveText('imported');
-  await expect(page.getByLabel('Seed', { exact: true })).toHaveValue(defaults.seed);
+  await expect(page.getByLabel('Seed', { exact: true })).toHaveValue(runSeed);
   // A second import starts from an already-imported status. Wait for the new
   // session, rather than accepting the previous result's status immediately.
   const previousImportId = await page.getByLabel('Risultati locali').inputValue();
@@ -119,6 +124,20 @@ test('production paired worker, bounded detail rendering, scenario/results round
   const replay = await (await replayDownload).createReadStream(), replayChunks: Buffer[] = [];
   for await (const chunk of replay!) replayChunks.push(Buffer.from(chunk));
   expect(JSON.parse(new TextDecoder().decode(gunzipSync(Buffer.concat(replayChunks)))).result.tables).toEqual(firstTables);
+  const savedResult = await page.getByLabel('Risultati locali').inputValue();
+  page.once('dialog', dialog => dialog.accept());
+  await page.getByRole('button', { name: 'Ripristina scenario predefinito', exact: true }).click();
+  await expect(page.getByLabel('Seed', { exact: true })).toHaveValue(defaults.seed);
+  await expect(page.getByLabel('Risultati locali')).toHaveValue(savedResult);
+  await expect(page.getByTestId('stored-result-status')).toContainText('2/2');
+  await expect(page.getByRole('alert')).toContainText('Scenario modificato');
+  await page.reload();
+  await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-reform-2026-v1');
+  await expect(page.getByTestId('reform-phase')).toHaveText('imported');
+  await expect(page.getByLabel('Seed', { exact: true })).toHaveValue(defaults.seed);
+  await expect(page.getByLabel('Risultati locali')).toHaveValue(savedResult);
+  await page.getByRole('button', { name: 'Ripristina scenario dei risultati', exact: true }).click();
+  await expect(page.getByLabel('Seed', { exact: true })).toHaveValue(runSeed);
   await page.screenshot({ path: 'test-results/reform-workspace.png', fullPage: true });
   expect(pageErrors).toEqual([]);
   // Plain new scenario import retains identity, never goes through legacy parsing.
