@@ -5,7 +5,8 @@
 | Geography, census and seat tables | Workflow below |
 | Historical votes/preferences and reform generation models | [Generation guide](../docs/politics-reform-2026-generation.md#clean-clone-preparation) |
 | Selected poll archive and reconciliation | [Poll preparation](../docs/polls-preparation.md) |
-| Historical municipal forecasting research | [Comparison and replay](../docs/vote-generation-research.md) |
+| New fast vote model, compact data and browser refitting (2026 reform only) | [Production plan](../docs/vote-generation-production-plan.md) |
+| Historical vote-generation research retention and cleanup | [Archive plan](../docs/vote-generation-research-archive-plan.md) |
 
 The reviewed poll JSON is the explicit small Git-tracked exception under
 `sources/polls/`; fresh clones prepare it offline from these authoritative files.
@@ -174,8 +175,10 @@ reference preparation records this decision while preserving computability.
 
 ## Checks
 
-For the current party-level vote-generation research, start with the
-[fast alternative and commands](../docs/vote-generation-fast-research.md).
+For the selected fast model's production work, start with the
+[browser implementation plan](../docs/vote-generation-production-plan.md).
+For reproducing its research baseline, use the
+[fast report and commands](../docs/vote-generation-fast-research.md).
 The preceding
 [restricted-scenario results and reproduction commands](../docs/vote-generation-party-drift-restricted.md)
 and [provisional membership review](../docs/vote-generation-party-memberships.md)

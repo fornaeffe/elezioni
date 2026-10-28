@@ -1,5 +1,13 @@
 # Fast vote-share research model
 
+**Production selection, 28 October 2026:** Luca approves this fast model for the
+2026 reform workflow, with periodic default prefitting and browser refitting.
+Use the [production implementation plan](vote-generation-production-plan.md)
+for the active steps and the [archive plan](vote-generation-research-archive-plan.md)
+for research retention/cleanup. The research results and implementation status
+below are the recorded baseline; approval does not imply that browser integration
+or production acceptance has already happened.
+
 ## Objective and authority
 
 On **27 October 2026**, Luca resumed research and authorized simplifying or
@@ -8,8 +16,8 @@ unchanged goals are plausible municipal list-vote distributions, adequate
 probability around actual results, useful predictive means, historical and poll
 information, and browser scenarios containing historical units, joint lists and
 new lists with supplied reference shares. Unsupported retrospective splits may
-be forbidden. This remains research: production generation, legal scrutiny and
-the existing scenario editor are unchanged.
+be forbidden. That work was research-only: production generation, legal scrutiny
+and the existing scenario editor were unchanged by those experiments.
 
 The [previous drift formulation](vote-generation-drift-model.md) and
 [restricted-model report](vote-generation-party-drift-restricted.md) describe

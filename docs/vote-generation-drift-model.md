@@ -1,5 +1,11 @@
 # Party-level vote-generation drift model
 
+**Superseded for production, 28 October 2026:** Luca selected the
+[fast share model](vote-generation-fast-research.md). Follow its
+[2026 browser implementation plan](vote-generation-production-plan.md), not the
+earlier posterior gates or likelihood/prior requirements below. This document
+remains historical research pending the [archive step](vote-generation-research-archive-plan.md).
+
 **Research revision, 27 October 2026:** Luca authorizes model simplification to
 meet the unchanged forecasting and scenario capabilities. The
 [fast research alternative](vote-generation-fast-research.md) records the new

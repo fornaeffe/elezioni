@@ -41,6 +41,11 @@ into `main`; public deployment follows that merge and a successful hosting gate.
 
 ## Scenario Semantics
 
+These rules describe the existing election workflows. For the new 2026 reform
+vote-share engine, the approved [production plan](docs/vote-generation-production-plan.md#model-and-scenario-contracts)
+supersedes factor-based historical splits, unmapped-to-abstention inference and
+the old uncertainty construction. Keep the other workflows' semantics intact.
+
 - Make the web UI the preferred scenario editor. Excel scenarios do not need to
   remain a first-class migrated interface.
 - Choose defaults first from bundled data for the election kind and territory.
@@ -237,9 +242,9 @@ into `main`; public deployment follows that merge and a successful hosting gate.
       (if possible, show all elected candidates, both ordinary and bonus, where pre-2026
       plot showed only candidates elected in plurinominal colleges).
     - simulated percentages boxplots
-    - elected vs percentage xy plot, one plot per chamber * list and one 
+    - elected vs percentage xy plot, one plot per chamber * list and one
       plot per chamber * coalition
-    - elected vs percentage spinograms, one plot per chamber * list and a 
+    - elected vs percentage spinograms, one plot per chamber * list and a
       selectable chamber * list * college plot, as in pre-2026 plots
   Shared chart rendering, bounded statistical queries, explicit coverage and
   archive compatibility are implemented. See the
@@ -249,7 +254,7 @@ into `main`; public deployment follows that merge and a successful hosting gate.
     then affected simulation IDs on demand. Preserve exact context, requested
     denominators and explicit legacy-archive limits. See the
     [messages guide](docs/politics-reform-2026-messages.md).
-- [ ] **Poll-informed vote-share preparation and forecasting.** Follow the
+- [x] **Poll source preparation and earlier forecasting research.** Follow the
   [poll preparation guide](docs/polls-preparation.md). Prioritize simulation
   computability: fill missing mappings, splits and territorial support with
   explicit, versioned estimates/proxies and retain their provenance.
@@ -270,70 +275,40 @@ into `main`; public deployment follows that merge and a successful hosting gate.
     [calibration guide](docs/polls-calibration.md); retain explicit rejection of
     corrections that lack support.
 
-  Forecast acceptance remains open: expand Camera holdouts, reassess historical
-  prior strength and validate intervals in the full generator before enabling
-  corrections or treating opt-in poll scenarios as calibrated forecasts.
-  Use the [uncertainty study](docs/polls-uncertainty.md) for tested joint endpoint
-  candidates. The [revised drift proposal](docs/vote-generation-drift-model.md)
-  instead derives national results from joint municipal elector outcomes;
-  sampled-endpoint reconciliation is not its invariant. Retain filing,
-  denominator, override and chamber semantics.
+  Earlier fitted corrections remain rejected; these completed source/research
+  steps do not establish calibrated forecasts. Production vote/poll fitting and
+  forecast acceptance now belong to FV-01 through FV-08 below. Preserve the
+  reviewed source JSON and promote its required readers before research archival.
 
-- [ ] **Vote-generation redesign: electorate-wide latent national/local drift.**
-  Follow the [current formulation and staged comparisons](docs/vote-generation-drift-model.md)
-  and the authorized [fast model alternative](docs/vote-generation-fast-research.md).
-  Preserve editable, source-specific correspondence defaults and the observed
-  count layer; keep state/process uncertainty distinct from polling measurement.
-  - [x] Complete the [earlier endpoint comparison](docs/vote-generation-research.md)
-    and six-category sensitivity. Luca has not selected those models for adoption.
-  - [x] Correct the drift formulation and record the accepted observation/polling
-    requirements, comparison hierarchy and confirmed combined non-valid baseline.
-  - [x] Implement the earlier fixed-outcome research fit/backtest path using compatible
-    Camera/European elections and polls. Complete stages 1–6 and both separate
-    stage-7 branches, retaining the conditional stage-5 trigger. See the
-    [measured comparison and limitations](docs/vote-generation-drift-results.md)
-    and [reproduction protocol](docs/vote-generation-drift-testing.md).
-  - [x] Approve the party-level correspondence revision: scenario-owned complete
-    memberships, grouped list observations, choice-set redistribution and
-    aggregate reference-share constraints; record it in the current model contract.
-  - [x] Specify weakly informative reference-date priors: exchangeable centered
-    political contrasts, expected non-valid share 0.5, backward historical walks
-    and prior reset/refitting whenever the scenario reference date changes.
-  - [x] Add the research-only membership/count kernel and reduced stage-0
-    posterior-validation harness, separately from production generation.
-  - [x] Require cutoff-available distinguishing information for requested
-    components; recheck the restricted class, alternative estimation and
-    reduced Stan reference. Record the [follow-up](docs/vote-generation-party-drift-restricted.md).
-  - [x] Prepare a minimal provisional source-backed joint-list membership table
-    for review and the authorized admissible chronological research panels.
-  - [ ] Pass the original joint-state model's real-data stage-0 posterior gate
-    before its full-data fitting and stages 1–7. Retain the 30-minute limit for approximate alternatives;
-    the authorized final offline Stan fallback has that time gate waived.
-    Research resumed on 27 October with authority to simplify the model while
-    preserving forecast quality and historical/joint/new-list scenario support.
-  - [x] Implement and validate the fast bounded reference-share research kernel,
-    mean-preserving forecast dynamics and scenario composition prototype.
-  - [x] Complete the frozen fast candidate's corrected predictive replays and
-    complete compatible municipal benchmark; record approximation, source-fix,
-    pooled-outcome, mean-error and sparse-event limits in its research report.
-  - [ ] Review predictive quality, the provisional membership table and fuller
-    list/source coverage before selecting a production design. The fast candidate
-    is computationally practical; universal calibration and unbiased means are
-    not established by the six-election research panel.
-  - [ ] Implement the versioned membership/scenario contract and validated grouped
-    fitting/posterior reuse and invalidation for the selected engine. Offline Stan
-    requires preparation after semantic edits; it does not supply browser refitting.
-    Revalidate split uncertainty, prior symmetry/participation calibration,
-    historical-window invariance, reference-date invalidation, poll Other and
-    hard/soft reference inputs; repeat the staged comparisons and measure
-    fitting accuracy, memory and latency before runtime adoption. Browser fitting
-    requires its own acceptance if retained as an implementation candidate.
-  - [ ] After revalidation and selection, implement the approved runtime design with full-list
-    split uncertainty, dated geography/electorates, compatible overrides,
-    filing support and paired-chamber dependence. Derive national aggregates
-    from municipal counts; do not force them to softmax of the national factor.
-  - [ ] Validate full-list/municipal/regional and seat distributions before changing
-    defaults; keep sparse-event, new-party and long-horizon limitations visible.
+- [ ] **Fast vote-share model in production: 2026 reform only.** Follow the
+  [browser production plan](docs/vote-generation-production-plan.md). Periodic
+  Node/TypeScript preparation must deliver compact editable history and a default
+  prefitted model; the browser reuses it for scenario composition and can refit
+  after poll, membership or reference-date edits. Earlier research evidence is
+  in [history](docs/migration-history.md#2026-10-27--resumed-party-level-research-with-a-fast-share-model)
+  and the [approved report](docs/vote-generation-fast-research.md).
+  - [x] Select the fast `kind-common-conservative` model for this implementation.
+    Original joint-state/Stan research gates no longer block the selected model.
+  - [ ] **FV-01:** Freeze production scenario/model/reuse contracts, numerical and
+    acceptance protocols; preserve the research inventory/evidence.
+  - [ ] **FV-02:** Port fitting/profile estimation to one browser-safe TypeScript
+    engine; pass independent reduced numerical and browser-computability gates.
+  - [ ] **FV-03:** Produce compact source-backed historical/poll records supporting
+    editable memberships/dates, with complete reform geography and Senate inputs.
+  - [ ] **FV-04:** Implement fast generation, reference interventions, physical-cell
+    filing/projection and paired Camera/Senato integration through existing scrutiny.
+  - [ ] **FV-05:** Prefit the explicit default scenario and package matching
+    versioned data/defaults/fit/catalog through clean-clone local/CI commands.
+  - [ ] **FV-06:** Add cancellable browser refitting, semantic invalidation,
+    compatible-state installation and bounded worker memory/ownership.
+  - [ ] **FV-07:** Deliver component/list editing, reference controls and advanced
+    poll/membership/date editing with demand loading and ready/error states.
+    Defer background prefetch/ready notifications and persistent cache management.
+  - [ ] **FV-08:** Pass full-list/geographic/paired/seat, browser/export and resource
+    acceptance, then switch reform defaults. Keep public deployment at the final gate.
+  - [ ] **FV-09:** Execute the [research archive/cleanup plan](docs/vote-generation-research-archive-plan.md)
+    after dependency separation and acceptance; retain curated evidence and remove
+    only audited, regenerable outputs no longer consumed.
 
 - [x] **Refine UI**
   - [x] Restore the bundled reform scenario with an explicit confirmation,
@@ -435,7 +410,8 @@ implementation or municipal parity scope.
   electors/votes without double counting, and test geographic and joint-bonus
   sensitivity. Distinguish voting-population movement from legal census data
   used for seat apportionment.
-- [ ] Let the user add polls
+- [ ] Add poll editing to remaining election workflows; reform poll editing is
+  included now in FV-07 and does not wait for this post-migration extension.
 - [ ] Let the user enter fixed vote counts and perform a single scrutiny (e.g. applying a new scrutiny algorithm to a previous election result, possibly adapted; or setting national fixed shares and choosing a deterministic algorithm to calculate the
 local votes)
 - [ ] Evaluate modelling of the $0$ component from poll's "will abstain" answers.

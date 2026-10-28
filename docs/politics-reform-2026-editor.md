@@ -34,7 +34,9 @@ storage, execution and exports use [application](politics-reform-2026-applicatio
   anchors, not necessarily identical chamber percentages. Geographic references
   apply in national, region, province, municipality order. Mean mode retains
   election-day uncertainty. Profile descriptions explain the versioned sensitivity
-  assumptions; parameters are not edited or fitted in the browser.
+  assumptions; parameters are not edited or fitted in the installed browser
+  workflow. The approved [fast-model follow-up](vote-generation-production-plan.md)
+  adds browser estimation and its advanced scenario controls in FV-06/07.
 - Partial share references constrain only the entered lists. Other lists fill
   the remainder using their local historical proportions and filing support;
   their national shares may adjust differently across disconnected territories.

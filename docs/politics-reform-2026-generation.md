@@ -1,5 +1,11 @@
 # R26-19 scenarios, preparation and generation
 
+This guide describes the installed generator. Its approved replacement is
+specified by the [fast-model production plan](vote-generation-production-plan.md).
+Use that plan for FV implementation, browser refitting and research cleanup;
+update this guide at cutover. Existing commands below do not yet build the new
+fast-model production assets.
+
 Use this guide for generation work. Legal scrutiny stays in the stage modules;
 the [modelling decisions](politics-reform-2026-modelling.md) define semantics.
 Use the [validation protocol](politics-reform-2026-generation-protocol.md) for

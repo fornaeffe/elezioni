@@ -5,6 +5,13 @@ This is the operational plan for the reform item in
 unchecked step is not implemented or verified. Work on one requested step at a
 time and leave subsequent application features inactive.
 
+The original R26-01 through R26-21 delivery below is complete. The next approved
+vote-generation replacement follows the separate
+[fast-model browser plan](vote-generation-production-plan.md), FV-01 through
+FV-09 in the main migration checklist. That follow-up supersedes the original
+offline-only vote fitting and factor-correspondence implementation; it does not
+reopen completed legal stages or migrate the other election generators.
+
 ## Reading map
 
 - For the next task, use the checklist and its corresponding section below.
@@ -486,7 +493,9 @@ Deliver this step's historical acquisition/import and model fitting through
 shared non-interactive Node/TypeScript preparation commands, following the
 [Actions delivery contract](../data/README.md#github-actions-delivery-contract).
 Produce versioned static model/data bundles and matching defaults/catalogs from
-a clean clone; keep fitting and source downloads out of browser execution.
+a clean clone. This original delivery kept fitting and source downloads offline;
+the approved FV follow-up adds browser parameter re-estimation from compact
+prepared records while source acquisition remains offline.
 
 Tests: each decision's algebraic, statistical, and sensitivity protocol; valid
 candidacies and preferences; chamber-specific geographic aggregation; scenario
