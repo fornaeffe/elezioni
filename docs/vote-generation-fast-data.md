@@ -14,7 +14,7 @@ component basis, Senate adapter or default fit. Read the
 | Encode/read chunks | [portable types](../web/src/lib/politics/reform-2026/vote-share/source-types.ts), [codec](../web/src/lib/politics/reform-2026/vote-share/source-codec.ts) |
 | Change selected history/memberships/date | [compiler](../web/src/lib/politics/reform-2026/vote-share/source-compiler.ts) |
 | Numerical estimation | [FV-02 engine guide](../web/src/lib/politics/reform-2026/vote-share/README.md) |
-| Recorded acceptance/resources | [source benchmark](../test/fixtures/benchmarks/vote_share_sources.json), [history](migration-history.md#2026-10-29--fv-03-compact-editable-production-history) |
+| Recorded acceptance/resources | [Original FV-03 benchmark](../test/fixtures/benchmarks/vote_share_sources.json), [availability-policy update](../test/fixtures/benchmarks/vote_share_availability.json), [history](migration-history.md#2026-10-29--fv-03-compact-editable-production-history) |
 
 ## Commands and ownership
 
@@ -60,11 +60,18 @@ install physical-cell profiles. FV-04/05 own production adaptation and prefittin
   places, unlocated fuori-sede, observed zeros and invalid denominators. Original
   direct list counts accompany the reviewed integer attribution of candidate-only
   ballots. Opaque special-group counts are never decomposed into party estimates.
-- Availability is an explicit retrospective assumption: 30 days after the final
-  polling day, with the second day included for Camera 2008/2013. It is not a
-  verified result-publication timestamp. Event and assumed availability must both
-  precede/equal the requested cutoff. Poll publication/end/representative days
+- Known availability dates and citations in the source manifest's
+  `resultAvailability.knownDates` take precedence. Otherwise assume availability
+  **by the end of the first civil day after the final polling day**. The manifest
+  records the second polling day for Camera 2008/2013 explicitly. This is a
+  labelled retrospective fallback, not a verified publication timestamp or a claim
+  that the complete archived snapshot was available at the start of that day.
+  Event and availability dates must both precede/equal the inclusive daily cutoff.
+  Poll publication/end/representative days
   must also qualify. Moving the reference date always changes the numerical keys.
+  Incomplete live returns are a separate post-migration current-election
+  final-count forecasting task; they are not supported as complete historical
+  observations for forecasting subsequent elections.
 - Same-place matches use the reviewed source-name resolver and target codes;
   mergers and ambiguous identities remain labelled unmatched. Target records
   retain all 7,904 municipalities and 15,810 physical membership cells across

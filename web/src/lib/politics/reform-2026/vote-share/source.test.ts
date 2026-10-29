@@ -74,6 +74,15 @@ describe('FV-03 original compact sources and editable fitting boundary', () => {
     const older = await encodeSource(input);
     await expect(compileSource(older.envelope, async p => older.assets.get(p)!, s)).rejects.toThrow('audit-only');
   });
+  it('admits an election on its availability day, without moving observation time or admitting it the day before', async () => {
+    const input = originalShareFixture(); input.events[3].availableDate = '2016-01-02';
+    input.events[3].availabilityBasis = 'Assumed available by end of first civil day after final polling day 2016-01-01';
+    const encoded = await encodeSource(input), read = async (p: string) => encoded.assets.get(p)!;
+    await expect(compileSource(encoded.envelope, read, { ...sourceSelection(), referenceDate: '2016-01-01' })).rejects.toThrow('unavailable');
+    const result = await compileSource(encoded.envelope, read, { ...sourceSelection(), referenceDate: '2016-01-02' });
+    expect(result.national.elections.find(e => e.id === 'e3')!.date).toBe('2016-01-01');
+    expect(result.national.referenceDate).toBe('2016-01-02');
+  });
   it('checks distinguishing information and retains zero-denominator rows without local use', async () => {
     expect(resolvedBasis(['a','b','c'], [[['a','b'],['c']]])).toBe(false);
     expect(resolvedBasis(['a','b'], [[['a']]])).toBe(false);

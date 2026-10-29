@@ -430,3 +430,10 @@ local votes)
 - [ ] Migrate the municipal workflow: create R golden fixtures and benchmarks
   first, preserve current behavior, and keep the runoff and councilor-candidate
   gaps explicit for later business and legal review.
+- [ ] Add short-term forecasts of the **current election's final scrutiny result**
+  from incomplete incoming returns. Keep this separate from forecasting subsequent
+  elections and from the historical-result availability fallback. Preserve timestamped
+  section/municipality snapshots, reporting completeness and denominator consistency;
+  model geographically uneven reporting, missing returns and revisions without
+  treating missing counts as zero. Validate uncertainty and final-result predictions
+  on chronological counting snapshots before exposing a dedicated live-count workflow.

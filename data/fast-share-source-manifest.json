@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "fast-share-production-sources-v1",
+  "id": "fast-share-production-sources-v2",
   "reviewedOn": "2026-10-29",
   "inputManifests": [
     "data/source-manifest.json",
@@ -10,9 +10,14 @@
   "contexts": ["camera", "european", "senato"],
   "sourceRange": "Camera 2008/2013/2018/2022, European 2009/2014/2019/2024, Senate 2018/2022",
   "resultAvailability": {
-    "method": "retrospective-thirty-day-lag-v1",
-    "lagDaysAfterFinalPollingDay": 30,
-    "note": "Explicit retrospective information assumption, not an official publication timestamp. Camera 2008/2013 have a second polling day. Reject use before the declared date."
+    "method": "retrospective-next-day-end-v1",
+    "lagDaysAfterFinalPollingDay": 1,
+    "finalPollingDays": {
+      "camera-2008": "2008-04-14",
+      "camera-2013": "2013-02-25"
+    },
+    "knownDates": {},
+    "note": "Preserve known availability dates and their citations. Otherwise assume availability by the end of the first civil day after the final polling day, not at its beginning. This is not a verified publication timestamp or support for feeding incomplete returns into the subsequent-election model."
   },
   "sourceCorrespondences": "data/sources/fast-share/memberships-policy.json",
   "membershipCitations": "data/sources/fast-share/membership-sources.json",

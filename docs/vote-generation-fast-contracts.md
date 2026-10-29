@@ -97,6 +97,11 @@ election must have event and result-availability dates <= cutoff. Poll fieldwork
 end, publication and representative date must all be <= cutoff. Date-only source
 availability uses this explicit daily convention. Moving the reference date
 always resets the anchored fit/prior, even if eligible record IDs do not change.
+Known historical-result availability dates take precedence; otherwise the approved
+fallback is availability by the end of the first day after the final polling day,
+labelled as assumed. This does not authorize using incomplete live returns as
+complete historical observations. Current-election final-count forecasting from
+partial scrutiny is a separate post-migration task.
 The source bundle declares its available range and exclusions; unsupported dates,
 source IDs or geographic revisions fail validation rather than fetching live data.
 

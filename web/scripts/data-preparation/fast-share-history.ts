@@ -9,16 +9,39 @@ import { readManifest, prepareTerritoryCatalog } from './normalize';
 import { readSource, sha256, type Source } from './sources';
 import { loadSourceMemberships, sourceMembership } from './fast-share-memberships';
 import { rowFlags } from '../../src/lib/politics/reform-2026/vote-share/source-codec';
+import { day } from '../../src/lib/politics/reform-2026/vote-share/types';
 
 type Row = Record<string, string>;
+export interface ResultAvailabilityPolicy {
+  method: 'retrospective-next-day-end-v1'; lagDaysAfterFinalPollingDay: 1;
+  finalPollingDays: Record<string, string>;
+  knownDates: Record<string, { date: string; citation: string }>;
+}
+/** Daily cutoffs mean information available by the END of the named UTC civil day.
+ * Event time stays unchanged; this controls only historical-source eligibility. */
+export function resultAvailability(eventId: string, eventDate: string, policy: ResultAvailabilityPolicy) {
+  const finalDay = policy.finalPollingDays[eventId] ?? eventDate, final = day(finalDay);
+  if (final < day(eventDate)) throw new Error('Final polling day precedes election date');
+  const known = policy.knownDates[eventId];
+  if (known !== undefined) {
+    if (typeof known.citation !== 'string' || !known.citation.trim() || day(known.date) < final) throw new Error('Invalid known result availability/date citation');
+    return { availableDate: known.date, availabilityBasis: 'Known availability by end of civil day; source: ' + known.citation };
+  }
+  return { availableDate: new Date((final + 1) * 86400000).toISOString().slice(0, 10),
+    availabilityBasis: 'Assumed available by end of first civil day after final polling day ' + finalDay + '; not a verified publication timestamp' };
+}
 export async function shareSourceManifests(root: string) {
   const policy = JSON.parse(await readFile(resolve(root, 'data/fast-share-source-manifest.json'), 'utf8'));
-  if (policy.schemaVersion !== 1 || policy.id !== 'fast-share-production-sources-v1' || policy.resultAvailability.method !== 'retrospective-thirty-day-lag-v1' || policy.resultAvailability.lagDaysAfterFinalPollingDay !== 30) throw new Error('Unsupported fast-share source policy');
+  if (policy.schemaVersion !== 1 || policy.id !== 'fast-share-production-sources-v2' || policy.resultAvailability.method !== 'retrospective-next-day-end-v1' || policy.resultAvailability.lagDaysAfterFinalPollingDay !== 1 ||
+    !policy.resultAvailability.finalPollingDays || !policy.resultAvailability.knownDates || Array.isArray(policy.resultAvailability.finalPollingDays) || Array.isArray(policy.resultAvailability.knownDates)) throw new Error('Unsupported fast-share source policy');
   const paths: string[] = policy.inputManifests;
   if (paths.join('|') !== 'data/source-manifest.json|data/sources/polls/history/elections-manifest.json|data/reform-model-source-manifest.json') throw new Error('Unsupported source manifest composition');
   const bodies = await Promise.all(paths.map(p => readFile(resolve(root, p), 'utf8')));
   const [geo, history, reform] = bodies.map(b => JSON.parse(b)) as { sources: Source[] }[];
   const sources = [...geo.sources, ...history.sources, ...reform.sources.filter(s => ['senato-2018', 'senato-2022', 'camera-2022'].includes(s.id))];
+  const eventIds = new Set([...history.sources, ...reform.sources.filter(s => s.id.startsWith('senato'))].map(s =>
+    (s.id.startsWith('camera') ? 'camera' : s.id.startsWith('senato') ? 'senato' : 'european') + '-' + s.id.match(/20\d\d/)![0]));
+  if ([...Object.keys(policy.resultAvailability.finalPollingDays), ...Object.keys(policy.resultAvailability.knownDates)].some(id => !eventIds.has(id))) throw new Error('Unknown result-availability event override');
   return { geo, history, reform, sources, policy, versions: ['fast-share-source-manifest:' + sha256(JSON.stringify(policy)), ...bodies.map((b, i) => paths[i] + ':' + sha256(JSON.stringify(JSON.parse(b))))] };
 }
 const aliases: Record<string, string> = {
@@ -124,13 +147,10 @@ export async function prepareShareHistory(root: string, directory: string) {
       ballot: r.DESCCIRCEUROPEA, electors: integer(r.ELETTORI), voters: integer(r.VOTANTI), label: r.DESCLISTA, count: integer(r.NUMVOTI), unlocated: true });
     const rows = [...byUnit.values()].map(({ row, ballots }) => ({ ...row, electors: [...ballots.values()].reduce((n, b) => n + b.electors, 0),
       voters: [...ballots.values()].some(b => b.voters === null) ? null : [...ballots.values()].reduce((n, b) => n + b.voters!, 0), choices: row.choices.sort((a, b) => a.id.localeCompare(b.id)) })).sort((a, b) => a.unit.localeCompare(b.unit));
-    // Retrospective assumption, NOT an asserted official publication timestamp.
-    // Multi-day contests add one final polling day before this conservative lag.
-    const lag = ['camera-2008', 'camera-2013'].includes(id) ? 31 : 30;
-    const availableDate = new Date(Date.parse(date) + lag * 86400000).toISOString().slice(0, 10);
-    events.push({ id, date, availableDate, context, minimumAge: id === 'senato-2018' ? 25 : 18,
+    const availability = resultAvailability(id, date, manifests.policy.resultAvailability);
+    events.push({ id, date, ...availability, context, minimumAge: id === 'senato-2018' ? 25 : 18,
       role: context !== 'senato' ? 'reference' : year === 2018 ? 'age-audit' : 'paired-adaptation', sourceId: s.id, sourceUrl: s.url, sourceSha256: s.sha256,
-      availabilityBasis: 'Retrospective assumption: 30 days after final polling day; not a verified publication time', rows });
+      rows });
     audits.push({ id, members, rawRows: raw.length, municipalities: rows.length, unmatched: rows.filter(r => units.get(r.unit)!.match === 'unmatched').length,
       invalidDenominators: rows.filter(r => rowFlags(r, units.get(r.unit)!.match) & 1).map(r => r.unit), candidateOnly });
   }

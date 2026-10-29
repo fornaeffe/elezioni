@@ -2,10 +2,33 @@ import { fileURLToPath } from 'node:url';
 import { describe, it, expect } from 'vitest';
 import { prepareSharePolls, reviewedEarlyView } from './fast-share-polls';
 import { loadSourceMemberships, sourceMembership } from './fast-share-memberships';
-import { createUnitResolver } from './fast-share-history';
+import { createUnitResolver, resultAvailability, shareSourceManifests, type ResultAvailabilityPolicy } from './fast-share-history';
 import type { TerritoryCatalog } from '../../src/lib/politics/reform-2026/geography';
 const root = fileURLToPath(new URL('../../../', import.meta.url));
 describe('FV-03 promoted reviewed source preparation', () => {
+  it('uses the next day after final polling, across multi-day contests and calendar boundaries', async () => {
+    const { policy } = await shareSourceManifests(root);
+    for (const [id, date, expected] of [
+      ['camera-2022','2022-09-25','2022-09-26'],
+      ['camera-2008','2008-04-13','2008-04-15'],
+      ['camera-2013','2013-02-24','2013-02-26'],
+      ['fixture-leap','2024-02-29','2024-03-01'],
+      ['fixture-year','2023-12-31','2024-01-01']
+    ]) {
+      const actual = resultAvailability(id, date, policy.resultAvailability);
+      expect(actual.availableDate).toBe(expected); expect(actual.availabilityBasis).toContain('Assumed available by end');
+    }
+  });
+  it('preserves evidenced availability dates and rejects invalid overrides', () => {
+    const policy: ResultAvailabilityPolicy = { method: 'retrospective-next-day-end-v1', lagDaysAfterFinalPollingDay: 1,
+      finalPollingDays: { e: '2022-09-26' }, knownDates: { e: { date: '2022-09-29', citation: 'Pinned publication evidence' } } };
+    expect(resultAvailability('e','2022-09-25',policy)).toEqual({ availableDate: '2022-09-29', availabilityBasis: 'Known availability by end of civil day; source: Pinned publication evidence' });
+    policy.knownDates.e.date = '2022-09-26';
+    expect(resultAvailability('e','2022-09-25',policy).availableDate).toBe('2022-09-26');
+    policy.knownDates.e.date = '2022-09-25'; expect(() => resultAvailability('e','2022-09-25',policy)).toThrow('known result');
+    policy.knownDates.e = { date: '2022-09-29', citation: '' }; expect(() => resultAvailability('e','2022-09-25',policy)).toThrow('citation');
+    policy.finalPollingDays.e = '2022-09-24'; expect(() => resultAvailability('e','2022-09-25',policy)).toThrow('Final polling');
+  });
   it('repairs early FDI/FI only by refining the same conserved original residual', () => {
     const original = { id: 'q', shares: [0.2,0.1,0.3,0.4] }, refined = { id: 'q', shares: [0.2,0.1,0.3,0.1,0.2,0.1] };
     expect(reviewedEarlyView(original, refined)).toEqual({ groups: [['pd'],['m5s'],['lega'],['fdi'],['fi-pdl']], shares: [0.2,0.1,0.3,0.1,0.2], other: 0.1 });

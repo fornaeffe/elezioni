@@ -11,7 +11,7 @@ export async function prepareFastShareSource(root: string, sourceDirectory: stri
   const colleges = new Map(history.catalog.colleges.map(c => [c.id, c]));
   const original: OriginalSource = {
     sourceVersions: [...history.sourceVersions, ...polls.sourceVersions],
-    methodVersions: ['fast-share-history-v1', 'reviewed-source-correspondences-v1', 'retrospective-thirty-day-lag-v1', 'fast-share-effective-sample-v1'], assumptions: policy.assumptions,
+    methodVersions: ['fast-share-history-v1', 'reviewed-source-correspondences-v1', policy.resultAvailability.method, 'fast-share-effective-sample-v1'], assumptions: policy.assumptions,
     correspondencePolicy: { id: history.membership.policy.version, status: history.membership.policy.status, warnings: history.membership.policy.reviewWarnings },
     citations: history.membership.citations.sources.map(s => ({ id: s.id, url: s.url })),
     units: history.units, choices: history.choices, events: history.events, polls: polls.polls,

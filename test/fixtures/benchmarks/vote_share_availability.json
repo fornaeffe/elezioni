@@ -1,0 +1,373 @@
+{
+  "schemaVersion": 1,
+  "recordedDate": "2026-10-29",
+  "policy": "retrospective-next-day-end-v1",
+  "previousSourceId": "fast-share-source-v1-e3b5ac701c2217b51c93ebcd7c27e0f3e3a43192dc78cfcf99672aca5e4d6d25",
+  "sourceId": "fast-share-source-v1-95d505ed1f7ea79c99cd0bf91a86dbc6a2d54c1f24fd9b37bec40a57e3c72511",
+  "descriptor": {
+    "path": "source-dfe474fbb2677ac4799f24bdf87e9a3fde4701fb800f1d47cb070cdd7019dc63.gz",
+    "compressedBytes": 394332,
+    "decodedBytes": 3785805,
+    "sha256": "dfe474fbb2677ac4799f24bdf87e9a3fde4701fb800f1d47cb070cdd7019dc63",
+    "decodedSha256": "b4f60b9b24b35a1ac6564af03662c62ca58bddd0e0ac21b7436c10acb344aecf"
+  },
+  "sourceHashes": {
+    "data/fast-share-source-manifest.json": "c0bb13b0fc4a4da1e1155d55dff75445290ff6c95d4f0ba0fb7a5fdfd23cadbd",
+    "web/scripts/data-preparation/fast-share-history.ts": "6ac44a28151454c22152e5a2abb13109f5e5ff27ef9421402f04d80f50c67d4b",
+    "web/scripts/data-preparation/fast-share-preparation.ts": "df104ca29dc9bdcc232c815d357e8e54bf29f0fbfb533a26b7455fd90e35015f"
+  },
+  "events": [
+    {
+      "id": "camera-2008",
+      "eventDate": "2008-04-13",
+      "availableDate": "2008-04-15",
+      "availabilityBasis": "Assumed available by end of first civil day after final polling day 2008-04-14; not a verified publication timestamp"
+    },
+    {
+      "id": "camera-2013",
+      "eventDate": "2013-02-24",
+      "availableDate": "2013-02-26",
+      "availabilityBasis": "Assumed available by end of first civil day after final polling day 2013-02-25; not a verified publication timestamp"
+    },
+    {
+      "id": "camera-2018",
+      "eventDate": "2018-03-04",
+      "availableDate": "2018-03-05",
+      "availabilityBasis": "Assumed available by end of first civil day after final polling day 2018-03-04; not a verified publication timestamp"
+    },
+    {
+      "id": "camera-2022",
+      "eventDate": "2022-09-25",
+      "availableDate": "2022-09-26",
+      "availabilityBasis": "Assumed available by end of first civil day after final polling day 2022-09-25; not a verified publication timestamp"
+    },
+    {
+      "id": "european-2009",
+      "eventDate": "2009-06-07",
+      "availableDate": "2009-06-08",
+      "availabilityBasis": "Assumed available by end of first civil day after final polling day 2009-06-07; not a verified publication timestamp"
+    },
+    {
+      "id": "european-2014",
+      "eventDate": "2014-05-25",
+      "availableDate": "2014-05-26",
+      "availabilityBasis": "Assumed available by end of first civil day after final polling day 2014-05-25; not a verified publication timestamp"
+    },
+    {
+      "id": "european-2019",
+      "eventDate": "2019-05-26",
+      "availableDate": "2019-05-27",
+      "availabilityBasis": "Assumed available by end of first civil day after final polling day 2019-05-26; not a verified publication timestamp"
+    },
+    {
+      "id": "european-2024",
+      "eventDate": "2024-06-09",
+      "availableDate": "2024-06-10",
+      "availabilityBasis": "Assumed available by end of first civil day after final polling day 2024-06-09; not a verified publication timestamp"
+    },
+    {
+      "id": "senato-2018",
+      "eventDate": "2018-03-04",
+      "availableDate": "2018-03-05",
+      "availabilityBasis": "Assumed available by end of first civil day after final polling day 2018-03-04; not a verified publication timestamp"
+    },
+    {
+      "id": "senato-2022",
+      "eventDate": "2022-09-25",
+      "availableDate": "2022-09-26",
+      "availabilityBasis": "Assumed available by end of first civil day after final polling day 2022-09-25; not a verified publication timestamp"
+    }
+  ],
+  "unchangedObservationChunks": 10,
+  "unchangedElectionDates": true,
+  "unchangedNationalCounts": true,
+  "frozenCaseEligibility": {
+    "cases": 24,
+    "allUnchanged": true,
+    "details": [
+      {
+        "target": "camera-2013",
+        "horizon": 730,
+        "cutoff": "2011-02-25",
+        "eligible": [
+          "camera-2008",
+          "european-2009"
+        ]
+      },
+      {
+        "target": "camera-2013",
+        "horizon": 365,
+        "cutoff": "2012-02-25",
+        "eligible": [
+          "camera-2008",
+          "european-2009"
+        ]
+      },
+      {
+        "target": "camera-2013",
+        "horizon": 90,
+        "cutoff": "2012-11-26",
+        "eligible": [
+          "camera-2008",
+          "european-2009"
+        ]
+      },
+      {
+        "target": "camera-2013",
+        "horizon": 15,
+        "cutoff": "2013-02-09",
+        "eligible": [
+          "camera-2008",
+          "european-2009"
+        ]
+      },
+      {
+        "target": "camera-2018",
+        "horizon": 730,
+        "cutoff": "2016-03-04",
+        "eligible": [
+          "camera-2008",
+          "camera-2013",
+          "european-2009",
+          "european-2014"
+        ]
+      },
+      {
+        "target": "camera-2018",
+        "horizon": 365,
+        "cutoff": "2017-03-04",
+        "eligible": [
+          "camera-2008",
+          "camera-2013",
+          "european-2009",
+          "european-2014"
+        ]
+      },
+      {
+        "target": "camera-2018",
+        "horizon": 90,
+        "cutoff": "2017-12-04",
+        "eligible": [
+          "camera-2008",
+          "camera-2013",
+          "european-2009",
+          "european-2014"
+        ]
+      },
+      {
+        "target": "camera-2018",
+        "horizon": 15,
+        "cutoff": "2018-02-17",
+        "eligible": [
+          "camera-2008",
+          "camera-2013",
+          "european-2009",
+          "european-2014"
+        ]
+      },
+      {
+        "target": "camera-2022",
+        "horizon": 730,
+        "cutoff": "2020-09-25",
+        "eligible": [
+          "camera-2008",
+          "camera-2013",
+          "camera-2018",
+          "european-2009",
+          "european-2014",
+          "european-2019"
+        ]
+      },
+      {
+        "target": "camera-2022",
+        "horizon": 365,
+        "cutoff": "2021-09-25",
+        "eligible": [
+          "camera-2008",
+          "camera-2013",
+          "camera-2018",
+          "european-2009",
+          "european-2014",
+          "european-2019"
+        ]
+      },
+      {
+        "target": "camera-2022",
+        "horizon": 90,
+        "cutoff": "2022-06-27",
+        "eligible": [
+          "camera-2008",
+          "camera-2013",
+          "camera-2018",
+          "european-2009",
+          "european-2014",
+          "european-2019"
+        ]
+      },
+      {
+        "target": "camera-2022",
+        "horizon": 15,
+        "cutoff": "2022-09-10",
+        "eligible": [
+          "camera-2008",
+          "camera-2013",
+          "camera-2018",
+          "european-2009",
+          "european-2014",
+          "european-2019"
+        ]
+      },
+      {
+        "target": "european-2014",
+        "horizon": 730,
+        "cutoff": "2012-05-25",
+        "eligible": [
+          "camera-2008",
+          "european-2009"
+        ]
+      },
+      {
+        "target": "european-2014",
+        "horizon": 365,
+        "cutoff": "2013-05-25",
+        "eligible": [
+          "camera-2008",
+          "camera-2013",
+          "european-2009"
+        ]
+      },
+      {
+        "target": "european-2014",
+        "horizon": 90,
+        "cutoff": "2014-02-24",
+        "eligible": [
+          "camera-2008",
+          "camera-2013",
+          "european-2009"
+        ]
+      },
+      {
+        "target": "european-2014",
+        "horizon": 15,
+        "cutoff": "2014-05-10",
+        "eligible": [
+          "camera-2008",
+          "camera-2013",
+          "european-2009"
+        ]
+      },
+      {
+        "target": "european-2019",
+        "horizon": 730,
+        "cutoff": "2017-05-26",
+        "eligible": [
+          "camera-2008",
+          "camera-2013",
+          "european-2009",
+          "european-2014"
+        ]
+      },
+      {
+        "target": "european-2019",
+        "horizon": 365,
+        "cutoff": "2018-05-26",
+        "eligible": [
+          "camera-2008",
+          "camera-2013",
+          "camera-2018",
+          "european-2009",
+          "european-2014"
+        ]
+      },
+      {
+        "target": "european-2019",
+        "horizon": 90,
+        "cutoff": "2019-02-25",
+        "eligible": [
+          "camera-2008",
+          "camera-2013",
+          "camera-2018",
+          "european-2009",
+          "european-2014"
+        ]
+      },
+      {
+        "target": "european-2019",
+        "horizon": 15,
+        "cutoff": "2019-05-11",
+        "eligible": [
+          "camera-2008",
+          "camera-2013",
+          "camera-2018",
+          "european-2009",
+          "european-2014"
+        ]
+      },
+      {
+        "target": "european-2024",
+        "horizon": 730,
+        "cutoff": "2022-06-09",
+        "eligible": [
+          "camera-2008",
+          "camera-2013",
+          "camera-2018",
+          "european-2009",
+          "european-2014",
+          "european-2019"
+        ]
+      },
+      {
+        "target": "european-2024",
+        "horizon": 365,
+        "cutoff": "2023-06-09",
+        "eligible": [
+          "camera-2008",
+          "camera-2013",
+          "camera-2018",
+          "camera-2022",
+          "european-2009",
+          "european-2014",
+          "european-2019"
+        ]
+      },
+      {
+        "target": "european-2024",
+        "horizon": 90,
+        "cutoff": "2024-03-10",
+        "eligible": [
+          "camera-2008",
+          "camera-2013",
+          "camera-2018",
+          "camera-2022",
+          "european-2009",
+          "european-2014",
+          "european-2019"
+        ]
+      },
+      {
+        "target": "european-2024",
+        "horizon": 15,
+        "cutoff": "2024-05-24",
+        "eligible": [
+          "camera-2008",
+          "camera-2013",
+          "camera-2018",
+          "camera-2022",
+          "european-2009",
+          "european-2014",
+          "european-2019"
+        ]
+      }
+    ]
+  },
+  "currentReference": {
+    "date": "2026-10-19",
+    "scope": "All eight C/E elections, explicit two-component pooling, no polls, conditional two-target geography; compilation only",
+    "nationalInputKey": "national-input-v1-b4d4d4276cd9b94eceb6454370c583ab2773a894ec21fdd878d9aaad02ed095b",
+    "profileInputKey": "profile-input-v1-2a450f2d52e6963df7b5ebff7776b31739cb31c6d5306903fb364edd1f599184",
+    "keysUnchanged": true,
+    "provenanceChanged": true
+  },
+  "fitsRerun": false,
+  "previousBenchmark": "test/fixtures/benchmarks/vote_share_sources.json"
+}
