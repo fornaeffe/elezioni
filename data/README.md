@@ -7,6 +7,7 @@
 | Selected poll archive and reconciliation | [Poll preparation](../docs/polls-preparation.md) |
 | Fast model original compact history/polls (2026 reform only) | [Source preparation](../docs/vote-generation-fast-data.md) |
 | Fast model default prefit, immutable candidate and clean-source release checks | [Candidate release guide](../docs/vote-generation-fast-release.md) |
+| Fast model browser refitting and state ownership | [Fitting guide](../docs/vote-generation-fast-fitting.md) |
 | Fast model scenario/state/browser integration | [Data/scenario contract](../docs/vote-generation-fast-contracts.md), [production plan](../docs/vote-generation-production-plan.md) |
 | Historical vote-generation research retention and cleanup | [Archive plan](../docs/vote-generation-research-archive-plan.md) |
 

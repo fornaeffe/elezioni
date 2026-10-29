@@ -22,6 +22,7 @@ import {
   type StateMetadata,
 } from '../../src/lib/politics/reform-2026/vote-share/state-codec';
 import { compileSource } from '../../src/lib/politics/reform-2026/vote-share/source-compiler';
+import { fittedStateShapes, profileStateShapes } from '../../src/lib/politics/reform-2026/vote-share/state-shapes';
 import { compilePairedHistory } from '../../src/lib/politics/reform-2026/vote-share/paired-source';
 import { fitReference } from '../../src/lib/politics/reform-2026/vote-share/information';
 import { fitProfiles } from '../../src/lib/politics/reform-2026/vote-share/profiles';
@@ -134,18 +135,7 @@ export async function prepareShareRelease(
     'fast-share-fit',
     fitState,
     { ...metadata, methodVersions: [policy.id, fitImplementation] },
-    {
-      '/fit/political/values': [
-        fit.political.chains,
-        fit.political.drawsPerChain,
-        fit.political.dimensions,
-      ],
-      '/fit/participation/values': [
-        fit.participation.chains,
-        fit.participation.drawsPerChain,
-        fit.participation.dimensions,
-      ],
-    },
+    fittedStateShapes(fit),
   );
   await writeAssets(cache, fitted.assets);
   if (!oldFit)
@@ -182,13 +172,6 @@ export async function prepareShareRelease(
       oldProfile?.state.senateAdapter ??
       prepareSenateAdapter(cameraProfile, policy.referenceDate, paired.history);
   senateAdapter.sourceVersions = [...paired.history.sourceVersions];
-  const shapes: Record<string, number[]> = {};
-  for (const path of ['/cameraProfile', '/senateAdapter/profile'])
-    for (const name of ['means', 'profileSd', 'fallback'])
-      shapes[path + '/' + name] = [
-        cameraProfile.municipalityIds.length,
-        cameraProfile.componentIds.length + 1,
-      ];
   const profiles = await encodeState(
     'fast-share-profiles',
     {
@@ -198,7 +181,7 @@ export async function prepareShareRelease(
       pairedAudit: paired.audit,
     } satisfies ProfileState,
     metadata,
-    shapes,
+    profileStateShapes(cameraProfile),
   );
   await writeAssets(cache, profiles.assets);
   if (!oldProfile)

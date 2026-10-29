@@ -339,6 +339,10 @@ or mismatched required assets fail release; no accepted skip/debug fallback.
 
 ### FV-06: Add browser estimation and bounded worker ownership
 
+Implemented the worker/client boundary and current-candidate browser checks;
+use the [fitting guide](vote-generation-fast-fitting.md). Editor integration and
+default activation remain FV-07/08; FV-05's political basis is unchanged.
+
 Add `reform-fit.worker.ts` and a typed client for load/validate/fit/progress/
 cancel/result/error, using request IDs and scenario revisions. Yield between
 bounded numeric batches so cancellation is serviced; termination/recreation is

@@ -1,5 +1,6 @@
 import { conjugateGradient, denseFromOperator, factorSpd, helmert, solveSpd, type LinearOperator, type SpdFactor } from './linalg';
-import { gaussianMode, fitGaussian } from './gaussian';
+import { gaussianMode, fitGaussianSteps } from './gaussian';
+import { completeSteps, type FitProgress } from './execution';
 import { clip, day, median, requireWorkspace, sum, years, type FitContext, type GaussianTarget,
   type InformationPoll, type NationalElection, type NationalSource, type SolverOptions, type Vector } from './types';
 
@@ -214,6 +215,9 @@ export function informationCovariance(records: DesignRecord[], reference: Vector
   return op;
 }
 export function buildPoliticalTarget(input: NationalSource, options: SolverOptions = {}) {
+  return completeSteps(buildPoliticalTargetSteps(input, options));
+}
+export function* buildPoliticalTargetSteps(input: NationalSource, options: SolverOptions = {}) {
   const tolerance = options.relativeTolerance ?? 1e-11;
   if (!(tolerance > 0 && tolerance <= 1e-11) || !Number.isFinite(tolerance) ||
     options.maximumIterations !== undefined && (!Number.isSafeInteger(options.maximumIterations) || options.maximumIterations < 1))
@@ -242,6 +246,7 @@ export function buildPoliticalTarget(input: NationalSource, options: SolverOptio
     const precision = new Float64Array(d * d), linear = new Float64Array(d).fill(4 / k);
     let maximumRelativeResidual = 0, count = 0;
     for (let col = 0; col < d && n; col++) {
+      yield { phase: 'covariance-solves', completed: iteration * d + col, total: 3 * d } satisfies FitProgress;
       const rhs = new Float64Array(n);
       for (const r of records) if (r.context === Math.floor(col / k)) for (let i = 0; i < r.rows; i++) rhs[r.offset + i] = r.design[i * k + col % k];
       const result = dense ? { solution: solveSpd(dense, rhs), iterations: 0, relativeResidual: 0 } :
@@ -304,9 +309,16 @@ export function buildParticipationTarget(input: NationalSource) {
   return { target, mode: gaussianMode(target), covariance, design };
 }
 export function fitReference(source: NationalSource, seed: string, options: SolverOptions = {}) {
-  const political = buildPoliticalTarget(source, options), participation = buildParticipationTarget(source);
+  return completeSteps(fitReferenceSteps(source, seed, options));
+}
+export function* fitReferenceSteps(source: NationalSource, seed: string, options: SolverOptions = {}) {
+  const political = yield* buildPoliticalTargetSteps(source, options), participation = buildParticipationTarget(source);
+  yield { phase: 'political-reference', completed: 0, total: 1 } satisfies FitProgress;
+  const politicalSamples = yield* fitGaussianSteps(political.target, { seed: seed + ':political', maximumWorkspaceBytes: options.maximumWorkspaceBytes });
+  yield { phase: 'non-valid-reference', completed: 0, total: 1 } satisfies FitProgress;
+  const participationSamples = yield* fitGaussianSteps(participation.target, { seed: seed + ':participation', maximumWorkspaceBytes: options.maximumWorkspaceBytes });
   return { componentIds: political.source.components, contexts: ['camera', 'european'] as const, referenceDate: source.referenceDate,
-    political: fitGaussian(political.target, { seed: seed + ':political', maximumWorkspaceBytes: options.maximumWorkspaceBytes }),
-    participation: fitGaussian(participation.target, { seed: seed + ':participation', maximumWorkspaceBytes: options.maximumWorkspaceBytes }),
+    political: politicalSamples,
+    participation: participationSamples,
     audit: political.audit };
 }

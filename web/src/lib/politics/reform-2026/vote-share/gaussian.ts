@@ -1,6 +1,7 @@
 import { dot, factorSpd, multiply, solveSpd } from './linalg';
 import { diagnose } from './diagnostics';
 import { fitRandom } from './random';
+import { completeSteps, type FitSteps } from './execution';
 import { requireWorkspace, type GaussianSamples, type GaussianTarget, type ModeResult, type SamplerOptions } from './types';
 
 export function validateTarget(t: GaussianTarget): number {
@@ -67,6 +68,9 @@ export function gaussianMode(t: GaussianTarget): ModeResult {
   throw new Error('MODE_NOT_CONVERGED: bounded Gaussian active set');
 }
 export function sampleGaussian(t: GaussianTarget, options: SamplerOptions): GaussianSamples {
+  return completeSteps(sampleGaussianSteps(t, options));
+}
+export function* sampleGaussianSteps(t: GaussianTarget, options: SamplerOptions): FitSteps<GaussianSamples> {
   const n = validateTarget(t), k = t.components, blocks = t.blocks;
   const { seed, draws = 2000, chains = 4, burn = 1000, thin = 2 } = options;
   if ([draws, chains, burn, thin].some(x => !Number.isSafeInteger(x)) || draws < 8 || chains < 2 || chains > 4 || burn < 0 || thin < 1)
@@ -107,6 +111,7 @@ export function sampleGaussian(t: GaussianTarget, options: SamplerOptions): Gaus
         }
       }
       if (sweep >= burn && (sweep - burn) % thin === 0) values.set(x, (chain * draws + (sweep - burn) / thin) * n);
+      if ((sweep + 1) % 16 === 0) yield { phase: 'sampling', completed: chain * (burn + draws * thin) + sweep + 1, total: chains * (burn + draws * thin) };
     }
   }
   for (let offset = 0; offset < values.length; offset += k) {
@@ -114,13 +119,17 @@ export function sampleGaussian(t: GaussianTarget, options: SamplerOptions): Gaus
     for (let j = 0; j < k; j++) { if (values[offset + j] < 0) throw new Error('Negative Gaussian simplex coordinate'); total += values[offset + j]; }
     if (Math.abs(total - 1) > 1e-12) throw new Error('Gaussian simplex sum drift');
   }
+  yield { phase: 'diagnostics', completed: 0, total: n };
   return { values, chains, drawsPerChain: draws, dimensions: n,
     diagnostics: diagnose(values, chains, draws, n, k === 1 ? Array.from({ length: n }, (_, i) => i) : []) };
 }
 export function fitGaussian(t: GaussianTarget, options: Omit<SamplerOptions, 'draws'>): GaussianSamples {
+  return completeSteps(fitGaussianSteps(t, options));
+}
+export function* fitGaussianSteps(t: GaussianTarget, options: Omit<SamplerOptions, 'draws'>): FitSteps<GaussianSamples> {
   if (options.chains !== undefined && options.chains !== 4) throw new RangeError('Accepted fits require four chains');
   for (const draws of [2000, 4000, 8000]) {
-    const result = sampleGaussian(t, { ...options, draws });
+    const result = yield* sampleGaussianSteps(t, { ...options, draws });
     if (result.diagnostics.passed) return result;
   }
   throw new Error('FIT_DIAGNOSTICS_FAILED: four-chain R-hat/bulk ESS/tail ESS after 8000 retained draws');

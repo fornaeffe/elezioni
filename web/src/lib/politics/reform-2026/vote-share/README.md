@@ -1,4 +1,4 @@
-# Fast-share engine (FV-02–05)
+# Fast-share engine (FV-02–06)
 
 This folder implements the selected bounded reference fit, empirical profile
 estimator and headless forecast adapter. It is **not connected to production
@@ -6,7 +6,9 @@ dispatch, defaults or the editor**.
 Original compact data is implemented in [FV-03](../../../../../../docs/vote-generation-fast-data.md).
 For forecast/intervention/physical-cell/Senate work read only the
 [FV-04 generation guide](../../../../../../docs/vote-generation-fast-generation.md).
-The application fitting worker remains FV-06.
+For fitting worker/client scheduling, revisions and buffer ownership, read the
+[FV-06 fitting guide](../../../../../../docs/vote-generation-fast-fitting.md).
+The editor and active application integration remain FV-07/08.
 For default prefitting, immutable state, candidate loading and release commands,
 read the [FV-05 release guide](../../../../../../docs/vote-generation-fast-release.md).
 
@@ -15,6 +17,7 @@ read the [FV-05 release guide](../../../../../../docs/vote-generation-fast-relea
 | Model equations and fixed conventions | [Maintained contract](../../../../../../docs/vote-generation-fast-model.md) |
 | Prepared numerical inputs/typed outputs | [types.ts](types.ts), [scenario/data boundary](../../../../../../docs/vote-generation-fast-contracts.md) |
 | Lossless state serialization and compatible candidate loading | [state-codec.ts](state-codec.ts), [release.ts](release.ts) |
+| Browser fit lifecycle, worker protocol and resource reservations | [fit-client.ts](fit-client.ts), [fit-types.ts](fit-types.ts), [fit-resources.ts](fit-resources.ts) |
 | Country scales, grouped covariance, three GLS updates and participation | [information.ts](information.ts) |
 | Constrained mode and four-chain bounded Gaussian sampling | [gaussian.ts](gaussian.ts) |
 | Entity-addressed RNG and truncated tails | [random.ts](random.ts) |

@@ -2,7 +2,8 @@
 
 This guide covers periodic Node preparation for the **2026 reform only**.
 The candidate is packaged and checked separately from the installed defaults;
-FV-06/07 own browser estimation/editing, FV-08 owns predictive acceptance and
+[FV-06](vote-generation-fast-fitting.md) supplies browser estimation infrastructure,
+FV-07 owns editing/integration, FV-08 owns predictive acceptance and
 activation, and the final migration gate owns public deployment.
 
 | Task | Entry point |

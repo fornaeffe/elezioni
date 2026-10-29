@@ -4,6 +4,8 @@ import { normalizeSource } from './information';
 import type { ProfileSource } from './profiles';
 import type { CompactSource, OriginalRow } from './source-types';
 import { decodeSourceRows, rowFlags, sourceKey, validateSourceEnvelope, type AssetBytes } from './source-codec';
+import type { FitProgress } from './execution';
+import type { SourcePoll } from './source-types';
 
 export interface SourceSelection {
   referenceDate: string; electionIds: string[]; pollIds: string[]; components: string[];
@@ -50,7 +52,8 @@ export function resolvedBasis(components: string[], observations: string[][][]):
   }
   return false;
 }
-export async function compileSource(source: CompactSource, readChunk: (path: string) => Promise<AssetBytes>, selection: SourceSelection) {
+export async function compileSource(source: CompactSource, readChunk: (path: string) => Promise<AssetBytes>, selection: SourceSelection,
+  options: { polls?: SourcePoll[]; checkpoint?: (progress: FitProgress) => Promise<void> } = {}) {
   await validateSourceEnvelope(source);
   const p = source.payload, cutoff = day(selection.referenceDate), components = [...selection.components].sort(), known = new Set(components);
   if (cutoff < day(p.range.first) || components.length < 1 || components.length > 128 || known.size !== components.length || components.some(id => !id)) throw new Error('Unsupported source date/basis');
@@ -59,7 +62,10 @@ export async function compileSource(source: CompactSource, readChunk: (path: str
     return ids.map(id => { const row = all.find(r => r.id === id); if (!row) throw new Error('Unknown source ID: ' + id); return row; });
   };
   const selectedEvents = select(selection.electionIds, p.events).sort((a, b) => a.id.localeCompare(b.id));
-  const selectedPolls = select(selection.pollIds, p.polls).sort((a, b) => a.id.localeCompare(b.id));
+  const availablePolls = new Map(p.polls.map(q => [q.id, q]));
+  if (new Set(options.polls?.map(q => q.id)).size !== (options.polls?.length ?? 0)) throw new Error('Duplicate user poll ID');
+  for (const q of options.polls ?? []) { validateEditedPoll(q); availablePolls.set(q.id, q); }
+  const selectedPolls = select(selection.pollIds, [...availablePolls.values()]).sort((a, b) => a.id.localeCompare(b.id));
   if (!selectedEvents.length || selectedEvents.some(e => e.context === 'senato' || e.role !== 'reference' || e.minimumAge !== 18)) throw new Error('Senate requires FV-04 adaptation; 25+ observations are audit-only');
   if (selectedEvents.some(e => day(e.date) > cutoff || day(e.availableDate) > cutoff) || selectedPolls.some(q => day(q.date) > cutoff || day(q.availableDate) > cutoff || day(q.fieldworkEnd) > cutoff)) throw new Error('Source unavailable at reference cutoff');
   if (selectedPolls.some(q => q.status !== 'supported' || q.context === 'senato' || q.roundingWidth !== 0.001)) throw new Error('Unsupported/excluded poll treatment');
@@ -69,7 +75,7 @@ export async function compileSource(source: CompactSource, readChunk: (path: str
     const c = choices.get(id);
     if (!c || !edit.provenance.trim() || !edit.members.length || new Set(edit.members).size !== edit.members.length || c.opaque && edit.members.length > 1) throw new Error('Invalid membership edit or unsupported opaque split');
   }
-  const originalIds = new Set([...p.choices.flatMap(c => c.members), ...p.polls.flatMap(q => q.normalized.flatMap(a => a.members)), ...Object.values(selection.sourceMemberships ?? {}).flatMap(e => e.members)]);
+  const originalIds = new Set([...p.choices.flatMap(c => c.members), ...[...availablePolls.values()].flatMap(q => q.normalized.flatMap(a => a.members)), ...Object.values(selection.sourceMemberships ?? {}).flatMap(e => e.members)]);
   if (Object.entries(selection.componentMap ?? {}).some(([id, target]) => !originalIds.has(id) || !known.has(target))) throw new Error('Unknown component pooling entry');
   if (!['camera', 'european'].includes(selection.targetContext)) throw new Error('Unsupported profile context');
   const remap = (ids: string[]) => [...new Set(ids.map(id => selection.componentMap?.[id] ?? id))].sort();
@@ -91,7 +97,8 @@ export async function compileSource(source: CompactSource, readChunk: (path: str
     const totalGroups: string[][] = [], totals: number[] = [];
     const local: ProfileSource['elections'][number]['rows'] = [];
     let electors = 0, valid = 0;
-    for (const r of resident) {
+    for (const [ri, r] of resident.entries()) {
+      if (ri % 256 === 0) await options.checkpoint?.({ phase: 'compile-history:' + event.id, completed: ri, total: resident.length });
       const rawMembers = r.choices.flatMap(c => rawMembersFor(c.id));
       if (new Set(rawMembers).size !== rawMembers.length) throw new Error('Component competes in multiple original source choices; correct memberships before pooling');
       const groups = r.choices.map(c => membersFor(c.id)), counts = r.choices.map(c => c.count);
@@ -141,6 +148,22 @@ export async function compileSource(source: CompactSource, readChunk: (path: str
   if (cutoff > day(p.range.latestObservation)) warnings.push('Extrapolation beyond bundled election vintage ' + p.range.latestObservation);
   const nationalInputKey = await sourceKey('national-input-v1', { modelId: FAST_SHARE_MODEL, contextPolicy: 'camera-european-separate-v1', national }),
     profileInputKey = await sourceKey('profile-input-v1', { modelId: FAST_SHARE_MODEL, profilePolicy: 'observable-partition-profile-v1', ...profiles, geographyVersion: p.geography.version });
-  const provenanceId = await sourceKey('source-provenance-v1', { sourceId: source.id, nationalInputKey, profileInputKey, memberships: selection.sourceMemberships ?? {} });
+  const provenanceId = await sourceKey('source-provenance-v1', { sourceId: source.id, nationalInputKey, profileInputKey, memberships: selection.sourceMemberships ?? {}, ...(options.polls?.length ? { userPolls: options.polls } : {}) });
   return { national, profiles, nationalInputKey, profileInputKey, provenanceId, warnings, excludedLocal };
+}
+/** Manual records are already normalized, with their effective-sample calculation explicit. */
+export function validateEditedPoll(q: SourcePoll) {
+  if (!q.id || !q.surveyId || !q.citation?.trim() || !q.method?.trim() || !['camera','european'].includes(q.context) ||
+    q.status !== 'supported' || q.otherDefinition !== 'offered-complement' || q.effectiveSamplePolicy !== 'fast-share-effective-sample-v1' ||
+    !Number.isSafeInteger(q.sampleSize) || q.sampleSize <= 0 || !(q.decidedFraction > 0 && q.decidedFraction <= 1) ||
+    !(q.designEffect >= 1) || !Number.isFinite(q.designEffect) || !Number.isFinite(q.effectiveSample) || q.effectiveSample <= 0 ||
+    q.questionSampleSize !== null && (!Number.isSafeInteger(q.questionSampleSize) || q.questionSampleSize <= 0 || q.questionSampleSize > q.sampleSize) ||
+    Math.abs(q.effectiveSample - (q.questionSampleSize ?? q.sampleSize * q.decidedFraction) / q.designEffect) > 1e-8 ||
+    day(q.fieldworkStart) > day(q.date) || day(q.date) > day(q.fieldworkEnd) || day(q.fieldworkEnd) > day(q.availableDate) ||
+    q.roundingWidth !== 0.001 || !q.errorGroup?.trim() || !q.original?.length || !q.normalized?.length ||
+    q.original.some(a => !a.label || !['list','residual','coalition-total','nonresponse'].includes(a.kind) ||
+      !Number.isFinite(a.percentage) || a.percentage < 0 || a.percentage > 100 || a.percentage === 0 && a.kind !== 'nonresponse') ||
+    q.normalized.some(a => !a.label || !Number.isFinite(a.share) || a.share <= 0 || a.share > 1 || !Array.isArray(a.members) ||
+      a.members.some(id => !id) || new Set(a.members).size !== a.members.length || (!a.other && !a.members.length)) ||
+    Math.abs(q.normalized.reduce((s,a) => s+a.share,0)-1) > 1e-8) throw new Error('INVALID_USER_POLL');
 }

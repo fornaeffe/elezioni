@@ -308,8 +308,9 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   - [x] **FV-05:** Prefit the explicit default scenario and package matching
     versioned data/defaults/fit/catalog through clean-clone local/CI commands.
     Use the [candidate release guide](docs/vote-generation-fast-release.md).
-  - [ ] **FV-06:** Add cancellable browser refitting, semantic invalidation,
+  - [x] **FV-06:** Add cancellable browser refitting, semantic invalidation,
     compatible-state installation and bounded worker memory/ownership.
+    Use the [browser fitting guide](docs/vote-generation-fast-fitting.md).
   - [ ] **FV-07:** Deliver component/list editing, reference controls and advanced
     poll/membership/date editing with demand loading and ready/error states.
     Defer background prefetch/ready notifications and persistent cache management.

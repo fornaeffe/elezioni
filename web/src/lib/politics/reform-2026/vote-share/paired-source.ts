@@ -5,12 +5,14 @@ import type { CompactSource } from './source-types';
 import type { PairedHistory } from './senate-adapter';
 import { day, sum } from './types';
 import type { MunicipalObservation } from './profiles';
+import type { FitProgress } from './execution';
 
 export async function compilePairedHistory(
   source: CompactSource,
   readChunk: (path: string) => Promise<AssetBytes>,
   selection: Pick<SourceSelection, 'referenceDate' | 'components' | 'sourceMemberships' | 'componentMap'>,
-  pair: { camera: string; senato: string; electoratePolicy: 'equal-only' }
+  pair: { camera: string; senato: string; electoratePolicy: 'equal-only' },
+  checkpoint?: (progress: FitProgress) => Promise<void>
 ) {
   await validateSourceEnvelope(source);
   if (pair.electoratePolicy !== 'equal-only') throw new Error('PAIRED_ELECTORATE_POLICY_REQUIRED');
@@ -38,7 +40,8 @@ export async function compilePairedHistory(
     available.push(event.availableDate);
     const rows = await decodeSourceRows(source, event.id, await readChunk(event.chunk.path)),
       table = new Map<string, MunicipalObservation>();
-    for (const row of rows) {
+    for (const [ri, row] of rows.entries()) {
+      if (ri % 256 === 0) await checkpoint?.({ phase: 'compile-pair:' + chamber, completed: ri, total: rows.length });
       const unit = units.get(row.unit)!;
       if (!unit.targetCode || unit.match !== 'same-place' || rowFlags(row, unit.match) & 1) {
         excluded.push({

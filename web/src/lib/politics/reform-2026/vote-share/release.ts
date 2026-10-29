@@ -9,6 +9,7 @@ import type {
 import type { SourceSelection } from './source-compiler';
 import type { ReformAssemblyContext } from '../generation-types';
 import type { CompactSource } from './source-types';
+import type { SourcePoll } from './source-types';
 import {
   sourceKey,
   canonicalJson,
@@ -36,7 +37,7 @@ export interface ReleasedScenario extends FastGenerationScenario {
   componentMap: NonNullable<SourceSelection['componentMap']>;
   polls: {
     selected: string[];
-    added: unknown[];
+    added: SourcePoll[];
     excluded: Record<string, string>;
   };
   presentation: {
@@ -49,7 +50,7 @@ export interface FitState {
     nationalInputKey: string;
     implementationId: string;
     fitSeed: string;
-    solver: 'dense';
+    solver: 'dense' | 'matrix-free';
   };
   fit: ReferenceFit;
   provenanceId: string;
@@ -389,6 +390,9 @@ export async function loadCandidate(
     assets,
     context: r.state.context,
     prepared,
+    fitParents: f.state.parents,
+    profileParents: p.state.parents,
+    provenanceId: f.state.provenanceId,
   };
 }
 /** Source data is optional at ordinary startup, mandatory for release/refit checks. */
@@ -406,8 +410,8 @@ export async function loadCandidateSource(
   await validateSourceEnvelope(source);
   if (
     source.id !== catalog.sourceId ||
-    JSON.stringify(source.payload.events.map((e) => e.chunk)) !==
-      JSON.stringify(catalog.sourceChunks)
+    canonicalJson(source.payload.events.map((e) => e.chunk)) !==
+      canonicalJson(catalog.sourceChunks)
   )
     throw new Error('RELEASE_SOURCE_BINDING');
   return source;

@@ -1,4 +1,5 @@
 import { clip, day, median, requireWorkspace, sum, years, type FitContext, type NationalElection } from './types';
+import { completeSteps, type FitProgress } from './execution';
 
 export interface MunicipalObservation {
   id: string; region: string; electors: number; nonValid: number;
@@ -15,6 +16,9 @@ interface Feature { date: string; context: FitContext; value: number; exposure: 
 interface CityEvent { event: MunicipalElection; index: number; row: MunicipalObservation }
 interface Moment { n: number; mean: number; m2: number; noise: number }
 export function fitProfiles(source: ProfileSource, maximumWorkspaceBytes?: number) {
+  return completeSteps(fitProfilesSteps(source, maximumWorkspaceBytes));
+}
+export function* fitProfilesSteps(source: ProfileSource, maximumWorkspaceBytes?: number) {
   const ids = [...source.components].sort(), jCount = ids.length + 1, index = new Map(ids.map((id, i) => [id, i + 1]));
   if (!ids.length || ids.length > 128 || new Set(ids).size !== ids.length || !['camera', 'european'].includes(source.targetContext))
     throw new RangeError('Invalid profile basis/context');
@@ -41,14 +45,15 @@ export function fitProfiles(source: ProfileSource, maximumWorkspaceBytes?: numbe
   }
   const baselines = new Map<string, { p0: number; groups: Map<string, number> }>();
   const key = (g: readonly string[]) => JSON.stringify([...g].sort());
-  events.forEach((e, ei) => {
+  for (const [ei, e] of events.entries()) {
     const n = national.get(e.id);
     if (!n || n.context !== e.context || n.date !== e.date || day(e.date) > day(source.referenceDate)) throw new RangeError('Profile event missing compatible cutoff-eligible national baseline');
     const valid = n.electors - n.counts[0];
     if (!(valid > 0 && n.counts[0] > 0) || sum(n.counts) !== n.electors || n.groups.length + 1 !== n.counts.length) throw new RangeError('Invalid national profile baseline');
     baselines.set(e.id, { p0: n.counts[0] / n.electors, groups: new Map(n.groups.map((g, i) => [key(g), n.counts[i + 1] / valid])) });
     const seen = new Set<string>();
-    for (const row of e.rows) {
+    for (const [ri, row] of e.rows.entries()) {
+      if (ri % 256 === 0) yield { phase: 'profile-history', completed: ei * 1000 + ri / e.rows.length * 1000, total: events.length * 1000 } satisfies FitProgress;
       const members = row.groups.flat();
       if (!row.id || !row.region || seen.has(row.id) || !Number.isSafeInteger(row.electors) || row.electors <= 0 ||
         !Number.isSafeInteger(row.nonValid) || row.nonValid < 0 || row.nonValid > row.electors ||
@@ -59,7 +64,7 @@ export function fitProfiles(source: ProfileSource, maximumWorkspaceBytes?: numbe
       const entries = byCity.get(row.id) ?? []; entries.push({ event: e, index: ei, row }); byCity.set(row.id, entries);
       region.set(row.id, row.region);
     }
-  });
+  }
   const cities = [...new Set([...byCity.keys(), ...targetIds])].sort(), cCount = cities.length;
   // Two country-sized feature summaries plus target outputs; histories stay sparse.
   const workspaceBytes = 8 * (2 * cCount * jCount + 2 * source.targets.length * jCount + events.length * jCount * 8) +
@@ -100,7 +105,8 @@ export function fitProfiles(source: ProfileSource, maximumWorkspaceBytes?: numbe
     }
     return { separate, pooled };
   }
-  cities.forEach((city, c) => {
+  for (const [c, city] of cities.entries()) {
+    if (c % 128 === 0) yield { phase: 'profile-features', completed: c, total: cities.length } satisfies FitProgress;
     const { separate, pooled } = features(city, true);
     const r = region.get(city)!;
     if (!regional.has(r)) regional.set(r, { numerator: new Float64Array(jCount), denominator: new Float64Array(jCount) });
@@ -116,7 +122,7 @@ export function fitProfiles(source: ProfileSource, maximumWorkspaceBytes?: numbe
       const pos = c * jCount + j, value = weighted / total, info = exposure / entries.length, weight = Math.sqrt(info + 1);
       raw[pos] = value; information[pos] = info; centre.numerator[j] += weight * value; centre.denominator[j] += weight;
     }
-  });
+  }
   const rates: number[][] = Array.from({ length: jCount }, () => []), transitions = [];
   for (let t = 0; t < events.length - 1; t++) {
     const dt = years(events[t + 1].date, events[t].date); if (!(dt > 0)) continue;
@@ -130,7 +136,8 @@ export function fitProfiles(source: ProfileSource, maximumWorkspaceBytes?: numbe
   const filterScales = Float64Array.from(rates, xs => Math.sqrt(clip((4 * commonVariance + sum(xs)) / (4 + xs.length), 0.03 ** 2, 0.8 ** 2)));
   const targets = [...source.targets].sort((a, b) => a.id.localeCompare(b.id)), cityIndex = new Map(cities.map((id, i) => [id, i]));
   const means = new Float64Array(targets.length * jCount), profileSd = new Float64Array(means.length), fallback = new Uint8Array(means.length);
-  targets.forEach((target, c) => {
+  for (const [c, target] of targets.entries()) {
+    if (c % 128 === 0) yield { phase: 'profile-filter', completed: c, total: targets.length } satisfies FitProgress;
     const original = cityIndex.get(target.id)!, { separate, pooled } = features(target.id, false), centre = regional.get(region.get(target.id)!);
     for (let j = 0; j < jCount; j++) {
       const pos = original * jCount + j, out = c * jCount + j;
@@ -148,7 +155,7 @@ export function fitProfiles(source: ProfileSource, maximumWorkspaceBytes?: numbe
       fallback[out] = separate[j].length ? 0 : pooled[j] ? 1 : 2;
       means[out] = mean; profileSd[out] = Math.sqrt(variance + (fallback[out] ? 0.45 ** 2 : 0.10 ** 2));
     }
-  });
+  }
   return { componentIds: ids, municipalityIds: targets.map(t => t.id), regions: targets.map(t => t.region),
     electors: Float64Array.from(targets, t => t.electors), means, profileSd, fallback, filterScales,
     futureScales: new Float64Array(jCount).fill(Math.sqrt(commonVariance)),

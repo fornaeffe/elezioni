@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: 'tests/e2e',
-  testMatch: 'fast-share-release.spec.ts',
+  testMatch: ['fast-share-release.spec.ts','fast-share-fit.spec.ts'],
   workers: 1,
   reporter: 'line',
   use: { baseURL: 'http://127.0.0.1:4174', trace: 'retain-on-failure' },
