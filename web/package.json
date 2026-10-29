@@ -53,7 +53,8 @@
     "data:forecast:party:panels": "tsx --tsconfig tsconfig.json scripts/data-preparation/party-drift-panel-cli.ts",
     "data:forecast:party:stan:prepare": "tsx --tsconfig tsconfig.json scripts/data-preparation/party-drift-stan-export-cli.ts",
     "data:forecast:party:real:prepare": "tsx --tsconfig tsconfig.json scripts/data-preparation/party-drift-real-export-cli.ts",
-    "data:forecast:share:prepare": "tsx --tsconfig tsconfig.json scripts/data-preparation/party-drift-modular-export-cli.ts"
+    "data:forecast:share:prepare": "tsx --tsconfig tsconfig.json scripts/data-preparation/party-drift-modular-export-cli.ts",
+    "data:reform:shares:numerics": "tsx --tsconfig tsconfig.json scripts/data-preparation/fv02-numerics-cli.ts"
   },
   "devDependencies": {
     "@playwright/test": "1.60.0",

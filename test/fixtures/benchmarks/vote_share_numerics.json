@@ -1,0 +1,598 @@
+{
+  "schemaVersion": 1,
+  "stage": "FV-02",
+  "recordedDate": "2026-10-29",
+  "status": "reduced-numerical-browser-gate-passed-production-envelope-not-accepted",
+  "baseRevision": "6f2e23b80055f2788969d0e8a1bff79493c04150",
+  "model": "fast-share-kind-common-conservative-v1",
+  "numericalVersion": "fast-share-float64-v1",
+  "sourceHashPolicy": "SHA-256 of LF-normalized numerical module sources",
+  "sourceHashes": {
+    "web/src/lib/politics/reform-2026/vote-share/diagnostics.ts": "ff9843d53f69e200afac2a9f9e94238c1d7a220b2efe76fe152b5bb5824a9cc9",
+    "web/src/lib/politics/reform-2026/vote-share/gaussian.ts": "5c644acf01a6adbafc2cd29f9f2e6f83773ac44c24d91d10b75b3cd18c7af65b",
+    "web/src/lib/politics/reform-2026/vote-share/index.ts": "dc7baaee088e0c030c5533d53f48da8bdf76b3fe9bd9780321c510f16a3899de",
+    "web/src/lib/politics/reform-2026/vote-share/information.ts": "9ad46d8baa37771bb401cb48cc49331a940b8ae98895067480bb332f03a34ced",
+    "web/src/lib/politics/reform-2026/vote-share/linalg.ts": "c4c7251ce15cf06c4f37e59007e6c326ce095f8bdac9e0a4e0f26c3e07cd34e3",
+    "web/src/lib/politics/reform-2026/vote-share/profiles.ts": "9fee9043f3618e7709bf07da0af38a0081f87a4033a37da9b797635a3d2433ec",
+    "web/src/lib/politics/reform-2026/vote-share/random.ts": "3bd05bff7a68ad32becc0dfb74eea9f983c2d37aa1170d600e6824bca2fed328",
+    "web/src/lib/politics/reform-2026/vote-share/types.ts": "4e7d488317e809c9e030b1b3914ab67b11109ab3623f24d7dcb8c3e46e73bd98"
+  },
+  "independentOracle": {
+    "fixture": "web/tests/fixtures/fast-share-reference.generated.json",
+    "sha256Lf": "41e1d57026ed4ab3a59314513bf346637ce9ef3e6600350b42fb8db09a363567",
+    "numpy": "2.3.4",
+    "scipy": "1.16.3",
+    "maximumMeanRefinement": 7.638334409421077e-14,
+    "maximumEndpointRefinement": 1.9595436384634013e-13
+  },
+  "environment": {
+    "node": "v24.20.0",
+    "platform": "win32",
+    "release": "10.0.26200",
+    "cpu": "Intel(R) Core(TM) i7-14700KF"
+  },
+  "reducedPosterior": {
+    "cases": 12,
+    "allPassed": true,
+    "maximumMeanError": 0.0014816393686910012,
+    "maximumEndpointError": 0.005480381692065342,
+    "meanAndEndpointUnit": "fraction",
+    "errorQualification": "Passed frozen absolute and four-block-MCSE limits; observed endpoint error is not bounded by old observed 0.356 pp alone",
+    "maxRhat": 1.0009713659222579,
+    "minBulkEss": 7431.00554813609,
+    "minTailEss": 6974.852131119141,
+    "drawsPerChain": [
+      2000
+    ],
+    "mcse": {
+      "method": "chain-stratified nonoverlapping block resampling",
+      "blockLength": 50,
+      "replicates": 200
+    }
+  },
+  "reducedCountry": {
+    "milliseconds": 134.24399999999991,
+    "political": {
+      "passed": true,
+      "maxRhat": 1.0005992706162232,
+      "minEss": 6731.470482933661,
+      "minTailEss": 7010.619823495975,
+      "coordinates": [
+        {
+          "rhat": 0.9996511651963573,
+          "bulkEss": 6998.601553104548,
+          "tailEss": 7010.619823495975,
+          "constant": false
+        },
+        {
+          "rhat": 0.9999235587284699,
+          "bulkEss": 6731.470482933661,
+          "tailEss": 7025.577804590754,
+          "constant": false
+        },
+        {
+          "rhat": 0.9999994335144049,
+          "bulkEss": 6855.529798221774,
+          "tailEss": 7770.4394840391615,
+          "constant": false
+        },
+        {
+          "rhat": 1.0002251162016083,
+          "bulkEss": 7674.524035320576,
+          "tailEss": 7454.127768334656,
+          "constant": false
+        },
+        {
+          "rhat": 1.0000295312668221,
+          "bulkEss": 7628.327297735162,
+          "tailEss": 7479.049545753722,
+          "constant": false
+        },
+        {
+          "rhat": 1.0005992706162232,
+          "bulkEss": 7789.372886642311,
+          "tailEss": 8000,
+          "constant": false
+        },
+        {
+          "rhat": 1.0002826089367653,
+          "bulkEss": 7440.8441058532035,
+          "tailEss": 7973.651467385497,
+          "constant": false
+        },
+        {
+          "rhat": 1.0001719743647028,
+          "bulkEss": 7816.998753583972,
+          "tailEss": 8000,
+          "constant": false
+        }
+      ]
+    },
+    "participation": {
+      "passed": true,
+      "maxRhat": 1.0001709233514926,
+      "minEss": 7491.6801793409195,
+      "minTailEss": 7847.2305818160785,
+      "coordinates": [
+        {
+          "rhat": 0.9999804923391756,
+          "bulkEss": 7491.6801793409195,
+          "tailEss": 7847.2305818160785,
+          "constant": false
+        },
+        {
+          "rhat": 0.9999804923391756,
+          "bulkEss": 7491.6801793409195,
+          "tailEss": 7847.2305818160785,
+          "constant": false
+        },
+        {
+          "rhat": 1.0001709233514926,
+          "bulkEss": 8000,
+          "tailEss": 8000,
+          "constant": false
+        },
+        {
+          "rhat": 1.0001709233514926,
+          "bulkEss": 8000,
+          "tailEss": 8000,
+          "constant": false
+        }
+      ]
+    },
+    "workspaceBytes": 22400
+  },
+  "profileScaling": {
+    "municipalities": 128,
+    "components": 28,
+    "runs": [
+      {
+        "run": 0,
+        "milliseconds": 56.76300000000015,
+        "workspaceBytes": 162688
+      },
+      {
+        "run": 1,
+        "milliseconds": 54.93179999999984,
+        "workspaceBytes": 162688
+      },
+      {
+        "run": 2,
+        "milliseconds": 52.71109999999999,
+        "workspaceBytes": 162688
+      },
+      {
+        "run": 3,
+        "milliseconds": 52.658500000000004,
+        "workspaceBytes": 162688
+      },
+      {
+        "run": 4,
+        "milliseconds": 53.49220000000014,
+        "workspaceBytes": 162688
+      },
+      {
+        "run": 5,
+        "milliseconds": 53.93640000000005,
+        "workspaceBytes": 162688
+      }
+    ],
+    "warmMedianMilliseconds": 53.49220000000014,
+    "warmMaximumMilliseconds": 54.93179999999984,
+    "estimated8194UnitMilliseconds": 3424.336615625009,
+    "estimated8194UnitWorkspaceBytes": 10414574,
+    "historicalEvents": 4,
+    "historicalRows": 512,
+    "extrapolationQualification": "The 8194-unit estimate holds the synthetic four-event history fixed; neither estimate includes source decoding or establishes browser performance",
+    "realPanelMunicipalities": 8194,
+    "realPanelHistoricalRows": 55605,
+    "estimatedRealHistoryMilliseconds": 5809.44097851564,
+    "realHistoryExtrapolationQualification": "Naive proportional historical-row scaling at the same 28 components; not an executed real municipal fit"
+  },
+  "syntheticProbes": [
+    {
+      "components": 28,
+      "polls": 0,
+      "contrasts": 108,
+      "constructionMilliseconds": 33.97109999999998,
+      "workspaceBytes": 760704,
+      "covariance": [
+        {
+          "solver": "dense",
+          "maximumRelativeResidual": 1.0452565598790281e-14,
+          "iterations": 0,
+          "pivotRatio": 0.16101476605844076
+        },
+        {
+          "solver": "dense",
+          "maximumRelativeResidual": 9.40637361962154e-15,
+          "iterations": 0,
+          "pivotRatio": 0.1610119031031398
+        },
+        {
+          "solver": "dense",
+          "maximumRelativeResidual": 9.511672042589967e-15,
+          "iterations": 0,
+          "pivotRatio": 0.1610119065703322
+        }
+      ],
+      "pilot": {
+        "retainedDrawsPerChain": 64,
+        "burn": 100,
+        "milliseconds": 35.87059999999997,
+        "acceptedFit": false,
+        "reason": "Short computation pilot, not the frozen inference budget"
+      },
+      "estimated2000DrawFitMilliseconds": 820.60706491228
+    },
+    {
+      "components": 28,
+      "polls": 128,
+      "contrasts": 1004,
+      "constructionMilliseconds": 1455.5395000000003,
+      "workspaceBytes": 1512960,
+      "covariance": [
+        {
+          "solver": "matrix-free",
+          "maximumRelativeResidual": 9.999918300602393e-12,
+          "iterations": 3980,
+          "pivotRatio": null
+        },
+        {
+          "solver": "matrix-free",
+          "maximumRelativeResidual": 9.891413864967724e-12,
+          "iterations": 3912,
+          "pivotRatio": null
+        },
+        {
+          "solver": "matrix-free",
+          "maximumRelativeResidual": 9.997183576849774e-12,
+          "iterations": 3919,
+          "pivotRatio": null
+        }
+      ],
+      "pilot": {
+        "retainedDrawsPerChain": 64,
+        "burn": 100,
+        "milliseconds": 34.17639999999983,
+        "acceptedFit": false,
+        "reason": "Short computation pilot, not the frozen inference budget"
+      },
+      "estimated2000DrawFitMilliseconds": 2205.0219561403474
+    },
+    {
+      "components": 28,
+      "polls": 512,
+      "contrasts": 3692,
+      "constructionMilliseconds": 8185.5653999999995,
+      "workspaceBytes": 4609536,
+      "covariance": [
+        {
+          "solver": "matrix-free",
+          "maximumRelativeResidual": 9.975707981803652e-12,
+          "iterations": 6261,
+          "pivotRatio": null
+        },
+        {
+          "solver": "matrix-free",
+          "maximumRelativeResidual": 9.963615212469308e-12,
+          "iterations": 6116,
+          "pivotRatio": null
+        },
+        {
+          "solver": "matrix-free",
+          "maximumRelativeResidual": 9.980855018563175e-12,
+          "iterations": 6116,
+          "pivotRatio": null
+        }
+      ],
+      "pilot": {
+        "retainedDrawsPerChain": 64,
+        "burn": 100,
+        "milliseconds": 50.509799999999814,
+        "acceptedFit": false,
+        "reason": "Short computation pilot, not the frozen inference budget"
+      },
+      "estimated2000DrawFitMilliseconds": 9293.236452631574
+    },
+    {
+      "components": 64,
+      "polls": 0,
+      "contrasts": 252,
+      "constructionMilliseconds": 115.34649999999965,
+      "workspaceBytes": 4024320,
+      "covariance": [
+        {
+          "solver": "dense",
+          "maximumRelativeResidual": 1.605615364472439e-14,
+          "iterations": 0,
+          "pivotRatio": 0.16098901621374653
+        },
+        {
+          "solver": "dense",
+          "maximumRelativeResidual": 1.571692460130498e-14,
+          "iterations": 0,
+          "pivotRatio": 0.16098775339673552
+        },
+        {
+          "solver": "dense",
+          "maximumRelativeResidual": 1.3842359527074283e-14,
+          "iterations": 0,
+          "pivotRatio": 0.16098775499945156
+        }
+      ],
+      "pilot": {
+        "retainedDrawsPerChain": 64,
+        "burn": 100,
+        "milliseconds": 197.0020999999997,
+        "acceptedFit": false,
+        "reason": "Short computation pilot, not the frozen inference budget"
+      },
+      "estimated2000DrawFitMilliseconds": 4435.567991228063
+    },
+    {
+      "components": 64,
+      "polls": 128,
+      "contrasts": 1148,
+      "constructionMilliseconds": 4869.6338,
+      "workspaceBytes": 4454016,
+      "covariance": [
+        {
+          "solver": "matrix-free",
+          "maximumRelativeResidual": 9.494173704616009e-12,
+          "iterations": 7033,
+          "pivotRatio": null
+        },
+        {
+          "solver": "matrix-free",
+          "maximumRelativeResidual": 9.990896428666231e-12,
+          "iterations": 6664,
+          "pivotRatio": null
+        },
+        {
+          "solver": "matrix-free",
+          "maximumRelativeResidual": 9.983783009059093e-12,
+          "iterations": 6627,
+          "pivotRatio": null
+        }
+      ],
+      "pilot": {
+        "retainedDrawsPerChain": 64,
+        "burn": 100,
+        "milliseconds": 113.27599999999802,
+        "acceptedFit": false,
+        "reason": "Short computation pilot, not the frozen inference budget"
+      },
+      "estimated2000DrawFitMilliseconds": 7353.7566070175
+    },
+    {
+      "components": 64,
+      "polls": 512,
+      "contrasts": 3836,
+      "constructionMilliseconds": 21752.405,
+      "workspaceBytes": 10315392,
+      "covariance": [
+        {
+          "solver": "matrix-free",
+          "maximumRelativeResidual": 9.91419792035771e-12,
+          "iterations": 9785,
+          "pivotRatio": null
+        },
+        {
+          "solver": "matrix-free",
+          "maximumRelativeResidual": 9.906646295395975e-12,
+          "iterations": 9637,
+          "pivotRatio": null
+        },
+        {
+          "solver": "matrix-free",
+          "maximumRelativeResidual": 9.991765295272444e-12,
+          "iterations": 9649,
+          "pivotRatio": null
+        }
+      ],
+      "pilot": {
+        "retainedDrawsPerChain": 64,
+        "burn": 100,
+        "milliseconds": 110.55529999999999,
+        "acceptedFit": false,
+        "reason": "Short computation pilot, not the frozen inference budget"
+      },
+      "estimated2000DrawFitMilliseconds": 24176.86333333333
+    },
+    {
+      "components": 128,
+      "polls": 0,
+      "contrasts": 508,
+      "constructionMilliseconds": 837.0434999999998,
+      "workspaceBytes": 16175104,
+      "covariance": [
+        {
+          "solver": "dense",
+          "maximumRelativeResidual": 2.2115328586564332e-14,
+          "iterations": 0,
+          "pivotRatio": 0.1609461571434453
+        },
+        {
+          "solver": "dense",
+          "maximumRelativeResidual": 2.0031748571742994e-14,
+          "iterations": 0,
+          "pivotRatio": 0.16094552891727598
+        },
+        {
+          "solver": "dense",
+          "maximumRelativeResidual": 2.0847935109084636e-14,
+          "iterations": 0,
+          "pivotRatio": 0.16094552971215495
+        }
+      ],
+      "pilot": {
+        "retainedDrawsPerChain": 64,
+        "burn": 100,
+        "milliseconds": 378.88760000000184,
+        "acceptedFit": false,
+        "reason": "Short computation pilot, not the frozen inference budget"
+      },
+      "estimated2000DrawFitMilliseconds": 9145.982096491269
+    },
+    {
+      "components": 128,
+      "polls": 128,
+      "contrasts": 1404,
+      "constructionMilliseconds": 18354.891000000003,
+      "workspaceBytes": 13573760,
+      "covariance": [
+        {
+          "solver": "matrix-free",
+          "maximumRelativeResidual": 9.901085303052905e-12,
+          "iterations": 11267,
+          "pivotRatio": null
+        },
+        {
+          "solver": "matrix-free",
+          "maximumRelativeResidual": 9.95016297406274e-12,
+          "iterations": 10804,
+          "pivotRatio": null
+        },
+        {
+          "solver": "matrix-free",
+          "maximumRelativeResidual": 9.991762277512449e-12,
+          "iterations": 10806,
+          "pivotRatio": null
+        }
+      ],
+      "pilot": {
+        "retainedDrawsPerChain": 64,
+        "burn": 100,
+        "milliseconds": 375.662599999996,
+        "acceptedFit": false,
+        "reason": "Short computation pilot, not the frozen inference budget"
+      },
+      "estimated2000DrawFitMilliseconds": 26593.10591228062
+    },
+    {
+      "components": 128,
+      "polls": 512,
+      "contrasts": 4092,
+      "constructionMilliseconds": 59130.5357,
+      "workspaceBytes": 24350336,
+      "covariance": [
+        {
+          "solver": "matrix-free",
+          "maximumRelativeResidual": 9.89512061620788e-12,
+          "iterations": 15126,
+          "pivotRatio": null
+        },
+        {
+          "solver": "matrix-free",
+          "maximumRelativeResidual": 9.889641734384847e-12,
+          "iterations": 14867,
+          "pivotRatio": null
+        },
+        {
+          "solver": "matrix-free",
+          "maximumRelativeResidual": 9.793870653282596e-12,
+          "iterations": 14875,
+          "pivotRatio": null
+        }
+      ],
+      "pilot": {
+        "retainedDrawsPerChain": 64,
+        "burn": 100,
+        "milliseconds": 374.6009000000049,
+        "acceptedFit": false,
+        "reason": "Short computation pilot, not the frozen inference budget"
+      },
+      "estimated2000DrawFitMilliseconds": 67345.46771754397
+    }
+  ],
+  "processMemory": {
+    "end": {
+      "rss": 204894208,
+      "heapTotal": 85221376,
+      "heapUsed": 39003264,
+      "external": 33687045,
+      "arrayBuffers": 31099527
+    },
+    "processPeakRssKiB": 212356,
+    "qualification": "Node process RSS includes harness/fixtures; workspace counts are allocation estimates, not browser process peaks"
+  },
+  "browser": [
+    {
+      "base": "",
+      "browserVersion": "148.0.7778.96",
+      "referenceMilliseconds": 208.59999999403954,
+      "profileMilliseconds": 1.399999976158142,
+      "sourceWorkspaceBytes": 12800,
+      "profileWorkspaceBytes": 3310,
+      "nodeBrowserIdentical": true
+    },
+    {
+      "base": "/elezioni",
+      "browserVersion": "148.0.7778.96",
+      "referenceMilliseconds": 208.90000000596046,
+      "profileMilliseconds": 1.4000000059604645,
+      "sourceWorkspaceBytes": 12800,
+      "profileWorkspaceBytes": 3310,
+      "nodeBrowserIdentical": true
+    }
+  ],
+  "verification": {
+    "unitFilesPassed": 82,
+    "unitTestsPassed": 1120,
+    "newFocusedNumericalTests": 24,
+    "browserTestsPerBase": 6,
+    "bases": [
+      "/",
+      "/elezioni"
+    ],
+    "svelteDiagnostics": {
+      "errors": 0,
+      "warnings": 0
+    },
+    "preparationTypecheck": "passed",
+    "staticBuildBothBases": "passed",
+    "fv01OriginalInventoryFilesUnchanged": 1433
+  },
+  "limits": {
+    "maximumEnvelopeDesktopLatencyAccepted": false,
+    "fullCountryFitExecuted": false,
+    "fullSyntheticPosteriorAccepted": false,
+    "senateValidated": false,
+    "productionActivated": false,
+    "browserPeakProcessMemoryMeasured": false,
+    "realNationalFitExecuted": true
+  },
+  "reproduceFromWeb": "npm run data:reform:shares:numerics; npx playwright test tests/e2e/fast-share-numerics.spec.ts --workers=1",
+  "realNational": {
+    "scope": "Existing admissible 28-component historical national panel only; no future counts or municipal fitting used",
+    "inputPath": "data/derived/party-drift/modular-041250483558/profiles.json",
+    "inputSha256": "57ebcc028ca33087dcc97c74eb0d96c4c7e0209b656b1b183fc0e332efa4f9bb",
+    "referenceDate": "2024-05-24",
+    "components": 28,
+    "elections": 7,
+    "polls": 33,
+    "milliseconds": 14426.994999999999,
+    "timingScope": "Numerical national fit only; excludes source read/decode and municipal profile fitting",
+    "political": {
+      "passed": true,
+      "maxRhat": 1.00424796234266,
+      "minBulkEss": 1975.030895436129,
+      "minTailEss": 3492.284503947581
+    },
+    "participation": {
+      "passed": true,
+      "maxRhat": 0.9999846889583807,
+      "minBulkEss": 7734.914143940008,
+      "minTailEss": 7973.710563947287
+    },
+    "retainedDrawsPerChain": {
+      "political": 2000,
+      "participation": 2000
+    },
+    "workspaceBytes": 604736,
+    "retainedStateBytes": 3840000,
+    "historicalMunicipalFitExecuted": false,
+    "forecastExecuted": false
+  }
+}

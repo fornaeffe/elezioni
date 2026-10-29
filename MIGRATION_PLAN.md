@@ -296,8 +296,9 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
     [reference/chamber rules](docs/vote-generation-fast-references.md),
     [validation protocol](docs/vote-generation-fast-validation.md) or
     [evidence index](research/vote-generation/README.md) for the specific task.
-  - [ ] **FV-02:** Port fitting/profile estimation to one browser-safe TypeScript
+  - [x] **FV-02:** Port fitting/profile estimation to one browser-safe TypeScript
     engine; pass independent reduced numerical and browser-computability gates.
+    Use the [engine guide](web/src/lib/politics/reform-2026/vote-share/README.md).
   - [ ] **FV-03:** Produce compact source-backed historical/poll records supporting
     editable memberships/dates, with complete reform geography and Senate inputs.
   - [ ] **FV-04:** Implement fast generation, reference interventions, physical-cell
@@ -311,6 +312,8 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
     Defer background prefetch/ready notifications and persistent cache management.
   - [ ] **FV-08:** Pass full-list/geographic/paired/seat, browser/export and resource
     acceptance, then switch reform defaults. Keep public deployment at the final gate.
+    Resolve maximum-envelope refit latency or approve measured support limits;
+    reduced FV-02 acceptance does not accept the complete production envelope.
   - [ ] **FV-09:** Execute the [research archive/cleanup plan](docs/vote-generation-research-archive-plan.md)
     after dependency separation and acceptance; retain curated evidence and remove
     only audited, regenerable outputs no longer consumed.

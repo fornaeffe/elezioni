@@ -226,6 +226,10 @@ components and all required physical territories. No unresolved old Stan gate.
 
 ### FV-02: Port the fit and profile engine; pass reduced browser gates
 
+Implementation entry point: [numerical engine guide](../web/src/lib/politics/reform-2026/vote-share/README.md).
+Retain maximum-envelope latency as an explicit FV-08 resource gate; do not infer
+production support from passing the reduced worker fixtures.
+
 Create browser-safe pure TypeScript modules under
 `web/src/lib/politics/reform-2026/vote-share/`, imported by offline wrappers.
 Port covariance/scales, constrained active-set mode, native transfer sampler,

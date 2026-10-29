@@ -1,6 +1,9 @@
 # Fast vote-share model: maintained numerical contract
 
-Status: **selected for the 2026 reform workflow; numerical port pending FV-02**.
+Status: **selected for the 2026 reform workflow; FV-02 numerical port implemented**.
+See the [engine entry point](../web/src/lib/politics/reform-2026/vote-share/README.md)
+for reduced acceptance and remaining performance limits. Production integration
+and default selection remain FV-03 through FV-08.
 This document owns the selected `kind-common-conservative` mathematical model.
 The equations below are extracted unchanged from the approved
 [research report](vote-generation-fast-research.md). Research timing, predictive
