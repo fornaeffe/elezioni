@@ -15,6 +15,7 @@ export interface ResultStorage {
   warningCounts: { info: number; warning: number; error: number };
 }
 export interface StoredResult {
+  fitFile?: import('../politics/reform-2026/vote-share/checkpoint').PortableFitFile;
   id: string;
   owner: string;
   scenario: ExportScenario;

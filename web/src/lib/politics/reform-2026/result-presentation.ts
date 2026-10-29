@@ -1,5 +1,7 @@
 import type { ResultTable, ScrutinyWarning } from '../../core/types';
 import type { GenerationTrace, ReformGenerationScenario, ReformGenerationSnapshot } from './generation-types';
+import type { ReformAssemblyContext } from './generation-types';
+import type { ReleasedScenario } from './vote-share/release';
 import type { ReformScrutinyInput } from './input';
 import type { ComposedReformScrutinyResult } from './scrutiny';
 import { seatTableMessages } from './endowments';
@@ -17,7 +19,7 @@ export interface ReformPresentationCounts { complete: number; partial: number; f
 
 /** Retain transferable presentation rows, never all generated municipal inputs or
  * composed legal stage objects. Repeated provenance is stored once with a count. */
-export function createReformPresentation(scenario: ReformGenerationScenario, snapshot: ReformGenerationSnapshot, requested: number, options: { includeContext?: boolean } = {}) {
+export function createReformPresentation(scenario: ReformGenerationScenario|ReleasedScenario, snapshot: ReformAssemblyContext, requested: number, options: { includeContext?: boolean } = {}) {
   const tables: ResultTable[] = [];
   function table(name: string, columns: string[]) {
     const t: ResultTable = { name, columns, rows: [] }; tables.push(t); return t;
@@ -63,7 +65,9 @@ export function createReformPresentation(scenario: ReformGenerationScenario, sna
   };
   if (options.includeContext !== false) {
     meta('Result presentation contract', { version: 1, series: reformSeriesTable, affiliation: 'final-personal', local: 'actual-election-location' });
-    meta('Algorithm and model identity', { algorithm: scenario.algorithmId, models: scenario.modelIds, modelVersion: scenario.modelVersion,
+    if(scenario.schemaVersion===4)meta('Algorithm and model identity',{algorithm:scenario.algorithmId,models:scenario.models,data:scenario.data,referenceDate:scenario.referenceDate,fitSeed:scenario.fitSeed,seed:scenario.seed,
+      preferenceProfile:scenario.preferenceProfileId,chamberProfile:scenario.chamberProfileId,components:scenario.components.map(c=>({id:c.id,kind:c.kind,provenance:c.provenance,fallback:c.fallback??null}))});
+    else meta('Algorithm and model identity', { algorithm: scenario.algorithmId, models: scenario.modelIds, modelVersion: scenario.modelVersion,
       snapshotVersion: scenario.snapshotVersion, preferenceProfile: scenario.preferenceProfileId, chamberProfile: scenario.chamberProfileId,
       seed: scenario.seed, conversion: scenario.conversion, mode: scenario.mode });
     meta('Preference profile (sensitivity assumption)', snapshot.models.preferences.profiles.find(p => p.id === scenario.preferenceProfileId));
@@ -73,7 +77,8 @@ export function createReformPresentation(scenario: ReformGenerationScenario, sna
     seatTableMessages(snapshot.seats).forEach((notice, i) => warn({ code: `R26_SEAT_TABLE_${i + 1}`, electionKind: 'politiche', ...notice, scope: 'global' }));
     warn({ code: 'R26_CONDITIONAL_CANDIDATES', scope: 'global', electionKind: 'politiche', severity: 'warning', message:
       'Identità, seggi coperti e recuperi con preferenze sintetiche sono condizionati al modello e al profilo scelto; non sono previsioni individuali. I profili descrivono sensibilità, non intervalli di incertezza calibrata.' });
-    warn({ code: 'R26_PAIRED_MEAN_MODE', scope: 'global', electionKind: 'politiche', severity: 'info', message:
+    if(scenario.schemaVersion===4)warn({code:'R26_FAST_SHARE_REFERENCE',scope:'global',electionKind:'politiche',severity:'info',message:'Le quote di lista intervengono sul riferimento conservando la probabilità di voto valido. Non valido e affluenza hanno input separati. Componenti senza stima diretta usano riferimenti e ipotesi dichiarati; la dipendenza tra rami è un’ipotesi di sensibilità.'});
+    else warn({ code: 'R26_PAIRED_MEAN_MODE', scope: 'global', electionKind: 'politiche', severity: 'info', message:
       'La quota comune è un ancoraggio in log-odds; i riferimenti espliciti di Camera/Senato hanno precedenza. La modalità media conserva incertezza e covarianza tra rami. La frequenza del premio congiunto dipende dal profilo scelto: rieseguire gli stessi seed con profili diversi per valutarne la sensibilità.' });
   }
   const currentWarnings = (): ScrutinyWarning[] => [...warnings.values()];
@@ -176,7 +181,7 @@ export function createReformPresentation(scenario: ReformGenerationScenario, sna
 
 /** Charts read the same exported table contract as the UI and CSV. Bonus
  * coalitions remain separate subjects, even when candidates have affiliations. */
-export function buildReformSeatChart(table: ResultTable | undefined, chamber: string, simulation: number, scenario?: ReformGenerationScenario | null) {
+export function buildReformSeatChart(table: ResultTable | undefined, chamber: string, simulation: number, scenario?: ReformGenerationScenario|ReleasedScenario | null) {
   const totals = new Map<string, number>();
   for (const r of table?.rows ?? []) if (r.Chamber === chamber && r.Simulation === simulation) {
     const label = json([r.Category, r.Category === 'bonus' ? r.Subject : r.List ?? r.Subject, r.Status]);
@@ -185,7 +190,7 @@ export function buildReformSeatChart(table: ResultTable | undefined, chamber: st
   const lists = scenario?.lists[chamber === 'camera' ? 'camera' : 'senato'] ?? [];
   const name = (owner: string) => {
     if (owner.startsWith('coalition:')) {
-      const label = scenario?.presentation?.coalitions.find(c => c.id === owner.slice('coalition:'.length))?.name;
+      const label = scenario?.presentation?.coalitions?.find(c => c.id === owner.slice('coalition:'.length))?.name;
       if (label) return `Coalizione: ${label}`;
       const members = lists.filter(l => l.coalitionId === owner.slice('coalition:'.length));
       return members.length ? `Coalizione: ${members.map(l => l.name).join(' + ')}` : owner;

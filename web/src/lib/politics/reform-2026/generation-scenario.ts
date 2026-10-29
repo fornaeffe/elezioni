@@ -35,6 +35,10 @@ const scenarioFields = {
   conversion: nullable(object({ from: text, assumptions: array(text) }))
 };
 const color = scalar<string>(v => typeof v === 'string' && /^#[0-9a-f]{6}$/i.test(v), 'a six-digit hex color');
+/** Shared legal inputs; statistical scenario schemas own their separate fields. */
+export const reformLegalFields = Object.fromEntries(['kind','algorithmId','seed','electionDate','renewal','coverage','candidateGeneration','candidateTemplates','suppliedPreferences','suppliedVotes','bonusLinks','preferenceProfileId','chamberProfileId']
+  .map(key => [key, scenarioFields[key as keyof typeof scenarioFields]])) as Pick<typeof scenarioFields,
+  'kind'|'algorithmId'|'seed'|'electionDate'|'renewal'|'coverage'|'candidateGeneration'|'candidateTemplates'|'suppliedPreferences'|'suppliedVotes'|'bonusLinks'|'preferenceProfileId'|'chamberProfileId'>;
 const presentationShape = object({ name: text,
   lists: array(object({ id: text, color })), coalitions: array(object({ id: text, name: text, color, chambers: optional(array(chamber)) })) });
 const scenarioShape: Schema<JsonReadonly<ReformGenerationScenario>> = union(

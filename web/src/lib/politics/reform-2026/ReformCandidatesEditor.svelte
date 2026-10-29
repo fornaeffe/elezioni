@@ -1,15 +1,15 @@
-<script lang="ts">
+<script lang="ts" generics="T extends LegalEditorScenario">
   import SearchSelect from '../../scenario/SearchSelect.svelte';
   import type { Candidate, Chamber } from './input';
   import type { ReformCandidateTemplate, ReformGenerationScenario } from './generation-types';
   import type { ReformEditorCatalog } from './editor-catalog';
   import type { PreviewSelection, ReformEditorPreview } from './editor-preview';
-  import { newReformCandidate, reformSubjects, saveReformCandidate, subjectLabel } from './scenario-editor';
-  import { upgradeReformDraft, cloneReformValue } from './presentation-metadata';
+  import { newReformCandidate, reformSubjects, saveLegalCandidate, subjectLabel, copyLegalEditor, type LegalEditorScenario } from './scenario-editor';
+  import { cloneReformValue } from './presentation-metadata';
   let { scenario, catalog, disabled, onaction, onpreview, preview, previewSelection }: {
-    scenario: ReformGenerationScenario; catalog: ReformEditorCatalog; disabled: boolean;
-    onaction: (action: () => ReformGenerationScenario) => void; onpreview: (selection: PreviewSelection) => void;
-    preview: ReformEditorPreview | null; previewSelection: PreviewSelection | undefined;
+    scenario: T; catalog: { [K in 'regions'|'territories'|'colleges'|'municipalities']: readonly ReformEditorCatalog[K][number][] }; disabled: boolean;
+    onaction: (action: () => T) => void; onpreview: (selection: PreviewSelection) => void;
+    preview: Pick<ReformEditorPreview,'placements'|'bonusSelection'> | null; previewSelection: PreviewSelection | undefined;
   } = $props();
   let chamber = $state<Chamber>('camera');
   let role = $state<ReformCandidateTemplate['role']>('ordinary');
@@ -37,7 +37,7 @@
   function save() { onaction(() => {
     if (!locationId || !owners.some(o => o.id === ownerId) || !person.id || !person.name.trim() || !person.birthDate || !position) throw new Error('Completa posizione, persona, nome e data di nascita.');
     if (person.id.startsWith('synthetic:')) throw new Error('Usa una nuova identità stabile per fissare un candidato sintetico.');
-    return saveReformCandidate(scenario, { chamber, role, locationId, ownerId, position: role === 'special' ? 1 : position,
+    return saveLegalCandidate(scenario, { chamber, role, locationId, ownerId, position: role === 'special' ? 1 : position,
       affiliationListId: role === 'ordinary' ? ownerId : affiliation || null, candidate: person });
   }); }
   function external(ch: Chamber, kind: 'domestic' | 'foreign', checked: boolean) {
@@ -51,11 +51,11 @@
     <p>Le quote di candidati del premio seguono il sostegno stimato alla data di proiezione e restano uguali in tutte le simulazioni. I collegi sono ordinati casualmente per ogni simulazione. Un candidato ordinario fornito resta escluso dal premio finché non viene inserito anche come candidato del premio con la stessa identità.</p>
   {:else}
     <p>Questo scenario conserva la selezione originaria del premio.</p>
-    <button type="button" {disabled} onclick={() => onaction(() => { const n = upgradeReformDraft(scenario); n.candidateGeneration.bonusPolicy = 'reference-proportional-v1'; return n; })}>Aggiorna selezione del premio</button>
+    <button type="button" {disabled} onclick={() => onaction(() => { const n = copyLegalEditor(scenario); n.candidateGeneration.bonusPolicy = 'reference-proportional-v1'; return n; })}>Aggiorna selezione del premio</button>
   {/if}
   <div class="editor-row">
-    <label>Probabilità riuso candidati<input type="number" min="0" max="1" step="0.01" value={scenario.candidateGeneration.reuseProbability} {disabled} onchange={e => { const value = e.currentTarget.valueAsNumber; onaction(() => { const n = upgradeReformDraft(scenario); n.candidateGeneration.reuseProbability = value; return n; }); }} /></label>
-    <label>Massimo candidature ordinarie<select value={scenario.candidateGeneration.maximumOrdinaryCandidacies} {disabled} onchange={e => { const value = Number(e.currentTarget.value); onaction(() => { const n = upgradeReformDraft(scenario); n.candidateGeneration.maximumOrdinaryCandidacies = value; return n; }); }}>{#each [1, 2, 3, 4, 5] as value (value)}<option {value}>{value}</option>{/each}</select></label>
+    <label>Probabilità riuso candidati<input type="number" min="0" max="1" step="0.01" value={scenario.candidateGeneration.reuseProbability} {disabled} onchange={e => { const value = e.currentTarget.valueAsNumber; onaction(() => { const n = copyLegalEditor(scenario); n.candidateGeneration.reuseProbability = value; return n; }); }} /></label>
+    <label>Massimo candidature ordinarie<select value={scenario.candidateGeneration.maximumOrdinaryCandidacies} {disabled} onchange={e => { const value = Number(e.currentTarget.value); onaction(() => { const n = copyLegalEditor(scenario); n.candidateGeneration.maximumOrdinaryCandidacies = value; return n; }); }}>{#each [1, 2, 3, 4, 5] as value (value)}<option {value}>{value}</option>{/each}</select></label>
   </div>
   <div class="editor-row">
     <label>Ramo candidature<select bind:value={chamber} {disabled} onchange={() => { locationId = ''; ownerId = ''; page = 0; }}><option value="camera">Camera</option><option value="senato">Senato</option></select></label>
@@ -98,7 +98,7 @@
   <h4>Template salvati ({templates.length})</h4>
   {#each templates.slice(safePage * 20, (safePage + 1) * 20) as t (JSON.stringify([t.locationId, t.ownerId, t.position]))}<div class="editor-row"><span>{t.candidate.name} — {t.locationId} / {t.position}</span>
     <button type="button" {disabled} onclick={() => edit(t)}>Modifica {t.candidate.name}</button>
-    <button type="button" {disabled} onclick={() => onaction(() => { const n = upgradeReformDraft(scenario); n.candidateTemplates = n.candidateTemplates.filter(v => !(v.chamber === t.chamber && v.role === t.role && v.locationId === t.locationId && v.ownerId === t.ownerId && v.position === t.position)); return n; })}>Rimuovi {t.candidate.name}</button>
+    <button type="button" {disabled} onclick={() => onaction(() => { const n = copyLegalEditor(scenario); n.candidateTemplates = n.candidateTemplates.filter(v => !(v.chamber === t.chamber && v.role === t.role && v.locationId === t.locationId && v.ownerId === t.ownerId && v.position === t.position)); return n; })}>Rimuovi {t.candidate.name}</button>
   </div>{/each}
   <button type="button" disabled={safePage === 0} onclick={() => { page = safePage - 1; }}>Template precedenti</button><span>{safePage + 1} / {Math.max(1, Math.ceil(templates.length / 20))}</span><button type="button" disabled={(safePage + 1) * 20 >= templates.length} onclick={() => { page = safePage + 1; }}>Template successivi</button>
 </section>

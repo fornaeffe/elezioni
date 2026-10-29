@@ -3,7 +3,7 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: 'tests/e2e',
   // Candidate release checks serve the adapter's final build, not Vite's intermediate output.
-  testIgnore: ['fast-share-release.spec.ts','fast-share-fit.spec.ts'],
+  testIgnore: ['fast-share-release.spec.ts','fast-share-fit.spec.ts','fast-share-ui.spec.ts'],
   fullyParallel: true,
   retries: process.env.CI ? 2 : 0,
   reporter: 'html',

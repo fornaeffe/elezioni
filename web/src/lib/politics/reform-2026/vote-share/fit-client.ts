@@ -8,6 +8,8 @@ import {
 } from './fit-resources';
 import type { WorkerResourceHints } from '../../../core/reform-worker-capacity';
 import type { ReleasedScenario } from './release';
+import type { PortableFitFile } from './checkpoint';
+import type { PreviewSelection } from '../editor-preview';
 import type { FitProgress } from './execution';
 import type {
   AcceptedFit,
@@ -48,6 +50,7 @@ export async function draftFingerprint(s: ReleasedScenario) {
   return sourceKey('fit-draft-revision-v1', { ...s, data });
 }
 type Pending = {
+  previousPhase: FitClientState['phase'];
   id: number;
   revision: number;
   fingerprint: string;
@@ -130,13 +133,68 @@ export class ReformFitClient {
   load() {
     return this.request({ action: 'load', configuration: this.configuration });
   }
+  restoreCheckpoint(file: PortableFitFile) {
+    return this.request({
+      action: 'restore',
+      configuration: this.configuration,
+      file,
+    });
+  }
+  checkpoint() {
+    return this.edited('checkpoint');
+  }
+  preview(previewSelection?: PreviewSelection) {
+    if (!this.canRun || !this.accepted || !this.draft)
+      return Promise.reject(
+        new Error('Verifica prima uno scenario compatibile.'),
+      );
+    return this.request({
+      action: 'preview',
+      configuration: this.configuration,
+      previous: this.accepted,
+      scenario: this.draft,
+      previewSelection,
+    });
+  }
+  editorData() {
+    if (!this.accepted) throw new Error('Modello non ancora disponibile');
+    const a = this.accepted,
+      g = a.context.seats.geography;
+    return structuredClone({
+      catalog: {
+        regions: g.regions,
+        territories: g.territories,
+        colleges: g.colleges,
+        municipalities: a.assets.geography.targets.map((t) => ({
+          code: t.code,
+          name: t.name,
+          provinceId: t.province,
+          regionId: t.region,
+        })),
+      },
+      profiles: {
+        preferences: a.context.models.preferences.profiles,
+        chambers: a.context.models.chambers.profiles,
+      },
+      sourceId: a.assets.sourceBundleId,
+    });
+  }
+  source() {
+    if (!this.accepted)
+      return Promise.reject(new Error('Load the default first'));
+    return this.request({
+      action: 'source',
+      configuration: this.configuration,
+      catalog: this.accepted.sourceCatalog,
+    });
+  }
   validate() {
     return this.edited('validate');
   }
   fit() {
     return this.edited('fit');
   }
-  private edited(action: 'validate' | 'fit') {
+  private edited(action: 'validate' | 'fit' | 'checkpoint') {
     this.requireOpen();
     if (!this.accepted || !this.draft)
       return Promise.reject(
@@ -160,6 +218,7 @@ export class ReformFitClient {
     this.cancel();
     return new Promise((resolve, reject) => {
       const pending: Pending = {
+        previousPhase: this.current.phase,
         id: ++this.sequence,
         revision: this.current.revision,
         fingerprint: '',
@@ -186,12 +245,14 @@ export class ReformFitClient {
   }
   private async launch(job: Pending) {
     job.fingerprint =
-      job.command.action === 'load'
+      job.command.action === 'load' || job.command.action === 'source'
         ? await sourceKey('load-fit-v1', {
             pointer: this.configuration.pointer,
             implementations: this.configuration.implementations,
           })
-        : await draftFingerprint(job.command.scenario);
+        : job.command.action === 'restore'
+          ? await sourceKey('restore-fit-v1', job.command.file.pointer)
+          : await draftFingerprint(job.command.scenario);
     if (this.pending !== job) return;
     const worker: FitWorkerPort =
       this.options.workerFactory?.() ??
@@ -247,6 +308,8 @@ export class ReformFitClient {
         a.scenario.data.profileStateId !== a.assets.profileStateId ||
         a.scenario.referenceDate !== a.assets.fit.referenceDate ||
         (job.command.action !== 'load' &&
+          job.command.action !== 'restore' &&
+          job.command.action !== 'source' &&
           (await draftFingerprint(a.scenario)) !== job.fingerprint)
       )
         throw new Error('FIT_REPLY_BINDING_MISMATCH');
@@ -265,7 +328,9 @@ export class ReformFitClient {
       });
     } else
       this.publish({
-        phase: 'stale',
+        phase: ['checkpoint', 'source', 'preview'].includes(job.command.action)
+          ? job.previousPhase
+          : 'stale',
         plan: r.result.plan,
         progress: undefined,
       });
@@ -273,6 +338,9 @@ export class ReformFitClient {
     job.resolve({
       plan: structuredClone(r.result.plan),
       audit: structuredClone(r.result.audit),
+      file: r.result.file,
+      source: r.result.source,
+      preview: r.result.preview,
     });
   }
   private fail(job: Pending, error: Error) {
@@ -347,6 +415,10 @@ export class ReformFitClient {
       throw e;
     }
     return { capacity, leases };
+  }
+  generationCapacity(hints: WorkerResourceHints) {
+    if (!this.accepted) return undefined;
+    return generationCapacity(this.accepted, hints);
   }
   dispose() {
     this.cancel();

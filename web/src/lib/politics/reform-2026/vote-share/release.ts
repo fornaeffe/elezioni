@@ -41,7 +41,19 @@ export interface ReleasedScenario extends FastGenerationScenario {
     excluded: Record<string, string>;
   };
   presentation: {
-    lists: { chamber: 'camera' | 'senato'; id: string; name: string }[];
+    name?: string;
+    coalitions?: {
+      id: string;
+      name: string;
+      color: string;
+      chambers?: ('camera' | 'senato')[];
+    }[];
+    lists: {
+      chamber: 'camera' | 'senato';
+      id: string;
+      name: string;
+      color?: string;
+    }[];
     components: { id: string; name: string; support: 'fitted' | 'reference' }[];
   };
 }
@@ -220,6 +232,7 @@ export async function loadCandidate(
   options: {
     validateGeneration?: boolean;
     expectedGenerationImplementationId?: string;
+    allowEditedEvidence?: boolean;
   } = {},
 ) {
   if (
@@ -358,7 +371,7 @@ export async function loadCandidate(
       canonicalJson([...scenario.historySelection.electionIds].sort()) ||
     canonicalJson([...selection.pollIds].sort()) !==
       canonicalJson([...scenario.polls.selected].sort()) ||
-    scenario.polls.added.length ||
+    (!options.allowEditedEvidence && scenario.polls.added.length > 0) ||
     canonicalJson(selection.sourceMemberships ?? {}) !==
       canonicalJson(scenario.sourceMemberships) ||
     canonicalJson(selection.componentMap ?? {}) !==
@@ -393,6 +406,32 @@ export async function loadCandidate(
     fitParents: f.state.parents,
     profileParents: p.state.parents,
     provenanceId: f.state.provenanceId,
+    portableStates: {
+      fit: {
+        state: f.state,
+        metadata: {
+          sourceVersions: f.envelope.sourceVersions,
+          methodVersions: f.envelope.methodVersions,
+          assumptions: f.envelope.assumptions,
+        },
+      },
+      profiles: {
+        state: p.state,
+        metadata: {
+          sourceVersions: p.envelope.sourceVersions,
+          methodVersions: p.envelope.methodVersions,
+          assumptions: p.envelope.assumptions,
+        },
+      },
+      runtime: {
+        state: r.state,
+        metadata: {
+          sourceVersions: r.envelope.sourceVersions,
+          methodVersions: r.envelope.methodVersions,
+          assumptions: r.envelope.assumptions,
+        },
+      },
+    },
   };
 }
 /** Source data is optional at ordinary startup, mandatory for release/refit checks. */

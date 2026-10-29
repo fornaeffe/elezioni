@@ -7,14 +7,20 @@ export type EditingScope = 'common' | Chamber;
 export const editingChambers = (scope: EditingScope): Chamber[] => scope === 'common' ? ['camera', 'senato'] : [scope];
 export const referenceKey = (scope: ReferenceScope) => JSON.stringify([scope.kind, scope.kind === 'national' ? '' : scope.code]);
 export const subjectKey = (s: Subject) => JSON.stringify([s.kind, s.id]);
-export function reformSubjects(s: ReformGenerationScenario, ch: Chamber): Subject[] {
+export type LegalEditorScenario=Pick<ReformGenerationScenario,'candidateGeneration'|'candidateTemplates'|'coverage'|'lists'> & {presentation?:{coalitions?:{id:string;name:string;chambers?:Chamber[]}[]}};
+export function copyLegalEditor<T extends LegalEditorScenario>(s:T):T {return 'schemaVersion'in s&&s.schemaVersion!==4?upgradeReformDraft(s as unknown as ReformGenerationScenario) as unknown as T:cloneReformValue(s);}
+export function saveLegalCandidate<T extends LegalEditorScenario>(s:T,template:ReformCandidateTemplate):T{
+  const n=copyLegalEditor(s),same=(t:ReformCandidateTemplate)=>t.chamber===template.chamber&&t.role===template.role&&t.locationId===template.locationId&&t.ownerId===template.ownerId&&t.position===template.position;
+  n.candidateTemplates=n.candidateTemplates.filter(t=>!same(t)).map(t=>t.candidate.id===template.candidate.id?{...t,candidate:cloneReformValue(template.candidate)}:t);n.candidateTemplates.push(cloneReformValue(template));return n;
+}
+export function reformSubjects(s: Pick<LegalEditorScenario,'lists'>, ch: Chamber): Subject[] {
   return [...new Map(s.lists[ch].filter(l => l.kind !== 'other').map(l => {
     const sub: Subject = { kind: l.coalitionId ? 'coalition' : 'list', id: l.coalitionId ?? l.id };
     return [subjectKey(sub), sub];
   })).values()];
 }
-export function subjectLabel(s: ReformGenerationScenario, sub: Subject, ch: Chamber): string {
-  return sub.kind === 'coalition' ? s.presentation?.coalitions.find(c => c.id === sub.id)?.name ?? sub.id
+export function subjectLabel(s: Pick<LegalEditorScenario,'lists'|'presentation'>, sub: Subject, ch: Chamber): string {
+  return sub.kind === 'coalition' ? s.presentation?.coalitions?.find(c => c.id === sub.id)?.name ?? sub.id
     : s.lists[ch].find(l => l.id === sub.id)?.name ?? sub.id;
 }
 export function editableLists(s: ReformGenerationScenario, scope: EditingScope): PoliticalList[] {
@@ -183,7 +189,7 @@ export function saveReformCandidate(s: ReformGenerationScenario, template: Refor
     n.candidateTemplates.push(cloneReformValue(template));
   });
 }
-export function newReformCandidate(s: ReformGenerationScenario): Candidate {
+export function newReformCandidate(s: Pick<LegalEditorScenario,'candidateTemplates'>): Candidate {
   return { id: nextId('persona', s.candidateTemplates.map(t => t.candidate.id)), name: '', birthDate: '', gender: 'female', availability: { kind: 'available' }, externalCandidacies: [] };
 }
 export function referenceValue(rows: readonly (ReformShareOverride | ReformGenerationScenario['abstention'][number])[], scope: ReferenceScope, side: EditingScope, listId?: string): number | undefined {

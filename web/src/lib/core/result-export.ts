@@ -1,13 +1,18 @@
 import { requireReformScenario } from '../politics/reform-2026/generation-scenario';
 import type { ReformGenerationScenario } from '../politics/reform-2026/generation-types';
+import type { ReleasedScenario } from '../politics/reform-2026/vote-share/release';
+import { loadCandidate } from '../politics/reform-2026/vote-share/release';
+import { requireFastScenario } from '../politics/reform-2026/vote-share/scenario';
+import { requirePortableFitFile, checkpointReader, sameCheckpointScenario, type PortableFitFile } from '../politics/reform-2026/vote-share/checkpoint';
 import type { ResultTable, Scenario, SimulationResult } from './types';
 import { JsonStreamReader } from './json-stream';
 import { cellsWarning, storedRows, type Cell, type StoredResult, type StoredTable } from './result-store';
 
-export type ExportScenario = Scenario | ReformGenerationScenario;
+export type ExportScenario = Scenario | ReformGenerationScenario | ReleasedScenario;
 
 export interface SimulationResultExport {
-  schema_version: 2;
+  schema_version: 2|3;
+  fitFile?:PortableFitFile;
   exportedAt: string;
   scenario: ExportScenario;
   result: SimulationResult;
@@ -24,7 +29,8 @@ interface ColumnarSimulationResult extends Omit<SimulationResult, 'tables'> {
 }
 
 export interface SerializedSimulationResultExportV2<T extends ExportScenario = ExportScenario> {
-  schema_version: 2;
+  schema_version: 2|3;
+  fitFile?:PortableFitFile;
   exportedAt: string;
   scenario: T;
   result: ColumnarSimulationResult;
@@ -121,6 +127,7 @@ function tableCell(value: string | number | boolean | null | undefined): JsonCel
 }
 
 function parseExportedScenario(value: unknown): ExportScenario {
+  if(isRecord(value)&&value.kind==='politics-reform-scenario'&&value.schemaVersion===4)return requireFastScenario(value);
   const scenario = requireRecord(value, 'scenario');
   if (scenario.kind === 'politics-reform-scenario') return requireReformScenario(scenario);
   const defaultSource = requireRecord(scenario.defaultSource, 'scenario.defaultSource');
@@ -295,15 +302,18 @@ function csvRow(values: ReadonlyArray<string | number | boolean | null | undefin
 }
 
 export function createSimulationResultExport<T extends ExportScenario>(params: {
+  fitFile?:PortableFitFile;
   result: SimulationResult;
   scenario: T;
   exportedAt: string;
 }): SerializedSimulationResultExportV2<T> {
   if (params.result.storage) throw new Error('Stored results must use the streaming export boundary.');
+  if ('schemaVersion' in params.scenario && params.scenario.schemaVersion===4 && (!params.fitFile || !sameCheckpointScenario(params.scenario,params.fitFile.scenario))) throw new Error('Fast results require their frozen fitted session.');
   const result = jsonClone(params.result);
 
   return {
-    schema_version: 2,
+    schema_version: 'schemaVersion' in params.scenario&&params.scenario.schemaVersion===4?3:2,
+    ...(params.fitFile?{fitFile:requirePortableFitFile(params.fitFile)}:{}),
     exportedAt: params.exportedAt,
     scenario: jsonClone(params.scenario),
     result: {
@@ -334,7 +344,7 @@ export function parseSimulationResultExport(text: string): SimulationResultExpor
   if (!('result' in payload)) {
     throw new Error('Result export JSON must include a result.');
   }
-  if (payload.schema_version !== 2) {
+  if (payload.schema_version !== 2 && payload.schema_version!==3) {
     throw new Error(`Unsupported result export schema_version: ${String(payload.schema_version)}.`);
   }
 
@@ -342,8 +352,11 @@ export function parseSimulationResultExport(text: string): SimulationResultExpor
   if (Number.isNaN(Date.parse(exportedAt))) throw new Error('exportedAt must be a valid date string.');
 
   const scenario = parseExportedScenario(payload.scenario), result = parseSimulationResult(payload.result);
+  const fast='kind' in scenario&&scenario.schemaVersion===4;
+  const fitFile=payload.schema_version===3?requirePortableFitFile(payload.fitFile):undefined;
+  if(fast!==(payload.schema_version===3)||fitFile&&!sameCheckpointScenario(fitFile.scenario,scenario as ReleasedScenario))throw new Error('Fitted scenario/result file identity mismatch.');
   if ('kind' in scenario && scenario.kind === 'politics-reform-scenario') {
-    if (result.benchmark.scrutinyAlgorithmId !== scenario.algorithmId || result.benchmark.seed !== scenario.seed || result.benchmark.dataVersion !== scenario.snapshotVersion) {
+    if (result.benchmark.scrutinyAlgorithmId !== scenario.algorithmId || result.benchmark.seed !== scenario.seed || result.benchmark.dataVersion !== (scenario.schemaVersion===4?scenario.data.sourceBundleId:scenario.snapshotVersion)) {
       throw new Error('Reform scenario and result algorithm/seed/data identity mismatch.');
     }
   } else {
@@ -352,6 +365,7 @@ export function parseSimulationResultExport(text: string): SimulationResultExpor
   }
   return {
     schema_version: payload.schema_version,
+    ...(fitFile?{fitFile}:{}),
     exportedAt,
     scenario,
     result
@@ -390,7 +404,9 @@ export async function* streamStoredResult(record: StoredResult, format: 'json' |
     return;
   }
   const coverage = record.result.completedSimulations === undefined ? '' : `,"completedSimulations":${record.result.storage!.completedSimulations}`;
-  yield `{"schema_version":2,"exportedAt":${JSON.stringify(new Date().toISOString())},"scenario":${JSON.stringify(record.scenario)},"result":{"type":"result","status":${JSON.stringify(record.result.status)}${coverage},"benchmark":${JSON.stringify(record.result.benchmark)},"warnings":[`;
+  const fast='schemaVersion'in record.scenario&&record.scenario.schemaVersion===4;
+  if(fast&&!record.fitFile)throw new Error('Missing frozen fitted state for export');
+  yield `{"schema_version":${fast?3:2},"exportedAt":${JSON.stringify(new Date().toISOString())},"scenario":${JSON.stringify(record.scenario)}${fast?`,"fitFile":${JSON.stringify(record.fitFile)}`:''},"result":{"type":"result","status":${JSON.stringify(record.result.status)}${coverage},"benchmark":${JSON.stringify(record.result.benchmark)},"warnings":[`;
   let first = true;
   for await (const cells of storedRows(record.id, -1)) {
     if (!first) yield ','; first = false;
@@ -426,7 +442,7 @@ export async function importResultStream(stream: ReadableStream<Uint8Array<Array
   try {
     await reader.object(async key => {
       if (key !== 'result') {
-        if (['schema_version', 'exportedAt', 'scenario'].includes(key)) root[key] = await reader.value();
+        if (['schema_version', 'exportedAt', 'scenario','fitFile'].includes(key)) root[key] = await reader.value();
         else await reader.skip();
         return;
       }
@@ -466,6 +482,10 @@ export async function importResultStream(stream: ReadableStream<Uint8Array<Array
     await reader.finish();
     if (!sawTables || !sawWarnings) throw new Error('Result export must include tables and warnings');
     // Reuse the existing strict envelope and identity validation on small headers.
-    return parseSimulationResultExport(JSON.stringify({ ...root, result: { ...result, tables: [], warnings: [] } }));
+    const parsed=parseSimulationResultExport(JSON.stringify({ ...root, result: { ...result, tables: [], warnings: [] } }));
+    if(parsed.fitFile){const restored=await loadCandidate(parsed.fitFile.pointer,checkpointReader(parsed.fitFile),{allowEditedEvidence:true,
+      expectedGenerationImplementationId:(parsed.scenario as ReleasedScenario).models.generationImplementationId});
+      if(!sameCheckpointScenario(restored.scenario,parsed.scenario as ReleasedScenario))throw new Error('Saved fitted state/scenario mismatch.');}
+    return parsed;
   } finally { await reader.close(); }
 }

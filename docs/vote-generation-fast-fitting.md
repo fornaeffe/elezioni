@@ -5,6 +5,9 @@ the **2026 reform only**. It does not install the scenario v4 editor or replace
 application defaults. FV-07 owns UI/parser integration; FV-08 owns production
 predictive, resource-envelope and activation acceptance.
 
+For the implemented candidate editor, saved-session contracts and build flag,
+use the [FV-07 workspace guide](vote-generation-fast-workspace.md).
+
 | Task | Read |
 | --- | --- |
 | Wire the editor to load, validate, fit, cancel or restore | Client contract below; [fit-client.ts](../web/src/lib/politics/reform-2026/vote-share/fit-client.ts) |

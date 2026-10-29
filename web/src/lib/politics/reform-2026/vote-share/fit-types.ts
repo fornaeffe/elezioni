@@ -5,7 +5,14 @@ import type {
   CandidatePointer,
   ReleaseCatalog,
   ReleasedScenario,
+  FitState,
+  ProfileState,
+  RuntimeState,
 } from './release';
+import type { StateMetadata } from './state-codec';
+import type { CompactSource } from './source-types';
+import type { PortableFitFile } from './checkpoint';
+import type { PreviewSelection, ReformEditorPreview } from '../editor-preview';
 import type { SourceSelection } from './source-compiler';
 
 export interface FitImplementations {
@@ -29,6 +36,11 @@ export interface GenerationPacket {
   keys: { compositionKey: string; runKey: string };
 }
 export interface AcceptedFit extends GenerationPacket {
+  portableStates: {
+    fit: { state: FitState; metadata: StateMetadata };
+    profiles: { state: ProfileState; metadata: StateMetadata };
+    runtime: { state: RuntimeState; metadata: StateMetadata };
+  };
   sourceCatalog: ReleaseCatalog;
   selection: SourceSelection;
   implementations: FitImplementations;
@@ -49,6 +61,16 @@ export interface FitPlan {
   reused: { national: boolean; cameraProfile: boolean; senateAdapter: boolean };
 }
 export interface FitTaskResult {
+  preview?: Pick<
+    ReformEditorPreview,
+    | 'placements'
+    | 'bonusSelection'
+    | 'warnings'
+    | 'normalization'
+    | 'references'
+  >;
+  file?: PortableFitFile;
+  source?: CompactSource;
   plan: FitPlan;
   /** Absent for validation that requires numerical work. */
   accepted?: AcceptedFit;
@@ -66,7 +88,18 @@ export interface FitTaskResult {
 export type FitCommand =
   | { action: 'load'; configuration: FitConfiguration }
   | {
-      action: 'validate' | 'fit';
+      action: 'restore';
+      configuration: FitConfiguration;
+      file: PortableFitFile;
+    }
+  | {
+      action: 'source';
+      configuration: FitConfiguration;
+      catalog: ReleaseCatalog;
+    }
+  | {
+      action: 'validate' | 'fit' | 'checkpoint' | 'preview';
+      previewSelection?: PreviewSelection;
       configuration: FitConfiguration;
       previous: AcceptedFit;
       scenario: ReleasedScenario;

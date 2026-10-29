@@ -4,6 +4,23 @@ import { generateReformSimulation, type PreparedReformGeneration } from '../poli
 import { createReformPresentation, type ReformPresentationCounts } from '../politics/reform-2026/result-presentation';
 import { runPoliticsSimulation } from '../politics/simulation-scrutiny';
 import { REFORM_ALGORITHM_ID } from '../politics/reform-2026/input';
+import { prepareFastGeneration } from '../politics/reform-2026/vote-share/generation';
+import { requireFastScenario } from '../politics/reform-2026/vote-share/scenario';
+import { generationKeys } from '../politics/reform-2026/vote-share/release';
+import type { GenerationPacket } from '../politics/reform-2026/vote-share/fit-types';
+import { sourceKey } from '../politics/reform-2026/vote-share/source-codec';
+import { fastReformImplementations } from '../politics/reform-2026/vote-share/build';
+export async function prepareFastCompute(packet:GenerationPacket){
+  if(fastReformImplementations&&packet.scenario.models.generationImplementationId!==fastReformImplementations.generation) throw new Error('Generation implementation differs from this application build');
+  const scenario=requireFastScenario(packet.scenario),keys=await generationKeys(scenario,packet.context,await sourceKey('conditional-electorates-v1',{
+    codes:packet.assets.electorates.map(e=>e.code),date:packet.assets.electorates[0].date,camera:Uint32Array.from(packet.assets.electorates,e=>e.camera),senato:Uint32Array.from(packet.assets.electorates,e=>e.senato),provenance:packet.assets.electorates[0].provenance
+  }));
+  // The runtime electorate key uses typed columns; its original ordering is preserved.
+  if(keys.runKey!==packet.keys.runKey||keys.compositionKey!==packet.keys.compositionKey)throw new Error('Frozen run binding mismatch');
+  const prepared=prepareFastGeneration(scenario,packet.assets,packet.context);
+  return{scenario,snapshot:packet.context,generate:(id:number)=>prepared.run(id)};
+}
+export type PreparedFastCompute=Awaited<ReturnType<typeof prepareFastCompute>>;
 
 export interface ReformRunReady {
   simulation: number;
@@ -18,13 +35,13 @@ export interface ReformRunBatch { tables: ResultTable[]; warnings: ScrutinyWarni
  * Generation/legal errors keep their current per-run failure representation;
  * encoding, messaging and storage failures are infrastructure errors instead.
  */
-export function computeReformRun(prepared: PreparedReformGeneration, simulation: number) {
+export function computeReformRun(prepared: PreparedReformGeneration|PreparedFastCompute, simulation: number) {
   const presentation = createReformPresentation(prepared.scenario, prepared.snapshot, 1, { includeContext: simulation === 1 });
   const timings = { generationMs: 0, scrutinyMs: 0, presentationMs: 0 };
   let generated: ReturnType<typeof generateReformSimulation> | undefined;
   let output: ReturnType<typeof runPoliticsSimulation> | undefined;
   let failure: unknown, failed = false, started = performance.now();
-  try { generated = generateReformSimulation(prepared, simulation); }
+  try { generated = 'generate' in prepared?prepared.generate(simulation):generateReformSimulation(prepared, simulation); }
   catch (error) { failure = error; failed = true; }
   timings.generationMs = performance.now() - started;
   if (generated) {

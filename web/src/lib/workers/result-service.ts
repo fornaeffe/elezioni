@@ -18,11 +18,15 @@ import { estimateReformWorkerCapacity, requireReformWorkerCount } from '../core/
 import { ReformComputeClient, runOrderedReformPool } from './reform-pool';
 import { ensureStatistics, requireSeries, seriesStatistics, statisticalDistribution, storedSummaryTable } from '../politics/reform-2026/stored-statistics';
 import { summaryTableName, type BonusFilter } from '../results/statistics';
+import { requireFastScenario } from '../politics/reform-2026/vote-share/scenario';
+import { generationCapacity } from '../politics/reform-2026/vote-share/fit-resources';
+import { loadCandidate } from '../politics/reform-2026/vote-share/release';
+import { checkpointReader, requirePortableFitFile, sameCheckpointScenario } from '../politics/reform-2026/vote-share/checkpoint';
 import { samplePage } from '../core/statistics-cache';
 
 export interface ResultServiceRequest {
   type: 'result-service'; requestId: number;
-  action: 'page' | 'warnings' | 'diagnostics' | 'messages-summary' | 'messages-general' | 'messages-context' | 'messages-ids' | 'messages-export' | 'manifest' | 'delete' | 'cancel' | 'import' | 'export' | 'statistics' | 'statistics-series' | 'statistics-points' | 'statistics-box' | 'statistics-positions' | 'statistics-bonus';
+  action: 'page' | 'warnings' | 'diagnostics' | 'messages-summary' | 'messages-general' | 'messages-context' | 'messages-ids' | 'messages-export' | 'manifest' | 'fit-session' | 'delete' | 'cancel' | 'import' | 'export' | 'statistics' | 'statistics-series' | 'statistics-points' | 'statistics-box' | 'statistics-positions' | 'statistics-bonus';
   resultId: string; owner: string;
   table?: number; offset?: number; limit?: number; simulation?: number;
   file?: File; format?: 'json' | 'csv';
@@ -45,24 +49,32 @@ export async function runStoredReform(request: SimulationRequest, emit: (progres
   requireSimulationCount(request.simulations);
   resolvePoliticsSimulationAlgorithm(REFORM_ALGORITHM_ID, 'production');
   if (!('kind' in request.scenario)) throw new Error('A reform request requires an explicit reform scenario');
-  const capacity = estimateReformWorkerCapacity(navigator as Navigator & { deviceMemory?: number });
+  const fast=request.fast;
+  if(fast && !fast.packets.length) throw new Error('Missing generation packet');
+  const fastCapacity=fast?generationCapacity(fast.packets[0],navigator as Navigator&{deviceMemory?:number}):null;
+  const capacity = fastCapacity?{...estimateReformWorkerCapacity(navigator),maximum:fastCapacity.maximum,
+    workerMemoryMiB:fastCapacity.perWorkerBytes/(1024*1024),estimateVersion:fastCapacity.estimateVersion}:estimateReformWorkerCapacity(navigator as Navigator & { deviceMemory?: number });
   const requestedWorkers = requireReformWorkerCount(request.computeWorkers ?? capacity.maximum, capacity.maximum);
   const computeWorkers = Math.min(requestedWorkers, request.simulations);
   const started = performance.now(), startedAt = new Date().toISOString();
   const progress = (phase: SimulationProgress['phase'], completed: number) => emit({ type: 'progress', phase, completed, total: request.simulations, elapsedMs: performance.now() - started });
   progress('prepare', 0);
-  const snapshot = await loadVerifiedJson(request.basePath ?? '', catalog) as ReformGenerationSnapshot;
-  const errors = validateReformSnapshot(snapshot);
+  if(fast&&fast.packets.length!==computeWorkers)throw new Error('Frozen worker packets do not match requested workers');
+  const snapshot = fast?fast.packets[0].context:await loadVerifiedJson(request.basePath ?? '', catalog) as ReformGenerationSnapshot;
+  const errors = fast?[]:validateReformSnapshot(snapshot);
   if (errors.length) throw new RangeError(`Invalid reform snapshot: ${errors.join('; ')}`);
-  const scenario = requireReformScenario(request.scenario, snapshot);
-  if (scenario.seed !== request.seed || scenario.electionDate !== request.electionDate) throw new Error('Request seed/date must match the reform scenario');
+  const scenario = fast?requireFastScenario(request.scenario):requireReformScenario(request.scenario, snapshot as ReformGenerationSnapshot);
+  if(fast){requirePortableFitFile(fast.file);const restored=await loadCandidate(fast.file.pointer,checkpointReader(fast.file),{allowEditedEvidence:true,expectedGenerationImplementationId:fast.packets[0].scenario.models.generationImplementationId});
+    if(!sameCheckpointScenario(restored.scenario,scenario as typeof restored.scenario)||fast.packets.some(p=>!sameCheckpointScenario(p.scenario,restored.scenario)))throw new Error('Frozen scenario/checkpoint mismatch');}
+    if (scenario.seed !== request.seed || scenario.electionDate !== request.electionDate) throw new Error('Request seed/date must match the reform scenario');
+    if (scenario.schemaVersion===4 && request.dataVersion!==scenario.data.sourceBundleId) throw new Error('Request source must match the reform scenario');
   const id = request.resultId ?? crypto.randomUUID(), owner = request.resultOwner ?? 'direct-worker';
   const execution = { requestedWorkers, computeWorkers, maximumWorkers: capacity.maximum,
     estimatedWorkerMemoryMiB: capacity.workerMemoryMiB, estimateVersion: capacity.estimateVersion,
     generationMs: 0, scrutinyMs: 0, presentationMs: 0, storageMs: 0 };
-  const record: StoredResult = { id, owner, scenario, exports: [], result: {
+  const record: StoredResult = { id, owner, scenario, fitFile:fast?.file,exports: [], result: {
     type: 'result', status: 'not_implemented', completedSimulations: 0, tables: [], warnings: [], storage: newResultStorage(id),
-    benchmark: { startedAt, elapsedMs: 0, simulations: request.simulations, dataVersion: snapshot.version, scrutinyAlgorithmId: REFORM_ALGORITHM_ID, seed: request.seed, execution }
+    benchmark: { startedAt, elapsedMs: 0, simulations: request.simulations, dataVersion:scenario.schemaVersion===4?scenario.data.sourceBundleId:snapshot.version, scrutinyAlgorithmId: REFORM_ALGORITHM_ID, seed: request.seed, execution }
   } };
   await saveStoredResult(record);
   // Simulation 1 supplies shared context once, independent of pool size. Only
@@ -75,7 +87,7 @@ export async function runStoredReform(request: SimulationRequest, emit: (progres
     for (let index = 0; index < computeWorkers; index++) {
       workers.push(new ReformComputeClient(new Worker(new URL('./reform-compute.worker.ts', import.meta.url), { type: 'module', name: `reform-compute-${index + 1}` })));
     }
-    await Promise.all(workers.map(worker => worker.initialize(scenario, request.basePath ?? '')));
+    await Promise.all(workers.map((worker,index) => fast?worker.initializeFast(fast.packets[index]):worker.initialize(scenario, request.basePath ?? '')));
     await runOrderedReformPool(workers, request.simulations, () => cancelled.has(id), async (simulation, worker, ready) => {
       execution.generationMs += ready.timings.generationMs;
       execution.scrutinyMs += ready.timings.scrutinyMs;
@@ -172,6 +184,7 @@ async function importStoredFile(file: File, id: string, owner: string): Promise<
     await writer?.flush(); await warningWriter.flush();
     const storage = record.result.storage!, notes = record.result.warnings;
     record.scenario = parsed.scenario;
+    record.fitFile=parsed.fitFile;
     record.result = { ...parsed.result, warnings: notes, storage, tables: storage.tables.map(t => ({ name: t.name, columns: t.columns, rows: [] })) };
     storage.state = parsed.result.status === 'completed' ? 'complete' : 'interrupted';
     const runs = storage.tables.find(t => t.name === 'Reform runs')?.rows;
@@ -221,8 +234,9 @@ export async function handleResultService(request: ResultServiceRequest): Promis
           record.result.warnings.push({ code: 'RESULT_INTERRUPTED', severity: 'warning', electionKind: 'politiche', message: 'Calcolo interrotto: sono disponibili solo le simulazioni conservate. Nessuna simulazione viene riestratta.' });
           await saveStoredResult(record).catch(() => undefined);
         }
-        data = record;
+        data = record.fitFile?{...record,fitFile:undefined}:record;
       }
+      else if(request.action==='fit-session'){if(!record.fitFile)throw new Error('No fitted state is stored for this result');data=record.fitFile;}
       else if (request.action === 'diagnostics') {
         if (active.has(record.id)) throw new Error('Wait for calculation completion before querying diagnostic frequencies');
         const events = record.result.storage!.tables.findIndex(t => t.name === diagnosticTableName);

@@ -1,7 +1,7 @@
 import type { ResultTable } from '../../core/types';
 import type { ReformScrutinyInput } from './input';
 import type { ComposedReformScrutinyResult } from './scrutiny';
-import type { ReformGenerationSnapshot } from './generation-types';
+import type { ReformAssemblyContext } from './generation-types';
 import { rankPreferenceCandidates } from './rankings';
 
 export const positionTable = 'Reform college election positions v1';
@@ -11,7 +11,7 @@ type Row = ResultTable['rows'][number];
 
 /** Position means rank within this run, not a fixed person's identity. Count
  * only the final election location, including recoveries into this slate. */
-export function electionPositionRows(input: ReformScrutinyInput, result: ComposedReformScrutinyResult, snapshot: ReformGenerationSnapshot): Row[] {
+export function electionPositionRows(input: ReformScrutinyInput, result: ComposedReformScrutinyResult, snapshot: ReformAssemblyContext): Row[] {
   const sources = input.renewal.kind === 'joint' ? [input.renewal.camera, input.renewal.senato] : [input.renewal.chamber];
   return result.chambers.flatMap(chamber => {
     const source = sources.find(c => c.chamber === chamber.chamber)!;

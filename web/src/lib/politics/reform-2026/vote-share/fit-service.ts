@@ -9,6 +9,9 @@ import {
 } from './release';
 import { encodeState } from './state-codec';
 import { fittedStateShapes, profileStateShapes } from './state-shapes';
+import { createCheckpoint, checkpointReader } from './checkpoint';
+import { requireFastScenario } from './scenario';
+import { candidatePlacements } from '../candidate-preview';
 import {
   compileSource,
   validateEditedPoll,
@@ -167,11 +170,32 @@ export async function runFitTask(
     );
     return { accepted, plan, audit };
   };
-  if (command.action === 'load') {
+  if (command.action === 'source') {
+    const source = await loadCandidateSource(command.catalog, read);
+    return {
+      source,
+      plan: {
+        national: false,
+        profiles: false,
+        paired: false,
+        reasons: [],
+        estimatedAggregateBytes: 0,
+        reused: { national: true, cameraProfile: true, senateAdapter: true },
+      },
+      audit: { ...audit, sourceLoaded: true },
+    };
+  }
+  if (command.action === 'load' || command.action === 'restore') {
     await checkpoint({ phase: 'load-default', completed: 0, total: 1 });
-    const loaded = await loadCandidate(c.pointer, read, {
-      expectedGenerationImplementationId: c.implementations.generation,
-    });
+    const loaded = await loadCandidate(
+      command.action === 'restore' ? command.file.pointer : c.pointer,
+      command.action === 'restore' ? checkpointReader(command.file) : read,
+      {
+        expectedGenerationImplementationId: c.implementations.generation,
+        allowEditedEvidence: command.action === 'restore',
+      },
+    );
+    requireFastScenario(loaded.scenario);
     // Check the independently supplied build identities, not just the catalog's claims.
     if (
       loaded.fitParents.implementationId !== c.implementations.fitting ||
@@ -179,6 +203,7 @@ export async function runFitTask(
     )
       throw new Error('FIT_IMPLEMENTATION_MISMATCH');
     const accepted: AcceptedFit = {
+      portableStates: loaded.portableStates,
       sourceCatalog: loaded.catalog,
       scenario: loaded.scenario,
       assets: loaded.assets,
@@ -211,9 +236,53 @@ export async function runFitTask(
       reused: { national: true, cameraProfile: true, senateAdapter: true },
     });
   }
+  if (command.action === 'checkpoint') {
+    const file = await createCheckpoint(command.previous, command.scenario);
+    return {
+      file,
+      plan: {
+        national: false,
+        profiles: false,
+        paired: false,
+        reasons: [],
+        estimatedAggregateBytes: 0,
+        reused: { national: true, cameraProfile: true, senateAdapter: true },
+      },
+      audit,
+    };
+  }
+  if (command.action === 'preview') {
+    const s = requireFastScenario(command.scenario),
+      prepared = prepareFastGeneration(
+        s,
+        command.previous.assets,
+        command.previous.context,
+      ),
+      { input, trace } = prepared.run(1);
+    return {
+      preview: {
+        placements: candidatePlacements(input, command.previewSelection),
+        bonusSelection: trace.bonusSelection,
+        warnings: trace.warnings,
+        normalization: trace.normalization,
+        references: trace.references,
+      },
+      plan: {
+        national: false,
+        profiles: false,
+        paired: false,
+        reasons: [],
+        estimatedAggregateBytes: 0,
+        reused: { national: true, cameraProfile: true, senateAdapter: true },
+      },
+      audit,
+    };
+  }
   const previous = command.previous,
     scenario = structuredClone(command.scenario),
     selection = draftSelection(scenario, previous);
+  requireFastScenario(scenario);
+  const portableStates = { ...previous.portableStates };
   scenario.polls.added.forEach(validateEditedPoll);
   if (
     canonicalJson(previous.implementations) !==
@@ -347,6 +416,7 @@ export async function runFitTask(
           fittedStateShapes(fit),
         )
       ).envelope.id;
+      portableStates.fit = { state, metadata };
     }
     if (plan.profiles) {
       cameraProfile = await cooperativeSteps(
@@ -384,6 +454,7 @@ export async function runFitTask(
           profileStateShapes(cameraProfile),
         )
       ).envelope.id;
+      portableStates.profiles = { state, metadata };
     }
     nationalInputKey = compiled.nationalInputKey;
     profileInputKey = compiled.profileInputKey;
@@ -417,6 +488,7 @@ export async function runFitTask(
   return finish(
     {
       ...previous,
+      portableStates,
       scenario,
       selection,
       assets,

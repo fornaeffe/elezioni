@@ -1,0 +1,375 @@
+{
+  "schemaVersion": 1,
+  "stage": "FV-07",
+  "recordedDate": "2026-10-29",
+  "status": "candidate-workspace-verified-defaults-not-activated",
+  "baseRevision": "b9df6246fa5f4d3cfc47c958875c023ab8abe427",
+  "environment": {
+    "node": "v24.20.0",
+    "platform": "win32",
+    "cpu": "Intel(R) Core(TM) i7-14700KF",
+    "browser": "Headless Chromium 148.0.7778.96"
+  },
+  "sourceHashPolicy": "SHA-256 of LF-normalized changed sources and pinned build/policy inputs",
+  "sourceHashes": {
+    "data/fast-share-default-policy.json": "910d7ea28d169d018ce1a8e672c9fbd58ae78605585f2e79b12230e77d39de45",
+    "web/package-lock.json": "c653b9a886821ed14ecf0a33caeaa6c8374aab80039fefda0d9685d0b9bee38b",
+    "web/package.json": "acaaa0fa7ed5fb6baac8bd692bf3181491af163587edb508affe29dd94187511",
+    "web/playwright.config.ts": "f5a862d372a10781579723ade548ec4dc4e830b2da23c295dedccb49f5bc7cc8",
+    "web/playwright.fast-share-ui.config.ts": "7260d5b159d8fa58d55f555caa0a9028bec7dc005d2315b7aa9c74b339f8fdba",
+    "web/src/lib/core/json-stream.ts": "435b212922e2244b7182ab95da39cf1856aa6c9cff13c2e03cfe13b5dd9e4857",
+    "web/src/lib/core/result-export.ts": "cf52121647adcef53fb69a19173bccfcd2c7b40b1e821517cf386a8c45425aa9",
+    "web/src/lib/core/result-store.ts": "28372596a3305c0af00776445760b4e3cda2a44cd95466c0a0791f3b030b1040",
+    "web/src/lib/core/types.ts": "55866e7543ec73dcfee0a627d8b4b5622b90789c3e41c52bc989659e2f6b8c88",
+    "web/src/lib/politics/reform-2026/InstalledReformWorkspace.svelte": "d7c1aba0f87f5033bfff7b6b0fab0320f2eb90bda9fcc95c6e97dcc2753dcbc5",
+    "web/src/lib/politics/reform-2026/ReformCandidatesEditor.svelte": "a55b44f68ad2e562a8775ec004bf790750a16698112751a66c93f8ccde51c85d",
+    "web/src/lib/politics/reform-2026/ReformWorkspace.svelte": "3b4d848f328bf0784259aac7c381eb2ebb70507cc4efeee447c3de85d0355847",
+    "web/src/lib/politics/reform-2026/candidate-preview.ts": "3ae3b4076cd732ea9539c225b7f11d80e98515e5a0f72fade05f6dde9a22e761",
+    "web/src/lib/politics/reform-2026/editor-preview.ts": "2789bebb73f76d0a73fd95edb2cb25f5611d91cec0e52ce55dd45ab45345e121",
+    "web/src/lib/politics/reform-2026/election-probability.ts": "be718e275321cec1549c0cffcb071b55f80a5b529467882992b033a6ea844f0a",
+    "web/src/lib/politics/reform-2026/generation-scenario.ts": "42dff988957d237a565a0ebe6aec5f4cea6549cdebaaf9e19539da5cf54d04cf",
+    "web/src/lib/politics/reform-2026/presentation-metadata.ts": "e698bd0480c44876b41315cefbcd143f536afdcdb4902ae5804fe1f2cf5535f6",
+    "web/src/lib/politics/reform-2026/result-presentation.ts": "09f2d8692e242927c357056fecf486bb5c05db3b0f2b02e4dd38b627cee3607f",
+    "web/src/lib/politics/reform-2026/result-series.ts": "b27c28f6dd378883337c8c10cf3a482a1eef308ee28057abb5646e820178544e",
+    "web/src/lib/politics/reform-2026/scenario-editor.ts": "96c73db043440262d3a94eaed4ca55eec5d87d15053605dd2a8118685aeedf31",
+    "web/src/lib/politics/reform-2026/vote-share/FastEvidenceEditor.svelte": "e20441bd3981a1df4b423761005132bc21d07ebdbb5e55abe4975b42104c8325",
+    "web/src/lib/politics/reform-2026/vote-share/FastReferencesEditor.svelte": "d05fa5d5e8d6410e6362507ad07729596cc708786a372240dd665b458b403436",
+    "web/src/lib/politics/reform-2026/vote-share/FastReformWorkspace.svelte": "414433f360ab2e927d8b928c629c26d8721eb9c22131c05ab1405b50184689c7",
+    "web/src/lib/politics/reform-2026/vote-share/FastScenarioEditor.svelte": "ee18d57186d4aabd8cb8084118626daaa6b79dfc114679d99ba677218eac74fc",
+    "web/src/lib/politics/reform-2026/vote-share/build.ts": "1194af043c292ba90cd4b314e6f4600d3eaffc9d4dc6f66c59811f16b4a5c77b",
+    "web/src/lib/politics/reform-2026/vote-share/checkpoint.ts": "2507eeb44652b920923b2ceee6ab97ad495e556315e489dab1ad1e7e8f7a1862",
+    "web/src/lib/politics/reform-2026/vote-share/editor-loading.ts": "e8f8af679a9f3887bbd9da78faa374a6b863b79955bbdbe2208ce7c8d5791429",
+    "web/src/lib/politics/reform-2026/vote-share/editor-model.ts": "b7affbe0d698cdd7c5afe6b58c39aac9651daf2df86d68116f5d01c8b271d30b",
+    "web/src/lib/politics/reform-2026/vote-share/editor-session.test.ts": "06a48b685c4449808257d6a5ca3763445eb8407106e0652110de32a2682add31",
+    "web/src/lib/politics/reform-2026/vote-share/fit-client.ts": "afde1d308c430bb4e95c61eb2909c83717ef7559afadca38b0ed34005e935c24",
+    "web/src/lib/politics/reform-2026/vote-share/fit-service.ts": "701ac4b9fcad29a7106ac95b336ce6ba6e5ab12c09de736c5e624b0e64e6e42b",
+    "web/src/lib/politics/reform-2026/vote-share/fit-types.ts": "15fb3f1708c08dfe1d319d6ee4e067cc6a5805c557a9e204e3f3d89702f3b402",
+    "web/src/lib/politics/reform-2026/vote-share/release.ts": "7893072b291155f58dcf3ddcc91003c90ff21872190d8d7f2fbeed1b6327b2ac",
+    "web/src/lib/politics/reform-2026/vote-share/scenario.ts": "4522a3a2584251b86796c766ce6c0cf9230f007ffad626ee73545a6c4ce5a376",
+    "web/src/lib/workers/reform-compute.ts": "06bbdc20c751170eb892e3f6d1169009390e809147db5a15957d4ff118645bfb",
+    "web/src/lib/workers/reform-compute.worker.ts": "f467eba7a7a70569d3c0cc79a5560ac81eed99922af30bbfd6f72f2f909682a3",
+    "web/src/lib/workers/reform-pool.ts": "d21af35ef120ea939905f727db8c7d5e97d65360702c2db2dc522e4333d6f42a",
+    "web/src/lib/workers/result-service.ts": "569834c5ef9fc6246d32dbaba04439220626cc4fc89d63d2f2cf5fa8df0a5b67",
+    "web/tests/e2e/fast-share-ui.spec.ts": "ca11d1542a99f006ddd8ed9231ce53e5c9681c59942a8b5caf4c91e0232594a9",
+    "web/tests/fixtures/serve-static-release.ts": "85c4b980f912636956151aabc6022f995e728ccc215d8c02e09453747901045a",
+    "web/vite.config.ts": "9e0cd4ed797bef6550111f5b9c0e16a2f46defb42f04d2d1f5b3fc817b88a554"
+  },
+  "contracts": {
+    "scenario": 4,
+    "fittedSession": 1,
+    "resultExport": 3,
+    "installedResultExport": 2
+  },
+  "candidate": {
+    "catalogId": "fast-share-catalog-v1-994fc847f4ee5789d037b7d93a07979273a4d2397ed610ac5e9d5676ba7090fb",
+    "generationImplementationId": "implementation-v1-912df29032e0172525b54d17d10342ce1a6d88e3afb7294988dd5b2386878bfc",
+    "verification": {
+      "catalogId": "fast-share-catalog-v1-994fc847f4ee5789d037b7d93a07979273a4d2397ed610ac5e9d5676ba7090fb",
+      "sourceId": "fast-share-source-v1-95d505ed1f7ea79c99cd0bf91a86dbc6a2d54c1f24fd9b37bec40a57e3c72511",
+      "referenceDate": "2026-10-19",
+      "electionDate": "2027-09-25",
+      "municipalities": 7904,
+      "physicalCells": 15810,
+      "fittedComponents": 10,
+      "futureComponents": 35,
+      "politicalDrawsPerChain": 2000,
+      "politicalDiagnostics": {
+        "coordinates": [
+          {
+            "bulkEss": 7493.139664607939,
+            "constant": false,
+            "rhat": 1.0004221045392967,
+            "tailEss": 7567.296578735551
+          },
+          {
+            "bulkEss": 5180.0553229685975,
+            "constant": false,
+            "rhat": 1.0012989449087104,
+            "tailEss": 6640.61032925651
+          },
+          {
+            "bulkEss": 7443.522226927346,
+            "constant": false,
+            "rhat": 0.999934614867318,
+            "tailEss": 6817.062631251737
+          },
+          {
+            "bulkEss": 3365.152829309111,
+            "constant": false,
+            "rhat": 1.000494661317138,
+            "tailEss": 5011.790188997255
+          },
+          {
+            "bulkEss": 7870.536308927444,
+            "constant": false,
+            "rhat": 0.9998477427867536,
+            "tailEss": 7805.898439363747
+          },
+          {
+            "bulkEss": 5526.613287849133,
+            "constant": false,
+            "rhat": 1.0004716928758461,
+            "tailEss": 6918.716943469083
+          },
+          {
+            "bulkEss": 3529.7523058042734,
+            "constant": false,
+            "rhat": 1.0002491777692901,
+            "tailEss": 5389.4755740867395
+          },
+          {
+            "bulkEss": 7580.39149864088,
+            "constant": false,
+            "rhat": 0.9999543404885785,
+            "tailEss": 7355.166565248035
+          },
+          {
+            "bulkEss": 6867.721995978465,
+            "constant": false,
+            "rhat": 0.9998777882205215,
+            "tailEss": 7492.9329383503145
+          },
+          {
+            "bulkEss": 7973.548138163553,
+            "constant": false,
+            "rhat": 1.0001837836561684,
+            "tailEss": 7806.3197063818225
+          },
+          {
+            "bulkEss": 6823.520405073925,
+            "constant": false,
+            "rhat": 1.0000808301538526,
+            "tailEss": 7878.069298593187
+          },
+          {
+            "bulkEss": 4750.958601630583,
+            "constant": false,
+            "rhat": 1.001500767337183,
+            "tailEss": 6728.829263184875
+          },
+          {
+            "bulkEss": 5155.995530959176,
+            "constant": false,
+            "rhat": 0.9999446939873544,
+            "tailEss": 6256.011320870474
+          },
+          {
+            "bulkEss": 3995.878289484479,
+            "constant": false,
+            "rhat": 1.0013072710668733,
+            "tailEss": 6013.841689852919
+          },
+          {
+            "bulkEss": 7516.117835207391,
+            "constant": false,
+            "rhat": 1.0003896016384992,
+            "tailEss": 7776.745340518685
+          },
+          {
+            "bulkEss": 4408.9418514327035,
+            "constant": false,
+            "rhat": 1.0004767178620724,
+            "tailEss": 6176.128815090715
+          },
+          {
+            "bulkEss": 3995.908259177228,
+            "constant": false,
+            "rhat": 1.0006634265274694,
+            "tailEss": 5749.07848141865
+          },
+          {
+            "bulkEss": 6131.578776641948,
+            "constant": false,
+            "rhat": 1.0001947799108082,
+            "tailEss": 7125.948324963588
+          },
+          {
+            "bulkEss": 5541.354040338928,
+            "constant": false,
+            "rhat": 0.9998863863951581,
+            "tailEss": 6691.217228182524
+          },
+          {
+            "bulkEss": 7467.109666671564,
+            "constant": false,
+            "rhat": 0.9998754300419822,
+            "tailEss": 7727.463783516105
+          }
+        ],
+        "maxRhat": 1.001500767337183,
+        "minEss": 3365.152829309111,
+        "minTailEss": 5011.790188997255,
+        "passed": true
+      },
+      "participationDiagnostics": {
+        "coordinates": [
+          {
+            "bulkEss": 8000,
+            "constant": false,
+            "rhat": 1.000438909046988,
+            "tailEss": 7602.325928261166
+          },
+          {
+            "bulkEss": 8000,
+            "constant": false,
+            "rhat": 1.000438909046988,
+            "tailEss": 7602.325928261166
+          },
+          {
+            "bulkEss": 8000,
+            "constant": false,
+            "rhat": 1.0004060597937383,
+            "tailEss": 7806.731085609442
+          },
+          {
+            "bulkEss": 8000,
+            "constant": false,
+            "rhat": 1.0004060597937383,
+            "tailEss": 7806.731085609442
+          }
+        ],
+        "maxRhat": 1.000438909046988,
+        "minEss": 8000,
+        "minTailEss": 7602.325928261166,
+        "passed": true
+      },
+      "projectionResidual": 9.676485619183016e-10,
+      "legalStatus": "complete",
+      "seats": 588,
+      "filled": 588,
+      "sourceIntegrity": true,
+      "matchingSemanticKeys": true,
+      "defaultStartFits": 0
+    },
+    "byteBudget": {
+      "generationPayloadCompressedBytes": 4396207,
+      "catalogCompressedBytes": 6118,
+      "pointerBytes": 505,
+      "generationCompressedBytes": 4402830,
+      "refitCompressedBytes": 4512456
+    }
+  },
+  "verification": {
+    "typeChecks": {
+      "data": true,
+      "svelte": {
+        "errors": 0,
+        "warnings": 0
+      }
+    },
+    "unit": {
+      "files": 96,
+      "passed": 1199
+    },
+    "browser": {
+      "root": {
+        "workspace": 4,
+        "numericalAndWorker": 7
+      },
+      "projectBase": {
+        "path": "/elezioni",
+        "workspace": 4,
+        "numericalAndWorker": 7
+      },
+      "standardRoot": {
+        "installedEditorAndWorkspace": 12
+      }
+    },
+    "researchFreeze": {
+      "retainedEvidenceFiles": 61,
+      "originalInventoryEntries": 1433,
+      "unchanged": true
+    },
+    "svelteMcp": "No issues; generic asynchronous table/chart-effect suggestions manually reviewed",
+    "finalStaticBuild": "standard root; REFORM_FAST_CANDIDATE unset"
+  },
+  "browserExamples": {
+    "root": {
+      "base": "",
+      "catalogId": "fast-share-catalog-v1-994fc847f4ee5789d037b7d93a07979273a4d2397ed610ac5e9d5676ba7090fb",
+      "implementation": "implementation-v1-912df29032e0172525b54d17d10342ce1a6d88e3afb7294988dd5b2386878bfc",
+      "scenario": {
+        "fittedStateId": "fast-share-fit-v1-b78481806b5cb8552d8cd2465779b2426e8eb871173431cc49d400c0958cc695",
+        "geographyVersion": "r26-geography-2022-bolzano-2026-census-2021-v1-6b2bd725432d",
+        "preferenceModelVersion": "r26-preferences-fit-v1-cf0024e3b8e3",
+        "profileStateId": "fast-share-profiles-v1-5851f30d86e62d0adcc95dcfc894d63b2c0df7fc5e7fd288b9cc9e23b1c65929",
+        "seatTableVersion": "r26-seats-census-2021-i08-v1-9672c20529b2",
+        "sourceBundleId": "fast-share-source-v1-95d505ed1f7ea79c99cd0bf91a86dbc6a2d54c1f24fd9b37bec40a57e3c72511"
+      },
+      "result": {
+        "startedAt": "2026-10-29T22:49:02.798Z",
+        "elapsedMs": 8525.099999964237,
+        "simulations": 1,
+        "dataVersion": "fast-share-source-v1-95d505ed1f7ea79c99cd0bf91a86dbc6a2d54c1f24fd9b37bec40a57e3c72511",
+        "scrutinyAlgorithmId": "politiche-reform-2026-v1",
+        "seed": "fv07-before-load",
+        "execution": {
+          "requestedWorkers": 1,
+          "computeWorkers": 1,
+          "maximumWorkers": 10,
+          "estimatedWorkerMemoryMiB": 1559.3473472595215,
+          "estimateVersion": "fast-share-handoff-memory-v1",
+          "generationMs": 2447.100000023842,
+          "scrutinyMs": 198.39999997615814,
+          "presentationMs": 33.10000002384186,
+          "storageMs": 4250.200000107288
+        }
+      },
+      "originalHistoryFetched": false,
+      "pageErrors": []
+    },
+    "projectBase": {
+      "base": "/elezioni",
+      "catalogId": "fast-share-catalog-v1-994fc847f4ee5789d037b7d93a07979273a4d2397ed610ac5e9d5676ba7090fb",
+      "implementation": "implementation-v1-912df29032e0172525b54d17d10342ce1a6d88e3afb7294988dd5b2386878bfc",
+      "scenario": {
+        "fittedStateId": "fast-share-fit-v1-b78481806b5cb8552d8cd2465779b2426e8eb871173431cc49d400c0958cc695",
+        "geographyVersion": "r26-geography-2022-bolzano-2026-census-2021-v1-6b2bd725432d",
+        "preferenceModelVersion": "r26-preferences-fit-v1-cf0024e3b8e3",
+        "profileStateId": "fast-share-profiles-v1-5851f30d86e62d0adcc95dcfc894d63b2c0df7fc5e7fd288b9cc9e23b1c65929",
+        "seatTableVersion": "r26-seats-census-2021-i08-v1-9672c20529b2",
+        "sourceBundleId": "fast-share-source-v1-95d505ed1f7ea79c99cd0bf91a86dbc6a2d54c1f24fd9b37bec40a57e3c72511"
+      },
+      "result": {
+        "startedAt": "2026-10-29T22:49:41.748Z",
+        "elapsedMs": 8492.199999988079,
+        "simulations": 1,
+        "dataVersion": "fast-share-source-v1-95d505ed1f7ea79c99cd0bf91a86dbc6a2d54c1f24fd9b37bec40a57e3c72511",
+        "scrutinyAlgorithmId": "politiche-reform-2026-v1",
+        "seed": "fv07-before-load",
+        "execution": {
+          "requestedWorkers": 1,
+          "computeWorkers": 1,
+          "maximumWorkers": 10,
+          "estimatedWorkerMemoryMiB": 1559.3473472595215,
+          "estimateVersion": "fast-share-handoff-memory-v1",
+          "generationMs": 2423.5,
+          "scrutinyMs": 197.10000002384186,
+          "presentationMs": 30.299999952316284,
+          "storageMs": 4233.700000166893
+        }
+      },
+      "originalHistoryFetched": false,
+      "pageErrors": []
+    }
+  },
+  "scope": {
+    "election": "2026 reform only",
+    "backgroundPrefetch": false,
+    "persistentModelCacheManager": false,
+    "defaultActivation": false,
+    "deployment": false,
+    "researchCleanup": false
+  },
+  "remainingGates": [
+    "FV-08 predictive, full-list/geographic/paired/seat and complete resource-envelope acceptance",
+    "FV-08 accept original-generator routing for v1-v3 archives before default activation",
+    "FV-09 audited research archival and regenerable-output cleanup",
+    "Final publication gate"
+  ],
+  "qualifications": [
+    "One-run UI timings include stored result I/O; exclude checkpoint startup and fitting. They are not throughput or measured-heap acceptance.",
+    "Mobile viewport and keyboard checks do not accept handheld device memory or latency.",
+    "Capacity retains FV-06 conservative reservation policy and may be zero on unsupported devices."
+  ]
+}

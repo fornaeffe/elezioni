@@ -23,7 +23,13 @@ const server = createServer(async (request, response) => {
     const rel = relative(root, path);
     if (rel.startsWith('..') || isAbsolute(rel))
       throw new Error('Outside build');
-    if ((await stat(path)).isDirectory()) path = resolve(path, 'index.html');
+    try {
+      if ((await stat(path)).isDirectory()) path = resolve(path, 'index.html');
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT' || extname(path)) throw error;
+      // adapter-static writes /politics.html; Pages resolves extensionless URLs.
+      path += '.html';
+    }
     const body = await readFile(path);
     response.writeHead(200, {
       'Content-Type': types[extname(path)] ?? 'application/octet-stream',

@@ -109,7 +109,7 @@ export async function isReformFile(file: File): Promise<boolean> {
   const stop = Symbol('header'); let reform = false;
   try {
     await reader.object(async key => {
-      if (key === 'kind') { reform = await reader.value() === 'politics-reform-scenario'; throw stop; }
+      if (key === 'kind') { reform = ['politics-reform-scenario','politics-reform-session'].includes(await reader.value() as string); throw stop; }
       if (key === 'scenario') {
         const scenario = await reader.value() as Record<string, unknown>;
         reform = scenario?.kind === 'politics-reform-scenario'; throw stop;

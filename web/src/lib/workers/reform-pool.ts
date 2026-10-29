@@ -1,5 +1,7 @@
 import type { ReformComputeReply, ReformComputeRequest } from './reform-compute.worker';
 import type { ReformRunChunk, ReformRunReady } from './reform-compute';
+import type { GenerationPacket } from '../politics/reform-2026/vote-share/fit-types';
+import { ownedBuffers } from '../politics/reform-2026/vote-share/fit-resources';
 
 type Request = ReformComputeRequest extends infer T ? T extends { requestId: number } ? Omit<T, 'requestId'> : never : never;
 export interface ReformComputeConnection {
@@ -24,17 +26,18 @@ export class ReformComputeClient implements ReformComputeConnection {
     worker.onmessageerror = () => this.fail(new Error('Unable to decode compute worker message'));
   }
   private fail(error: Error) { this.failure = error; this.pending?.reject(error); this.pending = undefined; }
-  private call<T>(request: Request): Promise<T> {
+  private call<T>(request: Request,transfer:Transferable[]=[]): Promise<T> {
     if (this.failure) return Promise.reject(this.failure);
     if (this.pending) return Promise.reject(new Error('Concurrent compute worker requests'));
     return new Promise<T>((resolve, reject) => {
       const requestId = ++this.sequence;
       this.pending = { id: requestId, resolve: value => resolve(value as T), reject };
-      try { this.worker.postMessage({ ...request, requestId }); }
+      try { this.worker.postMessage({ ...request, requestId },transfer); }
       catch (error) { this.fail(error instanceof Error ? error : new Error(String(error))); }
     });
   }
   initialize(scenario: unknown, basePath: string) { return this.call<void>({ action: 'init', scenario, basePath }); }
+  initializeFast(packet:GenerationPacket){return this.call<void>({action:'init-fast',packet},ownedBuffers(packet));}
   compute(simulation: number) { return this.call<ReformRunReady>({ action: 'compute', simulation }); }
   pull() { return this.call<ReformRunChunk | null>({ action: 'pull' }); }
   close() { this.fail(new Error('Compute worker closed')); this.worker.terminate(); }

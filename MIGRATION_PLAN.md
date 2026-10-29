@@ -311,11 +311,14 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   - [x] **FV-06:** Add cancellable browser refitting, semantic invalidation,
     compatible-state installation and bounded worker memory/ownership.
     Use the [browser fitting guide](docs/vote-generation-fast-fitting.md).
-  - [ ] **FV-07:** Deliver component/list editing, reference controls and advanced
+  - [x] **FV-07:** Deliver component/list editing, reference controls and advanced
     poll/membership/date editing with demand loading and ready/error states.
     Defer background prefetch/ready notifications and persistent cache management.
+    Use the [candidate workspace guide](docs/vote-generation-fast-workspace.md).
   - [ ] **FV-08:** Pass full-list/geographic/paired/seat, browser/export and resource
     acceptance, then switch reform defaults. Keep public deployment at the final gate.
+    Accept routing of existing v1-v3 reform archives to their original generator
+    when the v4 workspace becomes the installed default; do not convert their model.
     Resolve maximum-envelope refit latency or approve measured support limits;
     reduced FV-02 acceptance does not accept the complete production envelope.
   - [ ] **FV-09:** Execute the [research archive/cleanup plan](docs/vote-generation-research-archive-plan.md)

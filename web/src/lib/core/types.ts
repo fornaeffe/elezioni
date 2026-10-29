@@ -96,7 +96,8 @@ export interface SimulationRequest {
   resultOwner?: string;
   basePath?: string;
   kind: ElectionKind;
-  scenario: Scenario | import('../politics/reform-2026/generation-types').ReformGenerationScenario;
+  scenario: Scenario | import('../politics/reform-2026/generation-types').ReformGenerationScenario | import('../politics/reform-2026/vote-share/release').ReleasedScenario;
+  fast?: {packets: import('../politics/reform-2026/vote-share/fit-types').GenerationPacket[]; file:import('../politics/reform-2026/vote-share/checkpoint').PortableFitFile};
   electionDate: string;
   simulations: number;
   seed: string;

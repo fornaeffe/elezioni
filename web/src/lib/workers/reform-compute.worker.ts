@@ -2,15 +2,17 @@ import { loadVerifiedJson } from '../core/runtime-data';
 import catalog from '../politics/reform-2026/data/generation-catalog.generated.json';
 import { prepareReformGeneration, type PreparedReformGeneration } from '../politics/reform-2026/generation';
 import type { ReformGenerationSnapshot } from '../politics/reform-2026/generation-types';
-import { computeReformRun, encodeReformRun, type ReformRunChunk } from './reform-compute';
+import { computeReformRun, encodeReformRun, prepareFastCompute, type PreparedFastCompute, type ReformRunChunk } from './reform-compute';
+import type { GenerationPacket } from '../politics/reform-2026/vote-share/fit-types';
 
 export type ReformComputeRequest = { requestId: number } & (
   { action: 'init'; scenario: unknown; basePath: string } |
+  { action:'init-fast';packet:GenerationPacket } |
   { action: 'compute'; simulation: number } | { action: 'pull' }
 );
 export interface ReformComputeReply { requestId: number; ok: boolean; data?: unknown; error?: string }
 
-let prepared: PreparedReformGeneration | undefined;
+let prepared: PreparedReformGeneration | PreparedFastCompute | undefined;
 let chunks: Generator<ReformRunChunk> | undefined;
 let busy = false;
 self.onmessage = async (event: MessageEvent<ReformComputeRequest>) => {
@@ -19,7 +21,9 @@ self.onmessage = async (event: MessageEvent<ReformComputeRequest>) => {
     if (busy) throw new Error('Compute worker already handling a request');
     busy = true;
     let data: unknown;
-    if (request.action === 'init') {
+    if(request.action==='init-fast'){
+      if(prepared)throw new Error('Compute worker already initialized');prepared=await prepareFastCompute(request.packet);data=null;
+    }else if (request.action === 'init') {
       if (prepared) throw new Error('Compute worker already initialized');
       const snapshot = await loadVerifiedJson(request.basePath, catalog) as ReformGenerationSnapshot;
       prepared = prepareReformGeneration(request.scenario, snapshot);

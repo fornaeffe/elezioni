@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "test:reform:shares:ui": "playwright test --config playwright.fast-share-ui.config.ts",
     "dev": "vite dev",
     "build": "vite build",
     "preview": "vite preview",
