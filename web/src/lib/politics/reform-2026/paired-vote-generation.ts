@@ -11,7 +11,7 @@ const scopeKey = (s: ReferenceScope) => JSON.stringify([s.kind, s.kind === 'nati
 const matches = (m: HistoricalMunicipality, s: ReferenceScope) => s.kind === 'national' ||
   (s.kind === 'municipality' ? m.code : s.kind === 'province' ? m.provinceId : m.regionId) === s.code;
 const rank = (s: ReferenceScope) => ['national', 'region', 'province', 'municipality'].indexOf(s.kind);
-export const renewedChamberIds = (s: ReformGenerationScenario): Chamber[] => s.renewal === 'joint' ? ['camera', 'senato'] : [s.renewal];
+export const renewedChamberIds = (s: Pick<ReformGenerationScenario, 'renewal'>): Chamber[] => s.renewal === 'joint' ? ['camera', 'senato'] : [s.renewal];
 
 /** Unit variance in both chambers for every valid PSD profile. The shared and
  * residual pieces partition a marginal budget, rather than adding Senate noise.

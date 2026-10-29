@@ -1,5 +1,5 @@
 import type { Chamber } from './input';
-import type { ReformGenerationScenario, ReformGenerationSnapshot } from './generation-types';
+import type { ReformCandidateSettings, ReformGenerationSnapshot } from './generation-types';
 import type { ProjectedMunicipality } from './paired-vote-generation';
 import { sum } from './generation-math';
 
@@ -9,7 +9,7 @@ export const bonusKey = (...parts: (string | number)[]) => JSON.stringify(parts)
  * sampling. Preserve reference turnout, census splits and filing zeros. This
  * consumes the existing estimates verbatim; it supplies no territorial prior.
  * Supplied election votes are deliberately not reference-date information. */
-export function bonusReferenceSupport(s: ReformGenerationScenario, snapshot: ReformGenerationSnapshot,
+export function bonusReferenceSupport(s: ReformCandidateSettings, snapshot: Pick<ReformGenerationSnapshot, 'seats' | 'memberships'>,
   units: readonly ProjectedMunicipality[]): Map<string, number> {
   const totals = new Map<string, number>();
   const colleges = new Map(snapshot.seats.geography.colleges.map(c => [c.id, c]));

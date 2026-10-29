@@ -148,7 +148,7 @@ export const inputShape: Schema<ReformScrutinyInput> = object({
     object({ kind: literal('single'), chamber: chamberInput })),
   bonusLinks: array(object({ camera: subject, senato: subject, cameraDeclares: boolean, senatoDeclares: boolean })),
   chamberModel: union(object({ kind: literal('supplied'), reference: text }),
-    object({ kind: literal('generated'), modelId: literal('paired-chamber-votes-v1'), parameterVersion: text,
+    object({ kind: literal('generated'), modelId: literal('paired-chamber-votes-v1', 'fast-share-paired-v1'), parameterVersion: text,
       covarianceProfileVersion: text, sourceVersions: array(text), seed: text, assumptions: array(text), mode: literal('mean'),
       references: array(object({ scope: union(object({ kind: literal('national') }),
         object({ kind: literal('region', 'province', 'municipality'), code: text })),

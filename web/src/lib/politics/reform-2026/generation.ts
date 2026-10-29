@@ -1,5 +1,5 @@
 import { REFORM_ALGORITHM_ID, type Chamber, type ChamberInput, type OrdinaryVotes, type Provenance, type ReformScrutinyInput, type SpecialVotes } from './input';
-import type { GenerationTrace, ReformGenerationScenario, ReformGenerationSnapshot } from './generation-types';
+import type { GenerationTrace, ReformGenerationScenario, ReformGenerationSnapshot, ReformAssemblyContext, ReformLegalSettings } from './generation-types';
 import { REFORM_MODEL_IDS } from './generation-types';
 import { GENERATION_STREAM_VERSION, apportion, generationRng, sum } from './generation-math';
 import { generatePairedMunicipalVotes, preparePairedVoteReferences, renewedChamberIds, type GeneratedMunicipalVotes } from './paired-vote-generation';
@@ -9,7 +9,7 @@ import { requireReformScenario, validateReformSnapshot } from './generation-scen
 import { validateReformScrutinyInput } from './validation';
 import { prepareReferenceBonusPlan, type PreparedBonusPlan } from './reference-bonus-plan';
 
-interface CollegeCounts { electors: number; votes: Map<string, number> }
+export interface CollegeCounts { electors: number; votes: Map<string, number> }
 /** Controlled integer reconstruction of historical municipal support to the
  * reform geography. Census weights are an estimate of geographic voting shares,
  * not observed submunicipal turnout. Preserve municipal votes and elector totals. */
@@ -78,11 +78,24 @@ export function generateReformSimulation(prepared: PreparedReformGeneration, sim
   const { scenario: s, snapshot } = prepared, trace = structuredClone(prepared.references.trace);
   const votes = generatePairedMunicipalVotes(s, snapshot, prepared.references.units, simulationId);
   const counts = aggregateReformCollegeVotes(s, snapshot, votes, simulationId);
+  return assembleReformSimulation(prepared, simulationId, counts, trace);
+}
+export interface AssemblySource {
+  voteParameterVersion: string; chamberModelId: 'fast-share-paired-v1'; chamberParameterVersion: string;
+  sourceVersions: string[]; assumptions: string[];
+}
+/** Shared final-attributed-count boundary. Statistical engines supply physical
+ * college totals and prepared bonus support; candidate/preference/legal rules
+ * are identical and never receive component-model or fit orchestration details. */
+export function assembleReformSimulation(prepared: { scenario: ReformLegalSettings; snapshot: ReformAssemblyContext; bonusPlan?: PreparedBonusPlan }, simulationId: number,
+  counts: Map<string, CollegeCounts>, trace: GenerationTrace, source?: AssemblySource): { input: ReformScrutinyInput; trace: GenerationTrace } {
+  if (!Number.isSafeInteger(simulationId) || simulationId < 1) throw new RangeError('Expected a positive simulation ID');
+  const { scenario: s, snapshot } = prepared;
   const candidatures = generateReformCandidatures(s, snapshot, simulationId, prepared.bonusPlan);
   const provenance = (modelId: string, parameterVersion: string, profileId: string): Provenance => ({ kind: 'generated', modelId, parameterVersion,
-    profileId, sourceVersions: [...snapshot.sourceVersions, snapshot.version, snapshot.models.version, ...(s.pollReferences ? [s.pollReferences.archiveVersion, s.pollReferences.version] : [])], seed: s.seed,
-    assumptions: [...snapshot.assumptions, ...snapshot.models.assumptions, ...(s.conversion?.assumptions ?? []), ...(s.pollReferences?.assumptions ?? [])] });
-  const voteProvenance = provenance(REFORM_MODEL_IDS.votes, snapshot.models.chambers.parameterVersion, s.chamberProfileId);
+    profileId, sourceVersions: [...snapshot.sourceVersions, snapshot.version, snapshot.models.version, ...(s.pollReferences ? [s.pollReferences.archiveVersion, s.pollReferences.version] : []), ...(source?.sourceVersions ?? [])], seed: s.seed,
+    assumptions: [...snapshot.assumptions, ...snapshot.models.assumptions, ...(s.conversion?.assumptions ?? []), ...(s.pollReferences?.assumptions ?? []), ...(source?.assumptions ?? [])] });
+  const voteProvenance = provenance(REFORM_MODEL_IDS.votes, source?.voteParameterVersion ?? snapshot.models.chambers.parameterVersion, s.chamberProfileId);
   const preferenceProvenance = provenance(REFORM_MODEL_IDS.preferences, snapshot.models.preferences.parameterVersion, s.preferenceProfileId);
   const chambers = renewedChamberIds(s).map((ch): ChamberInput => {
     const geo = snapshot.seats.chambers.find(c => c.chamber === ch)!, candidates = candidatures.chambers.get(ch)!;
@@ -135,10 +148,10 @@ export function generateReformSimulation(prepared: PreparedReformGeneration, sim
     legalVersion: 'legge-180-2026', geographyVersion: snapshot.seats.geography.version,
     randomness: { seed: s.seed, streamVersion: `${GENERATION_STREAM_VERSION}/legal-v1` }, candidates: candidatures.candidates,
     renewal: s.renewal === 'joint' ? { kind: 'joint', camera: camera!, senato: senato! } : { kind: 'single', chamber: chambers[0] },
-    bonusLinks: s.renewal === 'joint' ? s.bonusLinks : [], chamberModel: { kind: 'generated', modelId: REFORM_MODEL_IDS.chambers,
-      parameterVersion: snapshot.models.chambers.parameterVersion, covarianceProfileVersion: s.chamberProfileId,
-      sourceVersions: [...snapshot.sourceVersions, snapshot.version, snapshot.models.version, ...(s.pollReferences ? [s.pollReferences.archiveVersion, s.pollReferences.version] : [])], seed: s.seed, mode: 'mean',
-      assumptions: [...snapshot.models.assumptions, ...snapshot.assumptions, ...(s.pollReferences?.assumptions ?? []),
+    bonusLinks: s.renewal === 'joint' ? s.bonusLinks : [], chamberModel: { kind: 'generated', modelId: source?.chamberModelId ?? REFORM_MODEL_IDS.chambers,
+      parameterVersion: source?.chamberParameterVersion ?? snapshot.models.chambers.parameterVersion, covarianceProfileVersion: s.chamberProfileId,
+      sourceVersions: [...snapshot.sourceVersions, snapshot.version, snapshot.models.version, ...(s.pollReferences ? [s.pollReferences.archiveVersion, s.pollReferences.version] : []), ...(source?.sourceVersions ?? [])], seed: s.seed, mode: 'mean',
+      assumptions: [...snapshot.models.assumptions, ...snapshot.assumptions, ...(s.pollReferences?.assumptions ?? []), ...(source?.assumptions ?? []),
         ...(prepared.bonusPlan ? [`Bonus candidatures: ${prepared.bonusPlan.policy}, central support at ${prepared.bonusPlan.referenceDate}; constrained candidate allocations are not legal coalition-member entitlements.`] : [])], references: trace.references } };
   const checked = validateReformScrutinyInput(input);
   if (!checked.valid) throw new RangeError(`Generated reform input is invalid: ${checked.issues.map(i => `${i.path}: ${i.message}`).join('; ')}`);

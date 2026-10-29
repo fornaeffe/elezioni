@@ -13,6 +13,7 @@ checklist is in [MIGRATION_PLAN.md](../MIGRATION_PLAN.md); record evidence in
 | Task | Read |
 | --- | --- |
 | Implement the numerical model | [Maintained equations](vote-generation-fast-model.md), then FV-02/04 below |
+| Generate physical ballots or adapt Senate | [Headless generation guide](vote-generation-fast-generation.md); FV-04 |
 | Prepare or load production assets | [Frozen data/scenario contracts](vote-generation-fast-contracts.md); FV-03/05/06 |
 | Edit scenarios or integrate workers/results | [Reference/chamber rules](vote-generation-fast-references.md), contract reuse matrix and FV-06/07; existing [application guide](politics-reform-2026-application.md) |
 | Validate and switch defaults | [Frozen validation protocol](vote-generation-fast-validation.md), then FV-08 |
@@ -256,7 +257,8 @@ byte-identical draws. Validate the means/tails rather than only convergence.
 
 Implemented source boundary: [preparation and compact-source guide](vote-generation-fast-data.md).
 This supplies editable original observations, not an accepted production default
-basis or Senate adapter; those remain FV-04/05/08 gates.
+basis. The Senate adapter is implemented in FV-04; default/predictive acceptance
+remains in FV-05/08.
 
 Promote required research acquisition/normalization/membership/poll-view helpers
 into active preparation modules with focused tests. Reuse pinned acquisition,
@@ -278,6 +280,10 @@ rebuilds and full domestic coverage. Measure transfer/decoded sizes and peak
 decode memory before locking the chunk format. No manual R/WSL/Python dependency.
 
 ### FV-04: Generate votes and integrate the paired reform adapter
+
+Implemented boundary: [generation and Senate adapter guide](vote-generation-fast-generation.md).
+Default selection, application worker/editor integration and predictive acceptance
+remain FV-05–08; recorded evidence is in migration history.
 
 Port Beta transitions, scale mixtures, profile/regional/local noise, structural
 support projection and multinomial sampling. Stream one simulation and bounded

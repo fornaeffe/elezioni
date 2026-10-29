@@ -1,5 +1,5 @@
 import type { Candidate, Chamber, OrdinarySlate, BonusSlate, SpecialCandidature } from './input';
-import type { ReformGenerationScenario, ReformGenerationSnapshot } from './generation-types';
+import type { ReformCandidateSettings, ReformAssemblyContext } from './generation-types';
 import { generateLegacyReformCandidatures, type GeneratedCandidatures } from './legacy-candidate-generation';
 import { ordinaryPlans, suppliedOrdinaryUses, type PreparedBonusPlan } from './reference-bonus-plan';
 import { bonusPlacementOptions, type BonusPerson } from './bonus-placement';
@@ -8,7 +8,7 @@ import { generationRng } from './generation-math';
 
 export type { GeneratedCandidatures } from './legacy-candidate-generation';
 
-export function generateReformCandidatures(s: ReformGenerationScenario, snapshot: ReformGenerationSnapshot,
+export function generateReformCandidatures(s: ReformCandidateSettings, snapshot: ReformAssemblyContext,
   simulationId: number, prepared?: PreparedBonusPlan): GeneratedCandidatures {
   const voteLists = s.lists;
   s = { ...s, coverage: s.coverage.map(c => ({ ...c, listIds: c.listIds.filter(id => !voteLists[c.chamber].some(l => l.id === id && l.kind === 'other')) })) };

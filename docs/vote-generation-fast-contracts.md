@@ -2,7 +2,8 @@
 
 FV-01 contract revision **1**, frozen on **28 October 2026** for the 2026 reform
 workflow. The scenario v4 parser/generator is not installed. FV-02 implements
-numerical modules and FV-03 the [compact source boundary](vote-generation-fast-data.md);
+numerical modules, FV-03 the [compact source boundary](vote-generation-fast-data.md),
+and FV-04 the [headless generation boundary](vote-generation-fast-generation.md);
 FV-05 prepares production states/assets; FV-06/07 implement the
 worker/editor. The [model](vote-generation-fast-model.md),
 [reference rules](vote-generation-fast-references.md) and
@@ -22,7 +23,7 @@ no compatibility adapter or legacy/new vote-engine switch is required.
 | Ballot representation | `final-attributed-list-totals-v1`; not the statistical engine identity |
 | Reference interventions | `fixed-turnout-reference-v1`; approved turnout clarification below |
 | Fitted-state/compact-source/profile/catalog schema | Each starts at 1 with its own `kind`; reject mismatches |
-| Chamber adaptation/coupling | Separate version, source/assumption labels and sensitivity profile; pending FV-04 validation |
+| Chamber adaptation/coupling | `paired-18plus-logratio-adapter-v1` / `fast-share-paired-v1`; [FV-04 assumptions and mechanics](vote-generation-fast-generation.md#senate-adapter-assumptions), production predictive acceptance FV-08 |
 | Preferences/candidatures/seats/legal RNG | Retain their own existing IDs/settings; no statistical meaning inferred from a common version string |
 
 Do not change the installed scenario constant, registry or catalog in FV-01.

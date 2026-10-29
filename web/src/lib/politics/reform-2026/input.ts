@@ -199,7 +199,7 @@ export type ChamberModel =
   | { readonly kind: 'supplied'; readonly reference: string }
   | {
       readonly kind: 'generated';
-      readonly modelId: 'paired-chamber-votes-v1';
+      readonly modelId: 'paired-chamber-votes-v1' | 'fast-share-paired-v1';
       readonly parameterVersion: string;
       readonly covarianceProfileVersion: string;
       readonly sourceVersions: readonly string[];

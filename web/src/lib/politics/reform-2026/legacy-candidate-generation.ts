@@ -1,5 +1,5 @@
 import type { BonusSlate, Candidate, Chamber, ChamberInput, OrdinarySlate, SpecialCandidature } from './input';
-import type { ReformGenerationScenario, ReformGenerationSnapshot } from './generation-types';
+import type { ReformCandidateSettings, ReformAssemblyContext } from './generation-types';
 import { generationRng } from './generation-math';
 
 // Original candidature policy, retained for exact replay of scenarios without
@@ -17,7 +17,7 @@ type PlannedSlate = { collegeId: string; territoryId: string; listId: string; pr
  * prefix. Special candidates are generated separately, excluding incompatible
  * bonus uses. Filed affiliations describe persons, never proportional bonus
  * entitlements to coalition members. Final legal validation checks all uses. */
-export function generateLegacyReformCandidatures(s: ReformGenerationScenario, snapshot: ReformGenerationSnapshot, simulationId: number): GeneratedCandidatures {
+export function generateLegacyReformCandidatures(s: ReformCandidateSettings, snapshot: ReformAssemblyContext, simulationId: number): GeneratedCandidatures {
   const voteLists = s.lists;
   s = { ...s, coverage: s.coverage.map(c => ({ ...c, listIds: c.listIds.filter(id => !voteLists[c.chamber].some(l => l.id === id && l.kind === 'other')) })) };
   const people = new Map<string, Candidate>(), ordinaryUses = new Map<string, number>();

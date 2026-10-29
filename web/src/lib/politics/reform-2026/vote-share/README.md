@@ -1,9 +1,12 @@
-# Fast-share numerical engine (FV-02)
+# Fast-share engine (FV-02–04)
 
-This folder implements the selected bounded reference fit and empirical profile
-estimator. It is **not connected to production dispatch, defaults or the editor**.
-Original compact data is implemented in [FV-03](../../../../../../docs/vote-generation-fast-data.md), forecast/intervention/Senate integration is FV-04,
-and the application fitting worker FV-06.
+This folder implements the selected bounded reference fit, empirical profile
+estimator and headless forecast adapter. It is **not connected to production
+dispatch, defaults or the editor**.
+Original compact data is implemented in [FV-03](../../../../../../docs/vote-generation-fast-data.md).
+For forecast/intervention/physical-cell/Senate work read only the
+[FV-04 generation guide](../../../../../../docs/vote-generation-fast-generation.md).
+The application fitting worker remains FV-06.
 
 | Task | Entry point |
 | --- | --- |

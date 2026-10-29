@@ -1,5 +1,5 @@
 import type { Candidate, Chamber, Subject } from './input';
-import type { ReformGenerationScenario, ReformGenerationSnapshot } from './generation-types';
+import type { ReformCandidateSettings, ReformAssemblyContext, ReformGenerationSnapshot } from './generation-types';
 import type { ProjectedMunicipality } from './paired-vote-generation';
 import { bonusKey, bonusReferenceSupport } from './bonus-reference-support';
 import { bonusPlacementOptions, type BonusPerson, type OrdinaryPlan } from './bonus-placement';
@@ -17,7 +17,7 @@ export interface PreparedBonusPlan {
 
 /** Supplied ordinary positions are immutable. Their gender determines the
  * orientation of the whole alternating seven-slot slate. */
-export function ordinaryPlans(s: ReformGenerationScenario, snapshot: ReformGenerationSnapshot, ch: Chamber): OrdinaryPlan[] {
+export function ordinaryPlans(s: ReformCandidateSettings, snapshot: ReformAssemblyContext, ch: Chamber): OrdinaryPlan[] {
   const geo = snapshot.seats.chambers.find(c => c.chamber === ch)!;
   const plans = geo.colleges.filter(c => c.kind !== 'special-uninominal').map(c =>
     s.coverage.find(r => r.chamber === ch && r.collegeId === c.id)!.listIds.filter(id => !s.lists[ch].some(l => l.id === id && l.kind === 'other')).slice().sort().map(listId => ({
@@ -61,11 +61,14 @@ const plus = (a: Cost, b: Cost): Cost => [a[0] + b[0], a[1] + b[1], a[2] + b[2]]
  * departures from Hamilton, then squared departures from fractional quotas.
  * No election draws, supplied election votes or territorial-support correction
  * enter this calculation. */
-export function prepareReferenceBonusPlan(s: ReformGenerationScenario, snapshot: ReformGenerationSnapshot,
-  units: readonly ProjectedMunicipality[]): PreparedBonusPlan {
-  const output: PreparedBonusPlan = { policy: 'reference-proportional-v1', referenceDate: s.projectionDate, slates: [] };
+export function prepareReferenceBonusPlan(s: ReformCandidateSettings & { projectionDate?: string }, snapshot: ReformAssemblyContext & Partial<Pick<ReformGenerationSnapshot, 'memberships'>>,
+  units: readonly ProjectedMunicipality[], compiled?: { referenceDate: string; support: ReadonlyMap<string, number> }): PreparedBonusPlan {
+  const referenceDate = compiled?.referenceDate ?? s.projectionDate;
+  if (!referenceDate) throw new Error('Reference bonus plan requires an explicit reference date');
+  const output: PreparedBonusPlan = { policy: 'reference-proportional-v1', referenceDate, slates: [] };
   if (s.renewal !== 'joint') return output;
-  const support = bonusReferenceSupport(s, snapshot, units);
+  if (!compiled && !snapshot.memberships) throw new Error('Reference bonus support was not compiled');
+  const support = compiled?.support ?? bonusReferenceSupport(s, { seats: snapshot.seats, memberships: snapshot.memberships! }, units);
   for (const ch of ['camera', 'senato'] as const) {
     const plans = ordinaryPlans(s, snapshot, ch), uses = suppliedOrdinaryUses(plans);
     const declarations = new Map<string, BonusPerson>();

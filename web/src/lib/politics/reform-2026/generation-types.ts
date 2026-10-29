@@ -127,6 +127,13 @@ export interface ReformPresentation {
   lists: { id: string; color: string }[];
   coalitions: { id: string; name: string; color: string; chambers?: Chamber[] }[];
 }
+/** Candidate/legal assembly contracts contain no historical vote generator. */
+export type ReformCandidateSettings = Pick<ReformGenerationScenario,
+  'seed' | 'electionDate' | 'renewal' | 'lists' | 'coverage' | 'candidateGeneration' | 'candidateTemplates'>;
+export type ReformAssemblyContext = Pick<ReformGenerationSnapshot, 'version' | 'sourceVersions' | 'assumptions' | 'seats' | 'models'>;
+export type ReformLegalSettings = ReformCandidateSettings & Pick<ReformGenerationScenario,
+  'kind' | 'algorithmId' | 'suppliedVotes' | 'suppliedPreferences' | 'bonusLinks' | 'preferenceProfileId' | 'chamberProfileId'> &
+  Partial<Pick<ReformGenerationScenario, 'conversion' | 'pollReferences'>>;
 export interface GenerationTrace {
   bonusSelection?: {
     policy: 'reference-proportional-v1'; referenceDate: string;

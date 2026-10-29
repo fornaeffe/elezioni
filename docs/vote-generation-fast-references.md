@@ -2,7 +2,8 @@
 
 FV-01 revision **1**, 28 October 2026. These are interventions applied to the
 accepted reference state, not additional historical observations or poll rows.
-Implementation/independent numerical acceptance belongs to FV-04. The numerical
+Implementation and independent numerical evidence are in the
+[FV-04 generation guide](vote-generation-fast-generation.md). The numerical
 historical model remains the [selected model](vote-generation-fast-model.md).
 
 ## Approved turnout clarification

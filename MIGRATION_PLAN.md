@@ -302,8 +302,9 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   - [x] **FV-03:** Produce compact source-backed historical/poll records supporting
     editable memberships/dates, with complete reform geography and Senate inputs.
     Use the [source preparation guide](docs/vote-generation-fast-data.md).
-  - [ ] **FV-04:** Implement fast generation, reference interventions, physical-cell
+  - [x] **FV-04:** Implement fast generation, reference interventions, physical-cell
     filing/projection and paired Camera/Senato integration through existing scrutiny.
+    Use the [generation and Senate adapter guide](docs/vote-generation-fast-generation.md).
   - [ ] **FV-05:** Prefit the explicit default scenario and package matching
     versioned data/defaults/fit/catalog through clean-clone local/CI commands.
   - [ ] **FV-06:** Add cancellable browser refitting, semantic invalidation,

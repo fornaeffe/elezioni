@@ -58,7 +58,9 @@
     "data:reform:shares:download": "tsx --tsconfig tsconfig.json scripts/data-preparation/fast-share-cli.ts download",
     "data:reform:shares:prepare": "tsx --tsconfig tsconfig.json scripts/data-preparation/fast-share-cli.ts prepare",
     "data:reform:shares:check": "tsx --tsconfig tsconfig.json scripts/data-preparation/fast-share-cli.ts check",
-    "data:reform:shares:prefit": "tsx --tsconfig tsconfig.json scripts/data-preparation/fast-share-cli.ts prefit"
+    "data:reform:shares:prefit": "tsx --tsconfig tsconfig.json scripts/data-preparation/fast-share-cli.ts prefit",
+    "data:reform:shares:generation:check": "tsx --tsconfig tsconfig.json scripts/data-preparation/fv04-generation-cli.ts",
+    "data:reform:shares:generation:country": "tsx --tsconfig tsconfig.json scripts/data-preparation/fv04-country-cli.ts"
   },
   "devDependencies": {
     "@playwright/test": "1.60.0",
