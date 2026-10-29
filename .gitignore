@@ -43,6 +43,9 @@ vignettes/*.pdf
 # Downloaded data
 /dati/
 /data/sources/*
+!/data/sources/fast-share/
+/data/sources/fast-share/*
+!/data/sources/fast-share/*.json
 !/data/sources/party-drift/
 /data/sources/party-drift/*
 !/data/sources/party-drift/memberships-policy.json

@@ -254,6 +254,10 @@ byte-identical draws. Validate the means/tails rather than only convergence.
 
 ### FV-03: Deliver compact, editable production history
 
+Implemented source boundary: [preparation and compact-source guide](vote-generation-fast-data.md).
+This supplies editable original observations, not an accepted production default
+basis or Senate adapter; those remain FV-04/05/08 gates.
+
 Promote required research acquisition/normalization/membership/poll-view helpers
 into active preparation modules with focused tests. Reuse pinned acquisition,
 geographic reconciliation and historical attribution. Add required Senate and

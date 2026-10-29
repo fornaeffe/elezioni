@@ -2,7 +2,7 @@
 
 This folder implements the selected bounded reference fit and empirical profile
 estimator. It is **not connected to production dispatch, defaults or the editor**.
-Compact production data is FV-03, forecast/intervention/Senate integration FV-04,
+Original compact data is implemented in [FV-03](../../../../../../docs/vote-generation-fast-data.md), forecast/intervention/Senate integration is FV-04,
 and the application fitting worker FV-06.
 
 | Task | Entry point |

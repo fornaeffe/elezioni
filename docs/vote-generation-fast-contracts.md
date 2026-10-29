@@ -1,8 +1,9 @@
 # Fast vote generation: production data and scenario contracts
 
 FV-01 contract revision **1**, frozen on **28 October 2026** for the 2026 reform
-workflow. This is a specification, not an installed parser or generator. FV-02
-implements numerical modules; FV-03/05 implement assets; FV-06/07 implement the
+workflow. The scenario v4 parser/generator is not installed. FV-02 implements
+numerical modules and FV-03 the [compact source boundary](vote-generation-fast-data.md);
+FV-05 prepares production states/assets; FV-06/07 implement the
 worker/editor. The [model](vote-generation-fast-model.md),
 [reference rules](vote-generation-fast-references.md) and
 [validation protocol](vote-generation-fast-validation.md) are separate contracts.

@@ -1,0 +1,675 @@
+{
+  "schemaVersion": 1,
+  "stage": "FV-03",
+  "recordedDate": "2026-10-29",
+  "sourceId": "fast-share-source-v1-e3b5ac701c2217b51c93ebcd7c27e0f3e3a43192dc78cfcf99672aca5e4d6d25",
+  "descriptor": {
+    "path": "source-1250ed8e0374e4ea1c840690fe10573fe6e6e780b27ecb3dcf990e18c910cf99.gz",
+    "compressedBytes": 394306,
+    "decodedBytes": 3785547,
+    "sha256": "1250ed8e0374e4ea1c840690fe10573fe6e6e780b27ecb3dcf990e18c910cf99",
+    "decodedSha256": "6f72bc35c37f5490cf68218b5910f773ac2e840667d2fd3d3731060cab11d72e"
+  },
+  "sourceHashPolicy": "SHA-256 of LF-normalized preparation/portable source files",
+  "sourceHashes": {
+    "web/scripts/data-preparation/fast-share-history.ts": "42e3de348d052ad6934366b925e44770b20deddf1c6c7e295e18204a66057438",
+    "web/scripts/data-preparation/fast-share-memberships.ts": "8223aa13a8f46a135251dbebcec1b965d73230b73cb5f1e7c9c78f0c4d87df15",
+    "web/scripts/data-preparation/fast-share-polls.ts": "e2f069206f503348a0c1baa993d1c43f22784ba3b186e595de5c44e0d4fba6f3",
+    "web/scripts/data-preparation/fast-share-preparation.ts": "acc2544974fe833303cabaa81c6da3240d5aed83b400b3b0af38ba46b6cce91d",
+    "web/scripts/data-preparation/fast-share-cli.ts": "e11eb8ec782986e7d77637ae0228e670b876809fbd389b9c9200391dbf4f9fc3",
+    "web/src/lib/politics/reform-2026/vote-share/source-types.ts": "cb78cbb8dd557bd6a5fc47425cfda50e68354f6f838c5c4e82262847703affa4",
+    "web/src/lib/politics/reform-2026/vote-share/source-codec.ts": "e4a4229a24dd991e6ec672eb7eef88ca9be3b41b707d9cfe9c6ab72783c54ae1",
+    "web/src/lib/politics/reform-2026/vote-share/source-compiler.ts": "7795bbe6b3c6c9caaeada7231d2a06c21d3f9d3ae0fe9d6053dc2e8c9e41a8e6"
+  },
+  "geography": {
+    "version": "r26-geography-2022-bolzano-2026-census-2021-v1-6b2bd725432d",
+    "municipalities": 7904,
+    "physicalColleges": 86,
+    "cells": 15810
+  },
+  "sizes": {
+    "compressedBytes": 4512430,
+    "decodedBytes": 19823299
+  },
+  "range": {
+    "first": "2008-04-13",
+    "latestObservation": "2024-06-09",
+    "latestPollPublication": "2026-10-19"
+  },
+  "units": 8456,
+  "sourceChoices": 296,
+  "polls": {
+    "total": 41,
+    "supported": 38,
+    "exclusions": [
+      {
+        "id": "pcm-14338-q1",
+        "reasons": [
+          "Conditional ballot requires explicit baseline treatment"
+        ]
+      },
+      {
+        "id": "pcm-14363-q1",
+        "reasons": [
+          "Conditional ballot requires explicit baseline treatment"
+        ]
+      },
+      {
+        "id": "pcm-14363-q2",
+        "reasons": [
+          "Conditional ballot requires explicit baseline treatment"
+        ]
+      }
+    ]
+  },
+  "events": [
+    {
+      "id": "camera-2008",
+      "date": "2008-04-13",
+      "availableDate": "2008-05-14",
+      "context": "camera",
+      "minimumAge": 18,
+      "role": "reference",
+      "municipalRows": 8101,
+      "national": {
+        "direct": 36527230,
+        "electors": 47142437,
+        "valid": 36527230,
+        "voters": 37954253
+      },
+      "chunkCompressedBytes": 425965,
+      "chunkDecodedBytes": 1679172
+    },
+    {
+      "id": "camera-2013",
+      "date": "2013-02-24",
+      "availableDate": "2013-03-27",
+      "context": "camera",
+      "minimumAge": 18,
+      "role": "reference",
+      "municipalRows": 8092,
+      "national": {
+        "direct": 34074959,
+        "electors": 47005431,
+        "valid": 34074959,
+        "voters": 35348710
+      },
+      "chunkCompressedBytes": 490609,
+      "chunkDecodedBytes": 2002176
+    },
+    {
+      "id": "camera-2018",
+      "date": "2018-03-04",
+      "availableDate": "2018-04-03",
+      "context": "camera",
+      "minimumAge": 18,
+      "role": "reference",
+      "municipalRows": 7958,
+      "national": {
+        "direct": 31648908,
+        "electors": 46604897,
+        "valid": 32908075,
+        "voters": 33995268
+      },
+      "chunkCompressedBytes": 445190,
+      "chunkDecodedBytes": 1759328
+    },
+    {
+      "id": "camera-2022",
+      "date": "2022-09-25",
+      "availableDate": "2022-10-25",
+      "context": "camera",
+      "minimumAge": 18,
+      "role": "reference",
+      "municipalRows": 7904,
+      "national": {
+        "direct": 27123401,
+        "electors": 46120143,
+        "valid": 28150536,
+        "voters": 29473147
+      },
+      "chunkCompressedBytes": 415051,
+      "chunkDecodedBytes": 1573244
+    },
+    {
+      "id": "european-2009",
+      "date": "2009-06-07",
+      "availableDate": "2009-07-07",
+      "context": "european",
+      "minimumAge": 18,
+      "role": "reference",
+      "municipalRows": 8100,
+      "national": {
+        "direct": 30564083,
+        "electors": 49135080,
+        "valid": 30564083,
+        "voters": 32659162
+      },
+      "chunkCompressedBytes": 389442,
+      "chunkDecodedBytes": 1476928
+    },
+    {
+      "id": "european-2014",
+      "date": "2014-05-25",
+      "availableDate": "2014-06-24",
+      "context": "european",
+      "minimumAge": 18,
+      "role": "reference",
+      "municipalRows": 8057,
+      "national": {
+        "direct": 27371747,
+        "electors": 49256169,
+        "valid": 27371747,
+        "voters": 28908004
+      },
+      "chunkCompressedBytes": 338398,
+      "chunkDecodedBytes": 1242296
+    },
+    {
+      "id": "european-2019",
+      "date": "2019-05-26",
+      "availableDate": "2019-06-25",
+      "context": "european",
+      "minimumAge": 18,
+      "role": "reference",
+      "municipalRows": 7915,
+      "national": {
+        "direct": 26662962,
+        "electors": 49301157,
+        "valid": 26662962,
+        "voters": 27652929
+      },
+      "chunkCompressedBytes": 405195,
+      "chunkDecodedBytes": 1652484
+    },
+    {
+      "id": "european-2024",
+      "date": "2024-06-09",
+      "availableDate": "2024-07-09",
+      "context": "european",
+      "minimumAge": 18,
+      "role": "reference",
+      "municipalRows": 7916,
+      "national": {
+        "direct": 23308066,
+        "electors": 49552399,
+        "valid": 23308066,
+        "voters": 24619770
+      },
+      "chunkCompressedBytes": 351489,
+      "chunkDecodedBytes": 1289492
+    },
+    {
+      "id": "senato-2018",
+      "date": "2018-03-04",
+      "availableDate": "2018-04-03",
+      "context": "senato",
+      "minimumAge": 25,
+      "role": "age-audit",
+      "municipalRows": 7958,
+      "national": {
+        "direct": 29175241,
+        "electors": 42872120,
+        "valid": 30272499,
+        "voters": 31298484
+      },
+      "chunkCompressedBytes": 438587,
+      "chunkDecodedBytes": 1763000
+    },
+    {
+      "id": "senato-2022",
+      "date": "2022-09-25",
+      "availableDate": "2022-10-25",
+      "context": "senato",
+      "minimumAge": 18,
+      "role": "paired-adaptation",
+      "municipalRows": 7904,
+      "national": {
+        "direct": 27158739,
+        "electors": 46120143,
+        "valid": 28122616,
+        "voters": 29471636
+      },
+      "chunkCompressedBytes": 418198,
+      "chunkDecodedBytes": 1599632
+    }
+  ],
+  "missingTargetCounts": [
+    {
+      "event": "camera-2008",
+      "missingTargets": 155
+    },
+    {
+      "event": "european-2009",
+      "missingTargets": 146
+    },
+    {
+      "event": "camera-2013",
+      "missingTargets": 132
+    },
+    {
+      "event": "european-2014",
+      "missingTargets": 108
+    },
+    {
+      "event": "camera-2018",
+      "missingTargets": 42
+    },
+    {
+      "event": "senato-2018",
+      "missingTargets": 42
+    },
+    {
+      "event": "european-2019",
+      "missingTargets": 9
+    },
+    {
+      "event": "camera-2022",
+      "missingTargets": 0
+    },
+    {
+      "event": "senato-2022",
+      "missingTargets": 0
+    },
+    {
+      "event": "european-2024",
+      "missingTargets": 18
+    }
+  ],
+  "explicitZeros": 81734,
+  "reproducibility": {
+    "emptyCacheNetworkAcquisition": true,
+    "cleanSourceTreeWithoutIgnoredInputs": true,
+    "independentNpmCi": true,
+    "identicalFiles": 13,
+    "offlineRegeneration": true,
+    "platform": "Windows",
+    "coldAndCleanPreparationMilliseconds": [
+      17389.0021,
+      17598.7672
+    ],
+    "linuxExecuted": false
+  },
+  "realBoundary": {
+    "pairedMunicipalCountComparisons": 15808,
+    "allPairedOriginalCountsMatchInstalledBaseline": true,
+    "fullCeCompilationEvents": 8,
+    "municipalRows": [
+      {
+        "id": "camera-2008",
+        "rows": 8101
+      },
+      {
+        "id": "camera-2013",
+        "rows": 8092
+      },
+      {
+        "id": "camera-2018",
+        "rows": 7957
+      },
+      {
+        "id": "camera-2022",
+        "rows": 7904
+      },
+      {
+        "id": "european-2009",
+        "rows": 8098
+      },
+      {
+        "id": "european-2014",
+        "rows": 8056
+      },
+      {
+        "id": "european-2019",
+        "rows": 7915
+      },
+      {
+        "id": "european-2024",
+        "rows": 7895
+      }
+    ],
+    "explicitLocalExclusions": [
+      {
+        "event": "camera-2018",
+        "unit": "target:001258",
+        "reason": "Invalid original denominator; retained nationally, no local likelihood"
+      },
+      {
+        "event": "european-2009",
+        "unit": "target:018097",
+        "reason": "Invalid original denominator; retained nationally, no local likelihood"
+      },
+      {
+        "event": "european-2009",
+        "unit": "target:097055",
+        "reason": "Invalid original denominator; retained nationally, no local likelihood"
+      },
+      {
+        "event": "european-2014",
+        "unit": "target:018097",
+        "reason": "Invalid original denominator; retained nationally, no local likelihood"
+      },
+      {
+        "event": "european-2024",
+        "unit": "target:023048",
+        "reason": "Invalid original denominator; retained nationally, no local likelihood"
+      }
+    ],
+    "warnings": [
+      "european-2024: unlocated fuori-sede retained in source, excluded from resident-denominator fit",
+      "Extrapolation beyond bundled election vintage 2024-06-09"
+    ],
+    "fitExecuted": false,
+    "defaultSelected": false
+  },
+  "decodeMemory": {
+    "nodeLifetimePeakRssKiB": 268880,
+    "maxObservedHeapUsed": 94643120,
+    "maxObservedArrayBuffers": 38392765,
+    "maxObservedRss": 246824960,
+    "maxLiveEventNumericBytes": 4494961,
+    "qualification": "Measured Node memory at inflate/column/row boundaries and process lifetime peak RSS; includes metadata/JSON rows/hash copies and prior chunks awaiting GC. Not browser process peak memory."
+  },
+  "browser": [
+    {
+      "ok": true,
+      "id": "fast-share-source-v1-e3b5ac701c2217b51c93ebcd7c27e0f3e3a43192dc78cfcf99672aca5e4d6d25",
+      "metadataMilliseconds": 82.2999999821186,
+      "totalMilliseconds": 367.2999999821186,
+      "events": [
+        {
+          "id": "camera-2008",
+          "rows": 8101,
+          "milliseconds": 31.80000001192093,
+          "valid": 36527230
+        },
+        {
+          "id": "camera-2013",
+          "rows": 8092,
+          "milliseconds": 36.099999994039536,
+          "valid": 34074959
+        },
+        {
+          "id": "camera-2018",
+          "rows": 7958,
+          "milliseconds": 31.200000017881393,
+          "valid": 32908075
+        },
+        {
+          "id": "camera-2022",
+          "rows": 7904,
+          "milliseconds": 28.69999998807907,
+          "valid": 28150536
+        },
+        {
+          "id": "european-2009",
+          "rows": 8100,
+          "milliseconds": 26.099999994039536,
+          "valid": 30564083
+        },
+        {
+          "id": "european-2014",
+          "rows": 8057,
+          "milliseconds": 22.099999994039536,
+          "valid": 27371747
+        },
+        {
+          "id": "european-2019",
+          "rows": 7915,
+          "milliseconds": 28.599999994039536,
+          "valid": 26662962
+        },
+        {
+          "id": "european-2024",
+          "rows": 7916,
+          "milliseconds": 21.799999982118607,
+          "valid": 23308066
+        },
+        {
+          "id": "senato-2018",
+          "rows": 7958,
+          "milliseconds": 27.19999998807907,
+          "valid": 30272499
+        },
+        {
+          "id": "senato-2022",
+          "rows": 7904,
+          "milliseconds": 24.400000005960464,
+          "valid": 28122616
+        }
+      ],
+      "maxLiveNumericBytes": 4494961,
+      "decodedMetadataBytes": 3785547,
+      "targets": 7904,
+      "physicalColleges": 86,
+      "runs": [
+        {
+          "run": 0,
+          "metadataMilliseconds": 82.2999999821186,
+          "totalMilliseconds": 367.2999999821186
+        },
+        {
+          "run": 1,
+          "metadataMilliseconds": 75.7000000178814,
+          "totalMilliseconds": 342.5
+        },
+        {
+          "run": 2,
+          "metadataMilliseconds": 68.2000000178814,
+          "totalMilliseconds": 328.80000001192093
+        },
+        {
+          "run": 3,
+          "metadataMilliseconds": 67.90000000596046,
+          "totalMilliseconds": 319
+        },
+        {
+          "run": 4,
+          "metadataMilliseconds": 67.5,
+          "totalMilliseconds": 328.80000001192093
+        },
+        {
+          "run": 5,
+          "metadataMilliseconds": 69.2999999821186,
+          "totalMilliseconds": 323.7999999821186
+        }
+      ],
+      "warmMedianMilliseconds": 328.80000001192093,
+      "warmMaximumMilliseconds": 342.5,
+      "timingQualification": "First worker run plus five warm runs; local intercepted asset delivery, not a network-transfer speed benchmark",
+      "memoryQualification": "Owned live numeric byte count excludes JS row objects, hash copies, metadata and browser process overhead; Node decode process memory is measured separately",
+      "browserVersion": "148.0.7778.96",
+      "base": ""
+    },
+    {
+      "ok": true,
+      "id": "fast-share-source-v1-e3b5ac701c2217b51c93ebcd7c27e0f3e3a43192dc78cfcf99672aca5e4d6d25",
+      "metadataMilliseconds": 84.40000000596046,
+      "totalMilliseconds": 371,
+      "events": [
+        {
+          "id": "camera-2008",
+          "rows": 8101,
+          "milliseconds": 31.799999982118607,
+          "valid": 36527230
+        },
+        {
+          "id": "camera-2013",
+          "rows": 8092,
+          "milliseconds": 36.599999994039536,
+          "valid": 34074959
+        },
+        {
+          "id": "camera-2018",
+          "rows": 7958,
+          "milliseconds": 30.599999994039536,
+          "valid": 32908075
+        },
+        {
+          "id": "camera-2022",
+          "rows": 7904,
+          "milliseconds": 29.599999994039536,
+          "valid": 28150536
+        },
+        {
+          "id": "european-2009",
+          "rows": 8100,
+          "milliseconds": 26,
+          "valid": 30564083
+        },
+        {
+          "id": "european-2014",
+          "rows": 8057,
+          "milliseconds": 22.400000005960464,
+          "valid": 27371747
+        },
+        {
+          "id": "european-2019",
+          "rows": 7915,
+          "milliseconds": 28.400000005960464,
+          "valid": 26662962
+        },
+        {
+          "id": "european-2024",
+          "rows": 7916,
+          "milliseconds": 21.900000005960464,
+          "valid": 23308066
+        },
+        {
+          "id": "senato-2018",
+          "rows": 7958,
+          "milliseconds": 27,
+          "valid": 30272499
+        },
+        {
+          "id": "senato-2022",
+          "rows": 7904,
+          "milliseconds": 25.099999994039536,
+          "valid": 28122616
+        }
+      ],
+      "maxLiveNumericBytes": 4494961,
+      "decodedMetadataBytes": 3785547,
+      "targets": 7904,
+      "physicalColleges": 86,
+      "runs": [
+        {
+          "run": 0,
+          "metadataMilliseconds": 84.40000000596046,
+          "totalMilliseconds": 371
+        },
+        {
+          "run": 1,
+          "metadataMilliseconds": 76,
+          "totalMilliseconds": 350.40000000596046
+        },
+        {
+          "run": 2,
+          "metadataMilliseconds": 72.69999998807907,
+          "totalMilliseconds": 340.2999999821186
+        },
+        {
+          "run": 3,
+          "metadataMilliseconds": 71.09999999403954,
+          "totalMilliseconds": 328.5
+        },
+        {
+          "run": 4,
+          "metadataMilliseconds": 68.69999998807907,
+          "totalMilliseconds": 328.7999999821186
+        },
+        {
+          "run": 5,
+          "metadataMilliseconds": 69.80000001192093,
+          "totalMilliseconds": 336.2000000178814
+        }
+      ],
+      "warmMedianMilliseconds": 336.2000000178814,
+      "warmMaximumMilliseconds": 350.40000000596046,
+      "timingQualification": "First worker run plus five warm runs; local intercepted asset delivery, not a network-transfer speed benchmark",
+      "memoryQualification": "Owned live numeric byte count excludes JS row objects, hash copies, metadata and browser process overhead; Node decode process memory is measured separately",
+      "browserVersion": "148.0.7778.96",
+      "base": "/elezioni"
+    }
+  ],
+  "limits": {
+    "productionDefaultSelected": false,
+    "senateAdapterValidated": false,
+    "browserProcessPeakMemoryMeasured": false,
+    "maximumEnvelopeRefitAccepted": false,
+    "researchArchived": false
+  },
+  "verification": {
+    "unitTests": 1133,
+    "unitFiles": 84,
+    "focusedNewSourceTests": 13,
+    "browserTestsPerBase": 2,
+    "requiredFullSourceGateEnabled": true,
+    "numericalPrefitCliPassed": true,
+    "staticBuildBothBases": true,
+    "typeChecksPassed": true,
+    "originalResearchInventoryFilesUnchanged": 1433,
+    "cliMissingDataRejected": true,
+    "cliCorruptedChunkRejected": true
+  },
+  "environment": {
+    "node": "v24.20.0",
+    "platform": "win32",
+    "release": "10.0.26200",
+    "cpu": "Intel(R) Core(TM) i7-14700KF"
+  },
+  "historicalComponentAtoms": 149,
+  "invalidDenominators": [
+    {
+      "event": "camera-2008",
+      "units": []
+    },
+    {
+      "event": "camera-2013",
+      "units": []
+    },
+    {
+      "event": "camera-2018",
+      "units": [
+        "target:001258"
+      ]
+    },
+    {
+      "event": "camera-2022",
+      "units": []
+    },
+    {
+      "event": "european-2009",
+      "units": [
+        "target:018097",
+        "target:097055"
+      ]
+    },
+    {
+      "event": "european-2014",
+      "units": [
+        "target:018097"
+      ]
+    },
+    {
+      "event": "european-2019",
+      "units": []
+    },
+    {
+      "event": "european-2024",
+      "units": [
+        "target:023048"
+      ]
+    },
+    {
+      "event": "senato-2022",
+      "units": []
+    },
+    {
+      "event": "senato-2018",
+      "units": [
+        "target:001258"
+      ]
+    }
+  ]
+}

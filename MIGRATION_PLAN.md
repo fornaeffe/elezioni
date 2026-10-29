@@ -299,8 +299,9 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   - [x] **FV-02:** Port fitting/profile estimation to one browser-safe TypeScript
     engine; pass independent reduced numerical and browser-computability gates.
     Use the [engine guide](web/src/lib/politics/reform-2026/vote-share/README.md).
-  - [ ] **FV-03:** Produce compact source-backed historical/poll records supporting
+  - [x] **FV-03:** Produce compact source-backed historical/poll records supporting
     editable memberships/dates, with complete reform geography and Senate inputs.
+    Use the [source preparation guide](docs/vote-generation-fast-data.md).
   - [ ] **FV-04:** Implement fast generation, reference interventions, physical-cell
     filing/projection and paired Camera/Senato integration through existing scrutiny.
   - [ ] **FV-05:** Prefit the explicit default scenario and package matching

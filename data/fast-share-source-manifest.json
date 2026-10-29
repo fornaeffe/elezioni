@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "fast-share-production-sources-v1",
+  "reviewedOn": "2026-10-29",
+  "inputManifests": [
+    "data/source-manifest.json",
+    "data/sources/polls/history/elections-manifest.json",
+    "data/reform-model-source-manifest.json"
+  ],
+  "contexts": ["camera", "european", "senato"],
+  "sourceRange": "Camera 2008/2013/2018/2022, European 2009/2014/2019/2024, Senate 2018/2022",
+  "resultAvailability": {
+    "method": "retrospective-thirty-day-lag-v1",
+    "lagDaysAfterFinalPollingDay": 30,
+    "note": "Explicit retrospective information assumption, not an official publication timestamp. Camera 2008/2013 have a second polling day. Reject use before the declared date."
+  },
+  "sourceCorrespondences": "data/sources/fast-share/memberships-policy.json",
+  "membershipCitations": "data/sources/fast-share/membership-sources.json",
+  "pollRestorations": "data/sources/fast-share/poll-refinements.json",
+  "assumptions": [
+    "Senate 2018 is 25+ age-confounded audit information; only 2022 supplies the paired 18+ baseline. Data inclusion does not authorize Senate fitting as European history.",
+    "Keep opaque special candidate/group choices. Do not infer unobserved internal party allocations.",
+    "Historical candidate-only ballots use the reviewed old-college attribution and labelled integer municipal reconstruction; retain direct source counts too.",
+    "Same-place reviewed name matches use target ISTAT identities. Unmatched/ambiguous and unlocated records remain present with explicit status; do not invent merger crosswalks or zero history.",
+    "Poll Other complements are constructed on the original dated offered basis before pooling. Nonresponse only sets the effective sample, not election turnout.",
+    "Source zero is a present offered choice with count zero. Missing history is an absent row. Future targets contain geography/electorates separately from observed counts."
+  ]
+}

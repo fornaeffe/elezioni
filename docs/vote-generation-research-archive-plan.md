@@ -8,6 +8,11 @@ are executed by this document. Inventory and preserve small evidence before
 implementation; move code and remove outputs after production acceptance and
 dependency separation. Keep active production instructions short and task-local.
 
+FV-03 has promoted the required readers/correspondences into
+[`fast-share-*` preparation and `data/sources/fast-share/`](vote-generation-fast-data.md).
+Those active files are excluded from research archive/deletion. The original
+research files remain unchanged for evidence replay; this does not execute FV-09.
+
 FV-01's [evidence index](../research/vote-generation/README.md) now provides the
 frozen exact inventory, selected evidence/omission manifest and default physical
 domain. Research source locations are unchanged; this is preservation before

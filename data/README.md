@@ -5,11 +5,13 @@
 | Geography, census and seat tables | Workflow below |
 | Historical votes/preferences and reform generation models | [Generation guide](../docs/politics-reform-2026-generation.md#clean-clone-preparation) |
 | Selected poll archive and reconciliation | [Poll preparation](../docs/polls-preparation.md) |
-| New fast vote model, compact data and browser refitting (2026 reform only) | [Data/scenario contract](../docs/vote-generation-fast-contracts.md), [production plan](../docs/vote-generation-production-plan.md) |
+| Fast model original compact history/polls (2026 reform only) | [Source preparation](../docs/vote-generation-fast-data.md) |
+| Fast model scenario/state/browser integration | [Data/scenario contract](../docs/vote-generation-fast-contracts.md), [production plan](../docs/vote-generation-production-plan.md) |
 | Historical vote-generation research retention and cleanup | [Archive plan](../docs/vote-generation-research-archive-plan.md) |
 
-The reviewed poll JSON is the explicit small Git-tracked exception under
-`sources/polls/`; fresh clones prepare it offline from these authoritative files.
+Reviewed poll JSON under `sources/polls/` and promoted correspondence/restoration
+JSON under `sources/fast-share/` are small Git-tracked source exceptions; fresh
+clones prepare them offline from these authoritative files.
 Survey references in each poll manifest support optional manual audits on the
 government website. Poll PDFs are ignored and have no checksum requirement.
 Other downloaded originals remain ignored caches.
@@ -64,7 +66,8 @@ npm run data:generate
 - `source-manifest.json` pins original URLs, request headers, sizes and SHA-256.
 - `sources/` caches downloaded originals; `derived/` holds normalized catalogs,
   extraction audits and complete seat-table artifacts. These are ignored except
-  for the explicitly selected poll JSON and election-target review files above.
+  for the selected poll JSON, election-target review files and promoted fast-share
+  source policies above.
 - The download command verifies existing files and fetches missing files only.
   It never silently accepts changed bytes. Total pinned downloads are about 145 MB;
   the government geography ZIP is about 98 MB despite its page's smaller size label.
