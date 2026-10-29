@@ -14,7 +14,7 @@ checklist is in [MIGRATION_PLAN.md](../MIGRATION_PLAN.md); record evidence in
 | --- | --- |
 | Implement the numerical model | [Maintained equations](vote-generation-fast-model.md), then FV-02/04 below |
 | Generate physical ballots or adapt Senate | [Headless generation guide](vote-generation-fast-generation.md); FV-04 |
-| Prepare or load production assets | [Frozen data/scenario contracts](vote-generation-fast-contracts.md); FV-03/05/06 |
+| Prepare or load production assets | [Candidate release guide](vote-generation-fast-release.md), [frozen contracts](vote-generation-fast-contracts.md); FV-03/05/06 |
 | Edit scenarios or integrate workers/results | [Reference/chamber rules](vote-generation-fast-references.md), contract reuse matrix and FV-06/07; existing [application guide](politics-reform-2026-application.md) |
 | Validate and switch defaults | [Frozen validation protocol](vote-generation-fast-validation.md), then FV-08 |
 | Archive research or reclaim generated files | Separate [archive plan](vote-generation-research-archive-plan.md) and FV-09 |
@@ -317,6 +317,10 @@ multiple/scoped references, new-list support, chamber marginals/dependence,
 special-ballot accounting and full-list scrutiny input validation.
 
 ### FV-05: Prefit defaults and package a reproducible static release
+
+Implemented candidate preparation: use the [release guide](vote-generation-fast-release.md)
+for commands, the explicit default policy, transport and cache contracts. Installed
+defaults remain unchanged; predictive acceptance and activation remain FV-08.
 
 Run the same accepted engine on the complete explicit default scenario; generate
 default fit, both chamber profiles, metadata/defaults/catalog and runtime chunks.

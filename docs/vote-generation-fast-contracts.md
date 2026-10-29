@@ -4,7 +4,7 @@ FV-01 contract revision **1**, frozen on **28 October 2026** for the 2026 reform
 workflow. The scenario v4 parser/generator is not installed. FV-02 implements
 numerical modules, FV-03 the [compact source boundary](vote-generation-fast-data.md),
 and FV-04 the [headless generation boundary](vote-generation-fast-generation.md);
-FV-05 prepares production states/assets; FV-06/07 implement the
+FV-05 implements [candidate preparation and loading](vote-generation-fast-release.md); FV-06/07 implement the
 worker/editor. The [model](vote-generation-fast-model.md),
 [reference rules](vote-generation-fast-references.md) and
 [validation protocol](vote-generation-fast-validation.md) are separate contracts.
@@ -41,7 +41,7 @@ a value. Every collection has unique stable row IDs or a unique composite key.
 | Field | Required contents and validation |
 | --- | --- |
 | `schemaVersion`, `kind`, `algorithmId` | Literal identities above |
-| `data` | `sourceBundleId`, `profileBundleId`, `seatTableVersion`, `preferenceModelVersion`; each resolves to verified immutable content |
+| `data` | `sourceBundleId`, `fittedStateId`, `profileStateId`, `geographyVersion`, `seatTableVersion`, `preferenceModelVersion`; each resolves to verified immutable content |
 | `models` | Statistical, numerical, reference-policy, chamber-adapter/coupling and RNG identities |
 | `referenceDate`, `electionDate`, `renewal` | Reference <= election; renewal `joint`, `camera` or `senato`; no synthetic second chamber for single renewal |
 | `components` | `{id, kind: fitted|new, provenance}`; new components also declare a required reference and fallback profile/scale policy; opaque historical atoms cannot be split by renaming |

@@ -69,6 +69,7 @@ vignettes/*.pdf
 /web/static/data/v1/politics-debug-scrutiny.json
 /web/static/data/v1/regional-er-static.json
 /web/static/data/reform-2026/*.json.gz
+/web/static/data/reform-2026/fast-share/
 /test/fixtures/politiche/debug_scrutinio.json
 /test/fixtures/politiche/generated_adapter.json
 /test/fixtures/politiche/pipeline_source_debug.json

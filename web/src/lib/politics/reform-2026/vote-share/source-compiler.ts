@@ -3,7 +3,7 @@ import { day, FAST_SHARE_MODEL, type NationalSource, type NationalElection } fro
 import { normalizeSource } from './information';
 import type { ProfileSource } from './profiles';
 import type { CompactSource, OriginalRow } from './source-types';
-import { decodeSourceRows, rowFlags, sourceKey, validateSourceEnvelope } from './source-codec';
+import { decodeSourceRows, rowFlags, sourceKey, validateSourceEnvelope, type AssetBytes } from './source-codec';
 
 export interface SourceSelection {
   referenceDate: string; electionIds: string[]; pollIds: string[]; components: string[];
@@ -50,7 +50,7 @@ export function resolvedBasis(components: string[], observations: string[][][]):
   }
   return false;
 }
-export async function compileSource(source: CompactSource, readChunk: (path: string) => Promise<Uint8Array>, selection: SourceSelection) {
+export async function compileSource(source: CompactSource, readChunk: (path: string) => Promise<AssetBytes>, selection: SourceSelection) {
   await validateSourceEnvelope(source);
   const p = source.payload, cutoff = day(selection.referenceDate), components = [...selection.components].sort(), known = new Set(components);
   if (cutoff < day(p.range.first) || components.length < 1 || components.length > 128 || known.size !== components.length || components.some(id => !id)) throw new Error('Unsupported source date/basis');

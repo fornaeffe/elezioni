@@ -1,5 +1,5 @@
 /** Original compact-source boundary for the declared common-18+ Senate adapter. */
-import { decodeSourceRows, rowFlags, validateSourceEnvelope } from './source-codec';
+import { decodeSourceRows, rowFlags, validateSourceEnvelope, type AssetBytes } from './source-codec';
 import { observableGroups, type SourceSelection } from './source-compiler';
 import type { CompactSource } from './source-types';
 import type { PairedHistory } from './senate-adapter';
@@ -8,7 +8,7 @@ import type { MunicipalObservation } from './profiles';
 
 export async function compilePairedHistory(
   source: CompactSource,
-  readChunk: (path: string) => Promise<Uint8Array>,
+  readChunk: (path: string) => Promise<AssetBytes>,
   selection: Pick<SourceSelection, 'referenceDate' | 'components' | 'sourceMemberships' | 'componentMap'>,
   pair: { camera: string; senato: string; electoratePolicy: 'equal-only' }
 ) {

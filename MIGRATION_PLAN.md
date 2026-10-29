@@ -305,8 +305,9 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   - [x] **FV-04:** Implement fast generation, reference interventions, physical-cell
     filing/projection and paired Camera/Senato integration through existing scrutiny.
     Use the [generation and Senate adapter guide](docs/vote-generation-fast-generation.md).
-  - [ ] **FV-05:** Prefit the explicit default scenario and package matching
+  - [x] **FV-05:** Prefit the explicit default scenario and package matching
     versioned data/defaults/fit/catalog through clean-clone local/CI commands.
+    Use the [candidate release guide](docs/vote-generation-fast-release.md).
   - [ ] **FV-06:** Add cancellable browser refitting, semantic invalidation,
     compatible-state installation and bounded worker memory/ownership.
   - [ ] **FV-07:** Deliver component/list editing, reference controls and advanced

@@ -3,3 +3,4 @@ data/sources/polls/*.json text eol=lf
 data/sources/polls/history/*.json text eol=lf
 data/sources/fast-share/*.json text eol=lf
 data/fast-share-source-manifest.json text eol=lf
+data/fast-share-default-policy.json text eol=lf

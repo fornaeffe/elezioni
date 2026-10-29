@@ -1,5 +1,5 @@
 {
-  "extends": "./tsconfig.json",
+  "extends": "./tsconfig.node.json",
   "compilerOptions": { "noEmit": true },
   "include": ["src/app.d.ts", "scripts/**/*.ts", "src/lib/politics/reform-2026/**/*.ts", "src/lib/core/**/*.ts"],
   "exclude": ["src/**/*.test.ts"]

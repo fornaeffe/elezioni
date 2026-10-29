@@ -6,6 +6,8 @@ export const SOURCE_METHOD = 'fast-share-original-columns-v1';
 export const ROW_FLAGS = { invalidDenominator: 1, unmatched: 2, missingVoters: 4, unlocated: 8 } as const;
 export const MAX_SOURCE_BYTES = 256 * 1024 * 1024;
 export interface ByteAsset { path: string; compressedBytes: number; decodedBytes: number; sha256: string; decodedSha256: string }
+/** Fetch may transparently decode Content-Encoding; disk/cache readers must use raw bytes. */
+export type AssetBytes = Uint8Array | { transport: 'http'; body: Uint8Array };
 export function canonicalJson(value: unknown): string {
   if (value === null || typeof value === 'string' || typeof value === 'boolean') return JSON.stringify(value);
   if (typeof value === 'number' && Number.isFinite(value)) return JSON.stringify(value);
@@ -23,10 +25,15 @@ export async function compressAsset(stem: string, decoded: Uint8Array): Promise<
   const sha256 = await byteHash(compressed), decodedSha256 = await byteHash(decoded);
   return { compressed, descriptor: { path: stem + '-' + sha256 + '.gz', compressedBytes: compressed.length, decodedBytes: decoded.length, sha256, decodedSha256 } };
 }
-export async function decodeAsset(asset: ByteAsset, compressed: Uint8Array): Promise<Uint8Array> {
+export async function decodeAsset(asset: ByteAsset, input: AssetBytes): Promise<Uint8Array> {
   if (!/^[\w.-]+$/.test(asset.path) || !Number.isSafeInteger(asset.decodedBytes) || asset.decodedBytes < 1 || asset.decodedBytes > MAX_SOURCE_BYTES ||
-    !Number.isSafeInteger(asset.compressedBytes) || asset.compressedBytes < 18 || compressed.length !== asset.compressedBytes || !/^[a-f0-9]{64}$/.test(asset.sha256) ||
-    !/^[a-f0-9]{64}$/.test(asset.decodedSha256) || await byteHash(compressed) !== asset.sha256) throw new Error('SOURCE_ASSET_INTEGRITY');
+    !Number.isSafeInteger(asset.compressedBytes) || asset.compressedBytes < 18 || !/^[a-f0-9]{64}$/.test(asset.sha256) ||
+    !/^[a-f0-9]{64}$/.test(asset.decodedSha256)) throw new Error('SOURCE_ASSET_INTEGRITY');
+  const compressed = input instanceof Uint8Array ? input : input.body, hash = await byteHash(compressed);
+  if (compressed.length !== asset.compressedBytes || hash !== asset.sha256) {
+    if (!(input instanceof Uint8Array) && input.transport === 'http' && compressed.length === asset.decodedBytes && hash === asset.decodedSha256) return compressed;
+    throw new Error('SOURCE_ASSET_INTEGRITY');
+  }
   const trailer = new DataView(compressed.buffer, compressed.byteOffset, compressed.length).getUint32(compressed.length - 4, true);
   if (trailer !== asset.decodedBytes) throw new Error('SOURCE_DECODE_SIZE');
   const decoded = gunzipSync(compressed, { out: new Uint8Array(asset.decodedBytes) });
@@ -110,10 +117,11 @@ export async function validateSourceEnvelope(source: CompactSource) {
   }
 }
 /** Decodes only one selected event; callers can release each chunk after use. */
-export async function decodeSourceRows(source: CompactSource, eventId: string, compressed: Uint8Array, observe?: (phase: string, liveNumericBytes: number) => void): Promise<OriginalRow[]> {
+export async function decodeSourceRows(source: CompactSource, eventId: string, compressed: AssetBytes, observe?: (phase: string, liveNumericBytes: number) => void): Promise<OriginalRow[]> {
   const event = source.payload.events.find(e => e.id === eventId); if (!event) throw new Error('Unknown historical source');
   const chunk = event.chunk, bytes = await decodeAsset(chunk, compressed), view = new DataView(bytes.buffer, bytes.byteOffset, bytes.length);
-  observe?.('inflated', bytes.byteLength + compressed.byteLength);
+  const body = compressed instanceof Uint8Array ? compressed : compressed.body, extraWireBytes = body === bytes ? 0 : body.byteLength;
+  observe?.('inflated', bytes.byteLength + extraWireBytes);
   if (chunk.byteOrder !== 'little-endian' || !Number.isSafeInteger(chunk.rows) || chunk.rows <= 0 || !Number.isSafeInteger(chunk.values) || chunk.values < chunk.rows) throw new Error('Invalid source shape');
   const columns = new Map<ColumnName, Uint32Array>(); let end = 0;
   for (const name of ['unit','electors','voters','flags','offsets','choice','count','direct'] as ColumnName[]) {
@@ -122,7 +130,7 @@ export async function decodeSourceRows(source: CompactSource, eventId: string, c
     columns.set(name, Uint32Array.from({ length: c.length }, (_, i) => view.getUint32(c.offset + i * 4, true))); end += c.length * 4;
   }
   if (end !== bytes.length) throw new Error('Trailing source bytes');
-  observe?.('columns', 2 * bytes.byteLength + compressed.byteLength);
+  observe?.('columns', 2 * bytes.byteLength + extraWireBytes);
   const get = (name: ColumnName) => columns.get(name)!;
   if (get('offsets')[0] !== 0 || get('offsets')[chunk.rows] !== chunk.values) throw new Error('Invalid source offsets');
   const rows: OriginalRow[] = []; let totalElectors = 0, valid = 0, direct = 0, voters = 0, missingVoters = false;
@@ -140,6 +148,6 @@ export async function decodeSourceRows(source: CompactSource, eventId: string, c
   }
   if (new Set(rows.map(r => r.unit)).size !== rows.length || totalElectors !== event.national.electors || valid !== event.national.valid || direct !== event.national.direct ||
     (missingVoters ? null : voters) !== event.national.voters) throw new Error('SOURCE_COUNT_CONSERVATION');
-  observe?.('rows', 2 * bytes.byteLength + compressed.byteLength);
+  observe?.('rows', 2 * bytes.byteLength + extraWireBytes);
   return rows;
 }

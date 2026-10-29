@@ -1,0 +1,329 @@
+{
+  "schemaVersion": 1,
+  "stage": "FV-05",
+  "recordedDate": "2026-10-29",
+  "status": "prefitted-candidate-packaging-passed-defaults-not-activated",
+  "baseRevision": "9ae155b237742cbb6120428d81001d4209bfb688",
+  "model": "fast-share-kind-common-conservative-v1",
+  "numericalVersion": "fast-share-float64-v1",
+  "sourceHashPolicy": "SHA-256 of LF-normalized implementation/configuration/policy sources",
+  "sourceHashes": {
+    "data/fast-share-default-policy.json": "910d7ea28d169d018ce1a8e672c9fbd58ae78605585f2e79b12230e77d39de45",
+    "web/package-lock.json": "c653b9a886821ed14ecf0a33caeaa6c8374aab80039fefda0d9685d0b9bee38b",
+    "web/package.json": "5bfbb0b3e12447860c0d02d8ff6606d42ce6585ac2af7e651f2c9b1f2e2e625d",
+    "web/playwright.config.ts": "38bff1c812f368ef62fe13b0397aec17c920ed7bec89e7bbbc096bc4bbfd256a",
+    "web/playwright.fast-share.config.ts": "a55b065c6abed9a67321e43e33c5395b0425b29002489a6a3a6a109c96822f77",
+    "web/scripts/acceptance/fast-share-candidate.ts": "699b25e2f6cb82af97a2b2be53fa49c14d9a9953185ff763f676f53db8d3e10c",
+    "web/scripts/data-preparation/fast-share-default.test.ts": "0eaa1f83267776966a728d8d554def92d5e40d1d14b403422756bc8ec89e66dd",
+    "web/scripts/data-preparation/fast-share-default.ts": "98c69f785300179bc83e4241ef495ad4064c48dd073a54f7f5bf63ee2471f3a7",
+    "web/scripts/data-preparation/fast-share-release-check.ts": "7f1fb9777efdd99179d302f8f22fc65cd7498d84aa5ef2088fcc62a0f440642f",
+    "web/scripts/data-preparation/fast-share-release-cli.ts": "90b8a92aa3dd2bc38ddc458e7fc4be7ebd42747d14fd0285014b2e914ade2947",
+    "web/scripts/data-preparation/fast-share-release-inputs.ts": "03ee363bafb8e0dc4fb43fc4fbefb7bb84ae7b1bc39a45a94b25e191cb1e855f",
+    "web/scripts/data-preparation/fast-share-release-io.test.ts": "0b09d9417a354e18cfae6c39690f07c72c2cd50b67721c92a69b8789617be660",
+    "web/scripts/data-preparation/fast-share-release-io.ts": "a8184f8c9bd97fbe460176668f1f69c9b6d2cf762862b7a8f3d744a538ccd110",
+    "web/scripts/data-preparation/fast-share-release.ts": "7250f05cb328020f6e7e89699d88218f9e06b1e90feffb6a18f7d83c005fc123",
+    "web/src/lib/politics/reform-2026/vote-share/paired-source.ts": "49f49a82ef03edf52f1e22c0e176b10c8c9a8bc572b058270e020bdf65aa7251",
+    "web/src/lib/politics/reform-2026/vote-share/release-loader.test.ts": "0381ae6165e15624dc1f5f312d438f436596dd0e667cd1ed763c6fe21274bfbc",
+    "web/src/lib/politics/reform-2026/vote-share/release.test.ts": "b551c1012dba8e56fb56eda474786bf5f79f722d121dd0a8097530e46ff8cc6a",
+    "web/src/lib/politics/reform-2026/vote-share/release.ts": "c82cac3a65c0625d83d88e3cbb53930b4f25babf797108a991c6341a1ef619bb",
+    "web/src/lib/politics/reform-2026/vote-share/source-codec.ts": "34ebd3b6d9a12ce291563310e4f655325876bb91bac94dcbd9c749a6beb7ad77",
+    "web/src/lib/politics/reform-2026/vote-share/source-compiler.ts": "e097fc2f82e1c973231224460b3265bccbc3f4c213d45f848483e6ae3ddd97de",
+    "web/src/lib/politics/reform-2026/vote-share/state-codec.test.ts": "ca044ce62a91747a39bc509d03a6d0b04bec457c0f599380e40837285fcc4748",
+    "web/src/lib/politics/reform-2026/vote-share/state-codec.ts": "a132c16de60863ba0def26cbe57833b9a4080638a7c156d4a4fb42cb2c11433e",
+    "web/tests/e2e/fast-share-release.spec.ts": "0fa0c002ee0655dd7c6a6c43b9a9e64bcd70c119cfdffb8547e2385fabf6bdc8",
+    "web/tests/fixtures/fast-release-input.ts": "56645504f18c2207b7c12c00f1ebab36de09320c4b19d3ae49c01cd68378ad37",
+    "web/tests/fixtures/fast-release.worker.ts": "f5039507875d84cbcedf81b1d35b33a917c741d0af30056422b7d254770dbf81",
+    "web/tests/fixtures/serve-static-release.ts": "107375f15f0b9c38c26bfd408fc8dcd0a15527564f2c5ee8082c28cb63081154",
+    "web/tsconfig.node.json": "53a99b3d5fafe370d95e42a00c50e0da9c9b242bb2987864aa7a28089f04330e",
+    "web/tsconfig.preparation.json": "519974f9390c877ad193c3576a0a14f1f890e4b74d310e2ea072b563cd0e55d4"
+  },
+  "unchangedFv02NumericalKernels": {
+    "web/src/lib/politics/reform-2026/vote-share/diagnostics.ts": "ff9843d53f69e200afac2a9f9e94238c1d7a220b2efe76fe152b5bb5824a9cc9",
+    "web/src/lib/politics/reform-2026/vote-share/gaussian.ts": "5c644acf01a6adbafc2cd29f9f2e6f83773ac44c24d91d10b75b3cd18c7af65b",
+    "web/src/lib/politics/reform-2026/vote-share/information.ts": "9ad46d8baa37771bb401cb48cc49331a940b8ae98895067480bb332f03a34ced",
+    "web/src/lib/politics/reform-2026/vote-share/linalg.ts": "c4c7251ce15cf06c4f37e59007e6c326ce095f8bdac9e0a4e0f26c3e07cd34e3",
+    "web/src/lib/politics/reform-2026/vote-share/profiles.ts": "9fee9043f3618e7709bf07da0af38a0081f87a4033a37da9b797635a3d2433ec",
+    "web/src/lib/politics/reform-2026/vote-share/random.ts": "3bd05bff7a68ad32becc0dfb74eea9f983c2d37aa1170d600e6824bca2fed328",
+    "web/src/lib/politics/reform-2026/vote-share/types.ts": "4e7d488317e809c9e030b1b3914ab67b11109ab3623f24d7dcb8c3e46e73bd98"
+  },
+  "catalogId": "fast-share-catalog-v1-e7aa120c571eb89b285007492165d26cd11439af8cfe27d20f3bf80c3e97aeb7",
+  "sourceId": "fast-share-source-v1-95d505ed1f7ea79c99cd0bf91a86dbc6a2d54c1f24fd9b37bec40a57e3c72511",
+  "artifactHashes": {
+    "candidate.json": "f12e7b8f307616f4357dd09b9f00c02a8ad6f50a8d4511cfe79ff7ae05b48d40",
+    "fast-share-catalog-e02a306ad60e7c29a5391d98e4c29daa099460374f0ad45365818f67692fdcea.gz": "e02a306ad60e7c29a5391d98e4c29daa099460374f0ad45365818f67692fdcea",
+    "fast-share-fit-993509d636cb0dc76b408577609d8c4efa9d017fdb0ee7e82247089c9cf09cd3.gz": "993509d636cb0dc76b408577609d8c4efa9d017fdb0ee7e82247089c9cf09cd3",
+    "fast-share-fit-columns-985f897a8ff91a942d80153da667499de8431f5660b4b1657863d073d2851e6e.gz": "985f897a8ff91a942d80153da667499de8431f5660b4b1657863d073d2851e6e",
+    "fast-share-profiles-3bb451f03f71b81ef0044ffe9f45c013e711aeff3cd32d1cfb6c270117f066c9.gz": "3bb451f03f71b81ef0044ffe9f45c013e711aeff3cd32d1cfb6c270117f066c9",
+    "fast-share-profiles-columns-7eb2c91aaacea10bbd03864786a9b045cf5515f58e7f33d0fd883fc73fbe5f04.gz": "7eb2c91aaacea10bbd03864786a9b045cf5515f58e7f33d0fd883fc73fbe5f04",
+    "fast-share-runtime-894214e7d89ef211dfda8eb5acafa8fc8df9ecb8fb7e39a49c0006e9c33ef127.gz": "894214e7d89ef211dfda8eb5acafa8fc8df9ecb8fb7e39a49c0006e9c33ef127",
+    "fast-share-runtime-columns-c4622c550fd54462503a6006147f347e3344871b7db0b2dc49b312ff05adff4a.gz": "c4622c550fd54462503a6006147f347e3344871b7db0b2dc49b312ff05adff4a",
+    "fast-share-scenario-cffe1ce17164fda7deb904b06ac7564464e4aa2647bfb64093c556b2cf8f624b.gz": "cffe1ce17164fda7deb904b06ac7564464e4aa2647bfb64093c556b2cf8f624b",
+    "history-camera-2008.u32-896d32d42192918896c345b6be1713b52875ee8b1bd6e1a01fc7172ea0f17443.gz": "896d32d42192918896c345b6be1713b52875ee8b1bd6e1a01fc7172ea0f17443",
+    "history-camera-2013.u32-fd866b6d9306467c21f6d8866f273010a19964fc24b5183ce19f4bb7944e1eda.gz": "fd866b6d9306467c21f6d8866f273010a19964fc24b5183ce19f4bb7944e1eda",
+    "history-camera-2018.u32-6256e6c19e41587f74705c9f69fe671b08050f6b2ecaa2cd535fa5d5a6de677d.gz": "6256e6c19e41587f74705c9f69fe671b08050f6b2ecaa2cd535fa5d5a6de677d",
+    "history-camera-2022.u32-5e460a2abe91cb057a4afd556d22bf1a574f05b93cb85485eeace949cd3480d2.gz": "5e460a2abe91cb057a4afd556d22bf1a574f05b93cb85485eeace949cd3480d2",
+    "history-european-2009.u32-cba334f86e8e43055df321f010823cf1d4c939ea3962ff56d6bd39a5f298b3a9.gz": "cba334f86e8e43055df321f010823cf1d4c939ea3962ff56d6bd39a5f298b3a9",
+    "history-european-2014.u32-690dc85ea5c914ee114c460a8673f9575e2825300c95e8835b9e0d84a9d4e0a1.gz": "690dc85ea5c914ee114c460a8673f9575e2825300c95e8835b9e0d84a9d4e0a1",
+    "history-european-2019.u32-290776cd7e7290b04eaa10c72d1896c5f9883cee61d286abc55dc093d0fecec9.gz": "290776cd7e7290b04eaa10c72d1896c5f9883cee61d286abc55dc093d0fecec9",
+    "history-european-2024.u32-23451d494712e75a969a17f3cc59780b967e61063d46a6a5d665e8f693bba49c.gz": "23451d494712e75a969a17f3cc59780b967e61063d46a6a5d665e8f693bba49c",
+    "history-senato-2018.u32-1012dee7e1d305060e8049a46b31319b235f9e5472fa67a280543941d8acbcc7.gz": "1012dee7e1d305060e8049a46b31319b235f9e5472fa67a280543941d8acbcc7",
+    "history-senato-2022.u32-410c2ff8549941f0b8817e8fc0544a6622e2269b8f71ce3df19be24426ed1e24.gz": "410c2ff8549941f0b8817e8fc0544a6622e2269b8f71ce3df19be24426ed1e24",
+    "source-dfe474fbb2677ac4799f24bdf87e9a3fde4701fb800f1d47cb070cdd7019dc63.gz": "dfe474fbb2677ac4799f24bdf87e9a3fde4701fb800f1d47cb070cdd7019dc63"
+  },
+  "byteBudget": {
+    "generationPayloadCompressedBytes": 4396307,
+    "catalogCompressedBytes": 6161,
+    "pointerBytes": 505,
+    "generationCompressedBytes": 4402973,
+    "refitCompressedBytes": 4512456
+  },
+  "defaultPolicy": "data/fast-share-default-policy.json",
+  "defaultScope": {
+    "fittedComponents": 10,
+    "referenceSupportedFutureComponents": 25,
+    "totalFutureComponents": 35,
+    "lists": {
+      "camera": 22,
+      "senato": 25
+    },
+    "selectedPolls": 35,
+    "excludedPolls": 6,
+    "retainedSourcePolls": 41,
+    "historyChunks": 10,
+    "conditionalElectorsPerChamber": 46120143
+  },
+  "verification": {
+    "catalogId": "fast-share-catalog-v1-e7aa120c571eb89b285007492165d26cd11439af8cfe27d20f3bf80c3e97aeb7",
+    "sourceId": "fast-share-source-v1-95d505ed1f7ea79c99cd0bf91a86dbc6a2d54c1f24fd9b37bec40a57e3c72511",
+    "referenceDate": "2026-10-19",
+    "electionDate": "2027-09-25",
+    "municipalities": 7904,
+    "physicalCells": 15810,
+    "fittedComponents": 10,
+    "futureComponents": 35,
+    "politicalDrawsPerChain": 2000,
+    "politicalDiagnostics": {
+      "maxRhat": 1.001500767337183,
+      "minEss": 3365.152829309111,
+      "minTailEss": 5011.790188997255,
+      "passed": true
+    },
+    "participationDiagnostics": {
+      "maxRhat": 1.000438909046988,
+      "minEss": 8000,
+      "minTailEss": 7602.325928261166,
+      "passed": true
+    },
+    "projectionResidual": 9.676485619183016e-10,
+    "legalStatus": "complete",
+    "seats": 588,
+    "filled": 588,
+    "sourceIntegrity": true,
+    "matchingSemanticKeys": true,
+    "defaultStartFits": 0
+  },
+  "isolated": {
+    "scope": "HEAD plus the current task diff, freshly installed dependencies, initially empty raw/numerical/output caches, no research directory or ignored production/debug data. Candidate assets only; whole-application publication acceptance remains separate.",
+    "checks": [
+      {
+        "name": "install",
+        "expectedFailure": false,
+        "exitCode": 0,
+        "milliseconds": 12622.1383
+      },
+      {
+        "name": "cold",
+        "expectedFailure": false,
+        "exitCode": 0,
+        "milliseconds": 234123.4943
+      },
+      {
+        "name": "warm",
+        "expectedFailure": false,
+        "exitCode": 0,
+        "milliseconds": 51336.4896
+      },
+      {
+        "name": "clean/local byte equality",
+        "passed": true
+      },
+      {
+        "name": "cold/warm byte equality",
+        "passed": true,
+        "catalogId": "fast-share-catalog-v1-e7aa120c571eb89b285007492165d26cd11439af8cfe27d20f3bf80c3e97aeb7",
+        "coldCache": {
+          "source": false,
+          "legal": false,
+          "fit": false,
+          "profiles": false
+        },
+        "warmCache": {
+          "source": true,
+          "legal": true,
+          "fit": true,
+          "profiles": true
+        }
+      },
+      {
+        "name": "missing-refit-asset",
+        "expectedFailure": true,
+        "exitCode": 1,
+        "milliseconds": 1597.362599999993
+      },
+      {
+        "name": "corrupt-fit-cache",
+        "expectedFailure": true,
+        "exitCode": 1,
+        "milliseconds": 4390.950200000021
+      },
+      {
+        "name": "selected candidates survive failed preparation",
+        "passed": true
+      }
+    ],
+    "cold": {
+      "environment": {
+        "node": "v24.20.0",
+        "platform": "win32",
+        "cpu": "Intel(R) Core(TM) i7-14700KF"
+      },
+      "cache": {
+        "source": false,
+        "legal": false,
+        "fit": false,
+        "profiles": false
+      },
+      "elapsedMs": 233363.0575,
+      "peakRssKiB": 2056120,
+      "staticBuild": true,
+      "applicationChecks": true,
+      "basePath": ""
+    },
+    "warm": {
+      "environment": {
+        "node": "v24.20.0",
+        "platform": "win32",
+        "cpu": "Intel(R) Core(TM) i7-14700KF"
+      },
+      "cache": {
+        "source": true,
+        "legal": true,
+        "fit": true,
+        "profiles": true
+      },
+      "elapsedMs": 50914.008,
+      "peakRssKiB": 591280,
+      "staticBuild": true,
+      "applicationChecks": true,
+      "basePath": ""
+    }
+  },
+  "localWarm": {
+    "environment": {
+      "node": "v24.20.0",
+      "platform": "win32",
+      "cpu": "Intel(R) Core(TM) i7-14700KF"
+    },
+    "cache": {
+      "source": true,
+      "legal": true,
+      "fit": true,
+      "profiles": true
+    },
+    "elapsedMs": 53228.6359,
+    "peakRssKiB": 628312,
+    "staticBuild": true,
+    "applicationChecks": true,
+    "basePath": ""
+  },
+  "browser": [
+    {
+      "base": "",
+      "browser": "148.0.7778.96",
+      "ok": true,
+      "action": "generate",
+      "catalogId": "fast-share-catalog-v1-e7aa120c571eb89b285007492165d26cd11439af8cfe27d20f3bf80c3e97aeb7",
+      "inputHash": "69df2536ebaf6dcc5ef9a68b65794fc72262392c8fa39f455f9447bafc636193",
+      "fitHash": "3576b8f90205d6b9741e04de61edfb24b4cd4459048b372c785befffc0750aa4",
+      "counts": {
+        "camera": 46120143,
+        "senato": 46120143
+      },
+      "receivedBodyBytes": 8230020,
+      "reportedEncodedBytes": 4402973,
+      "encodings": [
+        "identity",
+        "gzip",
+        "gzip",
+        "gzip",
+        "gzip",
+        "gzip",
+        "gzip",
+        "gzip",
+        "gzip"
+      ],
+      "expectedBytes": 4402973,
+      "projectionResidual": 9.676485619183016e-10,
+      "milliseconds": 2793.100000023842,
+      "heartbeats": 140,
+      "qualification": "One test-worker run with actual static candidate HTTP assets. Encoded lengths are server-reported Content-Length; body bytes may be transparently decoded and are checked against decoded SHA-256. Node/browser parity, not browser process memory, default predictive acceptance or estimation-worker lifecycle.",
+      "requestedGenerationAssets": 9,
+      "refitSourceRequested": false
+    },
+    {
+      "base": "/elezioni",
+      "browser": "148.0.7778.96",
+      "ok": true,
+      "action": "generate",
+      "catalogId": "fast-share-catalog-v1-e7aa120c571eb89b285007492165d26cd11439af8cfe27d20f3bf80c3e97aeb7",
+      "inputHash": "69df2536ebaf6dcc5ef9a68b65794fc72262392c8fa39f455f9447bafc636193",
+      "fitHash": "3576b8f90205d6b9741e04de61edfb24b4cd4459048b372c785befffc0750aa4",
+      "counts": {
+        "camera": 46120143,
+        "senato": 46120143
+      },
+      "receivedBodyBytes": 8230020,
+      "reportedEncodedBytes": 4402973,
+      "encodings": [
+        "identity",
+        "gzip",
+        "gzip",
+        "gzip",
+        "gzip",
+        "gzip",
+        "gzip",
+        "gzip",
+        "gzip"
+      ],
+      "expectedBytes": 4402973,
+      "projectionResidual": 9.676485619183016e-10,
+      "milliseconds": 2833.4000000059605,
+      "heartbeats": 142,
+      "qualification": "One test-worker run with actual static candidate HTTP assets. Encoded lengths are server-reported Content-Length; body bytes may be transparently decoded and are checked against decoded SHA-256. Node/browser parity, not browser process memory, default predictive acceptance or estimation-worker lifecycle.",
+      "requestedGenerationAssets": 9,
+      "refitSourceRequested": false
+    }
+  ],
+  "tests": {
+    "unitFiles": 92,
+    "unitTests": 1181,
+    "command": "npm test -- --maxWorkers=4",
+    "dataCheck": "passed",
+    "applicationCheck": "0 errors / 0 warnings",
+    "browserTestsPerBase": 3,
+    "bases": [
+      "",
+      "/elezioni"
+    ],
+    "fv01OriginalInventory": 1433,
+    "fv01RetainedEvidence": 61,
+    "rootBuildRestored": true
+  },
+  "limitations": [
+    "Windows Node preparation measured; Linux CI not measured.",
+    "Preparation-process peak RSS includes raw archives, extraction and historical preference fitting; it excludes build child-process and browser memory and is not browser numerical workspace.",
+    "Reference-supported restricted components use explicit fallback assumptions pending FV-08 predictive and sensitivity acceptance.",
+    "One paired legal run and a test-only loading worker; no browser estimation lifecycle, UI cutover, full-envelope fit latency, aggregate memory, 1000-run seat or predictive acceptance.",
+    "No public publication, research archival or commit."
+  ]
+}

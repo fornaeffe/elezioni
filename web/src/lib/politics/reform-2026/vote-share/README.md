@@ -1,4 +1,4 @@
-# Fast-share engine (FV-02–04)
+# Fast-share engine (FV-02–05)
 
 This folder implements the selected bounded reference fit, empirical profile
 estimator and headless forecast adapter. It is **not connected to production
@@ -7,11 +7,14 @@ Original compact data is implemented in [FV-03](../../../../../../docs/vote-gene
 For forecast/intervention/physical-cell/Senate work read only the
 [FV-04 generation guide](../../../../../../docs/vote-generation-fast-generation.md).
 The application fitting worker remains FV-06.
+For default prefitting, immutable state, candidate loading and release commands,
+read the [FV-05 release guide](../../../../../../docs/vote-generation-fast-release.md).
 
 | Task | Entry point |
 | --- | --- |
 | Model equations and fixed conventions | [Maintained contract](../../../../../../docs/vote-generation-fast-model.md) |
 | Prepared numerical inputs/typed outputs | [types.ts](types.ts), [scenario/data boundary](../../../../../../docs/vote-generation-fast-contracts.md) |
+| Lossless state serialization and compatible candidate loading | [state-codec.ts](state-codec.ts), [release.ts](release.ts) |
 | Country scales, grouped covariance, three GLS updates and participation | [information.ts](information.ts) |
 | Constrained mode and four-chain bounded Gaussian sampling | [gaussian.ts](gaussian.ts) |
 | Entity-addressed RNG and truncated tails | [random.ts](random.ts) |
