@@ -20,7 +20,7 @@
 <div aria-label="Probabilità di elezione nel collegio">
   <label>Ramo delle probabilità<select bind:value={chamber}><option value="camera">Camera</option><option value="senato">Senato</option></select></label>
   <label>Lista delle probabilità<select value={selected?.owner ?? ''} onchange={e => { list = e.currentTarget.value; }}>{#each lists as item (item.id)}<option value={item.owner}>{item.name}</option>{/each}</select></label>
-  <p>Capolista e primi sei candidati in ordine decrescente di preferenze in ciascuna simulazione. Sono contate le elezioni nella sede finale, inclusi i recuperi in questo collegio e in questa lista; sono escluse le elezioni altrove. Non è una probabilità individuale per una persona fissa.</p>
+  <p>Ogni cella indica la probabilità che sia eletto da questa lista in questo collegio il candidato in quella posizione oppure almeno un candidato successivo. Ordine: capolista, poi sei candidati per preferenze decrescenti in ciascuna simulazione. Sono inclusi i recuperi nella sede finale, senza richiedere un rapporto di causa tra le elezioni. Un’elezione altrove, da sola, non conta. Non è una probabilità individuale per una persona fissa.</p>
   <p>Denominatore: tutte le simulazioni richieste. ≥ indica un minimo confermato con esiti mancanti; n.d. indica nessun esito noto; — indica una posizione assente. Ogni cella riporta gli esiti noti nel suggerimento. Risultati condizionati ai modelli e ai profili delle preferenze.</p>
   {#if error}<p role="alert">{error}</p>
   {:else if !selected}<p>Nessuna lista disponibile per questo ramo.</p>
@@ -28,9 +28,9 @@
   {:else if !data.available}<p>Dati delle posizioni non disponibili nell’archivio. È necessaria una nuova esecuzione.</p>
   {:else if !data.rows.length}<p>Nessun collegio con questa lista depositata.</p>
   {:else}
-    <div class="table-scroll"><table><caption>Probabilità di elezione — {selected.name}, {chamber} · {data.requested} simulazioni richieste</caption>
+    <div class="table-scroll"><table><caption>Probabilità di elezione in questa posizione o in una successiva — {selected.name}, {chamber} · {data.requested} simulazioni richieste</caption>
       <thead><tr><th scope="col">Collegio</th><th scope="col">Capolista</th>{#each [1, 2, 3, 4, 5, 6] as rank (rank)}<th scope="col">{rank}ª preferenza</th>{/each}</tr></thead>
-      <tbody>{#each data.rows as row (row.id)}<tr><th scope="row">{row.name}</th>{#each row.positions as cell, i (i)}<td title={`${cell.wins} elezioni confermate; ${cell.known} esiti noti; ${cell.absent} posizioni assenti su ${data.requested}`}>{probabilityLabel(cell, data.requested)}</td>{/each}</tr>{/each}</tbody>
+      <tbody>{#each data.rows as row (row.id)}<tr><th scope="row">{row.name}</th>{#each row.positions as cell, i (i)}<td title={`${cell.wins} simulazioni con elezione confermata in questa posizione o in una successiva; ${cell.known} esiti noti; ${cell.absent} posizioni assenti su ${data.requested}`}>{probabilityLabel(cell, data.requested)}</td>{/each}</tr>{/each}</tbody>
     </table></div>
   {/if}
 </div>

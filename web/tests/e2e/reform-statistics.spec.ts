@@ -6,6 +6,7 @@ import { resolve } from 'node:path';
 import catalog from '../../src/lib/politics/reform-2026/data/generation-catalog.generated.json' with { type: 'json' };
 import type { ReformGenerationScenario } from '../../src/lib/politics/reform-2026/generation-types';
 import { multipleSeriesResult, statisticalResult, refinementResult } from '../fixtures/statistical-result';
+import { positionTable, positionColumns } from '../../src/lib/politics/reform-2026/election-probability';
 
 test('disk statistics preserve exact ranks, unknown outcomes, bounded pages, ownership and archive content beyond 1000 runs', async ({ page, context }) => {
   const bundled = await build({ configFile: false, logLevel: 'error', resolve: { alias: { $lib: fileURLToPath(new URL('../../src/lib', import.meta.url)) } },
@@ -48,10 +49,97 @@ test('disk statistics preserve exact ranks, unknown outcomes, bounded pages, own
     for (const [seats, count] of outcomes) expect(paired.bins.flatMap((b: any) => b.outcomes).filter((o: any) => o.seats === seats).reduce((n: number, o: any) => n + o.count, 0)).toBe(count);
   }
   expect(result.pairedEntitlement).toMatchObject({ known: 598, missingY: 1, missingX: 1, yMax: 2, distribution: { count: 599 } });
+  for (const filter of ['all', 'awarded', 'not-awarded']) {
+    const included = Array.from({ length: 1201 }, (_, i) => i + 1).filter(i => i !== 2 && i !== 7 && (filter === 'all' || i <= 1200 && i % 2 === (filter === 'awarded' ? 1 : 0)));
+    const expected = new Map<number | null, number>();
+    for (const simulation of included) {
+      const value = [3, 5, 9, 13].includes(simulation) ? null : simulation === 11 ? 3 : simulation === 17 ? 7 : simulation % 8;
+      expected.set(value, (expected.get(value) ?? 0) + 1);
+    }
+    const stats = result.lastPositions[filter];
+    expect(stats).toMatchObject({ descriptor: { college: 'paired-y' }, xDescriptor: { college: 'paired-x' }, requested: filter === 'all' ? 1201 : 600,
+      known: included.length - (expected.get(null) ?? 0), missingY: expected.get(null) ?? 0, yMax: filter === 'not-awarded' ? 6 : 7, distribution: result.paired[filter].distribution });
+    for (const [seats, count] of expected) expect(stats.bins.flatMap((b: any) => b.outcomes).filter((o: any) => o.seats === seats).reduce((n: number, o: any) => n + o.count, 0)).toBe(count);
+  }
+  expect(result.noSlate.unavailableReason).toContain('nessuna evidenza');
+  expect(result.invalidLastPositionDenied).toBe(true);
   expect(result.pages.map((p: any) => p.length)).toEqual([256, 256, 256, 256, 177]);
   expect(result.pages.at(-1).last).toBe(1201);
   expect(result.foreignDenied).toBe(true); expect(result.archiveUnchanged).toBe(true); expect(result.removed).toBe(true);
   expect(result.cacheFailure).toBe(true); expect(result.canonicalRetained).toBe(true); expect(result.partialCacheRemoved).toBe(true); expect(result.rebuiltKnown).toBe(1201);
+});
+
+test('position probabilities and the last-position spinogram use local ranked evidence across filters, axes and old archives', async ({ page }) => {
+  const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
+  const scenario = JSON.parse(readFileSync(resolve('src/lib/politics/reform-2026/data', catalog.defaultsPath), 'utf8')) as ReformGenerationScenario;
+  const archive = refinementResult(scenario);
+  const positions = archive.result.tables.find(t => t.name === positionTable)!;
+  const selected = (row: unknown[]) => row[positions.columns.indexOf('Chamber')] === 'camera' && row[positions.columns.indexOf('List')] === 'constructed-1' && row[positions.columns.indexOf('College')] === 'college-1';
+  positions.rows = positions.rows.filter(row => !(selected(row) && row[0] === 9));
+  for (const row of positions.rows.filter(selected)) {
+    const simulation = Number(row[0]), last = simulation % 4;
+    positionColumns.forEach((column, i) => { row[positions.columns.indexOf(column)] = simulation === 5 ? i === 0 ? 1 : i === 6 ? null : 0 : Number(i + 1 === last); });
+  }
+  const localTable = archive.result.tables.find(t => t.name === 'Reform college series v1')!;
+  for (const row of localTable.rows) if (row[localTable.columns.indexOf('College')] === 'college-1' && row[localTable.columns.indexOf('Owner')] === 'list:constructed-1') {
+    row[localTable.columns.indexOf('Vote share %')] = row[0] === 7 ? null : Number(row[0]);
+  }
+  await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
+  await page.getByLabel('Algoritmo di scrutinio').selectOption(scenario.algorithmId);
+  const importArchive = async (payload: typeof archive, name: string) => {
+    const results = page.getByLabel('Risultati locali');
+    const previous = await results.count() ? await results.inputValue() : null;
+    await page.getByTestId('reform-file-input').setInputFiles({ name, mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(payload)) });
+    if (previous !== null) await expect(results).not.toHaveValue(previous);
+    await expect(page.getByLabel('Statistiche riforma', { exact: true }).locator('.paired-bars')).toBeVisible();
+  };
+  await importArchive(archive, 'positions.json');
+  const statistics = page.getByLabel('Statistiche riforma', { exact: true });
+  const probabilities = statistics.getByRole('region', { name: 'Probabilità di elezione', exact: true });
+  await probabilities.locator('summary').click();
+  const cells = probabilities.getByRole('table').locator('tbody tr').first().locator('td');
+  await expect(cells.nth(0)).toHaveText('≥ 66,7%');
+  await expect(cells.nth(1)).toHaveText('≥ 50%');
+  await expect(cells.nth(0)).toHaveAttribute('title', /8 simulazioni con elezione confermata/);
+  const local = statistics.locator('details').filter({ has: page.locator('summary', { hasText: /^Eletti nel collegio plurinominale$/ }) });
+  await local.locator(':scope > summary').click();
+  await local.getByLabel('Misura del collegio').selectOption('last-position');
+  const panel = local.locator('.series-panel');
+  await panel.scrollIntoViewIfNeeded();
+  await expect(local.locator('.axis-sources')).toContainText('Asse Y: ultima posizione eletta');
+  await expect(panel).toContainText('9/12 coppie note · 2 esiti ignoti con percentuale nota · 1 percentuali non disponibili');
+  await panel.locator('.spine-panel-button').click();
+  await expect(page.getByRole('dialog')).toContainText('Ultima posizione eletta');
+  await page.keyboard.press('Escape');
+  const filter = local.getByRole('combobox', { name: 'Simulazioni del collegio', exact: true });
+  await filter.selectOption('awarded');
+  await expect(panel).toContainText('5/6 coppie note');
+  await filter.selectOption('not-awarded');
+  await expect(panel).toContainText('3/5 coppie note · 1 esiti ignoti con percentuale nota · 1 percentuali non disponibili');
+  await filter.selectOption('all');
+  await local.getByText('Opzioni avanzate dell’asse X', { exact: true }).click();
+  await local.getByLabel('Usa un collegio e una lista diversi per le percentuali').check();
+  await local.getByRole('combobox', { name: 'Collegio delle percentuali (asse X)', exact: true }).selectOption('college-2');
+  await expect(panel).toContainText('10/12 coppie note · 2 esiti ignoti con percentuale nota · 0 percentuali non disponibili');
+  await filter.selectOption('awarded');
+  await expect(panel).toContainText('5/6 coppie note');
+  await local.getByLabel('Misura del collegio').selectOption('elected');
+  await expect(panel).toContainText('6/6 coppie note');
+  // The table exists, but this college/list has no candidate-slate evidence.
+  positions.rows = positions.rows.filter(row => !selected(row));
+  await importArchive(archive, 'no-slate.json');
+  await local.locator(':scope > summary').click();
+  await local.getByLabel('Misura del collegio').selectOption('last-position');
+  await panel.scrollIntoViewIfNeeded();
+  await expect(panel).toContainText('nessuna evidenza di una lista di candidati');
+  await expect(panel.locator('.spine-plot')).toHaveCount(0);
+  await importArchive(statisticalResult(scenario, 12), 'old-positions.json');
+  await local.locator(':scope > summary').click();
+  await local.getByLabel('Misura del collegio').selectOption('last-position');
+  await panel.scrollIntoViewIfNeeded();
+  await expect(panel).toContainText('Dati delle posizioni non disponibili nell’archivio');
+  await expect(panel.locator('.spine-plot')).toHaveCount(0);
+  expect(errors).toEqual([]);
 });
 
 test('college spinogram filters joint bonus decisions and reports plotted simulations, missing values and empty subsets', async ({ page }) => {

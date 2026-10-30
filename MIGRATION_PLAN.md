@@ -396,14 +396,12 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   - [x] better describe the meaning of columns in table of elected and shares
 - [x] add the table of seat endowment per each college with and without bonus
     and per each constituency's bonus slate.
-- [ ] change the computation of election probability table values: shown percentage
-  should be the probability of being elected in this position OR that a subsequent
-  candidate is elected in this slate (i.e. if the candidate is elected because he is
-  in this position, this counts; if the candidate is elected in another position AND,
-  because of this, a subsequent candidate is elected in this slate, this counts; if
-  the candidate is elected in another position AND no subsequent candidate is elected
-  in this slate, this does not count).
-- [ ] add another measurement option for the single college spinogram: the order
+- [x] change the computation of election probability table values: shown percentage
+  is the probability of election in this position OR a subsequent position in the
+  same slate, without requiring causality. Use final college/list locations,
+  including recoveries; election elsewhere alone does not count. Keep confirmed
+  position thresholds separate from an unknown exact last elected position.
+- [x] add another measurement option for the single college spinogram: the order
   number of the last elected candidate in this slate, ordered by preference for
   candidates other that the "capolista". E.g. if none is elected, 0; if some
   candidates are elected in other position but none from this slate, 0; if capolista
@@ -411,6 +409,7 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   candidate with most preferences is elected in this college, 2; if capolista and the
   candidate with most preferences are elected in any position, and the candidate with
   second most high preference number is elected in this college, 3, and so on.
+  Entries without candidate-slate evidence have an unavailable measurement.
 - [ ] edit the single college spinogram to let the user choose between a single
     college and a whole constituency.
 - [ ] Generalize routing, snapshot selection, scenario defaults, validation,

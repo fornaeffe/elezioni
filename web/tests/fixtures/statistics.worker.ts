@@ -5,6 +5,7 @@ import { getStoredResult, deleteStoredResult } from '../../src/lib/core/result-s
 import { streamStoredResult } from '../../src/lib/core/result-export';
 import { ensureStatistics, seriesStatistics } from '../../src/lib/politics/reform-2026/stored-statistics';
 import { readStatisticsCache, samplePage, deleteStatisticsCache } from '../../src/lib/core/statistics-cache';
+import { electionPositionColumns, positionColumns, positionTable } from '../../src/lib/politics/reform-2026/election-probability';
 
 self.onmessage = async () => {
   let id = '';
@@ -25,6 +26,18 @@ self.onmessage = async () => {
       locals.rows.push(locals.columns.map(c => values[c]));
     }
     locals.rows.sort((a, b) => Number(a[0]) - Number(b[0]));
+    const positionRows = [];
+    for (let simulation = 1; simulation <= 1201; simulation++) {
+      if (simulation === 3 || simulation === 9) continue;
+      const last = simulation % 8;
+      const values: (number | null)[] = positionColumns.map((_, i) => Number(i + 1 === last));
+      if (simulation === 5) { values.fill(0); values[0] = 1; values[6] = null; }
+      if (simulation === 11) { values.fill(0); values[0] = null; values[2] = 1; }
+      if (simulation === 13) values.fill(null);
+      if (simulation === 17) { values.fill(null); values[6] = 1; }
+      positionRows.push([simulation, 'camera', 'paired-y', 'paired-y', 'Paired y', ...values]);
+    }
+    payload.result.tables.push({ name: positionTable, columns: electionPositionColumns, rows: positionRows });
     id = crypto.randomUUID();
     const imported = await handleResultService({ type: 'result-service', requestId: 1, action: 'import', resultId: id, owner, file: new File([JSON.stringify(payload)], 'statistics.json') });
     if (!imported.ok) throw new Error(imported.error!.message);
@@ -47,6 +60,14 @@ self.onmessage = async () => {
       paired[filter] = response.data;
     }
     const pairedEntitlement = await seriesStatistics(record, ySeries, 'entitled', 'awarded', xSeries);
+    const lastPositions: Record<string, unknown> = {};
+    for (const filter of ['all', 'awarded', 'not-awarded'] as const) {
+      const response = await handleResultService({ type: 'result-service', requestId: 12, action: 'statistics-series', resultId: id, owner, series: ySeries, xSeries, measure: 'last-position', bonusFilter: filter });
+      if (!response.ok) throw new Error(response.error!.message);
+      lastPositions[filter] = response.data;
+    }
+    const noSlate = await seriesStatistics(record, cache.overview.colleges[0].id, 'last-position');
+    const invalidLastPosition = await handleResultService({ type: 'result-service', requestId: 13, action: 'statistics-series', resultId: id, owner, series: summary.id, measure: 'last-position' });
     const pages = []; let after = 0;
     for (;;) { const page = await samplePage(id, summary.id, after); if (!page.length) break; pages.push({ length: page.length, first: page[0].simulation, last: page.at(-1)!.simulation }); after = page.at(-1)!.simulation; }
     const foreign = await handleResultService({ type: 'result-service', requestId: 2, action: 'statistics', resultId: id, owner: 'foreign' });
@@ -66,7 +87,7 @@ self.onmessage = async () => {
     const rebuilt = await ensureStatistics(record);
     await deleteStoredResult(id, owner);
     const removed = await readStatisticsCache(id) === undefined && (await samplePage(id, summary.id)).length === 0;
-    self.postMessage({ ok: true, overview: cache.overview, stats, college, entitlement, filtered, filteredEntitlement, paired, pairedEntitlement, pages, foreignDenied: !foreign.ok, archiveUnchanged: before.join('') === afterExport.join(''), removed,
+    self.postMessage({ ok: true, overview: cache.overview, stats, college, entitlement, filtered, filteredEntitlement, paired, pairedEntitlement, lastPositions, noSlate, invalidLastPositionDenied: !invalidLastPosition.ok, pages, foreignDenied: !foreign.ok, archiveUnchanged: before.join('') === afterExport.join(''), removed,
       cacheFailure: !cacheFailure?.ok, canonicalRetained, partialCacheRemoved, rebuiltKnown: rebuilt.overview.series[0].votesKnown });
   } catch (e) { self.postMessage({ ok: false, error: String(e) }); }
 };

@@ -5,7 +5,7 @@
   import { onMount } from 'svelte';
   import { SvelteMap } from 'svelte/reactivity';
   import type { ResultServiceClient } from '../../core/result-service-client';
-  import type { BonusFilter, Distribution, SeriesSummary, StatisticsOverview } from '../../results/statistics';
+  import type { BonusFilter, CollegeMeasure, Distribution, SeriesSummary, StatisticsOverview } from '../../results/statistics';
   import type { BoxPlotResultChart, BoxPlotItem } from '../../results/chart-types';
   import { boxPlotItem, chartTicks, displayNumber } from '../../results/chart-builders';
   import { summaryTable } from '../../results/statistics';
@@ -22,7 +22,7 @@
   let showProbability = $state(false), localChamber = $state('camera'), localList = $state(''), bonusChamber = $state('camera');
   let bonus = $state.raw<Awaited<ReturnType<typeof storedBonusProbabilities>>>([]);
   let meanKind = $state('list'), boxKind = $state('list');
-  let error = $state(''), selectedCollege = $state(''), localMeasure = $state<'elected' | 'entitled'>('elected');
+  let error = $state(''), selectedCollege = $state(''), localMeasure = $state<CollegeMeasure>('elected');
   let localBonusFilter = $state<BonusFilter>('all');
   let separateShare = $state(false), shareCollege = $state(''), shareList = $state('');
   let scatter = $state(false), nationalSpines = $state(false), localSpine = $state(false), showSummary = $state(false), summaryPage = $state(0);
@@ -163,7 +163,8 @@
           <label>Ramo del collegio<select bind:value={localChamber}><option value="camera">Camera</option><option value="senato">Senato</option></select></label>
           <div class="college-control"><SearchSelect label="Collegio del grafico" options={collegeOptions} value={college ?? ''} onchange={value => { localList = selected?.owner ?? localList; selectedCollege = value; }} /></div>
           <label>Lista del collegio<select value={selected?.owner ?? ''} onchange={e => { localList = e.currentTarget.value; }}>{#each localListOptions as item (item.id)}<option value={item.id}>{item.label}</option>{/each}</select></label>
-          <label>Misura del collegio<select bind:value={localMeasure}><option value="elected">Eletti nella sede effettiva</option><option value="entitled">Seggi spettanti nella sede originaria</option></select></label>
+          <label>Misura del collegio<select bind:value={localMeasure}><option value="elected">Eletti nella sede effettiva</option><option value="entitled">Seggi spettanti nella sede originaria</option><option value="last-position">Ultima posizione eletta nella lista</option></select></label>
+          {#if localMeasure === 'last-position'}<p>Posizione dell’ultimo candidato eletto da questa lista in questo collegio: 0 = nessuno, 1 = capolista, 2 = prima preferenza, …, 7 = sesta preferenza. Le elezioni altrove non contano; i recuperi contano nella sede finale. Le posizioni saltate restano nell’ordine, anche senza un rapporto di causa tra le elezioni. Un esito incompleto può lasciare ignota l’ultima posizione.</p>{/if}
           <label>Simulazioni del collegio<select bind:value={localBonusFilter}><option value="all">Tutte le simulazioni</option><option value="awarded">Solo con premio attribuito</option><option value="not-awarded">Solo senza premio attribuito</option></select></label>
           <p>Il filtro usa l’attribuzione del premio congiunto, indipendentemente dalla lista selezionata. Le decisioni sul premio mancanti o non calcolabili sono escluse dai due sottoinsiemi.</p>
           <p>Gli eletti sono contati nella sede finale, inclusi i recuperi del premio. Il premio senza collegio resta nei grafici nazionali. I seggi spettanti seguono la sede originaria e non vengono trasferiti dal grafico.</p>
@@ -179,7 +180,7 @@
             {/if}
           </details>
           {#if selected && selectedShare}
-            <p class="axis-sources">Asse Y: {localMeasure === 'elected' ? 'eletti' : 'seggi spettanti'} · {selected.chamber} · {selected.name}<br />Asse X: percentuale sui voti validi · {selectedShare.chamber} · {selectedShare.name}</p>
+            <p class="axis-sources">Asse Y: {localMeasure === 'elected' ? 'eletti' : localMeasure === 'entitled' ? 'seggi spettanti' : 'ultima posizione eletta'} · {selected.chamber} · {selected.name}<br />Asse X: percentuale sui voti validi · {selectedShare.chamber} · {selectedShare.name}</p>
             {#key JSON.stringify([selected.id, selectedShare.id, localMeasure, localBonusFilter])}<ReformSeriesPanel {client} {resultId} {owner} descriptor={selected} xDescriptor={selectedShare} variant="spine" measure={localMeasure} bonusFilter={localBonusFilter} collapsible={false} />{/key}
           {:else}<p>Nessun collegio disponibile per questo ramo.</p>{/if}
         {:else}<p>Dati locali non disponibili nell’archivio. È necessaria una nuova esecuzione per produrli.</p>{/if}

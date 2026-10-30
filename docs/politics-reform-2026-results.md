@@ -25,6 +25,13 @@ For global conditions, message frequencies and affected IDs use the
   requested count. Clicking a spinogram opens its enlarged view; Escape closes it.
 - The searchable college spinogram defaults to final winners at their actual
   election college. A separate measure shows original seat entitlements.
+  Another measure shows the last locally elected position: 0 means nobody,
+  1 capolista, and 2–7 the first through sixth preference ranks. It is a position
+  number, not the number of winners; skipped positions remain in the ordering.
+  Elections elsewhere alone do not advance it. Recoveries count at their final
+  college/list. Unknown later outcomes can make this exact position unknown,
+  even when an earlier local winner is confirmed. Entries without candidate-slate
+  evidence, including Other, show an unavailable state rather than zero.
   Initial bonus winners without a college remain national; recovered bonus
   winners with an election college appear locally with their bonus category.
   The selector covers filed ordinary and TAA proportional slates, including
@@ -46,6 +53,19 @@ For global conditions, message frequencies and affected IDs use the
   the X source is also identified in its enlarged view. Collapsing the advanced
   controls retains the selection; disabling the option restores matching axes.
   The plot shares the main section with its controls and has no inner toggle.
+- The election-probability table orders each slate by capolista followed by
+  descending preferences within each simulation, using the existing filed-order
+  tie break. Position $k$ counts a success when that position **or any later
+  position** has a confirmed final winner from the selected college/list.
+  This is a literal OR; no causal link between elections is required. A later
+  winner counts even when an earlier candidate was unavailable. Elections
+  elsewhere alone do not count. For complete evidence, if $L$ is the last
+  locally elected position, each cell reports the frequency of $L \ge k$.
+  The denominator remains all requested simulations. Confirmed successes survive
+  other unknown outcomes; a failure requires every existing position from $k$
+  onward to be known zero. Incomplete coverage is labelled as a lower bound,
+  absent positions as `—`, and wholly unknown outcomes as `n.d.`. These are
+  per-run rank statistics, not fixed-person election probabilities.
 
 National list counts use final personal affiliation after multiple-election
 resolution and recovery. Coalition/subject counts use the legal supporting
@@ -89,6 +109,15 @@ existing metadata table. The schema-v2 envelope and generic streamed JSON.gz/CSV
 export remain unchanged. Generated summaries use the same observation contract
 as the charts. Editing the scenario draft does not relabel existing results.
 
+`Reform college election positions v1` retains direct per-position final-election
+evidence. Both the cumulative probability table and last-position measure derive
+their values from it without rewriting that table or rerunning scrutiny. Existing
+archives containing it support the new definitions. Archives without it explicitly
+report unavailable position data. The last-position query streams this evidence
+and pairs it with the selected vote-share series by simulation ID; a missing row
+is an unknown outcome, not zero. It uses the same bonus subsets, exact X-axis
+quantiles and missing-value coverage as the other college measures.
+
 Older archives remain readable without a new execution. National vote plots and
 supporting-subject counts use available saved evidence. Ordinary/recovered list
 locations can establish affiliation; original coalition bonus/special ownership
@@ -118,6 +147,7 @@ durably published prefix and preserve the requested denominator.
 |---|---|
 | Final affiliation, per-run national/local observations | `web/src/lib/politics/reform-2026/result-series.ts`, `result-presentation.ts` |
 | Archived evidence, compatibility, statistical queries | `web/src/lib/politics/reform-2026/stored-statistics.ts` |
+| Ranked-position OR outcomes, last elected position and probability table | `election-probability.ts`, `stored-probabilities.ts`, `ElectionProbabilityTable.svelte` |
 | Rebuildable sample/value index and bounded pages | `web/src/lib/core/statistics-cache.ts` |
 | Shared statistical/table/chart contracts and renderers | `web/src/lib/results/` |
 | Reform layout, coverage and college selection | `ReformResultCharts.svelte`, `ReformSeriesPanel.svelte` |

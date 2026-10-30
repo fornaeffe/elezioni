@@ -2,6 +2,7 @@ import type { ResultTable } from '../core/types';
 import type { SeriesKind } from '../politics/reform-2026/result-series';
 
 export type BonusFilter = 'all' | 'awarded' | 'not-awarded';
+export type CollegeMeasure = 'elected' | 'entitled' | 'last-position';
 
 export interface SeriesDescriptor {
   id: string; chamber: 'camera' | 'senato'; kind: SeriesKind; owner: string;
@@ -28,6 +29,7 @@ export interface SpineBinData { low: number; high: number; count: number; outcom
 export interface SeriesStatistics {
   descriptor: SeriesDescriptor; requested: number; known: number; missingX: number; missingY: number;
   xDescriptor?: SeriesDescriptor;
+  unavailableReason?: string;
   distribution: Distribution; bins: SpineBinData[]; yMax: number;
 }
 

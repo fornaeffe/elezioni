@@ -17,7 +17,7 @@ import { REFORM_ALGORITHM_ID } from '../politics/reform-2026/input';
 import { estimateReformWorkerCapacity, requireReformWorkerCount } from '../core/reform-worker-capacity';
 import { ReformComputeClient, runOrderedReformPool } from './reform-pool';
 import { ensureStatistics, requireSeries, seriesStatistics, statisticalDistribution, storedSeatEndowments, storedSummaryTable } from '../politics/reform-2026/stored-statistics';
-import { summaryTableName, type BonusFilter } from '../results/statistics';
+import { summaryTableName, type BonusFilter, type CollegeMeasure } from '../results/statistics';
 import { requireFastScenario } from '../politics/reform-2026/vote-share/scenario';
 import { generationCapacity } from '../politics/reform-2026/vote-share/fit-resources';
 import { loadCandidate } from '../politics/reform-2026/vote-share/release';
@@ -31,7 +31,7 @@ export interface ResultServiceRequest {
   table?: number; offset?: number; limit?: number; simulation?: number;
   file?: File; format?: 'json' | 'csv';
   list?: string; chamber?: string;
-  series?: string; xSeries?: string; measure?: 'elected' | 'entitled';
+  series?: string; xSeries?: string; measure?: CollegeMeasure;
   bonusFilter?: BonusFilter;
   filter?: DiagnosticFilter;
 }

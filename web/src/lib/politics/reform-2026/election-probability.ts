@@ -42,6 +42,38 @@ export function electionPositionRows(input: ReformScrutinyInput, result: Compose
 export interface ProbabilityCell { wins: number; known: number; absent: number }
 export interface CollegeProbability { id: string; name: string; positions: ProbabilityCell[] }
 export interface PositionProbabilities { available: boolean; requested: number; rows: CollegeProbability[] }
+
+type PositionOutcome = 0 | 1 | null | 'absent';
+
+/** Literal OR over final local winners, without attributing a cause to skips.
+ * Keep threshold evidence separate from the exact last position: a later
+ * unknown can obscure the latter without erasing a confirmed earlier reach. */
+export function slatePositionOutcomes(row: Row): { reached: PositionOutcome[]; last: number | null } {
+  const values = positionColumns.map(column => {
+    const value = row[column];
+    if (value !== 0 && value !== 1 && value !== null && value !== 'absent') throw new Error('Invalid election position outcome');
+    return value;
+  });
+  const reached: PositionOutcome[] = [];
+  let hasWinner = false, hasUnknown = false;
+  let last: number | null = 0;
+  let absent = false;
+  for (const value of values) {
+    if (value === 'absent') absent = true;
+    else if (absent) throw new Error('Absent election positions must form a trailing suffix');
+  }
+  for (let i = values.length - 1; i >= 0; i--) {
+    const value = values[i];
+    if (value === 'absent') { reached[i] = 'absent'; continue; }
+    if (last === 0 && value === null) last = null;
+    if (last === 0 && value === 1) last = i + 1;
+    hasWinner ||= value === 1;
+    hasUnknown ||= value === null;
+    reached[i] = hasWinner ? 1 : hasUnknown ? null : 0;
+  }
+  return { reached, last };
+}
+
 export function positionAccumulator(requested: number) {
   const colleges = new Map<string, CollegeProbability>();
   const last = new Map<string, number>();
@@ -50,9 +82,10 @@ export function positionAccumulator(requested: number) {
       const id = String(row.College), college = colleges.get(id) ?? { id, name: String(row.Name), positions: positionColumns.map(() => ({ wins: 0, known: 0, absent: 0 })) };
       const simulation = Number(row.Simulation);
       if (!Number.isSafeInteger(simulation) || simulation <= (last.get(id) ?? 0) || simulation > requested) throw new Error('Duplicate, unordered or invalid election position observation');
+      const { reached } = slatePositionOutcomes(row);
       last.set(id, simulation);
       positionColumns.forEach((column, i) => {
-        const value = row[column], cell = college.positions[i];
+        const value = reached[i], cell = college.positions[i];
         if (value === 0 || value === 1) { cell.known++; cell.wins += value; }
         else if (value === 'absent') cell.absent++;
         else if (value !== null) throw new Error('Invalid election position outcome');

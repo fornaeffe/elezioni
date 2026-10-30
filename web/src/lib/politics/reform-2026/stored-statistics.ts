@@ -4,6 +4,8 @@ import { addSample, binFor, emptySummary, finiteNumber, interpolated, pairStatis
 import type { ResultTable } from '../../core/types';
 import { reformCollegeSeriesTable, reformSeriesTable, seriesKey, unaffiliatedOwner } from './result-series';
 import { reformPresentation, subjectColor } from './presentation-metadata';
+import { positionTable, slatePositionOutcomes } from './election-probability';
+import type { CollegeMeasure } from '../../results/statistics';
 
 type Row = ResultTable['rows'][number];
 export interface CollegeSeatEndowment {
@@ -226,9 +228,42 @@ async function filteredDistribution(record: StoredResult, id: string, simulation
     q1: quantile(.25), median: quantile(.5), q3: quantile(.75), p05: quantile(.05), p95: quantile(.95), whiskerLow: null, whiskerHigh: null };
   return { distribution, deciles: count ? Array.from({ length: 11 }, (_, i) => quantile(i / 10)!) : [] };
 }
-export async function seriesStatistics(record: StoredResult, id: string, measure: 'elected' | 'entitled' = 'elected', bonusFilter: BonusFilter = 'all', xSeries = id): Promise<SeriesStatistics> {
+/** Merge archived final-position evidence with the chosen share stream, keeping
+ * gaps unknown. Reads stay bounded and never alter canonical rows or caches. */
+async function lastPositionObservations(record: StoredResult, descriptor: SeriesDescriptor, xSeries: string) {
+  async function* positions() {
+    let last = 0;
+    for await (const row of tableRows(record, positionTable)) {
+      if (row.Chamber !== descriptor.chamber || `list:${row.List}` !== descriptor.owner || row.College !== descriptor.college) continue;
+      const simulation = row.Simulation;
+      if (!Number.isSafeInteger(simulation) || Number(simulation) <= last || Number(simulation) > record.result.benchmark.simulations) throw new Error('Duplicate, unordered or invalid election position observation');
+      last = Number(simulation);
+      yield { simulation: last, y: slatePositionOutcomes(row).last };
+    }
+  }
+  const iterator = positions();
+  let position = await iterator.next();
+  const unavailableReason = position.done ? record.result.storage!.tables.some(t => t.name === positionTable)
+    ? 'Misura non disponibile: nessuna evidenza di una lista di candidati per questo collegio e questa lista.'
+    : 'Dati delle posizioni non disponibili nell’archivio. È necessaria una nuova esecuzione.' : undefined;
+  async function* observations(): AsyncGenerator<StatisticalSample> {
+    try {
+      for await (const share of samples(record.id, xSeries)) {
+        while (!position.done && position.value.simulation < share.simulation) position = await iterator.next();
+        yield { ...share, y: !position.done && position.value.simulation === share.simulation ? position.value.y : null };
+      }
+      // Validate remaining evidence even when the share stream ends earlier.
+      while (!position.done) position = await iterator.next();
+    } finally { await iterator.return(undefined); }
+  }
+  return { observations: observations(), unavailableReason };
+}
+
+export async function seriesStatistics(record: StoredResult, id: string, measure: CollegeMeasure = 'elected', bonusFilter: BonusFilter = 'all', xSeries = id): Promise<SeriesStatistics> {
   if (!['all', 'awarded', 'not-awarded'].includes(bonusFilter)) throw new Error('Invalid bonus filter');
+  if (!['elected', 'entitled', 'last-position'].includes(measure)) throw new Error('Invalid statistical measure');
   const summary = await requireSeries(record, id);
+  if (measure === 'last-position' && summary.kind !== 'college') throw new Error('Last elected position requires a college slate');
   const xSummary = xSeries === id ? summary : await requireSeries(record, xSeries);
   if (xSeries !== id && (summary.kind !== 'college' || xSummary.kind !== 'college' || summary.chamber !== xSummary.chamber)) throw new Error('Select share and outcome colleges in the same chamber');
   let simulations: Set<number> | undefined;
@@ -249,7 +284,8 @@ export async function seriesStatistics(record: StoredResult, id: string, measure
   if (boundaries.length === 1) boundaries.push(boundaries[0]);
   const bins = Array.from({ length: Math.max(0, boundaries.length - 1) }, (_, i) => ({ low: boundaries[i], high: boundaries[i + 1], count: 0, outcomes: [] as { seats: number | null; count: number }[] }));
   let known = 0, missingY = 0, yMax = 0;
-  const observations = xSeries === id ? samples(record.id, id) : pairStatisticalSamples(samples(record.id, id), samples(record.id, xSeries));
+  const positions = measure === 'last-position' ? await lastPositionObservations(record, summary, xSeries) : undefined;
+  const observations = positions?.observations ?? (xSeries === id ? samples(record.id, id) : pairStatisticalSamples(samples(record.id, id), samples(record.id, xSeries)));
   for await (const p of observations) {
     if (p.x === null || simulations && !simulations.has(p.simulation)) continue;
     if (filtered) {
@@ -266,5 +302,5 @@ export async function seriesStatistics(record: StoredResult, id: string, measure
   }
   for (const bin of bins) bin.outcomes.sort((a, b) => (a.seats ?? Infinity) - (b.seats ?? Infinity));
   const requested = simulations?.size ?? record.result.benchmark.simulations;
-  return { descriptor: summary, xDescriptor: xSummary, requested, known, missingX: requested - distribution.count, missingY, distribution, bins, yMax };
+  return { descriptor: summary, xDescriptor: xSummary, unavailableReason: positions?.unavailableReason, requested, known, missingX: requested - distribution.count, missingY, distribution, bins, yMax };
 }
