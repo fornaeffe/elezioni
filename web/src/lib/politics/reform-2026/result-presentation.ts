@@ -28,6 +28,31 @@ export function createReformPresentation(scenario: ReformGenerationScenario|Rele
   const sensitivity = table('Conditional profile sensitivity', ['Preference profile', 'Chamber profile', 'Requested', 'Joint bonus probability / requested', 'Complete candidate runs / requested', 'Interpretation']);
   const catalogue = table('Political subject names', ['Chamber', 'List', 'Name', 'Coalition']);
   if (options.includeContext !== false) for (const chamber of ['camera', 'senato'] as const) for (const list of scenario.lists[chamber]) catalogue.rows.push({ Chamber: chamber, List: list.id, Name: list.name, Coalition: list.coalitionId });
+  const collegeEndowments = table('Seat endowments by college', ['Chamber', 'Territory', 'Territory name', 'College', 'College name', 'Kind', 'Seats without bonus', 'Seats with bonus']);
+  const bonusEndowments = table('Bonus slate endowments', ['Chamber', 'Territory', 'Territory name', 'Seats']);
+  if (options.includeContext !== false) {
+    const territories = new Map(snapshot.seats.geography.territories.map(t => [t.id, t]));
+    const colleges = new Map(snapshot.seats.geography.colleges.map(c => [c.id, c]));
+    const kinds: Record<string, string> = { ordinary: 'Ordinario', 'taa-proportional': 'Proporzionale TAA', 'special-uninominal': 'Uninominale speciale' };
+    for (const chamber of snapshot.seats.chambers) {
+      for (const college of chamber.colleges) {
+        const territory = territories.get(college.territoryId);
+        const catalogCollege = colleges.get(college.id);
+        collegeEndowments.rows.push({
+          Chamber: chamber.chamber, Territory: college.territoryId, 'Territory name': territory?.name ?? college.territoryId,
+          College: college.id, 'College name': catalogCollege?.name ?? college.id, Kind: kinds[college.kind],
+          'Seats without bonus': college.seatsWithoutBonus, 'Seats with bonus': college.seatsWithBonus
+        });
+      }
+      for (const territory of chamber.territories.filter(t => t.kind === 'ordinary' && t.bonusSeats > 0)) {
+        const catalogTerritory = territories.get(territory.id);
+        bonusEndowments.rows.push({
+          Chamber: chamber.chamber, Territory: territory.id, 'Territory name': catalogTerritory?.name ?? territory.id,
+          Seats: territory.bonusSeats
+        });
+      }
+    }
+  }
   const runs = table('Reform runs', ['Simulation', 'Status', 'Bonus', 'Reason']);
   const bonuses = table('Bonus eligibility', ['Simulation', 'Chamber', 'Subject', 'Votes', 'Valid votes', 'At least 42%', 'Status', 'Reason']);
   const votes = table('Reform vote shares', ['Simulation', 'Chamber', 'List', 'Votes', 'Valid votes', 'Vote share %']);

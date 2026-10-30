@@ -16,7 +16,7 @@ import { resolvePoliticsSimulationAlgorithm } from '../politics/simulation-scrut
 import { REFORM_ALGORITHM_ID } from '../politics/reform-2026/input';
 import { estimateReformWorkerCapacity, requireReformWorkerCount } from '../core/reform-worker-capacity';
 import { ReformComputeClient, runOrderedReformPool } from './reform-pool';
-import { ensureStatistics, requireSeries, seriesStatistics, statisticalDistribution, storedSummaryTable } from '../politics/reform-2026/stored-statistics';
+import { ensureStatistics, requireSeries, seriesStatistics, statisticalDistribution, storedSeatEndowments, storedSummaryTable } from '../politics/reform-2026/stored-statistics';
 import { summaryTableName, type BonusFilter } from '../results/statistics';
 import { requireFastScenario } from '../politics/reform-2026/vote-share/scenario';
 import { generationCapacity } from '../politics/reform-2026/vote-share/fit-resources';
@@ -26,7 +26,7 @@ import { samplePage } from '../core/statistics-cache';
 
 export interface ResultServiceRequest {
   type: 'result-service'; requestId: number;
-  action: 'page' | 'warnings' | 'diagnostics' | 'messages-summary' | 'messages-general' | 'messages-context' | 'messages-ids' | 'messages-export' | 'manifest' | 'fit-session' | 'delete' | 'cancel' | 'import' | 'export' | 'statistics' | 'statistics-series' | 'statistics-points' | 'statistics-box' | 'statistics-positions' | 'statistics-bonus';
+  action: 'page' | 'warnings' | 'diagnostics' | 'messages-summary' | 'messages-general' | 'messages-context' | 'messages-ids' | 'messages-export' | 'manifest' | 'fit-session' | 'delete' | 'cancel' | 'import' | 'export' | 'statistics' | 'statistics-series' | 'statistics-points' | 'statistics-box' | 'statistics-positions' | 'statistics-bonus' | 'statistics-endowments';
   resultId: string; owner: string;
   table?: number; offset?: number; limit?: number; simulation?: number;
   file?: File; format?: 'json' | 'csv';
@@ -273,6 +273,7 @@ export async function handleResultService(request: ResultServiceRequest): Promis
         if (active.has(record.id)) throw new Error('Wait for calculation completion before querying statistics');
         if (deleting.has(record.id)) throw new Error('Result session is being deleted');
         const job = (async () => {
+          if (request.action === 'statistics-endowments') return storedSeatEndowments(record);
           if (request.action === 'statistics-positions') return await storedPositionProbabilities(record, request.chamber ?? '', request.list ?? '');
           if (request.action === 'statistics-bonus') return await storedBonusProbabilities(record);
           if (request.action === 'statistics') return (await ensureStatistics(record)).overview;

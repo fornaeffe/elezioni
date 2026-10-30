@@ -15,8 +15,10 @@
   import SearchSelect from '../../scenario/SearchSelect.svelte';
   import ReformSeriesPanel from './ReformSeriesPanel.svelte';
   import ReformSeriesChart from './ReformSeriesChart.svelte';
+  import type { ReformSeatEndowments } from './stored-statistics';
   let { client, resultId, owner }: { client: ResultServiceClient; resultId: string; owner: string } = $props();
   let overview = $state.raw<StatisticsOverview | null>(null), boxes = $state.raw<BoxPlotResultChart[]>([]);
+  let endowments = $state.raw<ReformSeatEndowments | null>(null);
   let showProbability = $state(false), localChamber = $state('camera'), localList = $state(''), bonusChamber = $state('camera');
   let bonus = $state.raw<Awaited<ReturnType<typeof storedBonusProbabilities>>>([]);
   let meanKind = $state('list'), boxKind = $state('list');
@@ -49,6 +51,8 @@
       try {
         const o = await client.call<StatisticsOverview>('statistics', { resultId, owner });
         if (!alive) return; overview = o; selectedCollege = o.colleges[0]?.college ?? '';
+        endowments = await client.call<ReformSeatEndowments>('statistics-endowments', { resultId, owner });
+        if (!alive) return;
         bonus = await client.call('statistics-bonus', { resultId, owner });
         if (!alive) return;
         const distributions: { summary: SeriesSummary; distribution: Distribution }[] = [];
@@ -92,6 +96,30 @@
         elected: s.electedKnown === o.requested ? s.electedSum / o.requested : null, minimum: s.confirmed / o.requested,
         share: s.votesKnown === o.requested ? s.voteSum / o.requested : null }))} />
     {:else}<p role="status">Nessuna lista disponibile per questo ramo.</p>{/if}
+    {#if endowments && (endowments.colleges.length || endowments.bonusSlates.length)}
+      <details>
+        <summary>Dotazioni dei seggi per collegio e liste del premio</summary>
+        {#if endowments.colleges.length}
+          <h4>Seggi per collegio</h4>
+          <div class="table-scroll"><table><caption>Dotazione di ogni collegio, con e senza premio</caption>
+            <thead><tr><th>Ramo</th><th>Circoscrizione</th><th>Collegio</th><th>Tipo</th><th>Senza premio</th><th>Con premio</th></tr></thead>
+            <tbody>{#each endowments.colleges as row (`${row.chamber}:${row.college}`)}
+              <tr><td>{row.chamber === 'camera' ? 'Camera' : 'Senato'}</td><td>{row.territoryName} ({row.territory})</td>
+                <td>{row.collegeName} ({row.college})</td><td>{row.kind}</td><td>{row.seatsWithoutBonus}</td><td>{row.seatsWithBonus}</td></tr>
+            {/each}</tbody>
+          </table></div>
+        {/if}
+        {#if endowments.bonusSlates.length}
+          <h4>Seggi delle liste del premio</h4>
+          <div class="table-scroll"><table><caption>Dotazione della lista del premio per circoscrizione</caption>
+            <thead><tr><th>Ramo</th><th>Circoscrizione</th><th>Seggi della lista del premio</th></tr></thead>
+            <tbody>{#each endowments.bonusSlates as row (`${row.chamber}:${row.territory}`)}
+              <tr><td>{row.chamber === 'camera' ? 'Camera' : 'Senato'}</td><td>{row.territoryName} ({row.territory})</td><td>{row.seats}</td></tr>
+            {/each}</tbody>
+          </table></div>
+        {/if}
+      </details>
+    {/if}
     <details ontoggle={e => { showSummary = toggle(e); }}><summary>Tabella riepilogativa degli eletti e delle percentuali</summary>
       {#if showSummary && table}
         <p>Richieste: tutte le simulazioni previste, incluse quelle fallite o interrotte. Percentuali note ed esiti noti: numero di osservazioni disponibili per la lista e il ramo. Percentuale media ed eletti medi sono disponibili solo con tutte le osservazioni note.</p>

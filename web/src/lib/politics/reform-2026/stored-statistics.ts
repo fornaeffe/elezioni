@@ -6,6 +6,26 @@ import { reformCollegeSeriesTable, reformSeriesTable, seriesKey, unaffiliatedOwn
 import { reformPresentation, subjectColor } from './presentation-metadata';
 
 type Row = ResultTable['rows'][number];
+export interface CollegeSeatEndowment {
+  chamber: 'camera' | 'senato';
+  territory: string;
+  territoryName: string;
+  college: string;
+  collegeName: string;
+  kind: string;
+  seatsWithoutBonus: number;
+  seatsWithBonus: number;
+}
+export interface BonusSlateEndowment {
+  chamber: 'camera' | 'senato';
+  territory: string;
+  territoryName: string;
+  seats: number;
+}
+export interface ReformSeatEndowments {
+  colleges: CollegeSeatEndowment[];
+  bonusSlates: BonusSlateEndowment[];
+}
 const pending = new Map<string, Promise<StatisticsCache>>();
 const fingerprint = (r: StoredResult) => JSON.stringify([2, r.result.storage!.completedSimulations, r.result.storage!.tables.filter(t => [reformSeriesTable, reformCollegeSeriesTable, 'Reform vote shares', 'Seat entitlement and election locations'].includes(t.name))]);
 async function* tableRows(record: StoredResult, name: string): AsyncGenerator<Row> {
@@ -13,6 +33,38 @@ async function* tableRows(record: StoredResult, name: string): AsyncGenerator<Ro
   if (index < 0) return;
   const columns = record.result.storage!.tables[index].columns;
   for await (const cells of storedRows(record.id, index)) yield Object.fromEntries(columns.map((c, i) => [c, cells[i]]));
+}
+const requiredText = (row: Row, column: string): string => {
+  const value = row[column];
+  if (typeof value !== 'string') throw new Error(`Invalid ${column} in stored seat endowments`);
+  return value;
+};
+const requiredSeats = (row: Row, column: string): number => {
+  const value = row[column];
+  if (typeof value !== 'number' || !Number.isSafeInteger(value) || value < 0) throw new Error(`Invalid ${column} in stored seat endowments`);
+  return value;
+};
+export async function storedSeatEndowments(record: StoredResult): Promise<ReformSeatEndowments> {
+  const colleges: CollegeSeatEndowment[] = [];
+  for await (const row of tableRows(record, 'Seat endowments by college')) {
+    const chamber = requiredText(row, 'Chamber');
+    if (chamber !== 'camera' && chamber !== 'senato') throw new Error('Invalid chamber in stored seat endowments');
+    colleges.push({
+      chamber, territory: requiredText(row, 'Territory'), territoryName: requiredText(row, 'Territory name'),
+      college: requiredText(row, 'College'), collegeName: requiredText(row, 'College name'), kind: requiredText(row, 'Kind'),
+      seatsWithoutBonus: requiredSeats(row, 'Seats without bonus'), seatsWithBonus: requiredSeats(row, 'Seats with bonus')
+    });
+  }
+  const bonusSlates: BonusSlateEndowment[] = [];
+  for await (const row of tableRows(record, 'Bonus slate endowments')) {
+    const chamber = requiredText(row, 'Chamber');
+    if (chamber !== 'camera' && chamber !== 'senato') throw new Error('Invalid chamber in stored seat endowments');
+    bonusSlates.push({
+      chamber, territory: requiredText(row, 'Territory'), territoryName: requiredText(row, 'Territory name'),
+      seats: requiredSeats(row, 'Seats')
+    });
+  }
+  return { colleges, bonusSlates };
 }
 export function seriesObservation(record: StoredResult, row: Row): { descriptor: SeriesDescriptor; sample: StatisticalSample } {
   if (!['camera', 'senato'].includes(String(row.Chamber)) || !['list', 'subject', 'college'].includes(String(row.Kind)) ||

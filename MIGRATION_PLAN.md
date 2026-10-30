@@ -383,7 +383,7 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
     on the X axis; keep the college plot outside any nested collapsible section.
   - [x] move the single simulation seats plot in a collapsible section
   - [x] better describe the meaning of columns in table of elected and shares
-- [ ] add the table of seat endowment per each college with and without bonus
+- [x] add the table of seat endowment per each college with and without bonus
     and per each constituency's bonus slate.
 - [ ] edit the single college spinogram to let the user choose between a single
     college and a whole constituency.
