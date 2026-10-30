@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.node.json",
+  "compilerOptions": {"noEmit": true},
+  "include": ["src/app.d.ts", "scripts/acceptance/filing-aware*.ts", "tests/fixtures/filing-aware.worker.ts", "tests/e2e/filing-aware.spec.ts", "playwright.filing-aware.config.ts"]
+}

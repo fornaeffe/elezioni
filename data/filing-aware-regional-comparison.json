@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "filing-regional-profile-round4-20261030-v1",
+  "parentProtocol": "filing-aware-comparison-20261030-v1",
+  "reason": "Full-country college aggregation exposes profile errors averaging away. Reallocate the existing reference-profile Gaussian variance between independent municipality and shared region terms. The per-municipality reference marginal is unchanged. This is iterative development after inspecting reused Camera-2022 results, not a fresh holdout. No earlier result is removed.",
+  "development": ["camera-2013", "camera-2018"],
+  "validation": ["camera-2022"],
+  "horizonsDays": [730, 365, 90, 15],
+  "draws": 512,
+  "candidates": [
+    {"id": "bounded-mass-pair-field-v2", "scale": 1.5, "profileRegionCorrelation": 0.25},
+    {"id": "bounded-mass-pair-field-v2", "scale": 1.5, "profileRegionCorrelation": 0.5}
+  ],
+  "metrics": "Unchanged parent protocol, equal groups per unit, equal units per case. Choose using development, then report reused validation and full geography."
+}

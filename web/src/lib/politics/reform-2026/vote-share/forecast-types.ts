@@ -1,10 +1,10 @@
-import type { PoliticalList, ReferenceScope, Chamber } from '../input';
-import type { ReformGenerationScenario } from '../generation-types';
-import type { fitReference } from './information';
-import type { fitProfiles } from './profiles';
-import type { SourceGeography } from './source-types';
-export const FAST_GENERATION_VERSION = 'fast-share-physical-cells-v1';
-export const SENATE_ADAPTER_VERSION = 'paired-18plus-logratio-adapter-v1';
+import type { PoliticalList, ReferenceScope, Chamber } from "../input";
+import type { ReformGenerationScenario } from "../generation-types";
+import type { fitReference } from "./information";
+import type { fitProfiles } from "./profiles";
+import type { SourceGeography } from "./source-types";
+export const FAST_GENERATION_VERSION = "fast-share-physical-cells-v1";
+export const SENATE_ADAPTER_VERSION = "paired-18plus-logratio-adapter-v1";
 export type ReferenceFit = ReturnType<typeof fitReference>;
 export type GeographicProfile = ReturnType<typeof fitProfiles>;
 export interface NewComponentPolicy {
@@ -15,7 +15,7 @@ export interface NewComponentPolicy {
 }
 export interface FastComponent {
   id: string;
-  kind: 'fitted' | 'new';
+  kind: "fitted" | "new";
   provenance: string;
   fallback?: NewComponentPolicy;
 }
@@ -27,15 +27,15 @@ export interface FastList extends PoliticalList {
 export interface FastReference {
   id: string;
   scope: ReferenceScope;
-  channel: 'common' | Chamber;
-  subject: { kind: 'list' | 'component'; id: string };
+  channel: "common" | Chamber;
+  subject: { kind: "list" | "component"; id: string };
   mean: number;
   sdPercentagePoints: number;
 }
 export interface FastNonValidReference {
   id: string;
   scope: ReferenceScope;
-  channel: 'common' | Chamber;
+  channel: "common" | Chamber;
   mean: number;
   sdPercentagePoints: number;
 }
@@ -48,26 +48,41 @@ export interface TargetElectorate {
 }
 export type LegalGenerationSettings = Pick<
   ReformGenerationScenario,
-  | 'kind'
-  | 'algorithmId'
-  | 'seed'
-  | 'electionDate'
-  | 'renewal'
-  | 'coverage'
-  | 'candidateGeneration'
-  | 'candidateTemplates'
-  | 'suppliedPreferences'
-  | 'suppliedVotes'
-  | 'bonusLinks'
-  | 'preferenceProfileId'
-  | 'chamberProfileId'
+  | "kind"
+  | "algorithmId"
+  | "seed"
+  | "electionDate"
+  | "renewal"
+  | "coverage"
+  | "candidateGeneration"
+  | "candidateTemplates"
+  | "suppliedPreferences"
+  | "suppliedVotes"
+  | "bonusLinks"
+  | "preferenceProfileId"
+  | "chamberProfileId"
 >;
 export interface FastGenerationScenario extends LegalGenerationSettings {
   schemaVersion: 4;
   referenceDate: string;
   fitSeed: string;
-  models: { statistical: string; numerical: string; references: string; chambers: string; rng: string };
-  data: { sourceBundleId: string; fittedStateId: string; profileStateId: string; geographyVersion: string };
+  models: {
+    statistical: string;
+    numerical: string;
+    references: string;
+    chambers: string;
+    rng: string;
+    forecast?: import("./feasible-field").FieldModel;
+    forecastScale?: number;
+    profileRegionCorrelation?: number;
+    forecastReference?: "conditional" | "country-calibrated";
+  };
+  data: {
+    sourceBundleId: string;
+    fittedStateId: string;
+    profileStateId: string;
+    geographyVersion: string;
+  };
   components: FastComponent[];
   lists: { camera: FastList[]; senato: FastList[] };
   references: FastReference[];
@@ -94,7 +109,7 @@ export interface SenateAdapter {
   assumptions: string[];
   contrasts: {
     component: string;
-    method: 'separate' | 'pooled' | 'fallback';
+    method: "separate" | "pooled" | "fallback";
     group: string[];
     camera: number | null;
     senato: number | null;

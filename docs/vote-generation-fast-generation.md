@@ -2,8 +2,13 @@
 
 The headless generator is implemented for the **2026 reform only**. It consumes
 accepted reference/profile states and returns validated scrutiny input. Installed
-scenario parsing, defaults, dispatch and the editor remain on their existing
-workflow until FV-05–08. Start here for generation; use the
+schema-4 parsing, candidate defaults, dispatch and editor are available through
+the opt-in fast workspace; ordinary default activation remains gated by FV-08.
+For the 30 October replacement kernels, read the
+[feasible model](vote-generation-feasible-model.md) and its
+[research results](vote-generation-feasible-research.md). The global Beta and
+projection descriptions here retain the original FV-04 comparator contract.
+Start here for common physical-cell/reference/chamber assembly; use the
 [numerical guide](../web/src/lib/politics/reform-2026/vote-share/README.md) for fitting
 and the [source guide](vote-generation-fast-data.md) for original observations.
 

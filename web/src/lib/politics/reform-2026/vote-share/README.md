@@ -1,20 +1,22 @@
-# Fast-share engine (FV-02–06)
+# Fast-share engine
 
-This folder implements the selected bounded reference fit, empirical profile
-estimator and headless forecast adapter. It is **not connected to production
-dispatch, defaults or the editor**.
+This folder implements the bounded reference fit, empirical profile estimator,
+forecast adapter and opt-in reform candidate editor/worker integration. The
+installed legacy generator remains the ordinary application default while
+FV-08 acceptance is open.
 Original compact data is implemented in [FV-03](../../../../../../docs/vote-generation-fast-data.md).
 For forecast/intervention/physical-cell/Senate work read only the
 [FV-04 generation guide](../../../../../../docs/vote-generation-fast-generation.md).
 For fitting worker/client scheduling, revisions and buffer ownership, read the
 [FV-06 fitting guide](../../../../../../docs/vote-generation-fast-fitting.md).
-The editor and active application integration remain FV-07/08.
+For the editor and application integration, use the FV-07/08 migration guides.
 For default prefitting, immutable state, candidate loading and release commands,
 read the [FV-05 release guide](../../../../../../docs/vote-generation-fast-release.md).
 
 | Task | Entry point |
 | --- | --- |
 | Model equations and fixed conventions | [Maintained contract](../../../../../../docs/vote-generation-fast-model.md) |
+| Filing-aware replacement candidates and geographic covariance | [Feasible model](../../../../../../docs/vote-generation-feasible-model.md), [research and results](../../../../../../docs/vote-generation-feasible-research.md) |
 | Prepared numerical inputs/typed outputs | [types.ts](types.ts), [scenario/data boundary](../../../../../../docs/vote-generation-fast-contracts.md) |
 | Lossless state serialization and compatible candidate loading | [state-codec.ts](state-codec.ts), [release.ts](release.ts) |
 | Browser fit lifecycle, worker protocol and resource reservations | [fit-client.ts](fit-client.ts), [fit-types.ts](fit-types.ts), [fit-resources.ts](fit-resources.ts) |

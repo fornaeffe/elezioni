@@ -4,9 +4,38 @@ import { betaDraw, forecastRandom, normalCdf } from './forecast-random';
 import { betaTransition } from './transition';
 import { calibrateReferences } from './reference-family';
 import { tensorReferenceMoments as tensorMoments } from '../../../../../tests/fixtures/fast-reference-oracle';
-import { projectMargins } from './projection';
-import { nonValidIntervention, politicalIntervention, removeAbsent } from './interventions';
+import { projectMargins, ProjectionCapacityError } from './projection';
+import {
+  nonValidIntervention,
+  politicalIntervention,
+  removeAbsent,
+} from './interventions';
 describe('FV-04 reduced computability and independent numerical gates', () => {
+  it('reports a joint filing-capacity certificate instead of repairing impossible targets', () => {
+    try {
+      // Each named share fits separately in the second cell, but their sum does not.
+      projectMargins([0.7, 0.15, 0.15], 2, (i) => ({
+        weight: i ? 0.2 : 0.8,
+        scores: i ? [0, 0, 0] : [0, -Infinity, -Infinity],
+      }));
+      throw new Error('Expected an infeasible target');
+    } catch (error) {
+      expect(error).toBeInstanceOf(ProjectionCapacityError);
+      const certificate = (error as ProjectionCapacityError).diagnostics;
+      expect(certificate.componentIndices).toEqual([1, 2]);
+      expect(certificate.requestedShare).toBeCloseTo(0.3, 14);
+      expect(certificate.availableShare).toBeCloseTo(0.2, 14);
+    }
+  });
+  it('solves nearly saturated filing without increasing the iteration budget or repairing targets', () => {
+    const result = projectMargins([0.50001, 0.49999], 2, (i) => ({
+      weight: 1,
+      scores: i ? [-30, 0] : [0, -30],
+    }));
+    expect(result.iterations).toBeLessThanOrEqual(120);
+    expect(result.residual).toBeLessThanOrEqual(1e-9);
+    expect(result.margins[0]).toBeCloseTo(0.50001, 9);
+  });
   it('samples Beta moments and normal copula marginals without extra variance', () => {
     expect(normalCdf(1)).toBeCloseTo(0.8413447460685429, 14);
     expect(normalCdf(-3)).toBeCloseTo(0.0013498980316301, 14);
@@ -47,9 +76,13 @@ describe('FV-04 reduced computability and independent numerical gates', () => {
   });
   it('preserves zero-horizon/scales/endpoints and forecast means', () => {
     const rng = fitRandom('fv04-transition', 'moment');
-    expect([...betaTransition([0, 0.4, 0.6], [1, 1, 1], 0, rng)]).toEqual([0, 0.4, 0.6]);
+    expect([...betaTransition([0, 0.4, 0.6], [1, 1, 1], 0, rng)]).toEqual([
+      0, 0.4, 0.6,
+    ]);
     expect([...betaTransition([0.2, 0.8], [0, 0], 5, rng)]).toEqual([0.2, 0.8]);
-    expect([...betaTransition([0, 1, 0], [1, 1, 1], 5, rng)]).toEqual([0, 1, 0]);
+    expect([...betaTransition([0, 1, 0], [1, 1, 1], 5, rng)]).toEqual([
+      0, 1, 0,
+    ]);
     const initial = [0, 0.3, 0.25, 0.2, 0.1, 0.08, 0.07],
       total = initial.map(() => 0),
       n = 16000;
@@ -58,24 +91,31 @@ describe('FV-04 reduced computability and independent numerical gates', () => {
         initial,
         initial.map(() => 0.4),
         2,
-        rng
+        rng,
       );
       expect(p[0]).toBe(0);
       p.forEach((x, j) => (total[j] += x));
     }
-    expect(Math.max(...total.map((x, j) => Math.abs(x / n - initial[j])))).toBeLessThan(0.004);
+    expect(
+      Math.max(...total.map((x, j) => Math.abs(x / n - initial[j]))),
+    ).toBeLessThan(0.004);
   });
   it.each([
     { means: [0.3], sd: [2], free: true },
     { means: [0.3, 0.4], sd: [2, 3], free: true },
     { means: [0.4, 0.6], sd: [2, 2], free: false },
-    { means: [0.2, 0.3, 0.5], sd: [2, 3, 4], free: false }
+    { means: [0.2, 0.3, 0.5], sd: [2, 3, 4], free: false },
   ])(
     'calibrates $means via Laplace factors and checks independent tensor integration',
     ({ means, sd, free }) => {
       const f = calibrateReferences(
-        means.map((mean, i) => ({ id: 'g' + i, members: ['p' + i], mean, sdPercentagePoints: sd[i] })),
-        free
+        means.map((mean, i) => ({
+          id: 'g' + i,
+          members: ['p' + i],
+          mean,
+          sdPercentagePoints: sd[i],
+        })),
+        free,
       );
       const a = tensorMoments(f.mu, f.sigma, 40),
         b = tensorMoments(f.mu, f.sigma, 56);
@@ -86,25 +126,25 @@ describe('FV-04 reduced computability and independent numerical gates', () => {
         expect(Math.abs(a.sd[i] - b.sd[i])).toBeLessThan(1e-7);
       });
       expect(f.integrationError).toBeLessThan(1e-7);
-    }
+    },
   );
   it('retains exact groups, normalizes full centres and rejects unsupported moments', () => {
     const f = calibrateReferences(
       [
         { id: 'A', members: ['a'], mean: 0.2, sdPercentagePoints: 0 },
-        { id: 'B', members: ['b'], mean: 0.3, sdPercentagePoints: 2 }
+        { id: 'B', members: ['b'], mean: 0.3, sdPercentagePoints: 2 },
       ],
-      true
+      true,
     );
     expect(f.upper).toBe(0.8);
     expect(f.momentError).toBeLessThan(1e-6);
     const full = calibrateReferences(
       [
         { id: 'A', members: ['a'], mean: 0.2, sdPercentagePoints: 0 },
-        { id: 'B', members: ['b'], mean: 0.3, sdPercentagePoints: 0 }
+        { id: 'B', members: ['b'], mean: 0.3, sdPercentagePoints: 0 },
       ],
       false,
-      true
+      true,
     );
     expect(full.groups.map((g) => g.mean)).toEqual([0.4, 0.6]);
     expect(full.normalization).toBe(0.5);
@@ -112,23 +152,26 @@ describe('FV-04 reduced computability and independent numerical gates', () => {
       calibrateReferences(
         [
           { id: 'A', members: ['a'], mean: 0.4, sdPercentagePoints: 2 },
-          { id: 'B', members: ['b'], mean: 0.6, sdPercentagePoints: 3 }
+          { id: 'B', members: ['b'], mean: 0.6, sdPercentagePoints: 3 },
         ],
-        false
-      )
+        false,
+      ),
     ).toThrow('REFERENCE_MOMENTS_UNSUPPORTED');
     expect(() =>
       calibrateReferences(
         [
           { id: 'A', members: ['a', 'b'], mean: 0.3, sdPercentagePoints: 0 },
-          { id: 'B', members: ['b'], mean: 0.4, sdPercentagePoints: 0 }
+          { id: 'B', members: ['b'], mean: 0.4, sdPercentagePoints: 0 },
         ],
-        true
-      )
+        true,
+      ),
     ).toThrow('REFERENCE_OVERLAP');
   });
   it('projects global margins identically across chunk sizes, with joint capacities and exact boundary faces', () => {
-    const source = (i: number) => ({ weight: i + 1, scores: [0, i / 10, -i / 10] });
+    const source = (i: number) => ({
+      weight: i + 1,
+      scores: [0, i / 10, -i / 10],
+    });
     const a = projectMargins([0.2, 0.3, 0.5], 20, source, { chunkSize: 1 }),
       b = projectMargins([0.2, 0.3, 0.5], 20, source, { chunkSize: 7 });
     expect(a.margins).toEqual(b.margins);
@@ -136,12 +179,12 @@ describe('FV-04 reduced computability and independent numerical gates', () => {
     expect(() =>
       projectMargins([0.3, 0.3, 0.4], 2, (i) => ({
         weight: 1,
-        scores: i ? [-Infinity, -Infinity, 0] : [0, 0, 0]
-      }))
+        scores: i ? [-Infinity, -Infinity, 0] : [0, 0, 0],
+      })),
     ).toThrow('REFERENCE_CAPACITY');
     const boundary = projectMargins([0.5, 0.5], 2, (i) => ({
       weight: 1,
-      scores: i ? [-Infinity, 0] : [0, 0]
+      scores: i ? [-Infinity, 0] : [0, 0],
     }));
     expect([...boundary.probabilities(0)]).toEqual([1, 0]);
     expect([...boundary.probabilities(1)]).toEqual([0, 1]);
@@ -150,15 +193,30 @@ describe('FV-04 reduced computability and independent numerical gates', () => {
     const rows = [Float64Array.from([0.3, 0.14, 0.21, 0.35])],
       backup = rows.map((r) => r.slice());
     politicalIntervention(rows, [100], [[1]], [0.4], (i, j) => backup[i][j]);
-    [0.3, 0.28, 0.1575, 0.2625].forEach((x, j) => expect(rows[0][j]).toBeCloseTo(x, 12));
+    [0.3, 0.28, 0.1575, 0.2625].forEach((x, j) =>
+      expect(rows[0][j]).toBeCloseTo(x, 12),
+    );
     nonValidIntervention(rows, [100], 0.4, (i, j) => backup[i][j]);
     expect(rows[0][0]).toBeCloseTo(0.4, 12);
     expect(rows[0][1] / 0.6).toBeCloseTo(0.4, 12);
-    const local = [Float64Array.from([0.3, 0.28, 0.42]), Float64Array.from([0.3, 0.28, 0.42])];
-    politicalIntervention([local[0]], [100], [[1]], [0.8], (_, j) => backup[0][j]);
+    const local = [
+      Float64Array.from([0.3, 0.28, 0.42]),
+      Float64Array.from([0.3, 0.28, 0.42]),
+    ];
+    politicalIntervention(
+      [local[0]],
+      [100],
+      [[1]],
+      [0.8],
+      (_, j) => backup[0][j],
+    );
     expect((local[0][1] + local[1][1]) / 1.4).toBeCloseTo(0.6, 12);
     expect(local[0][0]).toBe(0.3);
-    expect([...removeAbsent([0.2, 0.3, 0.5], [true, false, true])]).toEqual([0.2 / 0.7, 0, 0.5 / 0.7]);
+    expect([...removeAbsent([0.2, 0.3, 0.5], [true, false, true])]).toEqual([
+      0.2 / 0.7,
+      0,
+      0.5 / 0.7,
+    ]);
   });
   it('preserves each Beta forecast marginal under all three copula assumptions, including adaptive Gamma rejection', () => {
     const n = 12000,
@@ -184,15 +242,17 @@ describe('FV-04 reduced computability and independent numerical gates', () => {
           mean,
           variance: v,
           meanMcse: Math.sqrt(v / n),
-          varianceMcse: Math.sqrt((fourth / n - v * v) / n)
+          varianceMcse: Math.sqrt((fourth / n - v * v) / n),
         };
       },
       base = stats('camera', 0);
     for (const rho of [0.5, 0.85, 0.98]) {
       const paired = stats('senato', rho);
-      expect(Math.abs(paired.mean - base.mean)).toBeLessThan(4 * Math.hypot(paired.meanMcse, base.meanMcse));
+      expect(Math.abs(paired.mean - base.mean)).toBeLessThan(
+        4 * Math.hypot(paired.meanMcse, base.meanMcse),
+      );
       expect(Math.abs(paired.variance - base.variance)).toBeLessThan(
-        4 * Math.hypot(paired.varianceMcse, base.varianceMcse)
+        4 * Math.hypot(paired.varianceMcse, base.varianceMcse),
       );
     }
   });

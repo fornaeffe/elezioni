@@ -22,12 +22,13 @@
   import { buildReformSeatChart } from './result-presentation';
   import ReformResultCharts from './ReformResultCharts.svelte';
 
-  let { imported = null, importedScenario = null, importedFile = null, onLegacyImport, onImportConsumed }: {
+  let { imported = null, importedScenario = null, importedFile = null, onLegacyImport, onImportConsumed, onRouteFile }: {
     imported?: SimulationResultExport | null;
     importedScenario?: ReformGenerationScenario | null;
     importedFile?: File | null;
     onLegacyImport: (payload: SimulationResultExport) => void;
     onImportConsumed: () => void;
+    onRouteFile?: (file:File)=>Promise<boolean>;
   } = $props();
   function copyScenario(value: unknown) { return requireReformScenario($state.snapshot(value)); }
   const storageKey = 'elezioni:politics-reform-2026:scenario:v1';
@@ -182,6 +183,7 @@
       if (!await isReformFile(file)) {
         onLegacyImport(parseSimulationResultExport(await new Response(jsonFileStream(file)).text())); return;
       }
+      if(await onRouteFile?.(file))return;
       // Standalone scenarios remain small input envelopes, not result archives.
       const header = await inspectStandalone(file);
       if (header) { scenario = upgradeReformDraft(header); return; }

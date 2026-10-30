@@ -53,7 +53,7 @@ export async function runStoredReform(request: SimulationRequest, emit: (progres
   if(fast && !fast.packets.length) throw new Error('Missing generation packet');
   const fastCapacity=fast?generationCapacity(fast.packets[0],navigator as Navigator&{deviceMemory?:number}):null;
   const capacity = fastCapacity?{...estimateReformWorkerCapacity(navigator),maximum:fastCapacity.maximum,
-    workerMemoryMiB:fastCapacity.perWorkerBytes/(1024*1024),estimateVersion:fastCapacity.estimateVersion}:estimateReformWorkerCapacity(navigator as Navigator & { deviceMemory?: number });
+    workerMemoryMiB:Math.ceil(fastCapacity.perWorkerBytes/(1024*1024)),estimateVersion:fastCapacity.estimateVersion}:estimateReformWorkerCapacity(navigator as Navigator & { deviceMemory?: number });
   const requestedWorkers = requireReformWorkerCount(request.computeWorkers ?? capacity.maximum, capacity.maximum);
   const computeWorkers = Math.min(requestedWorkers, request.simulations);
   const started = performance.now(), startedAt = new Date().toISOString();
@@ -204,7 +204,7 @@ function encodedStream(values: AsyncGenerator<string>): ReadableStream<Uint8Arra
   }).pipeThrough(new TextEncoderStream());
 }
 async function exportStoredFile(record: StoredResult, format: 'json' | 'csv', values = streamStoredResult(record, format)): Promise<File> {
-  if (!navigator.storage.getDirectory) throw new Error('Questo browser richiede il supporto ai file temporanei OPFS per esportare risultati grandi. I risultati locali sono conservati.');
+  if (!navigator.storage?.getDirectory) throw new Error('Questo browser richiede il supporto ai file temporanei OPFS per esportare risultati grandi. I risultati locali sono conservati.');
   const root = await navigator.storage.getDirectory();
   const directory = await root.getDirectoryHandle('elezioni-result-exports', { create: true });
   const filename = `${record.id}-${crypto.randomUUID()}.${format === 'json' ? 'json.gz' : 'csv'}`;

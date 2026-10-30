@@ -5,18 +5,22 @@
 On **28 October 2026**, Luca selected the model described in
 [the fast research report](vote-generation-fast-research.md) for production and
 requested browser parameter estimation. This plan covers **only the 2026 reform
-workflow**. Model selection is settled; browser implementation and production
-acceptance remain open. Complete one requested step at a time. The authoritative
+workflow**. On **30 October**, Luca authorized implementing/testing replacement
+forecast models with only the goals in the [feasible-model research guide](vote-generation-feasible-research.md)
+fixed. The earlier Beta/national-margin and timing rules below describe the
+original campaign; they do not constrain that replacement comparison. Production
+acceptance remains open. The authoritative
 checklist is in [MIGRATION_PLAN.md](../MIGRATION_PLAN.md); record evidence in
 [migration history](migration-history.md).
 
 | Task | Read |
 | --- | --- |
 | Implement the numerical model | [Maintained equations](vote-generation-fast-model.md), then FV-02/04 below |
+| Replace the forecast kernel or assess its tradeoffs | [Feasible model](vote-generation-feasible-model.md), [comparison and results](vote-generation-feasible-research.md) |
 | Generate physical ballots or adapt Senate | [Headless generation guide](vote-generation-fast-generation.md); FV-04 |
 | Prepare or load production assets | [Candidate release guide](vote-generation-fast-release.md), [frozen contracts](vote-generation-fast-contracts.md); FV-03/05/06 |
 | Edit scenarios or integrate workers/results | [Reference/chamber rules](vote-generation-fast-references.md), contract reuse matrix and FV-06/07; existing [application guide](politics-reform-2026-application.md) |
-| Validate and switch defaults | [Frozen validation protocol](vote-generation-fast-validation.md), then FV-08 |
+| Validate and switch defaults | [Frozen validation protocol](vote-generation-fast-validation.md), [FV-08 status/execution](vote-generation-fast-acceptance.md), then FV-08 |
 | Archive research or reclaim generated files | Separate [archive plan](vote-generation-research-archive-plan.md) and FV-09 |
 
 The earlier latent-state/Stan model, its posterior gate and its staged research
@@ -65,7 +69,7 @@ kinds is introduced. This division needs no new simulator route.
 
 ## Model and scenario contracts
 
-Preserve the selected `kind-common-conservative` formulation: bounded Gaussian
+The original `kind-common-conservative` formulation uses bounded Gaussian
 share-information fitting, three covariance/mode updates, separate non-valid
 estimation, regularized election-kind contexts, truncated-normal transfer
 sampling, mean-preserving Beta-stick transitions, the 1.5 political discrepancy
@@ -74,7 +78,7 @@ Keep reference, future country movement, election discrepancy, profile,
 regional/local movement and integer count uncertainty distinguishable. At zero
 calendar horizon profile and election-realization uncertainty still exist.
 
-Country draws constrain **expected elector-share probability margins**, projected
+In that original generator, country draws constrain **expected elector-share probability margins**, projected
 before integer counts. Actual country results are sums of generated local counts.
 Never independently fix their integer totals. Keep the report's `1e-9` margin
 tolerance and 120-iteration limit; unavailable positive targets and non-convergence

@@ -46,12 +46,14 @@
     importedFile = null,
     onLegacyImport,
     onImportConsumed,
+    onRouteFile,
   }: {
     imported?: SimulationResultExport | null;
     importedScenario?: ReformGenerationScenario | null;
     importedFile?: File | null;
     onLegacyImport: (p: SimulationResultExport) => void;
     onImportConsumed: () => void;
+    onRouteFile?: (file: File) => Promise<boolean>;
   } = $props();
   const storageKey = 'elezioni:politics-reform-2026:fast-draft:v1',
     resultKey = 'elezioni:politics-reform-2026:fast-results:v1';
@@ -211,6 +213,9 @@
       sessionStorage.setItem(resultKey + ':owner', owner);
       savedResults = JSON.parse(sessionStorage.getItem(resultKey) ?? '[]');
       await loadMetadata();
+      const savedDraft = localStorage.getItem(storageKey);
+      if (savedDraft)
+        scenario = labelFastDraft(requireFastScenario(JSON.parse(savedDraft)));
       if (importedFile) await importFile(importedFile);
       else if (imported) {
         if (
@@ -443,6 +448,7 @@
     if (running) return;
     busy = 'Caricamento file';
     try {
+      if (await onRouteFile?.(file)) return;
       const reader = new JsonStreamReader(jsonFileStream(file));
       let kind = '',
         legacyArchive = false;

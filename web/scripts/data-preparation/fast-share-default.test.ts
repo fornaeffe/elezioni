@@ -205,6 +205,7 @@ async function fixture() {
   };
   const policy = {
     ...policyData,
+    futureScenario: undefined,
     history: ['camera-2022'],
     polls: [],
     excludedPolls: {},

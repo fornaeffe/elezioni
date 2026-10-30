@@ -5,6 +5,11 @@ See the [engine entry point](../web/src/lib/politics/reform-2026/vote-share/READ
 for reduced acceptance and remaining performance limits. Production integration
 and default selection remain FV-03 through FV-08.
 This document owns the selected `kind-common-conservative` mathematical model.
+The 30 October replacement campaign retains its reference/profile estimation,
+but its forecast laws are specified separately in the
+[feasible-field model](vote-generation-feasible-model.md). The Beta/projection
+equations below remain the original comparator contract, not additional fixed
+requirements for that authorized campaign.
 The equations below are extracted unchanged from the approved
 [research report](vote-generation-fast-research.md). Research timing, predictive
 results, failures and reproduction evidence remain in that historical report.

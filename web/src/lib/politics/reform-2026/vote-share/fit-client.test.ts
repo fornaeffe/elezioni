@@ -125,10 +125,16 @@ describe('FV-06 worker revision and ownership lifecycle', () => {
   });
   it('reserves bounded consumer copies, keeps authoritative arrays attached and prevents concurrent fitting', async () => {
     const f = await setup(),
-      handoff = f.client.reserveGenerationCopies(2, {
-        deviceMemory: 8,
-        hardwareConcurrency: 8,
-      }),
+      handoff = f.client.reserveGenerationCopies(
+        f.client.generationCapacity({
+          deviceMemory: 8,
+          hardwareConcurrency: 8,
+        })!.maximum,
+        {
+          deviceMemory: 8,
+          hardwareConcurrency: 8,
+        },
+      ),
       first = handoff.leases[0],
       bytes = first.packet.assets.fit.political.values.byteLength;
     const received = structuredClone(first.packet, {

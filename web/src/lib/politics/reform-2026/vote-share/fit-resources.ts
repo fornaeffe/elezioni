@@ -1,11 +1,7 @@
 import type { CompactSource } from './source-types';
 import type { AcceptedFit, GenerationPacket } from './fit-types';
 import type { SourceSelection } from './source-compiler';
-import {
-  reformCoordinatorMemoryMiB,
-  reformWorkerMemoryMiB,
-  type WorkerResourceHints,
-} from '../../../core/reform-worker-capacity';
+import { type WorkerResourceHints } from '../../../core/reform-worker-capacity';
 export const MiB = 1024 * 1024;
 /** Collect unique OWNED transferable buffers; never transfer an accepted state directly. */
 export function ownedBuffers(value: unknown): ArrayBuffer[] {
@@ -144,16 +140,17 @@ export function generationCapacity(
       Number.isFinite(hints.deviceMemory) && hints.deviceMemory! > 0
         ? hints.deviceMemory!
         : 2,
-    budgetBytes = Math.floor((memory * 1024 * MiB) / 2),
+    // Fast packets omit the legacy historical snapshot. Reserve the measured
+    // legal/result scratch plus two retained-packet copies per owner, and cap
+    // the whole active pipeline at the frozen FV-08 512 MiB target.
+    budgetBytes = Math.min(512 * MiB, Math.floor((memory * 1024 * MiB) / 2)),
     coordinatorBytes =
-      reformCoordinatorMemoryMiB * MiB +
-      retainedBytes(packet) +
-      additionalReservedBytes,
-    perWorkerBytes = reformWorkerMemoryMiB * MiB + retainedBytes(packet),
+      128 * MiB + 2 * retainedBytes(packet) + additionalReservedBytes,
+    perWorkerBytes = 112 * MiB + 2 * retainedBytes(packet),
     maximum = Math.max(
       0,
       Math.min(
-        cores - 1,
+        Math.max(1, cores - 1),
         Math.floor((budgetBytes - coordinatorBytes) / perWorkerBytes),
       ),
     );
@@ -162,7 +159,7 @@ export function generationCapacity(
     budgetBytes,
     coordinatorBytes,
     perWorkerBytes,
-    estimateVersion: 'fast-share-handoff-memory-v1',
+    estimateVersion: 'fast-share-aggregate-512-v2',
   };
 }
 export function copyGenerationPacket(accepted: AcceptedFit): GenerationPacket {

@@ -1,0 +1,325 @@
+{
+  "schemaVersion": 1,
+  "id": "reform-future-choice-set-20261030-v1",
+  "senateFiling": "whole-corresponding-regions",
+  "coalitions": [
+    {
+      "id": "centrodestra",
+      "name": "Centrodestra"
+    },
+    {
+      "id": "centrosinistra",
+      "name": "Centrosinistra"
+    }
+  ],
+  "restrictedCameraTerritories": [
+    "01",
+    "02",
+    "03",
+    "04",
+    "07",
+    "08",
+    "10",
+    "11",
+    "12",
+    "15",
+    "16",
+    "19",
+    "24",
+    "25"
+  ],
+  "lists": [
+    {
+      "id": "fdi",
+      "name": "Fratelli d'Italia",
+      "coalition": "centrodestra",
+      "members": [
+        "fdi"
+      ],
+      "filing": "ordinary-taa"
+    },
+    {
+      "id": "fi",
+      "name": "Forza Italia",
+      "coalition": "centrodestra",
+      "members": [
+        "fi-pdl"
+      ],
+      "filing": "ordinary-taa"
+    },
+    {
+      "id": "lega",
+      "name": "Lega",
+      "coalition": "centrodestra",
+      "members": [
+        "lega"
+      ],
+      "filing": "ordinary-taa"
+    },
+    {
+      "id": "noi-moderati",
+      "name": "Noi Moderati",
+      "coalition": "centrodestra",
+      "members": [
+        "noi-residual",
+        "scelta-civica",
+        "idv"
+      ],
+      "filing": "ordinary-taa"
+    },
+    {
+      "id": "udc",
+      "name": "Unione di Centro",
+      "coalition": "centrodestra",
+      "members": [
+        "udc"
+      ],
+      "filing": "ordinary-taa"
+    },
+    {
+      "id": "sud-chiama-nord",
+      "name": "Sud chiama Nord",
+      "coalition": "centrodestra",
+      "members": [
+        "sud-chiama-nord"
+      ],
+      "filing": "ordinary"
+    },
+    {
+      "id": "cdx-vda",
+      "name": "Centrodestra valdostano",
+      "coalition": "centrodestra",
+      "members": [
+        "valdostano-cdx"
+      ],
+      "filing": "vda"
+    },
+    {
+      "id": "pd",
+      "name": "Partito Democratico",
+      "coalition": "centrosinistra",
+      "members": [
+        "pd",
+        "art1"
+      ],
+      "filing": "ordinary-taa"
+    },
+    {
+      "id": "m5s",
+      "name": "Movimento 5 Stelle",
+      "coalition": "centrosinistra",
+      "members": [
+        "m5s"
+      ],
+      "filing": "ordinary-taa"
+    },
+    {
+      "id": "avs",
+      "name": "Alleanza Verdi Sinistra",
+      "coalition": "centrosinistra",
+      "members": [
+        "verdi",
+        "sel-si"
+      ],
+      "filing": "ordinary-taa"
+    },
+    {
+      "id": "italia-viva",
+      "name": "Italia Viva - Casa Riformista",
+      "coalition": "centrosinistra",
+      "members": [
+        "italia-viva"
+      ],
+      "filing": "ordinary-taa"
+    },
+    {
+      "id": "europa-piu-uno-cd",
+      "name": "+ Europa - Più Uno - Centro Democratico",
+      "coalition": "centrosinistra",
+      "members": [
+        "piu-europa",
+        "poll-only-piu-uno",
+        "centro-democratico"
+      ],
+      "filing": "ordinary-taa"
+    },
+    {
+      "id": "progetto-civico-psi",
+      "name": "Progetto Civico Italia - Avanti PSI",
+      "coalition": "centrosinistra",
+      "members": [
+        "poll-only-progetto-civico",
+        "psi-civici"
+      ],
+      "filing": "ordinary"
+    },
+    {
+      "id": "csx-vda",
+      "name": "Campo progressista valdostano",
+      "coalition": "centrosinistra",
+      "members": [
+        "valdostano-csx"
+      ],
+      "filing": "vda"
+    },
+    {
+      "id": "azione-libdem",
+      "name": "Azione – Partito Liberaldemocratico – Spazio Pubblico",
+      "members": [
+        "azione",
+        "poll-only-libdem"
+      ],
+      "filing": "ordinary-taa"
+    },
+    {
+      "id": "futuro-nazionale",
+      "name": "Futuro Nazionale",
+      "members": [
+        "poll-only-futuro-nazionale"
+      ],
+      "filing": "all"
+    },
+    {
+      "id": "pap-prc",
+      "name": "Potere al Popolo - Rifondazione Comunista",
+      "members": [
+        "pap-residual",
+        "prc"
+      ],
+      "filing": "ordinary"
+    },
+    {
+      "id": "ora",
+      "name": "Ora!",
+      "members": [
+        "poll-only-ora"
+      ],
+      "filing": "restricted"
+    },
+    {
+      "id": "dsp",
+      "name": "Democrazia Sovrana Popolare",
+      "members": [
+        "isp-dsp"
+      ],
+      "filing": "restricted"
+    },
+    {
+      "id": "uv",
+      "name": "Union Valdôtaine",
+      "members": [
+        "union-valdotaine"
+      ],
+      "filing": "vda",
+      "minorityRegion": "02"
+    },
+    {
+      "id": "svp-patt",
+      "name": "SVP - PATT",
+      "members": [
+        "svp-patt"
+      ],
+      "filing": "taa",
+      "minorityRegion": "04"
+    },
+    {
+      "id": "team-k",
+      "name": "Team K",
+      "members": [
+        "team-k"
+      ],
+      "filing": "taa",
+      "minorityRegion": "04"
+    },
+    {
+      "id": "freiheitlichen",
+      "name": "Die Freiheitlichen",
+      "members": [
+        "freiheitlichen"
+      ],
+      "filing": "taa",
+      "minorityRegion": "04"
+    },
+    {
+      "id": "suedtiroler-freiheit",
+      "name": "Süd-Tiroler Freiheit",
+      "members": [
+        "suedtiroler-freiheit"
+      ],
+      "filing": "taa",
+      "minorityRegion": "04"
+    }
+  ],
+  "aliases": [
+    {
+      "from": "atomic-85f7b48f98",
+      "to": "sud-chiama-nord",
+      "reason": "Exact SUD CHIAMA NORD original label and poll identity; not an inferred transfer from other Sicilian lists."
+    }
+  ],
+  "identityNotes": [
+    "Future coalitions, joint tickets and filing are Luca's scenario instructions, not claims about finalized real electoral agreements.",
+    "IV/Casa Riformista and PSI/Avanti retain recognized identities. Più Uno, Progetto Civico, Futuro Nazionale and Ora retain their existing poll-only atoms; no historical vote inheritance is inferred from leadership changes.",
+    "UDC remains separate from Noi Moderati. Historical joint observations stay grouped; uncertainty of their internal split is not replaced by fabricated component counts.",
+    "Spazio Pubblico is represented within the user's joint Azione/PLD ticket, without a separately invented historical support coordinate.",
+    "Valdostan tickets and Union Valdôtaine must not be equated with the entirety of broader historical alliance votes without an explicit labelled reference assumption.",
+    "Protected-minority declarations are scenario inputs requested by Luca, not a legal certification of eligibility.",
+    "Team K and Süd-Tiroler Freiheit references distinguish Bolzano from Trento. Provincial/cross-chamber references and new-filing priors are explicit assumptions, not newly fitted political counts."
+  ],
+  "identitySources": [
+    "https://www.camera.it/leg19/217?idlegislatura=19&shadow_gruppi_parlamentari=4291",
+    "https://www.partitosocialista.it/avanti-per-litalia-e-il-nuovo-progetto-dei-socialisti-e-sara-sulla-tessera-2026/",
+    "https://piu.uno/",
+    "https://progettocivicoitalia.it/",
+    "https://futuronazionale.it/statuto/",
+    "https://ora-italia.it/",
+    "https://suedtiroler-freiheit.com/2022/12/30/rueckblick-und-vorausschau-autonomie-teuerung-wahlerfolge-uvm/",
+    "https://news.provinzia.bz.it/it/news/elezionialtoadige23-i-risultati-provvisori"
+  ],
+  "unobservedReferences": [
+    {
+      "component": "poll-only-ora",
+      "scope": {
+        "kind": "national"
+      },
+      "mean": 0.005,
+      "sdPercentagePoints": 0.5,
+      "provenance": "Editable weak scenario prior; separate Ora support is not identified by selected compatible polls."
+    }
+  ],
+  "subregionalReferences": [
+    {
+      "component": "suedtiroler-freiheit",
+      "province": "021",
+      "mean": 0.1,
+      "sdPercentagePoints": 6,
+      "provenance": "Weak cross-context reference informed by the official 2023 Bolzano provincial result (10.9%); this is not a political-election likelihood observation.",
+      "source": "https://news.provinzia.bz.it/it/news/elezionialtoadige23-i-risultati-provvisori"
+    },
+    {
+      "component": "suedtiroler-freiheit",
+      "province": "022",
+      "mean": 0.003,
+      "sdPercentagePoints": 0.3,
+      "provenance": "Weak positive scenario prior for newly filed Trentino support, not an observed zero or vote inheritance."
+    },
+    {
+      "component": "team-k",
+      "province": "021",
+      "sourceEvent": "senato-2022",
+      "sourceLabel": "TEAM K",
+      "fallbackMean": 0.003,
+      "sdPercentagePoints": 2,
+      "provenance": "Original 2022 common-18+ Senate group valid share within Bolzano, borrowed as an explicit cross-chamber reference."
+    },
+    {
+      "component": "team-k",
+      "province": "022",
+      "sourceEvent": "senato-2022",
+      "sourceLabel": "TEAM K",
+      "fallbackMean": 0.003,
+      "sdPercentagePoints": 0.3,
+      "provenance": "If no original filed support is observed, use a weak positive prior for newly filed Trentino support, not a historical zero."
+    }
+  ]
+}

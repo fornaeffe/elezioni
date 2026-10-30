@@ -245,7 +245,7 @@ export async function deleteStoredResult(id: string, owner: string): Promise<voi
   tx.objectStore('metadata').delete(IDBKeyRange.bound([id, 0, 0], [id, Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER]));
   await done;
   await deleteStatisticsCache(id);
-  if (record.exports.length && navigator.storage.getDirectory) {
+  if (record.exports.length && navigator.storage?.getDirectory) {
     const root = await navigator.storage.getDirectory();
     const directory = await root.getDirectoryHandle('elezioni-result-exports', { create: true });
     for (const file of record.exports) await directory.removeEntry(file).catch(() => undefined);

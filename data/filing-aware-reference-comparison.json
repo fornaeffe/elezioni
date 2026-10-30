@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "filing-reference-round2-20261030-v1",
+  "parentProtocol": "filing-aware-comparison-20261030-v1",
+  "reason": "Round 1 exposed reference-field normalization as a source of changed national means. Isolate country-calibrated references from the selected bounded forecast kernel. This is a new recorded development round; Camera 2022 has already been inspected and is reused validation, not fresh confirmation.",
+  "development": [
+    "camera-2013",
+    "camera-2018"
+  ],
+  "validation": [
+    "camera-2022"
+  ],
+  "horizonsDays": [
+    730,
+    365,
+    90,
+    15
+  ],
+  "draws": 512,
+  "candidates": [
+    {
+      "id": "bounded-pair-field-v1",
+      "scale": 1.5,
+      "reference": "country-calibrated"
+    }
+  ],
+  "metrics": "Unchanged parent protocol, equal units; retain round 1 results and frozen seeds."
+}

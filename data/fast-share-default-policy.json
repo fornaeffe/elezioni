@@ -1,12 +1,58 @@
 {
   "schemaVersion": 1,
   "id": "fast-share-default-policy-v1",
+  "futureScenario": "reform-future-choice-set-20261030-v1",
   "referenceDate": "2026-10-19",
   "electionDate": "2027-09-25",
   "fitSeed": "fast-share-default-fit-v1",
   "simulationSeed": "fast-share-default-v1",
-  "history": ["camera-2008", "camera-2013", "camera-2018", "camera-2022", "european-2009", "european-2014", "european-2019", "european-2024"],
-  "polls": ["demos-a00558", "demos-a00652", "demos-a00693", "demos-a00753", "demos-a00856", "demos-a00942", "demos-a01231", "demos-a01362", "demos-a01384", "demos-a01438", "demos-a01506", "demos-a01570", "demos-a01757", "demos-a01886", "demos-a01988", "demos-a02093", "demos-a02187", "pcm-11832-q2", "pcm-11839-q1", "pcm-11848-q1", "pcm-12951-q1", "pcm-12952-q3", "pcm-1333-q1", "pcm-1342-q1", "pcm-14342-q1", "pcm-14346-q1", "pcm-14358-q4", "pcm-14362-q1", "pcm-14364-q1", "pcm-7135-q2", "pcm-7145-q1", "pcm-7154-q1", "pcm-8779-q2", "pcm-8787-q3", "pcm-8790-q1"],
+  "history": [
+    "camera-2008",
+    "camera-2013",
+    "camera-2018",
+    "camera-2022",
+    "european-2009",
+    "european-2014",
+    "european-2019",
+    "european-2024"
+  ],
+  "polls": [
+    "demos-a00558",
+    "demos-a00652",
+    "demos-a00693",
+    "demos-a00753",
+    "demos-a00856",
+    "demos-a00942",
+    "demos-a01231",
+    "demos-a01362",
+    "demos-a01384",
+    "demos-a01438",
+    "demos-a01506",
+    "demos-a01570",
+    "demos-a01757",
+    "demos-a01886",
+    "demos-a01988",
+    "demos-a02093",
+    "demos-a02187",
+    "pcm-11832-q2",
+    "pcm-11839-q1",
+    "pcm-11848-q1",
+    "pcm-12951-q1",
+    "pcm-12952-q3",
+    "pcm-1333-q1",
+    "pcm-1342-q1",
+    "pcm-14342-q1",
+    "pcm-14346-q1",
+    "pcm-14358-q4",
+    "pcm-14362-q1",
+    "pcm-14364-q1",
+    "pcm-7135-q2",
+    "pcm-7145-q1",
+    "pcm-7154-q1",
+    "pcm-8779-q2",
+    "pcm-8787-q3",
+    "pcm-8790-q1"
+  ],
   "excludedPolls": {
     "pcm-14338-q1": "Bundled conditional-ballot exclusion",
     "pcm-14363-q1": "Bundled conditional-ballot exclusion",
@@ -15,11 +61,26 @@
     "pcm-553-q1": "Multiple distinct residual answers cannot be represented by the single offered-complement observation policy",
     "pcm-566-q1": "Multiple distinct residual answers cannot be represented by the single offered-complement observation policy"
   },
-  "paired": {"camera": "camera-2022", "senato": "senato-2022", "electoratePolicy": "equal-only"},
-  "basisPolicy": "The installed default's eight ordinary nationwide lists supply the fitted Camera basis. Current joint ballot labels remain whole statistical blocks; Azione and Italia Viva remain separate because selected 2026 polls distinguish them. Other source identities pool whole into an explicit unfiled historical-rest component. No count is split.",
-  "referenceSupportedPolicy": "Restricted-filing and opaque special-ballot identities are reference-supported future components, not newly formed parties. At each special region their central valid shares are conditional on the current physical filing and the original paired-2022 regional valid denominator. Non-valid anchors hold the original regional baseline. Missing-profile uncertainty remains explicit. These groups are not direct C/E likelihood coordinates; their original counts remain in the pooled historical-rest likelihood. No special group is decomposed into endorsed parties.",
-  "newComponentFallback": {"geographicLogProfile": 0, "profileSd": 0.45, "localInnovationSd": 0.25, "nationalInnovationSd": 0.35},
-  "specialRegionNonValidAnchors": ["02", "04"],
+  "paired": {
+    "camera": "camera-2022",
+    "senato": "senato-2022",
+    "electoratePolicy": "equal-only"
+  },
+  "basisPolicy": "Luca's 24-list future choice set uses recognized historical/poll identities and original grouped likelihoods. Only components with selected observed support are fitted. Unobserved regional tickets, Ora and STF retain explicit editable reference assumptions; no historical counts are split.",
+  "referenceSupportedPolicy": "Future territorial tickets use declared regional references, with whole-alliance VdA proxies explicitly distinguished from identity and minority-specific historical counts. No proxy creates empirical identification of unobserved internal splits.",
+  "newComponentFallback": {
+    "geographicLogProfile": 0,
+    "profileSd": 0.45,
+    "localInnovationSd": 0.25,
+    "nationalInnovationSd": 0.35
+  },
+  "specialRegionNonValidAnchors": [
+    "02",
+    "04"
+  ],
   "electoratePolicy": "Hold the matched original Camera-2022 common-18+ municipal electorate constant, conditionally, for both future chambers; no demographic forecast or inferred fine-geography turnout.",
-  "selectionStatus": "candidate-only; default activation and predictive acceptance remain FV-08"
+  "selectionStatus": "New future choice set installed for authorized filing-aware research; selected forecast kernel remains provisional until comparative validation.",
+  "forecastModel": "bounded-mass-pair-field-v2",
+  "forecastScale": 1.5,
+  "profileRegionCorrelation": 0.25
 }

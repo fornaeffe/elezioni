@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "filing-aware-comparison-20261030-v1",
+  "frozenBeforePredictiveInspection": true,
+  "priority": ["plausible-tails","observed-result-probability-and-coverage","mean-error-and-signed-bias"],
+  "seedPrefix": "filing-aware-v1",
+  "draws": 512,
+  "development": ["camera-2013","camera-2018"],
+  "validation": ["camera-2022"],
+  "horizonsDays": [730,365,90,15],
+  "candidates": [
+    {"id":"legacy-global-beta-v1","scale":1},
+    {"id":"filing-strata-beta-v1","scale":0.5},
+    {"id":"filing-strata-beta-v1","scale":1},
+    {"id":"filing-strata-beta-v1","scale":1.5},
+    {"id":"bounded-pair-field-v1","scale":0.5},
+    {"id":"bounded-pair-field-v1","scale":1},
+    {"id":"bounded-pair-field-v1","scale":1.5}
+  ],
+  "scoring": {
+    "primaryDomain":"actual target choice sets, conditionally known; unobservable internal historical splits are never scored as observed",
+    "levels":["municipality","current physical college","current constituency","aggregate of the evaluated geography"],
+    "weights":"equal observable groups within unit, equal units within case, equal election/horizon cases; electorate-weighted results are additional",
+    "tails":["Pr(share > 0.80), with regional majority caveat","Pr(abs(draw - truth) > 0.30)","Pr(abs(draw - truth) > 0.15)"],
+    "coverage":[0.5,0.8,0.9,0.95],
+    "truthNeighborhood":"Pr(abs(draw - truth) <= max(0.02, 0.5/sqrt(observed valid votes)))",
+    "properScores":["WIS","CRPS"],
+    "pointScores":["mean absolute error","signed errors by observable group; do not interpret compositional cancellation as no bias"],
+    "selection":"Use only development scores. Seek a Pareto improvement on tails with adequate coverage; report tradeoffs if no candidate dominates. Never retune on later-election validation."
+  },
+  "geography":"Reduced samples are sampled-area/college diagnostics, not complete national forecasts. Full-domain validation is required before a national or college-wide claim. Municipal-to-current-college fractional reconstruction is labelled, with unmatched units counted.",
+  "reuse":"These elections were already used in earlier research. Later-election validation is a separated comparison stage, not an untouched holdout.",
+  "browserBudgetMs": 1800000,
+  "failurePolicy":"Retain every requested case/draw and technical or physical failure. No silent retry/target repair. Reduced computational gates precede full-country work."
+}

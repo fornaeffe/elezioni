@@ -44,6 +44,8 @@ export interface SamplerOptions {
 }
 export interface SolverOptions {
   solver?: 'auto' | 'dense' | 'matrix-free';
+  /** Independent acceptance oracle only; production combines repeated full-ballot polls exactly. */
+  collapseRepeatedPolls?: boolean;
   maximumWorkspaceBytes?: number;
   relativeTolerance?: number; maximumIterations?: number;
 }

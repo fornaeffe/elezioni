@@ -26,6 +26,15 @@ ones; it must not imply that every retained posterior is valid.
 
 ## Target layout
 
+The 30 October [feasible-field comparison](vote-generation-feasible-research.md)
+adds authored `data/filing-aware-*.json` protocols, `filing-aware-*` acceptance
+runners and compact `vote_share_feasible_*` benchmark evidence. Include these
+in the later exact consumer inventory. Keep the selected browser kernel,
+`reference-noise.ts`, future-default preparation and its authored scenario active.
+Preserve rejected variants, source hashes, selection records and browser ledgers
+before removing any ignored large predictive arrays. This extends the FV-09 plan;
+no archive/deletion has been executed.
+
 | Location | Responsibility |
 | --- | --- |
 | `docs/vote-generation-fast-model.md` | Maintained selected model equations, assumptions and scenario semantics, extracted in FV-01 |

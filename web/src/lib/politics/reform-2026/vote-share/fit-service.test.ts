@@ -176,7 +176,17 @@ describe('FV-06 semantic refitting and task-owned state', () => {
     ).rejects.toThrow('INVALID_USER_POLL');
     scenario.polls.added = [structuredClone(f.customPoll)];
     scenario.polls.added[0].original[0].percentage = 0;
-    await expect(runFitTask({ action: 'fit', configuration: f.configuration, previous: f.accepted, scenario }, f.read)).rejects.toThrow('INVALID_USER_POLL');
+    await expect(
+      runFitTask(
+        {
+          action: 'fit',
+          configuration: f.configuration,
+          previous: f.accepted,
+          scenario,
+        },
+        f.read,
+      ),
+    ).rejects.toThrow('INVALID_USER_POLL');
     scenario.polls.added = [];
     scenario.referenceDate = '2020-01-01';
     scenario.polls.selected = [];
@@ -235,12 +245,26 @@ describe('FV-06 semantic refitting and task-owned state', () => {
     expect(received.assets.fit.political.values.byteLength).toBe(bytes);
     expect(f.accepted.assets.fit.political.values.byteLength).toBe(bytes);
     expect(
-      generationCapacity(received, { deviceMemory: 1, hardwareConcurrency: 8 })
-        .maximum,
+      generationCapacity(received, {
+        deviceMemory: 0.25,
+        hardwareConcurrency: 8,
+      }).maximum,
     ).toBe(0);
     expect(
       generationCapacity(received, { deviceMemory: 8, hardwareConcurrency: 8 })
         .maximum,
     ).toBeGreaterThanOrEqual(2);
+    expect(generationCapacity(received, {}).maximum).toBeGreaterThanOrEqual(1);
+    expect(
+      generationCapacity(received, { hardwareConcurrency: 1 }).maximum,
+    ).toBe(1);
+    const capacity = generationCapacity(received, {
+      deviceMemory: 32,
+      hardwareConcurrency: 32,
+    });
+    expect(capacity.budgetBytes).toBe(512 * MiB);
+    expect(
+      capacity.coordinatorBytes + capacity.maximum * capacity.perWorkerBytes,
+    ).toBeLessThanOrEqual(capacity.budgetBytes);
   });
 });

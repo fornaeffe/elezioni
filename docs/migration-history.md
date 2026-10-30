@@ -1,6 +1,6 @@
 # Migration History
 
-Record through: 2026-10-29
+Record through: 2026-10-30
 
 This file preserves the detailed migration record: completed implementation,
 decisions and rationale, verification results, encountered problems,
@@ -7805,3 +7805,228 @@ an unsupported device; a mobile viewport does not establish handheld resource
 support. Existing build chunk-size/plugin-timing advisories remain. FV-09 research
 archival and the final publication gate are still separate. No commit, deployment
 or production-default activation was performed.
+
+## 2026-10-30 — FV-08 acceptance engineering and blocked default selection
+
+FV-08 remains **open**. The [acceptance guide](vote-generation-fast-acceptance.md)
+records execution commands, the model decision and remaining gates. The
+[curated acceptance report](../test/fixtures/benchmarks/vote_share_acceptance.json)
+retains the failed preflight, distinct catalog provenance, browser results and
+resource/replay qualifications. No reform default, public deployment or research
+archive switch was performed.
+
+Implemented original-generator dispatch for reform archives: a bounded streaming
+header reader routes v1-v3 scenarios/results to the installed generator and v4
+scenarios/fitted sessions to the fast workspace. Changing workspaces preserves
+their respective draft namespaces; importing a result does not overwrite an
+unrelated editable draft. The candidate browser checks exercise an actual v3
+archive, original model identifiers and a return to the fitted v4 session.
+
+Two numerical implementation improvements preserve the selected statistical
+target. Compatible repeated full-ballot polls with identical date, context and
+shared-error group use exact Gaussian sufficient statistics, including their
+within-group residual information; partial offered sets remain separate. An
+independent uncollapsed dense calculation checks precision and mode agreement.
+Dense covariance solves use iterative residual refinement when necessary, with
+the original residual gate and covariance unchanged. For difficult but feasible
+filing geometry, global projection uses a damped, gauge-fixed Newton step after
+the original scaling prefix, without a ridge, target repair, relaxed tolerance
+or larger 120-update budget. Independent saturated-support and joint-capacity
+fixtures distinguish numerical difficulty from physical impossibility.
+
+The full-country preflight exposed a **statistical support defect** in the
+expanded default. Its reference-supported restricted-filing components receive
+national future Beta-stick innovations. Their requested national elector mass
+can exceed all physical electors where they are filed. Current-engine diagnostic
+repeats of frozen seeds 33 and 45 reproduce the exact infeasible margins at the
+future projection in `generation.ts`; the first requests **0.2571%** for the
+seven Valle d'Aosta identities against **0.2129%** physical capacity. A max-flow
+cut certificate reports both requested and available mass. Scrutiny is never
+given these invalid targets. The requested-draw ledger retains every failure;
+diagnostic repeats never replace its original entries. This concentration
+defect blocks default selection under the already frozen protocol.
+
+The completed **1,000-request Node preflight** took **45.58 minutes**: **965
+complete runs**, each with all **588 seats filled**, and **35 generation
+capacity errors**. The observed generation-failure frequency is **3.5%**
+(Wilson 95% simulation interval **2.53–4.83%**, conditional on this candidate and
+scenario). No generated run was legally non-computable. The successful maximum
+projection residual was `9.981900861433246e-10`. These are requested-denominator
+counts, not a matched failure-rate comparison with the installed generator;
+the screen does not replace the required complete browser-pipeline campaign.
+
+A support-aware conditional transition is proposed for investigation, with
+explicit equations and reference/Camera/Senate semantics to agree before
+implementation. Rerolling, clipping or reducing uncertainty after inspecting
+failures would not establish acceptance for the approved model. Work requiring
+a successful candidate—matched expanded historical/seat comparisons and 1,000
+complete browser storage/plot/export runs—remains open rather than being
+silently substituted by the Node generation/legal screen.
+
+Verification and measured limits, on Node 24.20.0 / Windows / i7-14700KF:
+
+- **99 unit files / 1,207 tests**, `check:data`, `check` (zero Svelte diagnostics),
+  candidate preparation/verification and static builds pass. The first unrestricted
+  unit run exceeded one existing 5-second timeout while other validation ran;
+  the complete suite passed with two Vitest workers and the same timeout. The
+  Svelte MCP found no component issues. Fixed-input scrutiny implementations were
+  not changed, and **12 installed editor/workspace browser regressions** pass.
+- At each of `/` and `/elezioni`, **8 Chromium/Firefox candidate UI checks pass**;
+  Windows WebKit 26.4 passes 3 and fails the export workflow. This port lacks
+  `navigator.storage`, including OPFS. Capability guards now give the intended
+  explanatory error and retain stored results. Required WebKit export acceptance
+  is still failed, not skipped; these results do not establish Safari support.
+- The synthetic **128-component / 512-poll** full-budget national fit took
+  **11.26–11.54 seconds** over one cold and five warm repetitions, median
+  **11.44 seconds**, with **46,383,008 bytes** audited numerical workspace. The
+  original unoptimized probe took 64.29 seconds. This is a repeated-partition
+  dimension probe, not acceptance of arbitrary dates/partitions, empirical
+  geographic fitting, browser latency or actual 4x worker throttling.
+- Fast generation capacity now has its own **512 MiB aggregate reservation**,
+  including coordinator and packet copies, with no change to the installed
+  generator's capacity rules. The one-run Chromium page/worker samples peaked at
+  **254.9 MiB root / 271.1 MiB project-base**. This includes V8 used heap, backing
+  stores and embedder heap; it is not an unsampled RSS bound or multiworker
+  acceptance. Fit/cancellation and the complete constrained-device envelope
+  remain separate required measurements.
+- Original-domain replay completed **24 cases × two choice-set-order variants**,
+  **512 predictive draws each**, without a technical failure and with maximum
+  projection residual below `1e-9`. Point scores and raw score inputs are retained.
+  Simulation MCSE, regional/cluster sensitivity and the full-country benchmark
+  remain open; these point comparisons do not accept predictive parity.
+- The **7 existing Chromium release/fit/worker checks** pass at the restored root
+  build, including Node-identical fits and legal inputs, zero startup fitting,
+  date/history invalidation, cancellation/retry, serial/parallel identity and
+  required-asset failure. This is functional coverage, not the full resource
+  or predictive envelope.
+- A source-only Linux/WSL checkout, with an initially empty numerical/source
+  cache and no research directory, prepares the candidate using Node alone;
+  its offline warm repeat retains identical assets. Catalog identities and exact
+  timings (**129.71 seconds cold / 33.02 seconds warm**) are retained in the
+  curated report and match the current Windows catalog. Generation assets are approximately
+  **4.20 MiB compressed**, advanced refit assets **4.30 MiB**; the release smoke
+  verifies **7,904 municipalities, 15,810 physical cells, 588 filled seats** and
+  zero startup fits. A changed-source preparation was correctly rejected by the
+  implementation fingerprint; preparation was repeated with stable sources.
+- FV-01 `freeze.mjs --check-sources` still verifies **61 evidence files and all
+  1,433 original inventory entries**. No research files were moved or deleted.
+
+Existing Vite chunk-size/plugin-timing advisories remain. Large raw outputs stay
+ignored under `data/derived/fv08-acceptance`; the curated compressed production
+ledger preserves requested denominators and its checksum. Its older candidate
+catalog is identified separately from the current diagnostic repeats and builds;
+it must not be presented as final current-engine or browser-pipeline acceptance.
+
+
+## 2026-10-30 — Filing-aware replacement models and requested future default
+
+Luca authorized implementing and comparing replacement forecast laws, retaining
+only the municipality/college plausibility, actual-result support and mean
+accuracy priorities, membership architecture, Italian context, history/poll
+inputs and a complete browser computation below 30 minutes. Earlier Beta and
+hard national-margin properties remain historical comparator contracts. This
+continues FV-08 research; it does not activate the ordinary reform default.
+
+Before predictive comparisons, authored and prepared Luca's 24-list default in
+both chambers. Ora!/DSP use the requested 14 Camera constituencies and, following
+Luca's confirmation, the nine corresponding entire Senate regions. All other
+ordinary/TAA/VdA filings, coalitions and five minority declarations follow the
+scenario request. Historical counts remain grouped and unchanged. The fit has
+28 observed-supported coordinates; 34 components are available in the future
+scenario, including historical-rest, which is not filed by default. Six future
+components use explicit reference support. New-party, provincial, cross-chamber
+and whole-alliance VdA proxies are labelled assumptions, not invented observed
+party splits. Exact identities and primary-source links are retained beside the
+authored scenario. See the [results and default assumptions](vote-generation-feasible-results.md).
+
+Implemented three browser-safe forecast fields: filing-stratum Beta, uniform
+bounded pair transfers and mass-weighted bounded pair transfers. Feasible local
+probabilities generate national totals, avoiding unsupported national future
+margin requests. Symmetric bounded transfers conserve mass, retain structural
+zeros and preserve conditional municipal means. A separate regional reference
+profile term reallocates existing variance without increasing municipal marginal
+variance. Existing reference interventions, fixed turnout for list edits,
+physical reconstruction, count generation and legal scrutiny remain in use.
+National/local list uncertainty controls also reach the new kernels. Model,
+scale and regional covariance are serialized and included in generation keys.
+Equations and qualifications are in the [model guide](vote-generation-feasible-model.md).
+
+Ran 134 candidate/case comparisons, each with 512 predictive draws, using cutoff
+eligible historical elections and polls: Camera 2013/2018 development, reused
+Camera 2022 validation, 730/365/90/15-day horizons, and full retained 2018/2022
+short-horizon municipal domains. They are variants of three elections, not 134
+independent elections or a fresh holdout. Original grouped observations define
+observable truth; current-college reconstructions use labelled population splits.
+The full retained domains have 7,883/7,830 municipalities and 52 current Camera
+colleges; VdA and nine unmatched 2022 municipalities limit geographic validation.
+No Senate predictive calibration is claimed from the functional paired tests.
+
+Sequential selection chose mass-weighted pairs, scale 1.5 and regional profile
+variance share 0.25. Protocols and selections are tracked in `data/filing-aware-*`.
+Country-calibrated references worsened development accuracy/interval scores and
+were rejected. Uniform matching had insufficient major-party variability when
+many tiny components were present. Regional profile covariance improved college
+coverage without adding municipal marginal variance. The selected model is a
+compromise: full 2022 municipal tail-error probability falls from 1.384% to
+1.114%, while college 90% coverage is 80.11% versus global Beta's 79.78% and
+69.90% for mass-weighted pairs without the regional reference term. Full 2018
+college coverage is 84.29%; its small college-tail difference is unresolved by
+simulation error. Neither nominal coverage nor absence of systematic bias is
+established; named-group and long-horizon errors remain explicit.
+
+The actual single-worker Chromium 148.0.7778.96 computation on the i7-14700KF
+completed **512/512 paired Camera/Senate generations and legal scrutinies in
+1,583.0 seconds (26.38 minutes)**, including loading and a real national/profile/
+paired refit after changing the reference date to 20 October. Every request filled
+all 588 modelled domestic seats; technical and non-computable failures were zero.
+Refitting took 6.75 seconds, generation 1,413.28 seconds and scrutiny 160.34 seconds.
+The existing memory policy permits one consumer for the larger packet and rejects
+an unsafe second reservation. This is the measured default draw budget, not the
+maximum edited envelope or full-campaign storage/export acceptance.
+
+Curated comparison, original report summaries, group errors, joint-draw tail-rate
+MCSE/paired intervals and the complete browser ledger are under
+`test/fixtures/benchmarks/vote_share_feasible_*`. Raw country predictive arrays
+stay ignored and stream through gzip below V8's single-string limit. An initial
+2022 output attempt was interrupted before reporting; its identified orphan was
+stopped and the completed repeat retained identical inputs, parameters and seeds.
+Pooled-group summaries were corrected from identical saved draws to predeclared
+equal-group-within-unit/equal-unit weighting, without a statistical rerun. The
+curator checks the reconstructed joint-draw rates against report values.
+
+Repeated profile lookups and temporary shock vectors were removed from the hot
+path. Independent zero-scale, conservation, exact-support, deterministic-stream,
+moment, component-granularity and covariance fixtures pass. The uniform-pair
+64-draw hash remains unchanged through optimization, and resolved profile caching
+retains identical full-default draws in the fixed three-draw comparison. Default
+integration tests caught malformed UTF-8 labels and an expected-ID sort error;
+these were corrected before the full browser run. Browser harness action/HTTP
+transport mistakes were corrected explicitly. Older ten-share/two-consumer test
+fixtures were adapted to the expanded basis and actual memory policy; no runtime
+validation or memory limit was weakened. A five-second unit timeout under heavy
+parallel validation passed both its targeted repeat and the full bounded-worker
+suite with the unchanged timeout.
+
+Verification completed so far: **105 unit files / 1,232 tests**, data and browser
+harness TypeScript checks, zero Svelte diagnostics, static candidate release
+verification, **7 Chromium release/refit/worker checks**, and **8 root-path
+Chromium/Firefox workspace checks**. Required assets are present. The FV-01
+preservation check still verifies all **61 evidence files / 1,433 inventory
+entries**. No research source or artifact was moved or deleted. FV-09 inventory
+now includes this comparison while preserving the selected runtime modules.
+The corrected export/replay checks pass at both `/` and `/elezioni`: **16
+Chromium/Firefox functional workspace checks** in total. The nested check
+exposed fractional `estimatedWorkerMemoryMiB` metadata, rejected by the existing
+result importer. The producer now rounds its reported MiB estimate up, without
+changing reservation budgets or forecast code. Tests now parse the actual export
+and reject result-service errors, preventing stale stored results from masking
+a failed import. An initial nested memory assertion measured 589.64 MiB and
+failed; that engineering result is retained. Corrected samples measured 420.85
+MiB root and 444.69 MiB project-base. The authorized comparison records the older
+512 MiB threshold diagnostically; default FV-08 test mode still enforces it.
+These samples are not an unsampled RSS bound or a full-campaign resource gate.
+The complete 1,232-test suite passed again after the metadata correction.
+Root/project-base releases retain the same catalog/generation fingerprint, and
+the standard root build was restored with fast dispatch opt-in. FV-08's wider
+resource/export/public-default gates remain open. No commit or deployment was
+performed.
