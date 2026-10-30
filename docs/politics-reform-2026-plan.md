@@ -356,9 +356,9 @@ list entitlements. For the cap-group branch's unequal constituency/C3 totals,
 apply [I15-v2](politics-reform-2026-specification.md#disjoined-camera-cap-group-corrections-i15)
 with a warning, preserving original C3 quotas and upstream entitlements.
 Preserve explicit arithmetic/no-progress failures. Never rescale tables.
-Apply [I14-v1](politics-reform-2026-specification.md#initial-camera-list-remainder-passes-i14)
-to insufficient initial N18 list remainder pools, including lists within cap
-groups. Keep repeated passes, donor award counts and downstream remainder states
+Apply [I14-v2](politics-reform-2026-specification.md#initial-college-list-remainder-passes-i14)
+to insufficient initial N18/N21 list remainder pools and internal cap-list splits
+(including N22/S17(5)(d)). Keep repeated passes, donor award counts and downstream remainder states
 consistent. Correction recipients use the separately approved
 [I16-v1](politics-reform-2026-specification.md#reused-list-correction-recipients-i16)
 unused-first, repeated descending used-decimal passes in N18/N21/N22 list
@@ -386,6 +386,11 @@ regional vote totals. Check preservation of regional endowments.
 Translate art. 17 regional coalition-to-list and college allocation, separating
 ordinary and cap-corrected majority/minority paths. Share primitives with Camera
 only where their formulas and tie policies are equivalent.
+
+Apply [I14-v2](politics-reform-2026-specification.md#initial-college-list-remainder-passes-i14)
+to insufficient initial S17(4)(b) list rankings, including S17(5)(d)'s internal
+cap-list operation. Preserve college-vote ties, simultaneous pass exclusions,
+award counts and recovery remainder state; group-index allocation is excluded.
 
 Tests: single/multiple colleges, regional list targets, surplus/deficit
 corrections, six-decimal indices, and the Senato-specific vote totals used to

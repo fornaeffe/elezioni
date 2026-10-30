@@ -58,7 +58,7 @@ it.skipIf(!present)('R26-19 required production bundle: acquire/generate with da
   const repeated = runPoliticsReformScrutiny(generateReformSimulation(prepared, 165).input);
   expect(repeated.status).toBe('complete');
   expect(repeated.seats).toHaveLength(588);
-  expect(repeated.interpretations).toContainEqual({ id: 'I14', version: 'I14-v1' });
+  expect(repeated.interpretations).toContainEqual({ id: 'I14', version: 'I14-v2' });
   expect(repeated.warnings).toContainEqual(expect.objectContaining({ code: 'I14_REPEATED_REMAINDER_PASS', severity: 'warning', chamber: 'camera' }));
   const matrix = repeated.chambers[0].cameraTerritorial!.colleges.matrices.find(m => m.contextId.endsWith('camera:territory:07/lists'))!;
   const europa = matrix.cells.find(c => c.targetId === 'list-4737a15e2c762fa0')!;
@@ -66,7 +66,7 @@ it.skipIf(!present)('R26-19 required production bundle: acquire/generate with da
   expect(repeated.chambers[0].recovery!.remainders).toContainEqual(expect.objectContaining({
     collegeId: europa.areaId, subject: { kind: 'list', id: europa.targetId }, value: europa.decimalPart, state: 'used' }));
   expect(new Set(repeated.seats.flatMap(s => s.status === 'filled' ? [s.candidateId] : [])).size).toBe(588);
-  expect(JSON.parse(JSON.stringify(repeated)).interpretations).toContainEqual({ id: 'I14', version: 'I14-v1' });
+  expect(JSON.parse(JSON.stringify(repeated)).interpretations).toContainEqual({ id: 'I14', version: 'I14-v2' });
   // Recorded benchmark 31: Campania's M5S integer surplus in Senate N21.
   const senateReplay = runPoliticsReformScrutiny(generateReformSimulation(prepared, 31).input);
   expect(senateReplay.status).toBe('complete');

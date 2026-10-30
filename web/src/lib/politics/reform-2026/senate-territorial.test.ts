@@ -239,16 +239,50 @@ describe('N21 ordinary Senate college allocation', () => {
   it.each([
     ['zero-vote-total', [2, 2], [[0, 0], [100, 100]], [2, 2]],
     ['zero-quota', [2, 2], [[1, 1], [100, 100]], [3, 1]],
-    ['initial-overallocation', [3, 2, 2], [[10, 1, 1], [1, 1, 1]], [7, 0]],
-    ['impossible-residual', [1, 1, 2], [[40, 35, 25], [100, 100, 0]], [2, 2]]
+    ['initial-overallocation', [3, 2, 2], [[10, 1, 1], [1, 1, 1]], [7, 0]]
   ] as const)('reports college I04 %s', (reason, targets, votes, seats) => {
     const r = run(worked([...targets], votes.map(v => [...v]), [...seats]));
     expect(r.colleges).toMatchObject({ status: 'non-computable', reason, affectedRegionId: 'R', draws: [] });
     expect(r.colleges).not.toHaveProperty('targets');
   });
+  it('I14 repeats the nonempty ranking formerly reported as impossible-residual', () => {
+    const r = complete(worked([1, 1, 2], [[40, 35, 25], [100, 100, 0]], [2, 2]));
+    expect(r.colleges.matrices[0].cells.filter(c => c.targetId === 'C').map(c => c.seats)).toEqual([2, 0]);
+    expect(r.colleges.warnings).toEqual([expect.objectContaining({ interpretationId: 'I14', chamber: 'senato',
+      severity: 'warning', message: expect.stringContaining('Reached regional targets excluded') })]);
+  });
+  it('carries I14 donor consumption and I16 recipient reuse through recovery and transfer exports', () => {
+    const input = worked([4, 5, 1, 1, 1, 1], [
+      [20, 19, 16, 15, 15, 15], [20, 19, 16, 15, 15, 15], [20, 19, 16, 15, 15, 15], [0, 0, 100, 100, 100, 100]
+    ], [3, 3, 3, 4]);
+    const r = complete(input, first), m = r.colleges.matrices[0];
+    // The unused zero decimal in P3 is used before I16 reuses a used decimal.
+    expect(m.transfers.map(t => t.interpretationId)).toEqual(['I14', 'I14']);
+    expect(m.transfers.map(t => t.interpretationIds)).toEqual([undefined, ['I14', 'I16']]);
+    const donor = m.cells.find(c => c.id === m.transfers[0].fromCellId)!;
+    expect(assembleRecoveryRemainders(input.chamber, r)).toContainEqual(expect.objectContaining({
+      collegeId: donor.areaId, subject: list(donor.targetId), value: donor.decimalPart, state: 'consumed' }));
+    expect(allocationTransfers([input.chamber], [{ chamber: 'senato', senateTerritorial: r, admission: input.admission } as unknown as Parameters<typeof allocationTransfers>[1][number]]))
+      .toContainEqual(expect.objectContaining({ chamber: 'senato', norm: 'N21', interpretationIds: ['I14', 'I16'] }));
+  });
 });
 
 describe('N22 Senate cap college groups and lists', () => {
+  it('imports I14 into the internal list split without repeating group-index remainders', () => {
+    const input = worked([2, 1, 1, 2], [[100, 40, 35, 25], [200, 100, 100, 0]], [3, 3], 'bonus-with-cap');
+    const r = complete(input);
+    const [groups, majority, minority] = r.colleges.matrices;
+    expect(groups.cells.filter(c => c.targetId === 'minority').map(c => c.seats)).toEqual([2, 2]);
+    expect(groups.warnings.some(w => w.interpretationId === 'I14')).toBe(false);
+    expect(majority.warnings.some(w => w.interpretationId === 'I14')).toBe(false);
+    expect(minority.cells.filter(c => c.targetId === 'D').map(c => [c.provisionalSeats, c.seats, c.remainderState]))
+      .toEqual([[2, 2, 'used'], [0, 0, 'unused']]);
+    expect(minority.warnings).toEqual([expect.objectContaining({ code: 'I14_REPEATED_REMAINDER_PASS',
+      chamber: 'senato', lawReference: 'S17(5)(d); S17(4)(a)-(c)' })]);
+    expect(minority.transfers).toEqual([]);
+    expect(assembleRecoveryRemainders(input.chamber, r))
+      .toContainEqual(expect.objectContaining({ collegeId: 'P0', subject: list('D'), state: 'used' }));
+  });
   it('replays repeated I13 group removals with I03 draws after input permutations', () => {
     const input = worked([1, 9], [[50, 4], [50, 4], [50, 4], [0, 888]], [2, 2, 2, 4], 'bonus-with-cap');
     const seeded = () => createSeededDrawContext('senate-I13', 'legal');

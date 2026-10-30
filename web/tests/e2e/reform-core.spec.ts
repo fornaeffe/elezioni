@@ -1,4 +1,5 @@
 import { fileURLToPath } from 'node:url';
+import { readFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
 import { build } from 'vite';
 import { completeScrutinyFixture, coalitionScrutinyFixture } from '../../src/lib/politics/reform-2026/scrutiny.fixture';
@@ -6,6 +7,10 @@ import type { PoliticsSimulationResult } from '../../src/lib/politics/simulation
 import { generationFixture } from '../../src/lib/politics/reform-2026/generation.fixture';
 import { generateReformSimulation, prepareReformGeneration } from '../../src/lib/politics/reform-2026/generation';
 import { runPoliticsReformScrutiny } from '../../src/lib/politics/reform-2026/scrutiny';
+import { allocateTerritorialMatrix, type TerritorialMatrixInput, type TerritorialMatrixResult } from '../../src/lib/politics/reform-2026/territorial-matrix';
+import { createSeededDrawContext } from '../../src/lib/politics/reform-2026/ties';
+
+const sicilia: { matrixInput: TerritorialMatrixInput } = JSON.parse(readFileSync(new URL('../../../test/fixtures/benchmarks/senate_sicilia_n21_review.json', import.meta.url), 'utf8'));
 
 type WorkerResponse = { ok: true; result: PoliticsSimulationResult } | { ok: false; message: string };
 
@@ -88,4 +93,22 @@ test('reform scenario generation and full scrutiny replay identically in a brows
   expect(reply.ok).toBe(true);
   if (!reply.ok || reply.result.algorithmId !== 'politiche-reform-2026-v1') throw new Error('Expected generated reform output');
   expect(reply.result.result).toEqual(expected);
+});
+
+test('Senate I14-v2 replays Sicilia 135 in a browser worker with identical exact fractions and remainder state', async ({ page, context }) => {
+  await context.route('**/r26-test-worker.js', route => route.fulfill({ contentType: 'text/javascript', body: workerCode }));
+  await page.goto(`${process.env.BASE_PATH ?? ''}/`);
+  const matrix = sicilia.matrixInput as TerritorialMatrixInput;
+  const expected = allocateTerritorialMatrix(matrix, createSeededDrawContext('senate-I14', 'browser'));
+  const reply = await page.evaluate(matrix => new Promise<{ ok: boolean; matrix: TerritorialMatrixResult }>((resolve, reject) => {
+    const worker = new Worker('/r26-test-worker.js', { type: 'module' });
+    worker.onmessage = e => { worker.terminate(); resolve(e.data); };
+    worker.onerror = e => { worker.terminate(); reject(new Error(e.message)); };
+    worker.postMessage({ matrix });
+  }), matrix);
+  expect(reply.ok).toBe(true);
+  expect(reply.matrix).toEqual(expected);
+  expect(reply.matrix.status).toBe('complete');
+  expect(reply.matrix.areas.map(a => a.finalSeats)).toEqual([6, 6]);
+  expect(reply.matrix.warnings).toHaveLength(1);
 });

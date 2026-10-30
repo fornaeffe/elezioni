@@ -1,11 +1,18 @@
 import { runPoliticsSimulation, resolvePoliticsSimulationAlgorithm, type PoliticsSimulationRequest } from '../../src/lib/politics/simulation-scrutiny';
 import { generateReformSimulation, prepareReformGeneration } from '../../src/lib/politics/reform-2026/generation';
 import type { ReformGenerationSnapshot } from '../../src/lib/politics/reform-2026/generation-types';
+import { allocateTerritorialMatrix, type TerritorialMatrixInput } from '../../src/lib/politics/reform-2026/territorial-matrix';
+import { createSeededDrawContext } from '../../src/lib/politics/reform-2026/ties';
 
 // Test-only worker: no route, generator or production-worker activation.
 self.onmessage = (event: MessageEvent<{ request?: PoliticsSimulationRequest; production?: boolean;
+  matrix?: TerritorialMatrixInput;
   generation?: { scenario: unknown; snapshot: ReformGenerationSnapshot; simulationId: number } }>) => {
   try {
+    if (event.data.matrix) {
+      self.postMessage({ ok: true, matrix: allocateTerritorialMatrix(event.data.matrix, createSeededDrawContext('senate-I14', 'browser')) });
+      return;
+    }
     const { generation } = event.data;
     const generated = generation && generateReformSimulation(prepareReformGeneration(generation.scenario, generation.snapshot), generation.simulationId);
     const request = generated ? { algorithmId: generated.input.algorithmId, simulationId: generated.input.simulationId, input: generated.input } : event.data.request;

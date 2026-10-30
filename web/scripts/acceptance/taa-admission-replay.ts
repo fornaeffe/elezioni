@@ -25,6 +25,8 @@ const codePaths = [
   'web/src/lib/politics/reform-2026/recovery-communications.ts',
   'web/src/lib/politics/reform-2026/recovery.ts',
   'web/src/lib/politics/reform-2026/scrutiny.ts',
+  'web/src/lib/politics/reform-2026/territorial-matrix.ts',
+  'web/src/lib/politics/reform-2026/scrutiny-metadata.ts',
   'web/src/lib/politics/reform-2026/generation.ts',
   'web/src/lib/politics/reform-2026/paired-vote-generation.ts',
   'web/scripts/acceptance/taa-admission-replay.ts'
@@ -44,7 +46,7 @@ for (const variant of baseline.future) {
   const payload = JSON.parse(bytes.toString());
   const prepared = prepareReformGeneration(payload.scenario, payload.snapshot);
   const ids = exceptions.filter(r => r.variant === variant.variant).map(r => r.id);
-  // Separate control: preserve the known Senate N21 failure, not a TAA exception.
+  // Separate control: the approved Senate I14 extension now completes draw 135.
   if (variant.variant === 'polls') ids.push(135);
   for (const id of ids) {
     const control = id === 135 && variant.variant === 'polls';
@@ -67,12 +69,10 @@ for (const variant of baseline.future) {
         taa.listEntitlements.every(t => admission.lists.some(l => l.listId === t.listId && l.admitted) ||
           admission.taaLocalExceptions.some(e => e.territoryId === taa.territoryId && e.listId === t.listId));
       const nonComputableStages = result.stages.filter(s => s.status === 'non-computable');
-      const passed = Boolean(eligibilityConsistent && (control
-        ? result.status === 'non-computable' && filled.length === 399 &&
-          nonComputableStages.some(s => s.status === 'non-computable' && s.norm === 'N21' && s.chamber === 'senato' && s.reason === 'impossible-residual')
-        : result.status === 'complete' && result.seats.length === 588 && filled.length === 588 && uniqueCandidates === 588 &&
+      const passed = Boolean(eligibilityConsistent && result.status === 'complete' && result.seats.length === 588 && filled.length === 588 && uniqueCandidates === 588 &&
           chamberSeats.some(c => c.chamber === 'camera' && c.seats === 392) &&
-          chamberSeats.some(c => c.chamber === 'senato' && c.seats === 196)));
+          chamberSeats.some(c => c.chamber === 'senato' && c.seats === 196) &&
+          (!control || result.interpretations.some(i => i.id === 'I14' && i.version === 'I14-v2')));
       const row = { variant: variant.variant, id, control, inputSha256: variant.inputSha256, generatedInputSha256,
         matchedPreviousGeneratedHash: previousHash ? true : null, passed, status: result.status,
         seats: result.seats.length, filled: filled.length, uniqueCandidates, chamberSeats, eligibilityConsistent,
@@ -89,10 +89,10 @@ for (const variant of baseline.future) {
     }
   }
 }
-const report = { schemaVersion: 1, scope: 'TAA admitted-member interpretation adopted 2026-10-30',
+const report = { schemaVersion: 1, scope: 'TAA admitted-member replay after Senate I14-v2 extension, approved 2026-10-30',
   method: 'Node replay from frozen scenarios/snapshots with production generation and scrutiny; original receipts preserved.',
   baseline: { path: evidencePath, sha256: digest(baselineBytes) }, codeHashes,
   exceptions: exceptions.length, passedExceptions: rows.filter(r => !r.control && r.passed).length,
   failures, rows };
-await writeFile(resolve(root, 'test/fixtures/benchmarks/taa_admission_replay.json'), JSON.stringify(report, null, 2) + '\n');
+await writeFile(resolve(root, 'test/fixtures/benchmarks/taa_admission_senate_i14_replay.json'), JSON.stringify(report, null, 2) + '\n');
 if (failures) process.exitCode = 1;

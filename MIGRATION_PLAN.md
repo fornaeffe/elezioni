@@ -177,7 +177,7 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   provisional I12 exclusion of absent lists from ordinary territorial allocation,
   I13 warned integer-seat donor fallback in Camera N16 constituency list and
   Camera/Senate college corrections,
-  provisional I14 repeated initial Camera list remainder passes,
+  provisional I14 repeated initial Camera/Senate college list remainder passes,
   I15-v2 disjoined Camera cap-group corrections, I16-v1 repeated used-decimal
   list correction recipients after unused decimals exhaust,
   and approved R26-02/03/04 models: attributed list
@@ -339,10 +339,11 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
       Preserve full coalition subject figures; allocation/recovery regressions
       and all 20 recorded exception replays pass. See the
       [failure diagnosis](docs/vote-generation-legacy-comparison-results.md#operational-findings-and-implementation-checks).
-    - [ ] Investigate the poll-informed legacy draw 135 Senate Sicilia college
-      allocation (`N21/impossible-residual`); preserve the failed receipt, check
-      legal/territorial prerequisites and regression-test any justified fix or
-      explicit fallback before release. See the same failure diagnosis.
+    - [x] Resolve the poll-informed legacy draw 135 Senate Sicilia college
+      allocation (`N21/impossible-residual`) with approved I14-v2 initial list
+      passes in Senate N21/N22. Regressions and both frozen 1,000-draw workloads
+      pass; original failed receipts are preserved. See the
+      [diagnosis and implementation verification](docs/senate-sicilia-n21-review.md).
   - [ ] **FV-09:** Execute the [research archive/cleanup plan](docs/vote-generation-research-archive-plan.md)
     after dependency separation and acceptance; retain curated evidence and remove
     only audited, regenerable outputs no longer consumed.

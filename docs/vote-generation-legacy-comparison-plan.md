@@ -70,8 +70,9 @@ Public defaults, deployment and research archival are separate migration tasks.
 
 `taa-admission-replay.ts` reads the 20 exception IDs from the original curated
 benchmark and checks the frozen variant input hashes before generation. It writes
-the separate `test/fixtures/benchmarks/taa_admission_replay.json` receipt, preserving
+the separate `test/fixtures/benchmarks/taa_admission_senate_i14_replay.json` receipt, preserving
 the original browser/diagnostic records. Every exception must return 588 filled
 seats with unique identities and consistent TAA admission; draw 135 is a separate
-control expected to retain its Senate N21 failure. This targeted Node replay does
+control expected to complete with Senate I14-v2. The previous
+`taa_admission_replay.json` retains the pre-extension control result. This targeted Node replay does
 not replace full browser/resource acceptance.

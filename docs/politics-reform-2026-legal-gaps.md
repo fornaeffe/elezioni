@@ -185,7 +185,8 @@ do not admit consumed, absent or undefined decimals. Warn per reused list seat
 and record I16-v1, retaining both donor and recipient policies when I13/I14
 also applies. All upstream entitlements remain binding. See the
 [I16 contract](politics-reform-2026-specification.md#reused-list-correction-recipients-i16).
-I13 still governs donors; I14 governs only initial Camera list passes.
+I13 still governs donors; I14-v2 governs only initial college list passes in
+Camera N18 and Senate N21/N22, including their internal cap-list splits.
 I15-v2 uses unlimited used-decimal passes in mismatched Camera cap groups.
 Pre-workaround inputs/results, scoped matrices and independent arithmetic/
 transfer verification are retained under

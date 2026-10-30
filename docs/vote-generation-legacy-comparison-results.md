@@ -266,16 +266,31 @@ per-draw seat/eligibility checks. Original benchmark receipts and browser timing
 remain historical evidence; this targeted replay is not a fresh 1,000-draw browser
 acceptance run.
 
-Poll-informed draw 135 is a different failure path: it returns a non-computable
+The original poll-informed draw 135 followed a different failure path: it returned a non-computable
 Senate college allocation, `N21/impossible-residual`, affecting region `19`
-(Sicilia), after successful regional/list allocation. The result contains 399
+(Sicilia), after successful regional/list allocation. That result contains 399
 filled seats rather than the required 588. The downstream proclamation/recovery
 stages consequently remain non-computable. This is retained as a failed
-attempt, not silently replaced or counted as a complete simulation. It needs a
+attempt, not silently replaced or counted as a complete simulation. It required a
 separate territorial-allocation investigation; no statutory rule or fallback
 was changed to force completion during this benchmark. The corrected TAA replay
-also checks draw 135 as a separate control: the same Senate failure and 399 filled
-seats remain, so its investigation is still open.
+also checked draw 135 as a separate control: the same Senate failure and 399 filled
+seats remained at that point.
+
+The [30 October Sicilia investigation](senate-sicilia-n21-review.md) reproduces
+the exact generated input and identifies a single-pass initial remainder limit:
+Sicilia 1 needs four remainder seats with three eligible lists. An isolated
+extension of Camera's I14 policy completes all 588 seats. Luca subsequently
+approved the Senate extension, now implemented as I14-v2 for N21 and N22 internal
+lists. Its implementation verification is recorded in that investigation;
+original receipts retain their historical meaning.
+
+The separate [paired Node replay](../test/fixtures/benchmarks/senate_i14_replay.json)
+now completes both frozen 1,000-attempt workloads with 588 filled seats and
+distinct candidates in every attempt. Draw 135 is the only allocation change
+relative to the post-TAA/pre-I14-extension baseline. Seven other objects differ
+only in I14's version labels; 1,992 are byte-identical. This is functional
+verification and does not replace the original browser timing measurements.
 
 Research-adapter verification covers cutoff availability, deterministic joint
 weights, unmapped support, exact elector conservation, unchanged-input identity,

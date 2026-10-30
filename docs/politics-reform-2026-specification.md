@@ -329,7 +329,7 @@ and replay the 20 recorded legacy-comparison exceptions with frozen inputs.
 | N18 / 13 | C83-bis(1)(b),(1-bis)(a)-(d) (76-78) | `allocateCameraColleges`: constituency list targets, local votes/capacities, cap branch -> ordinary college matrix | `N18`: normal integer quota, remainder then **constituency** votes/draw and reached-target exclusion. Warned I14 repeats insufficient initial list remainder rankings, also through (1-bis)(d); see the interpretation contract below. Ordinary b(3) corrections subtract/add independently, retaining decree quotas. Balanced cap-group correction preserves each college capacity; unequal constituency/C3 totals use warned disjoined I15 corrections. Provisional I13 permits warned integer-seat removals only after remainder donors are exhausted, in ordinary lists, cap groups and their internal list splits; preserve donor decimal state. See the [legal-gap register](politics-reform-2026-legal-gaps.md) and I15 contract below. I03 supplies warned seeded draws for unspecified correction ties. |
 | N19 / 14 | S16-bis(1)(f),(1-bis),(1-quater) (118-120, 121) | `allocateSenateRegions`: admitted subjects, regional figures/capacities and bonus decision -> provisional region matrix and ascending national ranking of winner's **used** remainders | `N19`: full vs reduced capacities; integer quota, regional votes then draw after remainder ties; aggregate subject totals; never use national Camera-style proportional allocation for regional targets. |
 | N20 / 14 | S16-bis(1)(f-bis)-(f-quater),(1-ter) (119-121) | `applySenateCap`: N19 traces, bonus, special ledger and all regional valid totals -> removals and corresponding regional reassignment | `N20`: 113 unchanged, 114 corrected; ordinary plus special target=78, bonus=35 retained; used-remainder removals, then ascending regional percentages, exclusions and repeated passes; apply the statutory one-seat protection in the percentage passes. Recipient: largest unused remainder, otherwise regional votes. Region capacities unchanged; I03/I06 for provisional seeded ties and single-use remainder state; explicit failure if no lawful progress. |
-| N21 / 15 | S17(1)(b),(2)-(4) (123-125) | `allocateSenateListsAndColleges`: corrected regional subject targets, admitted internal lists, college votes/capacities -> list targets and college matrix | `N21`: regional coalition-list integer quota, remainder/regional votes/draw; single college takes regional targets; normal college allocation uses integer quota, remainder/**college** votes/draw, target exclusion and correction movements. Do not copy Camera's constituency tie-break into S17(4)(b). |
+| N21 / 15 | S17(1)(b),(2)-(4) (123-125) | `allocateSenateListsAndColleges`: corrected regional subject targets, admitted internal lists, college votes/capacities -> list targets and college matrix | `N21`: regional coalition-list integer quota, remainder/regional votes/draw; single college takes regional targets; normal college allocation uses integer quota, remainder/**college** votes/draw, target exclusion and correction movements. I14-v2 repeats insufficient initial list rankings, also imported by N22/S17(5)(d); group-index and regional allocations are excluded. Do not copy Camera's constituency tie-break into S17(4)(b). |
 | N22 / 15 | S17(5)(a)-(d) (126-129) | `allocateSenateCapColleges`: regional majority/minority seats and group votes -> both six-decimal indices, group matrix, corrected list matrix | `N22`: truncate both indices, normalize by their sum; remainder then **college** group votes/draw; group transfers within college; apply S17(4) within each group. Zero group targets: I04; missing correction ties: warned seeded draw under I03. |
 
 ### Proclamations, recovery and composition
@@ -455,7 +455,8 @@ Record applied `I13-v1` in composed metadata. Test repeated removals, strict
 donor priority, seeded replay, exports and recovery; I15 governs LG03 separately.
 This is a warned workaround for [LG01/LG02/LG05](politics-reform-2026-legal-gaps.md),
 not a binding legal interpretation. Camera N15/N17 subject allocation
-and Senate regional/cap-stage donor policies are unchanged; I14 remains Camera-only.
+and Senate regional/cap-stage donor policies are unchanged; I14 covers only
+initial college list passes in its separately approved scope.
 
 I10 evidence: the [2017 Senate comparison](https://www.parlamento.it/show-doc?id=1046530&leg=17&part=dossier_dossier1-sezione_sezione11-h2_h21&tipodoc=DOSSIER)
 confirms the earlier wording; the [2026 Camera dossier](https://documenti.camera.it/leg19/dossier/testi/AC0469b.htm)
@@ -519,26 +520,32 @@ college-allocation and recovery rules; I12 introduces no further college-level
 exclusion. Infeasible communications remain explicit non-computable results,
 without moving an entitlement to an absent territory or rescaling capacities.
 
-### Initial Camera list remainder passes (I14)
+<a id="initial-camera-list-remainder-passes-i14"></a>
 
-I14-v1, authorized by Luca on 21 October 2026, reads C83-bis(1)(b)(2)'s
+### Initial college list remainder passes (I14)
+
+I14-v2, extended to the Senate by Luca on 30 October 2026, retains I14-v1's
+Camera policy authorized on 21 October. It reads C83-bis(1)(b)(2)'s
 descending ranking as repeatable when one pass cannot fill a college. The
 wording does not expressly prescribe a single traversal. This is a provisional
 interpretation of the allocation rule, **not a registered legal gap**. It also
-applies to list allocation within cap groups through (1-bis)(d), but not to
-cap-group indices, Senate allocation or other stages.
+applies to Camera list allocation within cap groups through (1-bis)(d), Senate
+N21 list allocation under S17(4)(b), and Senate N22 internal lists through
+S17(5)(d). Cap-group indices, constituency/regional allocations and other stages
+remain outside its scope. See the [Sicilia 135 diagnosis](senate-sicilia-n21-review.md).
 
 - Preserve the existing simultaneous first pass. If seats remain, traverse the
-  established ranking again, preserving decimal values, constituency-vote
-  criteria and already-resolved ties; do not redraw ties on subsequent passes.
+  established ranking again, preserving decimal values, Camera constituency-vote
+  or Senate college-vote criteria and already-resolved ties; do not redraw ties
+  on subsequent passes.
 - Before each additional whole-matrix pass, exclude lists whose current total
-  reaches their communicated constituency target. Freeze that exclusion for
-  the pass, preserving independence from geographic input order. Give each
+  reaches their communicated constituency (Camera) or regional (Senate) target.
+  Freeze that exclusion for the pass, preserving independence from geographic input order. Give each
   remaining ranked entry at most one seat per pass; repeat only while seats
   remain. An empty eligible pool still returns `impossible-residual`.
 - Emit `I14_REPEATED_REMAINDER_PASS` with severity `warning` per additional
   college pass, including context, pass number and awarded lists. Record applied
-  `I14-v1` in composed metadata, including when a subsequent stage blocks.
+  `I14-v2` in composed metadata, including when a subsequent stage blocks.
 - Keep the existing JSON contracts: `remainderSeat` means at least one initial
   remainder award; `provisionalSeats - integerSeats` counts those awards.
   A decimal reused in initial allocation remains `used`, never reset to

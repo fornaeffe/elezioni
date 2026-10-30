@@ -481,10 +481,10 @@ decimal parts, reached-target exclusions, provisional/final seats and remainder
 states. It computes integer parts across all areas before excluding targets
 already reached from their parallel remainder allocations. This avoids assigning
 an arbitrary constituency/college priority. N18 list allocation uses warned
-I14-v1 additional passes when one pass cannot fill a college, also inside cap
+I14-v2 additional passes when one pass cannot fill a college, also inside cap
 groups. Reuse the established ranking/ties and exclude reached constituency
-targets before each additional simultaneous pass. Other initial remainders are
-single-use. Zero-seat divisions and empty eligible pools retain I04 failures.
+targets before each additional simultaneous pass. Other Camera initial remainders
+are single-use. Zero-seat divisions and empty eligible pools retain I04 failures.
 
 Initial constituency subject ties use ordinary national figures; initial
 coalition-list ties use constituency figures. N16 corrections import C83(h)'s
@@ -547,8 +547,8 @@ I13 integer removals preserve the donor remainder state, mark the transfer and
 emit `I13_INTEGER_SEAT_REMOVAL` with severity `warning` per removal.
 These are allocation movements, separate from candidate-recovery seat ledgers.
 Each additional initial college pass emits `I14_REPEATED_REMAINDER_PASS` with
-severity `warning`; composed metadata records `I14-v1`. See the
-[interpretation contract](../../../../../docs/politics-reform-2026-specification.md#initial-camera-list-remainder-passes-i14).
+severity `warning`; composed metadata records `I14-v2`. See the
+[interpretation contract](../../../../../docs/politics-reform-2026-specification.md#initial-college-list-remainder-passes-i14).
 
 If an h/i cross-constituency fallback leaves the communicated total incompatible
 with the fixed college endowment, N18's cap-group branch applies provisional
@@ -694,8 +694,11 @@ Zero-target groups are inactive and their undefined quotas/indices are skipped.
 Both truncations are express statutory rules here, requiring no I05 policy.
 I13 also covers these same-college cap-group corrections and their internal
 list corrections. Group fallback preserves every college capacity; its trace
-stays in the group matrix. Senate regional/cap stages and Camera-only I14
-initial repeated remainder passes retain their existing policies.
+stays in the group matrix. I14-v2 repeats insufficient initial list remainder
+rankings in N21 and N22's S17(5)(d) internal lists, using college votes for ties
+and excluding reached regional targets at each additional whole-matrix pass.
+It preserves resolved ties and the used state of multiply-awarded decimals.
+Group-index matrices and Senate regional/cap allocations retain their policies.
 
 The shared `territorial-matrix.ts` engine takes an explicit chamber, statutory
 references, vote tie criterion and correction route. Camera retains its existing

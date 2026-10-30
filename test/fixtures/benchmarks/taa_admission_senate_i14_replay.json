@@ -1,0 +1,1647 @@
+{
+  "schemaVersion": 1,
+  "scope": "TAA admitted-member replay after Senate I14-v2 extension, approved 2026-10-30",
+  "method": "Node replay from frozen scenarios/snapshots with production generation and scrutiny; original receipts preserved.",
+  "baseline": {
+    "path": "test/fixtures/benchmarks/vote_share_legacy_comparison.json",
+    "sha256": "9f72f62bbb661f13f3e19ca73cc9c50803456dbfc88392c747f58d167beab0de"
+  },
+  "codeHashes": {
+    "web/src/lib/politics/reform-2026/taa-allocation.ts": "8efb6f0caa29107ea2e2f797333f209cc3d30e23322120671a10fcb3b242dde6",
+    "web/src/lib/politics/reform-2026/recovery-communications.ts": "e88a27bf6b61e000f5642f3c97715e79bd6b89f0818806b007a53d2a9a43ac08",
+    "web/src/lib/politics/reform-2026/recovery.ts": "0177273e167f7d93875ecdf85d1685992a8755d37bd56b0a363871ee492505c8",
+    "web/src/lib/politics/reform-2026/scrutiny.ts": "26a55634f72b72db6d472b5501d3aadf1a66b69c1ce6aad234867c5b1c32c024",
+    "web/src/lib/politics/reform-2026/territorial-matrix.ts": "eee3b44c3aaa7f549fa37f81d18eb927053f7652572f4c9af3d16374206d9059",
+    "web/src/lib/politics/reform-2026/scrutiny-metadata.ts": "1c90cefe2a1c5dc930ca74db287a71f1bee54ec9fdeb677d1481ce02a0646d41",
+    "web/src/lib/politics/reform-2026/generation.ts": "0fce44ba730eb9422a3e1067f71baa9ed6533021734aa0e4c04cd65c22496135",
+    "web/src/lib/politics/reform-2026/paired-vote-generation.ts": "c49c872edfb48ee4efc3040be2cc2525f3b9e4bbd7c1ebe2c538ada80cf0a97c",
+    "web/scripts/acceptance/taa-admission-replay.ts": "83687b61470fbb748185966f7989cf78f21ad3ebea70dc17ed17c31ac140fda3"
+  },
+  "exceptions": 20,
+  "passedExceptions": 20,
+  "failures": 0,
+  "rows": [
+    {
+      "variant": "no-polls",
+      "id": 131,
+      "control": false,
+      "inputSha256": "8a8679ed3a2673e6bf869316d074bd5232261abd70396b444a07dc4f236b7939",
+      "generatedInputSha256": "8382a9f797810c349e2206334c710c62f4b9cf4ff6d2acb9d5806a176e8c8da0",
+      "matchedPreviousGeneratedHash": null,
+      "passed": true,
+      "status": "complete",
+      "seats": 588,
+      "filled": 588,
+      "uniqueCandidates": 588,
+      "chamberSeats": [
+        {
+          "chamber": "camera",
+          "seats": 392
+        },
+        {
+          "chamber": "senato",
+          "seats": 196
+        }
+      ],
+      "eligibilityConsistent": true,
+      "nonComputableStages": [],
+      "taaEntitlements": [
+        {
+          "listId": "fdi",
+          "votes": 37026,
+          "seats": 0
+        },
+        {
+          "listId": "fi",
+          "votes": 66693,
+          "seats": 0
+        },
+        {
+          "listId": "lega",
+          "votes": 111708,
+          "seats": 1
+        },
+        {
+          "listId": "noi-moderati",
+          "votes": 3751,
+          "seats": 0
+        },
+        {
+          "listId": "europa-piu-uno-cd",
+          "votes": 21428,
+          "seats": 0
+        },
+        {
+          "listId": "m5s",
+          "votes": 27375,
+          "seats": 1
+        },
+        {
+          "listId": "pd",
+          "votes": 21834,
+          "seats": 0
+        },
+        {
+          "listId": "azione-libdem",
+          "votes": 24905,
+          "seats": 0
+        },
+        {
+          "listId": "futuro-nazionale",
+          "votes": 19980,
+          "seats": 0
+        },
+        {
+          "listId": "svp-patt",
+          "votes": 103640,
+          "seats": 1
+        }
+      ]
+    },
+    {
+      "variant": "no-polls",
+      "id": 580,
+      "control": false,
+      "inputSha256": "8a8679ed3a2673e6bf869316d074bd5232261abd70396b444a07dc4f236b7939",
+      "generatedInputSha256": "1f7c4de185023d7af284750d8c2fe4f42524637f8595f6f9f9beefac857f92f3",
+      "matchedPreviousGeneratedHash": null,
+      "passed": true,
+      "status": "complete",
+      "seats": 588,
+      "filled": 588,
+      "uniqueCandidates": 588,
+      "chamberSeats": [
+        {
+          "chamber": "camera",
+          "seats": 392
+        },
+        {
+          "chamber": "senato",
+          "seats": 196
+        }
+      ],
+      "eligibilityConsistent": true,
+      "nonComputableStages": [],
+      "taaEntitlements": [
+        {
+          "listId": "fdi",
+          "votes": 136679,
+          "seats": 1
+        },
+        {
+          "listId": "fi",
+          "votes": 65189,
+          "seats": 0
+        },
+        {
+          "listId": "lega",
+          "votes": 19721,
+          "seats": 0
+        },
+        {
+          "listId": "noi-moderati",
+          "votes": 2034,
+          "seats": 0
+        },
+        {
+          "listId": "italia-viva",
+          "votes": 16576,
+          "seats": 0
+        },
+        {
+          "listId": "m5s",
+          "votes": 13760,
+          "seats": 0
+        },
+        {
+          "listId": "pd",
+          "votes": 19598,
+          "seats": 1
+        },
+        {
+          "listId": "azione-libdem",
+          "votes": 31194,
+          "seats": 0
+        },
+        {
+          "listId": "futuro-nazionale",
+          "votes": 32546,
+          "seats": 0
+        },
+        {
+          "listId": "svp-patt",
+          "votes": 120582,
+          "seats": 1
+        }
+      ]
+    },
+    {
+      "variant": "polls",
+      "id": 23,
+      "control": false,
+      "inputSha256": "44433654b3cb5ff3466ce07bf3f729fc3f5582decb803154e0db176ce9251412",
+      "generatedInputSha256": "af91e34fc026ca09a0919614e749e86a2a1708516b668a05de49d31784e2ee2c",
+      "matchedPreviousGeneratedHash": true,
+      "passed": true,
+      "status": "complete",
+      "seats": 588,
+      "filled": 588,
+      "uniqueCandidates": 588,
+      "chamberSeats": [
+        {
+          "chamber": "camera",
+          "seats": 392
+        },
+        {
+          "chamber": "senato",
+          "seats": 196
+        }
+      ],
+      "eligibilityConsistent": true,
+      "nonComputableStages": [],
+      "taaEntitlements": [
+        {
+          "listId": "fdi",
+          "votes": 27591,
+          "seats": 0
+        },
+        {
+          "listId": "fi",
+          "votes": 60708,
+          "seats": 0
+        },
+        {
+          "listId": "lega",
+          "votes": 87415,
+          "seats": 1
+        },
+        {
+          "listId": "noi-moderati",
+          "votes": 813,
+          "seats": 0
+        },
+        {
+          "listId": "avs",
+          "votes": 2822,
+          "seats": 0
+        },
+        {
+          "listId": "italia-viva",
+          "votes": 5495,
+          "seats": 0
+        },
+        {
+          "listId": "m5s",
+          "votes": 3544,
+          "seats": 0
+        },
+        {
+          "listId": "pd",
+          "votes": 19474,
+          "seats": 1
+        },
+        {
+          "listId": "azione-libdem",
+          "votes": 49409,
+          "seats": 0
+        },
+        {
+          "listId": "futuro-nazionale",
+          "votes": 29864,
+          "seats": 0
+        },
+        {
+          "listId": "svp-patt",
+          "votes": 88828,
+          "seats": 1
+        }
+      ]
+    },
+    {
+      "variant": "polls",
+      "id": 59,
+      "control": false,
+      "inputSha256": "44433654b3cb5ff3466ce07bf3f729fc3f5582decb803154e0db176ce9251412",
+      "generatedInputSha256": "7d44b903646734dc5c352be84700687c0688f242e123e3cfb946964683e618cd",
+      "matchedPreviousGeneratedHash": null,
+      "passed": true,
+      "status": "complete",
+      "seats": 588,
+      "filled": 588,
+      "uniqueCandidates": 588,
+      "chamberSeats": [
+        {
+          "chamber": "camera",
+          "seats": 392
+        },
+        {
+          "chamber": "senato",
+          "seats": 196
+        }
+      ],
+      "eligibilityConsistent": true,
+      "nonComputableStages": [],
+      "taaEntitlements": [
+        {
+          "listId": "fdi",
+          "votes": 77586,
+          "seats": 1
+        },
+        {
+          "listId": "fi",
+          "votes": 17572,
+          "seats": 0
+        },
+        {
+          "listId": "lega",
+          "votes": 15260,
+          "seats": 0
+        },
+        {
+          "listId": "avs",
+          "votes": 53049,
+          "seats": 0
+        },
+        {
+          "listId": "italia-viva",
+          "votes": 19553,
+          "seats": 0
+        },
+        {
+          "listId": "m5s",
+          "votes": 37623,
+          "seats": 0
+        },
+        {
+          "listId": "pd",
+          "votes": 67539,
+          "seats": 1
+        },
+        {
+          "listId": "azione-libdem",
+          "votes": 22076,
+          "seats": 0
+        },
+        {
+          "listId": "futuro-nazionale",
+          "votes": 36746,
+          "seats": 0
+        },
+        {
+          "listId": "svp-patt",
+          "votes": 118618,
+          "seats": 1
+        }
+      ]
+    },
+    {
+      "variant": "polls",
+      "id": 125,
+      "control": false,
+      "inputSha256": "44433654b3cb5ff3466ce07bf3f729fc3f5582decb803154e0db176ce9251412",
+      "generatedInputSha256": "831ed3924eb53e4a30dab60d40e4b86345301df1d23990278b5a556aeb71cae3",
+      "matchedPreviousGeneratedHash": null,
+      "passed": true,
+      "status": "complete",
+      "seats": 588,
+      "filled": 588,
+      "uniqueCandidates": 588,
+      "chamberSeats": [
+        {
+          "chamber": "camera",
+          "seats": 392
+        },
+        {
+          "chamber": "senato",
+          "seats": 196
+        }
+      ],
+      "eligibilityConsistent": true,
+      "nonComputableStages": [],
+      "taaEntitlements": [
+        {
+          "listId": "fdi",
+          "votes": 141917,
+          "seats": 1
+        },
+        {
+          "listId": "fi",
+          "votes": 14931,
+          "seats": 0
+        },
+        {
+          "listId": "lega",
+          "votes": 35808,
+          "seats": 0
+        },
+        {
+          "listId": "udc",
+          "votes": 453,
+          "seats": 0
+        },
+        {
+          "listId": "avs",
+          "votes": 3797,
+          "seats": 0
+        },
+        {
+          "listId": "italia-viva",
+          "votes": 13029,
+          "seats": 0
+        },
+        {
+          "listId": "m5s",
+          "votes": 4727,
+          "seats": 0
+        },
+        {
+          "listId": "pd",
+          "votes": 39635,
+          "seats": 1
+        },
+        {
+          "listId": "azione-libdem",
+          "votes": 29167,
+          "seats": 0
+        },
+        {
+          "listId": "futuro-nazionale",
+          "votes": 19678,
+          "seats": 0
+        },
+        {
+          "listId": "svp-patt",
+          "votes": 63603,
+          "seats": 1
+        }
+      ]
+    },
+    {
+      "variant": "polls",
+      "id": 239,
+      "control": false,
+      "inputSha256": "44433654b3cb5ff3466ce07bf3f729fc3f5582decb803154e0db176ce9251412",
+      "generatedInputSha256": "3284bdac073c8b5b2673b185f59609c80bed66ad2cee5a67f2019f64802a841d",
+      "matchedPreviousGeneratedHash": null,
+      "passed": true,
+      "status": "complete",
+      "seats": 588,
+      "filled": 588,
+      "uniqueCandidates": 588,
+      "chamberSeats": [
+        {
+          "chamber": "camera",
+          "seats": 392
+        },
+        {
+          "chamber": "senato",
+          "seats": 196
+        }
+      ],
+      "eligibilityConsistent": true,
+      "nonComputableStages": [],
+      "taaEntitlements": [
+        {
+          "listId": "fdi",
+          "votes": 88942,
+          "seats": 1
+        },
+        {
+          "listId": "fi",
+          "votes": 22864,
+          "seats": 0
+        },
+        {
+          "listId": "lega",
+          "votes": 58206,
+          "seats": 0
+        },
+        {
+          "listId": "avs",
+          "votes": 20438,
+          "seats": 0
+        },
+        {
+          "listId": "italia-viva",
+          "votes": 6690,
+          "seats": 0
+        },
+        {
+          "listId": "m5s",
+          "votes": 33873,
+          "seats": 0
+        },
+        {
+          "listId": "pd",
+          "votes": 38871,
+          "seats": 1
+        },
+        {
+          "listId": "azione-libdem",
+          "votes": 7920,
+          "seats": 0
+        },
+        {
+          "listId": "futuro-nazionale",
+          "votes": 32728,
+          "seats": 0
+        },
+        {
+          "listId": "svp-patt",
+          "votes": 86535,
+          "seats": 1
+        }
+      ]
+    },
+    {
+      "variant": "polls",
+      "id": 285,
+      "control": false,
+      "inputSha256": "44433654b3cb5ff3466ce07bf3f729fc3f5582decb803154e0db176ce9251412",
+      "generatedInputSha256": "63031077275c20244c50b62b9f28d9fe6b6c5ffb8ca2622e5122e841f69498f5",
+      "matchedPreviousGeneratedHash": null,
+      "passed": true,
+      "status": "complete",
+      "seats": 588,
+      "filled": 588,
+      "uniqueCandidates": 588,
+      "chamberSeats": [
+        {
+          "chamber": "camera",
+          "seats": 392
+        },
+        {
+          "chamber": "senato",
+          "seats": 196
+        }
+      ],
+      "eligibilityConsistent": true,
+      "nonComputableStages": [],
+      "taaEntitlements": [
+        {
+          "listId": "fdi",
+          "votes": 25019,
+          "seats": 0
+        },
+        {
+          "listId": "fi",
+          "votes": 20779,
+          "seats": 0
+        },
+        {
+          "listId": "lega",
+          "votes": 75299,
+          "seats": 1
+        },
+        {
+          "listId": "avs",
+          "votes": 44852,
+          "seats": 1
+        },
+        {
+          "listId": "italia-viva",
+          "votes": 23790,
+          "seats": 0
+        },
+        {
+          "listId": "m5s",
+          "votes": 26156,
+          "seats": 0
+        },
+        {
+          "listId": "pd",
+          "votes": 109580,
+          "seats": 1
+        },
+        {
+          "listId": "azione-libdem",
+          "votes": 27555,
+          "seats": 0
+        },
+        {
+          "listId": "futuro-nazionale",
+          "votes": 24079,
+          "seats": 0
+        },
+        {
+          "listId": "svp-patt",
+          "votes": 72488,
+          "seats": 0
+        }
+      ]
+    },
+    {
+      "variant": "polls",
+      "id": 417,
+      "control": false,
+      "inputSha256": "44433654b3cb5ff3466ce07bf3f729fc3f5582decb803154e0db176ce9251412",
+      "generatedInputSha256": "4f91ccba6d527e5cd343cd34c8b80b8fe0027d706c44a2f71119c0874262f1c3",
+      "matchedPreviousGeneratedHash": null,
+      "passed": true,
+      "status": "complete",
+      "seats": 588,
+      "filled": 588,
+      "uniqueCandidates": 588,
+      "chamberSeats": [
+        {
+          "chamber": "camera",
+          "seats": 392
+        },
+        {
+          "chamber": "senato",
+          "seats": 196
+        }
+      ],
+      "eligibilityConsistent": true,
+      "nonComputableStages": [],
+      "taaEntitlements": [
+        {
+          "listId": "fdi",
+          "votes": 106231,
+          "seats": 1
+        },
+        {
+          "listId": "fi",
+          "votes": 44250,
+          "seats": 0
+        },
+        {
+          "listId": "lega",
+          "votes": 50512,
+          "seats": 1
+        },
+        {
+          "listId": "noi-moderati",
+          "votes": 569,
+          "seats": 0
+        },
+        {
+          "listId": "avs",
+          "votes": 12460,
+          "seats": 0
+        },
+        {
+          "listId": "m5s",
+          "votes": 11043,
+          "seats": 0
+        },
+        {
+          "listId": "pd",
+          "votes": 38440,
+          "seats": 1
+        },
+        {
+          "listId": "azione-libdem",
+          "votes": 14536,
+          "seats": 0
+        },
+        {
+          "listId": "futuro-nazionale",
+          "votes": 54519,
+          "seats": 0
+        },
+        {
+          "listId": "svp-patt",
+          "votes": 49924,
+          "seats": 0
+        }
+      ]
+    },
+    {
+      "variant": "polls",
+      "id": 495,
+      "control": false,
+      "inputSha256": "44433654b3cb5ff3466ce07bf3f729fc3f5582decb803154e0db176ce9251412",
+      "generatedInputSha256": "a3dfa1dcfe672a8c5dc7660d4319e236e89351f3dbcb3c18db92c8b7afa956b5",
+      "matchedPreviousGeneratedHash": null,
+      "passed": true,
+      "status": "complete",
+      "seats": 588,
+      "filled": 588,
+      "uniqueCandidates": 588,
+      "chamberSeats": [
+        {
+          "chamber": "camera",
+          "seats": 392
+        },
+        {
+          "chamber": "senato",
+          "seats": 196
+        }
+      ],
+      "eligibilityConsistent": true,
+      "nonComputableStages": [],
+      "taaEntitlements": [
+        {
+          "listId": "fdi",
+          "votes": 50893,
+          "seats": 1
+        },
+        {
+          "listId": "fi",
+          "votes": 42410,
+          "seats": 0
+        },
+        {
+          "listId": "lega",
+          "votes": 36052,
+          "seats": 0
+        },
+        {
+          "listId": "noi-moderati",
+          "votes": 5609,
+          "seats": 0
+        },
+        {
+          "listId": "avs",
+          "votes": 22844,
+          "seats": 1
+        },
+        {
+          "listId": "italia-viva",
+          "votes": 9603,
+          "seats": 0
+        },
+        {
+          "listId": "m5s",
+          "votes": 2668,
+          "seats": 0
+        },
+        {
+          "listId": "pd",
+          "votes": 12472,
+          "seats": 0
+        },
+        {
+          "listId": "azione-libdem",
+          "votes": 59167,
+          "seats": 0
+        },
+        {
+          "listId": "futuro-nazionale",
+          "votes": 33192,
+          "seats": 0
+        },
+        {
+          "listId": "svp-patt",
+          "votes": 128793,
+          "seats": 1
+        }
+      ]
+    },
+    {
+      "variant": "polls",
+      "id": 516,
+      "control": false,
+      "inputSha256": "44433654b3cb5ff3466ce07bf3f729fc3f5582decb803154e0db176ce9251412",
+      "generatedInputSha256": "3a880a4bb890d6c56f22e1106967614f3afdfc2545c76b23ba9dcee4d52aa5b3",
+      "matchedPreviousGeneratedHash": null,
+      "passed": true,
+      "status": "complete",
+      "seats": 588,
+      "filled": 588,
+      "uniqueCandidates": 588,
+      "chamberSeats": [
+        {
+          "chamber": "camera",
+          "seats": 392
+        },
+        {
+          "chamber": "senato",
+          "seats": 196
+        }
+      ],
+      "eligibilityConsistent": true,
+      "nonComputableStages": [],
+      "taaEntitlements": [
+        {
+          "listId": "fdi",
+          "votes": 148818,
+          "seats": 1
+        },
+        {
+          "listId": "fi",
+          "votes": 16205,
+          "seats": 0
+        },
+        {
+          "listId": "lega",
+          "votes": 53343,
+          "seats": 1
+        },
+        {
+          "listId": "avs",
+          "votes": 18258,
+          "seats": 0
+        },
+        {
+          "listId": "m5s",
+          "votes": 19292,
+          "seats": 1
+        },
+        {
+          "listId": "pd",
+          "votes": 10043,
+          "seats": 0
+        },
+        {
+          "listId": "azione-libdem",
+          "votes": 27150,
+          "seats": 0
+        },
+        {
+          "listId": "futuro-nazionale",
+          "votes": 40232,
+          "seats": 0
+        },
+        {
+          "listId": "svp-patt",
+          "votes": 64546,
+          "seats": 0
+        }
+      ]
+    },
+    {
+      "variant": "polls",
+      "id": 570,
+      "control": false,
+      "inputSha256": "44433654b3cb5ff3466ce07bf3f729fc3f5582decb803154e0db176ce9251412",
+      "generatedInputSha256": "f760ac82597188954df1dca4be5c587adcd9b1963a3a103c880d8e5cd710050e",
+      "matchedPreviousGeneratedHash": null,
+      "passed": true,
+      "status": "complete",
+      "seats": 588,
+      "filled": 588,
+      "uniqueCandidates": 588,
+      "chamberSeats": [
+        {
+          "chamber": "camera",
+          "seats": 392
+        },
+        {
+          "chamber": "senato",
+          "seats": 196
+        }
+      ],
+      "eligibilityConsistent": true,
+      "nonComputableStages": [],
+      "taaEntitlements": [
+        {
+          "listId": "fdi",
+          "votes": 69865,
+          "seats": 1
+        },
+        {
+          "listId": "fi",
+          "votes": 9814,
+          "seats": 0
+        },
+        {
+          "listId": "lega",
+          "votes": 39391,
+          "seats": 0
+        },
+        {
+          "listId": "noi-moderati",
+          "votes": 3747,
+          "seats": 0
+        },
+        {
+          "listId": "avs",
+          "votes": 43376,
+          "seats": 0
+        },
+        {
+          "listId": "m5s",
+          "votes": 17398,
+          "seats": 0
+        },
+        {
+          "listId": "pd",
+          "votes": 50629,
+          "seats": 1
+        },
+        {
+          "listId": "futuro-nazionale",
+          "votes": 18299,
+          "seats": 0
+        },
+        {
+          "listId": "svp-patt",
+          "votes": 103178,
+          "seats": 1
+        }
+      ]
+    },
+    {
+      "variant": "polls",
+      "id": 617,
+      "control": false,
+      "inputSha256": "44433654b3cb5ff3466ce07bf3f729fc3f5582decb803154e0db176ce9251412",
+      "generatedInputSha256": "47354b6c76240b0a71f4e8ff04e4fb87c39eee6f011f7cd697b0fa88069db0f9",
+      "matchedPreviousGeneratedHash": null,
+      "passed": true,
+      "status": "complete",
+      "seats": 588,
+      "filled": 588,
+      "uniqueCandidates": 588,
+      "chamberSeats": [
+        {
+          "chamber": "camera",
+          "seats": 392
+        },
+        {
+          "chamber": "senato",
+          "seats": 196
+        }
+      ],
+      "eligibilityConsistent": true,
+      "nonComputableStages": [],
+      "taaEntitlements": [
+        {
+          "listId": "fdi",
+          "votes": 75085,
+          "seats": 1
+        },
+        {
+          "listId": "fi",
+          "votes": 9109,
+          "seats": 0
+        },
+        {
+          "listId": "lega",
+          "votes": 227508,
+          "seats": 1
+        },
+        {
+          "listId": "udc",
+          "votes": 7085,
+          "seats": 0
+        },
+        {
+          "listId": "avs",
+          "votes": 16950,
+          "seats": 0
+        },
+        {
+          "listId": "italia-viva",
+          "votes": 8237,
+          "seats": 0
+        },
+        {
+          "listId": "m5s",
+          "votes": 25407,
+          "seats": 1
+        },
+        {
+          "listId": "pd",
+          "votes": 24457,
+          "seats": 0
+        },
+        {
+          "listId": "azione-libdem",
+          "votes": 14311,
+          "seats": 0
+        },
+        {
+          "listId": "futuro-nazionale",
+          "votes": 46383,
+          "seats": 0
+        },
+        {
+          "listId": "svp-patt",
+          "votes": 106146,
+          "seats": 0
+        }
+      ]
+    },
+    {
+      "variant": "polls",
+      "id": 637,
+      "control": false,
+      "inputSha256": "44433654b3cb5ff3466ce07bf3f729fc3f5582decb803154e0db176ce9251412",
+      "generatedInputSha256": "522fdae2f8c51942c6bf65b20a189b16d31b4c297d4608b0ea11fc6b3944aa27",
+      "matchedPreviousGeneratedHash": null,
+      "passed": true,
+      "status": "complete",
+      "seats": 588,
+      "filled": 588,
+      "uniqueCandidates": 588,
+      "chamberSeats": [
+        {
+          "chamber": "camera",
+          "seats": 392
+        },
+        {
+          "chamber": "senato",
+          "seats": 196
+        }
+      ],
+      "eligibilityConsistent": true,
+      "nonComputableStages": [],
+      "taaEntitlements": [
+        {
+          "listId": "fdi",
+          "votes": 47277,
+          "seats": 1
+        },
+        {
+          "listId": "fi",
+          "votes": 13627,
+          "seats": 0
+        },
+        {
+          "listId": "lega",
+          "votes": 34577,
+          "seats": 0
+        },
+        {
+          "listId": "avs",
+          "votes": 28633,
+          "seats": 0
+        },
+        {
+          "listId": "italia-viva",
+          "votes": 4986,
+          "seats": 0
+        },
+        {
+          "listId": "m5s",
+          "votes": 37242,
+          "seats": 1
+        },
+        {
+          "listId": "pd",
+          "votes": 127255,
+          "seats": 1
+        },
+        {
+          "listId": "azione-libdem",
+          "votes": 47422,
+          "seats": 0
+        },
+        {
+          "listId": "futuro-nazionale",
+          "votes": 35871,
+          "seats": 0
+        }
+      ]
+    },
+    {
+      "variant": "polls",
+      "id": 692,
+      "control": false,
+      "inputSha256": "44433654b3cb5ff3466ce07bf3f729fc3f5582decb803154e0db176ce9251412",
+      "generatedInputSha256": "6dc27494d5cb3bcc19a476c9662fccc277cf481f0c9e52aaa8d3f5b86a868b68",
+      "matchedPreviousGeneratedHash": null,
+      "passed": true,
+      "status": "complete",
+      "seats": 588,
+      "filled": 588,
+      "uniqueCandidates": 588,
+      "chamberSeats": [
+        {
+          "chamber": "camera",
+          "seats": 392
+        },
+        {
+          "chamber": "senato",
+          "seats": 196
+        }
+      ],
+      "eligibilityConsistent": true,
+      "nonComputableStages": [],
+      "taaEntitlements": [
+        {
+          "listId": "fdi",
+          "votes": 31031,
+          "seats": 0
+        },
+        {
+          "listId": "fi",
+          "votes": 30698,
+          "seats": 0
+        },
+        {
+          "listId": "lega",
+          "votes": 100010,
+          "seats": 1
+        },
+        {
+          "listId": "avs",
+          "votes": 9714,
+          "seats": 0
+        },
+        {
+          "listId": "m5s",
+          "votes": 8672,
+          "seats": 0
+        },
+        {
+          "listId": "pd",
+          "votes": 21588,
+          "seats": 1
+        },
+        {
+          "listId": "azione-libdem",
+          "votes": 4223,
+          "seats": 0
+        },
+        {
+          "listId": "futuro-nazionale",
+          "votes": 48252,
+          "seats": 0
+        },
+        {
+          "listId": "svp-patt",
+          "votes": 114277,
+          "seats": 1
+        }
+      ]
+    },
+    {
+      "variant": "polls",
+      "id": 726,
+      "control": false,
+      "inputSha256": "44433654b3cb5ff3466ce07bf3f729fc3f5582decb803154e0db176ce9251412",
+      "generatedInputSha256": "32dac061e04eb7f3531704521ce0ccadff4fecdb9db739e4da56f9306bdc7374",
+      "matchedPreviousGeneratedHash": null,
+      "passed": true,
+      "status": "complete",
+      "seats": 588,
+      "filled": 588,
+      "uniqueCandidates": 588,
+      "chamberSeats": [
+        {
+          "chamber": "camera",
+          "seats": 392
+        },
+        {
+          "chamber": "senato",
+          "seats": 196
+        }
+      ],
+      "eligibilityConsistent": true,
+      "nonComputableStages": [],
+      "taaEntitlements": [
+        {
+          "listId": "fdi",
+          "votes": 41984,
+          "seats": 0
+        },
+        {
+          "listId": "fi",
+          "votes": 17214,
+          "seats": 0
+        },
+        {
+          "listId": "lega",
+          "votes": 108933,
+          "seats": 1
+        },
+        {
+          "listId": "noi-moderati",
+          "votes": 3471,
+          "seats": 0
+        },
+        {
+          "listId": "avs",
+          "votes": 48609,
+          "seats": 0
+        },
+        {
+          "listId": "m5s",
+          "votes": 18481,
+          "seats": 0
+        },
+        {
+          "listId": "pd",
+          "votes": 79896,
+          "seats": 1
+        },
+        {
+          "listId": "azione-libdem",
+          "votes": 23226,
+          "seats": 0
+        },
+        {
+          "listId": "futuro-nazionale",
+          "votes": 29304,
+          "seats": 0
+        },
+        {
+          "listId": "svp-patt",
+          "votes": 91015,
+          "seats": 1
+        }
+      ]
+    },
+    {
+      "variant": "polls",
+      "id": 785,
+      "control": false,
+      "inputSha256": "44433654b3cb5ff3466ce07bf3f729fc3f5582decb803154e0db176ce9251412",
+      "generatedInputSha256": "0df19994366402509f75472e952bde5bddec6847f56990cc6cd5a978e5935702",
+      "matchedPreviousGeneratedHash": null,
+      "passed": true,
+      "status": "complete",
+      "seats": 588,
+      "filled": 588,
+      "uniqueCandidates": 588,
+      "chamberSeats": [
+        {
+          "chamber": "camera",
+          "seats": 392
+        },
+        {
+          "chamber": "senato",
+          "seats": 196
+        }
+      ],
+      "eligibilityConsistent": true,
+      "nonComputableStages": [],
+      "taaEntitlements": [
+        {
+          "listId": "fdi",
+          "votes": 112449,
+          "seats": 0
+        },
+        {
+          "listId": "fi",
+          "votes": 8740,
+          "seats": 0
+        },
+        {
+          "listId": "lega",
+          "votes": 114918,
+          "seats": 1
+        },
+        {
+          "listId": "avs",
+          "votes": 15878,
+          "seats": 0
+        },
+        {
+          "listId": "italia-viva",
+          "votes": 26959,
+          "seats": 0
+        },
+        {
+          "listId": "m5s",
+          "votes": 35453,
+          "seats": 1
+        },
+        {
+          "listId": "pd",
+          "votes": 17162,
+          "seats": 0
+        },
+        {
+          "listId": "azione-libdem",
+          "votes": 4972,
+          "seats": 0
+        },
+        {
+          "listId": "futuro-nazionale",
+          "votes": 21774,
+          "seats": 0
+        },
+        {
+          "listId": "svp-patt",
+          "votes": 108681,
+          "seats": 1
+        }
+      ]
+    },
+    {
+      "variant": "polls",
+      "id": 825,
+      "control": false,
+      "inputSha256": "44433654b3cb5ff3466ce07bf3f729fc3f5582decb803154e0db176ce9251412",
+      "generatedInputSha256": "5d93909ae9157c52ed737932c2bee32624c93767df6c841356a53cd70a0eaf99",
+      "matchedPreviousGeneratedHash": null,
+      "passed": true,
+      "status": "complete",
+      "seats": 588,
+      "filled": 588,
+      "uniqueCandidates": 588,
+      "chamberSeats": [
+        {
+          "chamber": "camera",
+          "seats": 392
+        },
+        {
+          "chamber": "senato",
+          "seats": 196
+        }
+      ],
+      "eligibilityConsistent": true,
+      "nonComputableStages": [],
+      "taaEntitlements": [
+        {
+          "listId": "fdi",
+          "votes": 63705,
+          "seats": 0
+        },
+        {
+          "listId": "fi",
+          "votes": 10607,
+          "seats": 0
+        },
+        {
+          "listId": "lega",
+          "votes": 7219,
+          "seats": 0
+        },
+        {
+          "listId": "avs",
+          "votes": 37563,
+          "seats": 0
+        },
+        {
+          "listId": "italia-viva",
+          "votes": 7778,
+          "seats": 0
+        },
+        {
+          "listId": "m5s",
+          "votes": 40649,
+          "seats": 1
+        },
+        {
+          "listId": "pd",
+          "votes": 144285,
+          "seats": 1
+        },
+        {
+          "listId": "azione-libdem",
+          "votes": 38014,
+          "seats": 0
+        },
+        {
+          "listId": "futuro-nazionale",
+          "votes": 54129,
+          "seats": 0
+        },
+        {
+          "listId": "svp-patt",
+          "votes": 89080,
+          "seats": 1
+        }
+      ]
+    },
+    {
+      "variant": "polls",
+      "id": 832,
+      "control": false,
+      "inputSha256": "44433654b3cb5ff3466ce07bf3f729fc3f5582decb803154e0db176ce9251412",
+      "generatedInputSha256": "0486881c05538eded1a107db727de83287203290f63aa1ff5b869938d194f3b9",
+      "matchedPreviousGeneratedHash": null,
+      "passed": true,
+      "status": "complete",
+      "seats": 588,
+      "filled": 588,
+      "uniqueCandidates": 588,
+      "chamberSeats": [
+        {
+          "chamber": "camera",
+          "seats": 392
+        },
+        {
+          "chamber": "senato",
+          "seats": 196
+        }
+      ],
+      "eligibilityConsistent": true,
+      "nonComputableStages": [],
+      "taaEntitlements": [
+        {
+          "listId": "fdi",
+          "votes": 27557,
+          "seats": 0
+        },
+        {
+          "listId": "fi",
+          "votes": 9229,
+          "seats": 0
+        },
+        {
+          "listId": "lega",
+          "votes": 16520,
+          "seats": 0
+        },
+        {
+          "listId": "noi-moderati",
+          "votes": 555,
+          "seats": 0
+        },
+        {
+          "listId": "avs",
+          "votes": 39517,
+          "seats": 1
+        },
+        {
+          "listId": "italia-viva",
+          "votes": 28386,
+          "seats": 0
+        },
+        {
+          "listId": "m5s",
+          "votes": 26796,
+          "seats": 0
+        },
+        {
+          "listId": "pd",
+          "votes": 187969,
+          "seats": 2
+        },
+        {
+          "listId": "azione-libdem",
+          "votes": 5393,
+          "seats": 0
+        },
+        {
+          "listId": "futuro-nazionale",
+          "votes": 25709,
+          "seats": 0
+        }
+      ]
+    },
+    {
+      "variant": "polls",
+      "id": 875,
+      "control": false,
+      "inputSha256": "44433654b3cb5ff3466ce07bf3f729fc3f5582decb803154e0db176ce9251412",
+      "generatedInputSha256": "1954fdd37d5ea35b952f79b9673409bccd760446bd7b73bffd3d37d3f2a7d105",
+      "matchedPreviousGeneratedHash": null,
+      "passed": true,
+      "status": "complete",
+      "seats": 588,
+      "filled": 588,
+      "uniqueCandidates": 588,
+      "chamberSeats": [
+        {
+          "chamber": "camera",
+          "seats": 392
+        },
+        {
+          "chamber": "senato",
+          "seats": 196
+        }
+      ],
+      "eligibilityConsistent": true,
+      "nonComputableStages": [],
+      "taaEntitlements": [
+        {
+          "listId": "fdi",
+          "votes": 19102,
+          "seats": 0
+        },
+        {
+          "listId": "fi",
+          "votes": 25901,
+          "seats": 0
+        },
+        {
+          "listId": "lega",
+          "votes": 52540,
+          "seats": 1
+        },
+        {
+          "listId": "noi-moderati",
+          "votes": 4113,
+          "seats": 0
+        },
+        {
+          "listId": "avs",
+          "votes": 28618,
+          "seats": 0
+        },
+        {
+          "listId": "italia-viva",
+          "votes": 24569,
+          "seats": 0
+        },
+        {
+          "listId": "m5s",
+          "votes": 17727,
+          "seats": 0
+        },
+        {
+          "listId": "pd",
+          "votes": 148421,
+          "seats": 2
+        },
+        {
+          "listId": "azione-libdem",
+          "votes": 16565,
+          "seats": 0
+        },
+        {
+          "listId": "futuro-nazionale",
+          "votes": 15887,
+          "seats": 0
+        },
+        {
+          "listId": "svp-patt",
+          "votes": 77479,
+          "seats": 0
+        }
+      ]
+    },
+    {
+      "variant": "polls",
+      "id": 935,
+      "control": false,
+      "inputSha256": "44433654b3cb5ff3466ce07bf3f729fc3f5582decb803154e0db176ce9251412",
+      "generatedInputSha256": "bc4ea82327532893861eefd68622a8a2441f2a9d06be418c4a7a597054f279f1",
+      "matchedPreviousGeneratedHash": null,
+      "passed": true,
+      "status": "complete",
+      "seats": 588,
+      "filled": 588,
+      "uniqueCandidates": 588,
+      "chamberSeats": [
+        {
+          "chamber": "camera",
+          "seats": 392
+        },
+        {
+          "chamber": "senato",
+          "seats": 196
+        }
+      ],
+      "eligibilityConsistent": true,
+      "nonComputableStages": [],
+      "taaEntitlements": [
+        {
+          "listId": "fdi",
+          "votes": 92996,
+          "seats": 1
+        },
+        {
+          "listId": "fi",
+          "votes": 29562,
+          "seats": 0
+        },
+        {
+          "listId": "lega",
+          "votes": 15824,
+          "seats": 0
+        },
+        {
+          "listId": "avs",
+          "votes": 17124,
+          "seats": 0
+        },
+        {
+          "listId": "italia-viva",
+          "votes": 13020,
+          "seats": 0
+        },
+        {
+          "listId": "m5s",
+          "votes": 13100,
+          "seats": 0
+        },
+        {
+          "listId": "pd",
+          "votes": 47311,
+          "seats": 1
+        },
+        {
+          "listId": "azione-libdem",
+          "votes": 27091,
+          "seats": 0
+        },
+        {
+          "listId": "futuro-nazionale",
+          "votes": 16071,
+          "seats": 0
+        },
+        {
+          "listId": "svp-patt",
+          "votes": 96441,
+          "seats": 1
+        }
+      ]
+    },
+    {
+      "variant": "polls",
+      "id": 135,
+      "control": true,
+      "inputSha256": "44433654b3cb5ff3466ce07bf3f729fc3f5582decb803154e0db176ce9251412",
+      "generatedInputSha256": "efbb30bc9ff2be283b083d7d28205276e1fa1f1bc7234265df2d1dfabc7bb23d",
+      "matchedPreviousGeneratedHash": true,
+      "passed": true,
+      "status": "complete",
+      "seats": 588,
+      "filled": 588,
+      "uniqueCandidates": 588,
+      "chamberSeats": [
+        {
+          "chamber": "camera",
+          "seats": 392
+        },
+        {
+          "chamber": "senato",
+          "seats": 196
+        }
+      ],
+      "eligibilityConsistent": true,
+      "nonComputableStages": [],
+      "taaEntitlements": [
+        {
+          "listId": "fdi",
+          "votes": 66242,
+          "seats": 1
+        },
+        {
+          "listId": "fi",
+          "votes": 18036,
+          "seats": 0
+        },
+        {
+          "listId": "lega",
+          "votes": 24344,
+          "seats": 0
+        },
+        {
+          "listId": "avs",
+          "votes": 33889,
+          "seats": 0
+        },
+        {
+          "listId": "europa-piu-uno-cd",
+          "votes": 44598,
+          "seats": 0
+        },
+        {
+          "listId": "m5s",
+          "votes": 23955,
+          "seats": 0
+        },
+        {
+          "listId": "pd",
+          "votes": 75303,
+          "seats": 1
+        },
+        {
+          "listId": "azione-libdem",
+          "votes": 36228,
+          "seats": 0
+        },
+        {
+          "listId": "futuro-nazionale",
+          "votes": 38280,
+          "seats": 0
+        },
+        {
+          "listId": "svp-patt",
+          "votes": 97985,
+          "seats": 1
+        }
+      ]
+    }
+  ]
+}

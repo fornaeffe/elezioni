@@ -188,8 +188,10 @@ export function allocateTerritorialMatrix(input: TerritorialMatrixInput, executi
   // wire contract. Removing one of several awards leaves the decimal USED;
   // only removal of the last consumes it. I16 correction reuse below does not
   // change the initial allocation or its evidence.
-  const repeatRemainders = input.chamber === 'camera' && input.norm === 'N18' && !input.indexQuotas &&
-    (input.correction === 'independent-colleges' || input.correction === 'colleges');
+  const repeatRemainders = !input.indexQuotas &&
+    ((input.chamber === 'camera' && input.norm === 'N18' &&
+      (input.correction === 'independent-colleges' || input.correction === 'colleges')) ||
+     (input.chamber === 'senato' && (input.norm === 'N21' || input.norm === 'N22') && input.correction === 'colleges'));
   const donorAfterRemoval = (c: TerritorialMatrixCell) => c.seats - c.integerSeats > 1 ? 'used' as const : 'consumed' as const;
   const donorInterpretation = (c: TerritorialMatrixCell) => c.provisionalSeats - c.integerSeats > 1 ? { interpretationId: 'I14' as const } : {};
   // C83-bis(1)(b)(3) / S17(4)(c) require an unused recipient decimal.
@@ -305,7 +307,11 @@ export function allocateTerritorialMatrix(input: TerritorialMatrixInput, executi
   }
 
   // C83-bis(1)(b)(2): "seguendo la graduatoria decrescente delle parti
-  // decimali" does not expressly limit traversal to one pass. Approved I14-v1
+  // decimali" does not expressly limit traversal to one pass. S17(4)(b) uses
+  // the same ranking and excludes lists at their regional target; S17(5)(d)
+  // imports that operation for internal cap-group lists. Luca approved the
+  // Senate extension on 30 October 2026 as provisional I14-v2. It does not
+  // extend to group-index matrices or regional allocations. I14
   // repeats that SAME ranking only if a college still has initial seats to
   // allocate. (1-bis)(d) imports this list rule, not the cap-group index rule.
   // Freeze reached targets at each whole-matrix pass boundary so geographic
@@ -324,7 +330,7 @@ export function allocateTerritorialMatrix(input: TerritorialMatrixInput, executi
       for (const c of awards) change(c, { provisionalSeats: c.seats + 1, seats: c.seats + 1 });
       warnings.push({ code: 'I14_REPEATED_REMAINDER_PASS', severity: 'warning', electionKind: 'politiche',
         simulationId: input.simulationId, chamber: input.chamber, interpretationId: 'I14', lawReference: input.lawReference,
-        message: `Provisional I14-v1: ${input.contextId}; ${area.id}, initial remainder pass ${pass}: ${residual} seats remained; reuse the established ranking for ${awards.map(c => c.targetId).join(', ')}. Reached constituency targets excluded; decimal values and used state retained.` });
+        message: `Provisional I14-v2: ${input.contextId}; ${area.id}, initial remainder pass ${pass}: ${residual} seats remained; reuse the established ranking for ${awards.map(c => c.targetId).join(', ')}. Reached ${input.chamber === 'senato' ? 'regional' : 'constituency'} targets excluded; decimal values and used state retained.` });
     }
   }
 
