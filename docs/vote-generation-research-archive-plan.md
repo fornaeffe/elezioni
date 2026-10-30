@@ -35,6 +35,17 @@ Preserve rejected variants, source hashes, selection records and browser ledgers
 before removing any ignored large predictive arrays. This extends the FV-09 plan;
 no archive/deletion has been executed.
 
+The [installed-legacy comparison](vote-generation-legacy-comparison-results.md)
+also belongs in that inventory: `data/legacy-comparison-*.json`, the
+`legacy-comparison*` research scripts/worker/Playwright configuration and these
+comparison guides. Preserve `vote_share_legacy_comparison.json`, compressed
+group/college evidence, exact failing draw IDs and source/code hashes. The raw
+`data/derived/legacy-comparison/` snapshots, predictive scores, generated legal
+inputs and isolated diagnostic bundles are regenerable after the curated
+evidence and replay commands have been verified. Keep the installed generator
+and shared scrutiny active while production consumers require them. This is
+an extension of the cleanup plan, not an executed move or deletion.
+
 | Location | Responsibility |
 | --- | --- |
 | `docs/vote-generation-fast-model.md` | Maintained selected model equations, assumptions and scenario semantics, extracted in FV-01 |

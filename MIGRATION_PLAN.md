@@ -329,10 +329,19 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
       historical elections and polls, prioritizing plausible municipality/college
       tails, coverage and mean accuracy, with a 30-minute browser budget. Use the
       [active research execution guide](docs/vote-generation-feasible-research.md).
-    - [ ] Compare the selected candidate with the installed R-derived generator.
+    - [x] Compare the selected candidate with the installed R-derived generator.
       Freeze reviewed correspondences, new-list support and reference inputs;
       separate future-scenario checks from historical accuracy. Follow the
       [legacy comparison assessment](docs/vote-generation-legacy-comparison-plan.md).
+    - [ ] Resolve the shared Camera TAA recovery-eligibility mismatch exposed by
+      the legacy comparison (poll-informed draw 23): retain the existing TAA
+      allocation rule, carry its list entitlement into recovery, add a focused
+      regression and replay every recorded failing ID before release. See the
+      [failure diagnosis](docs/vote-generation-legacy-comparison-results.md#operational-findings-and-implementation-checks).
+    - [ ] Investigate the poll-informed legacy draw 135 Senate Sicilia college
+      allocation (`N21/impossible-residual`); preserve the failed receipt, check
+      legal/territorial prerequisites and regression-test any justified fix or
+      explicit fallback before release. See the same failure diagnosis.
   - [ ] **FV-09:** Execute the [research archive/cleanup plan](docs/vote-generation-research-archive-plan.md)
     after dependency separation and acceptance; retain curated evidence and remove
     only audited, regenerable outputs no longer consumed.
