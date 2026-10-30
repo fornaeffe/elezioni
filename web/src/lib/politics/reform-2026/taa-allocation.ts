@@ -86,16 +86,21 @@ export function allocateCameraTaaSeats(
   const prepared = [...subjects.values()].sort((a, b) => subjectKey(a) < subjectKey(b) ? -1 : 1).map(subject => {
     const coalition = chamber.coalitions.find(c => c.id === subject.id);
     if (subject.kind === 'coalition' && !coalition) throw new RangeError('Unknown admitted coalition');
-    // (2)(b) says lists of the coalition without C83(1)(g)'s 2-bis/2-ter
-    // restriction: use ALL locally filed members, not ordinary national targets.
+    // C93-septies(2)(b): "tra le liste coalizzate", read with (2)'s admission
+    // communication, implicitly means admitted members under C83(1)(e)(2-bis)/
+    // (2-ter). External legal review, adopted by Luca on 30 October 2026.
+    // (2)(a) still uses the whole locally filed coalition's electoral figure;
+    // only the internal quota/recipients exclude unadmitted member lists.
     const ids = subject.kind === 'list' ? [subject.id] : coalition!.listIds;
-    const members = ids.filter(id => ranks.has(id)).slice().sort();
+    const filedMembers = ids.filter(id => ranks.has(id)).slice().sort();
+    const members = subject.kind === 'list' ? filedMembers :
+      filedMembers.filter(id => admission.lists.some(l => l.listId === id && l.admitted));
     const missing = ids.filter(id => !ranks.has(id) && listVotes(id) > 0);
     if (missing.length) throw new RangeError('Positive TAA votes require a filed proportional slate');
-    return { subject: { ...subject }, id: subjectKey(subject), members,
-      votes: members.reduce((sum, id) => sum + BigInt(listVotes(id)), 0n) };
-  }).filter(s => s.members.length > 0);
-  if (new Set(prepared.flatMap(s => s.members)).size !== prepared.flatMap(s => s.members).length) {
+    return { subject: { ...subject }, id: subjectKey(subject), members, filedMembers,
+      votes: filedMembers.reduce((sum, id) => sum + BigInt(listVotes(id)), 0n) };
+  }).filter(s => s.filedMembers.length > 0);
+  if (new Set(prepared.flatMap(s => s.filedMembers)).size !== prepared.flatMap(s => s.filedMembers).length) {
     throw new RangeError('TAA subjects overlap and would count a list twice');
   }
   const allocate = (rows: readonly { id: string; votes: bigint }[], seats: number, suffix: string, lawReference: string) =>

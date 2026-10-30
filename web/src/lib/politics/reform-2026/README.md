@@ -346,9 +346,13 @@ electoral figures and statutory draws on equal remainders/figures. These draws
 are not I03 warnings. Subjects are the national C83(1)(e-bis) communication union
 I01 local exceptions, deduplicated. Failed-coalition minority access does not
 change national admission. Within an admitted coalition, C93-septies(2)(b)
-distributes to all locally filed coalition lists: unlike ordinary C83(1)(g), it
-does not restrict internal allocation to (2-bis)/(2-ter) lists. Coalition figures
-include those local votes. Tests distinguish these two legal routes explicitly.
+implicitly restricts the internal quota and recipients to locally filed admitted
+(2-bis)/(2-ter) members, including the best excluded list. This interpretation was
+adopted by Luca on 30 October 2026 following external legal review. The coalition's
+subject-level figure still includes every locally filed member's votes. Excluded
+members receive no list entitlement or list remainder. Missing admitted recipients
+or zero admitted local support with a positive target remain non-computable.
+Tests cover the distinction and its recovery handoff; I01 and I11 are unchanged.
 
 Results retain subject and coalition allocation traces, list entitlements,
 preference ranks and a provisional seat ledger. The capolista precedes the

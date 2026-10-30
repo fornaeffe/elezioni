@@ -66,12 +66,35 @@ describe('N11 Camera TAA proportional allocation', () => {
     expect(a.warnings).toEqual([]);
     expect(a.seats).toHaveLength(1);
   });
-  it('does not import ordinary national internal-list thresholds into C93-septies(2)(b)', () => {
+  it('retains excluded member votes for the coalition but restricts its internal quota to admitted lists', () => {
     const f = prepare(taaFixture({ A: 1, X: 5, Y: 0 }, 3, { C: ['A', 'X', 'Y'] }, { A: 9000, X: 0, Y: 100 }));
     if (f.admission.status !== 'complete') throw new Error();
+    const before = structuredClone(f.admission);
     expect(f.admission.lists.find(l => l.listId === 'X')!.admitted).toBe(false);
     expect(f.admission.coalitions[0].bestExcludedListId).toBe('Y');
-    expect(seatCounts(allocateCameraTaaSeats(f, noDraw))).toEqual({ A: 0, X: 3, Y: 0 });
+    const r = allocated(allocateCameraTaaSeats(f, noDraw));
+    expect(r.subjectAllocation!.quota).toEqual(exactFraction(2));
+    expect(r.coalitionAllocations[0].allocation.quota).toEqual(exactFraction(1, 3));
+    expect(seatCounts(r)).toEqual({ A: 3, Y: 0 });
+    expect(r.coalitionAllocations[0].allocation.assignments.map(a => a.id)).toEqual(['A', 'Y']);
+    expect(f.admission).toEqual(before);
+  });
+  it('includes the admitted best excluded list in the internal allocation', () => {
+    const f = prepare(taaFixture({ A: 1, X: 50, Y: 2 }, 3, { C: ['A', 'X', 'Y'] }, { A: 9000, X: 0, Y: 100 }));
+    const r = allocated(allocateCameraTaaSeats(f, noDraw));
+    expect(r.subjectAllocation!.quota).toEqual(exactFraction(53, 3));
+    expect(r.coalitionAllocations[0].allocation.quota).toEqual(exactFraction(1));
+    expect(seatCounts(r)).toEqual({ A: 1, Y: 2 });
+  });
+  it('does not use excluded votes to repair zero local support among admitted members', () => {
+    const f = prepare(taaFixture({ A: 0, X: 50, Y: 0 }, 3, { C: ['A', 'X', 'Y'] }, { A: 9000, X: 0, Y: 100 }));
+    expect(allocateCameraTaaSeats(f, noDraw)).toMatchObject({ status: 'non-computable', reason: 'zero-vote-total' });
+  });
+  it('preserves the coalition target when none of its admitted members is filed locally', () => {
+    const f = prepare(taaFixture({ X: 50 }, 3, { C: ['A', 'X', 'Y'] }, { A: 9000, X: 0, Y: 100 }));
+    const r = allocateCameraTaaSeats(f, noDraw);
+    expect(r).toMatchObject({ status: 'non-computable', reason: 'no-eligible-subjects',
+      subjectAllocation: { assignments: [{ seats: 3 }] } });
   });
   it('applies I01 only locally, without rescuing the failed coalition or changing national access', () => {
     const f = prepare(taaFixture({ M: 25, A: 75 }, 3, { F: ['M', 'X'] }, { A: 10000, X: 0 }, { M: 'T' }));

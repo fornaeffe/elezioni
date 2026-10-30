@@ -85,3 +85,33 @@ export function coalitionScrutinyFixture(): Fixture {
   f.bonusLinks = [{ camera: { kind: 'coalition', id: 'G' }, senato: { kind: 'coalition', id: 'G' }, cameraDeclares: true, senatoDeclares: true }];
   return f;
 }
+
+/** A nationally excluded member dominates TAA locally; B alone enters by
+ * (2-ter). The coalition keeps all TAA votes, but its three seats go A=1/B=2. */
+export function taaAdmissionScrutinyFixture(): Fixture {
+  const f = completeScrutinyFixture(60, false);
+  if (f.renewal.kind !== 'joint') throw new Error();
+  const c = f.renewal.camera;
+  f.renewal = { kind: 'single', chamber: c };
+  c.bonusSlates = [];
+  for (const l of c.lists) l.coalitionId = 'G';
+  c.coalitions = [{ id: 'G', listIds: ['A', 'B', 'C'] }];
+  for (const row of c.ordinaryVotes) {
+    if (row.votes.kind !== 'attributed') throw new Error();
+    const counts = row.collegeId === 'TP' ? [400, 800, 38800] : [97000, 2000, 1000];
+    row.votes.listVotes = c.lists.map((l, i) => ({ listId: l.id, votes: counts[i] }));
+  }
+  for (const s of c.ordinarySlates) if (s.preferences.kind === 'counts') {
+    s.preferences.counts = s.preferences.counts.map(p => ({ ...p, count: 0 }));
+  }
+  c.specialCandidatures = c.specialCandidatures.filter(s => s.affiliationListId === 'A');
+  for (const s of c.specialCandidatures) s.linkedListIds = ['A', 'B', 'C'];
+  for (const row of c.specialVotes) {
+    if (row.votes.kind !== 'attributed') throw new Error();
+    const counts = row.collegeId === 'V0' ? [97000, 2000, 1000] : [100, 200, 9700];
+    row.votes.listVotes = c.lists.map((l, i) => ({ listId: l.id, votes: counts[i] }));
+    row.votes.candidateTotals = [{ candidateId: c.specialCandidatures.find(s => s.collegeId === row.collegeId)!.candidateId,
+      votes: counts.reduce((a, b) => a + b, 0) }];
+  }
+  return f;
+}

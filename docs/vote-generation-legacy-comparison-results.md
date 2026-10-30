@@ -237,16 +237,34 @@ on the generated legal path, not proof that the municipal probability vector
 is invalid. The benchmark retains failing IDs and does not change scrutiny or
 retune forecasts to avoid the case. The final browser table records all attempts.
 
-Inspection localizes the mismatch: the TAA allocator intentionally considers all
-locally filed members of an admitted coalition, as its C93-septies(2)(b) comment
-states. The recovery eligibility adapter filters by national list admission or
-the separately recorded local exceptions. In draw 23, it therefore omits
-`europa-piu-uno-cd` despite that list already holding a filled Camera TAA
+Inspection localized the original mismatch: the TAA allocator considered all
+locally filed members of an admitted coalition under the interpretation then
+adopted for C93-septies(2)(b). The recovery eligibility adapter filters by national
+list admission or the separately recorded local exceptions. In draw 23, it therefore
+omits `europa-piu-uno-cd` despite that list already holding a filled Camera TAA
 proportional seat. Recovery preflight rejects the seat because no eligibility
 row accompanies it. An isolated diagnostic build exposed this rejected row by
 changing only the exception message; the production files and benchmark code
-were not changed. Correcting this communication is a separate scrutiny task,
-with its own focused regression and rerun of the failing IDs.
+were not changed during that diagnosis.
+
+On 30 October, Luca reported external legal review and authorized the corrected
+interpretation: C93-septies(2)(b) implicitly restricts the internal coalition quota
+and recipients to admitted lists. The implementation now retains all coalition
+votes at subject level but excludes unadmitted members from the internal division;
+the recovery filter remains unchanged. This supersedes the earlier proposal to
+widen recovery eligibility. See the [current N11 contract](politics-reform-2026-specification.md#inputs-votes-and-admission).
+
+All 20 original exceptions now complete in a separate Node replay: no-refresh
+131 and 580; poll-informed 23, 59, 125, 239, 285, 417, 495, 516, 570, 617, 637,
+692, 726, 785, 825, 832, 875 and 935. Each yields 588 filled seats (392 Camera,
+196 Senate) with 588 distinct candidates. In draw 23 the centrosinistra TAA seat
+now goes to PD rather than nationally excluded `europa-piu-uno-cd`. The frozen
+variant input hashes are unchanged; draw 23's generated-input hash matches the
+original diagnostic. The receipt is
+`test/fixtures/benchmarks/taa_admission_replay.json`, with code/input hashes and
+per-draw seat/eligibility checks. Original benchmark receipts and browser timings
+remain historical evidence; this targeted replay is not a fresh 1,000-draw browser
+acceptance run.
 
 Poll-informed draw 135 is a different failure path: it returns a non-computable
 Senate college allocation, `N21/impossible-residual`, affecting region `19`
@@ -255,14 +273,17 @@ filled seats rather than the required 588. The downstream proclamation/recovery
 stages consequently remain non-computable. This is retained as a failed
 attempt, not silently replaced or counted as a complete simulation. It needs a
 separate territorial-allocation investigation; no statutory rule or fallback
-was changed to force completion during this benchmark.
+was changed to force completion during this benchmark. The corrected TAA replay
+also checks draw 135 as a separate control: the same Senate failure and 399 filled
+seats remain, so its investigation is still open.
 
 Research-adapter verification covers cutoff availability, deterministic joint
 weights, unmapped support, exact elector conservation, unchanged-input identity,
 no held-out-count influence, regional missing-history fallback, TAA exclusion
 from ordinary poll refresh and observable-group scoring invariance. The focused
 suite includes the existing production generation tests. TypeScript preparation
-checks pass. No production generator, legal algorithm or default was changed.
+checks pass. During the original comparison no production generator, legal
+algorithm or default was changed; the later TAA legal correction is recorded above.
 
 Compact evidence is retained in
 `test/fixtures/benchmarks/vote_share_legacy_comparison.json` and

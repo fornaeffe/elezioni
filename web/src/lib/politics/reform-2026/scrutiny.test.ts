@@ -1,9 +1,33 @@
 import { describe, expect, it } from 'vitest';
 import { runPoliticsReformScrutiny, ReformScrutinyInputError } from './scrutiny';
-import { completeScrutinyFixture, coalitionScrutinyFixture } from './scrutiny.fixture';
+import { completeScrutinyFixture, coalitionScrutinyFixture, taaAdmissionScrutinyFixture } from './scrutiny.fixture';
 import { validateReformScrutinyInput } from './validation';
 
 describe('R26-18 complete direct-input composition', () => {
+  it.each([false, true])('keeps excluded TAA members outside allocation and recovery (unavailable head=%s)', unavailable => {
+    const input = taaAdmissionScrutinyFixture();
+    if (input.renewal.kind !== 'single') throw new Error();
+    const c = input.renewal.chamber;
+    const head = c.ordinarySlates.find(s => s.collegeId === 'TP' && s.listId === 'A')!.candidateIds[0];
+    if (unavailable) input.candidates.find(p => p.id === head)!.availability = { kind: 'unavailable', reason: 'after filing' };
+    const r = runPoliticsReformScrutiny(input), camera = r.chambers[0];
+    expect(r.status).toBe('complete');
+    expect(r.seats).toHaveLength(392);
+    expect(new Set(r.seats.flatMap(s => s.status === 'filled' ? [s.candidateId] : [])).size).toBe(392);
+    expect(camera.admission).toMatchObject({ status: 'complete', coalitions: [{ bestExcludedListId: 'B' }] });
+    if (camera.admission?.status !== 'complete' || camera.taa?.status === 'non-computable') throw new Error();
+    expect(camera.admission.lists.find(l => l.listId === 'C')!.admitted).toBe(false);
+    expect(camera.taa!.listEntitlements.map(({ listId, seats }) => ({ listId, seats }))).toEqual([
+      { listId: 'A', seats: 1 }, { listId: 'B', seats: 2 }
+    ]);
+    expect(camera.recovery!.remainders.some(r => r.territoryId === 'T' && r.subject.kind === 'list' && r.subject.id === 'C')).toBe(false);
+    const taa = r.seats.filter(s => s.category === 'taa-proportional');
+    expect(taa.map(s => s.entitlement.listId)).toEqual(['A', 'B', 'B']);
+    if (unavailable) {
+      expect(taa.every(s => s.status === 'filled' && s.candidateId !== head)).toBe(true);
+      expect(r.recoveries.some(t => t.originalEntitlement.collegeId === 'TP' && t.outcome === 'filled')).toBe(true);
+    }
+  });
   it.each([
     [45, false, 'no-bonus'], [45, true, 'bonus-without-cap'], [60, true, 'bonus-with-cap']
   ] as const)('finishes supplied preferences through both chambers (%s, linked=%s)', (share, linked, path) => {

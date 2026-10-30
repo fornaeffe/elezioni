@@ -333,10 +333,11 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
       Freeze reviewed correspondences, new-list support and reference inputs;
       separate future-scenario checks from historical accuracy. Follow the
       [legacy comparison assessment](docs/vote-generation-legacy-comparison-plan.md).
-    - [ ] Resolve the shared Camera TAA recovery-eligibility mismatch exposed by
-      the legacy comparison (poll-informed draw 23): retain the existing TAA
-      allocation rule, carry its list entitlement into recovery, add a focused
-      regression and replay every recorded failing ID before release. See the
+    - [x] Resolve the shared Camera TAA recovery-eligibility mismatch exposed by
+      the legacy comparison: apply the externally reviewed C93-septies(2)(b)
+      reading restricting internal coalition allocation to admitted members.
+      Preserve full coalition subject figures; allocation/recovery regressions
+      and all 20 recorded exception replays pass. See the
       [failure diagnosis](docs/vote-generation-legacy-comparison-results.md#operational-findings-and-implementation-checks).
     - [ ] Investigate the poll-informed legacy draw 135 Senate Sicilia college
       allocation (`N21/impossible-residual`); preserve the failed receipt, check

@@ -44,6 +44,7 @@ node --max-old-space-size=8192 --import tsx scripts/acceptance/legacy-comparison
 node --import tsx scripts/acceptance/legacy-comparison-future.ts
 node --import tsx scripts/acceptance/legacy-comparison-diagnose.ts polls 23
 node --import tsx scripts/acceptance/legacy-comparison-diagnose.ts polls 135
+node --import tsx scripts/acceptance/taa-admission-replay.ts
 npx playwright test --config playwright.legacy-comparison.config.ts
 node --import tsx scripts/acceptance/legacy-comparison-report.ts
 npm test -- scripts/acceptance/legacy-comparison-input.test.ts src/lib/politics/reform-2026/generation.test.ts src/lib/politics/reform-2026/generation-production.test.ts
@@ -66,3 +67,11 @@ change its seed. The frozen selected-candidate browser comparator has 512 draws
 and its earlier 30-minute target, so its elapsed time is not an equal-work timing.
 
 Public defaults, deployment and research archival are separate migration tasks.
+
+`taa-admission-replay.ts` reads the 20 exception IDs from the original curated
+benchmark and checks the frozen variant input hashes before generation. It writes
+the separate `test/fixtures/benchmarks/taa_admission_replay.json` receipt, preserving
+the original browser/diagnostic records. Every exception must return 588 filled
+seats with unique identities and consistent TAA admission; draw 135 is a separate
+control expected to retain its Senate N21 failure. This targeted Node replay does
+not replace full browser/resource acceptance.
