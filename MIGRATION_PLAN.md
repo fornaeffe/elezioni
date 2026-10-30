@@ -329,10 +329,14 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
       historical elections and polls, prioritizing plausible municipality/college
       tails, coverage and mean accuracy, with a 30-minute browser budget. Use the
       [active research execution guide](docs/vote-generation-feasible-research.md).
+    - [ ] Compare the selected candidate with the installed R-derived generator.
+      Freeze reviewed correspondences, new-list support and reference inputs;
+      separate future-scenario checks from historical accuracy. Follow the
+      [legacy comparison assessment](docs/vote-generation-legacy-comparison-plan.md).
   - [ ] **FV-09:** Execute the [research archive/cleanup plan](docs/vote-generation-research-archive-plan.md)
     after dependency separation and acceptance; retain curated evidence and remove
     only audited, regenerable outputs no longer consumed.
-
+- [ ] Adopt the [desired default scenario](docs\politics-reform-2026-default-scenario.md) for all politics workspaces.
 - [x] **Refine UI**
   - [x] Restore the bundled reform scenario with an explicit confirmation,
     preserving calculated results and discarding pending editor drafts.
@@ -379,6 +383,10 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
     on the X axis; keep the college plot outside any nested collapsible section.
   - [x] move the single simulation seats plot in a collapsible section
   - [x] better describe the meaning of columns in table of elected and shares
+- [ ] add the table of seat endowment per each college with and without bonus
+    and per each constituency's bonus slate.
+- [ ] edit the single college spinogram to let the user choose between a single
+    college and a whole constituency.
 - [ ] Generalize routing, snapshot selection, scenario defaults, validation,
   worker dispatch, result components, and shared UI patterns across election
   kinds. Preserve configurable project-base navigation and worker/data loading

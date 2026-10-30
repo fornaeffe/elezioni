@@ -59,8 +59,6 @@ to stable instructions that apply across migration steps.
 - Keep the legal scrutiny core separate from UI components and worker
   orchestration. Keep algorithms modular and selectable through stable
   registries, even while only one implementation exists.
-- Add an algorithm selector or comparison UI only after two real algorithms
-  exist for the same election kind.
 - Use Svelte 5 runes-mode practices: `$state` for local mutable state,
   `$derived` for computed state, and `$effect` only when lifecycle or
   event-driven code is not clearer.
@@ -74,6 +72,18 @@ to stable instructions that apply across migration steps.
   `warning` for issues that may affect interpretation, and `error` for failed
   execution paths. Present informational notes separately from warnings and
   errors.
+
+- The vote generation algorithm should:
+  - generate a plausible distribution of votes for each list in each municipality at the next political election with these properties (that must hold not only nationwide but also for each college), in this priority order:
+    - limit generation of wildly extreme, non plausible results
+    - the real results should have a sufficient likelihood in the generated distributions
+    - the expected value of the generated distribution should be close to the real results, and preferably non sistematically biased
+  - use the current membership table architecture to link components to historical and future lists
+  - be applicable onto the actual italian political context
+  - use information from past elections and polls
+  - keep the computational time under 60 minutes in browser on this machine for fitting and 1000 simulations (vote generation + scrutiny).
+- The scrutiny algorithms should follow the law as strictly as possible, adopting documented provisional fallback to overcome situations
+  where a strict law application would prevent scrutiny completion. Ideally, given the same input of a real election (e.g. lists, votes, candidates...) it should return the real outcome (elected candidates).
 
 ## Other general instructions
 

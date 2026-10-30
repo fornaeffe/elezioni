@@ -75,6 +75,11 @@ near-observation probability. Selection was frozen before the new regional
 2022 validation runs. Uniform pairs have lighter tails but inadequate aggregate
 coverage; stratum Beta remains the alternative with more of the earlier law.
 
+The global-Beta comparator above is a preceding fast-model kernel, not the
+installed R-derived production generator. A separate
+[legacy comparison assessment](vote-generation-legacy-comparison-plan.md)
+defines how to add that reference without changing its probability law.
+
 ## Full-geography short-horizon results
 
 These runs evaluate 7,883 municipalities in 2018 and 7,830 in 2022, reconstructing
