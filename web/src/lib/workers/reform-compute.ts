@@ -4,7 +4,8 @@ import { generateReformSimulation, type PreparedReformGeneration } from '../poli
 import { createReformPresentation, type ReformPresentationCounts } from '../politics/reform-2026/result-presentation';
 import { runPoliticsSimulation } from '../politics/simulation-scrutiny';
 import { REFORM_ALGORITHM_ID } from '../politics/reform-2026/input';
-import { prepareFastGeneration } from '../politics/reform-2026/vote-share/generation';
+import { prepareScenarioGeneration } from '../politics/reform-2026/vote-share/unified-generation';
+import { isLegacyGeneration, legacyInputKey } from '../politics/reform-2026/vote-share/legacy-adapter';
 import { requireFastScenario } from '../politics/reform-2026/vote-share/scenario';
 import { generationKeys } from '../politics/reform-2026/vote-share/release';
 import type { GenerationPacket } from '../politics/reform-2026/vote-share/fit-types';
@@ -17,7 +18,8 @@ export async function prepareFastCompute(packet:GenerationPacket){
   }));
   // The runtime electorate key uses typed columns; its original ordering is preserved.
   if(keys.runKey!==packet.keys.runKey||keys.compositionKey!==packet.keys.compositionKey)throw new Error('Frozen run binding mismatch');
-  const prepared=prepareFastGeneration(scenario,packet.assets,packet.context);
+  if(isLegacyGeneration(scenario)&&(!packet.legacy||packet.legacy.inputKey!==await legacyInputKey(scenario)))throw new Error('Legacy frozen input binding mismatch');
+  const prepared=prepareScenarioGeneration(scenario,packet.assets,packet.context,packet.legacy);
   return{scenario,snapshot:packet.context,generate:(id:number)=>prepared.run(id)};
 }
 export type PreparedFastCompute=Awaited<ReturnType<typeof prepareFastCompute>>;

@@ -249,7 +249,7 @@ describe('FV-06 semantic refitting and task-owned state', () => {
         deviceMemory: 0.25,
         hardwareConcurrency: 8,
       }).maximum,
-    ).toBe(0);
+    ).toBe(6);
     expect(
       generationCapacity(received, { deviceMemory: 8, hardwareConcurrency: 8 })
         .maximum,
@@ -262,9 +262,9 @@ describe('FV-06 semantic refitting and task-owned state', () => {
       deviceMemory: 32,
       hardwareConcurrency: 32,
     });
-    expect(capacity.budgetBytes).toBe(512 * MiB);
+    expect(capacity.budgetBytes).toBe(16 * 1024 * MiB);
     expect(
-      capacity.coordinatorBytes + capacity.maximum * capacity.perWorkerBytes,
+      capacity.coordinatorBytes + capacity.recommended * capacity.perWorkerBytes,
     ).toBeLessThanOrEqual(capacity.budgetBytes);
   });
 });

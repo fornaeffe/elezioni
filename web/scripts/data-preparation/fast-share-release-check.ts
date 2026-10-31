@@ -22,7 +22,7 @@ export async function verifyShareRelease(
     loaded = await loadCandidate(pointer, read, {
       expectedGenerationImplementationId: await implementationKey(
         fileURLToPath(new URL('../../../', import.meta.url)),
-        'web/src/lib/politics/reform-2026/vote-share/generation.ts',
+        'web/src/lib/politics/reform-2026/vote-share/unified-generation.ts',
       ),
     }),
     source = await loadCandidateSource(loaded.catalog, read);

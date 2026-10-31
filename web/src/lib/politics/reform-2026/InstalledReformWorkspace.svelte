@@ -100,9 +100,9 @@
     try {
       workerCapacity = estimateReformWorkerCapacity(navigator as Navigator & { deviceMemory?: number });
       const savedWorkers = localStorage.getItem(`${storageKey}:compute-workers`);
-      const previousWorkers = savedWorkers === null ? workerCapacity.maximum : Number(savedWorkers);
+      const previousWorkers = savedWorkers === null ? workerCapacity.recommended : Number(savedWorkers);
       computeWorkers = Number.isSafeInteger(previousWorkers) && previousWorkers >= 1
-        ? Math.min(previousWorkers, workerCapacity.maximum) : workerCapacity.maximum;
+        ? Math.min(previousWorkers, workerCapacity.maximum) : workerCapacity.recommended;
       const ownerKey = `${resultKey}:owner`;
       owner = sessionStorage.getItem(ownerKey) ?? crypto.randomUUID(); sessionStorage.setItem(ownerKey, owner);
       savedResults = JSON.parse(sessionStorage.getItem(resultKey) ?? '[]');
@@ -256,9 +256,10 @@
       <button onclick={run} disabled={isBusy || validation.length > 0}>Esegui riforma</button>
       {#if running}<button onclick={cancel}>Annulla</button>{/if}
     </div>
-    <p id="reform-worker-memory">Massimo stimato: {workerCapacity.maximum}; circa {(workerCapacity.workerMemoryMiB / 1024).toLocaleString('it-IT')} GiB per processo.
-      {#if workerCapacity.reportedMemoryGiB === null}Il browser non comunica la memoria: limite prudenziale.{:else}Memoria del dispositivo indicata dal browser: {workerCapacity.reportedMemoryGiB} GiB.{/if}
+    <p id="reform-worker-memory">Massimo CPU: {workerCapacity.maximum}; consigliati: {workerCapacity.recommended}; circa {(workerCapacity.workerMemoryMiB / 1024).toLocaleString('it-IT')} GiB per processo.
+      {#if workerCapacity.reportedMemoryGiB === null}Il browser non comunica la memoria: predefinito un processo.{:else}Memoria del dispositivo indicata dal browser: {workerCapacity.reportedMemoryGiB} GiB.{/if}
       La memoria libera effettiva può essere inferiore. Ridurre i processi lascia più risorse alle altre attività.</p>
+    {#if workerCapacity.reportedMemoryGiB!==null && 512+computeWorkers*workerCapacity.workerMemoryMiB>=workerCapacity.reportedMemoryGiB*1024}<p role="alert">Attenzione: i processi selezionati sono stimati usare tutta la memoria dichiarata del dispositivo o superarla.</p>{/if}
     <div class="controls">
       <label>Carica scenario o risultati<input type="file" accept=".json,.gz" onchange={loadFile} disabled={isBusy} data-testid="reform-file-input" /></label>
       <button onclick={exportScenario}>Scarica scenario</button>

@@ -12,12 +12,13 @@ export interface ReformComputeConnection {
 
 export class ReformComputeClient implements ReformComputeConnection {
   private sequence = 0;
-  private pending?: { id: number; resolve: (value: unknown) => void; reject: (error: Error) => void };
+  private pending?: { id: number; resolve: (value: unknown) => void; reject: (error: Error) => void; timer?: ReturnType<typeof setTimeout> };
   private failure?: Error;
   constructor(private worker: Worker) {
     worker.onmessage = (event: MessageEvent<ReformComputeReply>) => {
       const pending = this.pending;
       if (!pending || event.data.requestId !== pending.id) { this.fail(new Error('Unexpected compute worker reply')); return; }
+      clearTimeout(pending.timer);
       this.pending = undefined;
       if (event.data.ok) pending.resolve(event.data.data);
       else { const error = new Error(event.data.error ?? 'Compute worker failed'); this.failure = error; pending.reject(error); }
@@ -25,19 +26,21 @@ export class ReformComputeClient implements ReformComputeConnection {
     worker.onerror = event => { event.preventDefault(); this.fail(new Error(event.message || 'Compute worker crashed')); };
     worker.onmessageerror = () => this.fail(new Error('Unable to decode compute worker message'));
   }
-  private fail(error: Error) { this.failure = error; this.pending?.reject(error); this.pending = undefined; }
-  private call<T>(request: Request,transfer:Transferable[]=[]): Promise<T> {
+  private fail(error: Error) { this.failure = error; clearTimeout(this.pending?.timer); this.pending?.reject(error); this.pending = undefined; }
+  private call<T>(request: Request,transfer:Transferable[]=[], initialization = false): Promise<T> {
     if (this.failure) return Promise.reject(this.failure);
     if (this.pending) return Promise.reject(new Error('Concurrent compute worker requests'));
     return new Promise<T>((resolve, reject) => {
       const requestId = ++this.sequence;
       this.pending = { id: requestId, resolve: value => resolve(value as T), reject };
+      if (initialization) this.pending.timer = setTimeout(() =>
+        this.fail(new Error('Compute worker initialization timed out after 60 seconds; reduce worker count and retry explicitly')), 60000);
       try { this.worker.postMessage({ ...request, requestId },transfer); }
       catch (error) { this.fail(error instanceof Error ? error : new Error(String(error))); }
     });
   }
-  initialize(scenario: unknown, basePath: string) { return this.call<void>({ action: 'init', scenario, basePath }); }
-  initializeFast(packet:GenerationPacket){return this.call<void>({action:'init-fast',packet},ownedBuffers(packet));}
+  initialize(scenario: unknown, basePath: string) { return this.call<void>({ action: 'init', scenario, basePath }, [], true); }
+  initializeFast(packet:GenerationPacket){return this.call<void>({action:'init-fast',packet},ownedBuffers(packet),true);}
   compute(simulation: number) { return this.call<ReformRunReady>({ action: 'compute', simulation }); }
   pull() { return this.call<ReformRunChunk | null>({ action: 'pull' }); }
   close() { this.fail(new Error('Compute worker closed')); this.worker.terminate(); }

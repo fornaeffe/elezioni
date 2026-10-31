@@ -1,5 +1,9 @@
 # Fast vote generation: production data and scenario contracts
 
+**Version scope:** this is the original v4 numerical/reuse contract. The active
+[unified v5 contract](vote-generation-unified-workflow.md) extends it with explicit
+generation selection and separate legacy composition, preserving v1-v4 identity.
+
 FV-01 contract revision **1**, frozen on **28 October 2026** for the 2026 reform
 workflow. The scenario v4 parser/generator is not installed. FV-02 implements
 numerical modules, FV-03 the [compact source boundary](vote-generation-fast-data.md),

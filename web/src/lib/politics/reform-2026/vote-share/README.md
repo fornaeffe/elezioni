@@ -1,9 +1,11 @@
 # Fast-share engine
 
 This folder implements the bounded reference fit, empirical profile estimator,
-forecast adapter and opt-in reform candidate editor/worker integration. The
-installed legacy generator remains the ordinary application default while
-FV-08 acceptance is open.
+forecast adapters and the unified reform editor/worker integration. The selected
+field is the ordinary model; the reviewed legacy poll procedure, with the
+approved per-chamber new-list classification, is an explicit alternative. Read the
+[unified workflow contract](../../../../../../docs/vote-generation-unified-workflow.md)
+for v5 scenarios, correspondences, worker recommendations and current acceptance.
 Original compact data is implemented in [FV-03](../../../../../../docs/vote-generation-fast-data.md).
 For forecast/intervention/physical-cell/Senate work read only the
 [FV-04 generation guide](../../../../../../docs/vote-generation-fast-generation.md).

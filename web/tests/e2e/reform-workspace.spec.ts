@@ -8,7 +8,8 @@ const defaults = JSON.parse(readFileSync(new URL(`../../src/lib/politics/reform-
 const base = process.env.BASE_PATH ?? '';
 const hasBundle = existsSync(resolve(process.cwd(), 'static', catalog.path));
 
-test('compute-worker choice defaults to the resource maximum and remains separate from the scenario', async ({ page, context }) => {
+test('compute-worker choice defaults to half-memory recommendation and remains separate from the scenario', async ({ page, context }) => {
+  await context.addInitScript(()=>{Object.defineProperty(navigator,'hardwareConcurrency',{value:8});Object.defineProperty(navigator,'deviceMemory',{value:16});});
   let release = () => {};
   const gate = new Promise<void>(resolve => { release = resolve; });
   await context.route(`**/${catalog.path}`, async route => { await gate; await route.continue(); });
@@ -18,7 +19,8 @@ test('compute-worker choice defaults to the resource maximum and remains separat
   await expect(choice).toBeEnabled();
   const options = await choice.locator('option').allTextContents();
   expect(options[0]).toBe('1');
-  await expect(choice).toHaveValue(options.at(-1)!);
+  expect(options.at(-1)).toBe('6');
+  await expect(choice).toHaveValue('5');
   await expect(page.locator('#reform-worker-memory')).toContainText('1,5 GiB per processo');
   await choice.selectOption('1');
   await page.getByLabel('Simulazioni', { exact: true }).fill('1');
@@ -34,7 +36,8 @@ test('compute-worker choice defaults to the resource maximum and remains separat
   await expect(choice).toHaveValue('1');
 });
 
-test('production execution supports the default resource-sized pool', async ({ page }) => {
+test('production execution supports the default resource-sized pool', async ({ page,context }) => {
+  await context.addInitScript(()=>{Object.defineProperty(navigator,'hardwareConcurrency',{value:8});Object.defineProperty(navigator,'deviceMemory',{value:16});});
   test.skip(!hasBundle, 'Required generated reform runtime bundle is absent; release acceptance must not skip.');
   test.setTimeout(120000);
   await page.goto(`${base}/politics`);
@@ -51,7 +54,9 @@ test('production execution supports the default resource-sized pool', async ({ p
   const stream = await (await download).createReadStream(), chunks: Buffer[] = [];
   for await (const chunk of stream!) chunks.push(Buffer.from(chunk));
   const result = JSON.parse(new TextDecoder().decode(gunzipSync(Buffer.concat(chunks)))).result;
-  expect(result.benchmark.execution).toMatchObject({ requestedWorkers: maximum, computeWorkers: maximum, maximumWorkers: maximum });
+  expect(result.benchmark.execution).toMatchObject({ requestedWorkers: maximum, computeWorkers: maximum });
+  // Page-only synthetic hints do not replace native WorkerNavigator hints.
+  expect(result.benchmark.execution.maximumWorkers).toBeGreaterThanOrEqual(maximum);
 });
 
 test('both algorithms remain selectable; missing production bundle fails without debug fallback', async ({ page, context }) => {

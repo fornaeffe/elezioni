@@ -1,9 +1,22 @@
 import { expect, it, vi } from 'vitest';
-import { runOrderedReformPool, type ReformComputeConnection } from './reform-pool';
+import { ReformComputeClient, runOrderedReformPool, type ReformComputeConnection } from './reform-pool';
 import type { ReformRunReady } from './reform-compute';
 
 const ready = (simulation: number): ReformRunReady => ({ simulation, tables: [],
   counts: { complete: 1, partial: 0, failed: 0, awarded: 0 }, timings: { generationMs: 1, scrutinyMs: 1, presentationMs: 1 } });
+
+it('fails a nonresponsive initialization without leaving preparation pending indefinitely', async () => {
+  vi.useFakeTimers();
+  const worker = {postMessage:vi.fn(),terminate:vi.fn()},
+    client = new ReformComputeClient(worker as unknown as Worker);
+  try {
+    const rejected = expect(client.initialize({}, '')).rejects.toThrow(/initialization timed out/);
+    await vi.advanceTimersByTimeAsync(60000);
+    await rejected;
+    await expect(client.compute(1)).rejects.toThrow(/initialization timed out/);
+    expect(worker.postMessage).toHaveBeenCalledOnce();
+  } finally { client.close(); vi.useRealTimers(); }
+});
 
 it('bounds outstanding runs and commits in global order despite out-of-order completion', async () => {
   const assigned: number[] = [], computed: number[] = [], committed: number[] = [];

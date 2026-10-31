@@ -382,6 +382,7 @@ export class ReformFitClient {
         assets: this.accepted.assets,
         context: this.accepted.context,
         keys: this.accepted.keys,
+        ...(this.accepted.legacy ? {legacy:this.accepted.legacy} : {}),
       },
       base = generationCapacity(packet, hints, additionalReservedBytes),
       capacity = generationCapacity(
@@ -389,7 +390,7 @@ export class ReformFitClient {
         hints,
         additionalReservedBytes + this.activeConsumers * base.perWorkerBytes,
       );
-    if (!Number.isSafeInteger(count) || count < 1 || count > capacity.maximum)
+    if (!Number.isSafeInteger(count) || count < 1 || count + this.activeConsumers > capacity.maximum)
       throw new Error(
         'GENERATION_AGGREGATE_MEMORY_LIMIT: maximum ' + capacity.maximum,
       );
@@ -418,7 +419,7 @@ export class ReformFitClient {
   }
   generationCapacity(hints: WorkerResourceHints) {
     if (!this.accepted) return undefined;
-    return generationCapacity(this.accepted, hints);
+    return generationCapacity({ ...this.accepted, scenario: this.draft ?? this.accepted.scenario }, hints);
   }
   dispose() {
     this.cancel();

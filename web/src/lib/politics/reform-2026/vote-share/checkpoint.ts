@@ -113,6 +113,8 @@ export async function createCheckpoint(
       'fast-share-scenario',
       {
         scenario: accepted.scenario,
+        ...(accepted.legacy ? {legacy:accepted.legacy} : {}),
+        candidateEvidenceKey: accepted.evidenceKey,
         selection: accepted.selection,
         defaultPolicy: { id: 'browser-session-v1' },
         keys: accepted.keys,

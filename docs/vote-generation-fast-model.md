@@ -103,6 +103,12 @@ An explicit Other answer represents its underlying component complement, so
 those components occur both in its group row and in $u_i$; they are not absent
 merely because they are unnamed.
 
+The [unified v5 workflow](vote-generation-unified-workflow.md#membership-and-assumed-composition)
+retains this binary $S_i$. Its optional legacy composition is a separate
+row-normalized matrix $W_i$; future membership $S_f$ is binary and the legacy
+correspondence is $C_{i,f}=W_iS_f^\top$. $B_i$ below retains its existing
+sampling/rounding covariance meaning.
+
 The predicted share of group $g$, conditional on that offered set, is
 
 $$

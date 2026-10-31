@@ -428,7 +428,10 @@ Measure Linux CI preparation independently of the final all-election hosting
 reassessment. Required release tests cannot skip missing bundles.
 
 Only after these gates pass, select the new reform model/default catalog and
-remove the superseded reform vote path from active dispatch. Record versions,
+retain the reviewed legacy poll procedure, including the approved per-chamber
+new-list classification, through the unified model selector. Preserve original archive routing. The
+[31 October unified contract](vote-generation-unified-workflow.md) supersedes the
+earlier single-model dispatch and aggregate-memory policy. Record versions,
 timings, sizes, statistical comparisons and limitations in history. Other
 election workflows and public publication retain their existing step boundaries.
 

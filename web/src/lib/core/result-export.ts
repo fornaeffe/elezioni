@@ -127,7 +127,7 @@ function tableCell(value: string | number | boolean | null | undefined): JsonCel
 }
 
 function parseExportedScenario(value: unknown): ExportScenario {
-  if(isRecord(value)&&value.kind==='politics-reform-scenario'&&value.schemaVersion===4)return requireFastScenario(value);
+  if(isRecord(value)&&value.kind==='politics-reform-scenario'&&(value.schemaVersion === 4 || value.schemaVersion === 5))return requireFastScenario(value);
   const scenario = requireRecord(value, 'scenario');
   if (scenario.kind === 'politics-reform-scenario') return requireReformScenario(scenario);
   const defaultSource = requireRecord(scenario.defaultSource, 'scenario.defaultSource');
@@ -308,11 +308,11 @@ export function createSimulationResultExport<T extends ExportScenario>(params: {
   exportedAt: string;
 }): SerializedSimulationResultExportV2<T> {
   if (params.result.storage) throw new Error('Stored results must use the streaming export boundary.');
-  if ('schemaVersion' in params.scenario && params.scenario.schemaVersion===4 && (!params.fitFile || !sameCheckpointScenario(params.scenario,params.fitFile.scenario))) throw new Error('Fast results require their frozen fitted session.');
+  if ('schemaVersion' in params.scenario && (params.scenario.schemaVersion === 4 || params.scenario.schemaVersion === 5) && (!params.fitFile || !sameCheckpointScenario(params.scenario,params.fitFile.scenario))) throw new Error('Fast results require their frozen fitted session.');
   const result = jsonClone(params.result);
 
   return {
-    schema_version: 'schemaVersion' in params.scenario&&params.scenario.schemaVersion===4?3:2,
+    schema_version: 'schemaVersion' in params.scenario&&(params.scenario.schemaVersion === 4 || params.scenario.schemaVersion === 5)?3:2,
     ...(params.fitFile?{fitFile:requirePortableFitFile(params.fitFile)}:{}),
     exportedAt: params.exportedAt,
     scenario: jsonClone(params.scenario),
@@ -352,11 +352,11 @@ export function parseSimulationResultExport(text: string): SimulationResultExpor
   if (Number.isNaN(Date.parse(exportedAt))) throw new Error('exportedAt must be a valid date string.');
 
   const scenario = parseExportedScenario(payload.scenario), result = parseSimulationResult(payload.result);
-  const fast='kind' in scenario&&scenario.schemaVersion===4;
+  const fast='kind' in scenario&&('data' in scenario);
   const fitFile=payload.schema_version===3?requirePortableFitFile(payload.fitFile):undefined;
   if(fast!==(payload.schema_version===3)||fitFile&&!sameCheckpointScenario(fitFile.scenario,scenario as ReleasedScenario))throw new Error('Fitted scenario/result file identity mismatch.');
   if ('kind' in scenario && scenario.kind === 'politics-reform-scenario') {
-    if (result.benchmark.scrutinyAlgorithmId !== scenario.algorithmId || result.benchmark.seed !== scenario.seed || result.benchmark.dataVersion !== (scenario.schemaVersion===4?scenario.data.sourceBundleId:scenario.snapshotVersion)) {
+    if (result.benchmark.scrutinyAlgorithmId !== scenario.algorithmId || result.benchmark.seed !== scenario.seed || result.benchmark.dataVersion !== (('data' in scenario)?scenario.data.sourceBundleId:scenario.snapshotVersion)) {
       throw new Error('Reform scenario and result algorithm/seed/data identity mismatch.');
     }
   } else {
@@ -404,7 +404,7 @@ export async function* streamStoredResult(record: StoredResult, format: 'json' |
     return;
   }
   const coverage = record.result.completedSimulations === undefined ? '' : `,"completedSimulations":${record.result.storage!.completedSimulations}`;
-  const fast='schemaVersion'in record.scenario&&record.scenario.schemaVersion===4;
+  const fast='schemaVersion'in record.scenario&&(record.scenario.schemaVersion === 4 || record.scenario.schemaVersion === 5);
   if(fast&&!record.fitFile)throw new Error('Missing frozen fitted state for export');
   yield `{"schema_version":${fast?3:2},"exportedAt":${JSON.stringify(new Date().toISOString())},"scenario":${JSON.stringify(record.scenario)}${fast?`,"fitFile":${JSON.stringify(record.fitFile)}`:''},"result":{"type":"result","status":${JSON.stringify(record.result.status)}${coverage},"benchmark":${JSON.stringify(record.result.benchmark)},"warnings":[`;
   let first = true;

@@ -36,7 +36,7 @@ test.beforeAll(async () => {
   const implementations = {
     generation: await implementationKey(
       root,
-      "web/src/lib/politics/reform-2026/vote-share/generation.ts",
+      "web/src/lib/politics/reform-2026/vote-share/unified-generation.ts",
     ),
     fitting: await implementationKey(
       root,

@@ -14,6 +14,9 @@ import type {
 } from "../../src/lib/politics/reform-2026/vote-share/release";
 const base = process.env.BASE_PATH ?? "",
   dir = resolve("static/data/reform-2026/fast-share");
+// A fitted archive is ~9 MiB; Firefox measured 13.3 s even without the full
+// simulation load. File generation needs its own bounded asynchronous deadline.
+const downloadTimeout = 60000;
 test.afterEach(async ({ page }, info) => {
   if (info.status !== info.expectedStatus)
     console.error(
@@ -99,7 +102,7 @@ async function bytes(d: Download) {
   return Buffer.concat(chunks);
 }
 async function session(page: Page) {
-  const promise = page.waitForEvent("download");
+  const promise = page.waitForEvent("download", { timeout: downloadTimeout });
   await page
     .getByRole("button", { name: "Scarica scenario con stima", exact: true })
     .click();
@@ -164,11 +167,12 @@ test("on-demand data, future-only edits, frozen run, exports and scenario replay
       { exact: true },
     ),
   ).toBeVisible();
-  const downloaded = page.waitForEvent("download");
+  const downloadStarted = Date.now(), downloaded = page.waitForEvent("download", { timeout: downloadTimeout });
   await page
     .getByRole("button", { name: "Scarica risultati JSON.gz", exact: true })
     .click();
   const archive = await bytes(await downloaded),
+    downloadMilliseconds = Date.now() - downloadStarted,
     payload = JSON.parse(new TextDecoder().decode(gunzipSync(archive)));
   // Validate the actual exported metadata before replay. A stale stored result
   // must not make a failed archive import appear to have succeeded.
@@ -210,7 +214,7 @@ test("on-demand data, future-only edits, frozen run, exports and scenario replay
   expect(file.scenario.data.fittedStateId).toBe(
     saved.scenario.data.fittedStateId,
   );
-  const csvDownload = page.waitForEvent("download");
+  const csvDownload = page.waitForEvent("download", { timeout: downloadTimeout });
   await page
     .getByRole("button", { name: "Scarica risultati CSV", exact: true })
     .click();
@@ -236,6 +240,8 @@ test("on-demand data, future-only edits, frozen run, exports and scenario replay
         browserVersion: browser.version(),
         catalogId: pointer.catalogId,
         implementation: catalog.generationImplementationId,
+        downloadMilliseconds,
+        archiveBytes: archive.length,
         scenario: file.scenario.data,
         result: payload.result.benchmark,
         originalHistoryFetched: paths.some((p) =>
@@ -248,14 +254,9 @@ test("on-demand data, future-only edits, frozen run, exports and scenario replay
       2,
     ),
   );
-  // The authorized comparison freezes a 30-minute compute target. Preserve the
-  // older memory target as measured evidence; ordinary FV-08 acceptance still
-  // enforces it by default.
-  if (
-    "peakBytes" in memoryReport &&
-    process.env.FILING_RESEARCH_COMPARISON !== "1"
-  )
-    expect(memoryReport.peakBytes).toBeLessThanOrEqual(512 * 1024 * 1024);
+  // Memory is measured and reported. Luca waived the former 512 MiB gate;
+  // worker defaults/warnings are accepted against declared device memory.
+  if ('peakBytes' in memoryReport) expect(memoryReport.peakBytes).toBeGreaterThan(0);
 });
 test("advanced poll editing triggers explicit refit, cancellation, retry and portable refit state", async ({
   page,
@@ -488,7 +489,7 @@ test("new reference-supported lists, explicit filing and strict JSON drafts", as
   await expect(
     page.getByRole("button", { name: "Scarica scenario", exact: true }),
   ).toBeVisible();
-  const legacyDownload = page.waitForEvent("download");
+  const legacyDownload = page.waitForEvent("download", { timeout: downloadTimeout });
   await page
     .getByRole("button", { name: "Scarica scenario", exact: true })
     .click();

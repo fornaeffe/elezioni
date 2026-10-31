@@ -315,15 +315,17 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
     poll/membership/date editing with demand loading and ready/error states.
     Defer background prefetch/ready notifications and persistent cache management.
     Use the [candidate workspace guide](docs/vote-generation-fast-workspace.md).
-  - [ ] **FV-08:** Pass full-list/geographic/paired/seat, browser/export and resource
-    acceptance, then switch reform defaults. Keep public deployment at the final gate.
-    Acceptance remains open. Preserve the earlier restricted-filing capacity
-    failures as historical evidence; use the [FV-08 guide](docs/vote-generation-fast-acceptance.md)
-    and the authorized replacement comparison below for the current candidate.
-    Accept routing of existing v1-v3 reform archives to their original generator
-    when the v4 workspace becomes the installed default; do not convert their model.
-    Resolve maximum-envelope refit latency or approve measured support limits;
-    reduced FV-02 acceptance does not accept the complete production envelope.
+  - [x] **FV-08:** Adopt the unified v5 workflow with the selected candidate as
+    default and the reviewed legacy poll procedure as an alternative, including
+    Luca's approved per-chamber new-list classification. Complete full-country
+    1,000-run campaigns per model, browser/export and maximum-envelope resource
+    acceptance; preserve v1-v3 original archive routing. The 512 MiB aggregate
+    ceiling is waived; CPU choices, browser/RAM recommendations and warnings are
+    defined in the [unified contract](docs/vote-generation-unified-workflow.md).
+    See [acceptance](docs/vote-generation-fast-acceptance.md) and the
+    [curated snapshot](test/fixtures/benchmarks/vote_share_unified_acceptance.json).
+    Keep earlier failed screens as historical evidence and public deployment at
+    the final gate.
     - [x] **Authorized replacement comparison (30 October):** first install Luca's
       24-list future choice set; then implement/test feasible candidates against
       historical elections and polls, prioritizing plausible municipality/college
@@ -344,9 +346,16 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
       passes in Senate N21/N22. Regressions and both frozen 1,000-draw workloads
       pass; original failed receipts are preserved. See the
       [diagnosis and implementation verification](docs/senate-sicilia-n21-review.md).
+  - [ ] **Post-FV-08 correspondence-policy audit:** compare incomplete future
+    destinations, ceased/new components, unfiled support and submunicipal/overlapping
+    filing capacity in both models, including national poll projection onto
+    geographically varying future tickets. Quantify turnout, list and college effects of
+    the v5 turnout-preserving conditional legacy policy and its labelled fallbacks.
+    Keep original archive policy intact; propose further corrections before edits.
   - [ ] **FV-09:** Execute the [research archive/cleanup plan](docs/vote-generation-research-archive-plan.md)
     after dependency separation and acceptance; retain curated evidence and remove
     only audited, regenerable outputs no longer consumed.
+    Retain the comparison-policy JSON now consumed by unified-default preparation.
 - [ ] Adopt the [desired default scenario](docs\politics-reform-2026-default-scenario.md) for all politics workspaces.
 - [x] **Refine UI**
   - [x] Restore the bundled reform scenario with an explicit confirmation,

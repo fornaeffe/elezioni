@@ -54,12 +54,12 @@ export async function runStoredReform(request: SimulationRequest, emit: (progres
   const fastCapacity=fast?generationCapacity(fast.packets[0],navigator as Navigator&{deviceMemory?:number}):null;
   const capacity = fastCapacity?{...estimateReformWorkerCapacity(navigator),maximum:fastCapacity.maximum,
     workerMemoryMiB:Math.ceil(fastCapacity.perWorkerBytes/(1024*1024)),estimateVersion:fastCapacity.estimateVersion}:estimateReformWorkerCapacity(navigator as Navigator & { deviceMemory?: number });
-  const requestedWorkers = requireReformWorkerCount(request.computeWorkers ?? capacity.maximum, capacity.maximum);
+  const requestedWorkers = requireReformWorkerCount(request.computeWorkers ?? fastCapacity?.recommended ?? capacity.recommended, capacity.maximum);
   const computeWorkers = Math.min(requestedWorkers, request.simulations);
   const started = performance.now(), startedAt = new Date().toISOString();
   const progress = (phase: SimulationProgress['phase'], completed: number) => emit({ type: 'progress', phase, completed, total: request.simulations, elapsedMs: performance.now() - started });
   progress('prepare', 0);
-  if(fast&&fast.packets.length!==computeWorkers)throw new Error('Frozen worker packets do not match requested workers');
+  if(fast&&fast.packets.length!==1&&fast.packets.length!==computeWorkers)throw new Error('Frozen worker packets do not match requested workers');
   const snapshot = fast?fast.packets[0].context:await loadVerifiedJson(request.basePath ?? '', catalog) as ReformGenerationSnapshot;
   const errors = fast?[]:validateReformSnapshot(snapshot);
   if (errors.length) throw new RangeError(`Invalid reform snapshot: ${errors.join('; ')}`);
@@ -67,14 +67,14 @@ export async function runStoredReform(request: SimulationRequest, emit: (progres
   if(fast){requirePortableFitFile(fast.file);const restored=await loadCandidate(fast.file.pointer,checkpointReader(fast.file),{allowEditedEvidence:true,expectedGenerationImplementationId:fast.packets[0].scenario.models.generationImplementationId});
     if(!sameCheckpointScenario(restored.scenario,scenario as typeof restored.scenario)||fast.packets.some(p=>!sameCheckpointScenario(p.scenario,restored.scenario)))throw new Error('Frozen scenario/checkpoint mismatch');}
     if (scenario.seed !== request.seed || scenario.electionDate !== request.electionDate) throw new Error('Request seed/date must match the reform scenario');
-    if (scenario.schemaVersion===4 && request.dataVersion!==scenario.data.sourceBundleId) throw new Error('Request source must match the reform scenario');
+    if ((scenario.schemaVersion === 4 || scenario.schemaVersion === 5) && request.dataVersion!==scenario.data.sourceBundleId) throw new Error('Request source must match the reform scenario');
   const id = request.resultId ?? crypto.randomUUID(), owner = request.resultOwner ?? 'direct-worker';
   const execution = { requestedWorkers, computeWorkers, maximumWorkers: capacity.maximum,
     estimatedWorkerMemoryMiB: capacity.workerMemoryMiB, estimateVersion: capacity.estimateVersion,
     generationMs: 0, scrutinyMs: 0, presentationMs: 0, storageMs: 0 };
   const record: StoredResult = { id, owner, scenario, fitFile:fast?.file,exports: [], result: {
     type: 'result', status: 'not_implemented', completedSimulations: 0, tables: [], warnings: [], storage: newResultStorage(id),
-    benchmark: { startedAt, elapsedMs: 0, simulations: request.simulations, dataVersion:scenario.schemaVersion===4?scenario.data.sourceBundleId:snapshot.version, scrutinyAlgorithmId: REFORM_ALGORITHM_ID, seed: request.seed, execution }
+    benchmark: { startedAt, elapsedMs: 0, simulations: request.simulations, dataVersion:(scenario.schemaVersion === 4 || scenario.schemaVersion === 5)?scenario.data.sourceBundleId:snapshot.version, scrutinyAlgorithmId: REFORM_ALGORITHM_ID, seed: request.seed, execution }
   } };
   await saveStoredResult(record);
   // Simulation 1 supplies shared context once, independent of pool size. Only
@@ -87,7 +87,13 @@ export async function runStoredReform(request: SimulationRequest, emit: (progres
     for (let index = 0; index < computeWorkers; index++) {
       workers.push(new ReformComputeClient(new Worker(new URL('./reform-compute.worker.ts', import.meta.url), { type: 'module', name: `reform-compute-${index + 1}` })));
     }
-    await Promise.all(workers.map((worker,index) => fast?worker.initializeFast(fast.packets[index]):worker.initialize(scenario, request.basePath ?? '')));
+    if (fast) {
+      // Keep each initialization message bounded independently of CPU count.
+      // Retain the coordinator's packet/context; transfer only owned copies.
+      for (let index = 0; index < workers.length; index++)
+        await workers[index].initializeFast(fast.packets.length === 1
+          ? structuredClone(fast.packets[0]) : fast.packets[index]);
+    } else await Promise.all(workers.map(worker => worker.initialize(scenario, request.basePath ?? '')));
     await runOrderedReformPool(workers, request.simulations, () => cancelled.has(id), async (simulation, worker, ready) => {
       execution.generationMs += ready.timings.generationMs;
       execution.scrutinyMs += ready.timings.scrutinyMs;

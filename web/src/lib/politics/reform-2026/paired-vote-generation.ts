@@ -96,7 +96,10 @@ export function preparePairedVoteReferences(scenario: ReformGenerationScenario, 
       const votes = new Map(s.lists[ch].map(l => [l.id, 0]));
       for (const historical of m[ch].votes) {
         const mappings = s.correspondences.filter(c => c.chamber === ch && c.pastListId === historical.listId);
-        const total = sum(mappings.map(c => c.factor));
+        // Unified W_i rows already sum to one on ORIGINAL components. A
+        // component can have different future list labels on disjoint ballots;
+        // normalizing over all those destinations would count it twice.
+        const total = s.projectionPolicy === 'preserve-historical-turnout-v1' ? 1 : sum(mappings.map(c => c.factor));
         for (const c of mappings) if (filing.get(`${ch}:${m.code}`)?.has(c.futureListId)) votes.set(c.futureListId, votes.get(c.futureListId)! + historical.votes * c.factor / total);
       }
       const valid = sum([...votes.values()]);
@@ -106,6 +109,28 @@ export function preparePairedVoteReferences(scenario: ReformGenerationScenario, 
     return { municipality: m, camera: project('camera'), senato: project('senato') };
   });
   const trace: GenerationTrace = { warnings: [], references: [], normalization: [], streamVersion: 'r26-generation-streams-v1', snapshotVersion: snapshot.version, modelVersion: snapshot.models.version };
+  if (s.projectionPolicy === 'preserve-historical-turnout-v1') {
+    // Political composition is conditional on the filed choice set, as in the
+    // selected feasible field. Mapping loss is not evidence of non-voting.
+    // Snapshot the donor field before adding any fallback, avoiding order effects.
+    const donorMass = new Map<string, Map<string, number>>();
+    for (const u of units) for (const ch of active) for (const [id, p] of u[ch].shares) {
+      const key = ch + ':' + u.municipality.regionId, values = donorMass.get(key) ?? new Map();
+      values.set(id, (values.get(id) ?? 0) + p * (1 - u[ch].abstention) * u.municipality[ch].electors); donorMass.set(key, values);
+    }
+    for (const u of units) for (const ch of active) {
+      const original = u.municipality[ch], valid = sum(original.votes.map(v => v.votes));
+      if (valid && !sum([...u[ch].shares.values()])) {
+        const filed = s.lists[ch].filter(l => available(u, l.id, ch));
+        if (!filed.length) throw new Error('No filed political choice for ' + ch + '/' + u.municipality.code);
+        const donors = donorMass.get(ch + ':' + u.municipality.regionId), mass = sum(filed.map(l => donors?.get(l.id) ?? 0));
+        u[ch].shares = new Map(s.lists[ch].map(l => [l.id, filed.includes(l) ? (mass ? (donors?.get(l.id) ?? 0) / mass : 1 / filed.length) : 0]));
+        trace.warnings.push({ code: 'LEGACY_UNMAPPED_POLITICAL_PROXY', message: `${ch}/${u.municipality.code}: composizione stimata ${mass ? 'regionale' : 'uniforme'} sulle liste depositate; affluenza storica conservata.` });
+      }
+      u[ch].abstention = original.electors ? 1 - valid / original.electors : 1;
+    }
+    trace.warnings.push({ code: 'LEGACY_CHOICE_SET_POLICY', message: 'Quote politiche condizionate alle liste depositate; destinazioni incomplete non aumentano automaticamente il non-voto. Politica da verificare nell’audit successivo a FV-08.' });
+  }
   const historicalUnits = structuredClone(units);
   if (s.pollReferences) {
     trace.warnings.push({ code: 'POLL_REFERENCE_ASSUMPTIONS', message: `Quote informate dai sondaggi (${s.pollReferences.version}); incertezza e proxy non calibrati.` });

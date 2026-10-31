@@ -4,6 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "test:reform:shares:unified": "playwright test --config playwright.unified-share.config.ts",
+    "test:reform:shares:resources": "playwright test --config playwright.unified-resources.config.ts",
     "test:reform:shares:ui": "playwright test --config playwright.fast-share-ui.config.ts",
     "dev": "vite dev",
     "build": "vite build",

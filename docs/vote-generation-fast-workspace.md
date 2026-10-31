@@ -1,5 +1,10 @@
 # Fast vote-share workspace (FV-07)
 
+**Current workflow:** FV-08 extends this workspace to unified v5 scenarios with
+both generation models. Read the [unified guide](vote-generation-unified-workflow.md)
+for model selection, composition fractions, worker policy and archive dispatch.
+The FV-07 commands/receipts below describe the earlier candidate milestone.
+
 This is the browser editor for the **2026 reform only**. FV-08 still owns the
 full production envelope, predictive acceptance and default activation. FV-09
 owns research archival. Neither step is implied by this UI implementation.

@@ -23,6 +23,7 @@
   import ReformCandidatesEditor from '../ReformCandidatesEditor.svelte';
   import FastReferencesEditor from './FastReferencesEditor.svelte';
   import FastEvidenceEditor from './FastEvidenceEditor.svelte';
+  import GenerationModelEditor from './GenerationModelEditor.svelte';
   let {
     scenario,
     editorData,
@@ -163,6 +164,7 @@
 </script>
 
 <div class="scenario-editor" data-testid="fast-scenario-editor">
+  <GenerationModelEditor {scenario} {onchange} {onerror}/>
   <div class="controls">
     <label
       >Nome scenario<input
@@ -270,6 +272,7 @@
             min="0"
             step="any"
             value={l.nationalUncertaintyMultiplier ?? 1}
+            disabled={scenario.generation?.model==='legacy-poll-informed-v1'}
             onchange={(e) => {
               const v = e.currentTarget.valueAsNumber;
               patch((n) => {
@@ -288,6 +291,7 @@
             min="0"
             step="any"
             value={l.localUncertaintyMultiplier ?? 1}
+            disabled={scenario.generation?.model==='legacy-poll-informed-v1'}
             onchange={(e) => {
               const v = e.currentTarget.valueAsNumber;
               patch((n) => {

@@ -97,7 +97,7 @@ export function prepareFastGeneration(
   if (!Number.isSafeInteger(chunkSize) || chunkSize < 1)
     throw new Error("Invalid geographic chunk size");
   if (
-    s.schemaVersion !== 4 ||
+    ![4, 5].includes(s.schemaVersion) ||
     s.kind !== "politics-reform-scenario" ||
     s.algorithmId !== "politiche-reform-2026-v1" ||
     s.models.statistical !== FAST_SHARE_MODEL ||

@@ -114,7 +114,7 @@ test('actual worker preserves paired global IDs over the 50-run chunk boundary a
       worker.postMessage({ type: 'result-service', requestId: 1, action: 'page', owner: 'direct-worker', resultId: id, table, simulation, offset, limit });
     });
     try {
-      const first = await execute(51, 4), replay = await execute(1), invalid = await execute(0), invalidWorkers = await execute(1, 6);
+      const first = await execute(51, 4), replay = await execute(1), invalid = await execute(0), invalidWorkers = await execute(1, 7);
       const index = (name: string) => first.result.tables.findIndex(t => t.name === name);
       const firstId = first.result.storage!.id, replayId = replay.result.storage!.id;
       const runs = await query(firstId, index('Reform runs'));
@@ -140,7 +140,7 @@ test('actual worker preserves paired global IDs over the 50-run chunk boundary a
   expect(response.diagnostics.warnings.reasons.reduce((sum: number, r: { occurrences: number }) => sum + r.occurrences, 0)).toBe(response.diagnostics.warnings.occurrences);
   expect(response.first.progress).toContainEqual(expect.objectContaining({ phase: 'scrutinize', completed: 51, total: 51 }));
   expect(response.invalid.result.warnings).toContainEqual(expect.objectContaining({ code: 'WORKER_ERROR', severity: 'error', message: expect.stringContaining('positive safe integer') }));
-  expect(response.invalidWorkers.result.warnings).toContainEqual(expect.objectContaining({ code: 'WORKER_ERROR', severity: 'error', message: expect.stringContaining('1 to 5') }));
+  expect(response.invalidWorkers.result.warnings).toContainEqual(expect.objectContaining({ code: 'WORKER_ERROR', severity: 'error', message: expect.stringContaining('1 to 6') }));
 });
 
 test('1/2/4 compute workers preserve all exported rows, warnings and shared occurrence counts', async ({ page, context }) => {
@@ -197,7 +197,7 @@ test('1/2/4 compute workers preserve all exported rows, warnings and shared occu
     } finally { worker.terminate(); }
   }, fixture.scenario);
   expect(new Set(report.hashes).size).toBe(1);
-  expect(report.executions).toEqual([1, 2, 4].map(count => expect.objectContaining({ requestedWorkers: count, computeWorkers: count, maximumWorkers: 5 })));
+  expect(report.executions).toEqual([1, 2, 4].map(count => expect.objectContaining({ requestedWorkers: count, computeWorkers: count, maximumWorkers: 6 })));
 });
 
 test('native compute worker crashes interrupt the session rather than becoming legal run failures', async ({ page, context }) => {

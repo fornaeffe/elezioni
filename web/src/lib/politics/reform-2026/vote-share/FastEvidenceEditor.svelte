@@ -8,6 +8,8 @@
     sourceChoicesFor,
   } from './editor-model';
   import { validateEditedPoll } from './source-compiler';
+  import SourceCompositionEditor from './SourceCompositionEditor.svelte';
+  import {pollChoiceId} from './correspondences';
   let {
     scenario,
     source,
@@ -252,6 +254,7 @@
   >
   <label
     >Seme della stima<input
+      disabled={scenario.generation?.model==='legacy-poll-informed-v1'}
       value={scenario.fitSeed}
       onchange={(e) =>
         onchange(
@@ -273,12 +276,13 @@
     </p>
     <details>
       <summary>Elezioni storiche e adattamento Camera/Senato</summary>
+      {#if scenario.generation?.model==='legacy-poll-informed-v1'}<p>Queste selezioni sono conservate per il nuovo modello. Il modello precedente usa automaticamente l’ultima coppia Camera/Senato disponibile alla data di riferimento.</p>{/if}
       {#each source.payload.events.filter((e) => e.role === 'reference' && e.minimumAge === 18 && e.context !== 'senato') as event (event.id)}
         <label
           ><input
             type="checkbox"
             checked={scenario.historySelection.electionIds.includes(event.id)}
-            disabled={event.availableDate > scenario.referenceDate}
+            disabled={scenario.generation?.model==='legacy-poll-informed-v1'||event.availableDate > scenario.referenceDate}
             onchange={(e) =>
               onchange(
                 editFast(scenario, (n) => {
@@ -298,6 +302,7 @@
           >{key === 'pairedCamera'
             ? 'Base abbinata Camera'
             : 'Base abbinata Senato'}<select
+            disabled={scenario.generation?.model==='legacy-poll-informed-v1'}
             value={scenario.historySelection[
               key as 'pairedCamera' | 'pairedSenato'
             ]}
@@ -333,7 +338,7 @@
             ><input
               type="checkbox"
               checked={scenario.polls.selected.includes(p.id)}
-              disabled={!!pollAvailability(p, scenario.referenceDate)}
+              disabled={!!pollAvailability(p, scenario.referenceDate) || (scenario.generation?.model==='legacy-poll-informed-v1' && p.context!=='camera')}
               onchange={(e) => togglePoll(p, e.currentTarget.checked)}
             />{p.id} · {p.citation}</label
           >
@@ -450,6 +455,7 @@
           ><button onclick={() => (answers = answers.filter((_, j) => i !== j))}
             >Rimuovi risposta</button
           >
+          {#if pollId && !a.other}<SourceCompositionEditor {scenario} sourceId={pollChoiceId(pollId,a.label)} members={a.members} {onchange} {onerror}/>{/if}
         </fieldset>{/each}
       <button
         onclick={() =>
@@ -505,7 +511,8 @@
             bind:value={members}
           /></label
         ><label>Motivazione / fonte<input bind:value={provenance} /></label
-        ><button onclick={saveMembership}>Salva corrispondenza</button><button
+        ><button onclick={saveMembership}>Salva corrispondenza</button>
+        <SourceCompositionEditor {scenario} sourceId={choiceId} members={members.split(',').map(x=>x.trim()).filter(Boolean)} {onchange} {onerror}/><button
           onclick={() =>
             action(() =>
               editFast(scenario, (n) => {
@@ -514,6 +521,9 @@
             )}>Ripristina corrispondenza originale</button
         >{/if}
       <p>
+        Assenze e valori mancanti derivano dai dati originali e dal campo di scelta;
+        non vanno inseriti come zeri. «Altri» completa il campo offerto alla data
+        del sondaggio. Una deselezione esplicita conserva la motivazione di esclusione.
         Il raggruppamento dei componenti originali nella base stimata è
         conservato in «componentMap» nel JSON. Modificare la base richiede una
         stima identificabile; gli errori di rango non vengono corretti

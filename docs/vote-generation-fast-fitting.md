@@ -1,5 +1,10 @@
 # Browser fitting infrastructure (FV-06)
 
+For current v5 dispatch and CPU-based selectable workers, use the
+[unified workflow](vote-generation-unified-workflow.md). Luca waived the former
+512 MiB aggregate ceiling on 31 October; numerical workspace safeguards remain.
+The older budgets and milestone measurements below are historical FV-06 evidence.
+
 FV-06 supplies the fitting worker, typed client and state/ownership boundary for
 the **2026 reform only**. It does not install the scenario v4 editor or replace
 application defaults. FV-07 owns UI/parser integration; FV-08 owns production

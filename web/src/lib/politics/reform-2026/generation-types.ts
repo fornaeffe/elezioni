@@ -90,6 +90,8 @@ export interface ReformGenerationScenario {
   /** Version 1 remains readable verbatim in historical result archives. */
   schemaVersion: 1 | typeof REFORM_SCENARIO_VERSION | 3;
   pollReferences?: PollReferences;
+  /** Unified workflow only: filing/mapping cannot silently alter turnout. */
+  projectionPolicy?: 'preserve-historical-turnout-v1';
   presentation?: ReformPresentation;
   kind: 'politics-reform-scenario';
   algorithmId: 'politiche-reform-2026-v1';

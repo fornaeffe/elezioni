@@ -18,7 +18,7 @@ export function subjectColor(id: string): string {
   return palette[hash % palette.length];
 }
 export function reformPresentation(s: ReformGenerationScenario | ReleasedScenario): ReformPresentation {
-  if(s.schemaVersion===4){
+  if(('data' in s)){
     const lists=[...new Map([...s.lists.camera,...s.lists.senato].map(l=>[l.id,l])).values()];
     return {name:s.presentation.name??'Scenario riforma 2026',lists:lists.map(l=>({id:l.id,color:s.presentation.lists.find(p=>p.id===l.id)?.color??subjectColor(l.id)})),
       coalitions:s.presentation.coalitions??[...new Set(lists.flatMap(l=>l.coalitionId?[l.coalitionId]:[]))].map(id=>({id,name:lists.filter(l=>l.coalitionId===id).map(l=>l.name).join(' + '),color:subjectColor(id)}))};

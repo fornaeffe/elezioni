@@ -30,6 +30,7 @@ export interface FitConfiguration {
   resultPipelineBytes?: number;
 }
 export interface GenerationPacket {
+  legacy?: import('./legacy-adapter').CompiledLegacy;
   scenario: ReleasedScenario;
   assets: FastVoteAssets;
   context: ReformAssemblyContext;

@@ -18,7 +18,9 @@ import {
 } from './source-codec';
 import { decodeState, type StateEnvelope } from './state-codec';
 import { validateSourceEnvelope, decodeAsset } from './source-codec';
+import { prepareScenarioGeneration } from './unified-generation';
 import { prepareFastGeneration } from './generation';
+import { isLegacyGeneration, legacyInputKey, type CompiledLegacy } from './legacy-adapter';
 import { FAST_SHARE_MODEL, FAST_SHARE_NUMERICS } from './types';
 export interface ReleasedScenario extends FastGenerationScenario {
   models: FastGenerationScenario['models'] & {
@@ -97,6 +99,8 @@ export interface RuntimeState {
   };
 }
 export interface ScenarioState {
+  legacy?: CompiledLegacy;
+  candidateEvidenceKey?: string;
   scenario: ReleasedScenario;
   selection: SourceSelection;
   defaultPolicy: unknown;
@@ -157,6 +161,7 @@ export async function generationKeys(
       }))
       .sort((a, b) => a.id.localeCompare(b.id));
   const compositionKey = await sourceKey('fast-share-composition-v1', {
+    ...(s.generation ? {generation:s.generation} : {}),
     data: {
       sourceBundleId: s.data.sourceBundleId,
       fittedStateId: s.data.fittedStateId,
@@ -391,10 +396,13 @@ export async function loadCandidate(
     JSON.stringify(keys) !== JSON.stringify(s.state.keys)
   )
     throw new Error('RELEASE_SEMANTIC_KEYS');
+  if (isLegacyGeneration(scenario) && (!s.state.legacy || s.state.legacy.inputKey !== await legacyInputKey(scenario)))
+    throw new Error('LEGACY_SESSION_BINDING');
   const prepared =
-    options.validateGeneration === false
+    options.validateGeneration === false || isLegacyGeneration(scenario)
       ? undefined
       : prepareFastGeneration(scenario, assets, r.state.context);
+  if (options.validateGeneration !== false && isLegacyGeneration(scenario)) prepareScenarioGeneration(scenario, assets, r.state.context, s.state.legacy);
   return {
     catalog: c,
     catalogEnvelope: catalog.envelope,
@@ -403,6 +411,8 @@ export async function loadCandidate(
     assets,
     context: r.state.context,
     prepared,
+    legacy: s.state.legacy,
+    candidateEvidenceKey: s.state.candidateEvidenceKey,
     fitParents: f.state.parents,
     profileParents: p.state.parents,
     provenanceId: f.state.provenanceId,

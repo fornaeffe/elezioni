@@ -23,6 +23,7 @@ import { REFERENCE_POLICY } from "./reference-family";
 import { FORECAST_STREAM_VERSION } from "./forecast-random";
 import type { ReleasedScenario } from "./release";
 import type { SourcePoll } from "./source-types";
+import { normalizedComposition } from './correspondences';
 const nonnegative = scalar<number>(
   (v) => typeof v === "number" && Number.isFinite(v) && v >= 0,
   "a finite nonnegative number",
@@ -90,7 +91,13 @@ export const pollShape = object({
 });
 const shape = object({
   ...reformLegalFields,
-  schemaVersion: literal(4),
+  schemaVersion: literal(4, 5),
+  generation: optional(object({
+    model: literal('selected', 'legacy-poll-informed-v1'),
+    compositions: dictionary(object({ fractions: dictionary(nonnegative), provenance: text, proxy: optional(bool) })),
+    supplementalPolls: array(object({ id: text, date, available: date, end: date, context: literal('camera','european','senato'),
+      groups: array(object({label:text,members:array(text),share})), sample:nonnegative,source:text,enabled:bool })),
+  })),
   referenceDate: date,
   fitSeed: text,
   models: object({
@@ -215,6 +222,12 @@ export function validateFastScenario(value: unknown): string[] {
   const s = value as ReleasedScenario,
     errors: string[] = [],
     ids = new Set(s.components.map((c) => c.id));
+  if (s.schemaVersion === 5 && !s.generation || s.schemaVersion === 4 && s.generation)
+    errors.push('Generation settings require unified scenario version 5.');
+  for (const [id, row] of Object.entries(s.generation?.compositions ?? {})) {
+    try { normalizedComposition(Object.keys(row.fractions), row); }
+    catch (e) { errors.push('Composizione ' + id + ': ' + String(e)); }
+  }
   const unique = (rows: unknown[], label: string) => {
     if (new Set(rows.map((x) => JSON.stringify(x))).size !== rows.length)
       errors.push("Identità duplicata: " + label);

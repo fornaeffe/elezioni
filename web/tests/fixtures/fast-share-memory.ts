@@ -1,5 +1,8 @@
 /** Test instrumentation only. No isolation headers or memory API enter the app. */
 import type { Browser, Page, CDPSession } from '@playwright/test';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+const execute = promisify(execFile);
 export async function watchMemory(browser: Browser, page: Page) {
   if (browser.browserType().name() !== 'chromium')
     return {
@@ -19,7 +22,31 @@ export async function watchMemory(browser: Browser, page: Page) {
     active = true,
     busy = false,
     peakBytes = 0,
-    samples = 0;
+    samples = 0,
+    processBusy = false,
+    processSamples = 0,
+    peakWorkingSetBytes = 0,
+    peakPrivateBytes = 0;
+  const rendererSamples: object[] = [];
+  async function sampleRenderer() {
+    if (!active || processBusy || process.platform !== 'win32') return;
+    processBusy = true;
+    try {
+      const ids = (await root.send('SystemInfo.getProcessInfo')).processInfo
+        .filter(p => p.type === 'renderer').map(p => p.id);
+      if (!ids.length || !ids.every(Number.isSafeInteger)) return;
+      const { stdout } = await execute('pwsh.exe', ['-NoProfile', '-NonInteractive', '-Command',
+        `$taskProcesses=@(Get-Process -Id ${ids.join(',')} -ErrorAction SilentlyContinue); @{ workingSetBytes=($taskProcesses | Measure-Object WorkingSet64 -Sum).Sum; privateBytes=($taskProcesses | Measure-Object PrivateMemorySize64 -Sum).Sum } | ConvertTo-Json -Compress`],
+        { windowsHide: true, timeout: 5000 });
+      const usage = JSON.parse(stdout);
+      processSamples++;
+      peakWorkingSetBytes = Math.max(peakWorkingSetBytes, usage.workingSetBytes);
+      peakPrivateBytes = Math.max(peakPrivateBytes, usage.privateBytes);
+      if (rendererSamples.length < 30 || usage.privateBytes === peakPrivateBytes)
+        rendererSamples.push({ elapsed: Date.now(), ...usage });
+    } catch { /* A private renderer can end between enumeration and sampling. */ }
+    finally { processBusy = false; }
+  }
   const rows: object[] = [];
   root.on('Target.receivedMessageFromTarget', (event) => {
     const m = JSON.parse(event.message),
@@ -94,10 +121,13 @@ export async function watchMemory(browser: Browser, page: Page) {
   const timer = setInterval(() => {
     void sample().catch(() => undefined);
   }, 100);
+  const processTimer = setInterval(() => { void sampleRenderer(); }, 1000);
   return {
     stop: async () => {
       clearInterval(timer);
+      clearInterval(processTimer);
       await sample();
+      await sampleRenderer();
       active = false;
       for (const p of pending.values())
         p.reject(new Error('Instrumentation stopped'));
@@ -109,10 +139,13 @@ export async function watchMemory(browser: Browser, page: Page) {
         intervalMs: 100,
         samples,
         peakBytes,
-        passed: peakBytes <= 512 * 1024 * 1024,
+        former512MiBTargetMet: peakBytes <= 512 * 1024 * 1024,
         rows,
+        renderer: { supported: processSamples > 0, samples: processSamples,
+          peakWorkingSetBytes, peakPrivateBytes, rows: rendererSamples,
+          qualification: 'Windows process samples for private browser renderers, including nested workers, native allocations and transient copies. Sampled peaks, not an unsampled maximum; persisted IndexedDB excluded.' },
         qualification:
-          'Sampled sum of V8 used heap, backing stores and embedder heap across page and active workers; browser framework/GPU and persisted results excluded. Not an unsampled RSS maximum.',
+          'Sampled V8 heap/backing stores for page and discoverable workers. Nested workers may be absent from CDP enumeration; this is a partial heap sample. Use renderer process samples for the whole renderer footprint.',
       };
     },
   };

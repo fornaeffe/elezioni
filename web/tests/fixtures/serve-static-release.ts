@@ -3,8 +3,10 @@ import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import { resolve, relative, isAbsolute, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-const root = fileURLToPath(new URL('../../build/', import.meta.url)),
-  base = process.env.BASE_PATH ?? '';
+const root = process.env.ACCEPTANCE_BUILD_ROOT ? resolve(process.env.ACCEPTANCE_BUILD_ROOT) : fileURLToPath(new URL('../../build/', import.meta.url)),
+  base = process.env.BASE_PATH ?? '',
+  port = Number(process.env.ACCEPTANCE_SERVER_PORT ?? 4174);
+if (!Number.isSafeInteger(port) || port < 1 || port > 65535) throw new Error('Invalid acceptance server port');
 const types: Record<string, string> = {
   '.html': 'text/html',
   '.js': 'text/javascript',
@@ -42,4 +44,4 @@ const server = createServer(async (request, response) => {
     response.end('Missing static release file');
   }
 });
-server.listen(4174, '127.0.0.1');
+server.listen(port, '127.0.0.1');

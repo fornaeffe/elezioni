@@ -23,6 +23,7 @@ const scenarioFields = {
   lists: object({ camera: array(list), senato: array(list) }),
   coverage: array(object({ chamber, collegeId: text, listIds: array(text) })),
   correspondences: array(object({ chamber, pastListId: text, futureListId: text, factor: nonnegative })),
+  projectionPolicy: optional(literal('preserve-historical-turnout-v1')),
   shares: array(object({ scope, listId: text, common: nullable(share), camera: nullable(share), senato: nullable(share) })),
   abstention: array(object({ scope, common: nullable(share), camera: nullable(share), senato: nullable(share) })),
   candidateGeneration: object({ reuseProbability: share, bonusPolicy: optional(literal('reference-proportional-v1')),

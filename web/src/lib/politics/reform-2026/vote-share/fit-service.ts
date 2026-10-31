@@ -22,7 +22,8 @@ import { sourceKey, canonicalJson, type AssetBytes } from './source-codec';
 import { fitReferenceSteps } from './information';
 import { fitProfilesSteps } from './profiles';
 import { prepareSenateAdapter } from './senate-adapter';
-import { prepareFastGeneration } from './generation';
+import { prepareScenarioGeneration } from './unified-generation';
+import { compileLegacy, isLegacyGeneration, legacyInputKey } from './legacy-adapter';
 import {
   cooperativeSteps,
   throwIfCancelled,
@@ -218,7 +219,8 @@ export async function runFitTask(
         compositionKey: loaded.catalog.compositionKey,
         runKey: loaded.catalog.runKey,
       },
-      evidenceKey: await evidenceKey(loaded.scenario, loaded.selection),
+      ...(loaded.legacy ? { legacy: loaded.legacy } : {}),
+      evidenceKey: loaded.candidateEvidenceKey ?? await evidenceKey(loaded.scenario, loaded.selection),
       provenanceId: await acceptedProvenance(
         loaded.scenario,
         loaded.catalog.nationalInputKey,
@@ -253,10 +255,11 @@ export async function runFitTask(
   }
   if (command.action === 'preview') {
     const s = requireFastScenario(command.scenario),
-      prepared = prepareFastGeneration(
+      prepared = prepareScenarioGeneration(
         s,
         command.previous.assets,
         command.previous.context,
+        command.previous.legacy,
       ),
       { input, trace } = prepared.run(1);
     return {
@@ -300,6 +303,22 @@ export async function runFitTask(
     throw new Error('FIT_DRAFT_BINDING_MISMATCH');
   const key = await evidenceKey(scenario, selection),
     sameEvidence = key === previous.evidenceKey;
+  if (isLegacyGeneration(scenario)) {
+    const inputKey = await legacyInputKey(scenario);
+    let legacy = previous.legacy;
+    if (!legacy || legacy.inputKey !== inputKey) {
+      await checkpoint({phase:'prepare-legacy-references',completed:0,total:1});
+      const source = await loadCandidateSource(previous.sourceCatalog, read);
+      audit.sourceLoaded = true;
+      legacy = await compileLegacy(scenario, source, read, previous.assets, previous.context);
+    }
+    prepareScenarioGeneration(scenario, previous.assets, previous.context, legacy);
+    const keys = await generationKeys(scenario, previous.context, previous.electorateKey);
+    return finish({...previous,scenario,selection,keys,legacy}, {
+      national:false,profiles:false,paired:false,reasons:['legacy-reference-preparation'],estimatedAggregateBytes:0,
+      reused:{national:true,cameraProfile:true,senateAdapter:true},
+    });
+  }
   let memory = fitMemoryPlan(previous, undefined, selection, c);
   const plan: FitTaskResult['plan'] = {
     national: false,
@@ -473,7 +492,7 @@ export async function runFitTask(
     fittedStateId,
     profileStateId,
   };
-  prepareFastGeneration(scenario, assets, previous.context);
+  prepareScenarioGeneration(scenario, assets, previous.context);
   const keys = await generationKeys(
     scenario,
     previous.context,
@@ -498,6 +517,7 @@ export async function runFitTask(
       pairedInputKey,
       provenanceId,
       evidenceKey: key,
+      legacy: undefined,
     },
     plan,
   );

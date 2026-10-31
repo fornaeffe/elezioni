@@ -30,6 +30,7 @@ import { compilePairedHistory } from "../../src/lib/politics/reform-2026/vote-sh
 import { fitReference } from "../../src/lib/politics/reform-2026/vote-share/information";
 import { fitProfiles } from "../../src/lib/politics/reform-2026/vote-share/profiles";
 import { prepareSenateAdapter } from "../../src/lib/politics/reform-2026/vote-share/senate-adapter";
+import { unifiedShareDefault } from './unified-share-default';
 import {
   FAST_SHARE_MODEL,
   FAST_SHARE_NUMERICS,
@@ -144,7 +145,7 @@ export async function prepareShareRelease(
   };
   const generationImplementation = await implementationKey(
     root,
-    "web/src/lib/politics/reform-2026/vote-share/generation.ts",
+    "web/src/lib/politics/reform-2026/vote-share/unified-generation.ts",
   );
   const generationMetadata: StateMetadata = {
     ...metadata,
@@ -337,6 +338,9 @@ export async function prepareShareRelease(
         })),
       },
     };
+  if (policy.futureScenario) unifiedShareDefault(scenario,source,
+    JSON.parse(await readFile(resolve(root,'data/legacy-comparison-policy.json'),'utf8')),
+    JSON.parse(await readFile(resolve(root,'data/legacy-comparison-future-polls.json'),'utf8')));
   const keys = await generationKeys(scenario, context, electorateKey),
     defaults = await encodeState(
       "fast-share-scenario",

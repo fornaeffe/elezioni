@@ -7,7 +7,7 @@ const scenario = (schemaVersion: number) => ({
 });
 describe('original-generator archive dispatch', () => {
   it('routes v1-v3 and v4 without converting scenario models', async () => {
-    for (const version of [1, 2, 3, 4])
+    for (const version of [1, 2, 3, 4, 5])
       for (const compressed of [false, true]) {
         const text = JSON.stringify(scenario(version)),
           data = compressed ? gzipSync(new TextEncoder().encode(text)) : text;
@@ -18,14 +18,14 @@ describe('original-generator archive dispatch', () => {
               compressed ? 'scenario.json.gz' : 'scenario.json',
             ),
           ),
-        ).toBe(version === 4 ? 'fast' : 'installed');
+        ).toBe(version >= 4 ? 'fast' : 'installed');
         const root = JSON.stringify({
-          schema_version: version === 4 ? 3 : 2,
+          schema_version: version >= 4 ? 3 : 2,
           scenario: scenario(version),
           result: { tables: [] },
         });
         expect(await archiveWorkflow(new File([root], 'results.json'))).toBe(
-          version === 4 ? 'fast' : 'installed',
+          version >= 4 ? 'fast' : 'installed',
         );
       }
   });
@@ -39,7 +39,7 @@ describe('original-generator archive dispatch', () => {
       ),
     ).toBe('fast');
     for (const value of [
-      scenario(5),
+      scenario(6),
       scenario(0),
       { kind: 'politics-reform-scenario', schemaVersion: '3' },
       {},

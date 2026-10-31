@@ -1,7 +1,7 @@
 import type { CompactSource } from './source-types';
 import type { AcceptedFit, GenerationPacket } from './fit-types';
 import type { SourceSelection } from './source-compiler';
-import { type WorkerResourceHints } from '../../../core/reform-worker-capacity';
+import { planReformWorkers, type WorkerResourceHints } from '../../../core/reform-worker-capacity';
 export const MiB = 1024 * 1024;
 /** Collect unique OWNED transferable buffers; never transfer an accepted state directly. */
 export function ownedBuffers(value: unknown): ArrayBuffer[] {
@@ -68,7 +68,7 @@ export function fitMemoryPlan(
     resultPipelineBytes?: number;
   } = {},
 ) {
-  const aggregate = limits.maximumAggregateBytes ?? 512 * MiB,
+  const aggregate = limits.maximumAggregateBytes ?? Number.MAX_SAFE_INTEGER,
     workspace = limits.maximumWorkspaceBytes ?? 256 * MiB,
     results = limits.resultPipelineBytes ?? 64 * MiB;
   if (
@@ -133,34 +133,23 @@ export function generationCapacity(
     additionalReservedBytes < 0
   )
     throw new Error('Invalid reserved memory');
-  const cores = Number.isFinite(hints.hardwareConcurrency)
-      ? Math.max(1, Math.floor(hints.hardwareConcurrency!))
-      : 2,
-    memory =
-      Number.isFinite(hints.deviceMemory) && hints.deviceMemory! > 0
-        ? hints.deviceMemory!
-        : 2,
-    // Fast packets omit the legacy historical snapshot. Reserve the measured
-    // legal/result scratch plus two retained-packet copies per owner, and cap
-    // the whole active pipeline at the frozen FV-08 512 MiB target.
-    budgetBytes = Math.min(512 * MiB, Math.floor((memory * 1024 * MiB) / 2)),
-    coordinatorBytes =
+  const coordinatorBytes =
       128 * MiB + 2 * retainedBytes(packet) + additionalReservedBytes,
-    perWorkerBytes = 112 * MiB + 2 * retainedBytes(packet),
-    maximum = Math.max(
-      0,
-      Math.min(
-        Math.max(1, cores - 1),
-        Math.floor((budgetBytes - coordinatorBytes) / perWorkerBytes),
-      ),
-    );
-  return {
-    maximum,
-    budgetBytes,
-    coordinatorBytes,
-    perWorkerBytes,
-    estimateVersion: 'fast-share-aggregate-512-v2',
-  };
+    // Conservative scratch plus explicit owned packet copies. The old CDP-only
+    // samples did not enumerate nested workers; FV-08 renderer-process samples
+    // provide the complete process-footprint check. The compact legacy adapter
+    // measured ~4.3 GiB across nine workers and the coordinator in FV-08;
+    // 384 MiB scratch plus actual packet copies replaces the old 1,536 MiB
+    // estimate for the substantially larger original-workspace data structure.
+    perWorkerBytes = (packet.scenario.generation?.model === 'legacy-poll-informed-v1' ? 384 : 320) * MiB + 2 * retainedBytes(packet);
+  // V8 can share a 4 GiB pointer-compression cage across workers in one
+  // renderer. A 3 GiB planning budget leaves headroom for startup/GC and UI.
+  // The 10-worker browser probe and Luca's manual trial passed; 26 failed.
+  // RAM estimates include off-heap buffers and remain separate from this guard.
+  return planReformWorkers(hints, coordinatorBytes, perWorkerBytes, {
+    budgetBytes: 3072 * MiB, coordinatorBytes: 512 * MiB,
+    perWorkerBytes: Math.max(256 * MiB, retainedBytes(packet)),
+  });
 }
 export function copyGenerationPacket(accepted: AcceptedFit): GenerationPacket {
   return structuredClone({
@@ -168,5 +157,6 @@ export function copyGenerationPacket(accepted: AcceptedFit): GenerationPacket {
     assets: accepted.assets,
     context: accepted.context,
     keys: accepted.keys,
+    ...(accepted.legacy ? { legacy: accepted.legacy } : {}),
   });
 }

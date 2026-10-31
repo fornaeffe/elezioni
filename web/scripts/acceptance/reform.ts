@@ -39,6 +39,7 @@ try {
     report.inputs.push({ path, bytes: bytes.length, sha256: createHash('sha256').update(bytes).digest('hex') });
   }
   await run('production reform checksums and vertical slice', ['run', 'data:reform:check']);
+  await run('unified required production assets', ['run','data:reform:shares:release:check','--','--catalog','static/data/reform-2026/fast-share/candidate.json']);
   await run('preparation types', ['run', 'check:data']);
   await run('application types', ['run', 'check']);
   const units = resolve(output, 'unit.json');
@@ -46,10 +47,15 @@ try {
   report.checks.push({ name: 'unit acceptance', ...requireUnitAcceptance(JSON.parse(await readFile(units, 'utf8'))) });
   for (const base of ['', '/elezioni']) {
     const browserReport = resolve(output, base ? 'browser-project.json' : 'browser-root.json');
-    const env = { BASE_PATH: base, ACCEPTANCE_PREBUILT: '1', PLAYWRIGHT_JSON_OUTPUT_NAME: browserReport };
+    const env = { BASE_PATH: base, REFORM_FAST_CANDIDATE:'0', ACCEPTANCE_PREBUILT: '1', PLAYWRIGHT_JSON_OUTPUT_NAME: browserReport };
     await run(`static build ${base || '/'}`, ['run', 'build'], env);
     await run(`browser suite ${base || '/'}`, ['run', 'test:e2e', '--', '--reporter=json', '--retries=0', ...(testWorkers ? ['--workers', testWorkers] : [])], env);
     report.checks.push({ name: `browser acceptance ${base || '/'}`, ...requireBrowserAcceptance(JSON.parse(await readFile(browserReport, 'utf8'))) });
+    const unifiedReport=resolve(output,base?'unified-project.json':'unified-root.json'),unifiedEnv={...env,REFORM_FAST_CANDIDATE:'1',PLAYWRIGHT_JSON_OUTPUT_NAME:unifiedReport,
+      FV08_FULL:'0',FV08_DRAWS:'3',FV08_WORKERS:''};
+    await run(`unified static build ${base || '/'}`,['run','build'],unifiedEnv);
+    await run(`unified browser/storage/export ${base || '/'}`,['run','test:reform:shares:unified','--','--reporter=json'],unifiedEnv);
+    report.checks.push({name:`unified browser acceptance ${base||'/'}`,...requireBrowserAcceptance(JSON.parse(await readFile(unifiedReport,'utf8')))});
   }
   await run('restore root static build', ['run', 'build']);
   report.status = 'passed';

@@ -33,7 +33,7 @@ let code = '',
 test.beforeAll(async () => {
   implementation = await implementationKey(
     root,
-    'web/src/lib/politics/reform-2026/vote-share/generation.ts',
+    'web/src/lib/politics/reform-2026/vote-share/unified-generation.ts',
   );
   const result = await build({
     configFile: false,

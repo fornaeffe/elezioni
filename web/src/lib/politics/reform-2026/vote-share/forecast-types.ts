@@ -63,7 +63,8 @@ export type LegalGenerationSettings = Pick<
   | "chamberProfileId"
 >;
 export interface FastGenerationScenario extends LegalGenerationSettings {
-  schemaVersion: 4;
+  schemaVersion: 4 | 5;
+  generation?: import('./correspondences').GenerationChoice;
   referenceDate: string;
   fitSeed: string;
   models: {

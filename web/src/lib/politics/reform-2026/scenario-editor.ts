@@ -8,7 +8,7 @@ export const editingChambers = (scope: EditingScope): Chamber[] => scope === 'co
 export const referenceKey = (scope: ReferenceScope) => JSON.stringify([scope.kind, scope.kind === 'national' ? '' : scope.code]);
 export const subjectKey = (s: Subject) => JSON.stringify([s.kind, s.id]);
 export type LegalEditorScenario=Pick<ReformGenerationScenario,'candidateGeneration'|'candidateTemplates'|'coverage'|'lists'> & {presentation?:{coalitions?:{id:string;name:string;chambers?:Chamber[]}[]}};
-export function copyLegalEditor<T extends LegalEditorScenario>(s:T):T {return 'schemaVersion'in s&&s.schemaVersion!==4?upgradeReformDraft(s as unknown as ReformGenerationScenario) as unknown as T:cloneReformValue(s);}
+export function copyLegalEditor<T extends LegalEditorScenario>(s:T):T {return 'schemaVersion'in s&&(s.schemaVersion !== 4 && s.schemaVersion !== 5)?upgradeReformDraft(s as unknown as ReformGenerationScenario) as unknown as T:cloneReformValue(s);}
 export function saveLegalCandidate<T extends LegalEditorScenario>(s:T,template:ReformCandidateTemplate):T{
   const n=copyLegalEditor(s),same=(t:ReformCandidateTemplate)=>t.chamber===template.chamber&&t.role===template.role&&t.locationId===template.locationId&&t.ownerId===template.ownerId&&t.position===template.position;
   n.candidateTemplates=n.candidateTemplates.filter(t=>!same(t)).map(t=>t.candidate.id===template.candidate.id?{...t,candidate:cloneReformValue(template.candidate)}:t);n.candidateTemplates.push(cloneReformValue(template));return n;

@@ -7,6 +7,33 @@ do not tune these rules after seeing a failed result. The
 [model](vote-generation-fast-model.md), [scenario](vote-generation-fast-contracts.md)
 and [references](vote-generation-fast-references.md) define the targets.
 
+## Authorized adoption amendments (30–31 October 2026)
+
+The original numerical-port gates below remain evidence for their original
+kernel. Luca subsequently authorized the feasible-model comparison and selected
+its bounded mass-pair field; its statistical scope and limitations are in the
+[comparison results](vote-generation-feasible-results.md). Do not describe the
+new field as a distribution-preserving port of the earlier global-Beta model.
+
+For FV-08 adoption, the [unified workflow](vote-generation-unified-workflow.md)
+supersedes the earlier default-selection, aggregate-memory and browser-target
+requirements below. Offer the exact compared legacy latest-publication poll
+procedure alongside the selected default, including the subsequently approved
+per-chamber new-list classification; preserve original v1-v3 archive
+routing, and run 1,000 complete paired browser simulations per engine. The
+computation gate is 60 minutes on this machine with adequate workers. The
+512 MiB aggregate ceiling is waived; 256 MiB numerical workspace and the
+30/120-second desktop/quarter-core refit gates remain. Keep the CPU-based worker
+selector, half-declared-RAM recommendation and whole-device-memory warning.
+After Luca's 26-worker out-of-memory report, the recommendation additionally
+respects a conservative browser-heap allowance and warns above it; physical RAM
+alone is insufficient. This changes resource planning, not simulation seeds.
+
+Chromium and Firefox are the accepted browser targets. Luca explicitly deferred
+the Windows WebKit export issue until it recurs in use; record that limitation
+without claiming Safari export acceptance. Preserve earlier failed runs and
+statistical limitations. FV-09 cleanup and public deployment remain separate gates.
+
 ## Fixture/source/seed budget
 
 The [FV-01 evidence manifest](../research/vote-generation/fv01/evidence-manifest.json)

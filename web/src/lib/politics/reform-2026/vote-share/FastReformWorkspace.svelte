@@ -4,7 +4,8 @@
   import SimulationWorker from '../../../workers/simulation.worker?worker';
   import { ResultServiceClient } from '../../../core/result-service-client';
   import { requireSimulationCount } from '../../../core/runtime-data';
-  import { requireReformWorkerCount } from '../../../core/reform-worker-capacity';
+  import { requireReformWorkerCount, workerMemoryWarning, workerHeapWarning } from '../../../core/reform-worker-capacity';
+  import {isLegacyGeneration} from './legacy-adapter';
   import { JsonStreamReader, jsonFileStream } from '../../../core/json-stream';
   import {
     parseSimulationResultExport,
@@ -89,6 +90,8 @@
     maximumWorkers = $state(0),
     running = $state(false),
     runPhase = $state('Pronto');
+  let workerCapacity=$state.raw<ReturnType<ReformFitClient['generationCapacity']>>();
+  const memoryWarning=$derived(workerCapacity ? workerMemoryWarning(computeWorkers,workerCapacity) : false);
   let result = $state.raw<SimulationResult | null>(null),
     resultScenario = $state<ReleasedScenario | null>(null),
     owner = $state(''),
@@ -220,7 +223,7 @@
       else if (imported) {
         if (
           'schemaVersion' in imported.scenario &&
-          imported.scenario.schemaVersion === 4 &&
+          (imported.scenario.schemaVersion === 4 || imported.scenario.schemaVersion === 5) &&
           imported.fitFile
         )
           await importFile(
@@ -275,6 +278,12 @@
     loaded = false;
     return fitting;
   }
+  function refreshWorkers() {
+    workerCapacity=fitting?.generationCapacity(navigator);
+    maximumWorkers=workerCapacity?.maximum??0;
+    const saved=Number(localStorage.getItem(storageKey+':workers:'+(scenario?.generation?.model??'selected')));
+    computeWorkers=Number.isSafeInteger(saved)&&saved>=1?Math.min(saved,maximumWorkers):workerCapacity?.recommended??1;
+  }
   async function loadModel() {
     error = '';
     try {
@@ -283,7 +292,7 @@
       if (!alive) return;
       loaded = true;
       editorData = c.editorData();
-      maximumWorkers = c.generationCapacity(navigator)?.maximum ?? 0;
+      refreshWorkers();
       const draft = scenario
         ? structuredClone($state.snapshot(scenario))
         : c.copyDraft()!;
@@ -315,6 +324,7 @@
       (!!previous &&
         futureEvidenceSignature(previous) !== futureEvidenceSignature(next));
     fitting.setDraft($state.snapshot(next));
+    if (previous?.generation?.model !== next.generation?.model) refreshWorkers();
     if (!evidenceChanged && !running && validateFastScenario(next).length === 0)
       timer = setTimeout(() => {
         void validate();
@@ -326,6 +336,7 @@
       await fitting.validate();
       if (alive && fitting.canRun) {
         scenario = fitting.copyDraft()!;
+        refreshWorkers();
         rememberDraft();
       }
     } catch (e) {
@@ -341,7 +352,7 @@
         scenario = fitting.copyDraft()!;
         evidenceChanged = false;
         editorData = fitting.editorData();
-        maximumWorkers = fitting.generationCapacity(navigator)?.maximum ?? 0;
+        refreshWorkers();
         rememberDraft();
       }
     } catch (e) {
@@ -429,10 +440,10 @@
     if (!alive) return;
     loaded = true;
     editorData = c.editorData();
-    maximumWorkers = c.generationCapacity(navigator)?.maximum ?? 0;
     source = null;
     const accepted = c.copyDraft()!;
     scenario = labelFastDraft(file.scenario);
+    refreshWorkers();
     evidenceChanged =
       futureEvidenceSignature(accepted) !== futureEvidenceSignature(scenario);
     if (!sameCheckpointScenario(scenario, accepted)) {
@@ -489,7 +500,7 @@
         const parsed = JSON.parse(
           await new Response(jsonFileStream(file)).text(),
         );
-        if (parsed.schemaVersion !== 4)
+        if ((parsed.schemaVersion !== 4 && parsed.schemaVersion !== 5))
           throw new Error(
             'Questo scenario usa il generatore precedente. Aprilo in una build standard; non esiste una conversione statistica automatica.',
           );
@@ -505,7 +516,7 @@
       });
       if (
         !('schemaVersion' in record.scenario) ||
-        record.scenario.schemaVersion !== 4
+        (record.scenario.schemaVersion !== 4 && record.scenario.schemaVersion !== 5)
       ) {
         onLegacyImport(
           parseSimulationResultExport(
@@ -657,10 +668,10 @@
       // An edit while the checkpoint worker was running cancels that operation.
       if (!fitting.canRun)
         throw new Error('Scenario modificato durante la preparazione');
-      const reserved = fitting.reserveGenerationCopies(
-        Math.min(computeWorkers, simulations),
-        navigator,
-      );
+      // Send one owned packet across the page boundary. The coordinator copies
+      // it separately to each compute worker: a wide pool must not serialize all
+      // worker packets into one browser IPC message.
+      const reserved = fitting.reserveGenerationCopies(1, navigator);
       leases = reserved.leases;
       const captured = file.scenario,
         id = crypto.randomUUID(),
@@ -724,7 +735,7 @@
 
 <main class="fast-workspace" data-testid="fast-reform-workspace">
   <h1>Politiche — Riforma 2026</h1>
-  <p>Modello rapido delle quote · versione candidata in verifica.</p>
+  <p>Modelli di generazione con dati, scenario e scrutinio condivisi.</p>
   <section aria-label="Dati e stima">
     <h2>Dati e stima</h2>
     {#if metadataLoading}<p role="status">
@@ -766,7 +777,7 @@
           running ||
           !!busy ||
           jsonPending ||
-          errors.length > 0}>Ricalcola parametri</button
+          errors.length > 0}>{scenario && isLegacyGeneration(scenario) ? 'Prepara riferimenti legacy' : 'Ricalcola parametri'}</button
       >
       <button
         onclick={validate}
@@ -785,7 +796,7 @@
         Puoi preparare lo scenario prima di caricare i file del modello. Il
         caricamento avviene su richiesta; nessun prefetch in background.
       </p>{/if}
-    {#if fitState.plan}<p>
+    {#if fitState.plan && scenario && !isLegacyGeneration(scenario)}<p>
         Riutilizzo: nazionale {fitState.plan.reused.national ? 'sì' : 'no'},
         profilo Camera {fitState.plan.reused.cameraProfile ? 'sì' : 'no'},
         adattamento Senato {fitState.plan.reused.senateAdapter ? 'sì' : 'no'}.
@@ -851,7 +862,9 @@
           /></label
         ><label
           >Processi di calcolo<select
+            aria-label="Processi di calcolo"
             bind:value={computeWorkers}
+            onchange={e=>localStorage.setItem(storageKey+':workers:'+(scenario?.generation?.model??'selected'),e.currentTarget.value)}
             disabled={running || !!busy || maximumWorkers === 0}
             >{#each Array.from({ length: maximumWorkers }, (_, i) => i + 1) as n (n)}<option
                 value={n}>{n}</option
@@ -864,11 +877,16 @@
         >{#if running}<button onclick={cancelRun}>Annulla calcolo</button>{/if}
       </div>
       <p>
-        Massimo stimato: {maximumWorkers} processi. Il limite include memoria del
-        coordinatore e copie del modello; non misura la RAM libera.{#if loaded && maximumWorkers === 0}
-          Risorse del dispositivo insufficienti secondo il limite prudenziale:
-          calcolo disabilitato.{/if}
+        Massimo CPU: {maximumWorkers} processi; sono riservati due processori logici
+        per interfaccia e coordinamento sui dispositivi con almeno quattro processori.
+        {#if workerCapacity}Consigliati: {workerCapacity.recommended}; memoria stimata totale con la selezione corrente:
+          {((workerCapacity.coordinatorBytes+computeWorkers*workerCapacity.perWorkerBytes)/1024**3).toFixed(2)} GiB.
+          {#if workerCapacity.deviceBytes===null}Il browser non comunica la memoria: predefinito un processo.{:else}Memoria dichiarata dal browser: {(workerCapacity.deviceBytes/1024**3).toFixed(1)} GiB; il predefinito mira a usarne al massimo metà.{/if}
+          Il consiglio considera anche un margine prudenziale per la memoria del browser.
+        {/if} Le stime includono copie dei dati e memoria di lavoro; non misurano la RAM libera.
       </p>
+      {#if memoryWarning}<p role="alert">Attenzione: il numero scelto di processi è stimato usare tutta la memoria dichiarata del dispositivo o superarla. Puoi ridurlo prima del calcolo.</p>{/if}
+      {#if workerCapacity && workerHeapWarning(computeWorkers, workerCapacity)}<p role="alert">Il numero scelto supera il margine prudenziale di memoria del browser. Il calcolo può esaurire la memoria anche con RAM libera nel dispositivo. Riduci i processi se il browser si interrompe.</p>{/if}
       <p role="status" data-testid="reform-phase">{runPhase}</p>
     </section>
   {/if}
