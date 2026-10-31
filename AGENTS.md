@@ -81,7 +81,7 @@ to stable instructions that apply across migration steps.
   - use the current membership table architecture to link components to historical and future lists
   - be applicable onto the actual italian political context
   - use information from past elections and polls
-  - keep the computational time under 60 minutes in browser on this machine for fitting and 1000 simulations (vote generation + scrutiny).
+  - keep the computational time under 60 minutes in browser on this machine for fitting and 1000 simulations (vote generation + scrutiny), using an adequate number of workers.
 - The scrutiny algorithms should follow the law as strictly as possible, adopting documented provisional fallback to overcome situations
   where a strict law application would prevent scrutiny completion. Ideally, given the same input of a real election (e.g. lists, votes, candidates...) it should return the real outcome (elected candidates).
 
