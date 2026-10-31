@@ -453,6 +453,23 @@ Start these additions after all simulator workflows and data preparation have
 completed the web migration; they do not expand the current domestic reform
 implementation or municipal parity scope.
 
+- [ ] Change default scenario colors to colors that reflects the real parties
+  political colors (or colors with which polling houses usually represent parties).
+- [ ] In "Dotazioni dei seggi per collegio e liste del premio" do now show territory ids,
+  only names.
+- [ ] Bonus winner, if any, is the same for both chambers: do not offer a chamber selector
+  for "vincitori del premio" barplot.
+- [ ] Move application status to a small fixed, collapsible box near the top
+  right corner of the window, or other noninvasive but easily reachable location.
+- [ ] Assess if parallelization will improve import/export performances.
+  Add progress indication, and parallelization if it will improve performances.
+- [ ] Color cells of election probability table with a more saturated color the higher 
+  the probability is (with the list/coalition color). Change font color to achieve adequate contrast.
+- [ ] Add a selector for the election probability table metric:
+  - current metric (default)
+  - current metric, but conditional to the presence in the college slate of at least one candidate also present in a bonus slate
+  - current metric, but conditional to the absence in the college slate of any candidate also present in a bonus slate
+  The two latter metrics should also state, for each row, the denominator (the number of simulations over which the probability is computed).
 - [ ] Add foreign-seat simulation under the applicable foreign-voting law,
   including its current territorial divisions, seat endowments, votes,
   preferences and candidate proclamations. Keep its inputs and calculations

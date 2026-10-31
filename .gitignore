@@ -61,6 +61,7 @@ vignettes/*.pdf
 /data/sources/polls/history/*
 !/data/sources/polls/history/*.json
 /data/derived/
+/data/completed-runs/
 
 # Large generated migration data
 /web/static/data/v1/politics-static.json
