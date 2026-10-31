@@ -10,10 +10,12 @@ import { reformPresentation, subjectColor } from './presentation-metadata';
 
 export const reformSeriesTable = 'Reform statistical series v1';
 export const reformCollegeSeriesTable = 'Reform college series v1';
+export const reformConstituencySeriesTable = 'Reform constituency series v1';
 export const reformSeriesColumns = ['Simulation', 'Chamber', 'Kind', 'Owner', 'College', 'Territory', 'Name', 'Color', 'Order', 'Votes', 'Valid votes', 'Vote share %', 'Elected', 'Confirmed', 'Ordinary', 'Bonus', 'Special', 'TAA', 'Entitled'];
-export type SeriesKind = 'list' | 'subject' | 'college';
+export type SeriesKind = 'list' | 'subject' | 'college' | 'constituency-list' | 'constituency-subject';
 export const unaffiliatedOwner = 'unaffiliated';
-export const seriesKey = (chamber: string, kind: string, owner: string, college: string | null = null) => JSON.stringify([chamber, kind, owner, college]);
+export const seriesKey = (chamber: string, kind: string, owner: string, college: string | null = null, territory: string | null = null) =>
+  JSON.stringify(kind.startsWith('constituency-') ? [chamber, kind, owner, territory] : [chamber, kind, owner, college]);
 
 /** Final personal affiliation is not the list owning the original entitlement.
  * In particular, initial coalition bonus/special seats have a null ledger list. */
@@ -65,6 +67,33 @@ export function reformRunSeries(input: ReformScrutinyInput, result: ComposedRefo
     subjects.forEach((s, i) => add('subject', s.id, s.name, s.color, i, null, null,
       c.figures ? s.members.reduce((n, id) => n + (c.figures!.national.lists.find(l => l.listId === id)?.votes ?? 0), 0) : null,
       c.figures?.national.validVotes ?? null, filled.filter(e => `${e.entitlement.subject.kind}:${e.entitlement.subject.id}` === s.id), null));
+    // Constituencies cover ordinary territories only. Bonus recoveries keep
+    // their original seat category and count at their final election territory.
+    for (const territory of source.territories.filter(t => t.kind === 'ordinary')) {
+      const geography = snapshot.seats.geography.territories.find(t => t.id === territory.id);
+      const figures = c.figures?.territories.find(t => t.territoryId === territory.id)?.figures;
+      const local = filled.filter(s => s.electedAt.territoryId === territory.id && ['ordinary', 'bonus'].includes(s.category));
+      const listEntitlement = (listId: string): number | null => {
+        if (source.lists.find(l => l.id === listId)?.kind === 'other') return 0;
+        if (c.cameraTerritorial?.lists.status === 'complete') return c.cameraTerritorial.lists.targets
+          .filter(t => t.territoryId === territory.id && t.listId === listId).reduce((n, t) => n + t.ordinarySeats, 0);
+        if (c.senateTerritorial?.lists.status === 'complete' && source.territories.filter(t => t.kind === 'ordinary' && t.regionId === territory.regionId).length === 1)
+          return c.senateTerritorial.lists.targets.filter(t => t.regionId === territory.regionId && t.listId === listId).reduce((n, t) => n + t.ordinarySeats, 0);
+        if (c.senateTerritorial?.colleges.status === 'complete') return c.senateTerritorial.colleges.targets
+          .filter(t => t.territoryId === territory.id && t.listId === listId).reduce((n, t) => n + t.ordinarySeats, 0);
+        return null;
+      };
+      source.lists.forEach((l, i) => add('constituency-list', `list:${l.id}`, `${l.name} · ${geography?.name ?? territory.id}`, color(l.id), i, null, territory.id,
+        figures?.lists.find(v => v.listId === l.id)?.votes ?? null, figures?.validVotes ?? null,
+        local.filter(s => affiliations.get(s.seatId) === l.id), listEntitlement(l.id)));
+      subjects.forEach((s, i) => {
+        const entitled = s.members.map(listEntitlement);
+        add('constituency-subject', s.id, `${s.name} · ${geography?.name ?? territory.id}`, s.color, i, null, territory.id,
+          figures ? s.members.reduce((n, id) => n + (figures.lists.find(l => l.listId === id)?.votes ?? 0), 0) : null, figures?.validVotes ?? null,
+          local.filter(e => `${e.entitlement.subject.kind}:${e.entitlement.subject.id}` === s.id),
+          entitled.every(n => n !== null) ? entitled.reduce<number>((n, value) => n + value!, 0) : null);
+      });
+    }
     // Other has geographic vote support without an ordinary candidate slate.
     const collegeLists = [...source.ordinarySlates, ...(source.otherListCoverage ?? []).filter(r => source.colleges.find(c => c.id === r.collegeId)?.kind !== 'special-uninominal')];
     for (const slate of collegeLists) {

@@ -390,8 +390,8 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
     the list is not present in the new college).
   - [x] Filter the single-college spinogram by all simulations, bonus awarded,
     or bonus not awarded; display the plotted and selected simulation counts.
-  - [x] Offer collapsed advanced controls for an independent college/list share
-    on the X axis; keep the college plot outside any nested collapsible section.
+  - [x] Keep the territorial plot beside its controls without a nested toggle;
+    both axes use the same entity and geography (alternative X-axis controls retired).
   - [x] move the single simulation seats plot in a collapsible section
   - [x] better describe the meaning of columns in table of elected and shares
 - [x] add the table of seat endowment per each college with and without bonus
@@ -410,8 +410,12 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   candidate with most preferences are elected in any position, and the candidate with
   second most high preference number is elected in this college, 3, and so on.
   Entries without candidate-slate evidence have an unavailable measurement.
-- [ ] edit the single college spinogram to let the user choose between a single
-    college and a whole constituency.
+- [x] Extend the college spinogram with ordinary-constituency mode, list/coalition
+  grouping and ordinary/ordinary-plus-bonus elected counts by original seat
+  category and final location. Disable constituency last-position measurement;
+  retain ordinary original entitlements and special territories' existing views.
+  Use plain territory dropdowns and matching X/Y sources; remove search and
+  advanced alternative X-axis selection.
 - [ ] Generalize routing, snapshot selection, scenario defaults, validation,
   worker dispatch, result components, and shared UI patterns across election
   kinds. Preserve configurable project-base navigation and worker/data loading

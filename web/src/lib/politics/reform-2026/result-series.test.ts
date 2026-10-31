@@ -35,6 +35,32 @@ describe('reform result observations', () => {
     expect(local.Entitled).toBe(c.cameraTerritorial!.colleges.status === 'complete' ? c.cameraTerritorial!.colleges.targets.find(t => t.collegeId === local.College && t.listId === 'A')!.ordinarySeats : NaN);
   });
 
+
+  it('retains constituency bonus winners without colleges and separates final affiliation from coalition ownership', () => {
+    const input = coalitionScrutinyFixture(), { scenario, snapshot } = generationFixture();
+    const result = runPoliticsReformScrutiny(input), affiliations = finalAffiliations(input, result);
+    const rows = reformRunSeries(input, result, scenario, snapshot, affiliations);
+    for (const chamber of ['camera', 'senato'] as const) {
+      const local = rows.filter(r => r.Chamber === chamber && r.Kind === 'constituency-list');
+      const subjects = rows.filter(r => r.Chamber === chamber && r.Kind === 'constituency-subject');
+      expect(new Set(local.map(r => r.Territory))).toEqual(new Set(['O']));
+      const seats = result.seats.filter(s => s.entitlement.chamber === chamber && s.status === 'filled' &&
+        s.electedAt.territoryId === 'O' && ['ordinary', 'bonus'].includes(s.category));
+      expect(local.reduce((n, r) => n + Number(r.Elected), 0)).toBe(seats.length);
+      expect(local.reduce((n, r) => n + Number(r.Bonus), 0)).toBe(chamber === 'camera' ? 70 : 35);
+      expect(subjects.find(r => r.Owner === 'coalition:G')!.Bonus).toBe(chamber === 'camera' ? 70 : 35);
+      expect(local.find(r => r.Owner === 'list:C')!.Bonus).toBeGreaterThan(0);
+      const figures = result.chambers.find(c => c.chamber === chamber)!.figures!.territories.find(t => t.territoryId === 'O')!.figures;
+      for (const row of local) {
+        expect(row['Valid votes']).toBe(figures.validVotes);
+        expect(row['Vote share %']).toBe(100 * Number(row.Votes) / figures.validVotes);
+        expect(row.Confirmed).toBe(Number(row.Ordinary) + Number(row.Bonus));
+        expect(row.Special).toBe(0); expect(row.TAA).toBe(0);
+      }
+      expect(new Set(local.map(row => seriesObservation({ id: 'scope-test', result: { benchmark: { simulations: 1 } } } as StoredResult, row).descriptor.id)).size).toBe(local.length);
+    }
+  });
+
   it('keeps chamber-specific unknown totals null while retaining known votes and confirmed lower bounds', () => {
     const input = completeScrutinyFixture(60), { scenario, snapshot } = generationFixture();
     if (input.renewal.kind !== 'joint') throw new Error();

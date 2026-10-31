@@ -1,4 +1,4 @@
-import { statisticalResult } from './statistical-result';
+import { statisticalResult, constituencyTable } from './statistical-result';
 import { bundledReformScenario } from '../../src/lib/politics/reform-2026/application-defaults';
 import { handleResultService } from '../../src/lib/workers/result-service';
 import { getStoredResult, deleteStoredResult } from '../../src/lib/core/result-store';
@@ -11,18 +11,19 @@ self.onmessage = async () => {
   let id = '';
   try {
     const scenario = bundledReformScenario(), payload = statisticalResult(scenario), owner = 'statistics-test-owner';
+    payload.result.tables.push(constituencyTable(1201));
     const runs = payload.result.tables.find(t => t.name === 'Reform runs')!;
     runs.columns.push('Bonus');
     for (const row of runs.rows) row.push(Number(row[0]) === 1201 ? 'non-computable' : Number(row[0]) % 2 ? 'awarded' : 'not-awarded');
     const locals = payload.result.tables.find(t => t.name === 'Reform college series v1')!;
     const source = locals.rows.filter(r => r[locals.columns.indexOf('College')] === 'constructed-1');
-    for (const row of source) for (const axis of ['x', 'y']) {
+    for (const row of source) {
       const simulation = Number(row[0]);
-      if (simulation === (axis === 'x' ? 2 : 3)) continue;
+      if (simulation === 3) continue;
       const values = Object.fromEntries(locals.columns.map((c, i) => [c, row[i]]));
-      Object.assign(values, { Owner: `list:paired-${axis}`, College: `paired-${axis}`, Name: `Paired ${axis}`,
-        'Vote share %': axis === 'x' ? simulation === 7 ? null : simulation % 101 : 50,
-        Elected: axis === 'x' ? 99 : simulation === 5 ? null : simulation % 4, Entitled: axis === 'x' ? 98 : simulation % 3 });
+      Object.assign(values, { Owner: 'list:paired-y', College: 'paired-y', Name: 'Position test',
+        'Vote share %': simulation === 7 ? null : 50,
+        Elected: simulation === 5 ? null : simulation % 4, Entitled: simulation % 3 });
       locals.rows.push(locals.columns.map(c => values[c]));
     }
     locals.rows.sort((a, b) => Number(a[0]) - Number(b[0]));
@@ -52,20 +53,18 @@ self.onmessage = async () => {
       filtered[filter] = response.data;
     }
     const filteredEntitlement = await seriesStatistics(record, cache.overview.colleges[0].id, 'entitled', 'awarded');
-    const ySeries = cache.overview.colleges.find(c => c.college === 'paired-y')!.id, xSeries = cache.overview.colleges.find(c => c.college === 'paired-x')!.id;
-    const paired = {} as Record<string, unknown>;
-    for (const filter of ['all', 'awarded', 'not-awarded'] as const) {
-      const response = await handleResultService({ type: 'result-service', requestId: 11, action: 'statistics-series', resultId: id, owner, series: ySeries, xSeries, bonusFilter: filter });
-      if (!response.ok) throw new Error(response.error!.message);
-      paired[filter] = response.data;
-    }
-    const pairedEntitlement = await seriesStatistics(record, ySeries, 'entitled', 'awarded', xSeries);
+    const ySeries = cache.overview.colleges.find(c => c.college === 'paired-y')!.id;
     const lastPositions: Record<string, unknown> = {};
     for (const filter of ['all', 'awarded', 'not-awarded'] as const) {
-      const response = await handleResultService({ type: 'result-service', requestId: 12, action: 'statistics-series', resultId: id, owner, series: ySeries, xSeries, measure: 'last-position', bonusFilter: filter });
+      const response = await handleResultService({ type: 'result-service', requestId: 12, action: 'statistics-series', resultId: id, owner, series: ySeries, measure: 'last-position', bonusFilter: filter });
       if (!response.ok) throw new Error(response.error!.message);
       lastPositions[filter] = response.data;
     }
+    const constituencyId = cache.overview.constituencies!.find(c => c.chamber === 'camera' && c.kind === 'constituency-list' && c.owner === 'list:constructed-1')!.id;
+    const constituency = await seriesStatistics(record, constituencyId);
+    const ordinary = await seriesStatistics(record, constituencyId, 'elected', 'all', 'ordinary');
+    const invalidConstituencyPosition = await handleResultService({ type: 'result-service', requestId: 14, action: 'statistics-series', resultId: id, owner, series: constituencyId, measure: 'last-position' });
+    const invalidCollegeScope = await handleResultService({ type: 'result-service', requestId: 15, action: 'statistics-series', resultId: id, owner, series: ySeries, seatScope: 'ordinary' });
     const noSlate = await seriesStatistics(record, cache.overview.colleges[0].id, 'last-position');
     const invalidLastPosition = await handleResultService({ type: 'result-service', requestId: 13, action: 'statistics-series', resultId: id, owner, series: summary.id, measure: 'last-position' });
     const pages = []; let after = 0;
@@ -87,7 +86,7 @@ self.onmessage = async () => {
     const rebuilt = await ensureStatistics(record);
     await deleteStoredResult(id, owner);
     const removed = await readStatisticsCache(id) === undefined && (await samplePage(id, summary.id)).length === 0;
-    self.postMessage({ ok: true, overview: cache.overview, stats, college, entitlement, filtered, filteredEntitlement, paired, pairedEntitlement, lastPositions, noSlate, invalidLastPositionDenied: !invalidLastPosition.ok, pages, foreignDenied: !foreign.ok, archiveUnchanged: before.join('') === afterExport.join(''), removed,
+    self.postMessage({ ok: true, overview: cache.overview, stats, college, entitlement, filtered, filteredEntitlement, lastPositions, constituency, ordinary, invalidConstituencyPositionDenied: !invalidConstituencyPosition.ok, invalidCollegeScopeDenied: !invalidCollegeScope.ok, noSlate, invalidLastPositionDenied: !invalidLastPosition.ok, pages, foreignDenied: !foreign.ok, archiveUnchanged: before.join('') === afterExport.join(''), removed,
       cacheFailure: !cacheFailure?.ok, canonicalRetained, partialCacheRemoved, rebuiltKnown: rebuilt.overview.series[0].votesKnown });
   } catch (e) { self.postMessage({ ok: false, error: String(e) }); }
 };

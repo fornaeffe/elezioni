@@ -5,7 +5,7 @@ import type { ReleasedScenario } from './vote-share/release';
 import type { ReformScrutinyInput } from './input';
 import type { ComposedReformScrutinyResult } from './scrutiny';
 import { seatTableMessages } from './endowments';
-import { finalAffiliations, reformRunSeries, reformSeriesColumns, reformSeriesTable, reformCollegeSeriesTable } from './result-series';
+import { finalAffiliations, reformRunSeries, reformSeriesColumns, reformSeriesTable, reformCollegeSeriesTable, reformConstituencySeriesTable } from './result-series';
 import { summaryTableName, summaryColumns } from '../../results/statistics';
 import { diagnosticTableName, diagnosticColumns, diagnosticCells } from '../../core/diagnostic-messages';
 
@@ -70,6 +70,7 @@ export function createReformPresentation(scenario: ReformGenerationScenario|Rele
   const warningTable = table('Warnings and errors', ['Code', 'Severity', 'First simulation', 'Message', 'Occurrences']);
   const series = table(reformSeriesTable, reformSeriesColumns);
   const collegeSeries = table(reformCollegeSeriesTable, reformSeriesColumns);
+  const constituencySeries = table(reformConstituencySeriesTable, reformSeriesColumns);
   const positions = table(positionTable, electionPositionColumns);
   table(summaryTableName, summaryColumns);
   const diagnosticTable = table(diagnosticTableName, diagnosticColumns);
@@ -89,7 +90,7 @@ export function createReformPresentation(scenario: ReformGenerationScenario|Rele
     else warnings.set(key, { ...context, scope: context.scope ?? (context.simulationId ? 'simulation' : undefined), occurrences });
   };
   if (options.includeContext !== false) {
-    meta('Result presentation contract', { version: 1, series: reformSeriesTable, affiliation: 'final-personal', local: 'actual-election-location' });
+    meta('Result presentation contract', { version: 2, series: reformSeriesTable, constituencies: reformConstituencySeriesTable, affiliation: 'final-personal', local: 'actual-election-location' });
     if(scenario.schemaVersion===4)meta('Algorithm and model identity',{algorithm:scenario.algorithmId,models:scenario.models,data:scenario.data,referenceDate:scenario.referenceDate,fitSeed:scenario.fitSeed,seed:scenario.seed,
       preferenceProfile:scenario.preferenceProfileId,chamberProfile:scenario.chamberProfileId,components:scenario.components.map(c=>({id:c.id,kind:c.kind,provenance:c.provenance,fallback:c.fallback??null}))});
     else meta('Algorithm and model identity', { algorithm: scenario.algorithmId, models: scenario.modelIds, modelVersion: scenario.modelVersion,
@@ -132,7 +133,7 @@ export function createReformPresentation(scenario: ReformGenerationScenario|Rele
       const sim = input.simulationId;
       const affiliations = finalAffiliations(input, result);
       positions.rows.push(...electionPositionRows(input, result, snapshot));
-      for (const row of reformRunSeries(input, result, scenario, snapshot, affiliations)) (row.Kind === 'college' ? collegeSeries : series).rows.push(row);
+      for (const row of reformRunSeries(input, result, scenario, snapshot, affiliations)) (row.Kind === 'college' ? collegeSeries : String(row.Kind).startsWith('constituency-') ? constituencySeries : series).rows.push(row);
       if (result.status === 'complete') complete++; else if (result.status === 'partial') partial++; else failed++;
       if (result.bonus.status === 'awarded') awarded++;
       const reason = result.bonus.status === 'not-awarded' ? result.bonus.reasons : result.bonus.status === 'non-computable' ? result.bonus.blockers : [];

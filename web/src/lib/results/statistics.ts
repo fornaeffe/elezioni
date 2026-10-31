@@ -2,6 +2,7 @@ import type { ResultTable } from '../core/types';
 import type { SeriesKind } from '../politics/reform-2026/result-series';
 
 export type BonusFilter = 'all' | 'awarded' | 'not-awarded';
+export type SeatScope = 'ordinary-and-bonus' | 'ordinary';
 export type CollegeMeasure = 'elected' | 'entitled' | 'last-position';
 
 export interface SeriesDescriptor {
@@ -18,7 +19,7 @@ export interface SeriesSummary extends SeriesDescriptor {
   confirmed: number; ordinary: number; bonus: number; special: number; taa: number;
 }
 export interface StatisticsOverview {
-  requested: number; saved: number; legacy: boolean; series: SeriesSummary[]; colleges: SeriesDescriptor[];
+  requested: number; saved: number; legacy: boolean; series: SeriesSummary[]; colleges: SeriesDescriptor[]; constituencies?: SeriesDescriptor[];
 }
 export interface Distribution {
   count: number; min: number | null; max: number | null; mean: number | null;
@@ -28,23 +29,10 @@ export interface Distribution {
 export interface SpineBinData { low: number; high: number; count: number; outcomes: { seats: number | null; count: number }[] }
 export interface SeriesStatistics {
   descriptor: SeriesDescriptor; requested: number; known: number; missingX: number; missingY: number;
-  xDescriptor?: SeriesDescriptor;
   unavailableReason?: string;
   distribution: Distribution; bins: SpineBinData[]; yMax: number;
 }
 
-/** Merge ordered series by simulation identity; missing outcomes remain unknown. */
-export async function* pairStatisticalSamples(outcomes: AsyncIterable<StatisticalSample>, shares: AsyncIterable<StatisticalSample>): AsyncGenerator<StatisticalSample> {
-  const iterator = outcomes[Symbol.asyncIterator]();
-  try {
-    let outcome = await iterator.next();
-    for await (const share of shares) {
-      while (!outcome.done && outcome.value.simulation < share.simulation) outcome = await iterator.next();
-      const match = !outcome.done && outcome.value.simulation === share.simulation ? outcome.value : undefined;
-      yield { ...share, y: match?.y ?? null, entitled: match?.entitled ?? null };
-    }
-  } finally { await iterator.return?.(); }
-}
 export const summaryTableName = 'Reform list summary';
 export const summaryColumns = ['Chamber', 'List', 'Name', 'Requested', 'Vote observations', 'Election observations', 'Mean vote share %', 'Mean elected', 'Confirmed elected minimum / requested', 'Ordinary minimum / requested', 'Bonus minimum / requested', 'Special minimum / requested', 'TAA minimum / requested'];
 export const finiteNumber = (v: unknown): number | null => typeof v === 'number' && Number.isFinite(v) ? v : null;

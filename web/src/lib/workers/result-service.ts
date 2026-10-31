@@ -17,7 +17,7 @@ import { REFORM_ALGORITHM_ID } from '../politics/reform-2026/input';
 import { estimateReformWorkerCapacity, requireReformWorkerCount } from '../core/reform-worker-capacity';
 import { ReformComputeClient, runOrderedReformPool } from './reform-pool';
 import { ensureStatistics, requireSeries, seriesStatistics, statisticalDistribution, storedSeatEndowments, storedSummaryTable } from '../politics/reform-2026/stored-statistics';
-import { summaryTableName, type BonusFilter, type CollegeMeasure } from '../results/statistics';
+import { summaryTableName, type BonusFilter, type SeatScope, type CollegeMeasure } from '../results/statistics';
 import { requireFastScenario } from '../politics/reform-2026/vote-share/scenario';
 import { generationCapacity } from '../politics/reform-2026/vote-share/fit-resources';
 import { loadCandidate } from '../politics/reform-2026/vote-share/release';
@@ -31,7 +31,7 @@ export interface ResultServiceRequest {
   table?: number; offset?: number; limit?: number; simulation?: number;
   file?: File; format?: 'json' | 'csv';
   list?: string; chamber?: string;
-  series?: string; xSeries?: string; measure?: CollegeMeasure;
+  series?: string; seatScope?: SeatScope; measure?: CollegeMeasure;
   bonusFilter?: BonusFilter;
   filter?: DiagnosticFilter;
 }
@@ -281,7 +281,7 @@ export async function handleResultService(request: ResultServiceRequest): Promis
           const summary = await requireSeries(record, request.series);
           if (request.action === 'statistics-points') return samplePage(record.id, request.series, request.offset ?? 0, request.limit ?? 256);
           if (request.action === 'statistics-box') return statisticalDistribution(record, summary);
-          return seriesStatistics(record, request.series, request.measure, request.bonusFilter, request.xSeries);
+          return seriesStatistics(record, request.series, request.measure, request.bonusFilter, request.seatScope);
         })();
         const jobs = resultJobs.get(record.id) ?? new Set<Promise<unknown>>(); resultJobs.set(record.id, jobs); jobs.add(job);
         try { data = await job; } finally { jobs.delete(job); if (!jobs.size) resultJobs.delete(record.id); }

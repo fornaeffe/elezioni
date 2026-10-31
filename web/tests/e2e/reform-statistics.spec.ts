@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import catalog from '../../src/lib/politics/reform-2026/data/generation-catalog.generated.json' with { type: 'json' };
 import type { ReformGenerationScenario } from '../../src/lib/politics/reform-2026/generation-types';
-import { multipleSeriesResult, statisticalResult, refinementResult } from '../fixtures/statistical-result';
+import { multipleSeriesResult, statisticalResult, refinementResult, constituencyResult, archivedConstituencyResult } from '../fixtures/statistical-result';
 import { positionTable, positionColumns } from '../../src/lib/politics/reform-2026/election-probability';
 
 test('disk statistics preserve exact ranks, unknown outcomes, bounded pages, ownership and archive content beyond 1000 runs', async ({ page, context }) => {
@@ -40,27 +40,21 @@ test('disk statistics preserve exact ranks, unknown outcomes, bounded pages, own
   expect(result.filteredEntitlement).toMatchObject({ requested: 600, known: 600 });
   expect(result.filteredEntitlement.bins[0].outcomes).toEqual([{ seats: 1, count: 600 }]);
   for (const filter of ['all', 'awarded', 'not-awarded']) {
-    const included = Array.from({ length: 1201 }, (_, i) => i + 1).filter(i => i !== 2 && i !== 7 && (filter === 'all' || i <= 1200 && i % 2 === (filter === 'awarded' ? 1 : 0)));
-    const paired = result.paired[filter];
-    expect(paired).toMatchObject({ descriptor: { college: 'paired-y' }, xDescriptor: { college: 'paired-x' }, requested: filter === 'all' ? 1201 : 600,
-      known: included.filter(i => i !== 3 && i !== 5).length, missingY: filter === 'not-awarded' ? 0 : 2, yMax: filter === 'not-awarded' ? 2 : 3, distribution: { count: included.length, min: 0, max: 100 } });
-    const outcomes = new Map<number | null, number>();
-    for (const simulation of included) { const y = simulation === 3 || simulation === 5 ? null : simulation % 4; outcomes.set(y, (outcomes.get(y) ?? 0) + 1); }
-    for (const [seats, count] of outcomes) expect(paired.bins.flatMap((b: any) => b.outcomes).filter((o: any) => o.seats === seats).reduce((n: number, o: any) => n + o.count, 0)).toBe(count);
-  }
-  expect(result.pairedEntitlement).toMatchObject({ known: 598, missingY: 1, missingX: 1, yMax: 2, distribution: { count: 599 } });
-  for (const filter of ['all', 'awarded', 'not-awarded']) {
-    const included = Array.from({ length: 1201 }, (_, i) => i + 1).filter(i => i !== 2 && i !== 7 && (filter === 'all' || i <= 1200 && i % 2 === (filter === 'awarded' ? 1 : 0)));
+    const included = Array.from({ length: 1201 }, (_, i) => i + 1).filter(i => i !== 3 && i !== 7 && (filter === 'all' || i <= 1200 && i % 2 === (filter === 'awarded' ? 1 : 0)));
     const expected = new Map<number | null, number>();
     for (const simulation of included) {
-      const value = [3, 5, 9, 13].includes(simulation) ? null : simulation === 11 ? 3 : simulation === 17 ? 7 : simulation % 8;
+      const value = [5, 9, 13].includes(simulation) ? null : simulation === 11 ? 3 : simulation === 17 ? 7 : simulation % 8;
       expected.set(value, (expected.get(value) ?? 0) + 1);
     }
     const stats = result.lastPositions[filter];
-    expect(stats).toMatchObject({ descriptor: { college: 'paired-y' }, xDescriptor: { college: 'paired-x' }, requested: filter === 'all' ? 1201 : 600,
-      known: included.length - (expected.get(null) ?? 0), missingY: expected.get(null) ?? 0, yMax: filter === 'not-awarded' ? 6 : 7, distribution: result.paired[filter].distribution });
+    expect(stats).toMatchObject({ descriptor: { college: 'paired-y' }, requested: filter === 'all' ? 1201 : 600,
+      known: included.length - (expected.get(null) ?? 0), missingY: expected.get(null) ?? 0, yMax: filter === 'not-awarded' ? 6 : 7,
+      distribution: { count: included.length, min: 50, max: 50 } });
     for (const [seats, count] of expected) expect(stats.bins.flatMap((b: any) => b.outcomes).filter((o: any) => o.seats === seats).reduce((n: number, o: any) => n + o.count, 0)).toBe(count);
   }
+  expect(result.constituency).toMatchObject({ requested: 1201, known: 1199, missingX: 1, missingY: 1, yMax: 4 });
+  expect(result.ordinary).toMatchObject({ requested: 1201, known: 1199, missingX: 1, missingY: 1, yMax: 2 });
+  expect(result.invalidConstituencyPositionDenied).toBe(true); expect(result.invalidCollegeScopeDenied).toBe(true);
   expect(result.noSlate.unavailableReason).toContain('nessuna evidenza');
   expect(result.invalidLastPositionDenied).toBe(true);
   expect(result.pages.map((p: any) => p.length)).toEqual([256, 256, 256, 256, 177]);
@@ -69,7 +63,7 @@ test('disk statistics preserve exact ranks, unknown outcomes, bounded pages, own
   expect(result.cacheFailure).toBe(true); expect(result.canonicalRetained).toBe(true); expect(result.partialCacheRemoved).toBe(true); expect(result.rebuiltKnown).toBe(1201);
 });
 
-test('position probabilities and the last-position spinogram use local ranked evidence across filters, axes and old archives', async ({ page }) => {
+test('position probabilities and the last-position spinogram use local ranked evidence across filters and old archives', async ({ page }) => {
   const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
   const scenario = JSON.parse(readFileSync(resolve('src/lib/politics/reform-2026/data', catalog.defaultsPath), 'utf8')) as ReformGenerationScenario;
   const archive = refinementResult(scenario);
@@ -101,7 +95,7 @@ test('position probabilities and the last-position spinogram use local ranked ev
   await expect(cells.nth(0)).toHaveText('≥ 66,7%');
   await expect(cells.nth(1)).toHaveText('≥ 50%');
   await expect(cells.nth(0)).toHaveAttribute('title', /8 simulazioni con elezione confermata/);
-  const local = statistics.locator('details').filter({ has: page.locator('summary', { hasText: /^Eletti nel collegio plurinominale$/ }) });
+  const local = statistics.locator('details').filter({ has: page.locator('summary', { hasText: /^Eletti per collegio o circoscrizione$/ }) });
   await local.locator(':scope > summary').click();
   await local.getByLabel('Misura del collegio').selectOption('last-position');
   const panel = local.locator('.series-panel');
@@ -117,12 +111,9 @@ test('position probabilities and the last-position spinogram use local ranked ev
   await filter.selectOption('not-awarded');
   await expect(panel).toContainText('3/5 coppie note · 1 esiti ignoti con percentuale nota · 1 percentuali non disponibili');
   await filter.selectOption('all');
-  await local.getByText('Opzioni avanzate dell’asse X', { exact: true }).click();
-  await local.getByLabel('Usa un collegio e una lista diversi per le percentuali').check();
-  await local.getByRole('combobox', { name: 'Collegio delle percentuali (asse X)', exact: true }).selectOption('college-2');
-  await expect(panel).toContainText('10/12 coppie note · 2 esiti ignoti con percentuale nota · 0 percentuali non disponibili');
+  await expect(local.locator('input')).toHaveCount(0);
+  await expect(local.locator('.advanced-share')).toHaveCount(0);
   await filter.selectOption('awarded');
-  await expect(panel).toContainText('5/6 coppie note');
   await local.getByLabel('Misura del collegio').selectOption('elected');
   await expect(panel).toContainText('6/6 coppie note');
   // The table exists, but this college/list has no candidate-slate evidence.
@@ -155,7 +146,7 @@ test('college spinogram filters joint bonus decisions and reports plotted simula
   await page.getByLabel('Algoritmo di scrutinio').selectOption(scenario.algorithmId);
   await page.getByTestId('reform-file-input').setInputFiles({ name: 'bonus-filter.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(archive)) });
   const statistics = page.getByLabel('Statistiche riforma', { exact: true });
-  const local = statistics.locator('details').filter({ has: page.locator('summary', { hasText: /^Eletti nel collegio plurinominale$/ }) });
+  const local = statistics.locator('details').filter({ has: page.locator('summary', { hasText: /^Eletti per collegio o circoscrizione$/ }) });
   await local.locator(':scope > summary').click();
   const filter = local.getByRole('combobox', { name: 'Simulazioni del collegio', exact: true });
   const panel = local.locator('.series-panel');
@@ -202,73 +193,105 @@ test('college spinogram filters joint bonus decisions and reports plotted simula
   expect(errors).toEqual([]);
 });
 
-test('advanced college shares use an independent source and keep the plot alongside its controls', async ({ page }) => {
+test('territorial spinogram switches geography, measures, categories and grouping without search or alternative axes', async ({ page }) => {
   const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
   const scenario = JSON.parse(readFileSync(resolve('src/lib/politics/reform-2026/data', catalog.defaultsPath), 'utf8')) as ReformGenerationScenario;
-  const archive = refinementResult(scenario), table = archive.result.tables.find(t => t.name === 'Reform college series v1')!;
-  const column = (name: string) => table.columns.indexOf(name);
-  table.rows = table.rows.filter(row => !(row[column('College')] === 'college-1' && row[column('Owner')] === 'list:constructed-1' && row[0] === 5)
-    && !(row[column('College')] === 'college-2' && row[column('Owner')] === 'list:constructed-2' && row[0] === 7));
-  for (const row of table.rows) {
-    const simulation = Number(row[0]);
-    row[column('Vote share %')] = row[column('Owner')] === 'list:constructed-2' && row[column('College')] === 'college-2' ? simulation === 8 ? null : 40 + simulation : 10;
-    row[column('Elected')] = row[column('Owner')] === 'list:constructed-1' ? simulation % 3 : 8;
-  }
   await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
   await page.getByLabel('Algoritmo di scrutinio').selectOption(scenario.algorithmId);
-  await page.getByTestId('reform-file-input').setInputFiles({ name: 'cross-college.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(archive)) });
-  const local = page.getByLabel('Statistiche riforma', { exact: true }).locator('details').filter({ has: page.locator('summary', { hasText: /^Eletti nel collegio plurinominale$/ }) });
+  await page.getByTestId('reform-file-input').setInputFiles({ name: 'constituencies.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(constituencyResult(scenario))) });
+  const local = page.getByLabel('Statistiche riforma', { exact: true }).locator('details').filter({ has: page.locator('summary', { hasText: /^Eletti per collegio o circoscrizione$/ }) });
   await local.locator(':scope > summary').click();
-  const panel = local.locator('.series-panel'), advanced = local.locator('.advanced-share');
+  const panel = local.locator('.series-panel');
+  await local.getByLabel('Lista del collegio').selectOption('list:constructed-2');
+  await local.getByRole('combobox', { name: 'Collegio del grafico', exact: true }).selectOption('college-2');
+  await expect(local.getByLabel('Lista del collegio')).toHaveValue('list:constructed-2');
+  await local.getByLabel('Misura del collegio').selectOption('last-position');
+  await local.getByLabel('Livello territoriale').selectOption('constituency');
+  const measure = local.getByLabel('Misura della circoscrizione');
+  await expect(measure).toHaveValue('elected');
+  await expect(measure.locator('option[value="last-position"]')).toHaveAttribute('disabled', '');
+  await expect(local.getByLabel('Lista della circoscrizione')).toHaveValue('list:constructed-2');
+  await local.getByLabel('Lista della circoscrizione').selectOption('list:constructed-1');
+  // Selecting a territorial measure starts its query even below the viewport.
+  await expect(panel).toContainText('Simulazioni nel grafico: 11 · Simulazioni selezionate: 12');
   await panel.scrollIntoViewIfNeeded();
-  await expect(advanced).not.toHaveAttribute('open');
-  await expect(panel.locator('.spine-plot')).toBeVisible();
-  await expect(panel.locator('details')).toHaveCount(0);
-  await advanced.locator('summary').click();
-  const enable = advanced.getByRole('checkbox');
-  await expect(enable).not.toBeChecked();
-  await enable.check();
-  const college = advanced.getByRole('combobox', { name: 'Collegio delle percentuali (asse X)', exact: true });
-  const list = advanced.getByRole('combobox', { name: 'Lista delle percentuali (asse X)', exact: true });
-  await expect(college).toHaveValue('college-1');
-  await expect(list).toHaveValue('list:constructed-1');
-  await college.selectOption('college-2');
-  await list.selectOption('list:constructed-2');
-  await panel.scrollIntoViewIfNeeded();
-  await expect(panel).toContainText('Simulazioni nel grafico: 10 · Simulazioni selezionate: 12');
-  await expect(panel).toContainText('9/12 coppie note · 1 esiti ignoti con percentuale nota · 2 percentuali non disponibili');
-  await expect(local.locator('.axis-sources')).toContainText('Asse Y: eletti · camera · camera list 1 · Collegio 1');
-  await expect(local.locator('.axis-sources')).toContainText('Asse X: percentuale sui voti validi · camera · camera list 2 · Collegio 2');
-  await expect(panel.locator('.spine-axis')).toContainText('41%');
-  await expect(panel.locator('.spine-axis')).toContainText('52%');
-  await expect(panel.locator('.spine-cell').filter({ hasText: /^8$/ })).toHaveCount(0);
-  await advanced.locator('summary').click();
-  await expect(panel.locator('.spine-plot')).toBeVisible();
-  await expect(panel.locator('details')).toHaveCount(0);
-  await local.getByLabel('Simulazioni del collegio').selectOption('awarded');
-  await expect(panel).toContainText('5/6 coppie note · 1 esiti ignoti con percentuale nota · 0 percentuali non disponibili');
-  await local.getByLabel('Misura del collegio').selectOption('entitled');
-  await expect(panel.locator('.spine-cell').filter({ hasText: /^1$/ })).toHaveCount(5);
-  await expect(panel.locator('.spine-cell').filter({ hasText: /^2$/ })).toHaveCount(0);
+  await expect(panel).toContainText('10/12 coppie note · 1 esiti ignoti con percentuale nota · 1 percentuali non disponibili');
+  await expect(local.getByLabel('Seggi inclusi')).toHaveValue('ordinary-and-bonus');
   await panel.getByRole('button').click();
-  await expect(page.getByRole('dialog')).toContainText('camera list 2 · Collegio 2');
+  await expect(page.getByRole('dialog')).toContainText('Eletti ordinari + premio');
   await page.keyboard.press('Escape');
-  await advanced.locator('summary').click();
-  await college.selectOption('college-3');
-  await expect(list).toHaveValue('list:constructed-2');
-  await local.getByLabel('Ramo del collegio').selectOption('senato');
-  await expect(college).toHaveValue('college-3');
-  await expect(list).toHaveValue('list:constructed-2');
-  await page.setViewportSize({ width: 390, height: 844 });
-  await advanced.scrollIntoViewIfNeeded();
-  for (const control of [college, list]) expect(await control.evaluate(e => e.getBoundingClientRect().right)).toBeLessThanOrEqual(390);
-  await local.screenshot({ path: 'test-results/reform-college-independent-share-mobile.png' });
-  await enable.uncheck();
-  await expect(college).toHaveCount(0);
+  await local.getByLabel('Seggi inclusi').selectOption('ordinary');
+  await expect(local.locator('.axis-sources')).toContainText('Asse Y: eletti ordinari · camera · camera list 1 · Nord');
+  await expect(panel.locator('.spine-cell').filter({ hasText: /^[34]$/ })).toHaveCount(0);
+  await expect(panel).toContainText('10/12 coppie note');
+  await local.getByLabel('Simulazioni della circoscrizione').selectOption('awarded');
+  await expect(panel).toContainText('5/6 coppie note');
+  await measure.selectOption('entitled');
+  await expect(local.getByLabel('Seggi inclusi')).toBeDisabled();
+  await expect(panel).toContainText('6/6 coppie note');
+  await measure.selectOption('elected');
+  await expect(local.getByLabel('Seggi inclusi')).toHaveValue('ordinary');
+  await local.getByLabel('Circoscrizione del grafico').selectOption('south');
+  await expect(local.getByLabel('Lista della circoscrizione')).toHaveValue('list:constructed-1');
+  await expect(local.locator('.axis-sources')).toContainText('Asse X: percentuale sui voti validi · camera · camera list 1 · Sud');
+  await local.getByLabel('Raggruppamento della circoscrizione').selectOption('subject');
+  await expect(local.getByLabel('Coalizione / lista singola della circoscrizione')).toHaveValue('coalition:constructed');
+  await expect(panel).toContainText('5/6 coppie note');
+  await local.getByLabel('Ramo della circoscrizione').selectOption('senato');
+  await expect(local.locator('.axis-sources')).toContainText('senato · Coalizione test · Sud');
+  await local.locator(':scope > summary').click();
+  await expect(panel).toHaveCount(0);
+  await local.locator(':scope > summary').click();
+  await expect(local.getByLabel('Livello territoriale')).toHaveValue('constituency');
+  await expect(local.getByLabel('Ramo della circoscrizione')).toHaveValue('senato');
+  await expect(local.getByLabel('Circoscrizione del grafico')).toHaveValue('south');
+  await expect(local.getByLabel('Raggruppamento della circoscrizione')).toHaveValue('subject');
+  await expect(local.getByLabel('Seggi inclusi')).toHaveValue('ordinary');
+  await expect(local.getByLabel('Simulazioni della circoscrizione')).toHaveValue('awarded');
   await panel.scrollIntoViewIfNeeded();
-  await expect(local.locator('.axis-sources')).toContainText('Asse X: percentuale sui voti validi · senato · senato list 1 · Collegio 1');
-  await expect(panel.locator('.spine-axis')).toContainText('10%');
+  await expect(panel).toContainText('5/6 coppie note');
+  await expect(local.locator('input')).toHaveCount(0);
+  await expect(local.locator('.advanced-share')).toHaveCount(0);
+  await expect(panel.locator('details')).toHaveCount(0);
+  await page.setViewportSize({ width: 390, height: 844 });
+  for (const control of await local.getByRole('combobox').all()) {
+    await control.scrollIntoViewIfNeeded();
+    expect(await control.evaluate(e => e.getBoundingClientRect().right)).toBeLessThanOrEqual(390);
+  }
+  await local.screenshot({ path: 'test-results/reform-constituency-mobile.png' });
+  await local.getByLabel('Livello territoriale').selectOption('college');
+  await expect(local.getByLabel('Misura del collegio').locator('option[value="last-position"]')).not.toHaveAttribute('disabled');
+  await expect(local.locator('input')).toHaveCount(0);
   expect(errors).toEqual([]);
+});
+
+test('older archives reconstruct constituency observations solely from saved evidence or report unavailability', async ({ page }) => {
+  const scenario = JSON.parse(readFileSync(resolve('src/lib/politics/reform-2026/data', catalog.defaultsPath), 'utf8')) as ReformGenerationScenario;
+  const archive = archivedConstituencyResult(scenario);
+  await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
+  await page.getByLabel('Algoritmo di scrutinio').selectOption(scenario.algorithmId);
+  const local = page.getByLabel('Statistiche riforma', { exact: true }).locator('details').filter({ has: page.locator('summary', { hasText: /^Eletti per collegio o circoscrizione$/ }) });
+  for (const sufficient of [true, false]) {
+    if (!sufficient) archive.result.tables = archive.result.tables.filter(t => t.name !== 'Candidate outcomes (conditional)');
+    const results = page.getByLabel('Risultati locali');
+    const previous = await results.count() ? await results.inputValue() : null;
+    await page.getByTestId('reform-file-input').setInputFiles({ name: `archived-${sufficient}.json`, mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(archive)) });
+    if (previous !== null) await expect(results).not.toHaveValue(previous);
+    await local.locator(':scope > summary').click();
+    await local.getByLabel('Livello territoriale').selectOption('constituency');
+    if (!sufficient) {
+      await expect(local).toContainText('Dati per circoscrizione non disponibili');
+      await expect(local.locator('.spine-plot')).toHaveCount(0);
+      continue;
+    }
+    await expect(local.getByLabel('Circoscrizione del grafico')).toContainText('Circoscrizione salvata');
+    const panel = local.locator('.series-panel'); await panel.scrollIntoViewIfNeeded();
+    await expect(panel).toContainText('12/12 coppie note');
+    await expect(panel.locator('.spine-axis')).toContainText('46%');
+    await expect(panel.locator('.spine-cell')).toHaveText('2');
+    await local.getByLabel('Seggi inclusi').selectOption('ordinary');
+    await expect(panel.locator('.spine-cell')).toHaveText('1');
+  }
 });
 
 test('reform chart families render all available points lazily and keep old archives readable', async ({ page }) => {
@@ -302,12 +325,11 @@ test('reform chart families render all available points lazily and keep old arch
   await expect(spines.locator('details')).toHaveCount(0);
   await spines.getByRole('button').first().click(); await expect(page.getByRole('dialog')).toBeVisible();
   await page.keyboard.press('Escape'); await expect(page.getByRole('dialog')).toHaveCount(0);
-  await statistics.getByText('Eletti nel collegio plurinominale', { exact: true }).click();
-  await page.getByLabel('Cerca Collegio del grafico').fill('prova 2');
+  await statistics.getByText('Eletti per collegio o circoscrizione', { exact: true }).click();
   await page.getByRole('combobox', { name: 'Collegio del grafico', exact: true }).selectOption({ label: 'Collegio di prova 2' });
   await page.getByRole('combobox', { name: 'Misura del collegio', exact: true }).selectOption('entitled');
   await statistics.locator('.series-panel').last().scrollIntoViewIfNeeded();
-  await expect(statistics).toContainText('1201/1201 coppie note');
+  await expect(statistics.locator('.series-panel').last()).toContainText('1201/1201 coppie note');
   await statistics.getByText('Tabella riepilogativa degli eletti e delle percentuali', { exact: true }).click();
   await expect(statistics.getByRole('table')).toContainText('Non disponibile');
   await page.screenshot({ path: 'test-results/reform-statistics.png', fullPage: true });
@@ -324,7 +346,7 @@ test('reform chart families render all available points lazily and keep old arch
   await expect(statistics).toContainText('Archivio precedente', { timeout: 30000 });
   await statistics.getByText('Probabilità di elezione', { exact: true }).click();
   await expect(statistics).toContainText('Dati delle posizioni non disponibili');
-  await statistics.getByText('Eletti nel collegio plurinominale', { exact: true }).click();
+  await statistics.getByText('Eletti per collegio o circoscrizione', { exact: true }).click();
   await expect(statistics).toContainText('Dati locali non disponibili');
   expect(errors).toEqual([]);
 });
@@ -430,7 +452,7 @@ test('refinements preserve probabilities, coalition data, bonus decisions, local
   await expect(table.locator('tbody tr')).toHaveCount(3);
   await probabilities.getByLabel('Ramo delle probabilità').selectOption('senato');
   await expect(table.locator('tbody tr').first()).toContainText('100%');
-  const local = statistics.locator('details').filter({ has: page.locator('summary', { hasText: /^Eletti nel collegio plurinominale$/ }) });
+  const local = statistics.locator('details').filter({ has: page.locator('summary', { hasText: /^Eletti per collegio o circoscrizione$/ }) });
   await local.locator(':scope > summary').click();
   const list = local.getByLabel('Lista del collegio');
   await list.selectOption('list:constructed-2');

@@ -1,8 +1,9 @@
 import { storedRows, type StoredResult } from '../../core/result-store';
 import { deleteStatisticsCache, orderedValue, readStatisticsCache, samples, samplesByValue, saveStatisticsCache, writeStatisticalSamples, type StatisticsCache } from '../../core/statistics-cache';
-import { addSample, binFor, emptySummary, finiteNumber, interpolated, pairStatisticalSamples, quantileRanks, summaryTable, type BonusFilter, type Distribution, type SeriesDescriptor, type SeriesStatistics, type SeriesSummary, type StatisticalSample } from '../../results/statistics';
+import { addSample, binFor, emptySummary, finiteNumber, interpolated, quantileRanks, summaryTable, type BonusFilter, type SeatScope, type Distribution, type SeriesDescriptor, type SeriesStatistics, type SeriesSummary, type StatisticalSample } from '../../results/statistics';
 import type { ResultTable } from '../../core/types';
-import { reformCollegeSeriesTable, reformSeriesTable, seriesKey, unaffiliatedOwner } from './result-series';
+import { reformConstituencySeriesTable, reformCollegeSeriesTable, reformSeriesTable, seriesKey, unaffiliatedOwner } from './result-series';
+import { archivedConstituencyCatalogue, archivedConstituencyRows } from './stored-constituencies';
 import { reformPresentation, subjectColor } from './presentation-metadata';
 import { positionTable, slatePositionOutcomes } from './election-probability';
 import type { CollegeMeasure } from '../../results/statistics';
@@ -29,7 +30,7 @@ export interface ReformSeatEndowments {
   bonusSlates: BonusSlateEndowment[];
 }
 const pending = new Map<string, Promise<StatisticsCache>>();
-const fingerprint = (r: StoredResult) => JSON.stringify([2, r.result.storage!.completedSimulations, r.result.storage!.tables.filter(t => [reformSeriesTable, reformCollegeSeriesTable, 'Reform vote shares', 'Seat entitlement and election locations'].includes(t.name))]);
+const fingerprint = (r: StoredResult) => JSON.stringify([3, r.result.storage!.completedSimulations, r.result.storage!.tables.filter(t => [reformSeriesTable, reformCollegeSeriesTable, reformConstituencySeriesTable, 'Reform vote shares', 'Seat entitlement and election locations', 'Candidate outcomes (conditional)', 'Seat endowments by college'].includes(t.name))]);
 async function* tableRows(record: StoredResult, name: string): AsyncGenerator<Row> {
   const index = record.result.storage!.tables.findIndex(t => t.name === name);
   if (index < 0) return;
@@ -69,9 +70,11 @@ export async function storedSeatEndowments(record: StoredResult): Promise<Reform
   return { colleges, bonusSlates };
 }
 export function seriesObservation(record: StoredResult, row: Row): { descriptor: SeriesDescriptor; sample: StatisticalSample } {
-  if (!['camera', 'senato'].includes(String(row.Chamber)) || !['list', 'subject', 'college'].includes(String(row.Kind)) ||
+  if (!['camera', 'senato'].includes(String(row.Chamber)) || !['list', 'subject', 'college', 'constituency-list', 'constituency-subject'].includes(String(row.Kind)) ||
     !Number.isSafeInteger(row.Simulation) || Number(row.Simulation) < 1 || Number(row.Simulation) > record.result.benchmark.simulations) throw new Error('Invalid statistical series row');
-  const descriptor: SeriesDescriptor = { id: seriesKey(String(row.Chamber), String(row.Kind), String(row.Owner), row.College === null ? null : String(row.College)),
+  if (String(row.Kind).startsWith('constituency-') && (row.College !== null || typeof row.Territory !== 'string' || !row.Territory ||
+    [row.Ordinary, row.Bonus].some(n => typeof n !== 'number' || !Number.isSafeInteger(n) || n < 0))) throw new Error('Invalid constituency observation');
+  const descriptor: SeriesDescriptor = { id: seriesKey(String(row.Chamber), String(row.Kind), String(row.Owner), row.College === null ? null : String(row.College), row.Territory === null ? null : String(row.Territory)),
     chamber: row.Chamber as SeriesDescriptor['chamber'], kind: row.Kind as SeriesDescriptor['kind'], owner: String(row.Owner), college: row.College === null ? null : String(row.College),
     territory: row.Territory === null ? null : String(row.Territory), name: String(row.Name), color: /^#[0-9a-f]{6}$/i.test(String(row.Color)) ? String(row.Color) : '#64748b', order: Number(row.Order) || 0 };
   const sample: StatisticalSample = { resultId: record.id, series: descriptor.id, simulation: Number(row.Simulation), x: finiteNumber(row['Vote share %']),
@@ -164,8 +167,16 @@ export async function ensureStatistics(record: StoredResult): Promise<Statistics
       if (firstSimulation !== undefined && row.Simulation !== firstSimulation) break;
       firstSimulation = Number(row.Simulation); colleges.push(seriesObservation(record, row).descriptor);
     }
+    const constituencies: SeriesDescriptor[] = [];
+    firstSimulation = undefined;
+    for await (const row of tableRows(record, reformConstituencySeriesTable)) {
+      if (firstSimulation !== undefined && row.Simulation !== firstSimulation) break;
+      firstSimulation = Number(row.Simulation); constituencies.push(seriesObservation(record, row).descriptor);
+    }
+    if (!record.result.storage!.tables.some(t => t.name === reformConstituencySeriesTable))
+      constituencies.push(...archivedConstituencyCatalogue(record, [...summaries.values()], (await storedSeatEndowments(record)).colleges));
     const cache: StatisticsCache = { id: key, fingerprint: version, locals: [], overview: { requested: record.result.benchmark.simulations,
-      saved: record.result.storage!.completedSimulations, legacy, series: [...summaries.values()].sort((a, b) => a.chamber.localeCompare(b.chamber) || a.order - b.order), colleges } };
+      saved: record.result.storage!.completedSimulations, legacy, series: [...summaries.values()].sort((a, b) => a.chamber.localeCompare(b.chamber) || a.order - b.order), colleges, constituencies } };
     await saveStatisticsCache(cache); return cache;
   })();
   pending.set(key, task);
@@ -175,12 +186,16 @@ export async function ensureStatistics(record: StoredResult): Promise<Statistics
 
 async function ensureLocal(record: StoredResult, cache: StatisticsCache, id: string) {
   const existing = cache.locals.find(l => l.descriptor.id === id); if (existing) return existing.summary;
-  const descriptor = cache.overview.colleges.find(c => c.id === id); if (!descriptor) throw new Error('Statistical series unavailable in this archive');
+  const descriptor = [...cache.overview.colleges, ...(cache.overview.constituencies ?? [])].find(c => c.id === id); if (!descriptor) throw new Error('Statistical series unavailable in this archive');
   const summary = emptySummary(descriptor); let batch: StatisticalSample[] = [], last = 0;
-  for await (const row of tableRows(record, reformCollegeSeriesTable)) {
-    if (row.Chamber !== descriptor.chamber || row.Owner !== descriptor.owner || row.College !== descriptor.college) continue;
+  const constituency = descriptor.kind.startsWith('constituency-');
+  const table = constituency ? reformConstituencySeriesTable : reformCollegeSeriesTable;
+  const rows = constituency && !record.result.storage!.tables.some(t => t.name === table)
+    ? archivedConstituencyRows(record, descriptor, (await storedSeatEndowments(record)).colleges, name => tableRows(record, name)) : tableRows(record, table);
+  for await (const row of rows) {
+    if (row.Chamber !== descriptor.chamber || row.Owner !== descriptor.owner || row.Kind !== descriptor.kind || row.College !== descriptor.college || row.Territory !== descriptor.territory) continue;
     const { sample } = seriesObservation(record, row);
-    if (sample.simulation <= last) throw new Error('Duplicate or unordered college observation');
+    if (sample.simulation <= last) throw new Error('Duplicate or unordered territorial observation');
     last = sample.simulation; addSample(summary, sample); batch.push(sample);
     if (batch.length === 256) { await writeStatisticalSamples(batch); batch = []; }
   }
@@ -228,9 +243,9 @@ async function filteredDistribution(record: StoredResult, id: string, simulation
     q1: quantile(.25), median: quantile(.5), q3: quantile(.75), p05: quantile(.05), p95: quantile(.95), whiskerLow: null, whiskerHigh: null };
   return { distribution, deciles: count ? Array.from({ length: 11 }, (_, i) => quantile(i / 10)!) : [] };
 }
-/** Merge archived final-position evidence with the chosen share stream, keeping
+/** Merge archived final-position evidence with its college share stream, keeping
  * gaps unknown. Reads stay bounded and never alter canonical rows or caches. */
-async function lastPositionObservations(record: StoredResult, descriptor: SeriesDescriptor, xSeries: string) {
+async function lastPositionObservations(record: StoredResult, descriptor: SeriesDescriptor) {
   async function* positions() {
     let last = 0;
     for await (const row of tableRows(record, positionTable)) {
@@ -248,7 +263,7 @@ async function lastPositionObservations(record: StoredResult, descriptor: Series
     : 'Dati delle posizioni non disponibili nell’archivio. È necessaria una nuova esecuzione.' : undefined;
   async function* observations(): AsyncGenerator<StatisticalSample> {
     try {
-      for await (const share of samples(record.id, xSeries)) {
+      for await (const share of samples(record.id, descriptor.id)) {
         while (!position.done && position.value.simulation < share.simulation) position = await iterator.next();
         yield { ...share, y: !position.done && position.value.simulation === share.simulation ? position.value.y : null };
       }
@@ -259,13 +274,12 @@ async function lastPositionObservations(record: StoredResult, descriptor: Series
   return { observations: observations(), unavailableReason };
 }
 
-export async function seriesStatistics(record: StoredResult, id: string, measure: CollegeMeasure = 'elected', bonusFilter: BonusFilter = 'all', xSeries = id): Promise<SeriesStatistics> {
+export async function seriesStatistics(record: StoredResult, id: string, measure: CollegeMeasure = 'elected', bonusFilter: BonusFilter = 'all', seatScope: SeatScope = 'ordinary-and-bonus'): Promise<SeriesStatistics> {
   if (!['all', 'awarded', 'not-awarded'].includes(bonusFilter)) throw new Error('Invalid bonus filter');
   if (!['elected', 'entitled', 'last-position'].includes(measure)) throw new Error('Invalid statistical measure');
   const summary = await requireSeries(record, id);
   if (measure === 'last-position' && summary.kind !== 'college') throw new Error('Last elected position requires a college slate');
-  const xSummary = xSeries === id ? summary : await requireSeries(record, xSeries);
-  if (xSeries !== id && (summary.kind !== 'college' || xSummary.kind !== 'college' || summary.chamber !== xSummary.chamber)) throw new Error('Select share and outcome colleges in the same chamber');
+  if (!['ordinary-and-bonus', 'ordinary'].includes(seatScope) || seatScope === 'ordinary' && (!summary.kind.startsWith('constituency-') || measure !== 'elected')) throw new Error('Ordinary-only counts require constituency elected results');
   let simulations: Set<number> | undefined;
   if (bonusFilter !== 'all') {
     simulations = new Set<number>();
@@ -273,19 +287,19 @@ export async function seriesStatistics(record: StoredResult, id: string, measure
     // Missing/non-computable decisions belong to neither filtered subset.
     for await (const row of tableRows(record, 'Reform runs')) if (row.Bonus === bonusFilter) simulations.add(Number(row.Simulation));
   }
-  const filtered = simulations ? await filteredDistribution(record, xSeries, simulations) : undefined;
-  const distribution = filtered?.distribution ?? await statisticalDistribution(record, xSummary);
+  const filtered = simulations ? await filteredDistribution(record, id, simulations) : undefined;
+  const distribution = filtered?.distribution ?? await statisticalDistribution(record, summary);
   const boundaries: number[] = [];
   if (filtered) boundaries.push(...new Set(filtered.deciles));
   else for (let i = 0; i <= 10 && distribution.count; i++) {
-    const r = quantileRanks(distribution.count, i / 10), a = (await orderedValue(record.id, xSeries, r.lower))!, b = (await orderedValue(record.id, xSeries, r.upper))!;
+    const r = quantileRanks(distribution.count, i / 10), a = (await orderedValue(record.id, id, r.lower))!, b = (await orderedValue(record.id, id, r.upper))!;
     const v = interpolated(a, b, r.fraction); if (boundaries.at(-1) !== v) boundaries.push(v);
   }
   if (boundaries.length === 1) boundaries.push(boundaries[0]);
   const bins = Array.from({ length: Math.max(0, boundaries.length - 1) }, (_, i) => ({ low: boundaries[i], high: boundaries[i + 1], count: 0, outcomes: [] as { seats: number | null; count: number }[] }));
   let known = 0, missingY = 0, yMax = 0;
-  const positions = measure === 'last-position' ? await lastPositionObservations(record, summary, xSeries) : undefined;
-  const observations = positions?.observations ?? (xSeries === id ? samples(record.id, id) : pairStatisticalSamples(samples(record.id, id), samples(record.id, xSeries)));
+  const positions = measure === 'last-position' ? await lastPositionObservations(record, summary) : undefined;
+  const observations = positions?.observations ?? samples(record.id, id);
   for await (const p of observations) {
     if (p.x === null || simulations && !simulations.has(p.simulation)) continue;
     if (filtered) {
@@ -295,12 +309,12 @@ export async function seriesStatistics(record: StoredResult, id: string, measure
         distribution.whiskerHigh = Math.max(distribution.whiskerHigh ?? p.x, p.x);
       }
     }
-    const y = measure === 'entitled' ? p.entitled : p.y, bin = bins[binFor(p.x, boundaries)];
+    const y = measure === 'entitled' ? p.entitled : seatScope === 'ordinary' && p.y !== null ? p.ordinary : p.y, bin = bins[binFor(p.x, boundaries)];
     if (y === null) missingY++; else { known++; yMax = Math.max(yMax, y); }
     bin.count++; const outcome = bin.outcomes.find(o => o.seats === y);
     if (outcome) outcome.count++; else bin.outcomes.push({ seats: y, count: 1 });
   }
   for (const bin of bins) bin.outcomes.sort((a, b) => (a.seats ?? Infinity) - (b.seats ?? Infinity));
   const requested = simulations?.size ?? record.result.benchmark.simulations;
-  return { descriptor: summary, xDescriptor: xSummary, unavailableReason: positions?.unavailableReason, requested, known, missingX: requested - distribution.count, missingY, distribution, bins, yMax };
+  return { descriptor: summary, unavailableReason: positions?.unavailableReason, requested, known, missingX: requested - distribution.count, missingY, distribution, bins, yMax };
 }
