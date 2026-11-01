@@ -231,7 +231,9 @@ changes. No empirical coverage or local calibration claim follows from this audi
    correspondence in the data: unresolved data must not silently become evidence
    of absence. **The scenario must specify an explicit reference for every
    component without historical records or genuinely unidentifiable from the
-   available evidence**, including such a component inside a joint list. A
+   available evidence under the applicable model**, including such a component
+   inside a joint list. Correction 4 specifies how legacy compositions and
+   selected-model identification determine the available information. A
    missing required reference makes the scenario invalid; automatic zero, equal
    allocation or an implicit donor profile cannot replace it. The precise
    reference representation and uncertainty/profile rules remain for the
@@ -249,15 +251,122 @@ changes. No empirical coverage or local calibration claim follows from this audi
    feasible-flow support. Distinguish genuinely infeasible margins from the
    current greedy failure. Specify treatment of stochastic draws crossing filing
    capacity; do not silently clip, retry or transfer them.
-4. **Require reviewable fallback assumptions — reference requirement agreed;
-   remaining fallback design open.** Components without historical records or
-   genuinely unidentifiable require the explicit scenario references specified
-   in correction 1. Regional/equal fallbacks cannot bypass that requirement.
-   Decide the remaining use of territorial/profile fallbacks for supported
-   components and high-amplification cases; label their assumptions and summarize
-   affected valid mass. New-component support within a joint list and uncertainty
-   around proxies still need a coordinated design; no automatic epsilon or
-   invented measurement should supply it.
+4. **Choose historical support by observation and identification — agreed
+   1 November 2026.** Apply the following rules
+   component by component, before conditioning on the current offered set:
+
+   | Historical information in the municipality | Agreed treatment |
+   | --- | --- |
+   | Identifiable positive support | Use that local evidence even when tiny; do not replace it merely because its magnitude is low |
+   | Identifiable zero support | Use the observed zero as evidence, distinct from missing information; apply the legacy half-vote logit treatment in correction 5 without triggering a missing-history fallback |
+   | Component never offered locally | Estimate support from usable regional evidence, or national evidence if regional evidence is unavailable |
+   | Component offered inside a joint list | Legacy uses mandatory scenario-defined component proportions; selected uses identifiable group evidence and explicit references where the overall evidence cannot identify individual components |
+
+   Regional/national availability means usable evidence, not positive support:
+   an identifiable regional zero must not trigger a search for positive national
+   support. Use historical offered-set denominators; municipalities where a
+   component was not offered are not observations of zero support. Local support
+   for one component must not suppress geographic inference for another. This
+   replaces the municipality-wide zero-versus-positive mapped-mass switch and
+   settles the discontinuous fallback policy. The equal-list emergency allocation
+   in finding 2 must be removed: establish support per component, then aggregate
+   it to lists. Merely splitting or joining list labels must not redistribute
+   another component's support by changing the number of lists. This settles
+   that fallback's list-packaging issue; geographic projection onto different
+   territorial tickets remains the separate proposal in correction 2.
+
+   **Legacy joint-list compositions are mandatory.** Explicit proportions provide
+   an assumed decomposition of observed historical joint-list votes, including
+   explicit zero proportions where intended. Missing compositions must not
+   silently become equal weights. The decomposed component counts are usable
+   legacy inputs, not separately observed votes or statistically identified
+   splits. Historical counts and those proportions remain fixed preparation
+   inputs without their own uncertainty distributions; future vote shocks and
+   poll measurement uncertainty are separate. Existing legacy generation bypasses
+   the logarithm for exact zero support and preserves it unless reference
+   intervention changes it.
+
+   **Reference coverage is mandatory.** A genuinely new component needs a national
+   reference share, or territorial reference shares collectively covering every
+   area where it is filed in each applicable renewed chamber. The same requirement
+   applies to components genuinely unidentifiable from the selected model's
+   overall historical/poll evidence. Appearing jointly in one municipality does
+   not alone make a component unidentifiable if other evidence identifies it.
+   Legacy's mandatory historical compositions supply the assumed internal split,
+   but do not replace the current reference required for a new component.
+   References must support the component even inside a future joint ticket;
+   a reference somewhere outside part of its filed domain is insufficient.
+   Missing required references invalidate the scenario; implicit zero, equal
+   allocation or donor assumptions cannot replace them.
+
+   **Selected-model adjustments for the coordinated pass:** preserve original
+   local offered/identification information through observable-group coarsening;
+   retain regional inference and national-field fallback for missing local
+   evidence; and support reference-backed unidentified component splits while
+   preserving the observed joint-group totals. Merely adding a reference does
+   not currently resolve the source compiler's unidentified fitted basis. Extend
+   reference validation to check national or complete territorial/chamber
+   coverage. Legacy also needs component-level geographic inference and reference
+   application inside joint tickets; its current reference adapter supports
+   component references directly only for singleton future lists.
+
+   Selected zero-count smoothing, estimation uncertainty and temporal evolution
+   remain compatible with using observed zero evidence: the decision does not
+   make its future probability permanently zero or require exact reproduction of
+   historical local shares. Exact territorial estimators, reference-backed split
+   representation and uncertainty rules remain coordinated design work. Label
+   geographic/profile assumptions and summarize affected support; no invented
+   measurement should supply missing information. Other policy decisions remain
+   unsettled.
+5. **Regularize legacy observed-zero support with a half vote — agreed
+   1 November 2026; implementation deferred.** After compiling historical-to-future
+   list correspondences, use a half-vote probability when preparing the local
+   historical logit for a future list with identifiable zero historical support.
+   For historical electorate $N>0$:
+
+   $$
+   \widetilde p_{\mathrm{local}}=\frac{0.5}{N}.
+   $$
+
+   In the original national-plus-local-delta formulation, this corresponds to
+   $\delta_{\mathrm{local}}=\operatorname{logit}(\widetilde p_{\mathrm{local}})
+   -\operatorname{logit}(p_{\mathrm{national}})$, where the national baseline is
+   supported and its logit is defined. It supplies a finite negative local effect
+   that can evolve under national changes and territorial shocks. The current
+   reform legacy path works with prepared municipal probabilities rather than
+   the same explicitly stored R delta: install the equivalent regularized
+   historical support **before poll/reference reconciliation**, not as a blanket
+   replacement of zero in the final generation branch. Nationally unsupported
+   components still require the references specified above.
+
+   Apply these boundaries in the coordinated implementation:
+
+   - Regularize identifiable historical zeros only. Never-offered local support
+     still follows regional/national inference; missing history is not zero.
+   - Preserve raw historical counts as zero. The half vote is a logit-calculation
+     assumption, not an added historical observation; retain the corresponding
+     historical electorate denominator through geographic/electorate conversion.
+   - Keep positive counts unchanged, including positive fractional counts below
+     0.5 produced by declared compositions. This is a zero-only rule, not an
+     additive half vote for every count or a minimum half-vote floor for all
+     positive counts. At the fractional-count boundary, zero uses the half-vote
+     calculation while a tiny positive count uses its own value.
+   - Apply only to alternatives filed in the current physical choice set.
+     Unfiled choices remain impossible. Preserve explicit zero reference
+     interventions and zeros required by filing/capacity constraints; historical
+     regularization must not revive those choices later in generation.
+   - Conserve the final electorate in integer allocation. A positive probability
+     can still round to zero votes in a particular draw; the aim is to remove
+     permanent historical-zero exclusion, not guarantee a positive integer count.
+
+   The original R preparation (`R/calcolo_parametri_input.R`) and its TypeScript
+   parity path (`web/src/lib/politics/parameter-preparation.ts`) already use a
+   half-vote floor for municipal logits. That is precedent, not the exact agreed
+   rule: those paths also floor positive fractions below half a vote, whereas
+   this decision leaves them unchanged. The selected model retains its existing
+   zero-count smoothing; this update concerns reform legacy only. Bind the new
+   treatment to new policy/provenance identifiers and preserve original archive
+   behavior as required for the other coordinated changes.
 
 Record all remaining policy decisions before implementing any correction. Then
 implement the complete agreed set in one coordinated pass under new

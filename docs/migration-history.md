@@ -8689,3 +8689,44 @@ replacement. Remaining reference/profile and fallback design stays open.
 The plan records Luca's implementation boundary: settle all correspondence-policy
 decisions first, then implement them in one coordinated pass. This update changes
 documentation only; no algorithm, validation code, default or data was changed.
+
+### Local historical support and geographic inference — 1 November 2026
+
+Recorded Luca's agreed component-level rules in correction 4 of the
+[correspondence audit](correspondence-policy-audit.md#proposed-corrections-before-implementation):
+use identifiable local positive/zero evidence; infer never-offered local support
+from regional, then national evidence; require explicit legacy joint-list
+compositions; and retain selected-model group evidence with references for
+otherwise unidentified components. Geographic evidence availability is distinct
+from positivity, and historical offered-set denominators must be respected.
+This settles the discontinuous fallback policy apart from list packaging.
+
+Specified national or complete territorial/chamber reference coverage for new
+components and selected-model unidentified components, also inside future joint
+tickets. Documented fixed legacy historical inputs, its existing zero branch,
+selected-model smoothing, and the implementation gaps identified during the
+preceding read-only review. Exact estimators and uncertainty design remain open.
+All changes await the single coordinated pass after remaining policy decisions
+are settled. This update changes only the audit and history; `git diff --check`
+passed. No code, data or defaults were changed and no tests were rerun for this
+documentation-only update.
+
+### Legacy observed-zero regularization decision — 1 November 2026
+
+Added agreed correction 5 to the
+[correspondence audit](correspondence-policy-audit.md#proposed-corrections-before-implementation):
+use a half-vote probability for identifiable historical-zero local logits after
+correspondence compilation and before poll/reference reconciliation. Raw counts
+remain zero; positive fractional counts remain unchanged. Missing observations,
+unfiled choices, explicit zero interventions and capacity-required zeros retain
+their separate meanings. Final integer allocation conserves the electorate and
+may still produce zero votes in individual draws. Documented the original R and
+TypeScript half-vote-floor precedent and its difference from this zero-only rule.
+
+Also recorded the already-discussed resolution of the equal-list fallback's
+packaging issue: establish component support first and remove the equal-list
+emergency allocation; territorial-ticket projection remains a separate issue.
+Implementation of these and all other settled decisions stays deferred to the
+single coordinated pass after remaining decisions are settled. Updated only the
+audit and history; `git diff --check` passed. No code, data, defaults or tests
+were changed, and no tests were rerun for this documentation update.
