@@ -1,5 +1,12 @@
 # Feasible municipal vote fields
 
+The current [unified workflow](vote-generation-unified-workflow.md) applies the
+selected bounded mass-pair mechanism to unrestricted reference support and
+conditions on future physical filing **after** movement. The filing-aware
+reference constructions below describe the 30 October research comparison,
+not the corrected production reference semantics. Older candidate kernels are
+terminal-only comparators.
+
 This document describes the replacement candidates authorized on 30 October
 2026. Use [the research guide](vote-generation-feasible-research.md) for the
 comparison and its measured limits. Estimation and original grouped counts still

@@ -1,9 +1,5 @@
 /** Registry boundary: the same scenario and legal assembly, distinct vote laws. */
 import { prepareFastGeneration } from './generation';
-import {
-  prepareReformGeneration,
-  generateReformSimulation,
-} from '../generation';
 import type { FastVoteAssets } from './forecast-types';
 import type { ReformAssemblyContext } from '../generation-types';
 import type { ReleasedScenario } from './release';
@@ -48,6 +44,5 @@ export function prepareScenarioGeneration(
   }
   if (!isLegacyGeneration(s)) return prepareFastGeneration(s, assets, context);
   if (!legacy) throw new Error('Prepare legacy references before simulation');
-  const prepared = prepareReformGeneration(legacy.scenario, legacy.snapshot);
-  return { run: (id: number) => generateReformSimulation(prepared, id) };
+  return prepareFastGeneration(s, assets, context, { legacy });
 }

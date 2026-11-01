@@ -44,6 +44,7 @@ export function draftSelection(
   previous: AcceptedFit,
 ): SourceSelection {
   return {
+    referenceComponents: s.references.filter(r=>r.subject.kind==='component').map(r=>r.subject.id).sort(),
     referenceDate: s.referenceDate,
     electionIds: [...s.historySelection.electionIds],
     pollIds: [...s.polls.selected],
@@ -65,7 +66,7 @@ export async function evidenceKey(
   s: ReleasedScenario,
   selection: SourceSelection,
 ) {
-  return sourceKey('browser-fit-evidence-v1', {
+  return sourceKey('browser-fit-evidence-v2', {
     referenceDate: s.referenceDate,
     fitSeed: s.fitSeed,
     source: s.data.sourceBundleId,

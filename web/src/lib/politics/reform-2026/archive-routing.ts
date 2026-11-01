@@ -10,12 +10,7 @@ export function scenarioWorkflow(value: unknown): ReformWorkflow {
     !('schemaVersion' in value)
   )
     throw new Error('Expected an explicit reform scenario');
-  if (value.schemaVersion === 4 || value.schemaVersion === 5) return 'fast';
-  if (
-    [1, 2, 3].includes(Number(value.schemaVersion)) &&
-    typeof value.schemaVersion === 'number'
-  )
-    return 'installed';
+  if (value.schemaVersion === 5) return 'fast';
   throw new Error('Unsupported reform scenario version');
 }
 export async function archiveWorkflow(file: File): Promise<ReformWorkflow> {

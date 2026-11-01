@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { createHash } from "node:crypto";
-import { feasibleField, FIELD_MODELS, type FieldInput } from "./feasible-field";
+import { feasibleField, FIELD_MODELS, type FieldInput } from "../../../../../scripts/acceptance/archive/feasible-fields-v1";
 const fixture = (model: FieldInput["model"]): FieldInput => ({
   model,
   reference: [

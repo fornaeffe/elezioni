@@ -4,7 +4,7 @@
  */
 import { readFile } from 'node:fs/promises';
 import { loadCandidate, loadCandidateSource } from '../../src/lib/politics/reform-2026/vote-share/release';
-import { compileLegacy } from '../../src/lib/politics/reform-2026/vote-share/legacy-adapter';
+import { compileLegacy } from './archive/legacy-adapter-v1';
 import { preparePairedVoteReferences } from '../../src/lib/politics/reform-2026/paired-vote-generation';
 import { aggregateReformCollegeVotes } from '../../src/lib/politics/reform-2026/generation';
 import { apportion, generationRng } from '../../src/lib/politics/reform-2026/generation-math';

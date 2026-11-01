@@ -3,7 +3,9 @@ import { fileURLToPath } from 'node:url';
 import { gzipSync } from 'fflate';
 import { build } from 'vite';
 import { expect, test } from '@playwright/test';
-import { generationFixture } from '../../src/lib/politics/reform-2026/generation.fixture';
+import { loadedFitFixture } from '../fixtures/fast-fit-input';
+import { createCheckpoint } from '../../src/lib/politics/reform-2026/vote-share/checkpoint';
+import { copyGenerationPacket } from '../../src/lib/politics/reform-2026/vote-share/fit-resources';
 import type { SimulationResult, SimulationWorkerMessage } from '../../src/lib/core/types';
 
 // Exercise the actual production worker with a test-only immutable catalog and
@@ -11,7 +13,9 @@ import type { SimulationResult, SimulationWorkerMessage } from '../../src/lib/co
 let code = '';
 const assets = new Map<string, string | Uint8Array>();
 const resourceHints = `Object.defineProperty(navigator, 'hardwareConcurrency', { value: 8 }); Object.defineProperty(navigator, 'deviceMemory', { value: 16 });\n`;
-const fixture = generationFixture();
+const fitted = await loadedFitFixture();
+const fixture = {scenario:fitted.accepted.scenario,snapshot:fitted.accepted.context};
+const fast = {packets:[copyGenerationPacket(fitted.accepted)],file:await createCheckpoint(fitted.accepted)};
 const raw = new TextEncoder().encode(JSON.stringify(fixture.snapshot)), compressed = gzipSync(raw);
 const hash = (bytes: Uint8Array) => createHash('sha256').update(bytes).digest('hex');
 const descriptor = { path: 'data/reform-test.json.gz', bytes: compressed.length, sha256: hash(compressed), uncompressedSha256: hash(raw) };
@@ -46,11 +50,11 @@ test.beforeEach(async ({ context }) => {
 test('cancellation and a closed worker retain published runs without rerolling or replacing the denominator', async ({ page, context, browser }) => {
   await context.route('**/elezioni/data/reform-test.json.gz', route => route.fulfill({ contentType: 'application/gzip', body: Buffer.from(compressed) }));
   await page.goto(`${process.env.BASE_PATH ?? ''}/`);
-  const result = await page.evaluate(async scenario => {
+  const result = await page.evaluate(async ({scenario, fast}) => {
     let worker = new Worker('/constructed-production-worker.js', { type: 'module' });
     const owner = 'cancellation-test', firstId = crypto.randomUUID(), closedId = crypto.randomUUID();
-    const request = (id: string) => ({ kind: 'politiche', resultId: id, resultOwner: owner, basePath: '/elezioni', scenario,
-      scrutinyAlgorithmId: scenario.algorithmId, electionDate: scenario.electionDate, seed: scenario.seed, dataVersion: scenario.snapshotVersion, simulations: 100, computeWorkers: 3 });
+    const request = (id: string) => ({ kind: 'politiche', resultId: id, resultOwner: owner, basePath: '/elezioni', scenario, fast,
+      scrutinyAlgorithmId: scenario.algorithmId, electionDate: scenario.electionDate, seed: scenario.seed, dataVersion: scenario.data.sourceBundleId, simulations: 100, computeWorkers: 3 });
     const cancelled = await new Promise<SimulationResult>((resolve, reject) => {
       let sent = false;
       worker.onmessage = event => {
@@ -78,7 +82,7 @@ test('cancellation and a closed worker retain published runs without rerolling o
       });
       return { cancelled, restored };
     } finally { worker.terminate(); }
-  }, fixture.scenario);
+  }, {scenario:fixture.scenario, fast});
   expect(result.cancelled.status).toBe('not_implemented');
   expect(result.cancelled.storage!.state).toBe('interrupted');
   expect(result.cancelled.storage!.completedSimulations).toBeGreaterThanOrEqual(1);
@@ -100,14 +104,14 @@ test('actual worker preserves paired global IDs over the 50-run chunk boundary a
   test.setTimeout(120000);
   await context.route('**/elezioni/data/reform-test.json.gz', route => route.fulfill({ contentType: 'application/gzip', body: Buffer.from(compressed) }));
   await page.goto(`${process.env.BASE_PATH ?? ''}/`);
-  const response = await page.evaluate(async scenario => {
+  const response = await page.evaluate(async ({scenario, fast}) => {
     const worker = new Worker('/constructed-production-worker.js', { type: 'module' });
     const execute = (simulations: number, computeWorkers = 1) => new Promise<{ result: SimulationResult; progress: SimulationWorkerMessage[] }>((resolve, reject) => {
       const progress: SimulationWorkerMessage[] = [];
       worker.onmessage = e => { if (e.data.type === 'result') resolve({ result: e.data, progress }); else progress.push(e.data); };
       worker.onerror = e => reject(new Error(e.message));
-      worker.postMessage({ kind: 'politiche', basePath: '/elezioni', scenario, scrutinyAlgorithmId: scenario.algorithmId,
-        electionDate: scenario.electionDate, seed: scenario.seed, dataVersion: scenario.snapshotVersion, simulations, computeWorkers });
+      worker.postMessage({ kind: 'politiche', basePath: '/elezioni', scenario, fast, scrutinyAlgorithmId: scenario.algorithmId,
+        electionDate: scenario.electionDate, seed: scenario.seed, dataVersion: scenario.data.sourceBundleId, simulations, computeWorkers });
     });
     const query = (id: string, table: number, simulation?: number, offset = 0, limit = 1000) => new Promise<import('../../src/lib/core/types').ResultTable>((resolve, reject) => {
       worker.onmessage = e => { if (e.data.type === 'result-service') { if (e.data.ok) resolve(e.data.data); else reject(new Error(e.data.error.message)); } };
@@ -129,7 +133,7 @@ test('actual worker preserves paired global IDs over the 50-run chunk boundary a
       return { first, replay, invalid, invalidWorkers, runs, entitlements, firstLedger, replayLedger, diagnostics };
     }
     finally { worker.terminate(); }
-  }, fixture.scenario);
+  }, {scenario:fixture.scenario, fast});
   expect(response.first.result.status).toBe('completed');
   expect(response.runs.rows.map(r => r.Simulation)).toEqual(Array.from({ length: 51 }, (_, i) => i + 1));
   for (const sim of [1, 50, 51]) expect(response.entitlements.filter(r => r.Simulation === sim).map(r => r.Chamber)).toEqual(['camera', 'senato']);
@@ -147,7 +151,7 @@ test('1/2/4 compute workers preserve all exported rows, warnings and shared occu
   test.setTimeout(120000);
   await context.route('**/elezioni/data/reform-test.json.gz', route => route.fulfill({ contentType: 'application/gzip', body: Buffer.from(compressed) }));
   await page.goto(`${process.env.BASE_PATH ?? ''}/`);
-  const report = await page.evaluate(async scenario => {
+  const report = await page.evaluate(async ({scenario, fast}) => {
     const worker = new Worker('/constructed-production-worker.js', { type: 'module' });
     try {
       const hashes: string[] = [], executions: unknown[] = [];
@@ -155,8 +159,8 @@ test('1/2/4 compute workers preserve all exported rows, warnings and shared occu
         const result = await new Promise<SimulationResult>((resolve, reject) => {
           worker.onmessage = event => { if (event.data.type === 'result') resolve(event.data); };
           worker.onerror = event => reject(new Error(event.message));
-          worker.postMessage({ kind: 'politiche', basePath: '/elezioni', scenario, scrutinyAlgorithmId: scenario.algorithmId,
-            electionDate: scenario.electionDate, seed: scenario.seed, dataVersion: scenario.snapshotVersion, simulations: 7, computeWorkers });
+          worker.postMessage({ kind: 'politiche', basePath: '/elezioni', scenario, fast, scrutinyAlgorithmId: scenario.algorithmId,
+            electionDate: scenario.electionDate, seed: scenario.seed, dataVersion: scenario.data.sourceBundleId, simulations: 7, computeWorkers });
         });
         if (result.status !== 'completed') throw new Error(JSON.stringify(result.warnings));
         executions.push(result.benchmark.execution);
@@ -195,7 +199,7 @@ test('1/2/4 compute workers preserve all exported rows, warnings and shared occu
       }
       return { hashes, executions };
     } finally { worker.terminate(); }
-  }, fixture.scenario);
+  }, {scenario:fixture.scenario, fast});
   expect(new Set(report.hashes).size).toBe(1);
   expect(report.executions).toEqual([1, 2, 4].map(count => expect.objectContaining({ requestedWorkers: count, computeWorkers: count, maximumWorkers: 6 })));
 });
@@ -209,13 +213,13 @@ test('native compute worker crashes interrupt the session rather than becoming l
   });
   await context.route('**/elezioni/data/reform-test.json.gz', route => route.fulfill({ contentType: 'application/gzip', body: Buffer.from(compressed) }));
   await page.goto(`${process.env.BASE_PATH ?? ''}/`);
-  const result = await page.evaluate(scenario => new Promise<SimulationResult>((resolve, reject) => {
+  const result = await page.evaluate(({scenario, fast}) => new Promise<SimulationResult>((resolve, reject) => {
     const worker = new Worker('/constructed-production-worker.js', { type: 'module' });
     worker.onmessage = event => { if (event.data.type === 'result') { worker.terminate(); resolve(event.data); } };
     worker.onerror = event => { worker.terminate(); reject(new Error(event.message)); };
-    worker.postMessage({ kind: 'politiche', basePath: '/elezioni', scenario, scrutinyAlgorithmId: scenario.algorithmId,
-      electionDate: scenario.electionDate, seed: scenario.seed, dataVersion: scenario.snapshotVersion, simulations: 10, computeWorkers: 2 });
-  }), fixture.scenario);
+    worker.postMessage({ kind: 'politiche', basePath: '/elezioni', scenario, fast, scrutinyAlgorithmId: scenario.algorithmId,
+      electionDate: scenario.electionDate, seed: scenario.seed, dataVersion: scenario.data.sourceBundleId, simulations: 10, computeWorkers: 2 });
+  }), {scenario:fixture.scenario, fast});
   expect(result.storage!.state).toBe('interrupted');
   expect(result.storage!.completedSimulations).toBe(1);
   expect(result.benchmark.simulations).toBe(10);
@@ -232,14 +236,14 @@ test('a quota failure during a parallel run hides unpublished chunks and preserv
   await context.route('**/constructed-production-worker.js', route => route.fulfill({ contentType: 'text/javascript', body: resourceHints + code + injection }));
   await context.route('**/elezioni/data/reform-test.json.gz', route => route.fulfill({ contentType: 'application/gzip', body: Buffer.from(compressed) }));
   await page.goto(`${process.env.BASE_PATH ?? ''}/`);
-  const report = await page.evaluate(async scenario => {
+  const report = await page.evaluate(async ({scenario, fast}) => {
     const worker = new Worker('/constructed-production-worker.js', { type: 'module' });
     try {
       const result = await new Promise<SimulationResult>((resolve, reject) => {
         worker.onmessage = event => { if (event.data.type === 'result') resolve(event.data); };
         worker.onerror = event => reject(new Error(event.message));
-        worker.postMessage({ kind: 'politiche', basePath: '/elezioni', scenario, scrutinyAlgorithmId: scenario.algorithmId,
-          electionDate: scenario.electionDate, seed: scenario.seed, dataVersion: scenario.snapshotVersion, simulations: 10, computeWorkers: 2 });
+        worker.postMessage({ kind: 'politiche', basePath: '/elezioni', scenario, fast, scrutinyAlgorithmId: scenario.algorithmId,
+          electionDate: scenario.electionDate, seed: scenario.seed, dataVersion: scenario.data.sourceBundleId, simulations: 10, computeWorkers: 2 });
       });
       const table = result.tables.findIndex(t => t.name === 'Reform runs');
       const runs = await new Promise<any>((resolve, reject) => {
@@ -248,7 +252,7 @@ test('a quota failure during a parallel run hides unpublished chunks and preserv
       });
       return { result, runs };
     } finally { worker.terminate(); }
-  }, fixture.scenario);
+  }, {scenario:fixture.scenario, fast});
   expect(report.result.storage!.state).toBe('interrupted');
   expect(report.result.storage!.completedSimulations).toBe(1);
   expect(report.runs.rows.map((row: { Simulation: number }) => row.Simulation)).toEqual([1]);

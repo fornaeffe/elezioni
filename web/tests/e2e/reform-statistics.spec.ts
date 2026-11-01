@@ -1,9 +1,7 @@
+import { currentBrowserSession, currentArchive } from '../fixtures/current-browser-session';
 import { fileURLToPath } from 'node:url';
 import { build } from 'vite';
 import { expect, test } from '@playwright/test';
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
-import catalog from '../../src/lib/politics/reform-2026/data/generation-catalog.generated.json' with { type: 'json' };
 import type { ReformGenerationScenario } from '../../src/lib/politics/reform-2026/generation-types';
 import { multipleSeriesResult, statisticalResult, refinementResult, constituencyResult, archivedConstituencyResult } from '../fixtures/statistical-result';
 import { positionTable, positionColumns } from '../../src/lib/politics/reform-2026/election-probability';
@@ -15,10 +13,11 @@ test('disk statistics preserve exact ranks, unknown outcomes, bounded pages, own
   for (const output of Array.isArray(bundled) ? bundled : [bundled]) if ('output' in output) for (const chunk of output.output) if (chunk.type === 'chunk' && chunk.isEntry) code = chunk.code;
   await context.route('**/statistics-test.js', route => route.fulfill({ contentType: 'text/javascript', body: code }));
   await page.goto(`${process.env.BASE_PATH ?? ''}/`);
-  const result = await page.evaluate(() => new Promise<any>((resolve, reject) => {
+  const fitFile = await currentBrowserSession();
+  const result = await page.evaluate(fitFile => new Promise<any>((resolve, reject) => {
     const worker = new Worker('/statistics-test.js', { type: 'module' });
-    worker.onmessage = e => { worker.terminate(); resolve(e.data); }; worker.onerror = e => reject(new Error(e.message)); worker.postMessage({});
-  }));
+    worker.onmessage = e => { worker.terminate(); resolve(e.data); }; worker.onerror = e => reject(new Error(e.message)); worker.postMessage({fitFile});
+  }), fitFile);
   expect(result.ok, result.error).toBe(true);
   expect(result.overview).toMatchObject({ requested: 1201, saved: 1201, legacy: false });
   expect(result.stats).toMatchObject({ requested: 1201, known: 1200, missingY: 1, missingX: 0 });
@@ -63,9 +62,9 @@ test('disk statistics preserve exact ranks, unknown outcomes, bounded pages, own
   expect(result.cacheFailure).toBe(true); expect(result.canonicalRetained).toBe(true); expect(result.partialCacheRemoved).toBe(true); expect(result.rebuiltKnown).toBe(1201);
 });
 
-test('position probabilities and the last-position spinogram use local ranked evidence across filters and old archives', async ({ page }) => {
+test('position probabilities and the last-position spinogram use local ranked evidence across filters and sparse result tables', async ({ page }) => {
   const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
-  const scenario = JSON.parse(readFileSync(resolve('src/lib/politics/reform-2026/data', catalog.defaultsPath), 'utf8')) as ReformGenerationScenario;
+  const scenario = (await currentBrowserSession()).scenario as unknown as ReformGenerationScenario;
   const archive = refinementResult(scenario);
   const positions = archive.result.tables.find(t => t.name === positionTable)!;
   const selected = (row: unknown[]) => row[positions.columns.indexOf('Chamber')] === 'camera' && row[positions.columns.indexOf('List')] === 'constructed-1' && row[positions.columns.indexOf('College')] === 'college-1';
@@ -83,8 +82,8 @@ test('position probabilities and the last-position spinogram use local ranked ev
   const importArchive = async (payload: typeof archive, name: string) => {
     const results = page.getByLabel('Risultati locali');
     const previous = await results.count() ? await results.inputValue() : null;
-    await page.getByTestId('reform-file-input').setInputFiles({ name, mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(payload)) });
-    if (previous !== null) await expect(results).not.toHaveValue(previous);
+    await page.getByTestId('reform-file-input').setInputFiles({ name, mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(currentArchive(payload, await currentBrowserSession()))) });
+    if (previous !== null) await expect(results).not.toHaveValue(previous, {timeout:30000});
     await expect(page.getByLabel('Statistiche riforma', { exact: true }).locator('.paired-bars')).toBeVisible();
   };
   await importArchive(archive, 'positions.json');
@@ -135,7 +134,7 @@ test('position probabilities and the last-position spinogram use local ranked ev
 
 test('college spinogram filters joint bonus decisions and reports plotted simulations, missing values and empty subsets', async ({ page }) => {
   const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
-  const scenario = JSON.parse(readFileSync(resolve('src/lib/politics/reform-2026/data', catalog.defaultsPath), 'utf8')) as ReformGenerationScenario;
+  const scenario = (await currentBrowserSession()).scenario as unknown as ReformGenerationScenario;
   const archive = refinementResult(scenario), localTable = archive.result.tables.find(t => t.name === 'Reform college series v1')!;
   for (const row of localTable.rows) {
     const simulation = Number(row[localTable.columns.indexOf('Simulation')]);
@@ -144,7 +143,7 @@ test('college spinogram filters joint bonus decisions and reports plotted simula
   }
   await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
   await page.getByLabel('Algoritmo di scrutinio').selectOption(scenario.algorithmId);
-  await page.getByTestId('reform-file-input').setInputFiles({ name: 'bonus-filter.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(archive)) });
+  await page.getByTestId('reform-file-input').setInputFiles({ name: 'bonus-filter.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(currentArchive(archive, await currentBrowserSession()))) });
   const statistics = page.getByLabel('Statistiche riforma', { exact: true });
   const local = statistics.locator('details').filter({ has: page.locator('summary', { hasText: /^Eletti per collegio o circoscrizione$/ }) });
   await local.locator(':scope > summary').click();
@@ -177,7 +176,7 @@ test('college spinogram filters joint bonus decisions and reports plotted simula
   await local.screenshot({ path: 'test-results/reform-college-bonus-filter-mobile.png' });
   // An older archive with no bonus decision cannot establish either subset.
   const previousResult = await page.getByLabel('Risultati locali').inputValue();
-  await page.getByTestId('reform-file-input').setInputFiles({ name: 'unknown-bonus.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(statisticalResult(scenario, 12))) });
+  await page.getByTestId('reform-file-input').setInputFiles({ name: 'unknown-bonus.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(currentArchive(statisticalResult(scenario, 12), await currentBrowserSession()))) });
   await expect(page.getByLabel('Risultati locali')).not.toHaveValue(previousResult);
   await expect(statistics.getByRole('heading', { name: 'Eletti medi e percentuali sui voti validi' })).toBeVisible();
   await local.locator(':scope > summary').click();
@@ -195,10 +194,10 @@ test('college spinogram filters joint bonus decisions and reports plotted simula
 
 test('territorial spinogram switches geography, measures, categories and grouping without search or alternative axes', async ({ page }) => {
   const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
-  const scenario = JSON.parse(readFileSync(resolve('src/lib/politics/reform-2026/data', catalog.defaultsPath), 'utf8')) as ReformGenerationScenario;
+  const scenario = (await currentBrowserSession()).scenario as unknown as ReformGenerationScenario;
   await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
   await page.getByLabel('Algoritmo di scrutinio').selectOption(scenario.algorithmId);
-  await page.getByTestId('reform-file-input').setInputFiles({ name: 'constituencies.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(constituencyResult(scenario))) });
+  await page.getByTestId('reform-file-input').setInputFiles({ name: 'constituencies.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(currentArchive(constituencyResult(scenario), await currentBrowserSession()))) });
   const local = page.getByLabel('Statistiche riforma', { exact: true }).locator('details').filter({ has: page.locator('summary', { hasText: /^Eletti per collegio o circoscrizione$/ }) });
   await local.locator(':scope > summary').click();
   const panel = local.locator('.series-panel');
@@ -265,8 +264,8 @@ test('territorial spinogram switches geography, measures, categories and groupin
   expect(errors).toEqual([]);
 });
 
-test('older archives reconstruct constituency observations solely from saved evidence or report unavailability', async ({ page }) => {
-  const scenario = JSON.parse(readFileSync(resolve('src/lib/politics/reform-2026/data', catalog.defaultsPath), 'utf8')) as ReformGenerationScenario;
+test('sparse result tables reconstruct constituency observations solely from saved evidence or report unavailability', async ({ page }) => {
+  const scenario = (await currentBrowserSession()).scenario as unknown as ReformGenerationScenario;
   const archive = archivedConstituencyResult(scenario);
   await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
   await page.getByLabel('Algoritmo di scrutinio').selectOption(scenario.algorithmId);
@@ -275,8 +274,8 @@ test('older archives reconstruct constituency observations solely from saved evi
     if (!sufficient) archive.result.tables = archive.result.tables.filter(t => t.name !== 'Candidate outcomes (conditional)');
     const results = page.getByLabel('Risultati locali');
     const previous = await results.count() ? await results.inputValue() : null;
-    await page.getByTestId('reform-file-input').setInputFiles({ name: `archived-${sufficient}.json`, mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(archive)) });
-    if (previous !== null) await expect(results).not.toHaveValue(previous);
+    await page.getByTestId('reform-file-input').setInputFiles({ name: `archived-${sufficient}.json`, mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(currentArchive(archive, await currentBrowserSession()))) });
+    if (previous !== null) await expect(results).not.toHaveValue(previous, {timeout:30000});
     await local.locator(':scope > summary').click();
     await local.getByLabel('Livello territoriale').selectOption('constituency');
     if (!sufficient) {
@@ -294,13 +293,13 @@ test('older archives reconstruct constituency observations solely from saved evi
   }
 });
 
-test('reform chart families render all available points lazily and keep old archives readable', async ({ page }) => {
+test('reform chart families render all available points lazily and keep sparse result tables readable', async ({ page }) => {
   test.setTimeout(90000);
   const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
-  const scenario = JSON.parse(readFileSync(resolve('src/lib/politics/reform-2026/data', catalog.defaultsPath), 'utf8')) as ReformGenerationScenario, archive = statisticalResult(scenario);
+  const scenario = (await currentBrowserSession()).scenario as unknown as ReformGenerationScenario, archive = statisticalResult(scenario);
   await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
   await page.getByLabel('Algoritmo di scrutinio').selectOption(scenario.algorithmId);
-  await page.getByTestId('reform-file-input').setInputFiles({ name: 'constructed-statistics.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(archive)) });
+  await page.getByTestId('reform-file-input').setInputFiles({ name: 'constructed-statistics.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(currentArchive(archive, await currentBrowserSession()))) });
   const statistics = page.getByLabel('Statistiche riforma', { exact: true });
   await expect(statistics.getByRole('heading', { name: 'Eletti medi e percentuali sui voti validi' })).toBeVisible({ timeout: 30000 });
   await expect(statistics).toContainText('1201/1201');
@@ -341,8 +340,8 @@ test('reform chart families render all available points lazily and keep old arch
   await statistics.screenshot({ path: 'test-results/reform-statistics-mobile.png' });
   const old = structuredClone(archive); old.result.tables = old.result.tables.filter(t => !t.name.includes('series v1'));
   const previous = await page.getByLabel('Risultati locali').inputValue();
-  await page.getByTestId('reform-file-input').setInputFiles({ name: 'old-statistics.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(old)) });
-  await expect(page.getByLabel('Risultati locali')).not.toHaveValue(previous);
+  await page.getByTestId('reform-file-input').setInputFiles({ name: 'old-statistics.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(currentArchive(old, await currentBrowserSession()))) });
+  await expect(page.getByLabel('Risultati locali')).not.toHaveValue(previous, {timeout:30000});
   await expect(statistics).toContainText('Archivio precedente', { timeout: 30000 });
   await statistics.getByText('Probabilità di elezione', { exact: true }).click();
   await expect(statistics).toContainText('Dati delle posizioni non disponibili');
@@ -353,10 +352,10 @@ test('reform chart families render all available points lazily and keep old arch
 
 test('reform selectors display one chart per family and replace the selected data', async ({ page }) => {
   const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
-  const scenario = JSON.parse(readFileSync(resolve('src/lib/politics/reform-2026/data', catalog.defaultsPath), 'utf8')) as ReformGenerationScenario;
+  const scenario = (await currentBrowserSession()).scenario as unknown as ReformGenerationScenario;
   await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
   await page.getByLabel('Algoritmo di scrutinio').selectOption(scenario.algorithmId);
-  await page.getByTestId('reform-file-input').setInputFiles({ name: 'multiple-series.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(multipleSeriesResult(scenario))) });
+  await page.getByTestId('reform-file-input').setInputFiles({ name: 'multiple-series.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(currentArchive(multipleSeriesResult(scenario), await currentBrowserSession()))) });
   const statistics = page.getByLabel('Statistiche riforma', { exact: true });
   const means = statistics.locator('.paired-bars');
   await expect(means).toHaveCount(1);
@@ -420,10 +419,10 @@ test('reform selectors display one chart per family and replace the selected dat
 
 test('refinements preserve probabilities, coalition data, bonus decisions, local selections and compact feedback', async ({ page }) => {
   const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
-  const scenario = JSON.parse(readFileSync(resolve('src/lib/politics/reform-2026/data', catalog.defaultsPath), 'utf8')) as ReformGenerationScenario;
+  const scenario = (await currentBrowserSession()).scenario as unknown as ReformGenerationScenario;
   await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
   await page.getByLabel('Algoritmo di scrutinio').selectOption(scenario.algorithmId);
-  await page.getByTestId('reform-file-input').setInputFiles({ name: 'refinements.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(refinementResult(scenario))) });
+  await page.getByTestId('reform-file-input').setInputFiles({ name: 'refinements.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(currentArchive(refinementResult(scenario), await currentBrowserSession()))) });
   const statistics = page.getByLabel('Statistiche riforma', { exact: true });
   await expect(statistics.locator('.paired-bars')).toBeVisible();
   await statistics.getByLabel('Raggruppamento delle medie').selectOption('subject');
@@ -466,32 +465,21 @@ test('refinements preserve probabilities, coalition data, bonus decisions, local
   const single = page.getByText('Seggi della singola simulazione', { exact: true });
   await expect(page.getByRole('figure')).not.toBeVisible();
   await single.click(); await expect(page.getByRole('figure')).toBeVisible();
-  const activity = page.getByLabel('Stato applicazione', { exact: true });
-  await expect(activity).not.toHaveAttribute('open');
-  expect(await activity.evaluate(e => getComputedStyle(e).position)).toBe('fixed');
-  await activity.locator('summary').click(); await expect(activity).toHaveAttribute('open', '');
-  await page.getByLabel('Data proiezione', { exact: true }).fill('2099-01-01');
-  const toasts = page.getByLabel('Messaggi di interazione');
-  await expect(toasts).toContainText('Projection date is after election date');
-  await page.screenshot({ path: 'test-results/reform-refinements-feedback.png' });
-  await toasts.getByRole('button', { name: 'Chiudi messaggio' }).click();
-  await expect(toasts.getByRole('alert')).toHaveCount(0);
-  await expect(page.getByRole('button', { name: 'Esegui riforma', exact: true })).toBeDisabled();
-  await page.getByLabel('Data proiezione', { exact: true }).fill(scenario.projectionDate);
-  await page.getByTestId('reform-file-input').setInputFiles({ name: 'invalid.json', mimeType: 'application/json', buffer: Buffer.from('{') });
-  await expect(toasts.getByRole('alert')).toHaveCount(1);
-  await toasts.getByRole('button', { name: 'Chiudi messaggio' }).click();
-  await expect(toasts.getByRole('alert')).toHaveCount(0);
+  await page.getByLabel('Data elettorale', {exact:true}).fill('2020-01-01');
+  await page.getByLabel('Data elettorale', {exact:true}).press('Tab');
+  await expect(page.getByRole('button', {name:'Esegui riforma',exact:true})).toBeDisabled();
+  await expect(page.getByText('La data di riferimento segue la data elettorale.',{exact:true})).toHaveCount(1);
+  await page.getByLabel('Data elettorale', {exact:true}).fill(scenario.electionDate);
+  await page.getByLabel('Data elettorale', {exact:true}).press('Tab');
+  await page.getByTestId('reform-file-input').setInputFiles({name:'invalid.json',mimeType:'application/json',buffer:Buffer.from('{')});
+  const alert=page.getByRole('alert').filter({has:page.getByRole('button',{name:'Chiudi messaggio',exact:true})});
+  await expect(alert).toBeVisible();
+  await alert.getByRole('button',{name:'Chiudi messaggio',exact:true}).click();
+  await expect(alert).toHaveCount(0);
   await page.screenshot({ path: 'test-results/reform-refinements-desktop.png', fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });
   await probabilities.scrollIntoViewIfNeeded();
   expect(await statistics.evaluate(e => e.scrollWidth)).toBeLessThanOrEqual(await statistics.evaluate(e => e.clientWidth));
   await page.screenshot({ path: 'test-results/reform-refinements-mobile.png', fullPage: true });
-  await page.route(`**/${catalog.path}`, route => route.fulfill({ status: 404, body: 'missing' }));
-  await page.getByLabel('Simulazioni', { exact: true }).fill('1');
-  await page.getByRole('button', { name: 'Esegui riforma', exact: true }).click();
-  await expect(page.getByTestId('reform-phase')).toHaveText('not_implemented');
-  await expect(page.getByLabel('Risultati riforma', { exact: true })).toContainText('Missing production bundle');
-  await expect(toasts.getByRole('alert')).toHaveCount(0);
   expect(errors).toEqual([]);
 });

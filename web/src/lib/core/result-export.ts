@@ -1,4 +1,3 @@
-import { requireReformScenario } from '../politics/reform-2026/generation-scenario';
 import type { ReformGenerationScenario } from '../politics/reform-2026/generation-types';
 import type { ReleasedScenario } from '../politics/reform-2026/vote-share/release';
 import { loadCandidate } from '../politics/reform-2026/vote-share/release';
@@ -129,7 +128,7 @@ function tableCell(value: string | number | boolean | null | undefined): JsonCel
 function parseExportedScenario(value: unknown): ExportScenario {
   if(isRecord(value)&&value.kind==='politics-reform-scenario'&&(value.schemaVersion === 4 || value.schemaVersion === 5))return requireFastScenario(value);
   const scenario = requireRecord(value, 'scenario');
-  if (scenario.kind === 'politics-reform-scenario') return requireReformScenario(scenario);
+  if (scenario.kind === 'politics-reform-scenario') throw new Error('Only latest reform scenario archives are supported');
   const defaultSource = requireRecord(scenario.defaultSource, 'scenario.defaultSource');
 
   requireString(scenario.id, 'scenario.id');
@@ -307,6 +306,7 @@ export function createSimulationResultExport<T extends ExportScenario>(params: {
   scenario: T;
   exportedAt: string;
 }): SerializedSimulationResultExportV2<T> {
+  if('kind' in params.scenario && params.scenario.kind==='politics-reform-scenario' && params.scenario.schemaVersion!==5) throw new Error('Only latest reform scenario archives are supported');
   if (params.result.storage) throw new Error('Stored results must use the streaming export boundary.');
   if ('schemaVersion' in params.scenario && (params.scenario.schemaVersion === 4 || params.scenario.schemaVersion === 5) && (!params.fitFile || !sameCheckpointScenario(params.scenario,params.fitFile.scenario))) throw new Error('Fast results require their frozen fitted session.');
   const result = jsonClone(params.result);

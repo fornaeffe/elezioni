@@ -18,12 +18,6 @@
   let percent = $state<number | undefined>(),
     sd = $state<number | undefined>(0);
   const subjects = $derived([
-    ...new Map(
-      [...scenario.lists.camera, ...scenario.lists.senato].map((l) => [
-        'list:' + l.id,
-        { value: 'list:' + l.id, label: l.name },
-      ]),
-    ).values(),
     ...scenario.components.map((c) => ({
       value: 'component:' + c.id,
       label:
@@ -79,7 +73,7 @@
 <details>
   <summary>Quote di riferimento e incertezza</summary>
   <p>
-    Le quote delle liste riguardano i soli voti validi e mantengono fissa la
+    Le quote dei componenti descrivono il sostegno alla data di riferimento, prima dei depositi futuri, sui soli voti validi e mantengono fissa la
     partecipazione. Il non valido comprende astensioni e schede non valide ed è
     un input separato. Campo vuoto: eredita il modello; zero: vincolo esplicito.
   </p>
@@ -133,7 +127,7 @@
     <button onclick={save}>Applica riferimento</button>
   </div>
   <ul>
-    {#if scenario.generation?.model==='legacy-poll-informed-v1'}<li>Le deviazioni standard sono conservate per il nuovo modello e non sono applicate dal modello precedente. I riferimenti a un sottoinsieme dei componenti di una lista restano del solo nuovo modello.</li>{/if}
+    {#if scenario.generation?.model==='legacy-poll-informed-v1'}<li>Le deviazioni standard sono conservate per il nuovo modello e non sono applicate dal modello precedente. I riferimenti ai componenti valgono anche nelle liste congiunte; il sostegno evolve poi con gli shock nazionali, regionali e locali.</li>{/if}
     {#each [...scenario.references, ...scenario.nonValidReferences] as r (r.id)}
       <li>
         <button onclick={() => edit(r)}>Modifica</button>

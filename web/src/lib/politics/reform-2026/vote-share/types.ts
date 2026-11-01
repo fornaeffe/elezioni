@@ -1,12 +1,13 @@
 /** Numerical inputs only. No source acquisition, held-out truth or legal inputs. */
 export const FAST_SHARE_MODEL = 'fast-share-kind-common-conservative-v1';
-export const FAST_SHARE_NUMERICS = 'fast-share-float64-v1';
+export const FAST_SHARE_NUMERICS = 'fast-share-float64-v2';
 export const FIT_STREAM_VERSION = 'fast-share-fit-streams-v1';
 export type Vector = Float64Array<ArrayBuffer>;
 export type FitContext = 'camera' | 'european';
 export interface NationalElection {
   id: string; date: string; context: FitContext; electors: number;
   groups: string[][];
+  strata?: { groups: string[][]; counts: number[]; electors: number }[];
   /** Non-valid followed by the original observed group counts. */
   counts: number[];
 }
@@ -17,6 +18,8 @@ export interface InformationPoll {
 export interface NationalSource {
   components: string[]; referenceDate: string;
   elections: NationalElection[]; polls: InformationPoll[];
+  referenceRequired?: string[];
+  referenceDirections?: number[][];
 }
 export interface GaussianTarget {
   components: number; blocks: number; precision: Vector; linear: Vector;

@@ -82,5 +82,17 @@
   "selectionStatus": "New future choice set installed for authorized filing-aware research; selected forecast kernel remains provisional until comparative validation.",
   "forecastModel": "bounded-mass-pair-field-v2",
   "forecastScale": 1.5,
-  "profileRegionCorrelation": 0.25
+  "profileRegionCorrelation": 0.25,
+  "unsupportedComponentReferences": {
+    "policy": "selected-reference-moments-v1",
+    "components": [
+      "idv",
+      "poll-only-futuro-nazionale",
+      "poll-only-libdem",
+      "poll-only-piu-uno",
+      "poll-only-progetto-civico",
+      "psi-civici"
+    ],
+    "draws": 256
+  }
 }

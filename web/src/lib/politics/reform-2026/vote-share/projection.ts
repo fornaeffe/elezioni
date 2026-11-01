@@ -1,5 +1,5 @@
-import { requireWorkspace, sum } from './types';
-import { factorSpd, solveSpd } from './linalg';
+import { requireWorkspace, sum } from "./types";
+import { factorSpd, solveSpd } from "./linalg";
 export interface ProjectionRow {
   weight: number;
   scores: ArrayLike<number>;
@@ -14,7 +14,7 @@ export class ProjectionCapacityError extends Error {
     },
   ) {
     super(
-      'REFERENCE_CAPACITY: requested composition exceeds joint physical filing capacity',
+      "REFERENCE_CAPACITY: requested composition exceeds joint physical filing capacity",
     );
   }
 }
@@ -34,22 +34,22 @@ function feasibleSupport(
   for (let i = 0; i < rows; i++) {
     const r = source(i);
     if (!(r.weight >= 0) || !Number.isFinite(r.weight) || r.scores.length !== j)
-      throw new Error('PROJECTION_INVALID_ROW');
+      throw new Error("PROJECTION_INVALID_ROW");
     const ids = Array.from({ length: j }, (_, k) => k).filter(
       (k) => target[k] > 0 && Number.isFinite(r.scores[k]),
     );
     if (Array.from(r.scores).some((x) => Number.isNaN(x) || x === Infinity))
-      throw new Error('PROJECTION_INVALID_SCORE');
+      throw new Error("PROJECTION_INVALID_SCORE");
     if (r.weight > 0 && !ids.length)
-      throw new Error('PROJECTION_EMPTY_CHOICE_SET');
-    const key = ids.join(',');
+      throw new Error("PROJECTION_EMPTY_CHOICE_SET");
+    const key = ids.join(",");
     rowKeys.push(key);
     total += r.weight;
     const g = groups.get(key) ?? { ids, mass: 0, node: j + groups.size };
     g.mass += r.weight;
     groups.set(key, g);
   }
-  if (!(total > 0)) throw new Error('PROJECTION_EMPTY_ELECTORATE');
+  if (!(total > 0)) throw new Error("PROJECTION_EMPTY_ELECTORATE");
   const edgeCount = [...groups.values()].reduce(
     (n, g) => n + g.ids.length + 1,
     j,
@@ -58,6 +58,22 @@ function feasibleSupport(
     edgeCount * 192 + rows * 48 + (j + groups.size) * 128,
     memory,
   );
+  // Unrestricted reference calibration needs no transportation-capacity test.
+  // In particular, an IEEE-sized positive residual must not lose its support
+  // merely because it is below the flow solver's edge traversal tolerance.
+  const positive = Array.from({ length: j }, (_, k) => k).filter(
+    (k) => target[k] > 0,
+  );
+  if (
+    [...groups.values()].every(
+      (g) => g.mass === 0 || g.ids.length === positive.length,
+    )
+  )
+    return {
+      total,
+      rowKeys,
+      allowed: new Map([...groups].map(([key, g]) => [key, new Set(g.ids)])),
+    };
   const start = j + groups.size,
     end = start + 1,
     graph: Edge[][] = Array.from({ length: end + 1 }, () => []);
@@ -181,7 +197,7 @@ function feasibleSupport(
       edge.initial - edge.capacity > 1e-14 ||
       component[k] === component[g.node]
     )
-      allowed.get(g.ids.join(','))!.add(k);
+      allowed.get(g.ids.join(","))!.add(k);
   return { total, allowed, rowKeys };
 }
 export function projectMargins(
@@ -214,7 +230,7 @@ export function projectMargins(
     !Number.isSafeInteger(chunkSize) ||
     chunkSize < 1
   )
-    throw new Error('PROJECTION_INVALID_TARGET');
+    throw new Error("PROJECTION_INVALID_TARGET");
   const support = feasibleSupport(
       target,
       rows,
@@ -232,7 +248,7 @@ export function projectMargins(
     for (let k = 0; k < j; k++)
       if (mask.has(k)) maximum = Math.max(maximum, r.scores[k] + offsets[k]);
     if (!Number.isFinite(maximum) && r.weight > 0)
-      throw new Error('PROJECTION_EMPTY_CHOICE_SET');
+      throw new Error("PROJECTION_EMPTY_CHOICE_SET");
     let mass = 0;
     for (let k = 0; k < j; k++)
       if (mask.has(k)) {
@@ -358,7 +374,7 @@ export function projectMargins(
       direction = new Float64Array(j);
     for (let k = 0; k < j; k++)
       if (target[k] > 0) {
-        if (!(margins[k] > 0)) throw new Error('PROJECTION_UNAVAILABLE_TARGET');
+        if (!(margins[k] > 0)) throw new Error("PROJECTION_UNAVAILABLE_TARGET");
         direction[k] = Math.log(target[k] / margins[k]);
         offsets[k] += (iteration < 8 ? 1 : 1.5) * direction[k];
       }
@@ -373,5 +389,5 @@ export function projectMargins(
     }
     current = proposed;
   }
-  throw new Error('PROJECTION_NOT_CONVERGED: global margins after 120 updates');
+  throw new Error("PROJECTION_NOT_CONVERGED: global margins after 120 updates");
 }

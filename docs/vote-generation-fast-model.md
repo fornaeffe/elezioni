@@ -1,5 +1,16 @@
 # Fast vote-share model: maintained numerical contract
 
+Current amendments (1 November 2026) are specified by the
+[unified workflow](vote-generation-unified-workflow.md#numerical-and-observation-contract)
+and [adopted correspondence policy](correspondence-policy-audit.md#adopted-corrections).
+Original offered-set strata replace globally coarsened historical choice sets;
+identifiable group totals and reference-backed contrasts replace rejection of
+unidentified component bases. Profile comparisons retain original local groups.
+References apply before future movement and filing, without filing-capacity
+constraints. The Gaussian sufficient statistics may use bounded orthogonal
+elimination with no added ridge. Those amendments take precedence over the
+original derivation and comparator equations retained below.
+
 Status: **selected for the 2026 reform workflow; FV-02 numerical port implemented**.
 See the [engine entry point](../web/src/lib/politics/reform-2026/vote-share/README.md)
 for reduced acceptance and remaining performance limits. Production integration

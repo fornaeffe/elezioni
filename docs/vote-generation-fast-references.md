@@ -1,10 +1,12 @@
 # Fast vote generation: reference and chamber contract
 
-FV-01 revision **1**, 28 October 2026. These are interventions applied to the
-accepted reference state, not additional historical observations or poll rows.
-Implementation and independent numerical evidence are in the
-[FV-04 generation guide](vote-generation-fast-generation.md). The numerical
-historical model remains the [selected model](vote-generation-fast-model.md).
+Current execution follows the [unified workflow](vote-generation-unified-workflow.md)
+and the [adopted correspondence policy](correspondence-policy-audit.md#adopted-corrections).
+Political scenario references target components in both models, before future
+filing; selected uncertainty uses the joint family below, while legacy treats
+scenario-reference means as fixed. Grouped poll observations remain grouped
+measurements. The reference simplex and scope/chamber rules below remain useful,
+with the amended ordering and removal of reference filing-capacity constraints.
 
 ## Approved turnout clarification
 
@@ -21,12 +23,12 @@ non-valid probability fixed unless it has an explicit non-valid intervention.
 This does not remove posterior uncertainty in $a$, future participation movement,
 profile uncertainty or multinomial count noise.
 
-**Choice-set removal is a different operation.** First remove globally absent
-components and renormalize all remaining elector outcomes, including non-valid,
-as in the approved model. Then apply political references holding the resulting
-non-valid state fixed. Adding a referenced new component allocates valid support
-and does not itself change turnout. Regional structural zeros still need the
-global probability projection; no unavailable outcome receives support.
+**Future choice-set removal follows movement.** Construct unrestricted dated
+support, apply component references, evolve support, then condition each physical
+cell on its future offered set, including non-valid support. Adding a referenced
+component holds reference-date non-valid support fixed. Later filing conditioning
+can change non-valid support. No unavailable component receives generated counts;
+pre-filing references have no individual or joint filing-capacity constraint.
 
 ## Disjoint groups and exact references
 
@@ -156,7 +158,7 @@ order. At each scope resolve explicit chamber over common-derived over baseline.
 More specific overrides replace the affected cells for the referenced subjects;
 they do not freeze all other lists. Preserve each affected cell's non-valid
 probability and relative free-list support. Validate aggregate targets using
-elector-weighted **valid-vote denominators** and actual filing/capacity.
+elector-weighted **valid-vote denominators** before future filing.
 
 Example: two equal-valid-population regions start at A=0.4 after a national
 reference. A later region-1 A=0.8 reference yields final A=0.6 nationally; the
@@ -169,7 +171,7 @@ movement. The no-local-intervention case retains the model's original country
 margin. Interventions never become election-day fixed outputs.
 
 Derived or uncertain chamber/scoped targets must pass the same joint simplex,
-moment and geographic checks. If nonlinear common transforms plus explicit
+moment and scope checks, without future filing-capacity constraints. If nonlinear common transforms plus explicit
 chamber targets cannot coexist, fail with a reference conflict; do not clip,
 silently renormalize partial targets or resample failed simulations. Individual
 infeasible projection/count/legal paths remain errors with requested-run

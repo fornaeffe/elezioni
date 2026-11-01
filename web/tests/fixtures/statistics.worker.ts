@@ -1,5 +1,5 @@
 import { statisticalResult, constituencyTable } from './statistical-result';
-import { bundledReformScenario } from '../../src/lib/politics/reform-2026/application-defaults';
+import type { ReformGenerationScenario } from '../../src/lib/politics/reform-2026/generation-types';
 import { handleResultService } from '../../src/lib/workers/result-service';
 import { getStoredResult, deleteStoredResult } from '../../src/lib/core/result-store';
 import { streamStoredResult } from '../../src/lib/core/result-export';
@@ -7,10 +7,13 @@ import { ensureStatistics, seriesStatistics } from '../../src/lib/politics/refor
 import { readStatisticsCache, samplePage, deleteStatisticsCache } from '../../src/lib/core/statistics-cache';
 import { electionPositionColumns, positionColumns, positionTable } from '../../src/lib/politics/reform-2026/election-probability';
 
-self.onmessage = async () => {
+self.onmessage = async event => {
   let id = '';
   try {
-    const scenario = bundledReformScenario(), payload = statisticalResult(scenario), owner = 'statistics-test-owner';
+    const fitFile = event.data.fitFile, scenario = fitFile.scenario;
+    const payload = {...statisticalResult(scenario as unknown as ReformGenerationScenario), schema_version:3, fitFile};
+    payload.result.benchmark.dataVersion = scenario.data.sourceBundleId;
+    const owner = 'statistics-test-owner';
     payload.result.tables.push(constituencyTable(1201));
     const runs = payload.result.tables.find(t => t.name === 'Reform runs')!;
     runs.columns.push('Bonus');

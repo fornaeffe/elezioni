@@ -13,9 +13,8 @@ import {
   type ReleaseCatalog,
   type CandidatePointer,
 } from '../../src/lib/politics/reform-2026/vote-share/release';
-export async function fastReleaseFixture() {
+export async function fastReleaseFixture(implementation = 'fixture-implementation-v1') {
   const f = fastGenerationFixture(),
-    implementation = 'fixture-implementation-v1',
     metadata = {
       sourceVersions: [f.assets.sourceBundleId],
       methodVersions: [implementation],

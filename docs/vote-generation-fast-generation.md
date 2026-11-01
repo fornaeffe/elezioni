@@ -1,16 +1,12 @@
 # Fast generation and paired reform integration (FV-04)
 
-The headless generator is implemented for the **2026 reform only**. It consumes
-accepted reference/profile states and returns validated scrutiny input. Installed
-schema-4 parsing, candidate defaults, dispatch and editor are available through
-the opt-in fast workspace; ordinary default activation remains gated by FV-08.
-For the 30 October replacement kernels, read the
-[feasible model](vote-generation-feasible-model.md) and its
-[research results](vote-generation-feasible-research.md). The global Beta and
-projection descriptions here retain the original FV-04 comparator contract.
-Start here for common physical-cell/reference/chamber assembly; use the
-[numerical guide](../web/src/lib/politics/reform-2026/vote-share/README.md) for fitting
-and the [source guide](vote-generation-fast-data.md) for original observations.
+The current generator is implemented for the **2026 reform only**, through the
+latest schema-5 [unified workflow](vote-generation-unified-workflow.md).
+The adopted [correspondence corrections](correspondence-policy-audit.md#adopted-corrections)
+supersede the original FV-04 global-Beta/filing-constrained reference pipeline.
+The details below retain that earlier comparator's derivation and evidence;
+use the unified guide for current execution order, component references, legacy
+preparation, latest-only browser boundaries and versioned provenance.
 
 ## Task map
 
@@ -24,7 +20,7 @@ and the [source guide](vote-generation-fast-data.md) for original observations.
 | Check support capacity and solve global margins | `vote-share/projection.ts` |
 | Prepare original paired 18+ observations | `vote-share/paired-source.ts` |
 | Prepare Senate contrasts/profiles | `vote-share/senate-adapter.ts` |
-| Assemble counts, people, preferences and legal input | `generation.ts` → `assembleReformSimulation` |
+| Assemble counts, people, preferences and legal input | `assembly.ts` → `assembleReformSimulation` |
 | Review fixed equations/acceptance | [Reference contract](vote-generation-fast-references.md), [frozen protocol](vote-generation-fast-validation.md) |
 | Review measured evidence | [Benchmark snapshot](../test/fixtures/benchmarks/vote_share_generation.json), [migration history](migration-history.md) |
 

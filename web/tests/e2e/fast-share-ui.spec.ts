@@ -124,13 +124,14 @@ test("on-demand data, future-only edits, frozen run, exports and scenario replay
     .fill("fv07-before-load");
   await page.getByLabel("Seme delle simulazioni", { exact: true }).press("Tab");
   await load(page);
-  expect(paths.some((p) => p.endsWith(catalog.assets.source.path))).toBe(false);
+  // Unified composition controls may load source metadata; municipal history stays demand-loaded.
+  expect(catalog.sourceChunks.some(c => paths.some(p => p.endsWith(c.path)))).toBe(false);
   await page
     .getByText("Quote di riferimento e incertezza", { exact: true })
     .click();
   await page
     .getByRole("combobox", { name: "Soggetto", exact: true })
-    .selectOption("list:" + defaults.lists.camera[0].id);
+    .selectOption("component:" + defaults.lists.camera[0].componentIds[0]);
   await page.getByLabel("Quota di riferimento %", { exact: true }).fill("15");
   await page
     .getByRole("button", { name: "Applica riferimento", exact: true })
@@ -144,10 +145,11 @@ test("on-demand data, future-only edits, frozen run, exports and scenario replay
   expect(
     saved.scenario.references.some(
       (r: { subject: { id: string }; mean: number }) =>
-        r.subject.id === defaults.lists.camera[0].id && r.mean === 0.15,
+        r.subject.id === defaults.lists.camera[0].componentIds[0] && r.mean === 0.15,
     ),
   ).toBe(true);
-  expect(paths.some((p) => p.endsWith(catalog.assets.source.path))).toBe(false);
+  // Unified composition controls may load source metadata; municipal history stays demand-loaded.
+  expect(catalog.sourceChunks.some(c => paths.some(p => p.endsWith(c.path)))).toBe(false);
   await page.getByLabel("Simulazioni", { exact: true }).fill("1");
   await page
     .getByRole("button", { name: "Esegui riforma", exact: true })
@@ -485,18 +487,8 @@ test("new reference-supported lists, explicit filing and strict JSON drafts", as
     mimeType: "application/json",
     buffer: Buffer.from(JSON.stringify(installedDefaults)),
   });
-  await expect(page.getByTestId("fast-reform-workspace")).toHaveCount(0);
-  await expect(
-    page.getByRole("button", { name: "Scarica scenario", exact: true }),
-  ).toBeVisible();
-  const legacyDownload = page.waitForEvent("download", { timeout: downloadTimeout });
-  await page
-    .getByRole("button", { name: "Scarica scenario", exact: true })
-    .click();
-  const legacy = JSON.parse((await bytes(await legacyDownload)).toString());
-  expect(legacy.models).toEqual(
-    (installedDefaults as { models: unknown }).models,
-  );
+  await expect(page.getByTestId("fast-reform-workspace")).toBeVisible();
+  await expect(page.getByRole("alert").filter({hasText:/precedente|version|schemaVersion/i})).toBeVisible();
   await page.getByTestId("reform-file-input").setInputFiles({
     name: "fast-session.json",
     mimeType: "application/json",

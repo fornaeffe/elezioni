@@ -4,8 +4,8 @@ import { expect, test } from '@playwright/test';
 import { build } from 'vite';
 import { completeScrutinyFixture, coalitionScrutinyFixture } from '../../src/lib/politics/reform-2026/scrutiny.fixture';
 import type { PoliticsSimulationResult } from '../../src/lib/politics/simulation-scrutiny';
-import { generationFixture } from '../../src/lib/politics/reform-2026/generation.fixture';
-import { generateReformSimulation, prepareReformGeneration } from '../../src/lib/politics/reform-2026/generation';
+import { fastGenerationFixture } from '../fixtures/fast-generation-input';
+import { prepareFastGeneration } from '../../src/lib/politics/reform-2026/vote-share/generation';
 import { runPoliticsReformScrutiny } from '../../src/lib/politics/reform-2026/scrutiny';
 import { allocateTerritorialMatrix, type TerritorialMatrixInput, type TerritorialMatrixResult } from '../../src/lib/politics/reform-2026/territorial-matrix';
 import { createSeededDrawContext } from '../../src/lib/politics/reform-2026/ties';
@@ -82,8 +82,8 @@ test('provisional I10 resolves coalition recovery in the browser and preserves p
 test('reform scenario generation and full scrutiny replay identically in a browser worker', async ({ page, context }) => {
   await context.route('**/r26-test-worker.js', route => route.fulfill({ contentType: 'text/javascript', body: workerCode }));
   await page.goto(`${process.env.BASE_PATH ?? ''}/`);
-  const fixture = generationFixture();
-  const expected = runPoliticsReformScrutiny(generateReformSimulation(prepareReformGeneration(fixture.scenario, fixture.snapshot), 7).input);
+  const fixture = fastGenerationFixture();
+  const expected = runPoliticsReformScrutiny(prepareFastGeneration(fixture.scenario, fixture.assets, fixture.context).run(7).input);
   const reply = await page.evaluate(generation => new Promise<WorkerResponse>((resolve, reject) => {
     const worker = new Worker('/r26-test-worker.js', { type: 'module' });
     worker.onmessage = e => { worker.terminate(); resolve(e.data); };

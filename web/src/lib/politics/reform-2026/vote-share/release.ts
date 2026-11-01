@@ -21,6 +21,7 @@ import { validateSourceEnvelope, decodeAsset } from './source-codec';
 import { prepareScenarioGeneration } from './unified-generation';
 import { prepareFastGeneration } from './generation';
 import { isLegacyGeneration, legacyInputKey, type CompiledLegacy } from './legacy-adapter';
+import { COMPONENT_POLICY } from './component-policy';
 import { FAST_SHARE_MODEL, FAST_SHARE_NUMERICS } from './types';
 export interface ReleasedScenario extends FastGenerationScenario {
   models: FastGenerationScenario['models'] & {
@@ -160,7 +161,8 @@ export async function generationKeys(
         localUncertaintyMultiplier: l.localUncertaintyMultiplier ?? 1,
       }))
       .sort((a, b) => a.id.localeCompare(b.id));
-  const compositionKey = await sourceKey('fast-share-composition-v1', {
+  const compositionKey = await sourceKey('fast-share-composition-v2', {
+    componentPolicy: COMPONENT_POLICY,
     ...(s.generation ? {generation:s.generation} : {}),
     data: {
       sourceBundleId: s.data.sourceBundleId,

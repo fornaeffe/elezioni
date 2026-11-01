@@ -9,7 +9,6 @@ import { diagnosticEvent, diagnosticScope, diagnosticTableName } from '../core/d
 import { jsonFileStream } from '../core/json-stream';
 import type { SimulationProgress, SimulationRequest, SimulationResult } from '../core/types';
 import catalog from '../politics/reform-2026/data/generation-catalog.generated.json';
-import { requireReformScenario, validateReformSnapshot } from '../politics/reform-2026/generation-scenario';
 import type { ReformGenerationSnapshot } from '../politics/reform-2026/generation-types';
 import { createReformPresentation } from '../politics/reform-2026/result-presentation';
 import { resolvePoliticsSimulationAlgorithm } from '../politics/simulation-scrutiny';
@@ -50,6 +49,7 @@ export async function runStoredReform(request: SimulationRequest, emit: (progres
   resolvePoliticsSimulationAlgorithm(REFORM_ALGORITHM_ID, 'production');
   if (!('kind' in request.scenario)) throw new Error('A reform request requires an explicit reform scenario');
   const fast=request.fast;
+  if(!fast) throw new Error('Only latest fitted reform sessions can execute in this application');
   if(fast && !fast.packets.length) throw new Error('Missing generation packet');
   const fastCapacity=fast?generationCapacity(fast.packets[0],navigator as Navigator&{deviceMemory?:number}):null;
   const capacity = fastCapacity?{...estimateReformWorkerCapacity(navigator),maximum:fastCapacity.maximum,
@@ -60,10 +60,8 @@ export async function runStoredReform(request: SimulationRequest, emit: (progres
   const progress = (phase: SimulationProgress['phase'], completed: number) => emit({ type: 'progress', phase, completed, total: request.simulations, elapsedMs: performance.now() - started });
   progress('prepare', 0);
   if(fast&&fast.packets.length!==1&&fast.packets.length!==computeWorkers)throw new Error('Frozen worker packets do not match requested workers');
-  const snapshot = fast?fast.packets[0].context:await loadVerifiedJson(request.basePath ?? '', catalog) as ReformGenerationSnapshot;
-  const errors = fast?[]:validateReformSnapshot(snapshot);
-  if (errors.length) throw new RangeError(`Invalid reform snapshot: ${errors.join('; ')}`);
-  const scenario = fast?requireFastScenario(request.scenario):requireReformScenario(request.scenario, snapshot as ReformGenerationSnapshot);
+  const snapshot = fast.packets[0].context;
+  const scenario = requireFastScenario(request.scenario);
   if(fast){requirePortableFitFile(fast.file);const restored=await loadCandidate(fast.file.pointer,checkpointReader(fast.file),{allowEditedEvidence:true,expectedGenerationImplementationId:fast.packets[0].scenario.models.generationImplementationId});
     if(!sameCheckpointScenario(restored.scenario,scenario as typeof restored.scenario)||fast.packets.some(p=>!sameCheckpointScenario(p.scenario,restored.scenario)))throw new Error('Frozen scenario/checkpoint mismatch');}
     if (scenario.seed !== request.seed || scenario.electionDate !== request.electionDate) throw new Error('Request seed/date must match the reform scenario');

@@ -1,0 +1,259 @@
+{
+  "stage": "post-FV-08-correspondence-corrections",
+  "status": "passed",
+  "createdAt": "2026-11-01T22:23:09.257Z",
+  "scope": "Current component/prefiling v5 policy; local production acceptance, not predictive calibration or deployment.",
+  "catalogId": "fast-share-catalog-v1-27d815959e9a6a1f4193e4e68297577972e2899d56afc1a4daaaa3477f88b1fc",
+  "sourceId": "fast-share-source-v1-95d505ed1f7ea79c99cd0bf91a86dbc6a2d54c1f24fd9b37bec40a57e3c72511",
+  "generationImplementationId": "implementation-v1-c3c448cf68330e5fd097c15a6bd86958da529e072939360e7915a41f62f9adac",
+  "referenceDate": "2026-10-19",
+  "electionDate": "2027-09-25",
+  "defaultReferenceEstimates": {
+    "assumption": "Explicit default anchors adopted by Luca: reference-date component means and sample SDs from deterministic reference-only draws of the selected model before these anchors. These are model estimates, not additional observations or calibrated forecasts. SDs apply only to selected generation; legacy uses fixed means. Existing scoped overrides retain precedence.",
+    "draws": 256,
+    "estimates": [
+      {
+        "channel": "camera",
+        "component": "idv",
+        "mean": 0.005691115899750542,
+        "sdPercentagePoints": 0.44321713916501626
+      },
+      {
+        "channel": "camera",
+        "component": "poll-only-futuro-nazionale",
+        "mean": 0.0946302254793133,
+        "sdPercentagePoints": 1.8704956031901014
+      },
+      {
+        "channel": "camera",
+        "component": "poll-only-libdem",
+        "mean": 0.016391665948626236,
+        "sdPercentagePoints": 0.7020902851987907
+      },
+      {
+        "channel": "camera",
+        "component": "poll-only-piu-uno",
+        "mean": 0.01022334602686161,
+        "sdPercentagePoints": 0.45222244051338295
+      },
+      {
+        "channel": "camera",
+        "component": "poll-only-progetto-civico",
+        "mean": 0.0183656411014242,
+        "sdPercentagePoints": 0.7203650916110657
+      },
+      {
+        "channel": "camera",
+        "component": "psi-civici",
+        "mean": 0.004425954113422362,
+        "sdPercentagePoints": 0.3409649172244979
+      },
+      {
+        "channel": "senato",
+        "component": "idv",
+        "mean": 0.005828504510364909,
+        "sdPercentagePoints": 0.4869112493618495
+      },
+      {
+        "channel": "senato",
+        "component": "poll-only-futuro-nazionale",
+        "mean": 0.09614674059195019,
+        "sdPercentagePoints": 1.9333444548584144
+      },
+      {
+        "channel": "senato",
+        "component": "poll-only-libdem",
+        "mean": 0.017014926185233425,
+        "sdPercentagePoints": 0.7254302275567038
+      },
+      {
+        "channel": "senato",
+        "component": "poll-only-piu-uno",
+        "mean": 0.01042597003386117,
+        "sdPercentagePoints": 0.487135151456442
+      },
+      {
+        "channel": "senato",
+        "component": "poll-only-progetto-civico",
+        "mean": 0.01857190916944464,
+        "sdPercentagePoints": 0.7589362097457917
+      },
+      {
+        "channel": "senato",
+        "component": "psi-civici",
+        "mean": 0.004066789018377423,
+        "sdPercentagePoints": 0.30442521105500797
+      }
+    ],
+    "policy": "selected-reference-moments-v1",
+    "seed": "fast-share-default-v1",
+    "sourceFit": "fast-share-fit-v1-598da349d3d18cdd3f5320e77ca3cccb1d91881c750191d7edbc663025ac142c",
+    "sourceProfiles": "fast-share-profiles-v1-82db850912415c7a6069c7a2f618d3b66f86cc81ce691425e91875f220566cc4"
+  },
+  "units": {
+    "passed": 1296,
+    "skipped": 0
+  },
+  "browsers": [
+    {
+      "name": "browser-root",
+      "passed": 43,
+      "skipped": 0
+    },
+    {
+      "name": "browser-project",
+      "passed": 43,
+      "skipped": 0
+    },
+    {
+      "name": "unified-root",
+      "passed": 10,
+      "skipped": 0
+    },
+    {
+      "name": "unified-project",
+      "passed": 10,
+      "skipped": 0
+    },
+    {
+      "name": "editor-root",
+      "passed": 4,
+      "skipped": 0
+    },
+    {
+      "name": "editor-nested",
+      "passed": 4,
+      "skipped": 0
+    }
+  ],
+  "campaigns": [
+    {
+      "model": "selected",
+      "browserVersion": "148.0.7778.96",
+      "draws": 1000,
+      "workers": 10,
+      "elapsedMs": 725693,
+      "archiveBytes": 178103484,
+      "complete": 1000,
+      "filledSeatsPerRun": 588,
+      "distinctCandidatesPerRun": 588,
+      "pageErrors": [],
+      "exportImportAndRestore": "passed",
+      "receipt": "../data/derived/fv08-unified/browser/chromium-selected-root-1000.json.gz.receipt.json"
+    },
+    {
+      "model": "legacy-poll-informed-v1",
+      "browserVersion": "148.0.7778.96",
+      "draws": 1000,
+      "workers": 10,
+      "elapsedMs": 1190924,
+      "archiveBytes": 208724721,
+      "complete": 1000,
+      "filledSeatsPerRun": 588,
+      "distinctCandidatesPerRun": 588,
+      "pageErrors": [],
+      "exportImportAndRestore": "passed",
+      "receipt": "../data/derived/fv08-unified/browser/chromium-legacy-poll-informed-v1-root-1000.json.gz.receipt.json"
+    }
+  ],
+  "resources": {
+    "defaultRefits": 6,
+    "medianRefitMs": 13022.949999999255,
+    "maximumDimensionRuns": 7,
+    "medianMaximumMs": 28378.449999999255,
+    "quarterCpuMs": 117423,
+    "maximumObservedWorkspaceBytes": 46383008,
+    "workspaceLimitBytes": 268435456
+  },
+  "applicationChecks": [
+    {
+      "name": "production reform checksums and vertical slice",
+      "elapsedMs": 4587.402599999999
+    },
+    {
+      "name": "unified required production assets",
+      "elapsedMs": 17851.5432
+    },
+    {
+      "name": "preparation types",
+      "elapsedMs": 6392.227600000002
+    },
+    {
+      "name": "application types",
+      "elapsedMs": 14933.457000000002
+    },
+    {
+      "name": "unit suite",
+      "elapsedMs": 85418.0448
+    },
+    {
+      "name": "unit acceptance",
+      "passed": 1296,
+      "skipped": 0
+    },
+    {
+      "name": "static build /",
+      "elapsedMs": 9006.438200000004
+    },
+    {
+      "name": "browser suite /",
+      "elapsedMs": 63321.90239999999
+    },
+    {
+      "name": "browser acceptance /",
+      "passed": 43,
+      "skipped": 0
+    },
+    {
+      "name": "current scenario editor /",
+      "elapsedMs": 99893.27350000001
+    },
+    {
+      "name": "unified static build /",
+      "elapsedMs": 9084.827800000028
+    },
+    {
+      "name": "unified browser/storage/export /",
+      "elapsedMs": 343117.905
+    },
+    {
+      "name": "unified browser acceptance /",
+      "passed": 10,
+      "skipped": 0
+    },
+    {
+      "name": "static build /elezioni",
+      "elapsedMs": 6663.510200000019
+    },
+    {
+      "name": "browser suite /elezioni",
+      "elapsedMs": 48261.143500000006
+    },
+    {
+      "name": "browser acceptance /elezioni",
+      "passed": 43,
+      "skipped": 0
+    },
+    {
+      "name": "current scenario editor /elezioni",
+      "elapsedMs": 65168.89150000003
+    },
+    {
+      "name": "unified static build /elezioni",
+      "elapsedMs": 6025.921999999904
+    },
+    {
+      "name": "unified browser/storage/export /elezioni",
+      "elapsedMs": 260276.1257000001
+    },
+    {
+      "name": "unified browser acceptance /elezioni",
+      "passed": 10,
+      "skipped": 0
+    },
+    {
+      "name": "restore root static build",
+      "elapsedMs": 5667.397499999963
+    }
+  ]
+}

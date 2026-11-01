@@ -1,4 +1,4 @@
-/** Strict v4 parser. No conversion to factor correspondences or older scenarios. */
+/** Strict current v5 parser. No conversion to factor correspondences or older scenarios. */
 import { reformLegalFields } from "../generation-scenario";
 import {
   object,
@@ -91,12 +91,12 @@ export const pollShape = object({
 });
 const shape = object({
   ...reformLegalFields,
-  schemaVersion: literal(4, 5),
+  schemaVersion: literal(5),
   generation: optional(object({
     model: literal('selected', 'legacy-poll-informed-v1'),
     compositions: dictionary(object({ fractions: dictionary(nonnegative), provenance: text, proxy: optional(bool) })),
     supplementalPolls: array(object({ id: text, date, available: date, end: date, context: literal('camera','european','senato'),
-      groups: array(object({label:text,members:array(text),share})), sample:nonnegative,source:text,enabled:bool })),
+      groups: array(object({label:text,members:array(text),share})), sample:nonnegative,source:text,enabled:bool,complete:optional(bool) })),
   })),
   referenceDate: date,
   fitSeed: text,
@@ -109,8 +109,6 @@ const shape = object({
     generationImplementationId: text,
     forecast: optional(
       literal(
-        "filing-strata-beta-v1",
-        "bounded-pair-field-v1",
         "bounded-mass-pair-field-v2",
       ),
     ),
@@ -300,7 +298,8 @@ export function validateFastScenario(value: unknown): string[] {
     "etichette liste",
   );
   for (const r of s.references)
-    if (
+    if (r.subject.kind !== "component") errors.push("I riferimenti politici devono indicare un componente: " + r.id);
+    else if (
       r.subject.kind === "component"
         ? !ids.has(r.subject.id)
         : !["camera", "senato"].some((ch) =>

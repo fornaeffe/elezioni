@@ -1,154 +1,122 @@
-# Unified reform generation workflow (FV-08)
+# Unified reform generation workflow
 
-The installed workflow below describes the audited FV-08 implementation.
-The [coordinated correspondence decisions](correspondence-policy-audit.md#proposed-corrections-before-implementation)
-supersede its future design: component-based legacy generation, component-level
-political references for both models, and latest-only web generators. Earlier
-archive routing/replay support is not a requirement for that update; old code
-may remain outside web bundles for terminal comparisons. Implementation is
-deferred until the remaining policy decisions are settled.
+The reform web app uses the current schema-5 workflow only. The selected
+`bounded-mass-pair-field-v2` model and the component-based legacy derivative
+share scenario identities, original data, physical geography, legal assembly,
+workers and result/export storage. Their statistical laws remain distinct.
+The [correspondence audit](correspondence-policy-audit.md#adopted-corrections)
+is the adopted policy contract; its initial measurements describe the frozen
+pre-correction implementation. Public deployment and FV-09 cleanup stay separate.
 
-This is the active scenario/editor/execution contract for reform scenario **v5**.
-The selected bounded mass-pair field is the default. The alternative is the
-**latest-publication legacy poll procedure** from the reviewed comparison,
-with the approved per-chamber new-list classification and choice-set/turnout
-policy below. The older pooled
-poll estimator is not this alternative. Public deployment remains at the final
-migration gate. FV-08 acceptance is complete; see the
-[accepted measurements](vote-generation-fast-acceptance.md) and
-[curated snapshot](../test/fixtures/benchmarks/vote_share_unified_acceptance.json).
-
-| Task | Entry point |
+| Task | Entry point under `web/` |
 | --- | --- |
-| Edit shared scenarios or select a model | `vote-share/FastScenarioEditor.svelte`, `GenerationModelEditor.svelte` |
-| Edit memberships or legacy composition | `FastEvidenceEditor.svelte`, `SourceCompositionEditor.svelte`, `correspondences.ts` |
-| Compile original data for legacy | `legacy-adapter.ts`, `legacy-polls.ts` |
-| Dispatch either model | `unified-generation.ts`, `workers/reform-compute.ts` |
-| Change worker recommendations/warnings | `core/reform-worker-capacity.ts`, `vote-share/fit-resources.ts` |
-| Generate defaults | `scripts/data-preparation/unified-share-default.ts`, existing release command |
-| Verify complete browser runs and archives | `playwright.unified-share.config.ts`, `tests/e2e/unified-share.spec.ts` |
-| Measure full refits and maximum numerical dimensions | `playwright.unified-resources.config.ts`, `tests/e2e/unified-resources.spec.ts` |
-| Review measurements and outcome | [Migration history](migration-history.md) |
-| Review correspondence/filing policy risks and proposed corrections | [Post-FV-08 audit](correspondence-policy-audit.md) |
+| Model dispatch / shared cell generation | `src/lib/politics/reform-2026/vote-share/unified-generation.ts`, `generation.ts` |
+| Offered-set pooling, zero treatment and reference coverage | `vote-share/component-policy.ts` under the same source directory |
+| Legacy original-count compilation / dated poll groups / shocks | `vote-share/legacy-adapter.ts`, `legacy-observations.ts`, `legacy-components.ts` |
+| Selected original partitions / identifiable groups and contrasts | `vote-share/source-compiler.ts`, `identification.ts`, `information.ts`, `profiles.ts` |
+| Component reference controls / scope and chamber resolution | `vote-share/FastReferencesEditor.svelte`, `reference-plans.ts`, `reference-groups.ts`, `interventions.ts` |
+| Final attributed list counts and legal assembly | `src/lib/politics/reform-2026/assembly.ts` |
+| Authored default compositions and missing anchors | `scripts/data-preparation/unified-share-default.ts`, `unsupported-component-references.ts` |
+| Current production checks / historical comparator | `scripts/acceptance/component-policy-current.ts`, `correspondence-policy-audit.ts` |
 
-Source paths above are relative to `web/src/lib/politics/reform-2026/`, except
-`core/` and `workers/` (relative to `web/src/lib/`) and `scripts/`, `tests/` and
-the Playwright configuration (relative to `web/`).
+## Numerical and observation contract
 
-## Membership and assumed composition
+Use policy `component-prefiling-conditioning-v2`, numerical version
+`fast-share-float64-v2`, and selected count version
+`fast-share-prefiling-physical-cells-v2`. Implementation hashes and semantic keys
+bind checkpoints, assets and runs; an old checkpoint is not silently upgraded.
+Historical comparison implementations live under `scripts/acceptance/archive/`
+and must not enter browser/worker bundles. The browser rejects older reform
+scenarios/archives rather than routing them to an old generator.
 
-Keep the [maintained numerical notation](vote-generation-fast-model.md):
-$S_i$ is the binary $G_i\times K$ membership matrix used by the selected model,
-and $u_i=\mathbf1^\top S_i$ is its offered set. **Do not reuse $B_i$:** that symbol
-already denotes a sampling/rounding covariance in the numerical contract.
+Structural membership stays independent of legacy composition weights. Legacy
+requires explicit nonnegative, provenance-bearing joint compositions, including
+zero proportions. Default equal compositions are explicit authored assumptions,
+never runtime missing-composition fallbacks. Future list membership is binary:
+joining tickets sums component counts and does not attenuate support.
 
-Store structural members independently from legacy nonnegative relative weights.
-For the legacy calculation normalize each nonempty source row into $W_i$:
+Original historical counts and offered sets survive compilation. Selected
+national fitting retains heterogeneous historical ballot strata and grouped poll
+observations. Bounded orthogonal Gaussian elimination handles ill-conditioned strata without
+adding a statistical ridge; its sufficient statistics are independently compared
+with the original covariance calculation. QR orthogonality and covariance-solve
+residuals are separate diagnostics. The existing matrix-free path and its residual
+gate remain available when a rectangular QR factor exceeds the workspace budget. Identical observation
+columns are fitted as group totals, with reference-backed component contrasts.
+Other overlapping unidentified contrasts retain their original operators and
+explicit reference requirements. Selected profile calculations retain their
+smoothing, regional shrinkage, filter and variance conventions, comparing actual
+historical choice sets rather than recording missing choices as zeros.
 
-$$
-(W_i)_{gj}=\frac{w_{igj}}{\sum_k w_{igk}},\qquad
-C_{i,f}=W_iS_f^\top.
-$$
+Legacy keeps the latest eligible common-18+ Camera/Senato baseline, decomposes
+original counts without early rounding, and pools regional/national support using
+the audit's conditional-frequency objective. Local observed proportions determine
+local relative support; missing alternatives borrow donor mass. Identifiable
+local zeros receive the zero-only half-vote logit treatment using the original
+electorate; positive fractional counts stay unchanged. There is no equal-list
+fallback or arbitrary donor replacement for a required current reference.
 
-$S_f$ is binary future membership, separately for the applicable chamber and
-physical choice set. Never normalize its rows: a future joint list receives the
-sum of its components. Membership remains present when its assumed legacy
-fraction is zero. Columns cannot occur in competing groups on the **same**
-ballot/question; different territorial ballots may have different tickets.
-Original grouped counts remain indivisible. Candidate pooling, unresolved-basis
-rejection and reference-supported fallback components are retained.
-Legacy poll points are projected independently onto Camera and Senate future
-memberships; a union of both tickets would duplicate or misattribute components.
-The latest-publication calculation retains the compared wave selection,
-normalization and measurement rules. A list lacking mapped history in the
-current renewed chamber uses the new-list exception even if the other chamber
-has history. Luca explicitly approved this per-chamber classification on
-31 October; the original comparison classified lists across renewed chambers.
-Duplicate component assignments within a poll question and poll proxies for
-unmeasured identities are rejected, including in partial named observations.
+## Reference, movement and filing order
 
-Scenario `generation` stores the selected `model`, `compositions` keyed by
-original choice ID (poll rows use `poll:<question ID>:<label>`), and the explicit
-partial named `supplementalPolls` used in the comparison. Composition rows retain
-relative weights (the storage field is named `fractions`) and provenance;
-normalization occurs at the model boundary, so editing 60:40 preserves that
-entered ratio. Reviewed named opaque TAA groups have separately
-labelled **legacy-only proxy** decompositions; those proxies never identify a
-candidate fitted split or replace the candidate's opaque observations.
+1. Build unrestricted reference-date component support. Political scenario
+   references target components, including components in joint tickets. Validate
+   identity, scope, denominator, compatible distributions and required coverage.
+2. Apply the model-specific reference uncertainty: selected uses its calibrated
+   joint reference family; legacy uses fixed scenario-reference means. Poll
+   measurement error is separate: one original group realization is shared by
+   its fixed-composition components, geography, ticket labels and reused chambers.
+   Complete questions retain their total; partial named surveys remain partial.
+3. Advance support with the selected joint field or independent legacy component
+   innovations, retaining within-component chamber dependence. Legacy's prepared
+   geographic estimates are fixed, without extra estimation-error draws.
+4. In each physical cell, remove unavailable components and deterministically
+   condition the complete vector, including non-valid support. Empty remaining
+   support is an error. Do not restore valid-vote totals or pre-filing margins.
+5. Generate electorate-conserving counts in those cells, sum components to the
+   filed lists, then aggregate to colleges. Camera TAA's proportional view is
+   derived once from its physical special ballots. No municipal vote relocation,
+   greedy capacity allocation or pre-filing reference-capacity solver is used.
 
-Default numerical weights come from `data/legacy-comparison-policy.json` and
-`data/legacy-comparison-future-polls.json`. These are now active preparation
-inputs and must survive FV-09 cleanup. An explicit equal-allocation action is
-available. Partial named observations are editable legacy inputs; they are not
-silently promoted to complete candidate polls. Full poll editing remains shared.
+Scoped references retain specific-over-general and explicit-chamber-over-common
+precedence. Unrestricted reference calibration is permitted; final filed shares
+need not reproduce references. `Models, references and conditions` exports retain
+reference-date, election-date-before-filing and filed probability support, their
+dates/denominators, retained mass, amplification and fallback summaries. Realized
+integer list vote shares remain separate result tables.
 
-Missing original observations/denominators and unavailable identities derive
-from source masks, source dates and the represented choice set. Other is its
-dated offered complement, constructed before candidate pooling. No extra
-user-authored missingness matrix is required. Date/status exclusions are
-automatic; explicit deselection records a user exclusion. Missing is never zero,
-and an unnamed poll Other is not a separately measured new-party point.
+## Defaults and verification
 
-## Effective inputs and turnout policy
+Luca approved explicit default anchors for IdV, Futuro Nazionale, PLD/LibDem,
++Uno, Progetto Civico and PSI/civici on 1 November 2026. Preparation obtains their
+reference-date means and sample SDs from 256 deterministic reference-only draws
+of the selected model **before adding these anchors**. The policy is
+`selected-reference-moments-v1` in `data/fast-share-default-policy.json`.
+The scenario state records the source fit/profile IDs, seed, draw count and
+estimates. These are model estimates, not new observations or calibrated
+forecasts. SDs apply only to selected generation; legacy uses fixed means.
+Existing scoped overrides retain precedence. Regenerate through the release
+pipeline; never edit generated defaults manually.
 
-Both engines receive the same source/geography/electorate and future ballot.
-The candidate uses its eligible historical/poll estimation inputs. Legacy uses
-the latest available same-date **common-18+ Camera/Senato pair** and the reviewed
-latest-publication poll refresh, including its mixed-wave/new-list exceptions,
-measurement floor and historical unreported remainder. With current bundled
-sources that pair is 2022. Unsupported earlier dates fail explicitly.
-Missing valid municipal baselines use labelled original regional proportions,
-rescaled to the common conditional target electorate.
+From `web/`, use `npm run data:reform:shares:release`, `npm run check:data`,
+`npm run check`, `npm test`, and the unified browser/storage/export checks.
+`npx tsx --tsconfig tsconfig.node.json scripts/acceptance/component-policy-current.ts`
+checks the installed current assets and reports invalid default reference inputs.
+The original audit reader uses the terminal-only comparator and does not rewrite
+its frozen benchmark receipt. Full model campaigns, resource observations and
+actual check outcomes belong in migration history, not assumed acceptance.
+After the application, full-campaign and resource suites pass, run
+`npx tsx --tsconfig tsconfig.node.json scripts/acceptance/component-policy-curate.ts`
+to produce the [current acceptance snapshot](../test/fixtures/benchmarks/correspondence_corrections_acceptance.json).
+It rejects missing/failed reports and campaign implementation identities that do
+not match the installed catalog. Earlier audit and FV receipts remain historical.
 
-For v5 legacy, `preserve-historical-turnout-v1` applies the source-row fractions
-to filed destinations, then conditions the resulting municipality's political
-composition on its available choice set. Incomplete destinations and unfiled
-support **do not automatically become non-valid support**. The baseline valid
-fraction is preserved. If no political destination remains, use regional mapped
-support over filed lists, or an explicitly labelled equal filed-list fallback.
-No filed choice is an error. Original v1-v3 scenarios retain their old policy.
+## Worker ownership and resource policy
 
-This separates turnout and political composition in legacy preparation; it does
-not establish identical turnout semantics with the selected field. Selected
-offered-set conditioning normalizes the full elector probability vector, including
-non-valid support; explicit political reference interventions preserve the
-resulting turnout. The statistical generators remain different. In particular,
-legacy still reconstructs physical college counts from municipal draws, whereas
-the candidate conditions its probability field at physical cells. The
-post-FV-08 [audit](correspondence-policy-audit.md) is complete. It quantifies
-incomplete mappings, ceased/new components, unfiled support and baseline
-list/college effects, and reproduces physical-capacity and greedy-allocation
-failures. Numerical corrections remain proposals requiring approval.
-This includes national poll allocation when one component belongs to different
-future tickets on geographically separate ballots: legacy retains national
-list-target reconciliation, rather than acquiring the candidate's physical-cell
-probability field. Shared scenario representation does not remove that legacy
-approximation or establish calibrated local predictions for those cases.
-
-Political point references, legal lists/filing, coalitions, candidates,
-preferences and bonus links remain shared. Reference SDs, list uncertainty
-multipliers, fallback-scale controls and partially specified within-list
-component interventions remain **candidate-only**; switching engines preserves
-them. Legacy uses whole-list point references and equivalent single-component
-lists; it acquires no artificial SD support. Poll reference dates, territorial
-shock ages and the legacy common-date approximation retain their documented
-meaning. The shared explicit FN TAA point is the reviewed 7.2% scenario proxy,
-not a national poll relabelled a territorial measurement.
-
-## State, workers and compatibility
-
-The model selector changes generation independently of the legal algorithm.
-Legacy preparation does no candidate fitting. Candidate evidence fingerprints
-survive legacy edits/checkpoints, so returning to the candidate requires any
-actually stale estimation. Each accepted run freezes scenario, engine identity,
-compiled legacy inputs or fitted candidate state and result provenance.
-Sessions/results embed the compiled legacy state for ordinary offline replay;
-editing evidence still requires the pinned original source chunks.
-
-Both engines use complete paired simulations per worker, stable simulation IDs,
-ordered bounded commits and the existing cancellation/result-storage pipeline.
-The former candidate **512 MiB aggregate ceiling is waived**. Numerical fitting
-retains its separate 256 MiB workspace/solver safeguards.
+Both models use complete paired simulations, stable IDs, ordered bounded commits,
+cancellation and the shared result pipeline. Numerical workspace remains capped
+at 256 MiB. The previous 512 MiB aggregate ceiling remains waived. The following
+resource planning policy is retained; older measurements are provenance for its
+conservative estimates, not fresh measurements of corrected algorithms.
 
 For $P$ declared logical processors, the selectable ceiling is
 $\max(1,P-2)$ when $P\ge4$, otherwise $\max(1,P-1)$. Two slots cover the main

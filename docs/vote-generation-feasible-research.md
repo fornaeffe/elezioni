@@ -1,3 +1,8 @@
+> Historical research record. The browser comparison entry points named below
+> were retired by the 1 November correspondence corrections. Current browser
+> acceptance covers only the selected and component-based legacy models; retained
+> historical comparisons run in terminal scripts under `web/scripts/acceptance/`.
+
 # Filing-aware vote forecast comparison
 
 ## Active scope

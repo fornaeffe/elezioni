@@ -109,12 +109,5 @@ it.skipIf(!present)('R26-19 required production bundle: acquire/generate with da
   const warning = output.warnings.find(w => w.code === 'I16_REUSED_RECIPIENT_REMAINDER')!;
   expect(warning).toMatchObject({ severity: 'warning', simulationId: 242 });
   expect(output.warnings.some(w => w.code === 'R26_N22_NON_COMPUTABLE')).toBe(false);
-  const exported = createSimulationResultExport({ scenario: defaults, exportedAt: '2026-10-21T00:00:00Z',
-    result: { type: 'result', status: 'completed', ...output, benchmark: { startedAt: '2026-10-21T00:00:00Z',
-      elapsedMs: 0, simulations: 1, dataVersion: defaults.snapshotVersion, scrutinyAlgorithmId: defaults.algorithmId, seed: defaults.seed } } });
-  const imported = parseSimulationResultExport(JSON.stringify(exported));
-  expect(imported.result.tables.find(t => t.name === 'Legal stages and blockers')!.rows).toContainEqual(expectedRow);
-  expect(imported.result.warnings).toContainEqual(warning);
-  expect(imported.result.tables.find(t => t.name === 'Cap and territorial transfers')!.rows)
-    .toContainEqual({ Simulation: 242, Trace: JSON.stringify(reused) });
+  expect(()=>createSimulationResultExport({scenario:defaults,exportedAt:'2026-10-21T00:00:00Z',result:{type:'result',status:'completed',...output,benchmark:{startedAt:'2026-10-21T00:00:00Z',elapsedMs:0,simulations:1,dataVersion:defaults.snapshotVersion,scrutinyAlgorithmId:defaults.algorithmId,seed:defaults.seed}}})).toThrow('Only latest');
 }, 30000);

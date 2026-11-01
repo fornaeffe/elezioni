@@ -1,15 +1,11 @@
 # Post-FV-08 correspondence-policy audit
 
-Completed 1 November 2026 against the current v5 implementation. **The audit is
-complete; the policy is not validated as generally equivalent between models.**
-The correction list below records the agreed decisions, including the geographic
-inference and unidentified-split proposals adopted on 1 November 2026. These
-policy decisions are settled; model implementation remains a separate,
-coordinated pass. The future web app includes only the
-latest generator algorithms, with no older-archive compatibility requirement.
-Earlier generator code may be archived outside the browser bundle for terminal
-comparison tests. Current behavior below is audit evidence, not a requirement
-to retain old algorithms in the web app.
+Audit completed and corrections implemented on 1 November 2026. **The two
+models retain different statistical laws; the corrections do not establish
+predictive calibration or equivalence.** The findings and quantitative snapshot
+below describe the implementation before correction. The adopted policies and
+implementation status follow them. The web app supports only the current v5
+workflow; historical generators and comparisons are terminal-only.
 
 ## Evidence and reproduction
 
@@ -38,7 +34,7 @@ the existing integer allocator, fixed audit rounding seed, $10^{12}$ probability
 weights, and simulation ID zero. They exclude vote shocks, scrutiny and seat
 effects. No full-country simulation acceptance campaign was rerun.
 
-## Current rules and their consequences
+## Audited rules and their consequences (before correction)
 
 | Case | Selected model | v5 legacy |
 | --- | --- | --- |
@@ -206,7 +202,9 @@ Poll reconciliation can constrain national margins while retaining different
 local profiles, so these baseline changes must not be presented as final forecast
 changes. No empirical coverage or local calibration claim follows from this audit.
 
-## Proposed corrections, before implementation
+<a id="proposed-corrections-before-implementation"></a>
+
+## Adopted corrections
 
 1. **Use one offered-choice-set policy — agreed 1 November 2026.** Treat a
    component known to be absent from the current ballot or poll response options
@@ -464,7 +462,7 @@ changes. No empirical coverage or local calibration claim follows from this audi
    below. Label geographic/profile assumptions and summarize affected support;
    no invented measurement should supply missing information.
 5. **Regularize legacy observed-zero support with a half vote — agreed
-   1 November 2026; implementation deferred.** After decomposing historical lists
+   1 November 2026; implemented.** After decomposing historical lists
    into components, use a half-vote probability when preparing the local
    historical logit for a component with identifiable zero historical support.
    This replaces the earlier future-list-level wording: regularize each
@@ -677,14 +675,46 @@ validation. Record which contrasts are identified, borrowed or assumed, and test
 municipality/college tails before acceptance; the fallback variance convention is
 not a claim of calibrated uncertainty for these new cases.
 
-### Coordinated implementation and verification
+### Implementation and verification
 
-The correspondence-policy decisions above are settled. This documentation update
-does not apply model corrections. Implement the complete agreed set in one
-coordinated pass under new
-policy/provenance identifiers with terminal comparison/characterization tests,
-current checkpoint binding and latest-format export/import checks. Verify that
-archived generator implementations are absent from browser/worker dependencies.
-Then repeat affected default/boundary tests and model campaigns. Keep code,
-default and data changes in that coordinated implementation rather than applying
-individual corrections early. FV-09 cleanup and public deployment remain separate.
+The coordinated implementation uses `component-prefiling-conditioning-v2`,
+`fast-share-float64-v2` and `fast-share-prefiling-physical-cells-v2`. See the
+[maintained implementation map and contract](vote-generation-unified-workflow.md)
+for the current modules, sequence and reproduction commands. Numerical fit,
+profile, composition and generation identities bind the corrected frozen states;
+old reform scenarios/results are rejected by browser imports.
+
+`component-policy.ts` implements conditional pooling, local completion and
+reference coverage. Disconnected positive choice sets linked only by an observed
+zero require national references; unidentified regional relative masses borrow
+the national donor. `legacy-adapter.ts` compiles original observations and fixed
+compositions; `legacy-components.ts` applies original-group poll errors and
+independent component movement. The shared generator applies unrestricted
+reference-date interventions, future movement and final cell conditioning, then
+generates counts directly in their destination cells. `identification.ts` and
+`reference-groups.ts` preserve original grouped evidence and separate current
+group totals from within-group reference-backed contrasts. The observed-zero
+half vote never overwrites original counts or small positive fractions.
+
+**Additional default-input decision, 1 November 2026.** Luca chose the current
+selected-model reference estimates for the six components with no usable legacy
+national anchor: IdV, Futuro Nazionale, PLD/LibDem, +Uno, Progetto Civico and
+PSI/civici. The default generator computes their pre-filing, valid-political
+reference-date means and sample SDs from 256 deterministic selected-model
+reference-only draws, before adding these anchors. It saves the seed, parent
+fit/profile identities and estimates under `selected-reference-moments-v1`.
+These are explicit model-based scenario inputs, not new observations. Existing
+territorial overrides retain precedence. Their SDs apply to selected generation;
+legacy uses the same means as fixed reference-date shares. This is a default
+preparation rule, never an automatic runtime replacement for missing references.
+
+Constructed policy regressions cover offered zeros versus missing evidence,
+conditional denominators, tiny positive support, required references,
+reference-backed group conservation, overlapping identification directions,
+shared poll errors, legacy fixed-reference semantics and direct cell counts.
+Production preparation verifies source integrity, matching semantic keys and a
+complete 588-seat legal allocation. Browser and full-campaign receipts are
+recorded in [migration history](migration-history.md) and the
+[current acceptance snapshot](../test/fixtures/benchmarks/correspondence_corrections_acceptance.json):
+1,296 unit tests, root/project-base browser checks and 1,000 complete simulations
+per model passed. Historical findings above remain frozen. FV-09 cleanup and public deployment remain separate work.

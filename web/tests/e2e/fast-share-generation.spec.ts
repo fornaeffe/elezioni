@@ -43,7 +43,7 @@ test('FV-04 physical counts, legal assembly and uncertain references match Node 
       id: 'ref-a',
       scope: { kind: 'national' },
       channel: 'common',
-      subject: { kind: 'list', id: f.scenario.lists.camera[0].id },
+      subject: { kind: 'component', id: 'a' },
       mean: 0.4,
       sdPercentagePoints: 2
     }

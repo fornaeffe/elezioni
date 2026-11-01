@@ -5,29 +5,14 @@ const scenario = (schemaVersion: number) => ({
   kind: 'politics-reform-scenario',
   schemaVersion,
 });
-describe('original-generator archive dispatch', () => {
-  it('routes v1-v3 and v4 without converting scenario models', async () => {
-    for (const version of [1, 2, 3, 4, 5])
-      for (const compressed of [false, true]) {
-        const text = JSON.stringify(scenario(version)),
-          data = compressed ? gzipSync(new TextEncoder().encode(text)) : text;
-        expect(
-          await archiveWorkflow(
-            new File(
-              [data as BlobPart],
-              compressed ? 'scenario.json.gz' : 'scenario.json',
-            ),
-          ),
-        ).toBe(version >= 4 ? 'fast' : 'installed');
-        const root = JSON.stringify({
-          schema_version: version >= 4 ? 3 : 2,
-          scenario: scenario(version),
-          result: { tables: [] },
-        });
-        expect(await archiveWorkflow(new File([root], 'results.json'))).toBe(
-          version >= 4 ? 'fast' : 'installed',
-        );
-      }
+describe('latest-only archive dispatch', () => {
+  it('accepts current v5 and rejects older archives without converting their models',async()=>{
+    for(const version of [1,2,3,4,5]) for(const compressed of [false,true]) {
+      const text=JSON.stringify(scenario(version)),data=compressed?gzipSync(new TextEncoder().encode(text)):text;
+      const file=new File([data as BlobPart],compressed?'scenario.json.gz':'scenario.json');
+      if(version===5) expect(await archiveWorkflow(file)).toBe('fast');
+      else await expect(archiveWorkflow(file)).rejects.toThrow('Unsupported');
+    }
   });
   it('recognizes fitted sessions and rejects unknown/missing versions', async () => {
     expect(
@@ -53,10 +38,10 @@ describe('original-generator archive dispatch', () => {
     expect(
       await archiveWorkflow(
         new File(
-          ['{"scenario":' + JSON.stringify(scenario(3)) + ',"result":INVALID'],
+          ['{"scenario":' + JSON.stringify(scenario(5)) + ',"result":INVALID'],
           'large.json',
         ),
       ),
-    ).toBe('installed');
+    ).toBe('fast');
   });
 });

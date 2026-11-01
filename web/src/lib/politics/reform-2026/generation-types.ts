@@ -137,6 +137,7 @@ export type ReformLegalSettings = ReformCandidateSettings & Pick<ReformGeneratio
   'kind' | 'algorithmId' | 'suppliedVotes' | 'suppliedPreferences' | 'bonusLinks' | 'preferenceProfileId' | 'chamberProfileId'> &
   Partial<Pick<ReformGenerationScenario, 'conversion' | 'pollReferences'>>;
 export interface GenerationTrace {
+  componentSupport?: unknown;
   bonusSelection?: {
     policy: 'reference-proportional-v1'; referenceDate: string;
     slates: { chamber: Chamber; territoryId: string; subject: Subject;

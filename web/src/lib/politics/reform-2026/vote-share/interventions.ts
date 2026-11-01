@@ -2,9 +2,10 @@ import { projectMargins } from './projection';
 import { sum } from './types';
 export function removeAbsent(input: ArrayLike<number>, offered: readonly boolean[]) {
   if (input.length !== offered.length || !offered[0]) throw new Error('Invalid elector choice set');
+  if(Array.from(input).some(x=>!Number.isFinite(x)||x<0)) throw new Error('INVALID_SUPPORT_PROBABILITY');
   const p = Float64Array.from(input, (x, i) => (offered[i] ? x : 0)),
     mass = sum(p);
-  if (!(mass > 0) || p.some((x) => !Number.isFinite(x) || x < 0)) throw new Error('Empty country choice set');
+  if (!(mass > 0) || p.some((x) => !Number.isFinite(x) || x < 0)) throw new Error('EMPTY_REMAINING_SUPPORT: choice-set conditioning is undefined');
   for (let j = 0; j < p.length; j++) p[j] /= mass;
   return p;
 }

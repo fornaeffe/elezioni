@@ -1,5 +1,11 @@
 # Fast vote generation: production data and scenario contracts
 
+Current application boundary (1 November 2026): only schema-5 reform scenarios
+and their current frozen sessions are supported in the browser. Political
+references target components. Original offered sets and unidentified contrasts
+follow the [unified contract](vote-generation-unified-workflow.md), which takes
+precedence over earlier FV scenario examples below. Old archives are not upgraded.
+
 **Version scope:** this is the original v4 numerical/reuse contract. The active
 [unified v5 contract](vote-generation-unified-workflow.md) extends it with explicit
 generation selection and separate legacy composition, preserving v1-v4 identity.

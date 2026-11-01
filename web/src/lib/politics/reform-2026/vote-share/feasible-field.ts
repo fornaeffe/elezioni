@@ -4,12 +4,11 @@ import { betaTransition } from "./transition";
 import { projectMargins } from "./projection";
 import { sum, requireWorkspace } from "./types";
 import { fitRandom } from "./random";
-export const FIELD_MODELS = [
-  "filing-strata-beta-v1",
-  "bounded-pair-field-v1",
-  "bounded-mass-pair-field-v2",
-] as const;
-export type FieldModel = (typeof FIELD_MODELS)[number];
+export const FIELD_MODELS = ["bounded-mass-pair-field-v2"] as const;
+export type FieldModel =
+  | "filing-strata-beta-v1"
+  | "bounded-pair-field-v1"
+  | "bounded-mass-pair-field-v2";
 export interface FieldInput {
   model: FieldModel;
   reference: readonly Float64Array[];
@@ -40,7 +39,7 @@ export function feasibleField(input: FieldInput) {
     rho = input.correlation ?? 0,
     m = input.scaleMultiplier ?? 1;
   if (
-    !FIELD_MODELS.includes(input.model) ||
+    input.model !== "bounded-mass-pair-field-v2" ||
     !reference.length ||
     reference.length !== cells.length ||
     n < 2 ||
@@ -81,114 +80,8 @@ export function feasibleField(input: FieldInput) {
   const p = reference.map((x) => x.slice());
   let residual = 0,
     iterations = 0;
-  if (input.model === "filing-strata-beta-v1") {
-    const groups = new Map<string, number[]>();
-    reference.forEach((row, i) => {
-      const key = Array.from(row, (_, j) => (row[j] > 0 ? j : -1))
-        .filter((j) => j >= 0)
-        .join(",");
-      const group = groups.get(key) ?? [];
-      group.push(i);
-      groups.set(key, group);
-    });
-    for (const indices of groups.values()) {
-      const mass = sum(indices.map((i) => cells[i].electors));
-      if (!mass) continue;
-      const b = new Float64Array(n);
-      for (const i of indices)
-        for (let j = 0; j < n; j++)
-          b[j] += (cells[i].electors / mass) * reference[i][j];
-      const valid = 1 - b[0];
-      if (!(valid > 0)) continue;
-      let q: Float64Array = b.slice(1).map((x) => x / valid);
-      q = betaTransition(
-        q,
-        Array.from(input.politicalScales, (x) => x * m),
-        input.horizon,
-        forecastRandom(
-          input.seed,
-          input.simulationId,
-          "strata-political",
-          ch,
-          rho,
-        ),
-      );
-      q = betaTransition(
-        q,
-        Float64Array.from(
-          { length: n - 1 },
-          (_, j) => (input.discrepancyScales?.[j] ?? input.discrepancy) * m,
-        ),
-        1,
-        forecastRandom(
-          input.seed,
-          input.simulationId,
-          "strata-discrepancy",
-          ch,
-          rho,
-        ),
-      );
-      const a = betaTransition(
-        [b[0], valid],
-        [input.participationScale * m, input.participationScale * m],
-        input.horizon,
-        forecastRandom(
-          input.seed,
-          input.simulationId,
-          "strata-nonvalid",
-          ch,
-          rho,
-        ),
-      );
-      const target = Float64Array.from([a[0], ...q.map((x) => a[1] * x)]),
-        region = new Map<string, Float64Array>();
-      for (const i of indices)
-        if (!region.has(cells[i].region)) {
-          const rng = forecastRandom(
-            input.seed,
-            input.simulationId,
-            "strata-region:" + cells[i].region,
-            ch,
-            rho,
-          );
-          region.set(
-            cells[i].region,
-            Float64Array.from({ length: n }, () => rng.normal()),
-          );
-        }
-      const scores = indices.map((i) => {
-        const rng = forecastRandom(
-          input.seed,
-          input.simulationId,
-          "strata-local:" + cells[i].id,
-          ch,
-          rho,
-        );
-        return Float64Array.from({ length: n }, (_, j) => {
-          const z = rng.normal();
-          return target[j] > 0 && reference[i][j] > 0
-            ? Math.log(target[j]) +
-                Math.log(reference[i][j]) -
-                Math.log(b[j]) +
-                m *
-                  input.localScales[j] *
-                  (input.localMultipliers?.[i][j] ?? 1) *
-                  Math.sqrt(input.horizon) *
-                  (Math.sqrt(0.85) * z +
-                    Math.sqrt(0.15) * region.get(cells[i].region)![j])
-            : -Infinity;
-        });
-      });
-      const projected = projectMargins(target, indices.length, (i) => ({
-        weight: cells[indices[i]].electors,
-        scores: scores[i],
-      }));
-      residual = Math.max(residual, projected.residual);
-      iterations = Math.max(iterations, projected.iterations);
-      indices.forEach((i, r) => p[i].set(projected.probabilities(r)));
-    }
-  } else {
-    const weighted = input.model === "bounded-mass-pair-field-v2",
+  {
+    const weighted = true,
       patternIndex = new Map<string, number>(),
       patternRows: number[][] = [],
       patternMembers: number[][] = [],

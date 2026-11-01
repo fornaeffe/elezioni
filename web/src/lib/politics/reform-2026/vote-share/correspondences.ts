@@ -1,9 +1,9 @@
 /** Structural S_i is separate from legacy row composition W_i. */
 export const generationModels = [
-  { id: 'selected', label: 'Modello selezionato — trasferimenti limitati' },
+  { id: "selected", label: "Modello selezionato — trasferimenti limitati" },
   {
-    id: 'legacy-poll-informed-v1',
-    label: 'Modello precedente — aggiornamento dai sondaggi',
+    id: "legacy-poll-informed-v1",
+    label: "Modello precedente — aggiornamento dai sondaggi",
   },
 ] as const;
 export interface SourceComposition {
@@ -13,13 +13,13 @@ export interface SourceComposition {
   proxy?: boolean;
 }
 export interface GenerationChoice {
-  model: 'selected' | 'legacy-poll-informed-v1';
+  model: "selected" | "legacy-poll-informed-v1";
   compositions: Record<string, SourceComposition>;
   /** Compared partial named observations; unsupported as complete candidate polls. */
-  supplementalPolls: import('./legacy-polls').LegacyPollObservation[];
+  supplementalPolls: import("./legacy-polls").LegacyPollObservation[];
 }
 export const pollChoiceId = (poll: string, label: string) =>
-  'poll:' + poll + ':' + label;
+  "poll:" + poll + ":" + label;
 export function normalizedComposition(
   members: readonly string[],
   composition?: SourceComposition,
@@ -28,29 +28,32 @@ export function normalizedComposition(
     ? Object.keys(composition.fractions)
     : [...members];
   if (!ids.length || new Set(ids).size !== ids.length)
-    throw new Error('Empty or repeated source membership');
+    throw new Error("Empty or repeated source membership");
   const weights = ids.map((id) =>
     composition ? (composition.fractions[id] ?? 0) : 1,
   );
   if (
     composition &&
     (!composition.provenance.trim() ||
+      (!composition.proxy &&
+        ids.some((id) => !Object.hasOwn(composition.fractions, id))) ||
       Object.keys(composition.fractions).some((id) => !ids.includes(id)))
   )
     throw new Error(
-      'Composition must name exactly its source members and retain provenance',
+      "Composition must name exactly its source members and retain provenance",
     );
   if (
     weights.some((w) => !Number.isFinite(w) || w < 0) ||
     !weights.some((w) => w > 0)
   )
     throw new Error(
-      'Composition needs finite nonnegative weights with positive total',
+      "Composition needs finite nonnegative weights with positive total",
     );
-  const ordinaryTotal=weights.reduce((n,w)=>n+w,0);
-  if (Number.isFinite(ordinaryTotal)) return ids.map((id,i)=>({id,fraction:weights[i]/ordinaryTotal}));
+  const ordinaryTotal = weights.reduce((n, w) => n + w, 0);
+  if (Number.isFinite(ordinaryTotal))
+    return ids.map((id, i) => ({ id, fraction: weights[i] / ordinaryTotal }));
   const maximum = Math.max(...weights),
-    scaled = weights.map(w => w / maximum),
+    scaled = weights.map((w) => w / maximum),
     total = scaled.reduce((n, w) => n + w, 0);
   return ids.map((id, i) => ({ id, fraction: scaled[i] / total }));
 }
@@ -74,12 +77,12 @@ export function correspondenceRow(
 export function equalComposition(
   members: readonly string[],
 ): SourceComposition {
-  if (!members.length) throw new Error('Select source members first');
+  if (!members.length) throw new Error("Select source members first");
   return {
     fractions: Object.fromEntries(
       members.map((id) => [id, 1 / members.length]),
     ),
     provenance:
-      'Explicit equal allocation action; assumed internal composition, not observed counts.',
+      "Explicit equal allocation action; assumed internal composition, not observed counts.",
   };
 }

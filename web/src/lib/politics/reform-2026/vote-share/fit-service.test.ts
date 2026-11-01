@@ -21,6 +21,7 @@ describe('FV-06 semantic refitting and task-owned state', () => {
       sourceLoaded: false,
     });
     const scenario = structuredClone(f.accepted.scenario);
+    scenario.references.push({id:'ref-a',channel:'common',scope:{kind:'national'},subject:{kind:'component',id:'a'},mean:.3,sdPercentagePoints:2});
     scenario.seed += 'changed';
     scenario.electionDate = '2027-10-01';
     scenario.lists.camera[0] = {
@@ -38,6 +39,7 @@ describe('FV-06 semantic refitting and task-owned state', () => {
         read,
       );
     expect(read).not.toHaveBeenCalled();
+    expect(result.audit).toMatchObject({nationalFits:0,profileFits:0,pairedFits:0,sourceLoaded:false});
     expect(result.accepted!.assets.fit).toBe(f.accepted.assets.fit);
     expect(result.accepted!.keys.runKey).not.toBe(f.accepted.keys.runKey);
   });

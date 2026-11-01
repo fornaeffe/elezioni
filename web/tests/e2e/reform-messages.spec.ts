@@ -1,7 +1,5 @@
+import { currentBrowserSession, currentArchive } from '../fixtures/current-browser-session';
 import { expect, test } from '@playwright/test';
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
-import catalog from '../../src/lib/politics/reform-2026/data/generation-catalog.generated.json' with { type: 'json' };
 import { diagnosticResult } from '../fixtures/diagnostic-result';
 import { diagnosticTableName } from '../../src/lib/core/diagnostic-messages';
 import { gunzipSync } from 'fflate';
@@ -9,12 +7,12 @@ import { gunzipSync } from 'fflate';
 test('global context precedes exact frequencies and bounded ID inspection, filtering and full CSV', async ({ page }) => {
   test.setTimeout(90000);
   const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
-  const scenario = JSON.parse(readFileSync(resolve('src/lib/politics/reform-2026/data', catalog.defaultsPath), 'utf8'));
+  const scenario = (await currentBrowserSession()).scenario as unknown as import('../../src/lib/politics/reform-2026/generation-types').ReformGenerationScenario;
   const archive = diagnosticResult(scenario);
   const reordered = { ...archive, result: { ...archive.result, tables: archive.result.tables.map(t => t.name === diagnosticTableName ? { rows: t.rows, columns: t.columns, name: t.name } : t) } };
   await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
   await page.getByLabel('Algoritmo di scrutinio').selectOption(scenario.algorithmId);
-  await page.getByTestId('reform-file-input').setInputFiles({ name: 'messages.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(reordered)) });
+  await page.getByTestId('reform-file-input').setInputFiles({ name: 'messages.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(currentArchive(reordered, await currentBrowserSession()))) });
   const general = page.getByRole('region', { name: 'Informazioni e avvisi generali', exact: true });
   const summary = page.getByRole('region', { name: 'Messaggi delle simulazioni', exact: true });
   await expect(summary.getByRole('table')).toContainText('1201/1500', { timeout: 30000 });
@@ -67,8 +65,8 @@ test('global context precedes exact frequencies and bounded ID inspection, filte
   old.result.tables = old.result.tables.filter(t => t.name !== diagnosticTableName);
   old.result.tables.push({ name: 'Warnings and errors', columns: ['Code', 'Severity', 'First simulation', 'Message', 'Occurrences'], rows: [['TEST_ERROR', 'error', 1, 'Saved aggregate', 6005]] });
   const previous = await page.getByLabel('Risultati locali').inputValue();
-  await page.getByTestId('reform-file-input').setInputFiles({ name: 'old-messages.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(old)) });
-  await expect(page.getByLabel('Risultati locali')).not.toHaveValue(previous);
+  await page.getByTestId('reform-file-input').setInputFiles({ name: 'old-messages.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(currentArchive(old, await currentBrowserSession()))) });
+  await expect(page.getByLabel('Risultati locali')).not.toHaveValue(previous, {timeout:30000});
   await expect(summary).toContainText('Frequenze e ID esatti non ricostruibili', { timeout: 30000 });
   await expect(summary.getByRole('combobox', { name: 'Ramo dei messaggi', exact: true })).toBeDisabled();
   await expect(summary.getByRole('table')).toContainText('6005');
@@ -79,8 +77,8 @@ test('global context precedes exact frequencies and bounded ID inspection, filte
   const zero = structuredClone(archive); zero.result.tables = []; zero.result.completedSimulations = 0;
   zero.result.warnings = [{ code: 'RESULT_STORAGE_ERROR', electionKind: 'politiche', severity: 'error', scope: 'execution', message: 'Failure before the first saved run.' }];
   const beforeZero = await page.getByLabel('Risultati locali').inputValue();
-  await page.getByTestId('reform-file-input').setInputFiles({ name: 'zero.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(zero)) });
-  await expect(page.getByLabel('Risultati locali')).not.toHaveValue(beforeZero);
+  await page.getByTestId('reform-file-input').setInputFiles({ name: 'zero.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(currentArchive(zero, await currentBrowserSession()))) });
+  await expect(page.getByLabel('Risultati locali')).not.toHaveValue(beforeZero, {timeout:30000});
   await expect(general).toContainText('Calcolo interrotto: 0/1500', { timeout: 30000 });
   await expect(summary.locator('.totals')).toContainText('Errore: 0/1500');
   await expect(page.getByRole('alert').filter({ hasText: 'Unknown result table' })).toHaveCount(0);

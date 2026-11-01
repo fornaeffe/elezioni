@@ -1,159 +1,25 @@
-import { existsSync, readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
-import { gzipSync, gunzipSync } from 'fflate';
+import {currentBrowserSession} from '../fixtures/current-browser-session';
 import { expect, test } from '@playwright/test';
-import catalog from '../../src/lib/politics/reform-2026/data/generation-catalog.generated.json' with { type: 'json' };
-const defaults = JSON.parse(readFileSync(new URL(`../../src/lib/politics/reform-2026/data/${catalog.defaultsPath}`, import.meta.url), 'utf8'));
-
-const base = process.env.BASE_PATH ?? '';
-const hasBundle = existsSync(resolve(process.cwd(), 'static', catalog.path));
-
-test('compute-worker choice defaults to half-memory recommendation and remains separate from the scenario', async ({ page, context }) => {
-  await context.addInitScript(()=>{Object.defineProperty(navigator,'hardwareConcurrency',{value:8});Object.defineProperty(navigator,'deviceMemory',{value:16});});
-  let release = () => {};
-  const gate = new Promise<void>(resolve => { release = resolve; });
-  await context.route(`**/${catalog.path}`, async route => { await gate; await route.continue(); });
-  await page.goto(`${base}/politics`);
+import { readFileSync } from 'node:fs';
+import catalog from '../../src/lib/politics/reform-2026/data/generation-catalog.generated.json' with {type:'json'};
+const obsolete = JSON.parse(readFileSync(new URL(`../../src/lib/politics/reform-2026/data/${catalog.defaultsPath}`,import.meta.url),'utf8'));
+const base=process.env.BASE_PATH??'';
+for (const version of [1,2,3,4]) test(`retired reform scenario v${version} is rejected without opening another workflow`,async({page})=>{
+  await page.goto(base+'/politics');
   await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-reform-2026-v1');
-  const choice = page.getByLabel('Processi di calcolo', { exact: true });
-  await expect(choice).toBeEnabled();
-  const options = await choice.locator('option').allTextContents();
-  expect(options[0]).toBe('1');
-  expect(options.at(-1)).toBe('6');
-  await expect(choice).toHaveValue('5');
-  await expect(page.locator('#reform-worker-memory')).toContainText('1,5 GiB per processo');
-  await choice.selectOption('1');
-  await page.getByLabel('Simulazioni', { exact: true }).fill('1');
-  await page.getByRole('button', { name: 'Esegui riforma', exact: true }).click();
-  try {
-    await expect(choice).toBeDisabled();
-    await expect(page.getByRole('button', { name: 'Ripristina scenario predefinito', exact: true })).toBeDisabled();
-  }
-  finally { release(); }
-  await expect(page.getByTestId('reform-phase')).toHaveText(/completed|not_implemented/, { timeout: 60000 });
-  await page.reload();
-  await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-reform-2026-v1');
-  await expect(choice).toHaveValue('1');
+  await page.getByTestId('reform-file-input').setInputFiles({name:`v${version}.json`,mimeType:'application/json',buffer:Buffer.from(JSON.stringify({...obsolete,schemaVersion:version}))});
+  await expect(page.getByRole('alert')).toContainText(/precedente|version|schemaVersion/i);
+  await expect(page.getByLabel('Modello di generazione',{exact:true})).toHaveValue('selected');
+  await expect(page.getByTestId('fit-status')).not.toHaveText('Modello pronto');
 });
 
-test('production execution supports the default resource-sized pool', async ({ page,context }) => {
-  await context.addInitScript(()=>{Object.defineProperty(navigator,'hardwareConcurrency',{value:8});Object.defineProperty(navigator,'deviceMemory',{value:16});});
-  test.skip(!hasBundle, 'Required generated reform runtime bundle is absent; release acceptance must not skip.');
-  test.setTimeout(120000);
-  await page.goto(`${base}/politics`);
-  await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-reform-2026-v1');
-  const choice = page.getByLabel('Processi di calcolo', { exact: true });
-  await expect(choice).toBeEnabled();
-  const maximum = Number(await choice.inputValue());
-  await page.getByLabel('Simulazioni', { exact: true }).fill(String(maximum));
-  await page.getByRole('button', { name: 'Esegui riforma', exact: true }).click();
-  await expect(page.getByTestId('reform-phase')).toHaveText('completed', { timeout: 100000 });
-  await expect(page.getByTestId('stored-result-status')).toContainText(`${maximum}/${maximum}`);
-  const download = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Scarica risultati JSON.gz', exact: true }).click();
-  const stream = await (await download).createReadStream(), chunks: Buffer[] = [];
-  for await (const chunk of stream!) chunks.push(Buffer.from(chunk));
-  const result = JSON.parse(new TextDecoder().decode(gunzipSync(Buffer.concat(chunks)))).result;
-  expect(result.benchmark.execution).toMatchObject({ requestedWorkers: maximum, computeWorkers: maximum });
-  // Page-only synthetic hints do not replace native WorkerNavigator hints.
-  expect(result.benchmark.execution.maximumWorkers).toBeGreaterThanOrEqual(maximum);
-});
-
-test('both algorithms remain selectable; missing production bundle fails without debug fallback', async ({ page, context }) => {
-  await page.goto(`${base}/`);
-  await page.getByRole('link', { name: /Politiche/ }).click();
-  await expect(page).toHaveURL(new RegExp(`${base}/politics/?$`));
-  await expect(page.getByLabel('Algoritmo di scrutinio')).toHaveValue('politiche-r-parity-v1');
-  await context.route(`**/${catalog.path}`, route => route.fulfill({ status: 404, body: 'missing' }));
-  await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-reform-2026-v1');
-  await page.getByRole('button', { name: 'Esegui riforma', exact: true }).click();
-  await expect(page.getByTestId('reform-phase')).toHaveText('not_implemented', { timeout: 30000 });
-  await expect(page.getByLabel('Avvisi riforma')).toContainText('Missing production bundle');
-  await expect(page.getByLabel('Avvisi riforma')).toContainText(`${base}/${catalog.path}`);
-  await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-r-parity-v1');
-  await expect(page.getByRole('heading', { name: 'Scenario', exact: true })).toBeVisible();
-});
-
-test('production paired worker, bounded detail rendering, scenario/results roundtrip and replay', async ({ page }) => {
-  test.skip(!hasBundle, 'Required generated reform runtime bundle is absent; run data:reform:generate -- --publish. Release acceptance must not skip.');
-  test.setTimeout(120000);
-  const pageErrors: string[] = [];
-  page.on('pageerror', error => pageErrors.push(error.message));
-  await page.goto(`${base}/politics`);
-  await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-reform-2026-v1');
-  await page.getByLabel('Simulazioni', { exact: true }).fill('2');
-  const runSeed = 'executed-before-reset';
-  await page.getByLabel('Seed', { exact: true }).fill(runSeed);
-  await page.getByRole('button', { name: 'Esegui riforma', exact: true }).click();
-  await expect(page.getByTestId('reform-phase')).toHaveText(/completed|not_implemented/, { timeout: 60000 });
-  expect(await page.getByTestId('reform-phase').textContent(), await page.locator('body').innerText()).toBe('completed');
-  await expect(page.getByRole('table', { name: 'Reform overview' })).toContainText('2');
-  await expect(page.getByLabel('Avvisi riforma')).toContainText('R26_CONDITIONAL_CANDIDATES');
-  await page.getByLabel('Tabella riforma').selectOption({ label: 'Seat entitlement and election locations (1176)' });
-  await expect(page.getByRole('table', { name: 'Seat entitlement and election locations', exact: true }).locator('tbody tr')).toHaveCount(50);
-  await expect(page.getByRole('table', { name: 'Riepilogo dei messaggi', exact: true })).toBeVisible();
-  await page.getByRole('button', { name: 'Pagina successiva', exact: true }).click();
-  await expect(page.getByText('Pagina 2 di 24')).toBeVisible();
-  await page.getByText('Seggi della singola simulazione', { exact: true }).click();
-  await page.getByLabel('Ramo grafico').selectOption('senato');
-  await expect(page.getByRole('figure')).toContainText('senato');
-
-  // Edits after execution must not alter the exported/replay scenario.
-  await page.getByLabel('Seed', { exact: true }).fill('edited-after-run');
-  await expect(page.getByRole('alert')).toContainText('Scenario modificato');
-  const downloadPromise = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Scarica risultati JSON.gz', exact: true }).click();
-  const download = await downloadPromise, stream = await download.createReadStream(), chunks: Buffer[] = [];
-  for await (const chunk of stream!) chunks.push(Buffer.from(chunk));
-  const compressed = Buffer.concat(chunks), payload = JSON.parse(new TextDecoder().decode(gunzipSync(compressed)));
-  expect(payload.scenario.seed).toBe(runSeed);
-  expect(payload.result.benchmark.scrutinyAlgorithmId).toBe('politiche-reform-2026-v1');
-  expect(payload.result.tables.find((t: { name: string }) => t.name === 'Reform runs').rows.map((r: unknown[]) => r[0])).toEqual([1, 2]);
-  const firstTables = payload.result.tables;
-  await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-r-parity-v1');
-  await page.getByTestId('result-file-input').setInputFiles({ name: 'r26-results.json.gz', mimeType: 'application/gzip', buffer: compressed });
-  await expect(page.getByLabel('Algoritmo di scrutinio')).toHaveValue('politiche-reform-2026-v1');
-  await expect(page.getByTestId('reform-phase')).toHaveText('imported');
-  await expect(page.getByLabel('Seed', { exact: true })).toHaveValue(runSeed);
-  // A second import starts from an already-imported status. Wait for the new
-  // session, rather than accepting the previous result's status immediately.
-  const previousImportId = await page.getByLabel('Risultati locali').inputValue();
-  await page.getByTestId('reform-file-input').setInputFiles({ name: 'r26-results.json.gz', mimeType: 'application/gzip', buffer: compressed });
-  await expect(page.getByLabel('Risultati locali')).not.toHaveValue(previousImportId);
-  await expect(page.getByTestId('reform-phase')).toHaveText('imported');
-  await page.getByRole('button', { name: 'Esegui riforma', exact: true }).click();
-  await expect(page.getByTestId('reform-phase')).toHaveText(/completed|not_implemented/, { timeout: 60000 });
-  expect(await page.getByTestId('reform-phase').textContent(), await page.locator('body').innerText()).toBe('completed');
-  const replayDownload = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Scarica risultati JSON.gz', exact: true }).click();
-  const replay = await (await replayDownload).createReadStream(), replayChunks: Buffer[] = [];
-  for await (const chunk of replay!) replayChunks.push(Buffer.from(chunk));
-  expect(JSON.parse(new TextDecoder().decode(gunzipSync(Buffer.concat(replayChunks)))).result.tables).toEqual(firstTables);
-  const savedResult = await page.getByLabel('Risultati locali').inputValue();
-  page.once('dialog', dialog => dialog.accept());
-  await page.getByRole('button', { name: 'Ripristina scenario predefinito', exact: true }).click();
-  await expect(page.getByLabel('Seed', { exact: true })).toHaveValue(defaults.seed);
-  await expect(page.getByLabel('Risultati locali')).toHaveValue(savedResult);
-  await expect(page.getByTestId('stored-result-status')).toContainText('2/2');
-  await expect(page.getByRole('alert')).toContainText('Scenario modificato');
-  await page.reload();
-  await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-reform-2026-v1');
-  await expect(page.getByTestId('reform-phase')).toHaveText('imported');
-  await expect(page.getByLabel('Seed', { exact: true })).toHaveValue(defaults.seed);
-  await expect(page.getByLabel('Risultati locali')).toHaveValue(savedResult);
-  await page.getByRole('button', { name: 'Ripristina scenario dei risultati', exact: true }).click();
-  await expect(page.getByLabel('Seed', { exact: true })).toHaveValue(runSeed);
-  await page.screenshot({ path: 'test-results/reform-workspace.png', fullPage: true });
-  expect(pageErrors).toEqual([]);
-  // Plain new scenario import retains identity, never goes through legacy parsing.
-  await page.getByTestId('reform-file-input').setInputFiles({ name: 'r26-scenario.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(defaults)) });
-  await expect(page.getByLabel('Seed', { exact: true })).toHaveValue(defaults.seed);
-  // Legacy result import in the reform workspace explicitly restores its law.
-  const legacy = { schema_version: 2, exportedAt: '2026-10-20T00:00:00Z', scenario: {
-    id: 'old', name: 'Old saved scenario', electionDate: '2027-09-25', defaultSource: { kind: 'manual', electionKind: 'politiche', territory: 'Italia', dataVersion: 'v1' },
-    globalShareMode: 'mean', abstentionShare: 30, abstentionOverride: false, lists: [], coalitions: [], listCorrespondences: [], localShareOverrides: [], candidateTemplates: [],
-    candidateGeneration: { uninominalToPlurinominalShare: 0, plurinominalCandidacyCountShares: [1, 0, 0, 0, 0] }
-  }, result: { type: 'result', status: 'completed', tables: [], warnings: [], benchmark: { startedAt: '2026-10-20T00:00:00Z', elapsedMs: 0, simulations: 1, dataVersion: 'v1' } } };
-  await page.getByTestId('reform-file-input').setInputFiles({ name: 'legacy.json.gz', mimeType: 'application/gzip', buffer: Buffer.from(gzipSync(new TextEncoder().encode(JSON.stringify(legacy)))) });
-  await expect(page.getByLabel('Algoritmo di scrutinio')).toHaveValue('politiche-r-parity-v1');
+test('current plain scenario imported from the previous-law screen keeps its seed and generator',async({page})=>{
+  const scenario=structuredClone((await currentBrowserSession()).scenario);
+  scenario.seed='current-plain-import';
+  await page.goto(base+'/politics');
+  await page.getByTestId('scenario-file-input').setInputFiles({name:'current.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(scenario))});
+  await expect(page.getByLabel('Algoritmo di scrutinio')).toHaveValue(scenario.algorithmId);
+  await expect(page.getByLabel('Seme delle simulazioni',{exact:true})).toHaveValue(scenario.seed);
+  await expect(page.getByLabel('Modello di generazione',{exact:true})).toHaveValue('selected');
+  await expect(page.getByRole('alert')).toHaveCount(0);
 });

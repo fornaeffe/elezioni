@@ -1,3 +1,4 @@
+import { identificationGroups, originalPartitions } from "./identification";
 import {
   conjugateGradient,
   denseFromOperator,
@@ -6,9 +7,9 @@ import {
   solveSpd,
   type LinearOperator,
   type SpdFactor,
-} from './linalg';
-import { gaussianMode, fitGaussianSteps } from './gaussian';
-import { completeSteps, type FitProgress } from './execution';
+} from "./linalg";
+import { gaussianMode, fitGaussianSteps } from "./gaussian";
+import { completeSteps, type FitProgress } from "./execution";
 import {
   clip,
   day,
@@ -23,7 +24,7 @@ import {
   type NationalSource,
   type SolverOptions,
   type Vector,
-} from './types';
+} from "./types";
 
 export function normalizeSource(source: NationalSource): NationalSource {
   const components = [...source.components].sort();
@@ -33,14 +34,14 @@ export function normalizeSource(source: NationalSource): NationalSource {
     new Set(components).size !== components.length ||
     components.some((x) => !x)
   )
-    throw new RangeError('Invalid fitted component basis (maximum 128)');
+    throw new RangeError("Invalid fitted component basis (maximum 128)");
   day(source.referenceDate);
   if (source.elections.length > 64)
     throw new RangeError(
-      'Unsupported historical envelope (maximum 64 national events)',
+      "Unsupported historical envelope (maximum 64 national events)",
     );
   if (source.polls.length > 512)
-    throw new RangeError('Unsupported poll envelope (maximum 512)');
+    throw new RangeError("Unsupported poll envelope (maximum 512)");
   const known = new Set(components),
     eventIds = new Set<string>(),
     contextDates = new Set<string>(),
@@ -52,14 +53,14 @@ export function normalizeSource(source: NationalSource): NationalSource {
     groups: string[][],
   ) => {
     if (!id || eventIds.has(id))
-      throw new RangeError('Duplicate/empty observation ID');
+      throw new RangeError("Duplicate/empty observation ID");
     eventIds.add(id);
-    if (!['camera', 'european'].includes(context))
+    if (!["camera", "european"].includes(context))
       throw new RangeError(
-        'Unsupported numerical context; Senate needs its separate adapter',
+        "Unsupported numerical context; Senate needs its separate adapter",
       );
     if (day(date) > day(source.referenceDate))
-      throw new RangeError('Observation is after reference cutoff');
+      throw new RangeError("Observation is after reference cutoff");
     const members = groups.flat();
     if (
       !groups.length ||
@@ -67,7 +68,7 @@ export function normalizeSource(source: NationalSource): NationalSource {
       new Set(members).size !== members.length ||
       members.some((x) => !known.has(x))
     )
-      throw new RangeError('Invalid grouped offered set');
+      throw new RangeError("Invalid grouped offered set");
     return groups
       .map((g, i) => ({ members: [...g].sort(), i }))
       .sort((a, b) =>
@@ -81,8 +82,22 @@ export function normalizeSource(source: NationalSource): NationalSource {
   const elections = source.elections
     .map((e) => {
       const sorted = check(e.id, e.date, e.context, e.groups);
+      for (const r of e.strata ?? []) {
+        const ids = r.groups.flat();
+        if (
+          !Number.isSafeInteger(r.electors) ||
+          r.electors <= 0 ||
+          r.counts.length !== r.groups.length + 1 ||
+          r.counts.some((v) => !Number.isSafeInteger(v) || v < 0) ||
+          sum(r.counts) !== r.electors ||
+          r.groups.some((g) => !g.length) ||
+          new Set(ids).size !== ids.length ||
+          ids.some((id) => !known.has(id))
+        )
+          throw new RangeError("Invalid original historical stratum");
+      }
       if (contextDates.has(e.context + e.date))
-        throw new RangeError('Duplicate national context/date');
+        throw new RangeError("Duplicate national context/date");
       contextDates.add(e.context + e.date);
       if (
         !Number.isSafeInteger(e.electors) ||
@@ -93,7 +108,7 @@ export function normalizeSource(source: NationalSource): NationalSource {
         e.counts[0] <= 0 ||
         e.counts[0] >= e.electors
       )
-        throw new RangeError('Invalid election elector/group counts');
+        throw new RangeError("Invalid election elector/group counts");
       return {
         ...e,
         groups: sorted.map((g) => g.members),
@@ -106,7 +121,7 @@ export function normalizeSource(source: NationalSource): NationalSource {
       const sorted = check(p.id, p.date, p.context, p.groups);
       const survey = p.surveyId ?? p.id;
       if (!survey || surveyIds.has(survey))
-        throw new RangeError('Duplicate survey evidence');
+        throw new RangeError("Duplicate survey evidence");
       surveyIds.add(survey);
       if (
         !(p.sample > 0) ||
@@ -120,7 +135,7 @@ export function normalizeSource(source: NationalSource): NationalSource {
         day(p.date) > day(p.fieldworkEnd)
       )
         throw new RangeError(
-          'Invalid poll sample/shares/availability (printed zeros unsupported)',
+          "Invalid poll sample/shares/availability (printed zeros unsupported)",
         );
       return {
         ...p,
@@ -130,8 +145,19 @@ export function normalizeSource(source: NationalSource): NationalSource {
     })
     .sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
   if (!elections.length)
-    throw new RangeError('A prepared historical baseline is required');
-  return { components, referenceDate: source.referenceDate, elections, polls };
+    throw new RangeError("A prepared historical baseline is required");
+  return {
+    components,
+    referenceDate: source.referenceDate,
+    elections,
+    polls,
+    ...(source.referenceRequired?.length
+      ? {
+          referenceRequired: source.referenceRequired,
+          referenceDirections: source.referenceDirections ?? [],
+        }
+      : {}),
+  };
 }
 export function estimateScales(source: NationalSource) {
   const political: number[] = [],
@@ -142,13 +168,13 @@ export function estimateScales(source: NationalSource) {
     politicalPairs: number;
     politicalRate: number | null;
   }[] = [];
-  for (const kind of ['camera', 'european']) {
+  for (const kind of ["camera", "european"]) {
     const records = source.elections.filter((e) => e.context === kind);
     for (let i = 1; i < records.length; i++) {
       const before = records[i - 1],
         after = records[i],
         dt = years(after.date, before.date);
-      if (!(dt > 0)) throw new RangeError('Nonpositive election transition');
+      if (!(dt > 0)) throw new RangeError("Nonpositive election transition");
       const named = (e: NationalElection) => {
         const v = sum(e.counts) - e.counts[0],
           result = new Map<string, number>();
@@ -325,19 +351,28 @@ function buildDesigns(source: NationalSource): DesignRecord[] {
   const k = source.components.length,
     index = new Map(source.components.map((id, i) => [id, i]));
   const records = [
-    ...source.elections.map((e) => {
-      const n = e.electors - e.counts[0];
-      return {
-        ...e,
-        sample: n,
-        period: null,
-        shares: e.counts.slice(1).map((x) => x / n),
-        varianceShares: e.counts
-          .slice(1)
-          .map((x) => (x + 0.5) / (n + 0.5 * e.groups.length)),
-        rounding: 0,
-      };
-    }),
+    ...source.elections
+      .flatMap(
+        (e) =>
+          e.strata?.map((r, i) => ({
+            ...e,
+            ...r,
+            id: e.id + ":stratum:" + i,
+          })) ?? [e],
+      )
+      .map((e) => {
+        const n = e.electors - e.counts[0];
+        return {
+          ...e,
+          sample: n,
+          period: null,
+          shares: e.counts.slice(1).map((x) => x / n),
+          varianceShares: e.counts
+            .slice(1)
+            .map((x) => (x + 0.5) / (n + 0.5 * e.groups.length)),
+          rounding: 0,
+        };
+      }),
     ...source.polls.map((p) => ({
       ...p,
       period: p.errorGroup,
@@ -383,7 +418,7 @@ function buildDesigns(source: NationalSource): DesignRecord[] {
       }
       const result = {
         id: record.id,
-        context: Number(record.context === 'european'),
+        context: Number(record.context === "european"),
         age: Math.max(0, years(source.referenceDate, record.date)),
         period: record.period,
         offset,
@@ -414,7 +449,7 @@ function collapsePollRecords(input: DesignRecord[], k: number) {
     const full = r.period !== null && r.available.every((x) => x === 1),
       key = full
         ? JSON.stringify([r.context, r.age, r.period, [...r.groupIndex]])
-        : 'single:' + r.id;
+        : "single:" + r.id;
     groups.set(key, [...(groups.get(key) ?? []), r]);
   }
   const records: DesignRecord[] = [],
@@ -640,6 +675,138 @@ export function informationCovariance(
   };
   return op;
 }
+/** Exact Gaussian elimination for heterogeneous historical ballot strata.
+ * Whiten sampling noise, then eliminate shared Gaussian innovations by Givens
+ * rotations. This avoids subtracting nearly equal inverse-covariance terms or
+ * solving an ill-conditioned country-sized covariance. No ridge is changed. */
+function* stratifiedPrecisionSteps(
+  records: DesignRecord[],
+  reference: Vector,
+  historical: Vector,
+  sigma: number,
+  maximumBytes?: number,
+) {
+  const k = reference.length,
+    d = 2 * k,
+    times = [...new Set(records.map((r) => r.age).filter((t) => t > 0))].sort(
+      (a, b) => a - b,
+    ),
+    periods = [
+      ...new Set(records.flatMap((r) => (r.period === null ? [] : [r.period]))),
+    ].sort(),
+    latent = (times.length + periods.length) * k,
+    original = records.reduce((n, r) => n + r.rows, 0),
+    rows = original + latent,
+    width = latent + d;
+  requireWorkspace(rows * width * 8 + rows * 16 + d * d * 8, maximumBytes);
+  const matrix = new Float64Array(rows * width),
+    scale = reference.map((v, j) => Math.max(v, historical[j]));
+  let offset = 0;
+  for (const r of records) {
+    const mass = Math.max(
+        1e-5,
+        sum(reference.map((v, j) => v * r.available[j])),
+      ),
+      noise = r.regularizedNoise
+        ? r.noise.slice()
+        : r.noise.map((v) => v * mass * mass);
+    if (!r.regularizedNoise)
+      for (let i = 0; i < r.rows; i++) noise[i * r.rows + i] += 1e-16;
+    const f = factorSpd(noise, r.rows),
+      block = new Float64Array(r.rows * width);
+    for (let i = 0; i < r.rows; i++) {
+      const aq = sum(reference.map((v, j) => v * r.design[i * k + j]));
+      for (let j = 0; j < k; j++) {
+        const a = r.design[i * k + j],
+          centred = a - aq;
+        block[i * width + latent + r.context * k + j] = a;
+        for (let t = 0; t < times.length; t++)
+          if (r.age >= times[t])
+            block[i * width + t * k + j] =
+              sigma *
+              Math.sqrt(times[t] - (times[t - 1] ?? 0)) *
+              centred *
+              scale[j];
+        if (r.period !== null)
+          block[
+            i * width + (times.length + periods.indexOf(r.period)) * k + j
+          ] = 0.12 * centred * reference[j];
+      }
+    }
+    // W=L^-1 D for D N D=L L'. W N W'=I.
+    for (let col = 0; col < width; col++)
+      for (let i = 0; i < r.rows; i++) {
+        let value = block[i * width + col] * f.scale[i];
+        for (let j = 0; j < i; j++)
+          value -= f.lower[i * r.rows + j] * matrix[(offset + j) * width + col];
+        matrix[(offset + i) * width + col] = value / f.lower[i * r.rows + i];
+      }
+    offset += r.rows;
+    yield {
+      phase: "strata-whitening",
+      completed: offset,
+      total: original,
+    } satisfies FitProgress;
+  }
+  for (let j = 0; j < latent; j++) matrix[(original + j) * width + j] = 1;
+  let rotations = 0,
+    maximumOrthogonalityError = 0;
+  for (let col = 0; col < latent; col++) {
+    for (let row = col + 1; row < rows; row++) {
+      const b = matrix[row * width + col];
+      if (b === 0) continue;
+      const a = matrix[col * width + col],
+        norm = Math.hypot(a, b),
+        c = a / norm,
+        s = b / norm;
+      maximumOrthogonalityError = Math.max(
+        maximumOrthogonalityError,
+        Math.abs(c * c + s * s - 1),
+      );
+      for (let j = col; j < width; j++) {
+        const x = matrix[col * width + j],
+          y = matrix[row * width + j];
+        matrix[col * width + j] = c * x + s * y;
+        matrix[row * width + j] = -s * x + c * y;
+      }
+      matrix[row * width + col] = 0;
+      rotations++;
+    }
+    if (!(Math.abs(matrix[col * width + col]) > 0))
+      throw new Error("STRATIFIED_QR_RANK_FAILURE");
+    yield {
+      phase: "strata-orthogonal-elimination",
+      completed: col + 1,
+      total: latent,
+    } satisfies FitProgress;
+  }
+  if (maximumOrthogonalityError > 1e-14)
+    throw new Error("STRATIFIED_QR_ORTHOGONALITY_FAILURE");
+  const precision = new Float64Array(d * d);
+  for (let i = 0; i < d; i++) {
+    for (let j = 0; j <= i; j++) {
+      let value = 0,
+        correction = 0;
+      for (let row = latent; row < rows; row++) {
+        const term =
+            matrix[row * width + latent + i] *
+              matrix[row * width + latent + j] -
+            correction,
+          next = value + term;
+        correction = next - value - term;
+        value = next;
+      }
+      precision[i * d + j] = precision[j * d + i] = value;
+    }
+    yield {
+      phase: "strata-information",
+      completed: i + 1,
+      total: d,
+    } satisfies FitProgress;
+  }
+  return { precision, rotations, maximumOrthogonalityError };
+}
+
 export function buildPoliticalTarget(
   input: NationalSource,
   options: SolverOptions = {},
@@ -659,7 +826,7 @@ export function* buildPoliticalTargetSteps(
         options.maximumIterations < 1))
   )
     throw new RangeError(
-      'Numerical solve settings cannot weaken the frozen residual gate',
+      "Numerical solve settings cannot weaken the frozen residual gate",
     );
   const source = normalizeSource(input),
     k = source.components.length,
@@ -692,11 +859,11 @@ export function* buildPoliticalTargetSteps(
       12 * d * d +
       3 * n * n);
   const solver =
-    options.solver === 'auto' || !options.solver
+    options.solver === "auto" || !options.solver
       ? n <= Math.max(192, 8 * k) &&
         denseBytes <= (options.maximumWorkspaceBytes ?? 256 * 1024 * 1024)
-        ? 'dense'
-        : 'matrix-free'
+        ? "dense"
+        : "matrix-free"
       : options.solver;
   const aggregationBytes =
     n < originalRows
@@ -712,7 +879,7 @@ export function* buildPoliticalTargetSteps(
         16 * n +
         4 * source.polls.length * k +
         12 * d * d +
-        (solver === 'dense' ? 3 * n * n : 0));
+        (solver === "dense" ? 3 * n * n : 0));
   requireWorkspace(workspaceBytes, options.maximumWorkspaceBytes);
   const scales = estimateScales(source);
   const historical = Float64Array.from(source.components, (id) => {
@@ -749,85 +916,129 @@ export function* buildPoliticalTargetSteps(
     maximumRelativeResidual: number;
     iterations: number;
     pivotRatio: number | null;
+    maximumOrthogonalityError?: number;
+    covarianceSolves?: number;
   }[] = [];
   for (let iteration = 0; iteration < 3; iteration++) {
     usedLinearization = qbar;
-    const covariance = informationCovariance(
-      records,
-      qbar,
-      historical,
-      scales.political,
-    );
-    const dense =
-      n && solver === 'dense'
-        ? factorSpd(
-            denseFromOperator(covariance, options.maximumWorkspaceBytes),
-            n,
-          )
-        : undefined;
-    const precision = new Float64Array(d * d),
+    const latentCount =
+        (new Set(records.map((r) => r.age).filter((t) => t > 0)).size +
+          new Set(records.flatMap((r) => (r.period === null ? [] : [r.period])))
+            .size) *
+        k,
+      qrBytes =
+        (n + latentCount) * (latentCount + d) * 8 +
+        (n + latentCount) * 16 +
+        d * d * 8,
+      stratified =
+        source.elections.some((e) => e.strata?.length) &&
+        qrBytes <= (options.maximumWorkspaceBytes ?? 256 * 1024 * 1024),
+      precision = new Float64Array(d * d),
       linear = new Float64Array(d).fill(4 / k);
     let maximumRelativeResidual = 0,
-      count = 0;
-    for (let col = 0; col < d && n; col++) {
-      yield {
-        phase: 'covariance-solves',
-        completed: iteration * d + col,
-        total: 3 * d,
-      } satisfies FitProgress;
-      const rhs = new Float64Array(n);
-      for (const r of records)
-        if (r.context === Math.floor(col / k))
-          for (let i = 0; i < r.rows; i++)
-            rhs[r.offset + i] = r.design[i * k + (col % k)];
-      const result = dense
-        ? { solution: solveSpd(dense, rhs), iterations: 0, relativeResidual: 0 }
-        : conjugateGradient(
-            covariance,
-            rhs,
-            tolerance,
-            options.maximumIterations ?? 4096,
-          );
-      if (dense) {
-        const actual = new Float64Array(n);
-        for (let refinement = 0; ; refinement++) {
-          covariance.apply(result.solution, actual);
-          let error = 0,
-            norm = 0;
-          for (let i = 0; i < n; i++) {
-            error += (actual[i] - rhs[i]) ** 2;
-            norm += rhs[i] ** 2;
-          }
-          result.relativeResidual = norm ? Math.sqrt(error / norm) : 0;
-          if (result.relativeResidual <= tolerance) break;
-          if (refinement === 4)
-            throw new Error(
-              'COVARIANCE_SOLVE_FAILED: dense residual exceeds the frozen gate',
-            );
-          const residual = Float64Array.from(rhs, (x, i) => x - actual[i]),
-            correction = solveSpd(dense, residual);
-          for (let i = 0; i < n; i++) result.solution[i] += correction[i];
-          result.iterations++;
-        }
-      }
-      count += result.iterations;
-      maximumRelativeResidual = Math.max(
-        maximumRelativeResidual,
-        result.relativeResidual,
+      count = 0,
+      pivotRatio: number | null = null,
+      maximumOrthogonalityError: number | undefined;
+    if (stratified) {
+      const exact = yield* stratifiedPrecisionSteps(
+        records,
+        qbar,
+        historical,
+        scales.political,
+        options.maximumWorkspaceBytes,
       );
-      for (const r of records) {
-        const ht = new Float64Array(r.groups);
-        let observed = 0;
-        for (let i = 0; i < r.rows; i++) {
-          for (let g = 0; g < r.groups; g++)
-            ht[g] +=
-              r.helmert[i * r.groups + g] * result.solution[r.offset + i];
-          observed += r.observedContrast[i] * result.solution[r.offset + i];
+      precision.set(exact.precision);
+      maximumOrthogonalityError = exact.maximumOrthogonalityError;
+      count = exact.rotations;
+      yield {
+        phase: "covariance-solves",
+        completed: iteration + 1,
+        total: 3,
+      } satisfies FitProgress;
+    } else {
+      const covariance = informationCovariance(
+        records,
+        qbar,
+        historical,
+        scales.political,
+      );
+      const dense =
+        n && solver === "dense"
+          ? factorSpd(
+              denseFromOperator(covariance, options.maximumWorkspaceBytes),
+              n,
+            )
+          : undefined;
+      pivotRatio = dense?.pivotRatio ?? null;
+      for (let col = 0; col < d && n; col++) {
+        yield {
+          phase: "covariance-solves",
+          completed: iteration * d + col,
+          total: 3 * d,
+        } satisfies FitProgress;
+        const rhs = new Float64Array(n);
+        for (const r of records)
+          if (r.context === Math.floor(col / k))
+            for (let i = 0; i < r.rows; i++)
+              rhs[r.offset + i] = r.design[i * k + (col % k)];
+        const result = dense
+          ? {
+              solution: solveSpd(dense, rhs),
+              iterations: 0,
+              relativeResidual: 0,
+            }
+          : conjugateGradient(
+              covariance,
+              rhs,
+              tolerance,
+              options.maximumIterations ?? 4096,
+            );
+        if (dense) {
+          const actual = new Float64Array(n);
+          for (let refinement = 0; ; refinement++) {
+            covariance.apply(result.solution, actual);
+            let error = 0,
+              norm = 0;
+            for (let i = 0; i < n; i++) {
+              error += (actual[i] - rhs[i]) ** 2;
+              norm += rhs[i] ** 2;
+            }
+            result.relativeResidual = norm ? Math.sqrt(error / norm) : 0;
+            if (result.relativeResidual <= tolerance) break;
+            if (refinement === 4)
+              throw new Error(
+                "COVARIANCE_SOLVE_FAILED: dense residual " +
+                  result.relativeResidual +
+                  " exceeds gate " +
+                  tolerance +
+                  "; rows " +
+                  n,
+              );
+            const residual = Float64Array.from(rhs, (x, i) => x - actual[i]),
+              correction = solveSpd(dense, residual);
+            for (let i = 0; i < n; i++) result.solution[i] += correction[i];
+            result.iterations++;
+          }
         }
-        for (let j = 0; j < k; j++)
-          if (r.groupIndex[j] >= 0)
-            precision[(r.context * k + j) * d + col] +=
-              ht[r.groupIndex[j]] - observed;
+        count += result.iterations;
+        maximumRelativeResidual = Math.max(
+          maximumRelativeResidual,
+          result.relativeResidual,
+        );
+        for (const r of records) {
+          const ht = new Float64Array(r.groups);
+          let observed = 0;
+          for (let i = 0; i < r.rows; i++) {
+            for (let g = 0; g < r.groups; g++)
+              ht[g] +=
+                r.helmert[i * r.groups + g] * result.solution[r.offset + i];
+            observed += r.observedContrast[i] * result.solution[r.offset + i];
+          }
+          for (let j = 0; j < k; j++)
+            if (r.groupIndex[j] >= 0)
+              precision[(r.context * k + j) * d + col] +=
+                ht[r.groupIndex[j]] - observed;
+        }
       }
     }
     for (let i = 0; i < d; i++) precision[i * d + i] += 4;
@@ -857,10 +1068,11 @@ export function* buildPoliticalTargetSteps(
     const total = sum(qbar);
     qbar = qbar.map((x) => x / total);
     iterationAudit.push({
-      solver: n ? solver : 'prior-only',
+      solver: stratified ? "orthogonal-strata" : n ? solver : "prior-only",
       maximumRelativeResidual,
       iterations: count,
-      pivotRatio: dense?.pivotRatio ?? null,
+      pivotRatio,
+      ...(stratified ? { maximumOrthogonalityError, covarianceSolves: 0 } : {}),
     });
   }
   const discrepancy = estimateDiscrepancy(source, scales.political);
@@ -892,7 +1104,7 @@ export function buildParticipationTarget(input: NationalSource) {
     design = new Float64Array(n * 4);
   for (let i = 0; i < n; i++) {
     const e = source.elections[i],
-      h = Number(e.context === 'european');
+      h = Number(e.context === "european");
     design[i * 4 + h * 2] = 1 - p[i];
     design[i * 4 + h * 2 + 1] = -p[i];
     for (let j = 0; j < n; j++)
@@ -945,7 +1157,7 @@ export function fitReference(
 ) {
   return completeSteps(fitReferenceSteps(source, seed, options));
 }
-export function* fitReferenceSteps(
+function* fitIdentifiedReferenceSteps(
   source: NationalSource,
   seed: string,
   options: SolverOptions = {},
@@ -953,29 +1165,115 @@ export function* fitReferenceSteps(
   const political = yield* buildPoliticalTargetSteps(source, options),
     participation = buildParticipationTarget(source);
   yield {
-    phase: 'political-reference',
+    phase: "political-reference",
     completed: 0,
     total: 1,
   } satisfies FitProgress;
   const politicalSamples = yield* fitGaussianSteps(political.target, {
-    seed: seed + ':political',
+    seed: seed + ":political",
     maximumWorkspaceBytes: options.maximumWorkspaceBytes,
   });
   yield {
-    phase: 'non-valid-reference',
+    phase: "non-valid-reference",
     completed: 0,
     total: 1,
   } satisfies FitProgress;
   const participationSamples = yield* fitGaussianSteps(participation.target, {
-    seed: seed + ':participation',
+    seed: seed + ":participation",
     maximumWorkspaceBytes: options.maximumWorkspaceBytes,
   });
   return {
     componentIds: political.source.components,
-    contexts: ['camera', 'european'] as const,
+    contexts: ["camera", "european"] as const,
     referenceDate: source.referenceDate,
     political: politicalSamples,
     participation: participationSamples,
     audit: political.audit,
+  };
+}
+
+/** Fit only identifiable group totals. Expansion is a latent coordinate layout,
+ * not a decomposition of observed counts; required references anchor contrasts. */
+export function* fitReferenceSteps(
+  source: NationalSource,
+  seed: string,
+  options: SolverOptions = {},
+) {
+  const groups = identificationGroups(
+    source.components,
+    originalPartitions(source),
+  );
+  const required = groups.filter((g) => g.length > 1).flat();
+  if (!required.length) {
+    if (source.referenceRequired?.some((id) => !source.components.includes(id)))
+      throw new Error("INVALID_REFERENCE_BASIS");
+    return {
+      ...(yield* fitIdentifiedReferenceSteps(source, seed, options)),
+      ...({} as { identificationGroups?: string[][] }),
+      ...(source.referenceRequired?.length
+        ? {
+            referenceRequired: source.referenceRequired,
+            referenceDirections: source.referenceDirections,
+          }
+        : ({} as {
+            referenceRequired?: string[];
+            referenceDirections?: number[][];
+          })),
+    };
+  }
+  if (required.some((id) => !source.referenceRequired?.includes(id)))
+    throw new Error("UNRESOLVED_COMPONENT_BASIS");
+  const names = groups.map((_, i) => "group:" + String(i).padStart(3, "0")),
+    remap = (g: string[]) => [
+      ...new Set(g.map((id) => names[groups.findIndex((x) => x.includes(id))])),
+    ];
+  const quotient: NationalSource = {
+    ...source,
+    components: names,
+    referenceRequired: [],
+    elections: source.elections.map((e) => ({
+      ...e,
+      groups: e.groups.map(remap),
+      ...(e.strata
+        ? {
+            strata: e.strata.map((r) => ({
+              ...r,
+              groups: r.groups.map(remap),
+            })),
+          }
+        : {}),
+    })),
+    polls: source.polls.map((p) => ({ ...p, groups: p.groups.map(remap) })),
+  };
+  const fit = yield* fitIdentifiedReferenceSteps(quotient, seed, options),
+    ids = [...source.components].sort(),
+    old = fit.political;
+  const values = new Float64Array(
+    old.chains * old.drawsPerChain * 2 * ids.length,
+  );
+  const groupIndex = ids.map((id) => groups.findIndex((g) => g.includes(id)));
+  for (let r = 0; r < old.chains * old.drawsPerChain; r++)
+    for (let c = 0; c < 2; c++)
+      ids.forEach((id, j) => {
+        const g = groupIndex[j];
+        values[r * 2 * ids.length + c * ids.length + j] =
+          old.values[r * 2 * names.length + c * names.length + g] /
+          groups[g].length;
+      });
+  const coordinates = [0, 1].flatMap((c) =>
+    groupIndex.map((g) => old.diagnostics.coordinates[c * names.length + g]),
+  );
+  return {
+    ...fit,
+    componentIds: ids,
+    political: {
+      ...old,
+      values,
+      dimensions: 2 * ids.length,
+      diagnostics: { ...old.diagnostics, coordinates },
+    },
+    identificationGroups: groups.filter((g) => g.length > 1),
+    referenceRequired: source.referenceRequired ?? required,
+    referenceDirections: source.referenceDirections,
   };
 }

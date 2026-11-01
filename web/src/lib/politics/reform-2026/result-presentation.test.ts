@@ -45,10 +45,7 @@ it('keeps failed/partial runs in the requested denominator and exports distinct 
   expect(bars.some(b => b.label.startsWith('Premio /'))).toBe(true);
   const result = { type: 'result' as const, status: 'completed' as const, ...output,
     benchmark: { startedAt: '2026-10-20T00:00:00Z', elapsedMs: 10, simulations: 3, dataVersion: scenario.snapshotVersion, scrutinyAlgorithmId: scenario.algorithmId, seed: scenario.seed } };
-  const exported = createSimulationResultExport({ scenario, result, exportedAt: '2026-10-20T00:00:00Z' });
-  expect(parseSimulationResultExport(JSON.stringify(exported))).toMatchObject({ scenario, result });
-  exported.result.benchmark.seed = 'wrong-seed';
-  expect(() => parseSimulationResultExport(JSON.stringify(exported))).toThrow(/identity mismatch/);
+  expect(()=>createSimulationResultExport({scenario,result,exportedAt:'2026-10-20T00:00:00Z'})).toThrow('Only latest');
 });
 
 it('preserves vote-based entitlements when preference-dependent candidate identities cannot be filled', () => {

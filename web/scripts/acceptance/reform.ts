@@ -47,10 +47,11 @@ try {
   report.checks.push({ name: 'unit acceptance', ...requireUnitAcceptance(JSON.parse(await readFile(units, 'utf8'))) });
   for (const base of ['', '/elezioni']) {
     const browserReport = resolve(output, base ? 'browser-project.json' : 'browser-root.json');
-    const env = { BASE_PATH: base, REFORM_FAST_CANDIDATE:'0', ACCEPTANCE_PREBUILT: '1', PLAYWRIGHT_JSON_OUTPUT_NAME: browserReport };
+    const env = { BASE_PATH: base, ACCEPTANCE_SERVER_PORT:'4175', REFORM_FAST_CANDIDATE:'1', ACCEPTANCE_PREBUILT: '1', PLAYWRIGHT_JSON_OUTPUT_NAME: browserReport };
     await run(`static build ${base || '/'}`, ['run', 'build'], env);
     await run(`browser suite ${base || '/'}`, ['run', 'test:e2e', '--', '--reporter=json', '--retries=0', ...(testWorkers ? ['--workers', testWorkers] : [])], env);
     report.checks.push({ name: `browser acceptance ${base || '/'}`, ...requireBrowserAcceptance(JSON.parse(await readFile(browserReport, 'utf8'))) });
+    await run(`current scenario editor ${base || '/'}`, ['run','test:reform:shares:ui','--','--project=chromium'], env);
     const unifiedReport=resolve(output,base?'unified-project.json':'unified-root.json'),unifiedEnv={...env,REFORM_FAST_CANDIDATE:'1',PLAYWRIGHT_JSON_OUTPUT_NAME:unifiedReport,
       FV08_FULL:'0',FV08_DRAWS:'3',FV08_WORKERS:''};
     await run(`unified static build ${base || '/'}`,['run','build'],unifiedEnv);

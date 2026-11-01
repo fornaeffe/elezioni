@@ -184,6 +184,7 @@ export function createReformPresentation(scenario: ReformGenerationScenario|Rele
         references.forEach(r => meta('Resolved chamber reference', r));
       } else meta('Supplied chamber provenance', result.chamberModel);
       meta('Generation versions', { streamVersion: trace.streamVersion, snapshotVersion: trace.snapshotVersion, modelVersion: trace.modelVersion });
+      if (trace.componentSupport) meta('Component support stages and conditioning assumptions', trace.componentSupport);
       if (trace.bonusSelection) meta('Bonus candidate selection', trace.bonusSelection);
       trace.normalization.forEach(n => meta('Reference normalization', n));
     },

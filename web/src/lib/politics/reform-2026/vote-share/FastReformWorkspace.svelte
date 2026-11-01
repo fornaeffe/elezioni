@@ -50,7 +50,7 @@
     onRouteFile,
   }: {
     imported?: SimulationResultExport | null;
-    importedScenario?: ReformGenerationScenario | null;
+    importedScenario?: ReformGenerationScenario | import('./release').ReleasedScenario | null;
     importedFile?: File | null;
     onLegacyImport: (p: SimulationResultExport) => void;
     onImportConsumed: () => void;
@@ -172,7 +172,7 @@
     const id = result?.storage?.id,
       index = tableIndex,
       p = Math.min(page, pageCount - 1);
-    if (id) void fetchTable(id, index, p);
+    if (id && result?.storage?.tables[index]) void fetchTable(id, index, p);
   });
   $effect(() => {
     const id = result?.storage?.id,
@@ -223,7 +223,7 @@
       else if (imported) {
         if (
           'schemaVersion' in imported.scenario &&
-          (imported.scenario.schemaVersion === 4 || imported.scenario.schemaVersion === 5) &&
+          imported.scenario.schemaVersion === 5 &&
           imported.fitFile
         )
           await importFile(
@@ -234,8 +234,7 @@
           );
         else onLegacyImport(imported);
       } else if (importedScenario)
-        error =
-          'Questo scenario usa il generatore precedente. Aprilo in una build standard; non esiste una conversione statistica automatica.';
+        scenario = labelFastDraft(requireFastScenario(importedScenario));
       else {
         const saved = localStorage.getItem(storageKey);
         if (saved)
@@ -485,7 +484,7 @@
       }
       if (legacyArchive)
         throw new Error(
-          'Questo file usa il generatore precedente. Aprilo in una build standard; non esiste una conversione statistica automatica.',
+          'Questo file usa il generatore precedente. È supportato solo il formato corrente; non esiste una conversione statistica automatica.',
         );
       if (kind === 'politics-reform-session') {
         if (file.size > 90 * 1024 * 1024)
@@ -500,9 +499,9 @@
         const parsed = JSON.parse(
           await new Response(jsonFileStream(file)).text(),
         );
-        if ((parsed.schemaVersion !== 4 && parsed.schemaVersion !== 5))
+        if (parsed.schemaVersion !== 5)
           throw new Error(
-            'Questo scenario usa il generatore precedente. Aprilo in una build standard; non esiste una conversione statistica automatica.',
+            'Questo scenario usa il generatore precedente. È supportato solo il formato corrente; non esiste una conversione statistica automatica.',
           );
         change(requireFastScenario(parsed));
         editorRevision++;
@@ -516,7 +515,7 @@
       });
       if (
         !('schemaVersion' in record.scenario) ||
-        (record.scenario.schemaVersion !== 4 && record.scenario.schemaVersion !== 5)
+        record.scenario.schemaVersion !== 5
       ) {
         onLegacyImport(
           parseSimulationResultExport(
@@ -543,6 +542,7 @@
     }
   }
   function attach(record: StoredResult) {
+    tableRequest++;
     result = record.result;
     resultScenario = requireFastScenario(record.scenario);
     tableIndex = 0;

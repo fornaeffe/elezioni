@@ -5,7 +5,7 @@
   import ReformWorkspace from '$lib/politics/reform-2026/ReformWorkspace.svelte';
   import PercentageInput from '$lib/scenario/PercentageInput.svelte';
   import { REFORM_ALGORITHM_ID } from '$lib/politics/reform-2026/input';
-  import { requireReformScenario } from '$lib/politics/reform-2026/generation-scenario';
+  import { requireFastScenario } from '$lib/politics/reform-2026/vote-share/scenario';
   import type { ReformGenerationScenario } from '$lib/politics/reform-2026/generation-types';
   import { legacyPoliticsScrutinyAlgorithmId, politicsScrutinyAlgorithms } from '$lib/politics/simulation-scrutiny';
 
@@ -112,7 +112,7 @@
   let algorithmId = $state(legacyPoliticsScrutinyAlgorithmId as string);
   let importedReformFile = $state.raw<File | null>(null);
   let importedReform = $state<SimulationResultExport | null>(null);
-  let importedReformScenario = $state<ReformGenerationScenario | null>(null);
+  let importedReformScenario = $state<ReformGenerationScenario | import('$lib/politics/reform-2026/vote-share/release').ReleasedScenario | null>(null);
   let simulations = $state(10);
   let seed = $state('politiche-2027');
   let running = $state(false);
@@ -880,7 +880,7 @@
         const text = await readJsonFile(file);
         const candidate = JSON.parse(text);
         if (candidate.kind === 'politics-reform-scenario') {
-          importedReformScenario = requireReformScenario(candidate); importedReform = null; algorithmId = REFORM_ALGORITHM_ID; return;
+          importedReformScenario = requireFastScenario(candidate); importedReform = null; algorithmId = REFORM_ALGORITHM_ID; return;
         }
 
         if (isGzipFile(file)) {

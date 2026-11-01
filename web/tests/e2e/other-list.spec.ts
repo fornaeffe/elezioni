@@ -32,27 +32,24 @@ for (const route of ['politics', 'emilia-romagna']) {
   });
 }
 
-test('reform: Other keeps reference/history/coverage editors without candidate controls', async ({ page }) => {
-  await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
+test('reform: Other has explicit component membership and fixed presentation', async ({page})=>{
+  await page.goto(`${process.env.BASE_PATH??''}/politics`);
   await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-reform-2026-v1');
-  const toggle = page.getByRole('switch', { name: 'Includi Altre liste' });
-  await toggle.check();
-  const row = page.getByTestId('other-list-row');
-  await expect(row).toHaveCount(1);
-  await expect(row.locator('input[type=color], input[type=text], select')).toHaveCount(0);
-  await page.getByLabel('Quota Altre liste', { exact: true }).fill('10');
-  await page.getByLabel('Quota Altre liste', { exact: true }).press('Tab');
-  await page.reload();
-  await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-reform-2026-v1');
-  await expect(toggle).toBeChecked();
-  await expect(page.getByLabel('Quota Altre liste', { exact: true })).toHaveValue('10');
-  await page.getByText('Depositi delle liste', { exact: true }).click();
-  await page.getByLabel('Lista deposito').selectOption('__other__');
-  await expect(page.getByLabel('Lista deposito')).toHaveValue('__other__');
-  await page.getByLabel('Simulazioni', { exact: true }).fill('1');
-  await page.getByRole('button', { name: 'Esegui riforma', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Scarica risultati JSON.gz', exact: true })).toBeEnabled({ timeout: 60_000 });
-  await toggle.uncheck();
-  await page.getByRole('button', { name: 'Applica modifica e rimuovi dipendenze' }).click();
-  await expect(row).toHaveCount(0);
+  const group=page.getByRole('group',{name:'Altre liste',exact:true});
+  const disable=group.getByRole('button',{name:'Disattiva Altre liste',exact:true});
+  if(await disable.count()) await disable.click();
+  await group.getByRole('button',{name:'Attiva Altre liste',exact:true}).click();
+  await expect(page.getByRole('alert')).toContainText('Scegli esplicitamente');
+  const components=group.getByLabel('Componenti del residuo');
+  const id=await components.locator('option').first().getAttribute('value');
+  await components.selectOption(id!);
+  await group.getByRole('button',{name:'Attiva Altre liste',exact:true}).click();
+  await expect(disable).toBeVisible();
+  const other=page.locator('details').filter({has:page.locator(':scope > summary',{hasText:/^Altre liste ·/})});
+  await other.locator(':scope > summary').click();
+  await expect(other.getByLabel('Nome lista',{exact:true})).toBeDisabled();
+  await expect(other.getByLabel('Colore',{exact:true})).toBeDisabled();
+  await expect(other.getByLabel('Coalizione',{exact:true})).toHaveCount(0);
+  await disable.click();
+  await expect(other).toHaveCount(0);
 });

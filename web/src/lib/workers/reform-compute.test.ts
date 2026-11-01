@@ -11,7 +11,7 @@ it('separate compute tasks reproduce serial presentation, context, counters, war
   const { scenario, snapshot } = generationFixture(), prepared = prepareReformGeneration(scenario, snapshot);
   const serial = createReformPresentation(scenario, snapshot, 3);
   const summary = createReformPresentation(scenario, snapshot, 3, { includeContext: false });
-  const computed = [3, 1, 2].map(simulation => computeReformRun(prepared, simulation));
+  const computed = [3, 1, 2].map(simulation => computeReformRun({scenario,snapshot,generate:id=>generateReformSimulation(prepared,id)}, simulation));
   for (const simulation of [1, 2, 3]) {
     const generated = generateReformSimulation(prepared, simulation);
     serial.add(generated.input, runPoliticsReformScrutiny(generated.input), generated.trace);

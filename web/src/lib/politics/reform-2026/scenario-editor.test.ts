@@ -26,9 +26,8 @@ describe('reform editor versioning and presentation', () => {
     const result: SimulationResult = { type: 'result', status: 'completed', tables: [], warnings: [], benchmark: {
       startedAt: '2026-10-22T00:00:00Z', elapsedMs: 1, simulations: 1, dataVersion: old.snapshotVersion, scrutinyAlgorithmId: old.algorithmId, seed: old.seed } };
     const exportedAt = '2026-10-22T00:00:00Z';
-    const payload = createSimulationResultExport({ scenario: old, result, exportedAt });
-    expect(parseSimulationResultExport(JSON.stringify(payload)).scenario).toEqual(old);
-    expect(parseSimulationResultExport(JSON.stringify(createSimulationResultExport({ scenario: upgraded, result, exportedAt }))).scenario).toEqual(upgraded);
+    expect(()=>createSimulationResultExport({scenario:old,result,exportedAt})).toThrow('Only latest');
+    expect(()=>createSimulationResultExport({scenario:upgraded,result,exportedAt})).toThrow('Only latest');
     expect(validateReformScenario({ ...upgraded, schemaVersion: 3 }).length).toBeGreaterThan(0);
     expect(validateReformScenario({ ...upgraded, presentation: { ...upgraded.presentation, lists: [] } })).toContain('Presentation lists must match scenario list identities');
   });

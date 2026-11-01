@@ -8830,3 +8830,119 @@ Removed stale remaining-policy wording and updated the active plan to distinguis
 settled policy from pending coordinated implementation and acceptance. Changes are
 limited to the audit, plan and history; no model code, generated data or defaults
 changed. `git diff --check` passed; no model tests rerun for documentation only.
+
+
+### Adopted correspondence corrections implemented — 1 November 2026
+
+Implemented the complete approved policy for the selected model and the revised
+legacy derivative. Both now construct unrestricted component support at the
+reference date, apply their own future movement, deterministically condition on
+each physical ballot including non-valid support, and allocate counts directly
+in that cell. Component counts aggregate to filed lists; municipal greedy vote
+relocation and filing-capacity validation of pre-filing references leave the
+active path. Exports distinguish dated reference support, future support before
+filing, filed probabilities and realized list counts.
+
+Legacy preparation preserves original counts/electorates, mandatory explicit
+joint compositions and actual historical/poll offered sets. Conditional
+frequency pooling and regional/national completion replace the all-or-nothing
+municipality fallback. Only observed political zeros receive the half-vote
+logit input; tiny positive decompositions remain unchanged. Disconnected positive
+choice sets cannot be identified through an observed-zero alternative: national
+relative masses require references, while regional unidentified masses borrow
+the national donor. Legacy movement innovations are component-specific and
+independent between components, retaining within-component chamber dependence.
+One poll-group measurement error is shared by its fixed split, geography and
+reused chambers. Complete smaller-choice-set questions constrain only their
+original conditional denominator; partial questions keep their unreported
+residual. Scenario-reference means are fixed for legacy, with all future shocks
+starting at the reference date; their SDs remain selected-model inputs only.
+
+The selected compiler keeps original heterogeneous ballot strata, grouped
+observations and profile choice sets. Identical observation columns fit group
+totals; reference-backed internal contrasts and other overlapping unidentified
+directions stay separate. Group-first reference calibration changes the current
+group total where requested, then splits each cell without altering that cell's
+group mass or historical counts. Shared group-profile uncertainty and separate
+unidentified contrast uncertainty avoid fabricated component measurements.
+
+Keeping original strata exposed an ill-conditioned Gaussian covariance solve in
+full-country preparation. Bounded noise whitening and Givens elimination compute
+the same sufficient statistics without a new ridge; an independent reduced
+covariance calculation agrees within 1e-8. The 256 MiB workspace gate, original
+matrix-free fallback and residual check remain. Orthogonality and covariance
+residuals are separately labelled, and elimination yields cooperatively for
+worker cancellation. Unrestricted reference projection also bypasses an
+unnecessary transport-flow test whose finite tolerance incorrectly rejected
+positive residuals around machine precision; tiny support remains positive.
+
+Luca explicitly chose selected-model reference estimates as the six missing
+legacy default anchors (IdV, Futuro Nazionale, PLD/LibDem, +Uno, Progetto Civico,
+PSI/civici). Default preparation records reference-only means and sample SDs from
+256 deterministic draws before adding the anchors, plus seed and parent
+fit/profile IDs. They are editable model-based assumptions, with selected-only
+uncertainty and fixed legacy means. No missing runtime reference is silently
+replaced. Default poll compositions, including dated Other complements, are
+explicit authored inputs. Generated release assets were regenerated through the
+release pipeline rather than edited manually.
+
+Versioned provenance uses `component-prefiling-conditioning-v2`,
+`fast-share-float64-v2`, `fast-share-prefiling-physical-cells-v2`, a revised profile
+policy and composition key, plus transitive implementation identities. The browser
+accepts only the current v5 reform workflow. Old scenario/result imports are
+rejected, old browser research/comparison entry points are retired, and retained
+historical comparators live outside runtime dependencies. Shared legal assembly
+was extracted without changing scrutiny rules. Current worker/storage/statistics
+regressions use frozen v5 sessions, including cancellation, ordered IDs, parallel
+replay, crashes, quota failures and empty saved results. The current plain scenario
+import and empty-result table selection were corrected during browser acceptance.
+A startup regression also caught reference-component IDs in the historical
+evidence key: seed/reference-only edits needlessly downloaded original history.
+`browser-fit-evidence-v2` excludes intervention inputs, while generation still
+validates mandatory reference coverage. The regression verifies no source reads
+or fits after adding a component reference. This cache correction does not alter
+the generation implementation identity or vote law.
+
+Functional acceptance passed on the final model implementation
+`implementation-v1-c3c448cf68330e5fd097c15a6bd86958da529e072939360e7915a41f62f9adac`,
+catalog `fast-share-catalog-v1-27d815959e9a6a1f4193e4e68297577972e2899d56afc1a4daaaa3477f88b1fc`:
+
+- `npm run acceptance:reform`: production asset integrity/vertical slice,
+  preparation types, Svelte checks (zero errors/warnings), **1,296 unit tests**,
+  and static builds at `/` and `/elezioni`. Each base passed **43** Chromium
+  application regressions, **4** current-editor checks and **10** unified workflow
+  checks across Chromium/Firefox, with no accepted skips or retries. Root build
+  restored at the end.
+- Final concurrent Chromium campaigns: **1,000/1,000 complete per model**, all
+  **588** seats filled with **588 distinct candidates** in every run. Ten compute
+  workers per model; measured run elapsed **725,693 ms selected** and
+  **1,190,924 ms legacy**. Both passed full JSON.gz export, reimport, ledger
+  comparison and frozen-scenario restoration, with no page errors. Archives were
+  **178,103,484** and **208,724,721** bytes. Total campaign-suite wall time was
+  **27.9 minutes**, including the archive checks.
+- Six full default browser refits passed with stable fitted identities and
+  elapsed times **12,784–14,482 ms**. The first maximum-dimension synthetic probe
+  hit **38,076 ms** during concurrent work, exceeding its unchanged 30-second
+  gate. The failed measurement and trace are retained at
+  `data/derived/correspondence-corrections/contended-*` and `resource-artifacts/`.
+  The isolated repeat passed all six normal-speed probes (**28,286–28,696 ms**,
+  median **28,378 ms**) and the real quarter-CPU run (**117,423 ms**, below the
+  unchanged 120-second gate). Maximum reported numerical workspace was
+  **46,383,008 bytes**, below 256 MiB. The earlier failure is consistent with
+  concurrent workload contention; the isolated pass does not erase that receipt.
+- Current production checks passed three selected and three legacy legal runs,
+  required-reference coverage, source integrity and matching semantic keys;
+  release preparation checked **7,904 municipalities**, **15,810 physical cells**,
+  **28 fitted / 34 future components**, 2,000 retained draws per chain and a
+  complete 588-seat allocation. Built JavaScript contains none of the retired
+  generation/greedy-filing implementation markers. The final acceptance curator
+  rejects missing/failed reports or stale campaign identities; preparation types
+  passed again after curation tooling was added. `git diff --check` passed.
+
+Detailed local receipts: `data/derived/r26-21-acceptance/report.json`,
+`data/derived/correspondence-corrections/node-summary.json`,
+`data/derived/fv08-unified/browser/*-root-1000.json.gz.receipt.json`, and
+`data/derived/fv08-unified/resources/`. The maintained compact receipt is
+[test/fixtures/benchmarks/correspondence_corrections_acceptance.json](../test/fixtures/benchmarks/correspondence_corrections_acceptance.json).
+These are functional and engineering checks, not predictive calibration.
+FV-09 generated-output cleanup and public deployment remain separate work.

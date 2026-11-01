@@ -1,13 +1,11 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { fastReformCandidate } from './vote-share/build';
   import {
     archiveWorkflow,
     scenarioWorkflow,
     type ReformWorkflow,
   } from './archive-routing';
   import { isReformFile } from '../../core/json-stream';
-  import InstalledReformWorkspace from './InstalledReformWorkspace.svelte';
   import FastReformWorkspace from './vote-share/FastReformWorkspace.svelte';
   import type { SimulationResultExport } from '../../core/result-export';
   import type { ReformGenerationScenario } from './generation-types';
@@ -19,20 +17,20 @@
     onImportConsumed,
   }: {
     imported?: SimulationResultExport | null;
-    importedScenario?: ReformGenerationScenario | null;
+    importedScenario?: ReformGenerationScenario | import('./vote-share/release').ReleasedScenario | null;
     importedFile?: File | null;
     onLegacyImport: (p: SimulationResultExport) => void;
     onImportConsumed: () => void;
   } = $props();
   let workflow = $state<ReformWorkflow>(
-      fastReformCandidate ? 'fast' : 'installed',
+      'fast',
     ),
     ready = $state(false),
     error = $state('');
   let input = $state.raw<{
     file: File | null;
     payload: SimulationResultExport | null;
-    scenario: ReformGenerationScenario | null;
+    scenario: ReformGenerationScenario | import('./vote-share/release').ReleasedScenario | null;
   }>({ file: null, payload: null, scenario: null });
   onMount(() => {
     void initialize();
@@ -77,29 +75,12 @@
   >
 {:else if !ready}<p role="status">Verifica versione dello scenario…</p>
 {:else}
-  {#if workflow === 'installed' && fastReformCandidate}<p role="status">
-      Questo archivio usa il generatore precedente. Modello, scenario e
-      risultati conservano la loro versione originale.
-    </p>{/if}
-  {#key workflow}
-    {#if workflow === 'fast'}
-      <FastReformWorkspace
-        imported={input.payload}
-        importedFile={input.file}
-        importedScenario={input.scenario}
-        {onLegacyImport}
-        onImportConsumed={consumed}
-        onRouteFile={routeFile}
-      />
-    {:else}
-      <InstalledReformWorkspace
-        imported={input.payload}
-        importedFile={input.file}
-        importedScenario={input.scenario}
-        {onLegacyImport}
-        onImportConsumed={consumed}
-        onRouteFile={routeFile}
-      />
-    {/if}
-  {/key}
+  <FastReformWorkspace
+    imported={input.payload}
+    importedFile={input.file}
+    importedScenario={input.scenario}
+    {onLegacyImport}
+    onImportConsumed={consumed}
+    onRouteFile={routeFile}
+  />
 {/if}

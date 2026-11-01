@@ -1,6 +1,6 @@
 import type { ResultTable, ScrutinyWarning } from '../core/types';
 import { maximumResultRecordBytes, resultChunkBytes, resultChunkRows, warningCells } from '../core/result-store';
-import { generateReformSimulation, type PreparedReformGeneration } from '../politics/reform-2026/generation';
+import type { PreparedReformGeneration } from '../politics/reform-2026/generation';
 import { createReformPresentation, type ReformPresentationCounts } from '../politics/reform-2026/result-presentation';
 import { runPoliticsSimulation } from '../politics/simulation-scrutiny';
 import { REFORM_ALGORITHM_ID } from '../politics/reform-2026/input';
@@ -37,13 +37,13 @@ export interface ReformRunBatch { tables: ResultTable[]; warnings: ScrutinyWarni
  * Generation/legal errors keep their current per-run failure representation;
  * encoding, messaging and storage failures are infrastructure errors instead.
  */
-export function computeReformRun(prepared: PreparedReformGeneration|PreparedFastCompute, simulation: number) {
+export function computeReformRun(prepared: Pick<PreparedFastCompute,'snapshot'> & {scenario: PreparedFastCompute['scenario'] | PreparedReformGeneration['scenario'];generate:(id:number)=>{input:import('../politics/reform-2026/input').ReformScrutinyInput;trace:import('../politics/reform-2026/generation-types').GenerationTrace}}, simulation: number) {
   const presentation = createReformPresentation(prepared.scenario, prepared.snapshot, 1, { includeContext: simulation === 1 });
   const timings = { generationMs: 0, scrutinyMs: 0, presentationMs: 0 };
-  let generated: ReturnType<typeof generateReformSimulation> | undefined;
+  let generated: ReturnType<typeof prepared.generate> | undefined;
   let output: ReturnType<typeof runPoliticsSimulation> | undefined;
   let failure: unknown, failed = false, started = performance.now();
-  try { generated = 'generate' in prepared?prepared.generate(simulation):generateReformSimulation(prepared, simulation); }
+  try { generated = prepared.generate(simulation); }
   catch (error) { failure = error; failed = true; }
   timings.generationMs = performance.now() - started;
   if (generated) {

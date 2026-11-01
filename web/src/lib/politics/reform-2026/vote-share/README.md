@@ -2,12 +2,13 @@
 
 This folder implements the bounded reference fit, empirical profile estimator,
 forecast adapters and the unified reform editor/worker integration. The selected
-field is the ordinary model; the reviewed legacy poll procedure, with the
-approved per-chamber new-list classification, is an explicit alternative. Read the
+field is the ordinary model; the revised legacy poll procedure, with
+component-based preparation and original-group poll uncertainty, is an explicit alternative. Read the
 [unified workflow contract](../../../../../../docs/vote-generation-unified-workflow.md)
 for v5 scenarios, correspondences, worker recommendations and current acceptance.
 Original compact data is implemented in [FV-03](../../../../../../docs/vote-generation-fast-data.md).
-For forecast/intervention/physical-cell/Senate work read only the
+For current forecast/intervention/physical-cell/Senate work use the unified
+workflow above; the original derivation remains in the
 [FV-04 generation guide](../../../../../../docs/vote-generation-fast-generation.md).
 For fitting worker/client scheduling, revisions and buffer ownership, read the
 [FV-06 fitting guide](../../../../../../docs/vote-generation-fast-fitting.md).

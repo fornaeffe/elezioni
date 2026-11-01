@@ -23,8 +23,8 @@ import type {
   OriginalSource,
   SourcePoll,
 } from '../../src/lib/politics/reform-2026/vote-share/source-types';
-export async function loadedFitFixture() {
-  const f = await fastReleaseFixture(),
+export async function loadedFitFixture(implementation?: string) {
+  const f = await fastReleaseFixture(implementation),
     configuration: FitConfiguration = {
       base: '',
       pointer: f.pointer,
