@@ -308,10 +308,48 @@ changes. No empirical coverage or local calibration claim follows from this audi
    require a manual reference for every already identified component. Do not
    implement a list-level reference control or implicit list-to-component
    translation now: whether to offer one and how to translate it remain for later
-   discussion. Non-valid references retain their separate meaning. National
-   component/group calibration uses territorial profiles and the observation's
-   denominator; poll calibration alone supplies no turnout/nonresponse estimate.
-3. **Validate physical reference capacity and generate counts directly in cells —
+   discussion. Non-valid references retain their separate meaning; poll
+   calibration alone supplies no turnout/nonresponse estimate.
+
+   **Reference-date support precedes future filing — agreed 1 November 2026 for
+   both models.** A national reference fixes the component's national support at
+   the reference date, before imposing future ballot restrictions. A territorial
+   reference has the equivalent meaning within its scope. Use the stated
+   political/non-valid denominator and reference uncertainty; zero reference SD
+   does not eliminate future movement or count variation. The sequence is:
+
+   **Reference-date support → future movement → local support → local filing
+   conditioning → counts → list aggregation.**
+
+   Legacy advances national component support with its random shocks, then
+   derives local support using geographic effects and territorial shocks. Only
+   then apply correction 1's physical-cell conditioning, including non-valid
+   support. Final national filed vote shares need not equal either the original
+   references or the shocked national support before filing. Do not impose those
+   earlier margins again after conditioning. A component may have high national
+   pre-filing support despite being offered in only a small territory.
+
+   Ensure a reference anchors the intended pre-filing aggregate, rather than
+   merely replacing an intercept whose aggregate is unintentionally changed by
+   geographic profiles. Calibration of an unrestricted reference field is
+   permissible; future filing must not constrain that calibration. Poll evidence
+   retains its original observation choice set and denominator, separately from
+   conditioning onto the future ballot.
+
+   **Required adaptations:** current legacy applies dated references before
+   shocks but reconciles them against already filing-restricted municipal shares.
+   Remove that early filing dependence in the component redesign. The selected
+   model also builds a filing-restricted reference field, imposes references on
+   it, then advances the field. Construct/apply its references and evolve support
+   before future filing instead. It may retain its distinct joint spatial
+   movement mechanism; do not replace it with legacy shocks. Movement and filing
+   conditioning are not interchangeable, so validate the resulting distribution
+   rather than claim unchanged forecasts. Retain the other agreed movement,
+   measurement, historical-support and reference-coverage rules.
+
+   Audit/report reference-date support, election-date support before filing,
+   and final filed vote shares separately, with their dates and denominators.
+3. **Validate support distributions and generate counts directly in cells —
    agreed 1 November 2026.** Correction 2 resolves the causes of findings 4 and 5:
    use each physical cell's electorate and offered components, never the union
    of filings across a municipality. Condition probabilities on that cell's
@@ -325,15 +363,23 @@ changes. No empirical coverage or local calibration claim follows from this audi
    generation at municipality level followed by relocation would not resolve
    these findings and is not the agreed design.
 
-   Retain individual **and joint** physical filing-capacity validation for imposed
-   reference constraints, using their applicable geographic scopes and
-   denominators. A flow-based feasibility check may serve this purpose; it is
-   distinct from relocating generated votes. Direct cell generation does not make
-   every requested national/territorial component reference feasible. Report
-   incompatible constraints explicitly rather than silently clipping, retrying
-   draws or transferring votes. Keep structural filing zeros and cell electorate
-   conservation in every draw; do not impose reference margins as exact realized
-   integer totals unless separately specified by their semantics.
+   **No individual or joint filing-capacity validation is required for the
+   pre-filing references defined in correction 2.** They anchor dated support,
+   not margins to squeeze into the eventual filed geography. Remove the earlier
+   requirement for a physical-capacity/flow solver for those reference shares.
+   Cell-level conditioning and count allocation enforce actual filing capacity
+   by construction; never reimpose pre-filing reference totals on the result.
+
+   Validate finite probabilities, compatible reference distributions, identities,
+   dates, scopes, denominators and required reference coverage. Each cell must
+   retain positive probability mass after removing unavailable alternatives.
+   For example, 100% pre-filing support for an unavailable component and zero
+   for all remaining alternatives makes conditioning undefined. Report that
+   empty remaining-support condition explicitly; do not invent an allocation.
+   This is distinct from a general territorial-capacity violation. Preserve
+   filing zeros and electorate conservation in every draw; references are not
+   exact realized integer vote totals. No clipping/retry/transfer mechanism or
+   transport allocator is needed to make the final votes match those references.
 4. **Choose historical support by observation and identification — agreed
    1 November 2026.** Apply the following rules
    component by component, before conditioning on the current offered set:
@@ -437,10 +483,11 @@ changes. No empirical coverage or local calibration claim follows from this audi
      additive half vote for every count or a minimum half-vote floor for all
      positive counts. At the fractional-count boundary, zero uses the half-vote
      calculation while a tiny positive count uses its own value.
-   - Apply only to alternatives filed in the current physical choice set.
-     Unfiled choices remain impossible. Preserve explicit zero reference
-     interventions and zeros required by filing/capacity constraints; historical
-     regularization must not revive those choices later in generation.
+   - Prepare regularized latent component support before future filing, in line
+     with correction 2. This does not authorize votes for unfiled components:
+     apply the final filing mask before count generation and never revive those
+     choices afterwards. Preserve explicit zero reference interventions; do not
+     mistake reference zeros or filing exclusions for historical observed zeros.
    - Conserve the final electorate in integer allocation. A positive probability
      can still round to zero votes in a particular draw; the aim is to remove
      permanent historical-zero exclusion, not guarantee a positive integer count.

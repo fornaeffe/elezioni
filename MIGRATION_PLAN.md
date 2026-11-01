@@ -356,7 +356,8 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
     latest-only web policy and terminal-only historical comparisons.
   - [ ] **Correspondence corrections after review:** obtain Luca's decisions on
     turnout/transfer semantics, fallback assumptions, physical-cell legacy poll
-    projection and joint-capacity/allocation fixes described in the audit;
+    projection, pre-filing reference semantics and direct physical-cell
+    generation described in the audit;
     settle all decisions before one coordinated implementation pass, with
     versioned provenance and affected acceptance.
   - [ ] **FV-09:** Execute the [research archive/cleanup plan](docs/vote-generation-research-archive-plan.md)

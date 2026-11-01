@@ -8772,3 +8772,24 @@ A flow-based constraint feasibility check remains distinct from vote relocation.
 Implementation remains deferred to the coordinated pass. Changed only the audit
 and history; `git diff --check` passed. No code, data, defaults or tests changed;
 no tests rerun for this documentation update.
+
+### Pre-filing reference-date support decision — 1 November 2026
+
+Luca clarified that component references anchor support at the reference date
+before future filing. Recorded the sequence in correction 2 of the audit:
+reference support, future movement, local support, physical filing conditioning,
+counts and list aggregation. Final filed shares need not reproduce the original
+or shocked pre-filing national shares. Both installed generators need adaptation:
+their current reference application already incorporates filing restrictions,
+although both subsequently allow future movement. The selected model can retain
+its distinct movement mechanism, with distributional revalidation after reordering.
+
+Revised correction 3 to supersede the previous individual/joint physical
+reference-capacity validation requirement. No such solver is required for dated
+pre-filing support references. Retain valid-distribution/metadata/coverage checks,
+positive remaining probability mass after conditioning, filing zeros and
+electorate conservation. An empty remaining-support vector is an explicit error,
+not an invented allocation. Aligned correction 5's regularization boundary and
+the active-plan wording. Implementation remains deferred to the coordinated pass.
+Documentation only: audit, plan and history updated; no code, data, defaults or
+tests changed. `git diff --check` passed; no tests rerun for this update.
