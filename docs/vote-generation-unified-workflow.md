@@ -1,5 +1,13 @@
 # Unified reform generation workflow (FV-08)
 
+The installed workflow below describes the audited FV-08 implementation.
+The [coordinated correspondence decisions](correspondence-policy-audit.md#proposed-corrections-before-implementation)
+supersede its future design: component-based legacy generation, component-level
+political references for both models, and latest-only web generators. Earlier
+archive routing/replay support is not a requirement for that update; old code
+may remain outside web bundles for terminal comparisons. Implementation is
+deferred until the remaining policy decisions are settled.
+
 This is the active scenario/editor/execution contract for reform scenario **v5**.
 The selected bounded mass-pair field is the default. The alternative is the
 **latest-publication legacy poll procedure** from the reviewed comparison,

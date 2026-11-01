@@ -321,8 +321,9 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
     default and the reviewed legacy poll procedure as an alternative, including
     Luca's approved per-chamber new-list classification. Complete full-country
     1,000-run campaigns per model, browser/export and maximum-envelope resource
-    acceptance; preserve v1-v3 original archive routing. The 512 MiB aggregate
-    ceiling is waived; CPU choices, browser/RAM recommendations and warnings are
+    acceptance. Its original v1-v3 archive routing requirement is superseded for
+    the coordinated update by the audit's latest-only web policy. The 512 MiB
+    aggregate ceiling is waived; CPU choices, browser/RAM recommendations and warnings are
     defined in the [unified contract](docs/vote-generation-unified-workflow.md).
     See [acceptance](docs/vote-generation-fast-acceptance.md) and the
     [curated snapshot](test/fixtures/benchmarks/vote_share_unified_acceptance.json).
@@ -351,7 +352,8 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   - [x] **Post-FV-08 correspondence-policy audit:** compare both models and quantify
     default/boundary turnout, list and college effects. See the
     [findings, reproducible evidence and correction proposals](docs/correspondence-policy-audit.md).
-    Original archive policy remains intact; no numerical correction is applied.
+    No numerical correction is applied; the audit records the agreed future
+    latest-only web policy and terminal-only historical comparisons.
   - [ ] **Correspondence corrections after review:** obtain Luca's decisions on
     turnout/transfer semantics, fallback assumptions, physical-cell legacy poll
     projection and joint-capacity/allocation fixes described in the audit;

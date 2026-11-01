@@ -4,8 +4,11 @@ Completed 1 November 2026 against the current v5 implementation. **The audit is
 complete; the policy is not validated as generally equivalent between models.**
 The correction list below records agreed decisions and remaining proposals.
 Implementation is deferred until all correspondence-policy decisions are settled,
-then proceeds in one coordinated pass. Original v1–v3 archive routing and policy
-remain intact.
+then proceeds in one coordinated pass. The future web app includes only the
+latest generator algorithms, with no older-archive compatibility requirement.
+Earlier generator code may be archived outside the browser bundle for terminal
+comparison tests. Current behavior below is audit evidence, not a requirement
+to retain old algorithms in the web app.
 
 ## Evidence and reproduction
 
@@ -235,22 +238,88 @@ changes. No empirical coverage or local calibration claim follows from this audi
    inside a joint list. Correction 4 specifies how legacy compositions and
    selected-model identification determine the available information. A
    missing required reference makes the scenario invalid; automatic zero, equal
-   allocation or an implicit donor profile cannot replace it. The precise
-   reference representation and uncertainty/profile rules remain for the
-   coordinated design. Expose retained mass, amplification, fallback counts and
-   unsupported components so the adopted assumptions remain reviewable.
-2. **Move legacy filing-sensitive work onto physical cells.** Apportion the
-   conditional electorate first; compute correspondences, denominators and
-   reference scopes on each ballot. Project national poll support as component
-   support or use an explicit territorial allocation assumption before deriving
-   ticket totals. Never split national component support equally just because
-   it has multiple territorial labels. Retain the legacy stochastic law if
-   that remains the intended alternative.
+   allocation or an implicit donor profile cannot replace it. Political
+   references must target components in both models, as specified in
+   correction 2; uncertainty/profile details remain for the coordinated design.
+   Expose retained mass, amplification, fallback counts and unsupported components
+   so the adopted assumptions remain reviewable.
+2. **Generate legacy votes by component, then aggregate to filed lists — agreed
+   1 November 2026.** Replace future-list-based legacy preparation and generation
+   with the following component-based pipeline; this is a revised legacy-derived
+   generator, not a claim of numerically identical old forecasts:
+
+   - Compile historical component votes for each selected election and
+     municipality using the mandatory legacy compositions. Preserve original
+     grouped counts, offered-set masks and observation/decomposition provenance.
+   - Apply correction 4's component-level local/regional/national support rules,
+     required references and correction 5's observed-zero treatment. Calculate
+     national probabilities and geographic effects per component.
+   - Keep polls attached to measured components/groups, with their original
+     denominators, dates, completeness and provenance. Reconcile national support
+     using the territorial component profiles; do not divide a component's poll
+     share by the number of future territorial ticket labels. A poll describing
+     one offered set does not impose the same totals after conditioning onto a
+     different future offered set.
+   - Apply national, regional and municipal movement shocks per stable component
+     identity. **Different components' movement innovations stay independent.**
+     Retain the existing shock-scale settings initially; do not estimate new
+     component scales or copy the selected model's fitting algorithm as part of
+     this decision. A component's national/regional shocks remain shared across
+     the corresponding geography, and retain the existing within-component
+     Camera/Senate dependence settings.
+   - Reconstruct physical-cell electorates before integer vote generation.
+     Municipalities with homogeneous filing may use one equivalent cell; split
+     municipalities require their actual ballot-specific cells. After shocks,
+     remove components not offered in each cell and proportionally condition
+     the complete remaining vector, including non-valid support, per correction 1.
+   - Generate a joint electorate-conserving allocation to available components
+     and non-valid support within each cell, then sum component counts into the
+     list carrying them there. Never generate unavailable component counts and
+     try to relocate them afterwards. Derived territorial list totals are
+     outputs, not separate invented national poll targets.
+
+   Independence concerns movement innovations before normalization. Probability
+   normalization, shared observations and references, and count conservation
+   naturally induce dependence in resulting component/list shares. Summing
+   independent component movements also changes joint-list uncertainty relative
+   to the old single-list shock; this needs validation, not an assertion of
+   unchanged calibration.
+
+   **Shared poll measurement uncertainty — adopted treatment.** Draw one
+   measurement-error realization for each original reported poll group per
+   simulation, using the existing measurement-error magnitude/floor at that
+   group's level. Obtain its perturbed share under the question's valid
+   denominator/completeness rules, then split it using the fixed declared legacy
+   composition. For group share $G$ and weights $w_k$, component contributions
+   are $w_kG$: they inherit the same group error, not independently sampled
+   component errors. Fixed compositions introduce no extra composition-error
+   draws. Preserve dependence required by a complete question's total; partial
+   named observations must not be silently normalized into a complete survey.
+   Reuse the same observation realization across all cells and ticket labels,
+   and across chambers when the same observation is reused. Independent
+   component movement shocks remain separate from this shared measurement error.
+   The selected model retains grouped observation evidence/uncertainty rather
+   than receiving the assumed legacy split as independent measurements.
+
+   **Scenario political references must be component-level in both models.**
+   Permit references to historical/fitted as well as new components, retaining
+   the applicable scope, chamber and uncertainty semantics. Mandatory-reference
+   cases and geographic coverage are specified in correction 4; this does not
+   require a manual reference for every already identified component. Do not
+   implement a list-level reference control or implicit list-to-component
+   translation now: whether to offer one and how to translate it remain for later
+   discussion. Non-valid references retain their separate meaning. National
+   component/group calibration uses territorial profiles and the observation's
+   denominator; poll calibration alone supplies no turnout/nonresponse estimate.
 3. **Use joint capacity and a transportation allocator.** Validate overlapping
    reference targets before drawing and allocate integer counts with complete
    feasible-flow support. Distinguish genuinely infeasible margins from the
    current greedy failure. Specify treatment of stochastic draws crossing filing
-   capacity; do not silently clip, retry or transfer them.
+   capacity; do not silently clip, retry or transfer them. Reassess the necessary
+   allocator perimeter under correction 2: direct physical-cell generation
+   removes the ordinary need to relocate municipal list counts between colleges.
+   Keep physical joint-capacity checks for imposed reference constraints; do not
+   build a redundant municipal-to-college allocator merely to retain the old path.
 4. **Choose historical support by observation and identification — agreed
    1 November 2026.** Apply the following rules
    component by component, before conditioning on the current offered set:
@@ -273,7 +342,7 @@ changes. No empirical coverage or local calibration claim follows from this audi
    it to lists. Merely splitting or joining list labels must not redistribute
    another component's support by changing the number of lists. This settles
    that fallback's list-packaging issue; geographic projection onto different
-   territorial tickets remains the separate proposal in correction 2.
+   territorial tickets is addressed by the agreed redesign in correction 2.
 
    **Legacy joint-list compositions are mandatory.** Explicit proportions provide
    an assumed decomposition of observed historical joint-list votes, including
@@ -294,8 +363,9 @@ changes. No empirical coverage or local calibration claim follows from this audi
    not alone make a component unidentifiable if other evidence identifies it.
    Legacy's mandatory historical compositions supply the assumed internal split,
    but do not replace the current reference required for a new component.
-   References must support the component even inside a future joint ticket;
-   a reference somewhere outside part of its filed domain is insufficient.
+   References target components in both models per correction 2, including
+   components inside future joint tickets; a reference somewhere outside part of
+   the component's filed domain is insufficient.
    Missing required references invalidate the scenario; implicit zero, equal
    allocation or donor assumptions cannot replace them.
 
@@ -319,9 +389,11 @@ changes. No empirical coverage or local calibration claim follows from this audi
    measurement should supply missing information. Other policy decisions remain
    unsettled.
 5. **Regularize legacy observed-zero support with a half vote — agreed
-   1 November 2026; implementation deferred.** After compiling historical-to-future
-   list correspondences, use a half-vote probability when preparing the local
-   historical logit for a future list with identifiable zero historical support.
+   1 November 2026; implementation deferred.** After decomposing historical lists
+   into components, use a half-vote probability when preparing the local
+   historical logit for a component with identifiable zero historical support.
+   This replaces the earlier future-list-level wording: regularize each
+   component before future list aggregation, not the aggregated ticket.
    For historical electorate $N>0$:
 
    $$
@@ -365,13 +437,24 @@ changes. No empirical coverage or local calibration claim follows from this audi
    rule: those paths also floor positive fractions below half a vote, whereas
    this decision leaves them unchanged. The selected model retains its existing
    zero-count smoothing; this update concerns reform legacy only. Bind the new
-   treatment to new policy/provenance identifiers and preserve original archive
-   behavior as required for the other coordinated changes.
+   treatment to new policy/provenance identifiers; older generators are only
+   retained outside the browser bundle for terminal comparison if useful.
+
+6. **Keep the web app on latest generator algorithms only — agreed
+   1 November 2026.** Do not plan backward-compatible execution, import/replay
+   adapters or old generator routing for earlier archives in the web app. Keep
+   accurate current-run provenance and current-format exports. Earlier production
+   algorithm code may stay archived for terminal comparison tests, with no
+   transitive imports or generated inclusion in the browser/worker bundle.
+   This supersedes the earlier requirement to preserve v1–v3 web routing and
+   browser replay compatibility; historical evidence and comparison fixtures
+   are not authorization to bundle the old implementations.
 
 Record all remaining policy decisions before implementing any correction. Then
 implement the complete agreed set in one coordinated pass under new
-policy/provenance identifiers with
-characterization tests retaining the old behavior, checkpoint binding and
-archive replay checks. Then repeat affected default/boundary tests and model
-campaigns. Agreement on an individual policy does not authorize early code,
+policy/provenance identifiers with terminal comparison/characterization tests,
+current checkpoint binding and latest-format export/import checks. Verify that
+archived generator implementations are absent from browser/worker dependencies.
+Then repeat affected default/boundary tests and model campaigns. Agreement on an
+individual policy does not authorize early code,
 default or data changes. FV-09 cleanup and public deployment remain separate.

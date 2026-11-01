@@ -8730,3 +8730,30 @@ Implementation of these and all other settled decisions stays deferred to the
 single coordinated pass after remaining decisions are settled. Updated only the
 audit and history; `git diff --check` passed. No code, data, defaults or tests
 were changed, and no tests were rerun for this documentation update.
+
+### Component-based legacy generation decision — 1 November 2026
+
+Luca approved component-based legacy historical preparation, probabilities,
+movement shocks and count generation, followed by aggregation to filed lists.
+Recorded this as correction 2 in the correspondence audit, with physical filing
+conditioning before counts, independent component movement innovations and the
+existing shock-scale settings. The adopted poll-error treatment draws one
+measurement realization per observed group and splits its share by fixed legacy
+composition; shared measurement error is distinct from independent movements.
+
+Both models' scenario political references now target components, including
+historical/fitted components. Mandatory-reference cases retain national or full
+territorial/chamber coverage; a future list-level control/translation remains
+undecided. Reworded correction 5 to regularize historical-zero component logits
+before list aggregation, retaining its other boundaries.
+
+Luca explicitly superseded backward archive compatibility in the web app:
+latest generator algorithms only, with earlier production code optionally
+archived outside browser/worker dependencies for terminal comparison tests.
+Updated the audit, active-plan wording and unified workflow's design-status note
+to prevent the earlier v1–v3 routing requirement from carrying into the update.
+The direct-cell redesign also narrows correction 3's allocation perimeter while
+retaining physical reference-capacity checks. Implementation remains deferred
+to the coordinated pass after remaining decisions are settled. Documentation
+only; no code, data, defaults, tests or archives changed. `git diff --check`
+passed; no tests rerun for this documentation update.
