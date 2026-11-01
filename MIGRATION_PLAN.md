@@ -373,6 +373,12 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
     historical evidence and verify seeded numerical behavior is unchanged. See the
     [specifications](docs/models/M01.md), [M02](docs/models/M02.md) and
     [verification receipt](test/fixtures/benchmarks/model_identity_acceptance.json).
+  - [x] **M01/M02 Camera-only comparison:** completed the approved test-only
+    preparation exception, original historical cutoffs/scoring and restored
+    offered-set strata: 28 model/case rows at 512 draws and 1,000 complete
+    Camera browser attempts per model. Old receipts and production contracts
+    are unchanged; predictive calibration is not accepted by these results. See the
+    [comparison scope and results](docs/current-camera-comparison-results.md).
   - [ ] **FV-09:** Execute the [research archive/cleanup plan](docs/vote-generation-research-archive-plan.md)
     after dependency separation and acceptance; retain curated evidence and remove
     only audited, regenerable outputs no longer consumed.
