@@ -355,7 +355,8 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   - [ ] **Correspondence corrections after review:** obtain Luca's decisions on
     turnout/transfer semantics, fallback assumptions, physical-cell legacy poll
     projection and joint-capacity/allocation fixes described in the audit;
-    implement approved changes with versioned provenance and affected acceptance.
+    settle all decisions before one coordinated implementation pass, with
+    versioned provenance and affected acceptance.
   - [ ] **FV-09:** Execute the [research archive/cleanup plan](docs/vote-generation-research-archive-plan.md)
     after dependency separation and acceptance; retain curated evidence and remove
     only audited, regenerable outputs no longer consumed.

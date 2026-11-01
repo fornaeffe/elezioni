@@ -2,8 +2,10 @@
 
 Completed 1 November 2026 against the current v5 implementation. **The audit is
 complete; the policy is not validated as generally equivalent between models.**
-Corrections below are proposals requiring Luca's approval before implementation.
-Original v1–v3 archive routing and policy remain intact.
+The correction list below records agreed decisions and remaining proposals.
+Implementation is deferred until all correspondence-policy decisions are settled,
+then proceeds in one coordinated pass. Original v1–v3 archive routing and policy
+remain intact.
 
 ## Evidence and reproduction
 
@@ -202,12 +204,39 @@ changes. No empirical coverage or local calibration claim follows from this audi
 
 ## Proposed corrections, before implementation
 
-1. **Make turnout and transfer semantics explicit.** Decide whether omission
-   means political redistribution, retained non-valid odds, or an authored
-   alternative. Separate missing mapping from an intentionally ceased identity.
-   Keep historical valid preservation available, but expose retained mass,
-   amplification, fallback counts and unsupported components. Correct the
-   documentation's equivalence claim now; any numerical change needs approval.
+1. **Use one offered-choice-set policy — agreed 1 November 2026.** Treat a
+   component known to be absent from the current ballot or poll response options
+   identically whether it has ceased to exist or still exists but is not offered.
+   Its supporters must choose another offered alternative or abstain/not respond;
+   we have no identified substitution pattern for them. Do not automatically
+   preserve historical valid-vote totals.
+
+   Use proportional conditioning as the central assumption: for the offered set
+   $O$, set $p'_j=p_j/\sum_{k\in O}p_k$ for $j\in O$, and zero for unavailable
+   options. The electoral choice set includes non-participation/non-valid support.
+   This preserves relative probabilities among the remaining alternatives,
+   reallocating removed support to both political choices and non-valid support.
+   For example, $(0.40,0.27,0.33)$ becomes $(0.40/0.73,0,0.33/0.73)$ when the
+   first political option disappears. These proportions are a modelling
+   assumption, not observed transfers; the uncertainty treatment remains to be
+   settled and must not imply that substitution is identified.
+
+   For polls, apply conditioning to the represented response set and retain the
+   published denominator. Voting-intention percentages conditional on an expressed
+   intention do not identify nonresponse/undecided probabilities. Do not infer
+   those probabilities from political percentages or substitute electoral
+   abstention for poll nonresponse.
+
+   Known absence from an offered set is distinct from an unresolved identity or
+   correspondence in the data: unresolved data must not silently become evidence
+   of absence. **The scenario must specify an explicit reference for every
+   component without historical records or genuinely unidentifiable from the
+   available evidence**, including such a component inside a joint list. A
+   missing required reference makes the scenario invalid; automatic zero, equal
+   allocation or an implicit donor profile cannot replace it. The precise
+   reference representation and uncertainty/profile rules remain for the
+   coordinated design. Expose retained mass, amplification, fallback counts and
+   unsupported components so the adopted assumptions remain reviewable.
 2. **Move legacy filing-sensitive work onto physical cells.** Apportion the
    conditional electorate first; compute correspondences, denominators and
    reference scopes on each ballot. Project national poll support as component
@@ -220,14 +249,20 @@ changes. No empirical coverage or local calibration claim follows from this audi
    feasible-flow support. Distinguish genuinely infeasible margins from the
    current greedy failure. Specify treatment of stochastic draws crossing filing
    capacity; do not silently clip, retry or transfer them.
-4. **Require reviewable fallback assumptions.** Keep regional/equal fallback
-   explicit, summarize affected valid mass, and decide whether high-amplification
-   or unsupported cases need an authored profile/reference. New-component
-   support within a joint list and uncertainty around proxies need a separate
-   design; no automatic epsilon or invented measurement should supply it.
+4. **Require reviewable fallback assumptions — reference requirement agreed;
+   remaining fallback design open.** Components without historical records or
+   genuinely unidentifiable require the explicit scenario references specified
+   in correction 1. Regional/equal fallbacks cannot bypass that requirement.
+   Decide the remaining use of territorial/profile fallbacks for supported
+   components and high-amplification cases; label their assumptions and summarize
+   affected valid mass. New-component support within a joint list and uncertainty
+   around proxies still need a coordinated design; no automatic epsilon or
+   invented measurement should supply it.
 
-Implement approved corrections under new policy/provenance identifiers with
+Record all remaining policy decisions before implementing any correction. Then
+implement the complete agreed set in one coordinated pass under new
+policy/provenance identifiers with
 characterization tests retaining the old behavior, checkpoint binding and
 archive replay checks. Then repeat affected default/boundary tests and model
-campaigns. Audit completion does not authorize those numerical changes, FV-09
-cleanup, or public deployment.
+campaigns. Agreement on an individual policy does not authorize early code,
+default or data changes. FV-09 cleanup and public deployment remain separate.

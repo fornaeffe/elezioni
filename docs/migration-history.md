@@ -8671,3 +8671,21 @@ The first audit-reader college probe incorrectly supplied fractional weights to
 the integer-only apportioner; it was corrected to use the existing $10^{12}$
 integer probability-weight convention before recording the successful report.
 No full acceptance campaign, publication, commit or deployment was performed.
+
+### Correspondence semantics decision — 1 November 2026
+
+Luca agreed to one conditioning policy for known absent components, regardless
+of whether an identity ceased to exist or is simply not offered. Updated the
+[correction list](correspondence-policy-audit.md#proposed-corrections-before-implementation)
+to record full offered-choice-set proportional conditioning as the central
+assumption, including electoral non-valid support, with substitution uncertainty
+still to be designed. Polls retain their represented response denominator;
+political percentages do not identify missing nonresponse probabilities.
+
+Components without historical records or genuinely unidentifiable must have an
+explicit scenario reference, also within joint lists; missing references must
+invalidate the scenario rather than trigger an implicit zero/equal/donor
+replacement. Remaining reference/profile and fallback design stays open.
+The plan records Luca's implementation boundary: settle all correspondence-policy
+decisions first, then implement them in one coordinated pass. This update changes
+documentation only; no algorithm, validation code, default or data was changed.
