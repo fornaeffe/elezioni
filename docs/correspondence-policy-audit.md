@@ -311,15 +311,29 @@ changes. No empirical coverage or local calibration claim follows from this audi
    discussion. Non-valid references retain their separate meaning. National
    component/group calibration uses territorial profiles and the observation's
    denominator; poll calibration alone supplies no turnout/nonresponse estimate.
-3. **Use joint capacity and a transportation allocator.** Validate overlapping
-   reference targets before drawing and allocate integer counts with complete
-   feasible-flow support. Distinguish genuinely infeasible margins from the
-   current greedy failure. Specify treatment of stochastic draws crossing filing
-   capacity; do not silently clip, retry or transfer them. Reassess the necessary
-   allocator perimeter under correction 2: direct physical-cell generation
-   removes the ordinary need to relocate municipal list counts between colleges.
-   Keep physical joint-capacity checks for imposed reference constraints; do not
-   build a redundant municipal-to-college allocator merely to retain the old path.
+3. **Validate physical reference capacity and generate counts directly in cells —
+   agreed 1 November 2026.** Correction 2 resolves the causes of findings 4 and 5:
+   use each physical cell's electorate and offered components, never the union
+   of filings across a municipality. Condition probabilities on that cell's
+   choice set before generating electorate-conserving component counts; aggregate
+   those counts to filed lists and colleges by summation.
+
+   Remove municipal-to-college greedy vote relocation from the active path.
+   No replacement transportation allocator for relocating municipal vote totals
+   is required: counts already belong to their destination cells, so list order
+   cannot consume another list's capacity during reconstruction. Component-based
+   generation at municipality level followed by relocation would not resolve
+   these findings and is not the agreed design.
+
+   Retain individual **and joint** physical filing-capacity validation for imposed
+   reference constraints, using their applicable geographic scopes and
+   denominators. A flow-based feasibility check may serve this purpose; it is
+   distinct from relocating generated votes. Direct cell generation does not make
+   every requested national/territorial component reference feasible. Report
+   incompatible constraints explicitly rather than silently clipping, retrying
+   draws or transferring votes. Keep structural filing zeros and cell electorate
+   conservation in every draw; do not impose reference margins as exact realized
+   integer totals unless separately specified by their semantics.
 4. **Choose historical support by observation and identification — agreed
    1 November 2026.** Apply the following rules
    component by component, before conditioning on the current offered set:

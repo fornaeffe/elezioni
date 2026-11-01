@@ -8757,3 +8757,18 @@ retaining physical reference-capacity checks. Implementation remains deferred
 to the coordinated pass after remaining decisions are settled. Documentation
 only; no code, data, defaults, tests or archives changed. `git diff --check`
 passed; no tests rerun for this documentation update.
+
+### Physical capacity and allocation perimeter decision — 1 November 2026
+
+Updated correction 3 in the correspondence audit following Luca's agreement:
+physical-cell conditioning and direct component count generation resolve the
+municipal filing-union and greedy reconstruction defects. The active path needs
+no municipal-to-college vote relocation or replacement transportation allocator;
+aggregate cell counts by summation. Retain individual and joint physical
+reference-capacity validation with the correct scopes/denominators, explicit
+infeasibility reporting, structural filing zeros and electorate conservation.
+A flow-based constraint feasibility check remains distinct from vote relocation.
+
+Implementation remains deferred to the coordinated pass. Changed only the audit
+and history; `git diff --check` passed. No code, data, defaults or tests changed;
+no tests rerun for this documentation update.
