@@ -128,6 +128,7 @@ export async function inspect(id: string, owner: string) {
       'generation' in record.scenario
         ? record.scenario.generation?.model
         : undefined,
+    modelVersion: 'generation' in record.scenario ? record.scenario.generation?.modelVersion : undefined,
     benchmark: record.result.benchmark,
     storage,
     runs,

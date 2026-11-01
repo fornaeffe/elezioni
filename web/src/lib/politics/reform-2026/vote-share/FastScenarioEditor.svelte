@@ -272,7 +272,7 @@
             min="0"
             step="any"
             value={l.nationalUncertaintyMultiplier ?? 1}
-            disabled={scenario.generation?.model==='legacy-poll-informed-v1'}
+            disabled={scenario.generation?.model==='M01'}
             onchange={(e) => {
               const v = e.currentTarget.valueAsNumber;
               patch((n) => {
@@ -291,7 +291,7 @@
             min="0"
             step="any"
             value={l.localUncertaintyMultiplier ?? 1}
-            disabled={scenario.generation?.model==='legacy-poll-informed-v1'}
+            disabled={scenario.generation?.model==='M01'}
             onchange={(e) => {
               const v = e.currentTarget.valueAsNumber;
               patch((n) => {

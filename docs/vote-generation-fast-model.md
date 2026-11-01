@@ -1,4 +1,9 @@
-# Fast vote-share model: maintained numerical contract
+# Historical Gaussian reference-fit derivation
+
+Current model names and authoritative probability-law specifications are
+[M01 1.0.0](models/M01.md) and [M02 1.0.0](models/M02.md). Older candidate names
+and equations below retain their historical/implementation context; use those
+specifications for the current complete laws.
 
 Current amendments (1 November 2026) are specified by the
 [unified workflow](vote-generation-unified-workflow.md#numerical-and-observation-contract)
@@ -15,7 +20,7 @@ Status: **selected for the 2026 reform workflow; FV-02 numerical port implemente
 See the [engine entry point](../web/src/lib/politics/reform-2026/vote-share/README.md)
 for reduced acceptance and remaining performance limits. Production integration
 and default selection remain FV-03 through FV-08.
-This document owns the selected `kind-common-conservative` mathematical model.
+This document records the original `kind-common-conservative` derivation.
 The 30 October replacement campaign retains its reference/profile estimation,
 but its forecast laws are specified separately in the
 [feasible-field model](vote-generation-feasible-model.md). The Beta/projection

@@ -1,0 +1,65 @@
+{
+  "scope": "M01/M02 specification and identity adoption; no probability-law change",
+  "modelVersions": {
+    "M01": "1.0.0",
+    "M02": "1.0.0"
+  },
+  "catalog": "fast-share-catalog-v1-b998a45a8429bb0ee0fb34b9ad12ca01931ff85416a50bdb96fc21bab372dc20",
+  "unitTests": {
+    "filesPassed": 112,
+    "testsPassed": 1298,
+    "skipped": 0
+  },
+  "browserWorkflows": {
+    "root": {
+      "passed": 10,
+      "failed": 0,
+      "skipped": 0,
+      "flaky": 0,
+      "browsers": [
+        "chromium",
+        "firefox"
+      ],
+      "basePath": ""
+    },
+    "nested": {
+      "passed": 10,
+      "failed": 0,
+      "skipped": 0,
+      "flaky": 0,
+      "browsers": [
+        "chromium",
+        "firefox"
+      ],
+      "basePath": "/elezioni"
+    }
+  },
+  "seededEquality": {
+    "cases": 4,
+    "simulationIdsPerModel": [
+      1,
+      7
+    ],
+    "excludedFields": [
+      "provenance"
+    ],
+    "sha256": {
+      "M02:1": "7e92cb44390d046b7d73398b40d821ad7d19c4c5d09fabadfc423648917ed957",
+      "M02:7": "33cb68340565d27c4fafb323c4d9208366f0a25874cc47d59172f2fcef008fc1",
+      "M01:1": "da139e9d54cb2a746ab1767f5723731d638ccd4da2c52266d983aefeaa17afc0",
+      "M01:7": "e649f418b12fa2de2a813cef41c651f858dbcb94a4d2ad7709e7ca8ca4691bf4"
+    }
+  },
+  "releasePreparation": "passed; regenerated defaults, source integrity, semantic bindings and complete legal vertical slice",
+  "additionalChecks": [
+    "preparation TypeScript",
+    "Svelte check: zero errors and warnings",
+    "production root and project-path builds",
+    "specification math delimiters and relative links"
+  ],
+  "limits": [
+    "Four seeded numerical comparisons; no fresh 1000-simulation campaign for this naming-only change.",
+    "Historical model identifiers and receipts remain unchanged.",
+    "Model versions do not assert predictive calibration."
+  ]
+}

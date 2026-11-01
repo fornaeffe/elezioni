@@ -141,7 +141,7 @@ describe('unified generation contract', () => {
       s = structuredClone(fitted.accepted!.scenario);
     s.schemaVersion = 5;
     s.generation = {
-      model: 'legacy-poll-informed-v1',
+      model: 'M01', modelVersion: "1.0.0",
       compositions: {},
       supplementalPolls: [],
     };
@@ -203,7 +203,7 @@ describe('unified generation contract', () => {
       f.read,
     );
     expect(recompiled.audit.nationalFits).toBe(0);
-    edited.generation!.model = 'selected';
+    edited.generation!.model = 'M02';
     const stale = await runFitTask(
       {
         action: 'validate',

@@ -1,9 +1,10 @@
 # Fast-share engine
 
+Canonical current specifications: [M01 1.0.0](../../../../../../docs/models/M01.md) and [M02 1.0.0](../../../../../../docs/models/M02.md). Model identity/version, numerical policies, data IDs and implementation hashes are separate.
+
 This folder implements the bounded reference fit, empirical profile estimator,
-forecast adapters and the unified reform editor/worker integration. The selected
-field is the ordinary model; the revised legacy poll procedure, with
-component-based preparation and original-group poll uncertainty, is an explicit alternative. Read the
+forecast adapters and the unified reform editor/worker integration. M02 is the default; M01 uses fixed component compositions and
+original-group poll uncertainty. Read the
 [unified workflow contract](../../../../../../docs/vote-generation-unified-workflow.md)
 for v5 scenarios, correspondences, worker recommendations and current acceptance.
 Original compact data is implemented in [FV-03](../../../../../../docs/vote-generation-fast-data.md).
@@ -91,7 +92,7 @@ installation belongs to FV-06, not this synchronous kernel.
 - Profile construction uses two city passes and sparse row references rather
   than retaining a full feature list for every city/component/history cell.
   Component filtering scales and common future scales are returned separately.
-  `electionDiscrepancy` is the fitted raw scale; the selected 1.5 forecast
+  `electionDiscrepancy` is the fitted raw scale; the M02 1.5 forecast
   multiplier belongs to FV-04.
 
 ## Reduced acceptance and reproduction

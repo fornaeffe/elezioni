@@ -36,7 +36,7 @@ async function inspect(page: Page) {
     return h.inspect(list.at(-1).id, sessionStorage.getItem(key + ':owner'));
   }, base);
 }
-for (const model of ['selected', 'legacy-poll-informed-v1'] as const)
+for (const model of ['M02', 'M01'] as const)
   test(model + ' unified browser workflow', async ({ page, browser }) => {
     await page.route('**/fv08-inspect.js', async (route) => {
       const code = bundles.get(new URL(route.request().url()).pathname);
@@ -55,7 +55,7 @@ for (const model of ['selected', 'legacy-poll-informed-v1'] as const)
       .selectOption('politiche-reform-2026-v1');
     await expect(
       page.getByLabel('Modello di generazione', { exact: true }),
-    ).toHaveValue('selected');
+    ).toHaveValue('M02');
     await page
       .getByRole('button', { name: 'Carica modello predefinito', exact: true })
       .click();
@@ -135,6 +135,7 @@ for (const model of ['selected', 'legacy-poll-informed-v1'] as const)
       before.runs.map((r: { simulation: number }) => r.simulation),
     ).toEqual(Array.from({ length: draws }, (_, i) => i + 1));
     expect(before.fitFilePresent).toBe(true);
+    expect(before).toMatchObject({model,modelVersion:"1.0.0"});
     for (const run of before.runs)
       expect(run).toMatchObject({
         status: 'complete',
@@ -243,10 +244,10 @@ if (draws === 3) {
     await workers.selectOption('26');
     await expect(page.getByText(/supera il margine prudenziale di memoria del browser/)).toBeVisible();
     await expect(page.getByText(/Attenzione: il numero scelto/)).toHaveCount(0);
-    await page.getByLabel('Modello di generazione',{exact:true}).selectOption('legacy-poll-informed-v1');
+    await page.getByLabel('Modello di generazione',{exact:true}).selectOption('M01');
     await expect(workers).toHaveValue('10');
   });
-  test('composition editing preserves entered ratios, offers equal allocation and leaves candidate SDs inactive in legacy', async ({
+  test('composition editing preserves entered ratios, offers equal allocation and leaves candidate SDs inactive in M01', async ({
     page,
   }) => {
     await page.goto(base + '/politics');
@@ -283,7 +284,7 @@ if (draws === 3) {
       })
       .click();
     await history
-      .getByText('Composizione assunta per il modello precedente', {
+      .getByText('Composizione assunta per M01', {
         exact: true,
       })
       .click();
@@ -316,7 +317,7 @@ if (draws === 3) {
     ).toHaveValue('0.5');
     await page
       .getByLabel('Modello di generazione', { exact: true })
-      .selectOption('legacy-poll-informed-v1');
+      .selectOption('M01');
     await expect(page.getByTestId('fit-status')).toHaveText('Modello pronto', {
       timeout: 60000,
     });

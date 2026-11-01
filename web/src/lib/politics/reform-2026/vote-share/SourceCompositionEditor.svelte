@@ -53,13 +53,13 @@
 {#if scenario.generation && ids.length}
   <details>
     <summary
-      >Composizione assunta per il modello precedente{row?.proxy
+      >Composizione assunta per M01{row?.proxy
         ? ' · proxy esplicito'
         : ''}</summary
     >
     <p>
       La selezione dei componenti definisce l’appartenenza. Questi pesi relativi
-      valgono solo per il modello precedente; il modello selezionato conserva
+      valgono solo per M01; M02 conserva
       osservazioni e raggruppamenti indivisibili.
     </p>
     {#each ids as id (id)}<label
@@ -76,7 +76,7 @@
     >
     <p>
       {row?.provenance ??
-        'Pesi uguali fra le identità riconosciute; ipotesi esplicita del modello precedente.'}
+        'Pesi uguali fra le identità riconosciute; ipotesi esplicita di M01.'}
     </p>
   </details>
 {/if}

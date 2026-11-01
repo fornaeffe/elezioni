@@ -8946,3 +8946,63 @@ Detailed local receipts: `data/derived/r26-21-acceptance/report.json`,
 [test/fixtures/benchmarks/correspondence_corrections_acceptance.json](../test/fixtures/benchmarks/correspondence_corrections_acceptance.json).
 These are functional and engineering checks, not predictive calibration.
 FV-09 generated-output cleanup and public deployment remain separate work.
+
+
+### M01/M02 specifications and semantic identities — 1 November 2026
+
+Named the corrected component-based legacy law **M01** and the default joint-fit,
+bounded-transfer law **M02**. Created self-contained current specifications and
+equations in `docs/models/M01.md` and `docs/models/M02.md`; historical derivations
+now point to them instead of presenting old Beta forecasts as current equations.
+The specifications cover original offered sets, identification, fixed versus
+uncertain references, geographical borrowing/profiles, chamber coupling,
+movement, discrepancy, physical conditioning, multinomial counts, defaults,
+provenance and limits. R's original generators and older research candidates do
+not retroactively become these corrected laws.
+
+Adopted independent **1.0.0** model-contract versions. SemVer describes changes
+to each model's accepted inputs, probability law and output meanings: law/meaning
+changes are MAJOR; optional compatible extensions are MINOR; law-preserving
+clarifications/corrections are PATCH. This is contract stability, not predictive
+calibration. Source/scenario/fitted-state/numerical/RNG/file-format/implementation
+identities remain separate, and the runtime accepts exact supported model versions.
+
+A shared registry supplies M01/M02 names, versions and labels. Current scenarios
+store `generation.model` and `generation.modelVersion`; controls, worker dispatch,
+resource estimates, default preparation, traces and acceptance workflows use
+those identities. Model selection changes the model/version together. Unsupported
+names/versions or inconsistent preparation fail. Current defaults were regenerated
+through the release pipeline. Historical reports, archived comparisons, RNG
+namespaces and reference-row IDs retain their original spelling for traceability
+and seeded behavior; they are not accepted current selector aliases.
+
+Before renaming, saved full-country ballot/candidate hashes for two simulation
+IDs per model. The corresponding four runs after regeneration are byte-identical
+when provenance metadata is excluded. No statistical equation, random stream,
+legal scrutiny rule or scenario probability setting changed. The new model/version
+metadata intentionally changes implementation/state binding identities.
+
+Verification passed:
+
+- **112 test files / 1,298 tests**, without skips, including exact model-version
+  validation and M01 preparation matching.
+- **20 browser workflow checks**: ten each at `/` and `/elezioni`, across Chromium
+  and Firefox. Covered both model selections, exported/reimported version metadata,
+  frozen restore, composition controls, M01 reference uncertainty controls and
+  resource settings. The root production build was restored afterward.
+- Full release regeneration passed source integrity, semantic bindings and the
+  complete legal vertical slice: **7,904 municipalities**, **15,810 physical cells**,
+  **28 fitted / 34 future components**, 2,000 retained draws per chain and 588 seats.
+  Preparation TypeScript, Svelte check (zero errors/warnings) and production builds
+  passed. Modified Svelte components also passed the official component checker.
+- The four full-country pre/post naming comparisons preserved sampled ballots and
+  candidate data exactly. This is not a fresh 1,000-simulation campaign per model;
+  the earlier numerical acceptance remains historical evidence.
+- Specification math delimiters and relative links were checked. Initial stale
+  asset/consumer checks were resolved by completing the rename and regenerating
+  defaults through the release pipeline.
+
+The compact maintained receipt is
+[model_identity_acceptance.json](../test/fixtures/benchmarks/model_identity_acceptance.json).
+Detailed local logs use `data/derived/model-naming-*`. No publication or FV-09
+cleanup was performed.

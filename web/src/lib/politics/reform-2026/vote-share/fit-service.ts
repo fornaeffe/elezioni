@@ -23,7 +23,7 @@ import { fitReferenceSteps } from './information';
 import { fitProfilesSteps } from './profiles';
 import { prepareSenateAdapter } from './senate-adapter';
 import { prepareScenarioGeneration } from './unified-generation';
-import { compileLegacy, isLegacyGeneration, legacyInputKey } from './legacy-adapter';
+import { compileLegacy, isM01Generation, legacyInputKey } from './legacy-adapter';
 import {
   cooperativeSteps,
   throwIfCancelled,
@@ -304,7 +304,7 @@ export async function runFitTask(
     throw new Error('FIT_DRAFT_BINDING_MISMATCH');
   const key = await evidenceKey(scenario, selection),
     sameEvidence = key === previous.evidenceKey;
-  if (isLegacyGeneration(scenario)) {
+  if (isM01Generation(scenario)) {
     const inputKey = await legacyInputKey(scenario);
     let legacy = previous.legacy;
     if (!legacy || legacy.inputKey !== inputKey) {

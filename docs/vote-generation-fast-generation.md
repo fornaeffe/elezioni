@@ -1,5 +1,10 @@
 # Fast generation and paired reform integration (FV-04)
 
+Current model names and authoritative probability-law specifications are
+[M01 1.0.0](models/M01.md) and [M02 1.0.0](models/M02.md). Older candidate names
+and equations below retain their historical/implementation context; use those
+specifications for the current complete laws.
+
 The current generator is implemented for the **2026 reform only**, through the
 latest schema-5 [unified workflow](vote-generation-unified-workflow.md).
 The adopted [correspondence corrections](correspondence-policy-audit.md#adopted-corrections)

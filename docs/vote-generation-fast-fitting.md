@@ -1,5 +1,10 @@
 # Browser fitting infrastructure (FV-06)
 
+Current model names and authoritative probability-law specifications are
+[M01 1.0.0](models/M01.md) and [M02 1.0.0](models/M02.md). Older candidate names
+and equations below retain their historical/implementation context; use those
+specifications for the current complete laws.
+
 For current v5 dispatch and CPU-based selectable workers, use the
 [unified workflow](vote-generation-unified-workflow.md). Luca waived the former
 512 MiB aggregate ceiling on 31 October; numerical workspace safeguards remain.

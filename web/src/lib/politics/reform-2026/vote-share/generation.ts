@@ -1,3 +1,4 @@
+import {requireGenerationModel} from './model-registry';
 import type { Chamber, ReferenceScope } from "../input";
 import type {
   GenerationTrace,
@@ -92,7 +93,9 @@ export function prepareFastGeneration(
     assets = structuredClone(inputAssets),
     chambers: Chamber[] =
       s.renewal === "joint" ? ["camera", "senato"] : [s.renewal];
+  const definition = requireGenerationModel(s.generation);
   const legacy = options.legacy;
+  if ((definition.id === "M01") !== !!legacy) throw new Error("MODEL_PREPARATION_MISMATCH");
   if (s.models.forecast && s.models.forecast !== "bounded-mass-pair-field-v2")
     throw new Error("Only latest selected forecast algorithm is supported");
   s.models.forecast = "bounded-mass-pair-field-v2";
@@ -890,7 +893,7 @@ export function prepareFastGeneration(
     normalization: [],
     streamVersion: FORECAST_STREAM_VERSION,
     snapshotVersion: assets.sourceBundleId,
-    modelVersion: legacy ? COMPONENT_POLICY + "/legacy" : FAST_SHARE_MODEL,
+    modelVersion: definition.id + "@" + definition.version,
   };
   const traceScopes: ReferenceScope[] = [
     { kind: "national" },
@@ -1176,6 +1179,7 @@ export function prepareFastGeneration(
     }
     const trace = structuredClone(baseTrace);
     trace.componentSupport = {
+      model: {id:definition.id,version:definition.version},
       policy: COMPONENT_POLICY,
       componentIds: ["non-valid", ...ids],
       denominator:
@@ -1201,9 +1205,7 @@ export function prepareFastGeneration(
       counts,
       trace,
       {
-        voteParameterVersion: legacy
-          ? COMPONENT_POLICY + "/legacy"
-          : FAST_GENERATION_VERSION,
+        voteParameterVersion: definition.id + "@" + definition.version + "/" + (legacy ? COMPONENT_POLICY : FAST_GENERATION_VERSION),
         chamberModelId: "fast-share-paired-v1",
         chamberParameterVersion: legacy
           ? COMPONENT_POLICY + "/paired-legacy"
@@ -1224,14 +1226,14 @@ export function prepareFastGeneration(
             ".",
           ...[...new Set(assets.electorates.map((e) => e.provenance))],
           legacy
-            ? "Legacy-derived component logit shocks, independent innovations across components, fixed scenario-reference means, shared original-group poll measurement error, fixed geographic preparation; deterministic physical-cell conditioning including non-valid support."
-            : "Selected bounded mass-pair movement on unrestricted reference support; component references precede movement and deterministic physical-cell conditioning including non-valid support. Profile regional variance share " +
+            ? "M01 component logit shocks, independent innovations across components, fixed scenario-reference means, shared original-group poll measurement error, fixed geographic preparation; deterministic physical-cell conditioning including non-valid support."
+            : "M02 bounded mass-pair movement on unrestricted reference support; component references precede movement and deterministic physical-cell conditioning including non-valid support. Profile regional variance share " +
               (s.models.profileRegionCorrelation ?? 0) +
               "; innovation scale " +
               (s.models.forecastScale ?? 1) +
               ".",
           "The legal ballot representation remains final-attributed-list-totals-v1; statistical model " +
-            (legacy ? COMPONENT_POLICY + "/legacy" : FAST_SHARE_MODEL) +
+            (definition.id + "@" + definition.version) +
             ".",
         ],
       },

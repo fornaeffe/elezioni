@@ -16,7 +16,7 @@ const loaded = await loadCandidate(pointer, read, { validateGeneration: false })
 const source = await loadCandidateSource(loaded.catalog, read);
 const s = structuredClone(loaded.scenario);
 if (!s.generation) throw new Error('v5 generation settings required');
-s.generation.model = 'legacy-poll-informed-v1';
+s.generation.model = 'M01';
 const legacy = await compileLegacy(s, source, read, loaded.assets, loaded.context);
 const baseline = structuredClone(legacy.scenario);
 baseline.shares = [];

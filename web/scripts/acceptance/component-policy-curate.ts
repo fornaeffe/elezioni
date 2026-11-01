@@ -56,7 +56,7 @@ for (const base of ["root", "nested"])
     ),
   });
 const campaigns = [];
-for (const model of ["selected", "legacy-poll-informed-v1"]) {
+for (const model of ["M02", "M01"]) {
   const path =
     "../data/derived/fv08-unified/browser/chromium-" +
     model +

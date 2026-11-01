@@ -20,7 +20,7 @@ import { decodeState, type StateEnvelope } from './state-codec';
 import { validateSourceEnvelope, decodeAsset } from './source-codec';
 import { prepareScenarioGeneration } from './unified-generation';
 import { prepareFastGeneration } from './generation';
-import { isLegacyGeneration, legacyInputKey, type CompiledLegacy } from './legacy-adapter';
+import { isM01Generation, legacyInputKey, type CompiledLegacy } from './legacy-adapter';
 import { COMPONENT_POLICY } from './component-policy';
 import { FAST_SHARE_MODEL, FAST_SHARE_NUMERICS } from './types';
 export interface ReleasedScenario extends FastGenerationScenario {
@@ -398,13 +398,13 @@ export async function loadCandidate(
     JSON.stringify(keys) !== JSON.stringify(s.state.keys)
   )
     throw new Error('RELEASE_SEMANTIC_KEYS');
-  if (isLegacyGeneration(scenario) && (!s.state.legacy || s.state.legacy.inputKey !== await legacyInputKey(scenario)))
+  if (isM01Generation(scenario) && (!s.state.legacy || s.state.legacy.inputKey !== await legacyInputKey(scenario)))
     throw new Error('LEGACY_SESSION_BINDING');
   const prepared =
-    options.validateGeneration === false || isLegacyGeneration(scenario)
+    options.validateGeneration === false || isM01Generation(scenario)
       ? undefined
       : prepareFastGeneration(scenario, assets, r.state.context);
-  if (options.validateGeneration !== false && isLegacyGeneration(scenario)) prepareScenarioGeneration(scenario, assets, r.state.context, s.state.legacy);
+  if (options.validateGeneration !== false && isM01Generation(scenario)) prepareScenarioGeneration(scenario, assets, r.state.context, s.state.legacy);
   return {
     catalog: c,
     catalogEnvelope: catalog.envelope,

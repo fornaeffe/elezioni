@@ -254,7 +254,7 @@
   >
   <label
     >Seme della stima<input
-      disabled={scenario.generation?.model==='legacy-poll-informed-v1'}
+      disabled={scenario.generation?.model==='M01'}
       value={scenario.fitSeed}
       onchange={(e) =>
         onchange(
@@ -276,13 +276,13 @@
     </p>
     <details>
       <summary>Elezioni storiche e adattamento Camera/Senato</summary>
-      {#if scenario.generation?.model==='legacy-poll-informed-v1'}<p>Queste selezioni sono conservate per il nuovo modello. Il modello precedente usa automaticamente l’ultima coppia Camera/Senato disponibile alla data di riferimento.</p>{/if}
+      {#if scenario.generation?.model==='M01'}<p>Queste selezioni sono conservate per M02. M01 usa automaticamente l’ultima coppia Camera/Senato disponibile alla data di riferimento.</p>{/if}
       {#each source.payload.events.filter((e) => e.role === 'reference' && e.minimumAge === 18 && e.context !== 'senato') as event (event.id)}
         <label
           ><input
             type="checkbox"
             checked={scenario.historySelection.electionIds.includes(event.id)}
-            disabled={scenario.generation?.model==='legacy-poll-informed-v1'||event.availableDate > scenario.referenceDate}
+            disabled={scenario.generation?.model==='M01'||event.availableDate > scenario.referenceDate}
             onchange={(e) =>
               onchange(
                 editFast(scenario, (n) => {
@@ -302,7 +302,7 @@
           >{key === 'pairedCamera'
             ? 'Base abbinata Camera'
             : 'Base abbinata Senato'}<select
-            disabled={scenario.generation?.model==='legacy-poll-informed-v1'}
+            disabled={scenario.generation?.model==='M01'}
             value={scenario.historySelection[
               key as 'pairedCamera' | 'pairedSenato'
             ]}
@@ -338,7 +338,7 @@
             ><input
               type="checkbox"
               checked={scenario.polls.selected.includes(p.id)}
-              disabled={!!pollAvailability(p, scenario.referenceDate) || (scenario.generation?.model==='legacy-poll-informed-v1' && p.context!=='camera')}
+              disabled={!!pollAvailability(p, scenario.referenceDate) || (scenario.generation?.model==='M01' && p.context!=='camera')}
               onchange={(e) => togglePoll(p, e.currentTarget.checked)}
             />{p.id} · {p.citation}</label
           >

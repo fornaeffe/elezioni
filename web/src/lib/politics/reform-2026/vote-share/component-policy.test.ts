@@ -17,7 +17,9 @@ import { projectMargins } from "./projection";
 import { unidentifiedDirections } from "./identification";
 import { componentIntervention } from "./reference-groups";
 function legacyFixture() {
-  const f = fastGenerationFixture(),
+  const f = fastGenerationFixture();
+  f.scenario.generation!.model = "M01";
+  const
     ids = f.scenario.components.map((c) => c.id).sort();
   const compiled: CompiledLegacy = {
     inputKey: "constructed",

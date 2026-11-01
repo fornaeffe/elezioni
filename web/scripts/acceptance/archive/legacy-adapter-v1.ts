@@ -26,7 +26,7 @@ export interface CompiledLegacy {
     polls: ReturnType<typeof refreshLegacyPolls>;
   };
 }
-export const isLegacyGeneration = (s: Pick<ReleasedScenario, 'generation'>) =>
+export const isLegacyGeneration = (s: {generation?:{model:string}}) =>
   s.generation?.model === 'legacy-poll-informed-v1';
 export function legacyInputKey(s: ReleasedScenario) {
   // SDs, fitting seeds, candidate-only profile scales and pooling do not acquire

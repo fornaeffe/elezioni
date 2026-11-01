@@ -24,3 +24,12 @@ Quasi tutti i dati necessari dovrebbero essere scaricati automaticamente da cari
 ad eccezione della base dati dei collegi delle elezioni politiche: in questo caso è
 necessario caricare manualmente un file csv "BaseDati_Proposta_Commissione.csv"
 ottenuto esportando l'omonima tabella dal file http://www.riformeistituzionali.gov.it/media/1367/proposta_commissione_13112020.zip
+
+## Modelli di generazione della riforma web
+
+- [M01 1.0.0 — composizioni fisse e shock per componente](docs/models/M01.md): modello derivato dal precedente generatore, con le correzioni adottate.
+- [M02 1.0.0 — stima congiunta e trasferimenti limitati](docs/models/M02.md): modello predefinito.
+
+Le specifiche includono equazioni, assunzioni e regole di versionamento. I vecchi
+identificatori rimangono nei risultati storici; dati, numerica e scrutinio legale
+hanno identità separate. Per il workflow web vedere [MIGRATION_PLAN.md](MIGRATION_PLAN.md).

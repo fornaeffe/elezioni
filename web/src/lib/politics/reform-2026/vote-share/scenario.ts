@@ -93,7 +93,8 @@ const shape = object({
   ...reformLegalFields,
   schemaVersion: literal(5),
   generation: optional(object({
-    model: literal('selected', 'legacy-poll-informed-v1'),
+    model: literal('M02', 'M01'),
+    modelVersion: literal('1.0.0'),
     compositions: dictionary(object({ fractions: dictionary(nonnegative), provenance: text, proxy: optional(bool) })),
     supplementalPolls: array(object({ id: text, date, available: date, end: date, context: literal('camera','european','senato'),
       groups: array(object({label:text,members:array(text),share})), sample:nonnegative,source:text,enabled:bool,complete:optional(bool) })),

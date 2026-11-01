@@ -121,13 +121,13 @@
         min="0"
         step="any"
         bind:value={sd}
-        disabled={scenario.generation?.model==='legacy-poll-informed-v1'}
+        disabled={scenario.generation?.model==='M01'}
       /></label
     >
     <button onclick={save}>Applica riferimento</button>
   </div>
   <ul>
-    {#if scenario.generation?.model==='legacy-poll-informed-v1'}<li>Le deviazioni standard sono conservate per il nuovo modello e non sono applicate dal modello precedente. I riferimenti ai componenti valgono anche nelle liste congiunte; il sostegno evolve poi con gli shock nazionali, regionali e locali.</li>{/if}
+    {#if scenario.generation?.model==='M01'}<li>Le deviazioni standard sono conservate per M02 e non sono applicate da M01. I riferimenti ai componenti valgono anche nelle liste congiunte; il sostegno evolve poi con gli shock nazionali, regionali e locali.</li>{/if}
     {#each [...scenario.references, ...scenario.nonValidReferences] as r (r.id)}
       <li>
         <button onclick={() => edit(r)}>Modifica</button>

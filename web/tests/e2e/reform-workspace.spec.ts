@@ -9,7 +9,7 @@ for (const version of [1,2,3,4]) test(`retired reform scenario v${version} is re
   await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-reform-2026-v1');
   await page.getByTestId('reform-file-input').setInputFiles({name:`v${version}.json`,mimeType:'application/json',buffer:Buffer.from(JSON.stringify({...obsolete,schemaVersion:version}))});
   await expect(page.getByRole('alert')).toContainText(/precedente|version|schemaVersion/i);
-  await expect(page.getByLabel('Modello di generazione',{exact:true})).toHaveValue('selected');
+  await expect(page.getByLabel('Modello di generazione',{exact:true})).toHaveValue('M02');
   await expect(page.getByTestId('fit-status')).not.toHaveText('Modello pronto');
 });
 
@@ -20,6 +20,6 @@ test('current plain scenario imported from the previous-law screen keeps its see
   await page.getByTestId('scenario-file-input').setInputFiles({name:'current.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(scenario))});
   await expect(page.getByLabel('Algoritmo di scrutinio')).toHaveValue(scenario.algorithmId);
   await expect(page.getByLabel('Seme delle simulazioni',{exact:true})).toHaveValue(scenario.seed);
-  await expect(page.getByLabel('Modello di generazione',{exact:true})).toHaveValue('selected');
+  await expect(page.getByLabel('Modello di generazione',{exact:true})).toHaveValue('M02');
   await expect(page.getByRole('alert')).toHaveCount(0);
 });

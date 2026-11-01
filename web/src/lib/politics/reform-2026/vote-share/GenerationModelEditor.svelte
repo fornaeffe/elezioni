@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { ReleasedScenario } from './release';
-  import { generationModels } from './correspondences';
+  import { generationModels, modelRegistry } from './model-registry';
   import { editFast } from './editor-model';
   import { pollChoiceId } from './correspondences';
   import SourceCompositionEditor from './SourceCompositionEditor.svelte';
@@ -29,9 +29,10 @@
       value={scenario.generation.model}
       onchange={(e) => {
         const value = e.currentTarget.value as
-          'selected' | 'legacy-poll-informed-v1';
+          'M02' | 'M01';
         patch((n) => {
           n.generation!.model = value;
+          n.generation!.modelVersion = modelRegistry[value].version;
         });
       }}
     >
@@ -40,20 +41,20 @@
         >{/each}
     </select></label
   >
-  {#if scenario.generation.model === 'legacy-poll-informed-v1'}
+  {#if scenario.generation.model === 'M01'}
     <p>
-      Ultima coppia Camera/Senato disponibile con elettorato 18+. Aggiornamento
-      dall’ultima pubblicazione, con le eccezioni dichiarate del confronto.
-      Utilizza i sondaggi Camera; gli altri contesti restano del modello selezionato.
-      Deviazioni standard dei riferimenti, moltiplicatori di incertezza e stima
-      dei profili sono controlli del solo modello selezionato.
+      M01 usa l’ultima coppia Camera/Senato disponibile con elettorato 18+ e i
+      sondaggi Camera. I riferimenti restano fissi alla data di riferimento;
+      seguono shock nazionali, regionali e locali per componente.
+      Gli altri contesti, le deviazioni standard dei riferimenti, i moltiplicatori
+      di incertezza e la stima dei profili sono controlli di M02.
     </p>
   {/if}
   <details>
-    <summary>Osservazioni parziali dichiarate nel confronto legacy</summary>
+    <summary>Osservazioni parziali dichiarate nel M01</summary>
     <p>
       Questi punti nominativi integrano i sondaggi completi selezionati. Non
-      sono osservazioni complete utilizzabili per la stima del nuovo modello.
+      sono osservazioni complete utilizzabili per la stima del M02.
       «Altri» non è una misura di un nuovo partito.
     </p>
     {#each scenario.generation.supplementalPolls as p, pi (p.id)}<fieldset>
@@ -68,10 +69,10 @@
                 n.generation!.supplementalPolls[pi].enabled = v;
               });
             }}
-          />Usa nel modello precedente</label
+          />Usa nel M01</label
         >
         <label
-          >Fine rilevazione legacy<input
+          >Fine rilevazione M01<input
             type="date"
             value={p.end}
             onchange={(e) => {

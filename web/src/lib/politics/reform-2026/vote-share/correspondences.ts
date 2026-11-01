@@ -1,11 +1,6 @@
 /** Structural S_i is separate from legacy row composition W_i. */
-export const generationModels = [
-  { id: "selected", label: "Modello selezionato — trasferimenti limitati" },
-  {
-    id: "legacy-poll-informed-v1",
-    label: "Modello precedente — aggiornamento dai sondaggi",
-  },
-] as const;
+export {generationModels} from './model-registry';
+import type {ModelId} from './model-registry';
 export interface SourceComposition {
   fractions: Record<string, number>;
   provenance: string;
@@ -13,7 +8,8 @@ export interface SourceComposition {
   proxy?: boolean;
 }
 export interface GenerationChoice {
-  model: "selected" | "legacy-poll-informed-v1";
+  model: ModelId;
+  modelVersion: string;
   compositions: Record<string, SourceComposition>;
   /** Compared partial named observations; unsupported as complete candidate polls. */
   supplementalPolls: import("./legacy-polls").LegacyPollObservation[];

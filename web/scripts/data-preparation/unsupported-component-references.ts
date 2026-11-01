@@ -4,7 +4,7 @@ import type { FastVoteAssets } from "../../src/lib/politics/reform-2026/vote-sha
 import type { ReformAssemblyContext } from "../../src/lib/politics/reform-2026/generation-types";
 import { prepareFastGeneration } from "../../src/lib/politics/reform-2026/vote-share/generation";
 export interface UnsupportedReferencePolicy {
-  policy: "selected-reference-moments-v1";
+  policy: "M02-reference-moments-v1";
   components: string[];
   draws: number;
 }
@@ -15,7 +15,7 @@ export function unsupportedComponentReferences(
   policy: UnsupportedReferencePolicy,
 ) {
   if (
-    policy.policy !== "selected-reference-moments-v1" ||
+    policy.policy !== "M02-reference-moments-v1" ||
     !Number.isSafeInteger(policy.draws) ||
     policy.draws < 2 ||
     policy.draws > 4096
@@ -81,6 +81,6 @@ export function unsupportedComponentReferences(
     seed: s.seed,
     estimates,
     assumption:
-      "Explicit default anchors adopted by Luca: reference-date component means and sample SDs from deterministic reference-only draws of the selected model before these anchors. These are model estimates, not additional observations or calibrated forecasts. SDs apply only to selected generation; legacy uses fixed means. Existing scoped overrides retain precedence.",
+      "Explicit default anchors adopted by Luca: reference-date component means and sample SDs from deterministic reference-only draws of M02 before these anchors. These are model estimates, not additional observations or calibrated forecasts. SDs apply only to M02; M01 uses fixed means. Existing scoped overrides retain precedence.",
   };
 }

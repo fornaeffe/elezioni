@@ -1,6 +1,6 @@
 import { betaDraw, type ForecastRandom } from './forecast-random';
 import { clip, sum } from './types';
-/** Selected finite-step conditional Beta-stick martingale. Random ordering is
+/** Historical Beta-stick comparator, not the M02 bounded-pair forecast. Random ordering is
  * over canonical component IDs supplied by the caller, never presentation rows. */
 export function betaTransition(
   input: ArrayLike<number>,

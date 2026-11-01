@@ -1,7 +1,8 @@
 # Unified reform generation workflow
 
-The reform web app uses the current schema-5 workflow only. The selected
-`bounded-mass-pair-field-v2` model and the component-based legacy derivative
+Canonical current specifications: [M01 1.0.0](models/M01.md) and [M02 1.0.0](models/M02.md). Model identity/version, numerical policies, data IDs and implementation hashes are separate.
+
+The reform web app uses the current schema-5 workflow only. M02 (`bounded-mass-pair-field-v2`) and M01
 share scenario identities, original data, physical geography, legal assembly,
 workers and result/export storage. Their statistical laws remain distinct.
 The [correspondence audit](correspondence-policy-audit.md#adopted-corrections)
@@ -12,8 +13,8 @@ pre-correction implementation. Public deployment and FV-09 cleanup stay separate
 | --- | --- |
 | Model dispatch / shared cell generation | `src/lib/politics/reform-2026/vote-share/unified-generation.ts`, `generation.ts` |
 | Offered-set pooling, zero treatment and reference coverage | `vote-share/component-policy.ts` under the same source directory |
-| Legacy original-count compilation / dated poll groups / shocks | `vote-share/legacy-adapter.ts`, `legacy-observations.ts`, `legacy-components.ts` |
-| Selected original partitions / identifiable groups and contrasts | `vote-share/source-compiler.ts`, `identification.ts`, `information.ts`, `profiles.ts` |
+| M01 original-count compilation / dated poll groups / shocks | `vote-share/legacy-adapter.ts`, `legacy-observations.ts`, `legacy-components.ts` |
+| M02 original partitions / identifiable groups and contrasts | `vote-share/source-compiler.ts`, `identification.ts`, `information.ts`, `profiles.ts` |
 | Component reference controls / scope and chamber resolution | `vote-share/FastReferencesEditor.svelte`, `reference-plans.ts`, `reference-groups.ts`, `interventions.ts` |
 | Final attributed list counts and legal assembly | `src/lib/politics/reform-2026/assembly.ts` |
 | Authored default compositions and missing anchors | `scripts/data-preparation/unified-share-default.ts`, `unsupported-component-references.ts` |
@@ -22,20 +23,20 @@ pre-correction implementation. Public deployment and FV-09 cleanup stay separate
 ## Numerical and observation contract
 
 Use policy `component-prefiling-conditioning-v2`, numerical version
-`fast-share-float64-v2`, and selected count version
+`fast-share-float64-v2`, and M02 count version
 `fast-share-prefiling-physical-cells-v2`. Implementation hashes and semantic keys
 bind checkpoints, assets and runs; an old checkpoint is not silently upgraded.
 Historical comparison implementations live under `scripts/acceptance/archive/`
 and must not enter browser/worker bundles. The browser rejects older reform
 scenarios/archives rather than routing them to an old generator.
 
-Structural membership stays independent of legacy composition weights. Legacy
+Structural membership stays independent of M01 composition weights. M01
 requires explicit nonnegative, provenance-bearing joint compositions, including
 zero proportions. Default equal compositions are explicit authored assumptions,
 never runtime missing-composition fallbacks. Future list membership is binary:
 joining tickets sums component counts and does not attenuate support.
 
-Original historical counts and offered sets survive compilation. Selected
+Original historical counts and offered sets survive compilation. M02
 national fitting retains heterogeneous historical ballot strata and grouped poll
 observations. Bounded orthogonal Gaussian elimination handles ill-conditioned strata without
 adding a statistical ridge; its sufficient statistics are independently compared
@@ -44,11 +45,11 @@ residuals are separate diagnostics. The existing matrix-free path and its residu
 gate remain available when a rectangular QR factor exceeds the workspace budget. Identical observation
 columns are fitted as group totals, with reference-backed component contrasts.
 Other overlapping unidentified contrasts retain their original operators and
-explicit reference requirements. Selected profile calculations retain their
+explicit reference requirements. M02 profile calculations retain their
 smoothing, regional shrinkage, filter and variance conventions, comparing actual
 historical choice sets rather than recording missing choices as zeros.
 
-Legacy keeps the latest eligible common-18+ Camera/Senato baseline, decomposes
+M01 keeps the latest eligible common-18+ Camera/Senato baseline, decomposes
 original counts without early rounding, and pools regional/national support using
 the audit's conditional-frequency objective. Local observed proportions determine
 local relative support; missing alternatives borrow donor mass. Identifiable
@@ -61,13 +62,13 @@ fallback or arbitrary donor replacement for a required current reference.
 1. Build unrestricted reference-date component support. Political scenario
    references target components, including components in joint tickets. Validate
    identity, scope, denominator, compatible distributions and required coverage.
-2. Apply the model-specific reference uncertainty: selected uses its calibrated
-   joint reference family; legacy uses fixed scenario-reference means. Poll
+2. Apply the model-specific reference uncertainty: M02 uses its calibrated
+   joint reference family; M01 uses fixed scenario-reference means. Poll
    measurement error is separate: one original group realization is shared by
    its fixed-composition components, geography, ticket labels and reused chambers.
    Complete questions retain their total; partial named surveys remain partial.
-3. Advance support with the selected joint field or independent legacy component
-   innovations, retaining within-component chamber dependence. Legacy's prepared
+3. Advance support with the M02 joint field or independent M01 component
+   innovations, retaining within-component chamber dependence. M01's prepared
    geographic estimates are fixed, without extra estimation-error draws.
 4. In each physical cell, remove unavailable components and deterministically
    condition the complete vector, including non-valid support. Empty remaining
@@ -89,11 +90,11 @@ integer list vote shares remain separate result tables.
 Luca approved explicit default anchors for IdV, Futuro Nazionale, PLD/LibDem,
 +Uno, Progetto Civico and PSI/civici on 1 November 2026. Preparation obtains their
 reference-date means and sample SDs from 256 deterministic reference-only draws
-of the selected model **before adding these anchors**. The policy is
-`selected-reference-moments-v1` in `data/fast-share-default-policy.json`.
+of the M02 **before adding these anchors**. The policy is
+`M02-reference-moments-v1` in `data/fast-share-default-policy.json`.
 The scenario state records the source fit/profile IDs, seed, draw count and
 estimates. These are model estimates, not new observations or calibrated
-forecasts. SDs apply only to selected generation; legacy uses fixed means.
+forecasts. SDs apply only to M02 generation; M01 uses fixed means.
 Existing scoped overrides retain precedence. Regenerate through the release
 pipeline; never edit generated defaults manually.
 
@@ -128,7 +129,7 @@ allowance below, with a minimum of one.
 Missing RAM reporting defaults to one. A saved explicit user choice is retained.
 
 Candidate accounting reserves 128 MiB coordinator scratch and 320 MiB per-worker
-scratch, adding owned state/packet copies. The compact legacy adapter reserves
+scratch, adding owned state/packet copies. The M01 adapter reserves
 384 MiB per-worker scratch plus actual
 packet copies, calibrated conservatively against the nine-worker national
 1,000-run process peak (about 4.3 GiB including the coordinator). The earlier

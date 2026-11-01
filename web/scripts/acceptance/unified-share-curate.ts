@@ -1,3 +1,4 @@
+/** Historical FV-08 receipt curator; original selector names intentionally retained. */
 /** Retain compact, current-code FV-08 evidence only after every required gate. */
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { createReadStream } from 'node:fs';

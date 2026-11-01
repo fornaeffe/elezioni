@@ -5,7 +5,7 @@
   import { ResultServiceClient } from '../../../core/result-service-client';
   import { requireSimulationCount } from '../../../core/runtime-data';
   import { requireReformWorkerCount, workerMemoryWarning, workerHeapWarning } from '../../../core/reform-worker-capacity';
-  import {isLegacyGeneration} from './legacy-adapter';
+  import {isM01Generation} from './legacy-adapter';
   import { JsonStreamReader, jsonFileStream } from '../../../core/json-stream';
   import {
     parseSimulationResultExport,
@@ -280,7 +280,7 @@
   function refreshWorkers() {
     workerCapacity=fitting?.generationCapacity(navigator);
     maximumWorkers=workerCapacity?.maximum??0;
-    const saved=Number(localStorage.getItem(storageKey+':workers:'+(scenario?.generation?.model??'selected')));
+    const saved=Number(localStorage.getItem(storageKey+':workers:'+(scenario?.generation?.model??'M02')));
     computeWorkers=Number.isSafeInteger(saved)&&saved>=1?Math.min(saved,maximumWorkers):workerCapacity?.recommended??1;
   }
   async function loadModel() {
@@ -777,7 +777,7 @@
           running ||
           !!busy ||
           jsonPending ||
-          errors.length > 0}>{scenario && isLegacyGeneration(scenario) ? 'Prepara riferimenti legacy' : 'Ricalcola parametri'}</button
+          errors.length > 0}>{scenario && isM01Generation(scenario) ? 'Prepara riferimenti legacy' : 'Ricalcola parametri'}</button
       >
       <button
         onclick={validate}
@@ -796,7 +796,7 @@
         Puoi preparare lo scenario prima di caricare i file del modello. Il
         caricamento avviene su richiesta; nessun prefetch in background.
       </p>{/if}
-    {#if fitState.plan && scenario && !isLegacyGeneration(scenario)}<p>
+    {#if fitState.plan && scenario && !isM01Generation(scenario)}<p>
         Riutilizzo: nazionale {fitState.plan.reused.national ? 'sì' : 'no'},
         profilo Camera {fitState.plan.reused.cameraProfile ? 'sì' : 'no'},
         adattamento Senato {fitState.plan.reused.senateAdapter ? 'sì' : 'no'}.
@@ -864,7 +864,7 @@
           >Processi di calcolo<select
             aria-label="Processi di calcolo"
             bind:value={computeWorkers}
-            onchange={e=>localStorage.setItem(storageKey+':workers:'+(scenario?.generation?.model??'selected'),e.currentTarget.value)}
+            onchange={e=>localStorage.setItem(storageKey+':workers:'+(scenario?.generation?.model??'M02'),e.currentTarget.value)}
             disabled={running || !!busy || maximumWorkers === 0}
             >{#each Array.from({ length: maximumWorkers }, (_, i) => i + 1) as n (n)}<option
                 value={n}>{n}</option

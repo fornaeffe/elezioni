@@ -1,3 +1,4 @@
+import {DEFAULT_MODEL,modelRegistry} from '../../src/lib/politics/reform-2026/vote-share/model-registry';
 /** Authored comparison assumptions, converted to editable scenario values. */
 import { legacyPollGroups } from "../../src/lib/politics/reform-2026/vote-share/legacy-observations";
 import type { ReleasedScenario } from "../../src/lib/politics/reform-2026/vote-share/release";
@@ -71,7 +72,7 @@ export function unifiedShareDefault(
       };
   }
   s.generation = {
-    model: "selected",
+    model: DEFAULT_MODEL, modelVersion: modelRegistry[DEFAULT_MODEL].version,
     compositions,
     supplementalPolls: review.polls.map((p) => ({
       id: p.id,

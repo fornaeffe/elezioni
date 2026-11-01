@@ -141,7 +141,7 @@ export function generationCapacity(
     // measured ~4.3 GiB across nine workers and the coordinator in FV-08;
     // 384 MiB scratch plus actual packet copies replaces the old 1,536 MiB
     // estimate for the substantially larger original-workspace data structure.
-    perWorkerBytes = (packet.scenario.generation?.model === 'legacy-poll-informed-v1' ? 384 : 320) * MiB + 2 * retainedBytes(packet);
+    perWorkerBytes = (packet.scenario.generation?.model === 'M01' ? 384 : 320) * MiB + 2 * retainedBytes(packet);
   // V8 can share a 4 GiB pointer-compression cage across workers in one
   // renderer. A 3 GiB planning budget leaves headroom for startup/GC and UI.
   // The 10-worker browser probe and Luca's manual trial passed; 26 failed.

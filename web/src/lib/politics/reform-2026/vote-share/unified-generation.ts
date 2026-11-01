@@ -3,7 +3,7 @@ import { prepareFastGeneration } from './generation';
 import type { FastVoteAssets } from './forecast-types';
 import type { ReformAssemblyContext } from '../generation-types';
 import type { ReleasedScenario } from './release';
-import { isLegacyGeneration, type CompiledLegacy } from './legacy-adapter';
+import { isM01Generation, type CompiledLegacy } from './legacy-adapter';
 export { generationModels } from './correspondences';
 export function prepareScenarioGeneration(
   s: ReleasedScenario,
@@ -42,7 +42,7 @@ export function prepareScenarioGeneration(
         }
     }
   }
-  if (!isLegacyGeneration(s)) return prepareFastGeneration(s, assets, context);
+  if (!isM01Generation(s)) return prepareFastGeneration(s, assets, context);
   if (!legacy) throw new Error('Prepare legacy references before simulation');
   return prepareFastGeneration(s, assets, context, { legacy });
 }

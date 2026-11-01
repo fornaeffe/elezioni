@@ -17,6 +17,11 @@ simulation and scrutiny remain in the browser. Reassess the completed workload
 at the final publication gate below. Luca merges the completed migration branch
 into `main`; public deployment follows that merge and a successful hosting gate.
 
+Current reform vote-generation contracts are [M01 1.0.0](docs/models/M01.md)
+and [M02 1.0.0](docs/models/M02.md), with M02 as default. Model-law versions,
+numerical policies, source/scenario identities and implementation hashes remain
+separate. Historical task descriptions retain their original candidate names.
+
 ## Working principles
 
 
@@ -362,6 +367,12 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
     provenance, regenerated defaults, latest-only browser routing and affected
     acceptance passed; see the [curated receipt](test/fixtures/benchmarks/correspondence_corrections_acceptance.json)
     and [implementation history](docs/migration-history.md#adopted-correspondence-corrections-implemented--1-november-2026).
+  - [x] **Model specifications and identities:** document the complete M01/M02
+    equations, establish independent model-contract versions, and use canonical
+    identities in current scenarios, controls, provenance and checks. Preserve
+    historical evidence and verify seeded numerical behavior is unchanged. See the
+    [specifications](docs/models/M01.md), [M02](docs/models/M02.md) and
+    [verification receipt](test/fixtures/benchmarks/model_identity_acceptance.json).
   - [ ] **FV-09:** Execute the [research archive/cleanup plan](docs/vote-generation-research-archive-plan.md)
     after dependency separation and acceptance; retain curated evidence and remove
     only audited, regenerable outputs no longer consumed.

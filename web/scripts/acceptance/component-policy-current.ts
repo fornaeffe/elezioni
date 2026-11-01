@@ -37,12 +37,12 @@ const receipt = {
   models: [] as object[],
   failures: [] as object[],
 };
-for (const model of ["selected", "legacy-poll-informed-v1"] as const) {
+for (const model of ["M02", "M01"] as const) {
   const s = structuredClone(loaded.scenario);
   s.generation!.model = model;
   const started = performance.now(),
     legacy =
-      model === "selected"
+      model === "M02"
         ? undefined
         : await compileLegacy(s, source, read, loaded.assets, loaded.context),
     runs = [] as object[];

@@ -1,5 +1,10 @@
 # Fast vote generation: reference and chamber contract
 
+Current model names and authoritative probability-law specifications are
+[M01 1.0.0](models/M01.md) and [M02 1.0.0](models/M02.md). Older candidate names
+and equations below retain their historical/implementation context; use those
+specifications for the current complete laws.
+
 Current execution follows the [unified workflow](vote-generation-unified-workflow.md)
 and the [adopted correspondence policy](correspondence-policy-audit.md#adopted-corrections).
 Political scenario references target components in both models, before future

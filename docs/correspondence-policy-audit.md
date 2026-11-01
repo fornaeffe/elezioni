@@ -1,5 +1,9 @@
 # Post-FV-08 correspondence-policy audit
 
+The current corrected models are [M01 1.0.0](models/M01.md) (legacy lineage)
+and [M02 1.0.0](models/M02.md) (default, formerly selected). Historical findings
+below retain the names used at the audit date.
+
 Audit completed and corrections implemented on 1 November 2026. **The two
 models retain different statistical laws; the corrections do not establish
 predictive calibration or equivalence.** The findings and quantitative snapshot

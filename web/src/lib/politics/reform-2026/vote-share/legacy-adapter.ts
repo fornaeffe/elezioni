@@ -37,8 +37,8 @@ export interface CompiledLegacy {
     fallbackCounts: Record<string, number>;
   };
 }
-export const isLegacyGeneration = (s: Pick<ReleasedScenario, "generation">) =>
-  s.generation?.model === "legacy-poll-informed-v1";
+export const isM01Generation = (s: Pick<ReleasedScenario, "generation">) =>
+  s.generation?.model === "M01";
 export function legacyInputKey(s: ReleasedScenario) {
   return sourceKey("unified-legacy-input-v2", {
     policy: COMPONENT_POLICY,
