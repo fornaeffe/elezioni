@@ -8793,3 +8793,40 @@ not an invented allocation. Aligned correction 5's regularization boundary and
 the active-plan wording. Implementation remains deferred to the coordinated pass.
 Documentation only: audit, plan and history updated; no code, data, defaults or
 tests changed. `git diff --check` passed; no tests rerun for this update.
+
+### Conditioning and scenario-reference uncertainty decisions — 1 November 2026
+
+Luca settled two further correspondence-policy decisions. Proportional
+conditioning is deterministic within each simulated support vector, with no
+additional substitution-error draw. Scenario-reference uncertainty applies only
+to the selected model: legacy uses fixed reference-date political/non-valid
+shares followed by national, regional and local movement shocks. Original
+poll-group measurement uncertainty remains separate and unchanged.
+
+Recorded these decisions in the focused audit. Geographic inference and
+reference-backed unidentified splits remain under discussion; no proposed
+estimator or split rule was adopted in this update. Model implementation remains
+deferred to the coordinated pass. Documentation only; no model, data or default
+changes. `git diff --check` passed; no tests rerun for this update.
+
+### Geographic inference and unidentified-split adoption — 1 November 2026
+
+Luca adopted the proposed model-specific geographic inference and selected-model
+reference-backed split procedures. Updated the focused correspondence audit with
+the legacy conditional-frequency pooling objective, national/regional borrowing,
+local conditional-proportion completion and fixed preparation inputs. Retained
+the selected profile estimator and its uncertainty conventions, adapting historical
+comparisons to original offered sets rather than interpreting unavailable choices
+as observed zeros.
+
+Recorded the selected group-plus-contrast representation: intact grouped history,
+component-reference calibration, local/regional/shared-group profile hierarchy,
+shared group uncertainty and separate missing-history contrast uncertainty.
+Current references may intervene on the group total without altering historical
+counts. Overlapping evidence and identification checks remain required; no legacy
+composition becomes a selected-model measurement.
+
+Removed stale remaining-policy wording and updated the active plan to distinguish
+settled policy from pending coordinated implementation and acceptance. Changes are
+limited to the audit, plan and history; no model code, generated data or defaults
+changed. `git diff --check` passed; no model tests rerun for documentation only.

@@ -2,9 +2,10 @@
 
 Completed 1 November 2026 against the current v5 implementation. **The audit is
 complete; the policy is not validated as generally equivalent between models.**
-The correction list below records agreed decisions and remaining proposals.
-Implementation is deferred until all correspondence-policy decisions are settled,
-then proceeds in one coordinated pass. The future web app includes only the
+The correction list below records the agreed decisions, including the geographic
+inference and unidentified-split proposals adopted on 1 November 2026. These
+policy decisions are settled; model implementation remains a separate,
+coordinated pass. The future web app includes only the
 latest generator algorithms, with no older-archive compatibility requirement.
 Earlier generator code may be archived outside the browser bundle for terminal
 comparison tests. Current behavior below is audit evidence, not a requirement
@@ -221,8 +222,11 @@ changes. No empirical coverage or local calibration claim follows from this audi
    reallocating removed support to both political choices and non-valid support.
    For example, $(0.40,0.27,0.33)$ becomes $(0.40/0.73,0,0.33/0.73)$ when the
    first political option disappears. These proportions are a modelling
-   assumption, not observed transfers; the uncertainty treatment remains to be
-   settled and must not imply that substitution is identified.
+   assumption, not observed transfers. **Deterministic conditioning — agreed
+   1 November 2026:** apply this transformation to each simulated support vector
+   without an additional substitution-error draw. Existing support, measurement,
+   profile and future-movement uncertainty remains model-specific; conditioning
+   does not identify actual voter substitutions or add uncertainty of its own.
 
    For polls, apply conditioning to the represented response set and retain the
    published denominator. Voting-intention percentages conditional on an expressed
@@ -240,7 +244,8 @@ changes. No empirical coverage or local calibration claim follows from this audi
    missing required reference makes the scenario invalid; automatic zero, equal
    allocation or an implicit donor profile cannot replace it. Political
    references must target components in both models, as specified in
-   correction 2; uncertainty/profile details remain for the coordinated design.
+   correction 2; geographic/profile and split uncertainty follow the adopted
+   procedures under correction 4 below.
    Expose retained mass, amplification, fallback counts and unsupported components
    so the adopted assumptions remain reviewable.
 2. **Generate legacy votes by component, then aggregate to filed lists — agreed
@@ -311,12 +316,21 @@ changes. No empirical coverage or local calibration claim follows from this audi
    discussion. Non-valid references retain their separate meaning; poll
    calibration alone supplies no turnout/nonresponse estimate.
 
+   **Scenario-reference uncertainty — agreed 1 November 2026.** Reference SDs
+   apply only to the selected model. Legacy treats scenario-reference shares as
+   fixed support at the reference date, then applies its national, regional and
+   local movement shocks. This applies to political and non-valid scenario
+   references. Legacy must not sample their supplied reference SDs. The separately
+   adopted original-poll-group measurement uncertainty above is unchanged; it is
+   distinct from uncertainty attached to a scenario reference.
+
    **Reference-date support precedes future filing — agreed 1 November 2026 for
    both models.** A national reference fixes the component's national support at
    the reference date, before imposing future ballot restrictions. A territorial
    reference has the equivalent meaning within its scope. Use the stated
-   political/non-valid denominator and reference uncertainty; zero reference SD
-   does not eliminate future movement or count variation. The sequence is:
+   political/non-valid denominator and the model-specific reference-uncertainty
+   treatment above; fixed references or zero reference SD do not eliminate future
+   movement or count variation. The sequence is:
 
    **Reference-date support → future movement → local support → local filing
    conditioning → counts → list aggregation.**
@@ -443,11 +457,12 @@ changes. No empirical coverage or local calibration claim follows from this audi
    Selected zero-count smoothing, estimation uncertainty and temporal evolution
    remain compatible with using observed zero evidence: the decision does not
    make its future probability permanently zero or require exact reproduction of
-   historical local shares. Exact territorial estimators, reference-backed split
-   representation and uncertainty rules remain coordinated design work. Label
-   geographic/profile assumptions and summarize affected support; no invented
-   measurement should supply missing information. Other policy decisions remain
-   unsettled.
+   historical local shares. **Geographic inference and reference-backed splits —
+   adopted 1 November 2026:** use the
+   [model-specific geographic procedures](#adopted-geographic-inference) and the
+   [selected-model group-plus-contrast representation](#adopted-selected-model-unidentified-splits)
+   below. Label geographic/profile assumptions and summarize affected support;
+   no invented measurement should supply missing information.
 5. **Regularize legacy observed-zero support with a half vote — agreed
    1 November 2026; implementation deferred.** After decomposing historical lists
    into components, use a half-vote probability when preparing the local
@@ -511,11 +526,165 @@ changes. No empirical coverage or local calibration claim follows from this audi
    browser replay compatibility; historical evidence and comparison fixtures
    are not authorization to bundle the old implementations.
 
-Record all remaining policy decisions before implementing any correction. Then
-implement the complete agreed set in one coordinated pass under new
+### Adopted geographic inference
+
+Adopted 1 November 2026 for correction 4. Estimate each component's latent local
+support **before future filing**, rather than a future filed-list share. Preserve
+original historical offered sets, grouped counts and denominators through source
+compilation. Never interpret a component that was not offered as an observed
+zero, or suppress its geographic inference because another component has local
+support.
+
+Observed shares on different choice sets are not directly comparable. For
+example, latent elector support A=20%, B=40%, non-valid=40% becomes A=33.3%,
+non-valid=66.7% where B is unavailable. Averaging the two observed A percentages
+would confound geography with ballot availability.
+
+**Selected model: retain the existing profile estimator.** Keep historical local
+features, zero-count smoothing, temporal filtering, regional shrinkage and its
+existing weights/constants, profile uncertainty and future movement rules. See
+the [maintained profile equations](vote-generation-fast-model.md#regional-shrinkage-and-local-movement-estimates).
+The adaptation is to compare each historical observation with the national
+prediction conditioned on that observation's actual offered set, including its
+original political/non-valid denominator semantics.
+
+Use the component's local profile evidence where identifiable, then its regional
+profile when local evidence is missing. With neither local nor regional evidence,
+use zero geographic effect: the component follows its national field. Zero
+geographic effect does not mean zero component support. A joint observation
+supplies group-profile information, without identifying internal component
+contrasts; use the split procedure below for those contrasts. Retain the existing
+profile/filter variances and fallback terms for the corresponding information
+status; do not replace them with legacy compositions or a new estimator.
+
+**Legacy: deterministic offered-set-aware component pooling.** Use the selected
+historical baseline separately by chamber, with mandatory compositions applied
+to its original grouped counts. Estimate national component support, then regional
+support from usable municipalities. For a geographic donor domain $D$, pool using
+the conditional-frequency objective
+
+$$
+\widehat q_D=\underset{q\in\Delta}{\operatorname{argmax}}
+\sum_{c\in D}\sum_{j\in O_c}y_{cj}
+\log\left(\frac{q_j}{\sum_{k\in O_c}q_k}\right).
+$$
+
+Here $\Delta$ is the component/non-valid probability simplex, $O_c$ is the
+municipality's original historical offered set including non-valid support, and
+$y_{cj}$ is its original legacy-decomposed count. The fixed decomposition is an
+assumption, not a separately observed component count. Zero-count likelihood
+terms use their limiting value; do not add pseudo-observations to the pooling
+objective. The zero-only half-vote rule remains a separate local-logit calculation
+under correction 5, with raw counts unchanged.
+
+National pooling uses all usable municipalities of that chamber's baseline;
+regional pooling uses the usable municipalities in that region. Where a regional
+component contrast is unidentified, retain the corresponding national contrast.
+An identifiable regional zero is evidence, not a reason to borrow positive
+national support. Nationally unsupported identities still require the references
+specified in correction 4. Report degenerate or unidentified cases explicitly;
+do not install an automatic equal allocation or an arbitrary solver solution.
+
+For local evidence with conditional proportions $s_{cj}$ on $O_c$, complete the
+latent local vector using the applicable regional vector (or its national
+fallback):
+
+$$
+q_{cj}=\begin{cases}
+\widehat q_D(O_c)\,s_{cj},&j\in O_c,\\
+\widehat q_{Dj},&j\notin O_c,
+\end{cases}
+\qquad
+\widehat q_D(O_c)=\sum_{k\in O_c}\widehat q_{Dk}.
+$$
+
+This preserves local historical relative support among observed choices and
+borrows the regional allocation to previously unavailable alternatives.
+Conditioning the completed vector back onto $O_c$ recovers the observed
+proportions when its remaining mass is positive. Apply correction 5's observed-zero
+local-logit treatment before poll/reference reconciliation; do not regularize
+missing entries as if they were observed zeros. With no usable local row, use the
+applicable donor vector. Borrowing is an explicit geographic assumption, not an
+imputed historical observation; a current reference for a new component must not
+be backdated into historical counts.
+
+These are deterministic legacy preparation estimates, not the selected model's
+national fit or uncertainty machinery. Keep inferred profiles fixed, without
+additional geographic estimation-error draws. Apply current references, then the
+agreed national/regional/local future shocks and final physical-cell conditioning.
+Retain the separate poll-group measurement uncertainty from correction 2.
+
+### Adopted selected-model unidentified splits
+
+Adopted 1 November 2026 for correction 4. Separate identifiable group support from
+unidentified within-group composition. Keep every original grouped observation
+intact, estimate the identifiable group's national/geographic behaviour, and use
+required component references to supply the missing reference-date composition.
+References are dated interventions, not fabricated historical component counts.
+Preserve additional distinguishing evidence wherever it exists.
+
+For an identifiable group $G$, represent its local valid-political support as
+
+$$
+q_{cj}=q_{cG}
+\frac{\exp(\alpha_j+h_{cj})}
+{\sum_{k\in G}\exp(\alpha_k+h_{ck})},\qquad j\in G.
+$$
+
+$q_{cG}$ is the group's local support, $h_{cj}$ is a geographic contrast within
+the group, and $\alpha_j$ is calibrated so the aggregate component support matches
+its reference-date reference. Group support is conserved in every realization:
+$q_{cG}=\sum_{j\in G}q_{cj}$. Apply the stated reference scope, chamber and
+denominator; political aggregates use valid-vote weights, with non-valid
+references retaining elector weights. Follow the existing more-specific-scope
+override and chamber-resolution rules, before future filing.
+
+Choose geographic contrasts by information status:
+
+| Distinguishing information | Adopted treatment |
+| --- | --- |
+| Local component evidence | Use its component-specific profile |
+| No local distinction, but regional component evidence | Borrow its regional component contrast |
+| Only joint-group geography is identified | Give members the same central group profile |
+| No usable group geography | Use the explicitly declared missing-history profile |
+
+For A and B references of 10% and 20%, without distinguishing geographic evidence,
+the central split is one-third A and two-thirds B across the group field. This is
+an assumed common geography, not an inferred historical decomposition.
+
+Draw uncertain component references jointly using the selected model's existing
+reference distribution. Share group-profile uncertainty across members, and
+represent unidentified geographic contrasts separately using the existing
+missing-history variance convention as a provisional assumption. Do not count
+the same group-profile uncertainty again as independent component information.
+Calibrate component intercepts for each realization so geographic uncertainty
+does not unintentionally change supplied reference-date aggregates. This is
+unrestricted reference calibration, not a filing-capacity constraint or a
+post-filing margin target.
+
+If component references imply a different current group total from its historical
+baseline estimate, treat that as a reference intervention: retain all historical
+group counts, adjust the current group field, then split it. Later movement and
+filing may change the resulting shares. Require coherent reference distributions
+and report incompatible or unidentified cases rather than clipping, resampling
+or inventing component measurements.
+
+For overlapping observations, retain the full grouped information and check
+identification across all eligible evidence. Do not merge components merely
+because one historical ticket combined them. The source compiler must represent
+the reference-backed contrasts instead of merely bypassing its unresolved-basis
+validation. Record which contrasts are identified, borrowed or assumed, and test
+municipality/college tails before acceptance; the fallback variance convention is
+not a claim of calibrated uncertainty for these new cases.
+
+### Coordinated implementation and verification
+
+The correspondence-policy decisions above are settled. This documentation update
+does not apply model corrections. Implement the complete agreed set in one
+coordinated pass under new
 policy/provenance identifiers with terminal comparison/characterization tests,
 current checkpoint binding and latest-format export/import checks. Verify that
 archived generator implementations are absent from browser/worker dependencies.
-Then repeat affected default/boundary tests and model campaigns. Agreement on an
-individual policy does not authorize early code,
-default or data changes. FV-09 cleanup and public deployment remain separate.
+Then repeat affected default/boundary tests and model campaigns. Keep code,
+default and data changes in that coordinated implementation rather than applying
+individual corrections early. FV-09 cleanup and public deployment remain separate.

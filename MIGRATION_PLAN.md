@@ -354,12 +354,13 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
     [findings, reproducible evidence and correction proposals](docs/correspondence-policy-audit.md).
     No numerical correction is applied; the audit records the agreed future
     latest-only web policy and terminal-only historical comparisons.
-  - [ ] **Correspondence corrections after review:** obtain Luca's decisions on
-    turnout/transfer semantics, fallback assumptions, physical-cell legacy poll
-    projection, pre-filing reference semantics and direct physical-cell
-    generation described in the audit;
-    settle all decisions before one coordinated implementation pass, with
-    versioned provenance and affected acceptance.
+  - [ ] **Correspondence corrections after review:** implement the agreed
+    [audit policies](docs/correspondence-policy-audit.md#proposed-corrections-before-implementation)
+    in one coordinated pass: deterministic conditioning, model-specific reference
+    uncertainty, component/physical-cell legacy generation, pre-filing references,
+    geographic inference and selected-model reference-backed splits. Policy
+    decisions are settled; implementation, versioned provenance and affected
+    acceptance remain pending.
   - [ ] **FV-09:** Execute the [research archive/cleanup plan](docs/vote-generation-research-archive-plan.md)
     after dependency separation and acceptance; retain curated evidence and remove
     only audited, regenerable outputs no longer consumed.
