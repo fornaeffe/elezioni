@@ -21,6 +21,7 @@ migration gate. FV-08 acceptance is complete; see the
 | Verify complete browser runs and archives | `playwright.unified-share.config.ts`, `tests/e2e/unified-share.spec.ts` |
 | Measure full refits and maximum numerical dimensions | `playwright.unified-resources.config.ts`, `tests/e2e/unified-resources.spec.ts` |
 | Review measurements and outcome | [Migration history](migration-history.md) |
+| Review correspondence/filing policy risks and proposed corrections | [Post-FV-08 audit](correspondence-policy-audit.md) |
 
 Source paths above are relative to `web/src/lib/politics/reform-2026/`, except
 `core/` and `workers/` (relative to `web/src/lib/`) and `scripts/`, `tests/` and
@@ -99,13 +100,17 @@ fraction is preserved. If no political destination remains, use regional mapped
 support over filed lists, or an explicitly labelled equal filed-list fallback.
 No filed choice is an error. Original v1-v3 scenarios retain their old policy.
 
-This aligns the separation of turnout and political composition with the
-selected field. The statistical generators remain different. In particular,
+This separates turnout and political composition in legacy preparation; it does
+not establish identical turnout semantics with the selected field. Selected
+offered-set conditioning normalizes the full elector probability vector, including
+non-valid support; explicit political reference interventions preserve the
+resulting turnout. The statistical generators remain different. In particular,
 legacy still reconstructs physical college counts from municipal draws, whereas
-the candidate conditions its probability field at physical cells. The scheduled
-post-FV-08 audit must assess incomplete mappings, ceased/new components,
-unfiled support, overlapping filing domains and submunicipal capacity, reporting
-turnout and list/college effects before any further policy change.
+the candidate conditions its probability field at physical cells. The
+post-FV-08 [audit](correspondence-policy-audit.md) is complete. It quantifies
+incomplete mappings, ceased/new components, unfiled support and baseline
+list/college effects, and reproduces physical-capacity and greedy-allocation
+failures. Numerical corrections remain proposals requiring approval.
 This includes national poll allocation when one component belongs to different
 future tickets on geographically separate ballots: legacy retains national
 list-target reconciliation, rather than acquiring the candidate's physical-cell

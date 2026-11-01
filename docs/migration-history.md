@@ -8625,3 +8625,49 @@ The post-FV-08 correspondence-policy audit, FV-09 cleanup and public deployment
 remain open. Changes are uncommitted; no publication/deployment was performed.
 Automatic approval review rejected optional removal of empty temporary folders
 under `web/data/derived/fv08-unified/`; they remain empty and untracked.
+
+## Post-FV-08 correspondence-policy audit — 1 November 2026
+
+Completed the audit requested in the migration plan without changing generation,
+scrutiny, defaults, source compositions or archive policies. Findings and proposed
+corrections live in [the focused audit](correspondence-policy-audit.md); the plan
+closes the audit and separately tracks review/implementation of corrections.
+
+Added eight constructed characterization cases covering incomplete destinations,
+selected-versus-legacy non-valid conditioning, regional/equal fallback and its
+zero-mass discontinuity, incomplete poll groups and disjoint territorial tickets,
+unsupported/new lists, physical submunicipal capacity and order-dependent greedy
+college allocation. The latter reproduces a feasible 50/50 allocation rejected
+when the flexible list consumes restricted capacity first. Existing joint-capacity
+tests verify that selected projection detects overlapping capacity conflicts.
+These tests deliberately document current defects; they do not bless them as
+desired future behavior.
+
+The read-only `web/scripts/acceptance/correspondence-policy-audit.ts` recompiles
+legacy from the installed v5 release and isolates historical preparation before
+poll/manual references. Curated output is retained in
+`test/fixtures/benchmarks/correspondence_policy_audit.json`, with catalog/source/
+compiled-input bindings. All 7,904 municipalities in each chamber have baseline
+history. Raw mapping/filing loss is 1,359,094 Camera and 1,238,443 Senate valid
+votes; each chamber uses equal-list fallback for 74 municipalities. The default
+has no heterogeneous filing within split municipalities, so constructed stress
+cases are essential. The report includes all national list deltas and the largest
+integer baseline college deltas against the original projection rule applied to
+the same current inputs. These are deterministic preparation sensitivity results,
+not archived-result replays, final forecast/seat effects or empirical calibration.
+
+Corrected the unified workflow's documentation: selected full-elector-vector
+conditioning does not generally preserve the non-valid fraction, while explicit
+political reference interventions do preserve the resulting cell turnout. Legacy
+historical-turnout restoration is a separate substantive transfer assumption.
+Further numerical corrections, including physical-cell poll allocation and a
+joint transportation allocator, remain proposals awaiting Luca's decisions.
+
+Verification: the audit reader completed against the bound production bundles;
+the audit, unified-generation and forecast-numerics suites passed **25 tests in
+3 files**, with no skips; `npm run check:data`, `npm run check` (zero errors and
+warnings) and `git diff --check` passed.
+The first audit-reader college probe incorrectly supplied fractional weights to
+the integer-only apportioner; it was corrected to use the existing $10^{12}$
+integer probability-weight convention before recording the successful report.
+No full acceptance campaign, publication, commit or deployment was performed.

@@ -73,10 +73,12 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   fixed, then recompute local deltas and parameter dates. Apply broader region
   overrides before province and municipality overrides so the most specific
   value wins.
-- Project historical correspondences per municipality and election. Sum many
+- In original projection paths, project historical correspondences per municipality
+  and election. Sum many
   original lists mapped to one future list; split one original list among future
   lists using normalized factors; count original abstention and unmapped
-  original-list votes as `astensione`.
+  original-list votes as `astensione`. Reform v5 uses the distinct model-specific
+  [choice-set policies](docs/vote-generation-unified-workflow.md#effective-inputs-and-turnout-policy).
 - Treat bundled correspondences as default metadata. Keep validation strict for
   user-authored correspondence rows without producing warnings merely because a
   bundled row became irrelevant after a list was removed or renamed.
@@ -346,12 +348,14 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
       passes in Senate N21/N22. Regressions and both frozen 1,000-draw workloads
       pass; original failed receipts are preserved. See the
       [diagnosis and implementation verification](docs/senate-sicilia-n21-review.md).
-  - [ ] **Post-FV-08 correspondence-policy audit:** compare incomplete future
-    destinations, ceased/new components, unfiled support and submunicipal/overlapping
-    filing capacity in both models, including national poll projection onto
-    geographically varying future tickets. Quantify turnout, list and college effects of
-    the v5 turnout-preserving conditional legacy policy and its labelled fallbacks.
-    Keep original archive policy intact; propose further corrections before edits.
+  - [x] **Post-FV-08 correspondence-policy audit:** compare both models and quantify
+    default/boundary turnout, list and college effects. See the
+    [findings, reproducible evidence and correction proposals](docs/correspondence-policy-audit.md).
+    Original archive policy remains intact; no numerical correction is applied.
+  - [ ] **Correspondence corrections after review:** obtain Luca's decisions on
+    turnout/transfer semantics, fallback assumptions, physical-cell legacy poll
+    projection and joint-capacity/allocation fixes described in the audit;
+    implement approved changes with versioned provenance and affected acceptance.
   - [ ] **FV-09:** Execute the [research archive/cleanup plan](docs/vote-generation-research-archive-plan.md)
     after dependency separation and acceptance; retain curated evidence and remove
     only audited, regenerable outputs no longer consumed.
