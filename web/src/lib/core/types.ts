@@ -1,6 +1,9 @@
 export type ElectionKind = 'politiche' | 'regionali-er' | 'comunali';
 
 export interface ScenarioList {
+  /** Absent in older scenarios: retain their unrestricted historical behavior. */
+  filing?: { camera: string[]; senato: string[] };
+  minorityRegion?: string;
   kind?: import('./other-list').ListKind;
   id: string;
   name: string;
@@ -19,6 +22,7 @@ export interface ScenarioCoalition {
 export type ScenarioDefaultSourceKind = 'bundled' | 'last-election' | 'manual';
 
 export interface ScenarioDefaultSource {
+  notes?: string[];
   kind: ScenarioDefaultSourceKind;
   electionKind: ElectionKind;
   territory: string;

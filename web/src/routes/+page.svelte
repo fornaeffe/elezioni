@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { electionWorkspaces } from '$lib/workspaces/registry';
   import { base } from '$app/paths';
   import { ArrowRight } from '@lucide/svelte';
 </script>
@@ -14,33 +15,17 @@
   </section>
 
   <nav class="workflow-grid" aria-label="Tipi di elezione">
-    <a class="workflow" href={`${base}/politics`}>
-      <span>
-        <strong>Politiche</strong>
-        <small>Camera e Senato, scenario nazionale e risultati per ramo.</small>
-      </span>
-      <ArrowRight size={20} aria-hidden="true" />
-    </a>
-
-    <a class="workflow" href={`${base}/emilia-romagna`}>
-      <span>
-        <strong>Regionali Emilia-Romagna</strong>
-        <small>Consiglio regionale, coalizioni, liste provinciali e premio di maggioranza.</small>
-      </span>
-      <ArrowRight size={20} aria-hidden="true" />
-    </a>
+    {#each electionWorkspaces as item (item.id)}
+      <a class="workflow" href={`${base}${item.route}`}>
+        <span><strong>{item.name}</strong>
+          <small>{item.kind === 'politiche' ? 'Camera e Senato, scenario nazionale e risultati per ramo.' : 'Consiglio regionale, coalizioni, liste provinciali e premio di maggioranza.'}</small>
+        </span><ArrowRight size={20} aria-hidden="true" />
+      </a>
+    {/each}
   </nav>
 </main>
 
 <style>
-  :global(body) {
-    margin: 0;
-    min-height: 100vh;
-    font-family:
-      Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    color: #15232d;
-    background: #f4f7f8;
-  }
 
   .selector {
     min-height: 100vh;

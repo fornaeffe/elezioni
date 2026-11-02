@@ -1,4 +1,9 @@
 <script lang="ts">
+  import { confirmWorkspaceReset } from '../../../workspaces/draft.svelte';
+  import WorkspaceShell from '../../../workspaces/WorkspaceShell.svelte';
+  import RunControls from '../../../workspaces/RunControls.svelte';
+  import ResultTableView from '../../../workspaces/ResultTable.svelte';
+  import { readResultPage } from '../../../workspaces/result-access';
   import { base } from '$app/paths';
   import { onMount, onDestroy } from 'svelte';
   import SimulationWorker from '../../../workers/simulation.worker?worker';
@@ -48,6 +53,7 @@
     onLegacyImport,
     onImportConsumed,
     onRouteFile,
+    onBusyChange,
   }: {
     imported?: SimulationResultExport | null;
     importedScenario?: ReformGenerationScenario | import('./release').ReleasedScenario | null;
@@ -55,6 +61,7 @@
     onLegacyImport: (p: SimulationResultExport) => void;
     onImportConsumed: () => void;
     onRouteFile?: (file: File) => Promise<boolean>;
+    onBusyChange?: (busy: boolean) => void;
   } = $props();
   const storageKey = 'elezioni:politics-reform-2026:fast-draft:v1',
     resultKey = 'elezioni:politics-reform-2026:fast-results:v1';
@@ -157,6 +164,7 @@
       disposed: 'Chiuso',
     }[fitState.phase],
   );
+  $effect(() => onBusyChange?.(running || !!busy || fittingBusy));
   onMount(() => {
     void initialize();
   });
@@ -390,12 +398,7 @@
   }
   async function reset() {
     if (running || busy) return;
-    if (
-      !confirm(
-        'Ripristinare lo scenario predefinito e scartare le bozze? I risultati già calcolati saranno conservati.',
-      )
-    )
-      return;
+    if (!confirmWorkspaceReset()) return;
     fitting?.dispose();
     fitting = undefined;
     loaded = false;
@@ -612,12 +615,9 @@
   async function fetchTable(id: string, index: number, p: number) {
     const version = ++tableRequest;
     try {
-      const t = await service().call<ResultTable>('page', {
-        resultId: id,
-        owner,
-        table: index,
-        offset: p * 50,
-      });
+      if (!result || result.storage?.id !== id) return;
+      const t = await readResultPage(result, { table: index, offset: p * 50 },
+        request => service().call<ResultTable>('page', { ...request, owner }));
       if (alive && version === tableRequest) table = t;
     } catch (e) {
       if (version === tableRequest) report(e);
@@ -634,14 +634,9 @@
       return;
     }
     try {
-      const t = await service().call<ResultTable>('page', {
-        resultId: id,
-        owner,
-        table: index,
-        offset: 0,
-        limit: 1000,
-        simulation,
-      });
+      if (!result || result.storage?.id !== id) return;
+      const t = await readResultPage(result, { table: index, offset: 0, limit: 1000, simulation },
+        request => service().call<ResultTable>('page', { ...request, owner }));
       if (alive && version === chartRequest) chartTable = t;
     } catch (e) {
       if (version === chartRequest) report(e);
@@ -733,6 +728,7 @@
   }
 </script>
 
+<WorkspaceShell id="politics-reform" busy={running || !!busy}>
 <main class="fast-workspace" data-testid="fast-reform-workspace">
   <h1>Politiche — Riforma 2026</h1>
   <p>Modelli di generazione con dati, scenario e scrutinio condivisi.</p>
@@ -851,16 +847,9 @@
     </section>
     <section aria-label="Simulazione">
       <h2>Simulazione</h2>
-      <div class="controls">
-        <label
-          >Simulazioni<input
-            type="number"
-            min="1"
-            step="1"
-            bind:value={simulations}
-            disabled={running || !!busy}
-          /></label
-        ><label
+      <RunControls bind:simulations showSeed={false} {canRun} {running} disabled={!!busy || maximumWorkers === 0}
+        label="Esegui riforma" onrun={run} oncancel={cancelRun}>
+<label
           >Processi di calcolo<select
             aria-label="Processi di calcolo"
             bind:value={computeWorkers}
@@ -870,12 +859,7 @@
                 value={n}>{n}</option
               >{/each}</select
           ></label
-        ><button
-          onclick={run}
-          disabled={!canRun || running || !!busy || maximumWorkers === 0}
-          >Esegui riforma</button
-        >{#if running}<button onclick={cancelRun}>Annulla calcolo</button>{/if}
-      </div>
+        >      </RunControls>
       <p>
         Massimo CPU: {maximumWorkers} processi; sono riservati due processori logici
         per interfaccia e coordinamento sui dispositivi con almeno quattro processori.
@@ -1000,23 +984,12 @@
         >
       </div>
       {#if table}<div class="table-scroll">
-          <table>
-            <caption>{table.name}</caption><thead
-              ><tr
-                >{#each table.columns as c (c)}<th>{c}</th>{/each}</tr
-              ></thead
-            ><tbody
-              >{#each table.rows as row, i (i)}<tr
-                  >{#each table.columns as c (c)}<td
-                      >{row[c] ?? 'Non specificato'}</td
-                    >{/each}</tr
-                >{/each}</tbody
-            >
-          </table>
+          <ResultTableView {table} />
         </div>{/if}
     </section>
   {/if}
 </main>
+</WorkspaceShell>
 
 <style>
   .fast-workspace {
@@ -1058,17 +1031,6 @@
   }
   .table-scroll {
     overflow: auto;
-  }
-  table {
-    border-collapse: collapse;
-    width: 100%;
-  }
-  th,
-  td {
-    text-align: left;
-    border-bottom: 1px solid #cbd5e1;
-    padding: 0.5rem;
-    overflow-wrap: anywhere;
   }
   [role='alert'] {
     color: #9f2519;

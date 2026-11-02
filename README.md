@@ -27,6 +27,10 @@ ottenuto esportando l'omonima tabella dal file http://www.riformeistituzionali.g
 
 ## Modelli di generazione della riforma web
 
+L'app web in `web/` offre spazi di lavoro per le politiche (legge precedente e
+riforma) e le regionali Emilia-Romagna. Per sviluppo, scenari predefiniti e
+verifica dei dati consultare la [guida agli spazi di lavoro](docs/web-workspaces.md).
+
 - [M01 2.0.0 — corrispondenze e shock per lista](docs/models/M01.md): modello per lista ripristinato allo stato precedente a `4ee5a91`.
 - [M02 2.0.0 — stima congiunta e trasferimenti limitati](docs/models/M02.md): modello predefinito.
 

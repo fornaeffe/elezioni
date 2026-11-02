@@ -114,7 +114,12 @@ function normalizeLists(lists: readonly PoliticsCandidateGenerationListRow[]): N
 
   return filtered.map((row) => ({
     ...row,
-    PERC_NORM: row.PERCENTUALE / (totalsByCoalition.get(row.COALIZIONE ?? '<NA>') ?? 1)
+    // Explicit special-only filings can have only local reference support and
+    // no national historical parameter. Candidate availability must still exist.
+    // Retain the historical path exactly when the filing contract is absent.
+    PERC_NORM: row.filing && totalsByCoalition.get(row.COALIZIONE ?? '<NA>') === 0
+      ? 1 / filtered.filter(l => l.COALIZIONE === row.COALIZIONE).length
+      : row.PERCENTUALE / (totalsByCoalition.get(row.COALIZIONE ?? '<NA>') ?? 1)
   }));
 }
 
@@ -145,7 +150,7 @@ function joinUninominalCandidatesToLists(
   const rows: UniPluriListRow[] = [];
 
   for (const list of lists) {
-    const matching = uniPluri.filter((row) => row.COALIZIONE === list.COALIZIONE);
+    const matching = uniPluri.filter((row) => row.COALIZIONE === list.COALIZIONE && (!row.eligibleLists || row.eligibleLists.includes(list.LISTA)));
 
     if (matching.length === 0) {
       rows.push({

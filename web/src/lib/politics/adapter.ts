@@ -96,7 +96,7 @@ function buildListMetadata(ramo: Ramo, source: PoliticsGeneratedRamoSource): Lis
   return source.liste.map((row) => ({
     LISTA: row.LISTA,
     COALIZIONE: row.COALIZIONE,
-    MINORANZA: minorityLists.has(row.LISTA),
+    MINORANZA: row.minorityRegion !== undefined || minorityLists.has(row.LISTA),
     ...(row.kind === undefined ? {} : { kind: row.kind })
   }));
 }

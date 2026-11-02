@@ -1,3 +1,5 @@
+import { generatedSnapshotPoliticsScenario } from '../scenario/politics-defaults.generated';
+import { cloneScenario } from '../scenario/politics';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from 'vitest';
 import { describeWithGeneratedFixtures, loadGeneratedJsonFixture } from '$lib/test/generated-fixtures';
@@ -31,8 +33,8 @@ function politicalListSharePercent(snapshot: PoliticsStaticSnapshot, listName: s
 describeWithGeneratedFixtures('politics browser vertical slice', [productionStaticSnapshotPath], () => {
   const snapshot = loadProductionStaticSnapshot();
 
-  test('keeps the UI default scenario aligned with the production static snapshot', () => {
-    const scenario = createDefaultPoliticsScenario();
+  test('keeps historical snapshot defaults aligned with the production static snapshot', () => {
+    const scenario = cloneScenario(generatedSnapshotPoliticsScenario);
     const snapshotListNames = snapshot.default_scenario.liste
       .filter((row) => row.LISTA !== 'astensione')
       .map((row) => row.LISTA);
@@ -52,7 +54,7 @@ describeWithGeneratedFixtures('politics browser vertical slice', [productionStat
   });
 
   test('projects a production local percentage override onto municipal parameters', () => {
-    const scenario = createDefaultPoliticsScenario();
+    const scenario = cloneScenario(generatedSnapshotPoliticsScenario);
     scenario.localShareOverrides = [
       {
         id: 'local-aglie-pd',
@@ -80,7 +82,7 @@ describeWithGeneratedFixtures('politics browser vertical slice', [productionStat
   });
 
   test('projects, generates, and scrutinizes one production politics browser simulation', { timeout: 30_000 }, () => {
-    const scenario = createDefaultPoliticsScenario();
+    const scenario = cloneScenario(generatedSnapshotPoliticsScenario);
     const source = buildPoliticsPipelineSourceFromSnapshot(snapshot, { simulations: 1 });
     const projection = projectScenarioOntoPoliticsSource(source, scenario, {
       electionDate: scenario.electionDate,

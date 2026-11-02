@@ -6,6 +6,7 @@ import {
 } from '$lib/core/vote-generation';
 import type { NormalSampler } from '$lib/core/rng';
 import { preparePoliticsVoteTables } from './vote-preparation';
+import { generateFiledListVotes } from './filed-vote-generation';
 import type {
   AdministrativeCode,
   PoliticsBaseDataRow,
@@ -115,6 +116,10 @@ export function generatePoliticsVotes(
   source: PoliticsVoteGenerationSource,
   options: { normal?: NormalSampler; seed?: string | number } = {}
 ): PoliticsGeneratedVoteTables {
+  if (source.liste.some(list => list.filing)) {
+    const votes = generateFiledListVotes(source, options);
+    return { camera: prepareRamo(source.camera, source.liste, votes.camera), senato: prepareRamo(source.senato, source.liste, votes.senato) };
+  }
   const listRows: VoteGenerationListRow[] = source.liste.map((row) => ({
     LISTA: row.LISTA,
     DATA: row.DATA,

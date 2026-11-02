@@ -43,7 +43,9 @@ test('FV-04 physical counts, legal assembly and uncertain references match Node 
       id: 'ref-a',
       scope: { kind: 'national' },
       channel: 'common',
-      subject: { kind: 'component', id: 'a' },
+      // Fitted components are referenced through their declared list basis.
+      // Direct component references are reserved for declared new components.
+      subject: { kind: 'list', id: f.scenario.lists.camera[0].id },
       mean: 0.4,
       sdPercentagePoints: 2
     }

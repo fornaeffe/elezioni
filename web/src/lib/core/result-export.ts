@@ -6,6 +6,8 @@ import { requirePortableFitFile, checkpointReader, sameCheckpointScenario, type 
 import type { ResultTable, Scenario, SimulationResult } from './types';
 import { JsonStreamReader } from './json-stream';
 import { cellsWarning, storedRows, type Cell, type StoredResult, type StoredTable } from './result-store';
+import { validateListFiling } from '../workspaces/filing';
+import { scenarioWorkspace } from '../workspaces/import-routing';
 
 export type ExportScenario = Scenario | ReformGenerationScenario | ReleasedScenario;
 
@@ -147,12 +149,15 @@ function parseExportedScenario(value: unknown): ExportScenario {
   requireString(defaultSource.territory, 'scenario.defaultSource.territory');
   requireString(defaultSource.dataVersion, 'scenario.defaultSource.dataVersion');
   requireOptionalString(defaultSource.snapshotId, 'scenario.defaultSource.snapshotId');
+  if (defaultSource.notes !== undefined) requireStringArray(defaultSource.notes, 'scenario.defaultSource.notes');
 
   requireArray(scenario.coalitions, 'scenario.coalitions');
   requireArray(scenario.lists, 'scenario.lists');
   requireArray(scenario.listCorrespondences, 'scenario.listCorrespondences');
   requireArray(scenario.localShareOverrides, 'scenario.localShareOverrides');
   requireArray(scenario.candidateTemplates, 'scenario.candidateTemplates');
+  const filingErrors = validateListFiling(scenario.lists as Scenario['lists']);
+  if (filingErrors.length) throw new Error(filingErrors.join('\n'));
 
   return scenario as unknown as Scenario;
 }
@@ -362,6 +367,8 @@ export function parseSimulationResultExport(text: string): SimulationResultExpor
   } else {
     if (result.benchmark.scrutinyAlgorithmId === 'politiche-reform-2026-v1') throw new Error('Reform result requires an explicit reform scenario.');
     if ('defaultSource' in scenario && scenario.defaultSource.electionKind === 'politiche' && !result.benchmark.scrutinyAlgorithmId) result.benchmark.scrutinyAlgorithmId = 'politiche-r-parity-v1';
+    if (result.benchmark.scrutinyAlgorithmId && result.benchmark.scrutinyAlgorithmId !== scenarioWorkspace(scenario).algorithm)
+      throw new Error('Scenario/result workspace mismatch.');
   }
   return {
     schema_version: payload.schema_version,

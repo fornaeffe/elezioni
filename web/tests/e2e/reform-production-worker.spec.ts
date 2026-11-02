@@ -31,6 +31,7 @@ test.beforeAll(async () => {
   for (const output of Array.isArray(bundled) ? bundled : [bundled]) if ('output' in output) {
     for (const chunk of output.output) {
       if (chunk.type === 'chunk' && chunk.isEntry) code = chunk.code;
+      else if (chunk.type === 'chunk') assets.set(chunk.fileName, chunk.code);
       else if (chunk.type === 'asset') assets.set(chunk.fileName, chunk.source);
     }
   }
@@ -40,9 +41,13 @@ test.beforeAll(async () => {
 test.beforeEach(async ({ context }) => {
   // Resource hints on WorkerNavigator are independent of window test overrides.
   await context.route('**/constructed-production-worker.js', route => route.fulfill({ contentType: 'text/javascript', body: resourceHints + code }));
-  await context.route('**/assets/reform-compute.worker-*.js', route => {
-    const name = new URL(route.request().url()).pathname.replace(/^\//, ''), source = assets.get(name);
-    if (!source) return route.abort();
+  // The real dispatcher lazily loads legacy runners. Serve every emitted
+  // dependency of the constructed worker, at root and project base paths.
+  await context.route('**/*.js', route => {
+    const path = new URL(route.request().url()).pathname;
+    const name = [...assets.keys()].find(key => path.endsWith('/' + key));
+    const source = name ? assets.get(name) : undefined;
+    if (!source) return route.fallback();
     return route.fulfill({ contentType: 'text/javascript', body: typeof source === 'string' ? source : Buffer.from(source) });
   });
 });
@@ -143,7 +148,7 @@ test('actual worker preserves paired global IDs over the 50-run chunk boundary a
   expect(response.diagnostics.warnings.reasons.length).toBeGreaterThan(0);
   expect(response.diagnostics.warnings.reasons.reduce((sum: number, r: { occurrences: number }) => sum + r.occurrences, 0)).toBe(response.diagnostics.warnings.occurrences);
   expect(response.first.progress).toContainEqual(expect.objectContaining({ phase: 'scrutinize', completed: 51, total: 51 }));
-  expect(response.invalid.result.warnings).toContainEqual(expect.objectContaining({ code: 'WORKER_ERROR', severity: 'error', message: expect.stringContaining('positive safe integer') }));
+  expect(response.invalid.result.warnings).toContainEqual(expect.objectContaining({ code: 'WORKER_ERROR', severity: 'error', message: expect.stringContaining('Simulazioni non valide') }));
   expect(response.invalidWorkers.result.warnings).toContainEqual(expect.objectContaining({ code: 'WORKER_ERROR', severity: 'error', message: expect.stringContaining('1 to 6') }));
 });
 

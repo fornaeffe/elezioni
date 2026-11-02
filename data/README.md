@@ -3,6 +3,7 @@
 | Task | Guide |
 | --- | --- |
 | Geography, census and seat tables | Workflow below |
+| Cross-election runtime descriptors and shared politics defaults | [Workspace guide](../docs/web-workspaces.md#regeneration-and-checks) |
 | Historical votes/preferences and reform generation models | [Generation guide](../docs/politics-reform-2026-generation.md#clean-clone-preparation) |
 | Selected poll archive and reconciliation | [Poll preparation](../docs/polls-preparation.md) |
 | Fast model original compact history/polls (2026 reform only) | [Source preparation](../docs/vote-generation-fast-data.md) |

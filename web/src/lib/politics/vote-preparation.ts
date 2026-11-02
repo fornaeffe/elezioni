@@ -92,7 +92,7 @@ function enrichListVotes(source: PoliticsVotePreparationSource): EnrichedUniList
         CIRC_COD: requireCode(uni?.CIRC_COD, 'CIRC_COD', row),
         COALIZIONE: coalition,
         CANDIDATO_ID: candidate?.CANDIDATO_ID ?? null,
-        CAND_MINORANZA: candidate === undefined ? null : false
+        CAND_MINORANZA: candidate === undefined ? null : source.liste.some(l => l.LISTA === row.LISTA && l.minorityRegion !== undefined) && candidate.LISTA_MINORANZA === row.LISTA
       };
     });
 }

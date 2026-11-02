@@ -1,3 +1,4 @@
+import { generatedSnapshotPoliticsScenario } from '../../src/lib/scenario/politics-defaults.generated';
 import { expect, test } from '@playwright/test';
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -6,6 +7,10 @@ const hasPoliticsStaticSnapshot =
   existsSync(resolve(process.cwd(), 'static/data/v1/politics-static.json'));
 
 test.skip(!hasPoliticsStaticSnapshot, 'Generated politics static snapshot is missing. Run scripts/export_politics_static_snapshot.R first.');
+
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(scenario => localStorage.setItem('elezioni:web:politics-scenario:v1', JSON.stringify({ schema_version: 7, scenario })), generatedSnapshotPoliticsScenario);
+});
 
 test('runs the worker smoke path from the scenario editor', async ({ page }) => {
   await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);

@@ -1,5 +1,6 @@
 /** Small initial payload only. Fitted arrays and original counts are not fetched here. */
 import { runtimeDataUrl } from '../../../core/runtime-data';
+import { reformPointerPath } from '../../../workspaces/data';
 import { decodeState } from './state-codec';
 import type {
   CandidatePointer,
@@ -8,8 +9,8 @@ import type {
 } from './release';
 import { requireFastScenario } from './scenario';
 export async function loadEditorDefault(base: string, signal?: AbortSignal) {
-  const root = 'data/reform-2026/fast-share/';
-  const response = await fetch(runtimeDataUrl(base, root + 'candidate.json'), {
+  const root = reformPointerPath.slice(0, reformPointerPath.lastIndexOf('/') + 1);
+  const response = await fetch(runtimeDataUrl(base, reformPointerPath), {
     signal,
     cache: 'no-cache',
   });

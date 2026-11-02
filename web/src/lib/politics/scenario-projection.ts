@@ -7,6 +7,8 @@ import type {
 } from '$lib/core/types';
 import { plurinominalCandidacyCountSharesToFractions } from '$lib/scenario/politics';
 import { buildPoliticsParametersFromHistoricalVotes } from './parameter-preparation';
+import { isFiled } from '../workspaces/filing';
+import { politicsTicketName } from '../scenario/politics-tickets';
 import type {
   PoliticsBaseDataRow,
   PoliticsCandidatePluriGenerationTemplateRow,
@@ -170,6 +172,7 @@ function plurinominalSlotKey(row: Pick<PoliticsCandidatePluriGenerationTemplateR
 }
 
 function synthesizeRamoSource(
+  chamber: 'camera' | 'senato',
   source: PoliticsPipelineRamoSource,
   activeLists: readonly ActiveScenarioList[],
   activeCoalitions: readonly string[]
@@ -181,9 +184,9 @@ function synthesizeRamoSource(
   );
   const uninominalCollegeRows = uniqueBy(source.uni, (row) => String(row.UNI_COD));
   const candidatiUni: PoliticsCandidateUniTemplateRow[] = activeCoalitions.flatMap((coalition) =>
-    uninominalCollegeRows.map((row) => {
+    uninominalCollegeRows.filter(row => activeLists.some(l => politicsTicketName(l.scenario) === coalition && isFiled(l.scenario, chamber, row.CIRC_COD))).map((row) => {
       const existing = existingUninominalByKey.get(uninominalCandidateKey(coalition, row.UNI_COD));
-      return existing
+      const candidate = existing
         ? { ...existing, COALIZIONE: coalition, UNI_COD: row.UNI_COD }
         : {
             COALIZIONE: coalition,
@@ -192,6 +195,12 @@ function synthesizeRamoSource(
             CANDIDATO_ID: null,
             DATA_NASCITA: null
           };
+      if (activeLists.some(l => l.scenario.filing)) {
+        const eligible = activeLists.filter(l => politicsTicketName(l.scenario) === coalition && isFiled(l.scenario, chamber, row.CIRC_COD));
+        return { ...candidate, eligibleLists: eligible.map(l => l.projectedListName),
+          LISTA_MINORANZA: eligible.length === 1 && eligible[0].scenario.minorityRegion ? eligible[0].projectedListName : candidate.LISTA_MINORANZA };
+      }
+      return candidate;
     })
   );
 
@@ -200,9 +209,9 @@ function synthesizeRamoSource(
   );
   const slotGrid = uniqueBy(source.candidati_pluri, plurinominalSlotKey);
   const candidatiPluri: PoliticsPipelineRamoSource['candidati_pluri'] = activeLists.filter(active => active.scenario.kind !== 'other').flatMap((active) =>
-    slotGrid.map((slot) => {
+    slotGrid.filter(slot => isFiled(active.scenario, chamber, slot.CIRC_COD ?? '')).map((slot) => {
       const existing = existingPlurinominalByListSlot.get(`${listKey(active.projectedListName)}\u001f${plurinominalSlotKey(slot)}`);
-      return existing
+      const candidate = existing
         ? { ...existing, LISTA: active.projectedListName }
         : {
             CIRC_COD: slot.CIRC_COD,
@@ -213,6 +222,7 @@ function synthesizeRamoSource(
             CANDIDATO_ID: null,
             DATA_NASCITA: null
           };
+      return active.scenario.minorityRegion ? { ...candidate, MINORANZA: true } : candidate;
     })
   );
 
@@ -914,7 +924,7 @@ export function projectScenarioOntoPoliticsSource(
   const activeCoalitions = [
     ...new Set(
       activeLists
-        .map((row) => row.scenario.coalition)
+        .map((row) => politicsTicketName(row.scenario))
         .filter((coalition): coalition is string => coalition !== null && coalition !== '')
     )
   ];
@@ -933,8 +943,10 @@ export function projectScenarioOntoPoliticsSource(
       const percentage = projectedPercentages.get(active.projectedListName) ?? active.source.PERCENTUALE;
       return {
         ...active.source,
+        ...(active.scenario.filing ? { filing: active.scenario.filing } : {}),
+        ...(active.scenario.minorityRegion ? { minorityRegion: active.scenario.minorityRegion } : {}),
         LISTA: active.projectedListName,
-        COALIZIONE: active.scenario.coalition,
+        COALIZIONE: politicsTicketName(active.scenario),
         DATA: active.scenario.shareOverride ? overrideReferenceDate : active.source.DATA,
         PERCENTUALE: percentage,
         LOGIT_P: logit(percentage)
@@ -951,13 +963,13 @@ export function projectScenarioOntoPoliticsSource(
   ];
   const camera = applyCandidateTemplatesToRamo(
     'camera',
-    synthesizeRamoSource(source.camera, activeLists, activeCoalitions),
+    synthesizeRamoSource('camera', source.camera, activeLists, activeCoalitions),
     scenario.candidateTemplates,
     warnings
   );
   const senato = applyCandidateTemplatesToRamo(
     'senato',
-    synthesizeRamoSource(source.senato, activeLists, activeCoalitions),
+    synthesizeRamoSource('senato', source.senato, activeLists, activeCoalitions),
     scenario.candidateTemplates,
     warnings
   );

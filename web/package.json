@@ -4,6 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "data:workspaces:generate": "node --import tsx scripts/workspaces/generate.ts",
+    "data:workspaces:check": "node --import tsx scripts/workspaces/generate.ts --check",
     "test:reform:shares:unified": "playwright test --config playwright.unified-share.config.ts",
     "test:reform:shares:resources": "playwright test --config playwright.unified-resources.config.ts",
     "test:reform:shares:ui": "playwright test --config playwright.fast-share-ui.config.ts",

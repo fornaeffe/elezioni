@@ -6,6 +6,7 @@
     type ReformWorkflow,
   } from './archive-routing';
   import { isReformFile } from '../../core/json-stream';
+  import { fileWorkspace } from '../../workspaces/import-routing';
   import FastReformWorkspace from './vote-share/FastReformWorkspace.svelte';
   import type { SimulationResultExport } from '../../core/result-export';
   import type { ReformGenerationScenario } from './generation-types';
@@ -15,12 +16,16 @@
     importedFile = null,
     onLegacyImport,
     onImportConsumed,
+    onBusyChange,
+    onExternalFile,
   }: {
     imported?: SimulationResultExport | null;
     importedScenario?: ReformGenerationScenario | import('./vote-share/release').ReleasedScenario | null;
     importedFile?: File | null;
     onLegacyImport: (p: SimulationResultExport) => void;
     onImportConsumed: () => void;
+    onBusyChange?: (busy: boolean) => void;
+    onExternalFile?: (file: File) => void;
   } = $props();
   let workflow = $state<ReformWorkflow>(
       'fast',
@@ -51,6 +56,9 @@
     }
   }
   async function routeFile(file: File) {
+    if ((await fileWorkspace(file)).id !== 'politics-reform') {
+      onExternalFile?.(file); return true;
+    }
     if (!(await isReformFile(file))) return false;
     const target = await archiveWorkflow(file);
     if (target === workflow) return false;
@@ -80,6 +88,7 @@
     importedFile={input.file}
     importedScenario={input.scenario}
     {onLegacyImport}
+    {onBusyChange}
     onImportConsumed={consumed}
     onRouteFile={routeFile}
   />

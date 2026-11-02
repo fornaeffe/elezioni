@@ -134,21 +134,100 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
 
 ## Plan
 
-- [ ] Adopt the [desired default scenario](docs\politics-reform-2026-default-scenario.md) for all politics workspaces.
-- [ ] Generalize routing, snapshot selection, scenario defaults, validation,
+- [x] Adopt the [desired default scenario](docs\politics-reform-2026-default-scenario.md) for all politics workspaces.
+- [x] Generalize routing, snapshot selection, scenario defaults, validation,
   worker dispatch, result components, and shared UI patterns across election
   kinds. Preserve configurable project-base navigation and worker/data loading
-  for GitHub Pages, including direct page loads and refreshes.
+  for GitHub Pages, including direct page loads and refreshes. Use the
+  [workspace task map](docs/web-workspaces.md) for implementation entry points.
 - [ ] Finish data-preparation migration on the shared R26-07 acquisition,
-  geography and census foundation. Migrate historical election importers and
+  geography and census foundation. Produce the shared workspace descriptors and
+  defaults through their existing compiler contracts. Migrate historical election importers and
   static previous-election bundles; use R26-19 for required paired Senate history
   and calibration. Deliver all production bundles/defaults from a clean clone
   through the Node/TypeScript pipeline, with cache misses supported and required
   data checks blocking release. Remove legacy `dati/` only after the whole
   data-preparation migration is complete and its consumers have migrated.
+- [ ] Resolve the previous-law Camera flipper dead end exposed by the shared
+  default (seed `politiche-2027`, 1,000 requested runs, simulation 584). Preserve
+  the frozen R-parity failure until Luca approves a legal correction/fallback;
+  retain simulation/chamber context and never reroll or count failed runs as
+  accepted results. Rerun the 1,000-run benchmark after that decision. See
+  [workspace boundaries](docs/web-workspaces.md#defaults-and-compatibility) and
+  the 2 November workspace entry in migration history.
 - [ ] Retire temporary bridge artifacts and update user and developer
   documentation when migrated workflows no longer depend on R-exported
   intermediary snapshots.
+- [ ] Change default scenario colors to colors that reflects the real parties
+  political colors (or colors with which polling houses usually represent parties).
+- [ ] In "Dotazioni dei seggi per collegio e liste del premio" do now show territory ids,
+  only names.
+- [ ] Bonus winner, if any, is the same for both chambers: do not offer a chamber selector
+  for "vincitori del premio" barplot.
+- [ ] Move application status to a small fixed, collapsible box near the top
+  right corner of the window, or other noninvasive but easily reachable location.
+- [ ] Assess if parallelization will improve import/export performances.
+  Add progress indication, and parallelization if it will improve performances.
+- [ ] Color cells of election probability table with a more saturated color the higher 
+  the probability is (with the list/coalition color). Change font color to achieve adequate contrast.
+- [ ] Add a selector for the election probability table metric:
+  - current metric (default)
+  - current metric, but conditional to the presence in the college slate of at least one candidate also present in a bonus slate
+  - current metric, but conditional to the absence in the college slate of any candidate also present in a bonus slate
+  The two latter metrics should also state, for each row, the denominator (the number of simulations over which the probability is computed).
+- [ ] **Additional model drafts evaluation**. Do it in research\vote-generation 
+  folder. For each model, follow the steps until completion or until evidence of
+  model unusability.
+  - [ ] Evaluate model draft [M04](docs\model-drafts\M04v0.0.1.md)
+    - [ ] Check model internal consistency and completeness
+    - [ ] Define remaining model details
+    - [ ] Choose a research fitting framework/library/software
+    - [ ] Fit the model with progressively complex synthetic fixtures, then with
+      real data and default scenario, optimizing priors and fitting parameters;
+      assess if model refactor will improve performace without changing the 
+      underlying principles.
+    - [ ] Generate, fit and optimize model variants (e.g. regional variation)
+  - [ ] Evaluate model draft [M03](docs\model-drafts\M03v0.0.1.md)
+    - [ ] Check model internal consistency and completeness
+    - [ ] Define remaining model details
+    - [ ] Choose a research fitting framework/library/software
+    - [ ] Fit the model with progressively complex synthetic fixtures, then with
+      real data and default scenario, optimizing priors and fitting parameters;
+      assess if model refactor will improve performace without changing the 
+      underlying principles.
+    - [ ] Generate, fit and optimize model variants (e.g. regional variation)
+  - [ ] If at least one of the two model completed evaluation successfully, 
+    test the predictive capacity of successful model variants on the same metrics
+    of the [previous research comparison](research\vote-generation\docs\vote-generation-legacy-comparison-results.md).
+    Use all available Camera, Senato 18+ and European elections, and polls.
+    Focus mainly on Error30, Coverage90, MAE and WIS, averaged across all folds,
+    on college, constituency and whole election scales. Target a Error30 < 1%,
+    Coverage90 > 80%, MAE < 5 pp, WIS < 0.05. 
+  - [ ] If any draft model fail this test,
+    check if its predictive capacity can be optimized, if yes optimize and
+    repeat the test.
+  - [ ] If at least one model passes the test:
+    - [ ] check if it can be made running in browser. If browser fitting is 
+      feasible, plan for a whole browser computation;
+      otherwise plan for a once-in-a-while data-preparation fitting and a prefit
+      only browser simulation. Raise the computational limit to 12 hours for 
+      fitting + simulation,
+      30 minutes for simulation with default prefit, on this machine, with 
+      default scenario and an appropriate number of workers. Optimize for 
+      performance as much as possible without noticeably changing generated 
+      distributions, even if the computational time is under the limit.
+    - [ ] substitute in production M01, M02
+    and legacy previous-law and regional generators with the
+    successful model set, adapting the scenario editor accordingly.
+  - [ ] Clean the repo removing any regenerable artifact no longer needed in 
+    production.
+- [ ] Correct meaningful local support for future filed lists without historical
+  candidature/support, including Sud chiama Nord in Molise/Basilicata. Separate
+  historical absence from future filing zeros; choose an explicit local estimate
+  or scenario reference before implementation. I17 prevents the observed
+  corrective zero-vote award without correcting generation; keep other zero-quota
+  blockers. Luca rejected an automatic sole-college pass. See the
+  [generation diagnosis](docs/politics-reform-2026-generation.md#filed-lists-without-local-history).
 - [ ] **Final hosting reassessment and publication.** After all preceding
   implementation and acceptance work, reassess GitHub Actions plus GitHub Pages
   against current GitHub Free eligibility, runner time/RAM/disk, artifact/cache
@@ -172,30 +251,8 @@ Start these additions after all simulator workflows and data preparation have
 completed the web migration; they do not expand the current domestic reform
 implementation or municipal parity scope.
 
-- [ ] Correct meaningful local support for future filed lists without historical
-  candidature/support, including Sud chiama Nord in Molise/Basilicata. Separate
-  historical absence from future filing zeros; choose an explicit local estimate
-  or scenario reference before implementation. I17 prevents the observed
-  corrective zero-vote award without correcting generation; keep other zero-quota
-  blockers. Luca rejected an automatic sole-college pass. See the
-  [generation diagnosis](docs/politics-reform-2026-generation.md#filed-lists-without-local-history).
-- [ ] Change default scenario colors to colors that reflects the real parties
-  political colors (or colors with which polling houses usually represent parties).
-- [ ] In "Dotazioni dei seggi per collegio e liste del premio" do now show territory ids,
-  only names.
-- [ ] Bonus winner, if any, is the same for both chambers: do not offer a chamber selector
-  for "vincitori del premio" barplot.
-- [ ] Move application status to a small fixed, collapsible box near the top
-  right corner of the window, or other noninvasive but easily reachable location.
-- [ ] Assess if parallelization will improve import/export performances.
-  Add progress indication, and parallelization if it will improve performances.
-- [ ] Color cells of election probability table with a more saturated color the higher 
-  the probability is (with the list/coalition color). Change font color to achieve adequate contrast.
-- [ ] Add a selector for the election probability table metric:
-  - current metric (default)
-  - current metric, but conditional to the presence in the college slate of at least one candidate also present in a bonus slate
-  - current metric, but conditional to the absence in the college slate of any candidate also present in a bonus slate
-  The two latter metrics should also state, for each row, the denominator (the number of simulations over which the probability is computed).
+
+
 - [ ] Add foreign-seat simulation under the applicable foreign-voting law,
   including its current territorial divisions, seat endowments, votes,
   preferences and candidate proclamations. Keep its inputs and calculations

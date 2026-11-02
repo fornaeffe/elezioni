@@ -67,8 +67,8 @@ test('rejects uncompressed result JSON from the Results panel', async ({ page })
     buffer: Buffer.from(bundledResultJson())
   });
 
-  await expect(page.getByLabel('Avvisi simulazione')).toContainText('RESULT_LOAD_ERROR');
-  await expect(page.getByLabel('Avvisi simulazione')).toContainText('.json.gz');
+  await expect(page.getByLabel('Errori simulazione')).toContainText('RESULT_LOAD_ERROR');
+  await expect(page.getByLabel('Errori simulazione')).toContainText('.json.gz');
   await expect(page.getByRole('table', { name: 'Election overview' })).toHaveCount(0);
 });
 

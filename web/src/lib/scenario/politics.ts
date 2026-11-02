@@ -1,3 +1,5 @@
+import { copyScenarioList, validateListFiling } from '../workspaces/filing';
+import { isAutonomousPoliticsList, politicsCandidateTickets } from './politics-tickets';
 import { validateOtherScenarioLists } from '$lib/core/other-list';
 import type {
   ElectionKind,
@@ -20,7 +22,7 @@ import type {
 import { generatedDefaultPoliticsScenario } from './politics-defaults.generated';
 
 export const politicsScenarioStorageKey = 'elezioni:web:politics-scenario:v1';
-export const politicsScenarioSchemaVersion = 8;
+export const politicsScenarioSchemaVersion = 9;
 
 export const defaultPoliticsScenario: Scenario = generatedDefaultPoliticsScenario;
 export const politicsAbstentionListName = 'astensione';
@@ -223,7 +225,8 @@ function normalizeDefaultSource(value: unknown): ScenarioDefaultSource {
     electionKind: cleanElectionKind(source.electionKind),
     territory: cleanString(source.territory) || defaultPoliticsScenario.defaultSource.territory,
     dataVersion: cleanString(source.dataVersion) || defaultPoliticsScenario.defaultSource.dataVersion,
-    snapshotId: cleanString(source.snapshotId) || defaultPoliticsScenario.defaultSource.snapshotId
+    snapshotId: cleanString(source.snapshotId) || defaultPoliticsScenario.defaultSource.snapshotId,
+    ...(Array.isArray(source.notes) ? { notes: source.notes.map(String) } : {})
   };
 }
 
@@ -301,12 +304,12 @@ export function cloneScenario(scenario: Scenario): Scenario {
     id: scenario.id,
     name: scenario.name,
     electionDate: scenario.electionDate,
-    defaultSource: { ...scenario.defaultSource },
+    defaultSource: { ...scenario.defaultSource, ...(scenario.defaultSource.notes ? { notes: [...scenario.defaultSource.notes] } : {}) },
     globalShareMode: scenario.globalShareMode,
     abstentionShare: scenario.abstentionShare,
     abstentionOverride: scenario.abstentionOverride,
     coalitions: scenario.coalitions.map((coalition) => ({ ...coalition })),
-    lists: scenario.lists.map((list) => ({ ...list })),
+    lists: scenario.lists.map(copyScenarioList),
     listCorrespondences: scenario.listCorrespondences.map((correspondence) => ({ ...correspondence })),
     localShareOverrides: scenario.localShareOverrides.map((override) => ({ ...override })),
     candidateTemplates: scenario.candidateTemplates.map((template) => ({ ...template })),
@@ -538,7 +541,8 @@ export function renameScenarioList(scenario: Scenario, id: string, name: string)
       row.list === previous.name ? { ...row, list: name } : row
     ),
     candidateTemplates: scenario.candidateTemplates.map((row) =>
-      row.kind === 'plurinominal' && row.list === previous.name ? { ...row, list: name } : row
+      row.kind === 'plurinominal' && row.list === previous.name ? { ...row, list: name } :
+        isAutonomousPoliticsList(previous) && row.kind === 'uninominal' && row.coalition === previous.name ? { ...row, coalition: name } : row
     )
   };
 }
@@ -555,7 +559,8 @@ export function removeScenarioList(scenario: Scenario, id: string): Scenario {
     ),
     localShareOverrides: scenario.localShareOverrides.filter((row) => row.list !== removed.name),
     candidateTemplates: scenario.candidateTemplates.filter(
-      (row) => row.kind !== 'plurinominal' || row.list !== removed.name
+      (row) => (row.kind !== 'plurinominal' || row.list !== removed.name) &&
+        !(isAutonomousPoliticsList(removed) && row.kind === 'uninominal' && row.coalition === removed.name)
     )
   };
 }
@@ -798,6 +803,8 @@ export function normalizeScenario(value: unknown): Scenario {
       return {
         id: cleanString(source.id) || stableId('list', name, index + 1),
         ...(source.kind === undefined ? {} : { kind: source.kind }),
+        ...(source.filing === undefined ? {} : { filing: structuredClone(source.filing) }),
+        ...(source.minorityRegion === undefined ? {} : { minorityRegion: source.minorityRegion }),
         name,
         coalition: source.coalition === null ? null : cleanString(source.coalition),
         color: cleanColor(source.color, '#6f7f8f'),
@@ -862,9 +869,10 @@ export function normalizeScenario(value: unknown): Scenario {
 }
 
 export function validateScenario(scenario: Scenario): string[] {
-  const messages: string[] = validateOtherScenarioLists(scenario);
+  const messages: string[] = [...validateOtherScenarioLists(scenario), ...validateListFiling(scenario.lists)];
   const coalitionNames = scenario.coalitions.map((coalition) => coalition.name.trim()).filter(Boolean);
   const coalitionNameSet = new Set(coalitionNames);
+  const candidateSupportNames = new Set(politicsCandidateTickets(scenario).map(t => t.name));
   const listNames = scenario.lists.map((list) => list.name.trim()).filter(Boolean);
   const listNameSet = new Set(listNames.map((name) => name.toLocaleLowerCase('it-IT')));
   const correspondenceDestinationSet = new Set([...listNameSet, 'astensione']);
@@ -918,7 +926,8 @@ export function validateScenario(scenario: Scenario): string[] {
     if (!Number.isFinite(share) || share < 0 || share > 100) {
       messages.push(`Quota non valida per ${list.name || 'lista senza nome'}.`);
     }
-    if (list.kind !== 'other' && (!list.coalition || !coalitionNameSet.has(list.coalition))) {
+    if (isAutonomousPoliticsList(list) && coalitionNameSet.has(list.name)) messages.push(`Il nome della lista autonoma coincide con una coalizione: ${list.name}.`);
+    if (list.kind !== 'other' && !isAutonomousPoliticsList(list) && (!list.coalition || !coalitionNameSet.has(list.coalition))) {
       messages.push(`Coalizione mancante o sconosciuta per ${list.name || 'lista senza nome'}.`);
     }
   }
@@ -997,7 +1006,7 @@ export function validateScenario(scenario: Scenario): string[] {
 
     if (template.kind === 'uninominal') {
       const coalition = template.coalition?.trim() ?? '';
-      if (!coalitionNameSet.has(coalition)) {
+      if (!candidateSupportNames.has(coalition)) {
         messages.push(`Coalizione candidato uninominale sconosciuta: ${coalition || 'coalizione mancante'}.`);
       }
       if (!template.uninominalCode?.trim()) {
@@ -1027,7 +1036,7 @@ export function validateScenario(scenario: Scenario): string[] {
 
 export function serializeScenario(scenario: Scenario): string {
   const payload: SerializedScenario = {
-    schema_version: scenario.lists.some(l => l.kind === 'other') ? politicsScenarioSchemaVersion : 7,
+    schema_version: scenario.lists.some(l => l.filing || l.minorityRegion) ? politicsScenarioSchemaVersion : scenario.lists.some(l => l.kind === 'other') ? 8 : 7,
     scenario: cloneScenario(scenario)
   };
   return `${JSON.stringify(payload, null, 2)}\n`;

@@ -10,7 +10,7 @@ interface BenchmarkRun {
   rows_rendered: number;
 }
 
-const outputPath = fileURLToPath(
+const outputPath = process.env.POLITICS_BENCHMARK_OUTPUT ? resolve(process.env.POLITICS_BENCHMARK_OUTPUT) : fileURLToPath(
   new URL('../../../test/fixtures/benchmarks/browser_politics_worker.json', import.meta.url)
 );
 const hasPoliticsStaticSnapshot =
@@ -24,6 +24,10 @@ async function runSimulation(page: import('@playwright/test').Page, simulations:
 
   await input.fill(String(simulations));
   await runButton.click();
+
+  await page.waitForFunction(() => document.querySelector('[aria-label="Errori simulazione"]') ||
+    [...document.querySelectorAll('caption')].some(c => c.textContent === 'Average plurinominal seats by list'), undefined, { timeout: 420_000 });
+  if (await page.getByLabel('Errori simulazione').count()) throw new Error(await page.getByLabel('Errori simulazione').innerText());
 
   await expect(page.getByRole('table', { name: 'Average plurinominal seats by list' })).toBeVisible({
     timeout: 420_000
@@ -55,17 +59,23 @@ test('benchmarks the generated politics worker path', async ({ browserName, page
   await page.goto('/politics');
 
   const runs: BenchmarkRun[] = [];
-  for (const simulations of [10, 100, 1000]) {
-    runs.push(await runSimulation(page, simulations));
-  }
+  let failure: unknown, requested = 0;
+  try {
+    for (const simulations of [10, 100, 1000]) {
+      requested = simulations;
+      runs.push(await runSimulation(page, simulations));
+    }
+  } catch (error) { failure = error; }
 
   const report = {
+    status: failure ? 'failed' : 'passed',
+    ...(failure ? { failure: { simulations_requested: requested, message: failure instanceof Error ? failure.message : String(failure) } } : {}),
     metadata: {
       created: new Date().toISOString(),
       browser: browserName,
       workflow: 'politiche',
       path: 'generated TypeScript worker on production static snapshot exported from current R preparation pipeline',
-      data_version: 'v1',
+      data_version: await page.evaluate(() => JSON.parse(localStorage.getItem('elezioni:web:politics-scenario:v1')!).scenario.defaultSource.dataVersion),
       notes: [
         'Elapsed time is read from SimulationResult.benchmark.elapsedMs as rendered by the app.',
         'The worker path currently runs in 50-simulation chunks and is capped at 1000 simulations.'
@@ -83,4 +93,5 @@ test('benchmarks the generated politics worker path', async ({ browserName, page
       elapsed_s: (run.elapsed_ms / 1000).toFixed(3)
     }))
   );
+  if (failure) throw failure;
 });

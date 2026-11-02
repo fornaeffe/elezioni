@@ -538,6 +538,8 @@ export interface PoliticsCollegePluriRow {
 }
 
 export interface PoliticsGeneratedListRow {
+  filing?: import('../core/types').ScenarioList['filing'];
+  minorityRegion?: string;
   kind?: import('../core/other-list').ListKind;
   LISTA: string;
   COALIZIONE: string | null;
@@ -699,6 +701,8 @@ export interface PoliticsCandidateGenerationListRow extends PoliticsGeneratedLis
 }
 
 export interface PoliticsCandidateUniTemplateRow {
+  /** New explicit-filing scenarios only; absent preserves R-parity joins. */
+  eligibleLists?: string[];
   COALIZIONE: string | null;
   UNI_COD: AdministrativeCode;
   LISTA_MINORANZA: string | boolean | null;

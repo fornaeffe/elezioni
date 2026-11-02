@@ -1,4 +1,7 @@
 import { describe, expect, test } from 'vitest';
+import { generatedSnapshotPoliticsScenario } from './politics-defaults.generated';
+import { cloneScenario } from './politics';
+const createHistoricalScenario = () => cloneScenario(generatedSnapshotPoliticsScenario);
 import {
   addScenarioHistoricalCorrespondence,
   buildScenarioHistoricalCorrespondenceGroups,
@@ -29,8 +32,8 @@ import {
 } from './politics';
 
 describe('politics web-native scenario model', () => {
-  test('default scenario is valid', () => {
-    const scenario = createDefaultPoliticsScenario();
+  test('historical snapshot scenario remains valid', () => {
+    const scenario = createHistoricalScenario();
 
     expect(scenario.defaultSource).toEqual({
       kind: 'bundled',
@@ -72,14 +75,14 @@ describe('politics web-native scenario model', () => {
   });
 
   test('round-trips through the versioned JSON format', () => {
-    const scenario = createDefaultPoliticsScenario();
+    const scenario = createHistoricalScenario();
     const parsed = parseScenario(serializeScenario(scenario));
 
     expect(parsed).toEqual(scenario);
   });
 
   test('detects duplicate list names and unknown coalitions', () => {
-    const scenario = createDefaultPoliticsScenario();
+    const scenario = createHistoricalScenario();
     scenario.lists[1].name = scenario.lists[0].name;
     scenario.lists[1].coalition = 'missing';
 
@@ -97,7 +100,7 @@ describe('politics web-native scenario model', () => {
       coalitions: [{ name: 'Coalizione A' }]
     });
 
-    expect(scenario.id).toBe('politiche-2027');
+    expect(scenario.id).toBe(createDefaultPoliticsScenario().id);
     expect(scenario.defaultSource.kind).toBe('bundled');
     expect(scenario.globalShareMode).toBe('mean');
     expect(scenario.abstentionShare).toBe(createDefaultPoliticsScenario().abstentionShare);
@@ -306,7 +309,7 @@ describe('politics web-native scenario model', () => {
   });
 
   test('validates malformed candidate generation settings', () => {
-    const scenario = createDefaultPoliticsScenario();
+    const scenario = createHistoricalScenario();
     scenario.candidateGeneration = {
       uninominalToPlurinominalShare: 1.2,
       plurinominalCandidacyCountShares: [1, -0.1, 0, 0, 0]
@@ -338,7 +341,7 @@ describe('politics web-native scenario model', () => {
   });
 
   test('validates only explicitly used global share overrides as a total', () => {
-    const scenario = createDefaultPoliticsScenario();
+    const scenario = createHistoricalScenario();
     scenario.lists[0].startingShare = 60;
     scenario.lists[1].startingShare = 60;
     scenario.lists[0].shareOverride = true;
@@ -350,21 +353,21 @@ describe('politics web-native scenario model', () => {
   });
 
   test('validates abstention share as an elector percentage', () => {
-    const scenario = createDefaultPoliticsScenario();
+    const scenario = createHistoricalScenario();
     scenario.abstentionShare = 100;
 
     expect(validateScenario(scenario)).toEqual(expect.arrayContaining(['Astensione non valida.']));
   });
 
   test('ignores bundled correspondences that no longer target active scenario lists', () => {
-    const scenario = createDefaultPoliticsScenario();
+    const scenario = createHistoricalScenario();
     scenario.lists = scenario.lists.filter((list) => list.name !== '+Europa');
 
     expect(validateScenario(scenario)).toEqual([]);
   });
 
   test('groups historical correspondences for preset matrix editing', () => {
-    const scenario = createDefaultPoliticsScenario();
+    const scenario = createHistoricalScenario();
     const groups = buildScenarioHistoricalCorrespondenceGroups(scenario);
     const latest = groups.find((group) => group.pastElection === 'europee 2024');
 
@@ -388,7 +391,7 @@ describe('politics web-native scenario model', () => {
   });
 
   test('edits, adds, removes, and resets historical correspondences', () => {
-    let scenario = createDefaultPoliticsScenario();
+    let scenario = createHistoricalScenario();
     const target = scenario.listCorrespondences.find(
       (row) => row.pastElection === 'europee 2024' && row.pastList === 'PARTITO DEMOCRATICO'
     );
@@ -440,7 +443,7 @@ describe('politics web-native scenario model', () => {
   });
 
   test('cascades list rename and removal through scenario references', () => {
-    let scenario = createDefaultPoliticsScenario();
+    let scenario = createHistoricalScenario();
     const list = scenario.lists.find((row) => row.name === 'Partito Democratico');
 
     expect(list).toBeDefined();
@@ -476,7 +479,7 @@ describe('politics web-native scenario model', () => {
   });
 
   test('cascades coalition rename and removal through uninominal candidate templates', () => {
-    let scenario = createDefaultPoliticsScenario();
+    let scenario = createHistoricalScenario();
     const coalition = scenario.coalitions.find((row) => row.name === 'sinistra');
 
     expect(coalition).toBeDefined();
@@ -521,7 +524,7 @@ describe('politics web-native scenario model', () => {
   });
 
   test('creates, upserts, updates, and removes candidate templates', () => {
-    let scenario = createDefaultPoliticsScenario();
+    let scenario = createHistoricalScenario();
     const template = createScenarioCandidateTemplate(scenario, {
       ramo: 'camera',
       kind: 'uninominal',
@@ -583,7 +586,7 @@ describe('politics web-native scenario model', () => {
   });
 
   test('groups, upserts, updates, and removes local share overrides', () => {
-    let scenario = createDefaultPoliticsScenario();
+    let scenario = createHistoricalScenario();
 
     scenario = upsertScenarioLocalShareOverride(scenario, {
       locationCode: '001001',
@@ -660,7 +663,7 @@ describe('politics web-native scenario model', () => {
   });
 
   test('validates malformed list correspondences', () => {
-    const scenario = createDefaultPoliticsScenario();
+    const scenario = createHistoricalScenario();
     scenario.listCorrespondences = [
       {
         id: 'bad',
@@ -695,7 +698,7 @@ describe('politics web-native scenario model', () => {
   });
 
   test('validates malformed local share overrides', () => {
-    const scenario = createDefaultPoliticsScenario();
+    const scenario = createHistoricalScenario();
     scenario.localShareOverrides = [
       {
         id: 'bad-local',
@@ -724,7 +727,7 @@ describe('politics web-native scenario model', () => {
   });
 
   test('allows all local list shares to be renormalized but rejects impossible partial totals', () => {
-    const scenario = createDefaultPoliticsScenario();
+    const scenario = createHistoricalScenario();
     scenario.lists = [
       { id: 'a', name: 'Lista A', coalition: scenario.coalitions[0].name, color: '#000000', startingShare: 50, shareOverride: false },
       { id: 'b', name: 'Lista B', coalition: scenario.coalitions[0].name, color: '#111111', startingShare: 50, shareOverride: false },
@@ -746,7 +749,7 @@ describe('politics web-native scenario model', () => {
   });
 
   test('validates malformed candidate templates', () => {
-    const scenario = createDefaultPoliticsScenario();
+    const scenario = createHistoricalScenario();
     scenario.candidateTemplates = [
       {
         id: 'bad-uni',

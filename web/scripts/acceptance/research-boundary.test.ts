@@ -7,7 +7,8 @@ it('keeps archived research outside active application and preparation imports',
   const root = fileURLToPath(new URL('../../../', import.meta.url));
   const violations: string[] = [];
   for (const directory of ['web/src', 'web/scripts', 'web/tests']) {
-    for (const name of readdirSync(resolve(root, directory), { recursive: true })) {
+    for (const entry of readdirSync(resolve(root, directory), { recursive: true })) {
+      const name = String(entry);
       if (!/\.(?:ts|svelte|js|mjs)$/.test(name)) continue;
       const path = resolve(root, directory, name);
       const text = readFileSync(path, 'utf8');

@@ -1,3 +1,5 @@
+import { generatedSnapshotPoliticsScenario } from '../scenario/politics-defaults.generated';
+import { cloneScenario } from '../scenario/politics';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, test } from 'vitest';
 import { createDefaultPoliticsScenario } from '$lib/scenario/politics';
@@ -225,7 +227,7 @@ describeWithGeneratedFixtures('politics parameter preparation production parity'
   const snapshot = loadGeneratedJsonFixture<PoliticsStaticSnapshot>(productionStaticSnapshotPath);
 
   test('rebuilds the R-exported default politics parameters from raw historical votes and bundled correspondences', { timeout: 30_000 }, () => {
-    const result = buildPoliticsParametersFromHistoricalVotes(snapshot.data.comuni_liste_elezioni ?? [], createDefaultPoliticsScenario(), {
+    const result = buildPoliticsParametersFromHistoricalVotes(snapshot.data.comuni_liste_elezioni ?? [], cloneScenario(generatedSnapshotPoliticsScenario), {
       percentualiPartenza: 'europee'
     });
 
