@@ -12,9 +12,10 @@ requested browser parameter estimation. This plan covers **only the 2026 reform
 workflow**. On **30 October**, Luca authorized implementing/testing replacement
 forecast models with only the goals in the [feasible-model research guide](../research/vote-generation/docs/vote-generation-feasible-research.md)
 fixed. The earlier Beta/national-margin and timing rules below describe the
-original campaign; they do not constrain that replacement comparison. Production
-acceptance remains open. The authoritative
-checklist is in [MIGRATION_PLAN.md](../MIGRATION_PLAN.md); record evidence in
+original campaign; they do not constrain that replacement comparison.
+FV-01–FV-09 implementation is complete; acceptance evidence and its limitations
+are recorded in history. Whole-migration publication remains a separate gate. The authoritative
+remaining checklist is in [MIGRATION_PLAN.md](../MIGRATION_PLAN.md); record evidence in
 [migration history](migration-history.md).
 
 | Task | Read |
