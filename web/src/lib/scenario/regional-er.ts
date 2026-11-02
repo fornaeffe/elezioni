@@ -103,7 +103,8 @@ function normalizeDefaultSource(value: unknown): ScenarioDefaultSource {
     electionKind: cleanElectionKind(source.electionKind),
     territory: cleanString(source.territory) || defaultRegionalErScenario.defaultSource.territory,
     dataVersion: cleanString(source.dataVersion) || defaultRegionalErScenario.defaultSource.dataVersion,
-    snapshotId: cleanString(source.snapshotId) || defaultRegionalErScenario.defaultSource.snapshotId
+    snapshotId: cleanString(source.snapshotId) || defaultRegionalErScenario.defaultSource.snapshotId,
+    ...(Array.isArray(source.notes) ? { notes: source.notes.map(String) } : {})
   };
 }
 
@@ -135,7 +136,7 @@ export function cloneRegionalErScenario(scenario: Scenario): Scenario {
     id: scenario.id,
     name: scenario.name,
     electionDate: scenario.electionDate,
-    defaultSource: { ...scenario.defaultSource },
+    defaultSource: { ...scenario.defaultSource, ...(scenario.defaultSource.notes ? { notes: [...scenario.defaultSource.notes] } : {}) },
     globalShareMode: scenario.globalShareMode,
     abstentionShare: scenario.abstentionShare,
     abstentionOverride: scenario.abstentionOverride,

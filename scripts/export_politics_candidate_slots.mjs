@@ -120,5 +120,7 @@ export const generatedPoliticsCandidateSlots: PoliticsCandidateSlotCatalog = {
 };
 `;
 
-writeFileSync(outputPath, content);
+if (process.argv.includes('--check')) {
+  if (readFileSync(outputPath, 'utf8') !== content) throw new Error(`Stale generated file ${outputPath}`);
+} else writeFileSync(outputPath, content);
 console.log(`Wrote ${outputPath}`);

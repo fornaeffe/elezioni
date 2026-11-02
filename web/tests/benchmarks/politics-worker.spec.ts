@@ -16,7 +16,7 @@ const outputPath = process.env.POLITICS_BENCHMARK_OUTPUT ? resolve(process.env.P
 const hasPoliticsStaticSnapshot =
   existsSync(resolve(process.cwd(), 'static/data/v1/politics-static.json'));
 
-test.skip(!hasPoliticsStaticSnapshot, 'Generated politics static snapshot is missing. Run scripts/export_politics_static_snapshot.R first.');
+test.skip(!hasPoliticsStaticSnapshot, 'Generated politics static snapshot is missing. Run npm run data:prepare -- --download first.');
 
 async function runSimulation(page: import('@playwright/test').Page, simulations: number): Promise<BenchmarkRun> {
   const input = page.getByLabel('Simulazioni');

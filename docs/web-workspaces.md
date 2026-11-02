@@ -68,19 +68,20 @@ calculated results with their executed scenario. Changed drafts are marked stale
 Navigation terminates legacy workers and disposes reform-owned services.
 
 Previous-law scrutiny exceptions retain their R behavior. Execution errors now
-identify the failing simulation/chamber and real elapsed time. The new default's
-1,000-run benchmark exposes the Camera flipper dead end at simulation 584; this
+identify the failing simulation/chamber and real elapsed time. The pre-preparation-migration
+default's 1,000-run benchmark exposed the Camera flipper dead end at simulation 584; this
 is an open legal-review blocker in [the plan](../MIGRATION_PLAN.md#plan), not an
 accepted 1,000-run campaign or a corrected scrutiny rule.
+Its frozen input remains a regression fixture; the revised dataset need not
+reproduce that same failing seed/simulation.
 
 ## Regeneration and checks
 
-The remaining R snapshot exporters are still required. Once the production
-politics/ER snapshots and reform candidate are available, run from `web/`:
+Use the [complete Node preparation pipeline](data-preparation.md). From `web/`:
 
 ```powershell
-npm run data:workspaces:generate
-npm run data:workspaces:check
+npm run data:prepare -- --download
+npm run data:check
 npm run check:data
 npm run check
 npm test -- --maxWorkers=2
@@ -88,15 +89,14 @@ npm run build
 npm run test:e2e -- --workers=2
 ```
 
-The existing politics scenario-default exporter invokes the workspace compiler;
-run the existing municipal/candidate catalog generators after snapshot changes.
-Prepare reform assets through `npm run data:reform:shares:release` before compiling
-workspace defaults. Runtime descriptors record exact snapshot bytes, schema and
+The complete command invokes all snapshot/default/catalog compilers in dependency
+order. `data:workspaces:generate` remains available for focused compiler changes.
+Runtime descriptors record exact snapshot bytes, schema and
 SHA-256. Missing, changed or incompatible production assets fail; there is no debug
-fallback. `acceptance:reform` includes the workspace descriptor/default check.
+fallback. `acceptance:reform` includes the complete `data:check` gate.
 
 Repeat build/browser checks with `BASE_PATH=/elezioni`, always sequentially.
 Direct loads, refreshes, navigation, workers and required data must work at both
 bases. Development tests may clearly skip absent generated fixtures; release
-acceptance requires all data and rejects skips. Completing this refactor does
-not complete the remaining clean-clone Node importers or authorize publication.
+acceptance requires all data and rejects skips. R/legacy artifact retirement and
+public deployment remain separate migration steps.

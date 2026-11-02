@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { existsSync } from 'node:fs';
-import { link, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import { basename, join, relative, resolve } from 'node:path';
@@ -142,7 +142,7 @@ describe.skipIf(!hasSources)('real-source preparation (requires npm run data:dow
   it('estimates populations if the optional fine-geography file is absent, using a different immutable version', async () => {
     const directory = await temporary(), manifest = await readManifest(root);
     await mkdir(directory, { recursive: true });
-    for (const s of manifest.sources.filter(s => !['submunicipal-geography-2021', 'submunicipal-population-2021', 'municipality-changes-2020-2021'].includes(s.id))) await link(join(sourceDirectory, s.path), join(directory, s.path));
+    for (const s of manifest.sources.filter(s => !['submunicipal-geography-2021', 'submunicipal-population-2021', 'municipality-changes-2020-2021'].includes(s.id))) await copyFile(join(sourceDirectory, s.path), join(directory, s.path));
     const { catalog } = await prepareTerritoryCatalog(root, manifest, directory);
     expect(catalog.population).toBe(59030133);
     expect(catalog.populationReconciliations[0].estimated).toBe(true);

@@ -11,7 +11,10 @@ export const generatedDefaultRegionalErScenario = {
     "kind": "bundled",
     "electionKind": "regionali-er",
     "territory": "Emilia-Romagna",
-    "dataVersion": "v1",
+    "dataVersion": "regional-er:76c5d453b14eb097e49aabbbb9298f3f90e0e8581979e04de494cc67945af7bb",
+    "notes": [
+      "Montecopiolo e Sassofeltrio non hanno osservazioni regionali 2020 perch\u00e9 allora fuori regione: dati assenti, non zeri. Le osservazioni successive sono disponibili nel riferimento comunale del censimento 2021."
+    ],
     "snapshotId": "regional-er-static.json"
   },
   "globalShareMode": "mean",
@@ -290,168 +293,6 @@ export const generatedDefaultRegionalErScenario = {
       "source": "bundled"
     },
     {
-      "id": "correspondence-2022-09-25-camera-2022-europa-sinistra-lista-sindaco",
-      "futureList": "Sinistra Lista Sindaco",
-      "pastElection": "camera 2022",
-      "pastDate": "2022-09-25",
-      "pastList": "+EUROPA",
-      "factor": 1,
-      "source": "bundled"
-    },
-    {
-      "id": "correspondence-2022-09-25-camera-2022-alleanza-verdi-e-sinistra-alleanza-verdi-sinistra",
-      "futureList": "Alleanza Verdi Sinistra",
-      "pastElection": "camera 2022",
-      "pastDate": "2022-09-25",
-      "pastList": "ALLEANZA VERDI E SINISTRA",
-      "factor": 1,
-      "source": "bundled"
-    },
-    {
-      "id": "correspondence-2022-09-25-camera-2022-azione-italia-viva-calenda-sinistra-lista-sindaco",
-      "futureList": "Sinistra Lista Sindaco",
-      "pastElection": "camera 2022",
-      "pastDate": "2022-09-25",
-      "pastList": "AZIONE - ITALIA VIVA - CALENDA",
-      "factor": 1,
-      "source": "bundled"
-    },
-    {
-      "id": "correspondence-2022-09-25-camera-2022-forza-italia-forza-italia",
-      "futureList": "Forza Italia",
-      "pastElection": "camera 2022",
-      "pastDate": "2022-09-25",
-      "pastList": "FORZA ITALIA",
-      "factor": 1,
-      "source": "bundled"
-    },
-    {
-      "id": "correspondence-2022-09-25-camera-2022-fratelli-d-italia-con-giorgia-meloni-fratelli-d-italia",
-      "futureList": "Fratelli d'Italia",
-      "pastElection": "camera 2022",
-      "pastDate": "2022-09-25",
-      "pastList": "FRATELLI D'ITALIA CON GIORGIA MELONI",
-      "factor": 1,
-      "source": "bundled"
-    },
-    {
-      "id": "correspondence-2022-09-25-camera-2022-impegno-civico-luigi-di-maio-centro-democratico-movimento-5-stelle",
-      "futureList": "Movimento 5 Stelle",
-      "pastElection": "camera 2022",
-      "pastDate": "2022-09-25",
-      "pastList": "IMPEGNO CIVICO LUIGI DI MAIO - CENTRO DEMOCRATICO",
-      "factor": 1,
-      "source": "bundled"
-    },
-    {
-      "id": "correspondence-2022-09-25-camera-2022-italexit-per-l-italia-astensione",
-      "futureList": "astensione",
-      "pastElection": "camera 2022",
-      "pastDate": "2022-09-25",
-      "pastList": "ITALEXIT PER L'ITALIA",
-      "factor": 1,
-      "source": "bundled"
-    },
-    {
-      "id": "correspondence-2022-09-25-camera-2022-italia-sovrana-e-popolare-astensione",
-      "futureList": "astensione",
-      "pastElection": "camera 2022",
-      "pastDate": "2022-09-25",
-      "pastList": "ITALIA SOVRANA E POPOLARE",
-      "factor": 1,
-      "source": "bundled"
-    },
-    {
-      "id": "correspondence-2022-09-25-camera-2022-lega-per-salvini-premier-lega",
-      "futureList": "Lega",
-      "pastElection": "camera 2022",
-      "pastDate": "2022-09-25",
-      "pastList": "LEGA PER SALVINI PREMIER",
-      "factor": 1,
-      "source": "bundled"
-    },
-    {
-      "id": "correspondence-2022-09-25-camera-2022-mastella-noi-di-centro-europeisti-destra-lista-sindaco",
-      "futureList": "Destra Lista Sindaco",
-      "pastElection": "camera 2022",
-      "pastDate": "2022-09-25",
-      "pastList": "MASTELLA NOI DI CENTRO EUROPEISTI",
-      "factor": 1,
-      "source": "bundled"
-    },
-    {
-      "id": "correspondence-2022-09-25-camera-2022-movimento-5-stelle-movimento-5-stelle",
-      "futureList": "Movimento 5 Stelle",
-      "pastElection": "camera 2022",
-      "pastDate": "2022-09-25",
-      "pastList": "MOVIMENTO 5 STELLE",
-      "factor": 1,
-      "source": "bundled"
-    },
-    {
-      "id": "correspondence-2022-09-25-camera-2022-noi-moderati-lupi-toti-brugnaro-udc-forza-italia",
-      "futureList": "Forza Italia",
-      "pastElection": "camera 2022",
-      "pastDate": "2022-09-25",
-      "pastList": "NOI MODERATI/LUPI - TOTI - BRUGNARO - UDC",
-      "factor": 1,
-      "source": "bundled"
-    },
-    {
-      "id": "correspondence-2022-09-25-camera-2022-partito-animalista-ucdl-10-volte-meglio-destra-lista-sindaco",
-      "futureList": "Destra Lista Sindaco",
-      "pastElection": "camera 2022",
-      "pastDate": "2022-09-25",
-      "pastList": "PARTITO ANIMALISTA - UCDL - 10 VOLTE MEGLIO",
-      "factor": 1,
-      "source": "bundled"
-    },
-    {
-      "id": "correspondence-2022-09-25-camera-2022-partito-democratico-italia-democratica-e-progressista-partito-democratico",
-      "futureList": "Partito Democratico",
-      "pastElection": "camera 2022",
-      "pastDate": "2022-09-25",
-      "pastList": "PARTITO DEMOCRATICO - ITALIA DEMOCRATICA E PROGRESSISTA",
-      "factor": 1,
-      "source": "bundled"
-    },
-    {
-      "id": "correspondence-2022-09-25-camera-2022-sud-chiama-nord-astensione",
-      "futureList": "astensione",
-      "pastElection": "camera 2022",
-      "pastDate": "2022-09-25",
-      "pastList": "SUD CHIAMA NORD",
-      "factor": 1,
-      "source": "bundled"
-    },
-    {
-      "id": "correspondence-2022-09-25-camera-2022-unione-popolare-con-de-magistris-potere-al-popolo",
-      "futureList": "Potere al Popolo!",
-      "pastElection": "camera 2022",
-      "pastDate": "2022-09-25",
-      "pastList": "UNIONE POPOLARE CON DE MAGISTRIS",
-      "factor": 1,
-      "source": "bundled"
-    },
-    {
-      "id": "correspondence-2022-09-25-camera-2022-vita-movimento-5-stelle",
-      "futureList": "Movimento 5 Stelle",
-      "pastElection": "camera 2022",
-      "pastDate": "2022-09-25",
-      "pastList": "VITA",
-      "factor": 1,
-      "source": "bundled"
-    },
-    {
-      "id": "correspondence-2022-09-25-camera-2022-astensione-astensione",
-      "futureList": "astensione",
-      "pastElection": "camera 2022",
-      "pastDate": "2022-09-25",
-      "pastList": "astensione",
-      "factor": 1,
-      "source": "bundled"
-    },
-    {
       "id": "correspondence-2019-05-26-europee-2019-europa-italia-in-comune-pde-italia-sinistra-lista-sindaco",
       "futureList": "Sinistra Lista Sindaco",
       "pastElection": "europee 2019",
@@ -614,123 +455,6 @@ export const generatedDefaultRegionalErScenario = {
       "source": "bundled"
     },
     {
-      "id": "correspondence-2024-06-08-europee-2024-alleanza-verdi-e-sinistra-alleanza-verdi-sinistra",
-      "futureList": "Alleanza Verdi Sinistra",
-      "pastElection": "europee 2024",
-      "pastDate": "2024-06-08",
-      "pastList": "ALLEANZA VERDI E SINISTRA",
-      "factor": 1,
-      "source": "bundled"
-    },
-    {
-      "id": "correspondence-2024-06-08-europee-2024-alternativa-popolare-astensione",
-      "futureList": "astensione",
-      "pastElection": "europee 2024",
-      "pastDate": "2024-06-08",
-      "pastList": "ALTERNATIVA POPOLARE",
-      "factor": 1,
-      "source": "bundled"
-    },
-    {
-      "id": "correspondence-2024-06-08-europee-2024-azione-siamo-europei-sinistra-lista-sindaco",
-      "futureList": "Sinistra Lista Sindaco",
-      "pastElection": "europee 2024",
-      "pastDate": "2024-06-08",
-      "pastList": "AZIONE - SIAMO EUROPEI",
-      "factor": 1,
-      "source": "bundled"
-    },
-    {
-      "id": "correspondence-2024-06-08-europee-2024-forza-italia-noi-moderati-ppe-forza-italia",
-      "futureList": "Forza Italia",
-      "pastElection": "europee 2024",
-      "pastDate": "2024-06-08",
-      "pastList": "FORZA ITALIA - NOI MODERATI - PPE",
-      "factor": 1,
-      "source": "bundled"
-    },
-    {
-      "id": "correspondence-2024-06-08-europee-2024-fratelli-d-italia-fratelli-d-italia",
-      "futureList": "Fratelli d'Italia",
-      "pastElection": "europee 2024",
-      "pastDate": "2024-06-08",
-      "pastList": "FRATELLI D'ITALIA",
-      "factor": 1,
-      "source": "bundled"
-    },
-    {
-      "id": "correspondence-2024-06-08-europee-2024-lega-salvini-premier-lega",
-      "futureList": "Lega",
-      "pastElection": "europee 2024",
-      "pastDate": "2024-06-08",
-      "pastList": "LEGA SALVINI PREMIER",
-      "factor": 1,
-      "source": "bundled"
-    },
-    {
-      "id": "correspondence-2024-06-08-europee-2024-liberta-astensione",
-      "futureList": "astensione",
-      "pastElection": "europee 2024",
-      "pastDate": "2024-06-08",
-      "pastList": "LIBERTA'",
-      "factor": 1,
-      "source": "bundled"
-    },
-    {
-      "id": "correspondence-2024-06-08-europee-2024-movimento-5-stelle-movimento-5-stelle",
-      "futureList": "Movimento 5 Stelle",
-      "pastElection": "europee 2024",
-      "pastDate": "2024-06-08",
-      "pastList": "MOVIMENTO 5 STELLE",
-      "factor": 1,
-      "source": "bundled"
-    },
-    {
-      "id": "correspondence-2024-06-08-europee-2024-pace-terra-dignita-potere-al-popolo",
-      "futureList": "Potere al Popolo!",
-      "pastElection": "europee 2024",
-      "pastDate": "2024-06-08",
-      "pastList": "PACE TERRA DIGNITA'",
-      "factor": 1,
-      "source": "bundled"
-    },
-    {
-      "id": "correspondence-2024-06-08-europee-2024-partito-democratico-partito-democratico",
-      "futureList": "Partito Democratico",
-      "pastElection": "europee 2024",
-      "pastDate": "2024-06-08",
-      "pastList": "PARTITO DEMOCRATICO",
-      "factor": 1,
-      "source": "bundled"
-    },
-    {
-      "id": "correspondence-2024-06-08-europee-2024-stati-uniti-d-europa-sinistra-lista-sindaco",
-      "futureList": "Sinistra Lista Sindaco",
-      "pastElection": "europee 2024",
-      "pastDate": "2024-06-08",
-      "pastList": "STATI UNITI D'EUROPA",
-      "factor": 1,
-      "source": "bundled"
-    },
-    {
-      "id": "correspondence-2024-06-08-europee-2024-sudtiroler-volkspartei-svp-astensione",
-      "futureList": "astensione",
-      "pastElection": "europee 2024",
-      "pastDate": "2024-06-08",
-      "pastList": "S\u00dcDTIROLER VOLKSPARTEI (SVP)",
-      "factor": 1,
-      "source": "bundled"
-    },
-    {
-      "id": "correspondence-2024-06-08-europee-2024-astensione-astensione",
-      "futureList": "astensione",
-      "pastElection": "europee 2024",
-      "pastDate": "2024-06-08",
-      "pastList": "astensione",
-      "factor": 1,
-      "source": "bundled"
-    },
-    {
       "id": "correspondence-2020-01-26-regionali-2020-europa-psi-pri-sinistra-lista-sindaco",
       "futureList": "Sinistra Lista Sindaco",
       "pastElection": "regionali 2020",
@@ -888,6 +612,285 @@ export const generatedDefaultRegionalErScenario = {
       "futureList": "astensione",
       "pastElection": "regionali 2020",
       "pastDate": "2020-01-26",
+      "pastList": "astensione",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "correspondence-2022-09-25-camera-2022-europa-sinistra-lista-sindaco",
+      "futureList": "Sinistra Lista Sindaco",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "+EUROPA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "correspondence-2022-09-25-camera-2022-alleanza-verdi-e-sinistra-alleanza-verdi-sinistra",
+      "futureList": "Alleanza Verdi Sinistra",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "ALLEANZA VERDI E SINISTRA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "correspondence-2022-09-25-camera-2022-azione-italia-viva-calenda-sinistra-lista-sindaco",
+      "futureList": "Sinistra Lista Sindaco",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "AZIONE - ITALIA VIVA - CALENDA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "correspondence-2022-09-25-camera-2022-forza-italia-forza-italia",
+      "futureList": "Forza Italia",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "FORZA ITALIA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "correspondence-2022-09-25-camera-2022-fratelli-d-italia-con-giorgia-meloni-fratelli-d-italia",
+      "futureList": "Fratelli d'Italia",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "FRATELLI D'ITALIA CON GIORGIA MELONI",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "correspondence-2022-09-25-camera-2022-impegno-civico-luigi-di-maio-centro-democratico-movimento-5-stelle",
+      "futureList": "Movimento 5 Stelle",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "IMPEGNO CIVICO LUIGI DI MAIO - CENTRO DEMOCRATICO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "correspondence-2022-09-25-camera-2022-italexit-per-l-italia-astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "ITALEXIT PER L'ITALIA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "correspondence-2022-09-25-camera-2022-italia-sovrana-e-popolare-astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "ITALIA SOVRANA E POPOLARE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "correspondence-2022-09-25-camera-2022-lega-per-salvini-premier-lega",
+      "futureList": "Lega",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "LEGA PER SALVINI PREMIER",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "correspondence-2022-09-25-camera-2022-mastella-noi-di-centro-europeisti-destra-lista-sindaco",
+      "futureList": "Destra Lista Sindaco",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "MASTELLA NOI DI CENTRO EUROPEISTI",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "correspondence-2022-09-25-camera-2022-movimento-5-stelle-movimento-5-stelle",
+      "futureList": "Movimento 5 Stelle",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "MOVIMENTO 5 STELLE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "correspondence-2022-09-25-camera-2022-noi-moderati-lupi-toti-brugnaro-udc-forza-italia",
+      "futureList": "Forza Italia",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "NOI MODERATI/LUPI - TOTI - BRUGNARO - UDC",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "correspondence-2022-09-25-camera-2022-partito-animalista-ucdl-10-volte-meglio-destra-lista-sindaco",
+      "futureList": "Destra Lista Sindaco",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "PARTITO ANIMALISTA - UCDL - 10 VOLTE MEGLIO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "correspondence-2022-09-25-camera-2022-partito-democratico-italia-democratica-e-progressista-partito-democratico",
+      "futureList": "Partito Democratico",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "PARTITO DEMOCRATICO - ITALIA DEMOCRATICA E PROGRESSISTA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "correspondence-2022-09-25-camera-2022-sud-chiama-nord-astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "SUD CHIAMA NORD",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "correspondence-2022-09-25-camera-2022-unione-popolare-con-de-magistris-potere-al-popolo",
+      "futureList": "Potere al Popolo!",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "UNIONE POPOLARE CON DE MAGISTRIS",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "correspondence-2022-09-25-camera-2022-vita-movimento-5-stelle",
+      "futureList": "Movimento 5 Stelle",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "VITA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "correspondence-2022-09-25-camera-2022-astensione-astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "astensione",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "correspondence-2024-06-08-europee-2024-alleanza-verdi-e-sinistra-alleanza-verdi-sinistra",
+      "futureList": "Alleanza Verdi Sinistra",
+      "pastElection": "europee 2024",
+      "pastDate": "2024-06-08",
+      "pastList": "ALLEANZA VERDI E SINISTRA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "correspondence-2024-06-08-europee-2024-alternativa-popolare-astensione",
+      "futureList": "astensione",
+      "pastElection": "europee 2024",
+      "pastDate": "2024-06-08",
+      "pastList": "ALTERNATIVA POPOLARE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "correspondence-2024-06-08-europee-2024-azione-siamo-europei-sinistra-lista-sindaco",
+      "futureList": "Sinistra Lista Sindaco",
+      "pastElection": "europee 2024",
+      "pastDate": "2024-06-08",
+      "pastList": "AZIONE - SIAMO EUROPEI",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "correspondence-2024-06-08-europee-2024-forza-italia-noi-moderati-ppe-forza-italia",
+      "futureList": "Forza Italia",
+      "pastElection": "europee 2024",
+      "pastDate": "2024-06-08",
+      "pastList": "FORZA ITALIA - NOI MODERATI - PPE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "correspondence-2024-06-08-europee-2024-fratelli-d-italia-fratelli-d-italia",
+      "futureList": "Fratelli d'Italia",
+      "pastElection": "europee 2024",
+      "pastDate": "2024-06-08",
+      "pastList": "FRATELLI D'ITALIA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "correspondence-2024-06-08-europee-2024-lega-salvini-premier-lega",
+      "futureList": "Lega",
+      "pastElection": "europee 2024",
+      "pastDate": "2024-06-08",
+      "pastList": "LEGA SALVINI PREMIER",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "correspondence-2024-06-08-europee-2024-liberta-astensione",
+      "futureList": "astensione",
+      "pastElection": "europee 2024",
+      "pastDate": "2024-06-08",
+      "pastList": "LIBERTA'",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "correspondence-2024-06-08-europee-2024-movimento-5-stelle-movimento-5-stelle",
+      "futureList": "Movimento 5 Stelle",
+      "pastElection": "europee 2024",
+      "pastDate": "2024-06-08",
+      "pastList": "MOVIMENTO 5 STELLE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "correspondence-2024-06-08-europee-2024-pace-terra-dignita-potere-al-popolo",
+      "futureList": "Potere al Popolo!",
+      "pastElection": "europee 2024",
+      "pastDate": "2024-06-08",
+      "pastList": "PACE TERRA DIGNITA'",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "correspondence-2024-06-08-europee-2024-partito-democratico-partito-democratico",
+      "futureList": "Partito Democratico",
+      "pastElection": "europee 2024",
+      "pastDate": "2024-06-08",
+      "pastList": "PARTITO DEMOCRATICO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "correspondence-2024-06-08-europee-2024-stati-uniti-d-europa-sinistra-lista-sindaco",
+      "futureList": "Sinistra Lista Sindaco",
+      "pastElection": "europee 2024",
+      "pastDate": "2024-06-08",
+      "pastList": "STATI UNITI D'EUROPA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "correspondence-2024-06-08-europee-2024-sudtiroler-volkspartei-svp-astensione",
+      "futureList": "astensione",
+      "pastElection": "europee 2024",
+      "pastDate": "2024-06-08",
+      "pastList": "S\u00dcDTIROLER VOLKSPARTEI (SVP)",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "correspondence-2024-06-08-europee-2024-astensione-astensione",
+      "futureList": "astensione",
+      "pastElection": "europee 2024",
+      "pastDate": "2024-06-08",
       "pastList": "astensione",
       "factor": 1,
       "source": "bundled"

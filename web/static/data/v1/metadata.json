@@ -1,21 +1,17 @@
 {
-  "version": "v1",
-  "created": "2026-06-01",
-  "source": "Initial SvelteKit migration snapshot metadata.",
-  "workflows": ["politiche", "regionali-er"],
+  "version": "node-production-v1",
+  "source": "Pinned Node/TypeScript production preparation",
+  "workflows": [
+    "politiche",
+    "regionali-er"
+  ],
   "files": {
-    "politicsDirectScrutinyDebug": "politics-debug-scrutiny.json",
-    "politicsPipelineSourceDebug": "politics-pipeline-source-debug.json",
-    "politicsStaticDebug": "politics-static-debug.json",
     "politicsStatic": "politics-static.json",
     "regionalErStatic": "regional-er-static.json"
   },
   "notes": [
-    "politics-debug-scrutiny.json is a compact direct-scrutiny bridge derived from the R golden fixture.",
-    "politics-pipeline-source-debug.json is a compact real-source generation bridge derived from dati/debug_scrutinio.RData.",
-    "politics-static-debug.json is a production-shaped bridge snapshot split into reusable data and a default scenario; it is still derived from the debug source.",
-    "politics-static.json is exported from the current R politics preparation pipeline using dati/dati.RData and scenari/politiche_2027.xlsx.",
-    "The production worker requires politics-static.json and fails explicitly when it is absent; debug snapshots remain development fixtures only.",
-    "regional-er-static.json is exported from the current R Emilia-Romagna regional preparation pipeline using dati/dati.RData and scenari/BO_insieme.xlsx."
+    "Prepared by npm run data:prepare; verified by npm run data:check.",
+    "Runtime checksums and schemas are pinned by the generated workspace descriptors.",
+    "Reform assets have separate versioned catalogs. Debug bridges and R caches are not production inputs."
   ]
 }

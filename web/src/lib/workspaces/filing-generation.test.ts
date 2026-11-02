@@ -1,5 +1,7 @@
 import { expect, test } from 'vitest';
 import { fileURLToPath } from 'node:url';
+import { readFileSync } from 'node:fs';
+import { gunzipSync } from 'node:zlib';
 import { describeWithGeneratedFixtures, loadGeneratedJsonFixture } from '../test/generated-fixtures';
 import { generatePoliticsVotes } from '../politics/vote-generation';
 import { buildPoliticsDirectScrutinySnapshot } from '../politics/pipeline';
@@ -7,7 +9,7 @@ import { projectScenarioOntoPoliticsSource } from '../politics/scenario-projecti
 import { buildPoliticsPipelineSourceFromSnapshot } from '../politics/static-snapshot';
 import { runPoliticsSimulation } from '../politics/simulation-scrutiny';
 import { runPoliticsScrutiny } from '../politics/scrutiny';
-import type { PoliticsStaticSnapshot, PoliticsVoteGenerationSource } from '../politics/types';
+import type { PoliticsStaticSnapshot, PoliticsVoteGenerationSource, PoliticsScrutinyInput, PoliticsScrutinyContext } from '../politics/types';
 import { createDefaultPoliticsScenario } from '../scenario/politics';
 import { isFiled } from './filing';
 
@@ -51,21 +53,15 @@ test('filing conditions each chamber with shared draws and conserved valid mass'
 });
 
 const path = fileURLToPath(new URL('../../../static/data/v1/politics-static.json', import.meta.url));
+test('retains the frozen Camera simulation 584 flipper failure independently of revised production geography', () => {
+  const fixture = JSON.parse(gunzipSync(readFileSync(fileURLToPath(new URL('../../../../test/fixtures/politiche/legacy-camera-flipper-584.json.gz', import.meta.url)))).toString()) as {
+    input: PoliticsScrutinyInput; context: PoliticsScrutinyContext; expected: string;
+  };
+  expect(fixture.input.liste_uni.every(r => Number.isFinite(r.VOTI_LISTA) && r.VOTI_LISTA >= 0)).toBe(true);
+  expect(() => runPoliticsScrutiny(fixture.input, fixture.context)).toThrow(fixture.expected);
+});
+
 describeWithGeneratedFixtures('authored default through old-law assembly', [path], () => {
-  test('retains the R Camera flipper dead end exposed by the new default until legal review', { timeout: 30_000 }, () => {
-    const snapshot = loadGeneratedJsonFixture<PoliticsStaticSnapshot>(path), scenario = createDefaultPoliticsScenario();
-    const projection = projectScenarioOntoPoliticsSource(buildPoliticsPipelineSourceFromSnapshot(snapshot), scenario, {
-      currentDate: '2026-11-02', historicalVotes: snapshot.data.comuni_liste_elezioni, municipalities: snapshot.data.municipalities,
-      parameterPercentualiPartenza: 'europee', simulations: 50,
-    });
-    // This is the unchanged 50-run worker chunk 551–600: local 34 is global 584.
-    const output = buildPoliticsDirectScrutinySnapshot(projection.source, { seed: 'politiche-2027:chunk:551' });
-    const data = output.rami.camera, input = data.simulations.find(s => s.sim === 34)!.input;
-    expect(input.liste_uni.every(r => Number.isFinite(r.VOTI_LISTA) && r.VOTI_LISTA >= 0)).toBe(true);
-    expect(input.liste_uni.every(r => isFiled(scenario.lists.find(l => l.name === r.LISTA)!, 'camera', r.CIRCOSCRIZIONE))).toBe(true);
-    expect(() => runPoliticsScrutiny(input, { ramo: 'camera', liste_naz: data.liste_naz, totali_pluri: data.totali_pluri, totale_seggi: data.totale_seggi }))
-      .toThrow('Non ho a chi dare il seggio eccedente');
-  });
   test('files only declared votes/candidates, preserves minority metadata and completes both chambers', { timeout: 30_000 }, () => {
     const snapshot = loadGeneratedJsonFixture<PoliticsStaticSnapshot>(path), scenario = createDefaultPoliticsScenario();
     const projection = projectScenarioOntoPoliticsSource(buildPoliticsPipelineSourceFromSnapshot(snapshot), scenario, {

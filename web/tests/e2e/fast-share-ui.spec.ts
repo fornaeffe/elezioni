@@ -131,7 +131,9 @@ test("on-demand data, future-only edits, frozen run, exports and scenario replay
     .click();
   await page
     .getByRole("combobox", { name: "Soggetto", exact: true })
-    .selectOption("component:" + defaults.lists.camera[0].componentIds[0]);
+    // Fitted components receive references through their filed list. Direct
+    // component references are reserved for explicitly declared new components.
+    .selectOption("list:" + defaults.lists.camera[0].id);
   await page.getByLabel("Quota di riferimento %", { exact: true }).fill("15");
   await page
     .getByRole("button", { name: "Applica riferimento", exact: true })
@@ -145,7 +147,7 @@ test("on-demand data, future-only edits, frozen run, exports and scenario replay
   expect(
     saved.scenario.references.some(
       (r: { subject: { id: string }; mean: number }) =>
-        r.subject.id === defaults.lists.camera[0].componentIds[0] && r.mean === 0.15,
+        r.subject.id === defaults.lists.camera[0].id && r.mean === 0.15,
     ),
   ).toBe(true);
   // Unified composition controls may load source metadata; municipal history stays demand-loaded.

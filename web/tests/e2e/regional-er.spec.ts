@@ -6,7 +6,7 @@ const hasRegionalErStaticSnapshot = existsSync(resolve(process.cwd(), 'static/da
 
 test.skip(
   !hasRegionalErStaticSnapshot,
-  'Generated regional Emilia-Romagna static snapshot is missing. Run scripts/export_regional_er_static_snapshot.R first.'
+  'Generated regional Emilia-Romagna static snapshot is missing. Run npm run data:prepare -- --download first.'
 );
 
 test('runs the Emilia-Romagna regional worker path from the scenario editor', async ({ page }) => {
@@ -21,7 +21,8 @@ test('runs the Emilia-Romagna regional worker path from the scenario editor', as
   await page.getByRole('button', { name: 'Esegui' }).click();
 
   await expect(page.getByLabel('Note simulazione')).toContainText('REGIONAL_ER_STATIC_SNAPSHOT', { timeout: 30_000 });
-  await expect(page.getByLabel('Avvisi simulazione')).toHaveCount(0);
+  await expect(page.getByLabel('Avvisi simulazione')).toContainText('WORKSPACE_DATA_ASSUMPTION');
+  await expect(page.getByLabel('Avvisi simulazione')).toContainText('dati assenti, non zeri');
   await expect(page.getByRole('table', { name: 'Regional election overview' })).toBeVisible();
   await expect(page.getByRole('table', { name: 'Regional coalition outcomes' })).toBeVisible();
   await expect(page.getByRole('table', { name: 'Regional province seats by list' })).toBeVisible();

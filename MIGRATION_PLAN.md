@@ -140,25 +140,30 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   kinds. Preserve configurable project-base navigation and worker/data loading
   for GitHub Pages, including direct page loads and refreshes. Use the
   [workspace task map](docs/web-workspaces.md) for implementation entry points.
-- [ ] Finish data-preparation migration on the shared R26-07 acquisition,
+- [x] Finish data-preparation migration on the shared R26-07 acquisition,
   geography and census foundation. Produce the shared workspace descriptors and
   defaults through their existing compiler contracts. Migrate historical election importers and
   static previous-election bundles; use R26-19 for required paired Senate history
   and calibration. Deliver all production bundles/defaults from a clean clone
   through the Node/TypeScript pipeline, with cache misses supported and required
-  data checks blocking release. Remove legacy `dati/` only after the whole
-  data-preparation migration is complete and its consumers have migrated.
+  data checks blocking release. Adopt the definitive 2022 geography and shared
+  legal-census reference where applicable; apply the Bolzano overlay only to
+  reform. Use the [complete production pipeline](docs/data-preparation.md).
+  Keep R scripts and `dati/` for the subsequent retirement step.
 - [ ] Check if production acceptance tests can be pruned and/or made faster.
 - [ ] Resolve the previous-law Camera flipper dead end exposed by the shared
-  default (seed `politiche-2027`, 1,000 requested runs, simulation 584). Preserve
+  pre-preparation-migration default (seed `politiche-2027`, 1,000 requested runs,
+  simulation 584). Preserve
   the frozen R-parity failure until Luca approves a legal correction/fallback;
   retain simulation/chamber context and never reroll or count failed runs as
-  accepted results. Rerun the 1,000-run benchmark after that decision. See
+  accepted results. Keep its frozen input independent of revised datasets;
+  a changed failing seed is not a legal correction. Rerun the 1,000-run benchmark
+  after that decision. See
   [workspace boundaries](docs/web-workspaces.md#defaults-and-compatibility) and
   the 2 November workspace entry in migration history.
 - [ ] Retire temporary bridge artifacts and update user and developer
   documentation when migrated workflows no longer depend on R-exported
-  intermediary snapshots.
+  intermediary snapshots, including the retained R scripts and `dati/`.
 - [ ] Change default scenario colors to colors that reflects the real parties
   political colors (or colors with which polling houses usually represent parties).
 - [ ] In "Dotazioni dei seggi per collegio e liste del premio" do now show territory ids,

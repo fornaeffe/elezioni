@@ -84,7 +84,7 @@ export async function compilePoliticsDefault(root: string, snapshot: PoliticsSta
   }
   return { ...baseline, id: `politics-${future.id}`, name: 'Politiche — scenario nazionale', electionDate: released.electionDate, lists, coalitions,
     listCorrespondences: correspondences, candidateTemplates: [], localShareOverrides,
-    defaultSource: { ...baseline.defaultSource, notes: [...future.identityNotes,
+    defaultSource: { ...baseline.defaultSource, notes: [...(baseline.defaultSource.notes ?? []), ...future.identityNotes,
       'Previous-law adapter: standalone lists have singleton electoral tickets; these are not political alliances.',
       'Senate filing covers whole corresponding regions, as in the shared authored definition.',
       'Historical joint counts use reviewed comparison weights, otherwise equal member weights. These are explicit legacy assumptions, not observed component counts.',

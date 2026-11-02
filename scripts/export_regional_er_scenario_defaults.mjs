@@ -1,4 +1,5 @@
 import { readFileSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -63,7 +64,8 @@ function asciiJson(value) {
   });
 }
 
-const snapshot = JSON.parse(readFileSync(inputPath, 'utf8'));
+const snapshotBytes = readFileSync(inputPath);
+const snapshot = JSON.parse(snapshotBytes.toString('utf8'));
 const scenario = snapshot.default_scenario;
 const politicalLists = scenario.liste.filter((row) => row.LISTA !== 'astensione');
 const politicalTotal = politicalLists.reduce((sum, row) => sum + row.PERCENTUALE, 0);
@@ -111,7 +113,8 @@ const defaultScenario = {
     kind: 'bundled',
     electionKind: 'regionali-er',
     territory: 'Emilia-Romagna',
-    dataVersion: 'v1',
+    dataVersion: `regional-er:${createHash('sha256').update(snapshotBytes).digest('hex')}`,
+    notes: snapshot.metadata.preparation?.notes,
     snapshotId: 'regional-er-static.json'
   },
   globalShareMode: 'mean',
@@ -136,5 +139,7 @@ import type { Scenario } from '$lib/core/types';
 export const generatedDefaultRegionalErScenario = ${asciiJson(defaultScenario)} satisfies Scenario;
 `;
 
-writeFileSync(outputPath, content);
+if (process.argv.includes('--check')) {
+  if (readFileSync(outputPath, 'utf8') !== content) throw new Error(`Stale generated file ${outputPath}`);
+} else writeFileSync(outputPath, content);
 console.log(`Wrote ${outputPath}`);

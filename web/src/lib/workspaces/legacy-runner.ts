@@ -188,8 +188,7 @@ export async function runLegacyWorkspace(request: SimulationRequest, post: (mess
         code: 'REGIONAL_ER_STATIC_SNAPSHOT',
         electionKind: request.kind,
         severity: 'info',
-        message: `Running the TypeScript regional pipeline on ${loadedSnapshot.path} exported from the current R preparation pipeline.`,
-        todoReference: 'MIGRATION_PLAN.md#next-work'
+        message: `Running the TypeScript regional pipeline on ${loadedSnapshot.path}: ${staticSnapshot.metadata.source}.`
       },
       {
         code: 'REGIONAL_ER_SCENARIO_PROJECTION',
@@ -201,6 +200,7 @@ export async function runLegacyWorkspace(request: SimulationRequest, post: (mess
       }
     ];
 
+    for (const note of staticSnapshot.metadata.preparation?.notes ?? []) resultWarnings.push({ code: 'WORKSPACE_DATA_ASSUMPTION', electionKind: request.kind, severity: 'warning', message: note });
     for (const warning of projection.warnings) {
       resultWarnings.push({
         code: warning.code,
@@ -322,8 +322,7 @@ export async function runLegacyWorkspace(request: SimulationRequest, post: (mess
       code: 'POLITICS_STATIC_SNAPSHOT',
       electionKind: request.kind,
       severity: 'info',
-      message: `Running the TypeScript generated pipeline on ${loadedSnapshot.path} exported from the current R preparation pipeline.`,
-      todoReference: 'MIGRATION_PLAN.md#current-caveats'
+      message: `Running the TypeScript generated pipeline on ${loadedSnapshot.path}: ${staticSnapshot.metadata.source}.`
     },
     {
       code: 'POLITICS_SCENARIO_PROJECTION',
@@ -335,6 +334,7 @@ export async function runLegacyWorkspace(request: SimulationRequest, post: (mess
     }
   );
 
+  for (const note of staticSnapshot.metadata.preparation?.notes ?? []) resultWarnings.push({ code: 'WORKSPACE_DATA_ASSUMPTION', electionKind: request.kind, severity: 'warning', message: note });
   for (const warning of projection.warnings) {
     resultWarnings.push({
       code: warning.code,

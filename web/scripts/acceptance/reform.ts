@@ -38,6 +38,7 @@ try {
     const bytes = await readFile(resolve(web, path));
     report.inputs.push({ path, bytes: bytes.length, sha256: createHash('sha256').update(bytes).digest('hex') });
   }
+  await run('complete production preparation and generated data', ['run', 'data:check']);
   await run('production reform checksums and vertical slice', ['run', 'data:reform:check']);
   await run('workspace snapshots and defaults', ['run', 'data:workspaces:check']);
   await run('unified required production assets', ['run','data:reform:shares:release:check','--','--catalog','static/data/reform-2026/fast-share/candidate.json']);

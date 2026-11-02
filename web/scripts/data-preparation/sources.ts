@@ -3,6 +3,8 @@ import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { dirname, isAbsolute, relative, resolve } from 'node:path';
 
 export interface Source {
+  /** Reviewed repository snapshot when the original API has unstable row ordering. */
+  repositoryPath?: string;
   id: string;
   url: string;
   path: string;

@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "id": "workspace-historical-sources-v1",
+  "reviewedOn": "2026-11-02",
+  "sources": [
+    {
+      "id": "regional-2020",
+      "url": "https://dait.interno.gov.it/documenti/opendata/regionali/regionali-20200126.zip",
+      "path": "regional-2020.zip",
+      "bytes": 1257053,
+      "sha256": "57e7fae93ad63726bb86612b7fc4b7672c58c12a0821830c12fe5ad313bb810b",
+      "headers": {}
+    },
+    {
+      "id": "municipality-history-1991-2021",
+      "url": "https://situas-servizi.istat.it/publish/reportspooljson?pfun=304&pdatada=01/01/1991&pdataa=31/12/2021",
+      "path": "geography/municipality-history-1991-2021.json.gz",
+      "bytes": 143924,
+      "sha256": "d03d91852ef9ac171a80076e3b579d56169b099da6f18bf418a6dd1c0e2410b2",
+      "headers": {},
+      "repositoryPath": "data/sources/geography/municipality-history-1991-2021.json.gz",
+      "representation": "reviewed-istat-crosswalk-v1",
+      "originalResponseSha256": "4ee661fd813ca44f22eff764107dd0d0495b52121f37e9a0904017d72a5ff239",
+      "canonicalJsonSha256": "11fccac6c23f4e8411cb00fefb9ba0e3023006f5066d8543de3089cc8593e257"
+    },
+    {
+      "id": "municipality-history-2021-20220925",
+      "url": "https://situas-servizi.istat.it/publish/reportspooljson?pfun=304&pdatada=01/01/2021&pdataa=25/09/2022",
+      "path": "geography/municipality-history-2021-20220925.json.gz",
+      "bytes": 134056,
+      "sha256": "ae9d9cd632b2ba24292da76ebe85acda48743e9ab8dca99d4a2ad949e7940d4a",
+      "headers": {},
+      "repositoryPath": "data/sources/geography/municipality-history-2021-20220925.json.gz",
+      "representation": "reviewed-istat-crosswalk-v1",
+      "originalResponseSha256": "beb8b05847031ec07a9819b914f2d21386028ee0faa36412f0206d6ccb475c08",
+      "canonicalJsonSha256": "f2d0a2aa018103520baf513afef093487043465b7891934c3ea14a3a87534012"
+    },
+    {
+      "id": "municipality-history-2021-20240609",
+      "url": "https://situas-servizi.istat.it/publish/reportspooljson?pfun=304&pdatada=01/01/2021&pdataa=09/06/2024",
+      "path": "geography/municipality-history-2021-20240609.json.gz",
+      "bytes": 134249,
+      "sha256": "efa97249e501fbf66299892f5dd176df18a5e85f1bdcd5442e950e93674c563b",
+      "headers": {},
+      "repositoryPath": "data/sources/geography/municipality-history-2021-20240609.json.gz",
+      "representation": "reviewed-istat-crosswalk-v1",
+      "originalResponseSha256": "0f66b79c90afaf2e1cd78d948122abb350dcf85b36e78133efc8c6c8642cfac5",
+      "canonicalJsonSha256": "e34ed34cce4137a77b3ad1d73f08c43f050281d134f47088d4f9295a74aa7fd0"
+    },
+    {
+      "id": "municipality-history-2021-20241117",
+      "url": "https://situas-servizi.istat.it/publish/reportspooljson?pfun=304&pdatada=01/01/2021&pdataa=17/11/2024",
+      "path": "geography/municipality-history-2021-20241117.json.gz",
+      "bytes": 134249,
+      "sha256": "efa97249e501fbf66299892f5dd176df18a5e85f1bdcd5442e950e93674c563b",
+      "headers": {},
+      "repositoryPath": "data/sources/geography/municipality-history-2021-20241117.json.gz",
+      "representation": "reviewed-istat-crosswalk-v1",
+      "originalResponseSha256": "0f66b79c90afaf2e1cd78d948122abb350dcf85b36e78133efc8c6c8642cfac5",
+      "canonicalJsonSha256": "e34ed34cce4137a77b3ad1d73f08c43f050281d134f47088d4f9295a74aa7fd0"
+    }
+  ]
+}

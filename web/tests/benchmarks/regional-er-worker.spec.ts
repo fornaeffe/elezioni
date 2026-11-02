@@ -17,7 +17,7 @@ const hasRegionalErStaticSnapshot = existsSync(resolve(process.cwd(), 'static/da
 
 test.skip(
   !hasRegionalErStaticSnapshot,
-  'Generated regional Emilia-Romagna static snapshot is missing. Run scripts/export_regional_er_static_snapshot.R first.'
+  'Generated regional Emilia-Romagna static snapshot is missing. Run npm run data:prepare -- --download first.'
 );
 
 async function runSimulation(page: import('@playwright/test').Page, simulations: number): Promise<BenchmarkRun> {

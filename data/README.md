@@ -2,6 +2,7 @@
 
 | Task | Guide |
 | --- | --- |
+| Complete production preparation, clean clones and required checks | [Production pipeline](../docs/data-preparation.md) |
 | Geography, census and seat tables | Workflow below |
 | Cross-election runtime descriptors and shared politics defaults | [Workspace guide](../docs/web-workspaces.md#regeneration-and-checks) |
 | Historical votes/preferences and reform generation models | [Generation guide](../docs/politics-reform-2026-generation.md#clean-clone-preparation) |
@@ -12,8 +13,9 @@
 | Fast model scenario/state/browser integration | [Data/scenario contract](../docs/vote-generation-fast-contracts.md), [production plan](../docs/vote-generation-production-plan.md) |
 | Historical vote-generation research retention and cleanup | [Archive plan](../docs/vote-generation-research-archive-plan.md) |
 
-Reviewed poll JSON under `sources/polls/` and promoted correspondence/restoration
-JSON under `sources/fast-share/` are small Git-tracked source exceptions; fresh
+Reviewed poll JSON under `sources/polls/`, promoted correspondence/restoration
+JSON under `sources/fast-share/`, and pinned compressed crosswalks under
+`sources/geography/` are Git-tracked source exceptions; fresh
 clones prepare them offline from these authoritative files.
 Survey references in each poll manifest support optional manual audits on the
 government website. Poll PDFs are ignored and have no checksum requirement.
@@ -34,14 +36,15 @@ data-preparation migration is complete and its consumers have migrated.
 ## GitHub Actions delivery contract
 
 The whole migration targets Node/TypeScript preparation in GitHub Actions and
-static hosting on GitHub Pages. The commands below currently cover only
+static hosting on GitHub Pages. The geography commands below cover only
 geography/census and seat tables. The R26-19 commands extend the same acquisition
 and immutable-artifact foundation to historical/model inputs. They do not
-regenerate every legacy politics/regional snapshot.
+regenerate every politics/regional snapshot. Use the [complete Node pipeline](../docs/data-preparation.md)
+for all production workspaces.
 
-As remaining importers and calibration migrate, expose non-interactive commands
-reusable locally and on a standard Linux runner. A clean clone must acquire
-pinned sources (or consume the reviewed poll JSON), verify applicable checksums
+The complete preparation commands are non-interactive and reusable locally and
+on a standard Linux runner. A clean clone must acquire
+pinned sources (or consume reviewed repository snapshots), verify applicable checksums
 and reproduce all required versioned bundles,
 fitted profiles, defaults and catalogs without legacy R caches, manual exports
 or local-only files. Preserve source/method provenance and deterministic seeds.

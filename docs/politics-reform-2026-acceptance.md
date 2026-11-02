@@ -3,43 +3,25 @@
 Use this procedure for local application acceptance. The [application guide](politics-reform-2026-application.md)
 defines worker/storage contracts; the [generation guide](politics-reform-2026-generation.md)
 defines model evidence and inputs. Measured outcomes belong in [history](migration-history.md).
-This does not enable deployment or complete the municipal/data-preparation migration.
+This does not enable deployment or retire the retained R workflows and caches.
 
 ## Prepare required inputs
 
-From the repository root, regenerate the existing legacy bridge artifacts and
-their defaults/catalogs. These exporters still require R and `dati/dati.RData`;
-replacing those dependencies belongs to the remaining preparation migration.
-Use an installed `Rscript` (its absolute path is also valid):
+From `web/`, use the [complete Node production pipeline](data-preparation.md),
+including previous-law politics, Emilia-Romagna and all reform assets/defaults:
 
 ```powershell
-Rscript scripts/export_politics_static_snapshot.R
-node scripts/export_politics_scenario_defaults.mjs
-node scripts/export_politics_municipality_catalog.mjs
-node scripts/export_politics_candidate_slots.mjs
-Rscript scripts/export_regional_er_static_snapshot.R
-node scripts/export_regional_er_scenario_defaults.mjs
-```
-
-On Windows use a valid UTF-8 R locale. If the environment supplies an unsupported
-`LC_ALL=C.UTF-8`, set `$env:LC_ALL='English_United States.utf8'` before exporting;
-otherwise accented geography labels can be corrupted during RDS conversion.
-
-Then from `web/`, acquire pinned sources and regenerate reform production inputs:
-
-```powershell
-npm run data:download
-npm run data:generate
-npm run data:reform:download
-npm run data:reform:generate -- --publish
+npm ci
+npm run data:prepare -- --download
 npm run data:reform:validate -- --output ../data/derived/r26-21-acceptance
 npm run acceptance:reform
 ```
 
-`--publish` writes local runtime bundles/defaults/catalogs. Validation's optional
+Preparation writes local runtime bundles/defaults/catalogs without R or legacy
+caches. Validation's optional
 `--output` directory preserves older immutable evidence instead of overwriting it.
 The acceptance command requires all three production bundles before running
-the checksum/vertical-slice check, `check:data`, `check`, full unit suite, root
+the complete `data:check` gate, checksum/vertical-slice check, `check:data`, `check`, full unit suite, root
 build/e2e suite, and `/elezioni` build/e2e suite, sequentially. It restores a root
 build after success. Unit/browser skips, TODOs, expected failures and retries
 cannot pass this gate. Ordinary development tests retain explicit artifact skips.

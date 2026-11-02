@@ -43,6 +43,9 @@ vignettes/*.pdf
 # Downloaded data
 /dati/
 /data/sources/*
+!/data/sources/geography/
+/data/sources/geography/*
+!/data/sources/geography/*.json.gz
 !/data/sources/fast-share/
 /data/sources/fast-share/*
 !/data/sources/fast-share/*.json

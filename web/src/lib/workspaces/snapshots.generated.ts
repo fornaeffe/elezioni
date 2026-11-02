@@ -3,16 +3,16 @@ import type { SnapshotDescriptor } from './data';
 export const snapshotDescriptors: Partial<Record<'politics' | 'regional-er', SnapshotDescriptor>> = {
   "politics": {
     "path": "data/v1/politics-static.json",
-    "bytes": 75921415,
-    "sha256": "0792986f4bb1b09d9ad31982bf2492828bb8dab8a6d270a142bcfa64398f931a",
+    "bytes": 78780421,
+    "sha256": "d758a3ffe9a248abe72f56ed69a28da3f873d47d8cf1cb1c6f1d566824b77394",
     "schemaVersion": 4,
-    "version": "politics:0792986f4bb1b09d9ad31982bf2492828bb8dab8a6d270a142bcfa64398f931a"
+    "version": "politics:d758a3ffe9a248abe72f56ed69a28da3f873d47d8cf1cb1c6f1d566824b77394"
   },
   "regional-er": {
     "path": "data/v1/regional-er-static.json",
-    "bytes": 5102281,
-    "sha256": "af83d65ba396f61cb40da7945f719ae35dbdfaf612e44f1a68b398f46c452ebd",
+    "bytes": 5254154,
+    "sha256": "76c5d453b14eb097e49aabbbb9298f3f90e0e8581979e04de494cc67945af7bb",
     "schemaVersion": 1,
-    "version": "regional-er:af83d65ba396f61cb40da7945f719ae35dbdfaf612e44f1a68b398f46c452ebd"
+    "version": "regional-er:76c5d453b14eb097e49aabbbb9298f3f90e0e8581979e04de494cc67945af7bb"
   }
 };

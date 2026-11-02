@@ -38,7 +38,7 @@ export async function shareSourceManifests(root: string) {
   if (paths.join('|') !== 'data/source-manifest.json|data/sources/polls/history/elections-manifest.json|data/reform-model-source-manifest.json') throw new Error('Unsupported source manifest composition');
   const bodies = await Promise.all(paths.map(p => readFile(resolve(root, p), 'utf8')));
   const [geo, history, reform] = bodies.map(b => JSON.parse(b)) as { sources: Source[] }[];
-  const sources = [...geo.sources, ...history.sources, ...reform.sources.filter(s => ['senato-2018', 'senato-2022', 'camera-2022'].includes(s.id))];
+  const sources = [...geo.sources.filter(s => !['municipality-changes-2020-2021', 'submunicipal-population-2021'].includes(s.id)), ...history.sources, ...reform.sources.filter(s => ['senato-2018', 'senato-2022', 'camera-2022'].includes(s.id))];
   const eventIds = new Set([...history.sources, ...reform.sources.filter(s => s.id.startsWith('senato'))].map(s =>
     (s.id.startsWith('camera') ? 'camera' : s.id.startsWith('senato') ? 'senato' : 'european') + '-' + s.id.match(/20\d\d/)![0]));
   if ([...Object.keys(policy.resultAvailability.finalPollingDays), ...Object.keys(policy.resultAvailability.knownDates)].some(id => !eventIds.has(id))) throw new Error('Unknown result-availability event override');

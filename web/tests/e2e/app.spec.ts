@@ -6,7 +6,7 @@ import { resolve } from 'node:path';
 const hasPoliticsStaticSnapshot =
   existsSync(resolve(process.cwd(), 'static/data/v1/politics-static.json'));
 
-test.skip(!hasPoliticsStaticSnapshot, 'Generated politics static snapshot is missing. Run scripts/export_politics_static_snapshot.R first.');
+test.skip(!hasPoliticsStaticSnapshot, 'Generated politics static snapshot is missing. Run npm run data:prepare -- --download first.');
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(scenario => localStorage.setItem('elezioni:web:politics-scenario:v1', JSON.stringify({ schema_version: 7, scenario })), generatedSnapshotPoliticsScenario);
@@ -97,7 +97,7 @@ test('runs the worker smoke path from the scenario editor', async ({ page }) => 
   await page.getByRole('button', { name: 'Esegui' }).click();
 
   await expect(page.getByLabel('Note simulazione')).toContainText('POLITICS_STATIC_SNAPSHOT', { timeout: 30_000 });
-  await expect(page.getByLabel('Avvisi simulazione')).toHaveCount(0);
+  await expect(page.getByLabel('Avvisi simulazione')).toContainText('WORKSPACE_DATA_ASSUMPTION');
   const projectionRow = page.getByRole('table', { name: 'Scenario projection' }).locator('tbody tr', {
     hasText: 'Partito Democratico'
   });

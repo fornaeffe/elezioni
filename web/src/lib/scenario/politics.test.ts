@@ -39,7 +39,8 @@ describe('politics web-native scenario model', () => {
       kind: 'bundled',
       electionKind: 'politiche',
       territory: 'Italia',
-      dataVersion: 'v1',
+      dataVersion: expect.stringMatching(/^politics:[a-f0-9]{64}$/),
+      notes: expect.arrayContaining([expect.stringContaining('Popolazione legale 2021')]),
       snapshotId: 'politics-static.json'
     });
     expect(scenario.globalShareMode).toBe('mean');

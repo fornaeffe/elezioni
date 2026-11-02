@@ -91,6 +91,7 @@ export interface RegionalErScenarioSnapshot {
 
 export interface RegionalErStaticSnapshot {
   metadata: {
+    preparation?: import('../core/types').PreparationProvenance;
     schema_version: number;
     source: string;
     purpose: string;

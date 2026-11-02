@@ -1,5 +1,13 @@
 export type ElectionKind = 'politiche' | 'regionali-er' | 'comunali';
 
+export interface PreparationProvenance {
+  method: string;
+  geographyVersion: string;
+  authoredDefaultsSha256: string;
+  sourceHashes: { id: string; sha256: string }[];
+  notes: string[];
+}
+
 export interface ScenarioList {
   /** Absent in older scenarios: retain their unrestricted historical behavior. */
   filing?: { camera: string[]; senato: string[] };

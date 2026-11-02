@@ -13,6 +13,11 @@ import type { SimulationResult } from '../core/types';
 import future from '../../../../data/fast-share-future-scenario.json';
 
 describe('supported workspace contracts', () => {
+  it('binds both default scenarios and the reference scenario to exact snapshot descriptors', () => {
+    expect(createDefaultPoliticsScenario().defaultSource.dataVersion).toBe(snapshotDescriptors.politics!.version);
+    expect(generatedSnapshotPoliticsScenario.defaultSource.dataVersion).toBe(snapshotDescriptors.politics!.version);
+    expect(createDefaultRegionalErScenario().defaultSource.dataVersion).toBe(snapshotDescriptors['regional-er']!.version);
+  });
   it('registers only supported combinations and preserves the default law', () => {
     expect(workspaces).toHaveLength(3);
     expect(workspaceFor('politiche').id).toBe('politics-legacy');

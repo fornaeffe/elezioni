@@ -14,10 +14,10 @@ interface PipelineSourceFixture {
 }
 
 const pipelineSourcePath = fileURLToPath(
-  new URL('../../../../web/static/data/v1/politics-pipeline-source-debug.json', import.meta.url)
+  new URL('../../../../test/fixtures/politiche/pipeline_source_debug.json', import.meta.url)
 );
 const staticSnapshotPath = fileURLToPath(
-  new URL('../../../../web/static/data/v1/politics-static-debug.json', import.meta.url)
+  new URL('../../../../test/fixtures/politiche/static-debug.json', import.meta.url)
 );
 const productionStaticSnapshotPath = fileURLToPath(
   new URL('../../../../web/static/data/v1/politics-static.json', import.meta.url)
@@ -51,8 +51,10 @@ describe('politics static snapshot bridge', () => {
   describeWithGeneratedFixtures('production static snapshot bridge', [productionStaticSnapshotPath], () => {
     const productionStaticSnapshot = loadJson<PoliticsStaticSnapshot>(productionStaticSnapshotPath);
 
-    test('loads the production static snapshot exported by the R bridge', () => {
-      expect(productionStaticSnapshot.metadata.source).toBe('current R politics preparation pipeline');
+    test('loads the production snapshot prepared directly from pinned originals by Node', () => {
+      expect(productionStaticSnapshot.metadata.source).toBe('Pinned Node/TypeScript workspace preparation');
+      expect(productionStaticSnapshot.metadata.cache_path).toBeUndefined();
+      expect(productionStaticSnapshot.metadata.preparation?.geographyVersion).toMatch(/^workspace-geography-v1-/);
       expect(productionStaticSnapshot.metadata.schema_version).toBe(4);
       expect(productionStaticSnapshot.data.base_dati.length).toBeGreaterThan(8000);
       expect(productionStaticSnapshot.data.municipalities?.length).toBeGreaterThan(7800);

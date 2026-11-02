@@ -772,7 +772,7 @@ export interface PoliticsPipelineListRow extends PoliticsCandidateGenerationList
 }
 
 export interface PoliticsPipelinePluriRow extends PoliticsCollegePluriRow {
-  PLURI_COD: AdministrativeCode;
+  PLURI_COD: AdministrativeCode | null;
 }
 
 export interface PoliticsPipelineCandidatePluriRow extends PoliticsCandidatePluriGenerationTemplateRow {
@@ -857,6 +857,7 @@ export interface PoliticsScenarioSnapshot {
 
 export interface PoliticsStaticSnapshot {
   metadata: {
+    preparation?: import('../core/types').PreparationProvenance;
     schema_version: number;
     source: string;
     purpose: string;

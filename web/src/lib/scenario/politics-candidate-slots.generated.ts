@@ -2248,7 +2248,7 @@ const plurinominalRows: PlurinominalSlotTuple[] = [
     "Lazio 1",
     "120102",
     "Lazio 1 - P02",
-    6,
+    5,
     4
   ],
   [
@@ -2257,7 +2257,7 @@ const plurinominalRows: PlurinominalSlotTuple[] = [
     "Lazio 1",
     "120103",
     "Lazio 1 - P03",
-    5,
+    6,
     4
   ],
   [

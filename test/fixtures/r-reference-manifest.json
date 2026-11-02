@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Frozen R-exported golden outputs and the earlier TypeScript Camera failure input, for TypeScript regression tests only. Never production preparation inputs or browser runtime data.",
+  "fixtures": [
+    {
+      "path": "politiche/debug_scrutinio.json.gz",
+      "bytes": 2617948,
+      "sha256": "03fc721bcce9321d8d6f7e8f88cee7bc9ad9fb6f262942f89518f30d68d2e12f",
+      "uncompressedSha256": "7a6abecffd9e12afa50dcc9216c2f7af9b270261d573e1ed65b0b3af39316798"
+    },
+    {
+      "path": "politiche/generated_adapter.json.gz",
+      "bytes": 535036,
+      "sha256": "a248510d08d71a209f4fe346f93d2a854844810a5920f1def0904edc82d7f75f",
+      "uncompressedSha256": "9a1365dcd2c6d5cb347bf28756b03ca2ea1bedbc84fc26eba32636e954ef52e5"
+    },
+    {
+      "path": "politiche/pipeline_source_debug.json.gz",
+      "bytes": 1081928,
+      "sha256": "a02cccc8329abce7323fe6e98cc23b87de26261bd5e0df67556ff97c50651495",
+      "uncompressedSha256": "57daa970d27c89a753f66bac0f9e71e4e5ccb86401ac7a7d08f84ee9cc5d643b"
+    },
+    {
+      "path": "politiche/vote_preparation.json.gz",
+      "bytes": 643628,
+      "sha256": "6a5c20e4a882964900b8a9eb9c530fa9b95c19397f565e9c151189b95b389640",
+      "uncompressedSha256": "5559122b88ffdae4ac201a9bca8b0e48d138872914486bab621111669576374c"
+    },
+    {
+      "path": "regionali-er/debug_scrutiny.json.gz",
+      "bytes": 483482,
+      "sha256": "2870f30aa0cc3c7032f04534deb0baa14abec8c554e89354b9e8c52fa9622ff0",
+      "uncompressedSha256": "50c63e99d0de5a2ff5b26ca142c02933491c258a7d75ed4f3a04baf428ff4f93"
+    },
+    {
+      "path": "politiche/static-debug.json.gz",
+      "bytes": 1082315,
+      "sha256": "797f03362dc504b51b9ad3b60e4e0aeb6c99fc6dbcda72232b287b8e9f60bd7f",
+      "uncompressedSha256": "e461ba41453ee1f3d4c7d1dc8c76d1e2b97cb642c4ba76c5ca51af433f5412e8"
+    },
+    {
+      "path": "politiche/legacy-camera-flipper-584.json.gz",
+      "bytes": 49556,
+      "sha256": "4df48a1a8b805e9017a734776c1fb01e34c06c54dec82d3465d74e0cd579fc5a",
+      "uncompressedSha256": "bae3d799b98bb00c5198d5769f9f884254b6884337f2796b558c24b64f1d699e"
+    }
+  ]
+}
