@@ -1,11 +1,11 @@
-/** Current production check; never rewrites the frozen pre-correction audit. */
+/** Current model smoke check; restored laws never overwrite correction acceptance. */
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { resolve } from "node:path";
 import {
   loadCandidate,
   loadCandidateSource,
 } from "../../src/lib/politics/reform-2026/vote-share/release";
-import { requireReferenceCoverage } from "../../src/lib/politics/reform-2026/vote-share/component-policy";
+
 import { physicalCells } from "../../src/lib/politics/reform-2026/vote-share/physical-cells";
 import { compileLegacy } from "../../src/lib/politics/reform-2026/vote-share/legacy-adapter";
 import { prepareScenarioGeneration } from "../../src/lib/politics/reform-2026/vote-share/unified-generation";
@@ -29,7 +29,7 @@ const directory = resolve(
     ),
   }),
   source = await loadCandidateSource(loaded.catalog, read),
-  output = resolve("../data/derived/correspondence-corrections");
+  output = resolve("../data/derived/model-rollback");
 await mkdir(output, { recursive: true });
 const receipt = {
   catalog: pointer.catalogId,
@@ -46,33 +46,6 @@ for (const model of ["M02", "M01"] as const) {
         ? undefined
         : await compileLegacy(s, source, read, loaded.assets, loaded.context),
     runs = [] as object[];
-  if (legacy) {
-    const cells = {
-      camera: physicalCells(
-        loaded.assets.geography,
-        loaded.assets.electorates,
-        ["camera"],
-        s.seed,
-      ),
-      senato: physicalCells(
-        loaded.assets.geography,
-        loaded.assets.electorates,
-        ["senato"],
-        s.seed,
-      ),
-    };
-    const missing = [] as string[];
-    for (const id of legacy.requiredReferences)
-      try {
-        requireReferenceCoverage(s, cells, [id]);
-      } catch {
-        missing.push(id);
-      }
-    if (missing.length) {
-      console.log(JSON.stringify({ missingReferences: missing }));
-      throw new Error("DEFAULT_REFERENCE_INPUTS_REQUIRED");
-    }
-  }
   const prepared = prepareScenarioGeneration(
     s,
     loaded.assets,

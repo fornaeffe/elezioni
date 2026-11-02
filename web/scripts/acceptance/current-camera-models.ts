@@ -3,21 +3,21 @@ import type { ReplaySource } from './fast-share-replay';
 import type { loadPartyResearchData } from '../data-preparation/party-drift-panel-data';
 import { membershipFor } from '../data-preparation/party-drift-memberships';
 import { observableGroups } from '../../src/lib/politics/reform-2026/vote-share/source-compiler';
-import { fitReference } from '../../src/lib/politics/reform-2026/vote-share/information';
-import { fitProfiles } from '../../src/lib/politics/reform-2026/vote-share/profiles';
-import { identificationGroups, originalPartitions, unidentifiedDirections } from '../../src/lib/politics/reform-2026/vote-share/identification';
-import { poolConditional, completeLocal, COMPONENT_POLICY, type ComponentObservation } from '../../src/lib/politics/reform-2026/vote-share/component-policy';
-import { legacySurfaces, legacyMovement } from '../../src/lib/politics/reform-2026/vote-share/legacy-components';
-import type { CompiledLegacy } from '../../src/lib/politics/reform-2026/vote-share/legacy-adapter';
-import { pollChoiceId, type SourceComposition } from '../../src/lib/politics/reform-2026/vote-share/correspondences';
-import { feasibleField } from '../../src/lib/politics/reform-2026/vote-share/feasible-field';
+import { fitReference } from './archive/models-v1/information';
+import { fitProfiles } from './archive/models-v1/profiles';
+import { identificationGroups, originalPartitions, unidentifiedDirections } from './archive/models-v1/identification';
+import { poolConditional, completeLocal, COMPONENT_POLICY, type ComponentObservation } from './archive/models-v1/component-policy';
+import { legacySurfaces, legacyMovement } from './archive/models-v1/legacy-components';
+import type { CompiledLegacy } from './archive/models-v1/legacy-types';
+import { pollChoiceId, type SourceComposition } from './archive/models-v1/correspondences';
+import { feasibleField } from './archive/models-v1/feasible-field';
 import { forecastRandom } from '../../src/lib/politics/reform-2026/vote-share/forecast-random';
 import { referenceNoise } from '../../src/lib/politics/reform-2026/vote-share/reference-noise';
-import { projectMargins } from '../../src/lib/politics/reform-2026/vote-share/projection';
-import { politicalIntervention, removeAbsent } from '../../src/lib/politics/reform-2026/vote-share/interventions';
+import { projectMargins } from './archive/models-v1/projection';
+import { politicalIntervention, removeAbsent } from './archive/models-v1/interventions';
 import { movementScales } from '../../src/lib/politics/reform-2026/vote-share/transition';
 import { multinomial } from '../../src/lib/politics/reform-2026/generation-math';
-import { sum, years } from '../../src/lib/politics/reform-2026/vote-share/types';
+import { sum, years } from './archive/models-v1/types';
 import type { PhysicalCell } from '../../src/lib/politics/reform-2026/vote-share/forecast-types';
 import type { ReleasedScenario } from '../../src/lib/politics/reform-2026/vote-share/release';
 import type { ReformAssemblyContext } from '../../src/lib/politics/reform-2026/generation-types';
@@ -36,7 +36,8 @@ export function design(source: ReplaySource): CameraDesign {
  * Retain its population/domain and aggregate scale-estimation view exactly. */
 export function restoreOriginalStrata<T extends Pick<ReplaySource, 'components' | 'nationalHistory' | 'cutoff'>>(source: T, input: ResearchInput) {
   const known = new Set(source.components), canonical = (id: string) => known.has(id) ? id : 'research-other';
-  return { ...source, nationalHistory: source.nationalHistory.map(n => {
+  const { nationalHistory, ...rest } = source;
+  return { ...rest, nationalHistory: nationalHistory.map(n => {
     const event = input.history.events.find(e => e.id === n.id);
     if (!event || event.date >= source.cutoff) throw new Error('INELIGIBLE_STRATA_SOURCE:' + n.id);
     const strata = new Map<string, { groups: string[][]; counts: number[]; electors: number }>();

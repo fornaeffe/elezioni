@@ -17,7 +17,6 @@ export interface LegacyPollObservation {
   sample: number;
   source: string;
   enabled: boolean;
-  complete?: boolean;
 }
 export function latestLegacyPoints(
   polls: LegacyPollObservation[],

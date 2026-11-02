@@ -1,17 +1,17 @@
 # Fast generation and paired reform integration (FV-04)
 
 Current model names and authoritative probability-law specifications are
-[M01 1.0.0](models/M01.md) and [M02 1.0.0](models/M02.md). Older candidate names
+[M01 2.0.0](models/M01.md) and [M02 2.0.0](models/M02.md). Older candidate names
 and equations below retain their historical/implementation context; use those
 specifications for the current complete laws.
 
 The current generator is implemented for the **2026 reform only**, through the
 latest schema-5 [unified workflow](vote-generation-unified-workflow.md).
-The adopted [correspondence corrections](correspondence-policy-audit.md#adopted-corrections)
-supersede the original FV-04 global-Beta/filing-constrained reference pipeline.
-The details below retain that earlier comparator's derivation and evidence;
-use the unified guide for current execution order, component references, legacy
-preparation, latest-only browser boundaries and versioned provenance.
+M01/M02 2.0.0 restore the pre-`4ee5a91` laws. M02 uses filing-conditioned
+references before movement; M01 uses list-level legacy generation. The details
+below retain the original global-Beta derivation and optional submethods. Use
+the model definitions for the selected/default law and the unified guide for
+current worker/session integration.
 
 ## Task map
 

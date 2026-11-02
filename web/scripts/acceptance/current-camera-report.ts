@@ -1,3 +1,4 @@
+import { requireGenerationModel } from '../../src/lib/politics/reform-2026/vote-share/model-registry';
 /** Curate only complete current-model runs; older model receipts stay immutable. */
 import { readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
@@ -5,6 +6,7 @@ import { createHash } from 'node:crypto';
 import { gunzipSync, gzipSync } from 'node:zlib';
 import { loadPartyResearchData } from '../data-preparation/party-drift-panel-data';
 import { membershipFor } from '../data-preparation/party-drift-memberships';
+requireGenerationModel({ model: 'M02', modelVersion: '1.0.0' }); // Historical: checkout 8dcb830/965f7ba.
 const root = resolve('..'), directory = resolve(root, 'data/derived/current-camera-comparison'),
   json = async (path: string) => JSON.parse(await readFile(path, 'utf8')),
   sha = (bytes: Uint8Array | string) => createHash('sha256').update(bytes).digest('hex');

@@ -141,7 +141,7 @@ describe('unified generation contract', () => {
       s = structuredClone(fitted.accepted!.scenario);
     s.schemaVersion = 5;
     s.generation = {
-      model: 'M01', modelVersion: "1.0.0",
+      model: 'M01', modelVersion: "2.0.0",
       compositions: {},
       supplementalPolls: [],
     };

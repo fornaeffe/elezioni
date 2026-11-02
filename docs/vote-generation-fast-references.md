@@ -1,17 +1,15 @@
 # Fast vote generation: reference and chamber contract
 
 Current model names and authoritative probability-law specifications are
-[M01 1.0.0](models/M01.md) and [M02 1.0.0](models/M02.md). Older candidate names
+[M01 2.0.0](models/M01.md) and [M02 2.0.0](models/M02.md). Older candidate names
 and equations below retain their historical/implementation context; use those
 specifications for the current complete laws.
 
 Current execution follows the [unified workflow](vote-generation-unified-workflow.md)
-and the [adopted correspondence policy](correspondence-policy-audit.md#adopted-corrections).
-Political scenario references target components in both models, before future
-filing; selected uncertainty uses the joint family below, while legacy treats
-scenario-reference means as fixed. Grouped poll observations remain grouped
-measurements. The reference simplex and scope/chamber rules below remain useful,
-with the amended ordering and removal of reference filing-capacity constraints.
+and the current model definitions. M01 references target future lists (or
+singleton components), with fixed scenario means. M02 list/component references
+use the joint uncertainty family below, applied to filing-conditioned support.
+The 1.0.0 unrestricted-reference ordering and unidentified contrasts are historical.
 
 ## Approved turnout clarification
 

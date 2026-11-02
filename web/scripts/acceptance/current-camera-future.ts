@@ -1,3 +1,4 @@
+import { requireGenerationModel } from '../../src/lib/politics/reform-2026/vote-share/model-registry';
 /** Browser-worker timing only; no app activation, exports or old-model reruns. */
 import { createServer } from 'node:http';
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
@@ -5,6 +6,7 @@ import { resolve, relative, isAbsolute } from 'node:path';
 import { createHash } from 'node:crypto';
 import { build } from 'vite';
 import { chromium } from '@playwright/test';
+requireGenerationModel({ model: 'M02', modelVersion: '1.0.0' }); // Reproduce with commit 8dcb830.
 const draws = Number(process.env.CAMERA_BROWSER_DRAWS ?? 1000), workerCount = Number(process.env.CAMERA_BROWSER_WORKERS ?? 4);
 if (!Number.isSafeInteger(draws) || draws < 1 || !Number.isSafeInteger(workerCount) || workerCount < 1 || workerCount > draws) throw new Error('Invalid workload');
 const output = resolve('../data/derived/current-camera-comparison'), staticRoot = resolve('static');

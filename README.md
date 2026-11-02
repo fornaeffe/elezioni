@@ -27,8 +27,8 @@ ottenuto esportando l'omonima tabella dal file http://www.riformeistituzionali.g
 
 ## Modelli di generazione della riforma web
 
-- [M01 1.0.0 — composizioni fisse e shock per componente](docs/models/M01.md): modello derivato dal precedente generatore, con le correzioni adottate.
-- [M02 1.0.0 — stima congiunta e trasferimenti limitati](docs/models/M02.md): modello predefinito.
+- [M01 2.0.0 — corrispondenze e shock per lista](docs/models/M01.md): modello per lista ripristinato allo stato precedente a `4ee5a91`.
+- [M02 2.0.0 — stima congiunta e trasferimenti limitati](docs/models/M02.md): modello predefinito.
 
 Le specifiche includono equazioni, assunzioni e regole di versionamento. I vecchi
 identificatori rimangono nei risultati storici; dati, numerica e scrutinio legale

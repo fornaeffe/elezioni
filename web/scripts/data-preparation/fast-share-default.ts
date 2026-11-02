@@ -14,7 +14,6 @@ import { normalizeName } from "./formats";
 import { sum } from "../../src/lib/politics/reform-2026/vote-share/types";
 import { futureSharePlan } from "./fast-share-future-default";
 export interface DefaultSharePolicy {
-  unsupportedComponentReferences?: import('./unsupported-component-references').UnsupportedReferencePolicy;
   schemaVersion: 1;
   id: string;
   referenceDate: string;

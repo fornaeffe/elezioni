@@ -1,7 +1,7 @@
 # Browser fitting infrastructure (FV-06)
 
 Current model names and authoritative probability-law specifications are
-[M01 1.0.0](models/M01.md) and [M02 1.0.0](models/M02.md). Older candidate names
+[M01 2.0.0](models/M01.md) and [M02 2.0.0](models/M02.md). Older candidate names
 and equations below retain their historical/implementation context; use those
 specifications for the current complete laws.
 

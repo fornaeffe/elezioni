@@ -1,5 +1,10 @@
+import { requireGenerationModel } from './model-registry';
 /** Registry boundary: the same scenario and legal assembly, distinct vote laws. */
 import { prepareFastGeneration } from './generation';
+import {
+  prepareReformGeneration,
+  generateReformSimulation,
+} from '../generation';
 import type { FastVoteAssets } from './forecast-types';
 import type { ReformAssemblyContext } from '../generation-types';
 import type { ReleasedScenario } from './release';
@@ -11,6 +16,7 @@ export function prepareScenarioGeneration(
   context: ReformAssemblyContext,
   legacy?: CompiledLegacy,
 ) {
+  const definition = requireGenerationModel(s.generation);
   // Enforce the shared ballot contract before choosing either statistical law.
   // The derived Camera TAA proportional view is deliberately not a new ballot.
   for (const ch of s.renewal === 'joint'
@@ -44,5 +50,11 @@ export function prepareScenarioGeneration(
   }
   if (!isM01Generation(s)) return prepareFastGeneration(s, assets, context);
   if (!legacy) throw new Error('Prepare legacy references before simulation');
-  return prepareFastGeneration(s, assets, context, { legacy });
+  const prepared = prepareReformGeneration(legacy.scenario, legacy.snapshot);
+  prepared.snapshot.models.chambers.parameterVersion = definition.id + '@' + definition.version + '/' + prepared.snapshot.models.chambers.parameterVersion;
+  return { run: (id: number) => {
+    const result = generateReformSimulation(prepared, id);
+    result.trace.modelVersion = definition.id + '@' + definition.version;
+    return result;
+  } };
 }

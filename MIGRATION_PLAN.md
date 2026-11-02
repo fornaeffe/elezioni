@@ -17,8 +17,8 @@ simulation and scrutiny remain in the browser. Reassess the completed workload
 at the final publication gate below. Luca merges the completed migration branch
 into `main`; public deployment follows that merge and a successful hosting gate.
 
-Current reform vote-generation contracts are [M01 1.0.0](docs/models/M01.md)
-and [M02 1.0.0](docs/models/M02.md), with M02 as default. Model-law versions,
+Current reform vote-generation contracts are [M01 2.0.0](docs/models/M01.md)
+and [M02 2.0.0](docs/models/M02.md), with M02 as default. Model-law versions,
 numerical policies, source/scenario identities and implementation hashes remain
 separate. Historical task descriptions retain their original candidate names.
 
@@ -379,6 +379,9 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
     Camera browser attempts per model. Old receipts and production contracts
     are unchanged; predictive calibration is not accepted by these results. See the
     [comparison scope and results](docs/current-camera-comparison-results.md).
+  - [x] **Restore pre-correction model laws:** restore M01/M02 to the parent of
+    `4ee5a91`, publish their definitions as 2.0.0, regenerate matching defaults,
+    preserve 1.0.0 evidence and verify runtime/release/browser integration.
   - [ ] **FV-09:** Execute the [research archive/cleanup plan](docs/vote-generation-research-archive-plan.md)
     after dependency separation and acceptance; retain curated evidence and remove
     only audited, regenerable outputs no longer consumed.

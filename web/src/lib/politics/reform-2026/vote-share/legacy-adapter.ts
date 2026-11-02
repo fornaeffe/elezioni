@@ -1,55 +1,57 @@
-/** Component-based legacy preparation. No future ticket projection or vote relocation. */
-import type { ReleasedScenario } from "./release";
-import type { CompactSource } from "./source-types";
-import type { FastVoteAssets } from "./forecast-types";
-import type { ReformAssemblyContext } from "../generation-types";
-import { decodeSourceRows, sourceKey, type AssetBytes } from "./source-codec";
-import { legacyPollGroups } from "./legacy-observations";
-import {
-  normalizedComposition,
-  type SourceComposition,
-} from "./correspondences";
-import type { LegacyPollObservation } from "./legacy-polls";
-import {
-  COMPONENT_POLICY,
-  poolConditional,
-  completeLocal,
-  type ComponentObservation,
-} from "./component-policy";
+import { requireGenerationModel } from './model-registry';
+/** Unified scenario -> compared legacy generator, from the same original source. */
+import type { ReleasedScenario } from './release';
+import type { CompactSource, OriginalRow } from './source-types';
+import type { FastVoteAssets } from './forecast-types';
+import type {
+  ReformAssemblyContext,
+  ReformGenerationScenario,
+  ReformGenerationSnapshot,
+  HistoricalMunicipality,
+} from '../generation-types';
+import { REFORM_MODEL_IDS } from '../generation-types';
+import { decodeSourceRows, sourceKey, type AssetBytes } from './source-codec';
+import { correspondenceRow } from './correspondences';
+import { refreshLegacyPolls, type LegacyPollObservation } from './legacy-polls';
+import { apportion, generationRng } from '../generation-math';
+import { reformPresentation } from '../presentation-metadata';
 export interface CompiledLegacy {
   inputKey: string;
-  policy: typeof COMPONENT_POLICY;
-  componentIds: string[];
-  componentMap: Record<string, string>;
-  pollCollegeIds: Record<"camera" | "senato", string[]>;
-  historicalDate: string;
-  rows: Record<
-    "camera" | "senato",
-    { code: string; probabilities: number[]; original?: ComponentObservation }[]
-  >;
-  polls: LegacyPollObservation[];
-  compositions: Record<string, SourceComposition>;
-  requiredReferences: string[];
+  scenario: ReformGenerationScenario;
+  snapshot: ReformGenerationSnapshot;
   audit: {
     baseline: { camera: string; senato: string };
     missingHistory: string[];
     policy: string;
-    fallbackCounts: Record<string, number>;
+    polls: ReturnType<typeof refreshLegacyPolls>;
   };
 }
-export const isM01Generation = (s: Pick<ReleasedScenario, "generation">) =>
-  s.generation?.model === "M01";
+export const isM01Generation = (s: Pick<ReleasedScenario, 'generation'>) =>
+  s.generation?.model === 'M01';
 export function legacyInputKey(s: ReleasedScenario) {
-  return sourceKey("unified-legacy-input-v2", {
-    policy: COMPONENT_POLICY,
-    scenario: {
-      ...s,
-      references: s.references.map(({ sdPercentagePoints, ...r }) => r),
-      nonValidReferences: s.nonValidReferences.map(
-        ({ sdPercentagePoints, ...r }) => r,
-      ),
-      fitSeed: "",
-    },
+  // SDs, fitting seeds, candidate-only profile scales and pooling do not acquire
+  // unsupported legacy meanings. They remain in the common editable scenario.
+  return sourceKey('unified-legacy-input-v1', {
+    source: s.data.sourceBundleId,
+    referenceDate: s.referenceDate,
+    electionDate: s.electionDate,
+    generation: s.generation,
+    sourceMemberships: s.sourceMemberships,
+    componentMap: s.componentMap,
+    polls: s.polls,
+    lists: s.lists,
+    coverage: s.coverage,
+    references: s.references.map(({ sdPercentagePoints, ...r }) => r),
+    nonValid: s.nonValidReferences.map(({ sdPercentagePoints, ...r }) => r),
+    renewal: s.renewal,
+    seed: s.seed,
+    candidateGeneration: s.candidateGeneration,
+    candidateTemplates: s.candidateTemplates,
+    suppliedVotes: s.suppliedVotes,
+    suppliedPreferences: s.suppliedPreferences,
+    bonusLinks: s.bonusLinks,
+    chamberProfileId: s.chamberProfileId,
+    preferenceProfileId: s.preferenceProfileId,
   });
 }
 export function latestLegacyPair(source: CompactSource, cutoff: string) {
@@ -57,10 +59,10 @@ export function latestLegacyPair(source: CompactSource, cutoff: string) {
     (e) => e.date <= cutoff && e.availableDate <= cutoff && e.minimumAge === 18,
   );
   const pairs = eligible
-    .filter((e) => e.context === "camera")
+    .filter((e) => e.context === 'camera')
     .flatMap((camera) =>
       eligible
-        .filter((e) => e.context === "senato" && e.date === camera.date)
+        .filter((e) => e.context === 'senato' && e.date === camera.date)
         .map((senato) => ({ camera, senato })),
     )
     .sort(
@@ -70,7 +72,7 @@ export function latestLegacyPair(source: CompactSource, cutoff: string) {
     );
   if (!pairs.length)
     throw new Error(
-      "No eligible common-18+ Camera/Senato pair at this reference date",
+      'No eligible common-18+ Camera/Senato pair at this reference date',
     );
   return pairs[0];
 }
@@ -81,172 +83,333 @@ export async function compileLegacy(
   assets: FastVoteAssets,
   context: ReformAssemblyContext,
 ): Promise<CompiledLegacy> {
-  if (!s.generation) throw new Error("Unified generation settings required");
+  requireGenerationModel(s.generation);
+  if (!s.generation) throw new Error('Unified generation settings required');
   const pair = latestLegacyPair(source, s.referenceDate),
-    ids = s.components.map((c) => c.id).sort(),
-    position = new Map(ids.map((id, i) => [id, i + 1])),
-    width = ids.length + 1,
+    inputKey = await legacyInputKey(s),
     choices = new Map(source.payload.choices.map((c) => [c.id, c])),
     units = new Map(source.payload.units.map((u) => [u.id, u])),
-    required = new Set(
-      s.components.filter((c) => c.kind === "new").map((c) => c.id),
-    ),
-    canonical = (id: string) =>
-      position.has(id) ? id : (s.componentMap[id] ?? id);
-  const result: CompiledLegacy = {
-    inputKey: await legacyInputKey(s),
-    policy: COMPONENT_POLICY,
-    componentIds: ids,
-    componentMap: s.componentMap,
-    pollCollegeIds: {
-      camera: context.seats.geography.colleges
-        .filter((c) => c.chamber === "camera" && c.kind === "ordinary")
-        .map((c) => c.id),
-      senato: context.seats.geography.colleges
-        .filter((c) => c.chamber === "senato" && c.kind === "ordinary")
-        .map((c) => c.id),
-    },
-    historicalDate: pair.camera.date,
-    rows: { camera: [], senato: [] },
-    polls: [],
-    compositions: s.generation.compositions,
-    requiredReferences: [],
-    audit: {
-      baseline: { camera: pair.camera.id, senato: pair.senato.id },
-      missingHistory: [],
-      policy: COMPONENT_POLICY,
-      fallbackCounts: {},
-    },
-  };
-  for (const ch of ["camera", "senato"] as const) {
-    const history: ComponentObservation[] = [],
-      exact = new Map<string, ComponentObservation>();
-    for (const row of await decodeSourceRows(
-      source,
-      pair[ch].id,
-      await read(pair[ch].chunk.path),
-    )) {
+    ids = new Set(s.components.map((c) => c.id)),
+    canonical = (id: string) => (ids.has(id) ? id : (s.componentMap[id] ?? id)),
+    missingHistory: string[] = [],
+    tables = new Map<string, Map<string, HistoricalMunicipality['camera']>>();
+  const historicalLists = source.payload.choices
+    .filter((c) => c.eventId === pair.camera.id || c.eventId === pair.senato.id)
+    .map((c) => ({
+      id: c.id,
+      name: c.label,
+      kind: c.opaque ? ('special-ballot-group' as const) : ('list' as const),
+    }));
+  const correspondences: ReformGenerationScenario['correspondences'] = [];
+  for (const ch of ['camera', 'senato'] as const) {
+    const event = pair[ch],
+      rows = await decodeSourceRows(
+        source,
+        event.id,
+        await read(event.chunk.path),
+      );
+    const exact = new Map<string, OriginalRow>(),
+      regions = new Map<
+        string,
+        { electors: number; votes: Map<string, number> }
+      >();
+    for (const row of rows) {
       const unit = units.get(row.unit)!;
-      if (unit.match === "unlocated" || row.electors <= 0) continue;
-      const counts = Array(width).fill(0) as number[],
-        offered = Array(width).fill(false) as boolean[];
-      offered[0] = true;
-      counts[0] = row.electors - row.choices.reduce((a, c) => a + c.count, 0);
-      const seen = new Set<string>();
+      const members = row.choices.flatMap(
+        (c) => s.sourceMemberships[c.id]?.members ?? choices.get(c.id)!.members,
+      );
+      if (new Set(members).size !== members.length)
+        throw new Error(
+          'Component competes in multiple original source choices: ' + row.unit,
+        );
       for (const c of row.choices) {
         const choice = choices.get(c.id)!,
-          members = s.sourceMemberships[c.id]?.members ?? choice.members,
-          composition = s.generation!.compositions[c.id];
-        if (members.length > 1 && !composition)
-          throw new Error("LEGACY_COMPOSITION_REQUIRED:" + c.id);
+          composition = s.generation.compositions[c.id];
         if (composition?.proxy && !choice.opaque)
-          throw new Error("Legacy proxy is reserved for opaque groups");
-        for (const part of normalizedComposition(members, composition)) {
-          const id = canonical(part.id),
-            j = position.get(id);
-          if (seen.has(part.id))
-            throw new Error(
-              "Component competes in multiple original source choices:" + id,
-            );
-          seen.add(part.id);
-          // Components outside the future fitted basis remain explicit removed alternatives.
-          if (j === undefined)
-            throw new Error("UNRESOLVED_HISTORICAL_IDENTITY:" + id);
-          offered[j] = true;
-          counts[j] += c.count * part.fraction;
-        }
+          throw new Error(
+            'Legacy proxy is reserved for explicitly opaque source groups',
+          );
       }
-      const obs = {
-        code: unit.targetCode ?? unit.id,
-        region: unit.region,
-        electors: row.electors,
-        counts,
-        offered,
-      };
-      history.push(obs);
-      if (unit.match === "same-place" && unit.targetCode) {
-        if (exact.has(unit.targetCode))
-          throw new Error("Duplicate legacy geographic baseline");
-        exact.set(unit.targetCode, obs);
-      }
-    }
-    const national = poolConditional(history, width),
-      regions = new Map<string, Float64Array>();
-    ids.forEach((id, j) => {
+      const valid = row.choices.reduce((n, c) => n + c.count, 0);
       if (
-        !national.observed[j + 1] ||
-        national.probabilities[j + 1] === 0 ||
-        national.unidentified[j + 1]
+        unit.match === 'unlocated' ||
+        row.electors <= 0 ||
+        valid > row.electors
       )
-        required.add(id);
-    });
-    for (const region of new Set(
-      assets.geography.targets.map((t) => t.region),
-    )) {
-      const donors = history.filter((r) => r.region === region);
-      regions.set(
-        region,
-        poolConditional(donors, width, national.probabilities).probabilities,
-      );
+        continue;
+      const r = regions.get(unit.region) ?? {
+        electors: 0,
+        votes: new Map<string, number>(),
+      };
+      r.electors += row.electors;
+      for (const c of row.choices)
+        r.votes.set(c.id, (r.votes.get(c.id) ?? 0) + c.count);
+      regions.set(unit.region, r);
+      if (unit.match === 'same-place' && unit.targetCode) {
+        if (exact.has(unit.targetCode))
+          throw new Error('Duplicate legacy geographic baseline');
+        exact.set(unit.targetCode, row);
+      }
     }
-    for (const t of assets.geography.targets) {
-      const row = exact.get(t.code),
-        donor = regions.get(t.region)!;
-      const q = completeLocal(row, donor),
-        mass = q.reduce((a, v) => a + v, 0);
-      if (!(mass > 0))
-        throw new Error("EMPTY_HISTORICAL_SUPPORT:" + ch + "/" + t.code);
-      const missing = row ? row.offered.filter((v) => !v).length : width;
-      result.audit.fallbackCounts[ch] =
-        (result.audit.fallbackCounts[ch] ?? 0) + missing;
-      if (!row) result.audit.missingHistory.push(ch + "/" + t.code);
-      result.rows[ch].push({
-        code: t.code,
-        probabilities: [...q.map((v) => v / mass)],
-        original: row,
+    const table = new Map<string, HistoricalMunicipality['camera']>();
+    for (const target of assets.electorates) {
+      const geo = assets.geography.targets.find((g) => g.code === target.code)!,
+        row = exact.get(target.code),
+        regional = regions.get(geo.region);
+      if (!row && !regional)
+        throw new Error(
+          'No original regional history for ' + ch + '/' + target.code,
+        );
+      const values = row
+          ? row.choices.map((c) => ({ listId: c.id, votes: c.count }))
+          : [...regional!.votes].map(([listId, votes]) => ({ listId, votes })),
+        electorate = row?.electors ?? regional!.electors,
+        total = values.reduce((n, c) => n + c.votes, 0),
+        counts = apportion(
+          target[ch],
+          [...values.map((v) => v.votes), electorate - total],
+          generationRng('unified-legacy-baseline-v1', 0, ch, target.code),
+        );
+      if (!row) missingHistory.push(ch + '/' + target.code);
+      table.set(target.code, {
+        electors: target[ch],
+        votes: values.map((v, i) => ({ ...v, votes: counts[i] })),
       });
     }
+    tables.set(ch, table);
+    for (const choice of choices.values())
+      if (choice.eventId === event.id) {
+        const members =
+            s.sourceMemberships[choice.id]?.members ?? choice.members,
+          composition = s.generation.compositions[choice.id];
+        for (const link of correspondenceRow(
+          members,
+          composition,
+          s.lists[ch],
+          canonical,
+        ))
+          correspondences.push({ chamber: ch, pastListId: choice.id, ...link });
+      }
   }
-  const added = new Map(s.polls.added.map((p) => [p.id, p]));
-  for (const id of s.polls.selected) {
-    const p = added.get(id) ?? source.payload.polls.find((p) => p.id === id);
-    if (!p) throw new Error("Unknown selected legacy poll");
-    result.polls.push({
-      id: p.id,
-      date: p.date,
-      end: p.fieldworkEnd,
-      available: p.availableDate,
-      context: p.context,
-      sample: p.effectiveSample,
-      source: p.citation,
-      enabled: p.status === "supported",
-      complete: true,
-      groups: legacyPollGroups(source, p),
-    });
+  const snapshot: ReformGenerationSnapshot = {
+    ...structuredClone(context),
+    schemaVersion: 1,
+    kind: 'politics-reform-generation',
+    version: inputKey,
+    historicalDate: pair.camera.date,
+    historicalLists,
+    historicalCoalitions: [],
+    memberships: assets.geography.cells.map((c) => ({
+      chamber: c.chamber,
+      municipalityCode: c.municipality,
+      collegeId: c.collegeId,
+      population: c.population,
+    })),
+    municipalities: assets.electorates.map((t) => {
+      const g = assets.geography.targets.find((g) => g.code === t.code)!;
+      return {
+        code: t.code,
+        name: g.name,
+        regionId: g.region,
+        provinceId: g.province,
+        camera: tables.get('camera')!.get(t.code)!,
+        senato: tables.get('senato')!.get(t.code)!,
+      };
+    }),
+  };
+  for (const proportional of context.seats.geography.colleges.filter(
+    (c) =>
+      c.kind === 'taa-proportional' &&
+      !assets.geography.cells.some((cell) => cell.collegeId === c.id),
+  ))
+    for (const cell of assets.geography.cells.filter(
+      (c) =>
+        c.chamber === proportional.chamber &&
+        context.seats.geography.colleges.some(
+          (g) =>
+            g.id === c.collegeId && g.territoryId === proportional.territoryId,
+        ),
+    ))
+      snapshot.memberships.push({
+        chamber: cell.chamber,
+        municipalityCode: cell.municipality,
+        collegeId: proportional.id,
+        population: cell.population,
+      });
+  const groupedMemberships = new Map<
+    string,
+    (typeof snapshot.memberships)[number]
+  >();
+  for (const m of snapshot.memberships) {
+    const key = JSON.stringify([m.chamber, m.municipalityCode, m.collegeId]),
+      old = groupedMemberships.get(key);
+    groupedMemberships.set(
+      key,
+      old ? { ...m, population: old.population + m.population } : m,
+    );
   }
-  result.polls.push(...s.generation.supplementalPolls);
-  for (const p of result.polls) {
-    if (
-      !p.enabled ||
-      p.date > s.referenceDate ||
-      p.available > s.referenceDate ||
-      p.end > s.referenceDate
-    )
-      continue;
-    const seen = new Set<string>();
-    for (const g of p.groups) {
-      if (g.members.some((id) => seen.has(id)))
-        throw new Error("Component competes in multiple poll choices:" + p.id);
-      g.members.forEach((id) => seen.add(id));
-      if (
-        g.members.length > 1 &&
-        !result.compositions["poll:" + p.id + ":" + g.label]
+  snapshot.memberships = [...groupedMemberships.values()];
+  snapshot.assumptions.push(
+    'Original latest eligible common-18+ Camera/Senato pair; target electorates are conditional, missing municipal history uses labelled original regional proportions.',
+    'Political mapping/filing is conditioned on available choices, preserving historical turnout; post-FV-08 policy audit remains planned.',
+  );
+  const scenario: ReformGenerationScenario = {
+    schemaVersion: 2,
+    kind: s.kind,
+    algorithmId: s.algorithmId,
+    snapshotVersion: snapshot.version,
+    modelVersion: context.models.version,
+    modelIds: REFORM_MODEL_IDS,
+    preferenceProfileId: s.preferenceProfileId,
+    chamberProfileId: s.chamberProfileId,
+    seed: s.seed,
+    electionDate: s.electionDate,
+    projectionDate: s.referenceDate,
+    mode: 'mean',
+    renewal: s.renewal,
+    lists: {
+      camera: s.lists.camera.map(
+        ({
+          componentIds,
+          nationalUncertaintyMultiplier,
+          localUncertaintyMultiplier,
+          ...l
+        }) => l,
+      ),
+      senato: s.lists.senato.map(
+        ({
+          componentIds,
+          nationalUncertaintyMultiplier,
+          localUncertaintyMultiplier,
+          ...l
+        }) => l,
+      ),
+    },
+    coverage: s.coverage,
+    correspondences,
+    shares: [],
+    abstention: [],
+    candidateGeneration: s.candidateGeneration,
+    candidateTemplates: s.candidateTemplates,
+    suppliedPreferences: s.suppliedPreferences,
+    suppliedVotes: s.suppliedVotes,
+    bonusLinks: s.bonusLinks,
+    conversion: null,
+    projectionPolicy: 'preserve-historical-turnout-v1',
+    presentation: reformPresentation(s),
+  };
+  const added = new Map(s.polls.added.map((p) => [p.id, p])),
+    polls: LegacyPollObservation[] = s.polls.selected
+      .map(
+        (id) => added.get(id) ?? source.payload.polls.find((p) => p.id === id),
       )
-        throw new Error(
-          "LEGACY_COMPOSITION_REQUIRED:poll:" + p.id + ":" + g.label,
-        );
+      .map((p) => {
+        if (!p) throw new Error('Unknown selected legacy poll');
+        return {
+          id: p.id,
+          date: p.date,
+          end: p.fieldworkEnd,
+          available: p.availableDate,
+          context: p.context,
+          source: p.citation,
+          sample: p.effectiveSample,
+          enabled: p.status === 'supported',
+          groups: p.normalized
+            .filter((a) => !a.other)
+            .map((a) => ({
+              label: a.label,
+              members: a.members,
+              share: a.share,
+            })),
+        };
+      });
+  // The compared partial named observations stay explicit and editable. They do
+  // not pretend to be complete candidate observations or create fitted support.
+  polls.push(...s.generation.supplementalPolls);
+  if (
+    polls.some(
+      (p) =>
+        !Number.isFinite(p.sample) ||
+        p.sample <= 0 ||
+        p.groups.some(
+          (g) =>
+            !g.members.length ||
+            !Number.isFinite(g.share) ||
+            g.share < 0 ||
+            g.share > 1,
+        ),
+    )
+  )
+    throw new Error('Invalid legacy named poll observation');
+  const lists = [
+    ...new Map(
+      [...s.lists.camera, ...s.lists.senato].map((l) => [l.id, l]),
+    ).values(),
+  ];
+  const pollAudit = refreshLegacyPolls(
+    scenario,
+    snapshot,
+    polls,
+    s.referenceDate,
+    lists,
+    s.generation.compositions,
+    canonical,
+    s.lists,
+  );
+  // Manual point references take precedence. Unsupported SDs and incomplete
+  // component-only interventions remain candidate-only, visibly in the editor.
+  const refs = new Map<string, ReformGenerationScenario['shares'][number]>();
+  for (const r of s.references) for (const ch of s.renewal === 'joint' ? (['camera','senato'] as const) : [s.renewal]) {
+    if (r.channel !== 'common' && r.channel !== ch) continue;
+    const chamberLists=s.lists[ch];
+    const matches =
+      r.subject.kind === 'list'
+        ? chamberLists.filter((l) => l.id === r.subject.id)
+        : chamberLists.filter(
+            (l) =>
+              l.componentIds.length === 1 && l.componentIds[0] === r.subject.id,
+          );
+    for (const list of matches) {
+      const key = JSON.stringify([r.scope, list.id]),
+        row = refs.get(key) ?? {
+          scope: r.scope,
+          listId: list.id,
+          common: null,
+          camera: null,
+          senato: null,
+        };
+      row[r.channel] = r.mean;
+      refs.set(key, row);
     }
   }
-  result.requiredReferences = [...required].sort();
-  return result;
+  scenario.shares.push(...refs.values());
+  const turnout = new Map<
+    string,
+    ReformGenerationScenario['abstention'][number]
+  >();
+  for (const r of s.nonValidReferences) {
+    const key = JSON.stringify(r.scope),
+      row = turnout.get(key) ?? {
+        scope: r.scope,
+        common: null,
+        camera: null,
+        senato: null,
+      };
+    row[r.channel] = r.mean;
+    turnout.set(key, row);
+  }
+  scenario.abstention = [...turnout.values()];
+  if (scenario.pollReferences)
+    scenario.pollReferences.archiveVersion = inputKey;
+  return {
+    inputKey,
+    scenario,
+    snapshot,
+    audit: {
+      baseline: { camera: pair.camera.id, senato: pair.senato.id },
+      missingHistory,
+      policy: 'condition-political-support-preserve-turnout-v1',
+      polls: pollAudit,
+    },
+  };
 }

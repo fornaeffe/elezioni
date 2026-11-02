@@ -2,16 +2,16 @@
 export const modelRegistry = {
   M01: {
     id: "M01",
-    version: "1.0.0",
-    name: "Composizioni fisse e shock per componente",
-    label: "M01 1.0.0 — composizioni fisse e shock per componente",
+    version: "2.0.0",
+    name: "Corrispondenze e shock per lista",
+    label: "M01 2.0.0 — corrispondenze e shock per lista",
     specification: "docs/models/M01.md",
   },
   M02: {
     id: "M02",
-    version: "1.0.0",
+    version: "2.0.0",
     name: "Stima congiunta e trasferimenti limitati",
-    label: "M02 1.0.0 — stima congiunta e trasferimenti limitati",
+    label: "M02 2.0.0 — stima congiunta e trasferimenti limitati",
     specification: "docs/models/M02.md",
   },
 } as const;

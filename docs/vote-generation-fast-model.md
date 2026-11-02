@@ -1,20 +1,16 @@
 # Historical Gaussian reference-fit derivation
 
 Current model names and authoritative probability-law specifications are
-[M01 1.0.0](models/M01.md) and [M02 1.0.0](models/M02.md). Older candidate names
+[M01 2.0.0](models/M01.md) and [M02 2.0.0](models/M02.md). Older candidate names
 and equations below retain their historical/implementation context; use those
 specifications for the current complete laws.
 
-Current amendments (1 November 2026) are specified by the
-[unified workflow](vote-generation-unified-workflow.md#numerical-and-observation-contract)
-and [adopted correspondence policy](correspondence-policy-audit.md#adopted-corrections).
-Original offered-set strata replace globally coarsened historical choice sets;
-identifiable group totals and reference-backed contrasts replace rejection of
-unidentified component bases. Profile comparisons retain original local groups.
-References apply before future movement and filing, without filing-capacity
-constraints. The Gaussian sufficient statistics may use bounded orthogonal
-elimination with no added ridge. Those amendments take precedence over the
-original derivation and comparator equations retained below.
+M02 2.0.0 restores the pre-`4ee5a91` grouped fitting and profile implementation.
+The 1 November original-strata, unidentified-contrast and orthogonal-elimination
+amendments belong to the archived 1.0.0 law. Use [M02](models/M02.md) for the
+complete current equations and [the unified workflow](vote-generation-unified-workflow.md)
+for execution and data/session boundaries. This document retains the original
+Gaussian derivation and its historical forecast comparators.
 
 Status: **selected for the 2026 reform workflow; FV-02 numerical port implemented**.
 See the [engine entry point](../web/src/lib/politics/reform-2026/vote-share/README.md)

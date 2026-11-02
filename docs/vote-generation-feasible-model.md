@@ -1,16 +1,14 @@
 # Feasible municipal vote fields
 
 Current model names and authoritative probability-law specifications are
-[M01 1.0.0](models/M01.md) and [M02 1.0.0](models/M02.md). Older candidate names
+[M01 2.0.0](models/M01.md) and [M02 2.0.0](models/M02.md). Older candidate names
 and equations below retain their historical/implementation context; use those
 specifications for the current complete laws.
 
-The current [unified workflow](vote-generation-unified-workflow.md) applies the
-selected bounded mass-pair mechanism to unrestricted reference support and
-conditions on future physical filing **after** movement. The filing-aware
-reference constructions below describe the 30 October research comparison,
-not the corrected production reference semantics. Older candidate kernels are
-terminal-only comparators.
+The current [unified workflow](vote-generation-unified-workflow.md) restores
+filing-conditioned references and movement as described below. The 1.0.0
+unrestricted-reference/late-filing law is archived. The M02 definition specifies
+the current complete contract; older candidate variants remain explicit submethods.
 
 This document describes the replacement candidates authorized on 30 October
 2026. Use [the research guide](vote-generation-feasible-research.md) for the

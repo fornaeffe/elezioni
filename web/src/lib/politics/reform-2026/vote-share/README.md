@@ -1,10 +1,10 @@
 # Fast-share engine
 
-Canonical current specifications: [M01 1.0.0](../../../../../../docs/models/M01.md) and [M02 1.0.0](../../../../../../docs/models/M02.md). Model identity/version, numerical policies, data IDs and implementation hashes are separate.
+Canonical current specifications: [M01 2.0.0](../../../../../../docs/models/M01.md) and [M02 2.0.0](../../../../../../docs/models/M02.md). Model identity/version, numerical policies, data IDs and implementation hashes are separate.
 
 This folder implements the bounded reference fit, empirical profile estimator,
-forecast adapters and the unified reform editor/worker integration. M02 is the default; M01 uses fixed component compositions and
-original-group poll uncertainty. Read the
+forecast adapters and the unified reform editor/worker integration. M02 is the default; M01 uses fixed source compositions projected onto future lists and
+list-level polling/shock coordinates. Read the
 [unified workflow contract](../../../../../../docs/vote-generation-unified-workflow.md)
 for v5 scenarios, correspondences, worker recommendations and current acceptance.
 Original compact data is implemented in [FV-03](../../../../../../docs/vote-generation-fast-data.md).

@@ -135,7 +135,7 @@ for (const model of ['M02', 'M01'] as const)
       before.runs.map((r: { simulation: number }) => r.simulation),
     ).toEqual(Array.from({ length: draws }, (_, i) => i + 1));
     expect(before.fitFilePresent).toBe(true);
-    expect(before).toMatchObject({model,modelVersion:"1.0.0"});
+    expect(before).toMatchObject({model,modelVersion:"2.0.0"});
     for (const run of before.runs)
       expect(run).toMatchObject({
         status: 'complete',

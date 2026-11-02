@@ -282,7 +282,14 @@ export function futureSharePlan(
             id: "declared-regional-anchor:" + ch + ":" + component,
             scope: { kind: "region", code: region },
             channel: ch,
-            subject: {kind: "component", id: component},
+            subject: observed.has(component)
+              ? {
+                  kind: "list",
+                  id: future.lists.find(
+                    (l) => l.members.length === 1 && l.members[0] === component,
+                  )!.id,
+                }
+              : { kind: "component", id: component },
             mean,
             sdPercentagePoints: 0,
           });

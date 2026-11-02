@@ -17,19 +17,19 @@ describe('FV-04 paired physical-cell reform adapter', () => {
   });
   it('runs fully specified uncertain references and traces deterministic centre normalization separately', () => {
     const f = fastGenerationFixture();
-    f.scenario.references = f.scenario.components.map((l, i) => ({
+    f.scenario.references = f.scenario.lists.camera.map((l, i) => ({
       id: 'r' + i,
       scope: { kind: 'national' },
       channel: 'camera',
-      subject: { kind: 'component', id: l.id },
-      mean: 0.25,
+      subject: { kind: 'list', id: l.id },
+      mean: i ? 0.6 : 0.4,
       sdPercentagePoints: 2
     }));
     const sampled = prepareFastGeneration(f.scenario, f.assets, f.context).run(3);
     expect(sampled.audit.referenceTargets[0].groups.reduce((n, g) => n + g.share, 0)).toBeCloseTo(1, 12);
     f.scenario.references = f.scenario.references.map((r, i) => ({
       ...r,
-      mean: 0.125,
+      mean: i ? 0.3 : 0.2,
       sdPercentagePoints: 0
     }));
     f.scenario.nonValidReferences = [
@@ -45,7 +45,7 @@ describe('FV-04 paired physical-cell reform adapter', () => {
     });
     expect(
       normalized.trace.warnings.find((w) => w.code === 'NORMALIZED_REFERENCE_CENTRES')!.message
-    ).toContain('"after":{"mean":0.25');
+    ).toContain('"after":{"mean":0.4');
     expect(normalized.audit.countryReference.camera![0]).toBeCloseTo(
       normalized.audit.referenceTargets[0].nonValid!,
       8
@@ -70,11 +70,12 @@ describe('FV-04 paired physical-cell reform adapter', () => {
       expect(rows.reduce((s, r) => s + r.electorate.electors!, 0)).toBe(100000);
       for (const row of rows) expect(row.votes.kind).toBe('attributed');
     }
-    // Current selected field: verify the new draw without assuming historical
-    // generator outputs. Frozen legal-failure fixtures remain separate.
+    // Tiny constructed electorate can hit the law's truncated-quota failure.
+    // Keep that failure, including its original simulation ID; never reroll it.
     const checked = runPoliticsReformScrutiny(result.input);
     expect(checked.stages.find((s) => s.norm === 'N13')).toMatchObject({
-      status: 'complete'
+      status: 'non-computable',
+      reason: 'initial-overallocation'
     });
     assets.electorates.forEach((e) => {
       e.camera *= 1000;
@@ -119,7 +120,7 @@ describe('FV-04 paired physical-cell reform adapter', () => {
         id: 'national-a',
         scope: { kind: 'national' },
         channel: 'camera',
-        subject: { kind: 'component', id: 'a' },
+        subject: { kind: 'list', id: f.scenario.lists.camera[0].id },
         mean: 0.4,
         sdPercentagePoints: 0
       },
@@ -127,7 +128,7 @@ describe('FV-04 paired physical-cell reform adapter', () => {
         id: 'local-a',
         scope: { kind: 'region', code: '01' },
         channel: 'camera',
-        subject: { kind: 'component', id: 'a' },
+        subject: { kind: 'list', id: f.scenario.lists.camera[0].id },
         mean: 0.8,
         sdPercentagePoints: 0
       }
@@ -135,12 +136,12 @@ describe('FV-04 paired physical-cell reform adapter', () => {
     const base = prepareFastGeneration({ ...f.scenario, references: [] }, f.assets, f.context),
       p = prepareFastGeneration(f.scenario, f.assets, f.context);
     p.centralReference.camera.forEach((r, i) => expect(r[0]).toBe(base.centralReference.camera[i][0]));
-    const group = [1, 1];
+    const group = [1, 2];
     let numerator = 0,
       denominator = 0;
     p.cells.camera.forEach((c, i) => {
       const r = p.centralReference.camera[i];
-      numerator += c.electors * r[group[0]];
+      numerator += c.electors * (r[group[0]] + r[group[1]]);
       denominator += c.electors * (1 - r[0]);
     });
     expect(numerator / denominator).toBeCloseTo(0.42, 8);
@@ -216,22 +217,22 @@ describe('FV-04 paired physical-cell reform adapter', () => {
         id: 'capacity',
         scope: { kind: 'national' },
         channel: 'camera',
-        subject: { kind: 'component', id: 'a' },
+        subject: { kind: 'list', id: f.scenario.lists.camera[0].id },
         mean: 0.9,
         sdPercentagePoints: 0
       }
     ];
-    expect(() => prepareFastGeneration(f.scenario, f.assets, f.context)).not.toThrow();
+    expect(() => prepareFastGeneration(f.scenario, f.assets, f.context)).toThrow('CAPACITY');
   });
   it('uses common anchors, explicit chamber precedence and single-chamber renewals', () => {
     const f = fastGenerationFixture(),
-      list = 'a';
+      list = f.scenario.lists.camera[0].id;
     f.scenario.references = [
       {
         id: 'common',
         scope: { kind: 'national' },
         channel: 'common',
-        subject: { kind: 'component', id: list },
+        subject: { kind: 'list', id: list },
         mean: 0.4,
         sdPercentagePoints: 2
       },
@@ -239,7 +240,7 @@ describe('FV-04 paired physical-cell reform adapter', () => {
         id: 'camera',
         scope: { kind: 'national' },
         channel: 'camera',
-        subject: { kind: 'component', id: list },
+        subject: { kind: 'list', id: list },
         mean: 0.3,
         sdPercentagePoints: 0
       }
@@ -248,7 +249,7 @@ describe('FV-04 paired physical-cell reform adapter', () => {
       r = p.run(4);
     expect(r.audit.referenceTargets.find((t) => t.chamber === 'camera')!.groups[0].share).toBe(0.3);
     expect(r.audit.referenceTargets.find((t) => t.chamber === 'senato')!.groups[0].share).not.toBe(0.3);
-    expect(r.audit.referenceTargets.find(t=>t.chamber==='camera')!.groups[0].members).toEqual(['a']);
+    expect(r.trace.references.find((t) => t.listIds.camera === list)!.camera!.share).toBeCloseTo(0.3, 8);
     f.scenario.renewal = 'camera';
     f.scenario.references = f.scenario.references.filter((r) => r.channel === 'common');
     const single = prepareFastGeneration(f.scenario, f.assets, f.context).run(4);
@@ -286,7 +287,10 @@ describe('FV-04 paired physical-cell reform adapter', () => {
         sdPercentagePoints: 0
       }
     ];
-    expect(() => prepareFastGeneration(f.scenario,f.assets,f.context)).toThrow('must target components');
+    const p = prepareFastGeneration(f.scenario, f.assets, f.context),
+      r = p.run(2);
+    expect(r.audit.referenceTargets[0].groups).toHaveLength(2);
+    for (const t of r.audit.referenceTargets[0].groups) expect(t.share).toBe(0.2);
   });
   it('keeps transition zero-horizon identity separate from profile uncertainty and election discrepancy', () => {
     const f = fastGenerationFixture();
@@ -296,7 +300,7 @@ describe('FV-04 paired physical-cell reform adapter', () => {
         id: 'a',
         scope: { kind: 'national' },
         channel: 'camera',
-        subject: { kind: 'component', id: 'a' },
+        subject: { kind: 'list', id: f.scenario.lists.camera[0].id },
         mean: 0.4,
         sdPercentagePoints: 0
       }
@@ -304,7 +308,7 @@ describe('FV-04 paired physical-cell reform adapter', () => {
     const p = prepareFastGeneration(f.scenario, f.assets, f.context),
       r = p.run(8);
     expect(
-      r.audit.countryReference.camera!.slice(1, 2).reduce((a, b) => a + b, 0) /
+      r.audit.countryReference.camera!.slice(1, 3).reduce((a, b) => a + b, 0) /
         (1 - r.audit.countryReference.camera![0])
     ).toBeCloseTo(0.4, 8);
     expect(r.audit.countryForecast.camera![0]).toBe(r.audit.countryReference.camera![0]);

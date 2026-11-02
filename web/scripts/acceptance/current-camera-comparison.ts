@@ -1,3 +1,4 @@
+import { requireGenerationModel } from '../../src/lib/politics/reform-2026/vote-share/model-registry';
 /** Runs only current M01/M02 kernels; old receipts are read-only comparators. */
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
@@ -15,6 +16,7 @@ import { distributionScores, summarizeUnits, scoreAreas, type AreaMapping } from
 import { JointTailScores } from './filing-aware-monte-carlo';
 import { design, restoreOriginalStrata, prepareCameraM01, prepareCameraM02, generateCameraDraw } from './current-camera-models';
 
+requireGenerationModel({ model: 'M02', modelVersion: '1.0.0' }); // Reproduce with commit 8dcb830.
 const root = resolve('..'), output = resolve(root, 'data/derived/current-camera-comparison');
 await mkdir(output, { recursive: true });
 const json = async (path: string) => JSON.parse(await readFile(path, 'utf8'));

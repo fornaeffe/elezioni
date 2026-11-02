@@ -1,3 +1,4 @@
+import { requireGenerationModel } from '../../src/lib/politics/reform-2026/vote-share/model-registry';
 /** Source-eligibility probe only: no fitting, generation or old-model execution. */
 import { readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
@@ -7,6 +8,7 @@ import { latestLegacyPair } from '../../src/lib/politics/reform-2026/vote-share/
 import { compilePairedHistory } from '../../src/lib/politics/reform-2026/vote-share/paired-source';
 import { readBytes } from '../data-preparation/fast-share-release-io';
 
+requireGenerationModel({ model: 'M02', modelVersion: '1.0.0' }); // Historical: checkout 8dcb830/965f7ba.
 const root = resolve('..');
 const directory = resolve('static/data/reform-2026/fast-share');
 const read = readBytes(directory);

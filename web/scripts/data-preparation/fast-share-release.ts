@@ -1,4 +1,3 @@
-import { unsupportedComponentReferences } from "./unsupported-component-references";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import {
@@ -31,7 +30,7 @@ import { compilePairedHistory } from "../../src/lib/politics/reform-2026/vote-sh
 import { fitReference } from "../../src/lib/politics/reform-2026/vote-share/information";
 import { fitProfiles } from "../../src/lib/politics/reform-2026/vote-share/profiles";
 import { prepareSenateAdapter } from "../../src/lib/politics/reform-2026/vote-share/senate-adapter";
-import { unifiedShareDefault } from "./unified-share-default";
+import { unifiedShareDefault } from './unified-share-default';
 import {
   FAST_SHARE_MODEL,
   FAST_SHARE_NUMERICS,
@@ -95,7 +94,7 @@ export async function prepareShareRelease(
       nationalInputKey: compiled.nationalInputKey,
       implementationId: fitImplementation,
       fitSeed: policy.fitSeed,
-      solver: "matrix-free" as const,
+      solver: "dense" as const,
     },
     fitCacheKey = await sourceKey("fit-cache-v1", fitParents),
     oldFit = await readCachedState<FitState>(
@@ -110,7 +109,7 @@ export async function prepareShareRelease(
     throw new Error("Fitted cache semantic mismatch");
   const fit =
     oldFit?.state.fit ??
-    fitReference(compiled.national, policy.fitSeed, { solver: "matrix-free" });
+    fitReference(compiled.national, policy.fitSeed, { solver: "dense" });
   const fitState: FitState = {
     parents: fitParents,
     fit,
@@ -243,7 +242,7 @@ export async function prepareShareRelease(
     electorateKey = await sourceKey("conditional-electorates-v1", electorate);
   const old = inputs.legacy.defaults,
     scenario: ReleasedScenario = {
-      schemaVersion: 5,
+      schemaVersion: 4,
       kind: old.kind,
       algorithmId: old.algorithmId,
       referenceDate: policy.referenceDate,
@@ -259,7 +258,7 @@ export async function prepareShareRelease(
         ...(policy.futureScenario
           ? {
               forecast:
-                policy.forecastModel ?? ("bounded-mass-pair-field-v2" as const),
+                policy.forecastModel ?? ("bounded-pair-field-v1" as const),
               forecastScale: policy.forecastScale ?? 1,
               profileRegionCorrelation: policy.profileRegionCorrelation ?? 0,
             }
@@ -339,56 +338,16 @@ export async function prepareShareRelease(
         })),
       },
     };
-  if (policy.futureScenario)
-    unifiedShareDefault(
-      scenario,
-      source,
-      JSON.parse(
-        await readFile(
-          resolve(root, "data/legacy-comparison-policy.json"),
-          "utf8",
-        ),
-      ),
-      JSON.parse(
-        await readFile(
-          resolve(root, "data/legacy-comparison-future-polls.json"),
-          "utf8",
-        ),
-      ),
-    );
-  const unsupportedReferences = policy.unsupportedComponentReferences
-    ? unsupportedComponentReferences(
-        scenario,
-        {
-          fit,
-          cameraProfile,
-          senateAdapter,
-          modelId: FAST_SHARE_MODEL,
-          numericalVersion: FAST_SHARE_NUMERICS,
-          fitSeed: policy.fitSeed,
-          profileReferenceDate: policy.referenceDate,
-          geography: source.payload.geography,
-          electorates: plan.electorates,
-          sourceBundleId: source.id,
-          fittedStateId: fitted.envelope.id,
-          profileStateId: profiles.envelope.id,
-        },
-        context,
-        policy.unsupportedComponentReferences,
-      )
-    : undefined;
+  if (policy.futureScenario) unifiedShareDefault(scenario,source,
+    JSON.parse(await readFile(resolve(root,'data/legacy-comparison-policy.json'),'utf8')),
+    JSON.parse(await readFile(resolve(root,'data/legacy-comparison-future-polls.json'),'utf8')));
   const keys = await generationKeys(scenario, context, electorateKey),
     defaults = await encodeState(
       "fast-share-scenario",
       {
         scenario,
         selection: plan.selection,
-        defaultPolicy: {
-          ...policy,
-          ...(unsupportedReferences
-            ? { unsupportedReferenceEstimates: unsupportedReferences }
-            : {}),
-        },
+        defaultPolicy: policy,
         keys,
         electorateKey,
       } satisfies ScenarioState,

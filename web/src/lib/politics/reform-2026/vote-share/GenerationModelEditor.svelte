@@ -44,8 +44,8 @@
   {#if scenario.generation.model === 'M01'}
     <p>
       M01 usa l’ultima coppia Camera/Senato disponibile con elettorato 18+ e i
-      sondaggi Camera. I riferimenti restano fissi alla data di riferimento;
-      seguono shock nazionali, regionali e locali per componente.
+      sondaggi Camera. Le corrispondenze proiettano i componenti sulle liste;
+      seguono shock nazionali, regionali e locali per lista.
       Gli altri contesti, le deviazioni standard dei riferimenti, i moltiplicatori
       di incertezza e la stima dei profili sono controlli di M02.
     </p>

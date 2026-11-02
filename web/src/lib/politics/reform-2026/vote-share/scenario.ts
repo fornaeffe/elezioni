@@ -1,3 +1,4 @@
+import { requireGenerationModel } from './model-registry';
 /** Strict current v5 parser. No conversion to factor correspondences or older scenarios. */
 import { reformLegalFields } from "../generation-scenario";
 import {
@@ -94,10 +95,10 @@ const shape = object({
   schemaVersion: literal(5),
   generation: optional(object({
     model: literal('M02', 'M01'),
-    modelVersion: literal('1.0.0'),
+    modelVersion: literal('2.0.0'),
     compositions: dictionary(object({ fractions: dictionary(nonnegative), provenance: text, proxy: optional(bool) })),
     supplementalPolls: array(object({ id: text, date, available: date, end: date, context: literal('camera','european','senato'),
-      groups: array(object({label:text,members:array(text),share})), sample:nonnegative,source:text,enabled:bool,complete:optional(bool) })),
+      groups: array(object({label:text,members:array(text),share})), sample:nonnegative,source:text,enabled:bool })),
   })),
   referenceDate: date,
   fitSeed: text,
@@ -110,6 +111,8 @@ const shape = object({
     generationImplementationId: text,
     forecast: optional(
       literal(
+        "filing-strata-beta-v1",
+        "bounded-pair-field-v1",
         "bounded-mass-pair-field-v2",
       ),
     ),
@@ -221,8 +224,7 @@ export function validateFastScenario(value: unknown): string[] {
   const s = value as ReleasedScenario,
     errors: string[] = [],
     ids = new Set(s.components.map((c) => c.id));
-  if (s.schemaVersion === 5 && !s.generation || s.schemaVersion === 4 && s.generation)
-    errors.push('Generation settings require unified scenario version 5.');
+  try { requireGenerationModel(s.generation); } catch (error) { errors.push(String(error)); }
   for (const [id, row] of Object.entries(s.generation?.compositions ?? {})) {
     try { normalizedComposition(Object.keys(row.fractions), row); }
     catch (e) { errors.push('Composizione ' + id + ': ' + String(e)); }
@@ -299,8 +301,7 @@ export function validateFastScenario(value: unknown): string[] {
     "etichette liste",
   );
   for (const r of s.references)
-    if (r.subject.kind !== "component") errors.push("I riferimenti politici devono indicare un componente: " + r.id);
-    else if (
+    if (
       r.subject.kind === "component"
         ? !ids.has(r.subject.id)
         : !["camera", "senato"].some((ch) =>

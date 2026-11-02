@@ -1,4 +1,4 @@
-import type { CompactSource, SourcePoll } from "./source-types";
+import type { CompactSource, SourcePoll } from "../../../../src/lib/politics/reform-2026/vote-share/source-types";
 /** Original dated Other complement, before component pooling or future filing. */
 export function legacyPollGroups(source: CompactSource, p: SourcePoll) {
   const named = new Set(

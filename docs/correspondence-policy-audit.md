@@ -1,8 +1,12 @@
 # Post-FV-08 correspondence-policy audit
 
-The current corrected models are [M01 1.0.0](models/M01.md) (legacy lineage)
-and [M02 1.0.0](models/M02.md) (default, formerly selected). Historical findings
-below retain the names used at the audit date.
+Historical audit and superseded 1.0.0 correction policy. On 2 November Luca
+requested restoration of both implementations to before `4ee5a91`; current
+contracts are [M01 2.0.0](models/M01.md) and [M02 2.0.0](models/M02.md).
+The implementation claims, commands and paths below describe the recorded
+1.0.0 campaign, not current execution instructions. Reproduce them at `4ee5a91`
+or the named-identity commit `965f7ba`. Use the
+[current workflow](vote-generation-unified-workflow.md) for development.
 
 Audit completed and corrections implemented on 1 November 2026. **The two
 models retain different statistical laws; the corrections do not establish

@@ -1,7 +1,7 @@
 /** Agreed 1 November 2026. Historical choice sets are observations, not filing. */
-import type { FastGenerationScenario, PhysicalCell } from "./forecast-types";
-import type { Chamber } from "../input";
-import { scopeMatches } from "./reference-plans";
+import type { FastGenerationScenario, PhysicalCell } from "../../../../src/lib/politics/reform-2026/vote-share/forecast-types";
+import type { Chamber } from "../../../../src/lib/politics/reform-2026/input";
+import { scopeMatches } from "../../../../src/lib/politics/reform-2026/vote-share/reference-plans";
 import { sum } from "./types";
 
 export const COMPONENT_POLICY = "component-prefiling-conditioning-v2";

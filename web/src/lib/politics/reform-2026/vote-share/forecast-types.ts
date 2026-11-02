@@ -3,7 +3,7 @@ import type { ReformGenerationScenario } from "../generation-types";
 import type { fitReference } from "./information";
 import type { fitProfiles } from "./profiles";
 import type { SourceGeography } from "./source-types";
-export const FAST_GENERATION_VERSION = "fast-share-prefiling-physical-cells-v2";
+export const FAST_GENERATION_VERSION = "fast-share-physical-cells-v1";
 export const SENATE_ADAPTER_VERSION = "paired-18plus-logratio-adapter-v1";
 export type ReferenceFit = ReturnType<typeof fitReference>;
 export type GeographicProfile = ReturnType<typeof fitProfiles>;

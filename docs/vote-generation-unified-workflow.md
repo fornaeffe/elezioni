@@ -1,115 +1,62 @@
-# Unified reform generation workflow
+# Unified M01/M02 workflow
 
-Canonical current specifications: [M01 1.0.0](models/M01.md) and [M02 1.0.0](models/M02.md). Model identity/version, numerical policies, data IDs and implementation hashes are separate.
+Current probability laws are [M01 2.0.0](models/M01.md) and
+[M02 2.0.0](models/M02.md), with M02 default. Both restore the implementation
+immediately before `4ee5a91`, while retaining canonical names and exact-version
+checks. Model law, numerical policy, source/scenario IDs and implementation hashes
+are separate. Read only the appropriate model definition for its equations.
 
-The reform web app uses the current schema-5 workflow only. M02 (`bounded-mass-pair-field-v2`) and M01
-share scenario identities, original data, physical geography, legal assembly,
-workers and result/export storage. Their statistical laws remain distinct.
-The [correspondence audit](correspondence-policy-audit.md#adopted-corrections)
-is the adopted policy contract; its initial measurements describe the frozen
-pre-correction implementation. Public deployment and FV-09 cleanup stay separate.
+## Task map
 
 | Task | Entry point under `web/` |
 | --- | --- |
-| Model dispatch / shared cell generation | `src/lib/politics/reform-2026/vote-share/unified-generation.ts`, `generation.ts` |
-| Offered-set pooling, zero treatment and reference coverage | `vote-share/component-policy.ts` under the same source directory |
-| M01 original-count compilation / dated poll groups / shocks | `vote-share/legacy-adapter.ts`, `legacy-observations.ts`, `legacy-components.ts` |
-| M02 original partitions / identifiable groups and contrasts | `vote-share/source-compiler.ts`, `identification.ts`, `information.ts`, `profiles.ts` |
-| Component reference controls / scope and chamber resolution | `vote-share/FastReferencesEditor.svelte`, `reference-plans.ts`, `reference-groups.ts`, `interventions.ts` |
-| Final attributed list counts and legal assembly | `src/lib/politics/reform-2026/assembly.ts` |
-| Authored default compositions and missing anchors | `scripts/data-preparation/unified-share-default.ts`, `unsupported-component-references.ts` |
-| Current production checks / historical comparator | `scripts/acceptance/component-policy-current.ts`, `correspondence-policy-audit.ts` |
+| Public model identities/version checks | `src/lib/politics/reform-2026/vote-share/model-registry.ts`, `scenario.ts` |
+| Select/dispatch models | `vote-share/GenerationModelEditor.svelte`, `unified-generation.ts` under the same source directory |
+| M01 original paired counts, compositions and named polls | `vote-share/legacy-adapter.ts`, `correspondences.ts`, `legacy-polls.ts` |
+| M01 list shocks and municipal-to-college allocation | parent `paired-vote-generation.ts`, `generation.ts` |
+| M02 grouped fitting/geography/physical fields | `vote-share/source-compiler.ts`, `information.ts`, `profiles.ts`, `senate-adapter.ts`, `generation.ts` |
+| Reference editing and scope resolution | `vote-share/FastReferencesEditor.svelte`, `reference-plans.ts`, `interventions.ts` |
+| Shared candidature/preference/legal assembly | parent `assembly.ts`; scrutiny is independent |
+| Authored defaults and release | `scripts/data-preparation/unified-share-default.ts`, `fast-share-release.ts` |
+| Current model smoke check | `scripts/acceptance/component-policy-current.ts` (writes only `data/derived/model-rollback/`) |
+| Frozen 1.0.0 historical kernels | `scripts/acceptance/archive/models-v1/README.md` |
 
-## Numerical and observation contract
+## Model boundary and restored semantics
 
-Use policy `component-prefiling-conditioning-v2`, numerical version
-`fast-share-float64-v2`, and M02 count version
-`fast-share-prefiling-physical-cells-v2`. Implementation hashes and semantic keys
-bind checkpoints, assets and runs; an old checkpoint is not silently upgraded.
-Historical comparison implementations live under `scripts/acceptance/archive/`
-and must not enter browser/worker bundles. The browser rejects older reform
-scenarios/archives rather than routing them to an old generator.
+- M01 projects original historical compositions onto future lists, keeps historical
+  valid-vote fractions, refreshes named list polls and applies list-level shocks.
+  Its missing-mapping fallback is regional/equal-list; it generates municipal
+  integer counts and reconstructs colleges afterwards. Municipal filing unions,
+  per-list poll projection and greedy capacity allocation retain their documented
+  limits. No component-pooling or half-vote correction from 1.0.0 remains active.
+- M02 fits coarsened national groups, uses exact matching national baselines for
+  municipal profiles, and constructs the reference field on physical filed sets.
+  The default locally normalizes the field without compulsory national raking.
+  Explicit list/component references precede bounded mass-pair movement; counts
+  are multinomial in physical cells, with no extra late filing conditioning.
+  Unidentified fitted bases are rejected rather than split using references.
+- Political references preserve already constructed turnout in both models;
+  non-valid references are separate. M01 accepts list references and singleton
+  component references, ignoring reference SDs. M02 supports disjoint list/component
+  references and calibrated reference uncertainty. Their meanings are model-specific.
+- Both use the same original sources, geographic/legal scenario controls, seeded
+  worker orchestration, result tables and exports. Shared inputs do not imply
+  identical probability laws. No scrutiny rule is changed by the rollback.
 
-Structural membership stays independent of M01 composition weights. M01
-requires explicit nonnegative, provenance-bearing joint compositions, including
-zero proportions. Default equal compositions are explicit authored assumptions,
-never runtime missing-composition fallbacks. Future list membership is binary:
-joining tickets sums component counts and does not attenuate support.
-
-Original historical counts and offered sets survive compilation. M02
-national fitting retains heterogeneous historical ballot strata and grouped poll
-observations. Bounded orthogonal Gaussian elimination handles ill-conditioned strata without
-adding a statistical ridge; its sufficient statistics are independently compared
-with the original covariance calculation. QR orthogonality and covariance-solve
-residuals are separate diagnostics. The existing matrix-free path and its residual
-gate remain available when a rectangular QR factor exceeds the workspace budget. Identical observation
-columns are fitted as group totals, with reference-backed component contrasts.
-Other overlapping unidentified contrasts retain their original operators and
-explicit reference requirements. M02 profile calculations retain their
-smoothing, regional shrinkage, filter and variance conventions, comparing actual
-historical choice sets rather than recording missing choices as zeros.
-
-M01 keeps the latest eligible common-18+ Camera/Senato baseline, decomposes
-original counts without early rounding, and pools regional/national support using
-the audit's conditional-frequency objective. Local observed proportions determine
-local relative support; missing alternatives borrow donor mass. Identifiable
-local zeros receive the zero-only half-vote logit treatment using the original
-electorate; positive fractional counts stay unchanged. There is no equal-list
-fallback or arbitrary donor replacement for a required current reference.
-
-## Reference, movement and filing order
-
-1. Build unrestricted reference-date component support. Political scenario
-   references target components, including components in joint tickets. Validate
-   identity, scope, denominator, compatible distributions and required coverage.
-2. Apply the model-specific reference uncertainty: M02 uses its calibrated
-   joint reference family; M01 uses fixed scenario-reference means. Poll
-   measurement error is separate: one original group realization is shared by
-   its fixed-composition components, geography, ticket labels and reused chambers.
-   Complete questions retain their total; partial named surveys remain partial.
-3. Advance support with the M02 joint field or independent M01 component
-   innovations, retaining within-component chamber dependence. M01's prepared
-   geographic estimates are fixed, without extra estimation-error draws.
-4. In each physical cell, remove unavailable components and deterministically
-   condition the complete vector, including non-valid support. Empty remaining
-   support is an error. Do not restore valid-vote totals or pre-filing margins.
-5. Generate electorate-conserving counts in those cells, sum components to the
-   filed lists, then aggregate to colleges. Camera TAA's proportional view is
-   derived once from its physical special ballots. No municipal vote relocation,
-   greedy capacity allocation or pre-filing reference-capacity solver is used.
-
-Scoped references retain specific-over-general and explicit-chamber-over-common
-precedence. Unrestricted reference calibration is permitted; final filed shares
-need not reproduce references. `Models, references and conditions` exports retain
-reference-date, election-date-before-filing and filed probability support, their
-dates/denominators, retained mass, amplification and fallback summaries. Realized
-integer list vote shares remain separate result tables.
+The [correspondence audit](correspondence-policy-audit.md) and
+[Camera comparison](current-camera-comparison-results.md) retain the superseded
+1.0.0 decisions/results. Reproduce those campaigns at their recorded commits;
+current command entry points reject 1.0.0 rather than relabelling 2.0.0 output.
+The 1.0.0 correction curator is likewise historical. Existing benchmark receipts
+are not overwritten or counted as fresh validation of the restored versions.
 
 ## Defaults and verification
 
-Luca approved explicit default anchors for IdV, Futuro Nazionale, PLD/LibDem,
-+Uno, Progetto Civico and PSI/civici on 1 November 2026. Preparation obtains their
-reference-date means and sample SDs from 256 deterministic reference-only draws
-of the M02 **before adding these anchors**. The policy is
-`M02-reference-moments-v1` in `data/fast-share-default-policy.json`.
-The scenario state records the source fit/profile IDs, seed, draw count and
-estimates. These are model estimates, not new observations or calibrated
-forecasts. SDs apply only to M02 generation; M01 uses fixed means.
-Existing scoped overrides retain precedence. Regenerate through the release
-pipeline; never edit generated defaults manually.
-
-From `web/`, use `npm run data:reform:shares:release`, `npm run check:data`,
-`npm run check`, `npm test`, and the unified browser/storage/export checks.
-`npx tsx --tsconfig tsconfig.node.json scripts/acceptance/component-policy-current.ts`
-checks the installed current assets and reports invalid default reference inputs.
-The original audit reader uses the terminal-only comparator and does not rewrite
-its frozen benchmark receipt. Full model campaigns, resource observations and
-actual check outcomes belong in migration history, not assumed acceptance.
-After the application, full-campaign and resource suites pass, run
-`npx tsx --tsconfig tsconfig.node.json scripts/acceptance/component-policy-curate.ts`
-to produce the [current acceptance snapshot](../test/fixtures/benchmarks/correspondence_corrections_acceptance.json).
-It rejects missing/failed reports and campaign implementation identities that do
-not match the installed catalog. Earlier audit and FV receipts remain historical.
+Regenerate defaults and every fitted/profile/runtime/catalog asset through
+`npm run data:reform:shares:release`; do not hand-edit snapshots. The policy restores
+its pre-correction references and omits the six 1.0.0 model-derived anchors.
+M01/M02 selectors, checkpoints and result provenance require exact version 2.0.0.
+Saved 1.0.0 scenarios do not execute implicitly under the restored laws.
 
 ## Worker ownership and resource policy
 
@@ -117,7 +64,7 @@ Both models use complete paired simulations, stable IDs, ordered bounded commits
 cancellation and the shared result pipeline. Numerical workspace remains capped
 at 256 MiB. The previous 512 MiB aggregate ceiling remains waived. The following
 resource planning policy is retained; older measurements are provenance for its
-conservative estimates, not fresh measurements of corrected algorithms.
+conservative estimates, not fresh measurements of the restored 2.0.0 algorithms.
 
 For $P$ declared logical processors, the selectable ceiling is
 $\max(1,P-2)$ when $P\ge4$, otherwise $\max(1,P-1)$. Two slots cover the main
@@ -159,9 +106,9 @@ include nested compute workers; CDP enumeration alone misses some nested
 workers and its heap samples are explicitly labelled partial.
 
 The ordinary build installs the unified workspace. `REFORM_FAST_CANDIDATE=0`
-is a compatibility-test override. v1-v3 imports route to their original installed
-workflow; v4 remains candidate-only and v5 supports the selector. No statistical
-conversion is performed. JSON.gz retains the exact executed scenario and
+is a compatibility-test override. The ordinary browser accepts only current v5
+scenarios with exact M01/M02 2.0.0 identities. Older formats or model versions
+are rejected; no statistical conversion is performed. JSON.gz retains the exact executed scenario and
 self-contained session; CSV remains table-oriented.
 
 ## Verification commands
@@ -170,6 +117,7 @@ From `web/`, Node 24:
 
 ```powershell
 npm run data:reform:shares:release
+node --import tsx scripts/acceptance/model-rollback-parity.ts
 npm run check:data
 npm run check
 npm test -- --maxWorkers=4

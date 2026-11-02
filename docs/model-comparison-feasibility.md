@@ -27,9 +27,9 @@ and filled-seat counts cannot substitute for historical predictive scores.
 
 ## Blocking source requirement
 
-[M01 1.0.0](models/M01.md#notation-observations-and-scope) requires the latest
+[M01 1.0.0](models/archive/M01-1.0.0.md#notation-observations-and-scope) requires the latest
 cutoff-eligible same-date Camera/Senato pair with common age-18+ electorates.
-[M02 1.0.0](models/M02.md#4-senate-reference-and-chamber-dependence) requires that
+[M02 1.0.0](models/archive/M02-1.0.0.md#4-senate-reference-and-chamber-dependence) requires that
 paired history for its Senate adaptation. Its supported refitting service also
 compiles the pair when preparing a Camera-only renewal; changing `renewal` alone
 does not remove this preparation dependency.

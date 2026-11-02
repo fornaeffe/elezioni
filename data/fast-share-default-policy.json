@@ -79,20 +79,8 @@
     "04"
   ],
   "electoratePolicy": "Hold the matched original Camera-2022 common-18+ municipal electorate constant, conditionally, for both future chambers; no demographic forecast or inferred fine-geography turnout.",
-  "selectionStatus": "M02 1.0.0 is the default; M01 1.0.0 is the component-based alternative. Functional acceptance is separate from predictive calibration.",
+  "selectionStatus": "M02 2.0.0 is the default; M01 2.0.0 is the list-based alternative. Both restore the pre-4ee5a91 laws; predictive acceptance remains separate.",
   "forecastModel": "bounded-mass-pair-field-v2",
   "forecastScale": 1.5,
-  "profileRegionCorrelation": 0.25,
-  "unsupportedComponentReferences": {
-    "policy": "M02-reference-moments-v1",
-    "components": [
-      "idv",
-      "poll-only-futuro-nazionale",
-      "poll-only-libdem",
-      "poll-only-piu-uno",
-      "poll-only-progetto-civico",
-      "psi-civici"
-    ],
-    "draws": 256
-  }
+  "profileRegionCorrelation": 0.25
 }

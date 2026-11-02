@@ -1,3 +1,4 @@
+import { requireGenerationModel } from '../../src/lib/politics/reform-2026/vote-share/model-registry';
 /** Curate only completed, current-bound acceptance; never accept missing receipts. */
 import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
@@ -8,6 +9,7 @@ import type {
 } from "../../src/lib/politics/reform-2026/vote-share/release";
 import { readBytes } from "../data-preparation/fast-share-release-io";
 import { requireBrowserAcceptance, requireUnitAcceptance } from "./reports";
+requireGenerationModel({ model: 'M02', modelVersion: '1.0.0' }); // Historical: checkout 8dcb830/965f7ba.
 const json = async (path: string) =>
   JSON.parse(await readFile(resolve(path), "utf8"));
 const dir = resolve("static/data/reform-2026/fast-share");

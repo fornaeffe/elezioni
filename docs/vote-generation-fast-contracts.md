@@ -1,15 +1,16 @@
 # Fast vote generation: production data and scenario contracts
 
 Current model names and authoritative probability-law specifications are
-[M01 1.0.0](models/M01.md) and [M02 1.0.0](models/M02.md). Older candidate names
+[M01 2.0.0](models/M01.md) and [M02 2.0.0](models/M02.md). Older candidate names
 and equations below retain their historical/implementation context; use those
 specifications for the current complete laws.
 
-Current application boundary (1 November 2026): only schema-5 reform scenarios
-and their current frozen sessions are supported in the browser. Political
-references target components. Original offered sets and unidentified contrasts
-follow the [unified contract](vote-generation-unified-workflow.md), which takes
-precedence over earlier FV scenario examples below. Old archives are not upgraded.
+Current application boundary (2 November 2026): only schema-5 reform scenarios
+with exact M01/M02 2.0.0 identities and matching frozen sessions execute in the
+browser. List/component reference meanings follow the
+[unified contract](vote-generation-unified-workflow.md). The 1.0.0 original-strata,
+unidentified-contrast and unrestricted-reference corrections are historical.
+Old archives/model versions are not upgraded.
 
 **Version scope:** this is the original v4 numerical/reuse contract. The active
 [unified v5 contract](vote-generation-unified-workflow.md) extends it with explicit

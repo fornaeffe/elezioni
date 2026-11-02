@@ -177,7 +177,7 @@ describe('FV-07 scenario editing and portable fitted sessions', () => {
     n = setFastReference(n, {
       scope: { kind: 'national' },
       channel: 'camera',
-      subject: {kind:'component',id:'a'},
+      subject: { kind: 'list', id: n.lists.camera.at(-1)!.id },
       percent: 0,
       sd: 0,
     });
@@ -196,7 +196,7 @@ describe('FV-07 scenario editing and portable fitted sessions', () => {
     n = setFastReference(n, {
       scope: { kind: 'national' },
       channel: 'common',
-      subject: {kind:'component',id:'a'},
+      subject: { kind: 'list', id: n.lists.camera[0].id },
       percent: 20,
       sd: 2,
     });

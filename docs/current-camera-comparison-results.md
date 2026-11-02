@@ -1,6 +1,6 @@
-# Current M01/M02 Camera-only comparison
+# M01/M02 1.0.0 Camera-only comparison (historical)
 
-This experiment evaluates the current M01/M02 probability kernels using the
+This experiment evaluates the then-current M01/M02 1.0.0 probability kernels using the
 Camera-only preparation exception Luca approved on 2 November 2026. Production
 model contracts, sources, defaults, routing and legal scrutiny are unchanged.
 The [previous comparison](vote-generation-legacy-comparison-results.md) is frozen;
@@ -161,6 +161,12 @@ diagnostics and raw-report hashes. Detailed evidence is under
 production-default selection, public deployment or general calibration claim.
 
 ## Reproduce and verify
+
+Checkout `8dcb830` to run the original commands and source/code bindings below.
+Current M01/M02 2.0.0 restore different laws; the historical entry points reject
+them. Kernel snapshots remain in `web/scripts/acceptance/archive/models-v1/` for
+the adapter regression tests. This report and its receipts remain frozen.
+
 
 Run from `web/`, with the pinned source archives, frozen historical profile
 folders and current generated release present. Missing required data fails.

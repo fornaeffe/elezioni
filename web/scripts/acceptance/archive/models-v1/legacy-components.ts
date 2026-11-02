@@ -1,11 +1,11 @@
 /** Revised legacy law: fixed preparation, shared poll errors, component shocks. */
-import type { Chamber } from "../input";
-import type { ReformAssemblyContext } from "../generation-types";
-import type { FastGenerationScenario, PhysicalCell } from "./forecast-types";
-import type { CompiledLegacy } from "./legacy-adapter";
+import type { Chamber } from "../../../../src/lib/politics/reform-2026/input";
+import type { ReformAssemblyContext } from "../../../../src/lib/politics/reform-2026/generation-types";
+import type { FastGenerationScenario, PhysicalCell } from "../../../../src/lib/politics/reform-2026/vote-share/forecast-types";
+import type { CompiledLegacy } from "./legacy-types";
 import { normalizedComposition, pollChoiceId } from "./correspondences";
 import { politicalIntervention } from "./interventions";
-import { forecastRandom } from "./forecast-random";
+import { forecastRandom } from "../../../../src/lib/politics/reform-2026/vote-share/forecast-random";
 import { sum, day } from "./types";
 const logit = (p: number) => Math.log(p / (1 - p));
 const logistic = (x: number) => 1 / (1 + Math.exp(-x));

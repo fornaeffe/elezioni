@@ -1,4 +1,4 @@
-import {requireGenerationModel} from './model-registry';
+import { requireGenerationModel } from './model-registry';
 import type { Chamber, ReferenceScope } from "../input";
 import type {
   GenerationTrace,
@@ -8,9 +8,6 @@ import type {
 import { assembleReformSimulation, type CollegeCounts } from "../assembly";
 import { prepareReferenceBonusPlan } from "../reference-bonus-plan";
 import { bonusKey } from "../bonus-reference-support";
-import { COMPONENT_POLICY, requireReferenceCoverage } from "./component-policy";
-import type { CompiledLegacy } from "./legacy-adapter";
-import { legacySurfaces, legacyMovement } from "./legacy-components";
 import { multinomial } from "../generation-math";
 import {
   FAST_SHARE_MODEL,
@@ -48,7 +45,6 @@ import {
 import { adaptSenateReference } from "./senate-adapter";
 import { betaTransition, movementScales } from "./transition";
 import { feasibleField } from "./feasible-field";
-import { componentIntervention } from "./reference-groups";
 import { referenceNoise } from "./reference-noise";
 
 export interface FastVoteAudit {
@@ -65,15 +61,10 @@ export interface FastVoteAudit {
   warnings: string[];
   countryReference: Partial<Record<Chamber, number[]>>;
   countryForecast: Partial<Record<Chamber, number[]>>;
-  countryFiled: Partial<Record<Chamber, number[]>>;
-  conditioning: Partial<
-    Record<Chamber, { retainedMass: number; maximumAmplification: number }>
-  >;
 }
 export interface FastGenerationOptions {
   chunkSize?: number;
   maximumWorkspaceBytes?: number;
-  legacy?: CompiledLegacy;
 }
 type Surfaces = Record<Chamber, Float64Array[]>;
 export function prepareFastGeneration(
@@ -89,20 +80,12 @@ export function prepareFastGeneration(
     seats: context.seats,
     models: context.models,
   });
+  const definition = requireGenerationModel(scenario.generation);
+  if (definition.id !== "M02") throw new Error("MODEL_PREPARATION_MISMATCH");
   const s = structuredClone(scenario),
     assets = structuredClone(inputAssets),
     chambers: Chamber[] =
       s.renewal === "joint" ? ["camera", "senato"] : [s.renewal];
-  const definition = requireGenerationModel(s.generation);
-  const legacy = options.legacy;
-  if ((definition.id === "M01") !== !!legacy) throw new Error("MODEL_PREPARATION_MISMATCH");
-  if (s.models.forecast && s.models.forecast !== "bounded-mass-pair-field-v2")
-    throw new Error("Only latest selected forecast algorithm is supported");
-  s.models.forecast = "bounded-mass-pair-field-v2";
-  if (legacy) {
-    s.references.forEach((r) => (r.sdPercentagePoints = 0));
-    s.nonValidReferences.forEach((r) => (r.sdPercentagePoints = 0));
-  }
   const fit = assets.fit,
     ids = s.components.map((c) => c.id).sort(),
     componentsById = new Map(s.components.map((c) => [c.id, c])),
@@ -130,16 +113,15 @@ export function prepareFastGeneration(
   )
     throw new Error("FAST_GENERATION_MODEL_MISMATCH");
   if (
-    !legacy &&
-    (s.referenceDate !== fit.referenceDate ||
-      s.referenceDate !== assets.profileReferenceDate ||
-      s.fitSeed !== assets.fitSeed ||
-      day(s.electionDate) < day(s.referenceDate) ||
-      s.data.sourceBundleId !== assets.sourceBundleId ||
-      s.data.fittedStateId !== assets.fittedStateId ||
-      s.data.profileStateId !== assets.profileStateId ||
-      s.data.geographyVersion !== assets.geography.version ||
-      assets.geography.version !== context.seats.geography.version)
+    s.referenceDate !== fit.referenceDate ||
+    s.referenceDate !== assets.profileReferenceDate ||
+    s.fitSeed !== assets.fitSeed ||
+    day(s.electionDate) < day(s.referenceDate) ||
+    s.data.sourceBundleId !== assets.sourceBundleId ||
+    s.data.fittedStateId !== assets.fittedStateId ||
+    s.data.profileStateId !== assets.profileStateId ||
+    s.data.geographyVersion !== assets.geography.version ||
+    assets.geography.version !== context.seats.geography.version
   )
     throw new Error(
       "FIT_STALE: incompatible date/source/fit/profile/geography",
@@ -156,11 +138,7 @@ export function prepareFastGeneration(
   )
     throw new Error("Invalid future component basis/renewal");
   for (const component of s.components) {
-    if (
-      !legacy &&
-      component.kind === "fitted" &&
-      !fit.componentIds.includes(component.id)
-    )
+    if (component.kind === "fitted" && !fit.componentIds.includes(component.id))
       throw new Error("COMPONENT_NOT_IDENTIFIED");
     if (
       component.kind === "new" &&
@@ -211,8 +189,7 @@ export function prepareFastGeneration(
       sample.diagnostics.coordinates.length !== sample.dimensions ||
       sample.diagnostics.coordinates.some((d) =>
         d.constant === "fixed"
-          ? sample !== fit.political ||
-            (fit.componentIds.length !== 1 && !fit.identificationGroups?.length)
+          ? sample !== fit.political || fit.componentIds.length !== 1
           : d.constant !== false ||
             d.rhat === null ||
             !Number.isFinite(d.rhat) ||
@@ -241,7 +218,6 @@ export function prepareFastGeneration(
   )
     throw new Error("Invalid fitted basis/scales");
   if (
-    !legacy &&
     chambers.includes("senato") &&
     (assets.senateAdapter?.version !== SENATE_ADAPTER_VERSION ||
       assets.senateAdapter.referenceDate !== s.referenceDate ||
@@ -342,43 +318,6 @@ export function prepareFastGeneration(
   }
   const filedList = (c: PhysicalCell, id: string) =>
     filing.get(c.chamber + ":" + c.collegeId)?.get(id);
-  requireReferenceCoverage(
-    s,
-    cells,
-    legacy
-      ? legacy.requiredReferences
-      : s.components
-          .filter(
-            (c) =>
-              c.kind === "new" ||
-              (
-                assets.fit as typeof fit & { referenceRequired?: string[] }
-              ).referenceRequired?.includes(c.id),
-          )
-          .map((c) => c.id),
-  );
-  if (legacy) {
-    if (
-      legacy.policy !== COMPONENT_POLICY ||
-      legacy.componentIds.join("|") !== ids.join("|")
-    )
-      throw new Error("LEGACY_COMPONENT_STATE_MISMATCH");
-    for (const ch of chambers) {
-      const codes = new Set(legacy.rows[ch].map((r) => r.code));
-      if (
-        codes.size !== legacy.rows[ch].length ||
-        cells[ch].some((c) => !codes.has(c.municipality))
-      )
-        throw new Error("LEGACY_GEOGRAPHY_STATE_MISMATCH");
-      for (const r of legacy.rows[ch])
-        if (
-          r.probabilities.length !== n ||
-          r.probabilities.some((v) => !Number.isFinite(v) || v < 0) ||
-          Math.abs(sum(r.probabilities) - 1) > 1e-10
-        )
-          throw new Error("INVALID_LEGACY_COMPONENT_PROBABILITIES");
-    }
-  }
   const plans = referencePlans(s, cells, chambers, filedList),
     position = new Map(fit.componentIds.map((id, i) => [id, i])),
     profilePosition = new Map(
@@ -415,7 +354,6 @@ export function prepareFastGeneration(
     j: number,
     kind: "means" | "profileSd" | "futureScales",
   ) => {
-    if (legacy) return 0;
     const id = ids[j - 1],
       old = j === 0 ? 0 : (position.get(id) ?? -2) + 1,
       component = j ? componentsById.get(id) : undefined;
@@ -440,21 +378,6 @@ export function prepareFastGeneration(
   // Profiles and filing do not change between draws of this prepared scenario.
   // Cache their resolved coordinates once, rather than repeat identity/geography
   // lookups for every municipality, component and posterior draw.
-  const remainingContrasts: number[][] = [];
-  for (const original of fit.referenceDirections ?? []) {
-    const v = [...original];
-    for (const group of fit.identificationGroups ?? []) {
-      const at = group.map((id) => fit.componentIds.indexOf(id)),
-        mean = sum(at.map((j) => v[j])) / at.length;
-      at.forEach((j) => (v[j] = mean));
-    }
-    for (const prior of remainingContrasts) {
-      const dot = sum(prior.map((x, j) => x * v[j]));
-      prior.forEach((x, j) => (v[j] -= dot * x));
-    }
-    const norm = Math.hypot(...v);
-    if (norm > 1e-10) remainingContrasts.push(v.map((x) => x / norm));
-  }
   const referenceProfiles = new Map<
     PhysicalCell,
     {
@@ -528,7 +451,7 @@ export function prepareFastGeneration(
       true,
       ...ids.map((id) => cells[ch].some((c) => filedList(c, id) !== undefined)),
     ];
-    return b;
+    return removeAbsent(b, offered);
   };
   const geographicField = (
     ch: Chamber,
@@ -559,81 +482,19 @@ export function prepareFastGeneration(
     central: boolean,
     noiseField = makeReferenceNoise(simulationId, central),
   ) => {
-    if (legacy) {
-      const rows = legacySurfaces(
-        s,
-        legacy,
-        cells[ch],
-        ch,
-        simulationId,
-        central,
-      );
-      return {
-        rows,
-        backup: rows.map((r) => r.slice()),
-        referenceConditioned: false,
-      };
-    }
     const b = baseCountry(ch, simulationId, central),
       logBase = b.map((x) => (x > 0 ? Math.log(x) : -Infinity)),
       scores = (i: number) => {
         const c = cells[ch][i],
           resolved = referenceProfiles.get(c)!,
           noise = noiseField(ch, c.municipality, c.region);
-        const raw = Float64Array.from({ length: n }, (_, j) =>
-          b[j] > 0
-            ? logBase[j] + resolved.means[j] + resolved.sd[j] * noise[j]
-            : -Infinity,
+        return Float64Array.from({ length: n }, (_, j) =>
+          !resolved.offered[j]
+            ? -Infinity
+            : b[j] > 0
+              ? logBase[j] + resolved.means[j] + resolved.sd[j] * noise[j]
+              : -Infinity,
         );
-        for (const group of fit.identificationGroups ?? []) {
-          const positions = group
-            .map((id) => index.get(id))
-            .filter((j): j is number => j !== undefined);
-          if (!positions.length) continue;
-          const groupNoise = noise[positions[0]],
-            totalMean =
-              sum(positions.map((j) => resolved.means[j])) / positions.length,
-            sharedSd =
-              sum(positions.map((j) => resolved.sd[j])) / positions.length;
-          const contrast = noiseField(
-              ch,
-              c.municipality + ":contrast:" + group.join("|"),
-              c.region,
-            ),
-            split = positions.map(
-              (j) =>
-                Math.log(b[j] ?? 0) + Math.sqrt(1 + 0.45 ** 2) * contrast[j],
-            ),
-            maximum = Math.max(...split),
-            denominator = sum(split.map((x) => Math.exp(x - maximum))),
-            groupMass = sum(positions.map((j) => b[j]));
-          if (groupMass > 0)
-            positions.forEach(
-              (j, t) =>
-                (raw[j] =
-                  Math.log(groupMass) +
-                  totalMean +
-                  sharedSd * groupNoise +
-                  split[t] -
-                  maximum -
-                  Math.log(denominator)),
-            );
-        }
-        if (remainingContrasts.length) {
-          const z = noiseField(
-            ch,
-            c.municipality + ":unidentified-contrasts",
-            c.region,
-          );
-          remainingContrasts.forEach((direction, d) =>
-            direction.forEach((v, j) => {
-              const out = index.get(fit.componentIds[j]);
-              if (out !== undefined && Number.isFinite(raw[out]))
-                raw[out] += Math.sqrt(1 + 0.45 ** 2) * v * z[d];
-            }),
-          );
-        }
-        return raw;
       };
     const field = geographicField(ch, scores);
     const conditional = {
@@ -646,14 +507,31 @@ export function prepareFastGeneration(
         return weights.map((x) => x / total);
       },
     };
-    // References describe unrestricted support, never future filing capacity.
-    const projected = projectMargins(
-        b,
-        cells[ch].length,
-        (i) => ({ weight: cells[ch][i].electors, scores: field(i) }),
-        options,
-      ),
+    let projected: Pick<ReturnType<typeof projectMargins>, "probabilities">,
       referenceConditioned = false;
+    if (
+      s.models.forecast &&
+      s.models.forecastReference !== "country-calibrated"
+    )
+      projected = conditional;
+    else
+      try {
+        projected = projectMargins(
+          b,
+          cells[ch].length,
+          (i) => ({ weight: cells[ch][i].electors, scores: field(i) }),
+          options,
+        );
+      } catch (error) {
+        if (
+          s.models.forecast &&
+          s.models.forecastReference === "country-calibrated" &&
+          error instanceof ProjectionCapacityError
+        ) {
+          projected = conditional;
+          referenceConditioned = true;
+        } else throw error;
+      }
     const rows = cells[ch].map((_, i) => projected.probabilities(i));
     return {
       rows,
@@ -693,10 +571,10 @@ export function prepareFastGeneration(
   ) => {
     const fallback = (ch: Chamber, i: number, j: number) => {
       const cell = cells[ch][i];
-
+      if (j > 0 && !filedList(cell, ids[j - 1])) return 0;
       if (backups[ch][i][j] > 0)
         return backups[ch][i][j] / Math.max(1e-300, 1 - backups[ch][i][0]);
-      if (j > 0 && (componentsById.get(ids[j - 1])!.kind === "new" || legacy)) {
+      if (j > 0 && componentsById.get(ids[j - 1])!.kind === "new") {
         const noise = noiseField(ch, cell.municipality, cell.region)[j];
         return Math.exp(
           referenceProfiles.get(cell)!.means[j] +
@@ -777,14 +655,20 @@ export function prepareFastGeneration(
         }
         const values = [...resolved.values()];
         if (values.length) {
-          const r = componentIntervention(
+          const r = politicalIntervention(
             rows,
             electors,
-            values.map((g) => g.members.map((id) => index.get(id)!)),
+            (i) =>
+              values.map((g) =>
+                g.members
+                  .filter(
+                    (id) =>
+                      g.subject.kind === "component" ||
+                      filedList(cells[ch][selected[i]], id) === g.subject.id,
+                  )
+                  .map((id) => index.get(id)!),
+              ),
             values.map((g) => g.share),
-            (legacy ? [] : (fit.identificationGroups ?? [])).map((g) =>
-              g.flatMap((id) => (index.has(id) ? [index.get(id)!] : [])),
-            ),
             (i, j) => fallback(ch, selected[i], j),
             options,
           );
@@ -816,8 +700,6 @@ export function prepareFastGeneration(
     warnings: [],
     countryReference: {},
     countryForecast: {},
-    countryFiled: {},
-    conditioning: {},
   });
   const referenceSurfaces = (
     simulationId: number,
@@ -846,12 +728,7 @@ export function prepareFastGeneration(
   };
   const centralAudit = freshAudit(),
     central = referenceSurfaces(0, true, centralAudit),
-    centralFiled: Surfaces = { camera: [], senato: [] },
     support = new Map<string, number>();
-  for (const ch of chambers)
-    centralFiled[ch] = central[ch].map((r, i) =>
-      removeAbsent(r, referenceProfiles.get(cells[ch][i])!.offered),
-    );
   for (const ch of chambers)
     cells[ch].forEach((c, i) => {
       const college = context.seats.geography.colleges.find(
@@ -865,7 +742,7 @@ export function prepareFastGeneration(
         support.set(
           key,
           (support.get(key) ?? 0) +
-            c.electors * sum(positions.map((j) => centralFiled[ch][i][j])),
+            c.electors * sum(positions.map((j) => central[ch][i][j])),
         );
       }
     });
@@ -913,22 +790,23 @@ export function prepareFastGeneration(
             (r.channel === "common" || r.channel === ch) &&
             (r.subject.kind === "list"
               ? r.subject.id === listId
-              : list.componentIds.includes(r.subject.id)),
+              : list.componentIds.length === 1 &&
+                list.componentIds[0] === r.subject.id),
         );
         if (scope.kind !== "national" && !supplied) return null;
         let numerator = 0,
           denominator = 0;
         cells[ch].forEach((c, i) => {
           if (!scopeMatches(c, scope)) return;
-          denominator += c.electors * (1 - centralFiled[ch][i][0]);
+          denominator += c.electors * (1 - central[ch][i][0]);
           for (const id of list.componentIds)
             if (filedList(c, id) === listId)
-              numerator += c.electors * centralFiled[ch][i][index.get(id)!];
+              numerator += c.electors * central[ch][i][index.get(id)!];
         });
         return {
           share: denominator ? numerator / denominator : 0,
           referenceDate: s.referenceDate,
-          origin: "model-derived" as const,
+          origin: supplied ? ("supplied" as const) : ("model-derived" as const),
         };
       };
       const camera = ref("camera"),
@@ -1044,30 +922,9 @@ export function prepareFastGeneration(
         ReturnType<typeof projectMargins>,
         "probabilities" | "residual" | "iterations"
       >;
-      if (legacy) {
-        const rows = legacyMovement(
-          s,
-          legacy,
-          context,
-          cells[ch],
-          reference[ch],
-          ids,
-          ch,
-          simulationId,
-        );
-        projected = {
-          probabilities: (i) => rows[i],
-          residual: 0,
-          iterations: 0,
-        };
-        const mean = new Float64Array(n);
-        rows.forEach((r, i) =>
-          r.forEach((p, j) => (mean[j] += (cells[ch][i].electors * p) / total)),
-        );
-        audit.countryForecast[ch] = [...mean];
-      } else {
+      if (s.models.forecast) {
         const generated = feasibleField({
-          model: "bounded-mass-pair-field-v2",
+          model: s.models.forecast,
           reference: reference[ch],
           cells: cells[ch],
           politicalScales,
@@ -1095,6 +952,121 @@ export function prepareFastGeneration(
           iterations: generated.projectionIterations,
         };
         audit.countryForecast[ch] = [...generated.country];
+      } else {
+        let futureQ =
+          sum(q) > 0
+            ? betaTransition(
+                q,
+                politicalScales,
+                horizon,
+                forecastRandom(
+                  s.seed,
+                  simulationId,
+                  "political-movement",
+                  ch,
+                  correlation,
+                ),
+              )
+            : q;
+        // Election discrepancy is unit exposure, including at zero calendar horizon.
+        if (sum(futureQ) > 0)
+          futureQ = betaTransition(
+            futureQ,
+            ids.map(
+              (_, j) => 1.5 * fit.audit.electionDiscrepancy * multipliers[j],
+            ),
+            1,
+            forecastRandom(
+              s.seed,
+              simulationId,
+              "election-discrepancy",
+              ch,
+              correlation,
+            ),
+          );
+        const futureNv = betaTransition(
+            nv,
+            [scale.nonValid, scale.nonValid],
+            horizon,
+            forecastRandom(
+              s.seed,
+              simulationId,
+              "non-valid-movement",
+              ch,
+              correlation,
+            ),
+          ),
+          target = Float64Array.from([
+            futureNv[0],
+            ...futureQ.map((p) => futureNv[1] * p),
+          ]);
+        audit.countryForecast[ch] = [...target];
+        const localScale = Math.exp(
+            0.2 *
+              forecastRandom(
+                s.seed,
+                simulationId,
+                "local-scale",
+                ch,
+                correlation,
+              ).normal(),
+          ),
+          regionNoise = new Map<string, Float64Array>();
+        for (const region of new Set(cells[ch].map((c) => c.region))) {
+          const rng = forecastRandom(
+            s.seed,
+            simulationId,
+            "region:" + region,
+            ch,
+            correlation,
+          );
+          regionNoise.set(
+            region,
+            Float64Array.from({ length: n }, () => rng.normal()),
+          );
+        }
+        const scores = (i: number) => {
+          const c = cells[ch][i],
+            rng = forecastRandom(
+              s.seed,
+              simulationId,
+              "local:" + c.municipality,
+              ch,
+              correlation,
+            ),
+            localNoise = Float64Array.from({ length: n }, () => rng.normal());
+          return Float64Array.from({ length: n }, (_, j) => {
+            if (
+              !(target[j] > 0) ||
+              !(reference[ch][i][j] > 0) ||
+              (j > 0 && !filedList(c, ids[j - 1]))
+            )
+              return -Infinity;
+            const list = j
+              ? listsById[ch].get(filedList(c, ids[j - 1])!)
+              : undefined;
+            const noise =
+              profileValue(ch, c, j, "futureScales") *
+              (list?.localUncertaintyMultiplier ?? 1) *
+              localScale *
+              Math.sqrt(horizon) *
+              (Math.sqrt(0.85) * localNoise[j] +
+                Math.sqrt(0.15) * regionNoise.get(c.region)![j]);
+            return (
+              Math.log(target[j]) +
+              Math.log(reference[ch][i][j]) -
+              Math.log(b[j]) +
+              noise
+            );
+          });
+        };
+        const field = geographicField(ch, scores);
+        projected = projectMargins(
+          target,
+          cells[ch].length,
+          (i) => ({ weight: cells[ch][i].electors, scores: field(i) }),
+          options,
+        );
       }
       audit.projectionResidual = Math.max(
         audit.projectionResidual,
@@ -1104,9 +1076,6 @@ export function prepareFastGeneration(
         audit.projectionIterations,
         projected.iterations,
       );
-      const filedMean = new Float64Array(n);
-      let retainedMass = 0,
-        maximumAmplification = 1;
       for (
         let start = 0;
         start < cells[ch].length;
@@ -1125,23 +1094,13 @@ export function prepareFastGeneration(
               ch,
               correlation,
             ),
-            finalProbabilities = removeAbsent(
-              projected.probabilities(i),
-              referenceProfiles.get(c)!.offered,
-            ),
             componentCounts = c.electors
-              ? multinomial(c.electors, [...finalProbabilities], rng.uniform)
+              ? multinomial(
+                  c.electors,
+                  [...projected.probabilities(i)],
+                  rng.uniform,
+                )
               : Array(n).fill(0);
-          const retained = sum(
-            Array.from(projected.probabilities(i), (p, j) =>
-              referenceProfiles.get(c)!.offered[j] ? p : 0,
-            ),
-          );
-          retainedMass += (c.electors * retained) / total;
-          maximumAmplification = Math.max(maximumAmplification, 1 / retained);
-          finalProbabilities.forEach(
-            (p, j) => (filedMean[j] += (c.electors * p) / total),
-          );
           const row = counts.get(c.collegeId) ?? {
             electors: 0,
             votes: new Map<string, number>(),
@@ -1157,8 +1116,6 @@ export function prepareFastGeneration(
             throw new Error("Integer elector conservation failed");
           counts.set(c.collegeId, row);
         }
-      audit.countryFiled[ch] = [...filedMean];
-      audit.conditioning[ch] = { retainedMass, maximumAmplification };
     }
     for (const derived of context.seats.geography.colleges.filter(
       (c) => c.kind === "taa-proportional" && chambers.includes(c.chamber),
@@ -1177,67 +1134,49 @@ export function prepareFastGeneration(
       }
       counts.set(derived.id, row);
     }
-    const trace = structuredClone(baseTrace);
-    trace.componentSupport = {
-      model: {id:definition.id,version:definition.version},
-      policy: COMPONENT_POLICY,
-      componentIds: ["non-valid", ...ids],
-      denominator:
-        "elector probabilities; political reference targets use valid support; realized integer list shares are separate results",
-      reference: {
-        date: s.referenceDate,
-        support: audit.countryReference,
-        targets: audit.referenceTargets,
-      },
-      beforeFiling: { date: s.electionDate, support: audit.countryForecast },
-      filed: { date: s.electionDate, support: audit.countryFiled },
-      conditioning: audit.conditioning,
-      fallbacks: legacy?.audit ?? {
-        referenceRequired: fit.referenceRequired,
-        groups: fit.identificationGroups,
-        pooledProfileCells: assets.cameraProfile.audit.pooledFallbackCells,
-        missingHistoryCells: assets.cameraProfile.audit.missingHistoryCells,
-      },
-    };
-    const result = assembleReformSimulation(
-      { scenario: legalScenario, snapshot: context, bonusPlan },
-      simulationId,
-      counts,
-      trace,
-      {
-        voteParameterVersion: definition.id + "@" + definition.version + "/" + (legacy ? COMPONENT_POLICY : FAST_GENERATION_VERSION),
-        chamberModelId: "fast-share-paired-v1",
-        chamberParameterVersion: legacy
-          ? COMPONENT_POLICY + "/paired-legacy"
-          : (assets.senateAdapter?.version ?? "camera-only"),
-        sourceVersions: [
-          assets.sourceBundleId,
-          assets.fittedStateId,
-          assets.profileStateId,
-          FAST_SHARE_MODEL,
-          ...(assets.senateAdapter?.sourceVersions ?? []),
-        ],
-        assumptions: [
-          ...(legacy ? [] : (assets.senateAdapter?.assumptions ?? [])),
-          "Conditional municipal 18+ electorates are apportioned to physical cells using census population weights before generation; this is a labelled reconstruction, not observed submunicipal turnout. Electorate dates: " +
-            [...new Set(assets.electorates.map((e) => e.date))]
-              .sort()
-              .join(", ") +
-            ".",
-          ...[...new Set(assets.electorates.map((e) => e.provenance))],
-          legacy
-            ? "M01 component logit shocks, independent innovations across components, fixed scenario-reference means, shared original-group poll measurement error, fixed geographic preparation; deterministic physical-cell conditioning including non-valid support."
-            : "M02 bounded mass-pair movement on unrestricted reference support; component references precede movement and deterministic physical-cell conditioning including non-valid support. Profile regional variance share " +
-              (s.models.profileRegionCorrelation ?? 0) +
-              "; innovation scale " +
-              (s.models.forecastScale ?? 1) +
+    const trace = structuredClone(baseTrace),
+      result = assembleReformSimulation(
+        { scenario: legalScenario, snapshot: context, bonusPlan },
+        simulationId,
+        counts,
+        trace,
+        {
+          voteParameterVersion: definition.id + "@" + definition.version + "/" + FAST_GENERATION_VERSION,
+          chamberModelId: "fast-share-paired-v1",
+          chamberParameterVersion:
+            assets.senateAdapter?.version ?? "camera-only",
+          sourceVersions: [
+            assets.sourceBundleId,
+            assets.fittedStateId,
+            assets.profileStateId,
+            FAST_SHARE_MODEL,
+            ...(assets.senateAdapter?.sourceVersions ?? []),
+          ],
+          assumptions: [
+            ...(assets.senateAdapter?.assumptions ?? []),
+            "Conditional municipal 18+ electorates are apportioned to physical cells using census population weights before generation; this is a labelled reconstruction, not observed submunicipal turnout. Electorate dates: " +
+              [...new Set(assets.electorates.map((e) => e.date))]
+                .sort()
+                .join(", ") +
               ".",
-          "The legal ballot representation remains final-attributed-list-totals-v1; statistical model " +
-            (definition.id + "@" + definition.version) +
-            ".",
-        ],
-      },
-    );
+            ...[...new Set(assets.electorates.map((e) => e.provenance))],
+            s.models.forecast
+              ? "Filing-aware forecast field " +
+                s.models.forecast +
+                "; national totals are derived from feasible physical probabilities before multinomial counts. Reference construction: " +
+                (s.models.forecastReference ?? "conditional") +
+                "; reference-profile regional variance share " +
+                (s.models.profileRegionCorrelation ?? 0) +
+                "; innovation scale " +
+                (s.models.forecastScale ?? 1) +
+                ". Explicit list-reference interventions preserve turnout."
+              : "Global physical-cell probability projection before independent multinomial counts; fixed-turnout reference interventions. Central legal reference metadata reports effective probabilities after scoped overrides; sampled targets are retained separately in the fast audit.",
+            "The legal ballot representation remains final-attributed-list-totals-v1; statistical model " +
+              FAST_SHARE_MODEL +
+              ".",
+          ],
+        },
+      );
     return { ...result, audit };
   };
   return {
@@ -1246,22 +1185,6 @@ export function prepareFastGeneration(
     cells,
     referencePlans: plans,
     centralReference: central,
-    referenceSupport: (simulationId: number) => {
-      if (!Number.isSafeInteger(simulationId) || simulationId < 1)
-        throw new Error("Expected positive reference simulation ID");
-      const audit = freshAudit(),
-        rows = referenceSurfaces(simulationId, false, audit),
-        support: Partial<Record<Chamber, number[]>> = {};
-      for (const ch of chambers) {
-        const out = new Float64Array(n),
-          total = sum(cells[ch].map((c) => c.electors));
-        rows[ch].forEach((r, i) =>
-          r.forEach((p, j) => (out[j] += (p * cells[ch][i].electors) / total)),
-        );
-        support[ch] = [...out];
-      }
-      return support;
-    },
     bonusPlan,
     run,
   };

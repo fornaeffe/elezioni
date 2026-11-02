@@ -119,7 +119,7 @@ function build() {
   const s = legacy.scenario;
   const scenario: FastGenerationScenario = {
     schemaVersion: 5,
-    generation: {model:'M02', modelVersion: "1.0.0",compositions:{},supplementalPolls:[]},
+    generation: {model:'M02', modelVersion: "2.0.0",compositions:{},supplementalPolls:[]},
     kind: s.kind,
     algorithmId: s.algorithmId,
     referenceDate,
