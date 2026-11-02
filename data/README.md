@@ -12,6 +12,7 @@
 | Fast model browser refitting and state ownership | [Fitting guide](../docs/vote-generation-fast-fitting.md) |
 | Fast model scenario/state/browser integration | [Data/scenario contract](../docs/vote-generation-fast-contracts.md), [production plan](../docs/vote-generation-production-plan.md) |
 | Historical vote-generation research retention and cleanup | [Archive plan](../docs/vote-generation-research-archive-plan.md) |
+| Local derived outputs, retained evidence and scratch recovery | [Derived-data retention](../docs/derived-data-retention.md) |
 
 Reviewed poll JSON under `sources/polls/`, promoted correspondence/restoration
 JSON under `sources/fast-share/`, and pinned compressed crosswalks under
