@@ -148,6 +148,7 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   through the Node/TypeScript pipeline, with cache misses supported and required
   data checks blocking release. Remove legacy `dati/` only after the whole
   data-preparation migration is complete and its consumers have migrated.
+- [ ] Check if production acceptance tests can be pruned and/or made faster.
 - [ ] Resolve the previous-law Camera flipper dead end exposed by the shared
   default (seed `politiche-2027`, 1,000 requested runs, simulation 584). Preserve
   the frozen R-parity failure until Luca approves a legal correction/fallback;
