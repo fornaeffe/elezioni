@@ -12,7 +12,7 @@
     "test:reform:shares:resources": "playwright test --config playwright.unified-resources.config.ts",
     "test:reform:shares:ui": "playwright test --config playwright.fast-share-ui.config.ts",
     "dev": "vite dev",
-    "build": "tsx --tsconfig tsconfig.node.json scripts/data-preparation/build.ts",
+    "build": "vite build",
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:data": "tsc -p tsconfig.preparation.json",

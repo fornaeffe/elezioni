@@ -1,6 +1,6 @@
 import { beforeAll, expect, it } from 'vitest';
 import { fileURLToPath } from 'node:url';
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import { gunzipSync } from 'node:zlib';
 import { resolve } from 'node:path';
 import { existsSync } from 'node:fs';
@@ -12,6 +12,11 @@ import { sha256 } from './sources';
 import { getBundledReformSeatTables } from '../../src/lib/politics/reform-2026/bundled-data';
 
 const root = fileURLToPath(new URL('../../../', import.meta.url));
+it('keeps temporary R debug bridges out of browser assets', async () => {
+  const files = await readdir(resolve(root, 'web/static/data/v1'));
+  expect(files.filter(name => /debug/i.test(name))).toEqual([]);
+});
+
 it('requires an official merger for reverse reconstruction and refuses ambiguous or missing names', () => {
   const municipalities = [{ code: '001001', name: 'Alpha', regionId: '01', provinceId: '001', province: 'Torino', region: 'Piemonte', population: 60 },
     { code: '001002', name: 'Beta', regionId: '01', provinceId: '001', province: 'Torino', region: 'Piemonte', population: 40 }];

@@ -5,6 +5,16 @@ shared UI. Use [data preparation](../data/README.md) for acquiring/importing dat
 and the [unified M01/M02 guide](vote-generation-unified-workflow.md) for reform
 generation, fitting and model semantics.
 
+## Repository boundary
+
+Keep the app and its Node toolchain in `web/`, even after R retirement. The root
+also owns shared source data, legal/model documentation, frozen regression
+evidence and independent research. Moving the app would require coordinated
+changes to preparation paths, fixture URLs, research replay bindings and docs
+without removing those separate responsibilities. Run npm in `web/`, or use
+`npm --prefix web run <script>` from the root. Reconsider a move only as a
+separate repository-layout change with its own path and base-URL verification.
+
 ## Task map
 
 | Task | Entry point under `web/` |
@@ -98,5 +108,6 @@ fallback. `acceptance:reform` includes the complete `data:check` gate.
 Repeat build/browser checks with `BASE_PATH=/elezioni`, always sequentially.
 Direct loads, refreshes, navigation, workers and required data must work at both
 bases. Development tests may clearly skip absent generated fixtures; release
-acceptance requires all data and rejects skips. R/legacy artifact retirement and
-public deployment remain separate migration steps.
+acceptance requires all data and rejects skips. The R implementation and temporary
+runtime bridges are retired; frozen JSON regressions remain test-only evidence.
+Public deployment remains a separate migration step.

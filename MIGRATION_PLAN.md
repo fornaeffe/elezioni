@@ -25,8 +25,9 @@ separate. Completed tasks and their verification are recorded in migration histo
 ## Working principles
 
 
-- Treat scrutiny functions (`scrutinio...`) as the highest-risk code. Freeze R
-  behavior in golden-master tests before translating or refactoring it.
+- Treat scrutiny functions (`scrutinio...`) as the highest-risk code. Preserve
+  frozen historical behavior in golden-master tests before refactoring it.
+  Consult the isolated pre-retirement revision for any deferred translation.
 - Compare translated scrutiny output column by column, including row order when
   legally meaningful. Preserve warnings and exceptional cases as expectations
   until Luca decides whether they are defects.
@@ -122,8 +123,9 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   generation, worker behavior, scrutiny registries, or static snapshot schemas.
 - Run focused tests while developing, then the relevant full TypeScript check,
   unit tests, production build, and Playwright tests before declaring a phase
-  complete. Run relevant R fixture exporters when changing parity boundaries,
-  and browser benchmarks when changing performance-sensitive code.
+  complete. Preserve frozen regression fixtures when changing parity boundaries;
+  new legal behavior requires reviewed expectations. Run browser benchmarks
+  when changing performance-sensitive code.
 - Run `cd web; npm run build` and `cd web; npm run test:e2e` sequentially. They
   both touch SvelteKit build/prerender output and can race on hashed assets.
 - Legacy politics and regional generation use 50-simulation chunks. Legacy
@@ -149,9 +151,8 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   data checks blocking release. Adopt the definitive 2022 geography and shared
   legal-census reference where applicable; apply the Bolzano overlay only to
   reform. Use the [complete production pipeline](docs/data-preparation.md).
-  Keep R scripts and `dati/` for the subsequent retirement step.
 - [x] Check if production acceptance tests can be pruned and/or made faster.
-- [ ] Retire temporary bridge artifacts and update user and developer
+- [x] Retire temporary bridge artifacts and update user and developer
   documentation when migrated workflows no longer depend on R-exported
   intermediary snapshots, including the retained R scripts and `dati/`.
 - [ ] Resolve the previous-law Camera flipper dead end exposed by the shared
@@ -287,9 +288,11 @@ local votes)
 - [ ] Evaluate explicit modelling of party cessation date (i.e. a ceased party
   is not included in poll's "other" component). Discuss the date to which priors
   should refer to, for parties ceased at the reference date.
-- [ ] Migrate the municipal workflow: create R golden fixtures and benchmarks
-  first, preserve current behavior, and keep the runoff and councilor-candidate
-  gaps explicit for later business and legal review.
+- [ ] Implement the municipal workflow using the pre-retirement revision pinned
+  in migration history as the historical reference. Freeze municipal golden
+  fixtures and benchmarks in an isolated historical checkout before translation;
+  preserve behavior and keep runoff and councilor-candidate gaps explicit for
+  later business and legal review. The active checkout does not require R.
 - [ ] Add short-term forecasts of the **current election's final scrutiny result**
   from incomplete incoming returns. Keep this separate from forecasting subsequent
   elections and from the historical-result availability fallback. Preserve timestamped

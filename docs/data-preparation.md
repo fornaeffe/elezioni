@@ -70,10 +70,12 @@ Existing default/catalog compilers are mapped in [web workspaces](web-workspaces
 | Earlier politics reference choices and ER defaults | `data/workspace-defaults.json` |
 
 `workspace-defaults.json` contains authored lists, coalitions and correspondences
-transcribed from the tracked workbooks, with workbook hashes for provenance.
+transcribed from the retired workbooks, with workbook hashes for provenance.
 It contains no fitted coefficients or generated observations. The earlier
 politics choices remain a reference scenario; the visible politics default
 still comes from the shared authored compiler. Excel is not a Node pipeline input.
+Original workbooks are available in the pre-retirement Git revision pinned in
+[migration history](migration-history.md#2026-11-02--r-and-temporary-bridge-retirement).
 
 ISTAT's historical API changes the ordering of rows with the same municipal
 code between identical requests. Its crosswalks are therefore reviewed,
@@ -137,13 +139,14 @@ then types, all unit tests, the full `/elezioni` browser matrix and focused root
 URL/worker checks, with one sequential build per path. Missing required data
 cannot pass through skipped tests.
 
-Builds exclude local debug bridges from the distributable while retaining their
-source files. Archives/audits stay outside runtime assets. Frozen compressed
-golden outputs under `test/fixtures/` support TypeScript regression in fresh
+Temporary debug bridges and their exporters have been removed from runtime
+assets; builds use Vite directly. Archives/audits stay outside runtime assets.
+Frozen compressed golden outputs under `test/fixtures/` support TypeScript regression in fresh
 clones; they are checksum-pinned and never production preparation inputs or
 browser fallbacks. The exact pre-migration Camera simulation-584 failure is
 retained independently of revised datasets.
 
-R scripts and `dati/` are untouched. Their retirement and remaining bridge cleanup
-belong to the subsequent step. Public deployment and hosted-runner/free-tier
+R scripts, legacy caches, Quarto workflows and Excel scenarios are retired.
+To change a frozen regression, review and version the expectation; the active
+checkout cannot regenerate it with R. Public deployment and hosted-runner/free-tier
 acceptance remain the final migration gate.

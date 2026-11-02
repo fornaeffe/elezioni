@@ -52,8 +52,7 @@ Implementation boundaries:
 | Reform candidate-free counts | `ChamberInput.otherListCoverage`, `generation.ts`, `figures.ts`, `special-attribution.ts` |
 
 In legacy direct inputs, Other's list-vote rows carry `CANDIDATO: null` and
-retain their votes without any candidate attribution. R direct inputs use
-`NA` for that reference and the same `kind` metadata.
+retain their votes without any candidate attribution.
 
 Reform inputs explicitly list candidate-free support in optional
 `otherListCoverage: [{ collegeId, listId }]`. Ordinary votes include those list
@@ -80,20 +79,12 @@ generation, forbidden associations, admission, geography, historical mapping,
 vote conservation, both candidate policies, and extreme shares.
 `web/tests/e2e/other-list.spec.ts` exercises all three editors and workers.
 
-For R/TypeScript parity, from the repository root run:
+From `web/`, run the maintained TypeScript regression tests:
 
 ```powershell
-$env:LC_ALL = 'English_United States.utf8' # Windows R UTF-8 locale
-& 'C:/Program Files/R/R-4.5.1/bin/Rscript.exe' scripts/check_other_lists.R "$env:TEMP/elezioni-other-r.json"
+npm test -- src/lib/core/other-list.test.ts
 ```
 
-Then from `web/`:
-
-```powershell
-npx tsx --tsconfig tsconfig.json scripts/check-other-list-parity.ts "$env:TEMP/elezioni-other-r.json"
-```
-
-The R checker requires the generated politics golden fixture. It reuses the
-first Camera/Senato prepared inputs and constructs regional cases at 1%, 30%
-and 80%; it never rewrites fixtures or source data. Regenerate required
-fixtures with their existing exporters when absent.
+The historical R parity check and its one-time checker are retired. Its recorded
+outcome remains in migration history; frozen scrutiny fixtures continue to
+protect the translated algorithms without requiring R.

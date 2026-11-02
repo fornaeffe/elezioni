@@ -461,7 +461,8 @@ initial college list passes in its separately approved scope.
 I10 evidence: the [2017 Senate comparison](https://www.parlamento.it/show-doc?id=1046530&leg=17&part=dossier_dossier1-sezione_sezione11-h2_h21&tipodoc=DOSSIER)
 confirms the earlier wording; the [2026 Camera dossier](https://documenti.camera.it/leg19/dossier/testi/AC0469b.htm)
 discusses member-list decimals but does not conclusively define this specific
-college-ranking operation. `R/politiche/scrutinio.R::cerca_naz()` uses the maximum
+college-ranking operation. The retired `R/politiche/scrutinio.R::cerca_naz()` (see
+the pre-retirement revision in migration history) uses the maximum
 member-list decimal across colleges to rank constituencies. This corroborates the
 reading but does not prove an official application of C84(5): local `subentro()`
 does not forward `coal`/`pluri` arguments, and branch coverage in historical

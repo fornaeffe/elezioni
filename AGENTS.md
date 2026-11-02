@@ -1,8 +1,9 @@
 # Agent Instructions
 
-This repository contains an R simulator for Italian national, municipal, and
-Emilia-Romagna regional elections, plus an in-progress static SvelteKit and
-TypeScript migration under `web/`.
+This repository contains a static SvelteKit and TypeScript simulator under
+`web/` for Italian national and Emilia-Romagna regional elections. Municipal
+simulation remains deferred. Production preparation uses Node/TypeScript;
+the retired R implementation is available only in Git history.
 
 Use [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) as the active task list. Record
 completed work, rationale, verification, problems, and workarounds in
@@ -20,18 +21,14 @@ to stable instructions that apply across migration steps.
 - Update the plan when a step is completed or reveals a safer order or a new
   blocker. Put evidence and narrative in history, not in the plan.
 
-## R repository Map And Data Safety
+## Repository Map And Data Safety
 
-- Main R code lives under `R/`. The most sensitive implementations are
-  `R/politiche/scrutinio.R`, `R/Emilia-Romagna/scrutinio_ER.R`,
-  `R/comunali/scrutinio_comunali.R`, and `R/caricamento_dati.R`.
-- Root `.qmd` files contain example workflows; Excel scenario inputs are under
-  `scenari/`.
-- `dati/dati.RData` is an RDS file despite its extension. Read it with
-  `readRDS()`, as `carica_dati()` does; do not use `load()`.
-- `dati/debug_scrutinio.RData` is the politics scrutiny fixture with prepared
-  inputs and stored output for ten simulations, including the known
-  warning-producing simulation 4.
+- Application code and Node preparation live under `web/`; run npm commands
+  there. Use [web workspaces](docs/web-workspaces.md) for task entry points and
+  [production preparation](docs/data-preparation.md) for complete regeneration.
+- Frozen JSON regression inputs/outputs under `test/fixtures/` retain historical
+  R parity and approved legal failures. Preserve their checksum manifests;
+  they are test evidence, never runtime or production-preparation inputs.
 - Large generated politics and regional JSON artifacts are intentionally
   untracked. Regenerate them from the scripts when needed, and make dependent
   development tests skip clearly when they are absent. Release acceptance must
@@ -41,8 +38,8 @@ to stable instructions that apply across migration steps.
   run its corresponding scenario-default and catalog generators.
 - New preparation sources belong in `data/sources/`, derived artifacts in
   `data/derived/`; follow [`data/README.md`](data/README.md) and its pinned source
-  manifest. `dati/` is legacy: remove it only after the whole data-preparation
-  migration is complete and its legacy consumers have migrated.
+  manifest. Historical implementation references in migration history are not
+  current commands; consult the pinned pre-retirement revision there if needed.
 - Keep population reconstruction assumptions explicit and conserve the legal
   municipal census total. Missing fine geography may use labelled estimates;
   it must not silently become zero or be mistaken for an official seat decree.

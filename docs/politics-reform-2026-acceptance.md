@@ -3,7 +3,8 @@
 Use this procedure for local application acceptance. The [application guide](politics-reform-2026-application.md)
 defines worker/storage contracts; the [generation guide](politics-reform-2026-generation.md)
 defines model evidence and inputs. Measured outcomes belong in [history](migration-history.md).
-This does not enable deployment or retire the retained R workflows and caches.
+This does not enable deployment. R workflows and caches are retired; acceptance
+uses the Node pipeline and frozen JSON regressions.
 
 ## Prepare required inputs
 

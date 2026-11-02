@@ -30,8 +30,8 @@ Use this workflow for R26-07 geography and seat tables. For the paired historica
 vote/preference importers, fitting and R26-19 runtime bundles, use the separate
 [generation guide](../docs/politics-reform-2026-generation.md#clean-clone-preparation)
 and [`reform-model-source-manifest.json`](reform-model-source-manifest.json).
-`dati/` remains the legacy R data directory; remove it only after the whole
-data-preparation migration is complete and its consumers have migrated.
+The legacy R implementation and `dati/` caches are retired. Frozen regression
+JSON remains under `test/fixtures/`; it is not a preparation input.
 
 ## GitHub Actions delivery contract
 

@@ -14,9 +14,10 @@ The original proposal is retained as
 | Verification, rationale and limitations | [Migration history](migration-history.md#fv-09-research-archive-and-cleanup--2-november-2026) |
 
 `docs/model-drafts/` is protected in place. Authoritative source observations,
-production bundles/defaults, shared scrutiny and R workflows, legacy `dati/`,
+production bundles/defaults, shared scrutiny and then-retained R workflows/caches,
 legal investigations and people's result archives are excluded. Unknown/new/manual
 scratch files are retained; no whole research directory was recursively deleted.
+The later R retirement is recorded separately in migration history.
 
 The production `fast-share-*` preparation closure stays active. The two
 `data/legacy-comparison-*.json` policies remain because unified-default preparation

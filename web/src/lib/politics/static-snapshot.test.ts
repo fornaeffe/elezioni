@@ -27,8 +27,8 @@ function loadJson<T>(path: string): T {
   return loadGeneratedJsonFixture<T>(path);
 }
 
-describe('politics static snapshot bridge', () => {
-  describeWithGeneratedFixtures('debug static snapshot bridge', [pipelineSourcePath, staticSnapshotPath], () => {
+describe('politics static snapshot contracts', () => {
+  describeWithGeneratedFixtures('frozen pre-migration snapshot regression', [pipelineSourcePath, staticSnapshotPath], () => {
     const pipelineSource = loadJson<PipelineSourceFixture>(pipelineSourcePath).source;
     const staticSnapshot = loadJson<PoliticsStaticSnapshot>(staticSnapshotPath);
 
@@ -48,7 +48,7 @@ describe('politics static snapshot bridge', () => {
     });
   });
 
-  describeWithGeneratedFixtures('production static snapshot bridge', [productionStaticSnapshotPath], () => {
+  describeWithGeneratedFixtures('Node production static snapshot', [productionStaticSnapshotPath], () => {
     const productionStaticSnapshot = loadJson<PoliticsStaticSnapshot>(productionStaticSnapshotPath);
 
     test('loads the production snapshot prepared directly from pinned originals by Node', () => {
