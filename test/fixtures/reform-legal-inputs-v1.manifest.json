@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Frozen legal scrutiny regressions; historical generator, not current M01/M02 acceptance",
+  "path": "reform-legal-inputs-v1.json.gz",
+  "bytes": 2691396,
+  "sha256": "f4aab56b6aa06f30efb9b5e0394a305c99f00fe89eff641e0237116672b390f0",
+  "uncompressedSha256": "a10308c75dfcdefef2ad054c56417356b6b1b836d972c19ce77aac8299ee227d",
+  "source": {
+    "catalog": {
+      "schemaVersion": 1,
+      "kind": "politics-reform-generation",
+      "snapshotVersion": "r26-generation-v1-c5c4be9fafb5",
+      "modelVersion": "r26-models-v1-f71a72020aaa",
+      "defaultsVersion": "r26-defaults-v2-a0179c6c253e",
+      "path": "data/reform-2026/r26-generation-v1-c5c4be9fafb5.json.gz",
+      "sha256": "ba8d628268182fd7558a7f7b06aae19542b968c6e9950259ca66a3e78906423d",
+      "bytes": 992943,
+      "uncompressedSha256": "9c13bcfa860589ecafdc8f5386aead95eec5c07ed393e132584310c97254e715",
+      "defaultsPath": "r26-defaults-v2-a0179c6c253e.json",
+      "modelsPath": "r26-models-v1-f71a72020aaa.json",
+      "editorPath": "r26-editor-v1-72979a99ca58.json",
+      "editorVersion": "r26-editor-v1-72979a99ca58"
+    },
+    "seed": "r26-default-v1",
+    "runtimeSha256": "ba8d628268182fd7558a7f7b06aae19542b968c6e9950259ca66a3e78906423d"
+  },
+  "runs": [
+    {
+      "id": 1,
+      "inputSha256": "3765c2fb6f79273310f4cc9200a51a0a14a3c14d85907660d73c73550c59e7d3"
+    },
+    {
+      "id": 4,
+      "inputSha256": "bb265e106499551a1bad870a45e9cc2c78f28cf62a9f81d09ea170860544e741"
+    },
+    {
+      "id": 165,
+      "inputSha256": "07042ea5fdef248c8e54da19e1f1815975ca57895b4b63c5d651726f377a9ed8"
+    },
+    {
+      "id": 31,
+      "inputSha256": "216fb4133509060b4b22b4c7c8e198bd87d9079cfc460b9cef3fe3519a7b23a6"
+    },
+    {
+      "id": 42,
+      "inputSha256": "659c2d1100ed83fed821aea0b19059fc5cdbdf723d8cd81ddafe81cd28df874c"
+    },
+    {
+      "id": 80,
+      "inputSha256": "5b7152dc05c48e347a955640ee2ef06d14f30418c7c589eddf7ff8de7d938e7a"
+    },
+    {
+      "id": 598,
+      "inputSha256": "9951056111a1d7e3cbe55baf661b8973ed8833e2a6432024e0e8e69bcce004e7"
+    },
+    {
+      "id": 792,
+      "inputSha256": "455ab5eada2efaff1dbce701aedfc9a683a65f71bfdf1514d2fcc960e4b70287"
+    },
+    {
+      "id": 49,
+      "inputSha256": "22afbbe4c1da506a6a302527a4456fa082efbf1374bd4db8a4435f166286a161"
+    },
+    {
+      "id": 242,
+      "inputSha256": "fb393b43a584e402fa12bd64d75dc65dcd1518e72ad98b6629626558da9ef368"
+    }
+  ]
+}

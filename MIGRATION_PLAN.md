@@ -150,7 +150,10 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   legal-census reference where applicable; apply the Bolzano overlay only to
   reform. Use the [complete production pipeline](docs/data-preparation.md).
   Keep R scripts and `dati/` for the subsequent retirement step.
-- [ ] Check if production acceptance tests can be pruned and/or made faster.
+- [x] Check if production acceptance tests can be pruned and/or made faster.
+- [ ] Retire temporary bridge artifacts and update user and developer
+  documentation when migrated workflows no longer depend on R-exported
+  intermediary snapshots, including the retained R scripts and `dati/`.
 - [ ] Resolve the previous-law Camera flipper dead end exposed by the shared
   pre-preparation-migration default (seed `politiche-2027`, 1,000 requested runs,
   simulation 584). Preserve
@@ -161,9 +164,6 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   after that decision. See
   [workspace boundaries](docs/web-workspaces.md#defaults-and-compatibility) and
   the 2 November workspace entry in migration history.
-- [ ] Retire temporary bridge artifacts and update user and developer
-  documentation when migrated workflows no longer depend on R-exported
-  intermediary snapshots, including the retained R scripts and `dati/`.
 - [ ] Change default scenario colors to colors that reflects the real parties
   political colors (or colors with which polling houses usually represent parties).
 - [ ] In "Dotazioni dei seggi per collegio e liste del premio" do now show territory ids,

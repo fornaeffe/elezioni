@@ -133,8 +133,9 @@ and historical reconstruction remain estimates in scenario/result provenance.
 all small generated outputs, required reform assets, identities, checksums and
 the production scrutiny slice. It never downloads or repairs inputs.
 The [application acceptance](politics-reform-2026-acceptance.md) gate includes it,
-then types, all unit tests and sequential builds/browser checks at `/` and
-`/elezioni`. Missing required data cannot pass through skipped tests.
+then types, all unit tests, the full `/elezioni` browser matrix and focused root
+URL/worker checks, with one sequential build per path. Missing required data
+cannot pass through skipped tests.
 
 Builds exclude local debug bridges from the distributable while retaining their
 source files. Archives/audits stay outside runtime assets. Frozen compressed

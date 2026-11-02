@@ -4,6 +4,7 @@ export default defineConfig({
   testDir: "tests/e2e",
   testMatch: "fast-share-ui.spec.ts",
   workers: 1,
+  retries: 0,
   reporter: [
     ["line"],
     [

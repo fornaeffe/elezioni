@@ -113,59 +113,47 @@ self-contained session; CSV remains table-oriented.
 
 ## Verification commands
 
-From `web/`, Node 24:
+From `web/`, Node 24, run `npm run acceptance:reform` after the complete production
+preparation. The [acceptance guide](politics-reform-2026-acceptance.md) defines the
+full project-path/focused-root matrix and required reports. Do not repeat the
+same types, units, builds and browser suites separately as an additional routine
+gate. Dedicated release/editor commands remain available for focused diagnosis.
+
+Run resource and 1,000-run campaigns separately when their evidence is required:
 
 ```powershell
-npm run data:reform:shares:release
-node --import tsx scripts/acceptance/model-rollback-parity.ts
-npm run check:data
-npm run check
-npm test -- --maxWorkers=4
-npm run test:reform:shares:release
-npm run test:reform:shares:ui -- --project=chromium --project=firefox
-npm run test:reform:shares:unified
 npm run test:reform:shares:resources
 $env:FV08_FULL = '1'
 $env:BASE_PATH = '/elezioni'
-npm run build
-$env:FV08_CAMPAIGN_WORKERS = '2'
+$env:FV08_CAMPAIGN_WORKERS = '1'
 $env:PLAYWRIGHT_JSON_OUTPUT_NAME = '../data/derived/fv08-unified/campaign-tests.json'
 npm run test:reform:shares:unified -- --reporter=json
+Remove-Item Env:FV08_FULL, Env:BASE_PATH, Env:FV08_CAMPAIGN_WORKERS, Env:PLAYWRIGHT_JSON_OUTPUT_NAME
 ```
 
-After every gate passes, retain the compact reviewed snapshot with
-`npx tsx --tsconfig tsconfig.node.json scripts/acceptance/unified-share-curate.ts`.
-The curation command rejects missing/stale campaigns and incomplete browser,
-preparation or resource evidence; it does not create a passing result by itself.
-
-Required raw reports (relative to `data/derived/fv08-unified/`):
-
-| Gate | Report |
-| --- | --- |
-| Complete application acceptance | `../r26-21-acceptance/report.json`, from `npm run acceptance:reform` |
-| Dedicated release checks at both paths | `release-tests-root.json`, `release-tests-nested.json` |
-| Dedicated Chromium/Firefox editor checks at both paths | `ui-tests-root.json`, `ui-tests-nested.json` |
-| Resource suite | `resource-tests.json` plus its `resources/` measurements |
-| Full project-path campaigns | `campaign-tests.json` plus `browser/*-nested-1000.json.gz` and receipts |
-| Source-only cold Linux/offline warm | `../fv05-acceptance/isolated-acceptance.json`, from `npm run acceptance:reform:shares:candidate` on Linux |
-
-For each dedicated suite, set `PLAYWRIGHT_JSON_OUTPUT_NAME` to its table path
-(prefixed `../data/derived/fv08-unified/` when running from `web/`) and pass
-`--reporter=json`. Build each matching `BASE_PATH` first; reset `FV08_FULL=0`
-for functional suites. Resource measurements use the ordinary root build.
-The final full campaign runs the models concurrently in two isolated Chromium
-instances, with each application using its own recommended compute-worker pool.
-Its timings include that contention. A frozen copy of the project build can be
-served independently through the test-only `ACCEPTANCE_BUILD_ROOT` and
-`ACCEPTANCE_SERVER_PORT` overrides; never replace a build during its campaign.
-
-The final command requests 1,000 paired runs **per model** through the actual
-browser editor, shared workers, IndexedDB, charts, streaming JSON.gz export and
-import. Its ledger checks 588 filled seats and distinct candidates, including
-392 Camera and 196 Senate seats, in every requested run. Receipts retain model,
+The campaign requests 1,000 paired runs **per model** through the actual browser
+editor, shared workers, IndexedDB, charts and streaming JSON.gz export/import.
+It checks 588 filled seats and distinct candidates, including 392 Camera and 196
+Senate, in every requested run; indexed details and every decompressed byte of
+the import/re-export roundtrip must agree, except the export timestamp. Receipts
+under `data/derived/fv08-unified/browser/` retain model/data/implementation,
 worker count, timings, memory samples, admission/42% summaries and seat totals.
-Repeat functional checks at `/elezioni`; use the release command's `--base` and
-`BASE_PATH` as described in the existing release guide. Required assets never skip.
+Functional acceptance uses three draws at `/elezioni`, one at root, and omits
+unified resource sampling. Full campaigns retain it and the 60-minute execution
+bound per model. Asset absence is always fatal.
+
+Keep model campaigns sequential for isolated timings. Setting
+`FV08_CAMPAIGN_WORKERS=2` runs them concurrently in isolated Chromium instances;
+record that contention and do not compare it as isolated speed. A frozen copy
+of the build can be served through `ACCEPTANCE_BUILD_ROOT` and
+`ACCEPTANCE_SERVER_PORT`; never replace a build during its campaign.
+
+Cold source-only Linux/offline-warm acceptance remains separate:
+`npm run acceptance:reform:shares:candidate`. The old FV-08 curation scripts and
+their two-path report requirements are archived under
+`research/vote-generation/code/web/scripts/acceptance/`. They describe historical
+campaigns, not the current application gate. Preserve historical receipts rather
+than rewriting their counts to match the revised matrix.
 
 The resource suite records six actual default national/profile/paired refits,
 then six 128-coordinate/512-poll numerical/profile probes over 7,904 synthetic

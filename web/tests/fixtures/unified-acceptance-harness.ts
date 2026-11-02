@@ -1,5 +1,5 @@
 /** Read-only verification of the actual browser-persisted ledger, bounded by a run. */
-import { getStoredResult, storedRows } from '../../src/lib/core/result-store';
+import { getStoredResult, storedRows, storedTablePage } from '../../src/lib/core/result-store';
 export async function inspect(id: string, owner: string) {
   const record = await getStoredResult(id, owner),
     storage = record.result.storage!;
@@ -124,6 +124,9 @@ export async function inspect(id: string, owner: string) {
     }),
   );
   return {
+    // Exercise bounded, indexed detail queries for the last committed run, on
+    // both native and imported archives, without materializing the whole ledger.
+    lastRunDetail: await storedTablePage(record, table('Seat entitlement and election locations'), 0, 10, runs.at(-1)!.simulation),
     model:
       'generation' in record.scenario
         ? record.scenario.generation?.model

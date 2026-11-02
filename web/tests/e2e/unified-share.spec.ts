@@ -3,7 +3,31 @@ import { mkdir, writeFile, stat } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { build } from 'vite';
 import { watchMemory } from '../fixtures/fast-share-memory';
+import { createReadStream } from 'node:fs';
+import { createGunzip } from 'node:zlib';
+import { createHash } from 'node:crypto';
+
+/** Compare every decompressed byte except the export timestamp, with bounded RAM. */
+async function archiveDigest(path: string) {
+  const hash = createHash('sha256');
+  let prefix = Buffer.alloc(0), header = false, bytes = 0;
+  for await (const part of createReadStream(path).pipe(createGunzip())) {
+    const chunk = Buffer.from(part); bytes += chunk.length;
+    if (header) hash.update(chunk);
+    else {
+      prefix = Buffer.concat([prefix, chunk]);
+      if (prefix.length < 256) continue;
+      const text = prefix.toString('latin1');
+      const normalized = text.replace(/^(\{"schema_version":\d+,"exportedAt":)"[^"]+"/, '$1"fixed"');
+      if (normalized === text) throw new Error('Missing archive export timestamp');
+      hash.update(Buffer.from(normalized, 'latin1')); header = true; prefix = Buffer.alloc(0);
+    }
+  }
+  if (!header) throw new Error('Truncated result archive');
+  return { bytes, sha256: hash.digest('hex') };
+}
 const base = process.env.BASE_PATH ?? '',
+  rootSmoke = process.env.ACCEPTANCE_ROOT_SMOKE === '1',
   draws = Number(process.env.FV08_DRAWS ?? (process.env.FV08_FULL === '1' ? 1000 : 3)),
   directory = resolve('../data/derived/fv08-unified/browser'),
   bundles = new Map<string, string>();
@@ -46,7 +70,9 @@ for (const model of ['M02', 'M01'] as const)
         body: code,
       });
     });
-    const memory = await watchMemory(browser, page),
+    // Functional acceptance does not need resource instrumentation. Dedicated
+    // full campaigns retain heap/process sampling and their existing receipts.
+    const memory = process.env.FV08_FULL === '1' ? await watchMemory(browser, page) : undefined,
       pageErrors: string[] = [];
     page.on('pageerror', (e) => pageErrors.push(e.message));
     await page.goto(base + '/politics');
@@ -145,6 +171,14 @@ for (const model of ['M02', 'M01'] as const)
         senato: 196,
         unfilled: 0,
       });
+    expect(before.lastRunDetail.rows).toHaveLength(10);
+    expect(before.lastRunDetail.rows.every((r: { Simulation: number }) => r.Simulation === draws)).toBe(true);
+    if (rootSmoke) {
+      expect(base).toBe('');
+      expect(draws).toBe(1);
+      expect(pageErrors).toEqual([]);
+      return;
+    }
     await expect(
       page.getByRole('heading', {
         name: 'Eletti medi e percentuali sui voti validi',
@@ -185,6 +219,13 @@ for (const model of ['M02', 'M01'] as const)
     const after = await inspect(page);
     expect(after.runs).toEqual(before.runs);
     expect(after.seatsByList).toEqual(before.seatsByList);
+    expect(after.lastRunDetail).toEqual(before.lastRunDetail);
+    const roundtrip = archive + '.roundtrip.gz';
+    const reexport = page.waitForEvent('download', { timeout: 20 * 60 * 1000 });
+    await page.getByRole('button', { name: 'Scarica risultati JSON.gz', exact: true }).click();
+    await (await reexport).saveAs(roundtrip);
+    const archiveContent = await archiveDigest(archive);
+    expect(await archiveDigest(roundtrip)).toEqual(archiveContent);
     await page
       .getByRole('button', {
         name: 'Ripristina scenario dei risultati',
@@ -201,7 +242,7 @@ for (const model of ['M02', 'M01'] as const)
       await expect(
         page.getByLabel('Processi di calcolo', { exact: true }),
       ).toHaveValue('2');
-    const memoryReport = await memory.stop();
+    const memoryReport = await memory?.stop() ?? { supported: false, reason: 'Functional acceptance; use FV08_FULL=1 for resource sampling' };
     await writeFile(
       archive + '.receipt.json',
       JSON.stringify(
@@ -216,6 +257,7 @@ for (const model of ['M02', 'M01'] as const)
           concurrentModelCampaigns: process.env.FV08_FULL === '1' ? Number(process.env.FV08_CAMPAIGN_WORKERS ?? 1) : 1,
           elapsedMs,
           archiveBytes: (await stat(archive)).size,
+          archiveContent,
           ...before,
           memory: memoryReport,
           pageErrors,

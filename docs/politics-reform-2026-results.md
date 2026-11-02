@@ -175,6 +175,9 @@ Focused unit checks: `result-series.test.ts`, `stored-constituencies.test.ts`, `
 `reform-statistics.spec.ts` (1,201 constructed observations, exact disk ranks,
 unknowns, quota isolation, cleanup, every chart family and old archives),
 `reform-workspace.spec.ts`, `result-store.spec.ts` and legacy/regional regressions.
-Run `npm run acceptance:reform` for required production inputs and root/project-base
-regressions. Run `npm run test:results` separately for the 1,000-run production
-chart/detail/archive/memory check; do not run another build during it.
+Run `npm run acceptance:reform` for required production inputs, full project-base
+regressions and focused root URL/worker checks. The separate current unified
+1,000-run campaign covers production detail/archive integrity and memory; see
+[acceptance commands](politics-reform-2026-acceptance.md#performance-and-diagnostic-frequencies).
+The former `test:results` entry point is retired. Do not run another build during
+a performance campaign.

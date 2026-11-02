@@ -172,18 +172,11 @@ Older archives remain valid.
 Normalized legal/result content is invariant across worker counts; timestamps,
 timings and resource metadata are deliberately execution-specific.
 
-Run `npm run benchmark:reform` for the production 1/2/4-worker × 10/100/1000-run
-matrix. Required production data must exist; this check never skips. Optional
-`REFORM_BENCHMARK_WORKERS` and `REFORM_BENCHMARK_COUNTS` are comma-separated
-subsets for focused runs. The test uses explicitly recorded controlled resource
-hints so the four-worker case can be exercised independently of browser privacy
-limits. It records accumulated phase timings, outcome/row-count invariance and
-periodic unforced Chromium worker-heap samples in
-`test/fixtures/benchmarks/browser_reform_workers.json`. Samples are not absolute
-peaks or process RAM; this benchmark does not replace R26-21 legal/application
-acceptance. R retirement requires no R/browser performance comparison or 10x
-stop rule. Run it without another build or CPU-heavy
-check in parallel.
+Production performance and resource checks use the current unified browser
+campaign; see [acceptance commands](politics-reform-2026-acceptance.md#performance-and-diagnostic-frequencies).
+The former `benchmark:reform` entry point is retired. Functional 1/2/4-worker
+invariance remains in `reform-production-worker.spec.ts`. Run performance
+campaigns without another build or CPU-heavy check in parallel.
 
 ## URLs, loading and verification
 
@@ -205,11 +198,11 @@ tests skip explicitly when their generated bundle is absent; release acceptance
 must require it. The browser regression suite accepts `BASE_PATH` for root and
 project-base runs. Run builds and browser tests sequentially.
 
-Run `npm run test:results` separately for the long 1000-run Chromium acceptance
-check with required production data. It measures post-GC UI/worker heaps,
-queries details, exports the complete archive, imports it and compares the
-re-exported content hash. Its isolated temporary browser profile is removed at
-the end. Reports and downloaded archives are written under `web/test-results/`;
-keep any evidence needed before another Playwright run clears that directory.
-Heap samples are retained JavaScript heap measurements, not peak process memory
-or a full R26-21 performance benchmark. Do not run another build during this test.
+The former `test:results` entry point is retired. The current unified campaign
+checks complete JSON.gz import/re-export content, indexed run details and
+measured resource use; use the commands and scope in the acceptance guide.
+Routine application acceptance covers the smaller browser matrix documented
+there. Frozen legal regressions live in `test/fixtures/reform-legal-inputs-v1.*`;
+their checksum manifest pins the historical inputs independently of generated
+production defaults. The capture script under `web/scripts/fixtures/` refuses
+overwriting them; legal changes require a reviewed new fixture version.

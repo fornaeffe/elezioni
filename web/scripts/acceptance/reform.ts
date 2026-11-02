@@ -39,28 +39,33 @@ try {
     report.inputs.push({ path, bytes: bytes.length, sha256: createHash('sha256').update(bytes).digest('hex') });
   }
   await run('complete production preparation and generated data', ['run', 'data:check']);
-  await run('production reform checksums and vertical slice', ['run', 'data:reform:check']);
-  await run('workspace snapshots and defaults', ['run', 'data:workspaces:check']);
-  await run('unified required production assets', ['run','data:reform:shares:release:check','--','--catalog','static/data/reform-2026/fast-share/candidate.json']);
+  // data:check already requires the reform slice, workspaces and share release.
   await run('preparation types', ['run', 'check:data']);
   await run('application types', ['run', 'check']);
   const units = resolve(output, 'unit.json');
   await run('unit suite', ['run', 'test', '--', '--reporter=json', `--outputFile=${units}`, ...(testWorkers ? ['--maxWorkers', testWorkers] : [])]);
   report.checks.push({ name: 'unit acceptance', ...requireUnitAcceptance(JSON.parse(await readFile(units, 'utf8'))) });
-  for (const base of ['', '/elezioni']) {
+  for (const base of ['/elezioni', '']) {
+    const smoke = base === '';
     const browserReport = resolve(output, base ? 'browser-project.json' : 'browser-root.json');
     const env = { BASE_PATH: base, ACCEPTANCE_SERVER_PORT:'4175', REFORM_FAST_CANDIDATE:'1', ACCEPTANCE_PREBUILT: '1', PLAYWRIGHT_JSON_OUTPUT_NAME: browserReport };
     await run(`static build ${base || '/'}`, ['run', 'build'], env);
-    await run(`browser suite ${base || '/'}`, ['run', 'test:e2e', '--', '--reporter=json', '--retries=0', ...(testWorkers ? ['--workers', testWorkers] : [])], env);
+    // The full behavioral matrix runs once at the deployed project path. Root
+    // still exercises navigation/refresh, imports and real previous-law/ER workers.
+    const rootSpecs = ['static-routes.spec.ts', 'workflow-selector.spec.ts', 'workspace-uniformity.spec.ts', 'regional-er.spec.ts'];
+    await run(`browser ${smoke ? 'URL smoke' : 'suite'} ${base || '/'}`, ['run', 'test:e2e', '--', ...(smoke ? rootSpecs : []), '--reporter=json', '--retries=0', ...(testWorkers ? ['--workers', testWorkers] : [])], env);
     report.checks.push({ name: `browser acceptance ${base || '/'}`, ...requireBrowserAcceptance(JSON.parse(await readFile(browserReport, 'utf8'))) });
-    await run(`current scenario editor ${base || '/'}`, ['run','test:reform:shares:ui','--','--project=chromium'], env);
+    if (!smoke) {
+      const editorReport = resolve(output, 'editor-project.json');
+      await run(`current scenario editor ${base}`, ['run','test:reform:shares:ui','--','--project=chromium','--reporter=json','--retries=0'], {...env, PLAYWRIGHT_JSON_OUTPUT_NAME: editorReport});
+      report.checks.push({name: `editor acceptance ${base}`, ...requireBrowserAcceptance(JSON.parse(await readFile(editorReport, 'utf8')))});
+    }
     const unifiedReport=resolve(output,base?'unified-project.json':'unified-root.json'),unifiedEnv={...env,REFORM_FAST_CANDIDATE:'1',PLAYWRIGHT_JSON_OUTPUT_NAME:unifiedReport,
-      FV08_FULL:'0',FV08_DRAWS:'3',FV08_WORKERS:''};
-    await run(`unified static build ${base || '/'}`,['run','build'],unifiedEnv);
-    await run(`unified browser/storage/export ${base || '/'}`,['run','test:reform:shares:unified','--','--reporter=json'],unifiedEnv);
+      FV08_FULL:'0',FV08_DRAWS:smoke?'1':'3',FV08_WORKERS:smoke?'1':'', ACCEPTANCE_ROOT_SMOKE:smoke?'1':'0'};
+    await run(`unified ${smoke ? 'URL smoke' : 'browser/storage/export'} ${base || '/'}`,['run','test:reform:shares:unified','--','--reporter=json','--retries=0', ...(smoke ? ['--grep', 'unified browser workflow'] : [])],unifiedEnv);
     report.checks.push({name:`unified browser acceptance ${base||'/'}`,...requireBrowserAcceptance(JSON.parse(await readFile(unifiedReport,'utf8')))});
   }
-  await run('restore root static build', ['run', 'build']);
+  // Root was built last, so the usable local build is already restored.
   report.status = 'passed';
 } catch (error) {
   report.status = 'failed';

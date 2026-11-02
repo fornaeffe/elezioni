@@ -21,10 +21,20 @@ Preparation writes local runtime bundles/defaults/catalogs without R or legacy
 caches. Validation's optional
 `--output` directory preserves older immutable evidence instead of overwriting it.
 The acceptance command requires all three production bundles before running
-the complete `data:check` gate, checksum/vertical-slice check, `check:data`, `check`, full unit suite, root
-build/e2e suite, and `/elezioni` build/e2e suite, sequentially. It restores a root
-build after success. Unit/browser skips, TODOs, expected failures and retries
-cannot pass this gate. Ordinary development tests retain explicit artifact skips.
+`data:check` once (including reform checksums/scrutiny, workspaces/defaults and
+share-release checks), both type checks and the complete unit suite.
+
+| Build | Required browser coverage |
+| --- | --- |
+| `/elezioni` | Full general Chromium suite; four Chromium editor tests; full M01/M02 Chromium and Firefox workflows, including three paired draws with two compute workers, persisted results, indexed details and complete archive roundtrip |
+| `/` | Direct routes/refresh/navigation, landing selector, previous-law lifecycle/import/cancellation, regional execution; one paired draw for each model in Chromium and Firefox |
+
+Each path is built once, sequentially. Root is built last and remains available
+for local preview. Numerical/statistical/editor behavior runs comprehensively at
+the project path; root checks focus on URL-sensitive integration. All required
+unit/browser reports reject skips, TODOs, expected failures and retries, including
+the dedicated editor report. Ordinary development tests retain explicit artifact
+skips. Missing production inputs remain fatal.
 Stop other preview servers before acceptance. Reports and input SHA-256 values
 are in `data/derived/r26-21-acceptance/`; preserve them before another run.
 
@@ -36,20 +46,36 @@ runners keep their defaults.
 
 ## Performance and diagnostic frequencies
 
-From `web/`, run `npm run benchmark:reform` for the production 1/2/4-worker
-matrix at 10/100/1000 requested simulations. Run without another build or
-CPU-heavy task. `REFORM_BENCHMARK_WORKERS` and `REFORM_BENCHMARK_COUNTS` select
-focused subsets; record the subset used. The report is
-`test/fixtures/benchmarks/browser_reform_workers.json`.
-Set `REFORM_BENCHMARK_REPORT` to a different output file to preserve an earlier
-matrix when recording a new acceptance or focused measurement.
+`test:results` and `benchmark:reform` are retired: they used the unsupported
+pre-unified scenario/worker contract. Their old reports remain historical evidence.
+Use the current unified workflow for production throughput, detail queries,
+streamed JSON.gz import/re-export integrity and resource sampling:
 
-Each case records algorithm/data/model versions, seed, environment, worker policy,
-elapsed time, accumulated generation/scrutiny/presentation/storage durations and
-sampled worker heaps. Overlapping phase times are not additive elapsed time.
-Periodic unforced heap maxima are not absolute peaks or process RAM. R retirement
-is decided; no R comparison or 10x stop rule applies. Historical timings remain
-dated evidence.
+```powershell
+$env:FV08_FULL = '1'
+$env:BASE_PATH = '/elezioni'
+$env:FV08_CAMPAIGN_WORKERS = '1'
+npm run test:reform:shares:unified -- --project=chromium
+```
+
+This separate campaign requests 1,000 paired runs per model and retains the
+60-minute execution bound per model. `FV08_WORKERS` can select a supported compute
+pool for a focused campaign; record the selected count. Do not run another build
+or CPU-heavy task concurrently. Reset `FV08_FULL` and `BASE_PATH` after the campaign.
+Use `test:reform:shares:resources` separately for repeated refits and dimension/
+throttling probes; see [unified verification](vote-generation-unified-workflow.md#verification-commands).
+These expensive campaigns are not part of routine application acceptance.
+
+The current `reform-production-worker.spec.ts` retains the deterministic 1/2/4
+worker comparison and 50-run chunk-boundary regressions against constructed
+inputs. This is functional concurrency coverage, not a full-source throughput
+matrix. Campaign receipts under `data/derived/fv08-unified/browser/` record
+model/implementation/data identities, worker count, execution/phase timing,
+sampled memory, legal seat totals and full archive-content digests. Default
+functional runs omit unified memory instrumentation; `FV08_FULL=1` retains it.
+Samples are not absolute peaks or process RAM guarantees. Overlapping worker
+phase times are not additive elapsed time. Historical 10/100/1000 worker-matrix
+timings must not be presented as current-model acceptance.
 
 The result-service `diagnostics` query streams the saved **Warnings and errors**
 ledger after execution. It requires a native per-simulation ledger; imported
