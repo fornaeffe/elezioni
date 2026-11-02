@@ -217,8 +217,11 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
       performance as much as possible without noticeably changing generated 
       distributions, even if the computational time is under the limit.
     - [ ] substitute in production M01, M02
-    and legacy previous-law and regional generators with the
-    successful model set, adapting the scenario editor accordingly.
+      and legacy previous-law and regional generators with the
+      successful model set, adapting the scenario editor accordingly.
+  - [ ] If neither model passes the test, use M01 and M02 generators also for 
+    previous law politics and regional. Create
+    adapted versions of M01 and M02 if necessary, reusing common logic.
   - [ ] Clean the repo removing any regenerable artifact no longer needed in 
     production.
 - [ ] Correct meaningful local support for future filed lists without historical
