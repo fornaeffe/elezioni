@@ -249,9 +249,10 @@ async function check(checkSources = false) {
     assert.deepEqual(covered, codes, ch + ' physical coverage');
   }
   assert(d.cellCoverage.every(x => x.municipalityIds.length > 0));
-  const report = await readFile(local('docs/vote-generation-fast-research.md'), 'utf8');
+  // FV09 verifies the original FV01 extraction, independent of maintained guides.
+  const report = await readFile(local('research/vote-generation/fv09/contracts/vote-generation-fast-research.md'), 'utf8');
   const equations = report.slice(report.indexOf('## National reference estimation'), report.indexOf('## Scenario contract and browser boundary')).replaceAll('\r\n', '\n');
-  const model = (await readFile(local('docs/vote-generation-fast-model.md'), 'utf8')).replaceAll('\r\n', '\n');
+  const model = (await readFile(local('research/vote-generation/fv09/contracts/vote-generation-fast-model.md'), 'utf8')).replaceAll('\r\n', '\n');
   assert.equal(model.slice(model.indexOf('## National reference estimation')), equations, 'unchanged extracted numerical contract');
   const fixtures = await json(m.contractFixtures.path);
   const close = (actual, expected) => assert(Math.abs(actual - expected) < 1e-12, `${actual} differs from ${expected}`);

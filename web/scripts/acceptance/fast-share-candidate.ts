@@ -8,6 +8,7 @@ import {
   writeFile,
   rename,
   stat,
+  unlink,
 } from 'node:fs/promises';
 import { resolve, dirname, relative, isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -58,7 +59,15 @@ for (const name of changed) {
   if (name.startsWith('research/')) continue;
   const path = inside(resolve(checkout, name));
   await mkdir(dirname(path), { recursive: true });
-  await writeFile(path, await readFile(resolve(root, name)));
+  try {
+    await writeFile(path, await readFile(resolve(root, name)));
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+    // Apply task deletions as well as additions in the isolated HEAD overlay.
+    await unlink(path).catch((e: NodeJS.ErrnoException) => {
+      if (e.code !== 'ENOENT') throw e;
+    });
+  }
 }
 const report = {
   stage: 'FV-05',

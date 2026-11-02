@@ -182,24 +182,13 @@ reference preparation records this decision while preserving computability.
 
 For the selected fast model's production work, start with the
 [browser implementation plan](../docs/vote-generation-production-plan.md).
-For reproducing its research baseline, use the
-[fast report and commands](../docs/vote-generation-fast-research.md).
-The preceding
-[restricted-scenario results and reproduction commands](../docs/vote-generation-party-drift-restricted.md)
-and [provisional membership review](../docs/vote-generation-party-memberships.md)
-remain available for prior evidence and table review.
-Curated policies, public-source notes and restored cached poll answers are under
-`data/sources/party-drift/`; generated panels and Stan chains remain ignored under
-`data/derived/party-drift/`. The earlier
-[stage-0 stop](../docs/vote-generation-party-drift-stage0.md) remains historical evidence.
-For the earlier fixed-outcome research, use the separate
-[measured report](../docs/vote-generation-drift-results.md) and
-[testing guide](../docs/vote-generation-drift-testing.md). The offline
-runner consumes pinned historical elections and already downloaded polls,
-writes reproducible case artifacts under `data/derived/drift/`, and leaves
-production snapshots/defaults unchanged. Source-election correspondence
-defaults remain editable in the existing scenario editor; research grouping
-does not replace that contract.
+Concluded research, its exact file dispositions and historical reproduction
+commands are in the [archive index](../research/vote-generation/README.md).
+FV-09 removed only hash-checked generated arrays. Curated observations under
+`data/sources/party-drift/` and `data/sources/polls/history/`, production
+`fast-share-*` sources and both `data/legacy-comparison-*.json` default policies
+remain. Legal inputs/investigations, result archives and unknown/manual artifacts
+are retained. `docs/model-drafts/` stays in place.
 
 From `web/`, run `npm run check:data`, `npm run check`, and `npm run test`.
 Preparation tests cover cached/manual/HTTP acquisition, immutable output, source

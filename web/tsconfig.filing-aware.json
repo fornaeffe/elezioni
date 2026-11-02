@@ -1,5 +1,0 @@
-{
-  "extends": "./tsconfig.node.json",
-  "compilerOptions": {"noEmit": true},
-  "include": ["src/app.d.ts", "scripts/acceptance/filing-aware*.ts"]
-}

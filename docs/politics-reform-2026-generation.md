@@ -1,10 +1,23 @@
-# R26-19 scenarios, preparation and generation
+# Reform scenarios, preparation and generation
 
-This guide describes the installed generator. Its approved replacement is
-specified by the [fast-model production plan](vote-generation-production-plan.md).
-Use that plan for FV implementation, browser refitting and research cleanup;
-update this guide at cutover. Existing commands below do not yet build the new
-fast-model production assets.
+Current reform generation uses **M01 2.0.0** and **M02 2.0.0** (default).
+Read the [M01](models/M01.md) and [M02](models/M02.md) definitions, [unified scenario/worker workflow](vote-generation-unified-workflow.md),
+[source preparation](vote-generation-fast-data.md), [release commands](vote-generation-fast-release.md)
+and [browser refitting](vote-generation-fast-fitting.md) for the relevant task.
+Current dispatch is `vote-share/unified-generation.ts`; production preparation is
+`web/scripts/data-preparation/fast-share-release-cli.ts`.
+
+From `web/`, `npm run data:reform:shares:release -- --download` acquires pinned
+sources, prepares matching data/defaults/fit/catalog and builds. Normal checks are
+`npm run data:reform:shares:release:check`, `npm run check:data`, `npm test` and
+`npm run check`. Use the release guide for isolated outputs and base-path builds.
+FV-09 research is now [archived](../research/vote-generation/README.md); optional
+archive verification is independent of production acceptance.
+
+## Earlier v1–v3 preparation and shared legal assembly
+
+The remaining sections document earlier scenario preparation and shared
+candidate/preference assembly. They do not install or fit the current v5 model.
 
 Use this guide for generation work. Legal scrutiny stays in the stage modules;
 the [modelling decisions](politics-reform-2026-modelling.md) define semantics.

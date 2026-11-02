@@ -20,7 +20,7 @@ read the [FV-05 release guide](../../../../../../docs/vote-generation-fast-relea
 | Task | Entry point |
 | --- | --- |
 | Model equations and fixed conventions | [Maintained contract](../../../../../../docs/vote-generation-fast-model.md) |
-| Filing-aware replacement candidates and geographic covariance | [Feasible model](../../../../../../docs/vote-generation-feasible-model.md), [research and results](../../../../../../docs/vote-generation-feasible-research.md) |
+| Filing-aware replacement candidates and geographic covariance | [Feasible model](../../../../../../research/vote-generation/docs/vote-generation-feasible-model.md), [research and results](../../../../../../research/vote-generation/docs/vote-generation-feasible-research.md) |
 | Prepared numerical inputs/typed outputs | [types.ts](types.ts), [scenario/data boundary](../../../../../../docs/vote-generation-fast-contracts.md) |
 | Lossless state serialization and compatible candidate loading | [state-codec.ts](state-codec.ts), [release.ts](release.ts) |
 | Browser fit lifecycle, worker protocol and resource reservations | [fit-client.ts](fit-client.ts), [fit-types.ts](fit-types.ts), [fit-resources.ts](fit-resources.ts) |

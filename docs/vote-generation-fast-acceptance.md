@@ -6,7 +6,8 @@
 installs the selected bounded mass-pair field by default and offers the reviewed
 legacy latest-publication poll procedure with Luca's approved per-chamber
 new-list classification. Original v1-v3 archives retain their generator. Public
-deployment, the correspondence-policy audit and FV-09 cleanup remain separate.
+deployment and the correspondence-policy audit had separate scopes. FV-09
+cleanup is now recorded in the [archive index](../research/vote-generation/README.md).
 
 The [curated acceptance snapshot](../test/fixtures/benchmarks/vote_share_unified_acceptance.json)
 pins the catalog/source/implementation, archive and ledger hashes, conditional
@@ -53,7 +54,7 @@ release fingerprint.
 ## Historical global-Beta campaign
 
 The capacity failures below concern the earlier global-Beta candidate. Luca
-subsequently authorized the [feasible replacement comparison](vote-generation-feasible-research.md),
+subsequently authorized the [feasible replacement comparison](../research/vote-generation/docs/vote-generation-feasible-research.md),
 whose selected field and limitations are documented there. The original failed
 screen is retained unchanged and is not reclassified as passing. Commands and
 open gates below describe that historical campaign unless expressly superseded
@@ -94,14 +95,20 @@ interventions, regional anchors and the treatment of pooled historical identitie
 must be specified together; moving a denominator alone is not a complete fix.
 
 This was the investigation proposed before Luca authorized the
-[implemented replacement comparison](vote-generation-feasible-research.md).
+[implemented replacement comparison](../research/vote-generation/docs/vote-generation-feasible-research.md).
 Its original follow-up was to specify equations, shared-domain/overlapping-filing
 behavior, interactions and reference semantics, then add independent fixtures and repeat the frozen failing seeds
 without replacing their earlier ledger entries, and rerun the whole FV-08 panel.
 Conditioning global draws on feasibility is another model choice; it changes
 their marginal distributions and cannot be introduced as an invisible retry.
 
-## Reproduction
+## Historical reproduction
+
+FV-09 moved the research runners and curator in this section to the
+[archive](../research/vote-generation/README.md). Run these original commands only
+at the historical revision bound by the relevant receipt, in its original layout.
+Current production checks use the release guide and unified workflow; these old
+commands are not installed production entry points.
 
 Run from `web/` with Node 24 and the pinned dependencies. Required inputs must
 exist; these scripts fail rather than use debug bundles. Preparation commands
@@ -148,7 +155,7 @@ sensitivity. Do not treat municipalities or horizons as independent elections.
 
 ## Historical release gates from the earlier campaign
 
-Apply the [authorized replacement goals and measured draw budget](vote-generation-feasible-results.md)
+Apply the [authorized replacement goals and measured draw budget](../research/vote-generation/docs/vote-generation-feasible-results.md)
 when updating this older acceptance campaign. Its 30-second/512-MiB/1,000-run
 figures are not additional immutable statistical targets for the replacement.
 The ordinary production switch still needs coherent storage/export, legal and

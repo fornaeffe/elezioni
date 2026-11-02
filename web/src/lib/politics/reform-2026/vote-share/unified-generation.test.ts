@@ -13,7 +13,8 @@ import { originalFitFixture } from '../../../../../tests/fixtures/fast-fit-input
 import { generationFixture } from '../generation.fixture';
 import { preparePairedVoteReferences } from '../paired-vote-generation';
 import { latestLegacyPoints, refreshLegacyPolls, type LegacyPollObservation } from './legacy-polls';
-import { addReferences } from '../../../../../scripts/acceptance/legacy-comparison-input';
+// Frozen output of the original comparison adapter at cd69edd; no research import.
+import comparedPolls from '../../../../../tests/fixtures/legacy-poll-comparison.json';
 
 describe('unified generation contract', () => {
   it('normalizes source composition, aggregates binary future membership and retains structural members at zero weight', () => {
@@ -59,7 +60,6 @@ describe('unified generation contract', () => {
   });
   it('ports exactly the compared latest-publication poll calculation, including mixed-wave normalization', () => {
     const { scenario, snapshot } = generationFixture(),
-      a = structuredClone(scenario),
       b = structuredClone(scenario);
     const lists = scenario.lists.camera.map((l) => ({
       id: l.id,
@@ -93,7 +93,6 @@ describe('unified generation contract', () => {
         share: p.shares[i],
       })),
     }));
-    addReferences(a, snapshot, raw, '2026-10-19', lists, 'polls');
     refreshLegacyPolls(
       b,
       snapshot,
@@ -103,8 +102,8 @@ describe('unified generation contract', () => {
       {},
       (id) => id,
     );
-    expect(b.pollReferences!.rows).toEqual(a.pollReferences!.rows);
-    expect(b.projectionDate).toBe(a.projectionDate);
+    expect(b.pollReferences!.rows).toEqual(comparedPolls.rows);
+    expect(b.projectionDate).toBe(comparedPolls.projectionDate);
   });
   it('projects one poll independently to each chamber ticket and rejects duplicate choices or invented poll identities', () => {
     const {scenario,snapshot}=generationFixture(),

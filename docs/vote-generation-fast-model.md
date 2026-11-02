@@ -19,11 +19,11 @@ and default selection remain FV-03 through FV-08.
 This document records the original `kind-common-conservative` derivation.
 The 30 October replacement campaign retains its reference/profile estimation,
 but its forecast laws are specified separately in the
-[feasible-field model](vote-generation-feasible-model.md). The Beta/projection
+[feasible-field model](../research/vote-generation/docs/vote-generation-feasible-model.md). The Beta/projection
 equations below remain the original comparator contract, not additional fixed
 requirements for that authorized campaign.
 The equations below are extracted unchanged from the approved
-[research report](vote-generation-fast-research.md). Research timing, predictive
+[research report](../research/vote-generation/docs/vote-generation-fast-research.md). Research timing, predictive
 results, failures and reproduction evidence remain in that historical report.
 
 Read only the relevant companion contract:
@@ -115,7 +115,7 @@ An explicit Other answer represents its underlying component complement, so
 those components occur both in its group row and in $u_i$; they are not absent
 merely because they are unnamed.
 
-The [unified v5 workflow](vote-generation-unified-workflow.md#membership-and-assumed-composition)
+The [unified v5 workflow](vote-generation-unified-workflow.md#model-boundary-and-restored-semantics)
 retains this binary $S_i$. Its optional legacy composition is a separate
 row-normalized matrix $W_i$; future membership $S_f$ is binary and the legacy
 correspondence is $C_{i,f}=W_iS_f^\top$. $B_i$ below retains its existing

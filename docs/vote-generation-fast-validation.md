@@ -12,7 +12,7 @@ and [references](vote-generation-fast-references.md) define the targets.
 The original numerical-port gates below remain evidence for their original
 kernel. Luca subsequently authorized the feasible-model comparison and selected
 its bounded mass-pair field; its statistical scope and limitations are in the
-[comparison results](vote-generation-feasible-results.md). Do not describe the
+[comparison results](../research/vote-generation/docs/vote-generation-feasible-results.md). Do not describe the
 new field as a distribution-preserving port of the earlier global-Beta model.
 
 For FV-08 adoption, the [unified workflow](vote-generation-unified-workflow.md)

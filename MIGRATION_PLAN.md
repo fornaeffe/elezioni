@@ -83,7 +83,7 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   original lists mapped to one future list; split one original list among future
   lists using normalized factors; count original abstention and unmapped
   original-list votes as `astensione`. Reform v5 uses the distinct model-specific
-  [choice-set policies](docs/vote-generation-unified-workflow.md#effective-inputs-and-turnout-policy).
+  [choice-set policies](docs/vote-generation-unified-workflow.md#model-boundary-and-restored-semantics).
 - Treat bundled correspondences as default metadata. Keep validation strict for
   user-authored correspondence rows without producing warnings merely because a
   bundled row became irrelevant after a list was removed or renamed.
@@ -293,7 +293,7 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   prefitted model; the browser reuses it for scenario composition and can refit
   after poll, membership or reference-date edits. Earlier research evidence is
   in [history](docs/migration-history.md#2026-10-27--resumed-party-level-research-with-a-fast-share-model)
-  and the [approved report](docs/vote-generation-fast-research.md).
+  and the [approved report](research/vote-generation/docs/vote-generation-fast-research.md).
   - [x] Select the fast `kind-common-conservative` model for this implementation.
     Original joint-state/Stan research gates no longer block the selected model.
   - [x] **FV-01:** Freeze production scenario/model/reuse contracts, numerical and
@@ -338,17 +338,17 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
       24-list future choice set; then implement/test feasible candidates against
       historical elections and polls, prioritizing plausible municipality/college
       tails, coverage and mean accuracy, with a 30-minute browser budget. Use the
-      [active research execution guide](docs/vote-generation-feasible-research.md).
+      [archived research execution guide](research/vote-generation/docs/vote-generation-feasible-research.md).
     - [x] Compare the selected candidate with the installed R-derived generator.
       Freeze reviewed correspondences, new-list support and reference inputs;
       separate future-scenario checks from historical accuracy. Follow the
-      [legacy comparison assessment](docs/vote-generation-legacy-comparison-plan.md).
+      [legacy comparison assessment](research/vote-generation/docs/vote-generation-legacy-comparison-plan.md).
     - [x] Resolve the shared Camera TAA recovery-eligibility mismatch exposed by
       the legacy comparison: apply the externally reviewed C93-septies(2)(b)
       reading restricting internal coalition allocation to admitted members.
       Preserve full coalition subject figures; allocation/recovery regressions
       and all 20 recorded exception replays pass. See the
-      [failure diagnosis](docs/vote-generation-legacy-comparison-results.md#operational-findings-and-implementation-checks).
+      [failure diagnosis](research/vote-generation/docs/vote-generation-legacy-comparison-results.md#operational-findings-and-implementation-checks).
     - [x] Resolve the poll-informed legacy draw 135 Senate Sicilia college
       allocation (`N21/impossible-residual`) with approved I14-v2 initial list
       passes in Senate N21/N22. Regressions and both frozen 1,000-draw workloads
@@ -356,11 +356,11 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
       [diagnosis and implementation verification](docs/senate-sicilia-n21-review.md).
   - [x] **Post-FV-08 correspondence-policy audit:** compare both models and quantify
     default/boundary turnout, list and college effects. See the
-    [findings, reproducible evidence and correction proposals](docs/correspondence-policy-audit.md).
+    [findings, reproducible evidence and correction proposals](research/vote-generation/docs/correspondence-policy-audit.md).
     The frozen findings precede the corrections below; historical comparisons
     remain terminal-only.
   - [x] **Correspondence corrections after review:** implemented the agreed
-    [audit policies](docs/correspondence-policy-audit.md#adopted-corrections)
+    [audit policies](research/vote-generation/docs/correspondence-policy-audit.md#adopted-corrections)
     in one coordinated pass: deterministic conditioning, model-specific reference
     uncertainty, component/physical-cell legacy generation, pre-filing references,
     geographic inference and selected-model reference-backed splits. Versioned
@@ -378,14 +378,15 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
     offered-set strata: 28 model/case rows at 512 draws and 1,000 complete
     Camera browser attempts per model. Old receipts and production contracts
     are unchanged; predictive calibration is not accepted by these results. See the
-    [comparison scope and results](docs/current-camera-comparison-results.md).
+    [comparison scope and results](research/vote-generation/docs/current-camera-comparison-results.md).
   - [x] **Restore pre-correction model laws:** restore M01/M02 to the parent of
     `4ee5a91`, publish their definitions as 2.0.0, regenerate matching defaults,
     preserve 1.0.0 evidence and verify runtime/release/browser integration.
-  - [ ] **FV-09:** Execute the [research archive/cleanup plan](docs/vote-generation-research-archive-plan.md)
-    after dependency separation and acceptance; retain curated evidence and remove
-    only audited, regenerable outputs no longer consumed.
-    Retain the comparison-policy JSON now consumed by unified-default preparation.
+  - [x] **FV-09:** Archive concluded research after selecting M01/M02 2.0.0;
+    retain curated evidence and remove only audited, regenerable outputs. See the
+    [execution scope](docs/vote-generation-research-archive-plan.md) and
+    [archive index](research/vote-generation/README.md). Keep `docs/model-drafts/`
+    in place and retain comparison policies consumed by unified-default preparation.
 - [ ] Adopt the [desired default scenario](docs\politics-reform-2026-default-scenario.md) for all politics workspaces.
 - [x] **Refine UI**
   - [x] Restore the bundled reform scenario with an explicit confirmation,

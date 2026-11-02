@@ -1,79 +1,90 @@
-# Vote-generation research evidence index
+# Vote-generation research archive
 
-FV-01 preserved evidence on **28 October 2026**. Research code, reports and
-original artifacts remain at their existing locations; full archival/deletion
-is FV-09. Nothing in this index selects a production bundle or authorizes cleanup.
+Research concluded on **2 November 2026** with **M01 2.0.0** and **M02 2.0.0**
+selected; M02 is the default. FV-09 archived superseded research and removed
+1,260 exact generated files (4,301,573,109 bytes). `docs/model-drafts/` remains
+in place and is excluded from archival and deletion.
 
 | Task | Read only |
 | --- | --- |
-| Implement the selected numerical model | [Maintained equations](../../docs/vote-generation-fast-model.md) and [validation protocol](../../docs/vote-generation-fast-validation.md) |
-| Implement scenarios/references/fit reuse | [Data/scenario contract](../../docs/vote-generation-fast-contracts.md) and [reference contract](../../docs/vote-generation-fast-references.md) |
-| Audit retained evidence/provenance | [Evidence manifest](fv01/evidence-manifest.json); follow only the relevant `retainedPath` |
-| Inspect the required default/physical domain | [Default-domain inventory](fv01/default-domain.json); proposed memberships are provisional, special ballot groups require separate review |
-| Prepare FV-09 cleanup | [Archive plan](../../docs/vote-generation-research-archive-plan.md), then [exact file inventory](fv01/inventory.jsonl); do not read the entire inventory for numerical work |
-| Verify this snapshot | Command below; no original ignored artifacts, network, Python, Stan or fit required |
+| Implement the supported laws | [M01](../../docs/models/M01.md), [M02](../../docs/models/M02.md) |
+| Prepare or validate production | [Release guide](../../docs/vote-generation-fast-release.md), [source preparation](../../docs/vote-generation-fast-data.md) |
+| Review completed verification | [FV-09 receipt](fv09/verification.json) |
+| Inspect cleanup scope/counts | [Execution record](fv09/execution.json), [exact dispositions and hashes](fv09/manifest.json) |
+| Inspect protected/retained local files | `fv09/retained.json.gz` (JSON; intentionally outside the main manifest) |
+| Verify frozen FV-01 evidence | [FV-01 manifest](fv01/evidence-manifest.json), [default domain](fv01/default-domain.json), [original inventory](fv01/inventory.jsonl) |
+| Replay an experiment | Relevant report below, then the reproduction boundary below |
 
-From the repository root, with the project's Node runtime:
+## Reports and evidence
 
-```powershell
-node research/vote-generation/fv01/freeze.mjs --check
-```
-
-This checks every retained hash/size, inventory integrity, both chambers' complete
-physical coverage against the frozen target, worked reference arithmetic and
-independent reduced matrix/mode conditions, plus exact unchanged numerical-model
-extraction. It does **not** run the future engine, a new posterior, quadrature,
-joint-reference calibration, browser or predictive acceptance.
-
-With the original ignored artifacts still present, `--check-sources` additionally
-rehashes every inventoried original and verifies that each compact JSON extract
-differs only at its explicitly omitted paths. This stronger local check is not a
-requirement for verifying retained evidence in a clean clone.
-
-## Evidence groups and status
-
-| Candidate | Preserved evidence and interpretation |
+| Candidate or study | Historical report and interpretation |
 | --- | --- |
-| Poll calibration/uncertainty, endpoint and six-category | Reports/policies/case metrics under retained `polls/` and `generation/`; earlier comparisons only, not the selected production model |
-| Fixed-outcome drift | Final/supplemental summaries and reduced posterior check under retained `drift/`; preserve original approximation/confirmation limitations |
-| Party exact/Laplace/importance | Stage-0 and restricted summaries, independent disagreement and importance-geography failure; a converged mode was not posterior accuracy |
-| Reduced/real Stan | Original summary/error records, convergence/ESS/timing/stop context; failed/interrupted runs are not valid posteriors |
-| Fast screening/selection | Initial undercoverage, four-variant development and frozen selection; retain pre-repair code hashes rather than silently rewriting history |
-| Fast corrected replay | Corrected development/confirmation summaries and cases; loader/optimizer defects had been seen, so these are not untouched holdouts |
-| Fast full compatible domain | Complete-case manifest, fit diagnostics, compact benchmark, export checks; 7,821 future municipalities excludes VdA/unmatchable research rows and is not the full production domain |
+| Endpoint/six-category and poll uncertainty | [Methods](docs/vote-generation-methods.md), [endpoint report](docs/vote-generation-research.md), [uncertainty](docs/polls-uncertainty.md), [calibration](docs/polls-calibration.md); rejected corrections remain rejected |
+| Fixed-outcome drift | [Model](docs/vote-generation-drift-model.md), [results](docs/vote-generation-drift-results.md), [protocol](docs/vote-generation-drift-testing.md); approximation limits retained |
+| Party exact/Laplace/importance/Stan | [Stage-0 stop](docs/vote-generation-party-drift-stage0.md), [restricted research](docs/vote-generation-party-drift-restricted.md), [memberships](docs/vote-generation-party-memberships.md); failed/stopped runs are not valid posteriors |
+| Fast share-model screening and corrected replay | [Full report](docs/vote-generation-fast-research.md); corrected confirmation is not an untouched holdout |
+| Feasible-field alternatives | [Definition](docs/vote-generation-feasible-model.md), [protocol](docs/vote-generation-feasible-research.md), [results](docs/vote-generation-feasible-results.md); rejected variants retained |
+| Installed-legacy comparison | [Assessment](docs/vote-generation-legacy-comparison-plan.md), [results](docs/vote-generation-legacy-comparison-results.md); legal exceptions and exact failing draw IDs retained |
+| Superseded correspondence corrections and 1.0.0 comparison | [Audit](docs/correspondence-policy-audit.md), [feasibility](docs/model-comparison-feasibility.md), [Camera results](docs/current-camera-comparison-results.md), [M01 1.0.0](docs/models/M01-1.0.0.md), [M02 1.0.0](docs/models/M02-1.0.0.md) |
 
-The manifest retains original paths, bytes, SHA-256 and repository revision,
-plus retained hashes and **exact omitted JSON paths** for extracts. Large
-municipal scoring rows are omitted from the compact benchmark/early case
-extracts; aggregate metrics, diagnostic/policy/source/seed fields and group-level
-bias evidence remain. Exact copies retain identical hashes. Original source/code
-hashes may differ between failed and corrected runs; both are kept as recorded.
-Do not recompute old fingerprints after a file move and call them original pins.
-Local Git attributes disable line-ending conversion for the frozen JSON/JSONL
-bytes, so Windows checkout settings cannot invalidate their SHA-256 identities.
+`fv01/evidence/` preserves the original selected summaries, failures, source/code
+pins and exact omission paths. `evidence/data/derived/` adds exact gzip copies of
+59 later reports, selection records, browser ledgers and diagnostics. Decompress
+only the relevant file to recover its original bytes. Curated group/college
+metrics and compressed details remain under `test/fixtures/benchmarks/`; they
+retain their original model versions and acceptance scope.
 
-`inventory.jsonl` has one record per researched file with its hash/size, proposed
-disposition, retained evidence and direct textual import consumers. Dynamic/file
-path consumers still require FV-09 review. All entries say
-`deletionAuthorized: false`. Unknown/manual analysis files remain review items.
-The inventory additionally records research-owned Python bytecode and the mixed
-poll output directory. Poll scenarios/reconciliation/observations remain explicit
-keep/review items; only known estimator outputs are research candidates. No
-shared source cache, current production asset or unrelated legal/result archive
-is authorized for deletion.
+`fv09/manifest.json` records original logical paths, sizes/hashes, dispositions,
+consumers, replay instructions and relocated hashes. Source code and authored
+protocols are byte-exact copies. Archived Markdown changes only links and adds
+an archive notice. Old fingerprints are never recomputed as new original pins.
+The FV-01 inventory remains unchanged, including `deletionAuthorized: false`;
+the separate FV-09 manifest and receipt record the later authorized execution.
 
 ## Reproduction boundary
 
-Historical commands and precise numerical qualifications remain in the indexed
-reports. The evidence manifest records the capture's base HEAD, modified tracked
-sources and exact working-tree hashes; it does not claim a new commit. Historical
-inputs/algorithm hashes within each retained result control its old replay. The
-one-time `freeze.mjs --write` capture requires the original local ignored
-artifacts and refuses to overwrite differing frozen output. It preserves existing
-evidence only; it is not a model-reproduction or production preparation command.
+Archived source is under `code/web/` with its original internal layout, outside
+normal TypeScript/Vitest/build globs. It is a historical source snapshot, not an
+installed second engine. Its relative imports, CLI roots, npm command names and
+report hashes refer to the **original repository layout**. Do not invoke the
+moved CLI files in place. Use a separate Git worktree at the experiment's pinned
+revision, install that revision's `web/package-lock.json` with `npm ci`, and run
+the original report's commands there. For the exact pre-cleanup source snapshot:
 
-The maintained production protocol and
-[worked contract/numerical targets](fv01/contract-fixtures.json) are frozen before
-the new engine. Proposed component coverage is not a reviewed historical
-decomposition, a fitted Senate model or a generated default. FV-03/04 must resolve
-those release requirements without manufacturing historical counts.
+```powershell
+git worktree add --detach ../elezioni-research-replay cd69edd9be02c2ca5ce0bc3e133f8608fe721c83
+```
+
+The 1.0.0 Camera campaign specifically uses `8dcb830`; the FV-01 extraction uses
+`6f2e23b`. These historical identities do not become current browser selectors.
+Use report-specific source hashes/cutoffs/seeds and archived protocols; raw
+pinned downloads can be reacquired. Deleted tensors/chains require regeneration.
+Retained unknown/manual artifacts and legal replay inputs remain local, with
+exact retained paths recorded in `fv09/retained.json.gz`.
+
+Node/TypeScript tools use Node 24 and the pinned npm lockfile at the replay
+revision. Python/Stan tools additionally use the isolated environment described
+in `code/web/scripts/data-preparation/stan/README.md` and `requirements.txt`;
+compiler/native products and shared external environments are not archived or
+removed. Historical machine/thread/timing claims retain their original context.
+
+## Small offline verification
+
+With Node 24, from the repository root:
+
+```powershell
+node research/vote-generation/fv09/check.mjs
+node research/vote-generation/fv01/freeze.mjs --check
+```
+
+Or from `web/`: `npm run test:research:archive`. No downloads, npm dependencies,
+Python, Stan, heavy chains or fit are needed for the two direct Node commands.
+They verify relocated/retained hashes, deletion records, frozen FV-01 numerical
+extraction, worked contract arithmetic, physical coverage and an independent
+reduced Gaussian/Helmert fixture. They do not claim predictive calibration or a
+new browser/resource acceptance campaign. `freeze.mjs --check-sources` and
+`--write` require the original pre-cleanup checkout and raw artifacts.
+
+The manifest executors default to dry-run, reject changed bytes/escaping paths
+and refuse to reapply completed cleanup. They are an execution audit, not a
+routine pruning command. For future cleanup, create a fresh reviewed manifest.

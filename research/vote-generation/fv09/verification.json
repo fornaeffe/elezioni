@@ -1,0 +1,176 @@
+{
+  "date": "2026-11-02",
+  "status": "passed",
+  "sourceRevision": "cd69edd9be02c2ca5ce0bc3e133f8608fe721c83",
+  "sourceRevisionRole": "Base HEAD plus the uncommitted FV09 task diff; no commit created.",
+  "node": "v24.20.0",
+  "selectedModels": {
+    "M01": "2.0.0",
+    "M02": "2.0.0"
+  },
+  "dispositions": {
+    "status": "executed",
+    "movedFiles": 151,
+    "deletedFiles": 1260,
+    "deletedBytes": 4301573109
+  },
+  "unit": {
+    "files": 100,
+    "passed": 1201,
+    "failed": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "coldWarmProductionAcceptance": {
+    "stage": "FV-05",
+    "status": "passed",
+    "checkout": "C:\\Users\\forna\\Repos\\elezioni\\data\\derived\\fv05-acceptance\\clean-215UVr",
+    "baseRevision": "cd69edd9be02c2ca5ce0bc3e133f8608fe721c83",
+    "node": "v24.20.0",
+    "scope": "HEAD plus the current task diff, freshly installed dependencies, initially empty raw/numerical/output caches, no research directory or ignored production/debug data. Candidate assets only; whole-application publication acceptance remains separate.",
+    "checks": [
+      {
+        "name": "install",
+        "expectedFailure": false,
+        "exitCode": 0,
+        "milliseconds": 10177.1209,
+        "log": "install.log"
+      },
+      {
+        "name": "cold",
+        "expectedFailure": false,
+        "exitCode": 0,
+        "milliseconds": 131160.232,
+        "log": "cold.log"
+      },
+      {
+        "name": "warm",
+        "expectedFailure": false,
+        "exitCode": 0,
+        "milliseconds": 35511.605099999986,
+        "log": "warm.log"
+      },
+      {
+        "name": "clean/local byte equality",
+        "passed": true
+      },
+      {
+        "name": "cold/warm byte equality",
+        "passed": true,
+        "catalogId": "fast-share-catalog-v1-0c255ade89a4f9e84edefd4e1d727c4de00496d0f2ce23778b7ebf0007ce61db",
+        "files": {
+          "candidate.json": "82376f272b70d845813b5d2b952609ff4a36356f86771df38f64eb6e02dfdd10",
+          "fast-share-catalog-55e60258b5d7564a5d62ead1f5e668ba35ec43eb4ccc8d8ac80c590a8f53d348.gz": "55e60258b5d7564a5d62ead1f5e668ba35ec43eb4ccc8d8ac80c590a8f53d348",
+          "fast-share-fit-b3000ce4628258369aaa39e94c43d63fc8d2fcef0466bbd4f6f0441c99b6bf0a.gz": "b3000ce4628258369aaa39e94c43d63fc8d2fcef0466bbd4f6f0441c99b6bf0a",
+          "fast-share-fit-columns-e54ebc0456c03dcabe50cacc6af68f833a29ccd40b8a6798982b56837ac667b6.gz": "e54ebc0456c03dcabe50cacc6af68f833a29ccd40b8a6798982b56837ac667b6",
+          "fast-share-profiles-ccfcfb8cd34c3511bee9574b0b2e992d8d7d8d950d8467ec8172c763207f9374.gz": "ccfcfb8cd34c3511bee9574b0b2e992d8d7d8d950d8467ec8172c763207f9374",
+          "fast-share-profiles-columns-6f7c0f166d844a8d7b77714eead03af4a65975fcb3d34b2acab1fc93a8e9d7df.gz": "6f7c0f166d844a8d7b77714eead03af4a65975fcb3d34b2acab1fc93a8e9d7df",
+          "fast-share-runtime-7b6f233e8b237c422c882037b4bb3bb2b994bfe0264cff28208a0b4079ffde8f.gz": "7b6f233e8b237c422c882037b4bb3bb2b994bfe0264cff28208a0b4079ffde8f",
+          "fast-share-runtime-columns-c4622c550fd54462503a6006147f347e3344871b7db0b2dc49b312ff05adff4a.gz": "c4622c550fd54462503a6006147f347e3344871b7db0b2dc49b312ff05adff4a",
+          "fast-share-scenario-7ff95b8f27e82d19d54ab2c32e2d1d921604e4d4d25fc0a243b8e721368628d2.gz": "7ff95b8f27e82d19d54ab2c32e2d1d921604e4d4d25fc0a243b8e721368628d2",
+          "history-camera-2008.u32-896d32d42192918896c345b6be1713b52875ee8b1bd6e1a01fc7172ea0f17443.gz": "896d32d42192918896c345b6be1713b52875ee8b1bd6e1a01fc7172ea0f17443",
+          "history-camera-2013.u32-fd866b6d9306467c21f6d8866f273010a19964fc24b5183ce19f4bb7944e1eda.gz": "fd866b6d9306467c21f6d8866f273010a19964fc24b5183ce19f4bb7944e1eda",
+          "history-camera-2018.u32-6256e6c19e41587f74705c9f69fe671b08050f6b2ecaa2cd535fa5d5a6de677d.gz": "6256e6c19e41587f74705c9f69fe671b08050f6b2ecaa2cd535fa5d5a6de677d",
+          "history-camera-2022.u32-5e460a2abe91cb057a4afd556d22bf1a574f05b93cb85485eeace949cd3480d2.gz": "5e460a2abe91cb057a4afd556d22bf1a574f05b93cb85485eeace949cd3480d2",
+          "history-european-2009.u32-cba334f86e8e43055df321f010823cf1d4c939ea3962ff56d6bd39a5f298b3a9.gz": "cba334f86e8e43055df321f010823cf1d4c939ea3962ff56d6bd39a5f298b3a9",
+          "history-european-2014.u32-690dc85ea5c914ee114c460a8673f9575e2825300c95e8835b9e0d84a9d4e0a1.gz": "690dc85ea5c914ee114c460a8673f9575e2825300c95e8835b9e0d84a9d4e0a1",
+          "history-european-2019.u32-290776cd7e7290b04eaa10c72d1896c5f9883cee61d286abc55dc093d0fecec9.gz": "290776cd7e7290b04eaa10c72d1896c5f9883cee61d286abc55dc093d0fecec9",
+          "history-european-2024.u32-23451d494712e75a969a17f3cc59780b967e61063d46a6a5d665e8f693bba49c.gz": "23451d494712e75a969a17f3cc59780b967e61063d46a6a5d665e8f693bba49c",
+          "history-senato-2018.u32-1012dee7e1d305060e8049a46b31319b235f9e5472fa67a280543941d8acbcc7.gz": "1012dee7e1d305060e8049a46b31319b235f9e5472fa67a280543941d8acbcc7",
+          "history-senato-2022.u32-410c2ff8549941f0b8817e8fc0544a6622e2269b8f71ce3df19be24426ed1e24.gz": "410c2ff8549941f0b8817e8fc0544a6622e2269b8f71ce3df19be24426ed1e24",
+          "source-dfe474fbb2677ac4799f24bdf87e9a3fde4701fb800f1d47cb070cdd7019dc63.gz": "dfe474fbb2677ac4799f24bdf87e9a3fde4701fb800f1d47cb070cdd7019dc63"
+        },
+        "coldCache": {
+          "source": false,
+          "legal": false,
+          "fit": false,
+          "profiles": false
+        },
+        "warmCache": {
+          "source": true,
+          "legal": true,
+          "fit": true,
+          "profiles": true
+        }
+      },
+      {
+        "name": "missing-refit-asset",
+        "expectedFailure": true,
+        "exitCode": 1,
+        "milliseconds": 2028.13440000001,
+        "log": "missing-refit-asset.log"
+      },
+      {
+        "name": "corrupt-fit-cache",
+        "expectedFailure": true,
+        "exitCode": 1,
+        "milliseconds": 4087.795599999983,
+        "log": "corrupt-fit-cache.log"
+      },
+      {
+        "name": "selected candidates survive failed preparation",
+        "passed": true
+      }
+    ]
+  },
+  "protectedArtifacts": {
+    "protectedHashChecks": 596,
+    "retainedFilesChecked": 9819,
+    "draftFiles": 2,
+    "unchanged": true
+  },
+  "browser": {
+    "passed": 22,
+    "skipped": 0,
+    "retries": 0,
+    "scope": "Seven Chromium release/refit/worker checks and both model workflows in Chromium/Firefox at each of / and /elezioni; no new 1000-draw campaign.",
+    "logs": {
+      "browser-release-root.log": {
+        "passed": 7,
+        "sha256": "635bc1a14a6ca9c146334dfdd4c2e799860a77f2681cad364bc91f081dbeeed2"
+      },
+      "browser-models-root.log": {
+        "passed": 4,
+        "sha256": "54c3610093f5e637402213553074871f1dc33ae2dbadf0ecaeda010469061cf6"
+      },
+      "browser-release-nested.log": {
+        "passed": 7,
+        "sha256": "e2265dba6c6bb598dad28cc1eb2c65493de120185619f86a225b514c51b8d725"
+      },
+      "browser-models-nested.log": {
+        "passed": 4,
+        "sha256": "79a78899ba8e1c6867f0ef414be83e11fc7a7196efbb86df4f995d867d6a0aee"
+      }
+    }
+  },
+  "archive": {
+    "relocatedAndExtractedAndCompressedFilesVerified": 212,
+    "fv01EvidenceFiles": 61,
+    "originalInventoryEntries": 1433,
+    "independentReducedGaussian": "passed",
+    "helmertBasis": "passed",
+    "standaloneArchiveWithoutGitOrNpm": "passed"
+  },
+  "checks": {
+    "check:data": "passed",
+    "svelteCheck": "0 errors, 0 warnings",
+    "staticBuilds": [
+      "/",
+      "/elezioni"
+    ],
+    "finalBuild": "/",
+    "researchOrRawSourceFilesInBuild": 0,
+    "historicalReportBodiesPreserved": 22,
+    "codeAndProtocolArchiveBytesUnchanged": true,
+    "newBrokenDocumentationLinks": 0,
+    "preExistingMissingLink": "docs/politics-reform-2026-legal-gaps.md -> politics-reform-2026-nota-legislatore.docx",
+    "rootBuildFiles": 200,
+    "rootBuildBytes": 159395705
+  },
+  "limitations": [
+    "No new predictive calibration, 1000-run performance/resource acceptance, manual acceptance, commit or public deployment.",
+    "Original-layout historical worktrees are required for archived CLI/full-suite replay; optional archive verification needs no heavy outputs.",
+    "Gross deleted bytes exclude archive additions and newly generated acceptance outputs."
+  ],
+  "archiveManifestSha256": "d7ae403be502150be1a3b8a3218773ef3c6484c82c21a7c0facf7fd7ace59423"
+}

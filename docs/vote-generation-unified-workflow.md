@@ -43,8 +43,8 @@ are separate. Read only the appropriate model definition for its equations.
   worker orchestration, result tables and exports. Shared inputs do not imply
   identical probability laws. No scrutiny rule is changed by the rollback.
 
-The [correspondence audit](correspondence-policy-audit.md) and
-[Camera comparison](current-camera-comparison-results.md) retain the superseded
+The [correspondence audit](../research/vote-generation/docs/correspondence-policy-audit.md) and
+[Camera comparison](../research/vote-generation/docs/current-camera-comparison-results.md) retain the superseded
 1.0.0 decisions/results. Reproduce those campaigns at their recorded commits;
 current command entry points reject 1.0.0 rather than relabelling 2.0.0 output.
 The 1.0.0 correction curator is likewise historical. Existing benchmark receipts

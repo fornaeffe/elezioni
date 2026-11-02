@@ -1,6 +1,6 @@
 # Migration History
 
-Record through: 2026-10-30
+Record through: 2026-11-02
 
 This file preserves the detailed migration record: completed implementation,
 decisions and rationale, verification results, encountered problems,
@@ -6642,7 +6642,7 @@ executed scenario or public deployment was changed. No commit was made.
 Luca authorized model simplification for practical performance while preserving
 plausible municipal list distributions, election/poll information and
 historical/joint/new-list scenario support. The focused
-[fast research report](vote-generation-fast-research.md) now owns the model,
+[fast research report](../research/vote-generation/docs/vote-generation-fast-research.md) now owns the model,
 mathematics, commands, artifact map and acceptance limits. Earlier Stan results
 remain historical evidence; production generation/editor/defaults are unchanged.
 
@@ -6985,7 +6985,7 @@ No commit, publication, source-data update or generated-default change was made.
 ## 2026-10-28 — Formalize the fast research model description
 
 Expanded the three model-definition sections of
-[the fast research report](vote-generation-fast-research.md) at Luca's request.
+[the fast research report](../research/vote-generation/docs/vote-generation-fast-research.md) at Luca's request.
 Added a notation/denominator guide and worked grouped-choice example; defined
 the observation matrices, residual covariance, movement-scale estimators,
 bounded Gaussian priors/posteriors, three construction updates and separate
@@ -7937,7 +7937,7 @@ scenario, including historical-rest, which is not filed by default. Six future
 components use explicit reference support. New-party, provincial, cross-chamber
 and whole-alliance VdA proxies are labelled assumptions, not invented observed
 party splits. Exact identities and primary-source links are retained beside the
-authored scenario. See the [results and default assumptions](vote-generation-feasible-results.md).
+authored scenario. See the [results and default assumptions](../research/vote-generation/docs/vote-generation-feasible-results.md).
 
 Implemented three browser-safe forecast fields: filing-stratum Beta, uniform
 bounded pair transfers and mass-weighted bounded pair transfers. Feasible local
@@ -7949,7 +7949,7 @@ variance. Existing reference interventions, fixed turnout for list edits,
 physical reconstruction, count generation and legal scrutiny remain in use.
 National/local list uncertainty controls also reach the new kernels. Model,
 scale and regional covariance are serialized and included in generation keys.
-Equations and qualifications are in the [model guide](vote-generation-feasible-model.md).
+Equations and qualifications are in the [model guide](../research/vote-generation/docs/vote-generation-feasible-model.md).
 
 Ran 134 candidate/case comparisons, each with 512 predictive draws, using cutoff
 eligible historical elections and polls: Camera 2013/2018 development, reused
@@ -8037,7 +8037,7 @@ performed.
 Assessed Luca's request to compare the selected candidate against the installed
 R-derived reform generator. The earlier global-Beta comparator is a predecessor
 of the fast model, not that production generator. The active assessment is
-[the legacy comparison plan](vote-generation-legacy-comparison-plan.md).
+[the legacy comparison plan](../research/vote-generation/docs/vote-generation-legacy-comparison-plan.md).
 No runtime code, default, fitted asset or correspondence table was changed.
 
 Verified the actual production catalog/default and implementation: September
@@ -8101,8 +8101,8 @@ the no-refresh procedure omits general polling updates. The poll procedure uses
 simple latest-publication points through the existing poll-reference interface,
 not the separate production multi-house polling estimator. All assumptions,
 mixed-wave normalization, source dates and reference-clock limits are recorded
-in the [results](vote-generation-legacy-comparison-results.md) and
-[execution guide](vote-generation-legacy-comparison-plan.md).
+in the [results](../research/vote-generation/docs/vote-generation-legacy-comparison-results.md) and
+[execution guide](../research/vote-generation/docs/vote-generation-legacy-comparison-plan.md).
 
 Historical Camera 2013/2018/2022 use four source cutoffs and 512 draws, with the
 same reduced truth/observable groups and full 2018/2022 short-horizon domains as
@@ -8630,7 +8630,7 @@ under `web/data/derived/fv08-unified/`; they remain empty and untracked.
 
 Completed the audit requested in the migration plan without changing generation,
 scrutiny, defaults, source compositions or archive policies. Findings and proposed
-corrections live in [the focused audit](correspondence-policy-audit.md); the plan
+corrections live in [the focused audit](../research/vote-generation/docs/correspondence-policy-audit.md); the plan
 closes the audit and separately tracks review/implementation of corrections.
 
 Added eight constructed characterization cases covering incomplete destinations,
@@ -8676,7 +8676,7 @@ No full acceptance campaign, publication, commit or deployment was performed.
 
 Luca agreed to one conditioning policy for known absent components, regardless
 of whether an identity ceased to exist or is simply not offered. Updated the
-[correction list](correspondence-policy-audit.md#proposed-corrections-before-implementation)
+[correction list](../research/vote-generation/docs/correspondence-policy-audit.md#proposed-corrections-before-implementation)
 to record full offered-choice-set proportional conditioning as the central
 assumption, including electoral non-valid support, with substitution uncertainty
 still to be designed. Polls retain their represented response denominator;
@@ -8693,7 +8693,7 @@ documentation only; no algorithm, validation code, default or data was changed.
 ### Local historical support and geographic inference — 1 November 2026
 
 Recorded Luca's agreed component-level rules in correction 4 of the
-[correspondence audit](correspondence-policy-audit.md#proposed-corrections-before-implementation):
+[correspondence audit](../research/vote-generation/docs/correspondence-policy-audit.md#proposed-corrections-before-implementation):
 use identifiable local positive/zero evidence; infer never-offered local support
 from regional, then national evidence; require explicit legacy joint-list
 compositions; and retain selected-model group evidence with references for
@@ -8714,7 +8714,7 @@ documentation-only update.
 ### Legacy observed-zero regularization decision — 1 November 2026
 
 Added agreed correction 5 to the
-[correspondence audit](correspondence-policy-audit.md#proposed-corrections-before-implementation):
+[correspondence audit](../research/vote-generation/docs/correspondence-policy-audit.md#proposed-corrections-before-implementation):
 use a half-vote probability for identifiable historical-zero local logits after
 correspondence compilation and before poll/reference reconciliation. Raw counts
 remain zero; positive fractional counts remain unchanged. Missing observations,
@@ -9010,7 +9010,7 @@ cleanup was performed.
 ## M01/M02 comparison feasibility — 2 November 2026
 
 Assessed Luca's request for the previous comparison's metrics using only the
-updated M01/M02 models. The [focused assessment](model-comparison-feasibility.md)
+updated M01/M02 models. The [focused assessment](../research/vote-generation/docs/model-comparison-feasibility.md)
 records the blocked historical scope, available future operational path and
 required evaluation-design decision. No old model was rerun and no predictive
 or 1,000-draw browser campaign was started.
@@ -9049,7 +9049,7 @@ routing or legal scrutiny changed.
 
 Completed Luca's requested comparison of the updated models after explicit
 approval of a test-only Camera preparation exception. The
-[results and reproduction guide](current-camera-comparison-results.md) retain
+[results and reproduction guide](../research/vote-generation/docs/current-camera-comparison-results.md) retain
 the same historical observable-group scores, conditional electorates/filing,
 2013/2018/2022 cutoffs, reduced panels and full short-horizon domains as the
 previous comparison. No older model was rerun. Production model contracts,
@@ -9211,3 +9211,96 @@ the supported identities. Derived release/parity reports are in
 `data/derived/model-rollback/`. Existing receipts retain their historical scope.
 No new 1,000-draw predictive/resource acceptance campaign, manual acceptance,
 commit or public deployment is claimed.
+
+## FV-09 research archive and cleanup — 2 November 2026
+
+Luca concluded model research with **M01 2.0.0** and **M02 2.0.0** selected and
+authorized FV-09, explicitly excluding `docs/model-drafts/`. Both files in that
+folder retain their original paths and byte identities. No model law, source
+observation, production default or scrutiny rule changed.
+
+The [archive index](../research/vote-generation/README.md) now separates current
+model/release instructions from historical reports and replay. Relocated **151**
+exact research source/report/protocol files into `research/vote-generation/`:
+endpoint/six-category, fixed-outcome drift, party exact/Laplace/importance/Stan,
+fast-model references, feasible-field alternatives, legacy comparisons, superseded
+correspondence work and the 1.0.0 Camera kernels/specifications. All code/protocol
+bytes are unchanged. The bodies of **22** archived/extracted reports are unchanged;
+Markdown edits only repair links and add archive notices. Historical paths,
+model versions, failed draws and old source/code fingerprints retain their meaning.
+
+The [exact manifest](../research/vote-generation/fv09/manifest.json) records paths,
+sizes/hashes, dispositions, consumers, retained evidence and regeneration/replay
+bindings. FV-01's original inventory/evidence is unchanged. Added exact compressed
+copies of **59** later reports, selections, browser ledgers and failure diagnostics,
+plus the original cleanup proposal. Existing curated benchmark/group/college
+receipts remain unchanged. The calibration report was extracted to the archive;
+its active guide now contains source acquisition, pins and current commands only.
+
+The dependency audit found one current poll regression importing the historical
+comparison adapter. Captured that adapter's expected output before moving it,
+then changed the test to use the small frozen fixture. A new boundary regression
+rejects active application/preparation/test imports into research. Retired **22**
+research npm commands and moved their code/tests outside normal TypeScript,
+Vitest and build discovery. `test:research:archive` is optional. Full historical
+CLI/suite reproduction uses the report's pinned original-layout Git worktree;
+the moved scripts are not advertised as directly runnable production tools.
+
+Kept the production `fast-share-*` preparation closure, both
+`data/legacy-comparison-*.json` policies used by unified-default preparation,
+reviewed poll/membership/source records, and calibration/reference modules with
+active consumers. Kept R workflows, raw source caches, `dati/`, production bundles,
+legal investigations, standalone legal inputs and people's result archives.
+Unknown/new/manual research artifacts remain in place. The separate compressed
+retention inventory records **9,819** deliberately retained files.
+
+After an exact dry run and evidence verification, native PowerShell checked
+resolved research roots, file types, sizes and SHA-256 identities, then deleted
+**1,260 files / 4,301,573,109 bytes**: 1,255 known regenerable arrays/reports and
+five FV-01-inventoried Python bytecode files. No recursive directory deletion was
+used. This is gross deleted storage; new archive/acceptance artifacts are separate.
+The [execution receipt](../research/vote-generation/fv09/execution.json) records
+actual completed moves/deletions rather than a proposed cleanup.
+
+Verification is retained in the [FV-09 receipt](../research/vote-generation/fv09/verification.json):
+
+- Optional archive checks pass for **212** relocated/extracted/compressed files,
+  all **61** original evidence files and the **1,433**-entry FV-01 inventory,
+  physical coverage, worked contract arithmetic, independent reduced Gaussian
+  targets and Helmert orthogonality. The checks also pass from an isolated
+  archive-only copy without Git metadata, npm dependencies or original outputs.
+- Source-only isolated acceptance passes `npm ci`, cold source download and
+  production preparation/build, warm preparation/build and clean/local byte
+  equality. Cold/warm assets are identical at catalog
+  `fast-share-catalog-v1-0c255ade89a4f9e84edefd4e1d727c4de00496d0f2ce23778b7ebf0007ce61db`.
+  Required-asset omission and corrupt-fit-cache checks fail as intended without
+  changing selected candidates. The legal smoke fills all **588** seats with
+  verified source identities, matching semantic keys and zero startup fits.
+- **100 unit-test files / 1,201 tests** pass, with no failures/skips/TODOs.
+  `npm run check:data` and Svelte checks pass; Svelte reports zero errors/warnings.
+- Static builds and **22 focused browser checks** pass: seven Chromium
+  release/refit/worker checks and both M01/M02 workflows in Chromium and Firefox,
+  at both `/` and `/elezioni`, without retries/skips. The final local build uses
+  `/`. Emitted build inventories contain no research code or raw-source files.
+- Compared **596** protected production/source/draft file hashes and checked the
+  retained inventory's existence/sizes, allowing intentional documentation-link
+  edits. The draft directory's complete file set and bytes are identical.
+  Documentation relocation links/anchors and `git diff --check` pass. The existing
+  legal-guide link to the absent generated legislator `.docx` remains outside scope;
+  cleanup did not remove that file.
+
+Problems and workarounds: the pre-existing FV-01 checker failed against a
+maintained model guide that had evolved since extraction. Pinned both original
+documents from `6f2e23b`, recorded their hashes and retained the exact extraction
+comparison, instead of weakening it. The clean-checkout harness needed to apply
+deleted files as well as additions when overlaying the current diff; it now does,
+and cold acceptance runs with no research directory. An initial documentation
+rewrite hit Windows' implicit CP1252 encoding; restored the affected document from
+the initially clean HEAD, reapplied edits in UTF-8 and verified every archived
+report body. An initial browser filter selected no tests; corrected the filter
+and ran all selected model workflows successfully. No test timeout or product
+rule was weakened.
+
+This cleanup adds no new 1,000-draw predictive/resource campaign, calibration,
+manual acceptance, commit or public deployment. The final publication gate stays
+separate.

@@ -152,4 +152,4 @@ remeasure combined decoded data, retained fits/profiles and simultaneous workers
 Active dependencies are the `fast-share-*` preparation modules, this codec and
 compiler, `data/sources/fast-share/`, the reviewed poll JSON, pinned source
 manifests, and existing geography/attribution readers. Research originals stay
-unchanged until the audited FV-09 archive/cleanup step.
+as historical snapshots in the [FV-09 archive](../research/vote-generation/README.md).

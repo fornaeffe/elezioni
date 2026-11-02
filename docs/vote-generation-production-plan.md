@@ -1,12 +1,16 @@
 # Fast vote generation: 2026 reform production plan
 
+FV-01–FV-09 are complete. Current supported laws are [M01 2.0.0](models/M01.md)
+and [M02 2.0.0](models/M02.md); use the [release guide](vote-generation-fast-release.md)
+for maintained commands. The requirements below retain their implementation context.
+
 ## Scope and reading map
 
 On **28 October 2026**, Luca selected the model described in
-[the fast research report](vote-generation-fast-research.md) for production and
+[the fast research report](../research/vote-generation/docs/vote-generation-fast-research.md) for production and
 requested browser parameter estimation. This plan covers **only the 2026 reform
 workflow**. On **30 October**, Luca authorized implementing/testing replacement
-forecast models with only the goals in the [feasible-model research guide](vote-generation-feasible-research.md)
+forecast models with only the goals in the [feasible-model research guide](../research/vote-generation/docs/vote-generation-feasible-research.md)
 fixed. The earlier Beta/national-margin and timing rules below describe the
 original campaign; they do not constrain that replacement comparison. Production
 acceptance remains open. The authoritative
@@ -16,7 +20,7 @@ checklist is in [MIGRATION_PLAN.md](../MIGRATION_PLAN.md); record evidence in
 | Task | Read |
 | --- | --- |
 | Implement the numerical model | [Maintained equations](vote-generation-fast-model.md), then FV-02/04 below |
-| Replace the forecast kernel or assess its tradeoffs | [Feasible model](vote-generation-feasible-model.md), [comparison and results](vote-generation-feasible-research.md) |
+| Replace the forecast kernel or assess its tradeoffs | [Feasible model](../research/vote-generation/docs/vote-generation-feasible-model.md), [comparison and results](../research/vote-generation/docs/vote-generation-feasible-research.md) |
 | Generate physical ballots or adapt Senate | [Headless generation guide](vote-generation-fast-generation.md); FV-04 |
 | Prepare or load production assets | [Candidate release guide](vote-generation-fast-release.md), [frozen contracts](vote-generation-fast-contracts.md); FV-03/05/06 |
 | Edit scenarios or integrate workers/results | [Reference/chamber rules](vote-generation-fast-references.md), contract reuse matrix and FV-06/07; existing [application guide](politics-reform-2026-application.md) |
@@ -437,13 +441,11 @@ election workflows and public publication retain their existing step boundaries.
 
 ### FV-09: Archive research and remove regenerable leftovers
 
-Execute the [archive plan](vote-generation-research-archive-plan.md) after the
-production dependency split and FV-08 acceptance. Preserve evidence/inventories
-from FV-01 first. Archive all superseded research documentation, implementations
-and the selected small evidence set, then remove only manifest-listed disposable
-outputs. Recheck active imports, documentation links, clean-clone preparation and
-production tests after cleanup. Record exact moved/deleted paths and reclaimed
-bytes; do not equate a proposed cleanup with executed deletion.
+Completed on 2 November 2026. See the [execution scope](vote-generation-research-archive-plan.md),
+[archive index](../research/vote-generation/README.md) and migration history for
+exact moved/deleted paths, evidence, verification and reclaimed bytes.
+`docs/model-drafts/` remains in place. Production policies and source consumers
+remain active; public publication retains its separate final gate.
 
 ## Browser implementation references
 
