@@ -167,7 +167,7 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   - [ ] Remove old scenario building pipeline.  
 - [ ] Change default scenario colors to colors that reflects the real parties
   political colors (or colors with which polling houses usually represent parties).
-- [ ] In "Dotazioni dei seggi per collegio e liste del premio" do now show territory ids,
+- [x] In "Dotazioni dei seggi per collegio e liste del premio" do now show territory ids,
   only names.
 - [ ] Bonus winner, if any, is the same for both chambers: do not offer a chamber selector
   for "vincitori del premio" barplot.

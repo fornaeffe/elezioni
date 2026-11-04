@@ -91,8 +91,8 @@
           <div class="table-scroll"><table><caption>Dotazione di ogni collegio, con e senza premio</caption>
             <thead><tr><th>Ramo</th><th>Circoscrizione</th><th>Collegio</th><th>Tipo</th><th>Senza premio</th><th>Con premio</th></tr></thead>
             <tbody>{#each endowments.colleges as row (`${row.chamber}:${row.college}`)}
-              <tr><td>{row.chamber === 'camera' ? 'Camera' : 'Senato'}</td><td>{row.territoryName} ({row.territory})</td>
-                <td>{row.collegeName} ({row.college})</td><td>{row.kind}</td><td>{row.seatsWithoutBonus}</td><td>{row.seatsWithBonus}</td></tr>
+              <tr><td>{row.chamber === 'camera' ? 'Camera' : 'Senato'}</td><td>{row.territoryName}</td>
+                <td>{row.collegeName}</td><td>{row.kind}</td><td>{row.seatsWithoutBonus}</td><td>{row.seatsWithBonus}</td></tr>
             {/each}</tbody>
           </table></div>
         {/if}
@@ -101,7 +101,7 @@
           <div class="table-scroll"><table><caption>Dotazione della lista del premio per circoscrizione</caption>
             <thead><tr><th>Ramo</th><th>Circoscrizione</th><th>Seggi della lista del premio</th></tr></thead>
             <tbody>{#each endowments.bonusSlates as row (`${row.chamber}:${row.territory}`)}
-              <tr><td>{row.chamber === 'camera' ? 'Camera' : 'Senato'}</td><td>{row.territoryName} ({row.territory})</td><td>{row.seats}</td></tr>
+              <tr><td>{row.chamber === 'camera' ? 'Camera' : 'Senato'}</td><td>{row.territoryName}</td><td>{row.seats}</td></tr>
             {/each}</tbody>
           </table></div>
         {/if}
