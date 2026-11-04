@@ -175,7 +175,7 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   right corner of the window, or other noninvasive but easily reachable location.
 - [ ] Assess if parallelization will improve import/export performances.
   Add progress indication, and parallelization if it will improve performances.
-- [ ] Color cells of election probability table with a more saturated color the higher 
+- [x] Color cells of election probability table with a more saturated color the higher
   the probability is (with the list/coalition color). Change font color to achieve adequate contrast.
 - [ ] Add a selector for the election probability table metric:
   - current metric (default)

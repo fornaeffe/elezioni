@@ -2,7 +2,7 @@
   import { OTHER_LIST_ID } from '../../core/other-list';
   import type { ResultServiceClient } from '../../core/result-service-client';
   import type { SeriesSummary } from '../../results/statistics';
-  import { probabilityLabel, type PositionProbabilities } from './election-probability';
+  import { probabilityCellColors, probabilityLabel, type PositionProbabilities } from './election-probability';
   let { client, resultId, owner, series }: { client: ResultServiceClient; resultId: string; owner: string; series: SeriesSummary[] } = $props();
   let chamber = $state('camera'), list = $state('');
   const lists = $derived(series.filter(s => s.chamber === chamber && s.kind === 'list' && s.owner.startsWith('list:') && s.owner !== `list:${OTHER_LIST_ID}`));
@@ -30,7 +30,7 @@
   {:else}
     <div class="table-scroll"><table><caption>Probabilità di elezione in questa posizione o in una successiva — {selected.name}, {chamber} · {data.requested} simulazioni richieste</caption>
       <thead><tr><th scope="col">Collegio</th><th scope="col">Capolista</th>{#each [1, 2, 3, 4, 5, 6] as rank (rank)}<th scope="col">{rank}ª preferenza</th>{/each}</tr></thead>
-      <tbody>{#each data.rows as row (row.id)}<tr><th scope="row">{row.name}</th>{#each row.positions as cell, i (i)}<td title={`${cell.wins} simulazioni con elezione confermata in questa posizione o in una successiva; ${cell.known} esiti noti; ${cell.absent} posizioni assenti su ${data.requested}`}>{probabilityLabel(cell, data.requested)}</td>{/each}</tr>{/each}</tbody>
+      <tbody>{#each data.rows as row (row.id)}<tr><th scope="row">{row.name}</th>{#each row.positions as cell, i (i)}{@const colors = probabilityCellColors(selected.color, cell.wins / data.requested)}<td style:background-color={colors.background} style:color={colors.foreground} title={`${cell.wins} simulazioni con elezione confermata in questa posizione o in una successiva; ${cell.known} esiti noti; ${cell.absent} posizioni assenti su ${data.requested}`}>{probabilityLabel(cell, data.requested)}</td>{/each}</tr>{/each}</tbody>
     </table></div>
   {/if}
 </div>

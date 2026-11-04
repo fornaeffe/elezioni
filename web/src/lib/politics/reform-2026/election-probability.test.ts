@@ -2,7 +2,7 @@ import { expect, it } from 'vitest';
 import { completeScrutinyFixture } from './scrutiny.fixture';
 import { generationFixture } from './generation.fixture';
 import { runPoliticsReformScrutiny, type ComposedReformScrutinyResult } from './scrutiny';
-import { electionPositionRows, positionAccumulator, positionColumns, probabilityLabel, slatePositionOutcomes } from './election-probability';
+import { electionPositionRows, positionAccumulator, positionColumns, probabilityCellColors, probabilityLabel, slatePositionOutcomes } from './election-probability';
 
 it('counts the preference rank and final election location, including a recovered seat but excluding a winner elsewhere', () => {
   const input = completeScrutinyFixture(60), { snapshot } = generationFixture();
@@ -83,4 +83,30 @@ it('retains confirmed reaches when the last position is unknown, and resolves un
   accumulator.add(observation([0, 0, 0, 0, 0, 0, 0], 2));
   expect(accumulator.rows()[0].positions.map(cell => probabilityLabel(cell, 2))).toEqual(['50%', '≥ 0%', '≥ 0%', '0%', '0%', '0%', '0%']);
   expect(() => slatePositionOutcomes(observation([0, 'absent', 1, 0, 0, 0, 0]))).toThrow(/trailing suffix/);
+});
+
+it('colors probability cells from white to the list color with readable text', () => {
+  const faint = probabilityCellColors('#ffff00', 1);
+  const faintRgb = { red: Number.parseInt(faint.background.slice(1, 3), 16), green: Number.parseInt(faint.background.slice(3, 5), 16), blue: Number.parseInt(faint.background.slice(5, 7), 16) };
+  const luminance = (channel: number) => {
+    const value = channel / 255;
+    return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+  };
+  const relativeLuminance = 0.2126 * luminance(faintRgb.red) + 0.7152 * luminance(faintRgb.green) + 0.0722 * luminance(faintRgb.blue);
+  expect(1.05 / (relativeLuminance + 0.05)).toBeGreaterThanOrEqual(3);
+  expect(faint.background).not.toBe('#ffff00');
+  expect(probabilityCellColors('#ffff00', 0).background).toBe('#ffffff');
+  expect(probabilityCellColors('#003399', 1).background).toBe('#003399');
+  expect(probabilityCellColors('#003399', 0).background).toBe('#ffffff');
+  expect(probabilityCellColors('#003399', 0.5).background).not.toBe('#ffffff');
+  for (const probability of [0, 0.25, 0.5, 0.75, 1]) {
+    const colors = probabilityCellColors('#ffff00', probability);
+    const channels = [1, 3, 5].map(offset => Number.parseInt(colors.background.slice(offset, offset + 2), 16));
+    const backgroundLuminance = 0.2126 * luminance(channels[0]) + 0.7152 * luminance(channels[1]) + 0.0722 * luminance(channels[2]);
+    const textLuminance = colors.foreground === '#000000' ? 0 : 1;
+    const ratio = (Math.max(backgroundLuminance, textLuminance) + 0.05) / (Math.min(backgroundLuminance, textLuminance) + 0.05);
+    expect(ratio).toBeGreaterThanOrEqual(4.5);
+  }
+  expect(() => probabilityCellColors('yellow', 0.5)).toThrow(/Invalid election probability color/);
+  expect(() => probabilityCellColors('#003399', Number.NaN)).toThrow(/Invalid election probability/);
 });

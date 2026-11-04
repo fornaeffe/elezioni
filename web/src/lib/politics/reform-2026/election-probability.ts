@@ -43,6 +43,66 @@ export interface ProbabilityCell { wins: number; known: number; absent: number }
 export interface CollegeProbability { id: string; name: string; positions: ProbabilityCell[] }
 export interface PositionProbabilities { available: boolean; requested: number; rows: CollegeProbability[] }
 
+interface RgbColor { red: number; green: number; blue: number }
+
+const faintColorContrast = 3;
+
+function parseHexColor(color: string): RgbColor {
+  const match = /^#([0-9a-f]{6})$/i.exec(color);
+  if (!match) throw new Error(`Invalid election probability color: ${color}`);
+  const value = Number.parseInt(match[1], 16);
+  return { red: value >> 16, green: (value >> 8) & 0xff, blue: value & 0xff };
+}
+
+function toHexColor({ red, green, blue }: RgbColor): string {
+  return `#${[red, green, blue].map(channel => channel.toString(16).padStart(2, '0')).join('')}`;
+}
+
+function linearChannel(channel: number): number {
+  const value = channel / 255;
+  return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+}
+
+function luminance(color: RgbColor): number {
+  return 0.2126 * linearChannel(color.red) + 0.7152 * linearChannel(color.green) + 0.0722 * linearChannel(color.blue);
+}
+
+function contrast(first: RgbColor, second: RgbColor): number {
+  const [lighter, darker] = [luminance(first), luminance(second)].sort((a, b) => b - a);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+function darkenFaintColor(color: RgbColor): RgbColor {
+  const white = { red: 255, green: 255, blue: 255 };
+  if (contrast(color, white) >= faintColorContrast) return color;
+
+  let low = 0, high = 1;
+  for (let i = 0; i < 24; i++) {
+    const scale = (low + high) / 2;
+    const candidate = { red: Math.floor(color.red * scale), green: Math.floor(color.green * scale), blue: Math.floor(color.blue * scale) };
+    if (contrast(candidate, white) >= faintColorContrast) low = scale;
+    else high = scale;
+  }
+  return { red: Math.floor(color.red * low), green: Math.floor(color.green * low), blue: Math.floor(color.blue * low) };
+}
+
+export function probabilityCellColors(color: string, probability: number): { background: string; foreground: string } {
+  if (!Number.isFinite(probability)) throw new Error('Invalid election probability');
+  const target = darkenFaintColor(parseHexColor(color));
+  const amount = Math.max(0, Math.min(1, probability));
+  const background = {
+    red: Math.round(255 + (target.red - 255) * amount),
+    green: Math.round(255 + (target.green - 255) * amount),
+    blue: Math.round(255 + (target.blue - 255) * amount)
+  };
+  const black = { red: 0, green: 0, blue: 0 };
+  const white = { red: 255, green: 255, blue: 255 };
+  return {
+    background: toHexColor(background),
+    foreground: contrast(background, black) >= contrast(background, white) ? '#000000' : '#ffffff'
+  };
+}
+
 type PositionOutcome = 0 | 1 | null | 'absent';
 
 /** Literal OR over final local winners, without attributing a cause to skips.
