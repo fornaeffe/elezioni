@@ -155,16 +155,16 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
 - [x] Retire temporary bridge artifacts and update user and developer
   documentation when migrated workflows no longer depend on R-exported
   intermediary snapshots, including the retained R scripts and `dati/`.
-- [ ] Resolve the previous-law Camera flipper dead end exposed by the shared
-  pre-preparation-migration default (seed `politiche-2027`, 1,000 requested runs,
-  simulation 584). Preserve
-  the frozen R-parity failure until Luca approves a legal correction/fallback;
-  retain simulation/chamber context and never reroll or count failed runs as
-  accepted results. Keep its frozen input independent of revised datasets;
-  a changed failing seed is not a legal correction. Rerun the 1,000-run benchmark
-  after that decision. See
-  [workspace boundaries](docs/web-workspaces.md#defaults-and-compatibility) and
-  the 2 November workspace entry in migration history.
+- [ ] Substitute the default politics scenario building pipeline with a single
+  default scenario json file with all necessary information for previous law,
+  reform M01 and reform M2 workflows. Make all three workflow use the same
+  shared scenario contract. Depending on the selected workflow, only the 
+  relevant part of the scenario will be used.
+  - [ ] Define the scenario contract, what information will be shared across
+    workflows and what will be workflow-specific.
+  - [ ] Update the scenario contract and scenario loaders
+  - [ ] Create the default scenario json
+  - [ ] Remove old scenario building pipeline.  
 - [ ] Change default scenario colors to colors that reflects the real parties
   political colors (or colors with which polling houses usually represent parties).
 - [ ] In "Dotazioni dei seggi per collegio e liste del premio" do now show territory ids,
@@ -231,6 +231,17 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
     adapted versions of M01 and M02 if necessary, reusing common logic.
   - [ ] Clean the repo removing any regenerable artifact no longer needed in 
     production.
+- [ ] Align politics previous-law and regional contracts, editor, worker 
+  behavior and results 
+  presentation to reform counterparts: only unavoidable differences due to 
+  different law should be accepted. This should resolve the previous-law Camera flipper dead end exposed by the shared
+  pre-preparation-migration default (seed `politiche-2027`, 1,000 requested runs,
+  simulation 584): it should be treated as uncomputable run, and the rest of
+  simulations should proceed unperturbed. See
+  [workspace boundaries](docs/web-workspaces.md#defaults-and-compatibility) and
+  the 2 November workspace entry in migration history. Note that if the generator
+  has changed since the failure discovery, the same seed may not generate the 
+  failure any more.
 - [ ] Correct meaningful local support for future filed lists without historical
   candidature/support, including Sud chiama Nord in Molise/Basilicata. Separate
   historical absence from future filing zeros; choose an explicit local estimate
