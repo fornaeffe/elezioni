@@ -1,7 +1,7 @@
 <script lang="ts">
   import ElectionProbabilityTable from './ElectionProbabilityTable.svelte';
   import { probabilityLabel } from './election-probability';
-  import type { storedBonusProbabilities } from './stored-probabilities';
+  import type { BonusPairProbability } from './stored-probabilities';
   import { onMount } from 'svelte';
   import { SvelteMap } from 'svelte/reactivity';
   import type { ResultServiceClient } from '../../core/result-service-client';
@@ -18,15 +18,15 @@
   let { client, resultId, owner }: { client: ResultServiceClient; resultId: string; owner: string } = $props();
   let overview = $state.raw<StatisticsOverview | null>(null), boxes = $state.raw<BoxPlotResultChart[]>([]);
   let endowments = $state.raw<ReformSeatEndowments | null>(null);
-  let showProbability = $state(false), bonusChamber = $state('camera');
-  let bonus = $state.raw<Awaited<ReturnType<typeof storedBonusProbabilities>>>([]);
+  let showProbability = $state(false);
+  let bonus = $state.raw<BonusPairProbability[]>([]);
+  let bonusError = $state('');
   let meanKind = $state('list'), boxKind = $state('list');
   let error = $state('');
   let scatter = $state(false), nationalSpines = $state(false), localSpine = $state(false), showSummary = $state(false), summaryPage = $state(0);
   let meanChamber = $state<'camera' | 'senato'>('camera'), boxChamber = $state<'camera' | 'senato'>('camera');
   const meanLists = $derived(overview?.series.filter(s => s.chamber === meanChamber && s.kind === meanKind) ?? []);
   const selectedBoxes = $derived(boxes.filter(chart => chart.id.endsWith(boxKind)).map(chart => ({ ...chart, panels: chart.panels.filter(panel => panel.label === boxChamber) })));
-  const bonusRows = $derived(bonus.filter(s => s.chamber === bonusChamber));
   const table = $derived(overview ? summaryTable(overview) : null);
   const headings: Record<string, string> = { Chamber: 'Ramo', Name: 'Lista', Requested: 'Richieste', 'Vote observations': 'Percentuali note', 'Election observations': 'Esiti noti',
     'Mean vote share %': 'Percentuale media %', 'Mean elected': 'Eletti medi', 'Confirmed elected minimum / requested': 'Eletti confermati minimi / richieste',
@@ -40,7 +40,12 @@
         if (!alive) return; overview = o;
         endowments = await client.call<ReformSeatEndowments>('statistics-endowments', { resultId, owner });
         if (!alive) return;
-        bonus = await client.call('statistics-bonus', { resultId, owner });
+        try {
+          bonus = await client.call('statistics-bonus', { resultId, owner });
+        } catch (e) {
+          if (!alive) return;
+          bonusError = String(e);
+        }
         if (!alive) return;
         const distributions: { summary: SeriesSummary; distribution: Distribution }[] = [];
         for (const summary of o.series.filter(s => (s.kind === 'list' || s.kind === 'subject') && s.votesKnown)) {
@@ -131,9 +136,9 @@
       {/key}
     {/if}
     <details role="region" aria-label="Vincitori del premio"><summary>Vincitori del premio</summary>
-      <label>Ramo del premio<select bind:value={bonusChamber}><option value="camera">Camera</option><option value="senato">Senato</option></select></label>
-      <p>Percentuale delle simulazioni richieste in cui il premio congiunto è assegnato al soggetto nel ramo selezionato, indipendentemente dai seggi poi coperti. ≥ indica un minimo con decisioni mancanti; il premio non assegnato resta nel denominatore.</p>
-      <div class="bonus-bars">{#each bonusRows as row (row.id)}<div class="bonus-row"><span>{row.name}</span><span class="bonus-track"><span style:width={`${100 * row.wins / o.requested}%`} style:background={row.color}></span></span><strong>{probabilityLabel(row, o.requested)}</strong></div>{:else}<p>Nessun soggetto disponibile per questo ramo.</p>{/each}</div>
+      <p>Percentuale delle simulazioni richieste in cui il premio congiunto è assegnato alla coppia collegata Camera–Senato, indipendentemente dai seggi poi coperti. Ogni simulazione conta una volta; se i nomi coincidono, la coppia è mostrata una sola volta. ≥ indica un minimo con decisioni mancanti; il premio non assegnato resta nel denominatore.</p>
+      {#if bonusError}<p role="alert">Impossibile caricare i vincitori del premio: {bonusError}</p>
+      {:else}<div class="bonus-bars">{#each bonus as row (row.id)}<div class="bonus-row"><span>{row.name}</span><span class="bonus-track"><span style:width={`${100 * row.wins / o.requested}%`} style:background={row.color}></span></span><strong>{probabilityLabel(row, o.requested)}</strong></div>{:else}<p>Nessuna assegnazione del premio disponibile.</p>{/each}</div>{/if}
     </details>
     <details role="region" aria-label="Probabilità di elezione" ontoggle={e => { showProbability = toggle(e); }}><summary>Probabilità di elezione</summary>
       {#if showProbability}<ElectionProbabilityTable {client} {resultId} {owner} series={o.series} />{/if}

@@ -437,8 +437,6 @@ test('refinements preserve probabilities, coalition data, bonus decisions, local
   await bonus.locator('summary').click();
   await expect(bonus.locator('.bonus-row')).toHaveCount(2);
   await expect(bonus.locator('.bonus-row').first()).toContainText('≥ 25%');
-  await bonus.getByLabel('Ramo del premio').selectOption('senato');
-  await expect(bonus).toContainText('senato subject 1');
   const probabilities = statistics.getByRole('region', { name: 'Probabilità di elezione', exact: true });
   await probabilities.locator('summary').click();
   const table = probabilities.getByRole('table');

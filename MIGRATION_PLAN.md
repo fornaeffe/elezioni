@@ -169,7 +169,7 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   political colors (or colors with which polling houses usually represent parties).
 - [x] In "Dotazioni dei seggi per collegio e liste del premio" do now show territory ids,
   only names.
-- [ ] Bonus winner, if any, is the same for both chambers: do not offer a chamber selector
+- [x] Bonus winner, if any, is the same for both chambers: do not offer a chamber selector
   for "vincitori del premio" barplot.
 - [ ] Move application status to a small fixed, collapsible box near the top
   right corner of the window, or other noninvasive but easily reachable location.
