@@ -157,19 +157,7 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   intermediary snapshots, including the retained R scripts and `dati/`.
 - [ ] Merge the politics workspaces in a single workspace: switching generator
   and/or scrutiny algorithm should be as simple as choosing an option in a select.
-  The scenario editor should simply hide sections not relevant to the current
-  selected generator and scrutiny algorithm. Substitute the default politics 
-  scenario building pipeline with a single
-  default scenario json file with all necessary information for previous law,
-  reform M01 and reform M2 workflows. Make all three workflow use the same
-  shared scenario contract. Depending on the selected workflow, only the 
-  relevant part of the scenario will be used.
-  - [ ] Define the scenario and result contract, what information will be shared
-    across workflows and what will be workflow-specific.
-  - [ ] Update the scenario contract and scenario loaders, editor and result
-    presentation.
-  - [ ] Create the default scenario json.
-  - [ ] Remove old scenario building pipeline.  
+  Read the [guidelines](docs\common-politics-scenario\guidelines.md).
 - [ ] Change default scenario colors to colors that reflects the real parties
   political colors (or colors with which polling houses usually represent parties).
 - [x] In "Dotazioni dei seggi per collegio e liste del premio" do now show territory ids,
