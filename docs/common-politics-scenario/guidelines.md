@@ -852,7 +852,7 @@ Read the current entry points listed below. Build a field/control/asset mapping
 from original `Scenario` and reform `ReleasedScenario` to the proposed contract,
 including data not visible in the draft. Identify non-equivalent defaults,
 M00-only controls to retire, candidate identities and per-chamber values.
-Apply D14's editor perimeter, verify whether the default uses pooling and record
+Apply D14's editor perimeter and record
 baselines for retained M01/M02 behavior and Rosatellum
 candidature/legal behavior. Document the intentional M00-to-M01 differences;
 do not require M00 distribution parity. Cover
