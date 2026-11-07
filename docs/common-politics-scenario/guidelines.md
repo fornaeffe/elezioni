@@ -326,6 +326,12 @@ the executed run record. Automatic worker choice must be represented explicitly,
 not inferred from a missing value. Different pool widths must not change global
 simulation IDs, RNG streams or deterministic output.
 
+Default to 10 simulations and an explicit automatic worker policy using the
+model-aware capacity recommendation. After a successful, completed 10-simulation
+run, recommend increasing the count to 1,000 to obtain meaningful results. Keep
+this as a visible recommendation; do not change the draft count or start another
+run automatically. Failed, cancelled or partial runs do not trigger it.
+
 Keep fitting and simulation seeds as separate visible inputs. Next to each,
 provide a **“Genera seed casuale”** button that fills only that field with a new
 visible seed. The click is an ordinary draft edit: save the concrete value with
@@ -352,12 +358,89 @@ is outside this change.
 ### One authored default
 
 Replace the multiple politics-default compilers' independent scenario choices
-with one versioned, validated authored JSON file, provisionally
+with one versioned, validated authored JSON file,
 `data/politics-default-scenario.json`. Include all shared declarations and complete
 blocks for the three baseline workflows, exact data references, both seeds and
 run preferences. Store the initial per-law generator choices (Rosatellum M01,
-reform M02), and select reform + joint renewal (D02/D03 approved). D04 still
-must reconcile default shares, dates, per-law filings and assumptions.
+reform M02), and select reform + joint renewal (D02/D03 approved).
+
+#### Approved default values (D04)
+
+The existing source/seat/geography manifest and existing default values are
+approved wherever shared, including dates, references, memberships, filings,
+candidate settings and seeds. Where existing defaults differ and have equivalent
+meaning, use the reform M02 default. Preserve law/model-specific meanings and
+geographic namespaces; do not copy the reform's Bolzano overlay into Rosatellum.
+Materialize the exact approved dependencies, versions and checksums rather than
+resolving to whichever bundle is latest.
+
+Use the existing authored choice set in
+[`fast-share-future-scenario.json`](../../data/fast-share-future-scenario.json),
+M02 policy in
+[`fast-share-default-policy.json`](../../data/fast-share-default-policy.json)
+and released M02 scenario as the baseline to consolidate into the new file.
+Retain selected/excluded history and polls, source compositions and their
+provenance, electorate and fallback assumptions, and existing empty manual
+candidate/supplied-input declarations. Replace the old Rosatellum compiler's
+independent shared reference choices with this baseline. Preserve distinct
+Camera/Senate reference values and all explicit SDs, including zero. D04 does not
+approve D06's proposed uncertainty policy for new or edited references, or settle
+the remaining D05/D09/D11/D14 contract and editing decisions.
+
+| Setting | Approved authored value |
+| --- | --- |
+| Scenario ID | `politics-default-v1` |
+| Display name | `Politiche — scenario nazionale` |
+| Election date | `2027-09-25` |
+| Reference date | `2026-10-19` |
+| Fitting seed | `fast-share-default-fit-v1` |
+| Simulation seed | `fast-share-default-v1` |
+| Requested simulations | `10`; recommend `1000` after a successful 10-simulation run as specified above |
+| Worker preference | Explicit automatic policy using the model-aware capacity recommendation; actual count belongs to execution provenance |
+| Rosatellum candidate generation | Preserve `uninominalToPlurinominalShare = 0.35` and `plurinominalCandidacyCountShares = [0.875, 0.0625, 0.025, 0.0125, 0.025]` in its law block |
+| Reform candidate generation | Preserve `reuseProbability = 0.2`, `maximumOrdinaryCandidacies = 5`, `bonusPolicy = reference-proportional-v1` in its law block |
+| M02 implicit settings made explicit | National/local uncertainty multipliers `1`; `forecastReference = conditional`. Preserve the current effective behavior |
+| Other M02 forecast settings | Preserve `forecast = bounded-mass-pair-field-v2`, `forecastScale = 1.5`, `profileRegionCorrelation = 0.25` |
+
+#### Approved subject colors (D04)
+
+Include the separate party-color task from `MIGRATION_PLAN.md` in CP-04. Store
+each subject's color once and retain it across chambers, laws and generators.
+These are approved application colors inspired by political presentation;
+composite and scenario-specific tickets use editorial choices, not claimed
+official brand codes. Default list colors must be explicit rather than derived
+from an ID hash or list order.
+
+| Subject ID | Color |
+| --- | --- |
+| Coalition `centrodestra` | `#2563EB` |
+| Coalition `centrosinistra` | `#DC2626` |
+| List `fdi` | `#003366` |
+| List `fi` | `#0088CC` |
+| List `lega` | `#008040` |
+| List `noi-moderati` | `#2456A6` |
+| List `udc` | `#5DADE2` |
+| List `sud-chiama-nord` | `#F28C28` |
+| List `cdx-vda` | `#315A8A` |
+| List `pd` | `#D71920` |
+| List `m5s` | `#F5C400` |
+| List `avs` | `#4A9F38` |
+| List `italia-viva` | `#D6348A` |
+| List `europa-piu-uno-cd` | `#E5B700` |
+| List `progetto-civico-psi` | `#E65B50` |
+| List `csx-vda` | `#B83B45` |
+| List `azione-libdem` | `#0066A1` |
+| List `futuro-nazionale` | `#172B50` |
+| List `pap-prc` | `#B5121B` |
+| List `ora` | `#FFE000` |
+| List `dsp` | `#800020` |
+| List `uv` | `#A6192E` |
+| List `svp-patt` | `#252525` |
+| List `team-k` | `#F2B800` |
+| List `freiheitlichen` | `#1976BC` |
+| List `suedtiroler-freiheit` | `#D52B2E` |
+
+#### Preparation boundary
 
 The authored file contains no historical observation tables or fitted arrays.
 Retain Node/TypeScript preparation of historical/geographic/model bundles,
@@ -411,6 +494,9 @@ inside each selector branch.
    raw JSON editor.
 7. **Simulation controls:** count and Run; collapsed fitting/simulation seed
    inputs, each with its own “Genera seed casuale” button, and worker count.
+   Default to 10 simulations and automatic workers. After a successful
+   10-simulation run, visibly recommend increasing the count to 1,000 for
+   meaningful results; leave changing the count and starting the run to the user.
    Load the default/imported/selected model automatically,
    reusing valid preparation or computing only required work. No separate “load
    default model” action. Keep fitting progress, diagnostics, cancellation and
@@ -521,6 +607,7 @@ plan; do not reopen them as implementation gates.
 | D01 | **Generator identity/version:** retire M00 and reuse M01 for Rosatellum through a validated law adapter. Models may serve multiple laws; law-specific identities require different statistical specifications. Use exact current versions and assess version impact as described above; keep scrutiny, adapter, data, schema, numerical/RNG and implementation identities separate |
 | D02 | **Combination scope and selection transitions:** require Rosatellum + M01, reform + M01 and reform + M02. Store a selected generator/version for each law in the scenario, initially M01 for Rosatellum and M02 for reform. Model changes update only that law's choice; law changes activate its saved choice. Preserve all choices and inactive settings; reject missing/unsupported choices without substitution |
 | D03 | **Initial selection:** reform + M02 + joint renewal |
+| D04 | **Authored default and data pins:** use `data/politics-default-scenario.json`, ID `politics-default-v1`, name “Politiche — scenario nazionale”, and the approved values/colors above. Existing shared values and the source/seat/geography manifest are approved; prefer reform M02 defaults where equivalent and preserve Rosatellum candidate parameters. Author 10 simulations, explicit auto workers and current implicit M02 settings; recommend 1,000 after a successful 10-simulation run. Include the separate party-color task in CP-04 |
 | D07 | **Filings for all laws:** initialize every law block for new subjects; a new list is filed everywhere eligible in both chambers. Default lists have authored default filings for every law. Defer the conversion helper. Use tri-state checkboxes without redundant partial-coverage badges; retain candidate badges |
 | D08 | **Correspondence controls:** use M01 historical compositions with provenance and binary chamber-scoped future memberships for Rosatellum too. Retire M00's arbitrary-factor controls; no coexistence or old-format conversion. M02 memberships remain non-fractional |
 | D10 | **Candidate controls:** preserve both law-specific generation parameterizations in their respective law blocks, independent candidates, availability/external candidacies and manual pin behavior. No new candidate-generation policy |
@@ -544,7 +631,6 @@ D06, are not approved changes. Old-file migration is not an option under D12.
 
 | ID | Open decision and recommended direction | Needed before |
 | --- | --- | --- |
-| D04 | **Authored default and data pins:** approve filename, exact manifest and remaining values: colors, dates, references, memberships, per-law default filings, candidate parameters, run count/seeds. Law/model/renewal are settled by D03 and every law must have default filings under D07. Decide whether the separate party-color task is included | CP-04 |
 | D05 | **Shared/chamber declarations:** finalize coalition/list identities and per-chamber coalition membership, minority declarations and optional names. Recommend stable IDs with explicit chamber differences, not name-based matching | CP-02 |
 | D06 | **References:** approve common/chamber representation, precedence disclosures, joint feasibility and persistence policy above. Preserve each model's interpretation. The corrected non-valid label is settled and needs no further approval | CP-02/CP-03 |
 | D09 | **Candidate identity and incomplete declarations:** finalize cross-law identity sharing, deduplication, edit/delete propagation and treatment of missing birth date/gender in new-format drafts. Recommend explicit incomplete identities, no inference from names and active-law validation before execution | CP-02/CP-06 |
@@ -621,9 +707,10 @@ valid. Worker validation uses the same supported-pair registry.
 
 ### CP-04 — Replace authored-default construction
 
-Apply D03/D07 and resolve D04. Create the single authored JSON with complete
-baseline law/model blocks; make preparation, browser startup, reset and release packaging consume
-it. Replace scripts that independently choose scenario values with validation
+Apply D03/D04/D07, including the approved subject palette. Create the single
+authored JSON with complete baseline law/model blocks; make preparation, browser
+startup, reset and release packaging consume it. Replace scripts that
+independently choose scenario values with validation
 or deterministic packaging. Regenerate affected scenario descriptors/catalogues
 from the complete production pipeline. Remove obsolete default compilers only
 after tracing every active consumer, including regional preparation.
