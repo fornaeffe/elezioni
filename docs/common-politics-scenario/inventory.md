@@ -227,4 +227,5 @@ specification separately from adapter/RNG/implementation changes.
 | Legacy fatal Camera flipper path | Fixed legal failure remains unchanged. Future common orchestration must isolate uncomputable runs without modifying legal allocation; do not claim current legacy 1,000-run success |
 
 The [baseline guide](baselines.md) supplies executable cases and the limits of
-each comparison. CP-02–08 remain implementation work.
+each comparison. The [CP-02 domain contract](contract.md) is now implemented;
+CP-03–08 remain implementation work.

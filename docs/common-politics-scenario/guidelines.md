@@ -2,7 +2,8 @@
 
 Design proposal for the open workspace-merger item in
 [MIGRATION_PLAN.md](../../MIGRATION_PLAN.md). This document defines the target;
-it does not describe an implemented contract. The
+the [CP-02 contract guide](contract.md) records the implemented domain boundary.
+Execution and workspace integration remain later steps. The
 [decision register](#decision-register) separates approved decisions from open
 questions. The [page draft](politics-page-draft.svelte) is approved with the
 changes recorded here; component boundaries remain implementation choices.
@@ -11,6 +12,7 @@ changes recorded here; component boundaries remain implementation choices.
 | --- | --- |
 | Understand scope and supported selections | [Scope and compatibility](#scope-and-compatibility) |
 | Design schemas, parsers or adapters | [Common scenario contract](#common-scenario-contract) |
+| Use the implemented domain API (CP-02) | [Contract guide](contract.md) |
 | Build the editor and controls | [UI behavior](#ui-behavior) |
 | Integrate workers, fitting and results | [Architecture and lifecycle](#architecture-and-lifecycle) |
 | Review approved decisions or resolve open choices | [Decision register](#decision-register) |
@@ -112,8 +114,8 @@ execution lock and explicit cancellation still apply.
 Introduce a distinct JSON contract, provisionally `kind: 'politics-scenario'`,
 `schemaVersion: 1`. Its version is independent of the old scenario schemas,
 model-law versions, scrutiny versions, numerical policies, RNG streams, data
-versions and implementation hashes. The paths below are proposed vocabulary;
-CP-02 must turn them into one authoritative TypeScript type and runtime schema.
+versions and implementation hashes. The paths below describe the target;
+the [CP-02 contract guide](contract.md) maps them to the authoritative runtime schema and inferred TypeScript type.
 
 The document contains authored inputs and reproducible run settings. Historical
 observations and the historical component catalogue stay in pinned data assets.
@@ -218,7 +220,7 @@ Reject duplicate/conflicting rows and explain normalization
 or overlap treatment using the selected model's existing rules. Keep common
 and chamber-specific declarations distinct. Do not replace current geographic
 precedence, chamber resolution or stochastic reference semantics with a new
-universal rule during this merger. CP-02 must specify nullable fields explicitly:
+universal rule during this merger. The [CP-02 encoding](contract.md#ownership-and-encoding) specifies nullable fields explicitly:
 where allowed, null means unspecified/inherit, never zero. Empty collections
 represent explicit empty declarations, not a request to restore defaults.
 
@@ -872,6 +874,9 @@ never regenerate legal expectations to make the merger pass. Whole-pipeline exac
 seeded matching is useful evidence, not a condition that dictates architecture.
 
 ### CP-02 — Establish the shared domain contract
+
+Completed domain API: [contract guide](contract.md). Verification is recorded in
+[migration history](../migration-history.md#cp-02--establish-the-shared-domain-contract-2026-11-07).
 
 Apply D01/D02/D05/D06/D07/D08/D09/D11/D12/D15/D17.
 Implement common types, strict runtime parsing/serialization, independent

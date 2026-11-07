@@ -10071,3 +10071,102 @@ Verification on Windows/PowerShell, Node v24.20.0, from `web/`:
 Added CP-01–08 to the active plan and checked only CP-01. CP-02–08, the parent
 workspace merger and final deployment gate remain open. No project-base release
 campaign, 1,000-run campaign, schema migration, commit or publication is claimed.
+
+### CP-02 — Establish the shared domain contract (2026-11-07)
+
+Added the independent common-politics domain under
+`web/src/lib/politics/scenario/`, with a task-oriented
+[contract guide](common-politics-scenario/contract.md). `scenarioShape` is the
+authoritative strict v1 runtime grammar and supplies the inferred readonly
+`PoliticsScenario` type. Independent law/model blocks are versioned; generator
+and scrutiny registries expose the three approved target pairs, capabilities,
+exact versions and per-law saved selections. Initial selection metadata is
+reform/M02 with Rosatellum/M01 saved. The first explicit scrutiny metadata
+version is `1.0.0` for the existing algorithm IDs, without a legal change.
+M01/M02 remain exactly `2.0.0` at this domain boundary; CP-03 must assess and
+apply any probability-law version impact before cross-law execution is enabled.
+
+The contract retains shared stable subjects, component presentation overrides,
+chamber memberships/lock metadata, owned fallback assumptions, historical
+source/poll selection and provenance, pooling, M01 compositions/partial polls,
+M02 methods/profiles, references with explicit units, shared candidate biography,
+per-law pins/external candidacies, both candidate-generation parameterizations,
+supplied legal evidence and requested seeds/workers. It excludes generated
+objects, fits and execution/storage ownership. Unknown/old formats, extra fields,
+missing selections/blocks and unsupported versions/pairs fail without conversion
+or replacement defaults. Scenario-only JSON/gzip roundtrips retain inactive
+declarations and distinguish absent/null uncertainty, empty declarations and
+explicit zero support/SD/counts. Result/archive headers and executed provenance
+have separate design interfaces; strict payloads and lifecycle integration remain
+later steps, not accepted import formats at CP-02.
+
+Added detached, atomic edit operations for selections, renewal, subjects,
+filings, memberships/locking, shared identities, ordered pins and links.
+Locked Camera edits update both sets; independent edits and re-locking validate
+both chambers before returning. New subjects initialize every law; new lists
+receive explicit eligible filings and owned fallback identities. Shared candidate
+creation requires selected gender and persists the labelled assumed birth date
+once; identity deletion removes inactive-law pins/external declarations, while
+individual pin removal preserves other ordered slots. A failed edit never moves
+another list's members or partially mutates the original draft.
+
+One D11 resolver derives automatic/active/retained links and reasons. Coalition
+scope remains independent of member participation; affiliation/scope/filing edits
+retain original explicit endpoints and automatically reactivate eligible pairs.
+Endpoint uniqueness includes inactive pairs and is independent of JSON property
+order. Explicit replacement reports every removed pair; subject deletion removes
+pairs without name-based restoration. Materialization excludes retained competitors
+and emits no joint links for single-chamber renewal. Empty counterparts retain
+their declared relationship and receive separate participation validation.
+
+Whole-document validation checks structure, internal IDs and supplied pinned
+catalogue relationships across active and inactive blocks. Selected-domain
+preflight adds required exact assets, active settings/history and candidate
+biography/availability/incompatibilities. Law/chamber/location namespaces and
+explicit catalogue hierarchy prevent equal-looking college codes or unrelated
+territories from activating candidate pins. Rosatellum filings are explicit
+plurinominal colleges; later default preparation expands old constituency scopes.
+Incomplete inactive semantics can remain saved, then fail when selected.
+Existing model/candidature/legal validators still belong at CP-03's preparation
+and assembly boundary. In particular, supplied candidate keys can refer to
+runtime-generated candidates and must be resolved against the assembled ballot;
+the scenario must not invent their biographies just to satisfy import validation.
+
+Reference helpers implement D06's scoped capped SD defaults, origin/policy
+metadata, explicit reviewable initialization and multiplier inheritance. The
+family helper calls the existing M02 feasibility/calibration engine after the
+selected adapter resolves precedence/physical filed sets. It proposes matching
+complementary defaults without overwriting explicit SDs, including explicit zero,
+and rejects infeasible families without clipping. This does not introduce common
+cross-model precedence or assign M02 SD semantics to M01.
+
+Asset descriptors pin exact decoded bytes/schema/version/SHA-256 and retrieval
+URIs. Conflicting pins anywhere fail; required dependencies select shared assets
+and only the active law/model's assets. Resolution has no latest/debug fallback;
+byte verification and dependency fingerprints are exposed. These fingerprints
+identify assets, not complete fit-cache inputs; stage-specific consumed-input
+keys remain CP-03/07 work. Extracted the existing strict JSON grammar primitives
+to `core/json-shape.ts`, retaining reform reexports and unchanged runtime checks.
+Initial compilation exposed TypeScript's union-array assignment inference;
+typed reads and deletion on detached arrays fixed it without weakening the
+law-specific placement types.
+
+Verification from `web/` on Windows/PowerShell:
+
+- `npm run check:data` passed; `npm run check` reported zero errors/warnings.
+- The new contract suite passed 40 tests, including all three target pairs,
+  inactive settings, exact dependencies/checksums, chamber conflict/relock behavior,
+  identity lifecycle, all retained supplied-input unions, source/poll metadata,
+  geography hierarchy, reference feasibility and D11 transitions/imports.
+- Final `npm test -- --maxWorkers=2`: 107 files, 1,264 tests passed, no skips,
+  47.62 s. Existing legal/checksum fixtures, CP-01 replay and model-policy tests
+  passed without updating expectations.
+- `npm run build` passed with the existing plugin-timing/chunk-size warnings.
+- Documentation links and `git diff --check` passed.
+
+Checked only CP-02 in the active merger plan and linked the implemented API from
+workspace guidance. No existing worker, route, default compiler, import routing,
+draft/result storage or legal algorithm was switched to this contract. Frozen
+fixtures/manifests and generated defaults/assets remain unchanged. CP-03–08,
+the parent merger and final publication gate remain open; no browser release or
+1,000-run campaign, commit or publication is claimed.
