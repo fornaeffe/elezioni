@@ -9968,3 +9968,38 @@ The initial comment-stripping comparison retained the new comment's blank line;
 excluding blank-only lines resolved that verification mismatch. `git diff --check`
 passed. Documentation and draft comments only; no runtime implementation or
 acceptance campaign. The workspace-merger migration item remains open.
+
+### Follow-up — D14 editor scope approved (2026-11-07)
+
+Recorded Luca's D14 decisions in the common-scenario guidelines and annotated
+page draft. Keep historical membership/M01 composition controls, fallback and
+component-reference editors. Add a basic optional “Non valido / astensione”
+reference immediately below lists, visible by default, with attached collapsed
+national uncertainty, chamber references and common/chamber local-reference
+trees. Show electorate data under advanced settings without editing it.
+Preserve inactive values and model-specific meanings, including settings that
+have no UI editor during migration.
+
+Historical-source/poll editors, model-specific historical selection,
+supplied-vote/preference editors and model/profile editors (including M01
+partial observations) are deferred to the end of the post-migration plan.
+Their UI editability is explicitly excluded from CP-06/CP-08 acceptance;
+contract validation, execution and roundtrip preservation remain required.
+Updated CP-01/CP-06 and the decision register; no decisions remain open there,
+but the merger itself remains unimplemented and its migration item stays open.
+
+Pooling is retained in CP-06 because the current default uses it. Traced the
+active policy through `fast-share-default.ts`, `fast-share-future-default.ts`
+and `fast-share-release.ts`; decoded the local candidate catalog/scenario and
+confirmed 154 component-map entries, including 126 original IDs mapped to
+`historical-rest`. This is whole-component pooling, not merely an alias.
+CP-01 must recheck the authored default before implementation and defer the
+editor only if pooling is no longer used. No data was regenerated or modified.
+
+Verification: all 40 local links/anchors in the guidelines and migration plan
+resolved; the register has 18 unique approved decision IDs, with D13 superseded;
+obsolete D14 gates are absent and deferred tasks follow migration completion.
+The Svelte autofixer reported no issues or suggestions, the annotated draft
+parsed, and its non-comment markup matched HEAD after whitespace normalization.
+`git diff --check` passed. Documentation and draft comments only; no runtime
+implementation or acceptance campaign.

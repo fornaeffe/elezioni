@@ -28,7 +28,9 @@ interpretations with the legal core unchanged; a clean, simple, rational and
 uniform architecture and UI; equivalent results where practical. Exact seeded
 parity with the previous workspace is not a requirement. Preserve the model
 definitions of retained models, candidate-generation policies and applicable
-scenario controls, except for the approved M00 retirement below. Document
+scenario inputs, except for the approved M00 retirement below. D14 distinguishes
+editors required during migration from editors deferred until after migration;
+preserving an input does not require exposing its editor now. Document
 execution changes rather than retaining complexity solely to reproduce
 old random draws. Keep law text close to scrutiny code.
 Regional elections remain outside this implementation, but reusable scenario
@@ -192,8 +194,10 @@ actionable error, never substitution with the latest bundle.
   one chamber must not erase the other chamber's support or create duplicate
   active components.
 - Preserve historical selection, poll editing/additions/exclusions, pooling,
-  fallback assumptions and applicable retained-model controls. User-added polls
-  are explicit scenario observations with citation/method/availability metadata, not copies
+  fallback assumptions and applicable retained-model inputs. Follow
+  [D14's editor scope](#history-and-advanced-controls-d14) for UI delivery;
+  deferred editors do not remove scenario fields or their execution semantics.
+  User-added polls are explicit scenario observations with citation/method/availability metadata, not copies
   of the bundled history. M01 partial named observations stay in its own block
   and must not become complete M02 observations or be counted twice.
 
@@ -493,7 +497,7 @@ candidate/supplied-input declarations. Replace the old Rosatellum compiler's
 independent shared reference choices with this baseline. Preserve distinct
 Camera/Senate reference values and all explicit SDs, including zero. Apply the
 separately approved D06 uncertainty policy to new or edited references and D09
-to declared candidate identities. D14 remains open.
+to declared candidate identities. Apply D14's approved editor scope below.
 
 | Setting | Approved authored value |
 | --- | --- |
@@ -601,19 +605,29 @@ inside each selector branch.
    applicable SD controls; delete one declaration or all declarations in a
    subtree. Badges reveal declarations inside collapsed descendants. Removal
    of an override restores the active model's inherited behavior.
-6. **Advanced scenario:** generator selector; M01 partial observations only when
-   M01 is active; collapsed source/future membership editor, historical/poll
-   selection and applicable model/profile controls. Future lists are the initial
+6. **Non-valid support:** immediately below the list editors, show a basic,
+   optional **“Non valido / astensione”** national common reference input,
+   visible by default. Attach a collapsed advanced section for national
+   uncertainty, per-chamber national references and applicable uncertainty,
+   and a region → province → municipality tree for common/per-chamber local
+   references and applicable uncertainty. Reuse list reference-tree behavior,
+   including inherited values, deletion and badges. Apply D06's elector
+   denominator, defaults, feasibility checks and absence-versus-zero rules.
+7. **Advanced scenario:** generator selector; collapsed source/future membership
+   editor, pooling editor and fallback/component-reference controls under
+   [D14's scope](#history-and-advanced-controls-d14). Future lists are the initial
    membership view; use the [future-membership editing rules below](#future-membership-editing).
    Fractions appear only for applicable M01 source compositions.
    Hide poll “other” members and derive the complement. Disable components used
    by conflicting choices within the same source; retain existing valid source
-   grouping/pooling semantics. Include every applicable retained setting through
-   a suitable control, including a component-reference editor with the same national/local
+   grouping/pooling semantics. Include a component-reference editor with the same national/local
    and common/chamber controls as lists. New components' references are active
-   only in chambers where their lists lack historical memberships. Do not add an embedded
-   raw JSON editor.
-7. **Simulation controls:** count and Run; collapsed fitting/simulation seed
+   only in chambers where their lists lack historical memberships. Show pinned
+   electorate data read-only. Defer historical/poll selection and observation
+   editors, supplied-input editors and model/profile editors until after migration;
+   those settings remain preserved without requiring UI editability now.
+   Do not add an embedded raw JSON editor.
+8. **Simulation controls:** count and Run; collapsed fitting/simulation seed
    inputs, each with its own “Genera seed casuale” button, and worker count.
    Default to 10 simulations and automatic workers. After a successful
    10-simulation run, visibly recommend increasing the count to 1,000 for
@@ -622,7 +636,7 @@ inside each selector branch.
    reusing valid preparation or computing only required work. No separate “load
    default model” action. Keep fitting progress, diagnostics, cancellation and
    portable checkpoint access available where applicable.
-8. **Results and status:** one session list across all three workflows, optional
+9. **Results and status:** one session list across all three workflows, optional
    filters and law-specific views supplied by adapters. Follow
    [result-session selection](#result-sessions-and-resources); browsing results
    never implicitly replaces the draft. Use a small fixed, collapsible status box
@@ -638,9 +652,38 @@ declarations. Creation defaults never overwrite explicitly saved declarations.
 Keep unrelated metric/export changes separate from this approved UI scope.
 
 All hidden sections remain stored. Showing a section again restores its values.
+Show only applicable controls, with a concise explanation of the active model;
+reveal saved declarations or active overrides in collapsed summaries. Deferred
+editors remain absent until their post-migration tasks are implemented.
 Use lazy tree expansion/search/paging so national candidate and municipality
 trees do not mount in full. Keep keyboard operation, labelled controls, visible
 focus and accessible partial-selection/status announcements.
+
+### History and advanced controls (D14)
+
+This is the approved editor perimeter for the merger. Preserve every retained
+input in the new-format contract, validation, defaults, execution and roundtrips,
+including inputs without an editor. Scenario download/edit/upload remains
+available; no embedded raw JSON editor or UI-editability acceptance gate is
+required for deferred settings. Deferred tasks are tracked at the end of
+[the post-migration plan](../../MIGRATION_PLAN.md#deferred-common-politics-editors-d14).
+
+| Concern | Migration delivery |
+| --- | --- |
+| Historical sources and polls | Defer source/poll additions, edits, selection and exclusions editors. Preserve citations, methods, availability metadata, exclusion reasons and scenario-owned observations; bundled observations stay unchanged |
+| Model-specific historical selection | Defer selection editors. Preserve M01's automatic latest eligible Camera/Senato pair and eligible Camera polls, and M02's selected elections, paired sources and supported poll contexts; do not impose one model's selection rules on the other |
+| Historical membership and M01 composition | Keep the already approved source/option membership editor, M01-only source compositions, provenance and conflict rules. This edits membership declarations, not source selection or observation values |
+| Pooling | Implement the proposed M02 whole-component pooling editor because the current default uses pooling, including `historical-rest`. Place “Raggruppamento dei componenti” alongside membership controls; select whole original components, inspect the resulting basis and remove declarations. Keep aliases, future memberships and M01 fractional compositions distinct. An unidentified basis fails with an actionable error, never invented counts or automatic splitting. CP-01 verifies default usage; if the default no longer uses pooling before implementation, defer this editor to the post-migration plan instead |
+| Fallback and component references | Implement “Ipotesi senza storico” beside new-component references, with applicable parameters, units, effective values and provenance. Expose M02 geographic log-profile, profile SD and local/national innovation SDs. Explain M01's existing regional/equal-list fallback without assigning M02 parameters an M01 effect. Retain inactive assumptions when memberships change; use the same national/local and common/chamber reference controls as lists |
+| Non-valid support | Implement the basic visible input and attached advanced section described above. A blank reference inherits the active model; zero is explicit. M01 ignores stored reference SDs, while M02 consumes them under D06 |
+| Electorate | Show pinned source/date, chamber totals and reconstruction/conditional assumptions under advanced settings, with lazy geographic detail where useful. Do not introduce electorate editing |
+| Supplied votes and preferences | Defer editors. Preserve law-specific supported representations, replacement semantics, validity evidence, provenance and missing-versus-zero distinctions. Reform declarations stay inactive and retained under Rosatellum; do not add Rosatellum override capabilities |
+| Model settings and profiles | Defer editors, including M01 partial named observations and preference/chamber-profile selection. Preserve forecast submethods, scale, profile correlation, reference mode and other retained settings without changing their meaning. This deferral does not remove the generator selector, D06 reference/uncertainty controls, fallback editor, candidature-generation controls or D15 seeds/workers. Versions remain provenance, not freely editable strings |
+
+Use labelled structured forms, searchable/paged selectors and explicit
+remove/restore actions for the editors delivered now. Preserve inactive values
+through switching, reload and scenario import/export; collapsing never resets
+values. M00-only controls remain retired under D01/D08.
 
 ### Future membership editing
 
@@ -769,6 +812,7 @@ plan; do not reopen them as implementation gates.
 | D10 | **Candidate controls:** preserve both law-specific generation parameterizations in their respective law blocks, independent candidates, availability/external candidacies and manual pin behavior. No new candidate-generation policy |
 | D11 | **Bonus-link persistence:** apply the eligibility and persistence rules above. Derive automatic links; save explicit reciprocal pairs once with typed stable-ID endpoints. Preserve ineligible pairs as inactive and reactivate when eligible; never rebind or reverse them. Enforce one saved pair per chamber endpoint, including inactive pairs; explicit replacement removes affected pairs and subject deletion removes its pairs. Derive visible status/reasons, reject malformed/conflicting imports and materialize only effective links at the adapter boundary |
 | D12 | **File compatibility:** no support for old politics scenario/archive schemas; reject them without migration. Use the new common-format draft/session and validate checkpoints against its exact scenario/dependencies |
+| D14 | **History and advanced controls:** apply the [approved editor perimeter](#history-and-advanced-controls-d14). Keep source memberships/M01 compositions, fallback/component-reference editors, default-used M02 pooling, basic visible non-valid reference with attached advanced national/chamber/local controls, and read-only advanced electorate data. Defer source/poll and model-specific selection editors, supplied-input editors and model/profile editors until after migration; UI editability of those retained settings is not a merger gate. Preserve inactive values and model-specific meanings; retire M00-only controls |
 | D15 | **Seeds and workers:** a “Genera seed casuale” button beside each seed input fills that field visibly. No fit-level or simulation-level randomization mode or automatic seed replacement. Save requested workers/auto policy and record actual workers |
 | D16 | **Switching/preparation:** lock during active execution, explicit cancellation, automatic loading/reuse on selection and visible cancellable preparation when required |
 | D17 | **Result sessions and resources:** all three pairs use durable bounded storage, deterministic multiworker execution and common session access; remove the Rosatellum 1,000-run ceiling. Draft selection and viewed session remain independent under the session rules above. Acceptance includes no run above 1,000 |
@@ -780,15 +824,12 @@ old politics drafts. Start from the new default or an explicitly loaded new-form
 scenario and persist under a new common draft key. Leave old browser keys
 untouched and unused; deleting old stored data is outside this merger.
 
-### Decisions still needed
+### Decision status
 
-IDs remain stable after approvals. Resolve only the open choices below before
-their dependent step. D06, D09 and D11 are approved; recommendations in the remaining
-open choices are not approved changes. Old-file migration is not an option under D12.
-
-| ID | Open decision and recommended direction | Needed before |
-| --- | --- | --- |
-| D14 | **History and advanced controls:** confirm placement of source/poll additions/exclusions, pooling, fallback assumptions, non-valid/electorate inputs, supplied votes/preferences and model/profile settings. Recommend an inventory preserving retained-model controls, using model-specific controls where meanings differ; M00-only controls are retired under D01/D08 | CP-01/CP-06 |
+No decisions remain open in this register. IDs remain stable after approvals;
+D13 is superseded as described above. Apply D14's post-migration editor deferrals
+without treating them as missing merger requirements. Old-file migration is
+not an option under D12.
 
 Scrutiny version metadata must be explicit in CP-02; generator replacement does
 not change existing scrutiny algorithm IDs or legal behavior. D02/D17 settle
@@ -811,13 +852,15 @@ Read the current entry points listed below. Build a field/control/asset mapping
 from original `Scenario` and reform `ReleasedScenario` to the proposed contract,
 including data not visible in the draft. Identify non-equivalent defaults,
 M00-only controls to retire, candidate identities and per-chamber values.
-Resolve D14 and record baselines for retained M01/M02 behavior and Rosatellum
+Apply D14's editor perimeter, verify whether the default uses pooling and record
+baselines for retained M01/M02 behavior and Rosatellum
 candidature/legal behavior. Document the intentional M00-to-M01 differences;
 do not require M00 distribution parity. Cover
 single-chamber runs, restricted/special territories, residual/new
 lists, manual candidates, diagnostics and interrupted/exported sessions.
 
-Exit: a complete mapping for the approved pairs and reproducible comparison
+Exit: a complete mapping for the approved pairs, distinguishing preserved inputs,
+editors required now and post-migration editors, and reproducible comparison
 inputs/results. Separate generator/distribution comparisons from fixed-input legal
 regressions. Preserve frozen fixtures/checksum manifests and known legal failures;
 never regenerate legal expectations to make the merger pass. Whole-pipeline exact
@@ -896,8 +939,8 @@ current state. Historical regression fixtures remain separate test evidence.
 
 ### CP-06 — Build the common editor
 
-Apply D02/D06/D07/D08/D09/D10/D15/D16/D17/D18 and resolve D14. Compose a single
-politics editor from subject, reference, membership, filing/candidate, model and
+Apply D02/D06/D07/D08/D09/D10/D14/D15/D16/D17/D18. Compose a single
+politics editor from subject, reference, membership, filing/candidate, generator-selection and
 run-control components.
 Drive visibility/applicability through capabilities and use pure domain edits;
 use Svelte 5 `$state` and `$derived`, with lifecycle hooks or event handlers for
@@ -917,10 +960,15 @@ empty counterpart, explicit counterpart filtering for one-chamber subjects,
 retained-link visibility/reasons, automatic reactivation, explicit replacement
 disclosures and deletion cleanup under D11,
 references, both seed-generation buttons,
+the visible basic non-valid reference and attached advanced national/chamber/local
+tree controls, fallback/component-reference editors, read-only electorate data
+and the default-used pooling editor,
 reset/new-format import/export and error paths work. New subjects initialize
 all law blocks, redundant partial-coverage badges are absent and candidate
 badges remain. Check keyboard/mobile layout and run the Svelte tooling on
 changed components.
+Deferred D14 settings must survive validation, switching and file roundtrips,
+but their editors are not required for CP-06 or CP-08 acceptance.
 
 ### CP-07 — Unify lifecycle, persistence and results
 

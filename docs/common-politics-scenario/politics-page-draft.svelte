@@ -226,6 +226,15 @@
     </div>
   </div> 
 
+  <!-- Immediately below list editors: a basic optional national common
+   "Non valido / astensione" reference input, visible by default, as a fraction
+   of electors displayed as a percentage. Blank inherits; zero is explicit.
+   Attach an advanced section, collapsed by default, with national uncertainty,
+   per-chamber national references/uncertainty, and a region/province/municipality
+   tree for common or per-chamber local references/uncertainty. Reuse list-tree
+   deletion, inheritance and declaration badges; follow D06 model applicability,
+   uncertainty defaults and joint feasibility. -->
+
   <div id="advanced-scenario-editor"><!-- Collapsed by default -->
 
     <label>
@@ -246,8 +255,12 @@
     - on a model change, automatically load the newly selected model
    -->
   
-    <!-- Put here "Osservazioni parziali dichiarate nel M01", visible only if 
-    M01 is selected. -->
+    <!-- D14 defers source/poll additions, edits, selections and exclusions,
+     model-specific historical selection, M01 partial-observation editors,
+     supplied votes/preferences and model/profile editors until after migration.
+     Preserve their inputs and model-specific behavior without requiring UI
+     editability now. Historical membership/M01 source compositions below remain
+     in scope. No general source/poll editor is implied by the source selector. -->
 
     <div id="membership-editor"> <!-- Collapsed by default -->      
       <!-- Historical source / future lists selector. Default to future lists -->
@@ -342,11 +355,33 @@
      data are visible and active only in chambers where those lists have no
      historical component memberships. Preserve inactive fallback declarations. -->
 
+    <!-- "Ipotesi senza storico" beside new-component references: expose applicable
+     fallback parameters, units, effective values and provenance. M02 parameters:
+     geographic log-profile, profile SD, local/national innovation SDs. Explain
+     M01 regional/equal-list fallback without assigning M02 controls an M01 effect. -->
+
+    <!-- M02 "Raggruppamento dei componenti" alongside memberships: whole original
+     component selection, resulting-basis inspection and remove/restore actions.
+     The current default pools components into historical-rest, so plan this
+     editor during migration. CP-01 verifies usage; defer until after migration
+     only if the default no longer uses pooling. Keep aliases, future memberships
+     and M01 source fractions distinct; report unidentified bases, never invent
+     counts or split automatically. -->
+
+    <!-- Advanced read-only electorate information: pinned source/date, chamber
+     totals and conditional/reconstruction assumptions, lazy geographic detail
+     where useful. Do not add electorate editing. -->
+
     <!-- Candidate reuse probability and maximum ordinary filings for candidate.
      Visible if applicable under current law/model. -->
 
     <!-- Do not offer json editing. This can be already done downloading the scenario,
      editing it in an editor and uploading it. -->
+
+    <!-- Show applicable controls with model explanations; collapsed summaries
+     reveal saved declarations/active overrides. Preserve inactive values through
+     switching, reload and scenario roundtrips; collapsing never resets them.
+     Use labelled forms and searchable/paged selectors for controls delivered now. -->
 
   </div>
   

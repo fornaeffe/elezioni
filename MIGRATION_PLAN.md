@@ -284,8 +284,9 @@ implementation or municipal parity scope.
   electors/votes without double counting, and test geographic and joint-bonus
   sensitivity. Distinguish voting-population movement from legal census data
   used for seat apportionment.
-- [ ] Add poll editing to remaining election workflows; reform poll editing is
-  already implemented in the [reform workspace](docs/vote-generation-fast-workspace.md).
+- [ ] Add poll editing to remaining election workflows. For common politics,
+  follow the [D14 editor tasks below](#deferred-common-politics-editors-d14);
+  the current reform editor predates that merger's approved deferrals.
 - [ ] Let the user enter fixed vote counts and perform a single scrutiny (e.g. applying a new scrutiny algorithm to a previous election result, possibly adapted; or setting national fixed shares and choosing a deterministic algorithm to calculate the
 local votes)
 - [ ] Evaluate modelling of the $0$ component from poll's "will abstain" answers.
@@ -304,3 +305,34 @@ local votes)
   model geographically uneven reporting, missing returns and revisions without
   treating missing counts as zero. Validate uncertainty and final-result predictions
   on chronological counting snapshots before exposing a dedicated live-count workflow.
+
+### Deferred common politics editors (D14)
+
+Implement these after the web migration, following the approved
+[D14 editor perimeter](docs/common-politics-scenario/guidelines.md#history-and-advanced-controls-d14).
+The merger must preserve, validate and execute their scenario settings without
+requiring these UI editors. Keep model-specific meanings and inactive values;
+use structured controls without an embedded raw JSON editor.
+
+- [ ] Add historical-source/poll editors: supported poll additions and edits,
+  selection and exclusions with reasons, citation/method/availability metadata,
+  and scenario-owned observations without modifying bundled originals. New
+  historical election datasets remain a data-preparation task.
+- [ ] Add model-specific historical-selection controls: show M01's automatic
+  latest eligible Camera/Senato pair and eligible Camera polls; expose M02's
+  selected historical elections, paired sources and supported poll contexts.
+  Do not turn M01's automatic policy into an arbitrary source selector.
+- [ ] Add supplied-vote/preference editors under the applicable law, organized
+  by chamber, college and list/candidate. Cover every retained representation,
+  validity evidence and provenance; show which generated inputs are replaced,
+  restore generation on removal, and preserve missing versus explicit zero.
+- [ ] Add model-setting/profile editors: retained M02 forecast submethods,
+  scale, regional profile correlation and reference mode; chamber-dependence
+  and reform preference profiles; M01 partial named observations with
+  add/edit/remove/enable controls, distinct from complete M02 observations.
+  Select registered profiles rather than adding a general profile-definition
+  editor; keep version identities read-only.
+
+The pooling editor remains in CP-06 because the current default uses pooling.
+Move that editor to this post-migration list only if CP-01 finds that the
+authored default no longer uses it; do not create a duplicate implementation task.
