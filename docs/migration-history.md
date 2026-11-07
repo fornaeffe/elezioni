@@ -9908,3 +9908,21 @@ parsed, guideline links/anchors and decision-register consistency passed, and
 `git diff --check` passed. Documentation and annotated draft only; no production
 UI, generator, scrutiny or data changes, and no runtime acceptance campaign.
 The workspace-merger migration item remains open.
+
+### Follow-up — Coalition link eligibility follows declared chamber scope
+
+Corrected the guidelines and page draft to distinguish a coalition's declared
+scope from effective member-list participation. A coalition declared in both
+chambers automatically links its two counterparts, even if one side has no
+filed members; it cannot declare another link or be selected as another
+subject's explicit counterpart. Only a coalition declared in one chamber can
+use the corresponding explicit-link controls. Member-list effective filings
+respect that scope; removing the last filed member never changes link eligibility.
+Empty counterparts are handled separately during execution validation/assembly,
+without changing the declared relationship or substituting another counterpart.
+
+Updated both coalition and autonomous-list counterpart selectors and narrowed
+D11 to remaining serialization/retained-declaration handling. Verification:
+Svelte autofixer, draft parsing, guideline links/anchors, decision-register
+consistency and `git diff --check` passed. Changes are documentation and draft
+comments only; no runtime implementation or acceptance campaign.

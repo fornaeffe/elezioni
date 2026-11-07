@@ -322,18 +322,32 @@ slot pins continue to allow generation under the current policy; explicitly
 pinned candidates continue to constrain it.
 
 Reform reciprocal bonus links apply to eligible coalition/autonomous-list
-subjects. Derive the automatic link for a populated subject present in both
-chambers; retain explicit links between different subjects. Empty editor
-declarations create no legal links. Materialize effective links at the adapter
-boundary and preserve declarations for inactive chambers.
-For subjects effectively filed in one chamber only, expose explicit cross-chamber
-link declarations in coalition/list advanced options. A counterpart may be an
-eligible coalition or autonomous list in the opposite chamber; do not restrict
-links to matching IDs, names or subject kinds. Determine list participation from
-filings and coalition participation from effective member-list filings. A list
-within a coalition participates through that coalition's bonus link, not a
-separate list-level link. Preserve explicit declarations when temporarily
-inapplicable; D11 still settles serialization and automatic-link precedence.
+subjects. A coalition's declared chamber scope determines its link eligibility,
+independently of member-list filings:
+
+| Coalition declaration | Bonus-link behavior |
+| --- | --- |
+| Camera only | Allow an explicit reciprocal link to an eligible Senate subject |
+| Senato only | Allow an explicit reciprocal link to an eligible Camera subject |
+| Both chambers | Automatically link its two chamber counterparts; prohibit a competing explicit link, including selection as another subject's explicit counterpart |
+
+Member-list effective filings must respect the coalition's declared scope.
+Removing the last filed member in a chamber never changes that scope, breaks
+its declared automatic relationship or makes it eligible for another link.
+Keep an empty counterpart's declared relationship intact; handle absent
+participating lists separately during execution validation/assembly, without
+inventing participation or substituting another counterpart.
+
+Expose explicit declarations in coalition/list advanced options. An eligible
+counterpart may be a coalition declared only in the opposite chamber or an
+autonomous list filed only in that chamber; do not require matching IDs, names
+or subject kinds. Autonomous-list participation is determined by its filings;
+a list filed in both chambers has the automatic link and cannot have a competing
+explicit counterpart. A list within a coalition uses that coalition's bonus
+link, not a separate list-level link. Preserve temporarily inapplicable explicit
+declarations without activating competing links. Materialize execution links at
+the adapter boundary; D11 still settles serialization and retained-declaration
+handling after scope/affiliation edits.
 
 ### Run settings and serialization
 
@@ -480,7 +494,9 @@ inside each selector branch.
    chambers to renew. Preserve the existing reset confirmation and keep results
    tied to their executed scenario.
 2. **Coalitions:** compact color/name controls; advanced chamber presence and
-   explicit reform links for coalitions filed in one chamber only, with eligible
+   explicit reform links for coalitions declared in one chamber only. Coalitions
+   declared in both chambers are automatically linked and excluded from explicit
+   counterpart choices, regardless of member-list filings. Offer eligible
    coalition/autonomous-list counterparts; collapsed candidate trees for reform bonus slates or previous-law
    uninominal slots. Candidate choices show list affiliation where relevant,
    reasons for ineligibility, creation and editing actions.
@@ -689,7 +705,7 @@ D06, are not approved changes. Old-file migration is not an option under D12.
 | --- | --- | --- |
 | D06 | **References:** approve common/chamber representation, precedence disclosures, joint feasibility and persistence policy above. Preserve each model's interpretation. The corrected non-valid label is settled and needs no further approval | CP-02/CP-03 |
 | D09 | **Candidate identity and incomplete declarations:** finalize cross-law identity sharing, deduplication, edit/delete propagation and treatment of missing birth date/gender in new-format drafts. Recommend explicit incomplete identities, no inference from names and active-law validation before execution | CP-02/CP-06 |
-| D11 | **Automatic bonus links:** explicit link controls in advanced coalition/autonomous-list options for subjects filed in one chamber only are approved, including counterparts of either eligible subject kind. Still finalize deriving versus serializing automatic reciprocal links, explicit-link precedence and changes after affiliation/filing edits. Recommend declarations plus deterministic effective links, without linking empty subjects | CP-02/CP-03 |
+| D11 | **Bonus-link persistence:** eligibility is approved: coalition declared scope controls automatic versus explicit links, independently of member-list filings; both-chamber coalitions are automatically linked and excluded from competing explicit links and counterpart choices, even with an empty side. Autonomous lists use their filings. One-chamber subjects can explicitly link to either eligible subject kind in the opposite chamber. Still finalize automatic-link serialization and handling of retained explicit declarations after scope/affiliation edits; do not reopen eligibility or activate competing links | CP-02/CP-03 |
 | D14 | **History and advanced controls:** confirm placement of source/poll additions/exclusions, pooling, fallback assumptions, non-valid/electorate inputs, supplied votes/preferences and model/profile settings. Recommend an inventory preserving retained-model controls, using model-specific controls where meanings differ; M00-only controls are retired under D01/D08 | CP-01/CP-06 |
 
 Scrutiny version metadata must be explicit in CP-02; generator replacement does
@@ -808,7 +824,8 @@ switching retains shared and inactive values, selected candidate pins and tree d
 Tri-state filings, disabled candidates,
 new-component transitions, locked Camera-to-Senato edits, independent unlocked
 edits, re-lock replacement and conflict rejection, membership-state roundtrips,
-filing-only list participation and explicit one-chamber bonus-link controls,
+filing-only list participation, declaration-based coalition links even with an
+empty counterpart, and explicit counterpart filtering for one-chamber subjects,
 references, both seed-generation buttons,
 reset/new-format import/export and error paths work. New subjects initialize
 all law blocks, redundant partial-coverage badges are absent and candidate

@@ -52,13 +52,19 @@
             <!-- In which chambers they have been filed. 
              Default both, for new coalitions.
             -->
-            <!-- Reform only: if effectively filed in one chamber only, offer an
+            <!-- Reform only: if DECLARED in one chamber only, offer an
              explicit reciprocal bonus-link declaration to an eligible coalition
-             OR autonomous list filed in the opposite chamber. Do not match by
-             name or require the same ID/kind. Derive effective coalition presence
-             from member-list filings within its chamber restrictions. A populated
-             coalition present in both chambers has the automatic link; D11 still
-             settles its serialization/precedence. Retain temporarily inactive links. -->
+             declared only in the opposite chamber OR an autonomous list filed
+             only there. Do not match by name or require the same ID/kind.
+             Coalition declared scope determines eligibility, NOT member-list filings.
+             If declared in both chambers, automatically link its two counterparts,
+             even if one side has no filed member lists; prohibit another explicit
+             link and exclude it from other subjects' explicit counterpart selectors.
+             Member-list effective filings must respect the declared scope. Removing
+             the last filed member never changes the declared relationship. Handle an
+             empty counterpart separately in execution validation/assembly without
+             substituting a link. D11 still settles serialization and retained-link
+             handling after scope/affiliation edits; retain inactive declarations. -->
             <div class="coalition-candidates-editor"> <!-- Collapsed by default -->
               <!-- Reform 2026: Collapsible tree view of chamber - constituency -->
                 <!-- {#each tree view constituency }-->
@@ -158,10 +164,14 @@
             </div>
             <!-- Reform only: for an autonomous list effectively filed in one
              chamber only, offer an explicit reciprocal bonus-link declaration to
-             an eligible coalition OR autonomous list in the opposite chamber.
-             A list in a coalition uses that coalition's link. A populated autonomous
-             list filed in both chambers has the automatic link; D11 still settles
-             serialization/precedence. Retain temporarily inapplicable declarations. -->
+             a coalition declared only in the opposite chamber OR an autonomous
+             list filed only there. Exclude coalitions declared in both chambers,
+             even if one side currently has no filed members. A list in a coalition
+             uses that coalition's link. An autonomous list filed in both chambers
+             has the automatic link and cannot have a competing explicit link or
+             be another subject's explicit counterpart. D11 still settles
+             serialization and retained-link handling after scope/affiliation edits.
+             Retain temporarily inapplicable declarations without activating them. -->
             <div class="list-local-references-editor"> <!-- Collapsed by default,
               with a badge if any local reference share or uncertainty is defined -->
               <!-- Collapsible tree view of region - province - municipality -->
