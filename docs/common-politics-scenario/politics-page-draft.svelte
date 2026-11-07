@@ -1,4 +1,5 @@
-<!-- Decompose this page in multiple components as appropriate. -->
+<!-- Approved page draft; see guidelines.md for the common contract and decisions.
+  Decompose this page in multiple components as appropriate. -->
 <!-- Prefer Svelte's conditional and/or lazy mounting for non visible components, instead
   of DOM-mounted but visually hidden components, if this may improve
   browser performances, given the expected large number of possible components in the 
@@ -99,8 +100,8 @@
             <!-- National and local uncertainty multiplicators, visible when applicable-->
             <!-- Optional per-chamber national reference share and uncertainty inputs -->
             <div class="list-filings-editor"> <!-- Collapsed by default,
-              with a badge if not filed in every college of the declared chamber(s)
-              and another badge if any candidate is set -->
+              with a candidate badge if any candidate is set. Do not add a partial
+              coverage badge where a tri-state checkbox already conveys it. -->
               <!-- Selectable and collapsible tree view of chambers - constituencies - colleges -->
                 <!-- {#each tree view element }-->
                   <!-- Checkbox to file or unfile list in this college or 
@@ -130,14 +131,15 @@
               <!-- End of selectable and collapsible tree view-->
               <!-- Underlying data should be stored per-law, and only the data 
                for the selected law should be shown and edited. -->
-              <!-- For new lists, default to file in all colleges of both chambers. -->
+              <!-- Initialize every law block for every new subject, including
+               inactive laws. New lists are filed in all eligible colleges of both
+               chambers under every law. Default lists have their authored default
+               filings for every law, including intentional restrictions. -->
               <!-- If the list is member of a coalition filed in only one chamber,
                filings in the other chamber are disabled and inactive (but not erased). -->
-              <!-- Offer
-               a button and/or select to import filings from the other law filings.
-               This should be done with a helper that manages different colleges
-               or filing requirements, and warns the user if any workaround has been
-               applied during import. The implementation of this feature can be postponed. -->
+              <!-- Cross-law filing conversion helper is deferred. Do not offer
+               its controls in this implementation. Switching law selects its
+               existing filings without remapping them. -->
             </div>
             <!-- If not filed in both chambers and not member of a coalition, 
              optional linking with another
@@ -181,6 +183,8 @@
 
     <label>
       Modello di generazione voti:
+      <!-- Choices from the supported-pair registry: M00 (previous-law generator),
+       M01 and M02. Default selection is reform + M02 + joint renewal. -->
       <select>
       </select>
     </label>
@@ -241,10 +245,14 @@
     <!-- Number of simulations -->
     <!-- Run button -->
     <div id="advanced-simulation-controls"> <!-- Collapsed by default -->
-      <!-- Seed -->
-      <!-- Use a random seed (default FALSE). If true, the random seed should 
-       be saved with scenario. On a saved scenario load, this should be set to FALSE -->
-      <!-- Number of compute workers -->
+      <!-- Fitting seed input, with a "Genera seed casuale" button beside it.
+       Clicking fills only this input with a random seed visible to the user. -->
+      <!-- Simulation seed input, with its own "Genera seed casuale" button.
+       Clicking fills only this input with a random seed visible to the user. -->
+      <!-- Persist each concrete seed as an ordinary scenario edit. No checkbox,
+       launch-time randomization mode, or automatic replacement on load/run. -->
+      <!-- Requested number of compute workers / explicit auto policy, saved with
+       the scenario. Record actual workers separately in the executed run. -->
     </div>
   </div>
 
