@@ -158,6 +158,15 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
 - [ ] Merge the politics workspaces in a single workspace: switching generator
   and/or scrutiny algorithm should be as simple as choosing an option in a select.
   Read the [guidelines](docs\common-politics-scenario\guidelines.md).
+  - [x] CP-01 — Inventory and preserve behavior: [field/control/asset mapping](docs/common-politics-scenario/inventory.md)
+    and [reproducible baselines](docs/common-politics-scenario/baselines.md).
+  - [ ] CP-02 — Establish the shared domain contract.
+  - [ ] CP-03 — Adapt existing execution paths.
+  - [ ] CP-04 — Replace authored-default construction, including approved colors.
+  - [ ] CP-05 — Enforce new-format files and draft isolation.
+  - [ ] CP-06 — Build the common editor within the approved D14 perimeter.
+  - [ ] CP-07 — Unify lifecycle, persistence and results.
+  - [ ] CP-08 — Verify the supported pairs and complete merger acceptance.
 - [ ] Change default scenario colors to colors that reflects the real parties
   political colors (or colors with which polling houses usually represent parties).
 - [x] In "Dotazioni dei seggi per collegio e liste del premio" do now show territory ids,

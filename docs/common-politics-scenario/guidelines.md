@@ -15,6 +15,7 @@ changes recorded here; component boundaries remain implementation choices.
 | Integrate workers, fitting and results | [Architecture and lifecycle](#architecture-and-lifecycle) |
 | Review approved decisions or resolve open choices | [Decision register](#decision-register) |
 | Implement and verify the merger | [Implementation plan](#implementation-plan) |
+| Map existing fields, controls and assets before changing a boundary | [CP-01 inventory](inventory.md), [comparison baselines](baselines.md) |
 
 ## Scope and compatibility
 
@@ -847,6 +848,10 @@ starts; record completed changes, rationale, verification and problems in
 until CP-08 passes. This documentation proposal alone does not complete it.
 
 ### CP-01 — Inventory and preserve behavior
+
+Completed evidence: [field/control/asset inventory](inventory.md) and
+[reproducible comparison baselines](baselines.md). Verification is recorded in
+[migration history](../migration-history.md#cp-01--inventory-and-preserve-behavior-2026-11-07).
 
 Read the current entry points listed below. Build a field/control/asset mapping
 from original `Scenario` and reform `ReleasedScenario` to the proposed contract,

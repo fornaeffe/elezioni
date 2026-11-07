@@ -10003,3 +10003,71 @@ The Svelte autofixer reported no issues or suggestions, the annotated draft
 parsed, and its non-comment markup matched HEAD after whitespace normalization.
 `git diff --check` passed. Documentation and draft comments only; no runtime
 implementation or acceptance campaign.
+
+### CP-01 — Inventory and preserve behavior (2026-11-07)
+
+Completed the first common-politics implementation step against source revision
+`a700d19b04272f39fad17ddd3ceb9e48048ea623`. Added the task-oriented
+[`inventory`](common-politics-scenario/inventory.md),
+[`baseline guide`](common-politics-scenario/baselines.md) and
+[`observed default/asset report`](common-politics-scenario/default-inventory.json).
+The mapping covers all original `Scenario` and released v5 inherited fields,
+candidate identity/placements/external declarations, per-chamber values, supplied
+votes/preferences and validity evidence, source/poll metadata, model settings,
+runtime/checkpoint/session ownership, exact dependencies and intentional M00
+retirement. It separates retained inputs, CP-06 editors and post-migration D14
+editors. No production schema, UI, generation, scrutiny or defaults changed.
+
+Rechecked the authored-choice/policy/compiler chain and the checksummed local
+release scenario: 154 component-map entries, 126 to `historical-rest`, 34
+components, 53 M01 source compositions, two partial named observations, 17
+political references and four non-valid references. Pooling remains required in
+CP-06. The read-only `common-politics-inventory.ts` collector records both
+compiled defaults, source/manifest hashes, release pointer/asset pins and exact
+filing/reference choices. It verifies compressed and decoded catalogue/scenario
+descriptors; it neither prepares assets nor supplies runtime defaults.
+
+Added a separate constructed M01/M02 2.0.0 generation/candidature corpus and
+replay test in `web/scripts/acceptance/common-politics-baseline{,.test}.ts`, with
+tracked output in `web/tests/fixtures/common-politics-baseline.json`. Fourteen
+cases cover joint and single renewals, distinct chamber references, territorial
+filing, manual identity pins, residual and new-component support, VdA/TAA, and
+trace diagnostics. Thirteen successful cases record 43 draws, national and
+college-level values, first-list sample moments, separate ballot/candidature
+hashes and declared biography. The fixed input recipe, source revision and
+input hashes permit replay; these small samples do not establish predictive
+acceptance. Exact old draws/IDs remain supporting evidence, not an architectural
+constraint. Rosatellum+M01 remains CP-03 work, with retained M01 statistical
+evidence and separate existing Rosatellum legal/candidature regressions.
+
+The reduced M01 restricted-filing case exposes the existing preparation error
+`Reference votes conflict with filing/capacity camera/990001/A`; M02 completes
+the equivalent case. Recorded the error verbatim rather than changing validation,
+rerolling or claiming successful execution. During corpus construction, an
+individual-college restriction failed the legal two-thirds coverage rule; the
+final case removes the list from a whole territory. The residual case uses the
+reserved identity/grey color and distinct component membership. These were test
+input corrections, not application fixes. The frozen Rosatellum Camera flipper
+584 input and all R/legal expectation/checksum manifests remain unchanged.
+
+Verification on Windows/PowerShell, Node v24.20.0, from `web/`:
+
+- Both read-only collectors completed; default catalogue/scenario checksums
+  verified. The final report also pins the four preparation source manifests.
+- `npm run check:data` passed; `npm run check` reported zero errors/warnings.
+- `npm test -- --maxWorkers=2`: 106 files, 1,224 tests passed, no skips, 49.14 s;
+  includes frozen R/checksum/legal failures, model-policy and portable-session
+  tests. After adding college-level output, the focused baseline replay passed
+  again (one test, 6.02 s including startup).
+- `npm run test:e2e -- workspace-uniformity.spec.ts reform-production-worker.spec.ts --workers=2`:
+  production build followed sequentially by nine passing Chromium tests at `/`,
+  53.6 s total, no retries/skips. Covered current draft/reset/import/navigation,
+  corrupt dependencies, cancellation/closed workers, 50-run boundaries,
+  1/2/4-worker exported rows/diagnostics, worker crashes and quota failures with
+  durable committed prefixes. Existing build timing/chunk-size and color-env
+  warnings were nonblocking.
+- Local documentation links/anchors, corpus counts and `git diff --check` passed.
+
+Added CP-01–08 to the active plan and checked only CP-01. CP-02–08, the parent
+workspace merger and final deployment gate remain open. No project-base release
+campaign, 1,000-run campaign, schema migration, commit or publication is claimed.
