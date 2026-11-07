@@ -46,16 +46,19 @@
         <div> 
           <div> <!-- Coalition basic controls, in a row -->
             <!-- Color -->
-            <!-- Name -->
+            <!-- Name, shared across chambers; no chamber-specific name override. -->
           </div>
           <div class="advanced-coalition-editor"> <!-- collapsed by default -->
             <!-- In which chambers they have been filed. 
              Default both, for new coalitions.
             -->
-            <!-- If not filed in both chambers, optional linking with another
-             coalition in another chamber. If filed in both chambers, the two
-             per-chamber coalitions should automatically be linked. Only visible
-             under 2026 reform -->
+            <!-- Reform only: if effectively filed in one chamber only, offer an
+             explicit reciprocal bonus-link declaration to an eligible coalition
+             OR autonomous list filed in the opposite chamber. Do not match by
+             name or require the same ID/kind. Derive effective coalition presence
+             from member-list filings within its chamber restrictions. A populated
+             coalition present in both chambers has the automatic link; D11 still
+             settles its serialization/precedence. Retain temporarily inactive links. -->
             <div class="coalition-candidates-editor"> <!-- Collapsed by default -->
               <!-- Reform 2026: Collapsible tree view of chamber - constituency -->
                 <!-- {#each tree view constituency }-->
@@ -96,11 +99,15 @@
         <div> 
           <div> <!-- List basic controls, in a row -->
             <!-- Color -->
-            <!-- Name -->
-            <!-- Coalition -->
+            <!-- Name, shared across chambers. -->
+            <!-- Coalition, shared across chambers; null means autonomous.
+             Use separate list identities for differing names, affiliations or
+             minority declarations; equal names never merge identities. -->
             <!-- Optional national reference share -->
           </div>
           <div class="advanced-list-editor"> <!-- collapsed by default -->
+            <!-- Shared minority declaration, interpreted under the selected law.
+             No per-chamber name, affiliation or minority overrides. -->
             <!-- Optional national reference share uncertainty -->            
             <!-- National and local uncertainty multiplicators, visible when applicable-->
             <!-- Optional per-chamber national reference share and uncertainty inputs -->
@@ -140,18 +147,21 @@
                inactive laws. New lists are filed in all eligible colleges of both
                chambers under every law. Default lists have their authored default
                filings for every law, including intentional restrictions. -->
+              <!-- List participation is determined by these filings, with no
+               separate list-presence toggle. File only in Camera or only in
+               Senato to declare chamber-only participation. -->
               <!-- If the list is member of a coalition filed in only one chamber,
                filings in the other chamber are disabled and inactive (but not erased). -->
               <!-- Cross-law filing conversion helper is deferred. Do not offer
                its controls in this implementation. Switching law selects its
                existing filings without remapping them. -->
             </div>
-            <!-- If not filed in both chambers and not member of a coalition, 
-             optional linking with another
-             list in another chamber. If filed in both chambers and not member
-             of a coalition, the two
-             per-chamber lists should automatically be linked. Only visible
-             under 2026 reform -->
+            <!-- Reform only: for an autonomous list effectively filed in one
+             chamber only, offer an explicit reciprocal bonus-link declaration to
+             an eligible coalition OR autonomous list in the opposite chamber.
+             A list in a coalition uses that coalition's link. A populated autonomous
+             list filed in both chambers has the automatic link; D11 still settles
+             serialization/precedence. Retain temporarily inapplicable declarations. -->
             <div class="list-local-references-editor"> <!-- Collapsed by default,
               with a badge if any local reference share or uncertainty is defined -->
               <!-- Collapsible tree view of region - province - municipality -->
@@ -209,16 +219,70 @@
 
     <div id="membership-editor"> <!-- Collapsed by default -->      
       <!-- Historical source / future lists selector. Default to future lists -->
+      <!-- {#if selectedSource is future lists} -->
+        <!-- {#each scenario.lists as list} -->
+          <div class="future-list-membership-editor">
+            <div> <!-- Row: future list name and its own lock/chain toggle. -->
+              <!-- list.name, readonly; IDs distinguish equal names. -->
+              <button type="button" aria-label="Collega le modifiche alle appartenenze di Camera e Senato" aria-pressed="true">
+                🔗
+              </button>
+              <!-- Default locked for new entries; restore saved per-list state.
+               Locked: only Camera editable, Senato read-only and inherits every
+               Camera add/remove atomically. Unlocked: edit each set independently.
+               Re-locking REPLACES Senato with Camera, including removals/empty sets;
+               never merge or copy Senato into Camera. Validate both chambers first;
+               reject conflicts without partial changes and keep the pair unlocked.
+               The button's accessible pressed state/label must reflect its state. -->
+            </div>
+            <div class="future-membership-chambers">
+              <!-- Responsive layout: Camera and Senato side by side when space
+               permits, stacked on narrow screens. Both remain visible when locked. -->
+              <div class="camera-membership-list">
+                <h4>Camera</h4>
+                <!-- {#each list.memberships.camera as memberComponent} -->
+                  <!-- memberComponent.name, readonly text -->
+                  <!-- Remove memberComponent button -->
+                <!-- {/each} -->
+                <div> <!-- Row -->
+                  <!-- Add memberComponent select: omit current members; disable
+                   conflicting choices in Camera, and also Senato while locked,
+                   with an explanation. Membership remains binary, without fractions. -->
+                  <!-- Add memberComponent confirm button -->
+                </div>
+              </div>
+              <div class="senato-membership-list">
+                <h4>Senato</h4>
+                <!-- {#each list.memberships.senato as memberComponent} -->
+                  <!-- memberComponent.name, readonly text -->
+                  <!-- Remove memberComponent button, disabled while locked -->
+                <!-- {/each} -->
+                <div> <!-- Row -->
+                  <!-- Add memberComponent select, disabled while locked. When
+                   unlocked: omit current members and disable conflicting choices
+                   in Senato only. Membership remains binary, without fractions. -->
+                  <!-- Add memberComponent confirm button, disabled while locked -->
+                </div>
+                <!-- While locked, show that Senato inherits Camera memberships. -->
+              </div>
+            </div>
+            <!-- Persist both sets and this list's lock state through loading,
+             law/model/renewal switching and draft/scenario roundtrips. Loading must
+             not overwrite differing saved sets with the default locked behavior;
+             a saved locked pair must have equal sets. Filings/renewal do not erase
+             either set or change the edit direction. Component reuse across
+             different chamber-only lists is not a global membership conflict. -->
+            <!-- Hide artificial new components here. Derive fallback need per
+             chamber where historical members are absent; preserve stable component
+             identity and saved fallback assumptions when membership changes. -->
+          </div>
+        <!-- {/each} -->
+      <!-- {:else} Historical source editing: retain one member list per option. -->
       <!-- {#each selectedSource.options as option} -->
         <div>
           <!-- if selectedSource is a poll and option is "other", do not show
            member components: "other" option contains all components not member
            of any other option of the selected source. -->
-          <!-- New components for new lists without historical components should
-           not be listed here: a new list without historical components here 
-           means that a new component for that list is required. If the user adds
-           a historical component here for a new list, the new component is 
-           no more required. -->
           <!-- {#each option.memberComponents as memberComponent}-->
             <!-- memberComponent.name, readonly text -->
             <!-- Historical composition fraction, visible only under M01 and
@@ -238,12 +302,13 @@
           </div>
         </div>
       <!-- {/each} -->
+      <!-- {/if} -->
     </div>
 
     <!-- Component reference shares editor: the same as list reference shares
      editor, but per component. New components for new lists without historical
-     data are visible and active only while those list have no historical component
-     memberships. -->
+     data are visible and active only in chambers where those lists have no
+     historical component memberships. Preserve inactive fallback declarations. -->
 
     <!-- Candidate reuse probability and maximum ordinary filings for candidate.
      Visible if applicable under current law/model. -->

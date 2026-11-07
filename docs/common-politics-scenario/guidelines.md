@@ -127,8 +127,8 @@ editable membership declarations belong to the scenario.
 | `selection.generatorsByLaw[lawId]` | Saved generator ID and exact supported probability-law version for each supported law; default M01 for Rosatellum and M02 for reform. Derive the active generator from `selection.scrutiny`; do not duplicate an active choice |
 | `data` | A pinned data manifest, or equivalent exact bundle descriptors: historical source/catalogue, geography, electorate policy, and per-law seat/model assets, with versions and checksums. A historical-data version alone cannot identify all these dependencies |
 | `history` | Selected elections, paired Camera/Senate sources, selected polls, exclusions with reasons, source-membership edits and whole-component pooling declarations. Preserve provenance and honor source availability metadata in the pinned assets |
-| `subjects` | Shared coalition/list identities and presentation, plus chamber declarations described below |
-| `memberships` | Future list-to-component relations by chamber, referencing historical catalogue IDs or `newComponents` IDs |
+| `subjects` | Stable coalition/list identities and shared presentation; each list has one coalition affiliation and minority declaration across chambers |
+| `memberships` | Explicit Camera/Senato future list-to-component sets, referencing historical catalogue IDs or `newComponents` IDs; retain each list's linked-editing state as editor metadata |
 | `newComponents` | Scenario-owned identities and explicit fallback/support assumptions for lists without historical components; no copied historical definitions |
 | `references`, `nonValidReferences` | National/local, common/chamber-specific reference declarations with explicit units and model applicability |
 | `candidates` | Shared candidate identities and biography; placements belong to the applicable law |
@@ -156,16 +156,25 @@ actionable error, never substitution with the latest bundle.
 - Give each coalition and list one stable ID, name, color and, where applicable,
   list kind. Use IDs for every relation; renaming must not break filings,
   memberships, references, candidates or results.
-- Store chamber presence and list coalition membership explicitly. A coalition
-  or list can exist in the editor without being filed. Preserve existing
-  per-chamber differences, including minority declarations; do not merge them
-  merely because names match. Put a declaration in a law block if its legal
-  meaning differs between laws.
+- Each coalition has one shared name; each list has one shared name, coalition
+  affiliation and minority declaration. Do not add chamber overrides for those
+  fields. Represent differing names, affiliations or minority declarations by
+  distinct lists, filed in their respective chambers. Equal names never imply
+  equal identities. Interpret the shared minority declaration under the selected
+  law without changing eligibility rules or conflating non-equivalent old inputs.
+- A list participates in a chamber through its per-law filings, not a separate
+  list-presence toggle. File it only in Camera or only in Senato to declare
+  chamber-only participation. Retain coalition chamber restrictions and saved
+  inactive filings; a coalition or list may exist in the editor without effective
+  participation.
 - Autonomous lists have a null coalition. Singleton candidate tickets needed
   by the previous-law adapter are derived execution objects, never additional
   political coalitions in the scenario or editor.
 - Future memberships are set membership, scoped by chamber. Within that scope,
   a component cannot simultaneously belong to conflicting future lists.
+  The same historical component may feed different chamber-only lists; this is
+  not a scenario-wide uniqueness constraint. Save both chamber sets even when
+  their list is unfiled or its chamber is not being renewed.
   Historical-source memberships are scoped by source/question/choice, with
   stable IDs and provenance; M01 fractional compositions are a separate model
   input, not fractional future membership in either model or invented observed
@@ -176,11 +185,12 @@ actionable error, never substitution with the latest bundle.
 - Poll-option “other” is the complement of the other offered options for that
   question. It is distinct from the future residual list kind `other`, a new
   component, and non-valid votes. Retain the existing residual-list controls.
-- A new list initially needs a scenario-owned component if it has no historical
-  members. Derive that need from membership, using a stable identity while it
-  exists. Do not display an artificial historical component in the membership
-  editor. Adding/removing historical membership must not erase saved fallback
-  assumptions or create duplicate active components.
+- A new list needs a scenario-owned component in each chamber where it has no
+  historical members. Derive that need per chamber, retaining a stable component
+  identity and saved fallback assumptions. Do not display an artificial historical
+  component in the membership editor. Adding/removing historical membership in
+  one chamber must not erase the other chamber's support or create duplicate
+  active components.
 - Preserve historical selection, poll editing/additions/exclusions, pooling,
   fallback assumptions and applicable retained-model controls. User-added polls
   are explicit scenario observations with citation/method/availability metadata, not copies
@@ -316,6 +326,14 @@ subjects. Derive the automatic link for a populated subject present in both
 chambers; retain explicit links between different subjects. Empty editor
 declarations create no legal links. Materialize effective links at the adapter
 boundary and preserve declarations for inactive chambers.
+For subjects effectively filed in one chamber only, expose explicit cross-chamber
+link declarations in coalition/list advanced options. A counterpart may be an
+eligible coalition or autonomous list in the opposite chamber; do not restrict
+links to matching IDs, names or subject kinds. Determine list participation from
+filings and coalition participation from effective member-list filings. A list
+within a coalition participates through that coalition's bonus link, not a
+separate list-level link. Preserve explicit declarations when temporarily
+inapplicable; D11 still settles serialization and automatic-link precedence.
 
 ### Run settings and serialization
 
@@ -385,7 +403,7 @@ candidate/supplied-input declarations. Replace the old Rosatellum compiler's
 independent shared reference choices with this baseline. Preserve distinct
 Camera/Senate reference values and all explicit SDs, including zero. D04 does not
 approve D06's proposed uncertainty policy for new or edited references, or settle
-the remaining D05/D09/D11/D14 contract and editing decisions.
+the remaining D09/D11/D14 contract and editing decisions.
 
 | Setting | Approved authored value |
 | --- | --- |
@@ -462,14 +480,18 @@ inside each selector branch.
    chambers to renew. Preserve the existing reset confirmation and keep results
    tied to their executed scenario.
 2. **Coalitions:** compact color/name controls; advanced chamber presence and
-   reform links; collapsed candidate trees for reform bonus slates or previous-law
+   explicit reform links for coalitions filed in one chamber only, with eligible
+   coalition/autonomous-list counterparts; collapsed candidate trees for reform bonus slates or previous-law
    uninominal slots. Candidate choices show list affiliation where relevant,
    reasons for ineligibility, creation and editing actions.
 3. **Lists:** compact color/name/coalition and optional national reference.
    Advanced sections hold applicable uncertainty, filings/candidates, links,
-   minority declarations and local references. Retain chamber-specific values
-   and common/chamber reference controls even when the compact row shows only
-   the common value. Show a badge for differing chamber values.
+   a shared minority declaration and local references. Name and affiliation are
+   shared too; use distinct lists for chamber differences in those declarations.
+   Declare chamber-only participation in the filing tree. Show explicit reform
+   bonus links for autonomous lists filed in one chamber only, with eligible
+   coalition/autonomous-list counterparts. Retain common/chamber reference
+   controls and show a badge for differing reference values.
 4. **Filing trees:** chamber → constituency → applicable colleges, with tri-state
    parent checkboxes and candidate badges. Do not add a partial-coverage badge
    when the tri-state checkbox already conveys partial filing. Use the
@@ -484,13 +506,14 @@ inside each selector branch.
 6. **Advanced scenario:** generator selector; M01 partial observations only when
    M01 is active; collapsed source/future membership editor, historical/poll
    selection and applicable model/profile controls. Future lists are the initial
-   membership view; fractions appear only for applicable M01 source compositions.
+   membership view; use the [future-membership editing rules below](#future-membership-editing).
+   Fractions appear only for applicable M01 source compositions.
    Hide poll “other” members and derive the complement. Disable components used
    by conflicting choices within the same source; retain existing valid source
    grouping/pooling semantics. Include every applicable retained setting through
    a suitable control, including a component-reference editor with the same national/local
    and common/chamber controls as lists. New components' references are active
-   only while their lists lack historical memberships. Do not add an embedded
+   only in chambers where their lists lack historical memberships. Do not add an embedded
    raw JSON editor.
 7. **Simulation controls:** count and Run; collapsed fitting/simulation seed
    inputs, each with its own “Genera seed casuale” button, and worker count.
@@ -520,6 +543,38 @@ All hidden sections remain stored. Showing a section again restores its values.
 Use lazy tree expansion/search/paging so national candidate and municipality
 trees do not mount in full. Keep keyboard operation, labelled controls, visible
 focus and accessible partial-selection/status announcements.
+
+### Future membership editing
+
+Each future list entry shows labelled **Camera** and **Senato** membership lists,
+side by side when space permits and stacked on narrow screens. Each contains
+the draft's existing member names, remove actions, add-component selector and
+add confirmation; memberships remain binary under both models. Historical-source
+editing retains its existing single source/option view and M01-only fractions.
+
+Give every future list its own accessible lock/chain toggle, initially locked
+for new entries. Its behavior is independent of chamber renewal and filings:
+
+| Action/state | Required behavior |
+| --- | --- |
+| Locked | Camera is editable; Senato is visible and read-only, inheriting Camera's membership set. Each Camera add/remove updates both sets atomically |
+| Unlock | Retain both sets unchanged and enable independent editing of each chamber |
+| Unlocked edit | Change only the edited chamber; retain the other set, including when that chamber is inactive or unfiled |
+| Lock again | Replace the entire Senato membership set with Camera's, including removals or an empty set. Do not merge sets or copy in the other direction |
+
+Validate shared edits and re-locking against conflicts in both chambers before
+applying them. Disable conflicting additions with a reason; if a re-lock would
+conflict with another list, keep the pair unlocked and report the conflict
+without partially changing either set or moving another list's components.
+Keep current-member exclusion and same-source conflict disabling in historical
+editors; future-list conflicts are chamber-scoped, never global across chambers.
+Retain hidden scenario-owned fallback assumptions when membership changes.
+
+Persist the per-list lock state with the editable scenario as editor metadata;
+it is not a statistical parameter. Locked sets must agree. Loading/switching
+must restore saved sets and lock state, never apply the new-entry default over
+existing data or silently overwrite differing loaded sets. Changing lock state
+alone does not change model inputs; copying changed memberships does.
 
 ## Architecture and lifecycle
 
@@ -608,8 +663,9 @@ plan; do not reopen them as implementation gates.
 | D02 | **Combination scope and selection transitions:** require Rosatellum + M01, reform + M01 and reform + M02. Store a selected generator/version for each law in the scenario, initially M01 for Rosatellum and M02 for reform. Model changes update only that law's choice; law changes activate its saved choice. Preserve all choices and inactive settings; reject missing/unsupported choices without substitution |
 | D03 | **Initial selection:** reform + M02 + joint renewal |
 | D04 | **Authored default and data pins:** use `data/politics-default-scenario.json`, ID `politics-default-v1`, name “Politiche — scenario nazionale”, and the approved values/colors above. Existing shared values and the source/seat/geography manifest are approved; prefer reform M02 defaults where equivalent and preserve Rosatellum candidate parameters. Author 10 simulations, explicit auto workers and current implicit M02 settings; recommend 1,000 after a successful 10-simulation run. Include the separate party-color task in CP-04 |
+| D05 | **Shared subject declarations:** coalition/list names, list coalition affiliation and minority declaration are shared across chambers. Use distinct lists for differences, and list filings to declare chamber-only participation; no list-presence toggle or chamber overrides for these fields. Preserve stable IDs and inactive declarations |
 | D07 | **Filings for all laws:** initialize every law block for new subjects; a new list is filed everywhere eligible in both chambers. Default lists have authored default filings for every law. Defer the conversion helper. Use tri-state checkboxes without redundant partial-coverage badges; retain candidate badges |
-| D08 | **Correspondence controls:** use M01 historical compositions with provenance and binary chamber-scoped future memberships for Rosatellum too. Retire M00's arbitrary-factor controls; no coexistence or old-format conversion. M02 memberships remain non-fractional |
+| D08 | **Correspondence controls:** use M01 historical compositions with provenance and binary chamber-scoped future memberships for Rosatellum too. Show Camera/Senato membership lists per future list, side by side when possible, with a default-locked chain toggle: Camera edits both while locked; unlocking enables independent edits; re-locking replaces Senato with Camera. Follow the future-membership editing rules above. Retire M00's arbitrary-factor controls; no coexistence or old-format conversion. M02 memberships remain non-fractional |
 | D10 | **Candidate controls:** preserve both law-specific generation parameterizations in their respective law blocks, independent candidates, availability/external candidacies and manual pin behavior. No new candidate-generation policy |
 | D12 | **File compatibility:** no support for old politics scenario/archive schemas; reject them without migration. Use the new common-format draft/session and validate checkpoints against its exact scenario/dependencies |
 | D15 | **Seeds and workers:** a “Genera seed casuale” button beside each seed input fills that field visibly. No fit-level or simulation-level randomization mode or automatic seed replacement. Save requested workers/auto policy and record actual workers |
@@ -631,10 +687,9 @@ D06, are not approved changes. Old-file migration is not an option under D12.
 
 | ID | Open decision and recommended direction | Needed before |
 | --- | --- | --- |
-| D05 | **Shared/chamber declarations:** finalize coalition/list identities and per-chamber coalition membership, minority declarations and optional names. Recommend stable IDs with explicit chamber differences, not name-based matching | CP-02 |
 | D06 | **References:** approve common/chamber representation, precedence disclosures, joint feasibility and persistence policy above. Preserve each model's interpretation. The corrected non-valid label is settled and needs no further approval | CP-02/CP-03 |
 | D09 | **Candidate identity and incomplete declarations:** finalize cross-law identity sharing, deduplication, edit/delete propagation and treatment of missing birth date/gender in new-format drafts. Recommend explicit incomplete identities, no inference from names and active-law validation before execution | CP-02/CP-06 |
-| D11 | **Automatic bonus links:** approve deriving automatic reciprocal links versus serializing them, explicit-link precedence and changes after coalition/chamber edits. Recommend declarations plus deterministic effective links, without linking empty subjects | CP-02/CP-03 |
+| D11 | **Automatic bonus links:** explicit link controls in advanced coalition/autonomous-list options for subjects filed in one chamber only are approved, including counterparts of either eligible subject kind. Still finalize deriving versus serializing automatic reciprocal links, explicit-link precedence and changes after affiliation/filing edits. Recommend declarations plus deterministic effective links, without linking empty subjects | CP-02/CP-03 |
 | D14 | **History and advanced controls:** confirm placement of source/poll additions/exclusions, pooling, fallback assumptions, non-valid/electorate inputs, supplied votes/preferences and model/profile settings. Recommend an inventory preserving retained-model controls, using model-specific controls where meanings differ; M00-only controls are retired under D01/D08 | CP-01/CP-06 |
 
 Scrutiny version metadata must be explicit in CP-02; generator replacement does
@@ -672,7 +727,7 @@ seeded matching is useful evidence, not a condition that dictates architecture.
 
 ### CP-02 — Establish the shared domain contract
 
-Apply D01/D02/D07/D08/D12/D15/D17; resolve D05/D06/D09/D11 as required by the schema.
+Apply D01/D02/D05/D07/D08/D12/D15/D17; resolve D06/D09/D11 as required by the schema.
 Implement common types, strict runtime parsing/serialization, independent
 registries, capabilities,
 effective-presence/link helpers and pure edit operations. Keep law/model blocks
@@ -680,7 +735,7 @@ typed and versioned. Define active versus inactive validation and exact data
 dependency resolution. Design the result/archive envelope's versioning separately.
 
 Exit: domain checks prove units, null/absence/zero distinctions, stable IDs,
-membership constraints, law-specific geography, inactive-data retention and
+membership constraints and lock-state consistency, law-specific geography, inactive-data retention and
 scenario-only JSON/gzip roundtrips, including both per-law generator selections.
 Missing selections and unsupported versions/pairs fail explicitly.
 
@@ -751,7 +806,10 @@ a switch to Rosatellum and back, and both choices survive reload and JSON/gzip
 roundtrips. Valid imported selections remain unchanged. Law/model/chamber
 switching retains shared and inactive values, selected candidate pins and tree declarations.
 Tri-state filings, disabled candidates,
-new-component transitions, references, both seed-generation buttons,
+new-component transitions, locked Camera-to-Senato edits, independent unlocked
+edits, re-lock replacement and conflict rejection, membership-state roundtrips,
+filing-only list participation and explicit one-chamber bonus-link controls,
+references, both seed-generation buttons,
 reset/new-format import/export and error paths work. New subjects initialize
 all law blocks, redundant partial-coverage badges are absent and candidate
 badges remain. Check keyboard/mobile layout and run the Svelte tooling on

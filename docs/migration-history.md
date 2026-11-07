@@ -1,6 +1,6 @@
 # Migration History
 
-Record through: 2026-11-02
+Record through: 2026-11-07
 
 This file preserves the detailed migration record: completed implementation,
 decisions and rationale, verification results, encountered problems,
@@ -9884,3 +9884,27 @@ Verification: per-law selection contract, removal of the prior switching rule,
 unique decision IDs and unchanged acceptance restriction passed. The page draft
 parsed and its changes were comments only; `git diff --check` passed. No runtime
 implementation or acceptance campaigns were performed.
+
+### Follow-up — Shared list declarations and linked chamber memberships
+
+Recorded approved D05: shared coalition/list names, list coalition affiliation
+and minority declaration; distinct lists represent differences between chambers.
+List filings declare chamber-only participation, without a separate list-presence
+toggle. Explicit reform bonus links are available in advanced coalition and
+autonomous-list options for subjects filed in one chamber only, with eligible
+coalition or autonomous-list counterparts. D11's automatic-link serialization
+and precedence choices remain open.
+
+Expanded D08 and the annotated page draft with separate Camera/Senato future
+membership lists, side by side when space permits. Each future list has a
+default-locked chain control: Camera edits both sets; unlocking preserves them
+and allows independent edits; re-locking replaces Senato with Camera, including
+removals and empty sets. Specified atomic conflict validation, saved lock state,
+inactive-data retention and per-chamber fallback activation. Historical-source
+editing and M01 source fractions remain separate from binary future memberships.
+
+Verification: the Svelte autofixer reported no issues or suggestions; the draft
+parsed, guideline links/anchors and decision-register consistency passed, and
+`git diff --check` passed. Documentation and annotated draft only; no production
+UI, generator, scrutiny or data changes, and no runtime acceptance campaign.
+The workspace-merger migration item remains open.
