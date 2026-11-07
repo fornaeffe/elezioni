@@ -1,4 +1,8 @@
 <!-- Decompose this page in multiple components as appropriate. -->
+<!-- Prefer Svelte's conditional and/or lazy mounting for non visible components, instead
+  of DOM-mounted but visually hidden components, if this may improve
+  browser performances, given the expected large number of possible components in the 
+  page. -->
 <svelte:head><title>Elezioni politiche</title></svelte:head>
 
 <!-- Insert home button or breadcrumbs here -->
@@ -93,6 +97,7 @@
           <div class="advanced-list-editor"> <!-- collapsed by default -->
             <!-- Optional national reference share uncertainty -->            
             <!-- National and local uncertainty multiplicators, visible when applicable-->
+            <!-- Optional per-chamber national reference share and uncertainty inputs -->
             <div class="list-filings-editor"> <!-- Collapsed by default,
               with a badge if not filed in every college of the declared chamber(s)
               and another badge if any candidate is set -->
@@ -153,12 +158,21 @@
                   <!-- If its children are collapsed and any of them, at any level,
                   has declared reference shares, show a badge or some other indicator -->
                 </div>
+                <div class="per-chamber-local-references"> <!-- Collapsed by default,
+                  with a badge if any per-chamber reference share or uncertainty is defined here -->
+                  <!-- Optional per-chamber reference share and uncertainty inputs -->
+                  <!-- Button to delete this per-chamber data -->
+                </div>
               <!-- {/each } -->
             </div>
           </div>
         </div>
+        <!-- Same list controls (where applicable) for "other" list, if enabled -->
       <!-- {/each} -->
       <!-- Add list button: add a new list with default values. Default to
+       new component without historical data. -->
+      <!-- "Add other lists" button: enable "other" lsit with default values. 
+       Default to
        new component without historical data. -->
     </div>
   </div> 
@@ -209,6 +223,11 @@
         </div>
       <!-- {/each} -->
     </div>
+
+    <!-- Component reference shares editor: the same as list reference shares
+     editor, but per component. New components for new lists without historical
+     data are visible and active only while those list have no historical component
+     memberships. -->
 
     <!-- Candidate reuse probability and maximum ordinary filings for candidate.
      Visible if applicable under current law/model. -->
