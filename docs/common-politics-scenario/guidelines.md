@@ -131,8 +131,8 @@ editable membership declarations belong to the scenario.
 | `memberships` | Explicit Camera/Senato future list-to-component sets, referencing historical catalogue IDs or `newComponents` IDs; retain each list's linked-editing state as editor metadata |
 | `newComponents` | Scenario-owned identities and explicit fallback/support assumptions for lists without historical components; no copied historical definitions |
 | `references`, `nonValidReferences` | National/local, common/chamber-specific reference declarations with explicit units and model applicability |
-| `candidates` | Shared candidate identities and biography; placements belong to the applicable law |
-| `lawSettings[lawId]` | Law-specific filings, candidate placements, candidature-generation settings, links, legal declarations and supplied legal inputs |
+| `candidates` | Shared declared candidate identities, biography and availability; placements and external candidacy declarations belong to the applicable law |
+| `lawSettings[lawId]` | Law-specific filings, candidate placements, external candidacy declarations referencing shared candidate IDs, candidature-generation settings, links, legal declarations and supplied legal inputs |
 | `modelSettings[generatorId]` | Model-specific compositions, partial observations, uncertainty controls, profiles, numerical/RNG policy versions and other settings without a sound shared meaning |
 | `execution` | Requested simulation count, fitting seed, simulation seed and requested compute-worker count or explicit automatic policy |
 | `provenance` | Default origin, source hashes or manifest references, assumptions and warnings about approximations; no old-format migration metadata is required |
@@ -208,7 +208,7 @@ national/local uncertainty multipliers. Non-valid references use the same
 scope/channel structure, with means expressed as fractions of electors.
 
 Absence means no override. A zero mean is an explicit zero, not absence. Missing
-uncertainty is not silently zero; use the proposed policy below.
+uncertainty is not silently zero; use the approved D06 policy below.
 Reject duplicate/conflicting rows and explain normalization
 or overlap treatment using the selected model's existing rules. Keep common
 and chamber-specific declarations distinct. Do not replace current geographic
@@ -249,7 +249,7 @@ associated sample-size evidence. Explicit authored SDs always take precedence.
 | Province | 3 |
 | Municipality | 5 |
 
-For mean $m$ expressed as a fraction, propose
+For mean $m$ expressed as a fraction, use
 
 $$
 d(m,s)=\min\{b_s,\;50m,\;50(1-m)\}\quad\text{percentage points}.
@@ -298,20 +298,52 @@ document, not an instruction to restore defaults. The editor tree derives its
 parent/partial states from filings. Switching law never remaps them implicitly.
 Defer the cross-law filing conversion helper.
 
-Candidate identities contain the biography and availability needed by the
-existing legal validators, including external candidacies. A placement refers
+#### Declared candidate identities (D09)
+
+Declared candidate identities are shared across laws and chambers and contain
+biography and availability. External candidacy declarations belong to the
+applicable law block and reference the shared candidate ID. A placement refers
 to a candidate ID, law, chamber, owner, role, location and ordered slot. Ordinary,
 bonus, special and previous-law uninominal roles retain their different legal
 requirements. Political affiliation belongs to the relevant candidature context;
 an independent uninominal candidate must remain representable.
 
+Use stable IDs, never names, to identify people. Creating a new candidate always
+creates a separate identity, even when its name or biography matches another
+candidate. Reuse requires explicitly selecting an existing identity from the
+select/combobox; never merge or deduplicate automatically. Distinguish equal-name
+options with available biography and a stable ID where needed.
+
+Require a nonblank name and an explicitly selected gender before saving a new
+identity. Do not preselect or infer gender. A blank birth date uses January 1 of
+the election year minus 50, following the reform generation convention. Resolve
+and persist the concrete date when creating the identity, mark it as assumed,
+and allow editing. Switching laws or changing the election date must not
+recalculate it. Reject malformed supplied dates instead of replacing them with
+the default. Explain that an assumed date affects age validation and applicable
+tie-breaks. This convention for declared identities does not change either law's
+generated-candidate policy; generated candidates remain runtime objects.
+
+Editing shared biography or availability propagates to every placement using
+that identity, including inactive laws and chambers. Deleting an identity removes
+all its candidate placements and external candidacy declarations across laws and
+chambers, including inactive ones, without removing the lists' own filings.
+Removing one placement retains the identity and its other placements; retain
+identities without placements for later reuse. Removing a placement removes its
+manual pin: handle the vacant slot through the existing generation policy on the
+next run, without silently shifting other pinned positions. These draft edits
+never alter immutable executed scenarios or result sessions.
+
 Unfiling a branch, disabling a chamber or restricting coalition presence makes
-dependent placements inactive without erasing them. Active placements must obey
+dependent placements inactive without erasing them. Validate shared identity
+data structurally throughout the scenario. Apply candidature compatibility rules
+only to the selected law's effective placements and applicable external
+declarations; filings under alternative laws are not simultaneous candidacies.
+Active placements must obey
 age, availability, cross-chamber, ordinary-filing, bonus-eligibility and exclusivity
-rules already implemented for the selected law. Do not fabricate missing gender
-or birth dates for incomplete candidate declarations: D09 must define how those
-identities remain editable and when execution is blocked. Old templates are not
-an accepted import format.
+rules already implemented for the selected law. Block execution on violations,
+leaving declarations editable for correction. Old templates are not an accepted
+import format.
 
 Keep candidate-generation settings per law where they differ. The previous-law
 uninominal-to-plurinominal reuse share and five-bin candidature-count distribution
@@ -415,9 +447,9 @@ Retain selected/excluded history and polls, source compositions and their
 provenance, electorate and fallback assumptions, and existing empty manual
 candidate/supplied-input declarations. Replace the old Rosatellum compiler's
 independent shared reference choices with this baseline. Preserve distinct
-Camera/Senate reference values and all explicit SDs, including zero. D04 does not
-approve D06's proposed uncertainty policy for new or edited references, or settle
-the remaining D09/D11/D14 contract and editing decisions.
+Camera/Senate reference values and all explicit SDs, including zero. Apply the
+separately approved D06 uncertainty policy to new or edited references and D09
+to declared candidate identities. D11/D14 remain open.
 
 | Setting | Approved authored value |
 | --- | --- |
@@ -680,8 +712,10 @@ plan; do not reopen them as implementation gates.
 | D03 | **Initial selection:** reform + M02 + joint renewal |
 | D04 | **Authored default and data pins:** use `data/politics-default-scenario.json`, ID `politics-default-v1`, name “Politiche — scenario nazionale”, and the approved values/colors above. Existing shared values and the source/seat/geography manifest are approved; prefer reform M02 defaults where equivalent and preserve Rosatellum candidate parameters. Author 10 simulations, explicit auto workers and current implicit M02 settings; recommend 1,000 after a successful 10-simulation run. Include the separate party-color task in CP-04 |
 | D05 | **Shared subject declarations:** coalition/list names, list coalition affiliation and minority declaration are shared across chambers. Use distinct lists for differences, and list filings to declare chamber-only participation; no list-presence toggle or chamber overrides for these fields. Preserve stable IDs and inactive declarations |
+| D06 | **References:** approve the reference representation, model-specific precedence disclosures, numerical uncertainty defaults, joint feasibility checks and persistence/provenance policy above. Preserve each model's interpretation and explicit SDs; use the corrected “Non valido / astensione” label |
 | D07 | **Filings for all laws:** initialize every law block for new subjects; a new list is filed everywhere eligible in both chambers. Default lists have authored default filings for every law. Defer the conversion helper. Use tri-state checkboxes without redundant partial-coverage badges; retain candidate badges |
 | D08 | **Correspondence controls:** use M01 historical compositions with provenance and binary chamber-scoped future memberships for Rosatellum too. Show Camera/Senato membership lists per future list, side by side when possible, with a default-locked chain toggle: Camera edits both while locked; unlocking enables independent edits; re-locking replaces Senato with Camera. Follow the future-membership editing rules above. Retire M00's arbitrary-factor controls; no coexistence or old-format conversion. M02 memberships remain non-fractional |
+| D09 | **Candidate identity and incomplete declarations:** approve the declared-candidate rules above: shared identity, biography and availability; law-specific placements and external candidacies; explicit reuse without automatic merging; propagated edits and identity deletion; independent placement removal with retained identities and existing slot generation. Require name and explicit gender; persist an editable, labelled assumed birth date using January 1 of election year minus 50 when absent. Validate effective candidatures under the selected law; preserve immutable executed snapshots |
 | D10 | **Candidate controls:** preserve both law-specific generation parameterizations in their respective law blocks, independent candidates, availability/external candidacies and manual pin behavior. No new candidate-generation policy |
 | D12 | **File compatibility:** no support for old politics scenario/archive schemas; reject them without migration. Use the new common-format draft/session and validate checkpoints against its exact scenario/dependencies |
 | D15 | **Seeds and workers:** a “Genera seed casuale” button beside each seed input fills that field visibly. No fit-level or simulation-level randomization mode or automatic seed replacement. Save requested workers/auto policy and record actual workers |
@@ -698,13 +732,11 @@ untouched and unused; deleting old stored data is outside this merger.
 ### Decisions still needed
 
 IDs remain stable after approvals. Resolve only the open choices below before
-their dependent step. Recommendations, including the numerical SD proposal in
-D06, are not approved changes. Old-file migration is not an option under D12.
+their dependent step. D06 and D09 are approved; recommendations in the remaining
+open choices are not approved changes. Old-file migration is not an option under D12.
 
 | ID | Open decision and recommended direction | Needed before |
 | --- | --- | --- |
-| D06 | **References:** approve common/chamber representation, precedence disclosures, joint feasibility and persistence policy above. Preserve each model's interpretation. The corrected non-valid label is settled and needs no further approval | CP-02/CP-03 |
-| D09 | **Candidate identity and incomplete declarations:** finalize cross-law identity sharing, deduplication, edit/delete propagation and treatment of missing birth date/gender in new-format drafts. Recommend explicit incomplete identities, no inference from names and active-law validation before execution | CP-02/CP-06 |
 | D11 | **Bonus-link persistence:** eligibility is approved: coalition declared scope controls automatic versus explicit links, independently of member-list filings; both-chamber coalitions are automatically linked and excluded from competing explicit links and counterpart choices, even with an empty side. Autonomous lists use their filings. One-chamber subjects can explicitly link to either eligible subject kind in the opposite chamber. Still finalize automatic-link serialization and handling of retained explicit declarations after scope/affiliation edits; do not reopen eligibility or activate competing links | CP-02/CP-03 |
 | D14 | **History and advanced controls:** confirm placement of source/poll additions/exclusions, pooling, fallback assumptions, non-valid/electorate inputs, supplied votes/preferences and model/profile settings. Recommend an inventory preserving retained-model controls, using model-specific controls where meanings differ; M00-only controls are retired under D01/D08 | CP-01/CP-06 |
 
@@ -743,7 +775,7 @@ seeded matching is useful evidence, not a condition that dictates architecture.
 
 ### CP-02 — Establish the shared domain contract
 
-Apply D01/D02/D05/D07/D08/D12/D15/D17; resolve D06/D09/D11 as required by the schema.
+Apply D01/D02/D05/D06/D07/D08/D09/D12/D15/D17; resolve D11 as required by the schema.
 Implement common types, strict runtime parsing/serialization, independent
 registries, capabilities,
 effective-presence/link helpers and pure edit operations. Keep law/model blocks
@@ -808,7 +840,7 @@ current state. Historical regression fixtures remain separate test evidence.
 
 ### CP-06 — Build the common editor
 
-Apply D02/D07/D08/D10/D15/D16/D17/D18 and resolve D09/D14. Compose a single
+Apply D02/D06/D07/D08/D09/D10/D15/D16/D17/D18 and resolve D14. Compose a single
 politics editor from subject, reference, membership, filing/candidate, model and
 run-control components.
 Drive visibility/applicability through capabilities and use pure domain edits;

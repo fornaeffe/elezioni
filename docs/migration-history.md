@@ -9926,3 +9926,21 @@ D11 to remaining serialization/retained-declaration handling. Verification:
 Svelte autofixer, draft parsing, guideline links/anchors, decision-register
 consistency and `git diff --check` passed. Changes are documentation and draft
 comments only; no runtime implementation or acceptance campaign.
+
+### Follow-up — D06 references and D09 candidate declarations approved (2026-11-07)
+
+Recorded Luca's approval of D06's reference representation, uncertainty defaults,
+feasibility and persistence policy, and D09's candidate identity rules in
+`common-politics-scenario/guidelines.md`. Declared identities, biography and
+availability are shared; placements and external candidacies are law-specific.
+Reuse is explicit, edits propagate, identity deletion removes all dependent
+candidate declarations, and removing one placement retains the identity and
+other pins. Required name/gender and a persisted, labelled assumed birth date
+(January 1 of election year minus 50) replace the earlier incomplete-identity
+recommendation. Generated-candidate policies and immutable results are preserved.
+
+Updated the contract ownership table, approved/open register and dependent CP-02
+and CP-06 instructions, removing obsolete D06/D09 approval gates. Verification:
+reviewed the documentation diff, checked decision-register consistency and ran
+`git diff --check`. Documentation only; no runtime implementation or acceptance
+campaign. D11/D14 and the workspace-merger migration item remain open.
