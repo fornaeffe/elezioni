@@ -32,9 +32,10 @@
   <!-- Election date -->
 
   <!-- Put here the electoral law selector. Default to reform-2026.
-   Switching to Rosatellum atomically selects M01; switching to reform selects
-   M02, even if M01 was previously used under reform. Preserve shared inputs and
-   inactive settings. Honor a valid loaded selection without this switching rule.
+   Keep a selected generator/version per law in the scenario, initially M01 for
+   Rosatellum and M02 for reform. Switching law atomically activates its saved
+   choice; it does not reset either choice. Preserve shared inputs, inactive
+   settings and valid loaded choices. Missing/unsupported choices are errors.
    Lock law/model switching during execution; offer explicit cancellation. -->
 
   <!-- Which chambers are to be renewed selector. Default both. -->
@@ -190,7 +191,9 @@
       <!-- Choices from the supported-pair registry: M01 only for Rosatellum;
        M01 or M02 for reform. Default is reform + M02 + joint renewal. Reuse the
        M01 identity through law-specific adapters; M00 is retired. Use exact
-       current supported versions and reject unsupported pairs without fallback. -->
+       current supported versions and reject unsupported pairs without fallback.
+       Changing this select updates only the active law's saved generator/version.
+       Persist both laws' choices through reload and scenario import/export. -->
       <select>
       </select>
     </label>

@@ -86,14 +86,20 @@ versions is a separate compatibility decision, not permission to execute them.
 
 ### Selection transitions
 
-Switching to Rosatellum selects its only generator, M01. Switching to reform
-selects M02, even if M01 was previously selected under reform; M01 remains an
-explicit alternative within reform. Perform each law/generator transition
-atomically and show the resulting selection. Preserve shared inputs and inactive
-settings without restoring model defaults. Explain unavailable options in Italian.
-These rules apply to deliberate law switching, not loading a scenario: honor a
-valid imported/default selection and reject unsupported pairs or versions without
-substitution. Never fall back silently during import or execution. D16's active
+Store one selected generator and exact version for each law in the scenario.
+Initialize new scenarios with M01 for Rosatellum and M02 for reform; these are
+creation defaults, not switching defaults. Changing the generator updates only
+the selected law's saved choice. Switching law activates that law's saved choice
+atomically, without changing either law's choice. For example, selecting M01
+under reform, switching to Rosatellum, then back to reform restores M01.
+
+Preserve shared inputs, inactive settings and all per-law selections through
+switching, draft persistence and scenario import/export. Derive the active
+generator from the selected law's entry rather than storing a second active
+choice. Show the resulting selection and explain unavailable options in Italian.
+Honor valid loaded choices; missing or unsupported law/model/version entries
+are validation errors, not requests to restore defaults or substitute another
+model. Never fall back silently during import or execution. D16's active
 execution lock and explicit cancellation still apply.
 
 ## Common scenario contract
@@ -118,7 +124,7 @@ editable membership declarations belong to the scenario.
 | `name`, `electionDate`, `referenceDate` | Display name; election and evidence/projection cutoff dates as `YYYY-MM-DD`. Preserve any additional model-specific parameter date rather than conflating dates |
 | `renewal` | Selected chambers, expressible as joint, Camera only or Senate only. Retain the other chamber's declarations while inactive |
 | `selection.scrutiny` | Stable algorithm ID and exact supported version |
-| `selection.generator` | Registered generator ID (initially M01 or M02) and exact supported probability-law version |
+| `selection.generatorsByLaw[lawId]` | Saved generator ID and exact supported probability-law version for each supported law; default M01 for Rosatellum and M02 for reform. Derive the active generator from `selection.scrutiny`; do not duplicate an active choice |
 | `data` | A pinned data manifest, or equivalent exact bundle descriptors: historical source/catalogue, geography, electorate policy, and per-law seat/model assets, with versions and checksums. A historical-data version alone cannot identify all these dependencies |
 | `history` | Selected elections, paired Camera/Senate sources, selected polls, exclusions with reasons, source-membership edits and whole-component pooling declarations. Preserve provenance and honor source availability metadata in the pinned assets |
 | `subjects` | Shared coalition/list identities and presentation, plus chamber declarations described below |
@@ -349,7 +355,8 @@ Replace the multiple politics-default compilers' independent scenario choices
 with one versioned, validated authored JSON file, provisionally
 `data/politics-default-scenario.json`. Include all shared declarations and complete
 blocks for the three baseline workflows, exact data references, both seeds and
-run preferences. Select reform + M02 + joint renewal (D03 approved). D04 still
+run preferences. Store the initial per-law generator choices (Rosatellum M01,
+reform M02), and select reform + joint renewal (D02/D03 approved). D04 still
 must reconcile default shares, dates, per-law filings and assumptions.
 
 The authored file contains no historical observation tables or fitted arrays.
@@ -512,7 +519,7 @@ plan; do not reopen them as implementation gates.
 | ID | Approved direction |
 | --- | --- |
 | D01 | **Generator identity/version:** retire M00 and reuse M01 for Rosatellum through a validated law adapter. Models may serve multiple laws; law-specific identities require different statistical specifications. Use exact current versions and assess version impact as described above; keep scrutiny, adapter, data, schema, numerical/RNG and implementation identities separate |
-| D02 | **Combination scope and selection transitions:** require Rosatellum + M01, reform + M01 and reform + M02. Switching to Rosatellum selects M01; switching to reform selects M02. Preserve inputs/inactive settings; reject unsupported imported/executed pairs without substitution |
+| D02 | **Combination scope and selection transitions:** require Rosatellum + M01, reform + M01 and reform + M02. Store a selected generator/version for each law in the scenario, initially M01 for Rosatellum and M02 for reform. Model changes update only that law's choice; law changes activate its saved choice. Preserve all choices and inactive settings; reject missing/unsupported choices without substitution |
 | D03 | **Initial selection:** reform + M02 + joint renewal |
 | D07 | **Filings for all laws:** initialize every law block for new subjects; a new list is filed everywhere eligible in both chambers. Default lists have authored default filings for every law. Defer the conversion helper. Use tri-state checkboxes without redundant partial-coverage badges; retain candidate badges |
 | D08 | **Correspondence controls:** use M01 historical compositions with provenance and binary chamber-scoped future memberships for Rosatellum too. Retire M00's arbitrary-factor controls; no coexistence or old-format conversion. M02 memberships remain non-fractional |
@@ -588,7 +595,8 @@ dependency resolution. Design the result/archive envelope's versioning separatel
 
 Exit: domain checks prove units, null/absence/zero distinctions, stable IDs,
 membership constraints, law-specific geography, inactive-data retention and
-scenario-only JSON/gzip roundtrips. Unsupported versions/pairs fail explicitly.
+scenario-only JSON/gzip roundtrips, including both per-law generator selections.
+Missing selections and unsupported versions/pairs fail explicitly.
 
 ### CP-03 — Adapt existing execution paths
 
@@ -650,9 +658,11 @@ use Svelte 5 `$state` and `$derived`, with lifecycle hooks or event handlers for
 owned tasks. Keep expensive trees lazy. Automatically initialize model loading
 and expose relevant fit/checkpoint controls without a load-default-model button.
 
-Exit: law switching atomically selects M01 for Rosatellum and M02 for reform;
-valid imported selections remain unchanged. Law/model/chamber switching retains
-shared and inactive values, selected candidate pins and tree declarations.
+Exit: model changes update only the active law's saved selection; law switching
+atomically restores the destination law's selection. Verify reform M01 survives
+a switch to Rosatellum and back, and both choices survive reload and JSON/gzip
+roundtrips. Valid imported selections remain unchanged. Law/model/chamber
+switching retains shared and inactive values, selected candidate pins and tree declarations.
 Tri-state filings, disabled candidates,
 new-component transitions, references, both seed-generation buttons,
 reset/new-format import/export and error paths work. New subjects initialize

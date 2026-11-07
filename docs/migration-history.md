@@ -9867,3 +9867,20 @@ passed; all 15 local guideline links/anchors resolved; the Svelte draft parsed,
 and comparison with HEAD proved its markup unchanged after removing comments
 and whitespace. `git diff --check` passed. Documentation only; no runtime tests,
 resource campaigns or model/legal implementation changes were performed.
+
+### Follow-up — Remember generator selection per law
+
+Revised D02, the common scenario contract, authored-default instructions,
+implementation checks and page-draft comments: store an exact generator/version
+selection for each law. New scenarios initialize Rosatellum to M01 and reform
+to M02. Model changes update only the active law's choice; law changes restore
+the destination law's saved choice, superseding the unconditional switching
+defaults above. Persist both choices through reload and scenario JSON/gzip
+roundtrips, deriving the active generator instead of duplicating it. Missing or
+unsupported choices remain validation errors. Acceptance still excludes runs
+above 1,000; session-selection rules are unchanged.
+
+Verification: per-law selection contract, removal of the prior switching rule,
+unique decision IDs and unchanged acceptance restriction passed. The page draft
+parsed and its changes were comments only; `git diff --check` passed. No runtime
+implementation or acceptance campaigns were performed.
