@@ -41,6 +41,23 @@
   <!-- Which chambers are to be renewed selector. Default both. -->
 
   <div id="subjects-editor">
+    <!-- D11: use one shared bonus-link resolver for validation, UI and assembly.
+     Persist explicit reciprocal Camera–Senato pairs once in the reform law block,
+     with typed (kind, stable ID) endpoints; derive automatic links and statuses.
+     Show automatic / explicit active / explicit retained-inactive status.
+     Keep retained pairs visible in advanced options with counterpart, inactive
+     reason and remove/replace actions even when the ordinary selector is
+     unavailable. Replacement requires eligible endpoints. Explain during edits
+     that retained pairs automatically resume when both endpoints are eligible.
+     Scope/filing/affiliation edits never transfer a list's link to its coalition,
+     substitute a counterpart or reverse the saved chamber endpoints.
+     Allow one saved pair per chamber endpoint, including inactive pairs. A new
+     explicit selection replaces saved pairs involving either endpoint; disclose
+     those replacements in the control. Subject deletion removes its pairs;
+     recreating the same name never restores them. Reject malformed/unknown-ID,
+     duplicate or overlapping imported pairs, but retain valid ineligible pairs.
+     Materialize only automatic and eligible explicit links for execution;
+     single-chamber renewal retains declarations but supplies no joint links. -->
     <div id="coalitions-editor">
       <!-- {#each scenario.coalitions as coalition} -->
         <div> 
@@ -63,8 +80,10 @@
              Member-list effective filings must respect the declared scope. Removing
              the last filed member never changes the declared relationship. Handle an
              empty counterpart separately in execution validation/assembly without
-             substituting a link. D11 still settles serialization and retained-link
-             handling after scope/affiliation edits; retain inactive declarations. -->
+             substituting a link. Apply the shared D11 persistence/status controls
+             above: becoming both-chamber suspends any retained explicit pair;
+             returning to its original one-chamber scope resumes it if eligible.
+             Keep the retained pair visible alongside automatic-link status. -->
             <div class="coalition-candidates-editor"> <!-- Collapsed by default -->
               <!-- Reform 2026: Collapsible tree view of chamber - constituency -->
                 <!-- {#each tree view constituency }-->
@@ -169,9 +188,12 @@
              even if one side currently has no filed members. A list in a coalition
              uses that coalition's link. An autonomous list filed in both chambers
              has the automatic link and cannot have a competing explicit link or
-             be another subject's explicit counterpart. D11 still settles
-             serialization and retained-link handling after scope/affiliation edits.
-             Retain temporarily inapplicable declarations without activating them. -->
+             be another subject's explicit counterpart. Apply the shared D11
+             persistence/status controls above: joining a coalition, losing all
+             filings or becoming filed in both chambers retains any explicit pair
+             as inactive, without activating a competing link. Show that retained
+             pair and its reason even when the list is no longer autonomous or
+             one-chamber. Restoring eligibility automatically resumes the pair. -->
             <div class="list-local-references-editor"> <!-- Collapsed by default,
               with a badge if any local reference share or uncertainty is defined -->
               <!-- Collapsible tree view of region - province - municipality -->

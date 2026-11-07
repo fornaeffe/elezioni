@@ -353,6 +353,8 @@ no new candidate-generation policy is wanted. Missing
 slot pins continue to allow generation under the current policy; explicitly
 pinned candidates continue to constrain it.
 
+#### Reform bonus links (D11)
+
 Reform reciprocal bonus links apply to eligible coalition/autonomous-list
 subjects. A coalition's declared chamber scope determines its link eligibility,
 independently of member-list filings:
@@ -376,10 +378,52 @@ autonomous list filed only in that chamber; do not require matching IDs, names
 or subject kinds. Autonomous-list participation is determined by its filings;
 a list filed in both chambers has the automatic link and cannot have a competing
 explicit counterpart. A list within a coalition uses that coalition's bonus
-link, not a separate list-level link. Preserve temporarily inapplicable explicit
-declarations without activating competing links. Materialize execution links at
-the adapter boundary; D11 still settles serialization and retained-declaration
-handling after scope/affiliation edits.
+link, not a separate list-level link.
+
+Persist only explicit reciprocal declarations in the reform law block: one
+Camera–Senato pair with typed subject references (`kind` and stable `id`). A pair
+represents mutual agreement; do not save independent directional choices.
+Derive automatic links from coalition scope or autonomous-list filings, without
+serializing a duplicate automatic-link declaration. Derive status and reasons
+(automatic, explicit active, explicit retained/inactive); do not persist them or
+an additional activation flag.
+
+Scope, filing and affiliation edits preserve each explicit pair and its original
+chamber endpoints. If either endpoint becomes ineligible, retain the pair as
+inactive. Never transfer a list's declaration to its coalition, substitute a
+counterpart or reverse the pair when subjects change chambers. Automatically
+reactivate the original pair when both endpoints become eligible again. Explain
+this consequence during editing and show the resulting status. Automatic links
+always exclude retained competing declarations from effective links.
+
+Allow at most one saved explicit pair per chamber-specific endpoint, including
+inactive pairs. Selecting a new counterpart explicitly replaces saved pairs
+involving either endpoint; explain the replacements in the control. Never
+resolve conflicts by array order. Deleting a subject removes its explicit pairs;
+recreating its name under a new ID cannot restore them.
+
+| Edit | Saved declaration | Effective relationship |
+| --- | --- | --- |
+| Camera-only coalition A links to Senate-only autonomous list B | A–B | A–B |
+| A becomes a both-chamber coalition | Retain A–B, inactive | Automatic A–A only |
+| A returns to Camera-only scope | Keep A–B | A–B resumes if B is eligible |
+| B joins coalition C | Retain A–B, inactive | No A–B; do not substitute C |
+| A loses its last Camera member | Keep A–B; declared scope still governs eligibility | Validate absent participation separately |
+| A changes from Camera-only to Senate-only | Retain the original Camera A–Senato B pair, inactive | No automatic reversal; a reversed pair requires explicit selection |
+| Either endpoint is deleted | Remove A–B | No relationship |
+
+Show retained declarations in advanced options with their counterpart, inactive
+reason and remove/replace actions, even when the ordinary selector is unavailable.
+Replacement still requires eligible endpoints. Reject malformed imports, unknown
+subject IDs, duplicate pairs and overlapping saved endpoints, including inactive
+ones. Accept structurally valid declarations that are currently ineligible.
+
+Use one shared resolver for validation, UI and assembly. Materialize only
+automatic and eligible explicit links at the adapter boundary; retained inactive
+declarations never enter scrutiny input. Single-chamber renewal preserves saved
+declarations but supplies no joint bonus links. Keep an empty coalition's
+automatic relationship intact and address absent participation separately during
+execution validation, without inventing lists or substituting a counterpart.
 
 ### Run settings and serialization
 
@@ -449,7 +493,7 @@ candidate/supplied-input declarations. Replace the old Rosatellum compiler's
 independent shared reference choices with this baseline. Preserve distinct
 Camera/Senate reference values and all explicit SDs, including zero. Apply the
 separately approved D06 uncertainty policy to new or edited references and D09
-to declared candidate identities. D11/D14 remain open.
+to declared candidate identities. D14 remains open.
 
 | Setting | Approved authored value |
 | --- | --- |
@@ -529,8 +573,12 @@ inside each selector branch.
    explicit reform links for coalitions declared in one chamber only. Coalitions
    declared in both chambers are automatically linked and excluded from explicit
    counterpart choices, regardless of member-list filings. Offer eligible
-   coalition/autonomous-list counterparts; collapsed candidate trees for reform bonus slates or previous-law
-   uninominal slots. Candidate choices show list affiliation where relevant,
+   coalition/autonomous-list counterparts. Show automatic/explicit active/retained
+   inactive status and reasons using the shared resolver. Retained pairs remain
+   visible with remove/replace actions when the ordinary selector is unavailable;
+   explain automatic reactivation and any pairs replaced by a new selection.
+   Use the D11 persistence rules above. Keep collapsed candidate trees for reform
+   bonus slates or previous-law uninominal slots. Candidate choices show list affiliation where relevant,
    reasons for ineligibility, creation and editing actions.
 3. **Lists:** compact color/name/coalition and optional national reference.
    Advanced sections hold applicable uncertainty, filings/candidates, links,
@@ -538,8 +586,10 @@ inside each selector branch.
    shared too; use distinct lists for chamber differences in those declarations.
    Declare chamber-only participation in the filing tree. Show explicit reform
    bonus links for autonomous lists filed in one chamber only, with eligible
-   coalition/autonomous-list counterparts. Retain common/chamber reference
-   controls and show a badge for differing reference values.
+   coalition/autonomous-list counterparts. Apply the same D11 retained-pair
+   visibility, status and remove/replace behavior as coalitions, including after
+   affiliation or filing edits make the list ineligible. Retain common/chamber
+   reference controls and show a badge for differing reference values.
 4. **Filing trees:** chamber → constituency → applicable colleges, with tri-state
    parent checkboxes and candidate badges. Do not add a partial-coverage badge
    when the tri-state checkbox already conveys partial filing. Use the
@@ -717,6 +767,7 @@ plan; do not reopen them as implementation gates.
 | D08 | **Correspondence controls:** use M01 historical compositions with provenance and binary chamber-scoped future memberships for Rosatellum too. Show Camera/Senato membership lists per future list, side by side when possible, with a default-locked chain toggle: Camera edits both while locked; unlocking enables independent edits; re-locking replaces Senato with Camera. Follow the future-membership editing rules above. Retire M00's arbitrary-factor controls; no coexistence or old-format conversion. M02 memberships remain non-fractional |
 | D09 | **Candidate identity and incomplete declarations:** approve the declared-candidate rules above: shared identity, biography and availability; law-specific placements and external candidacies; explicit reuse without automatic merging; propagated edits and identity deletion; independent placement removal with retained identities and existing slot generation. Require name and explicit gender; persist an editable, labelled assumed birth date using January 1 of election year minus 50 when absent. Validate effective candidatures under the selected law; preserve immutable executed snapshots |
 | D10 | **Candidate controls:** preserve both law-specific generation parameterizations in their respective law blocks, independent candidates, availability/external candidacies and manual pin behavior. No new candidate-generation policy |
+| D11 | **Bonus-link persistence:** apply the eligibility and persistence rules above. Derive automatic links; save explicit reciprocal pairs once with typed stable-ID endpoints. Preserve ineligible pairs as inactive and reactivate when eligible; never rebind or reverse them. Enforce one saved pair per chamber endpoint, including inactive pairs; explicit replacement removes affected pairs and subject deletion removes its pairs. Derive visible status/reasons, reject malformed/conflicting imports and materialize only effective links at the adapter boundary |
 | D12 | **File compatibility:** no support for old politics scenario/archive schemas; reject them without migration. Use the new common-format draft/session and validate checkpoints against its exact scenario/dependencies |
 | D15 | **Seeds and workers:** a “Genera seed casuale” button beside each seed input fills that field visibly. No fit-level or simulation-level randomization mode or automatic seed replacement. Save requested workers/auto policy and record actual workers |
 | D16 | **Switching/preparation:** lock during active execution, explicit cancellation, automatic loading/reuse on selection and visible cancellable preparation when required |
@@ -732,12 +783,11 @@ untouched and unused; deleting old stored data is outside this merger.
 ### Decisions still needed
 
 IDs remain stable after approvals. Resolve only the open choices below before
-their dependent step. D06 and D09 are approved; recommendations in the remaining
+their dependent step. D06, D09 and D11 are approved; recommendations in the remaining
 open choices are not approved changes. Old-file migration is not an option under D12.
 
 | ID | Open decision and recommended direction | Needed before |
 | --- | --- | --- |
-| D11 | **Bonus-link persistence:** eligibility is approved: coalition declared scope controls automatic versus explicit links, independently of member-list filings; both-chamber coalitions are automatically linked and excluded from competing explicit links and counterpart choices, even with an empty side. Autonomous lists use their filings. One-chamber subjects can explicitly link to either eligible subject kind in the opposite chamber. Still finalize automatic-link serialization and handling of retained explicit declarations after scope/affiliation edits; do not reopen eligibility or activate competing links | CP-02/CP-03 |
 | D14 | **History and advanced controls:** confirm placement of source/poll additions/exclusions, pooling, fallback assumptions, non-valid/electorate inputs, supplied votes/preferences and model/profile settings. Recommend an inventory preserving retained-model controls, using model-specific controls where meanings differ; M00-only controls are retired under D01/D08 | CP-01/CP-06 |
 
 Scrutiny version metadata must be explicit in CP-02; generator replacement does
@@ -775,7 +825,7 @@ seeded matching is useful evidence, not a condition that dictates architecture.
 
 ### CP-02 — Establish the shared domain contract
 
-Apply D01/D02/D05/D06/D07/D08/D09/D12/D15/D17; resolve D11 as required by the schema.
+Apply D01/D02/D05/D06/D07/D08/D09/D11/D12/D15/D17.
 Implement common types, strict runtime parsing/serialization, independent
 registries, capabilities,
 effective-presence/link helpers and pure edit operations. Keep law/model blocks
@@ -786,10 +836,13 @@ Exit: domain checks prove units, null/absence/zero distinctions, stable IDs,
 membership constraints and lock-state consistency, law-specific geography, inactive-data retention and
 scenario-only JSON/gzip roundtrips, including both per-law generator selections.
 Missing selections and unsupported versions/pairs fail explicitly.
+Verify D11 explicit-pair retention/reactivation, endpoint uniqueness, replacement,
+deletion and strict import/roundtrip behavior; automatic links and derived status
+are not serialized. Use one link resolver across validation, UI and assembly.
 
 ### CP-03 — Adapt existing execution paths
 
-Apply D01/D02/D08/D10/D17/D19 and implement one preparation/generation/assembly
+Apply D01/D02/D08/D10/D11/D17/D19 and implement one preparation/generation/assembly
 dispatch boundary. Replace M00 with shared M01 generation and a validated
 Rosatellum adapter. Assess/document model-version impact; preserve existing
 M01/M02 configurations, candidate-generation policies and the legal core. Prefer
@@ -805,6 +858,9 @@ ordering and diagnostics. Compare generation, candidature and simulation results
 with the retained-behavior baselines in CP-01; explain approved M00 replacement
 differences separately, isolate RNG-order changes from semantic regressions,
 and verify the model policies/distributions.
+Verify that link assembly emits only automatic and eligible explicit pairs,
+never competing retained declarations; empty counterparts receive separate
+participation validation and single-chamber renewal emits no joint bonus links.
 Exact old seeded draws/IDs are not a gate. Existing legal-failure fixtures remain
 valid. Worker validation uses the same supported-pair registry.
 
@@ -857,7 +913,9 @@ Tri-state filings, disabled candidates,
 new-component transitions, locked Camera-to-Senato edits, independent unlocked
 edits, re-lock replacement and conflict rejection, membership-state roundtrips,
 filing-only list participation, declaration-based coalition links even with an
-empty counterpart, and explicit counterpart filtering for one-chamber subjects,
+empty counterpart, explicit counterpart filtering for one-chamber subjects,
+retained-link visibility/reasons, automatic reactivation, explicit replacement
+disclosures and deletion cleanup under D11,
 references, both seed-generation buttons,
 reset/new-format import/export and error paths work. New subjects initialize
 all law blocks, redundant partial-coverage badges are absent and candidate

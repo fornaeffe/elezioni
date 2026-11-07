@@ -9944,3 +9944,27 @@ and CP-06 instructions, removing obsolete D06/D09 approval gates. Verification:
 reviewed the documentation diff, checked decision-register consistency and ran
 `git diff --check`. Documentation only; no runtime implementation or acceptance
 campaign. D11/D14 and the workspace-merger migration item remain open.
+
+### Follow-up — D11 bonus-link persistence approved (2026-11-07)
+
+Recorded Luca's approval in the common-scenario guidelines and annotated page
+draft. Automatic links are derived; explicit reciprocal Camera–Senato pairs are
+saved once with typed stable-ID endpoints. Scope, filing and affiliation edits
+retain ineligible pairs as inactive, with automatic reactivation when eligibility
+returns and no rebinding or chamber reversal. Each chamber endpoint has at most
+one saved pair, including inactive declarations; explicit replacement removes
+affected pairs and subject deletion removes its pairs. Advanced options retain
+counterpart/status/reason and remove/replace controls, with reactivation and
+replacement disclosures. Strict imports reject malformed or conflicting pairs.
+One resolver serves validation, UI and assembly; adapters emit only effective
+links and no joint links for single-chamber renewal. Empty coalition counterparts
+retain automatic relationships and receive separate participation validation.
+
+Moved D11 to the approved register and updated CP-02/CP-03/CP-06 checks. D14 is
+the only remaining open decision. Verification: Svelte autofixer reported no
+issues or suggestions, the draft parsed, non-comment markup was unchanged apart
+from blank lines, decision IDs were unique and register checks passed.
+The initial comment-stripping comparison retained the new comment's blank line;
+excluding blank-only lines resolved that verification mismatch. `git diff --check`
+passed. Documentation and draft comments only; no runtime implementation or
+acceptance campaign. The workspace-merger migration item remains open.
