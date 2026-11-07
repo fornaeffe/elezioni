@@ -27,8 +27,9 @@ Priorities, in order: strict adherence to election law and accepted
 interpretations with the legal core unchanged; a clean, simple, rational and
 uniform architecture and UI; equivalent results where practical. Exact seeded
 parity with the previous workspace is not a requirement. Preserve the model
-definitions, candidate-generation policies and available scenario controls;
-document execution changes rather than retaining complexity solely to reproduce
+definitions of retained models, candidate-generation policies and applicable
+scenario controls, except for the approved M00 retirement below. Document
+execution changes rather than retaining complexity solely to reproduce
 old random draws. Keep law text close to scrutiny code.
 Regional elections remain outside this implementation, but reusable scenario
 primitives, controls and lifecycle services
@@ -39,29 +40,61 @@ Current entry points are recorded in [web workspaces](../web-workspaces.md).
 Today, the previous-law workspace uses `Scenario` and its original generator;
 the reform workspace uses `ReleasedScenario` v5 with
 [M01 2.0.0](../models/M01.md) or [M02 2.0.0](../models/M02.md).
-The original previous-law generator is named **M00**, separately from M01.
-Use the same explicit probability-law version policy as M01/M02: exact
-supported model/version selection, with model-law versions independent of
-scenario/data schemas, numerical/RNG policies and implementation hashes.
-Assign M00's initial public version when registering its existing law; the name
-does not imply that its version number must equal M01/M02's current version.
+The original previous-law generator is referred to as **M00** only to identify
+the implementation being retired. Replace it with M01 for Rosatellum; do not
+register M00 as an active generator. This intentionally replaces M00's turnout,
+unmapped-support, poll, reference and uncertainty semantics with M01's. It does
+not assert better predictive performance or require M00 distribution parity.
+Preserve Rosatellum's candidature policies and legal core, and frozen historical
+regression evidence.
 The new default is **reform + M02 + joint renewal**.
 
-| Scrutiny | Generator | Initial compatibility baseline |
+| Scrutiny | Generator | Required target workflow |
 | --- | --- | --- |
-| Previous law, `politiche-r-parity-v1` | M00 | Preserve the workflow and model semantics; seek equivalent results |
-| Reform, `politiche-reform-2026-v1` | M01 2.0.0 | Preserve the workflow and model semantics; seek equivalent results |
-| Reform, `politiche-reform-2026-v1` | M02 2.0.0 | Preserve the workflow and model semantics; seek equivalent results |
-| Previous law | M01 or M02 | Requires an explicit scope decision and validated vote/geography adapters |
-| Reform | M00 | Requires an explicit scope decision and validated vote/geography adapters |
+| Rosatellum, `politiche-r-parity-v1` | M01 | Shared statistical model with a validated Rosatellum ballot/geography adapter |
+| Reform, `politiche-reform-2026-v1` | M01 | Preserve the current M01 statistical specification through the reform adapter |
+| Reform, `politiche-reform-2026-v1` | M02 | Preserve the current M02 statistical specification through the reform adapter |
 
-Independent selectors do not establish that every combination is executable.
-A registry must declare supported pairs, required data and capabilities; the
-worker must enforce the same matrix. Explain unavailable options in Italian.
-Never fall back silently to another model, version or scrutiny algorithm.
-If switching law requires a different generator, show the compatible choices;
-whether to propose or automatically select a replacement is decision D02.
-Archived model versions remain outside the active selector.
+### Generator identity and extensibility
+
+Use separate generator and scrutiny registries plus an explicit supported-pair
+matrix, enforced by UI and workers. Allow new generators for either law and
+reuse the same generator identity across laws when its statistical specification
+is shared. Rosatellum + M02 is outside the initial implementation. New pairs
+require declared capabilities, data dependencies, validated adapters and their
+own acceptance cases; independent selectors do not imply universal compatibility.
+
+Keep the statistical model separate from law-specific electorate, geography,
+filings and ballot relationships, then from candidature/legal assembly and
+scrutiny. Law context can affect generated distributions. Reuse does not promise
+identical cross-law votes or reusable preparation. Use a law-specific model
+identity such as `M01-rosatellum` only if assumptions, reference meanings or
+stochastic behavior require a genuinely different statistical specification;
+geography and scrutiny differences alone do not justify duplicating models.
+
+Only current supported model versions are selectable/executable, with exact
+version checks. Keep probability-law versions independent of scrutiny, adapter,
+data, schema, numerical/RNG and implementation identities. An internal refactor
+preserving the published contract does not itself change the model version.
+An optional capability preserving existing configurations requires MINOR;
+changes to existing statistical meanings/behavior require MAJOR. PATCH covers
+clarifications or implementation corrections to the same specified law. CP-03 must
+determine the version impact of cross-law support rather than assume M01 remains
+at 2.0.0. Apply the resulting exact supported version consistently to both pairs.
+Keep D12's exact-version import/checkpoint rules; viewing results from retired
+versions is a separate compatibility decision, not permission to execute them.
+
+### Selection transitions
+
+Switching to Rosatellum selects its only generator, M01. Switching to reform
+selects M02, even if M01 was previously selected under reform; M01 remains an
+explicit alternative within reform. Perform each law/generator transition
+atomically and show the resulting selection. Preserve shared inputs and inactive
+settings without restoring model defaults. Explain unavailable options in Italian.
+These rules apply to deliberate law switching, not loading a scenario: honor a
+valid imported/default selection and reject unsupported pairs or versions without
+substitution. Never fall back silently during import or execution. D16's active
+execution lock and explicit cancellation still apply.
 
 ## Common scenario contract
 
@@ -85,7 +118,7 @@ editable membership declarations belong to the scenario.
 | `name`, `electionDate`, `referenceDate` | Display name; election and evidence/projection cutoff dates as `YYYY-MM-DD`. Preserve any additional model-specific parameter date rather than conflating dates |
 | `renewal` | Selected chambers, expressible as joint, Camera only or Senate only. Retain the other chamber's declarations while inactive |
 | `selection.scrutiny` | Stable algorithm ID and exact supported version |
-| `selection.generator` | M00, M01 or M02 and exact supported probability-law version |
+| `selection.generator` | Registered generator ID (initially M01 or M02) and exact supported probability-law version |
 | `data` | A pinned data manifest, or equivalent exact bundle descriptors: historical source/catalogue, geography, electorate policy, and per-law seat/model assets, with versions and checksums. A historical-data version alone cannot identify all these dependencies |
 | `history` | Selected elections, paired Camera/Senate sources, selected polls, exclusions with reasons, source-membership edits and whole-component pooling declarations. Preserve provenance and honor source availability metadata in the pinned assets |
 | `subjects` | Shared coalition/list identities and presentation, plus chamber declarations described below |
@@ -102,8 +135,8 @@ Every registered model/law block has its own versioned schema. Only the selected
 blocks affect execution; inactive blocks survive import, export and switching.
 Do not duplicate a shared value in those blocks merely to suit an old adapter.
 Keep a model-specific field where existing controls have no equivalent shared
-meaning, and document its precedence. This preserves capabilities, not support
-for old file formats.
+meaning, and document its precedence. Preserve retained capabilities; M00-only
+controls are retired rather than translated. Old file formats remain unsupported.
 
 Fitted matrices, checkpoints, generated votes/candidates, result rows, progress,
 worker ownership and browser storage handles are not scenario fields. Put those
@@ -129,7 +162,11 @@ actionable error, never substitution with the latest bundle.
   a component cannot simultaneously belong to conflicting future lists.
   Historical-source memberships are scoped by source/question/choice, with
   stable IDs and provenance; M01 fractional compositions are a separate model
-  input, not fractional M02 membership or invented observed counts.
+  input, not fractional future membership in either model or invented observed
+  counts. Use M01's normalized historical compositions and binary future
+  memberships for Rosatellum too. Keep composition provenance and explicit
+  equal-allocation assumptions; no arbitrary M00-factor coexistence or conversion
+  is required under D08/D12.
 - Poll-option “other” is the complement of the other offered options for that
   question. It is distinct from the future residual list kind `other`, a new
   component, and non-valid votes. Retain the existing residual-list controls.
@@ -139,8 +176,8 @@ actionable error, never substitution with the latest bundle.
   editor. Adding/removing historical membership must not erase saved fallback
   assumptions or create duplicate active components.
 - Preserve historical selection, poll editing/additions/exclusions, pooling,
-  fallback assumptions and all current controls. User-added polls are explicit
-  scenario observations with citation/method/availability metadata, not copies
+  fallback assumptions and applicable retained-model controls. User-added polls
+  are explicit scenario observations with citation/method/availability metadata, not copies
   of the bundled history. M01 partial named observations stay in its own block
   and must not become complete M02 observations or be counted twice.
 
@@ -168,18 +205,15 @@ Shared encoding does not imply shared statistical meaning:
 
 | Generator | Semantics to retain |
 | --- | --- |
-| M00 | Mean-mode global/local overrides, non-valid handling, historical correspondence factors and existing normalization/precedence rules in [Scenario Semantics](../../MIGRATION_PLAN.md#scenario-semantics), with the corrected UI label described below |
-| M01 2.0.0 | Original historical compositions, named list polls and list shocks; list/singleton-component references; reference SDs and M02 uncertainty multipliers do not acquire an effect |
-| M02 2.0.0 | Grouped-source fitting, identifiable component basis, physical filed sets and calibrated reference uncertainty; preserve existing reference admissibility and movement policies |
+| M01 (current specification: 2.0.0) | Original historical compositions, named list polls and list shocks; list/singleton-component references; reference SDs and M02 uncertainty multipliers do not acquire an effect. Apply these semantics to Rosatellum too, subject to explicit version assessment |
+| M02 (current specification: 2.0.0) | Grouped-source fitting, identifiable component basis, physical filed sets and calibrated reference uncertainty; preserve existing reference admissibility and movement policies |
 
 Use [the current model boundary](../vote-generation-unified-workflow.md#model-boundary-and-restored-semantics)
-for detailed semantics. Use the reform definition and label for equivalent M00
-controls too: **“Non valido / astensione”**, explained as abstentions plus invalid
-ballots, with an elector denominator. Do not call the combined quantity simply
-“astensione”. Where M00 also routes unmapped historical votes into this category,
-disclose that modeling treatment separately; do not imply they are observed
-abstentions or change their treatment to achieve a label change. Do not turn unmapped
-support into zero, add raking, reinterpret reference dates, or introduce fixed
+for detailed semantics. Use **“Non valido / astensione”** for both laws, explained
+as abstentions plus invalid ballots, with an elector denominator. Do not call the combined quantity simply
+“astensione”. Apply the selected retained model's unmapped-support policy;
+M00's unmapped-to-non-valid treatment is retired. Do not turn unmapped support
+into zero, add raking, reinterpret reference dates, or introduce fixed
 percentage modes as part of the merger. Unsupported controls are inactive and
 hidden, with a concise explanation of the active model's interpretation.
 
@@ -216,7 +250,7 @@ Resolve these defaults when a mean/reference is created or edited, show the
 effective SD and mark it as a default, and persist the concrete value
 and its default/explicit origin. Never overwrite an explicit value or change
 an executed scenario when a future default policy changes. Keep the default
-policy version in scenario provenance. M00/M01 retain stored SDs while ignoring
+policy version in scenario provenance. M01 retains stored SDs while ignoring
 them; initialize any still-missing M02 SD visibly on switching to M02.
 
 Validate the complete reference family with the existing M02 feasibility checks.
@@ -363,8 +397,8 @@ inside each selector branch.
    membership view; fractions appear only for applicable M01 source compositions.
    Hide poll “other” members and derive the complement. Disable components used
    by conflicting choices within the same source; retain existing valid source
-   grouping/pooling semantics. Include every existing setting through a suitable
-   control, including a component-reference editor with the same national/local
+   grouping/pooling semantics. Include every applicable retained setting through
+   a suitable control, including a component-reference editor with the same national/local
    and common/chamber controls as lists. New components' references are active
    only while their lists lack historical memberships. Do not add an embedded
    raw JSON editor.
@@ -374,9 +408,11 @@ inside each selector branch.
    reusing valid preparation or computing only required work. No separate “load
    default model” action. Keep fitting progress, diagnostics, cancellation and
    portable checkpoint access available where applicable.
-8. **Results and status:** common table/chart/session access with law-specific
-   views supplied by adapters. Use a small fixed, collapsible status box near the
-   top right, avoiding controls and mobile content; include state, progress and
+8. **Results and status:** one session list across all three workflows, optional
+   filters and law-specific views supplied by adapters. Follow
+   [result-session selection](#result-sessions-and-resources); browsing results
+   never implicitly replaces the draft. Use a small fixed, collapsible status box
+   near the top right, avoiding controls and mobile content; include state, progress and
    applicable Cancel. Keep detailed diagnostics accessible and distinguish
    informational notes, warnings and errors by severity.
 
@@ -405,8 +441,9 @@ workspace only where meanings agree:
 | Presentation | Capability-driven Svelte components, tested TypeScript result-table/chart helpers and shared export/result access |
 
 Reuse the existing shell, controls, draft/controller, fit service and result
-services where sound. Extract generation interfaces from the reform namespace
-when they become common; do not require the previous law to construct a fake
+services where sound. Extract shared statistical generation interfaces from the
+reform namespace and separate its current reform-assembled simulation return
+from generation; do not require the previous law to construct a fake
 reform legal scenario. Avoid a large all-purpose component and duplicated
 model/law selection logic in UI, import routing and workers.
 
@@ -433,12 +470,37 @@ legal previews/results without automatically invalidating a reusable statistical
 fit. Include all consumed law-specific filing/geography inputs in generation
 keys. Cross-law reuse is allowed only when those dependencies actually agree.
 
-Keep result presentation bound to the executed scenario, even after selecting
-another law or model. Show stale-result status without relabelling old results.
-Retain current lazy stored-result queries, portable checkpoints, streaming
-archives, diagnostic simulation membership, requested denominators and durable
-prefixes after interruption. Do not reduce the reform workflow to the legacy
-in-memory limit, or remove previous-law limits without resource evidence.
+### Result sessions and resources
+
+All three supported pairs use durable chunked results, deterministic multiworker
+execution, bounded processing, lazy queries and streaming exports. Remove the
+Rosatellum-specific 1,000-run ceiling; retain validated numeric/resource bounds
+rather than promise unlimited execution. Validate requested resources, distinguish
+requested/effective workers and calibrate estimates for the Rosatellum adapter.
+Keep stable global simulation IDs and RNG streams across pool widths. Preserve
+portable checkpoints, diagnostic simulation membership, requested denominators
+and durable committed prefixes after interruption. A storage quota failure must
+report the interruption and retain committed results.
+
+Keep draft selection and the viewed result-session ID independent. Results use
+their immutable executed scenario and exact model, scrutiny, adapter, data,
+numerical/RNG and implementation provenance. Never relabel a session after edits.
+
+| Action | Session and draft behavior |
+| --- | --- |
+| Edit the draft or switch law/model | Keep the viewed session; show its original identity and whether it differs from the draft |
+| Start a run | Create and select a new session with an immutable executed scenario |
+| Browse a saved session or import a new-format result archive | Select/display the session without replacing the draft |
+| Explicitly load a session's scenario | Use the ordinary scenario-loading action to replace the draft after validation |
+| Reload | Restore the selected session if available; report an unavailable session without substituting another or replacing the draft |
+
+Use one session list across workflows with optional law/model filters. Identify
+each session by law, generator/version, creation time, renewal and
+completed/requested runs. Switching law neither deletes results nor automatically
+selects a different session. Keep D12's supported-format/exact-version validation
+for imports and checkpoints, without automatic upgrades or compatibility promises
+for retired model versions. Resource acceptance follows CP-08 and does not
+include runs above 1,000 simulations.
 
 ## Decision register
 
@@ -449,13 +511,16 @@ plan; do not reopen them as implementation gates.
 
 | ID | Approved direction |
 | --- | --- |
-| D01 | **Generator identity/version:** the previous-law generator is M00, using the same explicit model/version policy as M01/M02; keep data, schema, numerical/RNG and implementation versions separate |
+| D01 | **Generator identity/version:** retire M00 and reuse M01 for Rosatellum through a validated law adapter. Models may serve multiple laws; law-specific identities require different statistical specifications. Use exact current versions and assess version impact as described above; keep scrutiny, adapter, data, schema, numerical/RNG and implementation identities separate |
+| D02 | **Combination scope and selection transitions:** require Rosatellum + M01, reform + M01 and reform + M02. Switching to Rosatellum selects M01; switching to reform selects M02. Preserve inputs/inactive settings; reject unsupported imported/executed pairs without substitution |
 | D03 | **Initial selection:** reform + M02 + joint renewal |
 | D07 | **Filings for all laws:** initialize every law block for new subjects; a new list is filed everywhere eligible in both chambers. Default lists have authored default filings for every law. Defer the conversion helper. Use tri-state checkboxes without redundant partial-coverage badges; retain candidate badges |
+| D08 | **Correspondence controls:** use M01 historical compositions with provenance and binary chamber-scoped future memberships for Rosatellum too. Retire M00's arbitrary-factor controls; no coexistence or old-format conversion. M02 memberships remain non-fractional |
 | D10 | **Candidate controls:** preserve both law-specific generation parameterizations in their respective law blocks, independent candidates, availability/external candidacies and manual pin behavior. No new candidate-generation policy |
 | D12 | **File compatibility:** no support for old politics scenario/archive schemas; reject them without migration. Use the new common-format draft/session and validate checkpoints against its exact scenario/dependencies |
 | D15 | **Seeds and workers:** a “Genera seed casuale” button beside each seed input fills that field visibly. No fit-level or simulation-level randomization mode or automatic seed replacement. Save requested workers/auto policy and record actual workers |
 | D16 | **Switching/preparation:** lock during active execution, explicit cancellation, automatic loading/reuse on selection and visible cancellable preparation when required |
+| D17 | **Result sessions and resources:** all three pairs use durable bounded storage, deterministic multiworker execution and common session access; remove the Rosatellum 1,000-run ceiling. Draft selection and viewed session remain independent under the session rules above. Acceptance includes no run above 1,000 |
 | D18 | **UI scope:** the page draft is approved with the changes in this document, including the status placement. Keep unrelated metric/export changes separate |
 | D19 | **Acceptance priorities:** legal core unchanged, with strict adherence to law and accepted interpretations first; clean, simple, rational and uniform architecture/UI next; seek equivalent results, but exact seeded parity is not required. AGENTS.md requirements still hold |
 
@@ -472,20 +537,17 @@ D06, are not approved changes. Old-file migration is not an option under D12.
 
 | ID | Open decision and recommended direction | Needed before |
 | --- | --- | --- |
-| D02 | **Combination scope and selection transitions:** are only the three baseline workflows required, or also cross-law use of M00/M01/M02? Which generator should be selected when the current one is incompatible with a new law? Recommend explicit supported pairs and a visible compatible choice; no silent substitution | CP-02/CP-03 |
 | D04 | **Authored default and data pins:** approve filename, exact manifest and remaining values: colors, dates, references, memberships, per-law default filings, candidate parameters, run count/seeds. Law/model/renewal are settled by D03 and every law must have default filings under D07. Decide whether the separate party-color task is included | CP-04 |
 | D05 | **Shared/chamber declarations:** finalize coalition/list identities and per-chamber coalition membership, minority declarations and optional names. Recommend stable IDs with explicit chamber differences, not name-based matching | CP-02 |
 | D06 | **References:** approve common/chamber representation, precedence disclosures, joint feasibility and persistence policy above. Preserve each model's interpretation. The corrected non-valid label is settled and needs no further approval | CP-02/CP-03 |
-| D08 | **M00 correspondence controls:** define how M00's arbitrary factor correspondences coexist with component memberships when factorization is impossible. Recommend model-specific M00 controls preserving those capabilities and chamber differences; never disguise equal splits as observations. This concerns the new contract, not importing old files | CP-02/CP-03 |
 | D09 | **Candidate identity and incomplete declarations:** finalize cross-law identity sharing, deduplication, edit/delete propagation and treatment of missing birth date/gender in new-format drafts. Recommend explicit incomplete identities, no inference from names and active-law validation before execution | CP-02/CP-06 |
 | D11 | **Automatic bonus links:** approve deriving automatic reciprocal links versus serializing them, explicit-link precedence and changes after coalition/chamber edits. Recommend declarations plus deterministic effective links, without linking empty subjects | CP-02/CP-03 |
-| D14 | **History and advanced controls:** confirm placement of source/poll additions/exclusions, pooling, fallback assumptions, non-valid/electorate inputs, supplied votes/preferences and model/profile settings. Recommend a control inventory with no lost settings, using model-specific controls where meanings differ | CP-01/CP-06 |
-| D17 | **Result sessions and resources:** decide whether M00 adopts durable storage/multiworker execution immediately, retains its 1,000-run limit, and how result sessions are selected. Recommend preserving each adapter's current limits/capabilities first, with one common access layer | CP-03/CP-07 |
+| D14 | **History and advanced controls:** confirm placement of source/poll additions/exclusions, pooling, fallback assumptions, non-valid/electorate inputs, supplied votes/preferences and model/profile settings. Recommend an inventory preserving retained-model controls, using model-specific controls where meanings differ; M00-only controls are retired under D01/D08 | CP-01/CP-06 |
 
-Scrutiny version metadata must be explicit in CP-02; D01's naming decision changes
-the generator identity only, not existing scrutiny algorithm IDs or legal behavior.
-The exact campaign matrix follows D02/D17; D19 fixes the acceptance priorities
-and does not waive the existing performance or legal verification requirements.
+Scrutiny version metadata must be explicit in CP-02; generator replacement does
+not change existing scrutiny algorithm IDs or legal behavior. D02/D17 settle
+the three-pair campaign scope and exclude runs above 1,000. D19 does not waive
+the existing performance or legal verification requirements.
 
 ## Implementation plan
 
@@ -502,12 +564,14 @@ until CP-08 passes. This documentation proposal alone does not complete it.
 Read the current entry points listed below. Build a field/control/asset mapping
 from original `Scenario` and reform `ReleasedScenario` to the proposed contract,
 including data not visible in the draft. Identify non-equivalent defaults,
-arbitrary correspondence factors, candidate identities and per-chamber values.
-Resolve D14 and record reproducible baselines for all three existing workflows,
+M00-only controls to retire, candidate identities and per-chamber values.
+Resolve D14 and record baselines for retained M01/M02 behavior and Rosatellum
+candidature/legal behavior. Document the intentional M00-to-M01 differences;
+do not require M00 distribution parity. Cover
 single-chamber runs, restricted/special territories, residual/new
 lists, manual candidates, diagnostics and interrupted/exported sessions.
 
-Exit: a complete mapping, supported-pair scope proposal and reproducible comparison
+Exit: a complete mapping for the approved pairs and reproducible comparison
 inputs/results. Separate generator/distribution comparisons from fixed-input legal
 regressions. Preserve frozen fixtures/checksum manifests and known legal failures;
 never regenerate legal expectations to make the merger pass. Whole-pipeline exact
@@ -515,7 +579,7 @@ seeded matching is useful evidence, not a condition that dictates architecture.
 
 ### CP-02 — Establish the shared domain contract
 
-Apply D01/D07/D12/D15; resolve D02/D05/D06/D08/D09/D11 as required by the schema.
+Apply D01/D02/D07/D08/D12/D15/D17; resolve D05/D06/D09/D11 as required by the schema.
 Implement common types, strict runtime parsing/serialization, independent
 registries, capabilities,
 effective-presence/link helpers and pure edit operations. Keep law/model blocks
@@ -528,19 +592,22 @@ scenario-only JSON/gzip roundtrips. Unsupported versions/pairs fail explicitly.
 
 ### CP-03 — Adapt existing execution paths
 
-Apply D10/D19, resolve D08/D17 and implement one preparation/generation/assembly
-dispatch boundary. Adapt each workflow while keeping model definitions,
-candidate-generation policies and the legal core unchanged. Prefer clean shared
-contracts to preserving incidental old RNG traversal or generated IDs. Keep
+Apply D01/D02/D08/D10/D17/D19 and implement one preparation/generation/assembly
+dispatch boundary. Replace M00 with shared M01 generation and a validated
+Rosatellum adapter. Assess/document model-version impact; preserve existing
+M01/M02 configurations, candidate-generation policies and the legal core. Prefer
+clean shared contracts to preserving incidental old RNG traversal or generated IDs. Keep
 reproducibility within the new implementation, legally meaningful order and
 accepted tie behavior. Normalize common input encoding at the adapter boundary.
-Implement additional generator/law pairs only if D02 includes them, with explicit geography and
-candidate/legal assembly contracts and their own acceptance cases.
+Implement all three D02 pairs with explicit electorate, filing, ballot/geography
+and candidate/legal assembly contracts. Other pairs require a separate scope
+decision and their own acceptance cases.
 
 Exit: the same fixed legal inputs retain legal outcomes, legally meaningful
 ordering and diagnostics. Compare generation, candidature and simulation results
-with CP-01 for equivalence; explain material differences, isolate RNG-order
-changes from semantic regressions, and verify the model policies/distributions.
+with the retained-behavior baselines in CP-01; explain approved M00 replacement
+differences separately, isolate RNG-order changes from semantic regressions,
+and verify the model policies/distributions.
 Exact old seeded draws/IDs are not a gate. Existing legal-failure fixtures remain
 valid. Worker validation uses the same supported-pair registry.
 
@@ -575,15 +642,18 @@ current state. Historical regression fixtures remain separate test evidence.
 
 ### CP-06 — Build the common editor
 
-Apply D07/D10/D15/D16/D18 and resolve D09/D14. Compose a single politics editor
-from subject, reference, membership, filing/candidate, model and run-control components.
+Apply D02/D07/D08/D10/D15/D16/D17/D18 and resolve D09/D14. Compose a single
+politics editor from subject, reference, membership, filing/candidate, model and
+run-control components.
 Drive visibility/applicability through capabilities and use pure domain edits;
 use Svelte 5 `$state` and `$derived`, with lifecycle hooks or event handlers for
 owned tasks. Keep expensive trees lazy. Automatically initialize model loading
 and expose relevant fit/checkpoint controls without a load-default-model button.
 
-Exit: law/model/chamber switching retains shared and inactive values, selected
-candidate pins and tree declarations. Tri-state filings, disabled candidates,
+Exit: law switching atomically selects M01 for Rosatellum and M02 for reform;
+valid imported selections remain unchanged. Law/model/chamber switching retains
+shared and inactive values, selected candidate pins and tree declarations.
+Tri-state filings, disabled candidates,
 new-component transitions, references, both seed-generation buttons,
 reset/new-format import/export and error paths work. New subjects initialize
 all law blocks, redundant partial-coverage badges are absent and candidate
@@ -593,18 +663,22 @@ changed components.
 ### CP-07 — Unify lifecycle, persistence and results
 
 Integrate the editor with one draft/controller and the execution adapters.
-Apply D15/D16: implement execution locking/explicit cancellation, automatic
+Apply D15/D16/D17: implement execution locking/explicit cancellation, automatic
 loading/reuse with visible cancellable preparation, dependency-based fit reuse,
 button-generated visible seeds, requested/effective workers and safe disposal.
-Reuse existing durable result/session and streaming export services; keep result
-tables/charts in tested presentation helpers. Preserve the immutable executed
+Use durable bounded execution/storage for all three pairs without the Rosatellum
+1,000-run ceiling. Reuse existing result/session and streaming export services;
+keep result tables/charts in tested presentation helpers. Preserve the immutable executed
 scenario and stale-result indication across subsequent edits and selections.
 
 Exit: delayed replies cannot update a newer revision; cosmetic/inactive edits do
 not refit; relevant edits invalidate the correct stages. Reload, cancellation,
 checkpoint restore, failures, stored queries and archive import/export retain
 correct simulation membership, counts, seeds and original requested denominator.
-Running or loading never replaces seeds; each seed button edits only its field.
+Verify the session action table, resource validation, worker-count determinism
+and quota-failure retention. Browsing/importing results never replaces the draft;
+only explicit scenario loading does. Running or loading never replaces seeds;
+each seed button edits only its field. Follow CP-08's campaign-size restriction.
 
 ### CP-08 — Acceptance, cleanup and documentation
 
@@ -614,9 +688,14 @@ every approved pair at `/` and `/elezioni`: direct loads, navigation, workers,
 assets, imports, switching, results and exports. Verify regional smoke cases.
 Release checks require every bundle and reject absent-data skips/debug fallbacks.
 
-Run the agreed browser fitting + 1,000-simulation campaigns sequentially, including
-generation and scrutiny, against the existing under-60-minute target on this
-machine. Record model/data/version, actual workers, timing and memory evidence.
+Run browser fitting + 1,000-simulation campaigns for each of the three approved
+pairs sequentially, including generation and scrutiny, against the existing
+under-60-minute target on this
+machine. Record model/data/adapter/version, actual workers, timing and memory
+evidence. Include bounded processing, resource/quota failures, cancellation,
+interrupted-result recovery, export/import, session transitions and worker-count
+determinism. Do not include a run above 1,000 simulations in acceptance; removal
+of the old ceiling does not imply measured performance above that campaign size.
 Retain distinct legal/non-computable and infrastructure failure reporting; the
 known previous-law dead end requires separate legal review, not rerolling,
 skipping or claiming a successful campaign.
@@ -628,8 +707,8 @@ requirements remain blocking. A passing expected-failure regression is not a
 successful 1,000-run campaign.
 
 After domain, legal and new-format checks pass, remove superseded politics
-workspace components, route branches, draft writers, old schema readers and
-default logic. Retain independent regional functionality. Update current
+workspace components, active M00 generation/control paths, route branches,
+draft writers, old schema readers and default logic. Retain independent regional functionality. Update current
 workspace, preparation and user docs, record evidence in history and close the
 migration item only when its agreed acceptance criteria are met. Public
 deployment and legal/model corrections remain separate tasks.

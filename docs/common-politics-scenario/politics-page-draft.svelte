@@ -31,7 +31,11 @@
 
   <!-- Election date -->
 
-  <!-- Put here the electoral law selector. Default to reform-2026 -->
+  <!-- Put here the electoral law selector. Default to reform-2026.
+   Switching to Rosatellum atomically selects M01; switching to reform selects
+   M02, even if M01 was previously used under reform. Preserve shared inputs and
+   inactive settings. Honor a valid loaded selection without this switching rule.
+   Lock law/model switching during execution; offer explicit cancellation. -->
 
   <!-- Which chambers are to be renewed selector. Default both. -->
 
@@ -183,8 +187,10 @@
 
     <label>
       Modello di generazione voti:
-      <!-- Choices from the supported-pair registry: M00 (previous-law generator),
-       M01 and M02. Default selection is reform + M02 + joint renewal. -->
+      <!-- Choices from the supported-pair registry: M01 only for Rosatellum;
+       M01 or M02 for reform. Default is reform + M02 + joint renewal. Reuse the
+       M01 identity through law-specific adapters; M00 is retired. Use exact
+       current supported versions and reject unsupported pairs without fallback. -->
       <select>
       </select>
     </label>
@@ -212,7 +218,10 @@
            no more required. -->
           <!-- {#each option.memberComponents as memberComponent}-->
             <!-- memberComponent.name, readonly text -->
-            <!-- memberComponent.fraction, visible only under M01 and historical source -->
+            <!-- Historical composition fraction, visible only under M01 and
+             historical source, for either law. Preserve assumption provenance;
+             equal fractions are assumptions, not observed component counts.
+             Future memberships remain binary under both models. -->
             <!-- remove memberComponent button -->
           <!-- {/each}-->
           <div> <!-- Row -->
@@ -242,7 +251,9 @@
   </div>
   
   <div id="simulation-controls">
-    <!-- Number of simulations -->
+    <!-- Number of simulations: shared resource validation and bounded durable
+     processing for all supported pairs, without a Rosatellum-specific 1000 cap.
+     Acceptance campaigns do not include runs above 1000. -->
     <!-- Run button -->
     <div id="advanced-simulation-controls"> <!-- Collapsed by default -->
       <!-- Fitting seed input, with a "Genera seed casuale" button beside it.
@@ -259,7 +270,16 @@
 </div>
 
 <div id="results">
-
+  <!-- One session list across Rosatellum + M01, reform + M01 and reform + M02,
+   with optional filters. Show law, generator/version, creation time, renewal,
+   and completed/requested runs. Keep viewed session independent of the draft.
+   Edits or law/model switching retain the viewed session and its executed labels;
+   show whether it differs from the draft. Starting a run selects its new session.
+   Browsing/importing a supported new-format result selects it without replacing
+   the draft; offer an explicit action to load its scenario through validation.
+   Reload restores the selected session if available, otherwise reports its absence.
+   Use durable chunked results, lazy queries and streaming exports for all pairs;
+   preserve committed results after cancellation, failure or storage exhaustion. -->
 </div>
 
 <div id="state-monitor">

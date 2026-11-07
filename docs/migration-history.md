@@ -9843,3 +9843,27 @@ for at least 4.5:1 contrast. Added helper tests for endpoints, faint-color
 darkening, and text contrast; the table's probability labels and calculations
 are unchanged. Verification: all 5 election-probability tests pass,
 `npm run check` reports zero errors and warnings, and `git diff --check` passes.
+
+## 2026-11-07 — Common politics generator and session decisions
+
+Updated the [workspace guidelines](common-politics-scenario/guidelines.md) with
+approved D01/D02/D08/D17: reusable generator identities with validated law
+adapters; replace M00 with M01 for Rosatellum; retain reform + M01/M02; select
+M01 on switching to Rosatellum and M02 on switching to reform. Historical M01
+compositions remain distinct from binary future memberships. Exact versions and
+cross-law version-impact assessment remain explicit. M00 retirement avoids a
+third maintained model and intentionally replaces its statistical semantics;
+Rosatellum candidature policies, legal scrutiny and frozen evidence are preserved.
+
+Specified common durable bounded execution, multiworker determinism and result
+sessions independent of draft selection. Remove the Rosatellum-specific
+1,000-run ceiling in the target design, while acceptance campaigns remain at
+1,000 simulations per approved pair: Luca explicitly excluded larger runs.
+Updated dependent implementation steps and the page draft's comments for these
+rules. The merger remains unimplemented and its migration item stays open.
+
+Verification: decision-register consistency and the acceptance-size restriction
+passed; all 15 local guideline links/anchors resolved; the Svelte draft parsed,
+and comparison with HEAD proved its markup unchanged after removing comments
+and whitespace. `git diff --check` passed. Documentation only; no runtime tests,
+resource campaigns or model/legal implementation changes were performed.
