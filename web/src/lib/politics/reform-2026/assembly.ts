@@ -20,15 +20,13 @@ import {
 } from "./preference-generation";
 import { validateReformScrutinyInput } from "./validation";
 import type { PreparedBonusPlan } from "./reference-bonus-plan";
-export interface CollegeCounts {
-  electors: number;
-  votes: Map<string, number>;
-}
+import type { CollegeCounts } from '../generation/types';
+export type { CollegeCounts } from '../generation/types';
 const renewedChamberIds = (s: Pick<ReformLegalSettings, "renewal">) =>
   s.renewal === "joint" ? (["camera", "senato"] as const) : [s.renewal];
 export interface AssemblySource {
   voteParameterVersion: string;
-  chamberModelId: "fast-share-paired-v1";
+  chamberModelId: "fast-share-paired-v1" | "paired-chamber-votes-v1";
   chamberParameterVersion: string;
   sourceVersions: string[];
   assumptions: string[];

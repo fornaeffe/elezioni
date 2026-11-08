@@ -1,16 +1,17 @@
 import { REFORM, ROSATELLUM, type GeneratorId, type LawId, type PoliticsScenario } from './schema';
+import { modelRegistry } from '../reform-2026/vote-share/model-registry';
 
-/** Domain support is the CP-03 adapter target, not a claim that these pairs are wired into workers. */
+/** The common execution and worker boundary use this exact supported-pair registry. */
 export const generators = {
-  M01: { id: 'M01', version: '2.0.0', referenceSd: false, uncertaintyMultipliers: false,
+  M01: { id: modelRegistry.M01.id, version: modelRegistry.M01.version, referenceSd: false, uncertaintyMultipliers: false,
     historySelection: 'latest-eligible-pair', sourceCompositions: true, partialPolls: true, pooling: false },
-  M02: { id: 'M02', version: '2.0.0', referenceSd: true, uncertaintyMultipliers: true,
+  M02: { id: modelRegistry.M02.id, version: modelRegistry.M02.version, referenceSd: true, uncertaintyMultipliers: true,
     historySelection: 'selected', sourceCompositions: false, partialPolls: false, pooling: true }
 } as const;
 /** First explicit scrutiny metadata version; no change to the legal algorithms. */
 export const scrutinies = {
   [ROSATELLUM]: { id: ROSATELLUM, version: '1.0.0', blockVersion: 1, bonusLinks: false, suppliedInputs: false,
-    filingLevels: ['plurinominal'] },
+    filingLevels: ['plurinominal', 'uninominal'] }, // VdA and Senate TAA exceptions are checked by the law adapter.
   [REFORM]: { id: REFORM, version: '1.0.0', blockVersion: 1, bonusLinks: true, suppliedInputs: true,
     filingLevels: ['college'] }
 } as const;

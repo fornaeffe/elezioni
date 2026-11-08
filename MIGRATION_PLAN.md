@@ -161,7 +161,7 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   - [x] CP-01 — Inventory and preserve behavior: [field/control/asset mapping](docs/common-politics-scenario/inventory.md)
     and [reproducible baselines](docs/common-politics-scenario/baselines.md).
   - [x] CP-02 — Establish the shared domain contract: [domain API and boundaries](docs/common-politics-scenario/contract.md).
-  - [ ] CP-03 — Adapt existing execution paths.
+  - [x] CP-03 — Adapt existing execution paths: [execution API and adapters](docs/common-politics-scenario/execution.md).
   - [ ] CP-04 — Replace authored-default construction, including approved colors.
   - [ ] CP-05 — Enforce new-format files and draft isolation.
   - [ ] CP-06 — Build the common editor within the approved D14 perimeter.

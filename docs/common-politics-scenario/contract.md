@@ -2,7 +2,8 @@
 
 Implemented under `web/src/lib/politics/scenario/`; import its public API from
 `index.ts`. This domain has no Svelte state, workers, storage ownership or old-file
-conversion. It is not yet connected to the running workspaces. Use the
+conversion. The [common executor and compute worker](execution.md) consume it;
+editor and session integration remain CP-06/07. Use the
 [guidelines](guidelines.md) for approved behavior and the
 [inventory](inventory.md) for the preserved old-input meanings.
 
@@ -33,9 +34,9 @@ both model blocks have independent `schemaVersion: 1`. Each law stores its exact
 generator selection; only `selection.scrutiny` selects the active law. The first
 explicit scrutiny metadata version is `1.0.0` for each existing algorithm ID;
 this labels the unchanged scrutiny implementation, not a legal correction.
-M01/M02 retain exact `2.0.0` probability-law identities here. CP-03 must assess
-M01's version impact before enabling cross-law execution and update the exact
-registry/schema choices consistently if required.
+M01/M02 retain exact `2.0.0` probability-law identities here. CP-03's
+[version assessment](execution.md#model-version-assessment-and-comparison)
+retains M01 2.0.0 for both laws, independently of the new adapter identity.
 
 The supported domain pairs are Rosatellum/M01, reform/M01 and reform/M02.
 `initialSelection()` creates reform/M02 with saved Rosatellum/M01; switching
@@ -68,7 +69,9 @@ strict payloads, streaming integration and checkpoint matching remain CP-05/07.
   A null M02 multiplier inherits 1, as does an absent multiplier row. Empty arrays
   are explicit empty declarations. No parser restores defaults over these values.
 - Each location carries law ID, exact geography version, chamber, level and code.
-  Rosatellum list filings use plurinominal colleges; reform uses physical colleges.
+  Rosatellum list filings use plurinominal colleges, with actual uninominal-only
+  locations for VdA and Senate TAA; the Rosatellum adapter checks those exceptions.
+  Reform uses physical colleges.
   Node/adapter catalogues supply parent-child geography relationships for effective
   uninominal/bonus pins. Equal codes alone never establish a relationship. Existing
   constituency-wide Rosatellum defaults can be expanded to their actual colleges
@@ -136,6 +139,7 @@ law's geography, seats and selected model assets. Inactive assets remain saved
 but need not be loaded. `resolveDependencies` requires a unique exact match;
 `verifyAssetBytes` checks decoded bytes before use. There is no latest/debug fallback.
 `dependencyFingerprint` fingerprints these exact dependencies only; it is not a
-fit-cache key. CP-03/07 must add each stage's consumed scenario inputs to its own
-preparation/generation/result identity, keeping names/colors and inactive edits
-out of unrelated fit dependencies.
+fit-cache key. The [executor](execution.md) adds each stage's consumed inputs to
+separate preparation/generation/assembly identities, keeping names/colors and
+inactive edits out of unrelated statistical dependencies. CP-07 owns cache/session
+lifecycle integration.

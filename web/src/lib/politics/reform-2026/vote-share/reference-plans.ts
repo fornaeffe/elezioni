@@ -7,10 +7,11 @@ export const scopeMatches = (cell: PhysicalCell, s: ReferenceScope) =>
   s.kind === 'national' ||
   (s.kind === 'municipality' ? cell.municipality : s.kind === 'region' ? cell.region : cell.province) ===
     s.code;
+type ReferenceSettings = Pick<FastGenerationScenario, 'components' | 'lists' | 'references' | 'nonValidReferences'>;
 type Channel = 'common' | Chamber;
 /** List identity matters when one component files under different lists in
  * disjoint colleges. Only a sole-new-component list is a component alias. */
-export function referenceSubjectKey(s: FastGenerationScenario, row: FastReference, chamber: Chamber) {
+export function referenceSubjectKey(s: ReferenceSettings, row: FastReference, chamber: Chamber) {
   if (row.subject.kind === 'component') return 'new:' + row.subject.id;
   const members = referenceMembers(s, row, chamber);
   return members.length === 1 && s.components.some((c) => c.id === members[0] && c.kind === 'new')
@@ -23,7 +24,7 @@ export interface ReferencePlan {
   political: Partial<Record<Channel, { family: ReferenceFamily; rows: Map<string, FastReference> }>>;
   nonValid: Partial<Record<Channel, ReferenceFamily>>;
 }
-export function referenceMembers(s: FastGenerationScenario, row: FastReference, chamber: Chamber) {
+export function referenceMembers(s: ReferenceSettings, row: FastReference, chamber: Chamber) {
   if (row.subject.kind === 'component') {
     if (!s.components.some((c) => c.id === row.subject.id && c.kind === 'new'))
       throw new Error('REFERENCE_SUBJECT: component references require a declared new component');
@@ -34,7 +35,7 @@ export function referenceMembers(s: FastGenerationScenario, row: FastReference, 
   return [...list.componentIds].sort();
 }
 export function referencePlans(
-  s: FastGenerationScenario,
+  s: ReferenceSettings,
   cells: Record<Chamber, PhysicalCell[]>,
   chambers: Chamber[],
   filedList: (cell: PhysicalCell, component: string) => string | undefined

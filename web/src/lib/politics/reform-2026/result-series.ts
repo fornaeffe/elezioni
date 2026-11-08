@@ -1,6 +1,6 @@
 import { OTHER_LIST_ID } from '../../core/other-list';
 import type { ResultTable } from '../../core/types';
-import type { ReformGenerationScenario, ReformGenerationSnapshot } from './generation-types';
+import type { ReformGenerationScenario, ReformGenerationSnapshot, ReformLegalSettings } from './generation-types';
 import type { ReformAssemblyContext } from './generation-types';
 import type { ReleasedScenario } from './vote-share/release';
 import type { ChamberInput, ReformScrutinyInput } from './input';
@@ -35,7 +35,7 @@ export function finalAffiliations(input: ReformScrutinyInput, result: ComposedRe
 /** Small per-run, exportable observations. No municipal input or legal stage is
  * retained. Unknown final counts are null; Confirmed remains a lower bound. */
 export function reformRunSeries(input: ReformScrutinyInput, result: ComposedReformScrutinyResult,
-  scenario: ReformGenerationScenario|ReleasedScenario, snapshot: ReformAssemblyContext, affiliations = finalAffiliations(input, result)): ResultTable['rows'] {
+  scenario: ReformGenerationScenario|ReleasedScenario|ReformLegalSettings, snapshot: ReformAssemblyContext, affiliations = finalAffiliations(input, result)): ResultTable['rows'] {
   const rows: ResultTable['rows'] = [], presentation = reformPresentation(scenario);
   const chambers: readonly ChamberInput[] = input.renewal.kind === 'joint' ? [input.renewal.camera, input.renewal.senato] : [input.renewal.chamber];
   for (const c of result.chambers) {

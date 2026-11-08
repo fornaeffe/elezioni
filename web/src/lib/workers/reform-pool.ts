@@ -2,6 +2,7 @@ import type { ReformComputeReply, ReformComputeRequest } from './reform-compute.
 import type { ReformRunChunk, ReformRunReady } from './reform-compute';
 import type { GenerationPacket } from '../politics/reform-2026/vote-share/fit-types';
 import { ownedBuffers } from '../politics/reform-2026/vote-share/fit-resources';
+import type { PoliticsComputePacket } from './politics-compute';
 
 type Request = ReformComputeRequest extends infer T ? T extends { requestId: number } ? Omit<T, 'requestId'> : never : never;
 export interface ReformComputeConnection {
@@ -41,6 +42,7 @@ export class ReformComputeClient implements ReformComputeConnection {
   }
   initialize(scenario: unknown, basePath: string) { return this.call<void>({ action: 'init', scenario, basePath }, [], true); }
   initializeFast(packet:GenerationPacket){return this.call<void>({action:'init-fast',packet},ownedBuffers(packet),true);}
+  initializePolitics(packet:PoliticsComputePacket){return this.call<void>({action:'init-politics',packet},ownedBuffers(packet),true);}
   compute(simulation: number) { return this.call<ReformRunReady>({ action: 'compute', simulation }); }
   pull() { return this.call<ReformRunChunk | null>({ action: 'pull' }); }
   close() { this.fail(new Error('Compute worker closed')); this.worker.terminate(); }

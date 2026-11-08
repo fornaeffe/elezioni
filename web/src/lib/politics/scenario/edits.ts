@@ -1,7 +1,7 @@
 import { isCalendarDate } from '../../core/json-shape';
 import { chambers, laws, REFORM, type Candidate, type Chamber, type ExplicitBonusLink, type GeneratorId,
   type LawId, type Location, type Placement, type PoliticsScenario, type Subject } from './schema';
-import { eligibleBonusEndpoint, sameSubject } from './effective';
+import { eligibleBonusEndpoint, sameSubject, isListFilingLocation } from './effective';
 import { parsePoliticsScenario, type DomainContext } from './validation';
 import { withReferenceDefault } from './references';
 
@@ -90,7 +90,7 @@ export function createList(s: PoliticsScenario, list: PoliticsScenario['subjects
     n.memberships.push({ listId: list.id, newComponentId: component.id, camera: [], senato: [], locked: true });
     for (const law of laws) n.lawSettings[law].filings.push({ listId: list.id, locations: context.locations.filter(l =>
       l.law === law && l.geographyVersion === n.data.lawAssets[law].geography.version &&
-      (law === REFORM ? l.level === 'college' : l.level === 'plurinominal')).map(l => ({ ...l })) });
+      isListFilingLocation(l, context.geographyRelations)).map(l => ({ ...l })) });
   }, context);
 }
 export function createCandidate(s: PoliticsScenario, input: { readonly id: string; readonly name: string;

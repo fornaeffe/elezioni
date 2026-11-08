@@ -2,8 +2,9 @@
 
 Design proposal for the open workspace-merger item in
 [MIGRATION_PLAN.md](../../MIGRATION_PLAN.md). This document defines the target;
-the [CP-02 contract guide](contract.md) records the implemented domain boundary.
-Execution and workspace integration remain later steps. The
+the [CP-02 contract guide](contract.md) and [CP-03 execution guide](execution.md)
+record the implemented domain and execution boundaries. Workspace integration
+remains in the later steps. The
 [decision register](#decision-register) separates approved decisions from open
 questions. The [page draft](politics-page-draft.svelte) is approved with the
 changes recorded here; component boundaries remain implementation choices.
@@ -894,6 +895,10 @@ deletion and strict import/roundtrip behavior; automatic links and derived statu
 are not serialized. Use one link resolver across validation, UI and assembly.
 
 ### CP-03 — Adapt existing execution paths
+
+Completed execution API: [dispatch, adapters and model-version assessment](execution.md).
+Verification is recorded in
+[migration history](../migration-history.md#cp-03--adapt-existing-execution-paths-2026-11-07).
 
 Apply D01/D02/D08/D10/D11/D17/D19 and implement one preparation/generation/assembly
 dispatch boundary. Replace M00 with shared M01 generation and a validated

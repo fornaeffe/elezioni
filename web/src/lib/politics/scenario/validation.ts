@@ -1,7 +1,7 @@
 import { scenarioShape, chambers, laws, REFORM, ROSATELLUM, type Asset, type LawId,
   type Location, type Placement, type PoliticsScenario } from './schema';
 import { activeGenerator, requirePair, scrutinies } from './registry';
-import { effectiveFilings, effectiveMembers, effectivePlacements, renewed, resolveBonusLinks, subjectExists, type GeographyRelation } from './effective';
+import { effectiveFilings, effectiveMembers, effectivePlacements, renewed, resolveBonusLinks, subjectExists, isListFilingLocation, type GeographyRelation } from './effective';
 import { assetIdentity, declaredAssets, resolveDependencies } from './dependencies';
 import type { ValidationIssue } from '../../core/json-shape';
 import { OTHER_LIST_COLOR, OTHER_LIST_ID, OTHER_LIST_NAME } from '../../core/other-list';
@@ -97,6 +97,8 @@ export function validateScenario(value: unknown, context?: DomainContext): reado
       for (const l of f.locations) {
         checkLocation(l, law, path);
         if (!(scrutinies[law].filingLevels as readonly string[]).includes(l.level)) error('INVALID_GEOGRAPHY', path, `Invalid filing level ${l.level}`);
+        if (law === ROSATELLUM && context && !isListFilingLocation(l, context.geographyRelations))
+          error('INVALID_GEOGRAPHY', path, 'Uninominal filings are reserved for statutory ballots without a proportional college');
       }
     }
     unique<Placement>(block.placements, p => p.id, `${path}.placements`);
@@ -254,6 +256,7 @@ export function validateActiveScenario(s: PoliticsScenario, context: DomainConte
       error('INCOMPLETE_MINORITY', '$.subjects.lists.minority', `Reform minority declaration needs a legal reference for ${l.id}`);
   }
   if (model === 'M01') {
+    if (s.modelSettings.M01.parameterDate > s.electionDate) error('INVALID_DATE', '$.modelSettings.M01.parameterDate', 'Parameter date is after election');
     for (const c of s.modelSettings.M01.compositions) if (Math.abs(Object.values(c.fractions).reduce((a, b) => a + b, 0) - 1) > 1e-12)
       error('INVALID_COMPOSITION', '$.modelSettings.M01', 'Composition fractions must sum to one');
   } else {

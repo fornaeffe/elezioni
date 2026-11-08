@@ -4,6 +4,12 @@ import { chambers, REFORM, type Chamber, type ExplicitBonusLink, type LawId, typ
 export interface GeographyRelation { readonly parent: Location; readonly child: Location }
 const sameLocation = (a: Location, b: Location) => a.law === b.law && a.geographyVersion === b.geographyVersion &&
   a.chamber === b.chamber && a.level === b.level && a.code === b.code;
+/** Ordinary Rosatellum filings use pluri; statutory uni-only ballots have no pluri parent. */
+export function isListFilingLocation(location: Location, relations: readonly GeographyRelation[]): boolean {
+  return location.law === REFORM ? location.level === 'college' : location.level === 'plurinominal' ||
+    location.level === 'uninominal' && !relations.some(r => r.parent.law === location.law &&
+      r.parent.level === 'plurinominal' && sameLocation(r.child, location));
+}
 function related(a: Location, b: Location, relations: readonly GeographyRelation[]): boolean {
   const reaches = (parent: Location, child: Location, seen = new Set<string>()): boolean => {
     if (sameLocation(parent, child)) return true;

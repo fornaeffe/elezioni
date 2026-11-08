@@ -1,0 +1,150 @@
+/** The common preparation â†’ generation â†’ law assembly â†’ scrutiny dispatch boundary. */
+import { ROSATELLUM, REFORM, chambers, type PoliticsScenario } from '../scenario/schema';
+import { activeGenerator, requirePair } from '../scenario/registry';
+import { parsePoliticsScenario, validateActiveScenario, ScenarioValidationError } from '../scenario/validation';
+import { effectivePlacements, renewed } from '../scenario/effective';
+import { loadExecutionData, type ExecutionReaders } from './assets';
+import { commonVoteInputs } from './inputs';
+import { rosatellumCoverage, prepareRosatellumAssembly, type RosatellumSeats } from './rosatellum';
+import { reformCoverage, reformLegalSettings } from './reform';
+import { compileM01 } from '../generation/m01-compiler';
+import { preparePairedVoteReferences, generatePairedMunicipalVotes } from '../generation/m01';
+import { aggregateM01Votes } from '../generation/m01-counts';
+import { prepareM02Votes } from '../generation/m02';
+import type { GeneratedVotes } from '../generation/types';
+import { physicalCells } from '../reform-2026/vote-share/physical-cells';
+import { compileSource } from '../reform-2026/vote-share/source-compiler';
+import { compilePairedHistory } from '../reform-2026/vote-share/paired-source';
+import { cooperativeSteps, throwIfCancelled, type FitProgress } from '../reform-2026/vote-share/execution';
+import { fitReferenceSteps } from '../reform-2026/vote-share/information';
+import { fitProfilesSteps } from '../reform-2026/vote-share/profiles';
+import { prepareSenateAdapter } from '../reform-2026/vote-share/senate-adapter';
+import { FAST_SHARE_MODEL, FAST_SHARE_NUMERICS } from '../reform-2026/vote-share/types';
+import { sourceKey } from '../reform-2026/vote-share/source-codec';
+import type { FastVoteAssets } from '../reform-2026/vote-share/forecast-types';
+import type { ReformAssemblyContext } from '../reform-2026/generation-types';
+import type { SeatTableBundle } from '../reform-2026/endowments';
+import { prepareReferenceBonusPlan, type PreparedBonusPlan } from '../reform-2026/reference-bonus-plan';
+import { assembleReformSimulation, type AssemblySource } from '../reform-2026/assembly';
+import { m02AssemblySource } from '../reform-2026/vote-share/generation';
+import { runPoliticsSimulation, type PoliticsSimulationRequest } from '../simulation-scrutiny';
+import { commonPoliticsImplementation } from './build';
+
+export interface PreparationOptions {
+  signal?: AbortSignal;
+  checkpoint?: (progress: FitProgress) => Promise<void>;
+  maximumWorkspaceBytes?: number;
+}
+export async function preparePoliticsExecution(value: unknown, readers: ExecutionReaders, options: PreparationOptions = {}) {
+  if (!readers.implementationId || commonPoliticsImplementation && readers.implementationId !== commonPoliticsImplementation)
+    throw new Error('POLITICS_IMPLEMENTATION_MISMATCH: supply the actual common execution build identity');
+  const s = parsePoliticsScenario(value), model = activeGenerator(s), pair = requirePair(s.selection.scrutiny.id, model.id);
+  const checkpoint = async (p: FitProgress) => { throwIfCancelled(options.signal); await options.checkpoint?.(p); throwIfCancelled(options.signal); };
+  await checkpoint({ phase: 'load-politics-dependencies', completed: 0, total: 1 });
+  const data = await loadExecutionData(s, readers);
+  const issues = validateActiveScenario(s, data.domain);
+  if (issues.length) throw new ScenarioValidationError(issues);
+  const law = s.selection.scrutiny.id;
+  const context: ReformAssemblyContext | undefined = law === REFORM ? { version: s.data.lawAssets[law].seats.version,
+    sourceVersions: [...data.source.sourceVersions, s.data.historical.sha256, s.data.lawAssets[law].geography.sha256],
+    assumptions: [...data.source.assumptions, ...s.provenance.assumptions],
+    seats: data.seats as SeatTableBundle, models: data.parameters.models } : undefined;
+  const coverage = law === ROSATELLUM ? rosatellumCoverage(s, data.seats as RosatellumSeats) : reformCoverage(s, context!);
+  if (law === REFORM && (context!.seats.version !== s.data.lawAssets[law].seats.version || context!.seats.geography.version !== data.geography.version))
+    throw new Error('REFORM_SEATS_MISMATCH');
+  const activeChambers = chambers.filter(ch => renewed(s, ch));
+  physicalCells(data.geography, data.electorates, activeChambers, s.execution.simulationSeed);
+  for (const ch of activeChambers) {
+    const legal = coverage.filter(c => c.chamber === ch), physical = data.geography.colleges.filter(c => c.chamber === ch && c.kind !== 'taa-proportional');
+    if (physical.some(c => !legal.some(l => l.collegeId === c.id)) ||
+      legal.some(c => !data.geography.colleges.some(p => p.id === c.collegeId && p.chamber === ch) && !(law === REFORM && context!.seats.geography.colleges.some(p => p.id === c.collegeId && p.chamber === ch && p.kind === 'taa-proportional'))))
+      throw new Error('LAW_PHYSICAL_GEOGRAPHY_MISMATCH');
+  }
+  if (law === ROSATELLUM) for (const cell of data.geography.cells) {
+    const ballot = (data.seats as RosatellumSeats).ballots.find(b => b.id === cell.collegeId && b.chamber === cell.chamber);
+    if (!ballot || data.geography.targets.find(t => t.code === cell.municipality)?.region !== ballot.regionId)
+      throw new Error('ROSATELLUM_MUNICIPAL_REGION_CROSSWALK');
+  }
+  const chamberProfileId = law === REFORM ? s.lawSettings[REFORM].chamberProfileId : data.parameters.rosatellumChamberProfileId;
+  if (!data.parameters.models.chambers.profiles.some(p => p.id === chamberProfileId)) throw new Error('CHAMBER_PROFILE_UNAVAILABLE');
+  const inputs = commonVoteInputs(s, data, chamberProfileId, coverage);
+  let generateVotes: (simulation: number) => GeneratedVotes;
+  let bonusPlan: PreparedBonusPlan | undefined, source: AssemblySource | undefined;
+  let legal = law === REFORM ? reformLegalSettings(s, data.domain, inputs.common) : undefined;
+  let preparationKey: string, generationKey: string;
+  let references: GeneratedVotes['trace']['references'];
+  if (model.id === 'M01') {
+    // SDs, fitting seed, presentation and candidature are not M01 statistical inputs.
+    const { lists, components, references: refs, nonValidReferences, ...input } = inputs.common;
+    preparationKey = await sourceKey('politics-m01-preparation-v1', { ...input,
+      lists: Object.fromEntries(chambers.map(ch => [ch, lists[ch].map(l => ({ id: l.id, componentIds: l.componentIds }))])),
+      components: components.map(c => ({ id: c.id })),
+      references: refs.map(({ sdPercentagePoints, ...r }) => r), nonValidReferences: nonValidReferences.map(({ sdPercentagePoints, ...r }) => r),
+      source: s.data.historical.sha256, geography: s.data.lawAssets[law].geography.sha256,
+      electorate: s.data.electorate.sha256, models: data.parameters.models.chambers });
+    const compiled = await compileM01(inputs.common, data.source, readers.sourceChunk, data,
+      { geography: law === REFORM ? context!.seats.geography : data.geography, models: data.parameters.models }, preparationKey);
+    const prepared = preparePairedVoteReferences(compiled.scenario, compiled.snapshot);
+    prepared.trace.modelVersion = `${model.id}@${model.version}`;
+    references = prepared.trace.references;
+    if (legal) {
+      legal = { ...legal, pollReferences: compiled.scenario.pollReferences };
+      bonusPlan = prepareReferenceBonusPlan({ ...legal, projectionDate: compiled.scenario.projectionDate },
+        { ...context!, memberships: compiled.snapshot.memberships }, prepared.units);
+      // Retain the existing bonus/capacity validator, including CP-01's restricted M01 blocker.
+      if (bonusPlan) prepared.trace.bonusSelection = { policy: bonusPlan.policy, referenceDate: bonusPlan.referenceDate,
+        slates: bonusPlan.slates.map(({ chamber, territoryId, subject, allocations }) => ({ chamber, territoryId, subject, allocations })) };
+    }
+    source = { voteParameterVersion: `${model.id}@${model.version}/${data.parameters.models.chambers.parameterVersion}`,
+      chamberModelId: 'paired-chamber-votes-v1', chamberParameterVersion: data.parameters.models.chambers.parameterVersion,
+      sourceVersions: [preparationKey], assumptions: ['M01 2.0.0: latest eligible common-18+ history, conditional electorates, turnout-preserving political support and labelled regional/equal fallback.'] };
+    generationKey = preparationKey;
+    generateVotes = simulation => ({ counts: aggregateM01Votes(compiled.scenario, compiled.snapshot,
+      generatePairedMunicipalVotes(compiled.scenario, compiled.snapshot, prepared.units, simulation), simulation), trace: structuredClone(prepared.trace) });
+  } else {
+    const compiled = await compileSource(data.source, readers.sourceChunk, inputs.selection, { polls: inputs.common.polls.added, checkpoint });
+    const paired = await compilePairedHistory(data.source, readers.sourceChunk, inputs.selection,
+      { camera: s.history.pairedCamera!, senato: s.history.pairedSenato!, electoratePolicy: 'equal-only' }, checkpoint);
+    preparationKey = await sourceKey('politics-m02-preparation-v1', { model, fitSeed: s.execution.fittingSeed,
+      national: compiled.nationalInputKey, profiles: compiled.profileInputKey, paired: paired.history,
+      policies: s.modelSettings.M02.policies, source: s.data.historical.sha256, electorate: s.data.electorate.sha256 });
+    const fit = await cooperativeSteps(fitReferenceSteps(compiled.national, s.execution.fittingSeed,
+      { maximumWorkspaceBytes: options.maximumWorkspaceBytes }), checkpoint);
+    const cameraProfile = await cooperativeSteps(fitProfilesSteps(compiled.profiles, options.maximumWorkspaceBytes), checkpoint);
+    const senateAdapter = prepareSenateAdapter(cameraProfile, s.referenceDate, paired.history);
+    const assets: FastVoteAssets = { fit, cameraProfile, senateAdapter, modelId: FAST_SHARE_MODEL, numericalVersion: FAST_SHARE_NUMERICS,
+      fitSeed: s.execution.fittingSeed, profileReferenceDate: s.referenceDate, sourceBundleId: data.source.id,
+      fittedStateId: preparationKey, profileStateId: preparationKey, geography: data.geography, electorates: data.electorates };
+    inputs.fast.data.fittedStateId = preparationKey; inputs.fast.data.profileStateId = preparationKey;
+    const prepared = prepareM02Votes(inputs.fast, assets, { geography: context!.seats.geography, models: data.parameters.models },
+      { maximumWorkspaceBytes: options.maximumWorkspaceBytes });
+    references = prepared.trace.references;
+    generationKey = await sourceKey('politics-m02-generation-v1', { preparationKey, inputs: { ...inputs.fast,
+      lists: Object.fromEntries(chambers.map(ch => [ch, inputs.fast.lists[ch].map(({ name, coalitionId, protectedMinority, kind, ...l }) => l)])) } });
+    bonusPlan = prepareReferenceBonusPlan(legal!, context!, [], { referenceDate: s.referenceDate, support: prepared.support });
+    source = m02AssemblySource(inputs.fast, assets);
+    generateVotes = simulation => {
+      const result = prepared.run(simulation);
+      if (bonusPlan) result.trace.bonusSelection = { policy: bonusPlan.policy, referenceDate: bonusPlan.referenceDate,
+        slates: bonusPlan.slates.map(({ chamber, territoryId, subject, allocations }) => ({ chamber, territoryId, subject, allocations })) };
+      return result;
+    };
+  }
+  const assemblyKey = await sourceKey('politics-assembly-v1', { pair, generationKey, settings: s.lawSettings[law],
+    placements: effectivePlacements(s, law, data.domain.geographyRelations), candidates: s.candidates,
+    affiliation: s.subjects.lists.map(({ name, color, ...l }) => l), seats: s.data.lawAssets[law].seats.sha256 });
+  const rosatellum = law === ROSATELLUM ? prepareRosatellumAssembly(s, data.seats as RosatellumSeats, data.domain, references) : undefined;
+  const generate = (simulation: number) => {
+    if (!Number.isSafeInteger(simulation) || simulation < 1) throw new Error('Expected a positive simulation ID');
+    const votes = generateVotes(simulation);
+    const request: PoliticsSimulationRequest = rosatellum ? rosatellum(simulation, votes) : {
+      algorithmId: REFORM, simulationId: simulation,
+      input: assembleReformSimulation({ scenario: legal!, snapshot: context!, bonusPlan }, simulation, votes.counts, votes.trace, source).input };
+    return { request, votes };
+  };
+  await checkpoint({ phase: 'politics-ready', completed: 1, total: 1 });
+  return { scenario: s, pair, implementationId: readers.implementationId, context, legalSettings: legal,
+    keys: { preparationKey, generationKey, assemblyKey }, generateVotes, generate,
+    run: (simulation: number) => { const generated = generate(simulation); return { ...generated, result: runPoliticsSimulation(generated.request) }; } };
+}
+export type PreparedPoliticsExecution = Awaited<ReturnType<typeof preparePoliticsExecution>>;

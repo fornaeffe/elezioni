@@ -1,5 +1,5 @@
 import type { ResultTable, ScrutinyWarning } from '../../core/types';
-import type { GenerationTrace, ReformGenerationScenario, ReformGenerationSnapshot } from './generation-types';
+import type { GenerationTrace, ReformGenerationScenario, ReformGenerationSnapshot, ReformLegalSettings } from './generation-types';
 import type { ReformAssemblyContext } from './generation-types';
 import type { ReleasedScenario } from './vote-share/release';
 import type { ReformScrutinyInput } from './input';
@@ -19,7 +19,7 @@ export interface ReformPresentationCounts { complete: number; partial: number; f
 
 /** Retain transferable presentation rows, never all generated municipal inputs or
  * composed legal stage objects. Repeated provenance is stored once with a count. */
-export function createReformPresentation(scenario: ReformGenerationScenario|ReleasedScenario, snapshot: ReformAssemblyContext, requested: number, options: { includeContext?: boolean } = {}) {
+export function createReformPresentation(scenario: ReformGenerationScenario|ReleasedScenario|ReformLegalSettings, snapshot: ReformAssemblyContext, requested: number, options: { includeContext?: boolean; identity?: unknown } = {}) {
   const tables: ResultTable[] = [];
   function table(name: string, columns: string[]) {
     const t: ResultTable = { name, columns, rows: [] }; tables.push(t); return t;
@@ -91,9 +91,10 @@ export function createReformPresentation(scenario: ReformGenerationScenario|Rele
   };
   if (options.includeContext !== false) {
     meta('Result presentation contract', { version: 2, series: reformSeriesTable, constituencies: reformConstituencySeriesTable, affiliation: 'final-personal', local: 'actual-election-location' });
-    if(('data' in scenario))meta('Algorithm and model identity',{algorithm:scenario.algorithmId,generationModel:scenario.generation?.model??'selected',models:scenario.models,data:scenario.data,referenceDate:scenario.referenceDate,fitSeed:scenario.fitSeed,seed:scenario.seed,
+    if (options.identity) meta('Algorithm and model identity', options.identity);
+    else if(('data' in scenario))meta('Algorithm and model identity',{algorithm:scenario.algorithmId,generationModel:scenario.generation?.model??'selected',models:scenario.models,data:scenario.data,referenceDate:scenario.referenceDate,fitSeed:scenario.fitSeed,seed:scenario.seed,
       preferenceProfile:scenario.preferenceProfileId,chamberProfile:scenario.chamberProfileId,components:scenario.components.map(c=>({id:c.id,kind:c.kind,provenance:c.provenance,fallback:c.fallback??null}))});
-    else meta('Algorithm and model identity', { algorithm: scenario.algorithmId, models: scenario.modelIds, modelVersion: scenario.modelVersion,
+    else if ('modelIds' in scenario) meta('Algorithm and model identity', { algorithm: scenario.algorithmId, models: scenario.modelIds, modelVersion: scenario.modelVersion,
       snapshotVersion: scenario.snapshotVersion, preferenceProfile: scenario.preferenceProfileId, chamberProfile: scenario.chamberProfileId,
       seed: scenario.seed, conversion: scenario.conversion, mode: scenario.mode });
     meta('Preference profile (sensitivity assumption)', snapshot.models.preferences.profiles.find(p => p.id === scenario.preferenceProfileId));

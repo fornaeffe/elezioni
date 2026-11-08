@@ -17,7 +17,7 @@ export function subjectColor(id: string): string {
   for (const char of id) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
   return palette[hash % palette.length];
 }
-export function reformPresentation(s: ReformGenerationScenario | ReleasedScenario): ReformPresentation {
+export function reformPresentation(s: Pick<ReformGenerationScenario, 'lists' | 'presentation'> | ReleasedScenario): ReformPresentation {
   if(('data' in s)){
     const lists=[...new Map([...s.lists.camera,...s.lists.senato].map(l=>[l.id,l])).values()];
     return {name:s.presentation.name??'Scenario riforma 2026',lists:lists.map(l=>({id:l.id,color:s.presentation.lists.find(p=>p.id===l.id)?.color??subjectColor(l.id)})),
