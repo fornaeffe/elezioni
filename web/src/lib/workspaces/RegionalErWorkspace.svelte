@@ -8,7 +8,7 @@
   import { createWorkspaceExecution } from './controller.svelte';
   import { persistWorkspaceDraft, confirmWorkspaceReset } from './draft.svelte';
   import { snapshotDescriptors } from './snapshots.generated';
-  import { fileWorkspace, scenarioWorkspace } from './import-routing';
+  import { transitionalFileWorkspace as fileWorkspace, transitionalScenarioWorkspace as scenarioWorkspace } from './import-routing';
   import { isOtherList, setOtherListEnabled, OTHER_LIST_COLOR } from '$lib/core/other-list';
   import { base } from '$app/paths';
   import { Download, Play, Plus, RotateCcw, Trash2, Upload } from '@lucide/svelte';

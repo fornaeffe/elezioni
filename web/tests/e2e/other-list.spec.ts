@@ -19,8 +19,15 @@ for (const route of ['politics', 'emilia-romagna']) {
     await expect(row.getByLabel('Usa quota Altre liste')).toBeChecked();
     await page.reload();
     if(route==='politics') await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-r-parity-v1');
-    await expect(toggle).toBeChecked();
-    await expect(row.getByLabel('Quota Altre liste', { exact: true })).toHaveValue('10');
+    if (route === 'politics') {
+      // Old politics drafts are intentionally ignored; the common editor owns future persistence.
+      await expect(toggle).not.toBeChecked();
+      await toggle.check();
+      await row.getByLabel('Quota Altre liste', { exact: true }).fill('10');
+    } else {
+      await expect(toggle).toBeChecked();
+      await expect(row.getByLabel('Quota Altre liste', { exact: true })).toHaveValue('10');
+    }
     await page.getByLabel('Simulazioni', { exact: true }).fill('1');
     await page.getByRole('button', { name: 'Esegui', exact: true }).click();
     const result = page.getByRole('table', { name: route === 'politics' ? 'Average plurinominal seats by list' : 'Regional average seats by list', exact: true });

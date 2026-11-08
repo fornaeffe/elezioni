@@ -944,6 +944,10 @@ parity is required. No generated default is edited by hand.
 
 ### CP-05 — Enforce new-format files and draft isolation
 
+Implemented APIs and transitional-browser boundary: [files and drafts guide](files.md).
+Verification is recorded in
+[migration history](../migration-history.md#cp-05--enforce-new-format-files-and-draft-isolation-2026-11-08).
+
 Apply D12 and its D13 consequence. Implement strict new common-scenario and
 result/archive readers/writers, plus a new shared draft key. Inspect metadata
 without parsing a complete large archive. Reject old politics formats with a

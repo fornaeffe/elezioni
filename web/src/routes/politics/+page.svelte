@@ -5,7 +5,7 @@
   import LegacyPoliticsWorkspace from '$lib/workspaces/LegacyPoliticsWorkspace.svelte';
   import ReformWorkspace from '$lib/politics/reform-2026/ReformWorkspace.svelte';
   import { politicsWorkspaces } from '$lib/workspaces/registry';
-  import { fileWorkspace, scenarioWorkspace } from '$lib/workspaces/import-routing';
+  import { transitionalFileWorkspace as fileWorkspace, transitionalScenarioWorkspace as scenarioWorkspace } from '$lib/workspaces/import-routing';
   import type { SimulationResultExport } from '$lib/core/result-export';
   import type { ReleasedScenario } from '$lib/politics/reform-2026/vote-share/release';
   const legacyInput = takeWorkspaceImport('politics-legacy'), reformInput = takeWorkspaceImport('politics-reform');
@@ -27,7 +27,7 @@
       {#each politicsWorkspaces as item (item.id)}<option value={item.algorithm}>{item.label}</option>{/each}
     </select>
   </label>
-  <p>I file precedenti conservano la legge precedente. Selezionare la riforma apre uno scenario distinto.</p>
+  <p>I file politiche precedenti non sono più supportati. Il nuovo editor userà una bozza comune alle due leggi.</p>
 </nav>
 {#if error}<p role="alert">{error}</p>{/if}
 {#key algorithmId}

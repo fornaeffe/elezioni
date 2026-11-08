@@ -9,6 +9,11 @@ import { cellsWarning, storedRows, type Cell, type StoredResult, type StoredTabl
 import { validateListFiling } from '../workspaces/filing';
 import { scenarioWorkspace } from '../workspaces/import-routing';
 
+// Common politics uses independently versioned strict envelopes and staged streaming imports.
+export { parsePoliticsResult, serializePoliticsResult, parsePoliticsArchive, streamPoliticsArchive,
+  importPoliticsArchiveStream, importPoliticsArchiveFile, readPoliticsResultFile } from '../politics/files/results';
+export type { PoliticsArchiveSink, PoliticsArchiveRows } from '../politics/files/results';
+
 export type ExportScenario = Scenario | ReformGenerationScenario | ReleasedScenario;
 
 export interface SimulationResultExport {

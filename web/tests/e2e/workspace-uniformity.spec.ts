@@ -33,11 +33,11 @@ test('fresh politics default, filing editor, results and reset share one lifecyc
   await page.screenshot({ path: 'test-results/workspace-politics.png' });
 });
 
-test('historical drafts remain historical and cancel cleanly on navigation', async ({ page }) => {
+test('historical drafts are ignored and cancellation still works', async ({ page }) => {
   await page.addInitScript(scenario => localStorage.setItem('elezioni:web:politics-scenario:v1', JSON.stringify({ schema_version: 7, scenario })), generatedSnapshotPoliticsScenario);
   await page.goto(`${base}/politics`);
   await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-r-parity-v1');
-  await expect(page.locator('.list-row')).toHaveCount(9);
+  await expect(page.locator('.list-row')).toHaveCount(24);
   await page.getByLabel('Simulazioni', { exact: true }).fill('1000');
   await page.getByRole('button', { name: 'Esegui', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Annulla calcolo' })).toBeVisible();
@@ -59,8 +59,9 @@ test('scenario metadata hands imports to the correct route without rewriting the
   await expect(page.getByLabel('Nome scenario', { exact: true })).toHaveValue('Importazione regionale');
   await page.getByTestId('regional-scenario-file-input').setInputFiles({ name: 'politics.json', mimeType: 'application/json',
     buffer: Buffer.from(JSON.stringify({ schema_version: 9, scenario: { ...generatedDefaultPoliticsScenario, name: 'Importazione politica' } })) });
-  await expect(page).toHaveURL(new RegExp(`${base}/politics/?$`));
-  await expect(page.getByLabel('Nome scenario', { exact: true })).toHaveValue('Importazione politica');
+  await expect(page).toHaveURL(new RegExp(`${base}/emilia-romagna/?$`));
+  await expect(page.getByLabel('Errori simulazione')).toContainText('precedente non supportato');
+  await expect(page.getByLabel('Nome scenario', { exact: true })).toHaveValue('Importazione regionale');
 });
 
 test('corrupt required snapshots fail visibly, with no replacement data', async ({ page }) => {

@@ -13,14 +13,12 @@ for (const version of [1,2,3,4]) test(`retired reform scenario v${version} is re
   await expect(page.getByTestId('fit-status')).not.toHaveText('Modello pronto');
 });
 
-test('current plain scenario imported from the previous-law screen keeps its seed and generator',async({page})=>{
+test('former v5 plain scenario is rejected on the previous-law screen',async({page})=>{
   const scenario=structuredClone((await currentBrowserSession()).scenario);
   scenario.seed='current-plain-import';
   await page.goto(base+'/politics');
   await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-r-parity-v1');
   await page.getByTestId('scenario-file-input').setInputFiles({name:'current.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(scenario))});
-  await expect(page.getByLabel('Algoritmo di scrutinio')).toHaveValue(scenario.algorithmId);
-  await expect(page.getByLabel('Seme delle simulazioni',{exact:true})).toHaveValue(scenario.seed);
-  await expect(page.getByLabel('Modello di generazione',{exact:true})).toHaveValue('M02');
-  await expect(page.getByRole('alert')).toHaveCount(0);
+  await expect(page.getByLabel('Algoritmo di scrutinio')).toHaveValue('politiche-r-parity-v1');
+  await expect(page.getByLabel('Errori simulazione')).toContainText('precedente non supportato');
 });

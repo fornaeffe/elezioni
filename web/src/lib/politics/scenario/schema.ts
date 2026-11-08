@@ -79,14 +79,15 @@ export const pollShape = object({
   normalized: array(object({ label: text, members: array(text), share, other: boolean })),
   otherDefinition: literal('offered-complement'), status: literal('supported', 'excluded'), reasons: array(text), method: text });
 const selection = object({ id: generatorShape, version: literal('2.0.0') });
+export const selectionShape = object({ scrutiny: object({ id: lawShape, version: literal('1.0.0') }),
+  generatorsByLaw: object({ [ROSATELLUM]: selection, [REFORM]: selection }) });
 const policies = object({ numerical: literal('fast-share-float64-v1'), references: literal('fixed-turnout-reference-v1'),
   chambers: literal('fast-share-paired-v1'), rng: literal('fast-share-forecast-streams-v1'),
   fittingRng: literal('fast-share-fit-streams-v1') });
 export const scenarioShape = object({
   kind: literal('politics-scenario'), schemaVersion: literal(1), id: text, name: text, electionDate: date, referenceDate: date,
   renewal: literal('joint', 'camera', 'senato'),
-  selection: object({ scrutiny: object({ id: lawShape, version: literal('1.0.0') }),
-    generatorsByLaw: object({ [ROSATELLUM]: selection, [REFORM]: selection }) }),
+  selection: selectionShape,
   data: object({ historical: assetShape, catalogue: assetShape, referenceGeography: assetShape, electorate: assetShape,
     lawAssets: object({ [ROSATELLUM]: lawAssets, [REFORM]: lawAssets }) }),
   history: object({ electionIds: array(text), pairedCamera: nullable(text), pairedSenato: nullable(text),

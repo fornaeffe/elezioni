@@ -72,8 +72,9 @@ its editable share previews project the authored M01 supplemental polls, and its
 non-valid preview comes from the pinned paired Camera observation unless an
 explicit authored national reference replaces it;
 the common input retains both chambers' complete values. No old-format reader or
-converter is introduced here. CP-05 owns new files/drafts; CP-06/07 own the common
-editor and execution-session integration.
+converter is introduced here. [CP-05](files.md) supplies the new file/draft APIs,
+rejects old politics uploads and disables old-key draft persistence in these
+transitional editors. CP-06/07 own the common editor and execution-session integration.
 
 `data/workspace-defaults.json` still supplies the independent ER default and the
 historical reference scaffold inside the old static snapshot. The older reform

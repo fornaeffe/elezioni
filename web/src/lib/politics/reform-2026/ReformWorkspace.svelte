@@ -6,7 +6,7 @@
     type ReformWorkflow,
   } from './archive-routing';
   import { isReformFile } from '../../core/json-stream';
-  import { fileWorkspace } from '../../workspaces/import-routing';
+  import { transitionalFileWorkspace as fileWorkspace } from '../../workspaces/import-routing';
   import FastReformWorkspace from './vote-share/FastReformWorkspace.svelte';
   import type { SimulationResultExport } from '../../core/result-export';
   import type { ReformGenerationScenario } from './generation-types';

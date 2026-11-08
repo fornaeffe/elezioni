@@ -17,7 +17,7 @@ editor and session integration remain CP-06/07. Use the
 | SD conventions and existing M02 family feasibility | `references.ts` |
 | Exact decoded asset dependencies/checksums | `dependencies.ts` |
 | Scenario-only JSON and deterministic gzip | `serialization.ts` |
-| Separately versioned result/archive design | `envelopes.ts` |
+| Separately versioned result/archive schemas | `envelopes.ts`; [file API](files.md) |
 | Constructed examples and executable checks | `scenario.fixture.ts`, `scenario.test.ts` |
 
 ## Format and versions
@@ -41,10 +41,10 @@ retains M01 2.0.0 for both laws, independently of the new adapter identity.
 The supported domain pairs are Rosatellum/M01, reform/M01 and reform/M02.
 `initialSelection()` creates reform/M02 with saved Rosatellum/M01; switching
 uses saved choices. It does not construct CP-04's authored production default.
-`envelopes.ts` reserves independent result and archive v1 headers, immutable
-executed scenario, actual execution provenance and portable-fit ownership.
-Its generic payload interfaces are design contracts, not archive parsers;
-strict payloads, streaming integration and checkpoint matching remain CP-05/07.
+`envelopes.ts` defines independent strict result and archive v1 schemas, immutable
+executed scenarios, actual provenance, session evidence and portable-fit ownership.
+Use the [CP-05 file API](files.md) for readers, streamed archives, checkpoint
+matching and draft isolation. Browser editor/session integration remains CP-06/07.
 
 ## Ownership and encoding
 

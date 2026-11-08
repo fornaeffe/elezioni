@@ -7,9 +7,9 @@
   import RunControls from './RunControls.svelte';
   import ResultTableView from './ResultTable.svelte';
   import { createWorkspaceExecution } from './controller.svelte';
-  import { persistWorkspaceDraft, confirmWorkspaceReset } from './draft.svelte';
+  import { confirmWorkspaceReset } from './draft.svelte';
   import { snapshotDescriptors } from './snapshots.generated';
-  import { fileWorkspace, scenarioWorkspace } from './import-routing';
+  import { transitionalFileWorkspace as fileWorkspace, transitionalScenarioWorkspace as scenarioWorkspace } from './import-routing';
   import { isOtherList, setOtherListEnabled, OTHER_LIST_COLOR } from '$lib/core/other-list';
   import { base } from '$app/paths';
   import PercentageInput from '$lib/scenario/PercentageInput.svelte';
@@ -46,7 +46,6 @@
     createScenarioList,
     politicsAbstentionListName,
     parseScenario,
-    politicsScenarioStorageKey,
     removeScenarioHistoricalCorrespondence,
     removeScenarioList as removeScenarioListFromScenario,
     removeScenarioLocalShareOverride,
@@ -236,9 +235,7 @@
     Number.isFinite(plurinominalCandidacyShareTotal) ? plurinominalCandidacyShareTotal.toFixed(3) : 'non valido'
   );
 
-  persistWorkspaceDraft({ key: politicsScenarioStorageKey, read: () => scenarioDraft,
-    restore: draft => { scenarioDraft = draft; }, parse: parseScenario, serialize: serializeScenario,
-    error: e => { messages = [uiMessage('SCENARIO_STORAGE_ERROR', e.message, 'warning')]; } });
+  // Common draft persistence is owned by the new editor; old keys stay untouched.
   onMount(() => {
     compressionSupported = 'CompressionStream' in globalThis && 'DecompressionStream' in globalThis;
     if (importedFile) { void importScenarioFile(importedFile).finally(onImportConsumed); }

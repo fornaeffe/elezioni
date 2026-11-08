@@ -6,7 +6,7 @@ export class JsonStreamReader {
   private chunk = '';
   private position = 0;
   private lookahead: Token | null | undefined;
-  constructor(stream: ReadableStream<Uint8Array<ArrayBuffer>>) { this.reader = stream.pipeThrough(new TextDecoderStream()).getReader(); }
+  constructor(stream: ReadableStream<Uint8Array<ArrayBuffer>>) { this.reader = stream.pipeThrough(new TextDecoderStream('utf-8', { fatal: true })).getReader(); }
   async close() { await this.reader.cancel().catch(() => undefined); this.reader.releaseLock(); }
   private async character(): Promise<boolean> {
     while (this.position === this.chunk.length) {

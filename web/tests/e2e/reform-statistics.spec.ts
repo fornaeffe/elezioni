@@ -1,3 +1,4 @@
+import { seedPresentationSession } from '../fixtures/presentation-session';
 import { currentBrowserSession, currentArchive } from '../fixtures/current-browser-session';
 import { fileURLToPath } from 'node:url';
 import { build } from 'vite';
@@ -82,7 +83,7 @@ test('position probabilities and the last-position spinogram use local ranked ev
   const importArchive = async (payload: typeof archive, name: string) => {
     const results = page.getByLabel('Risultati locali');
     const previous = await results.count() ? await results.inputValue() : null;
-    await page.getByTestId('reform-file-input').setInputFiles({ name, mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(currentArchive(payload, await currentBrowserSession()))) });
+    await seedPresentationSession(page, currentArchive(payload, await currentBrowserSession()));
     if (previous !== null) await expect(results).not.toHaveValue(previous, {timeout:30000});
     await expect(page.getByLabel('Statistiche riforma', { exact: true }).locator('.paired-bars')).toBeVisible();
   };
@@ -143,7 +144,7 @@ test('college spinogram filters joint bonus decisions and reports plotted simula
   }
   await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
   await page.getByLabel('Algoritmo di scrutinio').selectOption(scenario.algorithmId);
-  await page.getByTestId('reform-file-input').setInputFiles({ name: 'bonus-filter.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(currentArchive(archive, await currentBrowserSession()))) });
+  await seedPresentationSession(page, currentArchive(archive, await currentBrowserSession()));
   const statistics = page.getByLabel('Statistiche riforma', { exact: true });
   const local = statistics.locator('details').filter({ has: page.locator('summary', { hasText: /^Eletti per collegio o circoscrizione$/ }) });
   await local.locator(':scope > summary').click();
@@ -176,7 +177,7 @@ test('college spinogram filters joint bonus decisions and reports plotted simula
   await local.screenshot({ path: 'test-results/reform-college-bonus-filter-mobile.png' });
   // An older archive with no bonus decision cannot establish either subset.
   const previousResult = await page.getByLabel('Risultati locali').inputValue();
-  await page.getByTestId('reform-file-input').setInputFiles({ name: 'unknown-bonus.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(currentArchive(statisticalResult(scenario, 12), await currentBrowserSession()))) });
+  await seedPresentationSession(page, currentArchive(statisticalResult(scenario, 12), await currentBrowserSession()));
   await expect(page.getByLabel('Risultati locali')).not.toHaveValue(previousResult);
   await expect(statistics.getByRole('heading', { name: 'Eletti medi e percentuali sui voti validi' })).toBeVisible();
   await local.locator(':scope > summary').click();
@@ -197,7 +198,7 @@ test('territorial spinogram switches geography, measures, categories and groupin
   const scenario = (await currentBrowserSession()).scenario as unknown as ReformGenerationScenario;
   await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
   await page.getByLabel('Algoritmo di scrutinio').selectOption(scenario.algorithmId);
-  await page.getByTestId('reform-file-input').setInputFiles({ name: 'constituencies.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(currentArchive(constituencyResult(scenario), await currentBrowserSession()))) });
+  await seedPresentationSession(page, currentArchive(constituencyResult(scenario), await currentBrowserSession()));
   const local = page.getByLabel('Statistiche riforma', { exact: true }).locator('details').filter({ has: page.locator('summary', { hasText: /^Eletti per collegio o circoscrizione$/ }) });
   await local.locator(':scope > summary').click();
   const panel = local.locator('.series-panel');
@@ -274,7 +275,7 @@ test('sparse result tables reconstruct constituency observations solely from sav
     if (!sufficient) archive.result.tables = archive.result.tables.filter(t => t.name !== 'Candidate outcomes (conditional)');
     const results = page.getByLabel('Risultati locali');
     const previous = await results.count() ? await results.inputValue() : null;
-    await page.getByTestId('reform-file-input').setInputFiles({ name: `archived-${sufficient}.json`, mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(currentArchive(archive, await currentBrowserSession()))) });
+    await seedPresentationSession(page, currentArchive(archive, await currentBrowserSession()));
     if (previous !== null) await expect(results).not.toHaveValue(previous, {timeout:30000});
     await local.locator(':scope > summary').click();
     await local.getByLabel('Livello territoriale').selectOption('constituency');
@@ -299,7 +300,7 @@ test('reform chart families render all available points lazily and keep sparse r
   const scenario = (await currentBrowserSession()).scenario as unknown as ReformGenerationScenario, archive = statisticalResult(scenario);
   await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
   await page.getByLabel('Algoritmo di scrutinio').selectOption(scenario.algorithmId);
-  await page.getByTestId('reform-file-input').setInputFiles({ name: 'constructed-statistics.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(currentArchive(archive, await currentBrowserSession()))) });
+  await seedPresentationSession(page, currentArchive(archive, await currentBrowserSession()));
   const statistics = page.getByLabel('Statistiche riforma', { exact: true });
   await expect(statistics.getByRole('heading', { name: 'Eletti medi e percentuali sui voti validi' })).toBeVisible({ timeout: 30000 });
   await expect(statistics).toContainText('1201/1201');
@@ -340,7 +341,7 @@ test('reform chart families render all available points lazily and keep sparse r
   await statistics.screenshot({ path: 'test-results/reform-statistics-mobile.png' });
   const old = structuredClone(archive); old.result.tables = old.result.tables.filter(t => !t.name.includes('series v1'));
   const previous = await page.getByLabel('Risultati locali').inputValue();
-  await page.getByTestId('reform-file-input').setInputFiles({ name: 'old-statistics.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(currentArchive(old, await currentBrowserSession()))) });
+  await seedPresentationSession(page, currentArchive(old, await currentBrowserSession()));
   await expect(page.getByLabel('Risultati locali')).not.toHaveValue(previous, {timeout:30000});
   await expect(statistics).toContainText('Archivio precedente', { timeout: 30000 });
   await statistics.getByText('Probabilità di elezione', { exact: true }).click();
@@ -355,7 +356,7 @@ test('reform selectors display one chart per family and replace the selected dat
   const scenario = (await currentBrowserSession()).scenario as unknown as ReformGenerationScenario;
   await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
   await page.getByLabel('Algoritmo di scrutinio').selectOption(scenario.algorithmId);
-  await page.getByTestId('reform-file-input').setInputFiles({ name: 'multiple-series.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(currentArchive(multipleSeriesResult(scenario), await currentBrowserSession()))) });
+  await seedPresentationSession(page, currentArchive(multipleSeriesResult(scenario), await currentBrowserSession()));
   const statistics = page.getByLabel('Statistiche riforma', { exact: true });
   const means = statistics.locator('.paired-bars');
   await expect(means).toHaveCount(1);
@@ -422,7 +423,7 @@ test('refinements preserve probabilities, coalition data, bonus decisions, local
   const scenario = (await currentBrowserSession()).scenario as unknown as ReformGenerationScenario;
   await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
   await page.getByLabel('Algoritmo di scrutinio').selectOption(scenario.algorithmId);
-  await page.getByTestId('reform-file-input').setInputFiles({ name: 'refinements.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(currentArchive(refinementResult(scenario), await currentBrowserSession()))) });
+  await seedPresentationSession(page, currentArchive(refinementResult(scenario), await currentBrowserSession()));
   const statistics = page.getByLabel('Statistiche riforma', { exact: true });
   await expect(statistics.locator('.paired-bars')).toBeVisible();
   await statistics.getByLabel('Raggruppamento delle medie').selectOption('subject');

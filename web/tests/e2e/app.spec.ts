@@ -1,4 +1,4 @@
-import { generatedSnapshotPoliticsScenario } from '../fixtures/legacy-snapshot-scenario';
+import { generatedDefaultPoliticsScenario } from '../../src/lib/scenario/politics-defaults.generated';
 import { expect, test } from '@playwright/test';
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -8,10 +8,6 @@ const hasPoliticsStaticSnapshot =
 
 test.skip(!hasPoliticsStaticSnapshot, 'Generated politics static snapshot is missing. Run npm run data:prepare -- --download first.');
 
-test.beforeEach(async ({ page }) => {
-  await page.addInitScript(scenario => localStorage.setItem('elezioni:web:politics-scenario:v1', JSON.stringify({ schema_version: 7, scenario })), generatedSnapshotPoliticsScenario);
-});
-
 test('runs the worker smoke path from the scenario editor', async ({ page }) => {
   await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
   await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-r-parity-v1');
@@ -20,18 +16,19 @@ test('runs the worker smoke path from the scenario editor', async ({ page }) => 
   await page.getByLabel('Astensione elettori').fill('50');
   await expect(page.getByLabel('Usa astensione')).toBeChecked();
 
+  const correspondence = generatedDefaultPoliticsScenario.listCorrespondences.find(row => row.pastList === "STATI UNITI D'EUROPA")!;
   const listRows = page.locator('.list-row');
   for (let index = 0; index < (await listRows.count()); index += 1) {
     const row = listRows.nth(index);
-    if ((await row.getByLabel('Nome lista').inputValue()) !== '+Europa') continue;
+    if ((await row.getByLabel('Nome lista').inputValue()) !== correspondence.futureList) continue;
 
-    await row.getByLabel('Nome lista').fill('+Europa Test');
+    await row.getByLabel('Nome lista').fill('Correspondence list test');
     break;
   }
 
   const unitedStatesMapping = page.locator('.correspondence-source', { hasText: "STATI UNITI D'EUROPA" });
-  await expect(unitedStatesMapping.getByLabel('Destinazione corrispondenza').first()).toHaveValue('+Europa Test');
-  await expect(unitedStatesMapping.getByLabel('Fattore corrispondenza').first()).toHaveValue('0.5');
+  expect(await unitedStatesMapping.getByLabel('Destinazione corrispondenza').locator('option:checked').allTextContents()).toContain('Correspondence list test');
+  await expect(unitedStatesMapping.getByLabel('Fattore corrispondenza').first()).toHaveValue(String(correspondence.factor));
 
   for (let index = 0; index < (await listRows.count()); index += 1) {
     const row = listRows.nth(index);
@@ -75,7 +72,7 @@ test('runs the worker smoke path from the scenario editor', async ({ page }) => 
   await page.getByRole('button', { name: 'Aggiungi quota locale' }).click();
   await expect(page.locator('.local-override-group', { hasText: 'Lombardia' })).toContainText('20.0%');
 
-  await page.getByLabel('Coalizione candidato').selectOption('sinistra');
+  await page.getByLabel('Coalizione candidato').selectOption({ label: 'Centrosinistra' });
   await page.getByLabel('Cerca collegio candidato').fill('Valle');
   await page.getByRole('listbox', { name: 'Collegi candidati trovati' }).getByRole('button', { name: /Valle/ }).click();
   await page.getByLabel('Nome candidato').fill('Candidata Uni Test');
@@ -95,6 +92,7 @@ test('runs the worker smoke path from the scenario editor', async ({ page }) => 
   await expect(page.locator('.candidate-template-group', { hasText: 'Camera plurinominale' })).toBeVisible();
   await expect(page.getByLabel('Nome Candidata Pluri Test')).toHaveValue('Candidata Pluri Test');
 
+  await page.getByLabel('Simulazioni', { exact: true }).fill('1');
   await page.getByRole('button', { name: 'Esegui' }).click();
 
   await expect(page.getByLabel('Note simulazione')).toContainText('POLITICS_STATIC_SNAPSHOT', { timeout: 30_000 });
@@ -105,7 +103,7 @@ test('runs the worker smoke path from the scenario editor', async ({ page }) => 
   await expect(projectionRow).toContainText('30');
   await expect(projectionRow).toContainText('true');
   const renamedProjectionRow = page.getByRole('table', { name: 'Scenario projection' }).locator('tbody tr', {
-    hasText: '+Europa Test'
+    hasText: 'Correspondence list test'
   });
   await expect(renamedProjectionRow).toContainText('historical');
   await expect(page.getByRole('table', { name: 'Election overview' })).toBeVisible();

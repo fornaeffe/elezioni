@@ -42,6 +42,7 @@
     type PortableFitFile,
   } from './checkpoint';
   import { fastReformImplementations } from './build';
+  import { OLD_POLITICS_FORMAT } from '../../files/validation';
   import { loadEditorDefault } from './editor-loading';
   import FastScenarioEditor from './FastScenarioEditor.svelte';
   import ReformResultCharts from '../ReformResultCharts.svelte';
@@ -64,8 +65,7 @@
     onRouteFile?: (file: File) => Promise<boolean>;
     onBusyChange?: (busy: boolean) => void;
   } = $props();
-  const storageKey = 'elezioni:politics-reform-2026:fast-draft:v1',
-    resultKey = 'elezioni:politics-reform-2026:fast-results:v1';
+  const resultKey = 'elezioni:politics-reform-2026:fast-results:v1';
   let scenario = $state<ReleasedScenario | null>(null);
   let defaultScenario = $state.raw<ReleasedScenario | undefined>();
   let pointer = $state.raw<CandidatePointer | undefined>();
@@ -207,17 +207,6 @@
     selectedSaved = id;
     sessionStorage.setItem(resultKey, JSON.stringify(savedResults));
   }
-  function rememberDraft() {
-    if (!scenario || validateFastScenario(scenario).length) return;
-    try {
-      localStorage.setItem(
-        storageKey,
-        JSON.stringify($state.snapshot(scenario)),
-      );
-    } catch (e) {
-      report(e);
-    }
-  }
   async function initialize() {
     try {
       owner =
@@ -225,9 +214,6 @@
       sessionStorage.setItem(resultKey + ':owner', owner);
       savedResults = JSON.parse(sessionStorage.getItem(resultKey) ?? '[]');
       await loadMetadata();
-      const savedDraft = localStorage.getItem(storageKey);
-      if (savedDraft)
-        scenario = labelFastDraft(requireFastScenario(JSON.parse(savedDraft)));
       if (importedFile) await importFile(importedFile);
       else if (imported) {
         if (
@@ -245,9 +231,6 @@
       } else if (importedScenario)
         scenario = labelFastDraft(requireFastScenario(importedScenario));
       else {
-        const saved = localStorage.getItem(storageKey);
-        if (saved)
-          scenario = labelFastDraft(requireFastScenario(JSON.parse(saved)));
         if (savedResults.length) await restoreResult(savedResults.at(-1)!.id);
       }
     } catch (e) {
@@ -323,7 +306,6 @@
     const previous = scenario;
     scenario = next;
     preview = null;
-    rememberDraft();
     clearTimeout(timer);
     if (!loaded || !fitting) return;
     // setDraft cancels a pending worker immediately; accepted arrays remain private.
@@ -345,7 +327,6 @@
       if (alive && fitting.canRun) {
         scenario = fitting.copyDraft()!;
         refreshWorkers();
-        rememberDraft();
       }
     } catch (e) {
       report(e);
@@ -361,7 +342,6 @@
         evidenceChanged = false;
         editorData = fitting.editorData();
         refreshWorkers();
-        rememberDraft();
       }
     } catch (e) {
       report(e);
@@ -412,7 +392,6 @@
     jsonPending = false;
     preview = null;
     editorRevision++;
-    rememberDraft();
     error = '';
   }
   function download(blob: Blob, name: string) {
@@ -439,26 +418,8 @@
       if (alive) busy = '';
     }
   }
-  async function restoreSession(file: PortableFitFile) {
-    const c = fitting ?? createClient(file.pointer);
-    await c.restoreCheckpoint(file);
-    if (!alive) return;
-    loaded = true;
-    editorData = c.editorData();
-    source = null;
-    const accepted = c.copyDraft()!;
-    scenario = labelFastDraft(file.scenario);
-    refreshWorkers();
-    evidenceChanged =
-      futureEvidenceSignature(accepted) !== futureEvidenceSignature(scenario);
-    if (!sameCheckpointScenario(scenario, accepted)) {
-      c.setDraft($state.snapshot(scenario));
-      if (!evidenceChanged) await validate();
-    }
-    jsonPending = false;
-    editorRevision++;
-    preview = null;
-    rememberDraft();
+  async function restoreSession(_file: PortableFitFile) {
+    throw new Error(OLD_POLITICS_FORMAT);
   }
   async function importFile(file: File) {
     if (running) return;

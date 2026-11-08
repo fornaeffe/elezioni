@@ -34,12 +34,15 @@ describe('supported workspace contracts', () => {
     expect(() => validateWorkspaceRequest({ ...request, scenario: createDefaultRegionalErScenario() })).toThrow('mismatch');
     expect(() => validateWorkspaceRequest({ ...request, scrutinyAlgorithmId: 'politiche-reform-2026-v1' })).toThrow('mismatch');
   });
-  it('routes standalone and archived scenarios by metadata', async () => {
+  it('preserves independent regional routing and rejects old politics files by metadata', async () => {
     const s = createDefaultPoliticsScenario();
     expect(scenarioWorkspace(s).id).toBe('politics-legacy');
     expect(scenarioWorkspace(createDefaultRegionalErScenario()).id).toBe('regional-er');
     for (const payload of [s, { scenario: s, result: {} }])
-      expect((await fileWorkspace(new File([JSON.stringify(payload)], 'arbitrary-name.json'))).id).toBe('politics-legacy');
+      await expect(fileWorkspace(new File([JSON.stringify(payload)], 'arbitrary-name.json'))).rejects.toThrow('precedente non supportato');
+    const regional = createDefaultRegionalErScenario();
+    for (const payload of [regional, { scenario: regional, result: {} }])
+      expect((await fileWorkspace(new File([JSON.stringify(payload)], 'regional.json'))).id).toBe('regional-er');
     expect(() => scenarioWorkspace({ defaultSource: { electionKind: 'unknown' } })).toThrow();
   });
 });

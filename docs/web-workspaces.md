@@ -70,9 +70,12 @@ Reference means remain stochastic mean-mode inputs; structural conditioning and
 more-specific overrides can change aggregate references, with existing overlap
 warnings retained. Missing local history remains a separate model limitation.
 
-Existing draft keys and result formats remain readable. Import metadata selects
-the workflow; cross-election imports navigate with an in-memory one-shot handoff.
-Changing law opens a separate draft. Reset requires confirmation and preserves
+Regional draft keys and result formats remain readable. Politics files now use
+the [strict common formats and isolated draft API](common-politics-scenario/files.md);
+old politics files are rejected and former draft keys are ignored and untouched.
+The transitional politics editors keep memory-only edits until CP-06/07 connect
+the common draft and new file/session APIs. Regional metadata imports retain
+their in-memory one-shot handoff. Reset requires confirmation and preserves
 calculated results with their executed scenario. Changed drafts are marked stale.
 Navigation terminates legacy workers and disposes reform-owned services.
 

@@ -57,7 +57,7 @@ changing the statistical preparation identity.
 
 ## Decoded asset contracts
 
-CP-04 will author/package these inputs; CP-03 does not replace production defaults.
+Use the [authored defaults guide](defaults.md) to author/package these inputs.
 Every top-level asset is decoded UTF-8 JSON, verified against its exact scenario
 pin before parsing. Production retrieval/decompression belongs to `readers.asset`.
 Original-column chunks use `readers.sourceChunk`.
@@ -143,8 +143,9 @@ worker; mismatching keys fail. It uses the existing one-run-at-a-time, pull-driv
 result encoding and ordered pool. Legal/generation failures retain their original
 simulation IDs and error diagnostics. This path introduces no 1,000-run cap.
 
-CP-04 still owns authored defaults and production packaging. CP-05 owns new
-scenario/result readers and draft isolation. CP-06/07 will connect the editor and
+Authored defaults and production packaging are documented in [CP-04](defaults.md);
+strict scenario/result readers and draft isolation in [CP-05](files.md).
+CP-06/07 will connect the editor and
 common controller/session lifecycle, including prepared-state reuse across compute
 workers; this initial packet path repeats model preparation per initialized worker.
 The current old-format workspace UI stays transitional until those steps. Its M00

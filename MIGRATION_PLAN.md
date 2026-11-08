@@ -163,7 +163,7 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   - [x] CP-02 — Establish the shared domain contract: [domain API and boundaries](docs/common-politics-scenario/contract.md).
   - [x] CP-03 — Adapt existing execution paths: [execution API and adapters](docs/common-politics-scenario/execution.md).
   - [x] CP-04 — Replace authored-default construction, including approved colors: [authored input and packaging](docs/common-politics-scenario/defaults.md).
-  - [ ] CP-05 — Enforce new-format files and draft isolation.
+  - [x] CP-05 — Enforce new-format files and draft isolation: [strict file API and draft boundary](docs/common-politics-scenario/files.md).
   - [ ] CP-06 — Build the common editor within the approved D14 perimeter.
   - [ ] CP-07 — Unify lifecycle, persistence and results.
   - [ ] CP-08 — Verify the supported pairs and complete merger acceptance.

@@ -73,56 +73,22 @@ test('rejects uncompressed result JSON from the Results panel', async ({ page })
   await expect(page.getByRole('table', { name: 'Election overview' })).toHaveCount(0);
 });
 
-test('imports compressed columnar result JSON from the Results panel', async ({ page }) => {
-  await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
-  await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-r-parity-v1');
-
-  await page.getByTestId('result-file-input').setInputFiles({
-    name: 'imported-results.json.gz',
-    mimeType: 'application/gzip',
-    buffer: gzipSync(Buffer.from(bundledResultJson()))
+for (const inputId of ['result-file-input', 'scenario-file-input']) {
+  test(`rejects old politics archives from ${inputId} without changing the draft or results`, async ({ page }) => {
+    await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
+    await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-r-parity-v1');
+    await page.getByLabel('Nome scenario', { exact: true }).fill('Current draft');
+    await page.getByLabel('Simulazioni', { exact: true }).fill('1');
+    await page.getByRole('button', { name: 'Esegui', exact: true }).click();
+    const overview = page.getByRole('table', { name: 'Election overview', exact: true });
+    await expect(overview).toBeVisible({ timeout: 60_000 });
+    const before = await overview.textContent();
+    await page.getByTestId(inputId).setInputFiles({ name: 'old-results.json.gz', mimeType: 'application/gzip',
+      buffer: gzipSync(Buffer.from(bundledResultJson())) });
+    const errors = page.getByLabel('Errori simulazione');
+    await expect(errors).toContainText('precedente non supportato');
+    await expect(page.getByLabel('Nome scenario', { exact: true })).toHaveValue('Current draft');
+    await expect(page.getByLabel('Algoritmo di scrutinio')).toHaveValue('politiche-r-parity-v1');
+    await expect(overview).toHaveText(before!);
   });
-
-  await expect(page.getByRole('heading', { name: 'Imported Scenario' })).toBeVisible();
-  await expect(page.getByLabel('Note simulazione')).toContainText('RESULT_IMPORT');
-  await expect(page.getByRole('table', { name: 'Election overview' })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Scarica risultati compressi' })).toBeVisible();
-});
-
-test('warns when the imported result scenario is modified and can restore it', async ({ page }) => {
-  await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
-  await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-r-parity-v1');
-
-  await page.getByTestId('result-file-input').setInputFiles({
-    name: 'imported-results.json.gz',
-    mimeType: 'application/gzip',
-    buffer: gzipSync(Buffer.from(bundledResultJson()))
-  });
-
-  await expect(page.getByRole('heading', { name: 'Imported Scenario' })).toBeVisible();
-  await page.getByLabel('Nome scenario').fill('Scenario modificato');
-
-  const staleResultWarning = page.getByTestId('stale-result-warning');
-  await expect(staleResultWarning).toContainText('I risultati mostrati si riferiscono allo scenario precedente');
-  await expect(staleResultWarning.getByRole('button', { name: 'Riesegui simulazione' })).toBeVisible();
-  await expect(staleResultWarning.getByRole('button', { name: 'Ripristina scenario dei risultati' })).toBeVisible();
-
-  await staleResultWarning.getByRole('button', { name: 'Ripristina scenario dei risultati' }).click();
-  await expect(page.getByLabel('Nome scenario')).toHaveValue('Imported Scenario');
-  await expect(staleResultWarning).toHaveCount(0);
-});
-
-test('scenario upload accepts compressed bundled result JSON and shows the imported results', async ({ page }) => {
-  await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
-  await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-r-parity-v1');
-
-  await page.getByTestId('scenario-file-input').setInputFiles({
-    name: 'scenario-and-results.json.gz',
-    mimeType: 'application/gzip',
-    buffer: gzipSync(Buffer.from(bundledResultJson()))
-  });
-
-  await expect(page.getByRole('heading', { name: 'Imported Scenario' })).toBeVisible();
-  await expect(page.getByLabel('Note simulazione')).toContainText('RESULT_IMPORT');
-  await expect(page.getByRole('table', { name: 'Election overview' })).toBeVisible();
-});
+}
