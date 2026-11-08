@@ -66,14 +66,14 @@ Existing default/catalog compilers are mapped in [web workspaces](web-workspaces
 | Camera/European historical archives | Existing election manifest under `data/sources/polls/history/` and `data/reform-model-source-manifest.json` |
 | Senate pairing and preference calibration | Existing R26-19 manifest/builders |
 | Regional 2020 and dated municipal crosswalks | `data/workspace-source-manifest.json` |
-| Shared authored politics choices | `data/fast-share-future-scenario.json` and its existing compiler |
+| Shared authored politics choices and exact dependencies | `data/politics-default-scenario.json`; [CP-04 packaging](common-politics-scenario/defaults.md) |
 | Earlier politics reference choices and ER defaults | `data/workspace-defaults.json` |
 
 `workspace-defaults.json` contains authored lists, coalitions and correspondences
 transcribed from the retired workbooks, with workbook hashes for provenance.
 It contains no fitted coefficients or generated observations. The earlier
 politics choices remain a reference scenario; the visible politics default
-still comes from the shared authored compiler. Excel is not a Node pipeline input.
+comes from the common authored scenario and deterministic packaging. Excel is not a Node pipeline input.
 Original workbooks are available in the pre-retirement Git revision pinned in
 [migration history](migration-history.md#2026-11-02--r-and-temporary-bridge-retirement).
 

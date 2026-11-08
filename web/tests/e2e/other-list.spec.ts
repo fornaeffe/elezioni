@@ -4,6 +4,7 @@ test.setTimeout(90_000);
 for (const route of ['politics', 'emilia-romagna']) {
   test(`${route}: unique fixed Other switch, reference share and persistence`, async ({ page }) => {
     await page.goto(`${process.env.BASE_PATH ?? ''}/${route}`);
+    if(route==='politics') await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-r-parity-v1');
     const toggle = page.getByRole('switch', { name: 'Includi Altre liste' });
     await expect(toggle).not.toBeChecked();
     await toggle.check();
@@ -17,6 +18,7 @@ for (const route of ['politics', 'emilia-romagna']) {
     await row.getByLabel('Quota Altre liste', { exact: true }).fill('10');
     await expect(row.getByLabel('Usa quota Altre liste')).toBeChecked();
     await page.reload();
+    if(route==='politics') await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-r-parity-v1');
     await expect(toggle).toBeChecked();
     await expect(row.getByLabel('Quota Altre liste', { exact: true })).toHaveValue('10');
     await page.getByLabel('Simulazioni', { exact: true }).fill('1');
@@ -34,6 +36,7 @@ for (const route of ['politics', 'emilia-romagna']) {
 
 test('reform: Other has explicit component membership and fixed presentation', async ({page})=>{
   await page.goto(`${process.env.BASE_PATH??''}/politics`);
+  await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-r-parity-v1');
   await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-reform-2026-v1');
   const group=page.getByRole('group',{name:'Altre liste',exact:true});
   const disable=group.getByRole('button',{name:'Disattiva Altre liste',exact:true});

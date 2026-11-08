@@ -29,29 +29,27 @@ separate repository-layout change with its own path and base-URL verification.
 | Metadata routing and one-shot cross-route imports | `src/lib/workspaces/import-routing.ts`, `navigation.ts`, `handoff.ts` |
 | Snapshot resolution and schema/checksum checks | `src/lib/workspaces/data.ts`, `snapshots.generated.ts` |
 | Memory/stored result pages | `src/lib/workspaces/result-access.ts`; exports remain in `src/lib/core/result-export.ts` |
-| Shared-default compiler and descriptor generation | `scripts/workspaces/defaults.ts`, `generate.ts` |
+| Authored defaults, exact dependency packaging and descriptors | [CP-04 defaults guide](common-politics-scenario/defaults.md) |
 | Standalone list tickets at the previous-law boundary | `src/lib/scenario/politics-tickets.ts` |
 
 The installed workflows are previous-law politics, reform politics with M01/M02,
 and Emilia-Romagna regional elections. Municipal simulation remains unavailable;
-its type does not register a runnable workspace. The default politics law remains
-the previous law. Registry validation also runs at the worker boundary.
+its type does not register a runnable workspace. Fresh politics startup selects reform/M02 from the authored scenario.
+Registry validation also runs at the worker boundary.
 
 ## Defaults and compatibility
 
-[`data/fast-share-future-scenario.json`](../data/fast-share-future-scenario.json)
-is the single authored politics choice set, retaining its established filename
-and identity. Both default compilers consume it. Do not edit generated defaults.
+[`data/politics-default-scenario.json`](../data/politics-default-scenario.json)
+is the single installed politics default. It includes complete common declarations,
+per-law filings, model settings, run preferences and exact dependencies. See the
+[CP-04 defaults guide](common-politics-scenario/defaults.md) for editing,
+regeneration and retained reference inputs. Do not edit generated defaults.
 
-The previous-law compiler uses the promoted source-membership policy and reviewed
-legacy comparison weights. Unspecified internal splits use explicitly labelled
-equal-member assumptions; unmapped votes keep the legacy abstention semantics.
-Historical lists retain projected means; reviewed named polls initialize editable
-shares, automatically enabling national overrides for lists without compatible
-historical membership. Accepted reform Camera/common reference means supply
-special-territory/provincial anchors in the older shared chamber field. This does
-not give reference SDs a new legacy meaning or convert M02 fitting to the old model.
-The generated scenario carries these assumptions in `defaultSource.notes`.
+The current editors remain transitional until CP-06/08. Their defaults are
+projections of the common authored file. The old previous-law format uses
+Camera/common local-reference means; the common file retains both chambers and
+all explicit SDs. This does not change M01/M02 semantics at the common execution
+boundary or give the old M00 editor the common editor's capabilities.
 
 Scenario schema 9 adds optional per-chamber constituency filing and minority
 region declarations. Older scenarios keep unrestricted filing and their existing

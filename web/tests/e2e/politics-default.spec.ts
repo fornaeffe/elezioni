@@ -1,0 +1,30 @@
+import { expect, test } from '@playwright/test';
+import authored from '../../../data/politics-default-scenario.json' with { type: 'json' };
+const base=process.env.BASE_PATH??'';
+test.setTimeout(90_000);
+
+test('authored politics startup and reset retain the approved default choices',async({page})=>{
+  await page.goto(`${base}/politics`);
+  await expect(page.getByLabel('Algoritmo di scrutinio')).toHaveValue(authored.selection.scrutiny.id);
+  await expect(page.getByLabel('Modello di generazione',{exact:true})).toHaveValue('M02');
+  const name=page.getByLabel('Nome scenario',{exact:true});
+  await expect(name).toHaveValue(authored.name);
+  await expect(page.getByLabel('Seme delle simulazioni',{exact:true})).toHaveValue(authored.execution.simulationSeed);
+  await expect(page.getByLabel('Simulazioni',{exact:true})).toHaveValue('10');
+  const fdi=page.locator('details').filter({has:page.locator('summary').filter({hasText:/^Fratelli d'Italia ·/})}).last();
+  await fdi.locator('summary').click();
+  await expect(fdi.getByLabel('Colore',{exact:true})).toHaveValue('#003366');
+  await page.getByRole('button',{name:'Carica modello predefinito',exact:true}).click();
+  await expect(page.getByTestId('fit-status')).toHaveText('Modello pronto',{timeout:60_000});
+  await name.fill('Changed draft');
+  await page.getByLabel('Simulazioni',{exact:true}).fill('30');
+  await page.getByLabel('Seme delle simulazioni',{exact:true}).fill('changed-seed');
+  page.once('dialog',dialog=>dialog.accept());
+  await page.getByRole('button',{name:'Ripristina scenario predefinito',exact:true}).click();
+  await expect(name).toHaveValue(authored.name);
+  await expect(page.getByLabel('Seme delle simulazioni',{exact:true})).toHaveValue(authored.execution.simulationSeed);
+  await expect(page.getByLabel('Simulazioni',{exact:true})).toHaveValue('10');
+  await expect(page.getByLabel('Modello di generazione',{exact:true})).toHaveValue('M02');
+  await page.reload();
+  await expect(name).toHaveValue(authored.name);
+});

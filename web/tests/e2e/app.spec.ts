@@ -1,4 +1,4 @@
-import { generatedSnapshotPoliticsScenario } from '../../src/lib/scenario/politics-defaults.generated';
+import { generatedSnapshotPoliticsScenario } from '../fixtures/legacy-snapshot-scenario';
 import { expect, test } from '@playwright/test';
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -14,6 +14,7 @@ test.beforeEach(async ({ page }) => {
 
 test('runs the worker smoke path from the scenario editor', async ({ page }) => {
   await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
+  await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-r-parity-v1');
 
   await page.getByRole('button', { name: 'Impostazioni avanzate' }).click();
   await page.getByLabel('Astensione elettori').fill('50');

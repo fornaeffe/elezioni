@@ -1,9 +1,6 @@
-import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import {
-  defaultSharePlan,
-  type DefaultSharePolicy,
-} from "./fast-share-default";
+import { readAuthoredPolitics, reformDefaultInputs, releasedDefault, validateAuthoredPolitics } from '../workspaces/politics-default';
+import { buildPoliticsAssets, validateBuiltPoliticsAssets } from '../workspaces/politics-assets';
 import type { releaseInputs } from "./fast-share-release-inputs";
 import {
   implementationKey,
@@ -14,7 +11,6 @@ import {
 import {
   canonicalJson,
   sourceKey,
-  decodeSourceRows,
   type ByteAsset,
 } from "../../src/lib/politics/reform-2026/vote-share/source-codec";
 import {
@@ -30,13 +26,6 @@ import { compilePairedHistory } from "../../src/lib/politics/reform-2026/vote-sh
 import { fitReference } from "../../src/lib/politics/reform-2026/vote-share/information";
 import { fitProfiles } from "../../src/lib/politics/reform-2026/vote-share/profiles";
 import { prepareSenateAdapter } from "../../src/lib/politics/reform-2026/vote-share/senate-adapter";
-import { unifiedShareDefault } from './unified-share-default';
-import {
-  FAST_SHARE_MODEL,
-  FAST_SHARE_NUMERICS,
-} from "../../src/lib/politics/reform-2026/vote-share/types";
-import { FORECAST_STREAM_VERSION } from "../../src/lib/politics/reform-2026/vote-share/forecast-random";
-import { REFERENCE_POLICY } from "../../src/lib/politics/reform-2026/vote-share/reference-family";
 import {
   generationKeys,
   type CandidatePointer,
@@ -45,7 +34,6 @@ import {
   type RuntimeState,
   type ScenarioState,
   type ReleaseCatalog,
-  type ReleasedScenario,
 } from "../../src/lib/politics/reform-2026/vote-share/release";
 export async function prepareShareRelease(
   root: string,
@@ -53,35 +41,24 @@ export async function prepareShareRelease(
   cache: string,
   inputs: Awaited<ReturnType<typeof releaseInputs>>,
 ) {
-  const policy: DefaultSharePolicy = JSON.parse(
-      await readFile(
-        resolve(root, "data/fast-share-default-policy.json"),
-        "utf8",
-      ),
-    ),
-    source = inputs.source,
-    read = inputs.read;
-  const rows = await Promise.all(
-    [policy.paired.camera, policy.paired.senato].map(async (id) => {
-      const event = source.payload.events.find((e) => e.id === id);
-      if (!event) throw new Error("Missing default paired event");
-      return decodeSourceRows(source, id, await read(event.chunk.path));
-    }),
-  );
-  const plan = defaultSharePlan(
-      source,
-      inputs.legacy.defaults,
-      policy,
-      rows[0],
-      rows[1],
-    ),
-    compiled = await compileSource(source, read, plan.selection),
-    paired = await compilePairedHistory(
-      source,
-      read,
-      plan.selection,
-      policy.paired,
-    );
+  const authored = await readAuthoredPolitics(root);
+  const built = await buildPoliticsAssets(root, inputs.sources, inputs);
+  await validateBuiltPoliticsAssets(authored, built);
+  const readers = { implementationId: 'packaging', sourceChunk: inputs.read,
+    asset: async (pin: import('../../src/lib/politics/scenario/schema').Asset) => {
+      const asset = built.assets.get(pin.id);
+      if (!asset) throw new Error(`Missing authored asset ${pin.id}`);
+      return asset.bytes;
+    } };
+  await validateAuthoredPolitics(authored, readers);
+  const projected = await reformDefaultInputs(authored, readers, inputs.legacy.context);
+  const source = inputs.source, read = inputs.read;
+  const policy = { id: authored.id, fitSeed: authored.execution.fittingSeed, referenceDate: authored.referenceDate,
+    electionDate: authored.electionDate, electoratePolicy: built.electorate.targets[0].provenance,
+    paired: { camera: authored.history.pairedCamera!, senato: authored.history.pairedSenato!, electoratePolicy: 'equal-only' as const } };
+  const plan = { selection: projected.inputs.selection, electorates: built.electorate.targets, assumptions: [...authored.provenance.assumptions] };
+  const compiled = await compileSource(source, read, plan.selection, { polls: projected.inputs.common.polls.added });
+  const paired = await compilePairedHistory(source, read, plan.selection, policy.paired);
   const fitImplementation = await implementationKey(
       root,
       "web/src/lib/politics/reform-2026/vote-share/information.ts",
@@ -126,19 +103,7 @@ export async function prepareShareRelease(
     sourceVersions: [
       source.id,
       ...source.sourceVersions,
-      ...(policy.futureScenario
-        ? [
-            await sourceKey(
-              "authored-future-scenario",
-              JSON.parse(
-                await readFile(
-                  resolve(root, "data/fast-share-future-scenario.json"),
-                  "utf8",
-                ),
-              ),
-            ),
-          ]
-        : []),
+      await sourceKey('authored-politics-scenario', authored),
     ],
     methodVersions: [policy.id, fitImplementation, profileImplementation],
     assumptions: [...source.assumptions, ...plan.assumptions],
@@ -240,114 +205,18 @@ export async function prepareShareRelease(
       ],
     }),
     electorateKey = await sourceKey("conditional-electorates-v1", electorate);
-  const old = inputs.legacy.defaults,
-    scenario: ReleasedScenario = {
-      schemaVersion: 4,
-      kind: old.kind,
-      algorithmId: old.algorithmId,
-      referenceDate: policy.referenceDate,
-      electionDate: policy.electionDate,
-      seed: policy.simulationSeed,
-      fitSeed: policy.fitSeed,
-      models: {
-        statistical: FAST_SHARE_MODEL,
-        numerical: FAST_SHARE_NUMERICS,
-        references: REFERENCE_POLICY,
-        chambers: "fast-share-paired-v1",
-        rng: FORECAST_STREAM_VERSION,
-        ...(policy.futureScenario
-          ? {
-              forecast:
-                policy.forecastModel ?? ("bounded-pair-field-v1" as const),
-              forecastScale: policy.forecastScale ?? 1,
-              profileRegionCorrelation: policy.profileRegionCorrelation ?? 0,
-            }
-          : {}),
-        generationImplementationId: generationImplementation,
-      },
-      data: {
-        sourceBundleId: source.id,
-        fittedStateId: fitted.envelope.id,
-        profileStateId: profiles.envelope.id,
-        geographyVersion: source.payload.geography.version,
-        seatTableVersion: context.seats.version,
-        preferenceModelVersion: context.models.preferences.parameterVersion,
-      },
-      components: plan.components,
-      lists: {
-        camera: ("lists" in plan ? plan.lists.camera : old.lists.camera).map(
-          (l) => ({
-            ...l,
-            componentIds: plan.listMembers.camera[l.id],
-          }),
-        ),
-        senato: ("lists" in plan ? plan.lists.senato : old.lists.senato).map(
-          (l) => ({
-            ...l,
-            componentIds: plan.listMembers.senato[l.id],
-          }),
-        ),
-      },
-      renewal: old.renewal,
-      coverage: "coverage" in plan ? plan.coverage : old.coverage,
-      candidateGeneration: old.candidateGeneration,
-      candidateTemplates: old.candidateTemplates,
-      suppliedVotes: old.suppliedVotes,
-      suppliedPreferences: old.suppliedPreferences,
-      bonusLinks: "bonusLinks" in plan ? plan.bonusLinks : old.bonusLinks,
-      preferenceProfileId: old.preferenceProfileId,
-      chamberProfileId: old.chamberProfileId,
-      references: plan.references,
-      nonValidReferences: plan.nonValidReferences,
-      historySelection: {
-        electionIds: policy.history,
-        pairedCamera: policy.paired.camera,
-        pairedSenato: policy.paired.senato,
-      },
-      sourceMemberships: plan.selection.sourceMemberships!,
-      componentMap: plan.selection.componentMap!,
-      polls: {
-        selected: policy.polls,
-        added: [],
-        excluded: policy.excludedPolls,
-      },
-      presentation: {
-        ...("presentationCoalitions" in plan
-          ? { coalitions: plan.presentationCoalitions }
-          : {}),
-        lists: (["camera", "senato"] as const).flatMap((ch) =>
-          ("lists" in plan ? plan.lists[ch] : old.lists[ch]).map((l) => ({
-            chamber: ch,
-            id: l.id,
-            name: l.name,
-          })),
-        ),
-        components: plan.components.map((c) => ({
-          id: c.id,
-          name:
-            c.id === "historical-rest"
-              ? "Altri storici non presentati"
-              : (("lists" in plan ? plan.lists.camera : old.lists.camera).find(
-                  (l) => plan.listMembers.camera[l.id].includes(c.id),
-                )?.name ??
-                ("lists" in plan ? plan.lists.senato : old.lists.senato).find(
-                  (l) => plan.listMembers.senato[l.id].includes(c.id),
-                )?.name ??
-                c.id),
-          support: c.kind === "fitted" ? "fitted" : "reference",
-        })),
-      },
-    };
-  if (policy.futureScenario) unifiedShareDefault(scenario,source,
-    JSON.parse(await readFile(resolve(root,'data/legacy-comparison-policy.json'),'utf8')),
-    JSON.parse(await readFile(resolve(root,'data/legacy-comparison-future-polls.json'),'utf8')));
+  const scenario = releasedDefault(authored, projected, {
+    sourceBundleId: source.id, fittedStateId: fitted.envelope.id, profileStateId: profiles.envelope.id,
+    geographyVersion: source.payload.geography.version, seatTableVersion: context.seats.version,
+    preferenceModelVersion: context.models.preferences.parameterVersion,
+  }, generationImplementation);
   const keys = await generationKeys(scenario, context, electorateKey),
     defaults = await encodeState(
       "fast-share-scenario",
       {
         scenario,
         selection: plan.selection,
-        defaultPolicy: policy,
+        defaultPolicy: { authoredScenarioId: authored.id, authoredScenarioHash: await sourceKey('authored-politics-scenario', authored) },
         keys,
         electorateKey,
       } satisfies ScenarioState,
@@ -438,7 +307,7 @@ export async function prepareShareRelease(
         camera: scenario.lists.camera.length,
         senato: scenario.lists.senato.length,
       },
-      polls: { included: policy.polls, excluded: policy.excludedPolls },
+      polls: { included: [...authored.history.polls.selected], excluded: { ...authored.history.polls.excluded } },
       pair: paired.audit,
       preferenceFit: inputs.legacy.preferenceAudit,
       sourceKey: inputs.sourceKey,

@@ -1,4 +1,4 @@
-import { generatedSnapshotPoliticsScenario } from '../scenario/politics-defaults.generated';
+import { generatedSnapshotPoliticsScenario } from '../../../tests/fixtures/legacy-snapshot-scenario';
 import { cloneScenario } from '../scenario/politics';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from 'vitest';

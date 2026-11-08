@@ -17,7 +17,7 @@ are separate. Read only the appropriate model definition for its equations.
 | M02 grouped fitting/geography/physical fields | `vote-share/source-compiler.ts`, `information.ts`, `profiles.ts`, `senate-adapter.ts`, `generation.ts` |
 | Reference editing and scope resolution | `vote-share/FastReferencesEditor.svelte`, `reference-plans.ts`, `interventions.ts` |
 | Shared candidature/preference/legal assembly | parent `assembly.ts`; scrutiny is independent |
-| Authored defaults and release | `scripts/data-preparation/unified-share-default.ts`, `fast-share-release.ts` |
+| Authored defaults and release | [CP-04 packaging guide](common-politics-scenario/defaults.md); `scripts/data-preparation/fast-share-release.ts` |
 | Current model smoke check | `scripts/acceptance/component-policy-current.ts` (writes only `data/derived/model-rollback/`) |
 | Frozen 1.0.0 historical kernels | `scripts/acceptance/archive/models-v1/README.md` |
 

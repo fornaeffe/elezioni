@@ -1,5 +1,6 @@
+import { generatedSnapshotPoliticsScenario } from '../fixtures/legacy-snapshot-scenario';
 import { expect, test } from '@playwright/test';
-import { generatedDefaultPoliticsScenario, generatedSnapshotPoliticsScenario } from '../../src/lib/scenario/politics-defaults.generated';
+import { generatedDefaultPoliticsScenario } from '../../src/lib/scenario/politics-defaults.generated';
 import { generatedDefaultRegionalErScenario } from '../../src/lib/scenario/regional-er-defaults.generated';
 
 const base = process.env.BASE_PATH ?? '';
@@ -7,6 +8,7 @@ test.setTimeout(90_000);
 
 test('fresh politics default, filing editor, results and reset share one lifecycle', async ({ page }) => {
   await page.goto(`${base}/politics`);
+  await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-r-parity-v1');
   await expect(page.getByLabel('Algoritmo di scrutinio')).toHaveValue('politiche-r-parity-v1');
   await expect(page.locator('.list-row')).toHaveCount(24);
   await expect(page.locator('.coalition-row')).toHaveCount(2);
@@ -34,6 +36,7 @@ test('fresh politics default, filing editor, results and reset share one lifecyc
 test('historical drafts remain historical and cancel cleanly on navigation', async ({ page }) => {
   await page.addInitScript(scenario => localStorage.setItem('elezioni:web:politics-scenario:v1', JSON.stringify({ schema_version: 7, scenario })), generatedSnapshotPoliticsScenario);
   await page.goto(`${base}/politics`);
+  await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-r-parity-v1');
   await expect(page.locator('.list-row')).toHaveCount(9);
   await page.getByLabel('Simulazioni', { exact: true }).fill('1000');
   await page.getByRole('button', { name: 'Esegui', exact: true }).click();
@@ -49,6 +52,7 @@ test('historical drafts remain historical and cancel cleanly on navigation', asy
 
 test('scenario metadata hands imports to the correct route without rewriting them', async ({ page }) => {
   await page.goto(`${base}/politics`);
+  await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-r-parity-v1');
   await page.getByTestId('scenario-file-input').setInputFiles({ name: 'regional.json', mimeType: 'application/json',
     buffer: Buffer.from(JSON.stringify({ schema_version: 1, scenario: { ...generatedDefaultRegionalErScenario, name: 'Importazione regionale' } })) });
   await expect(page).toHaveURL(new RegExp(`${base}/emilia-romagna/?$`));

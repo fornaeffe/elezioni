@@ -115,12 +115,12 @@ describe.skipIf(!existsSync(resolve(directory, "candidate.json")))(
           .map((c) => c.id)
           .sort(),
       ).toEqual([
-        "poll-only-ora",
-        "suedtiroler-freiheit",
-        "team-k",
-        "union-valdotaine",
-        "valdostano-cdx",
-        "valdostano-csx",
+        "new:cdx-vda",
+        "new:csx-vda",
+        "new:ora",
+        "new:suedtiroler-freiheit",
+        "new:team-k",
+        "new:uv",
       ]);
       expect(loaded.assets.fit.componentIds).toHaveLength(28);
       for (const ch of ["camera", "senato"] as const) {

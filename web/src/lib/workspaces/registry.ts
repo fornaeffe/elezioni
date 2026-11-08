@@ -5,7 +5,7 @@ import { generationModels } from '../politics/reform-2026/vote-share/model-regis
 /** A workspace is a supported combination, not the product of all selectors. */
 export const workspaces = [
   { id: 'politics-legacy', kind: 'politiche', route: '/politics', name: 'Politiche',
-    label: 'Legge precedente (R parity, predefinita)', territory: 'Italia',
+    label: 'Legge precedente (R parity)', territory: 'Italia',
     algorithm: 'politiche-r-parity-v1', scenarioFamily: 'legacy',
     data: 'politics', models: [], maximumSimulations: 1000, fitting: false, storedResults: false },
   { id: 'politics-reform', kind: 'politiche', route: '/politics', name: 'Politiche',

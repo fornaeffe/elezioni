@@ -17,6 +17,7 @@ test('current plain scenario imported from the previous-law screen keeps its see
   const scenario=structuredClone((await currentBrowserSession()).scenario);
   scenario.seed='current-plain-import';
   await page.goto(base+'/politics');
+  await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-r-parity-v1');
   await page.getByTestId('scenario-file-input').setInputFiles({name:'current.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(scenario))});
   await expect(page.getByLabel('Algoritmo di scrutinio')).toHaveValue(scenario.algorithmId);
   await expect(page.getByLabel('Seme delle simulazioni',{exact:true})).toHaveValue(scenario.seed);

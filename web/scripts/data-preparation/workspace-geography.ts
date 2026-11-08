@@ -101,5 +101,8 @@ export async function prepareWorkspaceGeography(geo: DefinitiveGeography, manife
     .map(r => ({ CODICE_COMUNE: r.PRO_COM.padStart(6, '0'), CODITA_20N: `definitive-2022:${r.OBJECTID}`, ELETTORI: electors.get(r.OBJECTID)!, CU20_COD: Number(r.CU20_COD), SU20_COD: Number(r.SU20_COD) }));
   const provenance = { method: 'workspace-definitive-2022-census-2021-v1', sourceHashes: manifest.sources.filter(s => ['camera-a1', 'camera-a2', 'senato-b1', 'senato-b2', 'electoral-geography-2022', 'legal-population-2021', 'municipalities-2021', 'submunicipal-geography-2021'].includes(s.id)).map(({ id, sha256 }) => ({ id, sha256 })),
     reconstructions, supersededSpreadsheetMemberships, notes: ['Collegi definitivi 2022 senza sovrapposizione Bolzano della riforma. Popolazione legale 2021; elettori e risultati subcomunali ricostruiti con pesi censuari, non osservati. Dotazioni calcolate provvisorie, non decreto ufficiale.'] };
-  return { camera, senato, base_dati, audit: provenance, version: `workspace-geography-v1-${sha256(JSON.stringify({ provenance, camera, senato, base_dati })).slice(0, 12)}` };
+  const cells = (['camera', 'senato'] as const).flatMap(chamber => geo.rows.map(r => ({ chamber,
+    collegeId: `ros:${chamber}:${Number(r[chamber === 'camera' ? 'CU20_COD' : 'SU20_COD'])}`,
+    unitId: `definitive-2022:${r.OBJECTID}`, municipality: r.PRO_COM.padStart(6, '0'), population: population.get(r.OBJECTID)! })));
+  return { camera, senato, base_dati, cells, audit: provenance, version: `workspace-geography-v1-${sha256(JSON.stringify({ provenance, camera, senato, base_dati })).slice(0, 12)}` };
 }

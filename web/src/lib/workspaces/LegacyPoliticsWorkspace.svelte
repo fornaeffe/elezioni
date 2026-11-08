@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { authoredPoliticsDefault } from '$lib/politics/scenario/defaults';
   import { politicsCandidateTickets } from '../scenario/politics-tickets';
   import LegacyFilingEditor from './LegacyFilingEditor.svelte';
   import WorkspaceMessages from './WorkspaceMessages.svelte';
@@ -106,8 +107,8 @@
     onRouteImport: (input: { file?: File; payload?: SimulationResultExport; scenario?: import('$lib/politics/reform-2026/vote-share/release').ReleasedScenario }) => void;
     onImportConsumed: () => void; onBusyChange?: (busy: boolean) => void;
   } = $props();
-  let simulations = $state(10);
-  let seed = $state('politiche-2027');
+  let simulations = $state(authoredPoliticsDefault.execution.simulations);
+  let seed = $state(authoredPoliticsDefault.execution.simulationSeed);
   const execution = createWorkspaceExecution(() => new SimulationWorker());
   const running = $derived(execution.running);
   let busyAction = $state('');
@@ -658,6 +659,8 @@
   function resetScenario(): void {
     if (isBusy || !confirmWorkspaceReset()) return;
     scenarioDraft = createDefaultPoliticsScenario();
+    simulations = authoredPoliticsDefault.execution.simulations;
+    seed = authoredPoliticsDefault.execution.simulationSeed;
     messages = [];
     showAdvancedScenario = false;
   }

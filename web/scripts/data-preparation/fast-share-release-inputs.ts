@@ -15,7 +15,6 @@ import { encodeState } from '../../src/lib/politics/reform-2026/vote-share/state
 import type { CompactSource } from '../../src/lib/politics/reform-2026/vote-share/source-types';
 import type {
   ReformAssemblyContext,
-  ReformGenerationScenario,
 } from '../../src/lib/politics/reform-2026/generation-types';
 import {
   implementationKey,
@@ -26,7 +25,6 @@ import {
 } from './fast-share-release-io';
 export interface LegacyReleaseInputs {
   context: ReformAssemblyContext;
-  defaults: ReformGenerationScenario;
   preferenceAudit: unknown;
   modelsVersion: string;
   snapshotVersion: string;
@@ -144,7 +142,6 @@ export async function releaseInputs(
         seats: s.seats,
         models: s.models,
       },
-      defaults: prepared.defaults,
       preferenceAudit: prepared.audit.preferenceFit,
       modelsVersion: prepared.models.version,
       snapshotVersion: s.version,
@@ -167,6 +164,7 @@ export async function releaseInputs(
     });
   }
   return {
+    sources,
     source,
     descriptor,
     legacy,

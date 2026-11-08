@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { authoredPoliticsDefault } from '../../scenario/defaults';
   import { confirmWorkspaceReset } from '../../../workspaces/draft.svelte';
   import WorkspaceShell from '../../../workspaces/WorkspaceShell.svelte';
   import RunControls from '../../../workspaces/RunControls.svelte';
@@ -92,7 +93,7 @@
       'placements' | 'bonusSelection'
     > | null>(null),
     previewSelection = $state<PreviewSelection | undefined>();
-  let simulations = $state(10),
+  let simulations = $state(authoredPoliticsDefault.execution.simulations),
     computeWorkers = $state(1),
     maximumWorkers = $state(0),
     running = $state(false),
@@ -288,8 +289,8 @@
   function refreshWorkers() {
     workerCapacity=fitting?.generationCapacity(navigator);
     maximumWorkers=workerCapacity?.maximum??0;
-    const saved=Number(localStorage.getItem(storageKey+':workers:'+(scenario?.generation?.model??'M02')));
-    computeWorkers=Number.isSafeInteger(saved)&&saved>=1?Math.min(saved,maximumWorkers):workerCapacity?.recommended??1;
+    const policy = authoredPoliticsDefault.execution.workers;
+    computeWorkers = policy.kind === 'auto' ? workerCapacity?.recommended ?? 1 : policy.count;
   }
   async function loadModel() {
     error = '';
@@ -405,6 +406,8 @@
     editorData = null;
     source = null;
     scenario = structuredClone(defaultScenario!);
+    simulations = authoredPoliticsDefault.execution.simulations;
+    refreshWorkers();
     evidenceChanged = false;
     jsonPending = false;
     preview = null;
@@ -847,13 +850,15 @@
     </section>
     <section aria-label="Simulazione">
       <h2>Simulazione</h2>
+      {#if result?.status === 'completed' && result.benchmark.simulations === 10 && (result.completedSimulations ?? result.storage?.completedSimulations) === 10 && !result.warnings.some(w => w.severity === 'error')}
+        <p>Il controllo di 10 simulazioni è riuscito. Per risultati più stabili, aumenta a 1.000 simulazioni.</p>
+      {/if}
       <RunControls bind:simulations showSeed={false} {canRun} {running} disabled={!!busy || maximumWorkers === 0}
         label="Esegui riforma" onrun={run} oncancel={cancelRun}>
 <label
           >Processi di calcolo<select
             aria-label="Processi di calcolo"
             bind:value={computeWorkers}
-            onchange={e=>localStorage.setItem(storageKey+':workers:'+(scenario?.generation?.model??'M02'),e.currentTarget.value)}
             disabled={running || !!busy || maximumWorkers === 0}
             >{#each Array.from({ length: maximumWorkers }, (_, i) => i + 1) as n (n)}<option
                 value={n}>{n}</option

@@ -8,7 +8,7 @@ import type { OriginalSource } from '../../src/lib/politics/reform-2026/vote-sha
 import {
   defaultSharePlan,
   type DefaultSharePolicy,
-} from './fast-share-default';
+} from '../../tests/fixtures/retired-defaults/fast-share-default';
 import policyData from '../../../data/fast-share-default-policy.json' with { type: 'json' };
 async function fixture() {
   const base = originalShareFixture(),

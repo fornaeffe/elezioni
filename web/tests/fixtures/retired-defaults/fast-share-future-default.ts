@@ -1,15 +1,16 @@
+// Test-only retained default compiler; never a production input.
 /** Authored future filing; original grouped observations are never decomposed. */
-import futureData from "../../../data/fast-share-future-scenario.json" with { type: "json" };
+import futureData from "../../../../data/fast-share-future-scenario.json" with { type: "json" };
 import type { DefaultSharePolicy } from "./fast-share-default";
 import type {
   CompactSource,
   OriginalRow,
-} from "../../src/lib/politics/reform-2026/vote-share/source-types";
-import type { FastReference } from "../../src/lib/politics/reform-2026/vote-share/forecast-types";
-import type { ReformGenerationScenario } from "../../src/lib/politics/reform-2026/generation-types";
-import type { SourceSelection } from "../../src/lib/politics/reform-2026/vote-share/source-compiler";
-import { normalizeName } from "./formats";
-import { sum } from "../../src/lib/politics/reform-2026/vote-share/types";
+} from "../../../src/lib/politics/reform-2026/vote-share/source-types";
+import type { FastReference } from "../../../src/lib/politics/reform-2026/vote-share/forecast-types";
+import type { ReformGenerationScenario } from "../../../src/lib/politics/reform-2026/generation-types";
+import type { SourceSelection } from "../../../src/lib/politics/reform-2026/vote-share/source-compiler";
+import { normalizeName } from "../../../scripts/data-preparation/formats";
+import { sum } from "../../../src/lib/politics/reform-2026/vote-share/types";
 const recognized = new Map(
   [
     ["TEAM K", "team-k"],

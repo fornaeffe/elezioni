@@ -924,6 +924,10 @@ valid. Worker validation uses the same supported-pair registry.
 
 ### CP-04 — Replace authored-default construction
 
+Implemented default API and preparation boundaries: [authored defaults guide](defaults.md).
+Verification is recorded in
+[migration history](../migration-history.md#cp-04--replace-authored-default-construction-2026-11-08).
+
 Apply D03/D04/D07, including the approved subject palette. Create the single
 authored JSON with complete baseline law/model blocks; make preparation, browser
 startup, reset and release packaging consume it. Replace scripts that
@@ -1050,5 +1054,5 @@ this is a navigation map, not a mandate to retain existing boundaries.
 | Reform scenario, edits, candidates and assembly | `src/lib/politics/reform-2026/{generation-types.ts,generation-scenario.ts,scenario-editor.ts,candidature-validation.ts,assembly.ts}` |
 | M01/M02 schema, dispatch, fit and edit services | `src/lib/politics/reform-2026/vote-share/{release.ts,scenario.ts,model-registry.ts,unified-generation.ts,fit-service.ts,editor-model.ts}` |
 | Existing UI to consolidate | `src/lib/workspaces/LegacyPoliticsWorkspace.svelte`; `src/lib/politics/reform-2026/ReformWorkspace.svelte`; `src/lib/politics/reform-2026/vote-share/{FastReformWorkspace.svelte,FastScenarioEditor.svelte}` |
-| Authored/default preparation | `../data/fast-share-future-scenario.json`; `scripts/workspaces/{defaults.ts,generate.ts}`; `scripts/data-preparation/{unified-share-default.ts,fast-share-release.ts}` |
+| Authored/default preparation | `../data/politics-default-scenario.json`; `scripts/workspaces/{politics-default.ts,politics-assets.ts,generate.ts}`; `scripts/data-preparation/fast-share-release.ts`; [defaults guide](defaults.md) |
 | Result contracts, access and export | `src/lib/core/{types.ts,result-export.ts,result-store.ts}`; `src/lib/workspaces/result-access.ts`; `src/lib/politics/result-presentation.ts`; `src/lib/politics/reform-2026/result-presentation.ts` |

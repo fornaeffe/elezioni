@@ -1,9 +1,9 @@
+import { generatedSnapshotPoliticsScenario } from '../../../tests/fixtures/legacy-snapshot-scenario';
 import { describe, expect, it, vi } from 'vitest';
 import { workspaceFor, validateWorkspaceRequest, workspaces } from './registry';
 import { scenarioWorkspace, fileWorkspace } from './import-routing';
 import { createDefaultPoliticsScenario, cloneScenario, parseScenario, serializeScenario, validateScenario, renameScenarioList, removeScenarioList } from '../scenario/politics';
 import { politicsCandidateTickets } from '../scenario/politics-tickets';
-import { generatedSnapshotPoliticsScenario } from '../scenario/politics-defaults.generated';
 import { createDefaultRegionalErScenario } from '../scenario/regional-er';
 import { isFiled } from './filing';
 import { validateSnapshot, loadWorkspaceSnapshot } from './data';

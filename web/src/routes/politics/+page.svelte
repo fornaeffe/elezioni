@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { authoredPoliticsDefault } from '$lib/politics/scenario/defaults';
   import { takeWorkspaceImport } from '$lib/workspaces/handoff';
   import { navigateWorkspaceImport } from '$lib/workspaces/navigation';
   import LegacyPoliticsWorkspace from '$lib/workspaces/LegacyPoliticsWorkspace.svelte';
@@ -8,7 +9,7 @@
   import type { SimulationResultExport } from '$lib/core/result-export';
   import type { ReleasedScenario } from '$lib/politics/reform-2026/vote-share/release';
   const legacyInput = takeWorkspaceImport('politics-legacy'), reformInput = takeWorkspaceImport('politics-reform');
-  let algorithmId = $state<string>(politicsWorkspaces[reformInput ? 1 : 0].algorithm);
+  let algorithmId = $state<string>(legacyInput ? politicsWorkspaces[0].algorithm : authoredPoliticsDefault.selection.scrutiny.id);
   let busy = $state(false), error = $state('');
   let input = $state.raw<{ file?: File; payload?: SimulationResultExport; scenario?: ReleasedScenario }>(legacyInput ?? reformInput ?? {});
   async function routeImport(next: typeof input) {

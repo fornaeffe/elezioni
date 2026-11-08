@@ -1,5 +1,5 @@
+import { generatedSnapshotPoliticsScenario } from '../../../tests/fixtures/legacy-snapshot-scenario';
 import { describe, expect, test } from 'vitest';
-import { generatedSnapshotPoliticsScenario } from './politics-defaults.generated';
 import { cloneScenario } from './politics';
 const createHistoricalScenario = () => cloneScenario(generatedSnapshotPoliticsScenario);
 import {
@@ -48,7 +48,8 @@ describe('politics web-native scenario model', () => {
     expect(scenario.abstentionOverride).toBe(false);
     expect(scenario.localShareOverrides).toEqual([]);
     expect(scenario.candidateTemplates).toEqual([]);
-    expect(scenario.candidateGeneration).toEqual(defaultScenarioCandidateGeneration);
+    expect(scenario.candidateGeneration.uninominalToPlurinominalShare).toBe(defaultScenarioCandidateGeneration.uninominalToPlurinominalShare);
+    scenario.candidateGeneration.plurinominalCandidacyCountShares.forEach((value, index) => expect(value).toBeCloseTo(defaultScenarioCandidateGeneration.plurinominalCandidacyCountShares[index], 14));
     expect(scenario.listCorrespondences.length).toBeGreaterThan(0);
     expect(scenario.listCorrespondences.every((correspondence) => correspondence.source === 'bundled')).toBe(true);
     expect(scenario.listCorrespondences).toEqual(

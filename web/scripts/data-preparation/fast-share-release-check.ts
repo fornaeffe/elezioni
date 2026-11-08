@@ -40,7 +40,7 @@ export async function verifyShareRelease(
     throw new Error('RELEASE_INCOMPLETE_SOURCE_DOMAIN');
   for (const e of source.payload.events)
     await decodeSourceRows(source, e.id, await read(e.chunk.path));
-  const compiled = await compileSource(source, read, loaded.selection);
+  const compiled = await compileSource(source, read, loaded.selection, { polls: loaded.scenario.polls.added });
   const paired = await compilePairedHistory(source, read, loaded.selection, {
     camera: loaded.scenario.historySelection.pairedCamera,
     senato: loaded.scenario.historySelection.pairedSenato,

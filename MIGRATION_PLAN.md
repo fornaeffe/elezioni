@@ -162,12 +162,12 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
     and [reproducible baselines](docs/common-politics-scenario/baselines.md).
   - [x] CP-02 — Establish the shared domain contract: [domain API and boundaries](docs/common-politics-scenario/contract.md).
   - [x] CP-03 — Adapt existing execution paths: [execution API and adapters](docs/common-politics-scenario/execution.md).
-  - [ ] CP-04 — Replace authored-default construction, including approved colors.
+  - [x] CP-04 — Replace authored-default construction, including approved colors: [authored input and packaging](docs/common-politics-scenario/defaults.md).
   - [ ] CP-05 — Enforce new-format files and draft isolation.
   - [ ] CP-06 — Build the common editor within the approved D14 perimeter.
   - [ ] CP-07 — Unify lifecycle, persistence and results.
   - [ ] CP-08 — Verify the supported pairs and complete merger acceptance.
-- [ ] Change default scenario colors to colors that reflects the real parties
+- [x] Change default scenario colors to colors that reflects the real parties
   political colors (or colors with which polling houses usually represent parties).
 - [x] In "Dotazioni dei seggi per collegio e liste del premio" do now show territory ids,
   only names.
