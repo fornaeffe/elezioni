@@ -13,7 +13,8 @@ for independent statistical, candidature and fixed-input legal evidence.
 | M01 original-source compilation, polls, municipal shocks, college reconstruction | `politics/generation/m01-compiler.ts`, `m01-polls.ts`, `m01.ts`, `m01-counts.ts` |
 | M02 physical vote field, references and integer counts | `politics/generation/m02.ts` |
 | Law-specific filing and candidature assembly | `politics/execution/rosatellum.ts`, `reform.ts` |
-| Validated common compute packet and per-run result tables | `workers/politics-compute.ts` |
+| Compact compute inputs, binding and numeric-parent keys | `politics/execution/compute-inputs.ts`, `compute-packet.ts`, `keys.ts` |
+| Per-run result tables | `workers/politics-compute.ts` |
 | Actual compute worker, bounded pull transport and ordered pool | `workers/reform-compute.worker.ts`, `reform-compute.ts`, `reform-pool.ts` |
 
 ## API and ownership
@@ -37,7 +38,10 @@ The prepared object exposes:
 - `generateVotes(id)`: physical college elector/list counts and model trace;
 - `generate(id)`: the same votes plus a discriminated `PoliticsSimulationRequest`;
 - `run(id)`: generation/assembly followed by the existing scrutiny registry;
-- `keys`: separate preparation, generation and legal-assembly identities.
+- `keys`: separate preparation, generation and legal-assembly identities;
+- `computeInputs`: immutable prepared inputs for `createPoliticsComputePacket`;
+- `numericStates`/`reuse`: coordinator-owned checkpoint/cache state and reuse
+  metadata, never returned by a compute worker's execution handle.
 
 No M00 generator exists at this boundary. M01 does not construct a reform legal
 scenario to run Rosatellum. The shared statistical implementations consume only
@@ -135,13 +139,28 @@ there is no reroll, scaling repair or regenerated legal expectation.
 
 ## Workers and workspace integration
 
-`PoliticsComputePacket` carries the immutable scenario, exact asset/chunk bytes
-and all three expected stage keys plus the actual implementation ID. M02 packets
-also carry prepared numeric states with verified consumed-input parents, so each
-worker reuses the fit instead of sampling it again. The worker
-checks that ID against its own compiled build. `init-politics` repeats parsing, checksums,
-supported-pair, model preparation and legal validation inside the actual compute
-worker; mismatching keys fail. It uses the existing one-run-at-a-time, pull-driven
+`createPoliticsComputePacket(prepared)` carries the immutable scenario, prepared
+generation/legal inputs, three stage keys and actual implementation ID. Raw
+catalogue/JSON asset bytes and source columns stop at the coordinator, which
+validates exact dependencies, compiles original observations and prepares M01
+references or M02 fits/profiles once. Workers receive no I/O or fitting cache.
+The worker checks the ID against its compiled build, verifies the packet's SHA-256
+over the structured graph (typed numeric columns are hashed directly, not
+expanded into JSON), parses the scenario and checks its supported selection.
+M02 preparation identity `politics-m02-preparation-v2` binds national, profile
+and paired-input parent hashes; workers recompute it and the generation key,
+check numeric parents/seed/date and retain the existing numeric/basis validators.
+This internal dependency-key revision changes no probability law or RNG version.
+
+Each compute worker owns its transferred arrays and borrows them immutably in
+`prepareM02Votes`, without another numeric clone or checkpoint/cache handle.
+The coordinator shares its immutable numeric cache with its generator; handoff
+still transfers only owned structured copies. Other M02 callers retain defensive
+asset copying by default. The retained reform compatibility wrapper precomputes
+its assembly metadata so its run closure no longer retains original numeric
+assets just for provenance.
+
+Execution uses the existing one-run-at-a-time, pull-driven
 result encoding and ordered pool. Legal/generation failures retain their original
 simulation IDs and error diagnostics. This path introduces no 1,000-run cap.
 

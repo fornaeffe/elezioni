@@ -16,8 +16,8 @@ import { implementationSha256 } from './build';
 export async function runStoredPolitics(prepared: PreparedPoliticsExecution, packet: PoliticsComputePacket,
   id: string, owner: string, cancelled: () => boolean, emit: (p: SimulationProgress) => void,
   factory = () => new ReformComputeClient(new Worker(new URL('../../workers/reform-compute.worker.ts', import.meta.url), { type: 'module' })),
-  hints = navigator as Navigator & { deviceMemory?: number }): Promise<StoredResult> {
-  const s = prepared.scenario, capacity = politicsCapacity(packet, hints), workersPlan = politicsRunResources(s, capacity);
+  hints = navigator as Navigator & { deviceMemory?: number }, retainedCoordinatorBytes = 0): Promise<StoredResult> {
+  const s = prepared.scenario, capacity = politicsCapacity(packet, hints, retainedCoordinatorBytes), workersPlan = politicsRunResources(s, capacity);
   const started = performance.now(), startedAt = new Date().toISOString(), model = activeGenerator(s);
   const execution = { requestedWorkers: workersPlan.requested, computeWorkers: workersPlan.actual, maximumWorkers: capacity.maximum,
     estimatedWorkerMemoryMiB: Math.ceil(capacity.perWorkerBytes / 1048576), estimateVersion: `${capacity.estimateVersion}/common-${prepared.pair.adapterId}-v1`,

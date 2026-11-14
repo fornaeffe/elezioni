@@ -7,11 +7,17 @@ import { activeGenerator, requirePair } from '../scenario/registry';
 /** Packet copies plus generation/legal scratch. Rosatellum's full national
  * candidate matrices need the original 1536 MiB scrutiny budget until CP-08
  * measures the common adapter; estimates are labelled, never free-RAM claims. */
-export function politicsCapacity(packet: PoliticsComputePacket, hints: WorkerResourceHints) {
+export function politicsCapacity(packet: PoliticsComputePacket, hints: WorkerResourceHints, retainedCoordinatorBytes = 0) {
+  if (!Number.isSafeInteger(retainedCoordinatorBytes) || retainedCoordinatorBytes < 0) throw new Error('Invalid coordinator memory estimate');
   const s = packet.scenario as PoliticsScenario, bytes = retainedBytes(packet), MiB = 1024 * 1024;
-  const scratch = s.selection.scrutiny.id === 'politiche-r-parity-v1' ? 1536 : activeGenerator(s).id === 'M01' ? 384 : 320;
-  return planReformWorkers(hints, 128 * MiB + 2 * bytes, scratch * MiB + 2 * bytes,
-    { budgetBytes: 3072 * MiB, coordinatorBytes: 512 * MiB, perWorkerBytes: Math.max(256 * MiB, bytes) });
+  // Include initialization/GC and the pending legal/result batch, not just the
+  // serialized packet. Four is the provisional automatic ceiling following the
+  // Chrome 157 investigation; CPU-based explicit choices remain selectable.
+  const scratch = s.selection.scrutiny.id === 'politiche-r-parity-v1' ? 1536 : activeGenerator(s).id === 'M01' ? 640 : 512;
+  const capacity = planReformWorkers(hints, 768 * MiB + 2 * bytes + retainedCoordinatorBytes, scratch * MiB + 2 * bytes,
+    { budgetBytes: 3072 * MiB, coordinatorBytes: 768 * MiB + retainedCoordinatorBytes, perWorkerBytes: scratch * MiB + bytes });
+  return { ...capacity, recommended: Math.min(4, capacity.recommended), maximumAutomaticWorkers: 4,
+    estimateVersion: `${capacity.estimateVersion}/common-worker-memory-v2` };
 }
 export function politicsRunResources(s: PoliticsScenario, capacity: ReturnType<typeof politicsCapacity>) {
   requirePair(s.selection.scrutiny.id, activeGenerator(s).id);

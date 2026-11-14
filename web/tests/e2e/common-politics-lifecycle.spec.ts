@@ -109,7 +109,7 @@ for (const [law, model] of [[ROSATELLUM, 'M01'], [REFORM, 'M01'], [REFORM, 'M02'
     const broken = new File(['{"kind":"politics-result-archive","schemaVersion":1,"run":'], 'corrupt.json');
     const selected = await page.getByRole('combobox', { name: 'Sessione dei risultati', exact: true }).inputValue();
     await page.getByLabel('Importa risultati', { exact: true }).setInputFiles({ name: broken.name, buffer: Buffer.from(await broken.text()), mimeType: 'application/json' });
-    await expect(page.getByRole('alert')).toContainText('Risultati non caricati');
+    await expect(page.getByRole('alert').filter({ hasText: 'Risultati non caricati' })).toBeVisible();
     await expect(page.getByRole('combobox', { name: 'Sessione dei risultati', exact: true })).toHaveValue(selected);
     // Scenario exports still describe the draft, never whichever archive was viewed.
     const scenarioDownload = page.waitForEvent('download');

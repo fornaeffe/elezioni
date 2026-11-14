@@ -15,6 +15,8 @@ export interface ResultStorage {
   warningCounts: { info: number; warning: number; error: number };
 }
 export interface StoredResult {
+  /** Immutable payload lives once in the checkpoints store, keyed by this ID. */
+  fittedState?: 'politics-checkpoint' | 'reform-session';
   politics?: { run: import('../politics/scenario/envelopes').PoliticsResultEnvelope;
     checkpoint: import('../politics/scenario/envelopes').PoliticsCheckpoint | null };
   fitFile?: import('../politics/reform-2026/vote-share/checkpoint').PortableFitFile;
@@ -24,6 +26,21 @@ export interface StoredResult {
   result: SimulationResult;
   exports: string[];
   metadataCounts?: Record<number, number[]>;
+}
+type StoredFittedState = { resultId: string } & (
+  { kind: 'politics-checkpoint'; value: NonNullable<StoredResult['politics']>['checkpoint'] } |
+  { kind: 'reform-session'; value: NonNullable<StoredResult['fitFile']> }
+);
+function separateFittedState(record: StoredResult) {
+  if (record.politics?.checkpoint && record.fitFile) throw new Error('Conflicting stored fitted states');
+  const payload: StoredFittedState | undefined = record.politics?.checkpoint
+    ? { resultId: record.id, kind: 'politics-checkpoint', value: record.politics.checkpoint }
+    : record.fitFile ? { resultId: record.id, kind: 'reform-session', value: record.fitFile } : undefined;
+  if (payload && record.fittedState) throw new Error('Stored fitted state is immutable');
+  const { fitFile: _file, ...manifest } = record;
+  if (payload) manifest.fittedState = payload.kind;
+  if (manifest.politics) manifest.politics = { ...manifest.politics, checkpoint: null };
+  return { payload, manifest };
 }
 interface Chunk {
   resultId: string; table: number; sequence: number; start: number; count: number;
@@ -42,7 +59,7 @@ const metadataOrdinals = new WeakMap<StoredResult, Map<string, number>>();
 
 function db(): Promise<IDBDatabase> {
   return database ??= new Promise((resolve, reject) => {
-    const request = indexedDB.open('elezioni-result-chunks-v1', 2);
+    const request = indexedDB.open('elezioni-result-chunks-v1', 3);
     request.onupgradeneeded = () => {
       const d = request.result;
       if (!d.objectStoreNames.contains('results')) d.createObjectStore('results', { keyPath: 'id' });
@@ -55,8 +72,28 @@ function db(): Promise<IDBDatabase> {
         const metadata = d.createObjectStore('metadata', { keyPath: ['resultId', 'table', 'ordinal'] });
         metadata.createIndex('signature', ['resultId', 'table', 'kind', 'text'], { unique: true });
       }
+      if (!d.objectStoreNames.contains('checkpoints')) {
+        const checkpoints = d.createObjectStore('checkpoints', { keyPath: 'resultId' });
+        // Forward, atomic v2 -> v3 migration. Process one manifest at a time;
+        // retain session IDs, chunk membership, ownership and exact fit bytes.
+        const cursor = request.transaction!.objectStore('results').openCursor();
+        cursor.onsuccess = () => {
+          const row = cursor.result;
+          if (!row) return;
+          const { payload, manifest } = separateFittedState(row.value);
+          if (payload) { checkpoints.add(payload); row.update(manifest); }
+          row.continue();
+        };
+      }
     };
-    request.onsuccess = () => resolve(request.result);
+    let blocked = false;
+    request.onblocked = () => { blocked = true; database = undefined; reject(new Error('Result storage upgrade is blocked; close other Elezioni tabs and reload')); };
+    request.onsuccess = () => {
+      const d = request.result;
+      if (blocked) { d.close(); return; }
+      d.onversionchange = () => { d.close(); database = undefined; };
+      resolve(d);
+    };
     request.onerror = () => { database = undefined; reject(request.error); };
   });
 }
@@ -75,6 +112,17 @@ export async function getStoredResult(id: string, owner?: string): Promise<Store
   if (!record || owner !== undefined && record.owner !== owner) throw new Error('Local result session is unavailable');
   return record;
 }
+/** Explicit archive/checkpoint access only; ordinary queries read lean manifests. */
+export async function withStoredFittedState(record: StoredResult): Promise<StoredResult> {
+  if (!record.fittedState) return record;
+  const payload = await value((await db()).transaction('checkpoints').objectStore('checkpoints').get(record.id)) as StoredFittedState | undefined;
+  if (!payload || payload.kind !== record.fittedState || !payload.value) throw new Error('Local fitted state is unavailable');
+  if (payload.kind === 'politics-checkpoint') {
+    if (!record.politics) throw new Error('Fitted state/session mismatch');
+    return { ...record, politics: { ...record.politics, checkpoint: payload.value } };
+  }
+  return { ...record, fitFile: payload.value };
+}
 /** Full-result and ID exports can finish concurrently. Register each temporary
  * file atomically without replacing the other export's manifest update. */
 export async function registerStoredExport(id: string, owner: string, filename: string): Promise<void> {
@@ -85,23 +133,40 @@ export async function registerStoredExport(id: string, owner: string, filename: 
   record.exports.push(filename); store.put(record); await done;
 }
 export async function saveStoredResult(record: StoredResult): Promise<void> {
+  const { payload, manifest } = separateFittedState(record);
   const pending = pendingMetadata.get(record) ?? [];
-  const tx = (await db()).transaction(['results', 'metadata'], 'readwrite'), done = committed(tx);
-  const ordinals = metadataOrdinals.get(record) ?? new Map<string, number>();
-  metadataOrdinals.set(record, ordinals);
-  for (const batch of pending) for (const cells of batch.rows) {
-    const descriptor = record.result.storage!.tables[batch.table];
-    const signature = JSON.stringify([batch.table, cells[0], cells[1]]);
-    let ordinal = ordinals.get(signature);
-    if (ordinal === undefined) {
-      ordinal = descriptor.rows++; ordinals.set(signature, ordinal);
-      tx.objectStore('metadata').add({ resultId: record.id, table: batch.table, ordinal, kind: cells[0], text: cells[1], cells });
+  const tx = (await db()).transaction(payload ? ['results', 'metadata', 'checkpoints'] : ['results', 'metadata'], 'readwrite'), done = committed(tx);
+  try {
+    const ordinals = metadataOrdinals.get(record) ?? new Map<string, number>();
+    for (const batch of pending) for (const cells of batch.rows) {
+      const descriptor = record.result.storage!.tables[batch.table];
+      const signature = JSON.stringify([batch.table, cells[0], cells[1]]);
+      let ordinal = ordinals.get(signature);
+      if (ordinal === undefined) {
+        ordinal = descriptor.rows++; ordinals.set(signature, ordinal);
+        tx.objectStore('metadata').add({ resultId: record.id, table: batch.table, ordinal, kind: cells[0], text: cells[1], cells });
+      }
+      const counts = (record.metadataCounts ??= {})[batch.table] ??= [];
+      counts[ordinal] = (counts[ordinal] ?? 0) + Number(cells[2]);
     }
-    const counts = (record.metadataCounts ??= {})[batch.table] ??= [];
-    counts[ordinal] = (counts[ordinal] ?? 0) + Number(cells[2]);
+    // Metadata counters are updated above; they belong in the same manifest.
+    manifest.metadataCounts = record.metadataCounts;
+    if (payload) tx.objectStore('checkpoints').add(payload);
+    tx.objectStore('results').put(manifest);
+    await done;
+    metadataOrdinals.set(record, ordinals);
+    if (payload) {
+      record.fittedState = payload.kind;
+      if (record.politics) record.politics.checkpoint = null;
+      delete record.fitFile;
+    }
+    pendingMetadata.delete(record);
+  } catch (error) {
+    // Synchronous quota/clone exceptions must abort queued writes too.
+    try { tx.abort(); } catch { /* already completed/aborted */ }
+    await done.catch(() => undefined);
+    throw error;
   }
-  tx.objectStore('results').put(record);
-  await done; pendingMetadata.delete(record);
 }
 export function newResultStorage(id: string): ResultStorage {
   return { id, state: 'writing', tables: [], completedSimulations: 0, compressedBytes: 0, maxChunkBytes: 0, warningCounts: { info: 0, warning: 0, error: 0 } };
@@ -241,8 +306,9 @@ export async function storedWarningPage(record: StoredResult, offset: number, li
 }
 export async function deleteStoredResult(id: string, owner: string): Promise<void> {
   const record = await getStoredResult(id, owner), d = await db();
-  const tx = d.transaction(['results', 'chunks', 'metadata'], 'readwrite'), done = committed(tx);
+  const tx = d.transaction(['results', 'chunks', 'metadata', 'checkpoints'], 'readwrite'), done = committed(tx);
   tx.objectStore('results').delete(id);
+  tx.objectStore('checkpoints').delete(id);
   tx.objectStore('chunks').delete(IDBKeyRange.bound([id, -1, 0], [id, Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER]));
   tx.objectStore('metadata').delete(IDBKeyRange.bound([id, 0, 0], [id, Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER]));
   await done;

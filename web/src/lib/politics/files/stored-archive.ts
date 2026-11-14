@@ -1,4 +1,4 @@
-import { newResultStorage, saveStoredResult, deleteStoredResult, ResultChunkWriter, warningCells, storedRows, cellsWarning, type StoredResult } from '../../core/result-store';
+import { newResultStorage, saveStoredResult, deleteStoredResult, ResultChunkWriter, warningCells, storedRows, cellsWarning, withStoredFittedState, type StoredResult } from '../../core/result-store';
 import { importPoliticsArchiveFile, streamPoliticsArchive, readPoliticsResultFile, parsePoliticsResult } from './results';
 import { inspectPoliticsFile } from './metadata';
 import type { PoliticsArchiveEnvelope, PoliticsResultEnvelope } from '../scenario/envelopes';
@@ -67,8 +67,9 @@ export function storedPoliticsRun(record: StoredResult): PoliticsResultEnvelope 
   return parsePoliticsResult({ ...run, result: { ...run.result,
     tables: record.result.storage!.tables.map(t => ({ name: t.name, columns: t.columns, rows: [] })) } });
 }
-export function streamStoredPolitics(record: StoredResult) {
-  return streamPoliticsArchive({ kind: 'politics-result-archive', schemaVersion: 1, exportedAt: new Date().toISOString(),
+export async function* streamStoredPolitics(record: StoredResult) {
+  record = await withStoredFittedState(record);
+  yield* streamPoliticsArchive({ kind: 'politics-result-archive', schemaVersion: 1, exportedAt: new Date().toISOString(),
     run: storedPoliticsRun(record), portableFit: record.politics!.checkpoint }, {
       rows: i => storedRows(record.id, i),
       async *warnings() {

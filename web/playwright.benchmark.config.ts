@@ -2,6 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: 'tests/benchmarks',
+  testIgnore: ['common-politics-resources.spec.ts'],
   fullyParallel: false,
   retries: 0,
   reporter: 'list',

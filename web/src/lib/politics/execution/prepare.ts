@@ -5,7 +5,7 @@ import { parsePoliticsScenario, validateActiveScenario, ScenarioValidationError 
 import { effectivePlacements, renewed } from '../scenario/effective';
 import { loadExecutionData, type ExecutionReaders } from './assets';
 import { commonVoteInputs } from './inputs';
-import { rosatellumCoverage, prepareRosatellumAssembly, type RosatellumSeats } from './rosatellum';
+import { rosatellumCoverage, type RosatellumSeats } from './rosatellum';
 import { reformCoverage, reformLegalSettings } from './reform';
 import { compileM01 } from '../generation/m01-compiler';
 import { preparePairedVoteReferences, generatePairedMunicipalVotes } from '../generation/m01';
@@ -25,11 +25,13 @@ import type { FastVoteAssets } from '../reform-2026/vote-share/forecast-types';
 import type { ReformAssemblyContext } from '../reform-2026/generation-types';
 import type { SeatTableBundle } from '../reform-2026/endowments';
 import { prepareReferenceBonusPlan, type PreparedBonusPlan } from '../reform-2026/reference-bonus-plan';
-import { assembleReformSimulation, type AssemblySource } from '../reform-2026/assembly';
+import type { AssemblySource } from '../reform-2026/assembly';
 import { m02AssemblySource } from '../reform-2026/vote-share/generation';
-import { runPoliticsSimulation, type PoliticsSimulationRequest } from '../simulation-scrutiny';
+import { runPoliticsSimulation } from '../simulation-scrutiny';
 import { commonPoliticsImplementation } from './build';
 import type { FitState, ProfileState } from '../reform-2026/vote-share/release';
+import { bindPoliticsGeneration, type PoliticsComputeInputs, type PoliticsGeneratorInputs, type PoliticsLegalInputs } from './compute-inputs';
+import { m02PreparationKey, m02GenerationKey } from './keys';
 
 export interface PoliticsNumericStates { fit: FitState; profiles: ProfileState }
 /** One entry per consumed stage: cache size does not grow with edits or runs. */
@@ -86,6 +88,7 @@ export async function preparePoliticsExecution(value: unknown, readers: Executio
   let preparationKey: string, generationKey: string;
   let references: GeneratedVotes['trace']['references'];
   let numericStates: PoliticsNumericStates | undefined;
+  let generatorInputs: PoliticsGeneratorInputs;
   const reuse = { fit: false, profiles: false };
   if (model.id === 'M01') {
     // SDs, fitting seed, presentation and candidature are not M01 statistical inputs.
@@ -116,15 +119,16 @@ export async function preparePoliticsExecution(value: unknown, readers: Executio
       chamberModelId: 'paired-chamber-votes-v1', chamberParameterVersion: data.parameters.models.chambers.parameterVersion,
       sourceVersions: [preparationKey], assumptions: ['M01 2.0.0: latest eligible common-18+ history, conditional electorates, turnout-preserving political support and labelled regional/equal fallback.'] };
     generationKey = preparationKey;
+    generatorInputs = { id: 'M01', settings: compiled.scenario, data: compiled.snapshot, units: prepared.units, trace: prepared.trace };
     generateVotes = simulation => ({ counts: aggregateM01Votes(compiled.scenario, compiled.snapshot,
       generatePairedMunicipalVotes(compiled.scenario, compiled.snapshot, prepared.units, simulation), simulation), trace: structuredClone(prepared.trace) });
   } else {
     const compiled = await compileSource(data.source, readers.sourceChunk, inputs.selection, { polls: inputs.common.polls.added, checkpoint });
     const paired = await compilePairedHistory(data.source, readers.sourceChunk, inputs.selection,
       { camera: s.history.pairedCamera!, senato: s.history.pairedSenato!, electoratePolicy: 'equal-only' }, checkpoint);
-    preparationKey = await sourceKey('politics-m02-preparation-v1', { model, fitSeed: s.execution.fittingSeed,
-      national: compiled.nationalInputKey, profiles: compiled.profileInputKey, paired: paired.history,
-      policies: s.modelSettings.M02.policies, source: s.data.historical.sha256, electorate: s.data.electorate.sha256 });
+    const pairedInputKey = await sourceKey('common-paired-v1', paired.history);
+    preparationKey = await m02PreparationKey(s, { nationalInputKey: compiled.nationalInputKey,
+      profileInputKey: compiled.profileInputKey, pairedInputKey });
     const fitKey = await sourceKey('common-fit-v1', { implementation: readers.implementationId, model,
       input: compiled.nationalInputKey, seed: s.execution.fittingSeed, policies: s.modelSettings.M02.policies });
     const profileKey = await sourceKey('common-profiles-v1', { implementation: readers.implementationId,
@@ -132,7 +136,7 @@ export async function preparePoliticsExecution(value: unknown, readers: Executio
     const fitParents = { nationalInputKey: compiled.nationalInputKey, implementationId: readers.implementationId,
       fitSeed: s.execution.fittingSeed };
     const profileParents = { profileInputKey: compiled.profileInputKey,
-      pairedInputKey: await sourceKey('common-paired-v1', paired.history), implementationId: readers.implementationId, referenceDate: s.referenceDate };
+      pairedInputKey, implementationId: readers.implementationId, referenceDate: s.referenceDate };
     const restored = options.numericStates;
     if (restored && (Object.entries(fitParents).some(([k, v]) => restored.fit.parents[k as keyof typeof fitParents] !== v) ||
       Object.entries(profileParents).some(([k, v]) => restored.profiles.parents[k as keyof typeof profileParents] !== v)))
@@ -160,12 +164,12 @@ export async function preparePoliticsExecution(value: unknown, readers: Executio
       fittedStateId: preparationKey, profileStateId: preparationKey, geography: data.geography, electorates: data.electorates };
     inputs.fast.data.fittedStateId = preparationKey; inputs.fast.data.profileStateId = preparationKey;
     const prepared = prepareM02Votes(inputs.fast, assets, { geography: context!.seats.geography, models: data.parameters.models },
-      { maximumWorkspaceBytes: options.maximumWorkspaceBytes });
+      { maximumWorkspaceBytes: options.maximumWorkspaceBytes, copyAssets: false });
     references = prepared.trace.references;
-    generationKey = await sourceKey('politics-m02-generation-v1', { preparationKey, inputs: { ...inputs.fast,
-      lists: Object.fromEntries(chambers.map(ch => [ch, inputs.fast.lists[ch].map(({ name, coalitionId, protectedMinority, kind, ...l }) => l)])) } });
+    generationKey = await m02GenerationKey(preparationKey, inputs.fast);
     bonusPlan = prepareReferenceBonusPlan(legal!, context!, [], { referenceDate: s.referenceDate, support: prepared.support });
     source = m02AssemblySource(inputs.fast, assets);
+    generatorInputs = { id: 'M02', settings: inputs.fast, assets, parents: { fit: fitState.parents, profiles: profileState.parents } };
     generateVotes = simulation => {
       const result = prepared.run(simulation);
       if (bonusPlan) result.trace.bonusSelection = { policy: bonusPlan.policy, referenceDate: bonusPlan.referenceDate,
@@ -176,18 +180,13 @@ export async function preparePoliticsExecution(value: unknown, readers: Executio
   const assemblyKey = await sourceKey('politics-assembly-v1', { pair, generationKey, settings: s.lawSettings[law],
     placements: effectivePlacements(s, law, data.domain.geographyRelations), candidates: s.candidates,
     affiliation: s.subjects.lists.map(({ name, color, ...l }) => l), seats: s.data.lawAssets[law].seats.sha256 });
-  const rosatellum = law === ROSATELLUM ? prepareRosatellumAssembly(s, data.seats as RosatellumSeats, data.domain, references) : undefined;
-  const generate = (simulation: number) => {
-    if (!Number.isSafeInteger(simulation) || simulation < 1) throw new Error('Expected a positive simulation ID');
-    const votes = generateVotes(simulation);
-    const request: PoliticsSimulationRequest = rosatellum ? rosatellum(simulation, votes) : {
-      algorithmId: REFORM, simulationId: simulation,
-      input: assembleReformSimulation({ scenario: legal!, snapshot: context!, bonusPlan }, simulation, votes.counts, votes.trace, source).input };
-    return { request, votes };
-  };
+  const legalInputs: PoliticsLegalInputs = law === REFORM ? { id: REFORM, settings: legal!, context: context!, bonusPlan, source: source! } :
+    { id: ROSATELLUM, seats: data.seats as RosatellumSeats, geographyRelations: data.domain.geographyRelations, references };
+  const keys = { preparationKey, generationKey, assemblyKey };
+  const execution = bindPoliticsGeneration(s, readers.implementationId, keys, legalInputs, generateVotes);
+  const computeInputs: PoliticsComputeInputs = { generator: generatorInputs, legal: legalInputs };
   await checkpoint({ phase: 'politics-ready', completed: 1, total: 1 });
-  return { scenario: s, pair, implementationId: readers.implementationId, context, legalSettings: legal,
-    keys: { preparationKey, generationKey, assemblyKey }, numericStates, reuse, generateVotes, generate,
-    run: (simulation: number) => { const generated = generate(simulation); return { ...generated, result: runPoliticsSimulation(generated.request) }; } };
+  return { ...execution, computeInputs, numericStates, reuse,
+    run: (simulation: number) => { const generated = execution.generate(simulation); return { ...generated, result: runPoliticsSimulation(generated.request) }; } };
 }
 export type PreparedPoliticsExecution = Awaited<ReturnType<typeof preparePoliticsExecution>>;

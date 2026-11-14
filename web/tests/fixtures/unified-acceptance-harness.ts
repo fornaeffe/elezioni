@@ -1,5 +1,5 @@
 /** Read-only verification of the actual browser-persisted ledger, bounded by a run. */
-import { getStoredResult, storedRows, storedTablePage } from '../../src/lib/core/result-store';
+import { getStoredResult, withStoredFittedState, storedRows, storedTablePage } from '../../src/lib/core/result-store';
 export async function inspect(id: string, owner: string) {
   const record = await getStoredResult(id, owner),
     storage = record.result.storage!;
@@ -138,7 +138,7 @@ export async function inspect(id: string, owner: string) {
     seatsByList,
     admission,
     thresholds,
-    fitFilePresent: !!record.fitFile,
+    fitFilePresent: !!(await withStoredFittedState(record)).fitFile,
     generationImplementationId:
       'models' in record.scenario
         ? record.scenario.models.generationImplementationId

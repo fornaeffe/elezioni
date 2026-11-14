@@ -1,6 +1,6 @@
 import { storedPositionProbabilities, storedBonusProbabilities } from '../politics/reform-2026/stored-probabilities';
 import { loadVerifiedJson, requireSimulationCount } from '../core/runtime-data';
-import { appendResultBatch, cellsWarning, deleteStoredResult, getStoredResult, newResultStorage, registerStoredExport, saveStoredResult, storedRows, storedTablePage, storedWarningPage, ResultChunkWriter, warningCells, type Cell, type StoredResult } from '../core/result-store';
+import { appendResultBatch, cellsWarning, deleteStoredResult, getStoredResult, withStoredFittedState, newResultStorage, registerStoredExport, saveStoredResult, storedRows, storedTablePage, storedWarningPage, ResultChunkWriter, warningCells, type Cell, type StoredResult } from '../core/result-store';
 import { createDiagnosticFrequency } from '../core/result-diagnostics';
 import { importResultStream, streamStoredResult, streamDiagnosticIdsCsv, type ExportScenario } from '../core/result-export';
 import { storedMessageSummary, storedMessageContext, storedMessageIdPage, storedMessageIds } from '../core/stored-diagnostics';
@@ -246,7 +246,7 @@ export async function handleResultService(request: ResultServiceRequest): Promis
         }
         data = { ...record, fitFile: undefined, ...(record.politics ? { politics: { ...record.politics, checkpoint: null } } : {}) };
       }
-      else if(request.action==='fit-session'){if(!record.fitFile)throw new Error('No fitted state is stored for this result');data=record.fitFile;}
+      else if(request.action==='fit-session'){const fitted=await withStoredFittedState(record);if(!fitted.fitFile)throw new Error('No fitted state is stored for this result');data=fitted.fitFile;}
       else if (request.action === 'diagnostics') {
         if (active.has(record.id)) throw new Error('Wait for calculation completion before querying diagnostic frequencies');
         const events = record.result.storage!.tables.findIndex(t => t.name === diagnosticTableName);

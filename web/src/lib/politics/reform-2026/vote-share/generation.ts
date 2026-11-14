@@ -59,11 +59,12 @@ export function prepareFastGeneration(s: FastGenerationScenario, assets: FastVot
   }) : undefined;
   const legalLists = (ch: 'camera' | 'senato') => s.lists[ch].map(({ componentIds, nationalUncertaintyMultiplier, localUncertaintyMultiplier, ...l }) => l);
   const legalScenario: ReformLegalSettings = { ...s, lists: { camera: legalLists('camera'), senato: legalLists('senato') } };
+  const source = m02AssemblySource(s, assets);
   return { ...prepared, scenario: s, bonusPlan, run: (simulation: number) => {
     const { counts, trace, audit } = prepared.run(simulation);
     if (bonusPlan) trace.bonusSelection = { policy: bonusPlan.policy, referenceDate: bonusPlan.referenceDate,
       slates: bonusPlan.slates.map(({ chamber, territoryId, subject, allocations }) => ({ chamber, territoryId, subject, allocations })) };
-    const result = assembleReformSimulation({ scenario: legalScenario, snapshot: context, bonusPlan }, simulation, counts, trace, m02AssemblySource(s, assets));
+    const result = assembleReformSimulation({ scenario: legalScenario, snapshot: context, bonusPlan }, simulation, counts, trace, source);
     return { ...result, audit };
   } };
 }

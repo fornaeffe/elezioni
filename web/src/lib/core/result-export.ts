@@ -5,7 +5,7 @@ import { requireFastScenario } from '../politics/reform-2026/vote-share/scenario
 import { requirePortableFitFile, checkpointReader, sameCheckpointScenario, type PortableFitFile } from '../politics/reform-2026/vote-share/checkpoint';
 import type { ResultTable, Scenario, SimulationResult } from './types';
 import { JsonStreamReader } from './json-stream';
-import { cellsWarning, storedRows, type Cell, type StoredResult, type StoredTable } from './result-store';
+import { cellsWarning, storedRows, withStoredFittedState, type Cell, type StoredResult, type StoredTable } from './result-store';
 import { validateListFiling } from '../workspaces/filing';
 import { scenarioWorkspace } from '../workspaces/import-routing';
 import { streamStoredPolitics } from '../politics/files/stored-archive';
@@ -421,6 +421,7 @@ export async function* streamStoredResult(record: StoredResult, format: 'json' |
   }
   const coverage = record.result.completedSimulations === undefined ? '' : `,"completedSimulations":${record.result.storage!.completedSimulations}`;
   const fast='schemaVersion'in record.scenario&&(record.scenario.schemaVersion === 4 || record.scenario.schemaVersion === 5);
+  if (fast) record = await withStoredFittedState(record);
   if(fast&&!record.fitFile)throw new Error('Missing frozen fitted state for export');
   yield `{"schema_version":${fast?3:2},"exportedAt":${JSON.stringify(new Date().toISOString())},"scenario":${JSON.stringify(record.scenario)}${fast?`,"fitFile":${JSON.stringify(record.fitFile)}`:''},"result":{"type":"result","status":${JSON.stringify(record.result.status)}${coverage},"benchmark":${JSON.stringify(record.result.benchmark)},"warnings":[`;
   let first = true;

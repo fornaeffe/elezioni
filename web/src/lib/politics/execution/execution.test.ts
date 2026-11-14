@@ -9,6 +9,7 @@ import { requiredAssets } from '../scenario/dependencies';
 import { runPoliticsSimulation } from '../simulation-scrutiny';
 import { createList } from '../scenario/edits';
 import { loadExecutionData } from './assets';
+import { createPoliticsComputePacket } from './compute-packet';
 
 describe('CP-03 common execution', () => {
   it.each(['M01', 'M02'] as const)('executes reform/%s from the shared scenario and preserves retained votes', async model => {
@@ -65,17 +66,15 @@ describe('CP-03 common execution', () => {
   it('checks exact assets and the same supported pairs at the compute boundary', async () => {
     const f = await commonPoliticsFixture();
     const prepared = await preparePoliticsExecution(f.scenario, f.readers);
-    const packet = { implementationId: prepared.implementationId, scenario: f.scenario, keys: prepared.keys,
-      assets: requiredAssets(f.scenario).map(a => ({ id: a.id, bytes: f.bytes.get(a.id)! })),
-      sourceChunks: [...f.original.files].map(([path, bytes]) => ({ path, bytes })) };
+    const packet = await createPoliticsComputePacket(prepared);
     expect((await preparePoliticsCompute(packet, prepared.implementationId)).generate(7)).toEqual(prepared.generate(7));
     await expect(preparePoliticsCompute(packet, 'different-build')).rejects.toThrow('POLITICS_IMPLEMENTATION_MISMATCH');
     const invalid = structuredClone(packet);
     invalid.keys.assemblyKey = 'stale';
     await expect(preparePoliticsCompute(invalid, prepared.implementationId)).rejects.toThrow('FROZEN_POLITICS_BINDING_MISMATCH');
     const broken = structuredClone(packet);
-    broken.assets[0].bytes[0] ^= 1;
-    await expect(preparePoliticsCompute(broken, prepared.implementationId)).rejects.toThrow('DEPENDENCY_CHECKSUM_MISMATCH');
+    broken.inputs.generator.settings.seed = 'tampered';
+    await expect(preparePoliticsCompute(broken, prepared.implementationId)).rejects.toThrow('FROZEN_POLITICS_BINDING_MISMATCH');
     f.scenario.selection.scrutiny.id = ROSATELLUM;
     (f.scenario.selection.generatorsByLaw[ROSATELLUM] as { id: string }).id = 'M02';
     await expect(preparePoliticsExecution(f.scenario, f.readers)).rejects.toThrow('UNSUPPORTED_PAIR');

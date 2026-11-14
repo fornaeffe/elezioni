@@ -66,6 +66,9 @@ export interface FastVoteAudit {
 export interface FastGenerationOptions {
   chunkSize?: number;
   maximumWorkspaceBytes?: number;
+  /** Internal immutable/worker-owned state may be borrowed. Public callers
+   * retain defensive copying by default; generation never mutates these assets. */
+  copyAssets?: boolean;
 }
 type Surfaces = Record<Chamber, Float64Array[]>;
 export function prepareM02Votes(
@@ -78,7 +81,7 @@ export function prepareM02Votes(
   const definition = requireGenerationModel(scenario.generation);
   if (definition.id !== "M02") throw new Error("MODEL_PREPARATION_MISMATCH");
   const s = structuredClone(scenario),
-    assets = structuredClone(inputAssets),
+    assets = options.copyAssets === false ? inputAssets : structuredClone(inputAssets),
     chambers: Chamber[] =
       s.renewal === "joint" ? ["camera", "senato"] : [s.renewal];
   const fit = assets.fit,

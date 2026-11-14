@@ -20,6 +20,8 @@ export function ownedBuffers(value: unknown): ArrayBuffer[] {
       buffers.add(x);
       return;
     }
+    if (x instanceof Map) { for (const [k, v] of x) { visit(k); visit(v); } return; }
+    if (x instanceof Set) { for (const v of x) visit(v); return; }
     for (const v of Object.values(x)) visit(v);
   };
   visit(value);
@@ -49,6 +51,8 @@ export function retainedBytes(value: unknown): number {
       bytes += x.byteLength;
       return;
     }
+    if (x instanceof Map) { bytes += 64 + 32 * x.size; for (const [k, v] of x) { visit(k); visit(v); } return; }
+    if (x instanceof Set) { bytes += 64 + 16 * x.size; for (const v of x) visit(v); return; }
     bytes += 64;
     for (const [k, v] of Object.entries(x)) {
       bytes += 16 + k.length * 2;

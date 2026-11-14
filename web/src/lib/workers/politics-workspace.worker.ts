@@ -2,6 +2,8 @@ import { handleResultService, setResultActive, type ResultServiceRequest } from 
 import { ReformComputeClient } from './reform-pool';
 import { PoliticsPreparationCache, preparePoliticsExecution, type PreparedPoliticsExecution } from '../politics/execution/prepare';
 import type { PoliticsComputePacket } from './politics-compute';
+import { createPoliticsComputePacket } from '../politics/execution/compute-packet';
+import { retainedBytes } from '../politics/reform-2026/vote-share/fit-resources';
 import type { PoliticsScenario, Asset } from '../politics/scenario/schema';
 import type { PoliticsCheckpoint } from '../politics/scenario/envelopes';
 import { commonPoliticsImplementation } from '../politics/execution/build';
@@ -24,6 +26,8 @@ const assetCache = new Map<string, Uint8Array<ArrayBuffer>>(), chunkCache = new 
 let sourceIdentity = '';
 let restoredCache = false, persistedKeys = '', cacheNote = '';
 const ownedWorkers = new Set<ReformComputeClient>();
+const retainedCoordinatorBytes = () => retainedBytes({ assets: [...assetCache.values()], chunks: [...chunkCache.values()],
+  fit: cache.fit, profiles: cache.profiles, m01: cache.m01 });
 self.onmessage = (event: MessageEvent<PoliticsTaskRequest | ResultServiceRequest>) => {
   const request = event.data;
   if (request.type === 'result-service') { void handleResultService(request).then(reply => self.postMessage(reply)); return; }
@@ -45,7 +49,7 @@ self.onmessage = (event: MessageEvent<PoliticsTaskRequest | ResultServiceRequest
             const close = worker.close.bind(worker);
             worker.close = () => { close(); ownedWorkers.delete(worker); };
             return worker;
-          });
+          }, navigator, retainedCoordinatorBytes());
         // Fitted arrays remain worker-owned; result browsing never transfers them to the UI.
         reply({ ...record, politics: record.politics ? { ...record.politics, checkpoint: null } : undefined });
       } finally { running = false; setResultActive(request.id!, false); }
@@ -105,9 +109,9 @@ self.onmessage = (event: MessageEvent<PoliticsTaskRequest | ResultServiceRequest
       } });
     if (revision !== sequence || controller.signal.aborted) throw new Error('Preparation cancelled');
     if (restored && restored.file.preparationKey !== next.keys.preparationKey) throw new Error('POLITICS_CHECKPOINT_IDENTITY_MISMATCH');
-    prepared = next;
-    packet = { scenario: next.scenario, implementationId: next.implementationId, keys: next.keys, numericStates: next.numericStates,
-      assets: [...assets].map(([id, bytes]) => ({ id, bytes })), sourceChunks: [...chunks].map(([path, bytes]) => ({ path, bytes })) };
+    const nextPacket = await createPoliticsComputePacket(next);
+    if (revision !== sequence || controller.signal.aborted) throw new Error('Preparation cancelled');
+    prepared = next; packet = nextPacket;
     const cacheKeys = cache.fit && cache.profiles ? `${cache.fit.key}/${cache.profiles.key}` : '';
     if (next.numericStates && cacheKeys && cacheKeys !== persistedKeys) {
       try {
@@ -118,6 +122,6 @@ self.onmessage = (event: MessageEvent<PoliticsTaskRequest | ResultServiceRequest
       } catch { cacheNote = 'Fitting pronto in memoria; cache locale non salvata.'; }
     }
     if (revision !== sequence || controller.signal.aborted) throw new Error('Preparation cancelled');
-    reply({ keys: next.keys, reuse: next.reuse, capacity: politicsCapacity(packet, navigator), note: cacheNote });
+    reply({ keys: next.keys, reuse: next.reuse, capacity: politicsCapacity(packet, navigator, retainedCoordinatorBytes()), note: cacheNote });
   })().catch(error => self.postMessage({ type: 'politics-task', requestId: request.requestId, ok: false, error: String(error) }));
 };

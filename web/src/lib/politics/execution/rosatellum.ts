@@ -70,7 +70,7 @@ export function rosatellumCoverage(s: PoliticsScenario, seats: RosatellumSeats) 
     seats.ballots.find(b => b.id === c.collegeId)!.regionId !== list.minority!.regionId)) throw new Error('ROSATELLUM_MINORITY_FILING_REGION');
   return coverage;
 }
-export function prepareRosatellumAssembly(s: PoliticsScenario, seats: RosatellumSeats, domain: DomainContext,
+export function prepareRosatellumAssembly(s: PoliticsScenario, seats: RosatellumSeats, domain: Pick<DomainContext, 'geographyRelations'>,
   references: GeneratedVotes['trace']['references']) {
   const coverage = rosatellumCoverage(s, seats), pins = effectivePlacements(s, ROSATELLUM, domain.geographyRelations);
   const person = (id: string) => s.candidates.find(c => c.id === id)!;

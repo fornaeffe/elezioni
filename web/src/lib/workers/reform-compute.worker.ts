@@ -2,7 +2,7 @@ import type { ReformGenerationSnapshot } from '../politics/reform-2026/generatio
 import { computeReformRun, encodeReformRun, prepareFastCompute, type PreparedFastCompute, type ReformRunChunk } from './reform-compute';
 import type { GenerationPacket } from '../politics/reform-2026/vote-share/fit-types';
 import { preparePoliticsCompute, computePoliticsRun, type PoliticsComputePacket } from './politics-compute';
-import type { PreparedPoliticsExecution } from '../politics/execution';
+import type { PreparedPoliticsCompute } from '../politics/execution/compute-inputs';
 
 export type ReformComputeRequest = { requestId: number } & (
   { action: 'init'; scenario: unknown; basePath: string } |
@@ -13,7 +13,7 @@ export type ReformComputeRequest = { requestId: number } & (
 export interface ReformComputeReply { requestId: number; ok: boolean; data?: unknown; error?: string }
 
 let prepared: PreparedFastCompute | undefined;
-let politics: PreparedPoliticsExecution | undefined;
+let politics: PreparedPoliticsCompute | undefined;
 let chunks: Generator<ReformRunChunk> | undefined;
 let busy = false;
 self.onmessage = async (event: MessageEvent<ReformComputeRequest>) => {

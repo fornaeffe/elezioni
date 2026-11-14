@@ -1,0 +1,678 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-14",
+  "revision": "2f0513663e83ca44ba35168dbb5ef336fb8975c0",
+  "baselineRevision": "a700d19b04272f39fad17ddd3ceb9e48048ea623",
+  "frozenGenerationBlob": "8df3998bee92d0a19bf97f225ead2de2d760046c",
+  "implementationId": "implementation-v1-d18e78580c4b7671535685060eb88bfcbb022e4cfac4c324de3cb09910d643a7",
+  "scenarioShaNote": "Current UI uses the authored common default; retained harnesses use the installed former-format default with matching source and simulation seed. All requests use 60 runs; the four-worker case also sets execution.workers explicitly.",
+  "selection": {
+    "scrutiny": {
+      "id": "politiche-reform-2026-v1",
+      "version": "1.0.0"
+    },
+    "generatorsByLaw": {
+      "politiche-r-parity-v1": {
+        "id": "M01",
+        "version": "2.0.0"
+      },
+      "politiche-reform-2026-v1": {
+        "id": "M02",
+        "version": "2.0.0"
+      }
+    }
+  },
+  "renewal": "joint",
+  "seeds": {
+    "fitting": "fast-share-default-fit-v1",
+    "simulation": "fast-share-default-v1"
+  },
+  "requiredSource": {
+    "id": "historical",
+    "version": "fast-share-source-v1-95d505ed1f7ea79c99cd0bf91a86dbc6a2d54c1f24fd9b37bec40a57e3c72511",
+    "schemaVersion": 1,
+    "bytes": 3785805,
+    "sha256": "b4f60b9b24b35a1ac6564af03662c62ca58bddd0e0ac21b7436c10acb344aecf",
+    "uri": "data/politics/historical-b4f60b9b24b3.json"
+  },
+  "reportedHardware": {
+    "hardwareConcurrency": 28,
+    "deviceMemoryGiB": 32
+  },
+  "protocol": {
+    "runs": 60,
+    "processSampling": "CDP SystemInfo renderer process IDs; Windows PrivateMemorySize64 and WorkingSet64; roughly five seconds apart.",
+    "limits": [
+      "No 1000-run campaign or simulation-250 crash reproduction.",
+      "Private process memory is not JS heap or a guaranteed unsampled maximum.",
+      "Retained execution harness is not a historical UI checkout. Frozen comparison replaces its generation module with the a700d19 source using a diagnostic Vite load override; compatibility case keeps the CP03 wrapper.",
+      "Sequential short probes are not a controlled throughput comparison.",
+      "Chrome 157 four-worker timing is not comparable with Chromium 148 ten-worker timing.",
+      "Temporary isolated browser profiles; user profile and sessions untouched."
+    ]
+  },
+  "cases": [
+    {
+      "name": "frozen-pre-cp-m02-generation-with-retained-execution-harness",
+      "browser": "148.0.7778.96",
+      "completedSimulations": 60,
+      "benchmark": {
+        "startedAt": "2026-11-14T10:36:01.262Z",
+        "elapsedMs": 83114.80000001192,
+        "simulations": 60,
+        "dataVersion": "fast-share-source-v1-95d505ed1f7ea79c99cd0bf91a86dbc6a2d54c1f24fd9b37bec40a57e3c72511",
+        "scrutinyAlgorithmId": "politiche-reform-2026-v1",
+        "seed": "fast-share-default-v1",
+        "execution": {
+          "requestedWorkers": 10,
+          "computeWorkers": 10,
+          "maximumWorkers": 26,
+          "estimatedWorkerMemoryMiB": 379,
+          "estimateVersion": "r26-cpu-ceiling-half-declared-memory-browser-v3",
+          "generationMs": 321747.10000011325,
+          "scrutinyMs": 49084.60000017285,
+          "presentationMs": 9123.799999833107,
+          "storageMs": 36079.100000560284
+        }
+      },
+      "sampledPeakPrivateMiB": 5485.58984375,
+      "sampledPeakWorkingSetMiB": 5298.67578125,
+      "warnings": [
+        {
+          "code": "R26_SEAT_TABLE_1",
+          "electionKind": "politiche",
+          "severity": "info",
+          "message": "Dotazioni provvisorie I08 basate sul censimento del 2021-12-31; non sono tabelle di un decreto di assegnazione.",
+          "scope": "global",
+          "occurrences": 1
+        },
+        {
+          "code": "R26_SEAT_TABLE_2",
+          "electionKind": "politiche",
+          "severity": "info",
+          "message": "Geografia ufficiale aggiornata al 2022: inclusi Misiliscemi e il passaggio di Montecopiolo e Sassofeltrio all’Emilia-Romagna. I codici catastali e amministrativi non sostituiscono i confini elettorali.",
+          "scope": "global",
+          "occurrences": 1
+        },
+        {
+          "code": "R26_FAST_SHARE_REFERENCE",
+          "electionKind": "politiche",
+          "severity": "info",
+          "message": "Le quote di lista intervengono sul riferimento conservando la probabilità di voto valido. Non valido e affluenza hanno input separati. Componenti senza stima diretta usano riferimenti e ipotesi dichiarati; la dipendenza tra rami è un’ipotesi di sensibilità.",
+          "scope": "global",
+          "occurrences": 1
+        }
+      ],
+      "samples": [
+        {
+          "sample": 1,
+          "phase": "prepare",
+          "completed": 0,
+          "privateMiB": 1013.78515625,
+          "workingSetMiB": 983.69140625
+        },
+        {
+          "sample": 2,
+          "phase": "prepare",
+          "completed": 0,
+          "privateMiB": 1461.02734375,
+          "workingSetMiB": 1444.8515625
+        },
+        {
+          "sample": 3,
+          "phase": "prepare",
+          "completed": 0,
+          "privateMiB": 1961.328125,
+          "workingSetMiB": 1935.37890625
+        },
+        {
+          "sample": 4,
+          "phase": "prepare",
+          "completed": 0,
+          "privateMiB": 2358.9375,
+          "workingSetMiB": 2342.62890625
+        },
+        {
+          "sample": 5,
+          "phase": "prepare",
+          "completed": 0,
+          "privateMiB": 3176.74609375,
+          "workingSetMiB": 3191.85546875
+        },
+        {
+          "sample": 6,
+          "phase": "prepare",
+          "completed": 0,
+          "privateMiB": 3087.8203125,
+          "workingSetMiB": 3105.6796875
+        },
+        {
+          "sample": 7,
+          "phase": "prepare",
+          "completed": 0,
+          "privateMiB": 2400.82421875,
+          "workingSetMiB": 2426.80078125
+        },
+        {
+          "sample": 8,
+          "phase": "prepare",
+          "completed": 0,
+          "privateMiB": 1989.61328125,
+          "workingSetMiB": 2017.5703125
+        },
+        {
+          "sample": 9,
+          "phase": "simulate",
+          "completed": 6,
+          "privateMiB": 2382.09765625,
+          "workingSetMiB": 2402.78125
+        },
+        {
+          "sample": 10,
+          "phase": "simulate",
+          "completed": 13,
+          "privateMiB": 3568.734375,
+          "workingSetMiB": 3496.421875
+        },
+        {
+          "sample": 11,
+          "phase": "simulate",
+          "completed": 21,
+          "privateMiB": 4256.36328125,
+          "workingSetMiB": 4262.56640625
+        },
+        {
+          "sample": 12,
+          "phase": "simulate",
+          "completed": 29,
+          "privateMiB": 4839.796875,
+          "workingSetMiB": 4802.05078125
+        },
+        {
+          "sample": 13,
+          "phase": "simulate",
+          "completed": 36,
+          "privateMiB": 5485.58984375,
+          "workingSetMiB": 5298.67578125
+        },
+        {
+          "sample": 14,
+          "phase": "simulate",
+          "completed": 44,
+          "privateMiB": 5323.04296875,
+          "workingSetMiB": 5251.53125
+        },
+        {
+          "sample": 15,
+          "phase": "simulate",
+          "completed": 52,
+          "privateMiB": 5323.7578125,
+          "workingSetMiB": 5244.01953125
+        },
+        {
+          "sample": 16,
+          "phase": "summarize",
+          "completed": 60,
+          "privateMiB": 3587.80859375,
+          "workingSetMiB": 3626.3125
+        }
+      ]
+    },
+    {
+      "name": "retained-fast-execution-harness",
+      "browser": "148.0.7778.96",
+      "completedSimulations": 60,
+      "benchmark": {
+        "startedAt": "2026-11-14T10:24:59.827Z",
+        "elapsedMs": 80863.5,
+        "simulations": 60,
+        "dataVersion": "fast-share-source-v1-95d505ed1f7ea79c99cd0bf91a86dbc6a2d54c1f24fd9b37bec40a57e3c72511",
+        "scrutinyAlgorithmId": "politiche-reform-2026-v1",
+        "seed": "fast-share-default-v1",
+        "execution": {
+          "requestedWorkers": 10,
+          "computeWorkers": 10,
+          "maximumWorkers": 26,
+          "estimatedWorkerMemoryMiB": 379,
+          "estimateVersion": "r26-cpu-ceiling-half-declared-memory-browser-v3",
+          "generationMs": 320932.40000006557,
+          "scrutinyMs": 49465.399999946356,
+          "presentationMs": 9215.899999767542,
+          "storageMs": 33565.299999922514
+        }
+      },
+      "sampledPeakPrivateMiB": 5844.359375,
+      "sampledPeakWorkingSetMiB": 5689.53515625,
+      "warnings": [
+        {
+          "code": "R26_SEAT_TABLE_1",
+          "electionKind": "politiche",
+          "severity": "info",
+          "message": "Dotazioni provvisorie I08 basate sul censimento del 2021-12-31; non sono tabelle di un decreto di assegnazione.",
+          "scope": "global",
+          "occurrences": 1
+        },
+        {
+          "code": "R26_SEAT_TABLE_2",
+          "electionKind": "politiche",
+          "severity": "info",
+          "message": "Geografia ufficiale aggiornata al 2022: inclusi Misiliscemi e il passaggio di Montecopiolo e Sassofeltrio all’Emilia-Romagna. I codici catastali e amministrativi non sostituiscono i confini elettorali.",
+          "scope": "global",
+          "occurrences": 1
+        },
+        {
+          "code": "R26_FAST_SHARE_REFERENCE",
+          "electionKind": "politiche",
+          "severity": "info",
+          "message": "Le quote di lista intervengono sul riferimento conservando la probabilità di voto valido. Non valido e affluenza hanno input separati. Componenti senza stima diretta usano riferimenti e ipotesi dichiarati; la dipendenza tra rami è un’ipotesi di sensibilità.",
+          "scope": "global",
+          "occurrences": 1
+        }
+      ],
+      "samples": [
+        {
+          "sample": 1,
+          "phase": "prepare",
+          "completed": 0,
+          "privateMiB": 1031.86328125,
+          "workingSetMiB": 1000.07421875
+        },
+        {
+          "sample": 2,
+          "phase": "prepare",
+          "completed": 0,
+          "privateMiB": 1579.265625,
+          "workingSetMiB": 1550.62109375
+        },
+        {
+          "sample": 3,
+          "phase": "prepare",
+          "completed": 0,
+          "privateMiB": 2075.60546875,
+          "workingSetMiB": 2046.48828125
+        },
+        {
+          "sample": 4,
+          "phase": "prepare",
+          "completed": 0,
+          "privateMiB": 2531.96484375,
+          "workingSetMiB": 2511.7265625
+        },
+        {
+          "sample": 5,
+          "phase": "prepare",
+          "completed": 0,
+          "privateMiB": 3998.1484375,
+          "workingSetMiB": 3866.28125
+        },
+        {
+          "sample": 6,
+          "phase": "prepare",
+          "completed": 0,
+          "privateMiB": 3942.34765625,
+          "workingSetMiB": 3813.2890625
+        },
+        {
+          "sample": 7,
+          "phase": "prepare",
+          "completed": 0,
+          "privateMiB": 3005.91015625,
+          "workingSetMiB": 2941.21484375
+        },
+        {
+          "sample": 8,
+          "phase": "prepare",
+          "completed": 0,
+          "privateMiB": 2583.3515625,
+          "workingSetMiB": 2522.25
+        },
+        {
+          "sample": 9,
+          "phase": "scrutinize",
+          "completed": 10,
+          "privateMiB": 3025.671875,
+          "workingSetMiB": 3035.53515625
+        },
+        {
+          "sample": 10,
+          "phase": "simulate",
+          "completed": 16,
+          "privateMiB": 4315.48046875,
+          "workingSetMiB": 4235.48046875
+        },
+        {
+          "sample": 11,
+          "phase": "simulate",
+          "completed": 24,
+          "privateMiB": 4600.03515625,
+          "workingSetMiB": 4567.23046875
+        },
+        {
+          "sample": 12,
+          "phase": "simulate",
+          "completed": 32,
+          "privateMiB": 5363.6875,
+          "workingSetMiB": 5242.64453125
+        },
+        {
+          "sample": 13,
+          "phase": "scrutinize",
+          "completed": 40,
+          "privateMiB": 5723.3671875,
+          "workingSetMiB": 5571.34375
+        },
+        {
+          "sample": 14,
+          "phase": "simulate",
+          "completed": 47,
+          "privateMiB": 5844.359375,
+          "workingSetMiB": 5689.53515625
+        },
+        {
+          "sample": 15,
+          "phase": "simulate",
+          "completed": 54,
+          "privateMiB": 5754.578125,
+          "workingSetMiB": 5608.13671875
+        },
+        {
+          "sample": 16,
+          "phase": "summarize",
+          "completed": 60,
+          "privateMiB": 3937.9140625,
+          "workingSetMiB": 3973.30859375
+        }
+      ]
+    },
+    {
+      "name": "common-production-ui-auto",
+      "browser": "148.0.7778.96",
+      "completedSimulations": 60,
+      "benchmark": {
+        "startedAt": "2026-11-14T10:21:04.535Z",
+        "elapsedMs": 75837.09999999404,
+        "simulations": 60,
+        "dataVersion": "fast-share-source-v1-95d505ed1f7ea79c99cd0bf91a86dbc6a2d54c1f24fd9b37bec40a57e3c72511",
+        "scrutinyAlgorithmId": "politiche-reform-2026-v1",
+        "seed": "fast-share-default-v1",
+        "execution": {
+          "requestedWorkers": 10,
+          "computeWorkers": 10,
+          "maximumWorkers": 26,
+          "estimatedWorkerMemoryMiB": 394,
+          "estimateVersion": "r26-cpu-ceiling-half-declared-memory-browser-v3/common-reform-m02-v1-v1",
+          "generationMs": 214780.60000014305,
+          "scrutinyMs": 29375.699999839067,
+          "presentationMs": 5572.400000035763,
+          "storageMs": 8744.000002294779
+        }
+      },
+      "sampledPeakPrivateMiB": 5923.2109375,
+      "sampledPeakWorkingSetMiB": 5777.8515625,
+      "warnings": [],
+      "metadataEntries": 1370,
+      "checkpointJsonBytes": 11506649,
+      "samples": [
+        {
+          "sample": 1,
+          "phase": "Esecuzione · prepare · 0/60",
+          "privateMiB": 1131.48828125,
+          "workingSetMiB": 1116.0859375
+        },
+        {
+          "sample": 2,
+          "phase": "Esecuzione · prepare · 0/60",
+          "privateMiB": 1506.40234375,
+          "workingSetMiB": 1458.99609375
+        },
+        {
+          "sample": 3,
+          "phase": "Esecuzione · prepare · 0/60",
+          "privateMiB": 1800.26953125,
+          "workingSetMiB": 1807.48046875
+        },
+        {
+          "sample": 4,
+          "phase": "Esecuzione · prepare · 0/60",
+          "privateMiB": 2094.72265625,
+          "workingSetMiB": 2127.75390625
+        },
+        {
+          "sample": 5,
+          "phase": "Esecuzione · prepare · 0/60",
+          "privateMiB": 2469.3359375,
+          "workingSetMiB": 2495.02734375
+        },
+        {
+          "sample": 6,
+          "phase": "Esecuzione · prepare · 0/60",
+          "privateMiB": 2803.2421875,
+          "workingSetMiB": 2830.2421875
+        },
+        {
+          "sample": 7,
+          "phase": "Esecuzione · prepare · 0/60",
+          "privateMiB": 3037.87109375,
+          "workingSetMiB": 3068.5078125
+        },
+        {
+          "sample": 8,
+          "phase": "Esecuzione · prepare · 0/60",
+          "privateMiB": 3934.23046875,
+          "workingSetMiB": 3907.31640625
+        },
+        {
+          "sample": 9,
+          "phase": "Esecuzione · prepare · 0/60",
+          "privateMiB": 3589.125,
+          "workingSetMiB": 3589.9296875
+        },
+        {
+          "sample": 10,
+          "phase": "Esecuzione · simulate · 9/60",
+          "privateMiB": 3488.4140625,
+          "workingSetMiB": 3515.15234375
+        },
+        {
+          "sample": 11,
+          "phase": "Esecuzione · simulate · 20/60",
+          "privateMiB": 4858.9140625,
+          "workingSetMiB": 4858.76171875
+        },
+        {
+          "sample": 12,
+          "phase": "Esecuzione · simulate · 31/60",
+          "privateMiB": 5923.2109375,
+          "workingSetMiB": 5777.8515625
+        },
+        {
+          "sample": 13,
+          "phase": "Esecuzione · simulate · 42/60",
+          "privateMiB": 5456.62890625,
+          "workingSetMiB": 5420.72265625
+        },
+        {
+          "sample": 14,
+          "phase": "Esecuzione · simulate · 54/60",
+          "privateMiB": 5800.85546875,
+          "workingSetMiB": 5675.96484375
+        },
+        {
+          "sample": 15,
+          "phase": "Esecuzione completata · summarize · 60/60",
+          "privateMiB": 3822.72265625,
+          "workingSetMiB": 3878.859375
+        }
+      ]
+    },
+    {
+      "name": "common-production-ui-four-workers",
+      "browser": "157.0.8103.51",
+      "completedSimulations": 60,
+      "benchmark": {
+        "startedAt": "2026-11-14T10:27:51.316Z",
+        "elapsedMs": 121238.09999999404,
+        "simulations": 60,
+        "dataVersion": "fast-share-source-v1-95d505ed1f7ea79c99cd0bf91a86dbc6a2d54c1f24fd9b37bec40a57e3c72511",
+        "scrutinyAlgorithmId": "politiche-reform-2026-v1",
+        "seed": "fast-share-default-v1",
+        "execution": {
+          "requestedWorkers": 4,
+          "computeWorkers": 4,
+          "maximumWorkers": 26,
+          "estimatedWorkerMemoryMiB": 394,
+          "estimateVersion": "r26-cpu-ceiling-half-declared-memory-browser-v3/common-reform-m02-v1-v1",
+          "generationMs": 285340.90000006557,
+          "scrutinyMs": 41857.39999988675,
+          "presentationMs": 6346.200000107288,
+          "storageMs": 8692.200000554323
+        }
+      },
+      "sampledPeakPrivateMiB": 3353.7890625,
+      "sampledPeakWorkingSetMiB": 3309.28515625,
+      "warnings": [],
+      "metadataEntries": 1370,
+      "checkpointJsonBytes": 11506661,
+      "samples": [
+        {
+          "sample": 1,
+          "phase": "Esecuzione · prepare · 0/60",
+          "privateMiB": 816.09375,
+          "workingSetMiB": 885.47265625
+        },
+        {
+          "sample": 2,
+          "phase": "Esecuzione · prepare · 0/60",
+          "privateMiB": 1084.6796875,
+          "workingSetMiB": 1125.4765625
+        },
+        {
+          "sample": 3,
+          "phase": "Esecuzione · prepare · 0/60",
+          "privateMiB": 1150.03125,
+          "workingSetMiB": 1249.88671875
+        },
+        {
+          "sample": 4,
+          "phase": "Esecuzione · prepare · 0/60",
+          "privateMiB": 1217.80078125,
+          "workingSetMiB": 1319.03125
+        },
+        {
+          "sample": 5,
+          "phase": "Esecuzione · prepare · 0/60",
+          "privateMiB": 1521.6875,
+          "workingSetMiB": 1606.55859375
+        },
+        {
+          "sample": 6,
+          "phase": "Esecuzione · prepare · 0/60",
+          "privateMiB": 1503.4140625,
+          "workingSetMiB": 1601.94140625
+        },
+        {
+          "sample": 7,
+          "phase": "Esecuzione · simulate · 4/60",
+          "privateMiB": 2237.58203125,
+          "workingSetMiB": 2329.71875
+        },
+        {
+          "sample": 8,
+          "phase": "Esecuzione · simulate · 6/60",
+          "privateMiB": 2843.8828125,
+          "workingSetMiB": 2848.0234375
+        },
+        {
+          "sample": 9,
+          "phase": "Esecuzione · simulate · 9/60",
+          "privateMiB": 2624.9296875,
+          "workingSetMiB": 2696.90625
+        },
+        {
+          "sample": 10,
+          "phase": "Esecuzione · simulate · 12/60",
+          "privateMiB": 3035.56640625,
+          "workingSetMiB": 3048.9453125
+        },
+        {
+          "sample": 11,
+          "phase": "Esecuzione · simulate · 16/60",
+          "privateMiB": 2959.29296875,
+          "workingSetMiB": 3011.296875
+        },
+        {
+          "sample": 12,
+          "phase": "Esecuzione · simulate · 20/60",
+          "privateMiB": 3236.21875,
+          "workingSetMiB": 3248
+        },
+        {
+          "sample": 13,
+          "phase": "Esecuzione · simulate · 24/60",
+          "privateMiB": 2891.01171875,
+          "workingSetMiB": 2986.6640625
+        },
+        {
+          "sample": 14,
+          "phase": "Esecuzione · simulate · 28/60",
+          "privateMiB": 3027.0625,
+          "workingSetMiB": 3034.61328125
+        },
+        {
+          "sample": 15,
+          "phase": "Esecuzione · simulate · 31/60",
+          "privateMiB": 2950.83984375,
+          "workingSetMiB": 2966.81640625
+        },
+        {
+          "sample": 16,
+          "phase": "Esecuzione · simulate · 34/60",
+          "privateMiB": 3091.95703125,
+          "workingSetMiB": 3094.50390625
+        },
+        {
+          "sample": 17,
+          "phase": "Esecuzione · simulate · 37/60",
+          "privateMiB": 3049.5859375,
+          "workingSetMiB": 3049.91796875
+        },
+        {
+          "sample": 18,
+          "phase": "Esecuzione · simulate · 41/60",
+          "privateMiB": 3353.7890625,
+          "workingSetMiB": 3309.28515625
+        },
+        {
+          "sample": 19,
+          "phase": "Esecuzione · simulate · 44/60",
+          "privateMiB": 2953.546875,
+          "workingSetMiB": 3038.76171875
+        },
+        {
+          "sample": 20,
+          "phase": "Esecuzione · simulate · 48/60",
+          "privateMiB": 3117.46484375,
+          "workingSetMiB": 3158.7734375
+        },
+        {
+          "sample": 21,
+          "phase": "Esecuzione · simulate · 52/60",
+          "privateMiB": 2931.953125,
+          "workingSetMiB": 2986.5
+        },
+        {
+          "sample": 22,
+          "phase": "Esecuzione · simulate · 56/60",
+          "privateMiB": 3163.1953125,
+          "workingSetMiB": 3177.4296875
+        },
+        {
+          "sample": 23,
+          "phase": "Esecuzione completata · summarize · 60/60",
+          "privateMiB": 2414.44921875,
+          "workingSetMiB": 2526.91015625
+        }
+      ]
+    }
+  ]
+}

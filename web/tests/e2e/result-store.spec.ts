@@ -2,6 +2,24 @@ import { fileURLToPath } from 'node:url';
 import { build } from 'vite';
 import { expect, test } from '@playwright/test';
 
+test('forward checkpoint migration, lean commits, atomic quota failure and attachment cleanup', async ({ page, context }) => {
+  const built = await build({ configFile: false, logLevel: 'error',
+    build: { write: false, minify: false, lib: { entry: fileURLToPath(new URL('../fixtures/result-checkpoints.worker.ts', import.meta.url)), formats: ['es'], fileName: 'checkpoint-store' } } });
+  let code = '';
+  for (const output of Array.isArray(built) ? built : [built]) if ('output' in output)
+    for (const chunk of output.output) if (chunk.type === 'chunk' && chunk.isEntry) code = chunk.code;
+  await context.route('**/result-checkpoints-test.js', route => route.fulfill({ contentType: 'text/javascript', body: code }));
+  await page.goto(`${process.env.BASE_PATH ?? ''}/`);
+  const result = await page.evaluate(() => new Promise<any>((resolve, reject) => {
+    const worker = new Worker('/result-checkpoints-test.js', { type: 'module' });
+    worker.onmessage = e => { worker.terminate(); resolve(e.data); }; worker.onerror = e => reject(new Error(e.message)); worker.postMessage({});
+  }));
+  expect(result.ok, result.error).toBe(true); expect(result.before).toBe(2); expect(result.writes).toBe(0);
+  expect(result.lean).toBe(true); expect(result.manifestBytes).toBeLessThan(100_000);
+  for (const key of ['quota', 'invisible', 'orphanFree', 'immutable', 'resumedPayload']) expect(result[key], key).toBe(true);
+  expect(result.remaining).toBe(0);
+});
+
 test('chunk boundaries, shared metadata, streaming JSON/CSV, quota isolation and scoped cleanup', async ({ page, context }) => {
   const bundled = await build({ configFile: false, logLevel: 'error',
     resolve: { alias: { $lib: fileURLToPath(new URL('../../src/lib', import.meta.url)) } },

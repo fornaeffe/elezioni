@@ -9,13 +9,19 @@ import { computePoliticsRun } from '../../src/lib/workers/politics-compute';
 import { implementationKey } from '../../scripts/data-preparation/fast-share-release-io';
 
 let workerCode = '';
+let preparationCode = '';
 test.beforeAll(async () => {
+  for (const [entry, target] of [['../../src/lib/workers/reform-compute.worker.ts', 'worker'],
+    ['../fixtures/common-politics-prepare-harness.ts', 'preparation']] as const) {
   const built = await build({ configFile: false, logLevel: 'error',
     define: { __COMMON_POLITICS_IMPLEMENTATION__: JSON.stringify(await implementationKey(fileURLToPath(new URL('../../../', import.meta.url)), 'web/src/lib/workers/politics-compute.ts')) },
     resolve: { alias: { $lib: fileURLToPath(new URL('../../src/lib', import.meta.url)) } },
-    build: { write: false, minify: false, lib: { entry: fileURLToPath(new URL('../../src/lib/workers/reform-compute.worker.ts', import.meta.url)), formats: ['es'], fileName: 'common-compute' } } });
+    build: { write: false, minify: false, lib: { entry: fileURLToPath(new URL(entry, import.meta.url)), formats: ['es'], fileName: 'common-compute' } } });
   for (const output of Array.isArray(built) ? built : [built]) if ('output' in output)
-    for (const chunk of output.output) if (chunk.type === 'chunk' && chunk.isEntry) workerCode = chunk.code;
+    for (const chunk of output.output) if (chunk.type === 'chunk' && chunk.isEntry) {
+      if (target === 'worker') workerCode = chunk.code; else preparationCode = chunk.code;
+    }
+  }
   expect(workerCode.length).toBeGreaterThan(0);
 });
 for (const [law, model] of [[ROSATELLUM, 'M01'], [REFORM, 'M01'], [REFORM, 'M02']] as const)
@@ -25,19 +31,21 @@ for (const [law, model] of [[ROSATELLUM, 'M01'], [REFORM, 'M01'], [REFORM, 'M02'
       assets: requiredAssets(f.scenario).map(a => ({ id: a.id, bytes: [...f.bytes.get(a.id)!] })),
       sourceChunks: f.original.source.payload.events.map(e => ({ path: e.chunk.path, bytes: [...f.original.files.get(e.chunk.path)!] })) };
     await context.route('**/common-politics-compute.js', route => route.fulfill({ contentType: 'text/javascript', body: workerCode }));
+    await context.route('**/common-politics-prepare.js', route => route.fulfill({ contentType: 'text/javascript', body: preparationCode }));
     await page.goto(`${process.env.BASE_PATH ?? ''}/`);
     const runs = await page.evaluate(async packet => {
       const worker = new Worker(`${location.pathname}common-politics-compute.js`, { type: 'module' });
       let requestId = 0;
-      const call = (request: Record<string, unknown>) => new Promise<unknown>((resolve, reject) => {
+      const call = (request: Record<string, unknown>, transfer: Transferable[] = []) => new Promise<unknown>((resolve, reject) => {
         worker.onmessage = event => event.data.ok ? resolve(event.data.data) : reject(new Error(event.data.error));
         worker.onerror = event => reject(new Error(event.message));
-        worker.postMessage({ ...request, requestId: ++requestId });
+        worker.postMessage({ ...request, requestId: ++requestId }, transfer);
       });
       try {
-        await call({ action: 'init-politics', packet: { ...packet,
-          assets: packet.assets.map(a => ({ ...a, bytes: Uint8Array.from(a.bytes) })),
-          sourceChunks: packet.sourceChunks.map(a => ({ ...a, bytes: Uint8Array.from(a.bytes) })) } });
+        const setup = await import(/* @vite-ignore */ `${location.pathname}common-politics-prepare.js`);
+        const compact = await setup.prepare(packet);
+        if ('sourceChunks' in compact || 'assets' in compact || 'numericStates' in compact) throw new Error('Raw preparation crossed the compute boundary');
+        await call({ action: 'init-politics', packet: compact }, setup.ownedBuffers(compact));
         const runs = [];
         for (const simulation of [7, 1, 7]) {
           const ready = await call({ action: 'compute', simulation });

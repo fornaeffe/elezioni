@@ -1,7 +1,5 @@
 /** Common scenarios reuse the bounded one-simulation transport and ordered pool. */
-import type { Asset } from '../politics/scenario/schema';
-import type { AssetBytes } from '../politics/reform-2026/vote-share/source-codec';
-import { preparePoliticsExecution, type PreparedPoliticsExecution } from '../politics/execution';
+import type { PreparedPoliticsCompute } from '../politics/execution/compute-inputs';
 import { runPoliticsSimulation } from '../politics/simulation-scrutiny';
 import { createReformPresentation } from '../politics/reform-2026/result-presentation';
 import { buildPoliticsResultPlotTables, summarizePoliticsGeneratedRuns, summarizePoliticsScrutinyRun } from '../politics/result-presentation';
@@ -10,34 +8,12 @@ import { diagnosticTableName, diagnosticColumns, diagnosticCells } from '../core
 import { REFORM } from '../politics/scenario/schema';
 import type { ReformRunReady, ReformRunBatch } from './reform-compute';
 import type { ScrutinyWarning } from '../core/types';
-import { commonPoliticsImplementation } from '../politics/execution/build';
-
-export interface PoliticsComputePacket {
-  implementationId: string;
-  scenario: unknown;
-  keys: PreparedPoliticsExecution['keys'];
-  assets: { id: string; bytes: Uint8Array<ArrayBuffer> }[];
-  sourceChunks: { path: string; bytes: AssetBytes }[];
-  numericStates?: import('../politics/execution/prepare').PoliticsNumericStates;
-}
-export async function preparePoliticsCompute(packet: PoliticsComputePacket, implementationId = commonPoliticsImplementation) {
-  if (!implementationId || implementationId !== packet.implementationId) throw new Error('POLITICS_IMPLEMENTATION_MISMATCH');
-  if (new Set(packet.assets.map(a => a.id)).size !== packet.assets.length ||
-    new Set(packet.sourceChunks.map(a => a.path)).size !== packet.sourceChunks.length) throw new Error('DUPLICATE_EXECUTION_ASSET');
-  const prepared = await preparePoliticsExecution(packet.scenario, {
-    implementationId,
-    asset: async (pin: Asset) => { const b = packet.assets.find(a => a.id === pin.id); if (!b) throw new Error(`MISSING_EXECUTION_ASSET: ${pin.id}`); return b.bytes; },
-    sourceChunk: async path => { const b = packet.sourceChunks.find(a => a.path === path); if (!b) throw new Error(`MISSING_SOURCE_CHUNK: ${path}`); return b.bytes; },
-  }, { numericStates: packet.numericStates });
-  for (const key of ['preparationKey', 'generationKey', 'assemblyKey'] as const)
-    if (prepared.keys[key] !== packet.keys[key]) throw new Error(`FROZEN_POLITICS_BINDING_MISMATCH: ${key}`);
-  return prepared;
-}
-export function computePoliticsRun(prepared: PreparedPoliticsExecution, simulation: number) {
+export { preparePoliticsCompute, type PoliticsComputePacket } from '../politics/execution/compute-packet';
+export function computePoliticsRun(prepared: PreparedPoliticsCompute, simulation: number) {
   const timings = { generationMs: 0, scrutinyMs: 0, presentationMs: 0 };
   const presentation = prepared.legalSettings && prepared.context ? createReformPresentation(prepared.legalSettings,
     prepared.context, 1, { includeContext: simulation === 1, identity: { selection: prepared.scenario.selection, pair: prepared.pair, implementationId: prepared.implementationId, keys: prepared.keys } }) : undefined;
-  let generated: ReturnType<PreparedPoliticsExecution['generate']> | undefined;
+  let generated: ReturnType<PreparedPoliticsCompute['generate']> | undefined;
   let output: ReturnType<typeof runPoliticsSimulation> | undefined, failure: unknown, failed = false;
   let failedChamber: 'camera' | 'senato' | undefined;
   const chamberTimes = new Map<string, number>();
