@@ -22,13 +22,14 @@ import { generationCapacity } from '../politics/reform-2026/vote-share/fit-resou
 import { loadCandidate } from '../politics/reform-2026/vote-share/release';
 import { checkpointReader, requirePortableFitFile, sameCheckpointScenario } from '../politics/reform-2026/vote-share/checkpoint';
 import { samplePage } from '../core/statistics-cache';
+import { importStoredPolitics } from '../politics/files/stored-archive';
 
 export interface ResultServiceRequest {
   type: 'result-service'; requestId: number;
   action: 'page' | 'warnings' | 'diagnostics' | 'messages-summary' | 'messages-general' | 'messages-context' | 'messages-ids' | 'messages-export' | 'manifest' | 'fit-session' | 'delete' | 'cancel' | 'import' | 'export' | 'statistics' | 'statistics-series' | 'statistics-points' | 'statistics-box' | 'statistics-positions' | 'statistics-bonus' | 'statistics-endowments';
   resultId: string; owner: string;
   table?: number; offset?: number; limit?: number; simulation?: number;
-  file?: File; format?: 'json' | 'csv';
+  file?: File; format?: 'json' | 'csv'; commonPolitics?: boolean;
   list?: string; chamber?: string;
   series?: string; seatScope?: SeatScope; measure?: CollegeMeasure;
   bonusFilter?: BonusFilter;
@@ -40,6 +41,8 @@ export interface ResultServiceReply {
 }
 const cancelled = new Set<string>();
 const active = new Set<string>();
+/** Common coordinator shares the same query/export/deletion locks. */
+export function setResultActive(id: string, running: boolean) { if (running) active.add(id); else active.delete(id); }
 const deleting = new Set<string>();
 const resultJobs = new Map<string, Set<Promise<unknown>>>();
 const describe = (error: unknown) => error instanceof Error ? `${error.name}: ${error.message}` : String(error);
@@ -229,16 +232,19 @@ export async function handleResultService(request: ResultServiceRequest): Promis
     if (request.action === 'cancel') { cancelled.add(request.resultId); data = null; }
     else if (request.action === 'import') {
       if (!request.file) throw new Error('Missing result file');
-      data = await importStoredFile(request.file, request.resultId, request.owner);
+      data = request.commonPolitics ? await importStoredPolitics(request.file, request.resultId, request.owner)
+        : await importStoredFile(request.file, request.resultId, request.owner);
     } else {
       const record = await getStoredResult(request.resultId, request.owner);
       if (request.action === 'manifest') {
         if (record.result.storage?.state === 'writing' && !active.has(record.id)) {
           record.result.storage.state = 'interrupted'; record.result.status = 'not_implemented';
           record.result.warnings.push({ code: 'RESULT_INTERRUPTED', severity: 'warning', electionKind: 'politiche', message: 'Calcolo interrotto: sono disponibili solo le simulazioni conservate. Nessuna simulazione viene riestratta.' });
+          if (record.politics) { const run = record.politics.run; record.politics.run = { ...run,
+            session: { ...run.session, state: 'interrupted' }, result: { ...run.result, status: 'not_implemented' } }; }
           await saveStoredResult(record).catch(() => undefined);
         }
-        data = record.fitFile?{...record,fitFile:undefined}:record;
+        data = { ...record, fitFile: undefined, ...(record.politics ? { politics: { ...record.politics, checkpoint: null } } : {}) };
       }
       else if(request.action==='fit-session'){if(!record.fitFile)throw new Error('No fitted state is stored for this result');data=record.fitFile;}
       else if (request.action === 'diagnostics') {
@@ -295,7 +301,8 @@ export async function handleResultService(request: ResultServiceRequest): Promis
       else if (request.action === 'export') {
         if (active.has(record.id)) throw new Error('Wait for the calculation or cancel it before export');
         if (deleting.has(record.id)) throw new Error('Result session is being deleted');
-        const job = exportStoredFile(record, request.format ?? 'json');
+        const format = request.format ?? 'json';
+        const job = exportStoredFile(record, format);
         const jobs = resultJobs.get(record.id) ?? new Set<Promise<unknown>>(); resultJobs.set(record.id, jobs); jobs.add(job);
         try { data = await job; } finally { jobs.delete(job); if (!jobs.size) resultJobs.delete(record.id); }
       } else if (request.action === 'delete') {

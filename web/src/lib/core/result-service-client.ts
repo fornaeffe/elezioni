@@ -3,7 +3,12 @@ import type { ResultServiceReply, ResultServiceRequest } from '../workers/result
 export class ResultServiceClient {
   private sequence = 0;
   private pending = new Map<number, { resolve: (value: unknown) => void; reject: (error: Error) => void }>();
-  constructor(readonly worker: Worker) { worker.addEventListener('message', this.receive); }
+  constructor(readonly worker: Worker) {
+    worker.addEventListener('message', this.receive);
+    worker.addEventListener('error', this.failure);
+    worker.addEventListener('messageerror', this.failure);
+  }
+  private failure = () => { for (const p of this.pending.values()) p.reject(new Error('Result worker failed')); this.pending.clear(); };
   private receive = (event: MessageEvent<ResultServiceReply>) => {
     if (event.data.type !== 'result-service') return;
     const pending = this.pending.get(event.data.requestId); if (!pending) return;
@@ -21,6 +26,7 @@ export class ResultServiceClient {
   }
   close() {
     this.worker.removeEventListener('message', this.receive);
+    this.worker.removeEventListener('error', this.failure); this.worker.removeEventListener('messageerror', this.failure);
     for (const pending of this.pending.values()) pending.reject(new Error('Result worker closed'));
     this.pending.clear(); this.worker.terminate();
   }

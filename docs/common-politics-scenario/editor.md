@@ -6,25 +6,22 @@ and draft APIs, and [execution.md](execution.md) for execution adapters.
 
 ## Entry points and integration boundary
 
-The review route is `/politics/editor`, linked from `/politics`, with the
-configured project base applied. It restores and saves only
-`elezioni:politics:common-draft:v1`. The existing simulator remains available at
-`/politics` until CP-07 connects the common editor to its execution/session owner.
-This avoids replacing a working simulator with an editor-only page during CP-06.
+Both `/politics` and `/politics/editor` mount the same common workspace, with
+the configured project base applied. The host owns the shared draft, automatic
+preparation, execution locking, checkpoints and independent result sessions.
+See [lifecycle.md](lifecycle.md) for controller/worker entry points and session
+actions.
 
 `CommonPoliticsEditor.svelte` receives an immutable `scenario`, an `onchange`
 callback and an optional `ExecutionControls` port. It owns cancellable editor-data
-loading, staged scenario imports and transient form state. The host owns draft
-persistence. The review host reports storage failures while retaining the edited
-in-memory draft; it never reports an unsuccessful write as saved.
+loading, staged scenario imports and transient form state. The host validates and
+persists draft replacements under `elezioni:politics:common-draft:v1`, retaining
+in-memory edits and reporting failed writes. Standalone editor harnesses can omit
+the execution port; unavailable actions stay disabled with an explanation.
 
-CP-07 must supply the execution port: run, explicit cancellation, visible task
-state/progress, fitting and checkpoint callbacks. Without that port the preview
-disables execution/fitting/checkpoint actions and explains their availability.
-Automatic editor loading verifies the selected model's pinned parameters; it
-does **not** claim that a statistical fit was computed. Dependency-based fit
-reuse, immutable executed scenarios, durable result sessions and worker counts
-belong to CP-07. Deferred D14 inputs remain in the scenario without extra editors.
+Editor asset verification does not claim that a statistical fit is complete.
+The host reports visible cancellable preparation and run progress separately.
+Deferred D14 settings remain in the scenario without extra editors.
 
 ## Component map
 

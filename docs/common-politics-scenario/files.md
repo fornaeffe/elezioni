@@ -2,8 +2,8 @@
 
 Use this guide for file validation, routing, checkpoint binding and draft storage.
 For authored fields use [the domain contract](contract.md); execution and model
-preparation use [the execution guide](execution.md). Editor/session wiring belongs
-to CP-06/07.
+preparation use [the execution guide](execution.md). Editor/session wiring uses
+[the lifecycle guide](lifecycle.md).
 
 | Task | Entry point under `web/src/lib/` |
 | --- | --- |
@@ -13,7 +13,7 @@ to CP-06/07.
 | Result/archive readers, writers and staging sink | Reexports from `core/result-export.ts`; implementation in `politics/files/results.ts` |
 | Exact checkpoint binding and portable numeric-state validation | `politics/files/checkpoint.ts` |
 | Shared draft key and validated storage reads/writes | `politics/files/draft.ts` |
-| External election routing and transitional editor guard | `workspaces/import-routing.ts` |
+| External election routing | `workspaces/import-routing.ts` |
 | Contract examples and rejection/roundtrip checks | `politics/files/files.test.ts` |
 
 ## Formats and identity
@@ -71,8 +71,10 @@ called only after EOF, complete envelope/checkpoint validation and diagnostic
 membership checks; it must publish atomically. `abort()` discards staging on any
 failure, including a failed commit. The returned/committed header contains table
 descriptors with empty row arrays and empty diagnostics; those payloads belong to
-the sink. Session evidence remains in the header. CP-07 supplies durable session
-ownership and the concrete storage sink.
+the sink. Session evidence remains in the header. The concrete durable sink is
+`web/src/lib/politics/files/stored-archive.ts`; it additionally checks stored
+simulation-row membership before returning the staged session. See
+[lifecycle.md](lifecycle.md) for ownership and session selection.
 
 ## Checkpoints and drafts
 
@@ -98,22 +100,21 @@ municipality basis against its loaded exact source/geography assets before use.
 `readPoliticsDraft` and `writePoliticsDraft` access only
 `elezioni:politics:common-draft:v1`. Reads return a detached valid scenario or
 throw; writes finish validation/serialization before touching storage. They never
-inspect, combine, remove or overwrite former politics keys. The common editor
-will own when to restore/save this draft; file APIs do not select result sessions
-or implicitly replace a draft.
+inspect, combine, remove or overwrite former politics keys. The common workspace
+controller owns draft restoration/writes; file APIs never implicitly replace it.
 
-## Transitional browser boundary
+## Browser integration
 
-The CP-04 projected editors remain until CP-06/07. They no longer read or write
-old politics draft keys or restore scenario-bearing checkpoints. External file
-entry points reject all old politics schemas before routing or changing current
-draft/results. Valid common files can be read through the APIs above; the
-transitional editor guard reports that loading requires the new editor instead
-of feeding them to an incompatible editor or destroying the current screen.
-Common draft persistence and browser import/export/session integration start in
-CP-06/07; transitional edits are currently memory-only. Existing old internal
-projection/export helpers remain for those editors and isolated regression
-evidence until CP-08 retirement; they are not the common file API.
+The common workspace uses the new draft/file APIs at `/politics` and
+`/politics/editor`. Scenario loading is explicit. Browsing or importing results
+selects a session without replacing the draft; JSON.gz result exports include its
+immutable executed scenario. See [lifecycle.md](lifecycle.md) for entry points,
+storage keys, recovery and the session action table.
+
+Superseded projected editors and their internal projection/export helpers remain
+for CP-08 cleanup and isolated regression evidence. They are not mounted by the
+politics routes and are not readers for new authored files. External imports
+reject old politics schemas; former politics draft keys remain untouched.
 
 Independent Emilia-Romagna file routing, formats and draft persistence remain
 unchanged. Frozen historical regression fixtures and their checksum manifests

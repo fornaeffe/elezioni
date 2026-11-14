@@ -4,7 +4,9 @@ import type { AssetBytes } from '../politics/reform-2026/vote-share/source-codec
 import { preparePoliticsExecution, type PreparedPoliticsExecution } from '../politics/execution';
 import { runPoliticsSimulation } from '../politics/simulation-scrutiny';
 import { createReformPresentation } from '../politics/reform-2026/result-presentation';
-import { buildPoliticsResultTables, summarizePoliticsScrutinyRun } from '../politics/result-presentation';
+import { buildPoliticsResultPlotTables, summarizePoliticsGeneratedRuns, summarizePoliticsScrutinyRun } from '../politics/result-presentation';
+import { rosatellumSeries } from '../politics/execution/result-presentation';
+import { diagnosticTableName, diagnosticColumns, diagnosticCells } from '../core/diagnostic-messages';
 import { REFORM } from '../politics/scenario/schema';
 import type { ReformRunReady, ReformRunBatch } from './reform-compute';
 import type { ScrutinyWarning } from '../core/types';
@@ -16,6 +18,7 @@ export interface PoliticsComputePacket {
   keys: PreparedPoliticsExecution['keys'];
   assets: { id: string; bytes: Uint8Array<ArrayBuffer> }[];
   sourceChunks: { path: string; bytes: AssetBytes }[];
+  numericStates?: import('../politics/execution/prepare').PoliticsNumericStates;
 }
 export async function preparePoliticsCompute(packet: PoliticsComputePacket, implementationId = commonPoliticsImplementation) {
   if (!implementationId || implementationId !== packet.implementationId) throw new Error('POLITICS_IMPLEMENTATION_MISMATCH');
@@ -25,7 +28,7 @@ export async function preparePoliticsCompute(packet: PoliticsComputePacket, impl
     implementationId,
     asset: async (pin: Asset) => { const b = packet.assets.find(a => a.id === pin.id); if (!b) throw new Error(`MISSING_EXECUTION_ASSET: ${pin.id}`); return b.bytes; },
     sourceChunk: async path => { const b = packet.sourceChunks.find(a => a.path === path); if (!b) throw new Error(`MISSING_SOURCE_CHUNK: ${path}`); return b.bytes; },
-  });
+  }, { numericStates: packet.numericStates });
   for (const key of ['preparationKey', 'generationKey', 'assemblyKey'] as const)
     if (prepared.keys[key] !== packet.keys[key]) throw new Error(`FROZEN_POLITICS_BINDING_MISMATCH: ${key}`);
   return prepared;
@@ -68,7 +71,9 @@ export function computePoliticsRun(prepared: PreparedPoliticsExecution, simulati
       output.chambers.map(ch => { const input = generated.request.algorithmId !== REFORM ? generated.request.chambers.find(c => c.context.ramo === ch.chamber)! : undefined;
         return summarizePoliticsScrutinyRun({ ramo: ch.chamber, sim: simulation, elapsedMs: chamberTimes.get(ch.chamber) ?? timings.scrutinyMs,
           input: input!.input, output: ch.output, listeNaz: input!.context.liste_naz }); }) : [];
-    batch = { tables: buildPoliticsResultTables(summaries), warnings };
+    batch = { tables: [summarizePoliticsGeneratedRuns(summaries),
+      ...buildPoliticsResultPlotTables(summaries), rosatellumSeries(prepared.scenario, summaries),
+      { name: diagnosticTableName, columns: diagnosticColumns, rows: warnings.map(w => Object.fromEntries(diagnosticColumns.map((c, i) => [c, diagnosticCells(w)[i]]))) }], warnings };
     counts = { complete: failed ? 0 : 1, partial: 0, failed: failed ? 1 : 0, awarded: 0 };
   }
   timings.presentationMs = performance.now() - started;

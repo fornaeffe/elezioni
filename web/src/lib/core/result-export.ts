@@ -8,13 +8,14 @@ import { JsonStreamReader } from './json-stream';
 import { cellsWarning, storedRows, type Cell, type StoredResult, type StoredTable } from './result-store';
 import { validateListFiling } from '../workspaces/filing';
 import { scenarioWorkspace } from '../workspaces/import-routing';
+import { streamStoredPolitics } from '../politics/files/stored-archive';
 
 // Common politics uses independently versioned strict envelopes and staged streaming imports.
 export { parsePoliticsResult, serializePoliticsResult, parsePoliticsArchive, streamPoliticsArchive,
   importPoliticsArchiveStream, importPoliticsArchiveFile, readPoliticsResultFile } from '../politics/files/results';
 export type { PoliticsArchiveSink, PoliticsArchiveRows } from '../politics/files/results';
 
-export type ExportScenario = Scenario | ReformGenerationScenario | ReleasedScenario;
+export type ExportScenario = Scenario | ReformGenerationScenario | ReleasedScenario | import('../politics/scenario/schema').PoliticsScenario;
 
 export interface SimulationResultExport {
   schema_version: 2|3;
@@ -316,6 +317,8 @@ export function createSimulationResultExport<T extends ExportScenario>(params: {
   scenario: T;
   exportedAt: string;
 }): SerializedSimulationResultExportV2<T> {
+  if ('kind' in params.scenario && params.scenario.kind === 'politics-scenario')
+    throw new Error('Common politics results require a politics-result envelope or the streaming archive boundary.');
   if('kind' in params.scenario && params.scenario.kind==='politics-reform-scenario' && params.scenario.schemaVersion!==5) throw new Error('Only latest reform scenario archives are supported');
   if (params.result.storage) throw new Error('Stored results must use the streaming export boundary.');
   if ('schemaVersion' in params.scenario && (params.scenario.schemaVersion === 4 || params.scenario.schemaVersion === 5) && (!params.fitFile || !sameCheckpointScenario(params.scenario,params.fitFile.scenario))) throw new Error('Fast results require their frozen fitted session.');
@@ -404,6 +407,7 @@ export function resultTablesToCsv(tables: readonly ResultTable[]): string {
 /** Same schema-v2 columnar JSON as the synchronous small-result API, emitted
  * a row at a time. No full-result copy or whole-file string is constructed. */
 export async function* streamStoredResult(record: StoredResult, format: 'json' | 'csv'): AsyncGenerator<string> {
+  if (record.politics && format === 'json') { yield* streamStoredPolitics(record); return; }
   const tables = record.result.storage!.tables;
   if (format === 'csv') {
     let first = true;

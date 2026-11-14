@@ -2,6 +2,12 @@ import { describe, expect, test } from 'vitest';
 import { createDefaultPoliticsScenario } from '$lib/scenario/politics';
 import type { ResultTable, SimulationResult } from './types';
 import { createSimulationResultExport, parseSimulationResultExport, resultTablesToCsv } from './result-export';
+import { fixture as commonScenarioFixture } from '../politics/scenario/scenario.fixture';
+
+test('never writes a common scenario through a retired result envelope', () => {
+  expect(() => createSimulationResultExport({ scenario: commonScenarioFixture().scenario,
+    result: sampleResult(), exportedAt: '2026-11-14T00:00:00.000Z' })).toThrow('politics-result envelope');
+});
 
 function sampleResult(): SimulationResult {
   return {

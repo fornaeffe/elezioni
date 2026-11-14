@@ -15,6 +15,8 @@ export interface ResultStorage {
   warningCounts: { info: number; warning: number; error: number };
 }
 export interface StoredResult {
+  politics?: { run: import('../politics/scenario/envelopes').PoliticsResultEnvelope;
+    checkpoint: import('../politics/scenario/envelopes').PoliticsCheckpoint | null };
   fitFile?: import('../politics/reform-2026/vote-share/checkpoint').PortableFitFile;
   id: string;
   owner: string;
@@ -219,7 +221,7 @@ export async function storedTablePage(record: StoredResult, index: number, offse
   const rows: ResultTable['rows'] = [];
   const useIndex = simulation !== undefined && descriptor.runIndexed !== false;
   for await (const cells of storedRows(record.id, index, { offset, simulation: useIndex ? simulation : undefined })) {
-    if (simulation !== undefined && !useIndex && cells[descriptor.columns.indexOf('Simulation')] !== simulation) continue;
+    if (simulation !== undefined && !useIndex && cells[descriptor.columns.findIndex(c => c === 'Simulation' || c === 'Sim')] !== simulation) continue;
     rows.push(Object.fromEntries(descriptor.columns.map((c, i) => [c, cells[i]])));
     if (rows.length === limit) break;
   }

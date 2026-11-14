@@ -19,14 +19,15 @@ separate repository-layout change with its own path and base-URL verification.
 
 | Task | Entry point under `web/` |
 | --- | --- |
-| Supported election/law/model combinations and limits | `src/lib/workspaces/registry.ts` |
-| Common-politics domain and execution (CP-02/03; editor/session integration remains later) | `src/lib/politics/scenario/index.ts`, `src/lib/politics/execution/index.ts`; [contract](common-politics-scenario/contract.md), [execution](common-politics-scenario/execution.md) |
-| Common politics editor and review route (CP-06; execution/session integration is CP-07) | `src/lib/politics/editor/CommonPoliticsEditor.svelte`, `src/routes/politics/editor/+page.svelte`; [component map and boundary](common-politics-scenario/editor.md) |
+| Common politics pairs and resource bounds | `src/lib/politics/scenario/registry.ts`, `src/lib/politics/execution/resources.ts` |
+| Election routing and regional workspace contract | `src/lib/workspaces/registry.ts` |
+| Common-politics domain and execution | `src/lib/politics/scenario/index.ts`, `src/lib/politics/execution/index.ts`; [contract](common-politics-scenario/contract.md), [execution](common-politics-scenario/execution.md) |
+| Common politics editor, lifecycle and durable sessions | `src/lib/politics/CommonPoliticsWorkspace.svelte`, `workspace-controller.ts`; [editor](common-politics-scenario/editor.md), [lifecycle](common-politics-scenario/lifecycle.md) |
 | Route composition and law selection | `src/routes/politics/+page.svelte`, `src/routes/emilia-romagna/+page.svelte` |
-| Previous-law politics and ER editors | `src/lib/workspaces/LegacyPoliticsWorkspace.svelte`, `RegionalErWorkspace.svelte` |
-| Reform adapter and specialized fitting/storage | `src/lib/politics/reform-2026/ReformWorkspace.svelte`, `vote-share/FastReformWorkspace.svelte` |
+| ER editor | `src/lib/workspaces/RegionalErWorkspace.svelte` |
+| Law adapters and statistical preparation | `src/lib/politics/execution/prepare.ts`, `rosatellum.ts`, `reform.ts` |
 | Shared navigation, controls, messages and tables | `src/lib/workspaces/WorkspaceShell.svelte`, `RunControls.svelte`, `WorkspaceMessages.svelte`, `ResultTable.svelte` |
-| Owned worker lifecycle and draft persistence | `src/lib/workspaces/controller.svelte.ts`, `draft.svelte.ts` |
+| Regional worker lifecycle and draft persistence | `src/lib/workspaces/controller.svelte.ts`, `draft.svelte.ts` |
 | Metadata routing and one-shot cross-route imports | `src/lib/workspaces/import-routing.ts`, `navigation.ts`, `handoff.ts` |
 | Snapshot resolution and schema/checksum checks | `src/lib/workspaces/data.ts`, `snapshots.generated.ts` |
 | Memory/stored result pages | `src/lib/workspaces/result-access.ts`; exports remain in `src/lib/core/result-export.ts` |
@@ -46,39 +47,27 @@ per-law filings, model settings, run preferences and exact dependencies. See the
 [CP-04 defaults guide](common-politics-scenario/defaults.md) for editing,
 regeneration and retained reference inputs. Do not edit generated defaults.
 
-The current editors remain transitional until CP-06/08. Their defaults are
-projections of the common authored file. The old previous-law format uses
-Camera/common local-reference means; the common file retains both chambers and
-all explicit SDs. This does not change M01/M02 semantics at the common execution
-boundary or give the old M00 editor the common editor's capabilities.
+Both politics routes (`/politics` and `/politics/editor`) use one common editor,
+draft/controller and durable execution service for Rosatellum/M01,
+reform/M01 and reform/M02. Selection is saved per law. Preparation loads/reuses
+automatically, running locks edits, and both seeds change only through ordinary
+field edits or their individual visible buttons. See the
+[lifecycle guide](common-politics-scenario/lifecycle.md) for resource estimates,
+compact session bounds, cancellation, quota recovery and exact checkpoint reuse.
 
-Scenario schema 9 adds optional per-chamber constituency filing and minority
-region declarations. Older scenarios keep unrestricted filing and their existing
-interpretation. Camera and Senate use their own geographic namespaces; restricted
-Camera filing becomes whole corresponding Senate regions, following the authored
-policy. The editor retains the two political coalitions and `null` coalition
-membership for autonomous lists. Standalone lists use singleton tickets only
-inside the legacy adapter. This is
-an electoral representation, not a claim of political coalition membership.
+Politics files use the [strict common formats](common-politics-scenario/files.md).
+Old politics files are rejected and former draft keys are ignored and untouched.
+Browsing/importing results never replaces the draft; only explicit scenario
+loading does. Reset requires confirmation and preserves results with their
+executed identity. Changed drafts are marked stale. Regional formats, persistence
+and one-shot navigation handoffs remain independent.
 
-New filing conditions the shared generated field separately per chamber while
-preserving each unit's non-valid fraction, and filters candidate slots/reuse.
-Its list/simulation/unit fields use typed arrays with a 256 MiB numerical
-workspace bound; worker chunks remain 50 runs. Historical scenarios retain the
-original object-based generator and seeded traversal unchanged.
-Minority declarations reach legal assembly without changing scrutiny rules.
-Reference means remain stochastic mean-mode inputs; structural conditioning and
-more-specific overrides can change aggregate references, with existing overlap
-warnings retained. Missing local history remains a separate model limitation.
-
-Regional draft keys and result formats remain readable. Politics files now use
-the [strict common formats and isolated draft API](common-politics-scenario/files.md);
-old politics files are rejected and former draft keys are ignored and untouched.
-The transitional politics editors keep memory-only edits until CP-06/07 connect
-the common draft and new file/session APIs. Regional metadata imports retain
-their in-memory one-shot handoff. Reset requires confirmation and preserves
-calculated results with their executed scenario. Changed drafts are marked stale.
-Navigation terminates legacy workers and disposes reform-owned services.
+Superseded projected politics workspaces, M00 control paths and old internal
+schema helpers are not mounted by the politics routes. They remain for CP-08's
+separate retirement and isolated legal/regression checks. Historical schema-9
+filing conversion and old 50-run worker batching are not the common runtime
+contract. Use the common domain/execution guides for current filings and
+bounded pull-driven worker transport.
 
 Previous-law scrutiny exceptions retain their R behavior. Execution errors now
 identify the failing simulation/chamber and real elapsed time. The pre-preparation-migration

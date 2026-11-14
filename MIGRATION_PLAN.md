@@ -165,8 +165,10 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   - [x] CP-04 — Replace authored-default construction, including approved colors: [authored input and packaging](docs/common-politics-scenario/defaults.md).
   - [x] CP-05 — Enforce new-format files and draft isolation: [strict file API and draft boundary](docs/common-politics-scenario/files.md).
   - [x] CP-06 — Build the common editor within the approved D14 perimeter: [editor components and review route](docs/common-politics-scenario/editor.md).
-  - [ ] CP-07 — Unify lifecycle, persistence and results.
+  - [x] CP-07 — Unify lifecycle, persistence and results: [controller, caches, durable sessions and resources](docs/common-politics-scenario/lifecycle.md).
   - [ ] CP-08 — Verify the supported pairs and complete merger acceptance.
+    Retarget superseded workspace browser suites before the full production gate;
+    measure national adapter resources and retain the agreed campaign-size restriction.
 - [x] Change default scenario colors to colors that reflects the real parties
   political colors (or colors with which polling houses usually represent parties).
 - [x] In "Dotazioni dei seggi per collegio e liste del premio" do now show territory ids,

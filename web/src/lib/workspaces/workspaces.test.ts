@@ -29,7 +29,7 @@ describe('supported workspace contracts', () => {
     const s = createDefaultPoliticsScenario();
     const request = { kind: 'politiche' as const, scenario: s, electionDate: s.electionDate, simulations: 1, seed: 'test', dataVersion: 'v1' };
     expect(validateWorkspaceRequest(request).id).toBe('politics-legacy');
-    expect(() => validateWorkspaceRequest({ ...request, simulations: 1001 })).toThrow('massimo 1000');
+    expect(validateWorkspaceRequest({ ...request, simulations: 1001 }).maximumSimulations).toBeNull();
     expect(() => validateWorkspaceRequest({ ...request, simulations: NaN })).toThrow();
     expect(() => validateWorkspaceRequest({ ...request, scenario: createDefaultRegionalErScenario() })).toThrow('mismatch');
     expect(() => validateWorkspaceRequest({ ...request, scrutinyAlgorithmId: 'politiche-reform-2026-v1' })).toThrow('mismatch');

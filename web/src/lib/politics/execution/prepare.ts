@@ -29,11 +29,23 @@ import { assembleReformSimulation, type AssemblySource } from '../reform-2026/as
 import { m02AssemblySource } from '../reform-2026/vote-share/generation';
 import { runPoliticsSimulation, type PoliticsSimulationRequest } from '../simulation-scrutiny';
 import { commonPoliticsImplementation } from './build';
+import type { FitState, ProfileState } from '../reform-2026/vote-share/release';
+
+export interface PoliticsNumericStates { fit: FitState; profiles: ProfileState }
+/** One entry per consumed stage: cache size does not grow with edits or runs. */
+export class PoliticsPreparationCache {
+  fit?: { key: string; state: FitState };
+  profiles?: { key: string; state: ProfileState };
+  m01?: { key: string; compiled: Awaited<ReturnType<typeof compileM01>>; prepared: ReturnType<typeof preparePairedVoteReferences> };
+  clear() { this.fit = undefined; this.profiles = undefined; this.m01 = undefined; }
+}
 
 export interface PreparationOptions {
   signal?: AbortSignal;
   checkpoint?: (progress: FitProgress) => Promise<void>;
   maximumWorkspaceBytes?: number;
+  cache?: PoliticsPreparationCache;
+  numericStates?: PoliticsNumericStates;
 }
 export async function preparePoliticsExecution(value: unknown, readers: ExecutionReaders, options: PreparationOptions = {}) {
   if (!readers.implementationId || commonPoliticsImplementation && readers.implementationId !== commonPoliticsImplementation)
@@ -73,6 +85,8 @@ export async function preparePoliticsExecution(value: unknown, readers: Executio
   let legal = law === REFORM ? reformLegalSettings(s, data.domain, inputs.common) : undefined;
   let preparationKey: string, generationKey: string;
   let references: GeneratedVotes['trace']['references'];
+  let numericStates: PoliticsNumericStates | undefined;
+  const reuse = { fit: false, profiles: false };
   if (model.id === 'M01') {
     // SDs, fitting seed, presentation and candidature are not M01 statistical inputs.
     const { lists, components, references: refs, nonValidReferences, ...input } = inputs.common;
@@ -82,9 +96,12 @@ export async function preparePoliticsExecution(value: unknown, readers: Executio
       references: refs.map(({ sdPercentagePoints, ...r }) => r), nonValidReferences: nonValidReferences.map(({ sdPercentagePoints, ...r }) => r),
       source: s.data.historical.sha256, geography: s.data.lawAssets[law].geography.sha256,
       electorate: s.data.electorate.sha256, models: data.parameters.models.chambers });
-    const compiled = await compileM01(inputs.common, data.source, readers.sourceChunk, data,
+    const cached = options.cache?.m01?.key === `${readers.implementationId}/${preparationKey}` ? options.cache.m01 : undefined;
+    const compiled = cached?.compiled ?? await compileM01(inputs.common, data.source, readers.sourceChunk, data,
       { geography: law === REFORM ? context!.seats.geography : data.geography, models: data.parameters.models }, preparationKey);
-    const prepared = preparePairedVoteReferences(compiled.scenario, compiled.snapshot);
+    const prepared = cached ? { ...cached.prepared, trace: structuredClone(cached.prepared.trace) } : preparePairedVoteReferences(compiled.scenario, compiled.snapshot);
+    if (!cached && options.cache) options.cache.m01 = { key: `${readers.implementationId}/${preparationKey}`, compiled,
+      prepared: { ...prepared, trace: structuredClone(prepared.trace) } };
     prepared.trace.modelVersion = `${model.id}@${model.version}`;
     references = prepared.trace.references;
     if (legal) {
@@ -108,10 +125,36 @@ export async function preparePoliticsExecution(value: unknown, readers: Executio
     preparationKey = await sourceKey('politics-m02-preparation-v1', { model, fitSeed: s.execution.fittingSeed,
       national: compiled.nationalInputKey, profiles: compiled.profileInputKey, paired: paired.history,
       policies: s.modelSettings.M02.policies, source: s.data.historical.sha256, electorate: s.data.electorate.sha256 });
-    const fit = await cooperativeSteps(fitReferenceSteps(compiled.national, s.execution.fittingSeed,
-      { maximumWorkspaceBytes: options.maximumWorkspaceBytes }), checkpoint);
-    const cameraProfile = await cooperativeSteps(fitProfilesSteps(compiled.profiles, options.maximumWorkspaceBytes), checkpoint);
-    const senateAdapter = prepareSenateAdapter(cameraProfile, s.referenceDate, paired.history);
+    const fitKey = await sourceKey('common-fit-v1', { implementation: readers.implementationId, model,
+      input: compiled.nationalInputKey, seed: s.execution.fittingSeed, policies: s.modelSettings.M02.policies });
+    const profileKey = await sourceKey('common-profiles-v1', { implementation: readers.implementationId,
+      input: compiled.profileInputKey, paired: paired.history, referenceDate: s.referenceDate });
+    const fitParents = { nationalInputKey: compiled.nationalInputKey, implementationId: readers.implementationId,
+      fitSeed: s.execution.fittingSeed };
+    const profileParents = { profileInputKey: compiled.profileInputKey,
+      pairedInputKey: await sourceKey('common-paired-v1', paired.history), implementationId: readers.implementationId, referenceDate: s.referenceDate };
+    const restored = options.numericStates;
+    if (restored && (Object.entries(fitParents).some(([k, v]) => restored.fit.parents[k as keyof typeof fitParents] !== v) ||
+      Object.entries(profileParents).some(([k, v]) => restored.profiles.parents[k as keyof typeof profileParents] !== v)))
+      throw new Error('POLITICS_NUMERIC_STATE_DEPENDENCY_MISMATCH');
+    let fitState = restored?.fit ?? (options.cache?.fit?.key === fitKey ? options.cache.fit.state : undefined);
+    let profileState = restored?.profiles ?? (options.cache?.profiles?.key === profileKey ? options.cache.profiles.state : undefined);
+    reuse.fit = !!fitState; reuse.profiles = !!profileState;
+    if (!fitState) {
+      const fit = await cooperativeSteps(fitReferenceSteps(compiled.national, s.execution.fittingSeed,
+        { maximumWorkspaceBytes: options.maximumWorkspaceBytes }), checkpoint);
+      fitState = { parents: { ...fitParents, solver: fit.audit.iterations.some(i => i.solver === 'matrix-free') ? 'matrix-free' : 'dense' }, fit, provenanceId: compiled.provenanceId,
+        warnings: compiled.warnings, sampler: { chains: 4, burn: 1000, thin: 2, retention: 'all-accepted-joint-context-draws' } };
+      if (options.cache) options.cache.fit = { key: fitKey, state: fitState };
+    }
+    if (!profileState) {
+      const cameraProfile = await cooperativeSteps(fitProfilesSteps(compiled.profiles, options.maximumWorkspaceBytes), checkpoint);
+      profileState = { parents: profileParents, cameraProfile,
+        senateAdapter: prepareSenateAdapter(cameraProfile, s.referenceDate, paired.history), pairedAudit: paired.audit };
+      if (options.cache) options.cache.profiles = { key: profileKey, state: profileState };
+    }
+    numericStates = { fit: fitState, profiles: profileState };
+    const { fit } = fitState, { cameraProfile, senateAdapter } = profileState;
     const assets: FastVoteAssets = { fit, cameraProfile, senateAdapter, modelId: FAST_SHARE_MODEL, numericalVersion: FAST_SHARE_NUMERICS,
       fitSeed: s.execution.fittingSeed, profileReferenceDate: s.referenceDate, sourceBundleId: data.source.id,
       fittedStateId: preparationKey, profileStateId: preparationKey, geography: data.geography, electorates: data.electorates };
@@ -144,7 +187,7 @@ export async function preparePoliticsExecution(value: unknown, readers: Executio
   };
   await checkpoint({ phase: 'politics-ready', completed: 1, total: 1 });
   return { scenario: s, pair, implementationId: readers.implementationId, context, legalSettings: legal,
-    keys: { preparationKey, generationKey, assemblyKey }, generateVotes, generate,
+    keys: { preparationKey, generationKey, assemblyKey }, numericStates, reuse, generateVotes, generate,
     run: (simulation: number) => { const generated = generate(simulation); return { ...generated, result: runPoliticsSimulation(generated.request) }; } };
 }
 export type PreparedPoliticsExecution = Awaited<ReturnType<typeof preparePoliticsExecution>>;

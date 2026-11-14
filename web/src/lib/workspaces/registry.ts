@@ -7,7 +7,7 @@ export const workspaces = [
   { id: 'politics-legacy', kind: 'politiche', route: '/politics', name: 'Politiche',
     label: 'Legge precedente (R parity)', territory: 'Italia',
     algorithm: 'politiche-r-parity-v1', scenarioFamily: 'legacy',
-    data: 'politics', models: [], maximumSimulations: 1000, fitting: false, storedResults: false },
+    data: 'politics', models: [], maximumSimulations: null, fitting: false, storedResults: false },
   { id: 'politics-reform', kind: 'politiche', route: '/politics', name: 'Politiche',
     label: 'Riforma 2026', territory: 'Italia', algorithm: REFORM_ALGORITHM_ID,
     scenarioFamily: 'reform', data: 'reform', models: generationModels,

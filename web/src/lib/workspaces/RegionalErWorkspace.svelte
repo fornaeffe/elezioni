@@ -8,7 +8,7 @@
   import { createWorkspaceExecution } from './controller.svelte';
   import { persistWorkspaceDraft, confirmWorkspaceReset } from './draft.svelte';
   import { snapshotDescriptors } from './snapshots.generated';
-  import { transitionalFileWorkspace as fileWorkspace, transitionalScenarioWorkspace as scenarioWorkspace } from './import-routing';
+  import { fileWorkspace, transitionalScenarioWorkspace as scenarioWorkspace } from './import-routing';
   import { isOtherList, setOtherListEnabled, OTHER_LIST_COLOR } from '$lib/core/other-list';
   import { base } from '$app/paths';
   import { Download, Play, Plus, RotateCcw, Trash2, Upload } from '@lucide/svelte';
@@ -430,6 +430,7 @@
 
     try {
       if (!isGzipFile(file)) throw new Error('Carica risultati regionali come file .json.gz.');
+      if ((await fileWorkspace(file)).id !== 'regional-er') { await navigateWorkspaceImport({ file }); return; }
       applyResultExport(parseSimulationResultExport(await readJsonFile(file)));
     } catch (error) {
       messages = [uiMessage('RESULT_LOAD_ERROR', error instanceof Error ? error.message : String(error), 'error')];

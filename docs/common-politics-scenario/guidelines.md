@@ -998,6 +998,10 @@ but their editors are not required for CP-06 or CP-08 acceptance.
 
 ### CP-07 — Unify lifecycle, persistence and results
 
+Implemented lifecycle: [controller, persistence and result guide](lifecycle.md).
+Verification and remaining CP-08 acceptance are recorded in
+[migration history](../migration-history.md#cp-07--unify-lifecycle-persistence-and-results-2026-11-14).
+
 Integrate the editor with one draft/controller and the execution adapters.
 Apply D15/D16/D17: implement execution locking/explicit cancellation, automatic
 loading/reuse with visible cancellable preparation, dependency-based fit reuse,

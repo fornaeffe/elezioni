@@ -15,7 +15,8 @@
   import ReformTerritorialSpinogram from './ReformTerritorialSpinogram.svelte';
   import ReformSeriesChart from './ReformSeriesChart.svelte';
   import type { ReformSeatEndowments } from './stored-statistics';
-  let { client, resultId, owner }: { client: ResultServiceClient; resultId: string; owner: string } = $props();
+  let { client, resultId, owner, scrutinyId = 'politiche-reform-2026-v1' }: { client: ResultServiceClient; resultId: string; owner: string; scrutinyId?: string } = $props();
+  const isReform = $derived(scrutinyId === 'politiche-reform-2026-v1');
   let overview = $state.raw<StatisticsOverview | null>(null), boxes = $state.raw<BoxPlotResultChart[]>([]);
   let endowments = $state.raw<ReformSeatEndowments | null>(null);
   let showProbability = $state(false);
@@ -40,7 +41,7 @@
         if (!alive) return; overview = o;
         endowments = await client.call<ReformSeatEndowments>('statistics-endowments', { resultId, owner });
         if (!alive) return;
-        try {
+        if (isReform) try {
           bonus = await client.call('statistics-bonus', { resultId, owner });
         } catch (e) {
           if (!alive) return;
@@ -79,7 +80,9 @@
     {@const o = overview}
     <h3>Eletti medi e percentuali sui voti validi</h3>
     <p>{o.saved}/{o.requested} simulazioni conservate. Eletti per affiliazione personale finale; coalizioni per titolarità del seggio. Sono inclusi ordinari, premio, uninominali speciali e proporzionali TAA; Estero escluso.</p>
-    <p>≥ indica una media minima di eletti confermati sulle simulazioni richieste. Le medie complete richiedono tutti gli esiti noti; dati mancanti e preferenze irrisolte non valgono zero. Identità e recuperi restano condizionati ai dati/modelli delle preferenze.</p>
+    <p>≥ indica una media minima di eletti confermati sulle simulazioni richieste. Le medie complete richiedono tutti gli esiti noti; i dati mancanti non valgono zero.</p>
+    {#if isReform}<p>Identità e recuperi restano condizionati ai dati/modelli delle preferenze.</p>
+    {:else}<p>Rosatellum: le liste riportano i soli seggi plurinominali; le coalizioni e i sostegni comprendono anche gli eletti uninominali.</p>{/if}
     {#if o.legacy}<p role="note">Archivio precedente: alcune affiliazioni non sono ricostruibili; i grafici locali richiedono una nuova esecuzione. L’apertura dell’archivio non esegue simulazioni.</p>{/if}
     <label>Raggruppamento delle medie<select bind:value={meanKind}><option value="list">Liste</option><option value="subject">Coalizioni / liste singole</option></select></label>
     <label>Ramo delle medie<select bind:value={meanChamber}><option value="camera">Camera</option><option value="senato">Senato</option></select></label>
@@ -115,7 +118,9 @@
     <details ontoggle={e => { showSummary = toggle(e); }}><summary>Tabella riepilogativa degli eletti e delle percentuali</summary>
       {#if showSummary && table}
         <p>Richieste: tutte le simulazioni previste, incluse quelle fallite o interrotte. Percentuali note ed esiti noti: numero di osservazioni disponibili per la lista e il ramo. Percentuale media ed eletti medi sono disponibili solo con tutte le osservazioni note.</p>
-        <p>Le colonne «minimi / richieste» dividono gli eletti confermati per tutte le simulazioni richieste: sono medie minime, non percentuali né probabilità. Ordinari, premio, uninominali speciali e proporzionali TAA suddividono quel minimo per categoria; possono includere recuperi nella sede finale. Estero escluso.</p>
+        <p>Le colonne «minimi / richieste» dividono gli eletti confermati per tutte le simulazioni richieste: sono medie minime, non percentuali né probabilità. Estero escluso.</p>
+        {#if isReform}<p>Ordinari, premio, uninominali speciali e proporzionali TAA suddividono quel minimo per categoria; possono includere recuperi nella sede finale.</p>
+        {:else}<p>Rosatellum: le liste riportano i soli seggi plurinominali; le coalizioni e i sostegni comprendono anche gli eletti uninominali.</p>{/if}
         <div class="table-scroll"><table><caption>Eletti e percentuali medi per lista</caption><thead><tr>{#each table.columns.filter(c => c !== 'List') as column (column)}<th>{headings[column] ?? column}</th>{/each}</tr></thead>
           <tbody>{#each table.rows.slice(summaryPage * 50, summaryPage * 50 + 50) as row (String(row.Chamber) + String(row.List))}<tr>{#each table.columns.filter(c => c !== 'List') as column (column)}<td>{typeof row[column] === 'number' ? displayNumber(row[column] as number) : row[column] ?? 'Non disponibile'}</td>{/each}</tr>{/each}</tbody>
         </table></div>
@@ -135,23 +140,23 @@
         {#if !selectedBoxes[0]?.panels.length}<p role="status">Nessuna percentuale disponibile per questo ramo.</p>{/if}
       {/key}
     {/if}
-    <details role="region" aria-label="Vincitori del premio"><summary>Vincitori del premio</summary>
+    {#if isReform}<details role="region" aria-label="Vincitori del premio"><summary>Vincitori del premio</summary>
       <p>Percentuale delle simulazioni richieste in cui il premio congiunto è assegnato alla coppia collegata Camera–Senato, indipendentemente dai seggi poi coperti. Ogni simulazione conta una volta; se i nomi coincidono, la coppia è mostrata una sola volta. ≥ indica un minimo con decisioni mancanti; il premio non assegnato resta nel denominatore.</p>
       {#if bonusError}<p role="alert">Impossibile caricare i vincitori del premio: {bonusError}</p>
       {:else}<div class="bonus-bars">{#each bonus as row (row.id)}<div class="bonus-row"><span>{row.name}</span><span class="bonus-track"><span style:width={`${100 * row.wins / o.requested}%`} style:background={row.color}></span></span><strong>{probabilityLabel(row, o.requested)}</strong></div>{:else}<p>Nessuna assegnazione del premio disponibile.</p>{/each}</div>{/if}
-    </details>
-    <details role="region" aria-label="Probabilità di elezione" ontoggle={e => { showProbability = toggle(e); }}><summary>Probabilità di elezione</summary>
+    </details>{/if}
+    {#if isReform}<details role="region" aria-label="Probabilità di elezione" ontoggle={e => { showProbability = toggle(e); }}><summary>Probabilità di elezione</summary>
       {#if showProbability}<ElectionProbabilityTable {client} {resultId} {owner} series={o.series} />{/if}
-    </details>
+    </details>{/if}
     <details role="region" aria-label="Eletti e percentuali" ontoggle={e => { scatter = toggle(e); }}><summary>Eletti e percentuali</summary>
       {#if scatter}<ReformSeriesChart {client} {resultId} {owner} series={o.series} variant="scatter" />{/if}
     </details>
     <details role="region" aria-label="Spinogrammi degli eletti" ontoggle={e => { nationalSpines = toggle(e); }}><summary>Spinogrammi degli eletti</summary>
       {#if nationalSpines}<ReformSeriesChart {client} {resultId} {owner} series={o.series} variant="spine" />{/if}
     </details>
-    <details ontoggle={e => { localSpine = toggle(e); }}><summary>Eletti per collegio o circoscrizione</summary>
+    {#if isReform}<details ontoggle={e => { localSpine = toggle(e); }}><summary>Eletti per collegio o circoscrizione</summary>
       <ReformTerritorialSpinogram {client} {resultId} {owner} overview={o} active={localSpine} />
-    </details>
+    </details>{/if}
   {:else if !error}<p role="status">Preparazione delle statistiche…</p>{/if}
 </div>
 

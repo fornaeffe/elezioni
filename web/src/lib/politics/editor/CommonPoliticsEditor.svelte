@@ -16,7 +16,8 @@
   import RunControls, { type ExecutionControls } from './RunControls.svelte';
   import CandidateForm from './CandidateForm.svelte';
   import './editor.css';
-  let { scenario, onchange, execution }: { scenario: PoliticsScenario; onchange: (next: PoliticsScenario) => void; execution?: ExecutionControls } = $props();
+  let { scenario, onchange, execution, stageExternalFile }: { scenario: PoliticsScenario; onchange: (next: PoliticsScenario) => void;
+    execution?: ExecutionControls; stageExternalFile?: (file: File) => Promise<(() => void) | null> } = $props();
   let assets = $state.raw<EditorAssets | null>(null), error = $state(''), status = $state('Caricamento del modello selezionato…');
   let controller: AbortController | null = null, importController: AbortController | null = null, disposed = false, epoch = 0, editRevision = 0;
   let generator = $derived(activeGenerator(scenario));
@@ -51,6 +52,9 @@
     importController?.abort();
     const staged = new AbortController(); importController = staged;
     try {
+      const external = await stageExternalFile?.(file);
+      if (disposed || staged.signal.aborted || execution?.busy || revision !== editRevision) return;
+      if (external) { external(); return; }
       const next = decodeScenario(new Uint8Array(await file.arrayBuffer()));
       // Validate every exact dependency before replacing either draft or UI.
       const loaded = await loadEditorAssets(next, staged.signal);
@@ -68,7 +72,7 @@
 <div class="common-politics-editor">
   <nav aria-label="Percorso"><a href={`${base}/`}>Home</a> / <a href={`${base}/politics`}>Elezioni politiche</a> / Editor comune</nav>
   <h1>Scenario delle elezioni politiche</h1>
-  <aside class="editor-status"><details><summary>{execution?.status ?? status}</summary><p>{execution?.progress ?? status}</p>{#if execution?.busy}<button onclick={execution.onCancel}>Annulla esecuzione</button>{:else if !assets}<button onclick={() => { controller?.abort(); ++epoch; status = 'Caricamento annullato'; }}>Annulla caricamento</button><button onclick={() => void load(scenario)}>Riprova caricamento</button>{/if}</details></aside>
+  <aside class="editor-status"><details><summary>{execution ? `${execution.status}${assets ? ' · dati verificati' : ''}` : status}</summary><p>{execution?.progress ?? status}</p>{#if execution?.busy || execution?.preparing}<button onclick={execution.onCancel}>{execution.busy ? 'Annulla esecuzione' : 'Annulla preparazione'}</button>{:else if !assets}<button onclick={() => { controller?.abort(); ++epoch; status = 'Caricamento annullato'; }}>Annulla caricamento</button><button onclick={() => void load(scenario)}>Riprova caricamento</button>{/if}</details></aside>
   {#if error}<p role="alert">{error}</p>{/if}
   {#if issues.length}<LazySection title={`Verifica dello scenario · ${issues.length} problemi da correggere`}><ul>{#each issues as issue, i (`${issue.code}:${issue.path}:${i}`)}<li>{issue.code}: {issue.message}</li>{/each}</ul></LazySection>{/if}
   <fieldset disabled={execution?.busy}>

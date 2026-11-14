@@ -6,7 +6,7 @@
   import LazySection from './LazySection.svelte';
   /** CP-07 supplies task ownership. Presentation never starts or randomizes execution implicitly. */
   export interface ExecutionControls {
-    busy: boolean; status: string; progress?: string; onRun: () => void; onCancel: () => void;
+    busy: boolean; preparing?: boolean; status: string; progress?: string; onRun: () => void; onCancel: () => void;
     onFit?: () => void; onImportCheckpoint?: (file: File) => void; onExportCheckpoint?: () => void;
   }
   let { scenario, edit, execution }: { scenario: PoliticsScenario; edit: ApplyEdit; execution?: ExecutionControls } = $props();
@@ -44,6 +44,6 @@
     {/if}
     <button disabled={!execution} onclick={() => execution?.onRun()}>Avvia simulazione</button>
   </fieldset>
-  {#if execution?.busy}<button onclick={() => execution?.onCancel()}>Annulla esecuzione</button>{/if}
+  {#if execution?.busy || execution?.preparing}<button onclick={() => execution?.onCancel()}>{execution.busy ? 'Annulla esecuzione' : 'Annulla preparazione'}</button>{/if}
   <p role="status">{execution?.status ?? 'Anteprima dello scenario: esecuzione e checkpoint disponibili nel flusso di simulazione.'}{execution?.progress ? ` · ${execution.progress}` : ''}</p>
 </section>

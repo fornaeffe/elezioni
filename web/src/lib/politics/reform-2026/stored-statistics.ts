@@ -100,7 +100,7 @@ export async function storedSummaryTable(record: StoredResult) {
 /** Compatibility reads only archived evidence. Ordinary/recovered list locations
  * can prove an affiliation; original coalition bonus/special ownership cannot. */
 async function* legacyRows(record: StoredResult): AsyncGenerator<Row> {
-  if (!('kind' in record.scenario)) return;
+  if (!('kind' in record.scenario) || record.scenario.kind !== 'politics-reform-scenario') return;
   const scenario = record.scenario, presentation = reformPresentation(scenario);
   async function* groups(name: string) {
     let simulation = -1, rows: Row[] = [];

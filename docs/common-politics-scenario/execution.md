@@ -133,10 +133,12 @@ results separately from changed source/parameter provenance. The restricted M01
 capacity blocker and M02 tiny-electorate `initial-overallocation` remain visible;
 there is no reroll, scaling repair or regenerated legal expectation.
 
-## Worker and later-step boundary
+## Workers and workspace integration
 
 `PoliticsComputePacket` carries the immutable scenario, exact asset/chunk bytes
-and all three expected stage keys plus the actual implementation ID. The worker
+and all three expected stage keys plus the actual implementation ID. M02 packets
+also carry prepared numeric states with verified consumed-input parents, so each
+worker reuses the fit instead of sampling it again. The worker
 checks that ID against its own compiled build. `init-politics` repeats parsing, checksums,
 supported-pair, model preparation and legal validation inside the actual compute
 worker; mismatching keys fail. It uses the existing one-run-at-a-time, pull-driven
@@ -145,12 +147,11 @@ simulation IDs and error diagnostics. This path introduces no 1,000-run cap.
 
 Authored defaults and production packaging are documented in [CP-04](defaults.md);
 strict scenario/result readers and draft isolation in [CP-05](files.md).
-CP-06/07 will connect the editor and
-common controller/session lifecycle, including prepared-state reuse across compute
-workers; this initial packet path repeats model preparation per initialized worker.
-The current old-format workspace UI stays transitional until those steps. Its M00
-path and plot ceiling are not capabilities of the new common executor. CP-08 owns
-the three full 1,000-run/performance campaigns and final merger acceptance.
+The [common lifecycle](lifecycle.md) connects the editor, automatic preparation,
+stage caches, checkpoints and durable result sessions at both politics routes.
+Superseded politics workspace implementations remain for CP-08 retirement and
+isolated regression evidence; their M00 paths are not mounted by those routes.
+CP-08 owns the three full 1,000-run/performance campaigns and final merger acceptance.
 
 Verification commands and measured outcomes belong in
 [migration history](../migration-history.md#cp-03--adapt-existing-execution-paths-2026-11-07).

@@ -140,7 +140,7 @@ export async function inspect(id: string, owner: string) {
     thresholds,
     fitFilePresent: !!record.fitFile,
     generationImplementationId:
-      'data' in record.scenario
+      'models' in record.scenario
         ? record.scenario.models.generationImplementationId
         : undefined,
     data: 'data' in record.scenario ? record.scenario.data : undefined,
