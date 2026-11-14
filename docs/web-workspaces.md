@@ -21,6 +21,7 @@ separate repository-layout change with its own path and base-URL verification.
 | --- | --- |
 | Supported election/law/model combinations and limits | `src/lib/workspaces/registry.ts` |
 | Common-politics domain and execution (CP-02/03; editor/session integration remains later) | `src/lib/politics/scenario/index.ts`, `src/lib/politics/execution/index.ts`; [contract](common-politics-scenario/contract.md), [execution](common-politics-scenario/execution.md) |
+| Common politics editor and review route (CP-06; execution/session integration is CP-07) | `src/lib/politics/editor/CommonPoliticsEditor.svelte`, `src/routes/politics/editor/+page.svelte`; [component map and boundary](common-politics-scenario/editor.md) |
 | Route composition and law selection | `src/routes/politics/+page.svelte`, `src/routes/emilia-romagna/+page.svelte` |
 | Previous-law politics and ER editors | `src/lib/workspaces/LegacyPoliticsWorkspace.svelte`, `RegionalErWorkspace.svelte` |
 | Reform adapter and specialized fitting/storage | `src/lib/politics/reform-2026/ReformWorkspace.svelte`, `vote-share/FastReformWorkspace.svelte` |

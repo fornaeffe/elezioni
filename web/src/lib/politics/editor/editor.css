@@ -1,0 +1,32 @@
+.common-politics-editor { max-width: 1400px; margin: auto; padding: 1.5rem; color: #173042; font: 1rem/1.5 system-ui, sans-serif; }
+.common-politics-editor * { box-sizing: border-box; }
+.common-politics-editor fieldset { min-width: 0; border: 0; padding: 0; margin: 0; }
+.common-politics-editor section { margin-block: 1.5rem; }
+.common-politics-editor article, .common-politics-editor details { border: 1px solid #cbd5df; border-radius: .5rem; padding: .8rem; margin-block: .6rem; background: #fff; }
+.common-politics-editor details details { background: #f7fafc; }
+.common-politics-editor summary { cursor: pointer; font-weight: 600; overflow-wrap: anywhere; }
+.common-politics-editor label { display: inline-flex; flex-wrap: wrap; gap: .4rem; align-items: center; max-width: 100%; margin: .3rem .6rem .3rem 0; }
+.common-politics-editor input, .common-politics-editor select, .common-politics-editor button { font: inherit; max-width: 100%; border: 1px solid #9aaebf; border-radius: .3rem; padding: .5rem; }
+.common-politics-editor input[type=number] { width: 8rem; }
+.common-politics-editor input[type=color] { width: 3rem; height: 2.6rem; padding: .2rem; }
+.common-politics-editor input[type=checkbox] { accent-color: #176694; width: 1.2rem; height: 1.2rem; }
+.common-politics-editor button { background: #edf5fa; cursor: pointer; margin: .25rem; }
+.common-politics-editor :disabled { opacity: .6; cursor: default; }
+.common-politics-editor :focus-visible { outline: 3px solid #007baa; outline-offset: 3px; }
+.common-politics-editor .row, .common-politics-editor .reference-fields { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.common-politics-editor .chamber-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.common-politics-editor .chamber-grid fieldset { border: 1px solid #cbd5df; padding: .6rem; border-radius: .4rem; }
+.common-politics-editor .badge { font-size: .85rem; background: #edf3f8; padding: .25rem .5rem; border-radius: .4rem; }
+.common-politics-editor .hint, .common-politics-editor small { color: #4d6272; }
+.common-politics-editor [role=alert] { background: #fff0ed; border-left: 4px solid #c0392b; padding: .8rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+.common-politics-editor .bounded-list { max-height: 18rem; overflow: auto; }
+.common-politics-editor .bounded-list label { display: flex; }
+.common-politics-editor .editor-status { position: sticky; top: .4rem; z-index: 2; margin-left: auto; max-width: 24rem; }
+.common-politics-editor .editor-status details { background: #eef7fc; box-shadow: 0 2px 8px #17304220; }
+@media (max-width: 650px) {
+  .common-politics-editor { padding: .75rem; }
+  .common-politics-editor .chamber-grid { grid-template-columns: 1fr; }
+  .common-politics-editor .editor-status { position: static; max-width: none; }
+  .common-politics-editor label { display: flex; width: 100%; }
+  .common-politics-editor input:not([type=checkbox]):not([type=color]), .common-politics-editor select { width: 100%; min-width: 0; }
+}

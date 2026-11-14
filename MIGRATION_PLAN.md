@@ -164,7 +164,7 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   - [x] CP-03 — Adapt existing execution paths: [execution API and adapters](docs/common-politics-scenario/execution.md).
   - [x] CP-04 — Replace authored-default construction, including approved colors: [authored input and packaging](docs/common-politics-scenario/defaults.md).
   - [x] CP-05 — Enforce new-format files and draft isolation: [strict file API and draft boundary](docs/common-politics-scenario/files.md).
-  - [ ] CP-06 — Build the common editor within the approved D14 perimeter.
+  - [x] CP-06 — Build the common editor within the approved D14 perimeter: [editor components and review route](docs/common-politics-scenario/editor.md).
   - [ ] CP-07 — Unify lifecycle, persistence and results.
   - [ ] CP-08 — Verify the supported pairs and complete merger acceptance.
 - [x] Change default scenario colors to colors that reflects the real parties

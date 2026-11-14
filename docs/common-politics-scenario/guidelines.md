@@ -962,6 +962,10 @@ current state. Historical regression fixtures remain separate test evidence.
 
 ### CP-06 — Build the common editor
 
+Implemented editor components and review route: [editor guide](editor.md).
+Verification and the CP-07 integration boundary are recorded in
+[migration history](../migration-history.md#cp-06--build-the-common-editor-2026-11-14).
+
 Apply D02/D06/D07/D08/D09/D10/D14/D15/D16/D17/D18. Compose a single
 politics editor from subject, reference, membership, filing/candidate, generator-selection and
 run-control components.
@@ -987,8 +991,7 @@ the visible basic non-valid reference and attached advanced national/chamber/loc
 tree controls, fallback/component-reference editors, read-only electorate data
 and the default-used pooling editor,
 reset/new-format import/export and error paths work. New subjects initialize
-all law blocks, redundant partial-coverage badges are absent and candidate
-badges remain. Check keyboard/mobile layout and run the Svelte tooling on
+all law blocks. Check keyboard/mobile layout and run the Svelte tooling on
 changed components.
 Deferred D14 settings must survive validation, switching and file roundtrips,
 but their editors are not required for CP-06 or CP-08 acceptance.

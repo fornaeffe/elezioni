@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { base } from '$app/paths';
   import { authoredPoliticsDefault } from '$lib/politics/scenario/defaults';
   import { takeWorkspaceImport } from '$lib/workspaces/handoff';
   import { navigateWorkspaceImport } from '$lib/workspaces/navigation';
@@ -28,6 +29,7 @@
     </select>
   </label>
   <p>I file politiche precedenti non sono più supportati. Il nuovo editor userà una bozza comune alle due leggi.</p>
+  <p><a href={`${base}/politics/editor`}>Apri l’editor comune dello scenario</a></p>
 </nav>
 {#if error}<p role="alert">{error}</p>{/if}
 {#key algorithmId}
