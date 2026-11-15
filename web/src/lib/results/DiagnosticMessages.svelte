@@ -76,8 +76,8 @@
 </script>
 
 <div class="messages" aria-label="Avvisi riforma">
-  <section aria-label="Informazioni e avvisi generali">
-    <h3>Informazioni e avvisi generali</h3>
+  <details class="result-section" aria-label="Informazioni e avvisi generali">
+    <summary>Informazioni e avvisi generali</summary>
     {#if result.storage?.state === 'interrupted'}<p class="execution"><strong>Calcolo interrotto: {processed}/{requested} simulazioni conservate.</strong> Le simulazioni non elaborate restano nel denominatore richiesto e non sono considerate prive di messaggi.</p>{/if}
     {#each general.rows as w, i (generalOffset + i)}
       <article class={{ error: w.severity === 'error', warning: w.severity !== 'info' && w.severity !== 'error' }}>
@@ -92,10 +92,10 @@
       </article>
     {:else}<p>Nessun messaggio generale registrato.</p>{/each}
     {#if general.total > 50}<nav aria-label="Pagine messaggi generali"><button disabled={generalOffset === 0} onclick={() => { generalOffset -= 50; }}>Generali precedenti</button><span>{generalOffset + 1}–{Math.min(generalOffset + 50, general.total)} di {general.total}</span><button disabled={generalOffset + 50 >= general.total} onclick={() => { generalOffset += 50; }}>Generali successivi</button></nav>{/if}
-  </section>
+  </details>
 
-  <section aria-label="Messaggi delle simulazioni">
-    <h3>Messaggi delle simulazioni</h3>
+  <details class="result-section" aria-label="Messaggi delle simulazioni">
+    <summary>Messaggi delle simulazioni</summary>
     <p>Simulazioni interessate su {requested} richieste; ogni simulazione conta una sola volta per codice e gravità. Le occorrenze contano anche le ripetizioni.</p>
     <form onsubmit={applyFilter}>
       <label>Gravità dei messaggi<select bind:value={severity}><option value="">Tutte</option><option value="error">Errori</option><option value="warning">Avvisi</option><option value="info">Informazioni</option></select></label>
@@ -111,7 +111,7 @@
       </tbody></table></div>
       {#if summary.groupCount > 50}<nav aria-label="Pagine riepilogo"><button disabled={summaryOffset === 0} onclick={() => { summaryOffset -= 50; }}>Riepilogo precedente</button><span>{summaryOffset + 1}–{Math.min(summaryOffset + 50, summary.groupCount)} di {summary.groupCount}</span><button disabled={summaryOffset + 50 >= summary.groupCount} onclick={() => { summaryOffset += 50; }}>Riepilogo successivo</button></nav>{/if}
     {:else if result.storage}<p role="status">Caricamento riepilogo messaggi…</p>{:else}<p>Riepilogo delle simulazioni non disponibile: esecuzione non avviata.</p>{/if}
-  </section>
+  </details>
 
   {#if selected}
     <section aria-label={summary?.exact ? 'Simulazioni interessate' : 'Dettagli messaggio'}>
@@ -138,8 +138,9 @@
 
 <style>
   .messages { margin: 1rem 0; min-width: 0; }
-  section { border-top: 1px solid #ccd8df; padding: 1rem 0; }
-  h3 { margin-top: 0; } h4 { margin: .4rem 0; }
+  .result-section { border-bottom: 1px solid #e5e9ed; padding: 1rem 0; }
+  .result-section > summary { cursor: pointer; color: #4d5963; font-size: .9rem; font-weight: 750; }
+  h4 { margin: .4rem 0; }
   article { border-left: 4px solid #6795ae; background: #f4f8fb; padding: .6rem 1rem; margin: .6rem 0; overflow-wrap: anywhere; }
   article.warning { border-color: #a96700; background: #fffaef; }
   article.error, .execution { border-color: #a92d22; background: #fff1ef; }

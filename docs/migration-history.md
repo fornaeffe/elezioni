@@ -10964,3 +10964,16 @@ elettorale** label resolved the timeout.
   remain visible when it is collapsed.
 - Verification: `npm run check` passed with zero errors and warnings; the Svelte
   autofixer reported no issues. No browser review was performed.
+
+### 2026-11-15 — Uniform collapsible results sections
+
+- Made general information and simulation messages collapsible and closed by
+  default. Matched their summary styling to the other results panels.
+- Moved the bonus winners panel ahead of elected averages and left it open by
+  default. Made the elected averages and valid-vote percentages a single open
+  collapsible section.
+- Moved boxplot grouping and chamber controls into the boxplot section, which
+  is closed by default; the chart body is mounted when that section opens.
+- Verification: `npm run check` passed with zero Svelte errors and warnings;
+  the Svelte autofixer reported no issues in the changed statistics component.
+  No browser review was performed.

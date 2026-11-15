@@ -24,7 +24,7 @@
   let bonusError = $state('');
   let meanKind = $state('list'), boxKind = $state('list');
   let error = $state('');
-  let scatter = $state(false), nationalSpines = $state(false), localSpine = $state(false), showSummary = $state(false), summaryPage = $state(0);
+  let scatter = $state(false), nationalSpines = $state(false), localSpine = $state(false), showSummary = $state(false), showBoxplots = $state(false), summaryPage = $state(0);
   let meanChamber = $state<'camera' | 'senato'>('camera'), boxChamber = $state<'camera' | 'senato'>('camera');
   const meanLists = $derived(overview?.series.filter(s => s.chamber === meanChamber && s.kind === meanKind) ?? []);
   const selectedBoxes = $derived(boxes.filter(chart => chart.id.endsWith(boxKind)).map(chart => ({ ...chart, panels: chart.panels.filter(panel => panel.label === boxChamber) })));
@@ -78,7 +78,14 @@
   {#if error}<p role="alert">{error}</p>{/if}
   {#if overview}
     {@const o = overview}
-    <h3>Eletti medi e percentuali sui voti validi</h3>
+    {#if isReform}<details class="result-section" role="region" aria-label="Vincitori del premio" open>
+      <summary>Vincitori del premio</summary>
+      <p>Percentuale delle simulazioni richieste in cui il premio congiunto è assegnato alla coppia collegata Camera–Senato, indipendentemente dai seggi poi coperti. Ogni simulazione conta una volta; se i nomi coincidono, la coppia è mostrata una sola volta. ≥ indica un minimo con decisioni mancanti; il premio non assegnato resta nel denominatore.</p>
+      {#if bonusError}<p role="alert">Impossibile caricare i vincitori del premio: {bonusError}</p>
+      {:else}<div class="bonus-bars">{#each bonus as row (row.id)}<div class="bonus-row"><span>{row.name}</span><span class="bonus-track"><span style:width={`${100 * row.wins / o.requested}%`} style:background={row.color}></span></span><strong>{probabilityLabel(row, o.requested)}</strong></div>{:else}<p>Nessuna assegnazione del premio disponibile.</p>{/each}</div>{/if}
+    </details>{/if}
+    <details class="result-section" role="region" aria-label="Eletti medi e percentuali sui voti validi" open>
+    <summary>Eletti medi e percentuali sui voti validi</summary>
     <p>{o.saved}/{o.requested} simulazioni conservate. Eletti per affiliazione personale finale; coalizioni per titolarità del seggio. Sono inclusi ordinari, premio, uninominali speciali e proporzionali TAA; Estero escluso.</p>
     <p>≥ indica una media minima di eletti confermati sulle simulazioni richieste. Le medie complete richiedono tutti gli esiti noti; i dati mancanti non valgono zero.</p>
     {#if isReform}<p>Identità e recuperi restano condizionati ai dati/modelli delle preferenze.</p>
@@ -127,24 +134,25 @@
         {#if table.rows.length > 50}<button disabled={summaryPage === 0} onclick={() => summaryPage--}>Riepilogo precedente</button><button disabled={(summaryPage + 1) * 50 >= table.rows.length} onclick={() => summaryPage++}>Riepilogo successivo</button>{/if}
       {/if}
     </details>
+    </details>
     {#if boxes.length}
-      <label>Raggruppamento dei boxplot<select bind:value={boxKind}><option value="list">Liste</option><option value="subject">Coalizioni / liste singole</option></select></label>
-      <label>Ramo dei boxplot<select bind:value={boxChamber}><option value="camera">Camera</option><option value="senato">Senato</option></select></label>
-      {#key boxChamber + boxKind}
-        <ResultCharts charts={selectedBoxes}>
-          {#snippet outliers(item)}
-            {@const b = boxBySeries.get(item.streamId!)!}
-            <StreamedPlot {client} {resultId} {owner} series={item.streamId!} label={`Valori anomali ${item.label}`} color={item.color} variant="outliers" maxX={b.max} whiskerLow={b.distribution.whiskerLow!} whiskerHigh={b.distribution.whiskerHigh!} />
-          {/snippet}
-        </ResultCharts>
-        {#if !selectedBoxes[0]?.panels.length}<p role="status">Nessuna percentuale disponibile per questo ramo.</p>{/if}
-      {/key}
+      <details class="result-section" role="region" aria-label={boxKind === 'list' ? 'Percentuali simulate per lista' : 'Percentuali simulate per coalizione / lista singola'} ontoggle={e => { showBoxplots = toggle(e); }}>
+        <summary>{boxKind === 'list' ? 'Percentuali simulate per lista' : 'Percentuali simulate per coalizione / lista singola'}</summary>
+        {#if showBoxplots}
+          <label>Raggruppamento dei boxplot<select bind:value={boxKind}><option value="list">Liste</option><option value="subject">Coalizioni / liste singole</option></select></label>
+          <label>Ramo dei boxplot<select bind:value={boxChamber}><option value="camera">Camera</option><option value="senato">Senato</option></select></label>
+          {#key boxChamber + boxKind}
+            <ResultCharts charts={selectedBoxes} collapsible={false}>
+              {#snippet outliers(item)}
+                {@const b = boxBySeries.get(item.streamId!)!}
+                <StreamedPlot {client} {resultId} {owner} series={item.streamId!} label={`Valori anomali ${item.label}`} color={item.color} variant="outliers" maxX={b.max} whiskerLow={b.distribution.whiskerLow!} whiskerHigh={b.distribution.whiskerHigh!} />
+              {/snippet}
+            </ResultCharts>
+            {#if !selectedBoxes[0]?.panels.length}<p role="status">Nessuna percentuale disponibile per questo ramo.</p>{/if}
+          {/key}
+        {/if}
+      </details>
     {/if}
-    {#if isReform}<details role="region" aria-label="Vincitori del premio"><summary>Vincitori del premio</summary>
-      <p>Percentuale delle simulazioni richieste in cui il premio congiunto è assegnato alla coppia collegata Camera–Senato, indipendentemente dai seggi poi coperti. Ogni simulazione conta una volta; se i nomi coincidono, la coppia è mostrata una sola volta. ≥ indica un minimo con decisioni mancanti; il premio non assegnato resta nel denominatore.</p>
-      {#if bonusError}<p role="alert">Impossibile caricare i vincitori del premio: {bonusError}</p>
-      {:else}<div class="bonus-bars">{#each bonus as row (row.id)}<div class="bonus-row"><span>{row.name}</span><span class="bonus-track"><span style:width={`${100 * row.wins / o.requested}%`} style:background={row.color}></span></span><strong>{probabilityLabel(row, o.requested)}</strong></div>{:else}<p>Nessuna assegnazione del premio disponibile.</p>{/each}</div>{/if}
-    </details>{/if}
     {#if isReform}<details role="region" aria-label="Probabilità di elezione" ontoggle={e => { showProbability = toggle(e); }}><summary>Probabilità di elezione</summary>
       {#if showProbability}<ElectionProbabilityTable {client} {resultId} {owner} series={o.series} />{/if}
     </details>{/if}
@@ -164,6 +172,7 @@
   .reform-statistics { margin: 1.5rem 0; }
   p { font-size: .85rem; line-height: 1.5; color: #4d5963; }
   details { border-bottom: 1px solid #e5e9ed; padding: 1rem 0; }
+  .result-section { margin: 0; }
   summary { cursor: pointer; color: #4d5963; font-size: .9rem; font-weight: 750; }
   label { display: grid; gap: .5rem; margin: 1rem 0; }
   select, button { font: inherit; padding: .5rem; }
