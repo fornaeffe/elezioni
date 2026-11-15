@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { CheckCircle2, LoaderCircle, CircleAlert } from '@lucide/svelte';
+  import { CircleCheck, LoaderCircle, CircleAlert } from '@lucide/svelte';
   import type { AppStatus } from './app-status.svelte';
   let { status }: { status: AppStatus } = $props();
   let open = $state(false);
@@ -10,7 +10,7 @@
 </script>
 <aside class={{ ready: kind === 'ready', working: kind === 'working', error: kind === 'error' }} aria-label="Stato dell'applicazione">
   <button class="toggle" aria-expanded={open} aria-label={`Stato: ${label}`} onclick={() => open = !open}>
-    {#if kind === 'error'}<CircleAlert size={20} aria-hidden="true" />{:else if kind === 'working'}<LoaderCircle class="working-icon" size={20} aria-hidden="true" />{:else}<CheckCircle2 size={20} aria-hidden="true" />{/if}
+    {#if kind === 'error'}<CircleAlert size={20} aria-hidden="true" />{:else if kind === 'working'}<span class="working-icon" aria-hidden="true"><LoaderCircle size={20} /></span>{:else}<CircleCheck size={20} aria-hidden="true" />{/if}
     <span>{label}</span>
   </button>
   <div class="announcement" role="status" aria-live="polite">{kind === 'error' ? 'Errore' : kind === 'working' ? 'Operazione in corso' : 'Pronto'}</div>
@@ -31,7 +31,7 @@
   .toggle { display: flex; align-items: center; gap: .5rem; width: 100%; text-align: left; border: 0; background: transparent; color: inherit; font: inherit; font-weight: 600; padding: .6rem; cursor: pointer; }
   .toggle span { overflow-wrap: anywhere; } .content { padding: 0 .75rem .75rem; max-height: min(60vh, 30rem); overflow: auto; } .entry { padding: .4rem 0; overflow-wrap: anywhere; } p { margin: .25rem 0; white-space: pre-wrap; } .content button { font: inherit; margin: .2rem .3rem .2rem 0; } button:focus-visible { outline: 3px solid #176694; outline-offset: 2px; }
   .announcement { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-  .working-icon { animation: status-spin 1s linear infinite; }
+  .working-icon { display: inline-flex; animation: status-spin 1s linear infinite; }
   @keyframes status-spin { to { transform: rotate(360deg); } }
   @media (prefers-reduced-motion: reduce) { .working-icon { animation: none; } }
   @media (max-width: 650px) { .toggle span { display: none; } .toggle { width: auto; margin-left: auto; } }
