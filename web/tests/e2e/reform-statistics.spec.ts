@@ -1,4 +1,5 @@
 import { seedPresentationSession } from '../fixtures/presentation-session';
+import { expectStatusError } from '../fixtures/common-page';
 import { currentBrowserSession, currentArchive } from '../fixtures/current-browser-session';
 import { fileURLToPath } from 'node:url';
 import { build } from 'vite';
@@ -179,7 +180,7 @@ test('college spinogram filters joint bonus decisions and reports plotted simula
   const previousResult = await page.getByRole('combobox', { name: 'Sessione dei risultati', exact: true }).inputValue();
   await seedPresentationSession(page, currentArchive(statisticalResult(scenario, 12), await currentBrowserSession()));
   await expect(page.getByRole('combobox', { name: 'Sessione dei risultati', exact: true })).not.toHaveValue(previousResult);
-  await expect(statistics.getByRole('heading', { name: 'Eletti medi e percentuali sui voti validi' })).toBeVisible();
+  await expect(statistics.getByRole('region', { name: 'Eletti medi e percentuali sui voti validi' })).toBeVisible();
   await local.locator(':scope > summary').click();
   for (const value of ['awarded', 'not-awarded']) {
     await filter.selectOption(value);
@@ -302,7 +303,7 @@ test('reform chart families render all available points lazily and keep sparse r
   await page.getByLabel('Legge elettorale').selectOption(scenario.algorithmId);
   await seedPresentationSession(page, currentArchive(archive, await currentBrowserSession()));
   const statistics = page.getByLabel('Statistiche riforma', { exact: true });
-  await expect(statistics.getByRole('heading', { name: 'Eletti medi e percentuali sui voti validi' })).toBeVisible({ timeout: 30000 });
+  await expect(statistics.getByRole('region', { name: 'Eletti medi e percentuali sui voti validi' })).toBeVisible({ timeout: 30000 });
   await expect(statistics).toContainText('1201/1201');
   await expect(statistics.getByRole('region', { name: 'Percentuali simulate per lista', exact: true })).toBeVisible({ timeout: 30000 });
   const scatter = statistics.getByRole('region', { name: 'Eletti e percentuali', exact: true });
@@ -362,12 +363,13 @@ test('reform selectors display one chart per family and replace the selected dat
   await expect(means).toHaveCount(1);
   await expect(means.locator('.row')).toHaveCount(2);
   await expect(means).toContainText('camera list 1');
-  await statistics.getByRole('combobox', { name: 'Ramo delle medie', exact: true }).selectOption('senato');
+  await statistics.getByRole('region', { name: 'Eletti medi e percentuali sui voti validi' }).getByRole('combobox', { name: 'Ramo', exact: true }).selectOption('senato');
   await expect(means).toHaveCount(1);
   await expect(means).toContainText('senato list 1');
   await expect(means).not.toContainText('camera list');
 
-  const boxes = statistics.getByRole('region', { name: 'Percentuali simulate per lista', exact: true });
+  const boxes = statistics.locator('details[aria-label="Percentuali simulate per lista"]');
+  await boxes.locator(':scope > summary').click();
   await expect(boxes.locator('.boxplot-panel')).toHaveCount(1);
   await expect(boxes.locator('.boxplot-row')).toHaveCount(2);
   await expect(boxes).toContainText('camera list 1');
@@ -426,16 +428,16 @@ test('refinements preserve probabilities, coalition data, bonus decisions, local
   await seedPresentationSession(page, currentArchive(refinementResult(scenario), await currentBrowserSession()));
   const statistics = page.getByLabel('Statistiche riforma', { exact: true });
   await expect(statistics.locator('.paired-bars')).toBeVisible();
-  await statistics.getByLabel('Raggruppamento delle medie').selectOption('subject');
+  await statistics.getByRole('region', { name: 'Eletti medi e percentuali sui voti validi' }).getByRole('combobox', { name: 'Raggruppamento', exact: true }).selectOption('subject');
   await expect(statistics.locator('.paired-bars')).toContainText('camera subject 1');
+  await statistics.getByRole('region', { name: 'Percentuali simulate per lista', exact: true }).locator(':scope > summary').click();
   await statistics.getByLabel('Raggruppamento dei boxplot').selectOption('subject');
-  const boxes = statistics.getByRole('region', { name: 'Percentuali simulate per coalizione / lista singola', exact: true });
+  const boxes = statistics.locator('details[aria-label="Percentuali simulate per coalizione / lista singola"]');
   await expect(boxes).toContainText('camera subject 2');
   await statistics.getByLabel('Ramo dei boxplot').selectOption('senato');
   await expect(boxes).toContainText('senato subject 2');
   await expect(boxes.locator('.boxplot-panel')).toHaveCount(1);
   const bonus = statistics.getByRole('region', { name: 'Vincitori del premio', exact: true });
-  await bonus.locator('summary').click();
   await expect(bonus.locator('.bonus-row')).toHaveCount(2);
   await expect(bonus.locator('.bonus-row').first()).toContainText('≥ 25%');
   const probabilities = statistics.getByRole('region', { name: 'Probabilità di elezione', exact: true });
@@ -465,7 +467,7 @@ test('refinements preserve probabilities, coalition data, bonus decisions, local
   await expect(page.getByRole('figure')).not.toBeVisible();
   await single.click(); await expect(page.getByRole('figure')).toBeVisible();
   await page.getByLabel('Carica scenario', {exact:true}).setInputFiles({name:'invalid.json',mimeType:'application/json',buffer:Buffer.from('{')});
-  await expect(page.getByRole('alert').filter({hasText:'Scenario non caricato'})).toBeVisible();
+  await expectStatusError(page, /Scenario non caricato/);
   await page.screenshot({ path: 'test-results/reform-refinements-desktop.png', fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });
   await probabilities.scrollIntoViewIfNeeded();

@@ -138,8 +138,9 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
 
 - [x] Improve archive import/export with measured bounded parallelism and progress
   indication. See [transfer performance](docs/archive-performance.md) and history.
-- [ ] Refresh broad browser tests for current editor labels and collapsed sections;
-  stale selectors block the full gate. Focused archive suites pass at both bases.
+- [x] Refresh broad browser tests for current editor labels and collapsed sections.
+- [ ] Fix the mobile application-status working indicator: the mobile rule also
+  hides the spinner, leaving the status toggle without a visible icon while busy.
 - [ ] Add a selector for the election probability table metric:
   - current metric (default)
   - current metric, but conditional to the presence in the college slate of at least one candidate also present in a bonus slate

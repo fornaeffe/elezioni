@@ -5,6 +5,7 @@ test.setTimeout(90_000);
 
 test('authored politics startup and reset retain the approved default choices',async({page})=>{
   await page.goto(`${base}/politics`);
+  await page.getByText('Impostazioni avanzate della simulazione', { exact: true }).click();
   await expect(page.getByLabel('Legge elettorale')).toHaveValue(authored.selection.scrutiny.id);
   const name=page.getByLabel('Nome scenario',{exact:true});
   await expect(name).toHaveValue(authored.name);

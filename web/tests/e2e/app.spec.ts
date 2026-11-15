@@ -5,8 +5,9 @@ test.setTimeout(180000);
 test('national previous-law execution preserves shared edits, visible seeds and result identity', async ({ page }) => {
     const scenario = await openCommon(page, ROSATELLUM, 'M01');
     const pd = page.getByRole('article', { name: 'Partito Democratico', exact: true });
-    await pd.getByLabel('Nome lista', { exact: true }).fill('Shared renamed list');
-    await pd.getByLabel('Nome lista', { exact: true }).blur();
+    await pd.getByRole('textbox', { name: 'Nome lista', exact: true }).fill('Shared renamed list');
+    await pd.getByRole('textbox', { name: 'Nome lista', exact: true }).blur();
+    await page.getByText('Impostazioni avanzate della simulazione', { exact: true }).click();
     await expect(page.getByLabel('Seed delle simulazioni', { exact: true })).toHaveValue(scenario.execution.simulationSeed);
     const saved = await runCommon(page);
     expect(saved.politics.run.session.simulations).toEqual([{ id: 1, outcome: 'complete' }]);

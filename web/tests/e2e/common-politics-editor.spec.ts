@@ -29,6 +29,7 @@ test('common law/model selections, deferred settings, seeds and locks survive re
   await expect(page.getByLabel('Generatore dei voti').locator('option[value=M02]')).toHaveJSProperty('disabled', true);
   await page.getByRole('combobox', { name: 'Legge elettorale', exact: true }).selectOption('politiche-reform-2026-v1'); await ready(page);
   await expect(page.getByLabel('Generatore dei voti', { exact: true })).toHaveValue('M01');
+  await open(page, /^Impostazioni avanzate della simulazione$/);
   await page.getByLabel('Seed del fitting', { exact: true }).fill('fit-preserved'); await page.getByLabel('Seed del fitting', { exact: true }).blur();
   const before = await draft(page);
   await page.getByRole('button', { name: 'Genera seed casuale delle simulazioni' }).click();
@@ -53,7 +54,7 @@ test('common law/model selections, deferred settings, seeds and locks survive re
 test('visible non-valid reference retains explicit zero, default uncertainty and local tree declarations', async ({ page }) => {
   await page.goto(`${base}/politics/editor`); await ready(page);
   await open(page, /^Impostazioni avanzate dello scenario$/);
-  const section = page.locator('details').filter({ has: page.locator(':scope > summary').filter({ hasText: /^Astensione e voti non validi$/ }) }).last();
+  const section = page.locator('details').filter({ has: page.locator(':scope > summary').filter({ hasText: /^Impostazioni avanzate dello scenario$/ }) });
   const referenceLabel = 'Astensione e voti non validi Camera';
   await section.locator('summary').filter({ hasText: /^Riferimenti avanzati/ }).click();
   const input = section.getByLabel(`${referenceLabel} (%)`, { exact: true });
@@ -264,7 +265,7 @@ test('subject rows expose responsive controls and reference placeholders', async
   const nonValidReference = page.getByLabel('Astensione e voti non validi Camera (%)', { exact: true });
   await expect(nonValidReference).toHaveCount(0);
   await open(page, /^Impostazioni avanzate dello scenario$/);
-  const nonValidSection = page.locator('details').filter({ has: page.locator(':scope > summary').filter({ hasText: /^Astensione e voti non validi$/ }) }).last();
+  const nonValidSection = page.locator('details').filter({ has: page.locator(':scope > summary').filter({ hasText: /^Impostazioni avanzate dello scenario$/ }) });
   await nonValidSection.locator('summary').filter({ hasText: /^Riferimenti avanzati/ }).click();
   await expect(nonValidReference).toHaveAttribute('placeholder', '% auto');
 });

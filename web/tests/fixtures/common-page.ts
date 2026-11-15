@@ -41,7 +41,15 @@ export async function selectedCommon(page: Page) {
     }, politicsSessionsKey);
 }
 export async function downloadCommon(page: Page, name: string) {
+    await openResultTransfers(page);
     const pending = page.waitForEvent('download', { timeout: 120000 });
     await page.getByRole('button', { name, exact: true }).click();
     return readFile((await (await pending).path())!);
+}
+export async function expectStatusError(page: Page, message: string | RegExp) {
+    const box = page.locator('aside[aria-label="Stato dell\'applicazione"]');
+    await expect(box).toHaveClass(/error/);
+    const toggle = box.getByRole('button', { name: /^Stato:/ });
+    if (await toggle.getAttribute('aria-expanded') !== 'true') await toggle.click();
+    await expect(box.getByText(message)).toBeVisible();
 }

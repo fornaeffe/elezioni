@@ -6,7 +6,7 @@ test('status remains fixed and compact on mobile, with accessible error details'
   const box = page.locator('aside[aria-label="Stato dell\'applicazione"]');
   const toggle = page.getByRole('button', { name: /^Stato:/ });
   await expect(toggle).toBeVisible();
-  await expect(toggle.locator('span')).toBeHidden();
+  await expect(toggle.locator(':scope > span').last()).toBeHidden();
   const before = await box.boundingBox();
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
   const after = await box.boundingBox();

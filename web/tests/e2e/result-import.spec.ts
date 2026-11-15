@@ -1,4 +1,4 @@
-import { openCommon, runCommon, selectedCommon } from '../fixtures/common-page';
+import { expectStatusError, openCommon, openResultTransfers, runCommon, selectedCommon } from '../fixtures/common-page';
 import { ROSATELLUM } from '../../src/lib/politics/scenario/schema';
 import { expect, test } from '@playwright/test';
 import { gzipSync } from 'node:zlib';
@@ -66,8 +66,9 @@ for (const input of ['Importa risultati', 'Carica scenario']) {
     await openCommon(page, ROSATELLUM, 'M01');
     const before=await runCommon(page);
     await page.getByLabel('Nome scenario',{exact:true}).fill('Current draft'); await page.getByLabel('Nome scenario',{exact:true}).blur();
+    if (input === 'Importa risultati') await openResultTransfers(page);
     await page.getByLabel(input,{exact:true}).setInputFiles({name:'old.json.gz',mimeType:'application/gzip',buffer:gzipSync(Buffer.from(bundledResultJson()))});
-    await expect(page.getByRole('alert').filter({hasText:'precedente non supportato'})).toBeVisible();
+    await expectStatusError(page, /precedente non supportato/);
     await expect(page.getByLabel('Nome scenario',{exact:true})).toHaveValue('Current draft');
     expect((await selectedCommon(page)).id).toBe(before.id);
   });

@@ -14,8 +14,10 @@ test('global context precedes exact frequencies and bounded ID inspection, filte
   await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
   await page.getByLabel('Legge elettorale').selectOption(scenario.algorithmId);
   await seedPresentationSession(page, currentArchive(reordered, await currentBrowserSession()));
-  const general = page.getByRole('region', { name: 'Informazioni e avvisi generali', exact: true });
-  const summary = page.getByRole('region', { name: 'Messaggi delle simulazioni', exact: true });
+  const general = page.getByLabel('Informazioni e avvisi generali', { exact: true });
+  const summary = page.getByLabel('Messaggi delle simulazioni', { exact: true });
+  await general.locator(':scope > summary').click();
+  await summary.locator(':scope > summary').click();
   await expect(summary.getByRole('table')).toContainText('1201/1500', { timeout: 30000 });
   await expect(general).toContainText('Model note 25'); // beyond the old 20-note preview
   await expect(general).toContainText('Calcolo interrotto: 1201/1500');
@@ -68,6 +70,7 @@ test('global context precedes exact frequencies and bounded ID inspection, filte
   const previous = await page.getByRole('combobox', { name: 'Sessione dei risultati', exact: true }).inputValue();
   await seedPresentationSession(page, currentArchive(old, await currentBrowserSession()));
   await expect(page.getByRole('combobox', { name: 'Sessione dei risultati', exact: true })).not.toHaveValue(previous, {timeout:30000});
+  await summary.locator(':scope > summary').click();
   await expect(summary).toContainText('Frequenze e ID esatti non ricostruibili', { timeout: 30000 });
   await expect(summary.getByRole('combobox', { name: 'Ramo dei messaggi', exact: true })).toBeDisabled();
   await expect(summary.getByRole('table')).toContainText('6005');
@@ -80,6 +83,8 @@ test('global context precedes exact frequencies and bounded ID inspection, filte
   const beforeZero = await page.getByRole('combobox', { name: 'Sessione dei risultati', exact: true }).inputValue();
   await seedPresentationSession(page, currentArchive(zero, await currentBrowserSession()));
   await expect(page.getByRole('combobox', { name: 'Sessione dei risultati', exact: true })).not.toHaveValue(beforeZero, {timeout:30000});
+  await general.locator(':scope > summary').click();
+  await summary.locator(':scope > summary').click();
   await expect(general).toContainText('Calcolo interrotto: 0/1500', { timeout: 30000 });
   await expect(summary.locator('.totals')).toContainText('Errore: 0/1500');
   await expect(page.getByRole('alert').filter({ hasText: 'Unknown result table' })).toHaveCount(0);
