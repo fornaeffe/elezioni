@@ -148,9 +148,9 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
 - [ ] **Additional model drafts evaluation**. Do it in research\vote-generation 
   folder. For each model, follow the steps until completion or until evidence of
   model unusability.
-  - [ ] Evaluate model draft [M04](docs\model-drafts\M04v0.0.1.md)
-    - [ ] Check model internal consistency and completeness
-    - [ ] Define remaining model details
+  - [ ] Evaluate model draft [M04](docs/model-drafts/M04v0.0.2.md)
+    - [x] Check model internal consistency and completeness
+    - [x] Define remaining model details
     - [ ] Choose a research fitting framework/library/software
     - [ ] Fit the model with progressively complex synthetic fixtures, then with
       real data and default scenario, optimizing priors and fitting parameters;
