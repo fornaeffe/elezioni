@@ -136,82 +136,6 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
 
 ## Plan
 
-- [x] Improve archive import/export with measured bounded parallelism and progress
-  indication. See [transfer performance](docs/archive-performance.md) and history.
-- [x] Refresh broad browser tests for current editor labels and collapsed sections.
-- [x] Fix the mobile application-status working indicator.
-- [x] Add a selector for the election probability table metric:
-  - current metric (default)
-  - current metric, conditional on the college slate's capolista appearing in any bonus slate in the same chamber
-  - current metric, conditional on the college slate's capolista not appearing in any bonus slate in the same chamber
-  The two latter metrics should also state, for each row, the denominator (the number of simulations over which the probability is computed).
-- [ ] **Additional model drafts evaluation**. Do it in research\vote-generation 
-  folder. For each model, follow the steps until completion or until evidence of
-  model unusability.
-  - [ ] Evaluate model draft [M04](docs/model-drafts/M04v0.0.2.md)
-    - [x] Check model internal consistency and completeness
-    - [x] Define remaining model details
-    - [ ] Choose a research fitting framework/library/software
-    - [ ] Fit the model with progressively complex synthetic fixtures, then with
-      real data and default scenario, optimizing priors and fitting parameters;
-      assess if model refactor will improve performace without changing the 
-      underlying principles.
-    - [ ] Generate, fit and optimize model variants (e.g. regional variation)
-  - [ ] Evaluate model draft [M03](docs\model-drafts\M03v0.0.1.md)
-    - [ ] Check model internal consistency and completeness
-    - [ ] Define remaining model details
-    - [ ] Choose a research fitting framework/library/software
-    - [ ] Fit the model with progressively complex synthetic fixtures, then with
-      real data and default scenario, optimizing priors and fitting parameters;
-      assess if model refactor will improve performace without changing the 
-      underlying principles.
-    - [ ] Generate, fit and optimize model variants (e.g. regional variation)
-  - [ ] If at least one of the two model completed evaluation successfully, 
-    test the predictive capacity of successful model variants on the same metrics
-    of the [previous research comparison](research\vote-generation\docs\vote-generation-legacy-comparison-results.md).
-    Use all available Camera, Senato 18+ and European elections, and polls.
-    Focus mainly on Error30, Coverage90, MAE and WIS, averaged across all folds,
-    on college, constituency and whole election scales. Target a Error30 < 1%,
-    Coverage90 > 80%, MAE < 5 pp, WIS < 0.05. 
-  - [ ] If any draft model fail this test,
-    check if its predictive capacity can be optimized, if yes optimize and
-    repeat the test.
-  - [ ] If at least one model passes the test:
-    - [ ] check if it can be made running in browser. If browser fitting is 
-      feasible, plan for a whole browser computation;
-      otherwise plan for a once-in-a-while data-preparation fitting and a prefit
-      only browser simulation. Raise the computational limit to 12 hours for 
-      fitting + simulation,
-      30 minutes for simulation with default prefit, on this machine, with 
-      default scenario and an appropriate number of workers. Optimize for 
-      performance as much as possible without noticeably changing generated 
-      distributions, even if the computational time is under the limit.
-    - [ ] substitute in production M01, M02
-      and legacy previous-law and regional generators with the
-      successful model set, adapting the scenario editor accordingly.
-  - [ ] If neither model passes the test, use M01 and M02 generators also for 
-    previous law politics and regional. Create
-    adapted versions of M01 and M02 if necessary, reusing common logic.
-  - [ ] Clean the repo removing any regenerable artifact no longer needed in 
-    production.
-- [ ] Align politics previous-law and regional contracts, editor, worker 
-  behavior and results 
-  presentation to reform counterparts: only unavoidable differences due to 
-  different law should be accepted. This should resolve the previous-law Camera flipper dead end exposed by the shared
-  pre-preparation-migration default (seed `politiche-2027`, 1,000 requested runs,
-  simulation 584): it should be treated as uncomputable run, and the rest of
-  simulations should proceed unperturbed. See
-  [workspace boundaries](docs/web-workspaces.md#defaults-and-compatibility) and
-  the 2 November workspace entry in migration history. Note that if the generator
-  has changed since the failure discovery, the same seed may not generate the 
-  failure any more.
-- [ ] Correct meaningful local support for future filed lists without historical
-  candidature/support, including Sud chiama Nord in Molise/Basilicata. Separate
-  historical absence from future filing zeros; choose an explicit local estimate
-  or scenario reference before implementation. I17 prevents the observed
-  corrective zero-vote award without correcting generation; keep other zero-quota
-  blockers. Luca rejected an automatic sole-college pass. See the
-  [generation diagnosis](docs/politics-reform-2026-generation.md#filed-lists-without-local-history).
 - [ ] **Final hosting reassessment and publication.** After all preceding
   implementation and acceptance work, reassess GitHub Actions plus GitHub Pages
   against current GitHub Free eligibility, runner time/RAM/disk, artifact/cache
@@ -236,7 +160,24 @@ completed the web migration; they do not expand the current domestic reform
 implementation or municipal parity scope.
 
 
-
+- [ ] Align politics previous-law and regional contracts, editor, worker 
+  behavior and results 
+  presentation to reform counterparts: only unavoidable differences due to 
+  different law should be accepted. This should resolve the previous-law Camera flipper dead end exposed by the shared
+  pre-preparation-migration default (seed `politiche-2027`, 1,000 requested runs,
+  simulation 584): it should be treated as uncomputable run, and the rest of
+  simulations should proceed unperturbed. See
+  [workspace boundaries](docs/web-workspaces.md#defaults-and-compatibility) and
+  the 2 November workspace entry in migration history. Note that if the generator
+  has changed since the failure discovery, the same seed may not generate the 
+  failure any more.
+- [ ] Correct meaningful local support for future filed lists without historical
+  candidature/support, including Sud chiama Nord in Molise/Basilicata. Separate
+  historical absence from future filing zeros; choose an explicit local estimate
+  or scenario reference before implementation. I17 prevents the observed
+  corrective zero-vote award without correcting generation; keep other zero-quota
+  blockers. Luca rejected an automatic sole-college pass. See the
+  [generation diagnosis](docs/politics-reform-2026-generation.md#filed-lists-without-local-history).
 - [ ] Add foreign-seat simulation under the applicable foreign-voting law,
   including its current territorial divisions, seat endowments, votes,
   preferences and candidate proclamations. Keep its inputs and calculations
@@ -306,3 +247,53 @@ use structured controls without an embedded raw JSON editor.
 The pooling editor remains in CP-06 because the current default uses pooling.
 Move that editor to this post-migration list only if CP-01 finds that the
 authored default no longer uses it; do not create a duplicate implementation task.
+
+- [ ] **Additional model drafts evaluation**. Do it in research\vote-generation 
+  folder. For each model, follow the steps until completion or until evidence of
+  model unusability.
+  - [ ] Evaluate model draft [M04](docs/model-drafts/M04v0.0.2.md)
+    - [x] Check model internal consistency and completeness
+    - [x] Define remaining model details
+    - [ ] Choose a research fitting framework/library/software
+    - [ ] Fit the model with progressively complex synthetic fixtures, then with
+      real data and default scenario, optimizing priors and fitting parameters;
+      assess if model refactor will improve performace without changing the 
+      underlying principles.
+    - [ ] Generate, fit and optimize model variants (e.g. regional variation)
+  - [ ] Evaluate model draft [M03](docs\model-drafts\M03v0.0.1.md)
+    - [ ] Check model internal consistency and completeness
+    - [ ] Define remaining model details
+    - [ ] Choose a research fitting framework/library/software
+    - [ ] Fit the model with progressively complex synthetic fixtures, then with
+      real data and default scenario, optimizing priors and fitting parameters;
+      assess if model refactor will improve performace without changing the 
+      underlying principles.
+    - [ ] Generate, fit and optimize model variants (e.g. regional variation)
+  - [ ] If at least one of the two model completed evaluation successfully, 
+    test the predictive capacity of successful model variants on the same metrics
+    of the [previous research comparison](research\vote-generation\docs\vote-generation-legacy-comparison-results.md).
+    Use all available Camera, Senato 18+ and European elections, and polls.
+    Focus mainly on Error30, Coverage90, MAE and WIS, averaged across all folds,
+    on college, constituency and whole election scales. Target a Error30 < 1%,
+    Coverage90 > 80%, MAE < 5 pp, WIS < 0.05. 
+  - [ ] If any draft model fail this test,
+    check if its predictive capacity can be optimized, if yes optimize and
+    repeat the test.
+  - [ ] If at least one model passes the test:
+    - [ ] check if it can be made running in browser. If browser fitting is 
+      feasible, plan for a whole browser computation;
+      otherwise plan for a once-in-a-while data-preparation fitting and a prefit
+      only browser simulation. Raise the computational limit to 12 hours for 
+      fitting + simulation,
+      30 minutes for simulation with default prefit, on this machine, with 
+      default scenario and an appropriate number of workers. Optimize for 
+      performance as much as possible without noticeably changing generated 
+      distributions, even if the computational time is under the limit.
+    - [ ] substitute in production M01, M02
+      and legacy previous-law and regional generators with the
+      successful model set, adapting the scenario editor accordingly.
+  - [ ] If neither model passes the test, use M01 and M02 generators also for 
+    previous law politics and regional. Create
+    adapted versions of M01 and M02 if necessary, reusing common logic.
+  - [ ] Clean the repo removing any regenerable artifact no longer needed in 
+    production.
