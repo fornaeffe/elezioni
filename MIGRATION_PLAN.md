@@ -182,16 +182,14 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   right corner of the window, or other noninvasive but easily reachable location.
 - [ ] Fixes to politics UI:
   - [x] Working icon in app status box should be spinning
-  - [ ] Reference date control should be moved inside advanced scenario settings.
-  - [ ] Change "Algoritmo di scrutinio" with "Legge elettorale"
+  - [x] Move reference date control inside advanced scenario settings.
+  - [x] Change "Algoritmo di scrutinio" with "Legge elettorale"
   - [ ] Rethink "Altre liste" UI
-  - [ ] Improve "Non valido / astensione" text
-  - [ ] Use the same advanced settings buttons already used for
-    coalitions and lists also for non-valid advanced references
-  - [ ] Move seeds, workers, candidate generation and fitting and
+  - [X] Improve "Non valido / astensione" text
+  - [x] Move seeds, workers, candidate generation and fitting and
     checkpoint settings under a collapsible advanced simulation
     settings. Workers info (requested, suggested, max, memory estimate) should stay inside advanced simulation settings, too.
-  - [ ] Substitute the warning "I worker richiesti superano la stima prudenziale di memoria del browser. Riduci il numero di worker prima di avviare." with "Se il browser dovesse esaurire la memoria disponibile, riprova riducendo il numero di worker.".
+  - [x] Substitute the warning "I worker richiesti superano la stima prudenziale di memoria del browser. Riduci il numero di worker prima di avviare." with "Se il browser dovesse esaurire la memoria disponibile, riprova riducendo il numero di worker.".
 - [ ] Assess if parallelization will improve import/export performances.
   Add progress indication, and parallelization if it will improve performances.
 - [x] Color cells of election probability table with a more saturated color the higher

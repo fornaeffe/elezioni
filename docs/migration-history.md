@@ -10927,3 +10927,15 @@ Verification: `npm run check` passed; a production build and targeted Chromium t
 
 - Added a continuous linear rotation to the application status box's working icon. The ready and error icons remain static; users who request reduced motion see a static working icon.
 - Verification: `git diff --check` passed. No browser animation review was performed.
+
+### 2026-11-15 — Move reference date into advanced scenario settings
+
+- Moved the reference date input from the basic scenario row into the existing collapsed advanced scenario section. Scenario editing and validation behavior are unchanged.
+- Updated the common politics editor E2E coverage to check that the control is hidden until advanced settings are opened, edits persist in the draft, and the selected date survives reload.
+- Verification: not run in this change.
+
+### 2026-11-15 — Collapsible advanced simulation settings
+
+- Grouped fitting and simulation seeds, worker selection, candidate-generation parameters, and M02 fitting/checkpoint controls inside a collapsed advanced simulation panel. Kept the simulation count and run action in the primary section.
+- Moved requested/recommended/maximum worker counts, per-worker memory estimate, and the conditional worker memory guidance into that panel. Replaced the warning text with the requested retry guidance.
+- Verification: Svelte autofixer reported no issues. No test suite or browser review was run.

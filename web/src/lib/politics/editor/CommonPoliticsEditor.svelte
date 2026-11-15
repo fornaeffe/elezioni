@@ -88,13 +88,13 @@
     <div class="row">
       <label>Nome scenario<input value={scenario.name} onchange={e => apply(s => editScenario(s, n => { n.name = e.currentTarget.value; }))} /></label>
       <label>Data elezione<input type="date" value={scenario.electionDate} onchange={e => apply(s => editScenario(s, n => { n.electionDate = e.currentTarget.value; }))} /></label>
-      <label>Data di riferimento<input type="date" value={scenario.referenceDate} onchange={e => apply(s => editScenario(s, n => { n.referenceDate = e.currentTarget.value; }))} /></label>
-      <label>Algoritmo di scrutinio<select value={scenario.selection.scrutiny.id} onchange={e => apply(s => selectLaw(s, e.currentTarget.value as LawId))}>{#each laws as law (law)}<option value={law}>{lawName(law)}</option>{/each}</select></label>
+      <label>Legge elettorale<select value={scenario.selection.scrutiny.id} onchange={e => apply(s => selectLaw(s, e.currentTarget.value as LawId))}>{#each laws as law (law)}<option value={law}>{lawName(law)}</option>{/each}</select></label>
       <label>Camere da rinnovare<select value={scenario.renewal} onchange={e => apply(s => setRenewal(s, e.currentTarget.value as PoliticsScenario['renewal']))}><option value="joint">Camera e Senato</option><option value="camera">Solo Camera</option><option value="senato">Solo Senato</option></select></label>
     </div>
     <SubjectsEditor {scenario} {assets} edit={apply} />
-    <section aria-label="Non valido e astensione"><h2>Non valido / astensione</h2><ReferencesEditor {scenario} target={null} label="Non valido / astensione" {assets} edit={apply} /></section>
     <LazySection title="Impostazioni avanzate dello scenario">
+      <label>Data di riferimento<input type="date" value={scenario.referenceDate} onchange={e => apply(s => editScenario(s, n => { n.referenceDate = e.currentTarget.value; }))} /></label>
+      <ReferencesEditor {scenario} target={null} label="Astensione e voti non validi" {assets} edit={apply} />
       <label>Generatore dei voti<select aria-label="Generatore dei voti" value={generator.id} onchange={e => apply(s => selectGenerator(s, e.currentTarget.value as GeneratorId, '2.0.0'))}>
         {#each ['M01', 'M02'] as model (model)}<option value={model} disabled={!supportedPairs.some(p => p.law === scenario.selection.scrutiny.id && p.generator === model)}>{model} · 2.0.0{!supportedPairs.some(p => p.law === scenario.selection.scrutiny.id && p.generator === model) ? ' — non disponibile con questa legge' : ''}</option>{/each}
       </select></label>

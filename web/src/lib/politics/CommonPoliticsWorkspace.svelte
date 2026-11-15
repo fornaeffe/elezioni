@@ -28,6 +28,10 @@
     error: controller.error, storageError: controller.storageError, stale: controller.stale, recommendation: controller.recommend1000,
     preparation: controller.preparation } : null; });
   const execution = $derived(view ? { busy: view.busy, preparing: view.preparing, status: view.status, progress: view.progress,
+    workerInfo: view.preparation ? { requested: view.scenario.execution.workers.kind === 'auto' ? 'automatici' : String(view.scenario.execution.workers.count),
+      recommended: view.preparation.capacity.recommended, maximum: view.preparation.capacity.maximum,
+      memoryMiB: Math.ceil(view.preparation.capacity.perWorkerBytes / 1048576),
+      warning: view.scenario.execution.workers.kind === 'fixed' && (workerMemoryWarning(view.scenario.execution.workers.count, view.preparation.capacity) || workerHeapWarning(view.scenario.execution.workers.count, view.preparation.capacity)) } : undefined,
     onRun: () => { void controller.run(); }, onCancel: () => { void controller.cancel(); }, onFit: () => controller.prepare(true),
     onImportCheckpoint: (file: File) => { void importCheckpoint(file); },
     onExportCheckpoint: view.preparation && !view.preparing ? () => { void exportCheckpoint(); } : undefined } : undefined);
@@ -95,10 +99,6 @@
 <svelte:head><title>Elezioni politiche</title></svelte:head>
 {#if view}
   {#key editorEpoch}<CommonPoliticsEditor scenario={view.scenario} onchange={s => { controller.change(s); }} {execution} {stageExternalFile} />{/key}
-  {#if view.preparation}<p class="worker-plan">Worker richiesti: {view.scenario.execution.workers.kind === 'auto' ? 'automatici' : view.scenario.execution.workers.count} · consigliati {view.preparation.capacity.recommended} · massimo CPU {view.preparation.capacity.maximum}. Stima per worker: {Math.ceil(view.preparation.capacity.perWorkerBytes / 1048576)} MiB.</p>{/if}
-  {#if view.preparation && view.scenario.execution.workers.kind === 'fixed' && (workerMemoryWarning(view.scenario.execution.workers.count, view.preparation.capacity) || workerHeapWarning(view.scenario.execution.workers.count, view.preparation.capacity))}
-    <p class="workspace-error" role="alert">I worker richiesti superano la stima prudenziale di memoria del browser. Riduci il numero di worker prima di avviare.</p>
-  {/if}
   <section class="sessions" aria-label="Sessioni dei risultati">
     <h2>Risultati delle elezioni politiche</h2>
     <label>Importa risultati<input type="file" accept=".json,.gz" onchange={e => { const file = e.currentTarget.files?.[0]; if (file) void controller.importResult(file); e.currentTarget.value = ''; }} /></label>
@@ -123,7 +123,6 @@
   </section>
 {/if}
 <style>
-  .sessions, .worker-plan, .workspace-error { max-width: 1460px; margin: 1rem auto; padding: 1rem; font-family: system-ui, sans-serif; }
-  .sessions { border-top: 1px solid #cbd5e1; } label { display: grid; gap: .4rem; margin: .75rem 0; } .controls { display: flex; flex-wrap: wrap; gap: .75rem; }
-  input, select, button { max-width: 100%; box-sizing: border-box; padding: .5rem; font: inherit; } .workspace-error { color: #9f2519; overflow-wrap: anywhere; }
+  .sessions { max-width: 1460px; margin: 1rem auto; padding: 1rem; font-family: system-ui, sans-serif; border-top: 1px solid #cbd5e1; } label { display: grid; gap: .4rem; margin: .75rem 0; } .controls { display: flex; flex-wrap: wrap; gap: .75rem; }
+  input, select, button { max-width: 100%; box-sizing: border-box; padding: .5rem; font: inherit; }
 </style>
