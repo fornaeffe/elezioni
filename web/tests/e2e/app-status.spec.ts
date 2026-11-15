@@ -1,5 +1,33 @@
 import { expect, test } from '@playwright/test';
 
+test('working status keeps its icon visible on mobile and respects reduced motion', async ({ page }) => {
+  let release!: () => void;
+  const pending = new Promise<void>(resolve => { release = resolve; });
+  await page.route('**/data/**', async route => { await pending; await route.abort().catch(() => {}); });
+  try {
+    await page.setViewportSize({ width: 390, height: 700 });
+    await page.goto(`${process.env.BASE_PATH ?? ''}/`);
+    const box = page.locator('aside[aria-label="Stato dell\'applicazione"]');
+    const toggle = page.getByRole('button', { name: /^Stato:/ });
+    await expect(box).toHaveClass(/ready/);
+    await expect(toggle.locator('svg')).toBeVisible();
+    await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
+    await expect(page.getByLabel('Carica scenario', { exact: true })).toBeAttached();
+    await expect(box).toHaveClass(/working/);
+    await expect(toggle.locator('.working-icon svg')).toBeVisible();
+    await expect(toggle.locator('.toggle-label')).toBeHidden();
+    await expect(toggle.locator('.working-icon')).toHaveCSS('animation-duration', '1s');
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await expect(toggle.locator('.working-icon svg')).toBeVisible();
+    await expect(toggle.locator('.working-icon')).toHaveCSS('animation-name', 'none');
+    await page.setViewportSize({ width: 1000, height: 700 });
+    await expect(toggle.locator('.working-icon svg')).toBeVisible();
+    await expect(toggle.locator('.toggle-label')).toBeVisible();
+  } finally {
+    release();
+  }
+});
+
 test('status remains fixed and compact on mobile, with accessible error details', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 700 });
   await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
@@ -13,6 +41,7 @@ test('status remains fixed and compact on mobile, with accessible error details'
   expect(Math.abs(before!.y - after!.y)).toBeLessThan(1);
   await page.getByLabel('Carica scenario', { exact: true }).setInputFiles({ name: 'bad.json', mimeType: 'application/json', buffer: Buffer.from('{') });
   await expect(box).toHaveClass(/error/);
+  await expect(toggle.locator('svg')).toBeVisible();
   await toggle.click();
   await expect(box.getByText(/Scenario non caricato/)).toBeVisible();
   await box.getByRole('button', { name: 'Chiudi avviso' }).click();
