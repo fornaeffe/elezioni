@@ -101,28 +101,33 @@
   {#key editorEpoch}<CommonPoliticsEditor scenario={view.scenario} onchange={s => { controller.change(s); }} {execution} {stageExternalFile} />{/key}
   <section class="sessions" aria-label="Sessioni dei risultati">
     <h2>Risultati delle elezioni politiche</h2>
-    <label>Importa risultati<input type="file" accept=".json,.gz" onchange={e => { const file = e.currentTarget.files?.[0]; if (file) void controller.importResult(file); e.currentTarget.value = ''; }} /></label>
-    <div class="controls"><label>Filtro legge<select bind:value={lawFilter}><option value="">Tutte</option><option value="politiche-r-parity-v1">Rosatellum</option><option value="politiche-reform-2026-v1">Riforma 2026</option></select></label>
-      <label>Filtro modello<select bind:value={modelFilter}><option value="">Tutti</option><option value="M01">M01</option><option value="M02">M02</option></select></label></div>
-    <label>Sessione dei risultati<select value={view.selected} onchange={e => { void controller.selectSession(e.currentTarget.value); }}>
-      <option value="" disabled>Seleziona una sessione</option>
-      {#each view.sessions.filter(s => s.id === view.selected || (!lawFilter || s.law === lawFilter) && (!modelFilter || s.model.startsWith(modelFilter))) as s (s.id)}
-        <option value={s.id}>{s.law === 'politiche-r-parity-v1' ? 'Rosatellum' : 'Riforma 2026'} · {s.model} · {s.createdAt} · {s.renewal} · {s.completed}/{s.requested}</option>
-      {/each}
-    </select></label>
+    <details class="result-transfer">
+      <summary>Caricamento, selezione e download dei risultati</summary>
+      <label>Importa risultati<input type="file" accept=".json,.gz" onchange={e => { const file = e.currentTarget.files?.[0]; if (file) void controller.importResult(file); e.currentTarget.value = ''; }} /></label>
+      <div class="controls"><label>Filtro legge<select bind:value={lawFilter}><option value="">Tutte</option><option value="politiche-r-parity-v1">Rosatellum</option><option value="politiche-reform-2026-v1">Riforma 2026</option></select></label>
+        <label>Filtro modello<select bind:value={modelFilter}><option value="">Tutti</option><option value="M01">M01</option><option value="M02">M02</option></select></label></div>
+      <label>Sessione dei risultati<select value={view.selected} onchange={e => { void controller.selectSession(e.currentTarget.value); }}>
+        <option value="" disabled>Seleziona una sessione</option>
+        {#each view.sessions.filter(s => s.id === view.selected || (!lawFilter || s.law === lawFilter) && (!modelFilter || s.model.startsWith(modelFilter))) as s (s.id)}
+          <option value={s.id}>{s.law === 'politiche-r-parity-v1' ? 'Rosatellum' : 'Riforma 2026'} · {s.model} · {s.createdAt} · {s.renewal} · {s.completed}/{s.requested}</option>
+        {/each}
+      </select></label>
+      {#if view.viewed?.politics}
+        <div class="controls"><button disabled={view.busy} onclick={loadViewedScenario}>Carica lo scenario di questa sessione</button>
+          <button disabled={exporting || view.busy} onclick={() => exportResult('json')}>Scarica archivio risultati JSON.gz</button>
+          <button disabled={exporting || view.busy} onclick={() => exportResult('csv')}>Scarica risultati CSV</button></div>
+      {/if}
+    </details>
     {#if view.viewed?.politics}
       {@const record = view.viewed}
       <p>Scenario eseguito: {record.politics!.run.executedScenario.name} · {record.politics!.run.execution.generator.id}@{record.politics!.run.execution.generator.version} · {record.result.completedSimulations}/{record.result.benchmark.simulations} simulazioni conservate · worker effettivi {record.politics!.run.execution.actualWorkers}.</p>
       {#if view.stale}<p role="status">Scenario modificato. Risultati ed export conservano lo scenario eseguito.</p>{/if}
       {#if view.recommendation}<p role="status">Le 10 simulazioni sono riuscite. Per risultati significativi consigliamo 1.000 simulazioni: modifica il numero e avvia una nuova esecuzione.</p>{/if}
-      <div class="controls"><button disabled={view.busy} onclick={loadViewedScenario}>Carica lo scenario di questa sessione</button>
-        <button disabled={exporting || view.busy} onclick={() => exportResult('json')}>Scarica archivio risultati JSON.gz</button>
-        <button disabled={exporting || view.busy} onclick={() => exportResult('csv')}>Scarica risultati CSV</button></div>
       {#key `${record.id}:${record.result.completedSimulations}:${record.result.storage?.state}`}<PoliticsSessionResults {record} client={client.results} />{/key}
     {/if}
   </section>
 {/if}
 <style>
-  .sessions { max-width: 1460px; margin: 1rem auto; padding: 1rem; font-family: system-ui, sans-serif; border-top: 1px solid #cbd5e1; } label { display: grid; gap: .4rem; margin: .75rem 0; } .controls { display: flex; flex-wrap: wrap; gap: .75rem; }
+  .sessions { max-width: 1460px; margin: 1rem auto; padding: 1rem; font-family: system-ui, sans-serif; border-top: 1px solid #cbd5e1; } .result-transfer { margin-block: .75rem 1rem; } .result-transfer > summary { cursor: pointer; font-weight: 600; } label { display: grid; gap: .4rem; margin: .75rem 0; } .controls { display: flex; flex-wrap: wrap; gap: .75rem; }
   input, select, button { max-width: 100%; box-sizing: border-box; padding: .5rem; font: inherit; }
 </style>

@@ -10955,3 +10955,12 @@ persistence and reactivation. An additional `/elezioni` run of the Rosatellum
 case passed with membership and coverage panel checks. An initial run exposed
 the test's stale scrutiny-control label; updating it to the existing **Legge
 elettorale** label resolved the timeout.
+### 2026-11-15 — Collapsible result import and selection
+
+- Grouped result import, law/model filters, session selection, loading the
+  selected session's scenario, and JSON.gz/CSV downloads under a collapsed
+  “Caricamento, selezione e download dei risultati” section.
+- Kept result summary and tables outside the section so the selected results
+  remain visible when it is collapsed.
+- Verification: `npm run check` passed with zero errors and warnings; the Svelte
+  autofixer reported no issues. No browser review was performed.

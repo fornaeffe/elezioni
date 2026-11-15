@@ -190,9 +190,9 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
     checkpoint settings under a collapsible advanced simulation
     settings. Workers info (requested, suggested, max, memory estimate) should stay inside advanced simulation settings, too.
   - [x] Substitute the warning "I worker richiesti superano la stima prudenziale di memoria del browser. Riduci il numero di worker prima di avviare." with "Se il browser dovesse esaurire la memoria disponibile, riprova riducendo il numero di worker.".
-  - [ ] move controls for results import, selection and download (including "Carica
-  lo scenario di questa settione) into a collapsible "Caricamento, selezione e
-  download dei risultati" section.
+  - [x] move controls for results import, selection and download (including "Carica
+    lo scenario di questa sessione") into a collapsible "Caricamento, selezione e
+    download dei risultati" section.
   - [ ] Change "Informazioni e avvisi generali", "Messaggi delle simulazioni" and 
     "Eletti medi e percentuali sui voti validi" into
     collapsible result sections, like other collapsible result sections already
