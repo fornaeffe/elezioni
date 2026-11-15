@@ -91,8 +91,10 @@
     {#if isReform}<p>Identità e recuperi restano condizionati ai dati/modelli delle preferenze.</p>
     {:else}<p>Rosatellum: le liste riportano i soli seggi plurinominali; le coalizioni e i sostegni comprendono anche gli eletti uninominali.</p>{/if}
     {#if o.legacy}<p role="note">Archivio precedente: alcune affiliazioni non sono ricostruibili; i grafici locali richiedono una nuova esecuzione. L’apertura dell’archivio non esegue simulazioni.</p>{/if}
-    <label>Raggruppamento delle medie<select bind:value={meanKind}><option value="list">Liste</option><option value="subject">Coalizioni / liste singole</option></select></label>
-    <label>Ramo delle medie<select bind:value={meanChamber}><option value="camera">Camera</option><option value="senato">Senato</option></select></label>
+    <div class="mean-controls">
+      <label>Raggruppamento<select bind:value={meanKind}><option value="list">Liste</option><option value="subject">Coalizioni / liste singole</option></select></label>
+      <label>Ramo<select bind:value={meanChamber}><option value="camera">Camera</option><option value="senato">Senato</option></select></label>
+    </div>
     {#if meanLists.length}
       <h4>{meanChamber === 'camera' ? 'Camera' : 'Senato'}</h4><PairedBars entityLabel={meanKind === 'list' ? 'Lista' : 'Coalizione / lista singola'} rows={meanLists.map(s => ({ id: s.id, label: s.name, color: s.color,
         elected: s.electedKnown === o.requested ? s.electedSum / o.requested : null, minimum: s.confirmed / o.requested,
@@ -177,6 +179,11 @@
   label { display: grid; gap: .5rem; margin: 1rem 0; }
   select, button { font: inherit; padding: .5rem; }
   select { box-sizing: border-box; width: 100%; min-width: 0; }
+  @media (min-width: 768px) {
+    .mean-controls { display: flex; align-items: end; gap: 1rem; }
+    .mean-controls label { flex: 0 1 auto; }
+    .mean-controls select { width: auto; }
+  }
   .bonus-bars { display: grid; gap: .6rem; margin: 1rem 0; font-size: .85rem; }
   .bonus-row { display: grid; grid-template-columns: minmax(5rem, 1fr) 2fr 5rem; gap: .5rem; align-items: center; }
   .bonus-track { background: #e8edf1; height: .75rem; border-radius: 1rem; overflow: hidden; }
