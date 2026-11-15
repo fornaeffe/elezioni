@@ -26,4 +26,6 @@ test('common archive codecs stream gzip and commit validated sessions in an actu
   expect(result.metadata.selection).toEqual(original.run.executedScenario.selection);
   expect(result.committed).toBe(true); expect(result.aborted).toBe(true); expect(result.rejected).toBe(true);
   expect(result.currentAccepted).toBe(true); expect(result.oldRejected).toBe(true);
+  expect(result.resultOnlyAccepted).toBe(true);
+  expect(result.progress.map((p: { phase: string }) => p.phase)).toEqual(['reading', 'validating', 'saving', 'complete']);
 });

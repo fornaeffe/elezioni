@@ -9,6 +9,7 @@ import { cellsWarning, storedRows, withStoredFittedState, type Cell, type Stored
 import { validateListFiling } from '../workspaces/filing';
 import { scenarioWorkspace } from '../workspaces/import-routing';
 import { streamStoredPolitics } from '../politics/files/stored-archive';
+import type { ArchiveProgressListener } from './archive-progress';
 
 // Common politics uses independently versioned strict envelopes and staged streaming imports.
 export { parsePoliticsResult, serializePoliticsResult, parsePoliticsArchive, streamPoliticsArchive,
@@ -406,16 +407,21 @@ export function resultTablesToCsv(tables: readonly ResultTable[]): string {
 
 /** Same schema-v2 columnar JSON as the synchronous small-result API, emitted
  * a row at a time. No full-result copy or whole-file string is constructed. */
-export async function* streamStoredResult(record: StoredResult, format: 'json' | 'csv'): AsyncGenerator<string> {
-  if (record.politics && format === 'json') { yield* streamStoredPolitics(record); return; }
+export async function* streamStoredResult(record: StoredResult, format: 'json' | 'csv', progress?: ArchiveProgressListener): AsyncGenerator<string> {
+  if (record.politics && format === 'json') { yield* streamStoredPolitics(record, progress); return; }
   const tables = record.result.storage!.tables;
   if (format === 'csv') {
+    let completed = 0; const total = tables.reduce((n, t) => n + t.rows, 0);
+    progress?.({ phase: 'exporting', completed, total, rows: completed });
     let first = true;
     for (let i = 0; i < tables.length; i++) {
       const table = tables[i];
       if (!first) yield '\r\n\r\n'; first = false;
       yield `${csvRow(['Table', table.name])}\r\n${csvRow(table.columns)}`;
-      for await (const cells of storedRows(record.id, i)) yield `\r\n${csvRow(cells)}`;
+      for await (const cells of storedRows(record.id, i, { prefetch: true })) {
+        if (++completed % 256 === 0) progress?.({ phase: 'exporting', completed, total, rows: completed });
+        yield `\r\n${csvRow(cells)}`;
+      }
     }
     return;
   }

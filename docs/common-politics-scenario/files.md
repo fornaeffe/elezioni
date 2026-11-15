@@ -111,6 +111,9 @@ selects a session without replacing the draft; JSON.gz result exports include it
 immutable executed scenario. See [lifecycle.md](lifecycle.md) for entry points,
 storage keys, recovery and the session action table.
 
+For transfer buffering, bounded chunk decompression, phase progress and repeatable
+browser profiling, use [archive performance](../archive-performance.md).
+
 Superseded projected editors, their draft writers and M00 default compiler are
 removed. Isolated old scenario/table/transport regression helpers live under
 `web/tests/fixtures/retired-*`; production result imports always use the strict

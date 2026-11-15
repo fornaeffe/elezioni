@@ -7,6 +7,7 @@ import { resultEnvelopeShape, archiveEnvelopeShape, tableShape, cellShape, warni
   type PoliticsResultEnvelope, type PoliticsArchiveEnvelope } from '../scenario/envelopes';
 import { validatePoliticsCheckpoint } from './checkpoint';
 import { checkShape, OLD_POLITICS_FORMAT, requireHeader } from './validation';
+import type { ArchiveProgressListener } from '../../core/archive-progress';
 
 type Cell = string | number | boolean | null;
 type Warning = PoliticsResultEnvelope['result']['warnings'][number];
@@ -74,7 +75,7 @@ export interface PoliticsArchiveSink {
   abort(): Promise<void>;
 }
 
-export async function importPoliticsArchiveStream(stream: ReadableStream<Uint8Array<ArrayBuffer>>, sink: PoliticsArchiveSink): Promise<PoliticsArchiveEnvelope> {
+export async function importPoliticsArchiveStream(stream: ReadableStream<Uint8Array<ArrayBuffer>>, sink: PoliticsArchiveSink, progress?: ArchiveProgressListener): Promise<PoliticsArchiveEnvelope> {
   const reader = new JsonStreamReader(stream), root: Record<string, unknown> = {}, run: Record<string, unknown> = {}, result: Record<string, unknown> = {};
   const warningIds = new Set<number>();
   try {
@@ -96,13 +97,7 @@ export async function importPoliticsArchiveStream(stream: ReadableStream<Uint8Ar
                 if (name === 'rows') {
                   table.rows = [];
                   await reader.array(async () => {
-                    const cells: Cell[] = [];
-                    await reader.array(async index => {
-                      if (index >= 4096) throw new Error('POLITICS_RESULT_ROW_LIMIT');
-                      const token = await reader.take();
-                      if (!token || token.kind === 'punctuation') throw new Error('INVALID_POLITICS_RESULT_CELL');
-                      cells.push(checkShape(cellShape, token.value));
-                    });
+                    const cells = await reader.scalarArray();
                     widths.add(cells.length); await sink.row(index, cells);
                   });
                 } else if (name === 'name' || name === 'columns') table[name] = await reader.value();
@@ -129,6 +124,7 @@ export async function importPoliticsArchiveStream(stream: ReadableStream<Uint8Ar
       root.run = run;
     });
     await reader.finish();
+    progress?.({ phase: 'validating', completed: 0 });
     const archive = await parsePoliticsArchive(root);
     const ids = new Set(archive.run.session.simulations.map(s => s.id));
     if ([...warningIds].some(id => !ids.has(id))) throw new Error('INVALID_POLITICS_DIAGNOSTIC_MEMBERSHIP');
@@ -139,7 +135,8 @@ export async function importPoliticsArchiveStream(stream: ReadableStream<Uint8Ar
 }
 
 /** File transport detection is shared with independent regional imports. */
-export const importPoliticsArchiveFile = (file: File, sink: PoliticsArchiveSink) => importPoliticsArchiveStream(jsonFileStream(file), sink);
+export const importPoliticsArchiveFile = (file: File, sink: PoliticsArchiveSink, progress?: ArchiveProgressListener) =>
+  importPoliticsArchiveStream(jsonFileStream(file), sink, progress);
 
 export interface PoliticsArchiveRows {
   rows(index: number): AsyncIterable<readonly Cell[]>;

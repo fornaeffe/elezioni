@@ -3,6 +3,8 @@ import { importPoliticsArchiveFile, streamPoliticsArchive } from '../../src/lib/
 import { inspectPoliticsFile } from '../../src/lib/politics/files/metadata';
 import { handleResultService } from '../../src/lib/workers/result-service';
 import { deleteStoredResult } from '../../src/lib/core/result-store';
+import type { ArchiveProgress } from '../../src/lib/core/archive-progress';
+import { serializePoliticsResult } from '../../src/lib/politics/files/results';
 self.onmessage = async () => {
   try {
     const original = archive();
@@ -22,10 +24,16 @@ self.onmessage = async () => {
     catch { rejected = true; }
     const resultId = crypto.randomUUID(), owner = 'cp08-files';
     // No opt-in flag is needed: the production service has only a strict common reader.
-    const current = await handleResultService({ type: 'result-service', requestId: 1, action: 'import', resultId, owner, file });
+    const progress: ArchiveProgress[] = [];
+    const current = await handleResultService({ type: 'result-service', requestId: 1, action: 'import', resultId, owner, file }, p => progress.push(p));
     const old = await handleResultService({ type: 'result-service', requestId: 2, action: 'import', resultId: crypto.randomUUID(), owner,
       file: new File([JSON.stringify({ schema_version: 3, scenario: {}, result: {} })], 'old.json') });
+    const resultFile = new File([await new Response(new Blob([serializePoliticsResult(original.run)]).stream()
+      .pipeThrough(new CompressionStream('gzip'))).blob()], 'standalone-result.json.gz');
+    const resultOnlyId = crypto.randomUUID();
+    const resultOnly = await handleResultService({ type: 'result-service', requestId: 3, action: 'import', resultId: resultOnlyId, owner, file: resultFile });
+    if (resultOnly.ok) await deleteStoredResult(resultOnlyId, owner);
     if (current.ok) await deleteStoredResult(resultId, owner);
-    self.postMessage({ ok: true, rows, warnings, header, metadata, committed, aborted, rejected, currentAccepted: current.ok, oldRejected: !old.ok });
+    self.postMessage({ ok: true, rows, warnings, header, metadata, committed, aborted, rejected, progress, currentAccepted: current.ok, oldRejected: !old.ok, resultOnlyAccepted: resultOnly.ok });
   } catch (error) { self.postMessage({ ok: false, error: String(error) }); }
 };

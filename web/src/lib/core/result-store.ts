@@ -2,6 +2,7 @@ import { gzipSync, gunzipSync } from 'fflate';
 import type { ExportScenario } from './result-export';
 import type { ResultTable, SimulationResult, ScrutinyWarning } from './types';
 import { deleteStatisticsCache } from './statistics-cache';
+import type { ArchiveChunkDecoder } from './archive-chunk-decoder';
 
 export type Cell = string | number | boolean | null;
 export interface StoredTable { name: string; columns: string[]; rows: number; chunks: number; shared?: boolean; runIndexed?: boolean }
@@ -234,35 +235,37 @@ export async function appendResultBatch(record: StoredResult, tables: ResultTabl
   }
   await writer.flush();
 }
-async function nextChunk(id: string, table: number, sequence: number, simulation?: number): Promise<Chunk | undefined> {
+async function nextChunks(id: string, table: number, sequence: number, simulation: number | undefined, count: number): Promise<Chunk[]> {
   const tx = (await db()).transaction('chunks'), store = tx.objectStore('chunks');
   const range = simulation === undefined
     ? IDBKeyRange.bound([id, table, sequence], [id, table, Number.MAX_SAFE_INTEGER])
     : IDBKeyRange.bound([id, table, simulation, sequence], [id, table, simulation, Number.MAX_SAFE_INTEGER]);
-  const cursor = await value((simulation === undefined ? store : store.index('runs')).openCursor(range));
-  return cursor?.value as Chunk | undefined;
+  return await value((simulation === undefined ? store : store.index('runs')).getAll(range, count)) as Chunk[];
 }
 export function decodeResultChunk(bytes: Uint8Array): Cell[][] {
   return JSON.parse(decoder.decode(gunzipSync(bytes))) as Cell[][];
 }
-export async function* storedRows(id: string, table: number, options: { offset?: number; simulation?: number } = {}): AsyncGenerator<Cell[]> {
+export async function* storedRows(id: string, table: number, options: { offset?: number; simulation?: number; prefetch?: boolean; decoder?: ArchiveChunkDecoder } = {}): AsyncGenerator<Cell[]> {
   const published = await getStoredResult(id);
   const descriptor = published.result.storage!.tables[table];
   if (descriptor?.shared) {
     let ordinal = options.offset ?? 0;
     while (ordinal < descriptor.rows) {
       const tx = (await db()).transaction('metadata');
-      const current = ordinal++;
-      const row = await value(tx.objectStore('metadata').get([id, table, current]));
-      if (row) {
+      const end = Math.min(descriptor.rows, ordinal + (options.prefetch ? 256 : 1));
+      const rows = await value(tx.objectStore('metadata').getAll(IDBKeyRange.bound([id, table, ordinal], [id, table, end - 1])));
+      ordinal = end;
+      for (const row of rows) {
         const cells = row.cells as Cell[];
-        cells[2] = published.metadataCounts?.[table]?.[current] ?? cells[2];
+        cells[2] = published.metadataCounts?.[table]?.[row.ordinal] ?? cells[2];
         yield cells;
       }
     }
     return;
   }
   const maximumChunks = table === -1 ? (published as StoredResult & { warningChunks?: number }).warningChunks ?? 0 : published.result.storage!.tables[table]?.chunks ?? 0;
+  const prefetchCount = options.prefetch ? Math.max(1, Math.min(16,
+    Math.floor(4 * 1024 * 1024 / Math.max(resultChunkBytes, published.result.storage!.maxChunkBytes)))) : 1;
   let sequence = 0;
   if (options.offset && options.simulation === undefined) {
     const index = (await db()).transaction('chunks').objectStore('chunks').index('rows');
@@ -270,13 +273,19 @@ export async function* storedRows(id: string, table: number, options: { offset?:
     sequence = (cursor?.value as Chunk | undefined)?.sequence ?? 0;
   }
   for (;;) {
-    const chunk = await nextChunk(id, table, sequence, options.simulation);
-    if (!chunk || chunk.sequence >= maximumChunks) return;
-    sequence = chunk.sequence + 1;
-    if (options.offset && chunk.start + chunk.count <= options.offset) continue;
-    const rows = decodeResultChunk(chunk.bytes);
-    const skip = options.offset ? Math.max(0, options.offset - chunk.start) : 0;
-    for (let i = skip; i < rows.length; i++) yield rows[i];
+    // Archive scans amortize IDB transactions over at most 16 compressed chunks.
+    // Decode within the same byte budget; ordinary page queries request one.
+    const chunks = (await nextChunks(id, table, sequence, options.simulation, prefetchCount))
+      .filter(chunk => chunk.sequence < maximumChunks);
+    if (!chunks.length) return;
+    const decoded = options.decoder ? await options.decoder.decode(chunks.map(chunk => chunk.bytes)) : undefined;
+    for (const [index, chunk] of chunks.entries()) {
+      sequence = chunk.sequence + 1;
+      if (options.offset && chunk.start + chunk.count <= options.offset) continue;
+      const rows: Cell[][] = decoded ? JSON.parse(decoder.decode(decoded[index])) : decodeResultChunk(chunk.bytes);
+      const skip = options.offset ? Math.max(0, options.offset - chunk.start) : 0;
+      for (let i = skip; i < rows.length; i++) yield rows[i];
+    }
   }
 }
 export async function storedTablePage(record: StoredResult, index: number, offset: number, limit = 50, simulation?: number): Promise<ResultTable> {

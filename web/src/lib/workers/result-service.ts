@@ -11,6 +11,8 @@ import { ensureStatistics, requireSeries, seriesStatistics, statisticalDistribut
 import { type BonusFilter, type SeatScope, type CollegeMeasure } from '../results/statistics';
 import { samplePage } from '../core/statistics-cache';
 import { importStoredPolitics } from '../politics/files/stored-archive';
+import { encodedExportStream } from '../core/export-stream';
+import type { ArchiveProgress, ArchiveProgressListener } from '../core/archive-progress';
 
 export interface ResultServiceRequest {
   type: 'result-service'; requestId: number;
@@ -27,6 +29,9 @@ export interface ResultServiceReply {
   type: 'result-service'; requestId: number; ok: boolean; data?: unknown;
   error?: { code: string; message: string };
 }
+export interface ResultServiceProgress {
+  type: 'result-service-progress'; requestId: number; progress: ArchiveProgress;
+}
 const cancelled = new Set<string>();
 const active = new Set<string>();
 /** Common coordinator shares the same query/export/deletion locks. */
@@ -35,35 +40,39 @@ const deleting = new Set<string>();
 const resultJobs = new Map<string, Set<Promise<unknown>>>();
 const describe = (error: unknown) => error instanceof Error ? `${error.name}: ${error.message}` : String(error);
 
-function encodedStream(values: AsyncGenerator<string>): ReadableStream<Uint8Array<ArrayBuffer>> {
-  return new ReadableStream<string>({
-    async pull(controller) { try { const next = await values.next(); if (next.done) controller.close(); else controller.enqueue(next.value); } catch (e) { controller.error(e); } },
-    async cancel() { await values.return(undefined); }
-  }).pipeThrough(new TextEncoderStream());
-}
-async function exportStoredFile(record: StoredResult, format: 'json' | 'csv', values = streamStoredResult(record, format)): Promise<File> {
+async function exportStoredFile(record: StoredResult, format: 'json' | 'csv', values?: AsyncGenerator<string>, progress?: ArchiveProgressListener): Promise<File> {
   if (!navigator.storage?.getDirectory) throw new Error('Questo browser richiede il supporto ai file temporanei OPFS per esportare risultati grandi. I risultati locali sono conservati.');
   const root = await navigator.storage.getDirectory();
   const directory = await root.getDirectoryHandle('elezioni-result-exports', { create: true });
   const filename = `${record.id}-${crypto.randomUUID()}.${format === 'json' ? 'json.gz' : 'csv'}`;
   const handle = await directory.getFileHandle(filename, { create: true });
   try {
-    let stream = encodedStream(values);
+    let stream = encodedExportStream(values ?? streamStoredResult(record, format, progress));
     if (format === 'json') stream = stream.pipeThrough(new CompressionStream('gzip'));
-    await stream.pipeTo(await handle.createWritable());
+    await stream.pipeThrough(new TransformStream({ transform(chunk, controller) { controller.enqueue(chunk); },
+      flush() { progress?.({ phase: 'finalizing', completed: 0 }); } })).pipeTo(await handle.createWritable());
     await registerStoredExport(record.id, record.owner, filename);
     // File is a disk-backed Blob; sending it does not materialize its contents
     // as a giant JS buffer. Retain it until explicit result-session deletion.
-    return await handle.getFile();
+    const file = await handle.getFile();
+    progress?.({ phase: 'complete', completed: file.size, total: file.size });
+    return file;
   } catch (error) { await directory.removeEntry(filename).catch(() => undefined); throw error; }
 }
-export async function handleResultService(request: ResultServiceRequest): Promise<ResultServiceReply> {
+export async function handleResultService(request: ResultServiceRequest, onProgress?: ArchiveProgressListener): Promise<ResultServiceReply> {
+  let lastTime = -Infinity, lastPhase: ArchiveProgress['phase'] | undefined;
+  const progress: ArchiveProgressListener = value => {
+    const now = performance.now();
+    if (value.phase !== lastPhase || now - lastTime >= 100) {
+      lastTime = now; lastPhase = value.phase; onProgress?.(value);
+    }
+  };
   try {
     let data: unknown;
     if (request.action === 'cancel') { cancelled.add(request.resultId); data = null; }
     else if (request.action === 'import') {
       if (!request.file) throw new Error('Missing result file');
-      data = await importStoredPolitics(request.file, request.resultId, request.owner);
+      data = await importStoredPolitics(request.file, request.resultId, request.owner, progress);
     } else {
       const record = await getStoredResult(request.resultId, request.owner);
       if (request.action === 'manifest') {
@@ -132,7 +141,7 @@ export async function handleResultService(request: ResultServiceRequest): Promis
         if (active.has(record.id)) throw new Error('Wait for the calculation or cancel it before export');
         if (deleting.has(record.id)) throw new Error('Result session is being deleted');
         const format = request.format ?? 'json';
-        const job = exportStoredFile(record, format);
+        const job = exportStoredFile(record, format, undefined, progress);
         const jobs = resultJobs.get(record.id) ?? new Set<Promise<unknown>>(); resultJobs.set(record.id, jobs); jobs.add(job);
         try { data = await job; } finally { jobs.delete(job); if (!jobs.size) resultJobs.delete(record.id); }
       } else if (request.action === 'delete') {

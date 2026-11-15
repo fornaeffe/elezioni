@@ -19,6 +19,7 @@
   import { navigateWorkspaceImport } from '../workspaces/navigation';
   import { workerMemoryWarning, workerHeapWarning } from '../core/reform-worker-capacity';
   import { OLD_POLITICS_FORMAT } from './files/validation';
+  import { archiveProgressText, type ArchiveProgressListener } from '../core/archive-progress';
   let controller: PoliticsWorkspaceController;
   let client = $state.raw<PoliticsClient>()!;
   let render = $state(0), ready = $state(false), editorEpoch = $state(0), fileError = $state(''), exporting = $state(false);
@@ -39,7 +40,13 @@
   $effect(() => { if (view?.error) appStatus.set('politics-error', { state: 'error', label: 'Operazione non riuscita', detail: view.error }); else appStatus.clear('politics-error'); });
   $effect(() => { if (view?.storageError) appStatus.set('politics-storage', { state: 'error', label: 'Errore di salvataggio', detail: view.storageError }); else appStatus.clear('politics-storage'); });
   $effect(() => { if (fileError) appStatus.set('politics-file-error', { state: 'error', label: 'Errore file', detail: fileError }); else appStatus.clear('politics-file-error'); });
-  async function track<T>(label: string, task: () => Promise<T>): Promise<T> { const id = crypto.randomUUID(); appStatus.set(id, { state: 'working', label }); try { await tick(); await new Promise<void>(resolve => setTimeout(resolve, 0)); return await task(); } finally { appStatus.clear(id); } }
+  async function track<T>(label: string, task: (progress: ArchiveProgressListener) => Promise<T>): Promise<T> {
+    const id = crypto.randomUUID(); appStatus.set(id, { state: 'working', label });
+    try {
+      await tick(); await new Promise<void>(resolve => setTimeout(resolve, 0));
+      return await task(progress => appStatus.set(id, { state: 'working', label, detail: archiveProgressText(progress) }));
+    } finally { appStatus.clear(id); }
+  }
   function download(file: Blob, name: string) { const url = URL.createObjectURL(file), a = document.createElement('a'); a.href = url; a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); }
   async function exportCheckpoint() {
     fileError = '';
@@ -54,7 +61,7 @@
   }
   async function exportResult(format: 'json' | 'csv') {
     if (!view?.viewed) return; fileError = ''; exporting = true;
-    try { const resultId = view.viewed.id; const file = await track('Preparazione risultati per il download', () => client.results.call<File>('export', { resultId, owner: controller.owner, format })); download(file, `politiche-risultati.${format === 'json' ? 'json.gz' : 'csv'}`); }
+    try { const resultId = view.viewed.id; const file = await track('Preparazione risultati per il download', progress => client.results.call<File>('export', { resultId, owner: controller.owner, format }, progress)); download(file, `politiche-risultati.${format === 'json' ? 'json.gz' : 'csv'}`); }
     catch (e) { fileError = String(e); } finally { exporting = false; }
   }
   async function loadViewedScenario() { if (await controller.loadViewedScenario()) editorEpoch++; }
@@ -70,7 +77,7 @@
     client = new PoliticsClient(new Worker(new URL('../workers/politics-workspace.worker.ts', import.meta.url), { type: 'module' }), base);
     controller = new PoliticsWorkspaceController(createDefaultCommonPoliticsScenario(), { runtime: client, storage: localStorage,
       changed: () => { render++; }, manifest: (id, owner) => client.results.call('manifest', { resultId: id, owner }),
-      importResult: (file, id, owner) => track('Caricamento risultati', () => client.results.call('import', { file, resultId: id, owner, commonPolitics: true })),
+      importResult: (file, id, owner) => track('Caricamento risultati', progress => client.results.call('import', { file, resultId: id, owner, commonPolitics: true }, progress)),
       validateScenario: async s => { const assets = await loadEditorAssets(s, validation.signal); parsePoliticsScenario(s, assets.context); } });
     client.onPreparationProgress = (detail, completed, total) => controller.preparationProgress(detail, completed, total);
     void controller.initialize().then(async () => {

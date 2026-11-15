@@ -19,3 +19,15 @@ it('streams array records individually and rejects malformed JSON', async () => 
     await expect((async () => { try { await malformed.value(); await malformed.finish(); } finally { await malformed.close(); } })()).rejects.toThrow();
   }
 });
+it('frames scalar rows across chunk boundaries without accepting nested or invalid cells', async () => {
+  const cells = ['Città "Europa" \\ 😀 ] [{', '\u0000\n', 0, -1.25e-8, true, false, null, ''];
+  for (const size of [1, 2, 3, 17, 65536]) {
+    const reader = new JsonStreamReader(bytes(JSON.stringify([cells, []]), size));
+    const rows: unknown[] = []; await reader.array(async () => { rows.push(await reader.scalarArray()); });
+    expect(rows).toEqual([cells, []]); await reader.finish(); await reader.close();
+  }
+  for (const text of ['[1,]', '[01]', '[1e400]', '[1 2]', '["unterminated]', '[{}]', '[[1]]', '[NaN]', '["x""y"]', '[1\u00a0]', `[${'1'.repeat(129)}]`, JSON.stringify(Array(4097).fill(0))]) {
+    const reader = new JsonStreamReader(bytes(text, 5));
+    await expect(reader.scalarArray()).rejects.toThrow(); await reader.close();
+  }
+});

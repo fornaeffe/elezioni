@@ -1,4 +1,4 @@
-import { appendResultBatch, deleteStoredResult, getStoredResult, newResultStorage, registerStoredExport, saveStoredResult, storedTablePage, type StoredResult } from '../../src/lib/core/result-store';
+import { appendResultBatch, deleteStoredResult, getStoredResult, newResultStorage, registerStoredExport, saveStoredResult, storedTablePage, storedRows, type StoredResult } from '../../src/lib/core/result-store';
 import { importResultStream, resultTablesToCsv, streamStoredResult } from '../../src/lib/core/result-export';
 import { createDefaultPoliticsScenario } from './retired-politics/scenario';
 import type { ResultTable } from '../../src/lib/core/types';
@@ -60,6 +60,9 @@ self.onmessage = async () => {
     finally { IDBObjectStore.prototype.add = original; }
     const retained = await getStoredResult(record.id, record.owner);
     const afterFailure = await storedTablePage(retained, 0, previousCount, 50);
+    const prefetched: unknown[] = [];
+    for await (const cells of storedRows(record.id, 0, { prefetch: true })) prefetched.push(cells);
+    if (prefetched.length !== 600) throw new Error('Archive prefetch exposed uncommitted chunks');
     let foreignDenied = false;
     try { await deleteStoredResult(record.id, 'another-owner'); } catch { foreignDenied = true; }
     const stillPresent = (await getStoredResult(record.id, record.owner)).id;

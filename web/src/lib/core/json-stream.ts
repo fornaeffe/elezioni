@@ -81,6 +81,37 @@ export class JsonStreamReader {
       if (end?.kind !== 'punctuation' || end.value !== ',') throw new Error('Expected JSON comma');
     }
   }
+  /** Rows contain scalar cells only. Frame one bounded row synchronously within
+   * each decoded chunk, then use the native parser. Objects/nested arrays are
+   * rejected before JSON.parse, so duplicate object keys cannot slip through. */
+  async scalarArray(maximumCells = 4096): Promise<(string | number | boolean | null)[]> {
+    await this.expect('[');
+    const parts = ['[']; let length = 1, quoted = false, escaped = false, scalarLength = 0;
+    for (;;) {
+      if (!await this.character()) throw new Error('Unexpected end of JSON row');
+      const start = this.position;
+      while (this.position < this.chunk.length) {
+        const ch = this.chunk[this.position++];
+        if (++length > 16 * 1024 * 1024) throw new Error('JSON row exceeds the bounded record limit');
+        if (quoted) {
+          if (escaped) escaped = false;
+          else if (ch === '\\') escaped = true;
+          else if (ch === '"') quoted = false;
+        } else if (ch === '"') { quoted = true; scalarLength = 0; }
+        else if (ch === '[' || ch === '{' || ch === '}') throw new Error('INVALID_POLITICS_RESULT_CELL');
+        else if (ch === ']') {
+          parts.push(this.chunk.slice(start, this.position));
+          const cells: unknown[] = JSON.parse(parts.join(''));
+          if (cells.length > maximumCells) throw new Error('POLITICS_RESULT_ROW_LIMIT');
+          if (cells.some(c => c !== null && typeof c !== 'string' && typeof c !== 'boolean' &&
+            (typeof c !== 'number' || !Number.isFinite(c)))) throw new Error('INVALID_POLITICS_RESULT_CELL');
+          return cells as (string | number | boolean | null)[];
+        } else if (ch === ',' || /[ \t\r\n]/.test(ch)) scalarLength = 0;
+        else if (++scalarLength > 128) throw new Error('Invalid JSON scalar');
+      }
+      parts.push(this.chunk.slice(start, this.position));
+    }
+  }
   async value(depth = 0): Promise<unknown> {
     if (depth > 128) throw new Error('JSON nesting limit exceeded');
     const t = await this.peek(); if (!t) throw new Error('Unexpected end of JSON');
@@ -101,8 +132,12 @@ export class JsonStreamReader {
   }
   async finish() { if (await this.take() !== null) throw new Error('Trailing JSON data'); }
 }
-export function jsonFileStream(file: File): ReadableStream<Uint8Array<ArrayBuffer>> {
-  return file.name.endsWith('.gz') ? file.stream().pipeThrough(new DecompressionStream('gzip')) : file.stream();
+export function jsonFileStream(file: File, onBytes?: (bytes: number) => void): ReadableStream<Uint8Array<ArrayBuffer>> {
+  let stream = file.stream(), bytes = 0;
+  if (onBytes) stream = stream.pipeThrough(new TransformStream({ transform(chunk, controller) {
+    bytes += chunk.byteLength; onBytes(bytes); controller.enqueue(chunk);
+  } }));
+  return file.name.endsWith('.gz') ? stream.pipeThrough(new DecompressionStream('gzip')) : stream;
 }
 export async function isReformFile(file: File): Promise<boolean> {
   const reader = new JsonStreamReader(jsonFileStream(file));

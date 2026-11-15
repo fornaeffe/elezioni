@@ -8,6 +8,10 @@ import { readFile } from 'node:fs/promises';
 import { generatedDefaultRegionalErScenario } from '../../src/lib/scenario/regional-er-defaults.generated';
 
 const base = process.env.BASE_PATH ?? '';
+async function openTransfers(page: Page) {
+  const summary = page.getByText('Caricamento, selezione e download dei risultati', { exact: true });
+  if (!await summary.evaluate(node => (node.parentElement as HTMLDetailsElement).open)) await summary.click();
+}
 test.setTimeout(120_000);
 async function setup(context: BrowserContext, page: Page, law: typeof REFORM | typeof ROSATELLUM, model: 'M01' | 'M02') {
   const f = await commonPoliticsFixture(law, model);
@@ -39,6 +43,7 @@ async function saved(page: Page) {
 async function run(page: Page) {
   await page.getByRole('button', { name: 'Avvia simulazione', exact: true }).click();
   await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText(/Esecuzione completata|Esecuzione interrotta/, { timeout: 60000 });
+  await openTransfers(page);
   await expect(page.getByRole('combobox', { name: 'Sessione dei risultati', exact: true })).not.toHaveValue('');
   return saved(page);
 }
@@ -75,6 +80,13 @@ for (const [law, model] of [[ROSATELLUM, 'M01'], [REFORM, 'M01'], [REFORM, 'M02'
     await expect(page.getByRole('alert')).toHaveCount(0);
     await page.getByLabel('Nome scenario', { exact: true }).fill('Edited after execution'); await page.getByLabel('Nome scenario', { exact: true }).blur();
     await expect(page.getByText('Scenario modificato. Risultati ed export conservano lo scenario eseguito.', { exact: true })).toBeVisible();
+    await page.evaluate(() => {
+      const node = document.querySelector('aside[aria-label="Stato dell\'applicazione"]')!;
+      const seen: string[] = [];
+      (window as unknown as { archiveStatuses: string[] }).archiveStatuses = seen;
+      const observer = new MutationObserver(() => seen.push(node.textContent ?? ''));
+      observer.observe(node, { childList: true, subtree: true, characterData: true });
+    });
     const download = page.waitForEvent('download');
     await page.getByRole('button', { name: 'Scarica archivio risultati JSON.gz', exact: true }).click();
     const file = await download, bytes = await readFile((await file.path())!);
@@ -82,10 +94,13 @@ for (const [law, model] of [[ROSATELLUM, 'M01'], [REFORM, 'M01'], [REFORM, 'M02'
     await expect(page.getByRole('combobox', { name: 'Sessione dei risultati', exact: true }).locator('option')).toHaveCount(3);
     expect(await page.evaluate(key => JSON.parse(localStorage.getItem(key)!).name, politicsDraftKey)).toBe('Edited after execution');
     const imported = await saved(page);
+    expect(await page.evaluate(() => (window as unknown as { archiveStatuses: string[] }).archiveStatuses
+      .some(text => text.includes('righe') && (text.includes('della fase') || text.includes('Lettura e importazione'))))).toBe(true);
     expect(imported.politics.run.executedScenario).toEqual(original);
     expect(stableTables(imported)).toEqual(stableTables(first));
     expect(await observations(page, imported.id)).toEqual(firstObservations);
     await page.reload();
+    await openTransfers(page);
     await expect(page.getByText('Scenario modificato. Risultati ed export conservano lo scenario eseguito.', { exact: true })).toBeVisible();
     await expect(page.getByRole('combobox', { name: 'Tabella dei risultati', exact: true })).toBeVisible();
     if (model === 'M02') await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText('fitting riutilizzato', { timeout: 60000 });
@@ -93,6 +108,7 @@ for (const [law, model] of [[ROSATELLUM, 'M01'], [REFORM, 'M01'], [REFORM, 'M02'
     await expect(page.getByLabel('Nome scenario', { exact: true })).toHaveValue(original.name);
     await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText('Modello pronto', { timeout: 60000 });
     // Only an explicit field edit changes worker policy. No acceptance run exceeds 3.
+    await page.getByText('Impostazioni avanzate della simulazione', { exact: true }).click();
     await page.getByLabel('Numero di worker richiesti', { exact: true }).fill('2'); await page.getByLabel('Numero di worker richiesti', { exact: true }).blur();
     const second = await run(page);
     expect(second.politics.run.execution.actualWorkers).toBe(2); expect(stableTables(second)).toEqual(stableTables(first));
@@ -153,8 +169,9 @@ test('explicit cancellation locks execution and retains assigned simulation IDs 
   await setup(context, page, ROSATELLUM, 'M01');
   await page.getByLabel('Numero di simulazioni', { exact: true }).fill('10'); await page.getByLabel('Numero di simulazioni', { exact: true }).blur();
   await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText('Modello pronto');
+  await page.getByText('Impostazioni avanzate della simulazione', { exact: true }).click();
   await page.getByRole('button', { name: 'Avvia simulazione', exact: true }).click();
-  await expect(page.getByRole('combobox', { name: 'Algoritmo di scrutinio', exact: true })).toBeDisabled();
+  await expect(page.getByRole('combobox', { name: 'Legge elettorale', exact: true })).toBeDisabled();
   await expect(page.getByRole('button', { name: 'Genera seed casuale delle simulazioni', exact: true })).toBeDisabled();
   await page.getByRole('button', { name: /^Stato:/ }).click(); await page.getByRole('button', { name: 'Annulla', exact: true }).first().click();
   await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText('Esecuzione interrotta', { timeout: 60000 });
@@ -162,7 +179,7 @@ test('explicit cancellation locks execution and retains assigned simulation IDs 
   expect(n).toBeLessThan(10); expect(result.result.benchmark.simulations).toBe(10);
   expect(result.politics.run.session.simulations.map((s: any) => s.id)).toEqual(Array.from({ length: n }, (_, i) => i + 1));
   const selected = result.id;
-  await page.reload(); await expect(page.getByRole('combobox', { name: 'Sessione dei risultati', exact: true })).toHaveValue(selected);
+  await page.reload(); await openTransfers(page); await expect(page.getByRole('combobox', { name: 'Sessione dei risultati', exact: true })).toHaveValue(selected);
 });
 test('scenario metadata routes regional and common politics files without sharing their drafts', async ({ page, context }) => {
   const f = await setup(context, page, ROSATELLUM, 'M01');

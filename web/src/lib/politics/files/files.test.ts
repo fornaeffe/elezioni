@@ -72,6 +72,8 @@ describe('CP-05 common politics files', () => {
       good.replace('"portableFit":null', '"portableFit":null,"surprise":1'),
       good.replace('"portableFit":null', '"portableFit":null,"kind":"politics-result-archive"'),
       good.replace('"simulationId":2', '"simulationId":3'),
+      good.replace('[2,"",false,null]', '[2,{"x":1,"x":2},false,null]'),
+      good.replace('[2,"",false,null]', '[2,"",1e400,null]'),
       good.replace('[2,"",false,null]', '[2,"",false]'), good.replace('"assemblyKey":"assembly"', '"assemblyKey":"assembly","extra":0')];
     for (const json of variants) {
       const destination = sink();

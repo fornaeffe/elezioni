@@ -30,7 +30,8 @@ const retainedCoordinatorBytes = () => retainedBytes({ assets: [...assetCache.va
   fit: cache.fit, profiles: cache.profiles, m01: cache.m01 });
 self.onmessage = (event: MessageEvent<PoliticsTaskRequest | ResultServiceRequest>) => {
   const request = event.data;
-  if (request.type === 'result-service') { void handleResultService(request).then(reply => self.postMessage(reply)); return; }
+  if (request.type === 'result-service') { void handleResultService(request, progress => self.postMessage({
+    type: 'result-service-progress', requestId: request.requestId, progress })).then(reply => self.postMessage(reply)); return; }
   const reply = (data: unknown) => self.postMessage({ type: 'politics-task', requestId: request.requestId, ok: true, data });
   if (request.action === 'dispose') { task?.abort(); ++sequence; for (const worker of ownedWorkers) worker.close(); ownedWorkers.clear(); reply(null); self.close(); return; }
   if (request.action === 'cancel') { cancellation = true; task?.abort(); ++sequence; reply(null); return; }
