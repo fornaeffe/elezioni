@@ -10910,3 +10910,9 @@ No commit, deployment or manual UI acceptance is claimed.
 Moved status presentation to a viewport-fixed, collapsible application box with ready, working and error indicators. Political and regional workspaces report their operations and errors independently, with applicable cancellation and retry actions; the collapsed mobile control uses only an icon. Removed duplicated simulation status and cancellation controls. The separate import/export performance and parallelization assessment remains open.
 
 Verification: `npm run check` passed; a production build and targeted Chromium tests covered mobile fixed positioning, political and regional import errors, political lifecycle, cancellation, and draft isolation. The initial browser run reused a preview server that stopped during testing; rerunning against a fresh build passed the targeted checks.
+
+
+### 2026-11-15 — Common politics editor subject rows
+
+- Aligned coalition and list controls under shared headers, with responsive compact labels and row-local icon controls for advanced options. List national references remain in the basic row; advanced reference controls now live in the list options panel.
+- Reference percentage fields use `% auto` as their empty placeholder across lists, components, abstention and territorial and chamber references. This is presentation only; explicit zero, inheritance and scenario data are unchanged.

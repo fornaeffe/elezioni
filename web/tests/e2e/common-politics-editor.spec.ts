@@ -81,7 +81,7 @@ test('new lists initialize every law, tri-state filings and linked/unlinked cham
   expect(stored.memberships.find((m: { listId: string }) => m.listId === list.id)).toMatchObject({ camera: [], senato: [], locked: true });
   for (const block of Object.values(stored.lawSettings) as { filings: { listId: string; locations: unknown[] }[] }[]) expect(block.filings.find(f => f.listId === list.id)!.locations.length).toBeGreaterThan(0);
   const article = page.getByRole('article', { name: 'Lista nuova', exact: true });
-  await article.locator('summary').filter({ hasText: /^Opzioni lista/ }).click();
+  await article.getByRole('button', { name: /^Opzioni lista/ }).click();
   await article.locator('summary').filter({ hasText: /^Depositi e candidati/ }).click();
   await article.locator('summary').filter({ hasText: /^Camera ·/ }).click();
   const all = article.getByRole('checkbox', { name: 'Deposita tutta Camera', exact: true });
@@ -157,7 +157,7 @@ test('bonus declarations remain visible when inactive, reactivate, disclose repl
     await page.getByLabel('Nuova coalizione', { exact: true }).fill(name);
     await page.getByRole('button', { name: 'Aggiungi coalizione', exact: true }).click();
     const article = page.getByRole('article', { name, exact: true });
-    await article.locator('summary').filter({ hasText: /^Opzioni coalizione/ }).click();
+    await article.getByRole('button', { name: /^Opzioni coalizione/ }).click();
     await article.getByLabel(name === 'Accordo Camera' ? 'Senato' : 'Camera', { exact: true }).uncheck();
   }
   const camera = page.getByRole('article', { name: 'Accordo Camera', exact: true });
@@ -196,7 +196,7 @@ test('candidate trees retain sparse pins and explain disabled identities while f
   await page.goto(`${base}/politics/editor`); await ready(page);
   const article = page.getByRole('article', { name: "Fratelli d'Italia", exact: true });
   const openIn = async (pattern: RegExp) => { await article.locator('summary').filter({ hasText: pattern }).first().click(); };
-  await openIn(/^Opzioni lista/); await openIn(/^Depositi e candidati/); await openIn(/^Camera ·/);
+  await article.getByRole('button', { name: /^Opzioni lista/ }).click(); await openIn(/^Depositi e candidati/); await openIn(/^Camera ·/);
   await openIn(new RegExp(`^${territory.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
   await openIn(new RegExp(`^${college.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
   await openIn(/^Candidati ·/);
@@ -238,4 +238,26 @@ test('advanced controls edit source membership, pooling provenance and model-spe
   expect((await draft(page)).history.sourceMemberships.find((r: { choiceId: string }) => r.choiceId === choice.choiceId).members).toEqual([]);
   await open(page, /^Elettorato/);
   await expect(page.getByText(/età minima 18 anni/)).toBeVisible();
+});
+
+test('subject rows expose responsive controls and reference placeholders', async ({ page }) => {
+  await page.setViewportSize({ width: 1100, height: 800 });
+  await page.goto(`${base}/politics/editor`); await ready(page);
+  const article = page.getByRole('article', { name: "Fratelli d'Italia", exact: true });
+  const button = article.getByRole('button', { name: /Opzioni lista/ });
+  const reference = article.getByLabel('Riferimento nazionale (%)', { exact: true });
+  await expect(reference).toHaveAttribute('placeholder', '% auto');
+  await expect(button).toHaveAttribute('aria-expanded', 'false');
+  const boxes = await Promise.all([article.getByLabel('Nome lista').boundingBox(), reference.boundingBox(), button.boundingBox()]);
+  expect(boxes.every(box => box && Math.abs(box.y - boxes[0]!.y) < 5)).toBe(true);
+  await button.click();
+  await expect(button).toHaveAttribute('aria-expanded', 'true');
+  await article.locator('summary').filter({ hasText: /^Riferimenti avanzati/ }).click();
+  await expect(article.getByLabel('Riferimento nazionale Camera (%)', { exact: true })).toHaveAttribute('placeholder', '% auto');
+  await expect(page.getByLabel('Non valido / astensione (%)', { exact: true })).toHaveAttribute('placeholder', '% auto');
+  await page.setViewportSize({ width: 390, height: 800 });
+  await expect(article.locator('.mobile-label').first()).toBeVisible();
+  await expect(reference).toBeVisible();
+  await button.click();
+  await expect(button).toHaveAttribute('aria-expanded', 'false');
 });

@@ -27,3 +27,24 @@
   .common-politics-editor label { display: flex; width: 100%; }
   .common-politics-editor input:not([type=checkbox]):not([type=color]), .common-politics-editor select { width: 100%; min-width: 0; }
 }
+
+.common-politics-editor .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.common-politics-editor .subject-header, .common-politics-editor .subject-row { display: grid; align-items: center; gap: .6rem; }
+.common-politics-editor .coalition-grid { grid-template-columns: 4rem minmax(0, 1fr) 3rem; }
+.common-politics-editor .list-grid { grid-template-columns: 4rem minmax(8rem, 1fr) minmax(8rem, 1fr) minmax(8rem, 12rem) 3rem; }
+.common-politics-editor .subject-header { padding: 0 .8rem; font-weight: 600; font-size: .85rem; }
+.common-politics-editor .subject-row label { margin: 0; min-width: 0; }
+.common-politics-editor .subject-row .subject-name input, .common-politics-editor .subject-row select { width: 100%; min-width: 0; }
+.common-politics-editor .subject-row .reference-fields { display: block; }
+.common-politics-editor .subject-row .reference-fields label, .common-politics-editor .subject-row .reference-fields input { width: 100%; }
+.common-politics-editor .subject-options { width: 2.6rem; height: 2.6rem; margin: 0; font-size: 1.3rem; line-height: 1; }
+.common-politics-editor .mobile-label { display: none; }
+@media (max-width: 650px) {
+  .common-politics-editor .subject-header { display: none; }
+  .common-politics-editor .coalition-grid { grid-template-columns: 3rem minmax(0, 1fr) 3rem; }
+  .common-politics-editor .list-grid { grid-template-columns: 3rem minmax(0, 1fr) 3rem; }
+  .common-politics-editor .subject-row .mobile-label { display: inline; }
+  .common-politics-editor .subject-row .subject-coalition { grid-column: 2; }
+  .common-politics-editor .subject-row .subject-reference { grid-column: 2; }
+  .common-politics-editor .subject-row .subject-options { grid-column: 3; grid-row: 1; }
+}

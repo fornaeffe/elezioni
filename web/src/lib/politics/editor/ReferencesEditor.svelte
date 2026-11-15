@@ -7,7 +7,7 @@
   import ReferenceFields from './ReferenceFields.svelte';
   import ReferenceTree from './ReferenceTree.svelte';
   import { effectiveUncertaintyMultipliers } from '../scenario/references';
-  let { scenario, target, label, assets, edit }: { scenario: PoliticsScenario; target: ReferenceTarget; label: string; assets: EditorAssets | null; edit: ApplyEdit } = $props();
+  let { scenario, target, label, assets, edit, mode = 'all' }: { scenario: PoliticsScenario; target: ReferenceTarget; label: string; assets: EditorAssets | null; edit: ApplyEdit; mode?: 'all' | 'basic' | 'advanced' } = $props();
   let rows = $derived(referenceRows(scenario, target));
   let different = $derived(rows.some(r => r.scope.kind === 'national' && r.channel !== 'common'));
   function multiplier(chamber: 'camera' | 'senato', key: 'national' | 'local', value: string) {
@@ -19,11 +19,14 @@
     }));
   }
 </script>
-<ReferenceFields {scenario} {target} scope={{ kind: 'national' }} {label} {edit} showSd={false} />
-{#if different}<span class="badge">Riferimenti distinti per camera</span>{/if}
+{#if mode !== 'advanced'}
+<ReferenceFields {scenario} {target} scope={{ kind: 'national' }} {label} {edit} showSd={false} compact={mode === 'basic'} showRemove={mode !== 'basic'} />
+{/if}
+{#if different && mode !== 'advanced'}<span class="badge">Riferimenti distinti per camera</span>{/if}
+{#if mode !== 'basic'}
 <LazySection title={`Riferimenti avanzati · ${rows.length} dichiarazioni`}>
   <p>{target === null ? 'Astensioni e schede non valide: percentuali degli elettori.' : 'Percentuali dei voti validi.'} Campo vuoto: nessuna sostituzione. M01 ignora le SD salvate; M02 le utilizza.</p>
-  <ReferenceFields {scenario} {target} scope={{ kind: 'national' }} {label} {edit} showMean={false} />
+  <ReferenceFields {scenario} {target} scope={{ kind: 'national' }} {label} {edit} showMean={false} showRemove={mode === 'advanced'} />
   {#each ['camera', 'senato'] as channel (channel)}
     <ReferenceFields {scenario} {target} scope={{ kind: 'national' }} channel={channel as 'camera' | 'senato'} label={`${label} ${channel === 'camera' ? 'Camera' : 'Senato'}`} {edit} />
   {/each}
@@ -41,3 +44,5 @@
   {/if}
   {#if assets}<ReferenceTree {scenario} {target} nodes={assets.references} {edit} />{:else}<p>Dati territoriali in caricamento.</p>{/if}
 </LazySection>
+
+{/if}
