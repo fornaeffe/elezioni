@@ -52,23 +52,25 @@ test('common law/model selections, deferred settings, seeds and locks survive re
 
 test('visible non-valid reference retains explicit zero, default uncertainty and local tree declarations', async ({ page }) => {
   await page.goto(`${base}/politics/editor`); await ready(page);
-  const section = page.getByRole('region', { name: 'Non valido e astensione' });
-  const input = section.getByLabel('Non valido / astensione (%)', { exact: true });
+  await open(page, /^Impostazioni avanzate dello scenario$/);
+  const section = page.locator('details').filter({ has: page.locator(':scope > summary').filter({ hasText: /^Astensione e voti non validi$/ }) }).last();
+  const referenceLabel = 'Astensione e voti non validi Camera';
+  await section.locator('summary').filter({ hasText: /^Riferimenti avanzati/ }).click();
+  const input = section.getByLabel(`${referenceLabel} (%)`, { exact: true });
   await expect(input).toBeVisible(); await expect(input).toHaveValue('');
   await input.fill('0'); await input.blur();
-  await section.locator('summary').filter({ hasText: /^Riferimenti avanzati/ }).click();
-  await expect(section.getByLabel('SD Non valido / astensione (punti percentuali)', { exact: true })).toBeDisabled();
+  await expect(section.getByLabel(`SD ${referenceLabel} (punti percentuali)`, { exact: true })).toBeDisabled();
   let stored = await draft(page);
-  expect(stored.nonValidReferences.find((r: { channel: string; scope: { kind: string } }) => r.channel === 'common' && r.scope.kind === 'national')).toMatchObject({ mean: 0, uncertainty: { sdPercentagePoints: 0, origin: 'default' } });
+  expect(stored.nonValidReferences.find((r: { channel: string; scope: { kind: string } }) => r.channel === 'camera' && r.scope.kind === 'national')).toMatchObject({ mean: 0, uncertainty: { sdPercentagePoints: 0, origin: 'default' } });
   await input.fill('10'); await input.blur();
-  await expect(section.getByLabel('SD Non valido / astensione (punti percentuali)', { exact: true })).toHaveValue('1');
+  await expect(section.getByLabel(`SD ${referenceLabel} (punti percentuali)`, { exact: true })).toHaveValue('1');
   const emilia = section.locator('details').filter({ has: page.locator('summary').filter({ hasText: /^Emilia-Romagna ·/ }) }).last();
   await emilia.locator(':scope > summary').click();
   await emilia.getByLabel('Emilia-Romagna comune (%)', { exact: true }).fill('5'); await emilia.getByLabel('Emilia-Romagna comune (%)', { exact: true }).blur();
   await page.getByLabel('Camere da rinnovare').selectOption('camera');
   stored = await draft(page);
   expect(stored.nonValidReferences.some((r: { scope: { kind: string; code: string }; mean: number }) => r.scope.kind === 'region' && r.scope.code === '08' && r.mean === 0.05)).toBe(true);
-  await section.getByRole('button', { name: 'Rimuovi Non valido / astensione', exact: true }).click();
+  await section.getByRole('button', { name: `Rimuovi ${referenceLabel}`, exact: true }).click();
   await expect(input).toHaveValue('');
   expect((await draft(page)).nonValidReferences).toHaveLength(authored.nonValidReferences.length + 1);
 });
@@ -259,4 +261,10 @@ test('subject rows expose responsive controls and reference placeholders', async
   await expect(reference).toBeVisible();
   await button.click();
   await expect(button).toHaveAttribute('aria-expanded', 'false');
+  const nonValidReference = page.getByLabel('Astensione e voti non validi Camera (%)', { exact: true });
+  await expect(nonValidReference).toHaveCount(0);
+  await open(page, /^Impostazioni avanzate dello scenario$/);
+  const nonValidSection = page.locator('details').filter({ has: page.locator(':scope > summary').filter({ hasText: /^Astensione e voti non validi$/ }) }).last();
+  await nonValidSection.locator('summary').filter({ hasText: /^Riferimenti avanzati/ }).click();
+  await expect(nonValidReference).toHaveAttribute('placeholder', '% auto');
 });

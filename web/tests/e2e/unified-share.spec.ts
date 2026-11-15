@@ -2,7 +2,7 @@ import { archiveDigest } from '../fixtures/archive-digest';
 import { test, expect } from '@playwright/test';
 import { mkdir, writeFile, stat } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import { openCommon, runCommon, selectedCommon, base } from '../fixtures/common-page';
+import { openCommon, openResultTransfers, runCommon, selectedCommon, base } from '../fixtures/common-page';
 import { ROSATELLUM, REFORM } from '../../src/lib/politics/scenario/schema';
 const draws = Number(process.env.FV08_DRAWS ?? 3);
 if (!Number.isSafeInteger(draws) || draws < 1 || draws > 1000)
@@ -26,6 +26,7 @@ for (const [law, model] of [[ROSATELLUM, 'M01'], [REFORM, 'M01'], [REFORM, 'M02'
         await page.getByLabel('Nome scenario', { exact: true }).fill('Unchanged draft during result import');
         await page.getByLabel('Nome scenario', { exact: true }).blur();
         await page.getByLabel('Importa risultati', { exact: true }).setInputFiles(archive);
+        await openResultTransfers(page);
         await expect(page.getByRole('combobox', { name: 'Sessione dei risultati', exact: true })).not.toHaveValue(before.id, { timeout: 60000 });
         const after = await selectedCommon(page);
         expect(after.politics.run.session.simulations).toEqual(before.politics.run.session.simulations);
@@ -40,6 +41,7 @@ for (const [law, model] of [[ROSATELLUM, 'M01'], [REFORM, 'M01'], [REFORM, 'M02'
         await page.getByRole('button', { name: 'Scarica risultati CSV', exact: true }).click();
         expect((await (await csv).createReadStream()) !== null).toBe(true);
         await page.reload();
+        await openResultTransfers(page);
         await expect(page.getByRole('combobox', { name: 'Sessione dei risultati', exact: true })).toHaveValue(after.id);
         await page.getByRole('button', { name: 'Carica lo scenario di questa sessione', exact: true }).click();
         await expect(page.getByLabel('Nome scenario', { exact: true })).toHaveValue(initial.name);

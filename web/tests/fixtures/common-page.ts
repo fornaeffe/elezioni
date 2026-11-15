@@ -24,6 +24,10 @@ export async function runCommon(page: Page) {
     expect(await page.locator('aside[aria-label="Stato dell\'applicazione"]').innerText(), (await page.getByRole('alert').allTextContents()).join('\n')).toContain('Esecuzione completata');
     return selectedCommon(page);
 }
+export async function openResultTransfers(page: Page) {
+    const summary = page.getByText('Caricamento, selezione e download dei risultati', { exact: true });
+    if (!await summary.evaluate(node => (node.parentElement as HTMLDetailsElement).open)) await summary.click();
+}
 export async function selectedCommon(page: Page) {
     return page.evaluate(async (key) => {
         const index = JSON.parse(localStorage.getItem(key)!);

@@ -3,6 +3,7 @@
 import { fileURLToPath } from 'node:url';
 import { build } from 'vite';
 import { expect, type Page } from '@playwright/test';
+import { openResultTransfers } from './common-page';
 
 let bundle: Promise<string> | undefined;
 const installed = new WeakSet<Page>();
@@ -35,5 +36,6 @@ export async function seedPresentationSession(page: Page, payload: unknown) {
     worker.postMessage(payload);
   }), payload);
   await page.reload();
+  await openResultTransfers(page);
   await expect(page.getByRole('combobox', { name: 'Sessione dei risultati', exact: true })).not.toHaveValue('');
 }

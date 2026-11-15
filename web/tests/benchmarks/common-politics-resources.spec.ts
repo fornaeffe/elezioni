@@ -10,7 +10,7 @@ import { politicsSessionsKey } from '../../src/lib/politics/workspace-controller
 import { REFORM, type PoliticsScenario, type LawId, type GeneratorId } from '../../src/lib/politics/scenario/schema';
 import { requirePair } from '../../src/lib/politics/scenario/registry';
 import { archiveDigest } from '../fixtures/archive-digest';
-import { selectedCommon } from '../fixtures/common-page';
+import { openResultTransfers, selectedCommon } from '../fixtures/common-page';
 import { assessCampaignLegalOutcomes, type CampaignLegalError } from '../../scripts/acceptance/common-politics-outcomes';
 
 const execute = promisify(execFile), base = process.env.BASE_PATH ?? '';
@@ -123,6 +123,7 @@ test('national common execution resources with renderer-wide process sampling', 
     await page.getByRole('button', { name: 'Scarica archivio risultati JSON.gz', exact: true }).click();
     await (await download).saveAs(archive);
     await page.getByLabel('Importa risultati', { exact: true }).setInputFiles(archive);
+    await openResultTransfers(page);
     await expect(page.getByRole('combobox', { name: 'Sessione dei risultati', exact: true })).not.toHaveValue(stored.session.id, { timeout: 20 * 60 * 1000 });
     const imported = await selectedCommon(page);
     expect(imported.politics.run.execution).toEqual(stored.execution);
