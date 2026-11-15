@@ -190,6 +190,23 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
     checkpoint settings under a collapsible advanced simulation
     settings. Workers info (requested, suggested, max, memory estimate) should stay inside advanced simulation settings, too.
   - [x] Substitute the warning "I worker richiesti superano la stima prudenziale di memoria del browser. Riduci il numero di worker prima di avviare." with "Se il browser dovesse esaurire la memoria disponibile, riprova riducendo il numero di worker.".
+  - [ ] move controls for results import, selection and download (including "Carica
+  lo scenario di questa settione) into a collapsible "Caricamento, selezione e
+  download dei risultati" section.
+  - [ ] Change "Informazioni e avvisi generali", "Messaggi delle simulazioni" and 
+    "Eletti medi e percentuali sui voti validi" into
+    collapsible result sections, like other collapsible result sections already
+    present. "Eletti medi e percentuali sui voti validi" should be visible by default,
+    the former two should be collapsed by default.
+  - [ ] In "Messaggi delle simulazioni" section, when the user opens the affected
+    simulations list, offer a button to close the affected simulations list.
+  - [ ] Move "vincitori del premio" section just below "Messaggi delle simulazioni"
+    section, before "Eletti medi e percentuali sui voti validi", and make it visible
+    by default (but still collapsible)
+  - [ ] "Percentuali simulate per lista" boxplots section now have grouping and 
+    chamber controls outside the collapsible section, and the collapsible section
+    is visible by default. Move controls inside the collapsible section (that should
+    render similarly to other results sections) and make it collapsed by default.
 - [ ] Assess if parallelization will improve import/export performances.
   Add progress indication, and parallelization if it will improve performances.
 - [x] Color cells of election probability table with a more saturated color the higher
