@@ -28,7 +28,7 @@ whole-component M02 pooling, and labelled fallback/electorate assumptions.
 Source aliases are explicit membership declarations over unchanged original
 observations. Reference-only support uses the common contract's owned `new:<list>`
 components. M01's retained parameter date is `2026-10-16`, distinct from the shared
-`2026-10-19` evidence cutoff. The M02 implicit multipliers and conditional forecast
+`2026-11-15` evidence cutoff. The M02 implicit multipliers and conditional forecast
 reference are explicit. Actual worker counts remain execution provenance.
 
 ## Regeneration and dependency changes

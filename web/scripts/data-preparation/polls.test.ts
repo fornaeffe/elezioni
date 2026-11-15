@@ -35,10 +35,10 @@ function single(entityIds: string[], percentage = 100) {
 }
 
 describe('selected poll archive preparation', () => {
-  it('validates the reviewed JSON, keeping eight questions and seven survey groups', () => {
-    expect(prepared.audit).toMatchObject({ sourceOfTruth: 'reviewed-json', surveys: 7, questions: 8, independenceGroups: 7, conditionalQuestions: 3,
-      sourceDateRange: { first: '2026-10-06', last: '2026-10-19' } });
-    expect(prepared.audit.archiveBytes).toBeLessThan(60_000);
+  it('validates the reviewed JSON and preserves its survey groups', () => {
+    expect(prepared.audit).toMatchObject({ sourceOfTruth: 'reviewed-json', surveys: 17, questions: 18, independenceGroups: 17, conditionalQuestions: 3,
+      sourceDateRange: { first: '2026-10-06', last: '2026-11-11' } });
+    expect(prepared.audit.archiveBytes).toBeLessThan(prepared.audit.maximumArchiveBytes);
     expect(sample.source.reference).toBe('Sondaggio14362');
     expect(sample.source).not.toHaveProperty('sha256');
     expect(bundle.sourceVersions.map(v => v.split(':')[0])).toEqual(['manifest.json', 'archive.json', 'entities.json']);

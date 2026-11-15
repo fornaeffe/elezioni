@@ -17,6 +17,11 @@ function fixture() {
   return { scenario, snapshot };
 }
 describe('poll-informed references', () => {
+  it('does not treat separate blank and undecided figures as a combined nonresponse rate', () => {
+    const q = bundle.questions.find(q => q.id === 'pcm-14419-q1')!;
+    const result = estimatePollReference([q], bundle.entityCatalog, context, '2026-11-15');
+    expect(result.evidence[0].effectiveSample).toBe(250);
+  });
   it('selects dated generic questions, caps repeated houses and retains estimated sample provenance', () => {
     const r = estimatePollReference(bundle.questions, bundle.entityCatalog, context, '2026-10-23');
     expect(r.evidence.map(e => e.questionId).sort()).toEqual(['pcm-14346-q1', 'pcm-14358-q4', 'pcm-14362-q1', 'pcm-14364-q1']);

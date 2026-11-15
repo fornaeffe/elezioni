@@ -20,7 +20,8 @@ export function estimatePollReference(questions: NormalizedPollQuestion[], entit
   const baselineTotal = context.lists.reduce((n, l) => n + (l.baselineShare ?? 0), 0);
   const baseline = context.lists.map(l => ({ listId: l.id, share: baselineTotal ? (l.baselineShare ?? 0) / baselineTotal : 1 / context.lists.length }));
   const evidence = selected.map(q => {
-    const nonresponse = q.answers.find(a => a.kind === 'nonresponse')?.percentage;
+    const nonresponses = q.answers.filter(a => a.kind === 'nonresponse');
+    const nonresponse = nonresponses.length === 1 ? nonresponses[0].percentage : undefined;
     const decided = nonresponse === undefined ? POLL_POLICY.unknownDecidedFraction : 1 - nonresponse / 100;
     const effectiveSample = Math.min(POLL_POLICY.maximumEffectiveSample,
       (q.questionSampleSize ?? q.source.sampleSize * decided) / POLL_POLICY.designEffect);

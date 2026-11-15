@@ -16,14 +16,14 @@ export function reviewedEarlyView(original: { id: string; shares: number[] }, re
 function entityMembers(id: string, date: string): string[] | undefined {
   // These named contemporary answers have no asserted historical lineage or
   // geographic donor. Retain source atoms; FV-04 must supply a new-party policy.
-  if (['futuro-nazionale', 'progetto-civico', 'piu-uno', 'libdem', 'ora'].includes(id)) return ['poll-only-' + id];
+  if (['futuro-nazionale', 'progetto-civico', 'piu-uno', 'libdem', 'ora', 'schierarsi', 'italia-domani'].includes(id)) return ['poll-only-' + id];
   const groups: Record<string, string[]> = {
     pd: date >= '2019-01-01' ? ['pd', 'art1'] : ['pd'], fdi: ['fdi'], fi: ['fi-pdl'], pdl: ['fi-pdl'], lega: ['lega'], m5s: ['m5s'], sel: ['sel-si'], udc: ['udc'], fare: ['fare'],
     'scelta-civica': ['scelta-civica'], 'la-destra': ['la-destra'], 'piu-europa': date >= '2017-01-01' && date < '2019-01-01' ? ['piu-europa', 'centro-democratico'] : ['piu-europa'],
     'azione-italia-viva': ['azione', 'italia-viva'], azione: ['azione'], 'italia-viva': ['italia-viva'], 'noi-moderati': ['noi-residual', 'udc', 'scelta-civica'],
     'noi-italia': ['noi-residual', 'udc', 'scelta-civica'], avs: date >= '2022-01-01' && date < '2023-01-01' ? ['verdi', 'sel-si', 'possible'] : ['verdi', 'sel-si'],
-    leu: ['sel-si', 'possible', 'art1'], insieme: ['psi-civici', 'verdi'], pap: ['prc', 'pci-pdci', 'pap-residual'], 'rivoluzione-civile': ['prc', 'pci-pdci', 'verdi', 'idv'],
-    'impegno-civico': ['impegno-residual', 'centro-democratico'], 'unione-popolare': ['prc', 'pap-residual'], svp: ['svp-patt'], italexit: ['italexit'], psi: ['psi-civici']
+    leu: ['sel-si', 'possible', 'art1'], insieme: ['psi-civici', 'verdi'], pap: date >= '2026-01-01' ? ['pap-residual'] : ['prc', 'pci-pdci', 'pap-residual'], 'rivoluzione-civile': ['prc', 'pci-pdci', 'verdi', 'idv'],
+    'impegno-civico': ['impegno-residual', 'centro-democratico'], 'unione-popolare': ['prc', 'pap-residual'], svp: ['svp-patt'], italexit: ['italexit'], psi: ['psi-civici'], prc: ['prc']
   };
   return groups[id];
 }
@@ -40,12 +40,30 @@ export async function prepareSharePolls(root: string) {
       const refined = refinements.questions.find(r => r.id === q.id), reasons: string[] = [];
       if (q.ballot.kind === 'conditional') reasons.push('Conditional ballot requires explicit baseline treatment');
       if (q.normalization.method === 'missing-support-residual' && !refined) reasons.push('Material missing political support; no invented residual accepted');
-      const normalized: SourcePoll['normalized'] = refined ? refined.answers.map(a => ({ label: a.label, share: a.percentage / 100, other: !!a.other,
+      let normalized: SourcePoll['normalized'] = refined ? refined.answers.map(a => ({ label: a.label, share: a.percentage / 100, other: !!a.other,
         members: a.members ?? (a.sourceLabel ? sourceMembership(membership.policy, 'european-2024', a.sourceLabel).members : []) })) : q.support.map(a => ({ label: a.label, share: a.share, other: !a.entityIds.length,
         members: [...new Set(a.entityIds.flatMap(id => entityMembers(id, q.source.fieldworkEnd) ?? (id === 'fli' ? sourceMembership(membership.policy, 'camera-2013', "FUTURO E LIBERTA'").members : id === 'civica-popolare' ? sourceMembership(membership.policy, 'camera-2018', 'CIVICA POPOLARE LORENZIN').members : id === 'sud-chiama-nord' ? sourceMembership(membership.policy, 'camera-2022', 'SUD CHIAMA NORD').members : [])))] }));
+      // When UDC is separately offered, it cannot also be part of the
+      // mutually exclusive Noi Moderati answer in that same question.
+      const separateUdc = q.support.some(a => a.entityIds.includes('udc'));
+      if (separateUdc && !refined) normalized = normalized.map((a, i) =>
+        q.support[i]?.entityIds.includes('noi-moderati') ? { ...a, members: a.members.filter(id => id !== 'udc') } : a);
+      // These reviewed tables report mutually exclusive residual categories.
+      // The model observes only their union, never an invented party split;
+      // original answers and their separate percentages remain in the source.
+      const mergedResiduals = ['pcm-14424-q4', 'pcm-14420-q1', 'pcm-14411-q1'].includes(q.id);
+      if (mergedResiduals) {
+        const residuals = normalized.filter(a => a.other);
+        if (residuals.length < 2) throw new Error('Reviewed residual categories changed: ' + q.id);
+        normalized = [...normalized.filter(a => !a.other), { label: 'Combined reported residual categories',
+          share: residuals.reduce((sum, a) => sum + a.share, 0), members: [], other: true }];
+      }
       if (normalized.some(a => !a.other && !a.members.length)) reasons.push('Unmapped political answer');
       if (normalized.some(a => a.share === 0)) reasons.push('Printed-zero answer needs a censored observation model');
-      const nonresponse = q.answers.find(a => a.kind === 'nonresponse')?.percentage, decided = nonresponse === undefined ? SHARE_POLL_POLICY.unknownDecidedFraction : 1 - nonresponse / 100;
+      // Separate undecided and blank-ballot figures can have different bases and
+      // do not provide the combined nonresponse fraction used by this policy.
+      const nonresponses = q.answers.filter(a => a.kind === 'nonresponse');
+      const nonresponse = nonresponses.length === 1 ? nonresponses[0].percentage : undefined, decided = nonresponse === undefined ? SHARE_POLL_POLICY.unknownDecidedFraction : 1 - nonresponse / 100;
       const context = /senato/i.test(q.text + ' ' + q.source.title) ? 'senato' : /european|europe[ae]|europee/i.test(q.text + ' ' + q.source.title) ? 'european' : 'camera';
       polls.push({ id: q.id, surveyId: q.independenceGroup, context,
         date: new Date((Date.parse(q.source.fieldworkStart) + Date.parse(q.source.fieldworkEnd)) / 2).toISOString().slice(0, 10), fieldworkStart: q.source.fieldworkStart, fieldworkEnd: q.source.fieldworkEnd, availableDate: q.source.publicationDate,
@@ -53,7 +71,7 @@ export async function prepareSharePolls(root: string) {
         effectiveSample: Math.min(SHARE_POLL_POLICY.maximumEffectiveSample, (q.questionSampleSize ?? q.source.sampleSize * decided) / SHARE_POLL_POLICY.designEffect),
         designEffect: SHARE_POLL_POLICY.designEffect, effectiveSamplePolicy: SHARE_POLL_POLICY.version, errorGroup: q.source.fieldworkEnd.slice(0, 4) + '-H' + (Number(q.source.fieldworkEnd.slice(5, 7)) <= 6 ? 1 : 2) + '-' + context,
         roundingWidth: 0.001, original: q.answers.map(a => ({ label: a.label, percentage: a.percentage, kind: a.kind })), normalized, otherDefinition: 'offered-complement',
-        status: reasons.length ? 'excluded' : 'supported', reasons, method: refined ? 'reviewed-full-question-replaces-coarse-view' : 'reviewed-reported-support' });
+        status: reasons.length ? 'excluded' : 'supported', reasons, method: refined ? 'reviewed-full-question-replaces-coarse-view' : mergedResiduals ? 'reviewed-disjoint-residuals-combined' : 'reviewed-reported-support' });
     }
   }
   const early = await json('data/sources/polls/history/generation-horizon-observations.json');

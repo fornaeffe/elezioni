@@ -18,7 +18,11 @@ const root = fileURLToPath(new URL('../../../', import.meta.url)), s = authoredP
 describe('single authored politics default', () => {
   it('materializes the approved law/model, run and candidature choices', () => {
     expect(s.id).toBe('politics-default-v1'); expect(s.name).toBe('Politiche — scenario nazionale');
-    expect([s.electionDate,s.referenceDate,s.renewal]).toEqual(['2027-09-25','2026-10-19','joint']);
+    expect([s.electionDate,s.referenceDate,s.renewal]).toEqual(['2027-09-25','2026-11-15','joint']);
+    expect(s.history.polls.selected).toEqual(expect.arrayContaining([
+      'pcm-14387-q1','pcm-14389-q1','pcm-14398-q1','pcm-14400-q3','pcm-14411-q1',
+      'pcm-14419-q1','pcm-14420-q1','pcm-14421-q1','pcm-14423-q1','pcm-14424-q4',
+    ]));
     expect(s.selection).toEqual({ scrutiny:{id:REFORM,version:'1.0.0'},generatorsByLaw:{[ROSATELLUM]:{id:'M01',version:'2.0.0'},[REFORM]:{id:'M02',version:'2.0.0'}} });
     expect(s.execution).toEqual({simulations:10,fittingSeed:'fast-share-default-fit-v1',simulationSeed:'fast-share-default-v1',workers:{kind:'auto',policy:'model-aware-v1'}});
     expect(s.lawSettings[ROSATELLUM].candidateGeneration).toEqual({uninominalToPlurinominalShare:0.35,plurinominalCandidacyCountShares:[0.875,0.0625,0.025,0.0125,0.025]});
@@ -67,6 +71,12 @@ describe.skipIf(!hasData)('authored production packaging (requires npm run data:
   it('packages the same authored statistical/legal inputs and colors; edits propagate without another choice set', async () => {
     const data=await loadExecutionData(s,readers),context={seats:data.seats,models:data.parameters.models} as ReformAssemblyContext;
     const input=await reformDefaultInputs(s,readers,context);
+    expect(data.domain.componentIds).toContain('poll-only-schierarsi');
+    expect(input.inputs.selection.components).toContain('poll-only-schierarsi');
+    const later = { ...s, referenceDate: '2026-10-19', history: { ...s.history, polls: { ...s.history.polls,
+      selected: s.history.polls.selected.filter(id => id !== 'pcm-14423-q1') } } };
+    const laterInput = await reformDefaultInputs(later, readers, context);
+    expect(laterInput.inputs.selection.components).not.toContain('poll-only-schierarsi');
     const pointer=JSON.parse(readFileSync(resolve(dir,'candidate.json'),'utf8'));
     const catalog=(await decodeState<ReleaseCatalog>(pointer.catalog,read,'fast-share-catalog')).state;
     const installed=(await decodeState<ScenarioState>(catalog.assets.scenario,read,'fast-share-scenario')).state.scenario;

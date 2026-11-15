@@ -14,8 +14,15 @@ export function commonVoteInputs(s: PoliticsScenario, data: ExecutionData, chamb
   const model = activeGenerator(s), law = s.selection.scrutiny.id;
   const componentMap = Object.fromEntries(s.history.pooling.flatMap(p => p.members.map(id => [id, p.id])));
   const used = new Set(s.memberships.flatMap(m => chambers.flatMap(ch => [...effectiveMembers(s, m.listId, ch)])));
-  // Keep every observed basis component for fitting, including candidate-free residual support.
-  const originalIds = data.domain.componentIds.filter(id => !Object.hasOwn(componentMap, id));
+  // A future poll may introduce an identity absent from every historical
+  // election. It cannot become a fitted component before that poll is eligible.
+  const datedPollMembers = new Set([...data.source.payload.polls, ...s.history.polls.added]
+    .filter(p => s.history.polls.selected.includes(p.id) && !Object.hasOwn(s.history.polls.excluded, p.id) &&
+      p.availableDate <= s.referenceDate && p.fieldworkEnd <= s.referenceDate)
+    .flatMap(p => p.normalized.flatMap(a => a.members)));
+  const electionMembers = new Set(data.source.payload.choices.flatMap(c => c.members));
+  const originalIds = data.domain.componentIds.filter(id => !Object.hasOwn(componentMap, id) &&
+    (electionMembers.has(id) || datedPollMembers.has(id)));
   const components: FastComponent[] = [...new Set([...originalIds, ...s.history.pooling.map(p => p.id), ...used])].sort().map(id => {
     const n = s.newComponents.find(n => n.id === id);
     return n ? { id, kind: 'new', provenance: n.provenance, fallback: {

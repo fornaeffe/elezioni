@@ -4,7 +4,7 @@
   "id": "politics-default-v1",
   "name": "Politiche — scenario nazionale",
   "electionDate": "2027-09-25",
-  "referenceDate": "2026-10-19",
+  "referenceDate": "2026-11-15",
   "renewal": "joint",
   "selection": {
     "scrutiny": {
@@ -25,19 +25,19 @@
   "data": {
     "historical": {
       "id": "historical",
-      "version": "fast-share-source-v1-95d505ed1f7ea79c99cd0bf91a86dbc6a2d54c1f24fd9b37bec40a57e3c72511",
+      "version": "fast-share-source-v1-bbca860b7764976395c3a921be0025fdf6e296eb8a22fa6bdc8f17c1e4c534b6",
       "schemaVersion": 1,
-      "bytes": 3785805,
-      "sha256": "b4f60b9b24b35a1ac6564af03662c62ca58bddd0e0ac21b7436c10acb344aecf",
-      "uri": "data/politics/historical-b4f60b9b24b3.json"
+      "bytes": 3815029,
+      "sha256": "44acdf9ec6c52567c2d70b4079b7296040a75e7ae0ff4704440eed162a22edd3",
+      "uri": "data/politics/historical-44acdf9ec6c5.json"
     },
     "catalogue": {
       "id": "catalogue",
       "version": "politics-catalogue-v1",
       "schemaVersion": 1,
-      "bytes": 195864,
-      "sha256": "be6e3912d1907855583217bbd62b22e126ea30b67388196671ac62bf1fc59af1",
-      "uri": "data/politics/catalogue-be6e3912d190.json"
+      "bytes": 202139,
+      "sha256": "d83d69279e22202731be7dc4f029eb7ea0b5478c94663ab021e34bcccc45219e",
+      "uri": "data/politics/catalogue-d83d69279e22.json"
     },
     "referenceGeography": {
       "id": "reference-geography",
@@ -182,6 +182,16 @@
         "pcm-14358-q4",
         "pcm-14362-q1",
         "pcm-14364-q1",
+        "pcm-14387-q1",
+        "pcm-14389-q1",
+        "pcm-14398-q1",
+        "pcm-14400-q3",
+        "pcm-14411-q1",
+        "pcm-14419-q1",
+        "pcm-14420-q1",
+        "pcm-14421-q1",
+        "pcm-14423-q1",
+        "pcm-14424-q4",
         "pcm-7135-q2",
         "pcm-7145-q1",
         "pcm-7154-q1",

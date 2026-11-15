@@ -23,7 +23,7 @@ Substep 1 prepares observations and reconciliation previews. Substep 2 builds
 opt-in, replayable poll-informed scenarios for the reform generator. Substep 3
 provides historical pairing and calibration/backtest reports. Its acceptance gate
 currently rejects automatic corrections; the active policy remains assumed.
-The initial archive covers October 2026 national adult vote-intention questions;
+The selected archive covers October–November 2026 national adult vote-intention questions;
 it is not a representative historical panel or evidence of forecast accuracy.
 
 ## Offline preparation in a fresh clone
@@ -111,6 +111,13 @@ are not upstream-source verification or hashes that a maintainer must repin.
   to one. Coalition totals, reported changes, unrelated questions, seat
   simulations and nonresponse do not add party support. Nonresponse is not an
   election-turnout estimate. Unknown sample bases/confidence levels remain null.
+- Separate nonresponse figures with different or incomplete bases do not supply
+  the combined decided-voter fraction; the existing unknown-fraction policy applies.
+- The reviewed November Eumetra, Youtrend and Ixè tables present separate
+  residual categories. The fast-share model treats these as disjoint and fits
+  their sum as one offered-complement observation; original rows are retained.
+  Where UDC is separately offered, its atom is excluded from that survey's
+  Noi Moderati group to avoid counting it twice.
 - Up to one percentage point of total discrepancy is treated as rounding, with
   the factor recorded. A larger missing total becomes an explicitly estimated
   residual while preserving observed levels. A total above 101% requires source

@@ -78,7 +78,7 @@ install physical-cell profiles. FV-04/05 own production adaptation and prefittin
   retain all 7,904 municipalities and 15,810 physical membership cells across
   86 colleges. Population sums agree per municipality/chamber. Camera TAA's
   overlapping proportional view is excluded from physical cells and derived later.
-- All 41 poll questions retain original and normalized answers, sample bases,
+- All 51 poll questions retain original and normalized answers, sample bases,
   effective-sample/design-effect policy, shared-survey/error groups, rounding,
   citations, dates and exclusion reasons. The three conditional questions remain
   excluded. Reviewed early FDI/FI repairs replace the coarse view of the same

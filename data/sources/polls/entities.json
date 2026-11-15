@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "version": "poll-entities-2026-10-v1",
+  "version": "poll-entities-2026-11-v2",
   "entities": [
     {
       "id": "fdi",
@@ -191,6 +191,46 @@
         "azione",
         "italia-viva"
       ],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "schierarsi",
+      "name": "Schierarsi",
+      "aliases": [],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "prc",
+      "name": "Rifondazione Comunista",
+      "aliases": [],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "pap",
+      "name": "Potere al Popolo",
+      "aliases": [],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "udc",
+      "name": "Unione di Centro",
+      "aliases": [],
+      "components": [],
+      "proxyEntityIds": [],
+      "proxyNote": null
+    },
+    {
+      "id": "italia-domani",
+      "name": "Italia Domani",
+      "aliases": [],
+      "components": [],
       "proxyEntityIds": [],
       "proxyNote": null
     }

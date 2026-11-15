@@ -45,7 +45,16 @@ describe('FV-03 promoted reviewed source preparation', () => {
   });
   it('prepares authoritative poll JSON offline, preserving exclusions, sample policy and contemporary atoms', async () => {
     const { polls } = await prepareSharePolls(root), supported = polls.filter(q => q.status === 'supported');
-    expect(polls).toHaveLength(41); expect(supported).toHaveLength(38);
+    expect(polls).toHaveLength(51); expect(supported).toHaveLength(48);
+    expect(polls.find(p => p.id === 'pcm-14419-q1')?.decidedFraction).toBe(0.5);
+    expect(polls.find(p => p.id === 'pcm-14423-q1')?.normalized.some(a => a.members.includes('poll-only-schierarsi'))).toBe(true);
+    const combined = polls.find(p => p.id === 'pcm-14424-q4')!;
+    expect(combined.original.filter(a => a.kind === 'residual')).toHaveLength(2);
+    expect(combined.normalized.filter(a => a.other)).toHaveLength(1);
+    expect(combined.normalized.find(a => a.other)?.share).toBeCloseTo(.041);
+    const separateUdc = polls.find(p => p.id === 'pcm-14419-q1')!;
+    expect(separateUdc.normalized.find(a => a.label === 'Noi Moderati')?.members).not.toContain('udc');
+    expect(separateUdc.normalized.find(a => a.label === 'Unione di Centro')?.members).toEqual(['udc']);
     expect(new Set(supported.map(q => q.surveyId)).size).toBe(supported.length);
     for (const p of supported) {
       expect(p.effectiveSample).toBe(Math.min(600,(p.questionSampleSize ?? p.sampleSize * p.decidedFraction) / 2));
