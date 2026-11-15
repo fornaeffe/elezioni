@@ -6,8 +6,12 @@ aggregation convention, not an additional legal admission rule.
 
 ## Scenario editors
 
-Common politics uses **Attiva Altre liste** with explicit **Componenti del residuo**
-selection. Available choices exclude components owned in either chamber and
+Common politics displays a dedicated **Altre liste** row. **Attiva** opens a
+searchable checkbox selection of **Componenti del residuo**; at least one must
+be selected. The active row exposes its national reference and options for
+memberships, advanced references and territorial coverage. Deactivation asks
+for confirmation and explains the removal of dependent settings.
+Available choices exclude components owned in either chamber and
 replace pooled raw members with their pool declaration. No automatic reassignment
 from another list occurs. Creation initializes every law's eligible filings and
 linked Camera/Senato memberships, using the normal validated domain edits.

@@ -39,7 +39,7 @@
 {/snippet}
 {#each chambers as chamber (chamber)}
   {@const nodes = assets.filings[law].filter(n => n.location.chamber === chamber)}
-  <LazySection title={`${chamber === 'camera' ? 'Camera' : 'Senato'} · ${pins(nodes)} candidati fissati${!renewed(scenario, chamber) ? ' · rinnovo inattivo' : ''}`}>
+  <LazySection title={`${chamber === 'camera' ? 'Camera' : 'Senato'}${list?.kind === 'other' ? '' : ` · ${pins(nodes)} candidati fissati`}${!renewed(scenario, chamber) ? ' · rinnovo inattivo' : ''}`}>
     {#if !permitted(chamber)}<p>Camera esclusa dalla coalizione: depositi e candidati conservati, inattivi.</p>{/if}
     {#if list}<label><input type="checkbox" aria-label={`Deposita tutta ${chamber === 'camera' ? 'Camera' : 'Senato'}`} checked={state(nodes).checked} indeterminate={state(nodes).mixed}
       disabled={!permitted(chamber)} onchange={e => toggle(nodes, e.currentTarget.checked)} />Deposita in tutti i collegi</label>{/if}

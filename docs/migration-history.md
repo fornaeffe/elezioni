@@ -10939,3 +10939,19 @@ Verification: `npm run check` passed; a production build and targeted Chromium t
 - Grouped fitting and simulation seeds, worker selection, candidate-generation parameters, and M02 fitting/checkpoint controls inside a collapsed advanced simulation panel. Kept the simulation count and run action in the primary section.
 - Moved requested/recommended/maximum worker counts, per-worker memory estimate, and the conditional worker memory guidance into that panel. Replaced the warning text with the requested retry guidance.
 - Verification: Svelte autofixer reported no issues. No test suite or browser review was run.
+## 2026-11-15 — Common politics Altre liste layout
+
+Replaced the duplicated residual fieldset and ordinary list row with one
+dedicated row. Activation uses a searchable explicit checkbox selection; active
+options expose existing memberships, advanced references and coverage, and
+deactivation explains dependent removal before confirmation. Fixed identity,
+linked initial chambers and validated domain edits are unchanged. The coverage
+tree omits candidate counts for this candidate-free category.
+
+Verification: `npm run check` passed without diagnostics; production builds
+passed at `/` and `/elezioni`. The focused Other-list Playwright suite passed
+4/4 at each base, covering activation, search, narrow layout, simulations,
+persistence and reactivation. An additional `/elezioni` run of the Rosatellum
+case passed with membership and coverage panel checks. An initial run exposed
+the test's stale scrutiny-control label; updating it to the existing **Legge
+elettorale** label resolved the timeout.

@@ -6,7 +6,7 @@
   import type { EditorAssets } from './assets';
   import { editScenario, type ApplyEdit } from './model';
   import LazySection from './LazySection.svelte';
-  let { scenario, assets, edit }: { scenario: PoliticsScenario; assets: EditorAssets; edit: ApplyEdit } = $props();
+  let { scenario, assets, edit, listId = null }: { scenario: PoliticsScenario; assets: EditorAssets; edit: ApplyEdit; listId?: string | null } = $props();
   let view = $state('future'), search = $state(''), source = $state(''), choice = $state('');
   let additions = $state<Record<string, string>>({});
   let options = $derived([...assets.components.filter(c => !scenario.history.pooling.some(p => p.members.includes(c.id))), ...scenario.history.pooling.map(p => ({ id: p.id, name: scenario.subjects.components.find(c => c.id === p.id)?.name ?? p.id }))]);
@@ -33,10 +33,10 @@
     }, assets.context));
   }
 </script>
-<label>Vista appartenenze<select bind:value={view}><option value="future">Liste future</option><option value="source">Fonte e opzione storica</option></select></label>
+{#if !listId}<label>Vista appartenenze<select bind:value={view}><option value="future">Liste future</option><option value="source">Fonte e opzione storica</option></select></label>{/if}
 {#if view === 'future'}
-  <label>Cerca lista<input type="search" bind:value={search} /></label>
-  {#each scenario.memberships.filter(m => scenario.subjects.lists.find(l => l.id === m.listId)?.name.toLocaleLowerCase('it').includes(search.toLocaleLowerCase('it'))) as membership (membership.listId)}
+  {#if !listId}<label>Cerca lista<input type="search" bind:value={search} /></label>{/if}
+  {#each scenario.memberships.filter(m => (!listId || m.listId === listId) && scenario.subjects.lists.find(l => l.id === m.listId)?.name.toLocaleLowerCase('it').includes(search.toLocaleLowerCase('it'))) as membership (membership.listId)}
     <LazySection title={`${scenario.subjects.lists.find(l => l.id === membership.listId)?.name} · Camera ${membership.camera.length}, Senato ${membership.senato.length}`}>
       <label><input type="checkbox" checked={membership.locked} onchange={e => edit(s => setMembershipLock(s, membership.listId, e.currentTarget.checked, assets.context))} />Collega Camera e Senato</label>
       <p>Ricollegare sostituisce interamente Senato con Camera, anche se vuota. I conflitti bloccano l’intera modifica.</p>

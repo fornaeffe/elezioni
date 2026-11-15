@@ -184,7 +184,7 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   - [x] Working icon in app status box should be spinning
   - [x] Move reference date control inside advanced scenario settings.
   - [x] Change "Algoritmo di scrutinio" with "Legge elettorale"
-  - [ ] Rethink "Altre liste" UI
+  - [x] Rethink "Altre liste" UI
   - [X] Improve "Non valido / astensione" text
   - [x] Move seeds, workers, candidate generation and fitting and
     checkpoint settings under a collapsible advanced simulation

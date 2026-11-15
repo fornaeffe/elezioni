@@ -10,10 +10,13 @@
   import BonusLinksEditor from './BonusLinksEditor.svelte';
   import FilingTree from './FilingTree.svelte';
   import ReferencesEditor from './ReferencesEditor.svelte';
+  import MembershipsEditor from './MembershipsEditor.svelte';
   let { scenario, assets, edit }: { scenario: PoliticsScenario; assets: EditorAssets | null; edit: ApplyEdit } = $props();
   let openCoalitions = $state<Record<string, boolean>>({}), openLists = $state<Record<string, boolean>>({});
   let coalitionName = $state(''), listName = $state(''), otherMembers = $state<string[]>([]);
+  let otherSetup = $state(false), otherOpen = $state(false), otherSearch = $state(''), otherConfirm = $state(false);
   const other = $derived(scenario.subjects.lists.find(l => l.kind === 'other'));
+  const otherMembership = $derived(scenario.memberships.find(m => m.listId === other?.id));
   const otherOptions = $derived([
     ...(assets?.components.filter(c => !scenario.history.pooling.some(p => p.members.includes(c.id))) ?? []),
     ...scenario.history.pooling.map(p => ({ id: p.id, name: scenario.subjects.components.find(c => c.id === p.id)?.name ?? p.id }))
@@ -68,7 +71,7 @@
 <section aria-labelledby="lists-title">
   <h2 id="lists-title">Liste</h2>
   <div class="subject-header list-grid" aria-hidden="true"><span>Colore</span><span>Nome lista</span><span>Coalizione</span><span>Riferimento nazionale (%)</span><span></span></div>
-  {#each scenario.subjects.lists as list (list.id)}
+  {#each scenario.subjects.lists.filter(l => l.kind !== 'other') as list (list.id)}
     <article aria-label={list.name}>
       <div class="subject-row list-grid">
         <label class="subject-color"><span class="visually-hidden">Colore {list.name}</span><input type="color" disabled={list.kind === 'other'} value={list.color} onchange={e => edit(s => updateList(s, { ...list, color: e.currentTarget.value }))} /></label>
@@ -99,16 +102,45 @@
     </article>
   {/each}
   <div class="row"><label>Nuova lista<input bind:value={listName} /></label><button disabled={!listName.trim() || !assets} onclick={addList}>Aggiungi lista</button></div>
-  <fieldset aria-label="Altre liste"><legend>Altre liste</legend>
-    <p>Categoria residuale autonoma, senza candidati né seggi. Scegli componenti liberi da altre liste; Camera e Senato sono inizialmente collegati.</p>
+  <article aria-label="Altre liste" class="other-card">
+    <div class="other-row">
+      <span class="other-dot" aria-hidden="true" style:color={OTHER_LIST_COLOR}>{other ? '●' : '○'}</span>
+      <div class="other-identity"><strong>Altre liste</strong><small>Categoria residuale · senza candidati né seggi</small></div>
+      {#if other}
+        <div class="other-reference"><ReferencesEditor {scenario} target={{ kind: 'list', id: other.id }} label="Riferimento nazionale" {assets} {edit} mode="basic" /></div>
+        <button type="button" aria-expanded={otherOpen} aria-controls="other-options" onclick={() => otherOpen = !otherOpen}>Opzioni {otherOpen ? '▴' : '▾'}</button>
+      {:else}
+        <button type="button" aria-expanded={otherSetup} aria-controls={otherSetup ? 'other-setup' : undefined} disabled={!assets} onclick={() => otherSetup = !otherSetup}>Attiva</button>
+      {/if}
+    </div>
     {#if other}
-      <button onclick={() => { edit(s => deleteSubject(s, { kind: 'list', id: other.id })); otherMembers = []; }}>Disattiva Altre liste</button>
-    {:else}
-      <label>Componenti del residuo<select multiple size="4" bind:value={otherMembers}>
-        {#each otherOptions as c (c.id)}<option value={c.id}>{c.name}</option>{/each}
-      </select></label>
-      {#if !otherOptions.length}<p>Nessun componente libero: modifica prima le appartenenze nelle impostazioni avanzate.</p>{/if}
-      <button disabled={!assets} onclick={addOther}>Attiva Altre liste</button>
+      <div id="other-options" hidden={!otherOpen}>
+        {#if otherOpen}
+          {#if assets}<LazySection title={`Componenti · ${otherMembership?.locked ? 'Camera e Senato collegati' : 'Camere separate'} · Camera ${otherMembership?.camera.length ?? 0}, Senato ${otherMembership?.senato.length ?? 0}`}><MembershipsEditor {scenario} {assets} {edit} listId={other.id} /></LazySection>{/if}
+          <ReferencesEditor {scenario} target={{ kind: 'list', id: other.id }} label="Riferimento nazionale" {assets} {edit} mode="advanced" />
+          {#if assets}<LazySection title="Copertura territoriale"><p>La copertura determina dove la categoria riceve voti nella legge selezionata.</p><FilingTree {scenario} owner={{ kind: 'list', id: other.id }} {assets} {edit} /></LazySection>{/if}
+          {#if otherConfirm}
+            <div class="other-confirm"><p>La disattivazione rimuove Altre liste e i suoi riferimenti e depositi. La riattivazione non ripristina i riferimenti precedenti.</p><button onclick={() => otherConfirm = false}>Annulla</button><button onclick={() => { edit(s => deleteSubject(s, { kind: 'list', id: other.id })); otherMembers = []; otherConfirm = false; otherOpen = false; }}>Conferma disattivazione</button></div>
+          {:else}<button onclick={() => otherConfirm = true}>Disattiva Altre liste</button>{/if}
+        {/if}
+      </div>
+    {:else if otherSetup}
+      <div id="other-setup" class="other-setup">
+        <fieldset><legend>Componenti del residuo</legend>
+          <p>Seleziona almeno un componente libero. Camera e Senato saranno inizialmente collegati.</p>
+          {#if !assets}<p>Dati in caricamento.</p>
+          {:else if !otherOptions.length}<p>Nessun componente libero: modifica prima le appartenenze nelle impostazioni avanzate.</p>
+          {:else}
+            <label>Cerca componente<input type="search" bind:value={otherSearch} /></label>
+            <div class="bounded-list other-choices">
+              {#each otherOptions.filter(c => c.name.toLocaleLowerCase('it').includes(otherSearch.toLocaleLowerCase('it'))) as c (c.id)}
+                <label><input type="checkbox" value={c.id} checked={otherMembers.includes(c.id)} onchange={e => otherMembers = e.currentTarget.checked ? [...otherMembers, c.id] : otherMembers.filter(id => id !== c.id)} />{c.name}</label>
+              {:else}<p>Nessun componente corrisponde alla ricerca.</p>{/each}
+            </div>
+          {/if}
+        </fieldset>
+        <div class="other-actions"><span>{otherMembers.length} selezionati</span><button onclick={() => { otherSetup = false; otherMembers = []; otherSearch = ''; }}>Annulla</button><button disabled={!assets || !otherMembers.length || otherMembers.some(id => !otherOptions.some(c => c.id === id))} onclick={() => { addOther(); otherSetup = false; otherSearch = ''; }}>Attiva Altre liste</button></div>
+      </div>
     {/if}
-  </fieldset>
+  </article>
 </section>
