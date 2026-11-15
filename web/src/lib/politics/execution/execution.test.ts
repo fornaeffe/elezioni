@@ -43,6 +43,14 @@ describe('CP-03 common execution', () => {
     }));
     expect(legalOutcome(nextLegal)).toEqual(legalOutcome(retainedLegal));
     const batch = computePoliticsRun(prepared, 7);
+    const series = batch.batch.tables.filter(t => t.name.includes('statistical series') || t.name.includes('college series') || t.name.includes('constituency series')).flatMap(t => t.rows);
+    expect(series.length).toBeGreaterThan(0);
+    for (const row of series) {
+      const owner = String(row.Owner);
+      const subject = owner.startsWith('list:') ? f.scenario.subjects.lists.find(l => l.id === owner.slice(5))
+        : owner.startsWith('coalition:') ? f.scenario.subjects.coalitions.find(c => c.id === owner.slice(10)) : undefined;
+      if (subject) expect(row.Color).toBe(subject.color);
+    }
     expect(batch.batch.warnings.filter(w => w.severity === 'error').map(w => w.reason))
       .toEqual(model === 'M02' ? expect.arrayContaining(['initial-overallocation']) : []);
   }, 60000);

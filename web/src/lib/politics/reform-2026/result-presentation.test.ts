@@ -18,8 +18,8 @@ it('single-run charts resolve immutable common subject names and exclude other r
     { Simulation: 2, Chamber: 'senato', Category: 'ordinary', List: list.id, Subject: '', Status: 'filled' }
   ];
   const bars = buildReformSeatChart({ name: 'Saved seats', columns: Object.keys(rows[0]), rows }, 'camera', 2, scenario);
-  expect(bars.map(b => [b.label, b.seats])).toEqual([
-    [`Ordinari / ${list.name} / coperti`, 1], [`Premio / Coalizione: ${coalition.name} / non coperti`, 1]
+  expect(bars.map(b => [b.label, b.seats, b.color])).toEqual([
+    [`Ordinari / ${list.name} / coperti`, 1, list.color], [`Premio / Coalizione: ${coalition.name} / non coperti`, 1, coalition.color]
   ]);
 });
 

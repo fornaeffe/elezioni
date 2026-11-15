@@ -47,7 +47,7 @@
         <div class="controls"><label>Simulazione grafico<input type="number" min="1" max={record.result.benchmark.simulations} step="1" bind:value={selectedRun} onchange={loadChart} /></label>
           <label>Ramo grafico<select bind:value={selectedChamber}><option value="camera">Camera</option><option value="senato">Senato</option></select></label></div>
         <figure aria-label="Seggi per categoria e titolare"><figcaption>Simulazione {selectedRun}, {selectedChamber}</figcaption>
-          {#each chart as bar (bar.id)}<div>{bar.label} <meter min="0" max={selectedChamber === 'camera' ? 392 : 196} value={bar.seats}>{bar.seats}</meter> {bar.seats}</div>
+          {#each chart as bar (bar.id)}<div>{bar.label} <span class="seat-track" role="meter" aria-label={bar.label} aria-valuemin="0" aria-valuemax={selectedChamber === 'camera' ? 392 : 196} aria-valuenow={bar.seats}><span style:width={`${100 * bar.seats / (selectedChamber === 'camera' ? 392 : 196)}%`} style:background={bar.color}></span></span> {bar.seats}</div>
           {:else}<p>Seggi non disponibili: consultare gli stadi e i blocchi della simulazione.</p>{/each}
         </figure>
       {/if}
@@ -66,4 +66,6 @@
 <style>
   .session-results { min-width: 0; } label { display: grid; gap: .4rem; margin: .75rem 0; } .controls { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
   input, select, button { max-width: 100%; box-sizing: border-box; padding: .5rem; font: inherit; } .table-scroll { overflow: auto; }
+  .seat-track { display: inline-block; width: 10rem; max-width: 100%; height: .75rem; background: #e8edf1; border-radius: 1rem; overflow: hidden; vertical-align: middle; }
+  .seat-track > span { display: block; height: 100%; }
 </style>

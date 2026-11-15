@@ -135,7 +135,7 @@ export type ReformCandidateSettings = Pick<ReformGenerationScenario,
 export type ReformAssemblyContext = Pick<ReformGenerationSnapshot, 'version' | 'sourceVersions' | 'assumptions' | 'seats' | 'models'>;
 export type ReformLegalSettings = ReformCandidateSettings & Pick<ReformGenerationScenario,
   'kind' | 'algorithmId' | 'suppliedVotes' | 'suppliedPreferences' | 'bonusLinks' | 'preferenceProfileId' | 'chamberProfileId'> &
-  Partial<Pick<ReformGenerationScenario, 'conversion' | 'pollReferences'>>;
+  Partial<Pick<ReformGenerationScenario, 'conversion' | 'pollReferences' | 'presentation'>>;
 export interface GenerationTrace {
   componentSupport?: unknown;
   bonusSelection?: {

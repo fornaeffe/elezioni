@@ -12,6 +12,7 @@ import { createReformPresentation } from '../reform-2026/result-presentation';
 import { storedSummaryTable } from '../reform-2026/stored-statistics';
 import { summaryTableName } from '../../results/statistics';
 import { implementationSha256 } from './build';
+import { reformResultSettings } from './reform';
 
 export async function runStoredPolitics(prepared: PreparedPoliticsExecution, packet: PoliticsComputePacket,
   id: string, owner: string, cancelled: () => boolean, emit: (p: SimulationProgress) => void,
@@ -37,7 +38,7 @@ export async function runStoredPolitics(prepared: PreparedPoliticsExecution, pac
   // Persist before dispatch: even a zero-prefix interruption has an immutable identity.
   await saveStoredResult(record);
   const presentation = prepared.legalSettings && prepared.context
-    ? createReformPresentation(prepared.legalSettings, prepared.context, s.execution.simulations, { includeContext: false }) : undefined;
+    ? createReformPresentation(reformResultSettings(prepared.legalSettings, s), prepared.context, s.execution.simulations, { includeContext: false }) : undefined;
   const workers: (ReformComputeConnection & { initializePolitics?: (p: PoliticsComputePacket) => Promise<void> })[] = [];
   const progress = (phase: SimulationProgress['phase'], completed: number) => emit({ type: 'progress', phase, completed,
     total: s.execution.simulations, elapsedMs: performance.now() - started });

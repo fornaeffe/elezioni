@@ -6,12 +6,13 @@ import { buildPoliticsResultPlotTables, summarizePoliticsGeneratedRuns } from '.
 import { rosatellumSeries, summarizeCommonRosatellum } from '../politics/execution/result-presentation';
 import { diagnosticTableName, diagnosticColumns, diagnosticCells } from '../core/diagnostic-messages';
 import { REFORM } from '../politics/scenario/schema';
+import { reformResultSettings } from '../politics/execution/reform';
 import type { ReformRunReady, ReformRunBatch } from './reform-compute';
 import type { ScrutinyWarning } from '../core/types';
 export { preparePoliticsCompute, type PoliticsComputePacket } from '../politics/execution/compute-packet';
 export function computePoliticsRun(prepared: PreparedPoliticsCompute, simulation: number) {
   const timings = { generationMs: 0, scrutinyMs: 0, presentationMs: 0 };
-  const presentation = prepared.legalSettings && prepared.context ? createReformPresentation(prepared.legalSettings,
+  const presentation = prepared.legalSettings && prepared.context ? createReformPresentation(reformResultSettings(prepared.legalSettings, prepared.scenario),
     prepared.context, 1, { includeContext: simulation === 1, identity: { selection: prepared.scenario.selection, pair: prepared.pair, implementationId: prepared.implementationId, keys: prepared.keys } }) : undefined;
   let generated: ReturnType<PreparedPoliticsCompute['generate']> | undefined;
   let output: ReturnType<typeof runPoliticsSimulation> | undefined, failure: unknown, failed = false;

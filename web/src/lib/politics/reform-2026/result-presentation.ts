@@ -232,6 +232,11 @@ export function buildReformSeatChart(table: ResultTable | undefined, chamber: st
   const statuses: Record<string, string> = { filled: 'coperti', unfilled: 'non coperti', unresolved: 'irrisolti' };
   return [...totals].map(([id, seats]) => {
     const [category, owner, status] = JSON.parse(id) as string[];
-    return { id, label: `${categories[category] ?? category} / ${name(owner)} / ${statuses[status] ?? status}`, seats };
+    const coalition = owner.startsWith('coalition:');
+    const subjectId = owner.startsWith('list:') ? owner.slice(5) : coalition ? owner.slice(10) : owner;
+    const color = coalition
+      ? (common?.subjects.coalitions ?? projected?.presentation?.coalitions)?.find(c => c.id === subjectId)?.color
+      : (common?.subjects.lists ?? projected?.presentation?.lists)?.find(l => l.id === subjectId)?.color;
+    return { id, label: `${categories[category] ?? category} / ${name(owner)} / ${statuses[status] ?? status}`, seats, color: color ?? '#64748b' };
   });
 }

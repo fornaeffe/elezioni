@@ -4,6 +4,13 @@ import type { DomainContext } from '../scenario/validation';
 import type { ReformAssemblyContext, ReformLegalSettings } from '../reform-2026/generation-types';
 import type { M01SourceSettings } from '../generation/m01-compiler';
 
+/** Attach display metadata only when building results, outside legal assembly. */
+export function reformResultSettings(settings: ReformLegalSettings, scenario: PoliticsScenario): ReformLegalSettings {
+  return { ...settings, presentation: { name: scenario.name,
+    lists: scenario.subjects.lists.map(({ id, color }) => ({ id, color })),
+    coalitions: scenario.subjects.coalitions.map(({ id, name, color, chambers }) => ({ id, name, color, chambers: [...chambers] })) } };
+}
+
 export function reformLegalSettings(s: PoliticsScenario, domain: DomainContext,
   inputs: M01SourceSettings): ReformLegalSettings {
   const block = s.lawSettings[REFORM];
