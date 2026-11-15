@@ -7,7 +7,7 @@ test('both politics entry routes share a durable draft; regional navigation rema
     await expect(name).toHaveValue(authored.name);
     await name.fill('One shared draft');
     await name.blur();
-    await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-r-parity-v1');
+    await page.getByLabel('Legge elettorale').selectOption('politiche-r-parity-v1');
     await expect(name).toHaveValue('One shared draft');
     await page.goto(base + '/politics/editor');
     await expect(name).toHaveValue('One shared draft');

@@ -6,7 +6,7 @@ const obsolete = JSON.parse(readFileSync(new URL(`../../src/lib/politics/reform-
 const base=process.env.BASE_PATH??'';
 for (const version of [1,2,3,4]) test(`retired reform scenario v${version} is rejected without opening another workflow`,async({page})=>{
   await page.goto(base+'/politics');
-  await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-reform-2026-v1');
+  await page.getByLabel('Legge elettorale').selectOption('politiche-reform-2026-v1');
   await page.getByLabel('Carica scenario', {exact:true}).setInputFiles({name:`v${version}.json`,mimeType:'application/json',buffer:Buffer.from(JSON.stringify({...obsolete,schemaVersion:version}))});
   await expect(page.getByRole('alert')).toContainText(/precedente|version|schemaVersion/i);
   await page.getByText('Impostazioni avanzate dello scenario',{exact:true}).click();
@@ -18,8 +18,8 @@ test('former v5 plain scenario is rejected on the previous-law screen',async({pa
   const scenario=structuredClone((await currentBrowserSession()).scenario);
   scenario.seed='current-plain-import';
   await page.goto(base+'/politics');
-  await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-r-parity-v1');
+  await page.getByLabel('Legge elettorale').selectOption('politiche-r-parity-v1');
   await page.getByLabel('Carica scenario', {exact:true}).setInputFiles({name:'current.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(scenario))});
-  await expect(page.getByLabel('Algoritmo di scrutinio')).toHaveValue('politiche-r-parity-v1');
+  await expect(page.getByLabel('Legge elettorale')).toHaveValue('politiche-r-parity-v1');
   await expect(page.getByRole('alert')).toContainText('precedente non supportato');
 });

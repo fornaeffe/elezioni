@@ -9,7 +9,7 @@ preparation progress appear at the top of the editor.
    subject's options for filings, candidate pins and bonus links. **Attiva Altre liste**
    requires an explicit choice of free residual components; its identity is fixed
    and it receives no candidates or seats.
-2. Choose **Algoritmo di scrutinio**. Under **Impostazioni avanzate dello scenario**,
+2. Choose **Legge elettorale**. Under **Impostazioni avanzate dello scenario**,
    choose **Generatore dei voti**. Rosatellum supports M01; reform supports M01/M02.
    Each law remembers its model. Switching keeps shared and inactive values.
 3. Review **Numero di simulazioni**, the visible fitting/simulation seeds and

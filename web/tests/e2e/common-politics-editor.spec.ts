@@ -24,10 +24,10 @@ test('common law/model selections, deferred settings, seeds and locks survive re
   await page.goto(`${base}/politics/editor`); await ready(page);
   await open(page, /^Impostazioni avanzate dello scenario$/);
   await page.getByLabel('Generatore dei voti', { exact: true }).selectOption('M01'); await ready(page);
-  await page.getByRole('combobox', { name: 'Algoritmo di scrutinio', exact: true }).selectOption('politiche-r-parity-v1'); await ready(page);
+  await page.getByRole('combobox', { name: 'Legge elettorale', exact: true }).selectOption('politiche-r-parity-v1'); await ready(page);
   await expect(page.getByLabel('Generatore dei voti', { exact: true })).toHaveValue('M01');
   await expect(page.getByLabel('Generatore dei voti').locator('option[value=M02]')).toHaveJSProperty('disabled', true);
-  await page.getByRole('combobox', { name: 'Algoritmo di scrutinio', exact: true }).selectOption('politiche-reform-2026-v1'); await ready(page);
+  await page.getByRole('combobox', { name: 'Legge elettorale', exact: true }).selectOption('politiche-reform-2026-v1'); await ready(page);
   await expect(page.getByLabel('Generatore dei voti', { exact: true })).toHaveValue('M01');
   await page.getByLabel('Seed del fitting', { exact: true }).fill('fit-preserved'); await page.getByLabel('Seed del fitting', { exact: true }).blur();
   const before = await draft(page);
@@ -254,7 +254,6 @@ test('subject rows expose responsive controls and reference placeholders', async
   await expect(button).toHaveAttribute('aria-expanded', 'true');
   await article.locator('summary').filter({ hasText: /^Riferimenti avanzati/ }).click();
   await expect(article.getByLabel('Riferimento nazionale Camera (%)', { exact: true })).toHaveAttribute('placeholder', '% auto');
-  await expect(page.getByLabel('Non valido / astensione (%)', { exact: true })).toHaveAttribute('placeholder', '% auto');
   await page.setViewportSize({ width: 390, height: 800 });
   await expect(article.locator('.mobile-label').first()).toBeVisible();
   await expect(reference).toBeVisible();

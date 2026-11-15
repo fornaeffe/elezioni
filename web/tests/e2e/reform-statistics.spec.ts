@@ -79,7 +79,7 @@ test('position probabilities and the last-position spinogram use local ranked ev
     row[localTable.columns.indexOf('Vote share %')] = row[0] === 7 ? null : Number(row[0]);
   }
   await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
-  await page.getByLabel('Algoritmo di scrutinio').selectOption(scenario.algorithmId);
+  await page.getByLabel('Legge elettorale').selectOption(scenario.algorithmId);
   const importArchive = async (payload: typeof archive, name: string) => {
     const results = page.getByRole('combobox', { name: 'Sessione dei risultati', exact: true });
     const previous = await results.count() ? await results.inputValue() : null;
@@ -143,7 +143,7 @@ test('college spinogram filters joint bonus decisions and reports plotted simula
     row[localTable.columns.indexOf('Elected')] = simulation === 2 ? null : simulation % 3;
   }
   await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
-  await page.getByLabel('Algoritmo di scrutinio').selectOption(scenario.algorithmId);
+  await page.getByLabel('Legge elettorale').selectOption(scenario.algorithmId);
   await seedPresentationSession(page, currentArchive(archive, await currentBrowserSession()));
   const statistics = page.getByLabel('Statistiche riforma', { exact: true });
   const local = statistics.locator('details').filter({ has: page.locator('summary', { hasText: /^Eletti per collegio o circoscrizione$/ }) });
@@ -197,7 +197,7 @@ test('territorial spinogram switches geography, measures, categories and groupin
   const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
   const scenario = (await currentBrowserSession()).scenario as unknown as ReformGenerationScenario;
   await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
-  await page.getByLabel('Algoritmo di scrutinio').selectOption(scenario.algorithmId);
+  await page.getByLabel('Legge elettorale').selectOption(scenario.algorithmId);
   await seedPresentationSession(page, currentArchive(constituencyResult(scenario), await currentBrowserSession()));
   const local = page.getByLabel('Statistiche riforma', { exact: true }).locator('details').filter({ has: page.locator('summary', { hasText: /^Eletti per collegio o circoscrizione$/ }) });
   await local.locator(':scope > summary').click();
@@ -269,7 +269,7 @@ test('sparse result tables reconstruct constituency observations solely from sav
   const scenario = (await currentBrowserSession()).scenario as unknown as ReformGenerationScenario;
   const archive = archivedConstituencyResult(scenario);
   await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
-  await page.getByLabel('Algoritmo di scrutinio').selectOption(scenario.algorithmId);
+  await page.getByLabel('Legge elettorale').selectOption(scenario.algorithmId);
   const local = page.getByLabel('Statistiche riforma', { exact: true }).locator('details').filter({ has: page.locator('summary', { hasText: /^Eletti per collegio o circoscrizione$/ }) });
   for (const sufficient of [true, false]) {
     if (!sufficient) archive.result.tables = archive.result.tables.filter(t => t.name !== 'Candidate outcomes (conditional)');
@@ -299,7 +299,7 @@ test('reform chart families render all available points lazily and keep sparse r
   const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
   const scenario = (await currentBrowserSession()).scenario as unknown as ReformGenerationScenario, archive = statisticalResult(scenario);
   await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
-  await page.getByLabel('Algoritmo di scrutinio').selectOption(scenario.algorithmId);
+  await page.getByLabel('Legge elettorale').selectOption(scenario.algorithmId);
   await seedPresentationSession(page, currentArchive(archive, await currentBrowserSession()));
   const statistics = page.getByLabel('Statistiche riforma', { exact: true });
   await expect(statistics.getByRole('heading', { name: 'Eletti medi e percentuali sui voti validi' })).toBeVisible({ timeout: 30000 });
@@ -355,7 +355,7 @@ test('reform selectors display one chart per family and replace the selected dat
   const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
   const scenario = (await currentBrowserSession()).scenario as unknown as ReformGenerationScenario;
   await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
-  await page.getByLabel('Algoritmo di scrutinio').selectOption(scenario.algorithmId);
+  await page.getByLabel('Legge elettorale').selectOption(scenario.algorithmId);
   await seedPresentationSession(page, currentArchive(multipleSeriesResult(scenario), await currentBrowserSession()));
   const statistics = page.getByLabel('Statistiche riforma', { exact: true });
   const means = statistics.locator('.paired-bars');
@@ -422,7 +422,7 @@ test('refinements preserve probabilities, coalition data, bonus decisions, local
   const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
   const scenario = (await currentBrowserSession()).scenario as unknown as ReformGenerationScenario;
   await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
-  await page.getByLabel('Algoritmo di scrutinio').selectOption(scenario.algorithmId);
+  await page.getByLabel('Legge elettorale').selectOption(scenario.algorithmId);
   await seedPresentationSession(page, currentArchive(refinementResult(scenario), await currentBrowserSession()));
   const statistics = page.getByLabel('Statistiche riforma', { exact: true });
   await expect(statistics.locator('.paired-bars')).toBeVisible();

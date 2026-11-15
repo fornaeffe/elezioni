@@ -12,7 +12,7 @@ test('global context precedes exact frequencies and bounded ID inspection, filte
   const archive = diagnosticResult(scenario);
   const reordered = { ...archive, result: { ...archive.result, tables: archive.result.tables.map(t => t.name === diagnosticTableName ? { rows: t.rows, columns: t.columns, name: t.name } : t) } };
   await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
-  await page.getByLabel('Algoritmo di scrutinio').selectOption(scenario.algorithmId);
+  await page.getByLabel('Legge elettorale').selectOption(scenario.algorithmId);
   await seedPresentationSession(page, currentArchive(reordered, await currentBrowserSession()));
   const general = page.getByRole('region', { name: 'Informazioni e avvisi generali', exact: true });
   const summary = page.getByRole('region', { name: 'Messaggi delle simulazioni', exact: true });

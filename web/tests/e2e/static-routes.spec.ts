@@ -11,7 +11,7 @@ test('static pages support direct loads, refreshes and workflow navigation', asy
   }
   await page.goto(`${base}/`);
   await page.getByRole('link', { name: /politiche/i }).click();
-  await expect(page.getByLabel('Algoritmo di scrutinio')).toBeVisible();
+  await expect(page.getByLabel('Legge elettorale')).toBeVisible();
   await page.goBack();
   await page.getByRole('link', { name: /emilia-romagna/i }).click();
   await expect(page.getByRole('heading', { name: /Emilia-Romagna/ })).toBeVisible();
