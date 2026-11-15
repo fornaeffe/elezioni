@@ -2,7 +2,7 @@
   import { onMount, tick } from 'svelte';
   import { useStatus } from '$lib/app-status.svelte';
   const appStatus = useStatus();
-  import { base } from '$app/paths';
+  import { resolve } from '$app/paths';
   import CommonPoliticsEditor from './editor/CommonPoliticsEditor.svelte';
   import PoliticsSessionResults from './PoliticsSessionResults.svelte';
   import { createDefaultCommonPoliticsScenario } from './scenario/defaults';
@@ -74,7 +74,7 @@
   onMount(() => {
     let alive = true;
     const validation = new AbortController();
-    client = new PoliticsClient(new Worker(new URL('../workers/politics-workspace.worker.ts', import.meta.url), { type: 'module' }), base);
+    client = new PoliticsClient(new Worker(new URL('../workers/politics-workspace.worker.ts', import.meta.url), { type: 'module' }), resolve('/').replace(/\/$/, ''));
     controller = new PoliticsWorkspaceController(createDefaultCommonPoliticsScenario(), { runtime: client, storage: localStorage,
       changed: () => { render++; }, manifest: (id, owner) => client.results.call('manifest', { resultId: id, owner }),
       importResult: (file, id, owner) => track('Caricamento risultati', progress => client.results.call('import', { file, resultId: id, owner, commonPolitics: true }, progress)),

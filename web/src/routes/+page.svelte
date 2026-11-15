@@ -1,6 +1,6 @@
 <script lang="ts">
   import { electionWorkspaces } from '$lib/workspaces/registry';
-  import { base } from '$app/paths';
+  import { resolve } from '$app/paths';
   import { ArrowRight } from '@lucide/svelte';
 </script>
 
@@ -16,7 +16,7 @@
 
   <nav class="workflow-grid" aria-label="Tipi di elezione">
     {#each electionWorkspaces as item (item.id)}
-      <a class="workflow" href={`${base}${item.route}`}>
+      <a class="workflow" href={resolve(item.route)}>
         <span><strong>{item.name}</strong>
           <small>{item.kind === 'politiche' ? 'Camera e Senato, scenario nazionale e risultati per ramo.' : 'Consiglio regionale, coalizioni, liste provinciali e premio di maggioranza.'}</small>
         </span><ArrowRight size={20} aria-hidden="true" />

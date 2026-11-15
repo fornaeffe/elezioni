@@ -12,7 +12,7 @@
   import { snapshotDescriptors } from './snapshots.generated';
   import { fileWorkspace, regionalScenarioWorkspace as scenarioWorkspace } from './import-routing';
   import { isOtherList, setOtherListEnabled, OTHER_LIST_COLOR } from '$lib/core/other-list';
-  import { base } from '$app/paths';
+  import { resolve } from '$app/paths';
   import { Download, Play, Plus, RotateCcw, Trash2, Upload } from '@lucide/svelte';
   import { onMount, tick } from 'svelte';
   import SimulationWorker from '$lib/workers/simulation.worker?worker';
@@ -452,7 +452,7 @@
   function runSimulation(): void {
     if (!canRun) return;
     const scenarioSnapshot = cloneRegionalErScenario(scenarioDraft);
-    const request: SimulationRequest = { basePath: base, kind: 'regionali-er',
+    const request: SimulationRequest = { basePath: resolve('/').replace(/\/$/, ''), kind: 'regionali-er',
       scrutinyAlgorithmId: 'regionali-er-r-parity-v1',
       scenario: scenarioSnapshot, electionDate: scenarioSnapshot.electionDate, simulations, seed, dataVersion };
     tables = []; messages = []; lastResult = null; resultScenario = null; resultScenarioFingerprint = '';

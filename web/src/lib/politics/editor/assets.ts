@@ -1,5 +1,5 @@
 import { pollChoiceId } from '../reform-2026/vote-share/correspondences';
-import { base } from '$app/paths';
+import { asset } from '$app/paths';
 import type { PoliticsScenario, Asset, Location, LawId, ReferenceScope } from '../scenario/schema';
 import { laws, REFORM } from '../scenario/schema';
 import { verifyAssetBytes } from '../scenario/dependencies';
@@ -28,7 +28,7 @@ export async function loadEditorAssets(s: PoliticsScenario, signal: AbortSignal)
     ...s.data.lawAssets[s.selection.scrutiny.id].models[s.selection.generatorsByLaw[s.selection.scrutiny.id].id]];
   await Promise.all(pins.map(async pin => {
     if (pin.schemaVersion !== 1) throw new Error(`Versione dati non supportata: ${pin.id} · schema ${pin.schemaVersion}`);
-    const response = await fetch(`${base}/${pin.uri.replace(/^\//, '')}`, { signal });
+    const response = await fetch(asset(`/${pin.uri.replace(/^\//, '')}`), { signal });
     if (!response.ok) throw new Error(`Dati esatti non disponibili: ${pin.id} (${response.status})`);
     const bytes = new Uint8Array(await response.arrayBuffer());
     await verifyAssetBytes(pin, bytes);

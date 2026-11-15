@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { base } from '$app/paths';
+  import { resolve } from '$app/paths';
   import type { Snippet } from 'svelte';
   import { electionWorkspaces, workspace, type WorkspaceId } from './registry';
   let { id, busy = false, children }: { id: WorkspaceId; busy?: boolean; children: Snippet } = $props();
@@ -8,9 +8,9 @@
 
 <div class="workspace-shell" data-workspace={id} aria-busy={busy}>
   <nav aria-label="Spazi di simulazione">
-    <a href={`${base}/`}>Simulatore elezioni</a>
+    <a href={resolve('/')}>Simulatore elezioni</a>
     {#each electionWorkspaces as item (item.id)}
-      <a href={`${base}${item.route}`} aria-current={item.kind === definition.kind ? 'page' : undefined}>{item.name}</a>
+      <a href={resolve(item.route)} aria-current={item.kind === definition.kind ? 'page' : undefined}>{item.name}</a>
     {/each}
   </nav>
   {@render children()}
