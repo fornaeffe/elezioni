@@ -1,6 +1,6 @@
 import { storedRows, type StoredResult } from '../../core/result-store';
 import type { ResultTable } from '../../core/types';
-import { positionAccumulator, positionTable } from './election-probability';
+import { positionAccumulator, positionTable, type PositionMetric } from './election-probability';
 import { ensureStatistics } from './stored-statistics';
 import type { SeriesSummary } from '../../results/statistics';
 
@@ -74,8 +74,9 @@ export function aggregateBonusPairProbabilities(series: readonly SeriesSummary[]
   return [...pairs.values()].sort((a, b) => b.wins - a.wins || a.name.localeCompare(b.name, 'it'));
 }
 
-export async function storedPositionProbabilities(record: StoredResult, chamber: string, list: string) {
-  const accumulator = positionAccumulator(record.result.benchmark.simulations);
+export async function storedPositionProbabilities(record: StoredResult, chamber: string, list: string, metric: PositionMetric = 'all') {
+  if (!['all', 'capolista-bonus', 'capolista-no-bonus'].includes(metric)) throw new Error('Invalid election position metric');
+  const accumulator = positionAccumulator(record.result.benchmark.simulations, metric);
   for await (const row of rows(record, positionTable)) if (row.Chamber === chamber && row.List === list) accumulator.add(row);
   return { available: record.result.storage!.tables.some(t => t.name === positionTable), requested: record.result.benchmark.simulations, rows: accumulator.rows() };
 }

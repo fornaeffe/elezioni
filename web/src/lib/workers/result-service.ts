@@ -13,6 +13,7 @@ import { samplePage } from '../core/statistics-cache';
 import { importStoredPolitics } from '../politics/files/stored-archive';
 import { encodedExportStream } from '../core/export-stream';
 import type { ArchiveProgress, ArchiveProgressListener } from '../core/archive-progress';
+import type { PositionMetric } from '../politics/reform-2026/election-probability';
 
 export interface ResultServiceRequest {
   type: 'result-service'; requestId: number;
@@ -23,6 +24,7 @@ export interface ResultServiceRequest {
   list?: string; chamber?: string;
   series?: string; seatScope?: SeatScope; measure?: CollegeMeasure;
   bonusFilter?: BonusFilter;
+  positionMetric?: PositionMetric;
   filter?: DiagnosticFilter;
 }
 export interface ResultServiceReply {
@@ -123,7 +125,7 @@ export async function handleResultService(request: ResultServiceRequest, onProgr
         if (deleting.has(record.id)) throw new Error('Result session is being deleted');
         const job = (async () => {
           if (request.action === 'statistics-endowments') return storedSeatEndowments(record);
-          if (request.action === 'statistics-positions') return await storedPositionProbabilities(record, request.chamber ?? '', request.list ?? '');
+          if (request.action === 'statistics-positions') return await storedPositionProbabilities(record, request.chamber ?? '', request.list ?? '', request.positionMetric);
           if (request.action === 'statistics-bonus') return await storedBonusProbabilities(record);
           if (request.action === 'statistics') return (await ensureStatistics(record)).overview;
           if (!request.series) throw new Error('Missing statistical series');

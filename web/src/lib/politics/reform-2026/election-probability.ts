@@ -4,9 +4,9 @@ import type { ComposedReformScrutinyResult } from './scrutiny';
 import type { ReformAssemblyContext } from './generation-types';
 import { rankPreferenceCandidates } from './rankings';
 
-export const positionTable = 'Reform college election positions v1';
+export const positionTable = 'Reform college election positions v2';
 export const positionColumns = ['Capolista', ...Array.from({ length: 6 }, (_, i) => `Preference ${i + 1}`)];
-export const electionPositionColumns = ['Simulation', 'Chamber', 'List', 'College', 'Name', ...positionColumns];
+export const electionPositionColumns = ['Simulation', 'Chamber', 'List', 'College', 'Name', 'Capolista in bonus slate', ...positionColumns];
 type Row = ResultTable['rows'][number];
 
 /** Position means rank within this run, not a fixed person's identity. Count
@@ -15,6 +15,7 @@ export function electionPositionRows(input: ReformScrutinyInput, result: Compose
   const sources = input.renewal.kind === 'joint' ? [input.renewal.camera, input.renewal.senato] : [input.renewal.chamber];
   return result.chambers.flatMap(chamber => {
     const source = sources.find(c => c.chamber === chamber.chamber)!;
+    const bonusCandidates = new Set(source.bonusSlates.flatMap(s => s.candidates.map(c => c.candidateId)));
     const seats = result.seats.filter(s => s.entitlement.chamber === chamber.chamber);
     const complete = chamber.recovery !== undefined && chamber.recovery.status !== 'non-computable' && seats.every(s => s.status !== 'unresolved');
     const locations = new Map<string, Set<string>>();
@@ -30,7 +31,8 @@ export function electionPositionRows(input: ReformScrutinyInput, result: Compose
       const ranked = [slate.candidateIds[0], ...(ranking?.status === 'complete' ? ranking.candidates.map(c => c.candidateId) : [])];
       const elected = locations.get(JSON.stringify([slate.collegeId, slate.listId]));
       const row: Row = { Simulation: input.simulationId, Chamber: source.chamber, List: slate.listId, College: slate.collegeId,
-        Name: snapshot.seats.geography.colleges.find(c => c.chamber === source.chamber && c.id === slate.collegeId)?.name ?? slate.collegeId };
+        Name: snapshot.seats.geography.colleges.find(c => c.chamber === source.chamber && c.id === slate.collegeId)?.name ?? slate.collegeId,
+        'Capolista in bonus slate': bonusCandidates.has(slate.candidateIds[0]) };
       positionColumns.forEach((column, i) => {
         row[column] = i >= slate.candidateIds.length ? 'absent' : ranked[i] && elected?.has(ranked[i]) ? 1 : ranked[i] && complete ? 0 : null;
       });
@@ -40,7 +42,8 @@ export function electionPositionRows(input: ReformScrutinyInput, result: Compose
 }
 
 export interface ProbabilityCell { wins: number; known: number; absent: number }
-export interface CollegeProbability { id: string; name: string; positions: ProbabilityCell[] }
+export type PositionMetric = 'all' | 'capolista-bonus' | 'capolista-no-bonus';
+export interface CollegeProbability { id: string; name: string; denominator: number; observed: number; positions: ProbabilityCell[] }
 export interface PositionProbabilities { available: boolean; requested: number; rows: CollegeProbability[] }
 
 interface RgbColor { red: number; green: number; blue: number }
@@ -134,29 +137,35 @@ export function slatePositionOutcomes(row: Row): { reached: PositionOutcome[]; l
   return { reached, last };
 }
 
-export function positionAccumulator(requested: number) {
+export function positionAccumulator(requested: number, metric: PositionMetric = 'all') {
   const colleges = new Map<string, CollegeProbability>();
   const last = new Map<string, number>();
   return {
     add(row: Row) {
-      const id = String(row.College), college = colleges.get(id) ?? { id, name: String(row.Name), positions: positionColumns.map(() => ({ wins: 0, known: 0, absent: 0 })) };
+      const id = String(row.College), college = colleges.get(id) ?? { id, name: String(row.Name), denominator: 0, observed: 0, positions: positionColumns.map(() => ({ wins: 0, known: 0, absent: 0 })) };
       const simulation = Number(row.Simulation);
       if (!Number.isSafeInteger(simulation) || simulation <= (last.get(id) ?? 0) || simulation > requested) throw new Error('Duplicate, unordered or invalid election position observation');
-      const { reached } = slatePositionOutcomes(row);
       last.set(id, simulation);
+      college.observed++;
+      colleges.set(id, college);
+      const bonus = row['Capolista in bonus slate'];
+      if (metric !== 'all' && typeof bonus !== 'boolean') throw new Error('Invalid capolista bonus slate observation');
+      if (metric !== 'all' && bonus !== (metric === 'capolista-bonus')) return;
+      college.denominator++;
+      const { reached } = slatePositionOutcomes(row);
       positionColumns.forEach((column, i) => {
         const value = reached[i], cell = college.positions[i];
         if (value === 0 || value === 1) { cell.known++; cell.wins += value; }
         else if (value === 'absent') cell.absent++;
         else if (value !== null) throw new Error('Invalid election position outcome');
       });
-      colleges.set(id, college);
     },
     rows: () => [...colleges.values()].sort((a, b) => a.name.localeCompare(b.name, 'it'))
   };
 }
 
 export function probabilityLabel(cell: ProbabilityCell, requested: number): string {
+  if (!requested) return 'n.d.';
   if (cell.absent === requested) return '—';
   if (!cell.known) return 'n.d.';
   return `${cell.known + cell.absent < requested ? '≥ ' : ''}${(100 * cell.wins / requested).toLocaleString('it-IT', { maximumFractionDigits: 1 })}%`;

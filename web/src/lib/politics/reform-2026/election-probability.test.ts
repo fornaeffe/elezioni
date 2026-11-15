@@ -4,6 +4,46 @@ import { generationFixture } from './generation.fixture';
 import { runPoliticsReformScrutiny, type ComposedReformScrutinyResult } from './scrutiny';
 import { electionPositionRows, positionAccumulator, positionColumns, probabilityCellColors, probabilityLabel, slatePositionOutcomes } from './election-probability';
 
+it('classifies only the capolista against every bonus slate in the same chamber', () => {
+  const input = completeScrutinyFixture(60), { snapshot } = generationFixture();
+  if (input.renewal.kind !== 'joint') throw new Error();
+  const camera = input.renewal.camera, senato = input.renewal.senato;
+  const slate = camera.ordinarySlates[0], bonus = camera.bonusSlates[0];
+  const result = runPoliticsReformScrutiny(input);
+  const classify = () => electionPositionRows(input, result, snapshot).find(r => r.Chamber === 'camera' && r.College === slate.collegeId && r.List === slate.listId)!['Capolista in bonus slate'];
+  const slot = bonus.candidates[0];
+  camera.bonusSlates = [{ ...bonus, territoryId: 'other-territory', candidates: [{ ...slot, candidateId: slate.candidateIds[1] }] }];
+  senato.bonusSlates = [{ ...senato.bonusSlates[0], candidates: [{ ...slot, candidateId: slate.candidateIds[0] }] }];
+  expect(classify()).toBe(false);
+  camera.bonusSlates[0].candidates.push({ ...slot, candidateId: slate.candidateIds[0] });
+  expect(classify()).toBe(true);
+  camera.bonusSlates = [];
+  expect(classify()).toBe(false);
+});
+
+it('uses a per-college conditional denominator and keeps missing membership and unknown outcomes distinct', () => {
+  const yes = positionAccumulator(5, 'capolista-bonus');
+  const no = positionAccumulator(5, 'capolista-no-bonus');
+  const inputs = [
+    { ...observation([1, 0, null, 0, 0, 0, 0], 1), 'Capolista in bonus slate': true },
+    { ...observation([0, 0, 0, 0, 0, 0, 0], 2), 'Capolista in bonus slate': false },
+    { ...observation([0, 0, 0, 0, 0, 0, 0], 3), 'Capolista in bonus slate': true },
+    { ...observation([0, 0, 'absent', 'absent', 'absent', 'absent', 'absent'], 4), 'Capolista in bonus slate': false }
+  ];
+  for (const input of inputs) { yes.add(input); no.add(input); }
+  const a = yes.rows()[0], b = no.rows()[0];
+  expect([a.denominator, b.denominator, a.observed, b.observed]).toEqual([2, 2, 4, 4]);
+  expect(probabilityLabel(a.positions[0], a.denominator)).toBe('50%');
+  expect(probabilityLabel(a.positions[1], a.denominator)).toBe('≥ 0%');
+  expect(probabilityLabel(b.positions[0], b.denominator)).toBe('0%');
+  expect(probabilityLabel(b.positions[2], b.denominator)).toBe('0%');
+  const empty = positionAccumulator(1, 'capolista-bonus');
+  empty.add({ ...inputs[1], Simulation: 1 });
+  expect(empty.rows()[0].denominator).toBe(0);
+  expect(probabilityLabel(empty.rows()[0].positions[0], 0)).toBe('n.d.');
+  expect(() => positionAccumulator(1, 'capolista-bonus').add(observation([0, 0, 0, 0, 0, 0, 0]))).toThrow(/bonus slate observation/);
+});
+
 it('counts the preference rank and final election location, including a recovered seat but excluding a winner elsewhere', () => {
   const input = completeScrutinyFixture(60), { snapshot } = generationFixture();
   if (input.renewal.kind !== 'joint') throw new Error();

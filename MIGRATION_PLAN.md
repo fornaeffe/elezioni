@@ -140,10 +140,10 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   indication. See [transfer performance](docs/archive-performance.md) and history.
 - [x] Refresh broad browser tests for current editor labels and collapsed sections.
 - [x] Fix the mobile application-status working indicator.
-- [ ] Add a selector for the election probability table metric:
+- [x] Add a selector for the election probability table metric:
   - current metric (default)
-  - current metric, but conditional to the presence in the college slate of at least one candidate also present in a bonus slate
-  - current metric, but conditional to the absence in the college slate of any candidate also present in a bonus slate
+  - current metric, conditional on the college slate's capolista appearing in any bonus slate in the same chamber
+  - current metric, conditional on the college slate's capolista not appearing in any bonus slate in the same chamber
   The two latter metrics should also state, for each row, the denominator (the number of simulations over which the probability is computed).
 - [ ] **Additional model drafts evaluation**. Do it in research\vote-generation 
   folder. For each model, follow the steps until completion or until evidence of

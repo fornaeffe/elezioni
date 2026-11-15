@@ -61,7 +61,7 @@ export function refinementResult(scenario: ReformGenerationScenario) {
       const row = { Simulation: simulation, Chamber: chamber, Kind: 'college', Owner: `list:constructed-${entity}`, College: `college-${college}`, Territory: 'test', Name: `${chamber} list ${entity} · Collegio ${college}`, Color: '#336699', Order: entity,
         Votes: 100, 'Valid votes': 1000, 'Vote share %': 10, Elected: entity, Confirmed: entity, Ordinary: entity, Bonus: 0, Special: 0, TAA: 0, Entitled: entity };
       local.rows.push(local.columns.map(c => row[c as keyof typeof row]));
-      positions.rows.push({ Simulation: simulation, Chamber: chamber, List: `constructed-${entity}`, College: `college-${college}`, Name: `Collegio ${college}`,
+      positions.rows.push({ Simulation: simulation, Chamber: chamber, List: `constructed-${entity}`, College: `college-${college}`, Name: `Collegio ${college}`, 'Capolista in bonus slate': college === 1 && simulation % 2 === 0,
         ...Object.fromEntries(positionColumns.map((column, i) => [column, i === 0 ? chamber === 'camera' ? Number(simulation <= 6) : 1 : i === 1 ? simulation <= 4 ? 1 : simulation <= 8 ? 0 : null : 'absent'])) });
     }
   }

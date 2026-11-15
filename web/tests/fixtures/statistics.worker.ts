@@ -39,13 +39,19 @@ self.onmessage = async event => {
       if (simulation === 11) { values.fill(0); values[0] = null; values[2] = 1; }
       if (simulation === 13) values.fill(null);
       if (simulation === 17) { values.fill(null); values[6] = 1; }
-      positionRows.push([simulation, 'camera', 'paired-y', 'paired-y', 'Paired y', ...values]);
+      positionRows.push([simulation, 'camera', 'paired-y', 'paired-y', 'Paired y', simulation % 2 === 0, ...values]);
     }
     payload.result.tables.push({ name: positionTable, columns: electionPositionColumns, rows: positionRows });
     id = crypto.randomUUID();
     const imported = await handleResultService({ type: 'result-service', requestId: 1, action: 'import', resultId: id, owner, file: new File([JSON.stringify(payload)], 'statistics.json') });
     if (!imported.ok) throw new Error(imported.error!.message);
     const record = await getStoredResult(id, owner);
+    const positionMetrics: Record<string, unknown> = {};
+    for (const positionMetric of ['capolista-bonus', 'capolista-no-bonus'] as const) {
+      const response = await handleResultService({ type: 'result-service', requestId: 16, action: 'statistics-positions', resultId: id, owner, chamber: 'camera', list: 'paired-y', positionMetric });
+      if (!response.ok) throw new Error(response.error!.message);
+      positionMetrics[positionMetric] = response.data;
+    }
     const before: string[] = []; for await (const text of streamStoredResult(record, 'csv')) before.push(text);
     const cache = await ensureStatistics(record), summary = cache.overview.series.find(s => s.kind === 'list')!;
     const stats = await seriesStatistics(record, summary.id), college = await seriesStatistics(record, cache.overview.colleges[0].id), entitlement = await seriesStatistics(record, cache.overview.colleges[0].id, 'entitled');
@@ -89,7 +95,7 @@ self.onmessage = async event => {
     const rebuilt = await ensureStatistics(record);
     await deleteStoredResult(id, owner);
     const removed = await readStatisticsCache(id) === undefined && (await samplePage(id, summary.id)).length === 0;
-    self.postMessage({ ok: true, overview: cache.overview, stats, college, entitlement, filtered, filteredEntitlement, lastPositions, constituency, ordinary, invalidConstituencyPositionDenied: !invalidConstituencyPosition.ok, invalidCollegeScopeDenied: !invalidCollegeScope.ok, noSlate, invalidLastPositionDenied: !invalidLastPosition.ok, pages, foreignDenied: !foreign.ok, archiveUnchanged: before.join('') === afterExport.join(''), removed,
+    self.postMessage({ ok: true, overview: cache.overview, stats, college, entitlement, filtered, filteredEntitlement, lastPositions, positionMetrics, constituency, ordinary, invalidConstituencyPositionDenied: !invalidConstituencyPosition.ok, invalidCollegeScopeDenied: !invalidCollegeScope.ok, noSlate, invalidLastPositionDenied: !invalidLastPosition.ok, pages, foreignDenied: !foreign.ok, archiveUnchanged: before.join('') === afterExport.join(''), removed,
       cacheFailure: !cacheFailure?.ok, canonicalRetained, partialCacheRemoved, rebuiltKnown: rebuilt.overview.series[0].votesKnown });
   } catch (e) { self.postMessage({ ok: false, error: String(e) }); }
 };
