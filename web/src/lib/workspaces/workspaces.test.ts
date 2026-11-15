@@ -2,7 +2,7 @@ import { generatedSnapshotPoliticsScenario } from '../../../tests/fixtures/legac
 import { describe, expect, it, vi } from 'vitest';
 import { workspaceFor, validateWorkspaceRequest, workspaces } from './registry';
 import { scenarioWorkspace, fileWorkspace } from './import-routing';
-import { createDefaultPoliticsScenario, cloneScenario, parseScenario, serializeScenario, validateScenario, renameScenarioList, removeScenarioList } from '../scenario/politics';
+import { createDefaultPoliticsScenario, cloneScenario, parseScenario, serializeScenario, validateScenario, renameScenarioList, removeScenarioList } from '../../../tests/fixtures/retired-politics/scenario';
 import { politicsCandidateTickets } from '../scenario/politics-tickets';
 import { createDefaultRegionalErScenario } from '../scenario/regional-er';
 import { isFiled } from './filing';

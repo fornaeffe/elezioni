@@ -81,7 +81,7 @@ test('position probabilities and the last-position spinogram use local ranked ev
   await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
   await page.getByLabel('Algoritmo di scrutinio').selectOption(scenario.algorithmId);
   const importArchive = async (payload: typeof archive, name: string) => {
-    const results = page.getByLabel('Risultati locali');
+    const results = page.getByRole('combobox', { name: 'Sessione dei risultati', exact: true });
     const previous = await results.count() ? await results.inputValue() : null;
     await seedPresentationSession(page, currentArchive(payload, await currentBrowserSession()));
     if (previous !== null) await expect(results).not.toHaveValue(previous, {timeout:30000});
@@ -176,9 +176,9 @@ test('college spinogram filters joint bonus decisions and reports plotted simula
   expect(await filter.evaluate(e => e.getBoundingClientRect().right)).toBeLessThanOrEqual(390);
   await local.screenshot({ path: 'test-results/reform-college-bonus-filter-mobile.png' });
   // An older archive with no bonus decision cannot establish either subset.
-  const previousResult = await page.getByLabel('Risultati locali').inputValue();
+  const previousResult = await page.getByRole('combobox', { name: 'Sessione dei risultati', exact: true }).inputValue();
   await seedPresentationSession(page, currentArchive(statisticalResult(scenario, 12), await currentBrowserSession()));
-  await expect(page.getByLabel('Risultati locali')).not.toHaveValue(previousResult);
+  await expect(page.getByRole('combobox', { name: 'Sessione dei risultati', exact: true })).not.toHaveValue(previousResult);
   await expect(statistics.getByRole('heading', { name: 'Eletti medi e percentuali sui voti validi' })).toBeVisible();
   await local.locator(':scope > summary').click();
   for (const value of ['awarded', 'not-awarded']) {
@@ -273,7 +273,7 @@ test('sparse result tables reconstruct constituency observations solely from sav
   const local = page.getByLabel('Statistiche riforma', { exact: true }).locator('details').filter({ has: page.locator('summary', { hasText: /^Eletti per collegio o circoscrizione$/ }) });
   for (const sufficient of [true, false]) {
     if (!sufficient) archive.result.tables = archive.result.tables.filter(t => t.name !== 'Candidate outcomes (conditional)');
-    const results = page.getByLabel('Risultati locali');
+    const results = page.getByRole('combobox', { name: 'Sessione dei risultati', exact: true });
     const previous = await results.count() ? await results.inputValue() : null;
     await seedPresentationSession(page, currentArchive(archive, await currentBrowserSession()));
     if (previous !== null) await expect(results).not.toHaveValue(previous, {timeout:30000});
@@ -340,9 +340,9 @@ test('reform chart families render all available points lazily and keep sparse r
   expect(await statistics.evaluate(e => e.scrollWidth)).toBeLessThanOrEqual(await statistics.evaluate(e => e.clientWidth));
   await statistics.screenshot({ path: 'test-results/reform-statistics-mobile.png' });
   const old = structuredClone(archive); old.result.tables = old.result.tables.filter(t => !t.name.includes('series v1'));
-  const previous = await page.getByLabel('Risultati locali').inputValue();
+  const previous = await page.getByRole('combobox', { name: 'Sessione dei risultati', exact: true }).inputValue();
   await seedPresentationSession(page, currentArchive(old, await currentBrowserSession()));
-  await expect(page.getByLabel('Risultati locali')).not.toHaveValue(previous, {timeout:30000});
+  await expect(page.getByRole('combobox', { name: 'Sessione dei risultati', exact: true })).not.toHaveValue(previous, {timeout:30000});
   await expect(statistics).toContainText('Archivio precedente', { timeout: 30000 });
   await statistics.getByText('Probabilità di elezione', { exact: true }).click();
   await expect(statistics).toContainText('Dati delle posizioni non disponibili');
@@ -464,17 +464,8 @@ test('refinements preserve probabilities, coalition data, bonus decisions, local
   const single = page.getByText('Seggi della singola simulazione', { exact: true });
   await expect(page.getByRole('figure')).not.toBeVisible();
   await single.click(); await expect(page.getByRole('figure')).toBeVisible();
-  await page.getByLabel('Data elettorale', {exact:true}).fill('2020-01-01');
-  await page.getByLabel('Data elettorale', {exact:true}).press('Tab');
-  await expect(page.getByRole('button', {name:'Esegui riforma',exact:true})).toBeDisabled();
-  await expect(page.getByText('La data di riferimento segue la data elettorale.',{exact:true})).toHaveCount(1);
-  await page.getByLabel('Data elettorale', {exact:true}).fill(scenario.electionDate);
-  await page.getByLabel('Data elettorale', {exact:true}).press('Tab');
-  await page.getByTestId('reform-file-input').setInputFiles({name:'invalid.json',mimeType:'application/json',buffer:Buffer.from('{')});
-  const alert=page.getByRole('alert').filter({has:page.getByRole('button',{name:'Chiudi messaggio',exact:true})});
-  await expect(alert).toBeVisible();
-  await alert.getByRole('button',{name:'Chiudi messaggio',exact:true}).click();
-  await expect(alert).toHaveCount(0);
+  await page.getByLabel('Carica scenario', {exact:true}).setInputFiles({name:'invalid.json',mimeType:'application/json',buffer:Buffer.from('{')});
+  await expect(page.getByRole('alert').filter({hasText:'Scenario non caricato'})).toBeVisible();
   await page.screenshot({ path: 'test-results/reform-refinements-desktop.png', fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });
   await probabilities.scrollIntoViewIfNeeded();

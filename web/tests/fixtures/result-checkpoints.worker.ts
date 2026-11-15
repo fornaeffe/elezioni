@@ -1,7 +1,7 @@
 /** Storage-only opaque payloads: file/algorithm validation is tested by the
  * common lifecycle archive suite. Here test real IDB migration and atomicity. */
 import { getStoredResult, saveStoredResult, deleteStoredResult, newResultStorage, withStoredFittedState, type StoredResult } from '../../src/lib/core/result-store';
-import { createDefaultPoliticsScenario } from '../../src/lib/scenario/politics';
+import { createDefaultPoliticsScenario } from './retired-politics/scenario';
 
 const request = <T>(r: IDBRequest<T>) => new Promise<T>((resolve, reject) => { r.onsuccess = () => resolve(r.result); r.onerror = () => reject(r.error); });
 const done = (t: IDBTransaction) => new Promise<void>((resolve, reject) => { t.oncomplete = () => resolve(); t.onabort = () => reject(t.error); });

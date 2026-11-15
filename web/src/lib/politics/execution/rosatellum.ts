@@ -1,7 +1,8 @@
 /** Rosatellum ballot/candidature assembly. The scrutiny core and its R policies stay unchanged. */
 import { generatePoliticsCandidates } from '../candidate-generation';
 import { adaptGeneratedPoliticsRamo } from '../adapter';
-import { plurinominalCandidacyCountSharesToFractions } from '../../scenario/politics';
+import { plurinominalCandidacyCountSharesToFractions } from '../candidacy-fractions';
+import { OTHER_LIST_ID, OTHER_LIST_NAME } from '../../core/other-list';
 import { ROSATELLUM, chambers, type PoliticsScenario, type Location, type Chamber } from '../scenario/schema';
 import { effectiveFilings, effectivePlacements, renewed } from '../scenario/effective';
 import type { DomainContext } from '../scenario/validation';
@@ -93,6 +94,11 @@ export function prepareRosatellumAssembly(s: PoliticsScenario, seats: Rosatellum
       const grid = seats.chambers.find(c => c.chamber === ch)!, physical = seats.ballots.filter(b => b.chamber === ch);
       const activeIds = new Set(coverage.filter(c => c.chamber === ch).flatMap(c => c.listIds));
       const lists = s.subjects.lists.filter(l => activeIds.has(l.id));
+      // The retained scrutiny contract identifies this simulator category by
+      // its canonical label. Common scenarios keep the reserved stable ID.
+      const legalListId = (id: string) => id === OTHER_LIST_ID ? OTHER_LIST_NAME : id;
+      if (lists.some(l => l.kind === 'other') && lists.some(l => l.kind !== 'other' && l.id === OTHER_LIST_NAME))
+        throw new Error('ROSATELLUM_OTHER_ID_COLLISION');
       const metadata: PoliticsGeneratedListRow[] = lists.map(l => ({ LISTA: l.id,
         COALIZIONE: l.kind === 'other' ? null : ticket(l), kind: l.kind,
         ...(l.minority ? { minorityRegion: l.minority.regionId } : {}),
@@ -170,6 +176,10 @@ export function prepareRosatellumAssembly(s: PoliticsScenario, seats: Rosatellum
         uni: grid.uninominal.map(u => ({ ...u, CIRC_COD: String(u.CIRC_COD), PLURI_COD: u.PLURI_COD === null ? null : String(u.PLURI_COD), UNI_COD: String(u.UNI_COD) })),
         pluri: grid.plurinominal.map(p => ({ ...p, CIRC_COD: String(p.CIRC_COD), PLURI_COD: p.PLURI_COD === null ? null : String(p.PLURI_COD) })),
         candidati_pluri_template: templates.candidati_pluri.map(p => ({ LISTA: p.LISTA, PLURI_COD: p.PLURI_COD, CIRC_COD: p.CIRC_COD!, MINORANZA: p.MINORANZA })) });
+      if (lists.some(l => l.kind === 'other')) {
+        adapted.context.liste_naz = adapted.context.liste_naz.map(l => l.LISTA === OTHER_LIST_ID ? { ...l, LISTA: legalListId(l.LISTA) } : l);
+        adapted.simulations[0].input.liste_uni = adapted.simulations[0].input.liste_uni.map(l => l.LISTA === OTHER_LIST_ID ? { ...l, LISTA: legalListId(l.LISTA) } : l);
+      }
       return { input: adapted.simulations[0].input, context: { ...adapted.context, totale_seggi: grid.totalSeats } };
       };
   });

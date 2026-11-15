@@ -43,7 +43,8 @@ separate checkout for an isolated complete preparation.
 
 `prepare-report.json` and `check-report.json` are written under the selected
 output directory (`data/derived/production/` by default). Receipt hashes identify
-snapshots, generated defaults/catalogs and the selected reform candidate.
+snapshots, generated regional defaults/catalogs and the selected reform candidate.
+The retired M00 politics default is no longer generated or included in receipts.
 Timing/platform information is outside artifact identities.
 
 ## Authoritative inputs
@@ -135,8 +136,8 @@ and historical reconstruction remain estimates in scenario/result provenance.
 all small generated outputs, required reform assets, identities, checksums and
 the production scrutiny slice. It never downloads or repairs inputs.
 The [application acceptance](politics-reform-2026-acceptance.md) gate includes it,
-then types, all unit tests, the full `/elezioni` browser matrix and focused root
-URL/worker checks, with one sequential build per path. Missing required data
+then types, all unit tests and the full browser matrix at both `/elezioni`
+and root, with one sequential build per path. Missing required data
 cannot pass through skipped tests.
 
 Temporary debug bridges and their exporters have been removed from runtime

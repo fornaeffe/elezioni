@@ -1,6 +1,6 @@
 import { statisticalResult, constituencyTable } from './statistical-result';
 import type { ReformGenerationScenario } from '../../src/lib/politics/reform-2026/generation-types';
-import { handleResultService } from '../../src/lib/workers/result-service';
+import { handleRetiredResultService as handleResultService } from './retired-result-service';
 import { getStoredResult, deleteStoredResult } from '../../src/lib/core/result-store';
 import { streamStoredResult } from '../../src/lib/core/result-export';
 import { ensureStatistics, seriesStatistics } from '../../src/lib/politics/reform-2026/stored-statistics';

@@ -8,7 +8,7 @@ import { createCheckpoint } from '../../src/lib/politics/reform-2026/vote-share/
 import { copyGenerationPacket } from '../../src/lib/politics/reform-2026/vote-share/fit-resources';
 import type { SimulationResult, SimulationWorkerMessage } from '../../src/lib/core/types';
 
-// Exercise the actual production worker with a test-only immutable catalog and
+// Exercise the retained transport regression harness with a test-only immutable catalog and
 // constructed bundle, so paired execution remains covered in a clean checkout.
 let code = '';
 const assets = new Map<string, string | Uint8Array>();
@@ -26,7 +26,7 @@ test.beforeAll(async () => {
   const bundled = await build({ configFile: false, logLevel: 'error',
     resolve: { alias: { $lib: fileURLToPath(new URL('../../src/lib', import.meta.url)) } },
     plugins: [catalogPlugin()], worker: { plugins: () => [catalogPlugin()] },
-    build: { write: false, minify: false, lib: { entry: fileURLToPath(new URL('../../src/lib/workers/simulation.worker.ts', import.meta.url)), formats: ['es'], fileName: 'production-worker' } }
+    build: { write: false, minify: false, lib: { entry: fileURLToPath(new URL('../fixtures/retired-reform.worker.ts', import.meta.url)), formats: ['es'], fileName: 'production-worker' } }
   });
   for (const output of Array.isArray(bundled) ? bundled : [bundled]) if ('output' in output) {
     for (const chunk of output.output) {

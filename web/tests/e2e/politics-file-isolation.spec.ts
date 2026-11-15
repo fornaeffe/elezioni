@@ -9,22 +9,22 @@ test('ignores and leaves both former politics draft keys untouched', async ({ pa
   await expect(page.getByRole('alert')).toHaveCount(0);
   await page.getByLabel('Nome scenario', { exact: true }).fill('Temporary edit');
   await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-r-parity-v1');
-  await expect(page.getByLabel('Nome scenario', { exact: true })).toHaveValue(authored.name);
+  await expect(page.getByLabel('Nome scenario', { exact: true })).toHaveValue('Temporary edit');
   await page.getByLabel('Nome scenario', { exact: true }).fill('Another temporary edit');
   expect(await page.evaluate(keys => keys.map(key => localStorage.getItem(key)), keys)).toEqual(keys.map(() => '{obsolete corrupt draft}'));
+  await page.getByLabel('Nome scenario', { exact: true }).blur();
   await page.reload();
-  await expect(page.getByLabel('Nome scenario', { exact: true })).toHaveValue(authored.name);
+  await expect(page.getByLabel('Nome scenario', { exact: true })).toHaveValue('Another temporary edit');
   await expect(page.getByRole('alert')).toHaveCount(0);
 });
 
-test('a common file cannot switch or replace a transitional editor before integration', async ({ page }) => {
+test('malformed common imports cannot switch the law or replace the current draft', async ({page})=>{
   await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
-  const name = page.getByLabel('Nome scenario', { exact: true });
-  await name.fill('Current common-boundary draft');
-  const otherLaw = { ...authored, selection: { ...authored.selection,
-    scrutiny: { id: 'politiche-r-parity-v1', version: '1.0.0' } } };
-  await page.getByTestId('reform-file-input').setInputFiles({ name: 'common-scenario.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(otherLaw)) });
-  await expect(page.getByRole('alert')).toContainText('nuovo editor politiche');
-  await expect(name).toHaveValue('Current common-boundary draft');
+  const name=page.getByLabel('Nome scenario',{exact:true});
+  await name.fill('Current common draft'); await name.blur();
+  const otherLaw={...authored, selection:{...authored.selection,scrutiny:{id:'politiche-r-parity-v1',version:'1.0.0'}}, unexpected:true};
+  await page.getByLabel('Carica scenario',{exact:true}).setInputFiles({name:'invalid.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(otherLaw))});
+  await expect(page.getByRole('alert').filter({hasText:'Scenario non caricato'})).toBeVisible();
+  await expect(name).toHaveValue('Current common draft');
   await expect(page.getByLabel('Algoritmo di scrutinio')).toHaveValue(authored.selection.scrutiny.id);
 });

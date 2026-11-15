@@ -1,6 +1,8 @@
 import { archive } from '../../src/lib/politics/files/files.fixture';
 import { importPoliticsArchiveFile, streamPoliticsArchive } from '../../src/lib/core/result-export';
 import { inspectPoliticsFile } from '../../src/lib/politics/files/metadata';
+import { handleResultService } from '../../src/lib/workers/result-service';
+import { deleteStoredResult } from '../../src/lib/core/result-store';
 self.onmessage = async () => {
   try {
     const original = archive();
@@ -18,6 +20,12 @@ self.onmessage = async () => {
     let rejected = false;
     try { await importPoliticsArchiveFile(corrupt, { ...sink, async commit() { throw new Error('Must not commit'); } }); }
     catch { rejected = true; }
-    self.postMessage({ ok: true, rows, warnings, header, metadata, committed, aborted, rejected });
+    const resultId = crypto.randomUUID(), owner = 'cp08-files';
+    // No opt-in flag is needed: the production service has only a strict common reader.
+    const current = await handleResultService({ type: 'result-service', requestId: 1, action: 'import', resultId, owner, file });
+    const old = await handleResultService({ type: 'result-service', requestId: 2, action: 'import', resultId: crypto.randomUUID(), owner,
+      file: new File([JSON.stringify({ schema_version: 3, scenario: {}, result: {} })], 'old.json') });
+    if (current.ok) await deleteStoredResult(resultId, owner);
+    self.postMessage({ ok: true, rows, warnings, header, metadata, committed, aborted, rejected, currentAccepted: current.ok, oldRejected: !old.ok });
   } catch (error) { self.postMessage({ ok: false, error: String(error) }); }
 };

@@ -5,6 +5,23 @@ import { runPoliticsReformScrutiny } from './scrutiny';
 import { createReformPresentation, buildReformSeatChart } from './result-presentation';
 import { createSimulationResultExport, parseSimulationResultExport } from '../../core/result-export';
 import { diagnosticTableName } from '../../core/diagnostic-messages';
+import { createDefaultCommonPoliticsScenario } from '../scenario/defaults';
+
+it('single-run charts resolve immutable common subject names and exclude other runs/chambers', () => {
+  const scenario = createDefaultCommonPoliticsScenario();
+  const list = scenario.subjects.lists.find(l => l.coalitionId)!;
+  const coalition = scenario.subjects.coalitions.find(c => c.id === list.coalitionId)!;
+  const rows = [
+    { Simulation: 2, Chamber: 'camera', Category: 'ordinary', List: list.id, Subject: `coalition:${coalition.id}`, Status: 'filled' },
+    { Simulation: 2, Chamber: 'camera', Category: 'bonus', List: list.id, Subject: `coalition:${coalition.id}`, Status: 'unfilled' },
+    { Simulation: 1, Chamber: 'camera', Category: 'ordinary', List: list.id, Subject: '', Status: 'filled' },
+    { Simulation: 2, Chamber: 'senato', Category: 'ordinary', List: list.id, Subject: '', Status: 'filled' }
+  ];
+  const bars = buildReformSeatChart({ name: 'Saved seats', columns: Object.keys(rows[0]), rows }, 'camera', 2, scenario);
+  expect(bars.map(b => [b.label, b.seats])).toEqual([
+    [`Ordinari / ${list.name} / coperti`, 1], [`Premio / Coalizione: ${coalition.name} / non coperti`, 1]
+  ]);
+});
 
 it('retains different message contexts, deduplicates only identical events, and scopes global conditions explicitly', () => {
   const { scenario, snapshot } = generationFixture(), input = completeScrutinyFixture(60);

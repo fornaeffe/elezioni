@@ -1,4 +1,4 @@
-/** Strict authored-input loading and deterministic projections for transitional consumers. */
+/** Strict authored inputs and model release packaging. */
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { parsePoliticsScenario, validateActiveScenario, ScenarioValidationError } from '../../src/lib/politics/scenario/validation';
@@ -8,9 +8,6 @@ import { commonVoteInputs } from '../../src/lib/politics/execution/inputs';
 import { reformCoverage, reformLegalSettings } from '../../src/lib/politics/execution/reform';
 import type { ReformAssemblyContext } from '../../src/lib/politics/reform-2026/generation-types';
 import type { ReleasedScenario } from '../../src/lib/politics/reform-2026/vote-share/release';
-import type { CompactSource } from '../../src/lib/politics/reform-2026/vote-share/source-types';
-import type { Scenario } from '../../src/lib/core/types';
-import type { PoliticsStaticSnapshot } from '../../src/lib/politics/types';
 import { requireFastScenario } from '../../src/lib/politics/reform-2026/vote-share/scenario';
 import { physicalCells } from '../../src/lib/politics/reform-2026/vote-share/physical-cells';
 import { rosatellumCoverage, type RosatellumSeats } from '../../src/lib/politics/execution/rosatellum';
@@ -61,51 +58,3 @@ export function releasedDefault(s: PoliticsScenario, inputs: Awaited<ReturnType<
   return requireFastScenario(result);
 }
 /** M00 UI compatibility until CP-06/08. This projection does not choose an independent default. */
-export function legacyDefault(s: PoliticsScenario, snapshot: PoliticsStaticSnapshot, source: CompactSource, dataVersion: string): Scenario {
-  const ros = s.lawSettings[ROSATELLUM];
-  const paired = source.payload.events.find(e => e.id === s.history.pairedCamera);
-  if (!paired) throw new Error('Missing authored conditional Camera reference');
-  const nonValid = s.nonValidReferences.find(r => r.scope.kind === 'national' && r.channel !== 'senato' && r.appliesTo.includes('M01'));
-  const constituency = (ch: 'camera'|'senato', location: typeof ros.filings[number]['locations'][number]) => snapshot.data[ch].uni.filter(u =>
-    location.level === 'plurinominal' ? String(u.PLURI_COD) === location.code : String(u.UNI_COD) === location.code).map(u=>String(u.CIRC_COD));
-  const names = new Map(s.subjects.lists.map(l=>[l.id,l.name]));
-  const correspondences: Scenario['listCorrespondences'] = [];
-  for (const c of source.payload.choices) {
-    const event = source.payload.events.find(e=>e.id===c.eventId)!;
-    const edit = s.history.sourceMemberships.find(m=>m.choiceId===c.id);
-    const comp = s.modelSettings.M01.compositions.find(v=>v.choiceId===c.id);
-    const members = edit?.members ?? c.members;
-    const fractions = comp?.fractions ?? Object.fromEntries(members.map(id=>[id,1/members.length]));
-    const destinations = new Map<string,number>();
-    for (const [id, fraction] of Object.entries(fractions)) {
-      const list = s.memberships.find(m=>m.camera.includes(id) || m.newComponentId===id);
-      const name = list ? names.get(list.listId)! : 'astensione';
-      destinations.set(name,(destinations.get(name)??0)+fraction);
-    }
-    for (const [futureList,factor] of destinations) if(factor>0) correspondences.push({ id:`authored:${c.id}:${futureList}`,futureList,
-      pastElection:c.eventId.replace('camera-','camera ').replace('senato-','senato ').replace('european-','europee '),pastDate:event.date,pastList:c.label,factor,source:'bundled' });
-  }
-  return { id:s.id,name:s.name,electionDate:s.electionDate,defaultSource:{kind:'bundled',electionKind:'politiche',territory:'Italia',dataVersion,
-    snapshotId:'politics-static.json',notes:[...s.provenance.assumptions,'Transitional M00 presentation uses Camera/common reference means; full common M01 execution is provided by the CP-03 boundary.']},
-    globalShareMode:'mean',abstentionShare:(nonValid?.mean ?? 1 - paired.national.valid / paired.national.electors)*100,abstentionOverride:!!nonValid,
-    coalitions:s.subjects.coalitions.map(c=>({id:c.id,name:c.name,color:c.color})),
-    lists:s.subjects.lists.map(l=>{const member=s.memberships.find(m=>m.listId===l.id)!;
-      const ref=s.references.find(r=>r.scope.kind==='national'&&r.channel!=='senato'&&(r.subject.id===l.id||r.subject.id===member.newComponentId));
-      const members = new Set(member.camera.length ? member.camera : [member.newComponentId]);
-      let pollMean: number | undefined;
-      for (const poll of [...s.modelSettings.M01.supplementalPolls].filter(p=>p.enabled&&p.available<=s.referenceDate).sort((a,b)=>a.date.localeCompare(b.date))) {
-        const groups=poll.groups.filter(g=>g.members.every(id=>members.has(id)));
-        if(groups.length) pollMean=groups.reduce((n,g)=>n+g.share,0);
-      }
-      const mean=pollMean??ref?.mean;
-      const historical=correspondences.some(c=>c.futureList===l.name&&c.factor>0);
-      return {id:l.id,name:l.name,color:l.color,coalition:s.subjects.coalitions.find(c=>c.id===l.coalitionId)?.name??null,startingShare:(mean??0)*100,
-        shareOverride:mean!==undefined&&!historical,filing:Object.fromEntries((['camera','senato'] as const).map(ch=>[ch,[...new Set(ros.filings.find(f=>f.listId===l.id)!.locations.filter(v=>v.chamber===ch).flatMap(v=>constituency(ch,v)))]])) as {camera:string[];senato:string[]},
-        ...(l.minority?{minorityRegion:l.minority.regionId}:{})};}),
-    listCorrespondences:correspondences,candidateTemplates:[],candidateGeneration:{...ros.candidateGeneration,plurinominalCandidacyCountShares:[...ros.candidateGeneration.plurinominalCandidacyCountShares] as Scenario['candidateGeneration']['plurinominalCandidacyCountShares']},
-    localShareOverrides:s.references.filter(r=>r.scope.kind!=='national'&&r.channel!=='senato').flatMap(r=>{
-      const m=s.memberships.find(m=>m.camera.includes(r.subject.id)||m.newComponentId===r.subject.id);
-      const list=r.subject.kind==='list'?names.get(r.subject.id):m?names.get(m.listId):undefined;
-      return list&&r.scope.kind!=='national'?[{id:r.id,scope:r.scope.kind,locationCode:r.scope.code,list,startingShare:r.mean*100}]:[];
-    }) };
-}

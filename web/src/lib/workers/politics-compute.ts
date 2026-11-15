@@ -2,8 +2,8 @@
 import type { PreparedPoliticsCompute } from '../politics/execution/compute-inputs';
 import { runPoliticsSimulation } from '../politics/simulation-scrutiny';
 import { createReformPresentation } from '../politics/reform-2026/result-presentation';
-import { buildPoliticsResultPlotTables, summarizePoliticsGeneratedRuns, summarizePoliticsScrutinyRun } from '../politics/result-presentation';
-import { rosatellumSeries } from '../politics/execution/result-presentation';
+import { buildPoliticsResultPlotTables, summarizePoliticsGeneratedRuns } from '../politics/result-presentation';
+import { rosatellumSeries, summarizeCommonRosatellum } from '../politics/execution/result-presentation';
 import { diagnosticTableName, diagnosticColumns, diagnosticCells } from '../core/diagnostic-messages';
 import { REFORM } from '../politics/scenario/schema';
 import type { ReformRunReady, ReformRunBatch } from './reform-compute';
@@ -45,7 +45,7 @@ export function computePoliticsRun(prepared: PreparedPoliticsCompute, simulation
       message: failure instanceof Error ? failure.message : String(failure) });
     const summaries = !failed && output?.algorithmId !== REFORM && generated?.request.algorithmId !== REFORM && output && generated ?
       output.chambers.map(ch => { const input = generated.request.algorithmId !== REFORM ? generated.request.chambers.find(c => c.context.ramo === ch.chamber)! : undefined;
-        return summarizePoliticsScrutinyRun({ ramo: ch.chamber, sim: simulation, elapsedMs: chamberTimes.get(ch.chamber) ?? timings.scrutinyMs,
+        return summarizeCommonRosatellum({ ramo: ch.chamber, sim: simulation, elapsedMs: chamberTimes.get(ch.chamber) ?? timings.scrutinyMs,
           input: input!.input, output: ch.output, listeNaz: input!.context.liste_naz }); }) : [];
     batch = { tables: [summarizePoliticsGeneratedRuns(summaries),
       ...buildPoliticsResultPlotTables(summaries), rosatellumSeries(prepared.scenario, summaries),

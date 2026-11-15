@@ -1,0 +1,552 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-15",
+  "status": "accepted",
+  "scope": "CP-08 local production acceptance; no public deployment or legal/model correction.",
+  "legalCriterion": "Same political output, including expected errors, given the same votes. Retained Camera surplus-seat errors accepted per 2026-11-15 user clarification; no rerolls or outcome relabelling.",
+  "acceptancePolicy": {
+    "path": "web/scripts/acceptance/common-politics-outcomes.ts",
+    "bytes": 1631,
+    "sha256": "f207b60f501b05f1852db1bee61d05f9ae73ac62704d2c693c84685c56ceee0b"
+  },
+  "fixedVoteEvidence": [
+    "web/src/lib/politics/golden-fixture.test.ts",
+    "web/src/lib/politics/adapter.test.ts",
+    "web/src/lib/politics/simulation-scrutiny.test.ts",
+    "web/src/lib/workspaces/filing-generation.test.ts",
+    "web/src/lib/politics/reform-2026/legal-regressions.test.ts"
+  ],
+  "preparation": {
+    "path": "data/derived/production/prepare-report.json",
+    "bytes": 3641,
+    "sha256": "093b82f2fc59c814904f8fc2bbc9d2f144b988b3167fc0b6d005bb5e11575c9f"
+  },
+  "productionGate": {
+    "receipt": {
+      "path": "data/derived/cp08-acceptance/report.json",
+      "bytes": 2540,
+      "sha256": "885c85a4200dd99df609e06a9f22aab681e650ceb2315f6c5182a3b497145812"
+    },
+    "created": "2026-11-14T20:26:08.300Z",
+    "status": "passed",
+    "node": "v24.20.0",
+    "browserChecks": [
+      {
+        "name": "browser acceptance /elezioni",
+        "passed": 67,
+        "skipped": 0
+      },
+      {
+        "name": "editor acceptance /elezioni",
+        "passed": 3,
+        "skipped": 0
+      },
+      {
+        "name": "unified browser acceptance /elezioni",
+        "passed": 6,
+        "skipped": 0
+      },
+      {
+        "name": "browser acceptance /",
+        "passed": 67,
+        "skipped": 0
+      },
+      {
+        "name": "editor acceptance ",
+        "passed": 3,
+        "skipped": 0
+      },
+      {
+        "name": "unified browser acceptance /",
+        "passed": 6,
+        "skipped": 0
+      }
+    ],
+    "unitTestsAtGate": 1321
+  },
+  "finalUnitTests": {
+    "receipt": {
+      "path": "data/derived/cp08-final-units.json",
+      "bytes": 495494,
+      "sha256": "ac56d0fa8f91ea9c0fbb90fdee6354f1f40dd85040c95c7ffa46496792e50b79"
+    },
+    "passed": 1325,
+    "failed": 0,
+    "pending": 0,
+    "todo": 0
+  },
+  "finalTypeChecks": {
+    "preparation": {
+      "path": "data/derived/cp08-final-preparation-types.log",
+      "bytes": 73,
+      "sha256": "a3c9cf1c46d473249e02ef99ca901c1c166bf2f11ce0fbdac77619653d991e8f"
+    },
+    "application": {
+      "path": "data/derived/cp08-final-application-types.log",
+      "bytes": 241,
+      "sha256": "101d4bd21180de75fd9cf5c17b188cd99c68b907d39fe455ee842ba19a52172a"
+    }
+  },
+  "campaigns": [
+    {
+      "law": "politiche-r-parity-v1",
+      "model": "M01",
+      "status": "accepted",
+      "originalReceiptState": "failed",
+      "reassessedUnderClarification": true,
+      "receipt": {
+        "path": "data/derived/cp08-resources/M01-politiche-r-parity-v1-1000-auto.json",
+        "bytes": 113692,
+        "sha256": "1cf702b15dab1f3de699401a4d80c9b28ffcd8ad80227b05a2b4b99928e3442e"
+      },
+      "browser": "157.0.8103.79",
+      "deviceHints": {
+        "hardwareConcurrency": 28,
+        "deviceMemory": 32
+      },
+      "execution": {
+        "generator": {
+          "id": "M01",
+          "version": "2.0.0"
+        },
+        "scrutiny": {
+          "id": "politiche-r-parity-v1",
+          "version": "1.0.0"
+        },
+        "adapter": {
+          "id": "rosatellum-m01-v1",
+          "version": "1.0.0"
+        },
+        "data": [
+          {
+            "id": "historical",
+            "version": "fast-share-source-v1-95d505ed1f7ea79c99cd0bf91a86dbc6a2d54c1f24fd9b37bec40a57e3c72511",
+            "schemaVersion": 1,
+            "bytes": 3785805,
+            "sha256": "b4f60b9b24b35a1ac6564af03662c62ca58bddd0e0ac21b7436c10acb344aecf",
+            "uri": "data/politics/historical-b4f60b9b24b3.json"
+          },
+          {
+            "id": "catalogue",
+            "version": "politics-catalogue-v1",
+            "schemaVersion": 1,
+            "bytes": 195864,
+            "sha256": "be6e3912d1907855583217bbd62b22e126ea30b67388196671ac62bf1fc59af1",
+            "uri": "data/politics/catalogue-be6e3912d190.json"
+          },
+          {
+            "id": "reference-geography",
+            "version": "istat-census-2021-v1",
+            "schemaVersion": 1,
+            "bytes": 320292,
+            "sha256": "cd624167f74b4e060234e8a642d2f140a4dbbd81f4f4160bf6c85e70d34f4764",
+            "uri": "data/politics/reference-geography-cd624167f74b.json"
+          },
+          {
+            "id": "electorate",
+            "version": "conditional-camera-2022-common-18-v1",
+            "schemaVersion": 1,
+            "bytes": 1451240,
+            "sha256": "af50d43b98a90edba4b8e612e8a064700217d7994a137523dab314a9d2f99488",
+            "uri": "data/politics/electorate-af50d43b98a9.json"
+          },
+          {
+            "id": "ros-geography",
+            "version": "workspace-geography-v1-07df64196d3d",
+            "schemaVersion": 1,
+            "bytes": 2787899,
+            "sha256": "110398127667706edac409663f2b30172c64af5b5a7673c9693928026761ef3f",
+            "uri": "data/politics/ros-geography-110398127667.json"
+          },
+          {
+            "id": "ros-seats",
+            "version": "workspace-geography-v1-07df64196d3d-seats",
+            "schemaVersion": 1,
+            "bytes": 67537,
+            "sha256": "0dc49038132e3cc4305ea9d5a66a331d499fb624b8d1a6fdc90e6c3e96bfde24",
+            "uri": "data/politics/ros-seats-0dc49038132e.json"
+          },
+          {
+            "id": "M01",
+            "version": "M01-2.0.0/r26-models-v1-f71a72020aaa",
+            "schemaVersion": 1,
+            "bytes": 8447,
+            "sha256": "a487a61080eeb727e312e75685e82e83c3ce0292834c136a7e8cb06dff94afe7",
+            "uri": "data/politics/M01-a487a61080ee.json"
+          }
+        ],
+        "numericalVersion": "fast-share-float64-v1",
+        "rngVersion": "fast-share-forecast-streams-v1",
+        "implementationSha256": "182d3b85036ba21c8060ddec3d00dff7d67a1d39c8ad9049bfedb11181dcad32",
+        "requestedWorkers": {
+          "kind": "auto",
+          "policy": "model-aware-v1"
+        },
+        "actualWorkers": 1,
+        "fittingSeed": "fast-share-default-fit-v1",
+        "simulationSeed": "fast-share-default-v1",
+        "startedAt": "2026-11-15T06:39:56.062Z",
+        "elapsedMs": 631281.3000000119,
+        "preparationKey": "politics-m01-preparation-v1-512beb96c6015f04198e01842d255eaf87cbc35b17b496520af7144484b0e3ea",
+        "generationKey": "politics-m01-preparation-v1-512beb96c6015f04198e01842d255eaf87cbc35b17b496520af7144484b0e3ea",
+        "assemblyKey": "politics-assembly-v1-ad0856ac0402eb4cda8db554c9d344171836963d0b166224d0623dc6006f0d0b"
+      },
+      "outcomes": {
+        "complete": 981,
+        "partial": 0,
+        "failed": 19
+      },
+      "legalAcceptance": {
+        "accepted": true,
+        "acceptedFailureIds": [
+          35,
+          137,
+          167,
+          174,
+          263,
+          291,
+          307,
+          391,
+          431,
+          458,
+          486,
+          487,
+          520,
+          586,
+          644,
+          732,
+          805,
+          869,
+          875
+        ],
+        "unexpectedSimulationIds": [],
+        "unmatchedErrorSimulationIds": []
+      },
+      "expectedErrors": [
+        "Non ho a chi dare il seggio eccedente"
+      ],
+      "preparationMs": 5564.0534,
+      "fittingAndExecutionMs": 641454.9903000001,
+      "memory": {
+        "peakPrivateBytes": 1564925952,
+        "peakWorkingSetBytes": 1601900544,
+        "qualification": "Sampled Windows private renderer processes including nested workers and native allocations; not JS heap, available RAM or a guaranteed maximum."
+      },
+      "manifestJsonBytes": 1154285,
+      "checkpointRecords": 0,
+      "archive": {
+        "original": {
+          "path": "data/derived/cp08-resources/M01-politiche-r-parity-v1-1000-auto.archive.json.gz",
+          "bytes": 9936689,
+          "sha256": "7471f4ca81bc3dd3dd8fb6424a8bab0b616a4d1844d3d9a058904b48429e5088"
+        },
+        "roundtrip": {
+          "path": "data/derived/cp08-resources/M01-politiche-r-parity-v1-1000-auto.archive.json.gz.roundtrip.gz",
+          "bytes": 9936689,
+          "sha256": "7ef45e04287fe639e1043de0ce61bebbb37c2a513cf93e95b90206f8331d00e4"
+        },
+        "decodedContent": {
+          "bytes": 135233412,
+          "sha256": "21f9d5811317c4948f01b232515399bdf700afadf0bd7a9148aceac40d9e7efc"
+        },
+        "elapsedMs": 53658.56690000009,
+        "peakPrivateBytes": 841203712,
+        "peakWorkingSetBytes": 960348160
+      },
+      "infrastructureFailures": [],
+      "pageErrors": []
+    },
+    {
+      "law": "politiche-reform-2026-v1",
+      "model": "M01",
+      "status": "accepted",
+      "originalReceiptState": "passed",
+      "reassessedUnderClarification": false,
+      "receipt": {
+        "path": "data/derived/cp08-resources/M01-politiche-reform-2026-v1-1000-auto.json",
+        "bytes": 135569,
+        "sha256": "e745578a8635b9ea9188e27dcc0b3e6d22ae71d5abf601968b14a6eccaef5b66"
+      },
+      "browser": "157.0.8103.79",
+      "deviceHints": {
+        "hardwareConcurrency": 28,
+        "deviceMemory": 32
+      },
+      "execution": {
+        "generator": {
+          "id": "M01",
+          "version": "2.0.0"
+        },
+        "scrutiny": {
+          "id": "politiche-reform-2026-v1",
+          "version": "1.0.0"
+        },
+        "adapter": {
+          "id": "reform-m01-v1",
+          "version": "1.0.0"
+        },
+        "data": [
+          {
+            "id": "historical",
+            "version": "fast-share-source-v1-95d505ed1f7ea79c99cd0bf91a86dbc6a2d54c1f24fd9b37bec40a57e3c72511",
+            "schemaVersion": 1,
+            "bytes": 3785805,
+            "sha256": "b4f60b9b24b35a1ac6564af03662c62ca58bddd0e0ac21b7436c10acb344aecf",
+            "uri": "data/politics/historical-b4f60b9b24b3.json"
+          },
+          {
+            "id": "catalogue",
+            "version": "politics-catalogue-v1",
+            "schemaVersion": 1,
+            "bytes": 195864,
+            "sha256": "be6e3912d1907855583217bbd62b22e126ea30b67388196671ac62bf1fc59af1",
+            "uri": "data/politics/catalogue-be6e3912d190.json"
+          },
+          {
+            "id": "reference-geography",
+            "version": "istat-census-2021-v1",
+            "schemaVersion": 1,
+            "bytes": 320292,
+            "sha256": "cd624167f74b4e060234e8a642d2f140a4dbbd81f4f4160bf6c85e70d34f4764",
+            "uri": "data/politics/reference-geography-cd624167f74b.json"
+          },
+          {
+            "id": "electorate",
+            "version": "conditional-camera-2022-common-18-v1",
+            "schemaVersion": 1,
+            "bytes": 1451240,
+            "sha256": "af50d43b98a90edba4b8e612e8a064700217d7994a137523dab314a9d2f99488",
+            "uri": "data/politics/electorate-af50d43b98a9.json"
+          },
+          {
+            "id": "reform-geography",
+            "version": "r26-geography-2022-bolzano-2026-census-2021-v1-6b2bd725432d",
+            "schemaVersion": 1,
+            "bytes": 2591243,
+            "sha256": "1a0223dd14f21baf65a023b3b14ab32d01b09d502e5e802d9339a72b1cbd4ab5",
+            "uri": "data/politics/reform-geography-1a0223dd14f2.json"
+          },
+          {
+            "id": "reform-seats",
+            "version": "r26-seats-census-2021-i08-v1-9672c20529b2",
+            "schemaVersion": 1,
+            "bytes": 163682,
+            "sha256": "e547dd8d461d4d800d25e0b7cb6288ddaab36f50bf55a764cd042ef3aabef9ff",
+            "uri": "data/politics/reform-seats-e547dd8d461d.json"
+          },
+          {
+            "id": "M01",
+            "version": "M01-2.0.0/r26-models-v1-f71a72020aaa",
+            "schemaVersion": 1,
+            "bytes": 8447,
+            "sha256": "a487a61080eeb727e312e75685e82e83c3ce0292834c136a7e8cb06dff94afe7",
+            "uri": "data/politics/M01-a487a61080ee.json"
+          }
+        ],
+        "numericalVersion": "fast-share-float64-v1",
+        "rngVersion": "fast-share-forecast-streams-v1",
+        "implementationSha256": "182d3b85036ba21c8060ddec3d00dff7d67a1d39c8ad9049bfedb11181dcad32",
+        "requestedWorkers": {
+          "kind": "auto",
+          "policy": "model-aware-v1"
+        },
+        "actualWorkers": 2,
+        "fittingSeed": "fast-share-default-fit-v1",
+        "simulationSeed": "fast-share-default-v1",
+        "startedAt": "2026-11-15T06:51:56.542Z",
+        "elapsedMs": 728680.599999994,
+        "preparationKey": "politics-m01-preparation-v1-e04a08516f18684aed108dcc0152f39026d7f2e27f41634e8d6911951e09dce6",
+        "generationKey": "politics-m01-preparation-v1-e04a08516f18684aed108dcc0152f39026d7f2e27f41634e8d6911951e09dce6",
+        "assemblyKey": "politics-assembly-v1-28625be52d6eb25fc90260ad9f419671e437b06b54dc5808f7436e5d169ba9d3"
+      },
+      "outcomes": {
+        "complete": 1000,
+        "partial": 0,
+        "failed": 0
+      },
+      "legalAcceptance": {
+        "accepted": true,
+        "acceptedFailureIds": [],
+        "unexpectedSimulationIds": [],
+        "unmatchedErrorSimulationIds": []
+      },
+      "expectedErrors": [],
+      "preparationMs": 5542.8562999999995,
+      "fittingAndExecutionMs": 737077.5549999999,
+      "memory": {
+        "peakPrivateBytes": 2592768000,
+        "peakWorkingSetBytes": 2619457536,
+        "qualification": "Sampled Windows private renderer processes including nested workers and native allocations; not JS heap, available RAM or a guaranteed maximum."
+      },
+      "manifestJsonBytes": 1170525,
+      "checkpointRecords": 0,
+      "archive": {
+        "original": {
+          "path": "data/derived/cp08-resources/M01-politiche-reform-2026-v1-1000-auto.archive.json.gz",
+          "bytes": 194015365,
+          "sha256": "31a0b49b56d1c9896e080d65403cf85de3ced6e6bddaa1862f7cb01168839888"
+        },
+        "roundtrip": {
+          "path": "data/derived/cp08-resources/M01-politiche-reform-2026-v1-1000-auto.archive.json.gz.roundtrip.gz",
+          "bytes": 194015365,
+          "sha256": "23d68395a4d5fdf34de08643a633f9661faf6f7b62298b4f52f4dca91f2c8105"
+        },
+        "decodedContent": {
+          "bytes": 3595452519,
+          "sha256": "01fe88496ddfecc9bbb4f8ff5c590af838fcf3a8f8ab3ed8598744eeaa8e67e9"
+        },
+        "elapsedMs": 382343.5329,
+        "peakPrivateBytes": 1460322304,
+        "peakWorkingSetBytes": 1576013824
+      },
+      "infrastructureFailures": [],
+      "pageErrors": []
+    },
+    {
+      "law": "politiche-reform-2026-v1",
+      "model": "M02",
+      "status": "accepted",
+      "originalReceiptState": "passed",
+      "reassessedUnderClarification": false,
+      "receipt": {
+        "path": "data/derived/cp08-resources/M02-politiche-reform-2026-v1-1000-auto.json",
+        "bytes": 145651,
+        "sha256": "c5890c22204085246e198be322fa834182b02ae97bb350f449667c400cb9308c"
+      },
+      "browser": "157.0.8103.79",
+      "deviceHints": {
+        "hardwareConcurrency": 28,
+        "deviceMemory": 32
+      },
+      "execution": {
+        "generator": {
+          "id": "M02",
+          "version": "2.0.0"
+        },
+        "scrutiny": {
+          "id": "politiche-reform-2026-v1",
+          "version": "1.0.0"
+        },
+        "adapter": {
+          "id": "reform-m02-v1",
+          "version": "1.0.0"
+        },
+        "data": [
+          {
+            "id": "historical",
+            "version": "fast-share-source-v1-95d505ed1f7ea79c99cd0bf91a86dbc6a2d54c1f24fd9b37bec40a57e3c72511",
+            "schemaVersion": 1,
+            "bytes": 3785805,
+            "sha256": "b4f60b9b24b35a1ac6564af03662c62ca58bddd0e0ac21b7436c10acb344aecf",
+            "uri": "data/politics/historical-b4f60b9b24b3.json"
+          },
+          {
+            "id": "catalogue",
+            "version": "politics-catalogue-v1",
+            "schemaVersion": 1,
+            "bytes": 195864,
+            "sha256": "be6e3912d1907855583217bbd62b22e126ea30b67388196671ac62bf1fc59af1",
+            "uri": "data/politics/catalogue-be6e3912d190.json"
+          },
+          {
+            "id": "reference-geography",
+            "version": "istat-census-2021-v1",
+            "schemaVersion": 1,
+            "bytes": 320292,
+            "sha256": "cd624167f74b4e060234e8a642d2f140a4dbbd81f4f4160bf6c85e70d34f4764",
+            "uri": "data/politics/reference-geography-cd624167f74b.json"
+          },
+          {
+            "id": "electorate",
+            "version": "conditional-camera-2022-common-18-v1",
+            "schemaVersion": 1,
+            "bytes": 1451240,
+            "sha256": "af50d43b98a90edba4b8e612e8a064700217d7994a137523dab314a9d2f99488",
+            "uri": "data/politics/electorate-af50d43b98a9.json"
+          },
+          {
+            "id": "reform-geography",
+            "version": "r26-geography-2022-bolzano-2026-census-2021-v1-6b2bd725432d",
+            "schemaVersion": 1,
+            "bytes": 2591243,
+            "sha256": "1a0223dd14f21baf65a023b3b14ab32d01b09d502e5e802d9339a72b1cbd4ab5",
+            "uri": "data/politics/reform-geography-1a0223dd14f2.json"
+          },
+          {
+            "id": "reform-seats",
+            "version": "r26-seats-census-2021-i08-v1-9672c20529b2",
+            "schemaVersion": 1,
+            "bytes": 163682,
+            "sha256": "e547dd8d461d4d800d25e0b7cb6288ddaab36f50bf55a764cd042ef3aabef9ff",
+            "uri": "data/politics/reform-seats-e547dd8d461d.json"
+          },
+          {
+            "id": "M02",
+            "version": "M02-2.0.0/r26-models-v1-f71a72020aaa",
+            "schemaVersion": 1,
+            "bytes": 8447,
+            "sha256": "ca8ca4915737fd6eec839b0e5dda4c0c869226b80f790618365feb95e48bc03f",
+            "uri": "data/politics/M02-ca8ca4915737.json"
+          }
+        ],
+        "numericalVersion": "fast-share-float64-v1",
+        "rngVersion": "fast-share-forecast-streams-v1",
+        "implementationSha256": "182d3b85036ba21c8060ddec3d00dff7d67a1d39c8ad9049bfedb11181dcad32",
+        "requestedWorkers": {
+          "kind": "auto",
+          "policy": "model-aware-v1"
+        },
+        "actualWorkers": 4,
+        "fittingSeed": "fast-share-default-fit-v1",
+        "simulationSeed": "fast-share-default-v1",
+        "startedAt": "2026-11-15T07:11:25.035Z",
+        "elapsedMs": 1033487.900000006,
+        "preparationKey": "politics-m02-preparation-v2-9b6d2287ed2e98cf3f5eef49602f05cf9f6d35402e2d9b95718698bb21155010",
+        "generationKey": "politics-m02-generation-v1-9cebf5db6a59e94ca5eaac85ec6b9c13e667cad584475b708a4282dacafbe001",
+        "assemblyKey": "politics-assembly-v1-c7399a95373eb6a951cd800d49d4a6297dd6d70c4cb60279ff75feaefc4e516a"
+      },
+      "outcomes": {
+        "complete": 1000,
+        "partial": 0,
+        "failed": 0
+      },
+      "legalAcceptance": {
+        "accepted": true,
+        "acceptedFailureIds": [],
+        "unexpectedSimulationIds": [],
+        "unmatchedErrorSimulationIds": []
+      },
+      "expectedErrors": [],
+      "preparationMs": 28179.5707,
+      "fittingAndExecutionMs": 1064866.2712,
+      "memory": {
+        "peakPrivateBytes": 3682373632,
+        "peakWorkingSetBytes": 3648847872,
+        "qualification": "Sampled Windows private renderer processes including nested workers and native allocations; not JS heap, available RAM or a guaranteed maximum."
+      },
+      "manifestJsonBytes": 1170554,
+      "checkpointRecords": 1,
+      "archive": {
+        "original": {
+          "path": "data/derived/cp08-resources/M02-politiche-reform-2026-v1-1000-auto.archive.json.gz",
+          "bytes": 172079252,
+          "sha256": "640dd870ac34a0cf9c897b9a4101cc2979f4598978adb3fa091c77d3cd39565b"
+        },
+        "roundtrip": {
+          "path": "data/derived/cp08-resources/M02-politiche-reform-2026-v1-1000-auto.archive.json.gz.roundtrip.gz",
+          "bytes": 172079252,
+          "sha256": "4e0c9dd5e9cce7a475fb8b535415b5f123af615f99191e0832a48473018bba95"
+        },
+        "decodedContent": {
+          "bytes": 2867655237,
+          "sha256": "e1d5162e99077524987d7b116fec2dbf186be7521fbd8aa8f15ad182fc07563b"
+        },
+        "elapsedMs": 368721.9144000001,
+        "peakPrivateBytes": 1866952704,
+        "peakWorkingSetBytes": 1969385472
+      },
+      "infrastructureFailures": [],
+      "pageErrors": []
+    }
+  ]
+}

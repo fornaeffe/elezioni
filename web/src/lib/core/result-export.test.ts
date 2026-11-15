@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { createDefaultPoliticsScenario } from '$lib/scenario/politics';
+import { createDefaultPoliticsScenario } from '../../../tests/fixtures/retired-politics/scenario';
 import type { ResultTable, SimulationResult } from './types';
 import { createSimulationResultExport, parseSimulationResultExport, resultTablesToCsv } from './result-export';
 import { fixture as commonScenarioFixture } from '../politics/scenario/scenario.fixture';

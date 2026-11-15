@@ -62,12 +62,12 @@ loading does. Reset requires confirmation and preserves results with their
 executed identity. Changed drafts are marked stale. Regional formats, persistence
 and one-shot navigation handoffs remain independent.
 
-Superseded projected politics workspaces, M00 control paths and old internal
-schema helpers are not mounted by the politics routes. They remain for CP-08's
-separate retirement and isolated legal/regression checks. Historical schema-9
-filing conversion and old 50-run worker batching are not the common runtime
-contract. Use the common domain/execution guides for current filings and
-bounded pull-driven worker transport.
+Superseded politics workspace/editor trees, M00 worker dispatch and the old
+politics default compiler are retired. Old scenario/default and transport helpers
+live only under `web/tests/fixtures/retired-*` for isolated regression evidence.
+The regional worker uses `workspaces/regional-runner.ts`; common politics uses
+the pull-driven execution service. See [CP-08 acceptance](common-politics-scenario/acceptance.md)
+for the full matrix, national campaign commands and measured-evidence boundary.
 
 Previous-law scrutiny exceptions retain their R behavior. Execution errors now
 identify the failing simulation/chamber and real elapsed time. The pre-preparation-migration
@@ -97,7 +97,8 @@ Runtime descriptors record exact snapshot bytes, schema and
 SHA-256. Missing, changed or incompatible production assets fail; there is no debug
 fallback. `acceptance:reform` includes the complete `data:check` gate.
 
-Repeat build/browser checks with `BASE_PATH=/elezioni`, always sequentially.
+The production gate builds and checks both bases sequentially; follow
+[CP-08 acceptance](common-politics-scenario/acceptance.md) for the complete command.
 Direct loads, refreshes, navigation, workers and required data must work at both
 bases. Development tests may clearly skip absent generated fixtures; release
 acceptance requires all data and rejects skips. The R implementation and temporary

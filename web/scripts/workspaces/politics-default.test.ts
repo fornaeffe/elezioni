@@ -7,7 +7,7 @@ import { authoredPoliticsDefault, createDefaultCommonPoliticsScenario } from '..
 import { declaredAssets, verifyAssetBytes } from '../../src/lib/politics/scenario/dependencies';
 import { REFORM, ROSATELLUM } from '../../src/lib/politics/scenario/schema';
 import { parsePoliticsScenario } from '../../src/lib/politics/scenario/validation';
-import { legacyDefault, reformDefaultInputs, releasedDefault, validateAuthoredPolitics } from './politics-default';
+import { reformDefaultInputs, releasedDefault, validateAuthoredPolitics } from './politics-default';
 import { decodeState } from '../../src/lib/politics/reform-2026/vote-share/state-codec';
 import type { ReleaseCatalog, ScenarioState } from '../../src/lib/politics/reform-2026/vote-share/release';
 import type { ReformAssemblyContext } from '../../src/lib/politics/reform-2026/generation-types';
@@ -77,7 +77,5 @@ describe.skipIf(!hasData)('authored production packaging (requires npm run data:
     const changed=releasedDefault(copy,await reformDefaultInputs(copy,readers,context),installed.data,installed.models.generationImplementationId!);
     expect(changed.presentation.name).toBe('Edited source');expect(changed.seed).toBe('edited');
     expect(changed.presentation.lists.filter(l=>l.id==='fdi').map(l=>l.color)).toEqual(['#112233','#112233']);
-    const snapshot=JSON.parse(readFileSync(resolve(root,'web/static/data/v1/politics-static.json'),'utf8'));
-    expect(legacyDefault(copy,snapshot,data.source,'test').lists[0].color).toBe('#112233');
   });
 });

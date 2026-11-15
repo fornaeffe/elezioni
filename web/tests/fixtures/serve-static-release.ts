@@ -26,7 +26,17 @@ const server = createServer(async (request, response) => {
     if (rel.startsWith('..') || isAbsolute(rel))
       throw new Error('Outside build');
     try {
-      if ((await stat(path)).isDirectory()) path = resolve(path, 'index.html');
+      if ((await stat(path)).isDirectory()) {
+        const directory = path;
+        path = resolve(directory, 'index.html');
+        try { await stat(path); }
+        catch (error) {
+          if ((error as NodeJS.ErrnoException).code !== 'ENOENT' || directory === root) throw error;
+          // /politics/editor creates a directory beside politics.html. The
+          // parent route still resolves when that directory has no index page.
+          path = directory + '.html';
+        }
+      }
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== 'ENOENT' || extname(path)) throw error;
       // adapter-static writes /politics.html; Pages resolves extensionless URLs.

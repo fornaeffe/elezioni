@@ -1,26 +1,27 @@
 # Other list category
 
-Use this guide when editing or extending **Altre liste** in legacy politics,
-reform politics, or Emilia-Romagna scenarios. It is an approved simulator
+Use this guide when editing or extending **Altre liste** in common politics
+or Emilia-Romagna scenarios. It is an approved simulator
 aggregation convention, not an additional legal admission rule.
 
 ## Scenario editors
 
-- **Includi Altre liste** adds/removes one category. Identity `__other__`, name
-  **Altre liste**, and grey `#9ca3af` are fixed. There is no per-list type selector
-  or conversion of ordinary lists into Other.
-- Reference shares are optional; geographic references and historical
-  correspondences use the same rules as ordinary lists. Blank/inherited values
-  remain distinct from explicit zero. Mean-mode references retain uncertainty.
-- The reform editor also supports chamber presence and geographic voting
-  coverage under **Depositi delle liste**. Enabling Other initially includes it
-  in both chambers and all existing coverage rows. Restrict that coverage when
-  needed. Coverage enables votes, never candidate slates; ordinary legal filing
-  minimums do not apply to this category. Camera TAA remains a view of the same
-  special ballots, not an independent ballot population.
-- Switching off removes Other's shares, geographic overrides, correspondences,
-  and coverage. The reform editor previews dependent removals through its usual
-  confirmation panel. Switching on again creates a fresh category.
+Common politics uses **Attiva Altre liste** with explicit **Componenti del residuo**
+selection. Available choices exclude components owned in either chamber and
+replace pooled raw members with their pool declaration. No automatic reassignment
+from another list occurs. Creation initializes every law's eligible filings and
+linked Camera/Senato memberships, using the normal validated domain edits.
+
+Identity `__other__`, name **Altre liste**, grey `#9ca3af` and autonomous non-minority
+status are fixed. References, geographic scopes and membership controls follow
+ordinary list semantics; blank values differ from explicit zero. Candidate pins,
+preferences and bonus links are prohibited. Coverage enables votes without
+creating candidate slates. **Disattiva Altre liste** removes the subject and its
+dependent references/filings under the shared deletion rules. Reactivation starts
+without the former references.
+
+The independent Emilia-Romagna editor retains **Includi Altre liste**, its existing
+reference/history controls and persistence contract.
 
 ## Calculation contract
 
@@ -66,18 +67,17 @@ probability and bonus-contender selectors. The reform admission table records
 
 ## Compatibility and verification
 
-Legacy politics exports use scenario envelope v8 when Other is present and v7
-otherwise; regional exports use v2 and v1 respectively. Both parsers retain older
-supported scenarios. Reform fields are additive optional extensions of the
-strict scenario/direct-input schemas; older inputs, fingerprints and candidate
-generation policies remain usable. Updated archives preserve the category
-through JSON and compressed export/import. Use the updated application to
-replay scenarios containing Other.
+Politics uses the strict common scenario/result/archive formats; old politics
+files are rejected without conversion. Internal historical scenario/table codecs
+remain regression evidence. Regional formats remain independent (v2 with Other,
+v1 without it). Common JSON/gzip files preserve the reserved identity, membership,
+filings and references, including inactive law values.
 
 `web/src/lib/core/other-list.test.ts` covers persistence, candidate-free
 generation, forbidden associations, admission, geography, historical mapping,
 vote conservation, both candidate policies, and extreme shares.
-`web/tests/e2e/other-list.spec.ts` exercises all three editors and workers.
+`web/tests/e2e/other-list.spec.ts` exercises the regional editor plus creation, persistence, reactivation and real
+zero-seat worker results for all three common politics pairs.
 
 From `web/`, run the maintained TypeScript regression tests:
 

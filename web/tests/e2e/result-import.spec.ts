@@ -1,3 +1,5 @@
+import { openCommon, runCommon, selectedCommon } from '../fixtures/common-page';
+import { ROSATELLUM } from '../../src/lib/politics/scenario/schema';
 import { expect, test } from '@playwright/test';
 import { gzipSync } from 'node:zlib';
 
@@ -58,37 +60,15 @@ function bundledResultJson(): string {
   );
 }
 
-test('rejects uncompressed result JSON from the Results panel', async ({ page }) => {
-  await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
-  await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-r-parity-v1');
-
-  await page.getByTestId('result-file-input').setInputFiles({
-    name: 'imported-results.json',
-    mimeType: 'application/json',
-    buffer: Buffer.from(bundledResultJson())
-  });
-
-  await expect(page.getByLabel('Errori simulazione')).toContainText('RESULT_LOAD_ERROR');
-  await expect(page.getByLabel('Errori simulazione')).toContainText('.json.gz');
-  await expect(page.getByRole('table', { name: 'Election overview' })).toHaveCount(0);
-});
-
-for (const inputId of ['result-file-input', 'scenario-file-input']) {
-  test(`rejects old politics archives from ${inputId} without changing the draft or results`, async ({ page }) => {
-    await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
-    await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-r-parity-v1');
-    await page.getByLabel('Nome scenario', { exact: true }).fill('Current draft');
-    await page.getByLabel('Simulazioni', { exact: true }).fill('1');
-    await page.getByRole('button', { name: 'Esegui', exact: true }).click();
-    const overview = page.getByRole('table', { name: 'Election overview', exact: true });
-    await expect(overview).toBeVisible({ timeout: 60_000 });
-    const before = await overview.textContent();
-    await page.getByTestId(inputId).setInputFiles({ name: 'old-results.json.gz', mimeType: 'application/gzip',
-      buffer: gzipSync(Buffer.from(bundledResultJson())) });
-    const errors = page.getByLabel('Errori simulazione');
-    await expect(errors).toContainText('precedente non supportato');
-    await expect(page.getByLabel('Nome scenario', { exact: true })).toHaveValue('Current draft');
-    await expect(page.getByLabel('Algoritmo di scrutinio')).toHaveValue('politiche-r-parity-v1');
-    await expect(overview).toHaveText(before!);
+test.setTimeout(180000);
+for (const input of ['Importa risultati', 'Carica scenario']) {
+  test(`rejects old politics archives from ${input} without changing the draft or results`, async ({page})=>{
+    await openCommon(page, ROSATELLUM, 'M01');
+    const before=await runCommon(page);
+    await page.getByLabel('Nome scenario',{exact:true}).fill('Current draft'); await page.getByLabel('Nome scenario',{exact:true}).blur();
+    await page.getByLabel(input,{exact:true}).setInputFiles({name:'old.json.gz',mimeType:'application/gzip',buffer:gzipSync(Buffer.from(bundledResultJson()))});
+    await expect(page.getByRole('alert').filter({hasText:'precedente non supportato'})).toBeVisible();
+    await expect(page.getByLabel('Nome scenario',{exact:true})).toHaveValue('Current draft');
+    expect((await selectedCommon(page)).id).toBe(before.id);
   });
 }

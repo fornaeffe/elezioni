@@ -1,8 +1,8 @@
 import { appendResultBatch, deleteStoredResult, getStoredResult, newResultStorage, registerStoredExport, saveStoredResult, storedTablePage, type StoredResult } from '../../src/lib/core/result-store';
 import { importResultStream, resultTablesToCsv, streamStoredResult } from '../../src/lib/core/result-export';
-import { createDefaultPoliticsScenario } from '../../src/lib/scenario/politics';
+import { createDefaultPoliticsScenario } from './retired-politics/scenario';
 import type { ResultTable } from '../../src/lib/core/types';
-import { handleResultService } from '../../src/lib/workers/result-service';
+import { handleRetiredResultService as handleResultService } from './retired-result-service';
 
 self.onmessage = async () => {
   try {

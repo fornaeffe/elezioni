@@ -2,7 +2,8 @@
   import type { PoliticsScenario } from '../scenario/schema';
   import { chambers, REFORM } from '../scenario/schema';
   import { capabilities } from '../scenario/registry';
-  import { createCoalition, createList, updateCoalition, updateList, deleteSubject } from '../scenario/edits';
+  import { createCoalition, createList, updateCoalition, updateList, deleteSubject, setMembers } from '../scenario/edits';
+  import { OTHER_LIST_ID, OTHER_LIST_NAME, OTHER_LIST_COLOR } from '../../core/other-list';
   import type { EditorAssets } from './assets';
   import type { ApplyEdit } from './model';
   import LazySection from './LazySection.svelte';
@@ -10,15 +11,31 @@
   import FilingTree from './FilingTree.svelte';
   import ReferencesEditor from './ReferencesEditor.svelte';
   let { scenario, assets, edit }: { scenario: PoliticsScenario; assets: EditorAssets | null; edit: ApplyEdit } = $props();
-  let coalitionName = $state(''), listName = $state('');
+  let coalitionName = $state(''), listName = $state(''), otherMembers = $state<string[]>([]);
+  const other = $derived(scenario.subjects.lists.find(l => l.kind === 'other'));
+  const otherOptions = $derived([
+    ...(assets?.components.filter(c => !scenario.history.pooling.some(p => p.members.includes(c.id))) ?? []),
+    ...scenario.history.pooling.map(p => ({ id: p.id, name: scenario.subjects.components.find(c => c.id === p.id)?.name ?? p.id }))
+  ].filter(c => !scenario.memberships.some(m => m.camera.includes(c.id) || m.senato.includes(c.id))));
+  function newList(s: PoliticsScenario, id: string, name: string, kind: 'list' | 'other') {
+    const componentId = kind === 'other' ? `new:${id}:${crypto.randomUUID()}` : `new:${id}`;
+    return createList(s, { id, name, color: kind === 'other' ? OTHER_LIST_COLOR : '#64748b', coalitionId: null, minority: null, kind },
+      { id: componentId, name, support: 'Ipotesi esplicita senza conteggi storici', provenance: 'Nuova lista creata nello scenario',
+        fallback: { M01: { policy: 'regional-or-equal-list-v1', provenance: 'M01: fallback regionale o uniforme' },
+          M02: { geographicLogProfile: 0, profileSd: 0.45, localInnovationSd: 0.25, nationalInnovationSd: 0.35, provenance: 'Convenzione di creazione; parametri modificabili' } } }, assets!.context);
+  }
   function addList() {
     if (!assets) return;
     const id = `list-${crypto.randomUUID()}`;
-    edit(s => createList(s, { id, name: listName, color: '#64748b', coalitionId: null, minority: null, kind: 'list' },
-      { id: `new:${id}`, name: listName, support: 'Ipotesi esplicita senza conteggi storici', provenance: 'Nuova lista creata nello scenario',
-        fallback: { M01: { policy: 'regional-or-equal-list-v1', provenance: 'M01: fallback regionale o uniforme' },
-          M02: { geographicLogProfile: 0, profileSd: 0.45, localInnovationSd: 0.25, nationalInnovationSd: 0.35, provenance: 'Convenzione di creazione; parametri modificabili' } } }, assets.context));
+    edit(s => newList(s, id, listName, 'list'));
     listName = '';
+  }
+  function addOther() {
+    if (!assets) return;
+    edit(s => {
+      if (!otherMembers.length) throw new Error('Scegli esplicitamente i componenti del residuo.');
+      return setMembers(newList(s, OTHER_LIST_ID, OTHER_LIST_NAME, 'other'), OTHER_LIST_ID, 'camera', otherMembers, assets!.context);
+    });
   }
 </script>
 <section aria-labelledby="coalitions-title">
@@ -70,4 +87,16 @@
     </article>
   {/each}
   <div class="row"><label>Nuova lista<input bind:value={listName} /></label><button disabled={!listName.trim() || !assets} onclick={addList}>Aggiungi lista</button></div>
+  <fieldset aria-label="Altre liste"><legend>Altre liste</legend>
+    <p>Categoria residuale autonoma, senza candidati né seggi. Scegli componenti liberi da altre liste; Camera e Senato sono inizialmente collegati.</p>
+    {#if other}
+      <button onclick={() => { edit(s => deleteSubject(s, { kind: 'list', id: other.id })); otherMembers = []; }}>Disattiva Altre liste</button>
+    {:else}
+      <label>Componenti del residuo<select multiple size="4" bind:value={otherMembers}>
+        {#each otherOptions as c (c.id)}<option value={c.id}>{c.name}</option>{/each}
+      </select></label>
+      {#if !otherOptions.length}<p>Nessun componente libero: modifica prima le appartenenze nelle impostazioni avanzate.</p>{/if}
+      <button disabled={!assets} onclick={addOther}>Attiva Altre liste</button>
+    {/if}
+  </fieldset>
 </section>

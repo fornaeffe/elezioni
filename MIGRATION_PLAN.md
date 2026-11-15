@@ -155,7 +155,7 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
 - [x] Retire temporary bridge artifacts and update user and developer
   documentation when migrated workflows no longer depend on R-exported
   intermediary snapshots, including the retained R scripts and `dati/`.
-- [ ] Merge the politics workspaces in a single workspace: switching generator
+- [x] Merge the politics workspaces in a single workspace: switching generator
   and/or scrutiny algorithm should be as simple as choosing an option in a select.
   Read the [guidelines](docs\common-politics-scenario\guidelines.md).
   - [x] CP-01 — Inventory and preserve behavior: [field/control/asset mapping](docs/common-politics-scenario/inventory.md)
@@ -167,11 +167,11 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   - [x] CP-06 — Build the common editor within the approved D14 perimeter: [editor components and review route](docs/common-politics-scenario/editor.md).
   - [x] CP-07 — Unify lifecycle, persistence and results: [controller, caches, durable sessions and resources](docs/common-politics-scenario/lifecycle.md).
   - [x] Harden common execution resources: conservative automatic workers, compact prepared inputs and immutable checkpoint storage; [contract](docs/common-politics-scenario/execution.md#workers-and-workspace-integration) and [verification](docs/migration-history.md#common-execution-resource-fixes-2026-11-14).
-  - [ ] CP-08 — Verify the supported pairs and complete merger acceptance.
-    Retarget superseded workspace browser suites before the full production gate;
-    measure national adapter resources and retain the agreed campaign-size restriction.
-    Complete the remaining national pair campaigns and release matrix after the
-    verified reform/M02 resource follow-up.
+  - [x] CP-08 — Verify the supported pairs and complete merger acceptance:
+    [procedure and evidence](docs/common-politics-scenario/acceptance.md).
+    Both base paths and all three sequential 1,000-run campaigns passed the
+    clarified same-votes criterion, preserving expected Camera errors distinctly.
+    Performance above 1,000 runs, legal corrections and publication remain separate.
 - [x] Change default scenario colors to colors that reflects the real parties
   political colors (or colors with which polling houses usually represent parties).
 - [x] In "Dotazioni dei seggi per collegio e liste del premio" do now show territory ids,

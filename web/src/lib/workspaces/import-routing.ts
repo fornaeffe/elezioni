@@ -40,19 +40,9 @@ export async function fileWorkspace(file: File): Promise<WorkspaceDefinition> {
   throw new Error(OLD_POLITICS_FORMAT);
 }
 
-/** Removed with the transitional editors in CP-06/07. Never feed common files
- * to an old editor, or switch/destroy the current editor before full import. */
-export async function transitionalFileWorkspace(file: File): Promise<WorkspaceDefinition> {
-  const target = await fileWorkspace(file);
-  if (target.kind === 'politiche') throw new Error('Il file usa il nuovo formato comune. Il caricamento sarà disponibile nel nuovo editor politiche.');
-  return target;
-}
-export function transitionalScenarioWorkspace(value: unknown): WorkspaceDefinition {
-  const s = value as { kind?: string; defaultSource?: { electionKind?: string } } | null;
-  if (s?.defaultSource?.electionKind === 'regionali-er') return scenarioWorkspace(value);
-  if (s?.kind === 'politics-scenario') {
-    parsePoliticsScenario(value);
-    throw new Error('Il file usa il nuovo formato comune. Il caricamento sarà disponibile nel nuovo editor politiche.');
-  }
+/** Regional in-memory restores stay regional; common scenarios use strict validation. */
+export function regionalScenarioWorkspace(value: unknown): WorkspaceDefinition {
+  const s=value as {defaultSource?:{electionKind?:string}}|null;
+  if(s?.defaultSource?.electionKind==='regionali-er')return scenarioWorkspace(value);
   throw new Error(OLD_POLITICS_FORMAT);
 }

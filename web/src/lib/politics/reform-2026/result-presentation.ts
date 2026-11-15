@@ -209,16 +209,18 @@ export function createReformPresentation(scenario: ReformGenerationScenario|Rele
 
 /** Charts read the same exported table contract as the UI and CSV. Bonus
  * coalitions remain separate subjects, even when candidates have affiliations. */
-export function buildReformSeatChart(table: ResultTable | undefined, chamber: string, simulation: number, scenario?: ReformGenerationScenario|ReleasedScenario | null) {
+export function buildReformSeatChart(table: ResultTable | undefined, chamber: string, simulation: number, scenario?: ReformGenerationScenario|ReleasedScenario | import('../scenario/schema').PoliticsScenario | null) {
   const totals = new Map<string, number>();
   for (const r of table?.rows ?? []) if (r.Chamber === chamber && r.Simulation === simulation) {
     const label = json([r.Category, r.Category === 'bonus' ? r.Subject : r.List ?? r.Subject, r.Status]);
     totals.set(label, (totals.get(label) ?? 0) + 1);
   }
-  const lists = scenario?.lists[chamber === 'camera' ? 'camera' : 'senato'] ?? [];
+  const common = scenario?.kind === 'politics-scenario' ? scenario : null;
+  const projected = scenario && scenario.kind !== 'politics-scenario' ? scenario : null;
+  const lists = common?.subjects.lists ?? projected?.lists[chamber === 'camera' ? 'camera' : 'senato'] ?? [];
   const name = (owner: string) => {
     if (owner.startsWith('coalition:')) {
-      const label = scenario?.presentation?.coalitions?.find(c => c.id === owner.slice('coalition:'.length))?.name;
+      const label = (common?.subjects.coalitions ?? projected?.presentation?.coalitions)?.find(c => c.id === owner.slice('coalition:'.length))?.name;
       if (label) return `Coalizione: ${label}`;
       const members = lists.filter(l => l.coalitionId === owner.slice('coalition:'.length));
       return members.length ? `Coalizione: ${members.map(l => l.name).join(' + ')}` : owner;

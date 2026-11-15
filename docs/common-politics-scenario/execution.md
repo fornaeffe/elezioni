@@ -168,8 +168,8 @@ Authored defaults and production packaging are documented in [CP-04](defaults.md
 strict scenario/result readers and draft isolation in [CP-05](files.md).
 The [common lifecycle](lifecycle.md) connects the editor, automatic preparation,
 stage caches, checkpoints and durable result sessions at both politics routes.
-Superseded politics workspace implementations remain for CP-08 retirement and
-isolated regression evidence; their M00 paths are not mounted by those routes.
+Superseded politics workspace implementations and M00 dispatch are removed.
+Old scenario/transport regressions use isolated test-only entry points.
 CP-08 owns the three full 1,000-run/performance campaigns and final merger acceptance.
 
 Verification commands and measured outcomes belong in

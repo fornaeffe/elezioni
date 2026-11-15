@@ -10,7 +10,7 @@ import { buildPoliticsPipelineSourceFromSnapshot } from '../politics/static-snap
 import { runPoliticsSimulation } from '../politics/simulation-scrutiny';
 import { runPoliticsScrutiny } from '../politics/scrutiny';
 import type { PoliticsStaticSnapshot, PoliticsVoteGenerationSource, PoliticsScrutinyInput, PoliticsScrutinyContext } from '../politics/types';
-import { createDefaultPoliticsScenario } from '../scenario/politics';
+import { createDefaultPoliticsScenario } from '../../../tests/fixtures/retired-politics/scenario';
 import { isFiled } from './filing';
 
 test('filing conditions each chamber with shared draws and conserved valid mass', () => {

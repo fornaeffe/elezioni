@@ -111,10 +111,10 @@ selects a session without replacing the draft; JSON.gz result exports include it
 immutable executed scenario. See [lifecycle.md](lifecycle.md) for entry points,
 storage keys, recovery and the session action table.
 
-Superseded projected editors and their internal projection/export helpers remain
-for CP-08 cleanup and isolated regression evidence. They are not mounted by the
-politics routes and are not readers for new authored files. External imports
-reject old politics schemas; former politics draft keys remain untouched.
+Superseded projected editors, their draft writers and M00 default compiler are
+removed. Isolated old scenario/table/transport regression helpers live under
+`web/tests/fixtures/retired-*`; production result imports always use the strict
+common reader. Former politics draft keys remain untouched.
 
 Independent Emilia-Romagna file routing, formats and draft persistence remain
 unchanged. Frozen historical regression fixtures and their checksum manifests

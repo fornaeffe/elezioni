@@ -2,7 +2,7 @@
  * politics files are rejected by CP-05; presentation tests do not exercise import. */
 import { fileURLToPath } from 'node:url';
 import { build } from 'vite';
-import type { Page } from '@playwright/test';
+import { expect, type Page } from '@playwright/test';
 
 let bundle: Promise<string> | undefined;
 const installed = new WeakSet<Page>();
@@ -26,12 +26,14 @@ export async function seedPresentationSession(page: Page, payload: unknown) {
     worker.onmessage = ({ data }) => {
       worker.terminate();
       if (data.error) { reject(new Error(data.error)); return; }
-      const key = 'elezioni:politics-reform-2026:fast-results:v1';
-      sessionStorage.setItem(key + ':owner', data.owner);
-      sessionStorage.setItem(key, JSON.stringify([{ id: data.resultId, label: 'Retained presentation evidence' }]));
+      localStorage.setItem('elezioni:politics:common-sessions:v1', JSON.stringify({ owner: data.owner, selected: data.resultId,
+        sessions: [{ id: data.resultId, law: data.scenario.selection.scrutiny.id, model: 'M01@2.0.0',
+          createdAt: '2026-11-14T00:00:00Z', renewal: data.scenario.renewal, completed: data.completed, requested: data.requested }] }));
+      localStorage.setItem('elezioni:politics:common-draft:v1', JSON.stringify(data.scenario));
       resolve();
     };
     worker.postMessage(payload);
   }), payload);
   await page.reload();
+  await expect(page.getByRole('combobox', { name: 'Sessione dei risultati', exact: true })).not.toHaveValue('');
 }

@@ -1,9 +1,9 @@
 import { generatedSnapshotPoliticsScenario } from '../../../tests/fixtures/legacy-snapshot-scenario';
-import { cloneScenario } from '../scenario/politics';
+import { cloneScenario } from '../../../tests/fixtures/retired-politics/scenario';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from 'vitest';
 import { describeWithGeneratedFixtures, loadGeneratedJsonFixture } from '$lib/test/generated-fixtures';
-import { createDefaultPoliticsScenario, validateScenario } from '$lib/scenario/politics';
+import { createDefaultPoliticsScenario, validateScenario } from '../../../tests/fixtures/retired-politics/scenario';
 import { buildPoliticsDirectScrutinySnapshot } from './pipeline';
 import { projectScenarioOntoPoliticsSource } from './scenario-projection';
 import { defaultPoliticsScrutinyAlgorithmId, resolvePoliticsScrutinyAlgorithm } from './scrutiny-algorithms';

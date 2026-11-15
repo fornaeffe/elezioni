@@ -12,7 +12,7 @@ import type { Preferences } from './input';
 import { coalitionScrutinyFixture } from './scrutiny.fixture';
 import { createSeededDrawContext } from './ties';
 import { distributeBonusOnlyVotes } from './attribution';
-import { parseScenario, serializeScenario, defaultPoliticsScenario } from '../../scenario/politics';
+import { parseScenario, serializeScenario, defaultPoliticsScenario } from '../../../../tests/fixtures/retired-politics/scenario';
 import { convertLegacyScenarioToReform } from './generation-scenario';
 
 describe('R26-19 isolated streams and aggregate samplers', () => {

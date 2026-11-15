@@ -1,7 +1,21 @@
 import type { PoliticsScenario } from '../scenario/schema';
-import type { PoliticsRunPresentationSummary } from '../result-presentation';
+import { summarizePoliticsScrutinyRun, type PoliticsRunPresentationSummary } from '../result-presentation';
+import { OTHER_LIST_ID, OTHER_LIST_NAME } from '../../core/other-list';
 import type { ResultTable } from '../../core/types';
 import { reformSeriesColumns, reformSeriesTable } from '../reform-2026/result-series';
+
+/** Restore common stable IDs after the unchanged scrutiny's canonical-name boundary. */
+export function summarizeCommonRosatellum(params: Parameters<typeof summarizePoliticsScrutinyRun>[0]) {
+  if (!params.listeNaz.some(l => l.kind === 'other')) return summarizePoliticsScrutinyRun(params);
+  const id = (value: string) => value === OTHER_LIST_NAME ? OTHER_LIST_ID : value;
+  const summary = summarizePoliticsScrutinyRun({ ...params,
+    input: { ...params.input, liste_uni: params.input.liste_uni.map(l => l.LISTA === OTHER_LIST_NAME ? { ...l, LISTA: id(l.LISTA) } : l) },
+    output: { ...params.output, liste_pluri: params.output.liste_pluri.map(l => l.LISTA === OTHER_LIST_NAME ? { ...l, LISTA: id(l.LISTA) } : l) },
+    listeNaz: params.listeNaz.map(l => l.LISTA === OTHER_LIST_NAME ? { ...l, LISTA: id(l.LISTA) } : l) });
+  summary.seatVoteByCoalition = new Map([...summary.seatVoteByCoalition].map(([key, value]) =>
+    [key === OTHER_LIST_ID ? `list:${OTHER_LIST_ID}` : key, value]));
+  return summary;
+}
 
 /** Reuse the disk statistics contract. Rosatellum list seats are plurinominal;
  * coalition/support seats also include uninominal winners, as in the existing

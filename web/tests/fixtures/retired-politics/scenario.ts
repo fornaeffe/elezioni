@@ -1,6 +1,6 @@
-import { copyScenarioList, validateListFiling } from '../workspaces/filing';
-import { isAutonomousPoliticsList, politicsCandidateTickets } from './politics-tickets';
-import { validateOtherScenarioLists } from '$lib/core/other-list';
+import { copyScenarioList, validateListFiling } from '../../../src/lib/workspaces/filing';
+import { isAutonomousPoliticsList, politicsCandidateTickets } from '../../../src/lib/scenario/politics-tickets';
+import { validateOtherScenarioLists } from '../../../src/lib/core/other-list';
 import type {
   ElectionKind,
   Scenario,
@@ -18,8 +18,8 @@ import type {
   ScenarioLocalShareOverride,
   ScenarioLocalShareOverrideScope,
   ScenarioPlurinominalCandidacyCountShares
-} from '$lib/core/types';
-import { generatedDefaultPoliticsScenario } from './politics-defaults.generated';
+} from '../../../src/lib/core/types';
+import { generatedDefaultPoliticsScenario } from './default';
 
 export const politicsScenarioStorageKey = 'elezioni:web:politics-scenario:v1';
 export const politicsScenarioSchemaVersion = 9;

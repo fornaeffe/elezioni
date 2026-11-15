@@ -10,17 +10,17 @@ fields use [the contract](contract.md); for generation and legal assembly use
 | --- | --- |
 | Edit scenario choices, palette, filings, history, references, model/law settings or run preferences | `data/politics-default-scenario.json` |
 | Browser default and detached reset copies | `web/src/lib/politics/scenario/defaults.ts` |
-| Read/validate the authored file; deterministic transitional projections | `web/scripts/workspaces/politics-default.ts` |
+| Read/validate the authored file; package statistical release inputs | `web/scripts/workspaces/politics-default.ts` |
 | Prepare and verify exact source/geography/electorate/seat/model/catalogue bundles | `web/scripts/workspaces/politics-assets.ts` |
-| Package M02 fitted state and the transitional reform scenario | `web/scripts/data-preparation/fast-share-release.ts` |
-| Regenerate snapshot descriptors and the transitional previous-law scenario | `web/scripts/workspaces/generate.ts` |
+| Package M02 fitted state and its internal release scenario | `web/scripts/data-preparation/fast-share-release.ts` |
+| Regenerate and validate snapshot descriptors | `web/scripts/workspaces/generate.ts` |
 | Verify the approved values and projections | `web/scripts/workspaces/politics-default.test.ts`, `web/tests/e2e/politics-default.spec.ts` |
 
 The authored JSON is a complete schema-1 common scenario, with no observation
 tables or fitted arrays. It selects reform/M02/joint renewal and saves
 Rosatellum/M01 separately. Each law has explicit filings for all 24 lists,
 including statutory uni-only Rosatellum ballots. Colors are stored once per
-subject; packaging duplicates them only where a transitional format requires it.
+subject; internal numerical release packaging retains its required projections.
 
 The baseline retains separate Camera/Senato references and explicit SDs, including
 zero, selected/excluded polls, reviewed M01 compositions and supplemental polls,
@@ -61,26 +61,17 @@ Do not edit generated defaults, descriptors or catalogues. The former authored
 choice/policy JSON and retired compiler helpers are retained only as historical
 comparison evidence in tests; production no longer reads them.
 
-## Transitional consumers and regional isolation
+## Runtime and regional isolation
 
-CP-04 supplies the common authored input and changes fresh browser startup to
-reform/M02. The existing reform editor receives a deterministic release projection;
-the previous-law editor receives a deterministic M00 compatibility projection
-until CP-06/08 replace that editor/execution wiring. That old format cannot express
-the full common contract: its local reference field uses Camera/common means;
-its editable share previews project the authored M01 supplemental polls, and its
-non-valid preview comes from the pinned paired Camera observation unless an
-explicit authored national reference replaces it;
-the common input retains both chambers' complete values. No old-format reader or
-converter is introduced here. [CP-05](files.md) supplies the new file/draft APIs,
-rejects old politics uploads and disables old-key draft persistence in these
-transitional editors. CP-06/07 own the common editor and execution-session integration.
+The common authored scenario is the browser default for all politics pairs.
+The M00 compatibility default compiler and its generated application module are
+removed. Their last captured scenario is isolated at
+`web/tests/fixtures/retired-politics/default.ts`; it is test evidence, not an
+input to preparation or runtime. The fitted M01/M02 release keeps its internal
+statistical projection; it does not own a second user scenario or draft.
 
 `data/workspace-defaults.json` still supplies the independent ER default and the
-historical reference scaffold inside the old static snapshot. The older reform
-model-preparation defaults likewise remain reference inputs for retained tests
-and the retired editor. Neither chooses the installed common politics default.
-The historical snapshot scenario is now test-only at
-`web/tests/fixtures/legacy-snapshot-scenario.ts`. Its former production exporter
-and generated module are removed. ER keeps its own exporter and unchanged
-default behavior; no regional consumer depended on that removed exporter.
+historical reference scaffold inside the static snapshot. Neither chooses the
+installed politics default. The historical snapshot scenario remains test-only
+at `web/tests/fixtures/legacy-snapshot-scenario.ts`. ER retains its own exporter
+and unchanged default behavior.

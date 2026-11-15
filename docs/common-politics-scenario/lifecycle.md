@@ -8,8 +8,8 @@ model/law adapters and [files.md](files.md) for strict portable formats.
 
 Both `/politics` and `/politics/editor` mount the same workspace. Apply the
 configured project base to navigation, assets and workers. The regional route
-keeps its independent lifecycle and formats. Retired workspace implementations
-remain only for CP-08 cleanup and isolated regression evidence.
+keeps its independent lifecycle and formats. Retired workspace implementations have been removed; isolated old scenario and
+transport evidence lives only under `web/tests/fixtures/retired-*`.
 
 | Responsibility | File under `web/src/lib/` |
 | --- | --- |
@@ -85,7 +85,7 @@ payloads. Automatic selection is provisionally capped at four, and may select
 fewer with low/missing RAM hints or larger inputs. CPU remains the ceiling for
 explicit choices, with the existing memory warnings and requested/effective
 worker provenance. These are conservative estimates, not available-RAM or hard
-browser-limit measurements; CP-08 retains broader calibration. Simulation counts are positive safe integers,
+browser-limit measurements; [CP-08 acceptance](acceptance.md) records campaign calibration. Simulation counts are positive safe integers,
 with a 64 MiB compact membership budget (64 estimated bytes per requested run),
 rather than the former Rosatellum 1,000-run ceiling. This bound does not establish
 performance above the approved 1,000-run acceptance size.
@@ -146,11 +146,9 @@ under `data/derived/common-politics-resources/`, and records exact browser/build
 dependency identities, actual workers, membership and manifest/checkpoint separation. The
 one-hour fitting-plus-execution ceiling applies; these process samples are not
 JavaScript heap measurements. Resource campaigns run sequentially.
-CP-08 retains production acceptance, regional smoke cases, national campaigns,
-measured performance/memory, cleanup and publication gates.
-Before the full browser gate, CP-08 must retarget the old-workspace suites
-(`app`, `workspace-uniformity`, `politics-default`, `politics-file-isolation`,
-`result-import`, `other-list`, `reform-workspace`, and the seven presentation UI
-cases in `reform-statistics`) to current mounted controls and
-formats. They still contain transitional workspace assumptions; the focused
-common suites above are the CP-07 runtime evidence, not a full release-gate claim.
+The [CP-08 acceptance guide](acceptance.md) owns the full production gate,
+regional smoke cases, national campaigns and measured performance/memory.
+The former workspace suites now exercise mounted common controls, strict files
+and durable sessions. Detailed presentation fixtures retain their saved-table
+assertions through test-only historical transport. Public deployment has its own
+gate in the migration plan.

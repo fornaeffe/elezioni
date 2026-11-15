@@ -2,7 +2,7 @@
 import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { gunzipSync } from 'node:zlib';
-import { generatedDefaultPoliticsScenario as previous } from '../../src/lib/scenario/politics-defaults.generated';
+import { generatedDefaultPoliticsScenario as previous } from '../../tests/fixtures/retired-politics/default';
 import type { ReleasedScenario, ReleaseCatalog } from '../../src/lib/politics/reform-2026/vote-share/release';
 import type { ByteAsset } from '../../src/lib/politics/reform-2026/vote-share/source-codec';
 

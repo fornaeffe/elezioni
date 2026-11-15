@@ -11,11 +11,11 @@ are separate. Read only the appropriate model definition for its equations.
 | Task | Entry point under `web/` |
 | --- | --- |
 | Public model identities/version checks | `src/lib/politics/reform-2026/vote-share/model-registry.ts`, `scenario.ts` |
-| Select/dispatch models | `vote-share/GenerationModelEditor.svelte`, `unified-generation.ts` under the same source directory |
+| Select/dispatch models | `src/lib/politics/editor/CommonPoliticsEditor.svelte`; `vote-share/unified-generation.ts` |
 | M01 original paired counts, compositions and named polls | `vote-share/legacy-adapter.ts`, `correspondences.ts`, `legacy-polls.ts` |
 | M01 list shocks and municipal-to-college allocation | parent `paired-vote-generation.ts`, `generation.ts` |
 | M02 grouped fitting/geography/physical fields | `vote-share/source-compiler.ts`, `information.ts`, `profiles.ts`, `senate-adapter.ts`, `generation.ts` |
-| Reference editing and scope resolution | `vote-share/FastReferencesEditor.svelte`, `reference-plans.ts`, `interventions.ts` |
+| Reference editing and scope resolution | `src/lib/politics/editor/ReferencesEditor.svelte`; `vote-share/{reference-plans,interventions}.ts` |
 | Shared candidature/preference/legal assembly | parent `assembly.ts`; scrutiny is independent |
 | Authored defaults and release | [CP-04 packaging guide](common-politics-scenario/defaults.md); `scripts/data-preparation/fast-share-release.ts` |
 | Current model smoke check | `scripts/acceptance/component-policy-current.ts` (writes only `data/derived/model-rollback/`) |
@@ -115,38 +115,18 @@ self-contained session; CSV remains table-oriented.
 
 From `web/`, Node 24, run `npm run acceptance:reform` after the complete production
 preparation. The [acceptance guide](politics-reform-2026-acceptance.md) defines the
-full project-path/focused-root matrix and required reports. Do not repeat the
+full two-base matrix and required reports. Do not repeat the
 same types, units, builds and browser suites separately as an additional routine
 gate. Dedicated release/editor commands remain available for focused diagnosis.
 
-Run resource and 1,000-run campaigns separately when their evidence is required:
-
-```powershell
-npm run test:reform:shares:resources
-$env:FV08_FULL = '1'
-$env:BASE_PATH = '/elezioni'
-$env:FV08_CAMPAIGN_WORKERS = '1'
-$env:PLAYWRIGHT_JSON_OUTPUT_NAME = '../data/derived/fv08-unified/campaign-tests.json'
-npm run test:reform:shares:unified -- --reporter=json
-Remove-Item Env:FV08_FULL, Env:BASE_PATH, Env:FV08_CAMPAIGN_WORKERS, Env:PLAYWRIGHT_JSON_OUTPUT_NAME
-```
-
-The campaign requests 1,000 paired runs **per model** through the actual browser
-editor, shared workers, IndexedDB, charts and streaming JSON.gz export/import.
-It checks 588 filled seats and distinct candidates, including 392 Camera and 196
-Senate, in every requested run; indexed details and every decompressed byte of
-the import/re-export roundtrip must agree, except the export timestamp. Receipts
-under `data/derived/fv08-unified/browser/` retain model/data/implementation,
-worker count, timings, memory samples, admission/42% summaries and seat totals.
-Functional acceptance uses three draws at `/elezioni`, one at root, and omits
-unified resource sampling. Full campaigns retain it and the 60-minute execution
-bound per model. Asset absence is always fatal.
-
-Keep model campaigns sequential for isolated timings. Setting
-`FV08_CAMPAIGN_WORKERS=2` runs them concurrently in isolated Chromium instances;
-record that contention and do not compare it as isolated speed. A frozen copy
-of the build can be served through `ACCEPTANCE_BUILD_ROOT` and
-`ACCEPTANCE_SERVER_PORT`; never replace a build during its campaign.
+Use the [CP-08 acceptance procedure](common-politics-scenario/acceptance.md) for
+sequential browser fitting-plus-1,000-run campaigns across all three pairs.
+`benchmark:common-politics` owns current renderer-memory/timing receipts.
+`test:reform:shares:unified` now checks the common editor/session and full archive
+roundtrip in Chromium/Firefox, with three national draws per pair at `/elezioni`
+and one per pair at root. `FV08_DRAWS` selects a bounded focused run; it must be
+between 1 and 1,000. The old `FV08_FULL` campaign route and concurrent model
+campaign option are retired. Historical receipts retain their original meaning.
 
 Cold source-only Linux/offline-warm acceptance remains separate:
 `npm run acceptance:reform:shares:candidate`. The old FV-08 curation scripts and

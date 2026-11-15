@@ -29,7 +29,6 @@ export default defineConfig({
     command:
       (process.env.ACCEPTANCE_PREBUILT ? "" : "npm run build && ") +
       "node --import tsx tests/fixtures/serve-static-release.ts",
-    env: { REFORM_FAST_CANDIDATE: "1" },
     url: origin + (process.env.BASE_PATH ?? "") + "/",
     reuseExistingServer: process.env.ACCEPTANCE_REUSE_SERVER === "1",
     timeout: 120000,

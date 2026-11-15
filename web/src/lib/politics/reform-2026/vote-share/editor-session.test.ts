@@ -1,6 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-// Constructed fixtures use synthetic implementation IDs. Browser release tests
-// exercise the independently fingerprinted application build instead.
+// Constructed transport fixtures carry synthetic implementation identities.
 vi.mock('./build', () => ({ fastReformImplementations: undefined }));
 import {
   loadedFitFixture,

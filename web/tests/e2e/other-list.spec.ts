@@ -1,10 +1,12 @@
+import {openCommon,runCommon,downloadCommon} from '../fixtures/common-page';
+import {ROSATELLUM,REFORM} from '../../src/lib/politics/scenario/schema';
+import {gunzipSync} from 'fflate';
 import { expect, test } from '@playwright/test';
-test.setTimeout(90_000);
+test.setTimeout(180_000);
 
-for (const route of ['politics', 'emilia-romagna']) {
+for (const route of ['emilia-romagna']) {
   test(`${route}: unique fixed Other switch, reference share and persistence`, async ({ page }) => {
     await page.goto(`${process.env.BASE_PATH ?? ''}/${route}`);
-    if(route==='politics') await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-r-parity-v1');
     const toggle = page.getByRole('switch', { name: 'Includi Altre liste' });
     await expect(toggle).not.toBeChecked();
     await toggle.check();
@@ -18,19 +20,11 @@ for (const route of ['politics', 'emilia-romagna']) {
     await row.getByLabel('Quota Altre liste', { exact: true }).fill('10');
     await expect(row.getByLabel('Usa quota Altre liste')).toBeChecked();
     await page.reload();
-    if(route==='politics') await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-r-parity-v1');
-    if (route === 'politics') {
-      // Old politics drafts are intentionally ignored; the common editor owns future persistence.
-      await expect(toggle).not.toBeChecked();
-      await toggle.check();
-      await row.getByLabel('Quota Altre liste', { exact: true }).fill('10');
-    } else {
-      await expect(toggle).toBeChecked();
-      await expect(row.getByLabel('Quota Altre liste', { exact: true })).toHaveValue('10');
-    }
+    await expect(toggle).toBeChecked();
+    await expect(row.getByLabel('Quota Altre liste', { exact: true })).toHaveValue('10');
     await page.getByLabel('Simulazioni', { exact: true }).fill('1');
     await page.getByRole('button', { name: 'Esegui', exact: true }).click();
-    const result = page.getByRole('table', { name: route === 'politics' ? 'Average plurinominal seats by list' : 'Regional average seats by list', exact: true });
+    const result = page.getByRole('table', { name: 'Regional average seats by list', exact: true });
     await expect(result).toBeVisible({ timeout: 60_000 });
     for (const r of await result.getByRole('row').filter({ hasText: 'Altre liste' }).all()) await expect(r).toContainText('0');
     await toggle.uncheck();
@@ -41,25 +35,38 @@ for (const route of ['politics', 'emilia-romagna']) {
   });
 }
 
-test('reform: Other has explicit component membership and fixed presentation', async ({page})=>{
-  await page.goto(`${process.env.BASE_PATH??''}/politics`);
-  await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-r-parity-v1');
-  await page.getByLabel('Algoritmo di scrutinio').selectOption('politiche-reform-2026-v1');
-  const group=page.getByRole('group',{name:'Altre liste',exact:true});
-  const disable=group.getByRole('button',{name:'Disattiva Altre liste',exact:true});
-  if(await disable.count()) await disable.click();
-  await group.getByRole('button',{name:'Attiva Altre liste',exact:true}).click();
-  await expect(page.getByRole('alert')).toContainText('Scegli esplicitamente');
-  const components=group.getByLabel('Componenti del residuo');
-  const id=await components.locator('option').first().getAttribute('value');
-  await components.selectOption(id!);
-  await group.getByRole('button',{name:'Attiva Altre liste',exact:true}).click();
-  await expect(disable).toBeVisible();
-  const other=page.locator('details').filter({has:page.locator(':scope > summary',{hasText:/^Altre liste ·/})});
-  await other.locator(':scope > summary').click();
-  await expect(other.getByLabel('Nome lista',{exact:true})).toBeDisabled();
-  await expect(other.getByLabel('Colore',{exact:true})).toBeDisabled();
-  await expect(other.getByLabel('Coalizione',{exact:true})).toHaveCount(0);
-  await disable.click();
-  await expect(other).toHaveCount(0);
-});
+
+for (const [law,model] of [[ROSATELLUM,'M01'],[REFORM,'M01'],[REFORM,'M02']] as const) {
+ test(`${law}/${model}: residual creation, zero seats, persistence and fresh reactivation`,async({page})=>{
+  const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
+  await openCommon(page,law,model);
+  const controls=page.getByRole('group',{name:'Altre liste',exact:true});
+  await controls.getByRole('button',{name:'Attiva Altre liste',exact:true}).click();
+  await expect(page.getByRole('alert').filter({hasText:'Scegli esplicitamente'})).toBeVisible();
+  const members=controls.getByLabel('Componenti del residuo');
+  const id=await members.locator('option').first().getAttribute('value');
+  await members.selectOption(id!);
+  await controls.getByRole('button',{name:'Attiva Altre liste',exact:true}).click();
+  const row=page.getByRole('article',{name:'Altre liste',exact:true});
+  await expect(row.getByLabel('Nome lista',{exact:true})).toBeDisabled();
+  await expect(row.locator('input[type=color]')).toBeDisabled();
+  await expect(row.getByRole('combobox',{name:'Coalizione',exact:true})).toBeDisabled();
+  const reference=row.getByLabel('Riferimento nazionale (%)',{exact:true});
+  await reference.fill('10');await reference.blur();
+  const result=await runCommon(page);
+  const file=await downloadCommon(page,'Scarica archivio risultati JSON.gz');
+  const archive=JSON.parse(new TextDecoder().decode(gunzipSync(file)));
+  const series=archive.run.result.tables.find((t:any)=>t.name==='Reform statistical series v1');
+  const residual=series.rows.filter((r:any[])=>r[series.columns.indexOf('Owner')]==='list:__other__');
+  expect(residual.length).toBeGreaterThan(0);expect(residual.every((r:any[])=>r[series.columns.indexOf('Elected')]===0)).toBe(true);
+  expect(result.politics.run.session.simulations).toEqual([{id:1,outcome:'complete'}]);
+  await page.reload();await expect(row).toHaveCount(1);await expect(reference).toHaveValue('10');
+  await page.getByLabel('Algoritmo di scrutinio').selectOption(law===REFORM?ROSATELLUM:REFORM);
+  await expect(row).toHaveCount(1);
+  await controls.getByRole('button',{name:'Disattiva Altre liste',exact:true}).click();
+  await expect(row).toHaveCount(0);
+  await controls.getByLabel('Componenti del residuo').selectOption(id!);
+  await controls.getByRole('button',{name:'Attiva Altre liste',exact:true}).click();
+  await expect(reference).toHaveValue('');expect(errors).toEqual([]);
+ });
+}

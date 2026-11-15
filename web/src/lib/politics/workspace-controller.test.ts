@@ -28,6 +28,14 @@ function harness(saved: Record<string, string> = {}) {
   return { controller, storage, saved, runtime, manifest, importResult };
 }
 describe('CP-07 session action table and task ownership', () => {
+  it('preserves the preparation failure when Run is requested and dispatches no simulations', async () => {
+    const h = harness(), initial = h.controller.scenario;
+    vi.mocked(h.runtime.prepare).mockRejectedValueOnce(new RangeError('Override removes all locally filed support'));
+    await h.controller.initialize(); await h.controller.run();
+    expect(h.controller.error).toContain('Override removes all locally filed support');
+    expect(h.runtime.run).not.toHaveBeenCalled(); expect(h.controller.sessions).toEqual([]);
+    expect(h.controller.scenario).toEqual(initial); expect(h.controller.busy).toBe(false);
+  });
   it('keeps result browsing, imports, switching and explicit scenario loading independent', async () => {
     const h = harness(); await h.controller.initialize(); await h.controller.selectSession('saved');
     const initial = h.controller.scenario;

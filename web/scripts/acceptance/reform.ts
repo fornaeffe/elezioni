@@ -6,7 +6,7 @@ import { resolve } from 'node:path';
 import { requireBrowserAcceptance, requireUnitAcceptance } from './reports';
 
 const web = fileURLToPath(new URL('../../', import.meta.url));
-const output = resolve(web, '../data/derived/r26-21-acceptance');
+const output = resolve(web, process.env.ACCEPTANCE_OUTPUT ?? '../data/derived/r26-21-acceptance');
 await mkdir(output, { recursive: true });
 const report = { created: new Date().toISOString(), status: 'running', node: process.version, platform: process.platform,
   scope: 'Local production application acceptance; provisional I08 tables; conditional synthetic preferences; no deployment.',
@@ -48,21 +48,20 @@ try {
   for (const base of ['/elezioni', '']) {
     const smoke = base === '';
     const browserReport = resolve(output, base ? 'browser-project.json' : 'browser-root.json');
-    const env = { BASE_PATH: base, ACCEPTANCE_SERVER_PORT:'4175', REFORM_FAST_CANDIDATE:'1', ACCEPTANCE_PREBUILT: '1', PLAYWRIGHT_JSON_OUTPUT_NAME: browserReport };
+    const env = { BASE_PATH: base, ACCEPTANCE_SERVER_PORT:'4175',  ACCEPTANCE_PREBUILT: '1', PLAYWRIGHT_JSON_OUTPUT_NAME: browserReport };
     await run(`static build ${base || '/'}`, ['run', 'build'], env);
-    // The full behavioral matrix runs once at the deployed project path. Root
-    // still exercises navigation/refresh, imports and real previous-law/ER workers.
-    const rootSpecs = ['static-routes.spec.ts', 'workflow-selector.spec.ts', 'workspace-uniformity.spec.ts', 'regional-er.spec.ts'];
-    await run(`browser ${smoke ? 'URL smoke' : 'suite'} ${base || '/'}`, ['run', 'test:e2e', '--', ...(smoke ? rootSpecs : []), '--reporter=json', '--retries=0', ...(testWorkers ? ['--workers', testWorkers] : [])], env);
+    // CP-08 requires the common domain/editor/session and independent regional
+    // matrix at both bases, including all three approved worker pairs.
+    await run(`browser suite ${base || '/'}`, ['run', 'test:e2e', '--', '--reporter=json', '--retries=0', ...(testWorkers ? ['--workers', testWorkers] : [])], env);
     report.checks.push({ name: `browser acceptance ${base || '/'}`, ...requireBrowserAcceptance(JSON.parse(await readFile(browserReport, 'utf8'))) });
-    if (!smoke) {
-      const editorReport = resolve(output, 'editor-project.json');
-      await run(`current scenario editor ${base}`, ['run','test:reform:shares:ui','--','--project=chromium','--reporter=json','--retries=0'], {...env, PLAYWRIGHT_JSON_OUTPUT_NAME: editorReport});
+    {
+      const editorReport = resolve(output, base ? 'editor-project.json' : 'editor-root.json');
+      await run(`current scenario editor ${base}`, ['run','test:reform:shares:ui','--','--project=chromium','--reporter=json','--retries=0', ...(testWorkers ? ['--workers', testWorkers] : [])], {...env, PLAYWRIGHT_JSON_OUTPUT_NAME: editorReport});
       report.checks.push({name: `editor acceptance ${base}`, ...requireBrowserAcceptance(JSON.parse(await readFile(editorReport, 'utf8')))});
     }
-    const unifiedReport=resolve(output,base?'unified-project.json':'unified-root.json'),unifiedEnv={...env,REFORM_FAST_CANDIDATE:'1',PLAYWRIGHT_JSON_OUTPUT_NAME:unifiedReport,
-      FV08_FULL:'0',FV08_DRAWS:smoke?'1':'3',FV08_WORKERS:smoke?'1':'', ACCEPTANCE_ROOT_SMOKE:smoke?'1':'0'};
-    await run(`unified ${smoke ? 'URL smoke' : 'browser/storage/export'} ${base || '/'}`,['run','test:reform:shares:unified','--','--reporter=json','--retries=0', ...(smoke ? ['--grep', 'unified browser workflow'] : [])],unifiedEnv);
+    const unifiedReport=resolve(output,base?'unified-project.json':'unified-root.json'),unifiedEnv={...env,PLAYWRIGHT_JSON_OUTPUT_NAME:unifiedReport,
+      FV08_DRAWS:smoke?'1':'3'};
+    await run(`unified ${smoke ? 'URL smoke' : 'browser/storage/export'} ${base || '/'}`,['run','test:reform:shares:unified','--','--reporter=json','--retries=0', ...(testWorkers ? ['--workers', testWorkers] : []), ...(smoke ? ['--grep', 'unified browser workflow'] : [])],unifiedEnv);
     report.checks.push({name:`unified browser acceptance ${base||'/'}`,...requireBrowserAcceptance(JSON.parse(await readFile(unifiedReport,'utf8')))});
   }
   // Root was built last, so the usable local build is already restored.

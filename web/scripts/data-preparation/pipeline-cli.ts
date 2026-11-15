@@ -88,7 +88,7 @@ const catalog = JSON.parse(await readFile(resolve(web, 'src/lib/politics/reform-
 const paths = ['static/data/v1/metadata.json', 'static/data/v1/politics-static.json', 'static/data/v1/regional-er-static.json', `static/${catalog.path}`,
   'static/data/reform-2026/fast-share/candidate.json',
   ...[...new Set((await import('../../src/lib/politics/scenario/dependencies')).declaredAssets(authored).map(a => `static/${a.uri}`))], 'src/lib/workspaces/snapshots.generated.ts',
-  ...['politics-defaults', 'politics-candidate-slots', 'politics-municipalities', 'regional-er-defaults'].map(n => `src/lib/scenario/${n}.generated.ts`)];
+  ...['politics-candidate-slots', 'politics-municipalities', 'regional-er-defaults'].map(n => `src/lib/scenario/${n}.generated.ts`)];
 const artifacts = await Promise.all(paths.map(async path => { const bytes = await readFile(resolve(web, path)); return { path, bytes: bytes.length, sha256: sha256(bytes) }; }));
 const receipt = { method: 'node-production-preparation-v1', artifacts };
 await mkdir(output, { recursive: true });

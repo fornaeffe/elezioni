@@ -1,8 +1,8 @@
 import { generatedSnapshotPoliticsScenario } from '../../../tests/fixtures/legacy-snapshot-scenario';
-import { cloneScenario } from '../scenario/politics';
+import { cloneScenario } from '../../../tests/fixtures/retired-politics/scenario';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, test } from 'vitest';
-import { createDefaultPoliticsScenario } from '$lib/scenario/politics';
+import { createDefaultPoliticsScenario } from '../../../tests/fixtures/retired-politics/scenario';
 import { describeWithGeneratedFixtures, loadGeneratedJsonFixture } from '$lib/test/generated-fixtures';
 import {
   buildPoliticsParametersFromHistoricalVotes,

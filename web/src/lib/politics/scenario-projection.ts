@@ -5,7 +5,7 @@ import type {
   ScenarioLocalShareOverride,
   ScenarioLocalShareOverrideScope
 } from '$lib/core/types';
-import { plurinominalCandidacyCountSharesToFractions } from '$lib/scenario/politics';
+import { plurinominalCandidacyCountSharesToFractions } from './candidacy-fractions';
 import { buildPoliticsParametersFromHistoricalVotes } from './parameter-preparation';
 import { isFiled } from '../workspaces/filing';
 import { politicsTicketName } from '../scenario/politics-tickets';

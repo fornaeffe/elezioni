@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import type { ResultTable, Scenario } from '$lib/core/types';
-import { createDefaultPoliticsScenario } from '$lib/scenario/politics';
+import { createDefaultPoliticsScenario } from '../../../tests/fixtures/retired-politics/scenario';
 import {
   buildPoliticsPlurinominalChart,
   buildPoliticsPlurinominalChartOptions,

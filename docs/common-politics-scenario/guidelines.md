@@ -1022,6 +1022,8 @@ each seed button edits only its field. Follow CP-08's campaign-size restriction.
 
 ### CP-08 — Acceptance, cleanup and documentation
 
+Current procedure: [production gate, campaigns and retirement boundary](acceptance.md).
+
 Run focused domain/adapter checks during their steps, then the repository's
 current production acceptance gate from `web/` after full preparation. Cover
 every approved pair at `/` and `/elezioni`: direct loads, navigation, workers,
@@ -1036,15 +1038,17 @@ evidence. Include bounded processing, resource/quota failures, cancellation,
 interrupted-result recovery, export/import, session transitions and worker-count
 determinism. Do not include a run above 1,000 simulations in acceptance; removal
 of the old ceiling does not imply measured performance above that campaign size.
-Retain distinct legal/non-computable and infrastructure failure reporting; the
-known previous-law dead end requires separate legal review, not rerolling,
-skipping or claiming a successful campaign.
+Retain distinct legal/non-computable and infrastructure failure reporting.
+Per the 15 November clarification, preserve the same political output, including
+expected errors, given the same votes. The retained Camera surplus-seat error is
+acceptable campaign evidence when preserved explicitly; correcting it requires
+separate legal review. Do not reroll, skip or relabel failed legal outcomes.
 
 Apply D19 when assessing comparisons: document equivalence and any differences
 from old draws, but do not retain architectural duplication to force exact
 seeded parity. Fixed-input legal regression tests and law/interpretation
-requirements remain blocking. A passing expected-failure regression is not a
-successful 1,000-run campaign.
+requirements remain blocking. A passing expected-failure regression alone does
+not replace the required 1,000-run campaign and its resource/file checks.
 
 After domain, legal and new-format checks pass, remove superseded politics
 workspace components, active M00 generation/control paths, route branches,
@@ -1060,10 +1064,10 @@ this is a navigation map, not a mandate to retain existing boundaries.
 
 | Concern | Entry points |
 | --- | --- |
-| Routes, registry and current lifecycle | `src/routes/politics/+page.svelte`; `src/lib/workspaces/{registry.ts,controller.svelte.ts,draft.svelte.ts,import-routing.ts}` |
-| Original scenario/generation/scrutiny | `src/lib/core/types.ts`; `src/lib/scenario/politics.ts`; `src/lib/politics/{pipeline.ts,vote-generation.ts,candidate-generation.ts,scrutiny-algorithms.ts}` |
+| Routes, registry and current lifecycle | `src/routes/politics/+page.svelte`; `src/lib/politics/{scenario/registry.ts,workspace-controller.ts}`; `src/lib/workspaces/import-routing.ts` |
+| Retained previous-law generation/scrutiny and old test scenario | `src/lib/politics/{pipeline.ts,vote-generation.ts,candidate-generation.ts,scrutiny-algorithms.ts}`; `tests/fixtures/retired-politics/scenario.ts` |
 | Reform scenario, edits, candidates and assembly | `src/lib/politics/reform-2026/{generation-types.ts,generation-scenario.ts,scenario-editor.ts,candidature-validation.ts,assembly.ts}` |
 | M01/M02 schema, dispatch, fit and edit services | `src/lib/politics/reform-2026/vote-share/{release.ts,scenario.ts,model-registry.ts,unified-generation.ts,fit-service.ts,editor-model.ts}` |
-| Existing UI to consolidate | `src/lib/workspaces/LegacyPoliticsWorkspace.svelte`; `src/lib/politics/reform-2026/ReformWorkspace.svelte`; `src/lib/politics/reform-2026/vote-share/{FastReformWorkspace.svelte,FastScenarioEditor.svelte}` |
+| Current UI and retired evidence | `src/lib/politics/{CommonPoliticsWorkspace.svelte,PoliticsSessionResults.svelte,editor/}`; old workspace trees removed, isolated regressions under `tests/fixtures/retired-*` |
 | Authored/default preparation | `../data/politics-default-scenario.json`; `scripts/workspaces/{politics-default.ts,politics-assets.ts,generate.ts}`; `scripts/data-preparation/fast-share-release.ts`; [defaults guide](defaults.md) |
 | Result contracts, access and export | `src/lib/core/{types.ts,result-export.ts,result-store.ts}`; `src/lib/workspaces/result-access.ts`; `src/lib/politics/result-presentation.ts`; `src/lib/politics/reform-2026/result-presentation.ts` |

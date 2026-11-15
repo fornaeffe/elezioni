@@ -133,6 +133,22 @@ test('quota interruption retains only committed simulation membership and the re
   expect(result.result.warnings.some((w: any) => w.code === 'RESULT_STORAGE_ERROR')).toBe(true);
   await page.reload(); await expect(page.getByText(/^Scenario eseguito:.*1\/3 simulazioni conservate/)).toBeVisible();
 });
+
+test('native common compute failure retains the committed prefix as an infrastructure interruption', async ({page, context}) => {
+  await context.route('**/reform-compute.worker-*.js', async route => {
+    const response = await route.fetch();
+    const crash = `self.addEventListener('message',e=>{if(e.data.action==='compute'&&e.data.simulation===2)throw new Error('CP08 injected native compute failure')});\n`;
+    await route.fulfill({response, body: crash + await response.text()});
+  });
+  await setup(context, page, ROSATELLUM, 'M01');
+  const result = await run(page);
+  expect(result.result.storage.state).toBe('interrupted');
+  expect(result.politics.run.session.simulations).toEqual([{id: 1, outcome: 'complete'}]);
+  expect(result.result.benchmark.simulations).toBe(3);
+  expect(result.result.warnings.some((w: any) => w.code === 'RESULT_EXECUTION_ERROR')).toBe(true);
+  await page.reload();
+  await expect(page.getByText(/^Scenario eseguito:.*1\/3 simulazioni conservate/)).toBeVisible();
+});
 test('explicit cancellation locks execution and retains assigned simulation IDs across reload', async ({ page, context }) => {
   await setup(context, page, ROSATELLUM, 'M01');
   await page.getByLabel('Numero di simulazioni', { exact: true }).fill('10'); await page.getByLabel('Numero di simulazioni', { exact: true }).blur();

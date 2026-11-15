@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { createOtherList, OTHER_LIST_ID, OTHER_LIST_NAME, setOtherListEnabled, validateOtherScenarioLists } from './other-list';
-import { createDefaultPoliticsScenario, parseScenario, serializeScenario } from '../scenario/politics';
+import { createDefaultPoliticsScenario, parseScenario, serializeScenario } from '../../../tests/fixtures/retired-politics/scenario';
 import { createDefaultRegionalErScenario, parseRegionalErScenario, serializeRegionalErScenario } from '../scenario/regional-er';
 import { runEarlyPoliticsScrutiny, runPoliticsScrutinyTrace } from '../politics/scrutiny';
 import { buildPoliticsDirectScrutinySnapshot } from '../politics/pipeline';

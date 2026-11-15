@@ -1,6 +1,6 @@
 import { generatedSnapshotPoliticsScenario } from '../../../tests/fixtures/legacy-snapshot-scenario';
 import { describe, expect, test } from 'vitest';
-import { cloneScenario } from './politics';
+import { cloneScenario } from '../../../tests/fixtures/retired-politics/scenario';
 const createHistoricalScenario = () => cloneScenario(generatedSnapshotPoliticsScenario);
 import {
   addScenarioHistoricalCorrespondence,
@@ -29,7 +29,7 @@ import {
   upsertScenarioCandidateTemplate,
   upsertScenarioLocalShareOverride,
   validateScenario
-} from './politics';
+} from '../../../tests/fixtures/retired-politics/scenario';
 
 describe('politics web-native scenario model', () => {
   test('historical snapshot scenario remains valid', () => {

@@ -45,7 +45,7 @@ test('global context precedes exact frequencies and bounded ID inspection, filte
   await expect(affected).toContainText('seat-camera'); await expect(affected).toContainText('seat-senato');
   await expect(affected).toContainText('Motivo: origin'); await expect(affected).toContainText('Motivo: propagated');
   await affected.getByRole('button', { name: 'Risultato di 1201', exact: true }).click();
-  await expect(page.getByLabel('Simulazione grafico', { exact: true })).toHaveValue('1201');
+  await expect(page.getByLabel('Simulazione (vuoto = tutte)', { exact: true })).toHaveValue('1201');
   await affected.getByLabel('Filtra motivo originale', { exact: true }).fill('propagated');
   await affected.getByRole('button', { name: 'Filtra simulazioni', exact: true }).click();
   await affected.getByRole('button', { name: 'Messaggi di 1201', exact: true }).click();
@@ -65,9 +65,9 @@ test('global context precedes exact frequencies and bounded ID inspection, filte
   const old = { ...legacy, result: oldResult };
   old.result.tables = old.result.tables.filter(t => t.name !== diagnosticTableName);
   old.result.tables.push({ name: 'Warnings and errors', columns: ['Code', 'Severity', 'First simulation', 'Message', 'Occurrences'], rows: [['TEST_ERROR', 'error', 1, 'Saved aggregate', 6005]] });
-  const previous = await page.getByLabel('Risultati locali').inputValue();
+  const previous = await page.getByRole('combobox', { name: 'Sessione dei risultati', exact: true }).inputValue();
   await seedPresentationSession(page, currentArchive(old, await currentBrowserSession()));
-  await expect(page.getByLabel('Risultati locali')).not.toHaveValue(previous, {timeout:30000});
+  await expect(page.getByRole('combobox', { name: 'Sessione dei risultati', exact: true })).not.toHaveValue(previous, {timeout:30000});
   await expect(summary).toContainText('Frequenze e ID esatti non ricostruibili', { timeout: 30000 });
   await expect(summary.getByRole('combobox', { name: 'Ramo dei messaggi', exact: true })).toBeDisabled();
   await expect(summary.getByRole('table')).toContainText('6005');
@@ -77,16 +77,16 @@ test('global context precedes exact frequencies and bounded ID inspection, filte
 
   const zero = structuredClone(archive); zero.result.tables = []; zero.result.completedSimulations = 0;
   zero.result.warnings = [{ code: 'RESULT_STORAGE_ERROR', electionKind: 'politiche', severity: 'error', scope: 'execution', message: 'Failure before the first saved run.' }];
-  const beforeZero = await page.getByLabel('Risultati locali').inputValue();
+  const beforeZero = await page.getByRole('combobox', { name: 'Sessione dei risultati', exact: true }).inputValue();
   await seedPresentationSession(page, currentArchive(zero, await currentBrowserSession()));
-  await expect(page.getByLabel('Risultati locali')).not.toHaveValue(beforeZero, {timeout:30000});
+  await expect(page.getByRole('combobox', { name: 'Sessione dei risultati', exact: true })).not.toHaveValue(beforeZero, {timeout:30000});
   await expect(general).toContainText('Calcolo interrotto: 0/1500', { timeout: 30000 });
   await expect(summary.locator('.totals')).toContainText('Errore: 0/1500');
   await expect(page.getByRole('alert').filter({ hasText: 'Unknown result table' })).toHaveCount(0);
   const zeroDownload = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Scarica risultati JSON.gz', exact: true }).click();
+  await page.getByRole('button', { name: 'Scarica archivio risultati JSON.gz', exact: true }).click();
   const zeroStream = await (await zeroDownload).createReadStream(), zeroChunks: Buffer[] = [];
   for await (const chunk of zeroStream!) zeroChunks.push(Buffer.from(chunk));
-  expect(JSON.parse(new TextDecoder().decode(gunzipSync(Buffer.concat(zeroChunks)))).result.completedSimulations).toBe(0);
+  expect(JSON.parse(new TextDecoder().decode(gunzipSync(Buffer.concat(zeroChunks)))).run.result.completedSimulations).toBe(0);
   expect(errors).toEqual([]);
 });

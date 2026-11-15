@@ -128,7 +128,7 @@ export class PoliticsWorkspaceController {
     try {
       await this.pending;
       if (this.disposed || revision !== this.revision) return;
-      if (!this.preparation) throw new Error('Preparare il modello prima di eseguire la simulazione');
+      if (!this.preparation) throw new Error(this.error || 'Preparare il modello prima di eseguire la simulazione');
       politicsRunResources(this.scenario, this.preparation.capacity);
       const captured = parsePoliticsScenario(this.scenario), id = crypto.randomUUID();
       if (viewRevision === this.viewRevision) { this.selected = id; this.viewed = null; }
