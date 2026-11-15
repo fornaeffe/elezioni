@@ -1,5 +1,7 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, tick } from 'svelte';
+  import { useStatus } from '$lib/app-status.svelte';
+  const appStatus = useStatus();
   import { base } from '$app/paths';
   import { type PoliticsScenario, type GeneratorId, type LawId, laws, REFORM } from '../scenario/schema';
   import { activeGenerator, capabilities, supportedPairs } from '../scenario/registry';
@@ -20,13 +22,14 @@
     execution?: ExecutionControls; stageExternalFile?: (file: File) => Promise<(() => void) | null> } = $props();
   let assets = $state.raw<EditorAssets | null>(null), error = $state(''), status = $state('Caricamento del modello selezionato…');
   let controller: AbortController | null = null, importController: AbortController | null = null, disposed = false, epoch = 0, editRevision = 0;
+  $effect(() => { appStatus.set('politics-editor', error ? { state: 'error', label: 'Errore editor', detail: error, retry: !assets ? () => void load(scenario) : undefined } : !assets ? { state: status === 'Caricamento annullato' ? 'ready' : 'working', label: status, cancel: () => { controller?.abort(); ++epoch; status = 'Caricamento annullato'; }, retry: () => void load(scenario) } : { state: 'ready', label: status }); });
   let generator = $derived(activeGenerator(scenario));
   let issues = $derived(assets ? validateActiveScenario(scenario, assets.context) : []);
   const lawName = (law: LawId) => law === REFORM ? 'Riforma 2026' : 'Rosatellum';
   async function load(next: PoliticsScenario) {
     controller?.abort(); controller = new AbortController();
     const revision = ++epoch;
-    assets = null; status = `Caricamento ${activeGenerator(next).id} · ${lawName(next.selection.scrutiny.id)}…`;
+    error = ''; assets = null; status = `Caricamento ${activeGenerator(next).id} · ${lawName(next.selection.scrutiny.id)}…`;
     try {
       const loaded = await loadEditorAssets(next, controller.signal);
       parsePoliticsScenario(next, loaded.context);
@@ -49,8 +52,9 @@
   }
   async function importFile(file: File) {
     const revision = editRevision;
-    importController?.abort();
+    error = ''; importController?.abort();
     const staged = new AbortController(); importController = staged;
+    const task = `scenario-import-${crypto.randomUUID()}`; appStatus.set(task, { state: 'working', label: 'Caricamento file' });
     try {
       const external = await stageExternalFile?.(file);
       if (disposed || staged.signal.aborted || execution?.busy || revision !== editRevision) return;
@@ -61,19 +65,19 @@
       parsePoliticsScenario(next, loaded.context);
       if (disposed || staged.signal.aborted || execution?.busy || revision !== editRevision) return;
       onchange(next); ++editRevision; controller?.abort(); ++epoch; assets = loaded; error = ''; status = `${activeGenerator(next).id} · dati verificati`;
-    } catch (e) { if (!disposed && !staged.signal.aborted) error = `Scenario non caricato. ${e instanceof Error ? e.message : String(e)}`; }
+    } catch (e) { if (!disposed && !staged.signal.aborted) error = `Scenario non caricato. ${e instanceof Error ? e.message : String(e)}`; } finally { appStatus.clear(task); }
   }
-  function download(gzip: boolean) {
+  async function download(gzip: boolean) {
+    const task = `scenario-export-${crypto.randomUUID()}`; appStatus.set(task, { state: 'working', label: 'Preparazione scenario per il download' });
+    await tick(); await new Promise<void>(resolve => setTimeout(resolve, 0));
     try { const url = URL.createObjectURL(new Blob([encodeScenario(scenario, gzip)])); const a = document.createElement('a'); a.href = url; a.download = `scenario-politiche.json${gzip ? '.gz' : ''}`; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); }
-    catch (e) { error = String(e); }
+    catch (e) { error = String(e); } finally { appStatus.clear(task); }
   }
-  onMount(() => { void load(scenario); return () => { disposed = true; ++epoch; controller?.abort(); importController?.abort(); }; });
+  onMount(() => { void load(scenario); return () => { disposed = true; ++epoch; controller?.abort(); importController?.abort(); appStatus.clear('politics-editor'); }; });
 </script>
 <div class="common-politics-editor">
   <nav aria-label="Percorso"><a href={`${base}/`}>Home</a> / <a href={`${base}/politics`}>Elezioni politiche</a> / Editor comune</nav>
   <h1>Scenario delle elezioni politiche</h1>
-  <aside class="editor-status"><details><summary>{execution ? `${execution.status}${assets ? ' · dati verificati' : ''}` : status}</summary><p>{execution?.progress ?? status}</p>{#if execution?.busy || execution?.preparing}<button onclick={execution.onCancel}>{execution.busy ? 'Annulla esecuzione' : 'Annulla preparazione'}</button>{:else if !assets}<button onclick={() => { controller?.abort(); ++epoch; status = 'Caricamento annullato'; }}>Annulla caricamento</button><button onclick={() => void load(scenario)}>Riprova caricamento</button>{/if}</details></aside>
-  {#if error}<p role="alert">{error}</p>{/if}
   {#if issues.length}<LazySection title={`Verifica dello scenario · ${issues.length} problemi da correggere`}><ul>{#each issues as issue, i (`${issue.code}:${issue.path}:${i}`)}<li>{issue.code}: {issue.message}</li>{/each}</ul></LazySection>{/if}
   <fieldset disabled={execution?.busy}>
     <div class="row">

@@ -24,7 +24,7 @@ test('malformed common imports cannot switch the law or replace the current draf
   await name.fill('Current common draft'); await name.blur();
   const otherLaw={...authored, selection:{...authored.selection,scrutiny:{id:'politiche-r-parity-v1',version:'1.0.0'}}, unexpected:true};
   await page.getByLabel('Carica scenario',{exact:true}).setInputFiles({name:'invalid.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(otherLaw))});
-  await expect(page.getByRole('alert').filter({hasText:'Scenario non caricato'})).toBeVisible();
+  await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText('Scenario non caricato');
   await expect(name).toHaveValue('Current common draft');
   await expect(page.getByLabel('Algoritmo di scrutinio')).toHaveValue(authored.selection.scrutiny.id);
 });

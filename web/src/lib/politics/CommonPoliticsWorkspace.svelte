@@ -1,5 +1,7 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, tick } from 'svelte';
+  import { useStatus } from '$lib/app-status.svelte';
+  const appStatus = useStatus();
   import { base } from '$app/paths';
   import CommonPoliticsEditor from './editor/CommonPoliticsEditor.svelte';
   import PoliticsSessionResults from './PoliticsSessionResults.svelte';
@@ -29,19 +31,26 @@
     onRun: () => { void controller.run(); }, onCancel: () => { void controller.cancel(); }, onFit: () => controller.prepare(true),
     onImportCheckpoint: (file: File) => { void importCheckpoint(file); },
     onExportCheckpoint: view.preparation && !view.preparing ? () => { void exportCheckpoint(); } : undefined } : undefined);
+  $effect(() => { const v = view; appStatus.set('politics-execution', !v ? { state: 'working', label: 'Inizializzazione' } : v.busy || v.preparing ? { state: 'working', label: v.status, detail: v.progress, cancel: () => void controller.cancel() } : { state: 'ready', label: v.status, detail: v.progress }); });
+  $effect(() => { if (view?.error) appStatus.set('politics-error', { state: 'error', label: 'Operazione non riuscita', detail: view.error }); else appStatus.clear('politics-error'); });
+  $effect(() => { if (view?.storageError) appStatus.set('politics-storage', { state: 'error', label: 'Errore di salvataggio', detail: view.storageError }); else appStatus.clear('politics-storage'); });
+  $effect(() => { if (fileError) appStatus.set('politics-file-error', { state: 'error', label: 'Errore file', detail: fileError }); else appStatus.clear('politics-file-error'); });
+  async function track<T>(label: string, task: () => Promise<T>): Promise<T> { const id = crypto.randomUUID(); appStatus.set(id, { state: 'working', label }); try { await tick(); await new Promise<void>(resolve => setTimeout(resolve, 0)); return await task(); } finally { appStatus.clear(id); } }
   function download(file: Blob, name: string) { const url = URL.createObjectURL(file), a = document.createElement('a'); a.href = url; a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); }
   async function exportCheckpoint() {
-    try { const checkpoint = await client.checkpoint(); if (!checkpoint) throw new Error('Checkpoint non applicabile a M01'); download(new Blob([JSON.stringify(checkpoint)]), 'politiche-checkpoint.json'); }
+    fileError = '';
+    try { await track('Preparazione checkpoint per il download', async () => { const checkpoint = await client.checkpoint(); if (!checkpoint) throw new Error('Checkpoint non applicabile a M01'); download(new Blob([JSON.stringify(checkpoint)]), 'politiche-checkpoint.json'); }); }
     catch (e) { fileError = String(e); }
   }
   async function importCheckpoint(file: File) {
+    fileError = '';
     const reader = new JsonStreamReader(jsonFileStream(file));
-    try { const checkpoint = parsePoliticsCheckpoint(await reader.value()); await reader.finish(); controller.prepare(false, checkpoint); }
+    try { const checkpoint = parsePoliticsCheckpoint(await track('Caricamento checkpoint', () => reader.value())); await reader.finish(); controller.prepare(false, checkpoint); }
     catch (e) { fileError = `Checkpoint non caricato: ${String(e)}`; } finally { await reader.close(); }
   }
   async function exportResult(format: 'json' | 'csv') {
-    if (!view?.viewed) return; exporting = true;
-    try { const file = await client.results.call<File>('export', { resultId: view.viewed.id, owner: controller.owner, format }); download(file, `politiche-risultati.${format === 'json' ? 'json.gz' : 'csv'}`); }
+    if (!view?.viewed) return; fileError = ''; exporting = true;
+    try { const resultId = view.viewed.id; const file = await track('Preparazione risultati per il download', () => client.results.call<File>('export', { resultId, owner: controller.owner, format })); download(file, `politiche-risultati.${format === 'json' ? 'json.gz' : 'csv'}`); }
     catch (e) { fileError = String(e); } finally { exporting = false; }
   }
   async function loadViewedScenario() { if (await controller.loadViewedScenario()) editorEpoch++; }
@@ -57,13 +66,14 @@
     client = new PoliticsClient(new Worker(new URL('../workers/politics-workspace.worker.ts', import.meta.url), { type: 'module' }), base);
     controller = new PoliticsWorkspaceController(createDefaultCommonPoliticsScenario(), { runtime: client, storage: localStorage,
       changed: () => { render++; }, manifest: (id, owner) => client.results.call('manifest', { resultId: id, owner }),
-      importResult: (file, id, owner) => client.results.call('import', { file, resultId: id, owner, commonPolitics: true }),
+      importResult: (file, id, owner) => track('Caricamento risultati', () => client.results.call('import', { file, resultId: id, owner, commonPolitics: true })),
       validateScenario: async s => { const assets = await loadEditorAssets(s, validation.signal); parsePoliticsScenario(s, assets.context); } });
     client.onPreparationProgress = (detail, completed, total) => controller.preparationProgress(detail, completed, total);
     void controller.initialize().then(async () => {
       if (!alive) return; ready = true;
       const input = takeWorkspaceImport('politics-legacy') ?? takeWorkspaceImport('politics-reform');
       if (!input) return;
+      await track('Caricamento file', async () => {
       if (input.payload) throw new Error(OLD_POLITICS_FORMAT);
       const draftAtImport = controller.scenario;
       if (input.file) {
@@ -77,15 +87,13 @@
         parsePoliticsScenario(scenario, assets.context);
         if (alive && controller.scenario === draftAtImport && !controller.busy) { controller.change(scenario); editorEpoch++; }
       }
+      });
     }).catch(e => { if (alive) fileError = String(e); });
-    return () => { alive = false; validation.abort(); controller.dispose(); };
+    return () => { alive = false; validation.abort(); controller.dispose(); appStatus.clear('politics-execution'); appStatus.clear('politics-error'); appStatus.clear('politics-storage'); appStatus.clear('politics-file-error'); };
   });
 </script>
 <svelte:head><title>Elezioni politiche</title></svelte:head>
 {#if view}
-  {#if view.error}<p class="workspace-error" role="alert">{view.error}</p>{/if}
-  {#if view.storageError}<p class="workspace-error" role="alert">{view.storageError}</p>{/if}
-  {#if fileError}<p class="workspace-error" role="alert">{fileError}</p>{/if}
   {#key editorEpoch}<CommonPoliticsEditor scenario={view.scenario} onchange={s => { controller.change(s); }} {execution} {stageExternalFile} />{/key}
   {#if view.preparation}<p class="worker-plan">Worker richiesti: {view.scenario.execution.workers.kind === 'auto' ? 'automatici' : view.scenario.execution.workers.count} · consigliati {view.preparation.capacity.recommended} · massimo CPU {view.preparation.capacity.maximum}. Stima per worker: {Math.ceil(view.preparation.capacity.perWorkerBytes / 1048576)} MiB.</p>{/if}
   {#if view.preparation && view.scenario.execution.workers.kind === 'fixed' && (workerMemoryWarning(view.scenario.execution.workers.count, view.preparation.capacity) || workerHeapWarning(view.scenario.execution.workers.count, view.preparation.capacity))}

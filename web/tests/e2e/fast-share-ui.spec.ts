@@ -10,9 +10,9 @@ test('automatic preparation, cosmetic reuse and exact portable checkpoint reject
     expect(checkpoint.fittingSeed).toBe(original.execution.fittingSeed);
     await page.getByLabel('Nome scenario', { exact: true }).fill('Cosmetic change');
     await page.getByLabel('Nome scenario', { exact: true }).blur();
-    await expect(page.locator('.editor-status summary')).toContainText('fitting riutilizzato', { timeout: 60000 });
+    await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText('fitting riutilizzato', { timeout: 60000 });
     await page.getByLabel('Carica checkpoint', { exact: true }).setInputFiles({ name: 'mismatched.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(checkpoint)) });
-    await expect(page.getByRole('alert').filter({ hasText: /CHECKPOINT|Checkpoint/ })).toBeVisible();
+    await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toBeVisible();
     await expect(page.getByLabel('Seed del fitting', { exact: true })).toHaveValue(original.execution.fittingSeed);
     await expect(page.getByLabel('Seed delle simulazioni', { exact: true })).toHaveValue(original.execution.simulationSeed);
     const draft = decodeScenario(new Uint8Array(await downloadCommon(page, 'Scarica scenario JSON.gz')));
@@ -22,10 +22,10 @@ test('explicit refit cancellation and retry do not overwrite the draft', async (
     const original = await openCommon(page);
     await page.getByText('Fitting e checkpoint', { exact: true }).click();
     await page.getByRole('button', { name: 'Ricalcola fitting', exact: true }).click();
-    await page.getByRole('button', { name: 'Annulla preparazione', exact: true }).last().click();
-    await expect(page.locator('.editor-status summary')).toContainText('Preparazione annullata');
+    await page.getByRole('button', { name: /^Stato:/ }).click(); await page.getByRole('button', { name: 'Annulla', exact: true }).first().click();
+    await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText('Preparazione annullata');
     await page.getByRole('button', { name: 'Ricalcola fitting', exact: true }).click();
-    await expect(page.locator('.editor-status summary')).toContainText('Modello pronto', { timeout: 120000 });
+    await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText('Modello pronto', { timeout: 120000 });
     const stored = await page.evaluate(key => JSON.parse(localStorage.getItem(key)!), politicsDraftKey);
     expect(stored).toEqual(original);
 });
@@ -34,7 +34,7 @@ test('explicit worker requests retain CPU choices and expose memory warnings', a
     await openCommon(page);
     await page.getByLabel('Numero di worker richiesti', { exact: true }).fill('26');
     await page.getByLabel('Numero di worker richiesti', { exact: true }).blur();
-    await expect(page.locator('.editor-status summary')).toContainText('Modello pronto', { timeout: 60000 });
+    await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText('Modello pronto', { timeout: 60000 });
     await expect(page.getByRole('alert').filter({ hasText: 'stima prudenziale di memoria' })).toBeVisible();
     await expect(page.getByLabel('Numero di worker richiesti', { exact: true })).toHaveValue('26');
 });

@@ -178,7 +178,7 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   only names.
 - [x] Bonus winner, if any, is the same for both chambers: do not offer a chamber selector
   for "vincitori del premio" barplot.
-- [ ] Move application status to a small fixed, collapsible box near the top
+- [x] Move application status to a small fixed, collapsible box near the top
   right corner of the window, or other noninvasive but easily reachable location.
 - [ ] Assess if parallelization will improve import/export performances.
   Add progress indication, and parallelization if it will improve performances.

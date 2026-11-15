@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { useStatus } from '$lib/app-status.svelte';
+  const appStatus = useStatus();
   import WorkspaceMessages from './WorkspaceMessages.svelte';
   import { navigateWorkspaceImport } from './navigation';
   import { takeWorkspaceImport } from './handoff';
@@ -127,6 +129,9 @@
     
   });
   $effect(() => onBusyChange?.(isBusy));
+  $effect(() => { appStatus.set('regional-operation', running ? { state: 'working', label: 'Simulazione regionale', detail: phase, cancel: () => { execution.cancel(); phase = 'cancelled'; } } : busyAction ? { state: 'working', label: busyAction } : { state: 'ready', label: phase === 'cancelled' ? 'Calcolo annullato' : 'Pronto' }); });
+  $effect(() => { const errors = messages.filter(m => ['WORKER_ERROR', 'SCENARIO_LOAD_ERROR', 'RESULT_LOAD_ERROR', 'DOWNLOAD_ERROR'].includes(m.code)); if (errors.length) appStatus.set('regional-error', { state: 'error', label: 'Operazione regionale non riuscita', detail: errors.map(m => m.message).join('\n') }); else appStatus.clear('regional-error'); });
+  onMount(() => () => { appStatus.clear('regional-operation'); appStatus.clear('regional-error'); });
 
 
   function addList(): void {
@@ -281,11 +286,14 @@
     return `${slug || 'scenario-regionali-er'}.json`;
   }
 
-  async function withBusy<T>(label: string, action: () => T | Promise<T>): Promise<T> {
-    busyAction = label;
+  async function withBusy(label: string, action: () => void | Promise<void>): Promise<void> {
+    busyAction = label === 'download-scenario' ? 'Preparazione scenario per il download' : label === 'download-results' || label === 'download-csv' ? 'Preparazione risultati per il download' : label;
     try {
       await tick();
+      await new Promise<void>(resolve => setTimeout(resolve, 0));
       return await action();
+    } catch (error) {
+      messages = [uiMessage('DOWNLOAD_ERROR', error instanceof Error ? error.message : String(error), 'error')];
     } finally {
       busyAction = '';
     }
@@ -410,6 +418,7 @@
   }
   async function importScenarioFile(file: File): Promise<void> {
     try {
+      busyAction = 'Caricamento file';
       if ((await fileWorkspace(file)).id !== 'regional-er') { await navigateWorkspaceImport({ file }); return; }
       const text = await readJsonFile(file);
       if (looksLikeResultJson(text)) {
@@ -420,7 +429,7 @@
           }
     } catch (error) {
       messages = [uiMessage('SCENARIO_LOAD_ERROR', error instanceof Error ? error.message : String(error), 'error')];
-    }
+    } finally { busyAction = ''; }
   }
 
   async function loadResultFile(event: Event): Promise<void> {
@@ -429,13 +438,14 @@
     if (!file) return;
 
     try {
+      busyAction = 'Caricamento risultati';
       if (!isGzipFile(file)) throw new Error('Carica risultati regionali come file .json.gz.');
       if ((await fileWorkspace(file)).id !== 'regional-er') { await navigateWorkspaceImport({ file }); return; }
       applyResultExport(parseSimulationResultExport(await readJsonFile(file)));
     } catch (error) {
       messages = [uiMessage('RESULT_LOAD_ERROR', error instanceof Error ? error.message : String(error), 'error')];
     } finally {
-      input.value = '';
+      busyAction = ''; input.value = '';
     }
   }
 
@@ -480,8 +490,8 @@
       <h1>{scenarioDraft.name || 'Regionali Emilia-Romagna'}</h1>
       <p>Workflow regionale Emilia-Romagna senza generazione di candidati individuali.</p>
     </div>
-    <RunControls bind:simulations bind:seed {canRun} {running} disabled={!!busyAction} label={running ? phase : 'Esegui'}
-      onrun={runSimulation} oncancel={() => { execution.cancel(); phase = 'cancelled'; }} />
+    <RunControls bind:simulations bind:seed {canRun} {running} disabled={!!busyAction} label="Esegui"
+      onrun={runSimulation} />
     <span class="elapsed" data-testid="elapsed-ms">{elapsedLabel}</span>
   </section>
 
@@ -493,7 +503,7 @@
     </section>
   {/if}
 
-  <WorkspaceMessages {messages} result={lastResult} />
+  <WorkspaceMessages messages={messages.filter(m => !['WORKER_ERROR', 'SCENARIO_LOAD_ERROR', 'RESULT_LOAD_ERROR', 'DOWNLOAD_ERROR'].includes(m.code))} result={lastResult} />
 
 
   <section class="panel">

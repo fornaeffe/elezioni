@@ -25,7 +25,7 @@ async function setup(context: BrowserContext, page: Page, law: typeof REFORM | t
   await page.goto(`${base}/`);
   await page.evaluate(({ key, scenario }) => localStorage.setItem(key, JSON.stringify(scenario)), { key: politicsDraftKey, scenario: f.scenario });
   await page.goto(`${base}/politics`);
-  await expect(page.locator('.editor-status summary')).toContainText('Modello pronto', { timeout: 60000 });
+  await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText('Modello pronto', { timeout: 60000 });
   return f;
 }
 async function saved(page: Page) {
@@ -38,7 +38,7 @@ async function saved(page: Page) {
 }
 async function run(page: Page) {
   await page.getByRole('button', { name: 'Avvia simulazione', exact: true }).click();
-  await expect(page.locator('.editor-status summary')).toContainText(/Esecuzione completata|Esecuzione interrotta/, { timeout: 60000 });
+  await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText(/Esecuzione completata|Esecuzione interrotta/, { timeout: 60000 });
   await expect(page.getByRole('combobox', { name: 'Sessione dei risultati', exact: true })).not.toHaveValue('');
   return saved(page);
 }
@@ -88,10 +88,10 @@ for (const [law, model] of [[ROSATELLUM, 'M01'], [REFORM, 'M01'], [REFORM, 'M02'
     await page.reload();
     await expect(page.getByText('Scenario modificato. Risultati ed export conservano lo scenario eseguito.', { exact: true })).toBeVisible();
     await expect(page.getByRole('combobox', { name: 'Tabella dei risultati', exact: true })).toBeVisible();
-    if (model === 'M02') await expect(page.locator('.editor-status summary')).toContainText('fitting riutilizzato', { timeout: 60000 });
+    if (model === 'M02') await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText('fitting riutilizzato', { timeout: 60000 });
     await page.getByRole('button', { name: 'Carica lo scenario di questa sessione', exact: true }).click();
     await expect(page.getByLabel('Nome scenario', { exact: true })).toHaveValue(original.name);
-    await expect(page.locator('.editor-status summary')).toContainText('Modello pronto', { timeout: 60000 });
+    await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText('Modello pronto', { timeout: 60000 });
     // Only an explicit field edit changes worker policy. No acceptance run exceeds 3.
     await page.getByLabel('Numero di worker richiesti', { exact: true }).fill('2'); await page.getByLabel('Numero di worker richiesti', { exact: true }).blur();
     const second = await run(page);
@@ -103,13 +103,13 @@ for (const [law, model] of [[ROSATELLUM, 'M01'], [REFORM, 'M01'], [REFORM, 'M02'
       await page.getByRole('button', { name: 'Scarica checkpoint', exact: true }).click();
       const checkpointFile = await checkpointDownload, checkpoint = await readFile((await checkpointFile.path())!);
       await page.getByLabel('Carica checkpoint', { exact: true }).setInputFiles({ name: 'fit.json', buffer: checkpoint, mimeType: 'application/json' });
-      await expect(page.locator('.editor-status summary')).toContainText('fitting riutilizzato', { timeout: 60000 });
+      await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText('fitting riutilizzato', { timeout: 60000 });
       expect(await page.evaluate(key => JSON.parse(localStorage.getItem(key)!).execution.simulationSeed, politicsDraftKey)).toBe(original.execution.simulationSeed);
     }
     const broken = new File(['{"kind":"politics-result-archive","schemaVersion":1,"run":'], 'corrupt.json');
     const selected = await page.getByRole('combobox', { name: 'Sessione dei risultati', exact: true }).inputValue();
     await page.getByLabel('Importa risultati', { exact: true }).setInputFiles({ name: broken.name, buffer: Buffer.from(await broken.text()), mimeType: 'application/json' });
-    await expect(page.getByRole('alert').filter({ hasText: 'Risultati non caricati' })).toBeVisible();
+    await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText('Risultati non caricati');
     await expect(page.getByRole('combobox', { name: 'Sessione dei risultati', exact: true })).toHaveValue(selected);
     // Scenario exports still describe the draft, never whichever archive was viewed.
     const scenarioDownload = page.waitForEvent('download');
@@ -152,12 +152,12 @@ test('native common compute failure retains the committed prefix as an infrastru
 test('explicit cancellation locks execution and retains assigned simulation IDs across reload', async ({ page, context }) => {
   await setup(context, page, ROSATELLUM, 'M01');
   await page.getByLabel('Numero di simulazioni', { exact: true }).fill('10'); await page.getByLabel('Numero di simulazioni', { exact: true }).blur();
-  await expect(page.locator('.editor-status summary')).toContainText('Modello pronto');
+  await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText('Modello pronto');
   await page.getByRole('button', { name: 'Avvia simulazione', exact: true }).click();
   await expect(page.getByRole('combobox', { name: 'Algoritmo di scrutinio', exact: true })).toBeDisabled();
   await expect(page.getByRole('button', { name: 'Genera seed casuale delle simulazioni', exact: true })).toBeDisabled();
-  await page.getByRole('button', { name: 'Annulla esecuzione', exact: true }).last().click();
-  await expect(page.locator('.editor-status summary')).toContainText('Esecuzione interrotta', { timeout: 60000 });
+  await page.getByRole('button', { name: /^Stato:/ }).click(); await page.getByRole('button', { name: 'Annulla', exact: true }).first().click();
+  await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText('Esecuzione interrotta', { timeout: 60000 });
   const result = await saved(page), n = result.result.completedSimulations;
   expect(n).toBeLessThan(10); expect(result.result.benchmark.simulations).toBe(10);
   expect(result.politics.run.session.simulations.map((s: any) => s.id)).toEqual(Array.from({ length: n }, (_, i) => i + 1));

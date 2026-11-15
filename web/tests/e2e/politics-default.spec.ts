@@ -13,7 +13,7 @@ test('authored politics startup and reset retain the approved default choices',a
   await expect(page.getByLabel("Colore Fratelli d'Italia",{exact:true})).toHaveValue('#003366');
   await page.getByText('Impostazioni avanzate dello scenario',{exact:true}).click();
   await expect(page.getByLabel('Generatore dei voti',{exact:true})).toHaveValue('M02');
-  await expect(page.locator('.editor-status summary')).toContainText('Modello pronto',{timeout:60000});
+  await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText('Modello pronto',{timeout:60000});
   await name.fill('Changed draft');
   await page.getByLabel('Numero di simulazioni',{exact:true}).fill('30');
   await page.getByLabel('Seed delle simulazioni',{exact:true}).fill('changed-seed');

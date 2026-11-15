@@ -13,15 +13,15 @@ export async function openCommon(page: Page, law: LawId = REFORM, model: Generat
     await page.goto(base + '/');
     await page.evaluate(({ key, scenario }) => localStorage.setItem(key, JSON.stringify(scenario)), { key: politicsDraftKey, scenario });
     await page.goto(base + '/politics');
-    await expect(page.locator('.editor-status summary')).toContainText('Modello pronto', { timeout: 120000 });
+    await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText('Modello pronto', { timeout: 120000 });
     return scenario;
 }
 export async function runCommon(page: Page) {
-    await expect(page.locator('.editor-status summary')).toContainText(/Modello pronto|Preparazione non riuscita/, { timeout: 120000 });
-    expect(await page.locator('.editor-status summary').innerText(), (await page.getByRole('alert').allTextContents()).join('\n')).toContain('Modello pronto');
+    await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText(/Modello pronto|Preparazione non riuscita/, { timeout: 120000 });
+    expect(await page.locator('aside[aria-label="Stato dell\'applicazione"]').innerText(), (await page.getByRole('alert').allTextContents()).join('\n')).toContain('Modello pronto');
     await page.getByRole('button', { name: 'Avvia simulazione', exact: true }).click();
-    await expect(page.locator('.editor-status summary')).toContainText(/Esecuzione completata|Esecuzione interrotta|Esecuzione non riuscita/, { timeout: 120000 });
-    expect(await page.locator('.editor-status summary').innerText(), (await page.getByRole('alert').allTextContents()).join('\n')).toContain('Esecuzione completata');
+    await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText(/Esecuzione completata|Esecuzione interrotta|Esecuzione non riuscita/, { timeout: 120000 });
+    expect(await page.locator('aside[aria-label="Stato dell\'applicazione"]').innerText(), (await page.getByRole('alert').allTextContents()).join('\n')).toContain('Esecuzione completata');
     return selectedCommon(page);
 }
 export async function selectedCommon(page: Page) {

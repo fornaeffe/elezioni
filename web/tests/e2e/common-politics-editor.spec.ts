@@ -13,7 +13,7 @@ const available = [authored.data.historical, authored.data.catalogue, authored.d
   ...Object.values(authored.data.lawAssets).flatMap(a => [a.geography, a.seats, ...a.models.M01, ...a.models.M02])].every(p => existsSync(`static/${p.uri}`));
 test.skip(!available, 'Common editor requires generated production politics bundles.');
 
-async function ready(page: Page) { await expect(page.locator('.editor-status summary')).toContainText('dati verificati'); }
+async function ready(page: Page) { await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText('dati verificati'); }
 async function open(page: Page, title: string | RegExp) {
   const summary = page.locator('summary').filter({ hasText: title }).first();
   if (!await summary.evaluate(el => (el.parentElement as HTMLDetailsElement).open)) await summary.click();
@@ -121,12 +121,12 @@ test('invalid imports and missing pins leave the draft and old keys intact; rese
   await page.evaluate(() => localStorage.setItem('elezioni:politics:legacy', 'untouched'));
   const before = await draft(page);
   await page.getByLabel('Carica scenario', { exact: true }).setInputFiles({ name: 'old.json', mimeType: 'application/json', buffer: Buffer.from('{"schemaVersion":5,"kind":"old-politics"}') });
-  await expect(page.getByRole('alert')).toContainText('Scenario non caricato');
+  await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText('Scenario non caricato');
   expect(await draft(page)).toEqual(before);
   const invalid = createDefaultCommonPoliticsScenario();
   const changed = { ...invalid, name: 'Non applicare', data: { ...invalid.data, historical: { ...invalid.data.historical, uri: 'data/not-here.json' } } };
   await page.getByLabel('Carica scenario', { exact: true }).setInputFiles({ name: 'missing.json.gz', mimeType: 'application/gzip', buffer: Buffer.from(encodeScenario(changed, true)) });
-  await expect(page.getByRole('alert')).toContainText('Dati esatti non disponibili');
+  await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText('Dati esatti non disponibili');
   expect(await draft(page)).toEqual(before);
   expect(await page.evaluate(() => localStorage.getItem('elezioni:politics:legacy'))).toBe('untouched');
   page.once('dialog', d => d.dismiss()); await page.getByRole('button', { name: 'Ripristina scenario predefinito' }).click();

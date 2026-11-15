@@ -10903,3 +10903,10 @@ outputs and expected errors without requiring old seeded generation parity.
 Marked CP-08 and the parent merger complete. Deferred D14 editors, performance
 above 1,000 draws, legal/model corrections and public deployment remain separate.
 No commit, deployment or manual UI acceptance is claimed.
+
+
+## Fixed application status box (2026-11-15)
+
+Moved status presentation to a viewport-fixed, collapsible application box with ready, working and error indicators. Political and regional workspaces report their operations and errors independently, with applicable cancellation and retry actions; the collapsed mobile control uses only an icon. Removed duplicated simulation status and cancellation controls. The separate import/export performance and parallelization assessment remains open.
+
+Verification: `npm run check` passed; a production build and targeted Chromium tests covered mobile fixed positioning, political and regional import errors, political lifecycle, cancellation, and draft isolation. The initial browser run reused a preview server that stopped during testing; rerunning against a fresh build passed the targeted checks.

@@ -156,6 +156,7 @@ export class PoliticsWorkspaceController {
     } catch (e) { if (!this.disposed && token === this.viewRevision) { this.error = `Sessione selezionata non disponibile: ${String(e)}`; this.notify(); } }
   }
   async importResult(file: File) {
+    this.error = ''; this.notify();
     const token = ++this.viewRevision;
     try {
       const record = await this.ports.importResult(file, crypto.randomUUID(), this.owner);

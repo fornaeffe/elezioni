@@ -21,12 +21,9 @@
 .common-politics-editor [role=alert] { background: #fff0ed; border-left: 4px solid #c0392b; padding: .8rem; white-space: pre-wrap; overflow-wrap: anywhere; }
 .common-politics-editor .bounded-list { max-height: 18rem; overflow: auto; }
 .common-politics-editor .bounded-list label { display: flex; }
-.common-politics-editor .editor-status { position: sticky; top: .4rem; z-index: 2; margin-left: auto; max-width: 24rem; }
-.common-politics-editor .editor-status details { background: #eef7fc; box-shadow: 0 2px 8px #17304220; }
 @media (max-width: 650px) {
   .common-politics-editor { padding: .75rem; }
   .common-politics-editor .chamber-grid { grid-template-columns: 1fr; }
-  .common-politics-editor .editor-status { position: static; max-width: none; }
   .common-politics-editor label { display: flex; width: 100%; }
   .common-politics-editor input:not([type=checkbox]):not([type=color]), .common-politics-editor select { width: 100%; min-width: 0; }
 }

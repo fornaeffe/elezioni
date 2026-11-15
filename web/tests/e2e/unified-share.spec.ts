@@ -43,7 +43,7 @@ for (const [law, model] of [[ROSATELLUM, 'M01'], [REFORM, 'M01'], [REFORM, 'M02'
         await expect(page.getByRole('combobox', { name: 'Sessione dei risultati', exact: true })).toHaveValue(after.id);
         await page.getByRole('button', { name: 'Carica lo scenario di questa sessione', exact: true }).click();
         await expect(page.getByLabel('Nome scenario', { exact: true })).toHaveValue(initial.name);
-        await expect(page.locator('.editor-status summary')).toContainText('Modello pronto', { timeout: 120000 });
+        await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText('Modello pronto', { timeout: 120000 });
         await expect(page.getByLabel('Seed delle simulazioni', { exact: true })).toHaveValue(initial.execution.simulationSeed);
         await writeFile(archive + '.receipt.json', JSON.stringify({ base, browser: browser.version(), law, model, draws, execution: before.politics.run.execution, storage: before.result.storage, content, archiveBytes: (await stat(archive)).size, errors }, null, 2));
         expect(errors).toEqual([]);

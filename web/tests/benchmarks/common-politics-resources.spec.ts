@@ -58,7 +58,7 @@ test('national common execution resources with renderer-wide process sampling', 
   await page.goto(base + '/politics');
   const preparationStarted = performance.now();
   for (;;) {
-    const status = await page.locator('.editor-status summary').innerText();
+    const status = await page.locator('aside[aria-label="Stato dell\'applicazione"]').innerText();
     await sample(status);
     if (status.includes('Modello pronto')) break;
     if (crash || pageErrors.length || performance.now() - preparationStarted > 180_000) throw new Error(`Preparation failed: ${status}; ${pageErrors.join(';')}`);

@@ -44,6 +44,4 @@
     {/if}
     <button disabled={!execution} onclick={() => execution?.onRun()}>Avvia simulazione</button>
   </fieldset>
-  {#if execution?.busy || execution?.preparing}<button onclick={() => execution?.onCancel()}>{execution.busy ? 'Annulla esecuzione' : 'Annulla preparazione'}</button>{/if}
-  <p role="status">{execution?.status ?? 'Anteprima dello scenario: esecuzione e checkpoint disponibili nel flusso di simulazione.'}{execution?.progress ? ` · ${execution.progress}` : ''}</p>
 </section>
