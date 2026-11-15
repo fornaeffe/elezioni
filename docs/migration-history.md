@@ -10977,3 +10977,11 @@ elettorale** label resolved the timeout.
 - Verification: `npm run check` passed with zero Svelte errors and warnings;
   the Svelte autofixer reported no issues in the changed statistics component.
   No browser review was performed.
+
+### 2026-11-15 — Close affected simulation list
+
+- Added a close button to the affected simulations panel in simulation messages.
+  Closing clears the selected message and its detail filters, returning to the
+  message summary.
+- Marked the migration plan item complete.
+- Verification: not run.

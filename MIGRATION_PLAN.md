@@ -205,7 +205,7 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
     chamber controls outside the collapsible section, and the collapsible section
     is visible by default. Move controls inside the collapsible section (that should
     render similarly to other results sections) and make it collapsed by default.
-  - [ ] In "Messaggi delle simulazioni" section, when the user opens the affected
+  - [x] In "Messaggi delle simulazioni" section, when the user opens the affected
     simulations list, offer a button to close the affected simulations list.
 - [ ] Assess if parallelization will improve import/export performances.
   Add progress indication, and parallelization if it will improve performances.

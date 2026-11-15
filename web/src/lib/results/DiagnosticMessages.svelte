@@ -64,6 +64,9 @@
   function select(code: string, severity: string) {
     selected = { code, severity }; detailFilter = {}; reason = ''; idSearch = undefined; idOffset = 0; inspecting = undefined;
   }
+  function closeAffectedSimulations() {
+    selected = undefined; detailFilter = {}; reason = ''; idSearch = undefined; idOffset = 0; inspecting = undefined; contextOffset = 0;
+  }
   async function exportIds() {
     if (!result.storage) return;
     exporting = true; issue = '';
@@ -115,7 +118,9 @@
 
   {#if selected}
     <section aria-label={summary?.exact ? 'Simulazioni interessate' : 'Dettagli messaggio'}>
-      <h3>{summary?.exact ? 'Simulazioni interessate' : 'Dettagli messaggio'}</h3><p>{diagnosticTitle(selected.code)} · <code>{selected.code}</code> · {diagnosticSeverityLabel(selected.severity)}</p>
+      <h3>{summary?.exact ? 'Simulazioni interessate' : 'Dettagli messaggio'}</h3>
+      {#if summary?.exact}<button onclick={closeAffectedSimulations}>Chiudi elenco delle simulazioni</button>{/if}
+      <p>{diagnosticTitle(selected.code)} · <code>{selected.code}</code> · {diagnosticSeverityLabel(selected.severity)}</p>
       {#if summary?.exact}
       <form onsubmit={applyDetails}><label>Cerca ID simulazione<input type="number" min="1" max={processed} step="1" bind:value={idSearch} /></label><label>Filtra motivo originale<input type="search" bind:value={reason} /></label><button>Filtra simulazioni</button></form>
       <p>ID unici in ordine crescente, massimo 50 per pagina. Il filtro del ramo del riepilogo resta applicato.</p>
