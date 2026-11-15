@@ -10922,3 +10922,8 @@ Verification: `npm run check` passed; a production build and targeted Chromium t
 
 - Aligned coalition and list controls under shared headers, with responsive compact labels and row-local icon controls for advanced options. List national references remain in the basic row; advanced reference controls now live in the list options panel.
 - Reference percentage fields use `% auto` as their empty placeholder across lists, components, abstention and territorial and chamber references. This is presentation only; explicit zero, inheritance and scenario data are unchanged.
+
+### 2026-11-15 — Animate working status icon
+
+- Added a continuous linear rotation to the application status box's working icon. The ready and error icons remain static; users who request reduced motion see a static working icon.
+- Verification: `git diff --check` passed. No browser animation review was performed.
