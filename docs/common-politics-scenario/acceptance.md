@@ -8,6 +8,9 @@ Current model adoption and its receipts are recorded in
 [November model acceptance](../model-acceptance-2026-11.md). The recorded CP-08
 receipts below retain their original M01/M02 2.0.0 identities.
 
+For compact console output, full logs, campaign summaries and selective report
+inspection, see [acceptance reporting](../acceptance-reporting.md).
+
 ## Production gate
 
 From `web/`, with Node 24 and pinned sources available:

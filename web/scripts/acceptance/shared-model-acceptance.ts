@@ -64,4 +64,5 @@ const report = { status: 'passed', date: '2026-11-16', implementationId, source:
   contrastAssumption: 'Fixed paired and explicit-reference log-ratio/log-odds contrast through future movement. No temporal contrast innovation is estimated.', cases };
 const output = resolve(root, 'data/derived/model-acceptance-2026-11'); await mkdir(output, { recursive: true });
 await writeFile(resolve(output, 'shared-full-panel.json'), JSON.stringify(report, null, 2) + '\n');
-console.log(JSON.stringify(report));
+console.log(JSON.stringify({ status: report.status, cases: cases.length, implementationId,
+  report: resolve(output, 'shared-full-panel.json') }));

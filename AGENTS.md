@@ -21,6 +21,22 @@ to stable instructions that apply across migration steps.
 - Update the plan when a step is completed or reveals a safer order or a new
   blocker. Put evidence and narrative in history, not in the plan.
 
+## Acceptance Output And Agent Reading
+
+- Start with the gate's `report.json` or a resource campaign's `*.summary.json`.
+  Read selected fields, failed checks or specific simulation IDs from the linked
+  reports; do not dump full test reports, receipts, archives or large source files
+  into tool output. Use targeted `rg` searches and bounded line ranges for code.
+- Keep complete stdout/stderr, JSON reports, legal diagnostics and archives on
+  disk. Console output should contain progress, counts, outcomes, timings and
+  evidence paths; failure excerpts may be bounded, never the saved evidence.
+- During long campaigns, use the runner's minute heartbeats and durable receipts.
+  Avoid repeated empty polling and rereading unchanged reports. Follow the host's
+  tool-wait limits and continue communicating progress to Luca.
+- See [acceptance reporting](docs/acceptance-reporting.md) for file locations and
+  selective-reading examples. Output changes must not relax acceptance criteria,
+  omit failed simulation membership or trigger reruns of approved legal failures.
+
 ## Repository Map And Data Safety
 
 - Application code and Node preparation live under `web/`; run npm commands

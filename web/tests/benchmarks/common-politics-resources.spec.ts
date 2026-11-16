@@ -12,18 +12,22 @@ import { requirePair } from '../../src/lib/politics/scenario/registry';
 import { archiveDigest } from '../fixtures/archive-digest';
 import { openResultTransfers, selectedCommon } from '../fixtures/common-page';
 import { assessCampaignLegalOutcomes, type CampaignLegalError } from '../../scripts/acceptance/common-politics-outcomes';
+import { campaignFiles, campaignProgress, campaignResult, campaignSummary } from '../../scripts/acceptance/campaign-output';
 
 const execute = promisify(execFile), base = process.env.BASE_PATH ?? '';
 test.afterEach(async ({}, info) => {
-  if (info.status === 'passed') return;
-  const law = process.env.CP_RESOURCE_LAW ?? REFORM, model = process.env.CP_RESOURCE_MODEL ?? 'M02';
-  const receipt = resolve(process.env.CP_RESOURCE_OUTPUT ?? '../data/derived/common-politics-resources',
-    `${model}-${law}-${process.env.CP_RESOURCE_SIMULATIONS ?? '1000'}-${process.env.CP_RESOURCE_WORKERS ?? 'auto'}.json`);
-  const report = JSON.parse(await readFile(receipt, 'utf8').catch(() => '{}'));
-  await mkdir(resolve(receipt, '..'), { recursive: true });
-  await writeFile(receipt, JSON.stringify({ ...report, state: 'failed', failure: {
-    category: report.outcomes?.partial || report.outcomes?.failed ? 'legal-or-non-computable' : 'infrastructure-or-acceptance',
-    status: info.status, errors: info.errors.map(e => e.message) } }, null, 2) + '\n');
+  const files = campaignFiles();
+  let report = JSON.parse(await readFile(files.receipt, 'utf8').catch(() => '{}'));
+  await mkdir(resolve(files.receipt, '..'), { recursive: true });
+  if (info.status !== 'passed') {
+    report = { ...report, state: 'failed', failure: {
+      category: report.outcomes?.partial || report.outcomes?.failed ? 'legal-or-non-computable' : 'infrastructure-or-acceptance',
+      status: info.status, errors: info.errors.map(e => e.message) } };
+    await writeFile(files.receipt, JSON.stringify(report, null, 2) + '\n');
+  }
+  const summary = campaignSummary(report, files);
+  await writeFile(files.summary, JSON.stringify(summary, null, 2) + '\n');
+  console.log(campaignResult(summary));
 });
 test('national common execution resources with renderer-wide process sampling', async ({ page, browser }) => {
   if (process.platform !== 'win32') throw new Error('This process-memory receipt requires Windows');
@@ -41,6 +45,7 @@ test('national common execution resources with renderer-wide process sampling', 
     scenario.data.referenceGeography, ...Object.values(scenario.data.lawAssets).flatMap(a => [a.geography, a.seats, ...a.models.M01, ...a.models.M02])])
     if (!existsSync(resolve('static', pin.uri.replace(/^\//, '')))) throw new Error(`Missing production resource: ${pin.uri}`);
   const root = await browser.newBrowserCDPSession(), samples: object[] = [], started = performance.now();
+  let lastLog = -Infinity, lastLoggedPhase = '';
   let crash = false; const pageErrors: string[] = [];
   page.on('crash', () => { crash = true; }); page.on('pageerror', e => pageErrors.push(e.message));
   const sample = async (phase: string) => {
@@ -50,7 +55,13 @@ test('national common execution resources with renderer-wide process sampling', 
       `$p=@(Get-Process -Id ${pids.join(',')} -ErrorAction Stop); @{privateBytes=($p|Measure-Object PrivateMemorySize64 -Sum).Sum;workingSetBytes=($p|Measure-Object WorkingSet64 -Sum).Sum}|ConvertTo-Json -Compress`],
     { windowsHide: true, timeout: 5000 });
     const row = { seconds: (performance.now() - started) / 1000, phase, ...JSON.parse(output.stdout) };
-    samples.push(row); return row;
+    samples.push(row);
+    const label = phase.split(/\r?\n/)[0];
+    if (performance.now() - lastLog >= 60_000 || label !== lastLoggedPhase) {
+      console.log(campaignProgress({ model, law, simulations, phase, seconds: row.seconds, privateBytes: row.privateBytes }));
+      lastLog = performance.now(); lastLoggedPhase = label;
+    }
+    return row;
   };
   await page.goto(base + '/');
   await page.evaluate(({ key, scenario }) => localStorage.setItem(key, JSON.stringify(scenario)), { key: politicsDraftKey, scenario });
@@ -68,15 +79,16 @@ test('national common execution resources with renderer-wide process sampling', 
   await page.getByRole('button', { name: 'Avvia simulazione', exact: true }).click();
   const statusBox = page.locator('aside[aria-label="Stato dell\'applicazione"]');
   await statusBox.getByRole('button', { name: /^Stato:/ }).click();
-  let lastLog = 0;
+  let lastSave = -Infinity;
   for (;;) {
     if (crash) throw new Error('Renderer crashed during the national campaign');
     const phase = await statusBox.innerText();
     if (await statusBox.evaluate(node => node.classList.contains('error')) || pageErrors.length)
       throw new Error(`National campaign failed: ${phase}; ${pageErrors.join(';')}`);
-    const row = await sample(phase);
-    if (performance.now() - lastLog >= 30_000) {
-      console.log(`${phase}; private ${(row.privateBytes / 1024 ** 3).toFixed(2)} GiB`); lastLog = performance.now();
+    await sample(phase);
+    // Keep five-second samples and thirty-second durable receipts unchanged.
+    if (performance.now() - lastSave >= 30_000) {
+      lastSave = performance.now();
       await writeFile(receipt, JSON.stringify({ schemaVersion: 1, state: 'running', browser: browser.version(), hints,
         law, model, simulations, requestedWorkers: scenario.execution.workers,
         identity: { selection: scenario.selection, data: scenario.data, execution: scenario.execution }, samples, pageErrors }, null, 2) + '\n');
@@ -116,6 +128,7 @@ test('national common execution resources with renderer-wide process sampling', 
     qualification: 'Sampled Windows private renderer processes including nested workers and native allocations; not JS heap, available RAM or a guaranteed maximum.' };
   await writeFile(receipt, JSON.stringify(report, null, 2) + '\n');
   const archiveStarted = performance.now(), archiveSamples = samples.length;
+  console.log(`[campaign] ${model}/${law}; archive export/import verification started; receipt=${receipt}`);
   await openResultTransfers(page);
   let pendingSample: Promise<void> | undefined, samplingError: unknown;
   const timer = setInterval(() => {

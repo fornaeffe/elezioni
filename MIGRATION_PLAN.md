@@ -24,6 +24,9 @@ separate. Completed tasks and their verification are recorded in migration histo
 
 ## November 2026 model adoption
 
+- [x] Keep acceptance console output compact, retain full logs and structured
+  evidence, and document selective report inspection for agents. See
+  [acceptance reporting](docs/acceptance-reporting.md).
 - [x] Complete full-component/filing/reference and browser/worker/scrutiny acceptance
   for M01 2.0.0 and M02-shared as M02 3.0.0; offer passing models for both laws
   and retire M02 2.0.0 from active selection. Record receipts in
@@ -146,26 +149,6 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   `docs/migration-history.md`; do not turn this file into a status log.
 
 ## Plan
-
-- [x] **Politics result component ownership.** Share disclosure styling and move
-  section-specific controls, loading and pagination into their owning result
-  views; preserve diagnostic navigation and verify both laws in the browser.
-
-- [x] **Table-section E2E triage.** Update table selectors and disclosure
-  navigation after the result-section move; distinguish stale targets from
-  asynchronous loading failures and record verification and proposed follow-up.
-
-- [ ] **Chamber-aware vote-generation adoption.** Use the completed
-  [research campaign](research/vote-generation/campaign-2026-11/results.md) to
-  select a coupling/model law, retaining M01 as a marginal/tail-risk benchmark.
-  Validate full coupling and the simpler common-field M02 on complete component/
-  list memberships, distinct physical filings, new components and explicit
-  chamber references. State future contrast assumptions and sensitivities;
-  2022 is the only bundled same-age paired election. Preserve intentional
-  chamber differences. Complete browser/worker/scrutiny resource acceptance
-  before adoption; version a changed probability law separately from a supported
-  coupling configuration. Keep current defaults and frozen evidence until that
-  decision and acceptance are complete.
 
 - [ ] **Final hosting reassessment and publication.** After all preceding
   implementation and acceptance work, reassess GitHub Actions plus GitHub Pages

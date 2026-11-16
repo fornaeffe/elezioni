@@ -5,6 +5,8 @@ This is the production follow-through to the
 It does not reclassify the six-family historical scores as full-list predictive
 validation. Receipts live under ignored `data/derived/model-acceptance-2026-11/`;
 the curated JSON beside this document records their identities and outcomes.
+For future runs, [acceptance reporting](acceptance-reporting.md) describes
+compact console output, full logs and selective evidence inspection.
 
 ## Model decisions
 
