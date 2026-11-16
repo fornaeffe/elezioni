@@ -29,6 +29,11 @@ export async function openResultTransfers(page: Page) {
     const summary = page.getByText('Caricamento, selezione e download dei risultati', { exact: true });
     if (!await summary.evaluate(node => (node.parentElement as HTMLDetailsElement).open)) await summary.click();
 }
+export async function openResultTables(page: Page) {
+    const section = page.getByRole('region', { name: 'Tabelle', exact: true });
+    if (!await section.evaluate(node => (node as HTMLDetailsElement).open)) await section.locator(':scope > summary').click();
+    return section;
+}
 export async function selectedCommon(page: Page) {
     return page.evaluate(async (key) => {
         const index = JSON.parse(localStorage.getItem(key)!);

@@ -147,6 +147,14 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
 
 ## Plan
 
+- [x] **Politics result component ownership.** Share disclosure styling and move
+  section-specific controls, loading and pagination into their owning result
+  views; preserve diagnostic navigation and verify both laws in the browser.
+
+- [x] **Table-section E2E triage.** Update table selectors and disclosure
+  navigation after the result-section move; distinguish stale targets from
+  asynchronous loading failures and record verification and proposed follow-up.
+
 - [ ] **Chamber-aware vote-generation adoption.** Use the completed
   [research campaign](research/vote-generation/campaign-2026-11/results.md) to
   select a coupling/model law, retaining M01 as a marginal/tail-risk benchmark.

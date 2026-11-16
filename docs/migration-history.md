@@ -1,5 +1,96 @@
 # Migration History
 
+## Table-section E2E triage (2026-11-16)
+
+Inspected the saved 73-test HTML report: 64 passed and nine failed with 14 actual
+Playwright workers. Five failures were stale UI assumptions after moving stored
+tables inside the collapsed `Tabelle` result section: four lifecycle cases
+looked for the removed `.result-tables` wrapper, and diagnostic inspection tried
+to edit the hidden simulation filter. Added the idempotent `openResultTables`
+fixture, selected the section by its exact accessible region name, and opened
+it before interaction and after reload. Preserved existing data assertions and
+the staged application changes.
+
+The other four failures found their territorial chart panels but still saw
+`caricamento…` after the default five-second assertion timeout. They were not
+missing targets. The territorial view already mounts its selected panel with
+`eager`, which requests statistics immediately rather than waiting for viewport
+intersection. Those four tests passed unchanged both in the affected-file run
+and the subsequent full run. Resource contention from the original 14-worker
+run is a plausible explanation, not a proven backend defect.
+
+Verification from `web/`, Windows, root base, Chromium, no retries:
+
+- `npx playwright test common-politics-lifecycle.spec.ts reform-messages.spec.ts
+  reform-statistics.spec.ts --project=chromium --workers=2 --reporter=line`:
+  17/17 passed (1.2 minutes).
+- `npx playwright test --project=chromium --workers=4 --reporter=line`:
+  72/73 passed (3.0 minutes). All nine originally failing cases passed. The
+  separate editor test `invalid imports and missing pins...` timed out waiting
+  for `Dati esatti non disponibili` while model preparation and file loading
+  were still active.
+- The unchanged editor case passed alone with
+  `npx playwright test common-politics-editor.spec.ts --grep
+  'invalid imports and missing pins' --project=chromium --workers=1
+  --reporter=line` (18.4 seconds). This does not establish a fully passing
+  combined suite.
+- Production builds and `git diff --check` passed; Vite retained its large-chunk
+  warning. No application code, worker configuration, assertion timeouts or
+  expected result values were changed by this triage.
+
+Proposed follow-up: bound default E2E parallelism (initially four workers), wait
+for model readiness after edits where a test assumes an idle workspace, and
+give asynchronous import/statistics completion assertions explicit operation
+budgets instead of relying on the five-second default. Preserve the error,
+draft-integrity and numerical assertions. These changes remain proposals;
+the current evidence does not demonstrate an election-result regression.
+
+## Politics result component ownership (2026-11-16)
+
+Introduced `results/ResultSection.svelte` as the single owner of result
+disclosures, summary styles, focus appearance and open state, including a
+compact message-detail variant. Split general diagnostics, simulation summaries
+and affected-simulation inspection; the latter now sits inside its message
+disclosure, retaining its controls across collapse/reopen and resetting when
+closed or another group is selected. Diagnostic content styles are shared in
+a stylesheet bounded by their wrapper.
+
+`PoliticsSessionResults` now only composes sections and forwards revisioned
+inspection requests. Stored-table selection/paging and single-simulation seats
+own their controls, loaders, request guards and independent errors. Repeating
+an inspection synchronizes both views without coupling subsequent edits.
+Renamed the cross-law statistics composition to `PoliticsResultStatistics`;
+means, boxplots and summary pagination own their respective state. Pure boxplot
+assembly moved to a TypeScript presentation helper. Adjacent section wrappers
+retain lazy national-chart/probability mounting, while territorial selectors
+remain mounted and own their plot activation. Preserved default open states,
+the keyed session reset, eager boxplot statistics and committed-input loading.
+See the [component task map](web-workspaces.md#politics-result-components).
+
+Verification from `web/` on Windows, root base path:
+
+- `npm run check`: zero errors and warnings. The official Svelte autofixer
+  reported no issues in the extracted/changed components; generic effect
+  suggestions were reviewed against guarded worker requests and independent
+  navigation/control state.
+- Focused Vitest: `result-presentation.test.ts` and `result-series.test.ts` under
+  `src/lib/politics/reform-2026/`, plus `src/lib/core/diagnostic-messages.test.ts`:
+  14/14 passed.
+- `npx playwright test reform-messages.spec.ts reform-statistics.spec.ts
+  --project=chromium --workers=2 --reporter=line`: 9/9 passed, including uniform
+  computed summary styles, independent controls, repeated inspection, nested
+  drill-down visibility/reset, sparse archives and retained territorial choices.
+- `npx playwright test common-politics-lifecycle.spec.ts --grep
+  'common lifecycle .*/M01:' --project=chromium --workers=2 --reporter=line`:
+  2/2 passed for Rosatellum/reform, including mean selectors, law-specific
+  sections, stored-table selection, durable execution, reload and archive reuse.
+- Playwright's production builds and `git diff --check` passed. Vite retained
+  its large-chunk warning. No project-base acceptance matrix was run.
+
+The expanded diagnostics test initially timed out on an exact wrapped-select
+label lookup; selecting by accessible combobox role/name resolved the test
+failure. No new test files or package dependencies were added.
+
 ## Chamber-aware vote-generation research (2026-11-16)
 
 Reopened `research/vote-generation/` with a separate current-code campaign,

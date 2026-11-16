@@ -31,6 +31,7 @@ separate repository-layout change with its own path and base-URL verification.
 | Metadata routing and one-shot cross-route imports | `src/lib/workspaces/import-routing.ts`, `navigation.ts`, `handoff.ts` |
 | Snapshot resolution and schema/checksum checks | `src/lib/workspaces/data.ts`, `snapshots.generated.ts` |
 | Memory/stored result pages | `src/lib/workspaces/result-access.ts`; exports remain in `src/lib/core/result-export.ts` |
+| Politics result sections and local view state | `src/lib/politics/PoliticsSessionResults.svelte`; [component boundaries](#politics-result-components) |
 | Authored defaults, exact dependency packaging and descriptors | [CP-04 defaults guide](common-politics-scenario/defaults.md) |
 | Standalone list tickets at the previous-law boundary | `src/lib/scenario/politics-tickets.ts` |
 
@@ -38,6 +39,27 @@ The installed workflows are previous-law politics, reform politics with M01/M02,
 and Emilia-Romagna regional elections. Municipal simulation remains unavailable;
 its type does not register a runnable workspace. Fresh politics startup selects reform/M02 from the authored scenario.
 Registry validation also runs at the worker boundary.
+
+## Politics result components
+
+Paths below are under `web/src/lib/`.
+
+| Task | Owner |
+| --- | --- |
+| Disclosure markup, summary appearance and open state | `results/ResultSection.svelte`; use its compact variant for message details |
+| Section order and diagnostic navigation | `politics/PoliticsSessionResults.svelte`, `politics/result-inspection.ts` |
+| General diagnostics, message summary and affected-simulation drill-down | `results/GeneralMessages.svelte`, `SimulationMessages.svelte`, `AffectedSimulations.svelte`; domain styles in `diagnostic-messages.css` |
+| Shared overview, bonus winners and seat endowments | `politics/PoliticsResultStatistics.svelte` |
+| Means, vote distributions and summary pagination | `politics/PoliticsMeanResults.svelte`, `PoliticsVoteBoxplots.svelte`, `PoliticsSummaryTable.svelte`; pure boxplot assembly in `result-boxplots.ts` |
+| Lazy national charts and reform election probabilities | `politics/PoliticsSeriesSection.svelte`, `politics/reform-2026/ReformElectionProbabilitySection.svelte` |
+| Territorial selectors and plot activation | `politics/reform-2026/ReformTerritorialSpinogram.svelte` |
+| Single-simulation seats and stored-table paging | `politics/reform-2026/ReformSingleSimulationSeats.svelte`, `politics/PoliticsResultTables.svelte` |
+
+Keep controls, request guards and errors with their view. Only the statistics
+overview is shared between statistical sections. Diagnostic inspection sends a
+new request to both the seat chart and table browser; their subsequent edits
+remain independent. Preserve the workspace's keyed session reset, eager boxplot
+statistics, lazy national chart mounting and retained territorial selectors.
 
 ## Defaults and compatibility
 

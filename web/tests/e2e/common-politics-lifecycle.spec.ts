@@ -1,5 +1,6 @@
 import { expect, test, type BrowserContext, type Page } from '@playwright/test';
 import { commonPoliticsFixture } from '../fixtures/common-politics-input';
+import { openResultTables } from '../fixtures/common-page';
 import { politicsDraftKey } from '../../src/lib/politics/files/draft';
 import { politicsSessionsKey } from '../../src/lib/politics/workspace-controller';
 import { REFORM, ROSATELLUM, type PoliticsScenario } from '../../src/lib/politics/scenario/schema';
@@ -77,6 +78,17 @@ for (const [law, model] of [[ROSATELLUM, 'M01'], [ROSATELLUM, 'M02'], [REFORM, '
     expect(first.politics.run.executedScenario.execution).toEqual(f.scenario.execution);
     const original = first.politics.run.executedScenario;
     const firstObservations = await observations(page, first.id); expect(firstObservations.length).toBeGreaterThan(0);
+    const mean = page.getByRole('region', { name: 'Eletti medi e percentuali sui voti validi', exact: true });
+    await expect(mean).toBeVisible();
+    await mean.getByRole('combobox', { name: 'Ramo', exact: true }).selectOption('senato');
+    await mean.getByRole('combobox', { name: 'Raggruppamento', exact: true }).selectOption('subject');
+    await expect(mean.getByRole('heading', { name: 'Senato', exact: true })).toBeVisible();
+    await expect(page.getByRole('region', { name: 'Vincitori del premio', exact: true })).toHaveCount(law === REFORM ? 1 : 0);
+    await expect(page.getByRole('region', { name: 'Seggi della singola simulazione', exact: true })).toHaveCount(law === REFORM ? 1 : 0);
+    const tableIndex = first.result.storage.tables.findIndex((table: { rows: number }, index: number) => index > 0 && table.rows > 0);
+    const rawTables = await openResultTables(page);
+    await rawTables.getByRole('combobox', { name: 'Tabella dei risultati', exact: true }).selectOption(String(tableIndex));
+    await expect(rawTables.getByRole('table', { name: first.result.storage.tables[tableIndex].name, exact: true })).toBeVisible();
     await expect(page.getByRole('alert')).toHaveCount(0);
     await page.getByLabel('Nome scenario', { exact: true }).fill('Edited after execution'); await page.getByLabel('Nome scenario', { exact: true }).blur();
     await expect(page.getByText('Scenario modificato. Risultati ed export conservano lo scenario eseguito.', { exact: true })).toBeVisible();
@@ -101,6 +113,7 @@ for (const [law, model] of [[ROSATELLUM, 'M01'], [ROSATELLUM, 'M02'], [REFORM, '
     expect(await observations(page, imported.id)).toEqual(firstObservations);
     await page.reload();
     await openTransfers(page);
+    await openResultTables(page);
     await expect(page.getByText('Scenario modificato. Risultati ed export conservano lo scenario eseguito.', { exact: true })).toBeVisible();
     await expect(page.getByRole('combobox', { name: 'Tabella dei risultati', exact: true })).toBeVisible();
     if (model === 'M02') await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText('fitting riutilizzato', { timeout: 60000 });

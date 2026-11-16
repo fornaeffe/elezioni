@@ -1,4 +1,5 @@
 import { seedPresentationSession } from '../fixtures/presentation-session';
+import { openResultTables } from '../fixtures/common-page';
 import { currentBrowserSession, currentArchive } from '../fixtures/current-browser-session';
 import { expect, test } from '@playwright/test';
 import { diagnosticResult } from '../fixtures/diagnostic-result';
@@ -16,6 +17,13 @@ test('global context precedes exact frequencies and bounded ID inspection, filte
   await seedPresentationSession(page, currentArchive(reordered, await currentBrowserSession()));
   const general = page.getByLabel('Informazioni e avvisi generali', { exact: true });
   const summary = page.getByLabel('Messaggi delle simulazioni', { exact: true });
+  const sectionStyles = await Promise.all(['Informazioni e avvisi generali', 'Messaggi delle simulazioni',
+    'Eletti medi e percentuali sui voti validi', 'Seggi della singola simulazione'].map(name =>
+    page.getByRole('region', { name, exact: true }).locator(':scope > summary').evaluate(element => {
+      const style = getComputedStyle(element);
+      return [style.fontSize, style.fontWeight, style.color, style.cursor];
+    })));
+  for (const style of sectionStyles) expect(style).toEqual(sectionStyles[0]);
   await general.locator(':scope > summary').click();
   await summary.locator(':scope > summary').click();
   await expect(summary.getByRole('table')).toContainText('1201/1500', { timeout: 30000 });
@@ -47,7 +55,27 @@ test('global context precedes exact frequencies and bounded ID inspection, filte
   await expect(affected).toContainText('seat-camera'); await expect(affected).toContainText('seat-senato');
   await expect(affected).toContainText('Motivo: origin'); await expect(affected).toContainText('Motivo: propagated');
   await affected.getByRole('button', { name: 'Risultato di 1201', exact: true }).click();
+  await openResultTables(page);
   await expect(page.getByLabel('Simulazione (vuoto = tutte)', { exact: true })).toHaveValue('1201');
+  await expect(page.getByLabel('Simulazione grafico', { exact: true })).toHaveValue('1201');
+  // Editing one view leaves the other alone; repeating inspection synchronizes both again.
+  await page.getByLabel('Simulazione grafico', { exact: true }).fill('1');
+  await page.getByRole('combobox', { name: 'Ramo grafico', exact: true }).selectOption('senato');
+  await expect(page.getByLabel('Simulazione (vuoto = tutte)', { exact: true })).toHaveValue('1201');
+  await page.getByLabel('Simulazione (vuoto = tutte)', { exact: true }).fill('2');
+  await expect(page.getByLabel('Simulazione grafico', { exact: true })).toHaveValue('1');
+  const single = page.getByRole('region', { name: 'Seggi della singola simulazione', exact: true });
+  await single.locator(':scope > summary').click();
+  await affected.getByRole('button', { name: 'Risultato di 1201', exact: true }).click();
+  await expect(page.getByLabel('Simulazione (vuoto = tutte)', { exact: true })).toHaveValue('1201');
+  await expect(page.getByLabel('Simulazione grafico', { exact: true })).toHaveValue('1201');
+  await expect(page.getByRole('combobox', { name: 'Ramo grafico', exact: true })).toHaveValue('senato');
+  // The drill-down belongs to this disclosure and keeps its controls across collapse/reopen.
+  await expect(summary.getByRole('region', { name: 'Simulazioni interessate', exact: true })).toBeVisible();
+  await summary.locator(':scope > summary').click();
+  await expect(affected).not.toBeVisible();
+  await summary.locator(':scope > summary').click();
+  await expect(affected.getByLabel('Cerca ID simulazione', { exact: true })).toHaveValue('1201');
   await affected.getByLabel('Filtra motivo originale', { exact: true }).fill('propagated');
   await affected.getByRole('button', { name: 'Filtra simulazioni', exact: true }).click();
   await affected.getByRole('button', { name: 'Messaggi di 1201', exact: true }).click();
@@ -56,6 +84,14 @@ test('global context precedes exact frequencies and bounded ID inspection, filte
   await summary.getByRole('button', { name: 'Filtra messaggi', exact: true }).click();
   await expect(summary.getByRole('table').locator('tbody tr')).toHaveCount(1);
   await expect(summary.getByRole('table')).toContainText('3603');
+  await summary.getByRole('button', { name: 'Simulazioni per TEST_ERROR (error)', exact: true }).click();
+  await expect(affected.getByLabel('Cerca ID simulazione', { exact: true })).toHaveValue('');
+  await expect(affected.getByLabel('Filtra motivo originale', { exact: true })).toHaveValue('');
+  await affected.getByRole('button', { name: 'ID successivi', exact: true }).click();
+  await affected.getByRole('button', { name: 'Chiudi elenco delle simulazioni', exact: true }).click();
+  await expect(affected).toHaveCount(0);
+  await summary.getByRole('button', { name: 'Simulazioni per TEST_ERROR (error)', exact: true }).click();
+  await expect(affected.locator('.ids li').first()).toContainText('Messaggi di 1');
   await page.setViewportSize({ width: 390, height: 844 });
   await general.scrollIntoViewIfNeeded();
   await page.getByLabel('Avvisi riforma', { exact: true }).screenshot({ path: 'test-results/reform-messages-mobile.png' });
