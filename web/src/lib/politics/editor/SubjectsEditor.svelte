@@ -50,7 +50,7 @@
       <div class="subject-row coalition-grid">
         <label class="subject-color"><span class="visually-hidden">Colore {coalition.name}</span><input type="color" value={coalition.color} onchange={e => edit(s => updateCoalition(s, { ...coalition, color: e.currentTarget.value }))} /></label>
         <label class="subject-name"><span class="mobile-label" aria-hidden="true">Nome</span><span class="visually-hidden">Nome coalizione</span><input value={coalition.name} onchange={e => edit(s => updateCoalition(s, { ...coalition, name: e.currentTarget.value }))} /></label>
-        <button class="subject-options" type="button" aria-label={`Opzioni coalizione ${coalition.name}`} aria-expanded={!!openCoalitions[coalition.id]} aria-controls={`coalition-options-${coalition.id}`} onclick={() => openCoalitions[coalition.id] = !openCoalitions[coalition.id]}><span aria-hidden="true">⚙</span></button>
+        <button class="subject-options" type="button" aria-label={`Opzioni coalizione ${coalition.name}`} title={`Opzioni avanzate per ${coalition.name}`} aria-expanded={!!openCoalitions[coalition.id]} aria-controls={`coalition-options-${coalition.id}`} onclick={() => openCoalitions[coalition.id] = !openCoalitions[coalition.id]}><span aria-hidden="true">⚙</span></button>
       </div>
       <div id={`coalition-options-${coalition.id}`} hidden={!openCoalitions[coalition.id]}>
         {#if openCoalitions[coalition.id]}
@@ -80,7 +80,7 @@
           <option value="">Lista autonoma</option>{#each scenario.subjects.coalitions as c (c.id)}<option value={c.id}>{c.name}</option>{/each}
         </select></label>
         <div class="subject-reference"><ReferencesEditor {scenario} target={{ kind: 'list', id: list.id }} label="Riferimento nazionale" {assets} {edit} mode="basic" /></div>
-        <button class="subject-options" type="button" aria-label={`Opzioni lista ${list.name}`} aria-expanded={!!openLists[list.id]} aria-controls={`list-options-${list.id}`} onclick={() => openLists[list.id] = !openLists[list.id]}><span aria-hidden="true">⚙</span></button>
+        <button class="subject-options" type="button" aria-label={`Opzioni lista ${list.name}`} title={`Opzioni avanzate per ${list.name}`} aria-expanded={!!openLists[list.id]} aria-controls={`list-options-${list.id}`} onclick={() => openLists[list.id] = !openLists[list.id]}><span aria-hidden="true">⚙</span></button>
       </div>
       <div id={`list-options-${list.id}`} hidden={!openLists[list.id]}>
         {#if openLists[list.id]}

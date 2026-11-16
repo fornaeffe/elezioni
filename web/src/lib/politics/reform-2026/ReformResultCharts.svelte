@@ -100,6 +100,8 @@
         elected: s.electedKnown === o.requested ? s.electedSum / o.requested : null, minimum: s.confirmed / o.requested,
         share: s.votesKnown === o.requested ? s.voteSum / o.requested : null }))} />
     {:else}<p role="status">Nessuna lista disponibile per questo ramo.</p>{/if}
+    
+    </details>
     {#if endowments && (endowments.colleges.length || endowments.bonusSlates.length)}
       <details>
         <summary>Dotazioni dei seggi per collegio e liste del premio</summary>
@@ -135,7 +137,6 @@
         </table></div>
         {#if table.rows.length > 50}<button disabled={summaryPage === 0} onclick={() => summaryPage--}>Riepilogo precedente</button><button disabled={(summaryPage + 1) * 50 >= table.rows.length} onclick={() => summaryPage++}>Riepilogo successivo</button>{/if}
       {/if}
-    </details>
     </details>
     {#if boxes.length}
       <details class="result-section" role="region" aria-label={boxKind === 'list' ? 'Percentuali simulate per lista' : 'Percentuali simulate per coalizione / lista singola'} ontoggle={e => { showBoxplots = toggle(e); }}>
