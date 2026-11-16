@@ -69,7 +69,7 @@ async function observations(page: Page, id: string) {
     } finally { db.close(); }
   }, id);
 }
-for (const [law, model] of [[ROSATELLUM, 'M01'], [REFORM, 'M01'], [REFORM, 'M02']] as const) {
+for (const [law, model] of [[ROSATELLUM, 'M01'], [ROSATELLUM, 'M02'], [REFORM, 'M01'], [REFORM, 'M02']] as const) {
   test(`common lifecycle ${law}/${model}: durable worker runs, queries, reload and archive`, async ({ page, context }) => {
     const f = await setup(context, page, law, model);
     const first = await run(page);

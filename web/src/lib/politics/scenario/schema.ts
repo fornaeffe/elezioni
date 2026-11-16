@@ -78,7 +78,7 @@ export const pollShape = object({
   errorGroup: text, roundingWidth: nonnegative, original: array(object({ label: text, percentage: nonnegative, kind: text })),
   normalized: array(object({ label: text, members: array(text), share, other: boolean })),
   otherDefinition: literal('offered-complement'), status: literal('supported', 'excluded'), reasons: array(text), method: text });
-const selection = object({ id: generatorShape, version: literal('2.0.0') });
+const selection = object({ id: generatorShape, version: literal('2.0.0', '3.0.0') });
 export const selectionShape = object({ scrutiny: object({ id: lawShape, version: literal('1.0.0') }),
   generatorsByLaw: object({ [ROSATELLUM]: selection, [REFORM]: selection }) });
 const policies = object({ numerical: literal('fast-share-float64-v1'), references: literal('fixed-turnout-reference-v1'),
@@ -108,7 +108,7 @@ export const scenarioShape = object({
         fractions: dictionary(nonnegative), provenance: text, proxy: boolean })),
       supplementalPolls: array(object({ id: text, date, available: date, end: date, context: literal('camera', 'european', 'senato'),
         groups: array(object({ label: text, members: array(text), share })), sample: nonnegative, source: text, enabled: boolean })) }),
-    M02: object({ schemaVersion: literal(1), probabilityLawVersion: literal('2.0.0'), policies,
+    M02: object({ schemaVersion: literal(1), probabilityLawVersion: literal('3.0.0'), policies,
       statistical: literal('fast-share-kind-common-conservative-v1'),
       forecast: literal('filing-strata-beta-v1', 'bounded-pair-field-v1', 'bounded-mass-pair-field-v2'),
       forecastScale: nonnegative, profileRegionCorrelation: share, forecastReference: literal('conditional', 'country-calibrated'),

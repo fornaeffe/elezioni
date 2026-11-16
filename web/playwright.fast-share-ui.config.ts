@@ -13,7 +13,7 @@ export default defineConfig({
         outputFile:
           (process.env.FILING_RESEARCH_COMPARISON === "1"
             ? "../data/derived/filing-aware-research/browser/ui-"
-            : "../data/derived/fv08-acceptance/browser/ui-") +
+            : "../data/derived/common-politics-ui/ui-") +
           (process.env.BASE_PATH ? "nested" : "root") +
           ".json",
       },

@@ -84,5 +84,5 @@ to stable instructions that apply across migration steps.
 
 ## Other general instructions
 
-- Use $...$ and $$...$$ syntax for markdown math formulas.
+- Use `$...$` and `$$...$$` syntax for markdown math formulas.
 

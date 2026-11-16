@@ -188,7 +188,7 @@ describe('FV-04 paired physical-cell reform adapter', () => {
       'NEW_COMPONENT_REFERENCE_REQUIRED'
     );
   });
-  it('rejects stale fits, overlapping filing, 25+ Senate history and impossible physical capacities', () => {
+  it('rejects stale fits, overlapping filing, 25+ Senate history and conditions unrestricted references on physical filings', () => {
     const f = fastGenerationFixture();
     expect(() =>
       prepareFastGeneration({ ...f.scenario, referenceDate: '2026-10-20' }, f.assets, f.context)
@@ -222,7 +222,9 @@ describe('FV-04 paired physical-cell reform adapter', () => {
         sdPercentagePoints: 0
       }
     ];
-    expect(() => prepareFastGeneration(f.scenario, f.assets, f.context)).toThrow('CAPACITY');
+    const conditioned = prepareFastGeneration(f.scenario, f.assets, f.context);
+    const row = conditioned.trace.references.find(r => r.listIds.camera === f.scenario.lists.camera[0].id)!;
+    expect(row.camera!.share).toBeLessThan(0.9);
   });
   it('uses common anchors, explicit chamber precedence and single-chamber renewals', () => {
     const f = fastGenerationFixture(),
@@ -311,7 +313,7 @@ describe('FV-04 paired physical-cell reform adapter', () => {
       r.audit.countryReference.camera!.slice(1, 3).reduce((a, b) => a + b, 0) /
         (1 - r.audit.countryReference.camera![0])
     ).toBeCloseTo(0.4, 8);
-    expect(r.audit.countryForecast.camera![0]).toBe(r.audit.countryReference.camera![0]);
+    expect(r.audit.countryForecast.camera![0]).toBeCloseTo(r.audit.countryReference.camera![0], 9);
     expect(r.audit.countryForecast.camera).not.toEqual(r.audit.countryReference.camera);
     f.assets.fit.audit.electionDiscrepancy = 0;
     const zero = prepareFastGeneration(f.scenario, f.assets, f.context).run(8);

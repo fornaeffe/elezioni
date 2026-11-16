@@ -10,7 +10,7 @@ import { FAST_SHARE_MODEL } from './types';
 import { prepareReferenceBonusPlan } from '../reference-bonus-plan';
 import { assembleReformSimulation, type AssemblySource } from '../assembly';
 export function m02AssemblySource(s: Pick<FastGenerationScenario, 'models'>, assets: FastVoteAssets): AssemblySource {
-  const definition = requireGenerationModel({ model: 'M02', modelVersion: '2.0.0' });
+  const definition = requireGenerationModel({ model: 'M02', modelVersion: '3.0.0' });
   return {
           voteParameterVersion: definition.id + "@" + definition.version + "/" + FAST_GENERATION_VERSION,
           chamberModelId: "fast-share-paired-v1",
@@ -24,7 +24,8 @@ export function m02AssemblySource(s: Pick<FastGenerationScenario, 'models'>, ass
             ...(assets.senateAdapter?.sourceVersions ?? []),
           ],
           assumptions: [
-            ...(assets.senateAdapter?.assumptions ?? []),
+            ...(assets.senateAdapter?.assumptions.filter(a => !a.startsWith('One paired election') && !a.startsWith('Senate filtering/')) ?? []),
+            "M02 3.0.0: one unrestricted common Camera field. Descriptive paired and explicit reference contrasts stay fixed through future movement, followed by separate physical filing conditioning and independent multinomial counts. No temporal contrast innovations are identified by one paired election.",
             "Conditional municipal 18+ electorates are apportioned to physical cells using census population weights before generation; this is a labelled reconstruction, not observed submunicipal turnout. Electorate dates: " +
               [...new Set(assets.electorates.map((e) => e.date))]
                 .sort()

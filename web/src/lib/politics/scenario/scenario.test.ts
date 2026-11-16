@@ -32,7 +32,7 @@ describe('common politics contract', () => {
   });
   it.each([
     ['missing selection', (s: Mutable<PoliticsScenario>) => { delete (s.selection.generatorsByLaw as Partial<typeof s.selection.generatorsByLaw>)[ROSATELLUM]; }],
-    ['unsupported pair', (s: Mutable<PoliticsScenario>) => { s.selection.generatorsByLaw[ROSATELLUM].id = 'M02'; }],
+    ['unsupported model version', (s: Mutable<PoliticsScenario>) => { s.selection.generatorsByLaw[REFORM].version = '2.0.0'; }],
     ['old model version', (s: Mutable<PoliticsScenario>) => { (s.selection.generatorsByLaw[REFORM] as { version: string }).version = '1.0.0'; }],
     ['extension version', (s: Mutable<PoliticsScenario>) => { (s.modelSettings.M01 as { schemaVersion: number }).schemaVersion = 2; }],
     ['law block version', (s: Mutable<PoliticsScenario>) => { (s.lawSettings[ROSATELLUM] as { schemaVersion: number }).schemaVersion = 2; }],

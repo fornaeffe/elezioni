@@ -18,7 +18,7 @@ export async function collectCommonPoliticsBaseline() {
   for (const model of ['M01', 'M02'] as const) {
     for (const name of cases) {
       const s: ReleasedScenario = structuredClone(f.accepted.scenario);
-      s.generation = { model, modelVersion: '2.0.0', compositions: {}, supplementalPolls: [] };
+      s.generation = { model, modelVersion: model === 'M02' ? '3.0.0' : '2.0.0', compositions: {}, supplementalPolls: [] };
       s.models.forecast = 'bounded-mass-pair-field-v2';
       if (name === 'camera' || name === 'senato') s.renewal = name;
       if (name === 'chamber-values') {

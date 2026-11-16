@@ -1,7 +1,7 @@
 # CP-03 — Common politics execution
 
 Use `web/src/lib/politics/execution/index.ts` for the new scenario's execution API.
-It supports exactly Rosatellum/M01, reform/M01 and reform/M02. Read the
+It supports exactly Rosatellum/M01, Rosatellum/M02, reform/M01 and reform/M02. Read the
 [domain contract](contract.md) for authored fields and the [baselines](baselines.md)
 for independent statistical, candidature and fixed-input legal evidence.
 
@@ -116,6 +116,15 @@ proportional totals remain a derived view of its physical ballots. Assembly uses
 retained competing declarations are excluded, empty counterparts fail separate
 participation validation and single renewal emits no joint links.
 
+## Current model adoption
+
+M02 3.0.0 replaces separate chamber paths with one unrestricted municipal field
+and fixed paired/reference transport; [its specification](../models/M02.md) owns
+the law and limitations. Both law adapters consume its physical counts.
+[Acceptance](../model-acceptance-2026-11.md) records full-panel checks and resource
+campaigns. M06 is not registered: its six-family endpoint law does not specify
+full-component grouped-history inference.
+
 ## Model-version assessment and comparison
 
 M01 remains **2.0.0** for both laws. The extracted arithmetic retains its specified
@@ -131,8 +140,8 @@ hashes and preparation identities change independently.
 M00's turnout, unmapped-support, poll and uncertainty behavior is intentionally
 replaced by M01 under D01. Rosatellum draws and generated IDs therefore have no
 M00 parity requirement. The new implementation is deterministic by simulation ID
-and independent of worker assignment. Retained reform facades still reproduce
-CP-01's exact record; common-format tests compare ballots, candidature and legal
+and independent of worker assignment. Retained M01 reform facades reproduce
+CP-01's exact M01 records; common-format tests compare ballots, candidature and legal
 results separately from changed source/parameter provenance. The restricted M01
 capacity blocker and M02 tiny-electorate `initial-overallocation` remain visible;
 there is no reroll, scaling repair or regenerated legal expectation.

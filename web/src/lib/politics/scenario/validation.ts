@@ -1,5 +1,6 @@
 import { scenarioShape, chambers, laws, REFORM, ROSATELLUM, type Asset, type LawId,
   type Location, type Placement, type PoliticsScenario } from './schema';
+import { requireGenerationModel } from '../reform-2026/vote-share/model-registry';
 import { activeGenerator, requirePair, scrutinies } from './registry';
 import { effectiveFilings, effectiveMembers, effectivePlacements, renewed, resolveBonusLinks, subjectExists, isListFilingLocation, type GeographyRelation } from './effective';
 import { assetIdentity, declaredAssets, resolveDependencies } from './dependencies';
@@ -88,7 +89,7 @@ export function validateScenario(value: unknown, context?: DomainContext): reado
   }
   for (const law of laws) {
     const block = s.lawSettings[law], path = `$.lawSettings.${law}`;
-    try { requirePair(law, s.selection.generatorsByLaw[law].id); } catch (e) { error('UNSUPPORTED_PAIR', '$.selection', String(e)); }
+    try { const g = s.selection.generatorsByLaw[law]; requireGenerationModel({ model: g.id, modelVersion: g.version }); requirePair(law, g.id); } catch (e) { error('UNSUPPORTED_PAIR', '$.selection', String(e)); }
     unique(block.filings, f => f.listId, `${path}.filings`);
     for (const id of listIds) has(block.filings.some(f => f.listId === id), `${path}.filings`, `Missing explicit filings for ${id}`);
     for (const f of block.filings) {

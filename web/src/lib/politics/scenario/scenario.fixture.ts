@@ -21,7 +21,7 @@ export function fixture(): { scenario: PoliticsScenario; context: DomainContext 
   const scenario: PoliticsScenario = {
     kind: 'politics-scenario', schemaVersion: 1, id: 'test', name: 'Politiche — prova', electionDate: '2027-09-25', referenceDate: '2026-10-19', renewal: 'joint',
     selection: { scrutiny: { id: REFORM, version: '1.0.0' }, generatorsByLaw: {
-      [ROSATELLUM]: { id: 'M01', version: '2.0.0' }, [REFORM]: { id: 'M02', version: '2.0.0' } } },
+      [ROSATELLUM]: { id: 'M01', version: '2.0.0' }, [REFORM]: { id: 'M02', version: '3.0.0' } } },
     data: { historical: asset('history'), catalogue: asset('catalogue'), referenceGeography: asset('reference-geo'), electorate: asset('electorate'),
       lawAssets: { [ROSATELLUM]: modelAssets(ROSATELLUM), [REFORM]: modelAssets(REFORM) } },
     history: { electionIds: ['e-camera'], pairedCamera: 'e-camera', pairedSenato: 'e-senato', polls: { selected: [], added: [], excluded: {} },
@@ -46,9 +46,9 @@ export function fixture(): { scenario: PoliticsScenario; context: DomainContext 
     modelSettings: {
       M01: { schemaVersion: 1, probabilityLawVersion: '2.0.0', parameterDate: '2026-10-19', policies,
         compositions: [{ sourceId: 'e-camera', questionId: 'q', choiceId: 'a', fractions: { ca: 1, cb: 0 }, provenance: 'Explicit composition', proxy: false }], supplementalPolls: [] },
-      M02: { schemaVersion: 1, probabilityLawVersion: '2.0.0', policies, statistical: 'fast-share-kind-common-conservative-v1',
+      M02: { schemaVersion: 1, probabilityLawVersion: '3.0.0', policies, statistical: 'fast-share-kind-common-conservative-v1',
         forecast: 'bounded-mass-pair-field-v2', forecastScale: 1.5, profileRegionCorrelation: 0.25, forecastReference: 'conditional',
-        uncertaintyMultipliers: [{ listId: 'a', chamber: 'camera', national: null, local: 0 }] } },
+        uncertaintyMultipliers: [{ listId: 'a', chamber: 'camera', national: null, local: 0 }, { listId: 'a', chamber: 'senato', national: null, local: 0 }] } },
     execution: { simulations: 10, fittingSeed: 'fit', simulationSeed: 'sim', workers: { kind: 'auto', policy: 'model-aware-v1' } },
     provenance: { origin: 'Constructed contract test, not a default', sourceHashes: [], assumptions: [], warnings: [], referenceDefaultPolicy: 'reference-defaults-v1' }
   };

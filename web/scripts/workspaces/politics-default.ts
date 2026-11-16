@@ -1,4 +1,5 @@
 /** Strict authored inputs and model release packaging. */
+import { modelRegistry } from '../../src/lib/politics/reform-2026/vote-share/model-registry';
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { parsePoliticsScenario, validateActiveScenario, ScenarioValidationError } from '../../src/lib/politics/scenario/validation';
@@ -15,9 +16,9 @@ import type { SeatTableBundle } from '../../src/lib/politics/reform-2026/endowme
 
 export const readAuthoredPolitics = async (root: string) => parsePoliticsScenario(JSON.parse(await readFile(resolve(root, 'data/politics-default-scenario.json'), 'utf8')));
 export async function validateAuthoredPolitics(s: PoliticsScenario, readers: ExecutionReaders) {
-  for (const [law, model] of [[ROSATELLUM, 'M01'], [REFORM, 'M01'], [REFORM, 'M02']] as const) {
+  for (const [law, model] of [[ROSATELLUM, 'M01'], [ROSATELLUM, 'M02'], [REFORM, 'M01'], [REFORM, 'M02']] as const) {
     const active: PoliticsScenario = { ...s, selection: { scrutiny: { ...s.selection.scrutiny, id: law },
-      generatorsByLaw: { ...s.selection.generatorsByLaw, [law]: { ...s.selection.generatorsByLaw[law], id: model } } } };
+      generatorsByLaw: { ...s.selection.generatorsByLaw, [law]: { ...s.selection.generatorsByLaw[law], id: model, version: modelRegistry[model].version } } } };
     const data = await loadExecutionData(active, readers);
     const issues = validateActiveScenario(active, data.domain);
     if (issues.length) throw new ScenarioValidationError(issues);

@@ -122,7 +122,12 @@ describe.skipIf(!existsSync(resolve(directory, "candidate.json")))(
         "new:team-k",
         "new:uv",
       ]);
-      expect(loaded.assets.fit.componentIds).toHaveLength(28);
+      // The installed November poll selection identifies 30 components,
+      // including the separately reported poll-only parties.
+      expect(loaded.assets.fit.componentIds).toHaveLength(30);
+      expect(loaded.assets.fit.componentIds).toEqual(expect.arrayContaining([
+        'poll-only-futuro-nazionale', 'poll-only-italia-domani'
+      ]));
       for (const ch of ["camera", "senato"] as const) {
         const members = loaded.scenario.lists[ch].flatMap(
           (l) => l.componentIds,

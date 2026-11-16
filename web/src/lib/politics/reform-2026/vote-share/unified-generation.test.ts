@@ -202,7 +202,7 @@ describe('unified generation contract', () => {
       f.read,
     );
     expect(recompiled.audit.nationalFits).toBe(0);
-    edited.generation!.model = 'M02';
+    edited.generation!.model = 'M02'; edited.generation!.modelVersion = '3.0.0';
     const stale = await runFitTask(
       {
         action: 'validate',

@@ -17,6 +17,7 @@ export const scrutinies = {
 } as const;
 export const supportedPairs = [
   { law: ROSATELLUM, generator: 'M01', adapterId: 'rosatellum-m01-v1' },
+  { law: ROSATELLUM, generator: 'M02', adapterId: 'rosatellum-m02-v1' },
   { law: REFORM, generator: 'M01', adapterId: 'reform-m01-v1' },
   { law: REFORM, generator: 'M02', adapterId: 'reform-m02-v1' }
 ] as const;
@@ -28,7 +29,7 @@ export function requirePair(law: LawId, generator: GeneratorId) {
 export function activeGenerator(s: PoliticsScenario) { return s.selection.generatorsByLaw[s.selection.scrutiny.id]; }
 export function initialSelection(): PoliticsScenario['selection'] {
   return { scrutiny: { id: REFORM, version: '1.0.0' }, generatorsByLaw: {
-    [ROSATELLUM]: { id: 'M01', version: '2.0.0' }, [REFORM]: { id: 'M02', version: '2.0.0' } } };
+    [ROSATELLUM]: { id: 'M01', version: '2.0.0' }, [REFORM]: { id: 'M02', version: '3.0.0' } } };
 }
 export function capabilities(s: PoliticsScenario) {
   const law = s.selection.scrutiny.id, model = activeGenerator(s);

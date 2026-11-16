@@ -11,7 +11,7 @@ describe("public model identities", () => {
   it("keeps two independent explicit versions and M02 as default", () => {
     expect(DEFAULT_MODEL).toBe("M02");
     expect(generationModels.map((m) => [m.id, m.version])).toEqual([
-      ["M02", "2.0.0"],
+      ["M02", "3.0.0"],
       ["M01", "2.0.0"],
     ]);
     expect(
@@ -25,6 +25,7 @@ describe("public model identities", () => {
     expect(() =>
       requireGenerationModel({ model: "M02", modelVersion: "1.0.0" }),
     ).toThrow("MODEL_VERSION_UNSUPPORTED");
+    expect(() => requireGenerationModel({ model: 'M02', modelVersion: '2.0.0' })).toThrow('MODEL_VERSION_UNSUPPORTED');
     const s = fastGenerationFixture().scenario;
     (s.generation as { modelVersion?: string }).modelVersion = undefined;
     expect(() => requireFastScenario(s)).toThrow();

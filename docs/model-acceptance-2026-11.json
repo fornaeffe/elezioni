@@ -1,0 +1,338 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-16",
+  "status": "accepted-with-model-rejection",
+  "scope": "Local adoption: M01 2.0.0 and M02 3.0.0 for both laws. M06 research-v1 rejected at the production law gate. No public deployment.",
+  "implementationId": "implementation-v1-80a145d446eb8f06e1f5b26882ea20de38daad1b3c5efd6d0de0c4d42a74461f",
+  "decisions": {
+    "M01": {
+      "version": "2.0.0",
+      "accepted": true
+    },
+    "M02": {
+      "version": "3.0.0",
+      "accepted": true
+    },
+    "M06": {
+      "status": "rejected-at-full-component-law-gate",
+      "scope": "The published research-v1 endpoint law requires separately observed component vectors. Six-family accuracy scores do not define a production law.",
+      "reason": "Joint and absent historical components prevent the declared full-component endpoint errors/covariances and local states from being calculated. A grouped-data endpoint law and new-component rule must be specified and validated before browser acceptance; fabricated historical splits are not permitted.",
+      "browserResourceGate": "not-entered",
+      "offeredInUI": false,
+      "researchDefinitionSha256": "4fa897fc0671b852feb91cb955272b04bd687ee99565a10e551e929b859599cc"
+    }
+  },
+  "limitations": [
+    "Fixed descriptive and explicit-reference chamber contrasts; temporal contrast innovations and future joint-bonus calibration are not established.",
+    "Research six-family historical scores are not full-list accuracy validation. M01 retains its reported chamber-gap qualification.",
+    "Memory is sampled renderer-wide, not a guaranteed maximum or isolated model workspace."
+  ],
+  "inputs": [
+    {
+      "path": "data/politics-default-scenario.json",
+      "bytes": 903922,
+      "sha256": "0158322e6b690edba166de82707f9a2edaa12600660750a088efd30ec919206c"
+    },
+    {
+      "path": "docs/models/M01.md",
+      "bytes": 12589,
+      "sha256": "8886c8cbfe0f65adc943a55f5b5c82e169be11e965ce1eab0414b4f31c2cd563"
+    },
+    {
+      "path": "docs/models/M02.md",
+      "bytes": 6766,
+      "sha256": "2ab59893e18ab4493050e2da989adc4a0bc2406e251fd1322b97ca5b089a79fb"
+    },
+    {
+      "path": "web/scripts/acceptance/shared-model-parity.ts",
+      "bytes": 4299,
+      "sha256": "c33a3cebc91ae8595e9f15db8226c746575cf2ce431d54372149838c28351da5"
+    },
+    {
+      "path": "web/scripts/acceptance/shared-model-acceptance.ts",
+      "bytes": 4883,
+      "sha256": "46131e4c5542ba6b88feb6e0636779a18d00f8ed8cfc24b6e8033f450694552d"
+    },
+    {
+      "path": "web/scripts/acceptance/model-panel.ts",
+      "bytes": 3949,
+      "sha256": "5d5c370f371231de2e876848fb2bc7fa7beddf1f1c6281e76d106a1ffa3af3c5"
+    },
+    {
+      "path": "web/scripts/acceptance/common-politics-outcomes.ts",
+      "bytes": 1631,
+      "sha256": "f207b60f501b05f1852db1bee61d05f9ae73ac62704d2c693c84685c56ceee0b"
+    },
+    {
+      "path": "web/scripts/acceptance/common-politics-baseline.test.ts",
+      "bytes": 597,
+      "sha256": "07d521a8c8c10e7b0516811977b84e30ffe9a3d317d49dc36a4b7de3cb7f560e"
+    },
+    {
+      "path": "web/tests/fixtures/common-politics-baseline.json",
+      "bytes": 730075,
+      "sha256": "8c88926c92e062e33678d21cd917f71260d7eecee293b62620285c89940564b3"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "data/derived/model-acceptance-2026-11/full-panel.json",
+      "bytes": 10463,
+      "sha256": "bd5d8b2211d81be0c6855661abb71977e07d7732660afd2adb2e3ff4ffe12a4e"
+    },
+    {
+      "path": "data/derived/model-acceptance-2026-11/camera-parity.json",
+      "bytes": 767,
+      "sha256": "bc73b0d2ec964391a8fcad0fe675fd15393635f029a9c83d6766ccf71feb5ab0"
+    },
+    {
+      "path": "data/derived/model-acceptance-2026-11/shared-full-panel.json",
+      "bytes": 5283,
+      "sha256": "a5172fe0de8fe94c025751d8b6c0e6a398bf85a99c8f1032dc73419db21a5e05"
+    },
+    {
+      "path": "data/derived/model-acceptance-2026-11/production-gate/unit.json",
+      "bytes": 503426,
+      "sha256": "cbb06e265bc427f39bc1ff723b609f0fb3b7708de53617254ed38a24505b0dcb"
+    },
+    {
+      "path": "data/derived/model-acceptance-2026-11/production-gate/report.completed.json",
+      "bytes": 3266,
+      "sha256": "8b71f95536bf8266917b36a58e2148a0966e7e155212189833a17f8867bd8626"
+    }
+  ],
+  "units": {
+    "passed": 1346,
+    "failed": 0,
+    "pending": 0
+  },
+  "browserChecks": [
+    {
+      "name": "browser acceptance /elezioni",
+      "passed": 73,
+      "skipped": 0
+    },
+    {
+      "name": "editor acceptance /elezioni",
+      "passed": 3,
+      "skipped": 0
+    },
+    {
+      "name": "unified browser acceptance /elezioni",
+      "passed": 8,
+      "skipped": 0
+    },
+    {
+      "name": "browser acceptance /",
+      "passed": 73,
+      "skipped": 0
+    },
+    {
+      "name": "editor acceptance /",
+      "passed": 3,
+      "skipped": 0
+    },
+    {
+      "name": "unified browser acceptance /",
+      "passed": 8,
+      "skipped": 0
+    }
+  ],
+  "campaigns": [
+    {
+      "law": "politiche-r-parity-v1",
+      "model": "M01",
+      "version": "2.0.0",
+      "origin": "fresh-browser-campaign",
+      "receipt": {
+        "path": "data/derived/model-acceptance-2026-11/resources/M01-politiche-r-parity-v1-1000-4.json",
+        "bytes": 99066,
+        "sha256": "46ebeb142863c80d8e3c2186313026b580b3c3035263f38c438cd237d973e68a"
+      },
+      "browser": "157.0.8103.79",
+      "requestedWorkers": {
+        "kind": "fixed",
+        "count": 4
+      },
+      "actualWorkers": 4,
+      "simulations": 1000,
+      "preparationMs": 5567.8945,
+      "fittingAndExecutionMs": 186023.0793,
+      "outcomes": {
+        "complete": 985,
+        "partial": 0,
+        "failed": 15
+      },
+      "legalAcceptance": {
+        "accepted": true,
+        "acceptedFailureIds": [
+          50,
+          73,
+          167,
+          307,
+          350,
+          458,
+          466,
+          487,
+          520,
+          541,
+          548,
+          586,
+          818,
+          875,
+          948
+        ],
+        "unexpectedSimulationIds": [],
+        "unmatchedErrorSimulationIds": []
+      },
+      "peakPrivateBytes": 3506393088,
+      "peakWorkingSetBytes": 3375312896,
+      "archive": {
+        "path": "data/derived/model-acceptance-2026-11/resources/M01-politiche-r-parity-v1-1000-4.archive.json.gz",
+        "roundtrip": "data/derived/model-acceptance-2026-11/resources/M01-politiche-r-parity-v1-1000-4.archive.json.gz.roundtrip.gz",
+        "content": {
+          "bytes": 135525814,
+          "sha256": "d22fb16a4dd8368f3b1d883773f2e64ebcf97392c82b48dd70e5d0ebbf7b10ff"
+        },
+        "elapsedMs": 19549.836500000005,
+        "peakPrivateBytes": 1547804672,
+        "peakWorkingSetBytes": 1663393792
+      }
+    },
+    {
+      "law": "politiche-reform-2026-v1",
+      "model": "M01",
+      "version": "2.0.0",
+      "origin": "fresh-browser-campaign",
+      "receipt": {
+        "path": "data/derived/model-acceptance-2026-11/resources/M01-politiche-reform-2026-v1-1000-4.json",
+        "bytes": 124847,
+        "sha256": "50e28f8aacba680e63bce3351b6814951c15e012d28bf3eead407e3b19057b24"
+      },
+      "browser": "157.0.8103.79",
+      "requestedWorkers": {
+        "kind": "fixed",
+        "count": 4
+      },
+      "actualWorkers": 4,
+      "simulations": 1000,
+      "preparationMs": 5573.3684,
+      "fittingAndExecutionMs": 405095.1525,
+      "outcomes": {
+        "complete": 1000,
+        "partial": 0,
+        "failed": 0
+      },
+      "legalAcceptance": {
+        "accepted": true,
+        "acceptedFailureIds": [],
+        "unexpectedSimulationIds": [],
+        "unmatchedErrorSimulationIds": []
+      },
+      "peakPrivateBytes": 4364427264,
+      "peakWorkingSetBytes": 4336746496,
+      "archive": {
+        "path": "data/derived/model-acceptance-2026-11/resources/M01-politiche-reform-2026-v1-1000-4.archive.json.gz",
+        "roundtrip": "data/derived/model-acceptance-2026-11/resources/M01-politiche-reform-2026-v1-1000-4.archive.json.gz.roundtrip.gz",
+        "content": {
+          "bytes": 3687436014,
+          "sha256": "700544d2ae46f2489f2920beffb1f2adba031d33db6f97be50e16cea4cff9c96"
+        },
+        "elapsedMs": 209579.28760000004,
+        "peakPrivateBytes": 2686156800,
+        "peakWorkingSetBytes": 2779545600
+      }
+    },
+    {
+      "law": "politiche-r-parity-v1",
+      "model": "M02",
+      "version": "3.0.0",
+      "origin": "fresh-browser-campaign",
+      "receipt": {
+        "path": "data/derived/model-acceptance-2026-11/resources/M02-politiche-r-parity-v1-1000-4.json",
+        "bytes": 120840,
+        "sha256": "bf72db66c039d9509a5591cc4242f1d7d2f1243a6049c576a04ede4663717bf2"
+      },
+      "browser": "157.0.8103.79",
+      "requestedWorkers": {
+        "kind": "fixed",
+        "count": 4
+      },
+      "actualWorkers": 4,
+      "simulations": 1000,
+      "preparationMs": 37698.5069,
+      "fittingAndExecutionMs": 751160.0342,
+      "outcomes": {
+        "complete": 998,
+        "partial": 0,
+        "failed": 2
+      },
+      "legalAcceptance": {
+        "accepted": true,
+        "acceptedFailureIds": [
+          16,
+          49
+        ],
+        "unexpectedSimulationIds": [],
+        "unmatchedErrorSimulationIds": []
+      },
+      "peakPrivateBytes": 1820815360,
+      "peakWorkingSetBytes": 1930756096,
+      "archive": {
+        "path": "data/derived/model-acceptance-2026-11/resources/M02-politiche-r-parity-v1-1000-4.archive.json.gz",
+        "roundtrip": "data/derived/model-acceptance-2026-11/resources/M02-politiche-r-parity-v1-1000-4.archive.json.gz.roundtrip.gz",
+        "content": {
+          "bytes": 88097740,
+          "sha256": "8537cac183f7769cdfc1ba021009722ee5fd6c8c498337280b15be72622e2d69"
+        },
+        "elapsedMs": 16394.14399999997,
+        "peakPrivateBytes": 1148989440,
+        "peakWorkingSetBytes": 1268764672
+      }
+    },
+    {
+      "law": "politiche-reform-2026-v1",
+      "model": "M02",
+      "version": "3.0.0",
+      "origin": "fresh-browser-campaign",
+      "receipt": {
+        "path": "data/derived/model-acceptance-2026-11/resources/M02-politiche-reform-2026-v1-1000-4.json",
+        "bytes": 146735,
+        "sha256": "0a2ed3f690e488062de4915c0eb87a15d6944c9279d8e1f15e2a1faac890742a"
+      },
+      "browser": "157.0.8103.79",
+      "requestedWorkers": {
+        "kind": "fixed",
+        "count": 4
+      },
+      "actualWorkers": 4,
+      "simulations": 1000,
+      "preparationMs": 37479.5805,
+      "fittingAndExecutionMs": 905145.918,
+      "outcomes": {
+        "complete": 1000,
+        "partial": 0,
+        "failed": 0
+      },
+      "legalAcceptance": {
+        "accepted": true,
+        "acceptedFailureIds": [],
+        "unexpectedSimulationIds": [],
+        "unmatchedErrorSimulationIds": []
+      },
+      "peakPrivateBytes": 3394994176,
+      "peakWorkingSetBytes": 3416059904,
+      "archive": {
+        "path": "data/derived/model-acceptance-2026-11/resources/M02-politiche-reform-2026-v1-1000-4.archive.json.gz",
+        "roundtrip": "data/derived/model-acceptance-2026-11/resources/M02-politiche-reform-2026-v1-1000-4.archive.json.gz.roundtrip.gz",
+        "content": {
+          "bytes": 3699225134,
+          "sha256": "81115c44a1b434eede5dda577478594b9d74965fdf2a7d85511116d86f2a1acd"
+        },
+        "elapsedMs": 204389.06849999994,
+        "peakPrivateBytes": 2600579072,
+        "peakWorkingSetBytes": 2698481664
+      }
+    }
+  ]
+}

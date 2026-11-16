@@ -4,11 +4,15 @@ import type { PoliticsCheckpoint } from './scenario/envelopes';
 import { parsePoliticsScenario } from './scenario/validation';
 import { canonicalJson } from './scenario/dependencies';
 import { activeGenerator } from './scenario/registry';
+import { generationModels } from './reform-2026/vote-share/model-registry';
 import { readPoliticsDraft, writePoliticsDraft } from './files/draft';
 import type { PoliticsRuntime, PreparationSummary } from './execution/client';
 import { politicsRunResources } from './execution/resources';
 
 export const politicsSessionsKey = 'elezioni:politics:common-sessions:v1';
+// Stored tables from the retired law remain viewable; this never authorizes
+// execution or checkpoint reuse under an unsupported generator version.
+const storedModelTags = new Set<string>([...generationModels.map(m => `${m.id}@${m.version}`), 'M02@2.0.0']);
 export interface SessionEntry {
   id: string; law: string; model: string; createdAt: string; renewal: string; completed: number; requested: number;
 }
@@ -60,7 +64,7 @@ export class PoliticsWorkspaceController {
         const index = JSON.parse(saved);
         if (typeof index.owner !== 'string' || !index.owner || typeof index.selected !== 'string' || !Array.isArray(index.sessions) ||
           index.sessions.some((s: SessionEntry) => !s || typeof s.id !== 'string' || !s.id ||
-            !['politiche-r-parity-v1', 'politiche-reform-2026-v1'].includes(s.law) || !/^M0[12]@2\.0\.0$/.test(s.model) ||
+            !['politiche-r-parity-v1', 'politiche-reform-2026-v1'].includes(s.law) || !storedModelTags.has(s.model) ||
             typeof s.createdAt !== 'string' || !['camera', 'senato', 'joint'].includes(s.renewal) ||
             !Number.isSafeInteger(s.completed) || s.completed < 0 || !Number.isSafeInteger(s.requested) || s.requested < 1 || s.completed > s.requested) ||
           new Set(index.sessions.map((s: SessionEntry) => s.id)).size !== index.sessions.length) throw new Error('Invalid session index');

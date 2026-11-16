@@ -23,7 +23,7 @@ describe('single authored politics default', () => {
       'pcm-14387-q1','pcm-14389-q1','pcm-14398-q1','pcm-14400-q3','pcm-14411-q1',
       'pcm-14419-q1','pcm-14420-q1','pcm-14421-q1','pcm-14423-q1','pcm-14424-q4',
     ]));
-    expect(s.selection).toEqual({ scrutiny:{id:REFORM,version:'1.0.0'},generatorsByLaw:{[ROSATELLUM]:{id:'M01',version:'2.0.0'},[REFORM]:{id:'M02',version:'2.0.0'}} });
+    expect(s.selection).toEqual({ scrutiny:{id:REFORM,version:'1.0.0'},generatorsByLaw:{[ROSATELLUM]:{id:'M01',version:'2.0.0'},[REFORM]:{id:'M02',version:'3.0.0'}} });
     expect(s.execution).toEqual({simulations:10,fittingSeed:'fast-share-default-fit-v1',simulationSeed:'fast-share-default-v1',workers:{kind:'auto',policy:'model-aware-v1'}});
     expect(s.lawSettings[ROSATELLUM].candidateGeneration).toEqual({uninominalToPlurinominalShare:0.35,plurinominalCandidacyCountShares:[0.875,0.0625,0.025,0.0125,0.025]});
     expect(s.lawSettings[REFORM].candidateGeneration).toEqual({reuseProbability:0.2,maximumOrdinaryCandidacies:5,bonusPolicy:'reference-proportional-v1'});
@@ -61,7 +61,7 @@ describe.skipIf(!hasData)('authored production packaging (requires npm run data:
   const asset = async (pin:typeof s.data.historical)=>new Uint8Array(await readFile(resolve(root,'web/static',pin.uri)));
   const dir=resolve(root,'web/static/data/reform-2026/fast-share'),read=async(path:string)=>new Uint8Array(await readFile(resolve(dir,path)));
   const readers={implementationId:'test',asset,sourceChunk:read};
-  it('checks every declared pin, all three supported pairs, and fails closed on corrupted/incompatible data', async () => {
+  it('checks every declared pin, all four supported pairs, and fails closed on corrupted/incompatible data', async () => {
     for(const pin of declaredAssets(s)) await verifyAssetBytes(pin,await asset(pin));
     await validateAuthoredPolitics(s,readers);
     await expect(validateAuthoredPolitics(s,{...readers,asset:async()=>new Uint8Array([0])})).rejects.toThrow('CHECKSUM');

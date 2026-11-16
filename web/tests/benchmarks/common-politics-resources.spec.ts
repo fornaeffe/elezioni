@@ -32,7 +32,7 @@ test('national common execution resources with renderer-wide process sampling', 
   const law = (process.env.CP_RESOURCE_LAW ?? REFORM) as LawId, model = (process.env.CP_RESOURCE_MODEL ?? 'M02') as GeneratorId;
   requirePair(law, model);
   const scenario: PoliticsScenario = { ...initial, selection: { ...initial.selection, scrutiny: { ...initial.selection.scrutiny, id: law },
-    generatorsByLaw: { ...initial.selection.generatorsByLaw, [law]: { id: model, version: '2.0.0' } } },
+    generatorsByLaw: { ...initial.selection.generatorsByLaw, [law]: { id: model, version: model === 'M02' ? '3.0.0' : '2.0.0' } } },
     execution: { ...initial.execution, simulations, workers: process.env.CP_RESOURCE_WORKERS
       ? { kind: 'fixed', count: Number(process.env.CP_RESOURCE_WORKERS) } : initial.execution.workers } };
   const directory = resolve(process.env.CP_RESOURCE_OUTPUT ?? '../data/derived/common-politics-resources'); await mkdir(directory, { recursive: true });
@@ -66,10 +66,14 @@ test('national common execution resources with renderer-wide process sampling', 
   }
   const preparationMs = performance.now() - preparationStarted;
   await page.getByRole('button', { name: 'Avvia simulazione', exact: true }).click();
+  const statusBox = page.locator('aside[aria-label="Stato dell\'applicazione"]');
+  await statusBox.getByRole('button', { name: /^Stato:/ }).click();
   let lastLog = 0;
   for (;;) {
     if (crash) throw new Error('Renderer crashed during the national campaign');
-    const phase = await page.locator('section[aria-labelledby="run-title"] [role=status]').innerText();
+    const phase = await statusBox.innerText();
+    if (await statusBox.evaluate(node => node.classList.contains('error')) || pageErrors.length)
+      throw new Error(`National campaign failed: ${phase}; ${pageErrors.join(';')}`);
     const row = await sample(phase);
     if (performance.now() - lastLog >= 30_000) {
       console.log(`${phase}; private ${(row.privateBytes / 1024 ** 3).toFixed(2)} GiB`); lastLog = performance.now();
@@ -112,6 +116,7 @@ test('national common execution resources with renderer-wide process sampling', 
     qualification: 'Sampled Windows private renderer processes including nested workers and native allocations; not JS heap, available RAM or a guaranteed maximum.' };
   await writeFile(receipt, JSON.stringify(report, null, 2) + '\n');
   const archiveStarted = performance.now(), archiveSamples = samples.length;
+  await openResultTransfers(page);
   let pendingSample: Promise<void> | undefined, samplingError: unknown;
   const timer = setInterval(() => {
     if (pendingSample) return;

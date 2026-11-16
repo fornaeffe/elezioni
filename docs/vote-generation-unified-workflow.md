@@ -1,10 +1,10 @@
 # Unified M01/M02 workflow
 
 Current probability laws are [M01 2.0.0](models/M01.md) and
-[M02 2.0.0](models/M02.md), with M02 default. Both restore the implementation
-immediately before `4ee5a91`, while retaining canonical names and exact-version
-checks. Model law, numerical policy, source/scenario IDs and implementation hashes
-are separate. Read only the appropriate model definition for its equations.
+[M02 3.0.0](models/M02.md), with M02 default. Both are offered for Rosatellum
+and reform. M02 uses one common unrestricted field, deterministic chamber
+transport and separate physical filing conditioning. M06's production law gate
+and operational evidence are recorded in [model acceptance](model-acceptance-2026-11.md).
 
 ## Task map
 
@@ -30,10 +30,10 @@ are separate. Read only the appropriate model definition for its equations.
   per-list poll projection and greedy capacity allocation retain their documented
   limits. No component-pooling or half-vote correction from 1.0.0 remains active.
 - M02 fits coarsened national groups, uses exact matching national baselines for
-  municipal profiles, and constructs the reference field on physical filed sets.
-  The default locally normalizes the field without compulsory national raking.
-  Explicit list/component references precede bounded mass-pair movement; counts
-  are multinomial in physical cells, with no extra late filing conditioning.
+  municipal profiles, and constructs one unrestricted common reference field.
+  The default locally normalizes it without compulsory national raking. Explicit
+  references precede shared movement; fixed chamber transport and separate
+  physical filing conditioning precede independent multinomial counts.
   Unidentified fitted bases are rejected rather than split using references.
 - Political references preserve already constructed turnout in both models;
   non-valid references are separate. M01 accepts list references and singleton
@@ -55,7 +55,7 @@ are not overwritten or counted as fresh validation of the restored versions.
 Regenerate defaults and every fitted/profile/runtime/catalog asset through
 `npm run data:reform:shares:release`; do not hand-edit snapshots. The policy restores
 its pre-correction references and omits the six 1.0.0 model-derived anchors.
-M01/M02 selectors, checkpoints and result provenance require exact version 2.0.0.
+M01/M02 selectors, checkpoints and result provenance require exact versions M01 2.0.0 / M02 3.0.0.
 Saved 1.0.0 scenarios do not execute implicitly under the restored laws.
 
 ## Worker ownership and resource policy
@@ -107,7 +107,7 @@ workers and its heap samples are explicitly labelled partial.
 
 The ordinary build installs the unified workspace. `REFORM_FAST_CANDIDATE=0`
 is a compatibility-test override. The ordinary browser accepts only current v5
-scenarios with exact M01/M02 2.0.0 identities. Older formats or model versions
+scenarios with exact M01 2.0.0 / M02 3.0.0 identities. Older formats or model versions
 are rejected; no statistical conversion is performed. JSON.gz retains the exact executed scenario and
 self-contained session; CSV remains table-oriented.
 
@@ -120,7 +120,7 @@ same types, units, builds and browser suites separately as an additional routine
 gate. Dedicated release/editor commands remain available for focused diagnosis.
 
 Use the [CP-08 acceptance procedure](common-politics-scenario/acceptance.md) for
-sequential browser fitting-plus-1,000-run campaigns across all three pairs.
+sequential browser fitting-plus-1,000-run campaigns across all four pairs.
 `benchmark:common-politics` owns current renderer-memory/timing receipts.
 `test:reform:shares:unified` now checks the common editor/session and full archive
 roundtrip in Chromium/Firefox, with three national draws per pair at `/elezioni`

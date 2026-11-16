@@ -163,13 +163,13 @@ export async function preparePoliticsExecution(value: unknown, readers: Executio
       fitSeed: s.execution.fittingSeed, profileReferenceDate: s.referenceDate, sourceBundleId: data.source.id,
       fittedStateId: preparationKey, profileStateId: preparationKey, geography: data.geography, electorates: data.electorates };
     inputs.fast.data.fittedStateId = preparationKey; inputs.fast.data.profileStateId = preparationKey;
-    const prepared = prepareM02Votes(inputs.fast, assets, { geography: context!.seats.geography, models: data.parameters.models },
+    const prepared = prepareM02Votes(inputs.fast, assets, { geography: law === REFORM ? context!.seats.geography : data.geography, models: data.parameters.models },
       { maximumWorkspaceBytes: options.maximumWorkspaceBytes, copyAssets: false });
     references = prepared.trace.references;
     generationKey = await m02GenerationKey(preparationKey, inputs.fast);
-    bonusPlan = prepareReferenceBonusPlan(legal!, context!, [], { referenceDate: s.referenceDate, support: prepared.support });
+    bonusPlan = law === REFORM ? prepareReferenceBonusPlan(legal!, context!, [], { referenceDate: s.referenceDate, support: prepared.support }) : undefined;
     source = m02AssemblySource(inputs.fast, assets);
-    generatorInputs = { id: 'M02', settings: inputs.fast, assets, parents: { fit: fitState.parents, profiles: profileState.parents } };
+    generatorInputs = { id: 'M02', settings: inputs.fast, assets, context: { geography: law === REFORM ? context!.seats.geography : data.geography, models: data.parameters.models }, parents: { fit: fitState.parents, profiles: profileState.parents } };
     generateVotes = simulation => {
       const result = prepared.run(simulation);
       if (bonusPlan) result.trace.bonusSelection = { policy: bonusPlan.policy, referenceDate: bonusPlan.referenceDate,

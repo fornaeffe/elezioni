@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { fastGenerationFixture } from '../../../../../tests/fixtures/fast-generation-input';
 import { prepareFastGeneration } from './generation';
 
-describe('M02 2.0.0 restored reference law', () => {
+describe('M02 3.0.0 reference and physical filing law', () => {
   it('uses local reference normalization rather than compulsory country calibration', () => {
     const f = fastGenerationFixture();
     f.scenario.models.forecast = 'bounded-mass-pair-field-v2';
@@ -19,7 +19,7 @@ describe('M02 2.0.0 restored reference law', () => {
       p.cells.camera.reduce((total, c) => total + c.electors, 0);
     expect(aggregate(local) - aggregate(calibrated)).toBeGreaterThan(0.05);
   });
-  it('removes unfiled components before the movement field is built', () => {
+  it('removes unfiled components from the effective reference and final ballot', () => {
     const f = fastGenerationFixture();
     f.scenario.models.forecast = 'bounded-mass-pair-field-v2';
     f.scenario.renewal = 'camera';
@@ -33,7 +33,7 @@ describe('M02 2.0.0 restored reference law', () => {
       expect(prepared.centralReference.camera.every(row => row[j] === 0)).toBe(true);
     }
     const generated = prepared.run(7);
-    expect(generated.trace.modelVersion).toBe('M02@2.0.0');
+    expect(generated.trace.modelVersion).toBe('M02@3.0.0');
     const ch = generated.input.renewal;
     expect(ch.kind).toBe('single');
   });

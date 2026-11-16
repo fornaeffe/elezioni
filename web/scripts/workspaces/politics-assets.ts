@@ -1,6 +1,7 @@
 /** Scenario-independent production bundles. No default choices or latest-bundle resolution. */
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import { modelRegistry } from '../../src/lib/politics/reform-2026/vote-share/model-registry';
 import { readManifest } from '../data-preparation/normalize';
 import { readDefinitiveGeography } from '../data-preparation/definitive-geography';
 import { prepareWorkspaceGeography } from '../data-preparation/workspace-geography';
@@ -73,9 +74,9 @@ export async function buildPoliticsAssets(root: string, sources: string, inputs:
     'reform-seats': { version: context.seats.version, value: context.seats },
   };
   for (const modelId of ['M01', 'M02'] as const) {
-    const value: GenerationParameters = { schemaVersion: 1, kind: 'politics-generation-parameters', modelId, modelVersion: '2.0.0',
+    const value: GenerationParameters = { schemaVersion: 1, kind: 'politics-generation-parameters', modelId, modelVersion: modelRegistry[modelId].version,
       models: context.models, rosatellumChamberProfileId: 'central-v1' };
-    values[modelId] = { version: `${modelId}-2.0.0/${context.models.version}`, value };
+    values[modelId] = { version: `${modelId}-${modelRegistry[modelId].version}/${context.models.version}`, value };
   }
   const assets = new Map<string, { pin: Asset; bytes: Uint8Array<ArrayBuffer>; value: unknown }>();
   for (const [id, { version, value }] of Object.entries(values)) {

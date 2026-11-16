@@ -20,7 +20,7 @@ export async function commonPoliticsFixture(law: LawId = REFORM, model: 'M01' | 
     return { id, version, schemaVersion: 1, bytes: b.length, sha256: await byteHash(b), uri: `/constructed/${id}.json` };
   };
   scenario.id = 'common-execution'; scenario.name = 'Constructed execution fixture';
-  scenario.selection.scrutiny.id = law; scenario.selection.generatorsByLaw[REFORM].id = model;
+  scenario.selection.scrutiny.id = law; scenario.selection.generatorsByLaw[law] = { id: model, version: model === 'M02' ? '3.0.0' : '2.0.0' };
   scenario.electionDate = prior.electionDate; scenario.referenceDate = prior.referenceDate;
   scenario.execution.fittingSeed = prior.fitSeed; scenario.execution.simulationSeed = prior.seed;
   scenario.history = { electionIds: [...prior.historySelection.electionIds], pairedCamera: prior.historySelection.pairedCamera,
@@ -105,7 +105,7 @@ export async function commonPoliticsFixture(law: LawId = REFORM, model: 'M01' | 
     scenario.data.lawAssets[l].seats = await put(`${l}-seats`, l === ROSATELLUM ? ros.version : original.accepted.context.seats.version,
       l === ROSATELLUM ? ros : original.accepted.context.seats);
     for (const m of ['M01', 'M02'] as const) {
-      const parameters: GenerationParameters = { schemaVersion: 1, kind: 'politics-generation-parameters', modelId: m, modelVersion: '2.0.0',
+      const parameters: GenerationParameters = { schemaVersion: 1, kind: 'politics-generation-parameters', modelId: m, modelVersion: m === 'M02' ? '3.0.0' : '2.0.0',
         models: original.accepted.context.models, rosatellumChamberProfileId: prior.chamberProfileId };
       scenario.data.lawAssets[l].models[m] = [await put(`${l}-${m}`, 'parameters-test', parameters)];
     }

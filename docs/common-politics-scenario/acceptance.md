@@ -4,6 +4,10 @@ Use this guide for the release gate, national campaigns and retirement boundary.
 The [editor](editor.md), [lifecycle](lifecycle.md) and [files](files.md) guides own
 their respective contracts. Record results and blockers in [history](../migration-history.md).
 
+Current model adoption and its receipts are recorded in
+[November model acceptance](../model-acceptance-2026-11.md). The recorded CP-08
+receipts below retain their original M01/M02 2.0.0 identities.
+
 ## Production gate
 
 From `web/`, with Node 24 and pinned sources available:
@@ -21,7 +25,7 @@ requires every production bundle, runs `data:check`, preparation/application typ
 checks and all unit tests, then builds and checks `/elezioni` and `/` sequentially.
 Each base runs the full Chromium matrix, focused preparation/checkpoint controls,
 and real national execution/export/import in Chromium and Firefox for
-Rosatellum/M01, reform/M01 and reform/M02. Functional national tests use three
+Rosatellum/M01, Rosatellum/M02, reform/M01 and reform/M02. Functional national tests use three
 draws at the project path and one at root. Root is built last. Reports reject
 skips, TODOs, expected failures, retries and missing data. Stop other preview
 servers and keep builds/preparation sequential.

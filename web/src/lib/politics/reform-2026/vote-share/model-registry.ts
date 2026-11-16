@@ -9,9 +9,9 @@ export const modelRegistry = {
   },
   M02: {
     id: "M02",
-    version: "2.0.0",
-    name: "Stima congiunta e trasferimenti limitati",
-    label: "M02 2.0.0 — stima congiunta e trasferimenti limitati",
+    version: "3.0.0",
+    name: "Campo politico condiviso e trasferimenti limitati",
+    label: "M02 3.0.0 — campo politico condiviso e trasferimenti limitati",
     specification: "docs/models/M02.md",
   },
 } as const;

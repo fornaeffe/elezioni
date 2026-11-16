@@ -24,7 +24,7 @@ test.beforeAll(async () => {
   }
   expect(workerCode.length).toBeGreaterThan(0);
 });
-for (const [law, model] of [[ROSATELLUM, 'M01'], [REFORM, 'M01'], [REFORM, 'M02']] as const)
+for (const [law, model] of [[ROSATELLUM, 'M01'], [ROSATELLUM, 'M02'], [REFORM, 'M01'], [REFORM, 'M02']] as const)
   test(`common worker ${law}/${model} validates and streams reproducible runs`, async ({ page, context }) => {
     const f = await commonPoliticsFixture(law, model), prepared = await preparePoliticsExecution(f.scenario, f.readers);
     const packet = { implementationId: prepared.implementationId, scenario: f.scenario, keys: prepared.keys,

@@ -34,11 +34,11 @@ both model blocks have independent `schemaVersion: 1`. Each law stores its exact
 generator selection; only `selection.scrutiny` selects the active law. The first
 explicit scrutiny metadata version is `1.0.0` for each existing algorithm ID;
 this labels the unchanged scrutiny implementation, not a legal correction.
-M01/M02 retain exact `2.0.0` probability-law identities here. CP-03's
+Supported probability laws are M01 `2.0.0` and M02 `3.0.0` (shared field). CP-03's
 [version assessment](execution.md#model-version-assessment-and-comparison)
 retains M01 2.0.0 for both laws, independently of the new adapter identity.
 
-The supported domain pairs are Rosatellum/M01, reform/M01 and reform/M02.
+The supported domain pairs are Rosatellum/M01, Rosatellum/M02, reform/M01 and reform/M02.
 `initialSelection()` creates reform/M02 with saved Rosatellum/M01; switching
 uses saved choices. It does not construct CP-04's authored production default.
 `envelopes.ts` defines independent strict result and archive v1 schemas, immutable

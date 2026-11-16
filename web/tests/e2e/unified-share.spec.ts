@@ -8,7 +8,7 @@ const draws = Number(process.env.FV08_DRAWS ?? 3);
 if (!Number.isSafeInteger(draws) || draws < 1 || draws > 1000)
     throw new Error('Acceptance supports 1–1000 draws');
 test.setTimeout(240000);
-for (const [law, model] of [[ROSATELLUM, 'M01'], [REFORM, 'M01'], [REFORM, 'M02']] as const)
+for (const [law, model] of [[ROSATELLUM, 'M01'], [ROSATELLUM, 'M02'], [REFORM, 'M01'], [REFORM, 'M02']] as const)
     test(`${law}/${model} unified browser workflow`, async ({ page, browser }) => {
         const errors: string[] = [];
         page.on('pageerror', e => errors.push(e.message));

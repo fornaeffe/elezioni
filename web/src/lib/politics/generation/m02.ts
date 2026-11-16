@@ -41,6 +41,7 @@ import {
 import { adaptSenateReference } from "../reform-2026/vote-share/senate-adapter";
 import { betaTransition, movementScales } from "../reform-2026/vote-share/transition";
 import { feasibleField } from "../reform-2026/vote-share/feasible-field";
+import { contrastBetween, transportContrast } from "./shared-contrast";
 import { referenceNoise } from "../reform-2026/vote-share/reference-noise";
 
 export type M02Settings = Pick<FastGenerationScenario, 'generation' | 'seed' | 'electionDate' |
@@ -238,7 +239,7 @@ export function prepareM02Votes(
   for (const cell of physicalCells(
     assets.geography,
     assets.electorates,
-    chambers,
+    ["camera", "senato"],
     s.seed,
   ))
     cells[cell.chamber].push(cell);
@@ -248,6 +249,15 @@ export function prepareM02Votes(
       fit.participation.values.byteLength,
     options.maximumWorkspaceBytes,
   );
+  // One latent row per municipality. Neither law's physical subdivision nor
+  // a chamber's filing pattern defines statistical innovation addresses.
+  const commonByCity = new Map<string, PhysicalCell>();
+  for (const cell of cells.camera) {
+    const row = commonByCity.get(cell.municipality);
+    if (row) row.electors += cell.electors;
+    else commonByCity.set(cell.municipality, { ...cell, id: "common:" + cell.municipality, collegeId: "common" });
+  }
+  const commonCells = [...commonByCity.values()].sort((a, b) => a.municipality.localeCompare(b.municipality));
   const filing = new Map<string, Map<string, string>>(),
     listPositions = new Map<string, Map<string, number[]>>();
   for (const ch of chambers) {
@@ -311,7 +321,18 @@ export function prepareM02Votes(
   }
   const filedList = (c: PhysicalCell, id: string) =>
     filing.get(c.chamber + ":" + c.collegeId)?.get(id);
-  const plans = referencePlans(s, cells, chambers, filedList),
+  const commonMultipliers = new Map(ids.map(id => {
+    const lists = chambers.flatMap(ch => s.lists[ch].filter(l => l.componentIds.includes(id)));
+    const national = new Set(lists.map(l => l.nationalUncertaintyMultiplier ?? 1));
+    const local = new Set(lists.map(l => l.localUncertaintyMultiplier ?? 1));
+    if (national.size > 1 || local.size > 1)
+      throw new Error('COMMON_FIELD_MULTIPLIER_CONFLICT: use one uncertainty budget per common component');
+    return [id, { national: [...national][0] ?? 1, local: [...local][0] ?? 1 }];
+  }));
+  // References describe unrestricted support; future filings cannot erase it.
+  const declaredList = (c: PhysicalCell, id: string) =>
+    (s.lists[c.chamber].filter(l => l.componentIds.includes(id)).length > 1 ? filedList(c, id) : s.lists[c.chamber].find(l => l.componentIds.includes(id))?.id) ?? "unmapped:" + id;
+  const plans = referencePlans(s, cells, chambers, declaredList),
     position = new Map(fit.componentIds.map((id, i) => [id, i])),
     profilePosition = new Map(
       assets.cameraProfile.municipalityIds.map((id, i) => [id, i]),
@@ -380,7 +401,7 @@ export function prepareM02Votes(
       localMultipliers: Float64Array;
     }
   >();
-  for (const ch of chambers)
+  for (const ch of ["camera", "senato"] as const)
     for (const cell of cells[ch])
       referenceProfiles.set(cell, {
         means: Float64Array.from({ length: n }, (_, j) =>
@@ -389,12 +410,11 @@ export function prepareM02Votes(
         sd: Float64Array.from({ length: n }, (_, j) =>
           profileValue(ch, cell, j, "profileSd"),
         ),
-        offered: [true, ...ids.map((id) => filedList(cell, id) !== undefined)],
+        offered: Array(n).fill(true),
         localMultipliers: Float64Array.from({ length: n }, (_, j) =>
           j === 0
             ? 1
-            : (listsById[ch].get(filedList(cell, ids[j - 1]) ?? "")
-                ?.localUncertaintyMultiplier ?? 1),
+            : commonMultipliers.get(ids[j - 1])!.local,
         ),
       });
   const baseCountry = (ch: Chamber, simulationId: number, central: boolean) => {
@@ -442,19 +462,20 @@ export function prepareM02Votes(
     });
     const offered = [
       true,
-      ...ids.map((id) => cells[ch].some((c) => filedList(c, id) !== undefined)),
+      ...ids.map(() => true),
     ];
     return removeAbsent(b, offered);
   };
   const geographicField = (
     ch: Chamber,
     makeRow: (i: number) => Float64Array,
+    size = cells[ch].length,
   ) => {
-    const field = new Float64Array(cells[ch].length * n);
-    for (let start = 0; start < cells[ch].length; start += chunkSize)
+    const field = new Float64Array(size * n);
+    for (let start = 0; start < size; start += chunkSize)
       for (
         let i = start;
-        i < Math.min(cells[ch].length, start + chunkSize);
+        i < Math.min(size, start + chunkSize);
         i++
       )
         field.set(makeRow(i), i * n);
@@ -534,8 +555,22 @@ export function prepareM02Votes(
       referenceConditioned,
     };
   };
-  const centralBase: Surfaces = { camera: [], senato: [] };
-  for (const ch of chambers) centralBase[ch] = surface(ch, 0, true).rows;
+  const pushContrast = (row: Float64Array, cell: PhysicalCell) => {
+    const at = profilePosition.get(cell.municipality)! * (fit.componentIds.length + 1);
+    const gap = Float64Array.from({ length: n }, (_, j) => {
+      const old = j === 0 ? 0 : (position.get(ids[j - 1]) ?? -2) + 1;
+      return old < 0 || !assets.senateAdapter ? 0 : profile.gapMultiplier * (
+        (j === 0 ? assets.senateAdapter.nonValidLogOdds : assets.senateAdapter.nationalLogRatios[old - 1]) +
+        assets.senateAdapter.profile.means[at + old] - assets.cameraProfile.means[at + old]);
+    });
+    return transportContrast(row, gap);
+  };
+  const commonSurface = (simulationId: number, central: boolean, noiseField = makeReferenceNoise(simulationId, central)): Surfaces => {
+    const camera = surface("camera", simulationId, central, noiseField).rows;
+    const byCity = new Map(cells.camera.map((c, i) => [c.municipality, camera[i]]));
+    return { camera, senato: cells.senato.map(c => pushContrast(byCity.get(c.municipality)!, c)) };
+  };
+  const centralBase = commonSurface(0, true);
   const aggregate = (
     ch: Chamber,
     rows: Float64Array[],
@@ -564,11 +599,10 @@ export function prepareM02Votes(
   ) => {
     const fallback = (ch: Chamber, i: number, j: number) => {
       const cell = cells[ch][i];
-      if (j > 0 && !filedList(cell, ids[j - 1])) return 0;
       if (backups[ch][i][j] > 0)
         return backups[ch][i][j] / Math.max(1e-300, 1 - backups[ch][i][0]);
       if (j > 0 && componentsById.get(ids[j - 1])!.kind === "new") {
-        const noise = noiseField(ch, cell.municipality, cell.region)[j];
+        const noise = noiseField('camera', cell.municipality, cell.region)[j];
         return Math.exp(
           referenceProfiles.get(cell)!.means[j] +
             referenceProfiles.get(cell)!.sd[j] * noise,
@@ -657,7 +691,7 @@ export function prepareM02Votes(
                   .filter(
                     (id) =>
                       g.subject.kind === "component" ||
-                      filedList(cells[ch][selected[i]], id) === g.subject.id,
+                      declaredList(cells[ch][selected[i]], id) === g.subject.id,
                   )
                   .map((id) => index.get(id)!),
               ),
@@ -702,26 +736,21 @@ export function prepareM02Votes(
     const rows: Surfaces = { camera: [], senato: [] },
       backup: Surfaces = { camera: [], senato: [] },
       noiseField = makeReferenceNoise(simulationId, central);
-    for (const ch of chambers) {
-      if (central) {
-        rows[ch] = centralBase[ch].map((r) => r.slice());
-        backup[ch] = centralBase[ch];
-      } else {
-        const x = surface(ch, simulationId, false, noiseField);
-        rows[ch] = x.rows;
-        backup[ch] = x.backup;
-        if (x.referenceConditioned)
-          audit.warnings.push(
-            "REFERENCE_POSTERIOR_CONDITIONED_ON_FILING:" + ch,
-          );
-      }
+    const common = central ? centralBase : commonSurface(simulationId, false, noiseField);
+    for (const ch of ["camera", "senato"] as const) {
+      rows[ch] = common[ch].map(r => r.slice());
+      backup[ch] = common[ch];
     }
     applyReferences(rows, backup, simulationId, central, audit, noiseField);
     return rows;
   };
   const centralAudit = freshAudit(),
-    central = referenceSurfaces(0, true, centralAudit),
+    unrestrictedCentral = referenceSurfaces(0, true, centralAudit),
+    central: Surfaces = { camera: [], senato: [] },
     support = new Map<string, number>();
+  for (const ch of chambers)
+    central[ch] = cells[ch].map((c, i) => removeAbsent(unrestrictedCentral[ch][i],
+      [true, ...ids.map(id => filedList(c, id) !== undefined)]));
   for (const ch of chambers)
     cells[ch].forEach((c, i) => {
       const college = context.geography.colleges.find(
@@ -850,11 +879,39 @@ export function prepareM02Votes(
       reference = referenceSurfaces(simulationId, false, audit),
       counts = new Map<string, CollegeCounts>();
     const horizon = years(s.electionDate, s.referenceDate);
-    for (const ch of chambers) {
-      const total = sum(cells[ch].map((c) => c.electors)),
+    const forecasts = new Map<string, Float64Array>();
+    const referenceCamera = reference.camera;
+    const senateByCity = new Map(cells.senato.map((c, i) => [c.municipality, reference.senato[i]]));
+    const baseCameraByCity = new Map(cells.camera.map((c, i) => [c.municipality, centralBase.camera[i]]));
+    const baseSenateByCity = new Map(cells.senato.map((c, i) => [c.municipality, centralBase.senato[i]]));
+    // Pull a sole Senate intervention back to the Camera coordinate system.
+    // In a joint renewal, union explicitly introduced support before movement;
+    // the transport below restores each chamber's explicit zero exactly.
+    reference.camera = cells.camera.map((c, i) => {
+      const senate = senateByCity.get(c.municipality)!;
+      if (!chambers.includes("camera")) return transportContrast(senate,
+        contrastBetween(baseSenateByCity.get(c.municipality)!, baseCameraByCity.get(c.municipality)!));
+      const row = referenceCamera[i].slice();
+      if (chambers.includes("senato")) {
+        if (row[0] === 1 && senate[0] < 1) row.set(senate);
+        else if (row[0] === 0 && senate[0] > 0 && senate[0] < 1) {
+          row[0] = senate[0];
+          for (let j = 1; j < n; j++) row[j] *= 1 - row[0];
+        }
+        let added = false;
+        for (let j = 1; j < n; j++) if (row[j] === 0 && senate[j] > 0) { row[j] = senate[j]; added = true; }
+        const political = sum(row.slice(1));
+        if (added && political > 0) for (let j = 1; j < n; j++) row[j] *= (1 - row[0]) / political;
+      }
+      return row;
+    });
+    const cityReferences = new Map(cells.camera.map((c, i) => [c.municipality, reference.camera[i]]));
+    const movementRows = commonCells.map(c => cityReferences.get(c.municipality)!);
+    for (const ch of ["camera"] as const) {
+      const total = sum(commonCells.map((c) => c.electors)),
         b = new Float64Array(n);
-      cells[ch].forEach((c, i) =>
-        reference[ch][i].forEach((p, j) => (b[j] += (c.electors * p) / total)),
+      commonCells.forEach((c, i) =>
+        movementRows[i].forEach((p, j) => (b[j] += (c.electors * p) / total)),
       );
       audit.countryReference[ch] = [...b];
       const q = b.slice(1).map((p) => (1 - b[0] > 0 ? p / (1 - b[0]) : 0)),
@@ -870,10 +927,7 @@ export function prepareM02Votes(
             correlation,
           ),
         );
-      const multipliers = ids.map((id) => {
-        const list = s.lists[ch].find((l) => l.componentIds.includes(id));
-        return list?.nationalUncertaintyMultiplier ?? 1;
-      });
+      const multipliers = ids.map(id => commonMultipliers.get(id)!.national);
       const politicalScales = ids.map((id, j) =>
         componentsById.get(id)!.kind === "new"
           ? componentsById.get(id)!.fallback!.nationalInnovationSd *
@@ -887,20 +941,18 @@ export function prepareM02Votes(
       if (s.models.forecast) {
         const generated = feasibleField({
           model: s.models.forecast,
-          reference: reference[ch],
-          cells: cells[ch],
+          reference: movementRows,
+          cells: commonCells,
           politicalScales,
           localScales: Float64Array.from({ length: n }, (_, j) =>
-            profileValue(ch, cells[ch][0], j, "futureScales"),
+            profileValue(ch, commonCells[0], j, "futureScales"),
           ),
           participationScale: scale.nonValid,
           discrepancy: 1.5 * fit.audit.electionDiscrepancy,
           discrepancyScales: multipliers.map(
             (m) => 1.5 * fit.audit.electionDiscrepancy * m,
           ),
-          localMultipliers: cells[ch].map(
-            (c) => referenceProfiles.get(c)!.localMultipliers,
-          ),
+          localMultipliers: commonCells.map(() => Float64Array.from([1, ...ids.map(id => commonMultipliers.get(id)!.local)])),
           horizon,
           seed: s.seed,
           simulationId,
@@ -974,7 +1026,7 @@ export function prepareM02Votes(
               ).normal(),
           ),
           regionNoise = new Map<string, Float64Array>();
-        for (const region of new Set(cells[ch].map((c) => c.region))) {
+        for (const region of new Set(commonCells.map((c) => c.region))) {
           const rng = forecastRandom(
             s.seed,
             simulationId,
@@ -988,7 +1040,7 @@ export function prepareM02Votes(
           );
         }
         const scores = (i: number) => {
-          const c = cells[ch][i],
+          const c = commonCells[i],
             rng = forecastRandom(
               s.seed,
               simulationId,
@@ -1000,33 +1052,30 @@ export function prepareM02Votes(
           return Float64Array.from({ length: n }, (_, j) => {
             if (
               !(target[j] > 0) ||
-              !(reference[ch][i][j] > 0) ||
-              (j > 0 && !filedList(c, ids[j - 1]))
+              !(movementRows[i][j] > 0) ||
+              false
             )
               return -Infinity;
-            const list = j
-              ? listsById[ch].get(filedList(c, ids[j - 1])!)
-              : undefined;
             const noise =
               profileValue(ch, c, j, "futureScales") *
-              (list?.localUncertaintyMultiplier ?? 1) *
+              (j ? commonMultipliers.get(ids[j - 1])!.local : 1) *
               localScale *
               Math.sqrt(horizon) *
               (Math.sqrt(0.85) * localNoise[j] +
                 Math.sqrt(0.15) * regionNoise.get(c.region)![j]);
             return (
               Math.log(target[j]) +
-              Math.log(reference[ch][i][j]) -
+              Math.log(movementRows[i][j]) -
               Math.log(b[j]) +
               noise
             );
           });
         };
-        const field = geographicField(ch, scores);
+        const field = geographicField(ch, scores, commonCells.length);
         projected = projectMargins(
           target,
-          cells[ch].length,
-          (i) => ({ weight: cells[ch][i].electors, scores: field(i) }),
+          commonCells.length,
+          (i) => ({ weight: commonCells[i].electors, scores: field(i) }),
           options,
         );
       }
@@ -1038,47 +1087,36 @@ export function prepareM02Votes(
         audit.projectionIterations,
         projected.iterations,
       );
-      for (
-        let start = 0;
-        start < cells[ch].length;
-        start += options.chunkSize ?? 128
-      )
-        for (
-          let i = start;
-          i < Math.min(cells[ch].length, start + (options.chunkSize ?? 128));
-          i++
-        ) {
-          const c = cells[ch][i],
-            rng = forecastRandom(
-              s.seed,
-              simulationId,
-              "multinomial:" + c.id,
-              ch,
-              correlation,
-            ),
-            componentCounts = c.electors
-              ? multinomial(
-                  c.electors,
-                  [...projected.probabilities(i)],
-                  rng.uniform,
-                )
-              : Array(n).fill(0);
-          const row = counts.get(c.collegeId) ?? {
-            electors: 0,
-            votes: new Map<string, number>(),
-          };
-          row.electors += c.electors;
-          for (const [list, positions] of listPositions.get(
-            ch + ":" + c.collegeId,
-          )!) {
-            const count = sum(positions.map((j) => componentCounts[j]));
-            row.votes.set(list, (row.votes.get(list) ?? 0) + count);
-          }
-          if (sum(componentCounts) !== c.electors)
-            throw new Error("Integer elector conservation failed");
-          counts.set(c.collegeId, row);
-        }
+      commonCells.forEach((c, i) => forecasts.set(c.municipality, projected.probabilities(i)));
     }
+    const cameraReference = new Map(cells.camera.map((c, i) => [c.municipality, reference.camera[i]]));
+    for (const ch of chambers) {
+      const country = new Float64Array(n), countryRef = new Float64Array(n);
+      const total = sum(cells[ch].map(c => c.electors));
+      cells[ch].forEach((c, i) => {
+        const common = forecasts.get(c.municipality)!;
+        const targetReference = ch === "camera" ? referenceCamera[i] : reference[ch][i];
+        const field = transportContrast(common, contrastBetween(cameraReference.get(c.municipality)!, targetReference));
+        const offered = [true, ...ids.map(id => filedList(c, id) !== undefined)];
+        const probabilities = offered.every(Boolean) ? field : removeAbsent(field, offered), ref = offered.every(Boolean) ? targetReference : removeAbsent(targetReference, offered);
+        probabilities.forEach((p, j) => country[j] += c.electors * p / total);
+        ref.forEach((p, j) => countryRef[j] += c.electors * p / total);
+        // Counts are conditionally independent across physical ballots/chambers.
+        const rng = forecastRandom(s.seed, simulationId, "multinomial:" + c.id, ch, 0);
+        const componentCounts = c.electors ? multinomial(c.electors, [...probabilities], rng.uniform) : Array(n).fill(0);
+        const row = counts.get(c.collegeId) ?? { electors: 0, votes: new Map<string, number>() };
+        row.electors += c.electors;
+        for (const [list, positions] of listPositions.get(ch + ":" + c.collegeId)!) {
+          const count = sum(positions.map(j => componentCounts[j]));
+          row.votes.set(list, (row.votes.get(list) ?? 0) + count);
+        }
+        if (sum(componentCounts) !== c.electors) throw new Error("Integer elector conservation failed");
+        counts.set(c.collegeId, row);
+      });
+      audit.countryReference[ch] = [...countryRef];
+      audit.countryForecast[ch] = [...country];
+    }
+    if (!chambers.includes("camera")) { delete audit.countryReference.camera; delete audit.countryForecast.camera; }
     for (const derived of context.geography.colleges.filter(
       (c) => c.kind === "taa-proportional" && chambers.includes(c.chamber),
     )) {

@@ -15,7 +15,7 @@ function edit(s: PoliticsScenario, apply: (next: Mutable<PoliticsScenario>) => v
 export function selectLaw(s: PoliticsScenario, law: LawId): PoliticsScenario {
   return edit(s, n => { n.selection.scrutiny.id = law; });
 }
-export function selectGenerator(s: PoliticsScenario, generator: GeneratorId, version: '2.0.0'): PoliticsScenario {
+export function selectGenerator(s: PoliticsScenario, generator: GeneratorId, version: '2.0.0' | '3.0.0'): PoliticsScenario {
   return edit(s, n => { n.selection.generatorsByLaw[n.selection.scrutiny.id] = { id: generator, version }; });
 }
 export function setRenewal(s: PoliticsScenario, renewal: PoliticsScenario['renewal']): PoliticsScenario {

@@ -1,6 +1,19 @@
-# Vote-generation research archive
+# Vote-generation research
 
-Research concluded on **2 November 2026** with **M01 2.0.0** and **M02 2.0.0**
+## Active chamber-aware campaign
+
+Research reopened in November 2026 after excessive M02 Camera–Senato differences
+were reported. [Results and recommendation](campaign-2026-11/results.md) compare
+M01 2.0.0, current M02 2.0.0, a simpler shared-field M02 candidate and M05/M06/M07
+(Joint Gaussian, Joint Student-t, spatial transition bootstrap). The
+[protocol](campaign-2026-11/protocol.md) owns folds, scores, same-footprint chamber
+differences, age/reconstruction limitations and reproducible commands.
+The [code directory](campaign-2026-11/code/) is runnable against current kernels;
+it does not reuse the archived original-layout CLI files below.
+
+## Frozen earlier research
+
+The earlier campaign concluded on **2 November 2026** with **M01 2.0.0** and **M02 2.0.0**
 selected; M02 is the default. FV-09 archived superseded research and removed
 1,260 exact generated files (4,301,573,109 bytes). `docs/model-drafts/` remains
 in place and is excluded from archival and deletion.

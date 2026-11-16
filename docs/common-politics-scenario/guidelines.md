@@ -1,5 +1,10 @@
 # Common politics workspace, scenario and UI
 
+> The 16 November [model adoption](../model-acceptance-2026-11.md) extends the
+> original D02 matrix to Rosatellum/M02 and replaces M02 2.0.0 with 3.0.0.
+> Historical three-pair decisions below retain their original scope; use the
+> current registry and adoption report for implemented pairs and versions.
+
 Design proposal for the open workspace-merger item in
 [MIGRATION_PLAN.md](../../MIGRATION_PLAN.md). This document defines the target;
 the [CP-02 contract guide](contract.md) and [CP-03 execution guide](execution.md)

@@ -54,7 +54,7 @@ the reviewed authored pin. Review the source/model/geography change and the
 descriptors returned by `buildPoliticsAssets`; update the authored pins only as
 part of that reviewed change, then rerun the complete pipeline. Preparation never
 rewrites pins or substitutes a latest bundle. Standalone descriptor generation
-also validates dependencies for all three supported pairs. Missing production
+also validates dependencies for all four supported pairs. Missing production
 assets fail release; dependent development tests skip with a preparation message.
 
 Do not edit generated defaults, descriptors or catalogues. The former authored

@@ -17,10 +17,21 @@ simulation and scrutiny remain in the browser. Reassess the completed workload
 at the final publication gate below. Luca merges the completed migration branch
 into `main`; public deployment follows that merge and a successful hosting gate.
 
-Current reform vote-generation contracts are [M01 2.0.0](docs/models/M01.md)
-and [M02 2.0.0](docs/models/M02.md), with M02 as default. Model-law versions,
+Current politics vote-generation contracts are [M01 2.0.0](docs/models/M01.md)
+and [M02 3.0.0](docs/models/M02.md), with M02 as default. Model-law versions,
 numerical policies, source/scenario identities and implementation hashes remain
 separate. Completed tasks and their verification are recorded in migration history.
+
+## November 2026 model adoption
+
+- [x] Complete full-component/filing/reference and browser/worker/scrutiny acceptance
+  for M01 2.0.0 and M02-shared as M02 3.0.0; offer passing models for both laws
+  and retire M02 2.0.0 from active selection. Record receipts in
+  [model acceptance](docs/model-acceptance-2026-11.md).
+- [x] Assess M06's full-component law boundary. The six-family law does not yet
+  specify endpoint errors for the production joint/absent component histories.
+- [ ] **Deferred M06 research:** specify and validate its grouped-history endpoint law, missing/new-component
+  support and full-list accuracy before entering browser acceptance.
 
 ## Working principles
 
@@ -135,6 +146,18 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   `docs/migration-history.md`; do not turn this file into a status log.
 
 ## Plan
+
+- [ ] **Chamber-aware vote-generation adoption.** Use the completed
+  [research campaign](research/vote-generation/campaign-2026-11/results.md) to
+  select a coupling/model law, retaining M01 as a marginal/tail-risk benchmark.
+  Validate full coupling and the simpler common-field M02 on complete component/
+  list memberships, distinct physical filings, new components and explicit
+  chamber references. State future contrast assumptions and sensitivities;
+  2022 is the only bundled same-age paired election. Preserve intentional
+  chamber differences. Complete browser/worker/scrutiny resource acceptance
+  before adoption; version a changed probability law separately from a supported
+  coupling configuration. Keep current defaults and frozen evidence until that
+  decision and acceptance are complete.
 
 - [ ] **Final hosting reassessment and publication.** After all preceding
   implementation and acceptance work, reassess GitHub Actions plus GitHub Pages

@@ -18,7 +18,7 @@
       },
       "politiche-reform-2026-v1": {
         "id": "M02",
-        "version": "2.0.0"
+        "version": "3.0.0"
       }
     }
   },
@@ -84,7 +84,16 @@
               "uri": "data/politics/M01-a487a61080ee.json"
             }
           ],
-          "M02": []
+          "M02": [
+            {
+              "id": "M02",
+              "version": "M02-3.0.0/r26-models-v1-f71a72020aaa",
+              "schemaVersion": 1,
+              "bytes": 8447,
+              "sha256": "57daded438311179e3d6b8b0da9a8a0a6746b33f935d9257d3f065f13ca7126f",
+              "uri": "data/politics/M02-57daded43831.json"
+            }
+          ]
         }
       },
       "politiche-reform-2026-v1": {
@@ -118,11 +127,11 @@
           "M02": [
             {
               "id": "M02",
-              "version": "M02-2.0.0/r26-models-v1-f71a72020aaa",
+              "version": "M02-3.0.0/r26-models-v1-f71a72020aaa",
               "schemaVersion": 1,
               "bytes": 8447,
-              "sha256": "ca8ca4915737fd6eec839b0e5dda4c0c869226b80f790618365feb95e48bc03f",
-              "uri": "data/politics/M02-ca8ca4915737.json"
+              "sha256": "57daded438311179e3d6b8b0da9a8a0a6746b33f935d9257d3f065f13ca7126f",
+              "uri": "data/politics/M02-57daded43831.json"
             }
           ]
         }
@@ -24711,7 +24720,7 @@
     },
     "M02": {
       "schemaVersion": 1,
-      "probabilityLawVersion": "2.0.0",
+      "probabilityLawVersion": "3.0.0",
       "policies": {
         "numerical": "fast-share-float64-v1",
         "references": "fixed-turnout-reference-v1",

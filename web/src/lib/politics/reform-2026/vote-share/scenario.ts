@@ -95,7 +95,7 @@ const shape = object({
   schemaVersion: literal(5),
   generation: optional(object({
     model: literal('M02', 'M01'),
-    modelVersion: literal('2.0.0'),
+    modelVersion: literal('2.0.0', '3.0.0'),
     compositions: dictionary(object({ fractions: dictionary(nonnegative), provenance: text, proxy: optional(bool) })),
     supplementalPolls: array(object({ id: text, date, available: date, end: date, context: literal('camera','european','senato'),
       groups: array(object({label:text,members:array(text),share})), sample:nonnegative,source:text,enabled:bool })),

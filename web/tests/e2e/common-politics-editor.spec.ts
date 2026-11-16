@@ -26,7 +26,10 @@ test('common law/model selections, deferred settings, seeds and locks survive re
   await page.getByLabel('Generatore dei voti', { exact: true }).selectOption('M01'); await ready(page);
   await page.getByRole('combobox', { name: 'Legge elettorale', exact: true }).selectOption('politiche-r-parity-v1'); await ready(page);
   await expect(page.getByLabel('Generatore dei voti', { exact: true })).toHaveValue('M01');
-  await expect(page.getByLabel('Generatore dei voti').locator('option[value=M02]')).toHaveJSProperty('disabled', true);
+  await expect(page.getByLabel('Generatore dei voti').locator('option[value=M02]')).toHaveJSProperty('disabled', false);
+  await expect(page.getByLabel('Generatore dei voti').locator('option[value=M02]')).toContainText('3.0.0');
+  await page.getByLabel('Generatore dei voti', { exact: true }).selectOption('M02'); await ready(page);
+  expect((await draft(page)).selection.generatorsByLaw['politiche-r-parity-v1']).toEqual({ id: 'M02', version: '3.0.0' });
   await page.getByRole('combobox', { name: 'Legge elettorale', exact: true }).selectOption('politiche-reform-2026-v1'); await ready(page);
   await expect(page.getByLabel('Generatore dei voti', { exact: true })).toHaveValue('M01');
   await open(page, /^Impostazioni avanzate della simulazione$/);

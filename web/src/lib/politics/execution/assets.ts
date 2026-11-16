@@ -16,7 +16,7 @@ export interface GenerationParameters {
   schemaVersion: 1;
   kind: 'politics-generation-parameters';
   modelId: 'M01' | 'M02';
-  modelVersion: '2.0.0';
+  modelVersion: '2.0.0' | '3.0.0';
   models: ReformModelBundle;
   /** Rosatellum's pinned statistical profile; no dependency on inactive reform settings. */
   rosatellumChamberProfileId: string;

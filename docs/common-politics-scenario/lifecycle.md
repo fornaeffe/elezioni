@@ -70,7 +70,7 @@ Only **Carica lo scenario di questa sessione** validates and replaces it. Reload
 restores exactly the selected session, reports unavailable storage, and never
 substitutes another session. Stale results keep their immutable executed identity.
 
-All three pairs use the ordered pull-driven pool: one pending simulation per
+All four pairs use the ordered pull-driven pool: one pending simulation per
 worker, bounded row chunks, and a manifest commit only after the entire simulation
 is stored. Stable simulation IDs and RNG streams do not depend on pool width.
 Failures retain complete/partial/failed membership and the original requested

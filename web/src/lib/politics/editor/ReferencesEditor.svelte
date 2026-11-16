@@ -10,12 +10,14 @@
   let { scenario, target, label, assets, edit, mode = 'all' }: { scenario: PoliticsScenario; target: ReferenceTarget; label: string; assets: EditorAssets | null; edit: ApplyEdit; mode?: 'all' | 'basic' | 'advanced' } = $props();
   let rows = $derived(referenceRows(scenario, target));
   let different = $derived(rows.some(r => r.scope.kind === 'national' && r.channel !== 'common'));
-  function multiplier(chamber: 'camera' | 'senato', key: 'national' | 'local', value: string) {
+  function multiplier(key: 'national' | 'local', value: string) {
     edit(s => editScenario(s, n => {
       if (target?.kind !== 'list') return;
-      let row = n.modelSettings.M02.uncertaintyMultipliers.find(r => r.listId === target.id && r.chamber === chamber);
-      if (!row) { row = { listId: target.id, chamber, national: null, local: null }; n.modelSettings.M02.uncertaintyMultipliers.push(row); }
-      row[key] = value.trim() === '' ? null : Number(value);
+      for (const chamber of ['camera', 'senato'] as const) {
+        let row = n.modelSettings.M02.uncertaintyMultipliers.find(r => r.listId === target.id && r.chamber === chamber);
+        if (!row) { row = { listId: target.id, chamber, national: null, local: null }; n.modelSettings.M02.uncertaintyMultipliers.push(row); }
+        row[key] = value.trim() === '' ? null : Number(value);
+      }
     }));
   }
 </script>
@@ -31,16 +33,13 @@
     <ReferenceFields {scenario} {target} scope={{ kind: 'national' }} channel={channel as 'camera' | 'senato'} label={`${label} ${channel === 'camera' ? 'Camera' : 'Senato'}`} {edit} />
   {/each}
   {#if target?.kind === 'list' && capabilities(scenario).generator.uncertaintyMultipliers}
-    {#each ['camera', 'senato'] as ch (ch)}
-      {@const chamber = ch as 'camera' | 'senato'}
-      {@const values = effectiveUncertaintyMultipliers(scenario, target.id, chamber)}
+      {@const values = effectiveUncertaintyMultipliers(scenario, target.id, 'camera')}
       {#each ['national', 'local'] as k (k)}
         {@const key = k as 'national' | 'local'}
-        <label>Moltiplicatore {key === 'national' ? 'nazionale' : 'locale'} {chamber} (adimensionale)
-          <input type="number" min="0" step="any" value={values[key]} onchange={e => multiplier(chamber, key, e.currentTarget.value)} />
+        <label>Moltiplicatore {key === 'national' ? 'nazionale' : 'locale'} comune (adimensionale)
+          <input type="number" min="0" step="any" value={values[key]} onchange={e => multiplier(key, e.currentTarget.value)} />
         </label>
       {/each}
-    {/each}
   {/if}
   {#if assets}<ReferenceTree {scenario} {target} nodes={assets.references} {edit} />{:else}<p>Dati territoriali in caricamento.</p>{/if}
 </LazySection>

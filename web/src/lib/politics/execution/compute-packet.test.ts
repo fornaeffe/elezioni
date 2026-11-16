@@ -7,7 +7,7 @@ import { ownedBuffers } from '../reform-2026/vote-share/fit-resources';
 import { structuredHash } from '../../core/structured-hash';
 import { politicsCapacity, politicsRunResources } from './resources';
 
-it.each([[ROSATELLUM, 'M01'], [REFORM, 'M01'], [REFORM, 'M02']] as const)(
+it.each([[ROSATELLUM, 'M01'], [ROSATELLUM, 'M02'], [REFORM, 'M01'], [REFORM, 'M02']] as const)(
   'transfers prepared %s/%s inputs with exact deterministic outcomes and no mutable numeric cache', async (law, model) => {
     const f = await commonPoliticsFixture(law, model), prepared = await preparePoliticsExecution(f.scenario, f.readers);
     const before = prepared.numericStates ? await structuredHash(prepared.numericStates) : undefined;

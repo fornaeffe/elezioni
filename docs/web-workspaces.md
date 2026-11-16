@@ -48,7 +48,7 @@ per-law filings, model settings, run preferences and exact dependencies. See the
 regeneration and retained reference inputs. Do not edit generated defaults.
 
 Both politics routes (`/politics` and `/politics/editor`) use one common editor,
-draft/controller and durable execution service for Rosatellum/M01,
+draft/controller and durable execution service for Rosatellum/M01, Rosatellum/M02,
 reform/M01 and reform/M02. Selection is saved per law. Preparation loads/reuses
 automatically, running locks edits, and both seeds change only through ordinary
 field edits or their individual visible buttons. See the

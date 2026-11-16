@@ -51,7 +51,7 @@ try {
     const env = { BASE_PATH: base, ACCEPTANCE_SERVER_PORT:'4175',  ACCEPTANCE_PREBUILT: '1', PLAYWRIGHT_JSON_OUTPUT_NAME: browserReport };
     await run(`static build ${base || '/'}`, ['run', 'build'], env);
     // CP-08 requires the common domain/editor/session and independent regional
-    // matrix at both bases, including all three approved worker pairs.
+    // matrix at both bases, including all four supported worker pairs.
     await run(`browser suite ${base || '/'}`, ['run', 'test:e2e', '--', '--reporter=json', '--retries=0', ...(testWorkers ? ['--workers', testWorkers] : [])], env);
     report.checks.push({ name: `browser acceptance ${base || '/'}`, ...requireBrowserAcceptance(JSON.parse(await readFile(browserReport, 'utf8'))) });
     {

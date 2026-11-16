@@ -6,7 +6,7 @@ import type { M01Settings, M01Data, GeneratedVotes } from '../generation/types';
 import type { ProjectedMunicipality } from '../generation/m01';
 import { generatePairedMunicipalVotes } from '../generation/m01';
 import { aggregateM01Votes } from '../generation/m01-counts';
-import { prepareM02Votes, type M02Settings } from '../generation/m02';
+import { prepareM02Votes, type M02Settings, type M02Context } from '../generation/m02';
 import type { FastVoteAssets } from '../reform-2026/vote-share/forecast-types';
 import type { FitState, ProfileState } from '../reform-2026/vote-share/release';
 import type { ReformAssemblyContext, ReformLegalSettings } from '../reform-2026/generation-types';
@@ -22,7 +22,7 @@ export type PoliticsGeneratorInputs = {
   id: 'M01'; settings: M01Settings; data: M01Data;
   units: ProjectedMunicipality[]; trace: GeneratedVotes['trace'];
 } | {
-  id: 'M02'; settings: M02Settings; assets: FastVoteAssets;
+  id: 'M02'; settings: M02Settings; assets: FastVoteAssets; context: M02Context;
   parents: { fit: FitState['parents']; profiles: ProfileState['parents'] };
 };
 export type PoliticsLegalInputs = {
@@ -71,16 +71,16 @@ export function preparePoliticsComputeInputs(scenario: PoliticsScenario, impleme
     generateVotes = id => ({ counts: aggregateM01Votes(g.settings, g.data,
       generatePairedMunicipalVotes(g.settings, g.data, g.units, id), id), trace: structuredClone(g.trace) });
   } else {
-    if (legal.id !== REFORM || g.parents.fit.implementationId !== implementationId ||
+    if (g.parents.fit.implementationId !== implementationId ||
       g.parents.profiles.implementationId !== implementationId || g.parents.fit.fitSeed !== scenario.execution.fittingSeed ||
       g.parents.profiles.referenceDate !== scenario.referenceDate || g.settings.fitSeed !== scenario.execution.fittingSeed ||
       g.assets.fittedStateId !== keys.preparationKey || g.assets.profileStateId !== keys.preparationKey ||
       !g.parents.fit.nationalInputKey || !g.parents.profiles.profileInputKey || !g.parents.profiles.pairedInputKey)
       throw new Error('POLITICS_NUMERIC_STATE_DEPENDENCY_MISMATCH');
-    const prepared = prepareM02Votes(g.settings, g.assets, { geography: legal.context.seats.geography, models: legal.context.models },
+    const prepared = prepareM02Votes(g.settings, g.assets, g.context,
       { copyAssets: false });
     // Only the generator and the small bonus plan belong in this closure.
-    const bonusPlan = legal.bonusPlan;
+    const bonusPlan = legal.id === REFORM ? legal.bonusPlan : undefined;
     generateVotes = id => {
       const result = prepared.run(id);
       if (bonusPlan) result.trace.bonusSelection = { policy: bonusPlan.policy, referenceDate: bonusPlan.referenceDate,

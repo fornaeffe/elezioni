@@ -16,7 +16,7 @@ describe('CP-03 common execution', () => {
     const f = await commonPoliticsFixture(REFORM, model);
     const prepared = await preparePoliticsExecution(f.scenario, f.readers);
     const old = structuredClone(f.original.accepted.scenario);
-    old.generation = { model, modelVersion: '2.0.0', compositions: {}, supplementalPolls: [] };
+    old.generation = { model, modelVersion: model === 'M02' ? '3.0.0' : '2.0.0', compositions: {}, supplementalPolls: [] };
     old.models.forecast = f.scenario.modelSettings.M02.forecast;
     old.models.forecastScale = f.scenario.modelSettings.M02.forecastScale;
     old.models.profileRegionCorrelation = f.scenario.modelSettings.M02.profileRegionCorrelation;
@@ -114,7 +114,7 @@ describe('CP-03 common execution', () => {
     f.scenario.lawSettings[ROSATELLUM].filings[0].locations.push(ordinary);
     await expect(preparePoliticsExecution(f.scenario, f.readers)).rejects.toThrow('INVALID_GEOGRAPHY');
   });
-  it.each([[ROSATELLUM, 'M01'], [REFORM, 'M01'], [REFORM, 'M02']] as const)('supports either single renewal for %s/%s', async (law, model) => {
+  it.each([[ROSATELLUM, 'M01'], [ROSATELLUM, 'M02'], [REFORM, 'M01'], [REFORM, 'M02']] as const)('supports either single renewal for %s/%s', async (law, model) => {
     const f = await commonPoliticsFixture(law, model);
     for (const ch of ['camera', 'senato'] as const) {
       f.scenario.renewal = ch;
@@ -202,11 +202,11 @@ describe('CP-03 common execution', () => {
     f.scenario.lawSettings[REFORM].filings.find(r => r.listId === list)!.locations =
       f.scenario.lawSettings[REFORM].filings.find(r => r.listId === list)!.locations.filter(l => !ids.has(l.code));
     await expect(preparePoliticsExecution(f.scenario, f.readers)).rejects.toThrow('Reference votes conflict with filing/capacity camera/990001/A');
-    f.scenario.selection.generatorsByLaw[REFORM].id = 'M02';
+    f.scenario.selection.generatorsByLaw[REFORM] = { id: 'M02', version: '3.0.0' };
     const prepared = await preparePoliticsExecution(f.scenario, f.readers);
     for (const [id, counts] of prepared.generateVotes(7).counts) if (ids.has(id)) expect(counts.votes.get(list) ?? 0).toBe(0);
   }, 60000);
-  it.each([[ROSATELLUM, 'M01'], [REFORM, 'M01'], [REFORM, 'M02']] as const)('preserves residual/new-list generation under %s/%s', async (law, model) => {
+  it.each([[ROSATELLUM, 'M01'], [ROSATELLUM, 'M02'], [REFORM, 'M01'], [REFORM, 'M02']] as const)('preserves residual/new-list generation under %s/%s', async (law, model) => {
     const f = await commonPoliticsFixture(law, model), original = f.scenario.memberships[1];
     const residual = original.camera.pop()!; original.senato = [...original.camera];
     for (const [id, name, kind, color, members] of [
