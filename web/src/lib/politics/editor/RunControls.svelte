@@ -51,7 +51,7 @@
         {/if}
       </div>
     </details>
-    <button disabled={!execution} onclick={() => execution?.onRun()}>Avvia simulazione</button>
+    <button class="run-button" disabled={!execution} onclick={() => execution?.onRun()}>Avvia simulazione</button>
   </fieldset>
 </section>
 <style>
@@ -60,4 +60,20 @@
   .advanced-content { padding-top: .5rem; }
   .worker-info, .worker-warning { overflow-wrap: anywhere; }
   .worker-warning { color: #8a4b08; }
+  .run-button {
+    display: block;
+    min-width: 15rem;
+    margin: 1.25rem auto .5rem;
+    padding: .8rem 1.5rem;
+    border: 0;
+    border-radius: .5rem;
+    background: #15803d;
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .run-button:hover:not(:disabled) { background: #166534; }
+  .run-button:focus-visible { outline: 3px solid #86efac; outline-offset: 3px; }
+  .run-button:disabled { cursor: not-allowed; opacity: .55; }
 </style>

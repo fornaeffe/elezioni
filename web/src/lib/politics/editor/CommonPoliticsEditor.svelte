@@ -76,7 +76,7 @@
   onMount(() => { void load(scenario); return () => { disposed = true; ++epoch; controller?.abort(); importController?.abort(); appStatus.clear('politics-editor'); }; });
 </script>
 <div class="common-politics-editor">
-  <h1>Scenario delle elezioni politiche</h1>
+  <h1>Simulatore delle elezioni politiche</h1>
   {#if issues.length}<LazySection title={`Verifica dello scenario · ${issues.length} problemi da correggere`}><ul>{#each issues as issue, i (`${issue.code}:${issue.path}:${i}`)}<li>{issue.code}: {issue.message}</li>{/each}</ul></LazySection>{/if}
   <fieldset disabled={execution?.busy}>
     <div class="row">
