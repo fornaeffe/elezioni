@@ -38,4 +38,8 @@ export async function seedPresentationSession(page: Page, payload: unknown) {
   await page.reload();
   await openResultTransfers(page);
   await expect(page.getByRole('combobox', { name: 'Sessione dei risultati', exact: true })).not.toHaveValue('');
+  // Result queries share the workspace worker with model preparation. Establish
+  // its ready state before measuring/asserting the synthetic presentation.
+  await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]'))
+    .toContainText('Modello pronto', { timeout: 120_000 });
 }

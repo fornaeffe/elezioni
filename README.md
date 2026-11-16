@@ -48,6 +48,8 @@ npm run preview
 Per la verifica completa usare la [procedura di accettazione](docs/politics-reform-2026-acceptance.md).
 Build e test browser vanno eseguiti in sequenza, anche con `BASE_PATH=/elezioni`.
 I dati di produzione generati e non tracciati sono necessari per l'accettazione.
+La [guida all'hosting](docs/hosting.md) descrive verifica Linux, misure del sito
+e pubblicazione esplicita su GitHub Pages dopo il merge in `main`.
 
 Il codice applicativo resta in `web/`; `data/` contiene fonti e preparazione
 condivise, `docs/` le specifiche, `test/fixtures/` i riferimenti di regressione

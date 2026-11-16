@@ -27,6 +27,11 @@ const server = createServer(async (request, response) => {
       throw new Error('Outside build');
     try {
       if ((await stat(path)).isDirectory()) {
+        if (!url.endsWith('/')) {
+          response.writeHead(308, { Location: url + '/' });
+          response.end();
+          return;
+        }
         const directory = path;
         path = resolve(directory, 'index.html');
         try { await stat(path); }
@@ -46,7 +51,7 @@ const server = createServer(async (request, response) => {
     response.writeHead(200, {
       'Content-Type': types[extname(path)] ?? 'application/octet-stream',
       'Content-Length': body.length,
-      ...(path.endsWith('.gz') ? { 'Content-Encoding': 'gzip' } : {}),
+      ...(path.endsWith('.gz') && process.env.ACCEPTANCE_GZIP_ENCODING !== '0' ? { 'Content-Encoding': 'gzip' } : {}),
     });
     response.end(body);
   } catch {

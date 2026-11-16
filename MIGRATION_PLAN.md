@@ -166,6 +166,10 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   Leave this step open until publication and deployed checks succeed. If the
   target fails, record the concrete blocker and reassess free alternatives
   before selecting a replacement; do not mark hosting or migration complete.
+  Implementation and local verification complete; operating steps:
+  [hosting gate](docs/hosting.md), measurements in migration history.
+  Remaining acceptance: standard Linux cold/warm workflow, then Luca's merge,
+  explicit publication of the passing `main` revision and public smoke checks.
 
 ## After completion of the web migration
 

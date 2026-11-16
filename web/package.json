@@ -4,6 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "hosting:reassess": "tsx --tsconfig tsconfig.node.json scripts/hosting/reassess.ts",
+    "test:hosting": "playwright test --config playwright.hosting.config.ts",
     "data:prepare": "tsx --tsconfig tsconfig.node.json scripts/data-preparation/pipeline-cli.ts prepare",
     "data:check": "tsx --tsconfig tsconfig.node.json scripts/data-preparation/pipeline-cli.ts check",
     "data:workspaces:generate": "tsx --tsconfig tsconfig.node.json scripts/workspaces/generate.ts",

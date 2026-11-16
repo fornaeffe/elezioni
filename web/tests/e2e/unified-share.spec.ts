@@ -17,7 +17,7 @@ for (const [law, model] of [[ROSATELLUM, 'M01'], [ROSATELLUM, 'M02'], [REFORM, '
         expect(before.politics.run.session.simulations).toEqual(Array.from({ length: draws }, (_, i) => ({ id: i + 1, outcome: 'complete' })));
         expect(before.result.storage.maxChunkBytes).toBeLessThanOrEqual(256 * 1024);
         expect(before.politics.run.execution.actualWorkers).toBe(Math.min(2, draws));
-        const directory = resolve('../data/derived/cp08-browser');
+        const directory = resolve(process.env.ACCEPTANCE_ARCHIVE_OUTPUT ?? '../data/derived/cp08-browser');
         await mkdir(directory, { recursive: true });
         const archive = resolve(directory, `${browser.browserType().name()}-${law}-${model}-${base ? 'project' : 'root'}.json.gz`);
         const download = page.waitForEvent('download');

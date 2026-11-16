@@ -6,6 +6,8 @@ const config = {
   preprocess: vitePreprocess(),
   kit: {
     paths: { base: process.env.BASE_PATH ?? '' },
+    // A hosted cold/warm replay of one revision must produce identical bytes.
+    version: process.env.BUILD_REVISION ? { name: process.env.BUILD_REVISION } : undefined,
     adapter: adapter({
       pages: 'build',
       assets: 'build',

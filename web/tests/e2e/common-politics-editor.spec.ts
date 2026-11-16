@@ -132,7 +132,8 @@ test('invalid imports and missing pins leave the draft and old keys intact; rese
   const invalid = createDefaultCommonPoliticsScenario();
   const changed = { ...invalid, name: 'Non applicare', data: { ...invalid.data, historical: { ...invalid.data.historical, uri: 'data/not-here.json' } } };
   await page.getByLabel('Carica scenario', { exact: true }).setInputFiles({ name: 'missing.json.gz', mimeType: 'application/gzip', buffer: Buffer.from(encodeScenario(changed, true)) });
-  await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText('Dati esatti non disponibili');
+  // File metadata is streamed while the selected model may still be fitting.
+  await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText('Dati esatti non disponibili', { timeout: 30_000 });
   expect(await draft(page)).toEqual(before);
   expect(await page.evaluate(() => localStorage.getItem('elezioni:politics:legacy'))).toBe('untouched');
   page.once('dialog', d => d.dismiss()); await page.getByRole('button', { name: 'Ripristina scenario predefinito' }).click();
