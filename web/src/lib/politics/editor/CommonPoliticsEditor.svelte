@@ -2,7 +2,6 @@
   import { onMount, tick } from 'svelte';
   import { useStatus } from '$lib/app-status.svelte';
   const appStatus = useStatus();
-  import { resolve } from '$app/paths';
   import { type PoliticsScenario, type GeneratorId, type LawId, laws, REFORM } from '../scenario/schema';
   import { activeGenerator, capabilities, supportedPairs } from '../scenario/registry';
   import { modelRegistry, generationModels } from '../reform-2026/vote-share/model-registry';
@@ -77,7 +76,6 @@
   onMount(() => { void load(scenario); return () => { disposed = true; ++epoch; controller?.abort(); importController?.abort(); appStatus.clear('politics-editor'); }; });
 </script>
 <div class="common-politics-editor">
-  <nav aria-label="Percorso"><a href={resolve('/')}>Home</a> / <a href={resolve('/politics')}>Elezioni politiche</a> / Editor comune</nav>
   <h1>Scenario delle elezioni politiche</h1>
   {#if issues.length}<LazySection title={`Verifica dello scenario · ${issues.length} problemi da correggere`}><ul>{#each issues as issue, i (`${issue.code}:${issue.path}:${i}`)}<li>{issue.code}: {issue.message}</li>{/each}</ul></LazySection>{/if}
   <fieldset disabled={execution?.busy}>
