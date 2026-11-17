@@ -15,7 +15,7 @@ and `has_pages=false`. No paid service or custom domain is required.
 | Constraint | Current documented allowance | Implementation |
 | --- | --- | --- |
 | Eligibility | Public repositories on GitHub Free | Public static simulator; no server service |
-| Standard public Linux runner | 4 CPUs, 16 GB RAM, 14 GB SSD | `ubuntu-24.04`, Node 24, two acceptance test workers |
+| Standard public Linux runner | 4 CPUs, 16 GB RAM, 14 GB SSD | `ubuntu-24.04`, Node 24, two unit workers and one browser context |
 | Hosted job | 6 hours maximum | Reassessment ceiling 330 minutes for both full passes |
 | Published site | 1 GB maximum | Stage fails at 1,000,000,000 bytes |
 | Pages deployment | 10 minutes maximum | Separate 10-minute deployment job |
@@ -85,6 +85,8 @@ gzip estimate, excluded build files and exact data versions. Full evidence:
 | `logs/*` | Complete subprocess logs; Linux GNU-time resource sidecars |
 | `prepare-report.json`, `check-report.json` | Production input/output receipt hashes and preparation time |
 | `application/report.json` and linked reports/logs | Strict application acceptance |
+| `application/browser-diagnostic.json`, `application/browser-diagnostic-output/` | Four-check fail-fast preflight and retained failure traces |
+| `application/*-output/` | Per-suite/base browser failure traces, screenshots and contexts |
 | `archives/*` | National export/import/re-export archives and digests |
 | `site/*` | Actual publishable directory, uploaded only for authorized publication |
 | `browser.json`, `transfers/*.json` | Staged-site results and per-request encoded transfer receipts |
@@ -127,6 +129,24 @@ Before merging, push the migration branch and inspect its cold/warm hosting
 reports. Fix any source-download, Linux, resource, no-skip or payload mismatch
 failure before treating hosting feasibility as established. A live source whose
 bytes drift must fail; do not replace the pinned manifest without review.
+
+Hosted acceptance sets `ACCEPTANCE_UNIT_WORKERS=2` and
+`ACCEPTANCE_BROWSER_WORKERS=1`. No repository variable or manual workflow input
+is needed for these limits. The four-check browser preflight runs automatically
+before the full matrix and stops on its first failure. Subsequent browser suites
+also stop at their first failure and reject any uncompleted matrix. Zero retries and strict
+full-suite acceptance remain required; traces are retained on initial failures.
+The serialized matrix can take hours. Use minute heartbeats and the active-test
+line in the linked command log to distinguish ongoing work from a failed gate.
+
+After committing/pushing a fix on `migrazione`, open **Hosting reassessment and
+Pages** for that new revision. Let both cold and warm passes finish before
+merging. If it fails, download `hosting-evidence-<sha>` within one day and retain
+its directory structure. Start with `cold/report.json` and
+`cold/application/report.json`; for preflight failures include
+`browser-diagnostic.json`, the linked command log and
+`browser-diagnostic-output/**/trace.zip`. Later failures use that suite's
+`*-output/` directory. A rerun of an older revision will not include the fix.
 
 After Luca merges into `main`, publication is an explicit action:
 

@@ -5,11 +5,14 @@ export default defineConfig({
   // Dedicated release/research checks have their own serving and budget configuration.
   testIgnore: ['hosting.spec.ts','fast-share-release.spec.ts','fast-share-fit.spec.ts','fast-share-ui.spec.ts','unified-share.spec.ts','unified-resources.spec.ts'],
   fullyParallel: true,
-  retries: process.env.CI ? 2 : 0,
+  workers: process.env.CI ? 1 : undefined,
+  retries: 0,
   reporter: 'html',
   use: {
     baseURL: 'http://127.0.0.1:4173',
-    trace: 'on-first-retry'
+    trace: 'retain-on-failure',
+    screenshot: 'only-on-failure',
+    actionTimeout: 30_000,
   },
   webServer: {
     // Current unified workspace; old scenario imports must be rejected.

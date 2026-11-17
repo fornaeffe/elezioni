@@ -1,9 +1,14 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 
-test('working status keeps its icon visible on mobile and respects reduced motion', async ({ page }) => {
+async function holdData(page: Page) {
   let release!: () => void;
   const pending = new Promise<void>(resolve => { release = resolve; });
   await page.route('**/data/**', async route => { await pending; await route.abort().catch(() => {}); });
+  return release;
+}
+
+test('working status keeps its icon visible on mobile and respects reduced motion', async ({ page }) => {
+  const release = await holdData(page);
   try {
     await page.setViewportSize({ width: 390, height: 700 });
     await page.goto(`${process.env.BASE_PATH ?? ''}/`);
@@ -29,6 +34,10 @@ test('working status keeps its icon visible on mobile and respects reduced motio
 });
 
 test('status remains fixed and compact on mobile, with accessible error details', async ({ page }) => {
+  // Exercise the working/error UI with controlled loading, without racing a
+  // real model fit. Actual preparation is covered by the lifecycle suites.
+  const release = await holdData(page);
+  try {
   await page.setViewportSize({ width: 390, height: 700 });
   await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
   const box = page.locator('aside[aria-label="Stato dell\'applicazione"]');
@@ -46,6 +55,7 @@ test('status remains fixed and compact on mobile, with accessible error details'
   await expect(box.getByText(/Scenario non caricato/)).toBeVisible();
   await box.getByRole('button', { name: 'Chiudi avviso' }).click();
   await expect(box).not.toHaveClass(/error/);
+  } finally { release(); }
 });
 
 test('regional import errors appear in the shared status box', async ({ page }) => {

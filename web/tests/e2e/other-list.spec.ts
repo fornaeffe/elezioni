@@ -2,7 +2,8 @@ import {openCommon,runCommon,downloadCommon} from '../fixtures/common-page';
 import {ROSATELLUM,REFORM} from '../../src/lib/politics/scenario/schema';
 import {gunzipSync} from 'fflate';
 import { expect, test } from '@playwright/test';
-test.setTimeout(180_000);
+import { politicsTestMs, waitForPoliticsReady } from '../fixtures/politics-readiness';
+test.setTimeout(politicsTestMs);
 
 for (const route of ['emilia-romagna']) {
   test(`${route}: unique fixed Other switch, reference share and persistence`, async ({ page }) => {
@@ -38,6 +39,9 @@ for (const route of ['emilia-romagna']) {
 
 for (const [law,model] of [[ROSATELLUM,'M01'],[REFORM,'M01'],[REFORM,'M02']] as const) {
  test(`${law}/${model}: residual creation, zero seats, persistence and fresh reactivation`,async({page})=>{
+  // Several edits intentionally invalidate the fit; budget their bounded waits
+  // and executions together, rather than ending halfway through a valid fit.
+  if (model === 'M02') test.setTimeout(15 * 60_000);
   const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
   await openCommon(page,law,model);
   const row=page.getByRole('article',{name:'Altre liste',exact:true});
@@ -67,8 +71,9 @@ for (const [law,model] of [[ROSATELLUM,'M01'],[REFORM,'M01'],[REFORM,'M02']] as 
   const residual=series.rows.filter((r:any[])=>r[series.columns.indexOf('Owner')]==='list:__other__');
   expect(residual.length).toBeGreaterThan(0);expect(residual.every((r:any[])=>r[series.columns.indexOf('Elected')]===0)).toBe(true);
   expect(result.politics.run.session.simulations).toEqual([{id:1,outcome:'complete'}]);
-  await page.reload();await expect(row).toHaveCount(1);await expect(reference).toHaveValue('10');
+  await page.reload();await waitForPoliticsReady(page);await expect(row).toHaveCount(1);await expect(reference).toHaveValue('10');
   await page.getByLabel('Legge elettorale').selectOption(law===REFORM?ROSATELLUM:REFORM);
+  await waitForPoliticsReady(page, true);
   await expect(row).toHaveCount(1);
   await row.getByRole('button',{name:/Opzioni/}).click();
   await expect(row.getByText(/Camera e Senato collegati/)).toBeVisible();

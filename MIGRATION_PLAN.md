@@ -170,8 +170,9 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   [hosting gate](docs/hosting.md), measurements in migration history.
   Remaining acceptance: standard Linux cold/warm workflow, then Luca's merge,
   explicit publication of the passing `main` revision and public smoke checks.
-  Source pins/data and bounded download retries are verified locally;
-  repeat the hosted gate before merge.
+  Source preparation passed on hosted Linux; browser acceptance exposed setup
+  timing/concurrency failures. Verify the readiness, budget and diagnostic
+  correction through both hosted passes before merge; see migration history.
 
 ## After completion of the web migration
 

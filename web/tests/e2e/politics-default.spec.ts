@@ -1,10 +1,12 @@
 import { expect, test } from '@playwright/test';
 import authored from '../../../data/politics-default-scenario.json' with { type: 'json' };
+import { politicsTestMs, waitForPoliticsReady } from '../fixtures/politics-readiness';
 const base=process.env.BASE_PATH??'';
-test.setTimeout(180_000);
+test.setTimeout(politicsTestMs);
 
 test('authored politics startup and reset retain the approved default choices',async({page})=>{
   await page.goto(`${base}/politics`);
+  await waitForPoliticsReady(page);
   await page.getByText('Impostazioni avanzate della simulazione', { exact: true }).click();
   await expect(page.getByLabel('Legge elettorale')).toHaveValue(authored.selection.scrutiny.id);
   const name=page.getByLabel('Nome scenario',{exact:true});
@@ -14,7 +16,7 @@ test('authored politics startup and reset retain the approved default choices',a
   await expect(page.getByLabel("Colore Fratelli d'Italia",{exact:true})).toHaveValue('#003366');
   await page.getByText('Impostazioni avanzate dello scenario',{exact:true}).click();
   await expect(page.getByLabel('Generatore dei voti',{exact:true})).toHaveValue('M02');
-  await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText('Modello pronto',{timeout:120000});
+  await waitForPoliticsReady(page);
   await name.fill('Changed draft');
   await page.getByLabel('Numero di simulazioni',{exact:true}).fill('30');
   await page.getByLabel('Seed delle simulazioni',{exact:true}).fill('changed-seed');

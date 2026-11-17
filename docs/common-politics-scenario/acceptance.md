@@ -17,10 +17,11 @@ From `web/`, with Node 24 and pinned sources available:
 
 ```powershell
 npm run data:prepare
-$env:ACCEPTANCE_TEST_WORKERS = '2'
+$env:ACCEPTANCE_UNIT_WORKERS = '2'
+$env:ACCEPTANCE_BROWSER_WORKERS = '1'
 $env:ACCEPTANCE_OUTPUT = '../data/derived/cp08-acceptance'
 npm run acceptance:reform
-Remove-Item Env:ACCEPTANCE_TEST_WORKERS, Env:ACCEPTANCE_OUTPUT
+Remove-Item Env:ACCEPTANCE_UNIT_WORKERS, Env:ACCEPTANCE_BROWSER_WORKERS, Env:ACCEPTANCE_OUTPUT
 ```
 
 Add `-- --download` to preparation when acquiring missing originals. The gate
@@ -32,6 +33,29 @@ Rosatellum/M01, Rosatellum/M02, reform/M01 and reform/M02. Functional national t
 draws at the project path and one at root. Root is built last. Reports reject
 skips, TODOs, expected failures, retries and missing data. Stop other preview
 servers and keep builds/preparation sequential.
+
+Unit and browser worker limits are independent (integers 1–64). The legacy
+`ACCEPTANCE_TEST_WORKERS` remains a fallback for either unspecified limit;
+otherwise defaults are two unit workers and one CI browser context (two locally).
+Each browser context still runs the application's own workers normally.
+
+Before the first full browser suite, four representative project-base checks run
+with one worker, no retries and `--max-failures=1`. Their report is
+`browser-diagnostic.json`; counts live in `report.json.diagnostics`, separately
+from full acceptance totals. A preflight failure stops the gate. Complete
+project/root, editor and unified matrices remain mandatory after it passes.
+Failure traces/screenshots use distinct output directories per suite and base.
+Every browser command stops at its first unexpected failure; a partial matrix
+is rejected. Saved logs list the active test as well as retaining JSON reports.
+
+Ordinary politics setup waits for both verified editor data (where needed) and
+actual model readiness, read from the active status toggle rather than hidden
+detail entries. Model waits are bounded at two minutes for startup and
+five for explicit refitting. Enclosing UI tests allow six minutes; the residual
+M02 lifecycle allows fifteen for its multiple fit/run phases. DOM actions retain
+a 30-second cap in the general suite. Status-only tests control loading, and
+presentation fixtures seed storage from the neutral home route before entering
+the viewer. These setup budgets do not change electoral assertions or failures.
 
 Lifecycle tests cover all pairs, immutable executed scenarios, stored queries,
 reload, exact checkpoint reuse, archive roundtrips, one/two-worker row equivalence,

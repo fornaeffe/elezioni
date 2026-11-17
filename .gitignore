@@ -22,6 +22,7 @@
 !/data/sources/polls/history/*.json
 /data/derived/
 /data/completed-runs/
+/data/github-artifacts/
 
 # Large generated migration data
 /web/static/data/v1/politics-static.json

@@ -4,10 +4,16 @@ import { fileURLToPath } from 'node:url';
 import { build } from 'vite';
 import { expect, type Page } from '@playwright/test';
 import { openResultTransfers } from './common-page';
+import { allowPoliticsSetup, waitForPoliticsReady } from './politics-readiness';
 
 let bundle: Promise<string> | undefined;
 const installed = new WeakSet<Page>();
 export async function seedPresentationSession(page: Page, payload: unknown) {
+  allowPoliticsSetup();
+  const viewerUrl = page.url(), base = process.env.BASE_PATH ?? '';
+  // Dispose the live simulator and its preparation worker before writing test
+  // storage. The home route has no fitting or result-restoration activity.
+  await page.goto(base + '/');
   bundle ??= (async () => {
     const bundled = await build({ configFile: false, logLevel: 'error',
       resolve: { alias: { $lib: fileURLToPath(new URL('../../src/lib', import.meta.url)) } },
@@ -21,8 +27,8 @@ export async function seedPresentationSession(page: Page, payload: unknown) {
     await page.route('**/presentation-fixture.js', route => route.fulfill({ contentType: 'text/javascript', body: code }));
     installed.add(page);
   }
-  await page.evaluate(payload => new Promise<void>((resolve, reject) => {
-    const worker = new Worker('/presentation-fixture.js', { type: 'module' });
+  await page.evaluate(({ payload, workerUrl }) => new Promise<void>((resolve, reject) => {
+    const worker = new Worker(workerUrl, { type: 'module' });
     worker.onerror = e => { worker.terminate(); reject(new Error(e.message)); };
     worker.onmessage = ({ data }) => {
       worker.terminate();
@@ -34,12 +40,11 @@ export async function seedPresentationSession(page: Page, payload: unknown) {
       resolve();
     };
     worker.postMessage(payload);
-  }), payload);
-  await page.reload();
+  }), { payload, workerUrl: base + '/presentation-fixture.js' });
+  await page.goto(viewerUrl);
   await openResultTransfers(page);
   await expect(page.getByRole('combobox', { name: 'Sessione dei risultati', exact: true })).not.toHaveValue('');
   // Result queries share the workspace worker with model preparation. Establish
   // its ready state before measuring/asserting the synthetic presentation.
-  await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]'))
-    .toContainText('Modello pronto', { timeout: 120_000 });
+  await waitForPoliticsReady(page);
 }

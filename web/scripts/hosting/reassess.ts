@@ -56,7 +56,7 @@ async function run(name: string, args: string[], env: NodeJS.ProcessEnv = {}) {
   const timed = process.platform === 'linux';
   const result = await runLoggedCommand({ name, command: timed ? '/usr/bin/time' : process.execPath,
     args: timed ? ['-v', '-o', `${log}.resources.txt`, process.execPath, npm!, ...args] : [npm!, ...args],
-    cwd: web, log, env: { ...process.env, BUILD_REVISION: revision, ACCEPTANCE_TEST_WORKERS: '2', ...env } });
+    cwd: web, log, env: { ...process.env, BUILD_REVISION: revision, ACCEPTANCE_UNIT_WORKERS: '2', ACCEPTANCE_BROWSER_WORKERS: '1', ...env } });
   if (timed) report.linuxResourceFiles.push(`${log}.resources.txt`);
   report.steps.push(result); await sample(); await save();
   if (result.status !== 'passed') throw new Error(`${name} failed; see ${log}`);

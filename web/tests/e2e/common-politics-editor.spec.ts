@@ -6,14 +6,18 @@ import { decodeScenario, encodeScenario } from '../../src/lib/politics/scenario/
 import { createDefaultCommonPoliticsScenario } from '../../src/lib/politics/scenario/defaults';
 import { politicsDraftKey } from '../../src/lib/politics/files/draft';
 import { createCandidate, upsertPlacement } from '../../src/lib/politics/scenario/edits';
+import { politicsTestMs, waitForPoliticsReady } from '../fixtures/politics-readiness';
 
 const base = process.env.BASE_PATH ?? '';
-test.setTimeout(90_000);
+test.setTimeout(politicsTestMs);
 const available = [authored.data.historical, authored.data.catalogue, authored.data.electorate,
   ...Object.values(authored.data.lawAssets).flatMap(a => [a.geography, a.seats, ...a.models.M01, ...a.models.M02])].every(p => existsSync(`static/${p.uri}`));
 test.skip(!available, 'Common editor requires generated production politics bundles.');
 
-async function ready(page: Page) { await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText('dati verificati'); }
+async function ready(page: Page) {
+  await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText('dati verificati', { timeout: 120_000 });
+  await waitForPoliticsReady(page, true);
+}
 async function open(page: Page, title: string | RegExp) {
   const summary = page.locator('summary').filter({ hasText: title }).first();
   if (!await summary.evaluate(el => (el.parentElement as HTMLDetailsElement).open)) await summary.click();

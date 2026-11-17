@@ -4,8 +4,10 @@ import { createDefaultCommonPoliticsScenario } from '../../src/lib/politics/scen
 import { politicsDraftKey } from '../../src/lib/politics/files/draft';
 import { politicsSessionsKey } from '../../src/lib/politics/workspace-controller';
 import { type LawId, type GeneratorId, type PoliticsScenario, REFORM } from '../../src/lib/politics/scenario/schema';
+import { allowPoliticsSetup, waitForPoliticsReady } from './politics-readiness';
 export const base = process.env.BASE_PATH ?? '';
 export async function openCommon(page: Page, law: LawId = REFORM, model: GeneratorId = 'M02', simulations = 1) {
+    allowPoliticsSetup();
     const initial = createDefaultCommonPoliticsScenario();
     const scenario: PoliticsScenario = { ...initial, selection: { ...initial.selection, scrutiny: { ...initial.selection.scrutiny, id: law },
             generatorsByLaw: { ...initial.selection.generatorsByLaw, [law]: { id: model, version: model === 'M02' ? '3.0.0' : '2.0.0' } } },
@@ -13,11 +15,11 @@ export async function openCommon(page: Page, law: LawId = REFORM, model: Generat
     await page.goto(base + '/');
     await page.evaluate(({ key, scenario }) => localStorage.setItem(key, JSON.stringify(scenario)), { key: politicsDraftKey, scenario });
     await page.goto(base + '/politics');
-    await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText('Modello pronto', { timeout: 120000 });
+    await waitForPoliticsReady(page);
     return scenario;
 }
 export async function runCommon(page: Page) {
-    await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText(/Modello pronto|Preparazione non riuscita/, { timeout: 120000 });
+    await waitForPoliticsReady(page, true);
     expect(await page.locator('aside[aria-label="Stato dell\'applicazione"]').innerText(), (await page.getByRole('alert').allTextContents()).join('\n')).toContain('Modello pronto');
     await page.getByRole('button', { name: 'Avvia simulazione', exact: true }).click();
     await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText(/Esecuzione completata|Esecuzione interrotta|Esecuzione non riuscita/, { timeout: 120000 });
