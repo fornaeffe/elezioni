@@ -8,7 +8,8 @@ import { ROSATELLUM, REFORM } from '../../src/lib/politics/scenario/schema';
 const base = process.env.BASE_PATH ?? '/elezioni';
 
 test.beforeEach(async ({ context, page }, info) => {
-  const requests: { url: string; status: number; encodedBodyBytes: number; headersBytes: number; contentEncoding: string | null }[] = [];
+  const measureTransfers = !info.title.includes('direct routes');
+  const requests: { url: string; status: number; encodedBodyBytes: number | null; headersBytes: number | null; contentEncoding: string | null }[] = [];
   const pending: Promise<void>[] = [], errors: string[] = [];
   page.on('pageerror', e => errors.push(e.message));
   context.on('requestfailed', r => {
@@ -17,6 +18,15 @@ test.beforeEach(async ({ context, page }, info) => {
     if (reason !== 'net::ERR_ABORTED' && reason !== 'NS_BINDING_ABORTED') errors.push(`${r.url()}: ${reason}`);
   });
   context.on('response', response => {
+    // Rapid navigation deliberately abandons responses. Their size promises
+    // can outlive the document; this synthetic matrix is not a traffic unit.
+    // Still check every observed HTTP status/base URL, without claiming bytes.
+    if (!measureTransfers) {
+      if (!new URL(response.url()).pathname.startsWith(base + '/')) errors.push(`Request outside project base: ${response.url()}`);
+      requests.push({ url: response.url(), status: response.status(), encodedBodyBytes: null, headersBytes: null,
+        contentEncoding: response.headers()['content-encoding'] ?? null });
+      return;
+    }
     pending.push((async () => {
       if (new URL(response.url()).pathname.startsWith(base + '/')) {
         if (await response.finished()) return; // Navigation may cancel an earlier document.
@@ -28,15 +38,18 @@ test.beforeEach(async ({ context, page }, info) => {
   });
   // A fresh browser context per test measures a cold browser visit; export
   // bytes are generated locally and are not counted as hosting bandwidth.
-  info.annotations.push({ type: 'hosting', description: 'Fresh browser context; encoded response bytes measured by Playwright' });
+  info.annotations.push({ type: 'hosting', description: measureTransfers
+    ? 'Fresh browser context; encoded response bytes measured by Playwright'
+    : 'Synthetic navigation matrix; transfer bytes not measured' });
   const finish = async () => {
     await Promise.all(pending);
     const output = resolve(process.env.HOSTING_TRANSFER_OUTPUT ?? '../data/derived/hosting/public-transfers');
     await mkdir(output, { recursive: true });
-    const bodyBytes = requests.reduce((n, r) => n + r.encodedBodyBytes, 0);
+    const bodyBytes = measureTransfers ? requests.reduce((n, r) => n + (r.encodedBodyBytes ?? 0), 0) : null;
     await writeFile(resolve(output, `${info.title.replace(/[^a-z0-9]+/gi, '-')}.json`), JSON.stringify({
       test: info.title, url: process.env.HOSTING_URL ?? 'local staged site', requests,
       encodedBodyBytes: bodyBytes,
+      transferMeasurement: measureTransfers ? 'encoded response sizes' : 'not measured: navigation intentionally abandons responses',
       trafficUnit: info.title.includes('direct routes') ? 'synthetic multi-route refresh matrix' : 'cold-browser election workflow',
       approximateWorkflowsPer100GB: bodyBytes ? Math.floor(100_000_000_000 / bodyBytes) : null,
       errors,

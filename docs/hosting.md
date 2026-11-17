@@ -101,7 +101,11 @@ JSON/JS/CSS. Gzip estimates are explicitly estimates. Public smoke records the
 CDN's actual content encodings and wire body sizes. Generated exports do not
 consume site bandwidth. Dividing 100 GB by the measured workflow size gives a
 rough traffic budget, not a performance or availability guarantee. The direct-route test is
-a synthetic matrix of repeated loads, not a representative single visit.
+a synthetic matrix of repeated loads, not a representative single visit. Its
+receipts retain HTTP statuses and errors, with transfer sizes explicitly null:
+navigation intentionally abandons responses whose Playwright size promises
+may never settle. The five complete election workflows retain full encoded
+transfer measurements and traffic estimates.
 
 Download `hosting-evidence-<sha>` and, after publication,
 `public-site-evidence-<sha>` within one day. Small `hosting-summary-<sha>` and

@@ -101,6 +101,16 @@ that declare a repository snapshot, including specialized download commands.
 Local mirror paths are excluded from source-data identity; original checksums,
 sizes, URLs and all other provenance remain part of that identity.
 
+HTTP acquisition uses a scoped Node/Undici dispatcher with a **30-second
+connection timeout**, at most **three attempts**, and one **180-second deadline
+per source**, including response bodies and waits. Transient connection/body
+failures and HTTP 408/429/500/502/503/504 retry after 2 then 5 seconds; a longer
+`Retry-After` is honored within the same deadline. TLS validation and permanent
+HTTP failures stop immediately. Checksum mismatches, corrupt caches/imports and
+invalid repository snapshots never retry or switch sources. Logs identify the
+source, host, attempt, elapsed time and underlying failure code; final errors
+preserve their cause. Failed downloads leave no source cache or partial file.
+
 Source updates can change content-addressed assets even when only unused fields
 changed. Review and update the authored default's exact dependency pins and any
 affected geography references before completing regeneration; do not weaken

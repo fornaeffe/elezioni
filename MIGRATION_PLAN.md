@@ -170,7 +170,7 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   [hosting gate](docs/hosting.md), measurements in migration history.
   Remaining acceptance: standard Linux cold/warm workflow, then Luca's merge,
   explicit publication of the passing `main` revision and public smoke checks.
-  The municipal-registry download pin and generated data are updated locally;
+  Source pins/data and bounded download retries are verified locally;
   repeat the hosted gate before merge.
 
 ## After completion of the web migration

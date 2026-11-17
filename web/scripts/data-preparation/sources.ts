@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { dirname, isAbsolute, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { downloadSource } from './source-download';
 
 export interface Source {
   /** Reviewed repository bytes when a live historical endpoint is mutable. */
@@ -62,11 +63,7 @@ export async function acquireSource(directory: string, source: Source, localFile
     ? sourcePath(fileURLToPath(new URL('../../../', import.meta.url)), { ...source, path: source.repositoryPath })
     : undefined;
   if (localFile || repositoryFile) bytes = await readFile(localFile ?? repositoryFile!);
-  else {
-    const response = await fetch(source.url, { headers: source.headers, signal: AbortSignal.timeout(180_000) });
-    if (!response.ok) throw new Error(`${source.id}: HTTP ${response.status}`);
-    bytes = Buffer.from(await response.arrayBuffer());
-  }
+  else bytes = await downloadSource(source);
   verifySource(bytes, source);
   await mkdir(dirname(path), { recursive: true });
   const temporary = `${path}.${process.pid}.tmp`;
