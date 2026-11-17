@@ -88,6 +88,27 @@ snapshots offline, including with an empty alternate source directory. Updating
 the observations requires a reviewed snapshot/manifest change; live API bytes
 never replace them implicitly.
 
+The dated municipal registry endpoint is mutable too: even a `31/12/2021`
+request can receive later fiscal-code corrections. The reviewed November 2026
+response is pinned by checksum and size in `data/source-manifest.json` and
+downloaded into the ignored `data/sources/municipalities-2021.json` cache; it is
+not Git-tracked. Future upstream drift must fail verification until reviewed.
+To adopt a reviewed manifest update locally, move the previous cached response
+to an ignored evidence directory before running `npm run data:prepare -- --download`.
+Acquisition reuses valid caches and rejects mismatching caches; it never silently
+replaces them. Every acquisition entry point honors `repositoryPath` for sources
+that declare a repository snapshot, including specialized download commands.
+Local mirror paths are excluded from source-data identity; original checksums,
+sizes, URLs and all other provenance remain part of that identity.
+
+Source updates can change content-addressed assets even when only unused fields
+changed. Review and update the authored default's exact dependency pins and any
+affected geography references before completing regeneration; do not weaken
+`INCOMPATIBLE_AUTHORED_PIN`. Saved user scenarios/results are not rewritten.
+Old scenarios still require their exact assets, which current-only publication
+does not retain; saved result archives remain historical records, and rebased
+scenarios require fitting checkpoints matching their new identities.
+
 Only consumed originals are acquired by the complete pipeline. The older shared
 manifest's unused section-population and municipal-change archives remain
 available through its specialized acquisition command.

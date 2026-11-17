@@ -13,9 +13,10 @@ import type { SimulationResult } from '../core/types';
 import future from '../../../../data/fast-share-future-scenario.json';
 
 describe('supported workspace contracts', () => {
-  it('binds both default scenarios and the reference scenario to exact snapshot descriptors', () => {
-    expect(createDefaultPoliticsScenario().defaultSource.dataVersion).toBe(snapshotDescriptors.politics!.version);
-    expect(generatedSnapshotPoliticsScenario.defaultSource.dataVersion).toBe(snapshotDescriptors.politics!.version);
+  it('retains historical politics pins and binds the regional default to its current descriptor', () => {
+    // These retired pre-CP-04 inputs are not regenerated with production sources.
+    expect(createDefaultPoliticsScenario().defaultSource.dataVersion).toBe(generatedSnapshotPoliticsScenario.defaultSource.dataVersion);
+    expect(generatedSnapshotPoliticsScenario.defaultSource.dataVersion).toBe('politics:d758a3ffe9a248abe72f56ed69a28da3f873d47d8cf1cb1c6f1d566824b77394');
     expect(createDefaultRegionalErScenario().defaultSource.dataVersion).toBe(snapshotDescriptors['regional-er']!.version);
   });
   it('registers only supported combinations and preserves the default law', () => {

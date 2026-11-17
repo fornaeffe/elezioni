@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { existsSync } from 'node:fs';
 import { copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
@@ -6,9 +6,10 @@ import { tmpdir } from 'node:os';
 import { basename, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { zipSync, strToU8 } from 'fflate';
-import { acquireSource, sha256, sourcePath, verifySource, writeVersion, type Source } from './sources';
+import { acquireSource, sha256, sourceManifestContent, sourcePath, verifySource, writeVersion, type Source } from './sources';
 import { archiveMember, bolzanoAnnex4, dbf, decode, delimited, electoralSpreadsheet } from './formats';
 import { prepareTerritoryCatalog, readManifest } from './normalize';
+import { workspaceSources } from './workspace-history';
 import { validateTerritoryCatalog } from '../../src/lib/politics/reform-2026/geography';
 import { buildProvisionalSeatTables, validateSeatTableBundle } from '../../src/lib/politics/reform-2026/endowments';
 import { createSeededDrawContext } from '../../src/lib/politics/reform-2026/ties';
@@ -20,6 +21,7 @@ const temporary = async () => {
   testDirectories.push(directory); return directory;
 };
 afterEach(async () => {
+  vi.restoreAllMocks();
   for (const directory of testDirectories.splice(0)) {
     if (!basename(directory).startsWith('elezioni-data-test-') || relative(tmpdir(), directory).startsWith('..')) throw new Error('Unexpected cleanup path');
     await rm(directory, { recursive: true, force: true });
@@ -29,6 +31,33 @@ const entry = (bytes: Buffer, path = 'fixture.bin'): Source => ({ id: 'fixture',
   sha256: sha256(bytes), bytes: bytes.length, headers: {} });
 
 describe('reproducible source acquisition', () => {
+  it('keeps acquisition mirrors out of data identity while retaining all observation and provenance pins', () => {
+    const original = { schemaVersion: 1, id: 'reviewed-source', sources: [entry(Buffer.from('original bytes'))] };
+    const mirrored = { ...original, sources: [{ ...original.sources[0], repositoryPath: 'data/sources/original.bin' }] };
+    expect(sourceManifestContent(mirrored)).toEqual(original);
+    for (const change of [{ sha256: '0'.repeat(64) }, { bytes: 123 }, { path: 'revised.bin' },
+      { url: 'https://example.invalid/revised' }, { headers: { Accept: 'text/csv' } }])
+      expect(sourceManifestContent({ ...mirrored, sources: [{ ...mirrored.sources[0], ...change }] })).not.toEqual(original);
+  });
+  it('bootstraps a repository snapshot offline without accepting live drift or repairing corrupt caches', async () => {
+    const directory = await temporary();
+    const source = (await workspaceSources(root)).find(s => s.id === 'municipality-history-1991-2021')!;
+    expect(source.repositoryPath).toBe('data/sources/geography/municipality-history-1991-2021.json.gz');
+    const fetch = vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('Unexpected live request'));
+    await acquireSource(directory, source);
+    const bytes = await readFile(join(directory, source.path));
+    expect(sha256(bytes)).toBe(source.sha256);
+    expect(bytes.length).toBe(source.bytes);
+    await writeFile(join(directory, source.path), 'corrupt cache');
+    await expect(acquireSource(directory, source)).rejects.toThrow('differs from its pinned version');
+    await expect(acquireSource(join(directory, 'bad-pin'), { ...source, sha256: '0'.repeat(64) }))
+      .rejects.toThrow('differs from its pinned version');
+    await expect(acquireSource(join(directory, 'missing'), { ...source, repositoryPath: 'data/sources/missing-test-snapshot.bin' }))
+      .rejects.toThrow('ENOENT');
+    await expect(acquireSource(join(directory, 'unsafe'), { ...source, repositoryPath: '../outside' }))
+      .rejects.toThrow('Unsafe source path');
+    expect(fetch).not.toHaveBeenCalled();
+  });
   it('verifies bytes and refuses cache changes', async () => {
     const directory = await temporary(), bytes = Buffer.from('pinned source'), source = entry(bytes);
     const imported = join(directory, 'manual.bin'); await writeFile(imported, bytes);

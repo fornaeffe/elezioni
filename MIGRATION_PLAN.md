@@ -170,6 +170,8 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   [hosting gate](docs/hosting.md), measurements in migration history.
   Remaining acceptance: standard Linux cold/warm workflow, then Luca's merge,
   explicit publication of the passing `main` revision and public smoke checks.
+  The municipal-registry download pin and generated data are updated locally;
+  repeat the hosted gate before merge.
 
 ## After completion of the web migration
 
@@ -178,6 +180,13 @@ completed the web migration; they do not expand the current domestic reform
 implementation or municipal parity scope.
 
 
+- [ ] Review Git-tracked sources and generated artifacts, recording their sizes,
+  provenance and reproducibility. Define which belong in Git, which should be
+  downloaded or regenerated, and how to preserve historical evidence and exact
+  dependencies needed by saved scenarios. Document checksum/version review,
+  mutable upstream endpoints, cache retention and clean-clone preparation.
+  Apply resulting tracking-policy changes only after that review. See the
+  17 November source-update entry in migration history.
 - [ ] Align politics previous-law and regional contracts, editor, worker 
   behavior and results 
   presentation to reform counterparts: only unavoidable differences due to 

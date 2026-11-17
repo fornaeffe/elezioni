@@ -6,7 +6,7 @@ import type { OriginalRow, SourceEvent, SourceChoice, SourceUnit } from '../../s
 import { archiveMember, delimited, normalizeName } from './formats';
 import { geographyResolver, reconstructHistoricalAttribution, sourceInteger } from './reform-history';
 import { readManifest, prepareTerritoryCatalog } from './normalize';
-import { readSource, sha256, type Source } from './sources';
+import { readSource, sha256, sourceManifestContent, type Source } from './sources';
 import { loadSourceMemberships, sourceMembership } from './fast-share-memberships';
 import { rowFlags } from '../../src/lib/politics/reform-2026/vote-share/source-codec';
 import { day } from '../../src/lib/politics/reform-2026/vote-share/types';
@@ -42,7 +42,7 @@ export async function shareSourceManifests(root: string) {
   const eventIds = new Set([...history.sources, ...reform.sources.filter(s => s.id.startsWith('senato'))].map(s =>
     (s.id.startsWith('camera') ? 'camera' : s.id.startsWith('senato') ? 'senato' : 'european') + '-' + s.id.match(/20\d\d/)![0]));
   if ([...Object.keys(policy.resultAvailability.finalPollingDays), ...Object.keys(policy.resultAvailability.knownDates)].some(id => !eventIds.has(id))) throw new Error('Unknown result-availability event override');
-  return { geo, history, reform, sources, policy, versions: ['fast-share-source-manifest:' + sha256(JSON.stringify(policy)), ...bodies.map((b, i) => paths[i] + ':' + sha256(JSON.stringify(JSON.parse(b))))] };
+  return { geo, history, reform, sources, policy, versions: ['fast-share-source-manifest:' + sha256(JSON.stringify(policy)), ...bodies.map((b, i) => paths[i] + ':' + sha256(JSON.stringify(sourceManifestContent(JSON.parse(b)))))] };
 }
 const aliases: Record<string, string> = {
   montagnasullastradadelvino: 'montagna', casorzomonferrato: 'casorzo', ionadi: 'jonadi',

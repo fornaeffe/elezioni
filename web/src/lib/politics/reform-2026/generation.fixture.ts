@@ -1,12 +1,17 @@
-import { getBundledReformSeatTables } from './bundled-data';
+import historicalSeats from './data/r26-seats-census-2021-i08-v1-9672c20529b2.json' with { type: 'json' };
+import { validateSeatTableBundle, type SeatTableBundle } from './endowments';
 import { REFORM_MODEL_IDS, type ReformGenerationSnapshot } from './generation-types';
 import { createDefaultReformScenario } from './generation-scenario';
 
 /** Twenty constructed municipalities, one per region, spanning the real tested
  * seat capacities. Memberships are artificial population partitions. No source
- * acquisition or ignored production data are needed for generator mechanics. */
+ * acquisition or ignored production data are needed for generator mechanics.
+ * Keep the original seat-table pin: CP-01 evidence hashes these constructed
+ * inputs, including provenance. Current production bundles are tested separately. */
 export function generationFixture() {
-  const seats = getBundledReformSeatTables();
+  const seats = structuredClone(historicalSeats) as SeatTableBundle;
+  const errors = validateSeatTableBundle(seats);
+  if (errors.length) throw new Error(`Invalid historical fixture seat tables: ${errors.join('; ')}`);
   (seats.geography as { municipalityCount: number }).municipalityCount = 20;
   const snapshot: ReformGenerationSnapshot = { schemaVersion: 1, kind: 'politics-reform-generation', version: 'constructed-generation-v1', historicalDate: '2022-09-25',
     sourceVersions: ['constructed-history-v1'], assumptions: ['Constructed equal regional electorate and population partitions; not historical data.'], seats,

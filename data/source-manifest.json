@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "r26-geography-census-2021-v1",
-  "reviewedOn": "2026-10-18",
+  "reviewedOn": "2026-11-17",
   "censusDate": "2021-12-31",
   "legalReference": "DPR 20 gennaio 2023, GU 53 del 3 marzo 2023, SO 10; legge 180/2026, allegati 4 e 5",
   "sources": [
@@ -52,8 +52,8 @@
       "id": "municipalities-2021",
       "url": "https://situas-servizi.istat.it/publish/reportspooljson?pfun=61&pdata=31/12/2021",
       "path": "municipalities-2021.json",
-      "sha256": "efd579d65e3e88dd4eebe759b1321a0f85233b13761591e6a0c0848aa853d07e",
-      "bytes": 3410100,
+      "sha256": "94564a573ee2a98585f530bfd0d546c4110aa6b19df634701b9e220cd2b8ceef",
+      "bytes": 3410103,
       "headers": {}
     },
     {

@@ -21,7 +21,9 @@ JSON under `sources/fast-share/`, and pinned compressed crosswalks under
 clones prepare them offline from these authoritative files.
 Survey references in each poll manifest support optional manual audits on the
 government website. Poll PDFs are ignored and have no checksum requirement.
-Other downloaded originals remain ignored caches.
+Other downloaded originals, including the checksum-pinned `municipalities-2021`
+registry, remain ignored caches. See [source acquisition](../docs/data-preparation.md#authoritative-inputs)
+for reviewed updates to mutable upstream responses.
 The separate forecasting research JSON adds primary Demos observations and
 optional PDF/image evidence pins; these do not change the government poll
 archive's JSON-only preparation contract.

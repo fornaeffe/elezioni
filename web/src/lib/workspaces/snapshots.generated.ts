@@ -4,15 +4,15 @@ export const snapshotDescriptors: Partial<Record<'politics' | 'regional-er', Sna
   "politics": {
     "path": "data/v1/politics-static.json",
     "bytes": 78780421,
-    "sha256": "d758a3ffe9a248abe72f56ed69a28da3f873d47d8cf1cb1c6f1d566824b77394",
+    "sha256": "3c56d00fc1acbbb2891fd553da2b0cb627f2ca988c507dafd976a7511c476445",
     "schemaVersion": 4,
-    "version": "politics:d758a3ffe9a248abe72f56ed69a28da3f873d47d8cf1cb1c6f1d566824b77394"
+    "version": "politics:3c56d00fc1acbbb2891fd553da2b0cb627f2ca988c507dafd976a7511c476445"
   },
   "regional-er": {
     "path": "data/v1/regional-er-static.json",
     "bytes": 5254154,
-    "sha256": "76c5d453b14eb097e49aabbbb9298f3f90e0e8581979e04de494cc67945af7bb",
+    "sha256": "2dfeca47bd14dbd920149e06ba74e586c5b46b2dc8f75ac318e45dcf77c091ef",
     "schemaVersion": 1,
-    "version": "regional-er:76c5d453b14eb097e49aabbbb9298f3f90e0e8581979e04de494cc67945af7bb"
+    "version": "regional-er:2dfeca47bd14dbd920149e06ba74e586c5b46b2dc8f75ac318e45dcf77c091ef"
   }
 };

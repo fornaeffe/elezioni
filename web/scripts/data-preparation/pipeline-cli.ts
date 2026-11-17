@@ -48,7 +48,7 @@ if (command === 'prepare') {
     if (download && same) {
       try { await readSource(sources, source); }
       catch (e) { if ((e as NodeJS.ErrnoException).code !== 'ENOENT') throw e; await immutableBytes(resolve(sources, source.path), await readSource(sources, same)); }
-    } else if (download) await acquireSource(sources, source, source.repositoryPath ? resolve(root, source.repositoryPath) : undefined);
+    } else if (download) await acquireSource(sources, source);
     await readSource(sources, source);
     verified.set(source.sha256, source);
     console.log(`Verified ${source.id}`);

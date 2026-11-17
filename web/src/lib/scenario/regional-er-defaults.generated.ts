@@ -11,7 +11,7 @@ export const generatedDefaultRegionalErScenario = {
     "kind": "bundled",
     "electionKind": "regionali-er",
     "territory": "Emilia-Romagna",
-    "dataVersion": "regional-er:76c5d453b14eb097e49aabbbb9298f3f90e0e8581979e04de494cc67945af7bb",
+    "dataVersion": "regional-er:2dfeca47bd14dbd920149e06ba74e586c5b46b2dc8f75ac318e45dcf77c091ef",
     "notes": [
       "Montecopiolo e Sassofeltrio non hanno osservazioni regionali 2020 perch\u00e9 allora fuori regione: dati assenti, non zeri. Le osservazioni successive sono disponibili nel riferimento comunale del censimento 2021."
     ],

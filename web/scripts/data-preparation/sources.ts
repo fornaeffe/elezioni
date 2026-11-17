@@ -1,9 +1,10 @@
 import { createHash } from 'node:crypto';
 import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { dirname, isAbsolute, relative, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 export interface Source {
-  /** Reviewed repository snapshot when the original API has unstable row ordering. */
+  /** Reviewed repository bytes when a live historical endpoint is mutable. */
   repositoryPath?: string;
   id: string;
   url: string;
@@ -21,6 +22,12 @@ export interface SourceManifest {
   sources: Source[];
 }
 export const sha256 = (bytes: Uint8Array | string): string => createHash('sha256').update(bytes).digest('hex');
+
+/** A local acquisition mirror does not change original bytes or their provenance.
+ * Retain all other manifest fields, including URL, path, size and checksum. */
+export function sourceManifestContent(manifest: { sources: Source[] }) {
+  return { ...manifest, sources: manifest.sources.map(({ repositoryPath: _repositoryPath, ...source }) => source) };
+}
 
 export function sourcePath(directory: string, source: Source): string {
   const path = resolve(directory, source.path);
@@ -51,7 +58,10 @@ export async function acquireSource(directory: string, source: Source, localFile
     if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
   }
   let bytes: Buffer;
-  if (localFile) bytes = await readFile(localFile);
+  const repositoryFile = source.repositoryPath
+    ? sourcePath(fileURLToPath(new URL('../../../', import.meta.url)), { ...source, path: source.repositoryPath })
+    : undefined;
+  if (localFile || repositoryFile) bytes = await readFile(localFile ?? repositoryFile!);
   else {
     const response = await fetch(source.url, { headers: source.headers, signal: AbortSignal.timeout(180_000) });
     if (!response.ok) throw new Error(`${source.id}: HTTP ${response.status}`);
