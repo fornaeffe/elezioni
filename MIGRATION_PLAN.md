@@ -182,7 +182,37 @@ Start these additions after all simulator workflows and data preparation have
 completed the web migration; they do not expand the current domestic reform
 implementation or municipal parity scope.
 
-
+- [ ] **Additional model drafts evaluation**. Do it in research\vote-generation 
+  folder. For each model, follow the steps until completion or until evidence of
+  model unusability.
+  - [ ] Evaluate model draft [M08](docs/model-drafts/M08v0.0.1.md)
+    - [x] Check model internal consistency and completeness ([review](research/vote-generation/m08-review.md))
+    - [ ] Define remaining model details
+    - [ ] Choose a research fitting framework/library/software
+    - [ ] Fit the model with progressively complex synthetic fixtures, then with
+      real data and default scenario, optimizing priors and fitting parameters;
+      assess if model refactor will improve performace without changing the 
+      underlying principles.
+    - [ ] Generate, fit and optimize model variants (e.g. regional variation)
+  - [ ] If the model completed evaluation successfully, 
+    test the predictive capacity of successful model variants on the same metrics
+    of the [previous research comparison](research\vote-generation\campaign-2026-11\protocol.md).
+    Target performances comparable to M01 2.0.0 and M02 3.0.0. 
+  - [ ] If any draft model fail this test,
+    check if its predictive capacity can be optimized, if yes optimize and
+    repeat the test.
+  - [ ] If at least one model passes the test:
+    - [ ] check if it can be made running in browser. If browser fitting is 
+      feasible, plan for a whole browser computation;
+      otherwise plan for a once-in-a-while data-preparation fitting and a prefit
+      only browser simulation. Raise the computational limit to 12 hours for 
+      fitting + simulation,
+      30 minutes for simulation with default prefit, on this machine, with 
+      default scenario and an appropriate number of workers. Optimize for 
+      performance as much as possible without noticeably changing generated 
+      distributions, even if the computational time is under the limit.
+    - [ ] add the model to production alongside current accepted models, 
+      adapting the pipeline and editor accordingly.
 - [ ] Review Git-tracked sources and generated artifacts, recording their sizes,
   provenance and reproducibility. Define which belong in Git, which should be
   downloaded or regenerated, and how to preserve historical evidence and exact
@@ -278,52 +308,4 @@ The pooling editor remains in CP-06 because the current default uses pooling.
 Move that editor to this post-migration list only if CP-01 finds that the
 authored default no longer uses it; do not create a duplicate implementation task.
 
-- [ ] **Additional model drafts evaluation**. Do it in research\vote-generation 
-  folder. For each model, follow the steps until completion or until evidence of
-  model unusability.
-  - [ ] Evaluate model draft [M04](docs/model-drafts/M04v0.0.2.md)
-    - [x] Check model internal consistency and completeness
-    - [x] Define remaining model details
-    - [ ] Choose a research fitting framework/library/software
-    - [ ] Fit the model with progressively complex synthetic fixtures, then with
-      real data and default scenario, optimizing priors and fitting parameters;
-      assess if model refactor will improve performace without changing the 
-      underlying principles.
-    - [ ] Generate, fit and optimize model variants (e.g. regional variation)
-  - [ ] Evaluate model draft [M03](docs\model-drafts\M03v0.0.1.md)
-    - [ ] Check model internal consistency and completeness
-    - [ ] Define remaining model details
-    - [ ] Choose a research fitting framework/library/software
-    - [ ] Fit the model with progressively complex synthetic fixtures, then with
-      real data and default scenario, optimizing priors and fitting parameters;
-      assess if model refactor will improve performace without changing the 
-      underlying principles.
-    - [ ] Generate, fit and optimize model variants (e.g. regional variation)
-  - [ ] If at least one of the two model completed evaluation successfully, 
-    test the predictive capacity of successful model variants on the same metrics
-    of the [previous research comparison](research\vote-generation\docs\vote-generation-legacy-comparison-results.md).
-    Use all available Camera, Senato 18+ and European elections, and polls.
-    Focus mainly on Error30, Coverage90, MAE and WIS, averaged across all folds,
-    on college, constituency and whole election scales. Target a Error30 < 1%,
-    Coverage90 > 80%, MAE < 5 pp, WIS < 0.05. 
-  - [ ] If any draft model fail this test,
-    check if its predictive capacity can be optimized, if yes optimize and
-    repeat the test.
-  - [ ] If at least one model passes the test:
-    - [ ] check if it can be made running in browser. If browser fitting is 
-      feasible, plan for a whole browser computation;
-      otherwise plan for a once-in-a-while data-preparation fitting and a prefit
-      only browser simulation. Raise the computational limit to 12 hours for 
-      fitting + simulation,
-      30 minutes for simulation with default prefit, on this machine, with 
-      default scenario and an appropriate number of workers. Optimize for 
-      performance as much as possible without noticeably changing generated 
-      distributions, even if the computational time is under the limit.
-    - [ ] substitute in production M01, M02
-      and legacy previous-law and regional generators with the
-      successful model set, adapting the scenario editor accordingly.
-  - [ ] If neither model passes the test, use M01 and M02 generators also for 
-    previous law politics and regional. Create
-    adapted versions of M01 and M02 if necessary, reusing common logic.
-  - [ ] Clean the repo removing any regenerable artifact no longer needed in 
-    production.
+
