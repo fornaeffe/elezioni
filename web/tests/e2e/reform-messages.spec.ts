@@ -1,7 +1,7 @@
 import { seedPresentationSession } from '../fixtures/presentation-session';
 import { openResultTables } from '../fixtures/common-page';
 import { currentBrowserSession, currentArchive } from '../fixtures/current-browser-session';
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../fixtures/editor-preparation';
 import { diagnosticResult } from '../fixtures/diagnostic-result';
 import { diagnosticTableName } from '../../src/lib/core/diagnostic-messages';
 import { gunzipSync } from 'fflate';

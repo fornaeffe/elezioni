@@ -54,6 +54,7 @@ describe('common politics contract', () => {
   it('rejects unknown fields, runtime state, old scenarios and result archives', () => {
     const { scenario } = fixture();
     for (const value of [{ ...scenario, fittedState: [] }, { ...scenario, kind: 'politics-reform-scenario' },
+      ...[1, 2, 3, 4, 5].map(schemaVersion => ({ kind: 'politics-reform-scenario', schemaVersion })),
       { ...scenario, schemaVersion: 9 }, { schemaVersion: 1, kind: 'politics-result', scenario }])
       expect(() => parsePoliticsScenario(value)).toThrow();
     expect(() => parseScenarioJson('{bad json')).toThrow('INVALID_SCENARIO_JSON');

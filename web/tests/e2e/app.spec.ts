@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { openCommon, runCommon, base } from '../fixtures/common-page';
 import { ROSATELLUM } from '../../src/lib/politics/scenario/schema';
 test.setTimeout(180000);
-test('national previous-law execution preserves shared edits, visible seeds and result identity', async ({ page }) => {
+test('national previous-law execution preserves shared edits, visible seeds and result identity', { tag: '@production' }, async ({ page }) => {
     const scenario = await openCommon(page, ROSATELLUM, 'M01');
     const pd = page.getByRole('article', { name: 'Partito Democratico', exact: true });
     await pd.getByRole('textbox', { name: 'Nome lista', exact: true }).fill('Shared renamed list');

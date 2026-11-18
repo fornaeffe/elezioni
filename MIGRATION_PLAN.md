@@ -166,13 +166,15 @@ the old uncertainty construction. Keep the other workflows' semantics intact.
   Leave this step open until publication and deployed checks succeed. If the
   target fails, record the concrete blocker and reassess free alternatives
   before selecting a replacement; do not mark hosting or migration complete.
-  Implementation and local verification complete; operating steps:
+  Hosting implementation is present; the revised acceptance policy awaits
+  Luca-run verification. Operating steps:
   [hosting gate](docs/hosting.md), measurements in migration history.
   Remaining acceptance: standard Linux cold/warm workflow, then Luca's merge,
   explicit publication of the passing `main` revision and public smoke checks.
   Source preparation passed on hosted Linux; browser acceptance exposed setup
-  timing/concurrency failures. Verify the readiness, budget and diagnostic
-  correction through both hosted passes before merge; see migration history.
+  timing/concurrency failures. Verify five-minute production fitting readiness
+  and the approved development/release profiles; manually run hosted cold
+  acceptance and warm byte reproduction before merge. See migration history.
 
 ## After completion of the web migration
 

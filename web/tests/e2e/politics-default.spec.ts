@@ -1,8 +1,8 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../fixtures/editor-preparation';
 import authored from '../../../data/politics-default-scenario.json' with { type: 'json' };
-import { politicsTestMs, waitForPoliticsReady } from '../fixtures/politics-readiness';
+import { waitForPoliticsReady } from '../fixtures/politics-readiness';
 const base=process.env.BASE_PATH??'';
-test.setTimeout(politicsTestMs);
+test.setTimeout(60_000);
 
 test('authored politics startup and reset retain the approved default choices',async({page})=>{
   await page.goto(`${base}/politics`);

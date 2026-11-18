@@ -114,8 +114,8 @@ self-contained session; CSV remains table-oriented.
 ## Verification commands
 
 From `web/`, Node 24, run `npm run acceptance:reform` after the complete production
-preparation. The [acceptance guide](politics-reform-2026-acceptance.md) defines the
-full two-base matrix and required reports. Do not repeat the
+preparation. The [profile guide](common-politics-scenario/acceptance.md) defines development,
+release and optional extended matrices and their required reports. Do not repeat the
 same types, units, builds and browser suites separately as an additional routine
 gate. Dedicated release/editor commands remain available for focused diagnosis.
 
@@ -123,8 +123,9 @@ Use the [CP-08 acceptance procedure](common-politics-scenario/acceptance.md) for
 sequential browser fitting-plus-1,000-run campaigns across all four pairs.
 `benchmark:common-politics` owns current renderer-memory/timing receipts.
 `test:reform:shares:unified` now checks the common editor/session and full archive
-roundtrip in Chromium/Firefox, with three national draws per pair at `/elezioni`
-and one per pair at root. `FV08_DRAWS` selects a bounded focused run; it must be
+roundtrip for Firefox Rosatellum/M02 and Chromium reform/M02 by default, with
+three draws at `/elezioni`. The extended profile runs all four pairs in both
+browsers at both bases (one draw at root). `FV08_DRAWS` selects a bounded focused run; it must be
 between 1 and 1,000. The old `FV08_FULL` campaign route and concurrent model
 campaign option are retired. Historical receipts retain their original meaning.
 

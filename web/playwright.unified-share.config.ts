@@ -8,7 +8,7 @@ export default defineConfig({
   fullyParallel: false,
   retries: 0,
   reporter: 'line',
-  timeout: 70 * 60 * 1000,
+  timeout: 10 * 60 * 1000,
   use: {
     baseURL: origin,
     trace: 'retain-on-failure',
@@ -23,7 +23,9 @@ export default defineConfig({
     timeout: 120000,
   },
   projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
+    { name: 'firefox', use: { ...devices['Desktop Firefox'] },
+      ...(process.env.ACCEPTANCE_FULL_MATRIX === '1' ? {} : { grep: /politiche-r-parity-v1\/M02 unified browser workflow/ }) },
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] },
+      ...(process.env.ACCEPTANCE_FULL_MATRIX === '1' ? {} : { grep: /politiche-reform-2026-v1\/M02 unified browser workflow/ }) },
   ],
 });

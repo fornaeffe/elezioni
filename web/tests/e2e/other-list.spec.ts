@@ -38,7 +38,7 @@ for (const route of ['emilia-romagna']) {
 
 
 for (const [law,model] of [[ROSATELLUM,'M01'],[REFORM,'M01'],[REFORM,'M02']] as const) {
- test(`${law}/${model}: residual creation, zero seats, persistence and fresh reactivation`,async({page})=>{
+ test(`${law}/${model}: residual creation, zero seats, persistence and fresh reactivation`,{ tag: '@production' },async({page})=>{
   // Several edits intentionally invalidate the fit; budget their bounded waits
   // and executions together, rather than ending halfway through a valid fit.
   if (model === 'M02') test.setTimeout(15 * 60_000);

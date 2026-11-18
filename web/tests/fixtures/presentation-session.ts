@@ -4,11 +4,13 @@ import { fileURLToPath } from 'node:url';
 import { build } from 'vite';
 import { expect, type Page } from '@playwright/test';
 import { openResultTransfers } from './common-page';
+import { installEditorPreparation } from './editor-preparation';
 import { allowPoliticsSetup, waitForPoliticsReady } from './politics-readiness';
 
 let bundle: Promise<string> | undefined;
 const installed = new WeakSet<Page>();
 export async function seedPresentationSession(page: Page, payload: unknown) {
+  await installEditorPreparation(page);
   allowPoliticsSetup();
   const viewerUrl = page.url(), base = process.env.BASE_PATH ?? '';
   // Dispose the live simulator and its preparation worker before writing test

@@ -7,13 +7,13 @@ the criteria and campaign commands. Reporting does not change those criteria.
 ## Production gate
 
 `npm run acceptance:reform`, from `web/`, writes under `ACCEPTANCE_OUTPUT`
-(default `../data/derived/r26-21-acceptance`):
+(default `../data/derived/acceptance-release`):
 
 | File | Purpose |
 | --- | --- |
-| `report.json` | Start here: overall status, input identities, stage exit codes/timings/log paths and validated test counts/report paths. |
+| `report.json` | Start here: policy/profile, overall status, input identities, stage exit codes/timings/log paths and validated selected-test counts/report paths. |
 | `logs/*.log` | Complete combined stdout/stderr for each subprocess, including builds and preparation. |
-| `unit.json`, `browser-*.json`, `editor-*.json`, `unified-*.json` | Full structured test results, including failures, skips and retries. |
+| `unit.json`, `browser-*.json`, `editor-*.json`, `unified-*.json`, `root-smoke.json` | Full structured test results, including failures, skips and retries. |
 
 The console prints stage start/completion, a heartbeat every minute, validated
 counts and the final report path. A failed command prints only the final 3,500

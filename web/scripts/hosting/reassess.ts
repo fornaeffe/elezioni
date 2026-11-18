@@ -6,7 +6,7 @@ import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runLoggedCommand, type CommandResult } from '../acceptance/logged-command';
-import { requireBrowserAcceptance } from '../acceptance/reports';
+import { acceptancePolicy, browserCases, requireBrowserCases, requireIdenticalArtifacts } from '../acceptance/policy';
 import { workspaceSources } from '../data-preparation/workspace-history';
 import { files, inside, stagePayload } from './payload';
 import { lstat } from 'node:fs/promises';
@@ -28,14 +28,14 @@ if (!npm) throw new Error('Run via npm run hosting:reassess');
 const revision = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
 const workingTreeDirty = execFileSync('git', ['status', '--porcelain'], { cwd: root, encoding: 'utf8' }).trim().length > 0;
 const started = performance.now();
-const report = { status: 'running', mode, revision, workingTreeDirty, created: new Date().toISOString(),
+const report = { status: 'running', policy: acceptancePolicy, mode, revision, workingTreeDirty, created: new Date().toISOString(),
   hosted: process.env.GITHUB_ACTIONS === 'true', runner: process.env.RUNNER_NAME ?? null,
   platform: process.platform, node: process.version, cpus: cpus().length, ramBytes: totalmem(),
   minimumAvailableRamBytes: freemem(), minimumFreeDiskBytes: Infinity,
   elapsedMs: 0, linuxResourceFiles: [] as string[],
   sourceBytes: null as number | null, modelCacheBytes: null as number | null,
   steps: [] as CommandResult[], payload: null as Awaited<ReturnType<typeof stagePayload>> | null,
-  acceptance: null as unknown, smoke: null as unknown, error: null as string | null };
+  acceptance: null as unknown, smoke: null as unknown, artifactComparison: null as unknown, error: null as string | null };
 let saving = Promise.resolve();
 const save = () => {
   report.elapsedMs = performance.now() - started;
@@ -62,6 +62,10 @@ async function run(name: string, args: string[], env: NodeJS.ProcessEnv = {}) {
   if (result.status !== 'passed') throw new Error(`${name} failed; see ${log}`);
 }
 try {
+  const coldPath = resolve(output, '../cold/report.json');
+  const cold = mode === 'warm' ? JSON.parse(await readFile(coldPath, 'utf8')) : null;
+  if (cold && (cold.status !== 'passed' || cold.revision !== revision || cold.policy !== acceptancePolicy))
+    throw new Error('Warm verification requires a passing cold report for this revision and acceptance policy');
   await run('prepare', ['run', 'data:prepare', ...(mode === 'cold' ? ['--', '--download'] : [])]);
   const directoryBytes = async (directory: string) => {
     let bytes = 0;
@@ -72,28 +76,37 @@ try {
   report.modelCacheBytes = await directoryBytes(resolve(root, 'data/derived/fast-share-cache'));
   await copyFile(resolve(root, 'data/derived/production/prepare-report.json'), resolve(output, 'prepare-report.json'));
   const acceptanceOutput = resolve(output, 'application');
-  await run('application', ['run', 'acceptance:reform'], { ACCEPTANCE_OUTPUT: acceptanceOutput,
-    ACCEPTANCE_ARCHIVE_OUTPUT: resolve(output, 'archives') });
+  if (mode === 'cold') await run('application', ['run', process.env.ACCEPTANCE_PROFILE === 'extended' ? 'acceptance:extended' : 'acceptance:reform'],
+    { ACCEPTANCE_OUTPUT: acceptanceOutput, ACCEPTANCE_ARCHIVE_OUTPUT: resolve(output, 'archives') });
+  else await run('data-check', ['run', 'data:check']);
   await copyFile(resolve(root, 'data/derived/production/check-report.json'), resolve(output, 'check-report.json'));
-  const acceptance = JSON.parse(await readFile(resolve(acceptanceOutput, 'report.json'), 'utf8'));
-  if (acceptance.status !== 'passed') throw new Error('Application acceptance did not pass');
-  report.acceptance = { status: acceptance.status, inputs: acceptance.inputs,
-    counts: acceptance.checks.filter((c: { passed?: number }) => c.passed !== undefined) };
+  if (mode === 'cold') {
+    const acceptance = JSON.parse(await readFile(resolve(acceptanceOutput, 'report.json'), 'utf8'));
+    if (acceptance.status !== 'passed' || acceptance.policy !== acceptancePolicy || !['release', 'extended'].includes(acceptance.profile))
+      throw new Error('Release application acceptance did not pass');
+    report.acceptance = { status: acceptance.status, profile: acceptance.profile, inputs: acceptance.inputs,
+      counts: acceptance.checks.filter((c: { passed?: number }) => c.passed !== undefined) };
+  } else {
+    const coldReceipt = JSON.parse(await readFile(resolve(output, '../cold/prepare-report.json'), 'utf8'));
+    const warmReceipt = JSON.parse(await readFile(resolve(output, 'prepare-report.json'), 'utf8'));
+    report.artifactComparison = requireIdenticalArtifacts(coldReceipt.artifacts, warmReceipt.artifacts);
+    report.acceptance = { status: 'reused-cold-acceptance', coldReport: coldPath, revision, policy: acceptancePolicy };
+  }
   await run('pages-build', ['run', 'build'], { BASE_PATH: '/elezioni' });
   const site = resolve(output, 'site');
   report.payload = await stagePayload(web, site, revision); await save();
   const browserReport = resolve(output, 'browser.json');
-  await run('staged-site', ['run', 'test:hosting', '--', '--reporter=json'], {
+  if (mode === 'cold') await run('staged-site', ['run', 'test:hosting', '--', '--reporter=line,json', '--max-failures=1'], {
     BASE_PATH: '/elezioni', ACCEPTANCE_BUILD_ROOT: site, ACCEPTANCE_GZIP_ENCODING: '0',
     HOSTING_BROWSER_OUTPUT: resolve(output, 'browser-output'),
     HOSTING_TRANSFER_OUTPUT: resolve(output, 'transfers'), HOSTING_EXPECTED_REVISION: revision,
     PLAYWRIGHT_JSON_OUTPUT_NAME: browserReport,
   });
-  report.smoke = requireBrowserAcceptance(JSON.parse(await readFile(browserReport, 'utf8')));
-  if (mode === 'warm' && process.env.GITHUB_ACTIONS === 'true') {
-    const cold = JSON.parse(await readFile(resolve(output, '../cold/report.json'), 'utf8'));
-    if (cold.status !== 'passed' || cold.payload.manifestSha256 !== report.payload.manifestSha256)
+  if (mode === 'cold') report.smoke = requireBrowserCases(JSON.parse(await readFile(browserReport, 'utf8')), browserCases.staged);
+  if (mode === 'warm') {
+    if (cold.payload.manifestSha256 !== report.payload.manifestSha256)
       throw new Error('Cold/warm production payloads differ or cold acceptance failed');
+    report.smoke = { status: 'reused-identical-cold-payload', coldReport: coldPath };
   }
   report.status = 'passed';
 } catch (error) {

@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../fixtures/editor-preparation';
 import authored from '../../../data/politics-default-scenario.json' with { type: 'json' };
 import { waitForPoliticsReady } from '../fixtures/politics-readiness';
 

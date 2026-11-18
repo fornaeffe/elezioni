@@ -2,17 +2,18 @@ import { createHash } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
-import { requireBrowserAcceptance, requireUnitAcceptance } from './reports';
+import { requireUnitAcceptance } from './reports';
 import { runLoggedCommand } from './logged-command';
 import { acceptanceWorkers } from './worker-limits';
+import { acceptancePolicy, acceptanceProfile, browserCases, requireBrowserCases } from './policy';
 
 const web = fileURLToPath(new URL('../../', import.meta.url));
-const output = resolve(web, process.env.ACCEPTANCE_OUTPUT ?? '../data/derived/r26-21-acceptance');
+const profile = acceptanceProfile(process.argv[2] ?? process.env.ACCEPTANCE_PROFILE);
+const output = resolve(web, process.env.ACCEPTANCE_OUTPUT ?? `../data/derived/acceptance-${profile}`);
 await mkdir(output, { recursive: true });
-const report = { created: new Date().toISOString(), status: 'running', node: process.version, platform: process.platform,
+const report = { policy: acceptancePolicy, profile, created: new Date().toISOString(), status: 'running', node: process.version, platform: process.platform,
   workers: acceptanceWorkers(process.env),
-  diagnostics: [] as { base: string; status: string; report: string; passed?: number; skipped?: number }[],
-  scope: 'Local production application acceptance; provisional I08 tables; conditional synthetic preferences; no deployment.',
+  scope: 'Named application acceptance profile; constructed UI preparation is not production fitting evidence; no deployment.',
   inputs: [] as { path: string; bytes: number; sha256: string }[],
   checks: [] as { name?: string; passed?: number; [key: string]: unknown }[] };
 const save = () => writeFile(resolve(output, 'report.json'), `${JSON.stringify(report, null, 2)}\n`);
@@ -50,43 +51,33 @@ try {
   const units = resolve(output, 'unit.json');
   await run('unit suite', ['run', 'test', '--', '--reporter=json', `--outputFile=${units}`, ...unitWorkers]);
   await accept('unit acceptance', units, requireUnitAcceptance);
-  for (const base of ['/elezioni', '']) {
-    const smoke = base === '';
-    const browserReport = resolve(output, base ? 'browser-project.json' : 'browser-root.json');
-    const env = { BASE_PATH: base, ACCEPTANCE_SERVER_PORT:'4175',  ACCEPTANCE_PREBUILT: '1', PLAYWRIGHT_JSON_OUTPUT_NAME: browserReport };
-    await run(`static build ${base || '/'}`, ['run', 'build'], env);
-    if (!smoke) {
-      const diagnostic = { base, status: 'running', report: resolve(output, 'browser-diagnostic.json') };
-      report.diagnostics.push(diagnostic); await save();
-      try {
-        await run('browser diagnostic preflight', ['run', 'test:e2e', '--', '--workers=1', '--retries=0', '--max-failures=1',
-          '--reporter=line,json', '--output', resolve(output, 'browser-diagnostic-output'), '--grep',
-          'status remains fixed and compact|new lists initialize every law|sparse result tables reconstruct|politiche-reform-2026-v1/M02: residual creation'],
-          { ...env, PLAYWRIGHT_JSON_OUTPUT_NAME: diagnostic.report });
-        const counts = requireBrowserAcceptance(JSON.parse(await readFile(diagnostic.report, 'utf8')));
-        if (counts.passed !== 4) throw new Error(`Expected all four diagnostic checks, received ${counts.passed}`);
-        Object.assign(diagnostic, counts, { status: 'passed' });
-      } catch (error) { diagnostic.status = 'failed'; throw error; }
-      await save();
-    }
-    // CP-08 requires the common domain/editor/session and independent regional
-    // matrix at both bases, including all four supported worker pairs.
-    await run(`browser suite ${base || '/'}`, ['run', 'test:e2e', '--', '--reporter=line,json', '--retries=0', '--max-failures=1', ...browserWorkers,
-      '--output', resolve(output, base ? 'browser-project-output' : 'browser-root-output')], env);
-    await accept(`browser acceptance ${base || '/'}`, browserReport, requireBrowserAcceptance);
-    {
-      const editorReport = resolve(output, base ? 'editor-project.json' : 'editor-root.json');
-      await run(`current scenario editor ${base}`, ['run','test:reform:shares:ui','--','--project=chromium','--reporter=line,json','--retries=0','--max-failures=1', ...browserWorkers,
-        '--output', resolve(output, base ? 'editor-project-output' : 'editor-root-output')], {...env, PLAYWRIGHT_JSON_OUTPUT_NAME: editorReport});
-      await accept(`editor acceptance ${base}`, editorReport, requireBrowserAcceptance);
-    }
-    const unifiedReport=resolve(output,base?'unified-project.json':'unified-root.json'),unifiedEnv={...env,PLAYWRIGHT_JSON_OUTPUT_NAME:unifiedReport,
-      FV08_DRAWS:smoke?'1':'3'};
-    await run(`unified ${smoke ? 'URL smoke' : 'browser/storage/export'} ${base || '/'}`,['run','test:reform:shares:unified','--','--reporter=line,json','--retries=0','--max-failures=1', ...browserWorkers,
-      '--output', resolve(output, base ? 'unified-project-output' : 'unified-root-output'), ...(smoke ? ['--grep', 'unified browser workflow'] : [])],unifiedEnv);
-    await accept(`unified browser acceptance ${base || '/'}`, unifiedReport, requireBrowserAcceptance);
+  const extended = profile === 'extended', development = profile === 'development';
+  const bases = extended ? ['/elezioni', ''] : ['/elezioni'];
+  async function browser(name: string, script: string, stem: string, expected: number, env: Record<string, string>, args: string[] = []) {
+    const path = resolve(output, `${stem}.json`);
+    await run(name, ['run', script, '--', '--reporter=line,json', '--retries=0', '--max-failures=1', ...browserWorkers,
+      '--output', resolve(output, `${stem}-output`), ...args], { ...env, PLAYWRIGHT_JSON_OUTPUT_NAME: path });
+    await accept(`${name} acceptance`, path, data => requireBrowserCases(data as Parameters<typeof requireBrowserCases>[0], expected));
   }
-  // Root was built last, so the usable local build is already restored.
+  for (const base of bases) {
+    const suffix = base ? 'project' : 'root';
+    const env = { BASE_PATH: base, ACCEPTANCE_SERVER_PORT: '4175', ACCEPTANCE_PREBUILT: '1',
+      ACCEPTANCE_FULL_MATRIX: extended ? '1' : '0' };
+    await run(`static build ${base || '/'}`, ['run', 'build'], env);
+    // The retained Firefox/M02 production workflow runs early, once. No duplicated preflight.
+    if (!development) await browser(`production archive workflows ${base || '/'}`, 'test:reform:shares:unified',
+      `unified-${suffix}`, extended ? browserCases.fullUnified : browserCases.representative,
+      { ...env, FV08_DRAWS: base ? '3' : '1' });
+    await browser(`browser suite ${base || '/'}`, development ? 'test:e2e' : 'test:e2e:all', `browser-${suffix}`,
+      development ? browserCases.development : browserCases.release, env);
+    await browser(`editor cancellation ${base || '/'}`, 'test:reform:shares:ui', `editor-${suffix}`,
+      browserCases.editor, env, ['--project=chromium']);
+  }
+  if (!development && !extended) {
+    const env = { BASE_PATH: '', ACCEPTANCE_SERVER_PORT: '4175', ACCEPTANCE_PREBUILT: '1' };
+    await run('static build /', ['run', 'build'], env);
+    await browser('root route/worker smoke', 'test:base-smoke', 'root-smoke', browserCases.rootSmoke, env);
+  }
   report.status = 'passed';
 } catch (error) {
   report.status = 'failed';

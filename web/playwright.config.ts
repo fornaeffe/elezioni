@@ -3,7 +3,7 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: 'tests/e2e',
   // Dedicated release/research checks have their own serving and budget configuration.
-  testIgnore: ['hosting.spec.ts','fast-share-release.spec.ts','fast-share-fit.spec.ts','fast-share-ui.spec.ts','unified-share.spec.ts','unified-resources.spec.ts'],
+  testIgnore: ['base-smoke.spec.ts','hosting.spec.ts','fast-share-release.spec.ts','fast-share-fit.spec.ts','fast-share-ui.spec.ts','unified-share.spec.ts','unified-resources.spec.ts'],
   fullyParallel: true,
   workers: process.env.CI ? 1 : undefined,
   retries: 0,

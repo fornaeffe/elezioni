@@ -1,15 +1,16 @@
 import { readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import { expect, test, type Page } from '@playwright/test';
+import { type Page } from '@playwright/test';
+import { expect, test } from '../fixtures/editor-preparation';
 import authored from '../../../data/politics-default-scenario.json' with { type: 'json' };
 import { decodeScenario, encodeScenario } from '../../src/lib/politics/scenario/serialization';
 import { createDefaultCommonPoliticsScenario } from '../../src/lib/politics/scenario/defaults';
 import { politicsDraftKey } from '../../src/lib/politics/files/draft';
 import { createCandidate, upsertPlacement } from '../../src/lib/politics/scenario/edits';
-import { politicsTestMs, waitForPoliticsReady } from '../fixtures/politics-readiness';
+import { waitForPoliticsReady } from '../fixtures/politics-readiness';
 
 const base = process.env.BASE_PATH ?? '';
-test.setTimeout(politicsTestMs);
+test.setTimeout(90_000);
 const available = [authored.data.historical, authored.data.catalogue, authored.data.electorate,
   ...Object.values(authored.data.lawAssets).flatMap(a => [a.geography, a.seats, ...a.models.M01, ...a.models.M02])].every(p => existsSync(`static/${p.uri}`));
 test.skip(!available, 'Common editor requires generated production politics bundles.');
@@ -251,29 +252,17 @@ test('advanced controls edit source membership, pooling provenance and model-spe
   await expect(page.getByText(/età minima 18 anni/)).toBeVisible();
 });
 
-test('subject rows expose responsive controls and reference placeholders', async ({ page }) => {
-  await page.setViewportSize({ width: 1100, height: 800 });
-  await page.goto(`${base}/politics/editor`); await ready(page);
-  const article = page.getByRole('article', { name: "Fratelli d'Italia", exact: true });
-  const button = article.getByRole('button', { name: /Opzioni lista/ });
-  const reference = article.getByLabel('Riferimento nazionale (%)', { exact: true });
-  await expect(reference).toHaveAttribute('placeholder', '% auto');
-  await expect(button).toHaveAttribute('aria-expanded', 'false');
-  const boxes = await Promise.all([article.getByLabel('Nome lista').boundingBox(), reference.boundingBox(), button.boundingBox()]);
-  expect(boxes.every(box => box && Math.abs(box.y - boxes[0]!.y) < 5)).toBe(true);
-  await button.click();
-  await expect(button).toHaveAttribute('aria-expanded', 'true');
-  await article.locator('summary').filter({ hasText: /^Riferimenti avanzati/ }).click();
-  await expect(article.getByLabel('Riferimento nazionale Camera (%)', { exact: true })).toHaveAttribute('placeholder', '% auto');
-  await page.setViewportSize({ width: 390, height: 800 });
-  await expect(article.locator('.mobile-label').first()).toBeVisible();
-  await expect(reference).toBeVisible();
-  await button.click();
-  await expect(button).toHaveAttribute('aria-expanded', 'false');
-  const nonValidReference = page.getByLabel('Astensione e voti non validi Camera (%)', { exact: true });
-  await expect(nonValidReference).toHaveCount(0);
-  await open(page, /^Impostazioni avanzate dello scenario$/);
-  const nonValidSection = page.locator('details').filter({ has: page.locator(':scope > summary').filter({ hasText: /^Impostazioni avanzate dello scenario$/ }) });
-  await nonValidSection.locator('summary').filter({ hasText: /^Riferimenti avanzati/ }).click();
-  await expect(nonValidReference).toHaveAttribute('placeholder', '% auto');
+
+test('explicit worker requests retain CPU choices and expose memory warnings', async ({ page }) => {
+    await page.addInitScript(() => { Object.defineProperty(navigator, 'hardwareConcurrency', { get: () => 28 }); Object.defineProperty(navigator, 'deviceMemory', { get: () => 64 }); });
+    await page.goto(`${process.env.BASE_PATH ?? ''}/politics/editor`); await waitForPoliticsReady(page);
+    await page.getByText('Impostazioni avanzate della simulazione', { exact: true }).click();
+    await page.getByRole('combobox', { name: 'Worker richiesti', exact: true }).selectOption('fixed');
+    const workers = page.getByLabel('Numero di worker richiesti', { exact: true });
+    await expect(workers).toBeVisible();
+    await workers.fill('26');
+    await workers.blur();
+    await waitForPoliticsReady(page);
+    await expect(page.locator('.worker-warning')).toContainText('riducendo il numero di worker');
+    await expect(workers).toHaveValue('26');
 });

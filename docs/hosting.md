@@ -35,45 +35,55 @@ not the aggregate size of concurrent artifacts.
 
 ## Reassessment workflow
 
-[hosting.yml](../.github/workflows/hosting.yml) runs on pushes to `migrazione`
-and `main`, or manual dispatch. Pushes **never deploy**. Each fresh Linux runner:
+[hosting.yml](../.github/workflows/hosting.yml) has separate push and manual paths.
+Pushes to `migrazione` and `main` run **development** acceptance: prepare required
+assets, both type checks, all units, 66 general fixture/UI cases and one editor
+cancellation case, using Chromium. Reports are in
+`data/derived/development-acceptance/`, uploaded as `development-evidence-<sha>`
+for one day. Pushes never deploy or start the release cold/warm campaign.
 
-1. Installs Node 24 and dependencies using an initially empty npm cache.
-   Installs Chromium and Firefox for the existing acceptance matrix.
-2. Runs `npm run hosting:reassess -- cold`: acquires checksum-pinned originals,
-   prepares all production data without pre-existing generated/model caches,
-   then runs the complete application gate. That gate includes `data:check`,
-   both type checks, every unit test and both root/project-base browser matrices,
-   requiring all tests on their first attempt, without skips.
-   General and dedicated browser suites use the release static server's
-   directory redirects; Vite preview does not reproduce that Pages behavior.
-3. Builds `/elezioni` again and stages only the current production graph.
-   All four static routes use directory indexes. Snapshot descriptors, authored
-   politics dependencies and the selected reform candidate's transitive
-   compressed metadata/column/source chunks determine the required files.
-   Missing or corrupt files fail; old immutable versions, research, fixtures,
-   source maps and receipts stay outside the site. The compiled `_app` tree,
-   `.nojekyll` and deterministic `release.json` complete the payload.
-4. Tests that exact staged tree with raw gzip file delivery. Checks direct
-   loads, refreshes and navigation; all four law/model worker combinations;
-   Emilia-Romagna execution; structured and CSV exports. Each browser context
-   starts fresh. Encoded response sizes and content encodings are retained.
-5. Reinstalls dependencies using the warmed npm cache, then runs
-   `npm run hosting:reassess -- warm`, retaining source/model caches. It repeats
-   preparation, all checks and builds, and staged-site acceptance. The complete
-   cold/warm site manifests must match byte for byte. `BUILD_REVISION` fixes
-   SvelteKit's app version to the commit SHA instead of a build timestamp.
+Manually dispatch **Hosting reassessment and Pages**, selecting the desired
+branch with **publish=false** and **extended=false** for ordinary release
+reassessment. `extended=true` explicitly requests the broader application
+matrix. See [application profiles](common-politics-scenario/acceptance.md) for
+selected cases, limits and local commands. Each fresh release Linux runner:
 
-The local command `npm run hosting:reassess -- warm` verifies an existing
-prepared checkout. `cold` requires a fresh checkout; it does not delete local
-caches to manufacture one. A repeated run refuses to overwrite an existing
-`report.json`: move the previous mode directory to an evidence archive first.
-Keep builds and browser commands sequential.
+1. Installs Node 24 and dependencies using an initially empty npm cache, then
+   installs Chromium and Firefox.
+2. Runs `npm run hosting:reassess -- cold`: acquires pinned originals and prepares
+   all production data without pre-existing generated/model caches. Release
+   application acceptance requires data validation, both type checks, all units,
+   two representative real archive workflows, 70 general cases and one editor
+   cancellation at `/elezioni`, plus a root routing/worker smoke (74 browser
+   checks). Firefox/M02 runs early. There is no duplicate preflight or full root
+   matrix unless the extended profile was explicitly selected.
+3. Builds `/elezioni` again and stages only the production dependency graph:
+   compiled `_app`, directory-index routes, selected pinned bundles/chunks,
+   `.nojekyll` and deterministic `release.json`. Missing/corrupt files fail;
+   research, fixtures, source maps, receipts and unused versions stay outside.
+4. Requires all six browser checks against that exact staged tree: direct
+   routes/refreshes/navigation, all four real national law/model worker pairs,
+   regional execution, and structured/CSV exports. Raw gzip delivery and encoded
+   response receipts remain required. Every selected check must pass first time.
+5. Reinstalls dependencies using the warmed npm cache and runs
+   `npm run hosting:reassess -- warm`. It repeats preparation, `data:check` and
+   the project build. Every preparation artifact's path, byte length and SHA-256
+   must match cold, followed by exact staged payload-manifest equality.
+   Warm requires a passing cold report for the same revision and policy. It
+   records reused cold application/browser acceptance and does not rerun tests
+   against identical bytes. `BUILD_REVISION` fixes SvelteKit's app version to
+   the commit SHA instead of a build timestamp.
+
+`cold` requires a fresh checkout; it never deletes local caches to manufacture
+one. `warm` requires that checkout's successful cold evidence. Both refuse to
+overwrite an existing mode `report.json`: archive the previous mode directory
+before reusing it. Keep local builds and browser commands sequential.
 
 ## Evidence and interpretation
 
 Start with `data/derived/hosting/{cold,warm}/report.json`. Inspect `status`,
-`steps`, `acceptance.counts`, `payload.bytes`, `payload.manifestSha256`, `smoke`
+`policy`, `steps`, `acceptance`, `artifactComparison`, `payload.bytes`,
+`payload.manifestSha256`, `smoke`
 and `error`. `workingTreeDirty` distinguishes local edits from a clean hosted
 revision; `sourceBytes` and `modelCacheBytes` record retained input/cache disk use.
 The payload includes per-file hashes, stored bytes, a separate
@@ -84,12 +94,11 @@ gzip estimate, excluded build files and exact data versions. Full evidence:
 | `install.log`, `install-resources.txt` | npm installation output and Linux elapsed/CPU/peak-RSS/I/O |
 | `logs/*` | Complete subprocess logs; Linux GNU-time resource sidecars |
 | `prepare-report.json`, `check-report.json` | Production input/output receipt hashes and preparation time |
-| `application/report.json` and linked reports/logs | Strict application acceptance |
-| `application/browser-diagnostic.json`, `application/browser-diagnostic-output/` | Four-check fail-fast preflight and retained failure traces |
+| `application/report.json` and linked reports/logs (cold only) | Named profile, exact selected membership and strict application acceptance |
 | `application/*-output/` | Per-suite/base browser failure traces, screenshots and contexts |
 | `archives/*` | National export/import/re-export archives and digests |
 | `site/*` | Actual publishable directory, uploaded only for authorized publication |
-| `browser.json`, `transfers/*.json` | Staged-site results and per-request encoded transfer receipts |
+| `browser.json`, `transfers/*.json` (cold only) | Staged-site results and per-request encoded transfer receipts |
 
 The runner samples system available RAM and free disk every five seconds;
 these are host-wide measurements, not summed process RSS. GNU time reports
@@ -117,36 +126,24 @@ if longer retention is needed; do not commit generated archives to the repositor
 
 ## Remaining remote work and publication
 
-The Windows checkout can verify production behavior and payloads. It cannot
-establish GitHub-hosted Linux runtime/RAM/disk or CDN behavior. The connected
-GitHub tools provide repository/workflow reads but no new-workflow dispatch;
-GitHub CLI is not installed. The new workflow must first be committed and pushed
-to GitHub. WSL or Docker would still not establish standard hosted-runner
-acceptance. No commit, push, merge, repository setting or publication is part of
-the local reassessment implementation.
+The Windows checkout cannot establish GitHub-hosted Linux runtime/RAM/disk or
+public CDN behavior. After committing/pushing on `migrazione`, first inspect the
+automatic development job, then manually dispatch **Hosting reassessment and
+Pages** on that revision with **publish=false**, **extended=false**. Require both
+cold and warm success before merge. Fix source-download, resource, membership or
+payload mismatches; source drift still requires explicit manifest review.
 
-Before merging, push the migration branch and inspect its cold/warm hosting
-reports. Fix any source-download, Linux, resource, no-skip or payload mismatch
-failure before treating hosting feasibility as established. A live source whose
-bytes drift must fail; do not replace the pinned manifest without review.
+Hosted jobs explicitly set two unit workers and one browser context. No new
+repository variables are needed. Reports reject incomplete selected matrices;
+zero retries, fail-fast commands, per-suite evidence and first-failure traces
+remain. Actual durations after this rationalization are not yet measured.
 
-Hosted acceptance sets `ACCEPTANCE_UNIT_WORKERS=2` and
-`ACCEPTANCE_BROWSER_WORKERS=1`. No repository variable or manual workflow input
-is needed for these limits. The four-check browser preflight runs automatically
-before the full matrix and stops on its first failure. Subsequent browser suites
-also stop at their first failure and reject any uncompleted matrix. Zero retries and strict
-full-suite acceptance remain required; traces are retained on initial failures.
-The serialized matrix can take hours. Use minute heartbeats and the active-test
-line in the linked command log to distinguish ongoing work from a failed gate.
-
-After committing/pushing a fix on `migrazione`, open **Hosting reassessment and
-Pages** for that new revision. Let both cold and warm passes finish before
-merging. If it fails, download `hosting-evidence-<sha>` within one day and retain
-its directory structure. Start with `cold/report.json` and
-`cold/application/report.json`; for preflight failures include
-`browser-diagnostic.json`, the linked command log and
-`browser-diagnostic-output/**/trace.zip`. Later failures use that suite's
-`*-output/` directory. A rerun of an older revision will not include the fix.
+If a job fails, download its evidence within one day, preserving directory
+structure. For development start with `development-acceptance/report.json`; for
+release start with `cold/report.json` and `cold/application/report.json`, or
+`warm/report.json` for byte-comparison failures. Include the failed suite JSON,
+linked log and its `*-output/**/trace.zip`. Re-running an older revision does not
+include a newly committed fix.
 
 After Luca merges into `main`, publication is an explicit action:
 

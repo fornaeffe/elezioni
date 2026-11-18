@@ -3,7 +3,7 @@ import { expectStatusError } from '../fixtures/common-page';
 import { currentBrowserSession, currentArchive } from '../fixtures/current-browser-session';
 import { fileURLToPath } from 'node:url';
 import { build } from 'vite';
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../fixtures/editor-preparation';
 import type { ReformGenerationScenario } from '../../src/lib/politics/reform-2026/generation-types';
 import { multipleSeriesResult, statisticalResult, refinementResult, constituencyResult, archivedConstituencyResult } from '../fixtures/statistical-result';
 import { positionTable, positionColumns } from '../../src/lib/politics/reform-2026/election-probability';

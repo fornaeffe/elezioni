@@ -83,4 +83,4 @@ severities/codes, preserved contexts, interruption, global notes beyond the
 preview limit, complete CSV, mobile layout and old aggregate archives.
 `result-store.spec.ts` also checks concurrent export registration.
 Run `npm run acceptance:reform` for production validation, types, full unit
-coverage and browser regressions at `/` and `/elezioni`.
+coverage, project-base browser regressions and a root routing/worker smoke.

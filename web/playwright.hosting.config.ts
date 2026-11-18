@@ -6,7 +6,7 @@ const origin = publicUrl ? new URL(publicUrl).origin : 'http://127.0.0.1:4176';
 export default defineConfig({
   testDir: 'tests/e2e', testMatch: 'hosting.spec.ts',
   outputDir: process.env.HOSTING_BROWSER_OUTPUT ?? '../data/derived/hosting/browser-output',
-  workers: 1, fullyParallel: false, retries: 0, timeout: 240_000,
+  workers: 1, fullyParallel: false, retries: 0, timeout: 10 * 60_000,
   reporter: 'line',
   use: { baseURL: origin, trace: 'retain-on-failure', serviceWorkers: 'block' },
   webServer: publicUrl ? undefined : {

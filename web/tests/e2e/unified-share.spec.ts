@@ -1,5 +1,6 @@
 import { archiveDigest } from '../fixtures/archive-digest';
 import { test, expect } from '@playwright/test';
+import { productionWorkflowMs, waitForPoliticsReady } from '../fixtures/politics-readiness';
 import { mkdir, writeFile, stat } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { openCommon, openResultTransfers, runCommon, selectedCommon, base } from '../fixtures/common-page';
@@ -7,7 +8,7 @@ import { ROSATELLUM, REFORM } from '../../src/lib/politics/scenario/schema';
 const draws = Number(process.env.FV08_DRAWS ?? 3);
 if (!Number.isSafeInteger(draws) || draws < 1 || draws > 1000)
     throw new Error('Acceptance supports 1–1000 draws');
-test.setTimeout(240000);
+test.setTimeout(productionWorkflowMs);
 for (const [law, model] of [[ROSATELLUM, 'M01'], [ROSATELLUM, 'M02'], [REFORM, 'M01'], [REFORM, 'M02']] as const)
     test(`${law}/${model} unified browser workflow`, async ({ page, browser }) => {
         const errors: string[] = [];
@@ -45,7 +46,7 @@ for (const [law, model] of [[ROSATELLUM, 'M01'], [ROSATELLUM, 'M02'], [REFORM, '
         await expect(page.getByRole('combobox', { name: 'Sessione dei risultati', exact: true })).toHaveValue(after.id);
         await page.getByRole('button', { name: 'Carica lo scenario di questa sessione', exact: true }).click();
         await expect(page.getByLabel('Nome scenario', { exact: true })).toHaveValue(initial.name);
-        await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText('Modello pronto', { timeout: 120000 });
+        await waitForPoliticsReady(page);
         await expect(page.getByLabel('Seed delle simulazioni', { exact: true })).toHaveValue(initial.execution.simulationSeed);
         await writeFile(archive + '.receipt.json', JSON.stringify({ base, browser: browser.version(), law, model, draws, execution: before.politics.run.execution, storage: before.result.storage, content, archiveBytes: (await stat(archive)).size, errors }, null, 2));
         expect(errors).toEqual([]);

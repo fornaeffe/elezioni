@@ -4,10 +4,10 @@ import { createDefaultCommonPoliticsScenario } from '../../src/lib/politics/scen
 import { politicsDraftKey } from '../../src/lib/politics/files/draft';
 import { politicsSessionsKey } from '../../src/lib/politics/workspace-controller';
 import { type LawId, type GeneratorId, type PoliticsScenario, REFORM } from '../../src/lib/politics/scenario/schema';
-import { allowPoliticsSetup, waitForPoliticsReady } from './politics-readiness';
+import { allowPoliticsSetup, productionWorkflowMs, waitForPoliticsReady } from './politics-readiness';
 export const base = process.env.BASE_PATH ?? '';
 export async function openCommon(page: Page, law: LawId = REFORM, model: GeneratorId = 'M02', simulations = 1) {
-    allowPoliticsSetup();
+    allowPoliticsSetup(productionWorkflowMs);
     const initial = createDefaultCommonPoliticsScenario();
     const scenario: PoliticsScenario = { ...initial, selection: { ...initial.selection, scrutiny: { ...initial.selection.scrutiny, id: law },
             generatorsByLaw: { ...initial.selection.generatorsByLaw, [law]: { id: model, version: model === 'M02' ? '3.0.0' : '2.0.0' } } },

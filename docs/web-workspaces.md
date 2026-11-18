@@ -105,12 +105,7 @@ Use the [complete Node preparation pipeline](data-preparation.md). From `web/`:
 
 ```powershell
 npm run data:prepare -- --download
-npm run data:check
-npm run check:data
-npm run check
-npm test -- --maxWorkers=2
-npm run build
-npm run test:e2e -- --workers=2
+npm run acceptance:dev
 ```
 
 The complete command invokes all snapshot/default/catalog compilers in dependency
@@ -119,8 +114,10 @@ Runtime descriptors record exact snapshot bytes, schema and
 SHA-256. Missing, changed or incompatible production assets fail; there is no debug
 fallback. `acceptance:reform` includes the complete `data:check` gate.
 
-The production gate builds and checks both bases sequentially; follow
-[CP-08 acceptance](common-politics-scenario/acceptance.md) for the complete command.
+Routine pushes use development acceptance. Release acceptance keeps functional
+checks at `/elezioni` and a root routing/worker smoke; the broader two-base matrix
+is optional. Follow [CP-08 acceptance](common-politics-scenario/acceptance.md) for
+profile selection and commands.
 Direct loads, refreshes, navigation, workers and required data must work at both
 bases. Development tests may clearly skip absent generated fixtures; release
 acceptance requires all data and rejects skips. The R implementation and temporary

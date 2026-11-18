@@ -1,73 +1,105 @@
 # Common politics acceptance (CP-08)
 
-Use this guide for the release gate, national campaigns and retirement boundary.
-The [editor](editor.md), [lifecycle](lifecycle.md) and [files](files.md) guides own
-their respective contracts. Record results and blockers in [history](../migration-history.md).
+Use this guide for development/release test selection and national campaigns.
+[Hosting](../hosting.md) owns hosted cold/warm reproduction and publication;
+[acceptance reporting](../acceptance-reporting.md) owns evidence inspection.
+Historical CP-08 receipts below retain their original model identities; current
+adoption is recorded in [November model acceptance](../model-acceptance-2026-11.md).
 
-Current model adoption and its receipts are recorded in
-[November model acceptance](../model-acceptance-2026-11.md). The recorded CP-08
-receipts below retain their original M01/M02 2.0.0 identities.
+## Choose a profile
 
-For compact console output, full logs, campaign summaries and selective report
-inspection, see [acceptance reporting](../acceptance-reporting.md).
+Luca launches test sequences. Agents may inspect results and run compact checks
+when authorized, but must not start long campaigns themselves.
 
-## Production gate
+| Command from `web/` | Intended use | Required browser membership |
+| --- | --- | --- |
+| `npm run acceptance:dev` | Routine work and automatic push checks | 66 general fixture/UI checks + 1 controlled editor cancellation check at `/elezioni` |
+| `npm run acceptance:reform` | Release application acceptance | 70 general checks + 1 editor cancellation + 2 production archive workflows at `/elezioni`; 1 root routing/worker smoke = 74 |
+| `npm run acceptance:extended` | Optional manual broader diagnosis | 70 general + 1 editor + all 8 production archive combinations at each base = 158 |
 
-From `web/`, with Node 24 and pinned sources available:
+These are selected-case contracts, not newly measured outcomes. Every profile
+requires production bundles, `data:check`, both type checks and all unit tests.
+Release also requires the real national previous-law execution and three
+residual-list lifecycles tagged `@production`; development excludes those four.
+The four constructed law/model lifecycle cases remain required in every profile,
+including real worker execution, checkpoint reuse, archive round trips, worker
+row equivalence, cancellation, quota/native failures and exact run membership.
+
+The representative production archive workflows are Firefox Rosatellum/M02
+(first) and Chromium reform/M02, with three draws each at `/elezioni` to exercise
+two compute workers. The extended profile additionally runs M01 and both laws
+in both browsers, with one draw per workflow at root. Six real staged-site
+worker/route/export checks remain separately required by the cold hosting gate.
+
+`policy.ts` records profile names and exact browser counts. Reports reject wrong
+counts, skips, TODOs, expected failures, retries and missing data. All browser
+commands fail fast, save line+JSON logs, and retain failure traces per suite/base.
+There is no repeated diagnostic preflight. A smaller profile never authorizes a
+partial report from a larger profile. The report identifies `policy` and `profile`.
+
+## Local commands
+
+With Node 24 and dependencies installed, prepare missing/stale assets first:
 
 ```powershell
-npm run data:prepare
+npm run data:prepare -- --download
 $env:ACCEPTANCE_UNIT_WORKERS = '2'
 $env:ACCEPTANCE_BROWSER_WORKERS = '1'
-$env:ACCEPTANCE_OUTPUT = '../data/derived/cp08-acceptance'
+$env:ACCEPTANCE_OUTPUT = '../data/derived/acceptance-development-review'
+npm run acceptance:dev
+```
+
+For release confirmation after development succeeds, choose a separate output:
+
+```powershell
+$env:ACCEPTANCE_OUTPUT = '../data/derived/acceptance-release-review'
 npm run acceptance:reform
 Remove-Item Env:ACCEPTANCE_UNIT_WORKERS, Env:ACCEPTANCE_BROWSER_WORKERS, Env:ACCEPTANCE_OUTPUT
 ```
 
-Add `-- --download` to preparation when acquiring missing originals. The gate
-requires every production bundle, runs `data:check`, preparation/application type
-checks and all unit tests, then builds and checks `/elezioni` and `/` sequentially.
-Each base runs the full Chromium matrix, focused preparation/checkpoint controls,
-and real national execution/export/import in Chromium and Firefox for
-Rosatellum/M01, Rosatellum/M02, reform/M01 and reform/M02. Functional national tests use three
-draws at the project path and one at root. Root is built last. Reports reject
-skips, TODOs, expected failures, retries and missing data. Stop other preview
-servers and keep builds/preparation sequential.
+Without `ACCEPTANCE_OUTPUT`, each profile writes to its own
+`data/derived/acceptance-{development,release,extended}` directory. Preserve prior
+important evidence before reusing an output directory. Keep builds and browser
+commands sequential. Development leaves a project-base build; release/extended
+build root last. Run an ordinary `npm run build` for the usual local root build.
 
-Unit and browser worker limits are independent (integers 1–64). The legacy
-`ACCEPTANCE_TEST_WORKERS` remains a fallback for either unspecified limit;
-otherwise defaults are two unit workers and one CI browser context (two locally).
-Each browser context still runs the application's own workers normally.
+`npm run test:e2e` selects the development general suite only;
+`npm run test:e2e:all` selects all 70 general cases. Dedicated editor, root and
+production workflows have their own configurations and are included by the
+profile runner. `ACCEPTANCE_FULL_MATRIX=1` enables all eight combinations for a
+standalone unified-suite invocation; the profile runner sets it explicitly.
 
-Before the first full browser suite, four representative project-base checks run
-with one worker, no retries and `--max-failures=1`. Their report is
-`browser-diagnostic.json`; counts live in `report.json.diagnostics`, separately
-from full acceptance totals. A preflight failure stops the gate. Complete
-project/root, editor and unified matrices remain mandatory after it passes.
-Failure traces/screenshots use distinct output directories per suite and base.
-Every browser command stops at its first unexpected failure; a partial matrix
-is rejected. Saved logs list the active test as well as retaining JSON reports.
+Unit/browser worker limits are independent integers 1–64. The legacy
+`ACCEPTANCE_TEST_WORKERS` is a fallback for either unspecified limit. Defaults
+remain two unit workers and one CI browser context (two locally); hosted jobs
+explicitly use 2/1. Application compute pools retain their normal contracts.
 
-Ordinary politics setup waits for both verified editor data (where needed) and
-actual model readiness, read from the active status toggle rather than hidden
-detail entries. Model waits are bounded at two minutes for startup and
-five for explicit refitting. Enclosing UI tests allow six minutes; the residual
-M02 lifecycle allows fifteen for its multiple fit/run phases. DOM actions retain
-a 30-second cap in the general suite. Status-only tests control loading, and
-presentation fixtures seed storage from the neutral home route before entering
-the viewer. These setup budgets do not change electoral assertions or failures.
+## Fixture and readiness boundaries
 
-Lifecycle tests cover all pairs, immutable executed scenarios, stored queries,
-reload, exact checkpoint reuse, archive roundtrips, one/two-worker row equivalence,
-cancellation, quota retention, native compute failure, routing and original
-denominators. Editor tests cover switching, inactive values, seeds, shared drafts,
-JSON/gzip files, keyboard and mobile forms. Regional execution, persistence,
-residual-category controls and navigation remain required.
+Editor-only specs retain real pinned asset loading, import validation, forms,
+serialization and persistence, while `editor-preparation.ts` supplies controlled
+worker preparation responses. It rejects election execution/checkpoint creation;
+it cannot provide production fitting evidence. Result-service requests still
+reach the real worker. Presentation fixtures use the same boundary while seeding
+real result storage from the neutral home route. Controlled cancellation tests
+UI draft preservation; real worker cancellation remains in the constructed
+lifecycle suite. Worker-count/warning controls use this UI boundary too.
 
-Synthetic storage/chart fixtures can contain more than 1,000 saved rows to test
-pagination and denominators. They do not generate electoral simulations or
-establish throughput above the campaign limit. Old transport regressions use
-test-only entry points; common compute/lifecycle suites test production directly.
+Removed repetitive browser checks: three of the four legacy v1–v4 rejection
+cases (one representative retained), the alignment/placeholder-only case, and
+the separate production checkpoint/cosmetic editor case whose core behavior is
+covered by constructed lifecycle and file/execution units. All retired versions
+remain enumerated in fast parsing tests. One mobile/keyboard editor check remains.
+
+Real initial fitting and refitting both have a five-minute readiness cap;
+production workflows allow ten minutes overall (the multi-refit residual M02
+case retains fifteen). Controlled UI readiness has a 20-second cap. The active
+status toggle determines readiness; detailed progress is included on timeout.
+These are maximum waits, not added sleeps. Legal output, deterministic seeds,
+explicit zeros, conservation and failed/partial membership expectations remain.
+
+Synthetic storage/chart fixtures can contain more than 1,000 saved rows for
+pagination/denominator checks; they do not establish electoral throughput.
 
 ## National performance campaigns
 
