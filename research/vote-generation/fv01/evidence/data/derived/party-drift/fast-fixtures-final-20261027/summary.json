@@ -1,0 +1,145 @@
+{
+  "fixtures": [
+    {
+      "fixture": "interior",
+      "diagnostics": {
+        "kernelHash": "6a6deef1c9547105b14ac802bacc496f4964708079ca6ac77cb16c836ec44707",
+        "seconds": 0.014869714000000034,
+        "drawsPerChain": 4000,
+        "burnSweeps": 1000,
+        "thinSweeps": 2,
+        "maxRhat": 1.0001296707821066,
+        "minEss": 15256.507415107842,
+        "minTailEss": 15664.628825320855,
+        "passed": true,
+        "rhatByCoordinate": [
+          1.0000794984126533,
+          1.0000784428402898,
+          1.0001296707821066
+        ],
+        "essByCoordinate": [
+          15256.507415107842,
+          15955.309451825575,
+          16000.0
+        ],
+        "tailEssByCoordinate": [
+          16000.0,
+          15664.628825320855,
+          16000.0
+        ]
+      },
+      "maximumMeanError": 0.00025737240535544936,
+      "maximumIntervalEndpointError": 0.0020946802313341895,
+      "quadratureMeanRefinementError": 9.992007221626409e-16,
+      "passed": true
+    },
+    {
+      "fixture": "near-zero",
+      "diagnostics": {
+        "kernelHash": "6a6deef1c9547105b14ac802bacc496f4964708079ca6ac77cb16c836ec44707",
+        "seconds": 0.017176685999999997,
+        "drawsPerChain": 4000,
+        "burnSweeps": 1000,
+        "thinSweeps": 2,
+        "maxRhat": 1.0001251306201409,
+        "minEss": 15649.006742184623,
+        "minTailEss": 14985.120089962169,
+        "passed": true,
+        "rhatByCoordinate": [
+          1.0001251306201409,
+          1.0000527280906775,
+          1.0000290589576122
+        ],
+        "essByCoordinate": [
+          16000.0,
+          15649.006742184623,
+          15669.305358950982
+        ],
+        "tailEssByCoordinate": [
+          14985.120089962169,
+          15764.383003638812,
+          15710.007424579597
+        ]
+      },
+      "maximumMeanError": 0.00013454273933288796,
+      "maximumIntervalEndpointError": 0.0010718652867207634,
+      "quadratureMeanRefinementError": 1.821633122123245e-14,
+      "passed": true
+    },
+    {
+      "fixture": "joint-and-distinguishing-information",
+      "diagnostics": {
+        "kernelHash": "6a6deef1c9547105b14ac802bacc496f4964708079ca6ac77cb16c836ec44707",
+        "seconds": 0.01448350999999981,
+        "drawsPerChain": 4000,
+        "burnSweeps": 1000,
+        "thinSweeps": 2,
+        "maxRhat": 1.000234724074968,
+        "minEss": 16000.0,
+        "minTailEss": 15583.214583837298,
+        "passed": true,
+        "rhatByCoordinate": [
+          1.000234724074968,
+          1.0001883653654382,
+          1.000125007020169
+        ],
+        "essByCoordinate": [
+          16000.0,
+          16000.0,
+          16000.0
+        ],
+        "tailEssByCoordinate": [
+          15583.214583837298,
+          15888.381438328013,
+          15690.90513536007
+        ]
+      },
+      "maximumMeanError": 0.001510235917899394,
+      "maximumIntervalEndpointError": 0.002871156482570414,
+      "quadratureMeanRefinementError": 1.0547118733938987e-15,
+      "passed": true
+    },
+    {
+      "fixture": "coupled-kinds",
+      "diagnostics": {
+        "kernelHash": "6a6deef1c9547105b14ac802bacc496f4964708079ca6ac77cb16c836ec44707",
+        "seconds": 0.018189506000000133,
+        "drawsPerChain": 4000,
+        "burnSweeps": 1000,
+        "thinSweeps": 2,
+        "maxRhat": 1.0000716048705096,
+        "minEss": 15701.29987889049,
+        "minTailEss": 14904.73027653254,
+        "passed": true,
+        "rhatByCoordinate": [
+          1.0000716048705096,
+          1.0000716048705096,
+          1.000027166429131,
+          1.0000271718668265
+        ],
+        "essByCoordinate": [
+          15701.299878890497,
+          15701.29987889049,
+          16000.0,
+          16000.0
+        ],
+        "tailEssByCoordinate": [
+          14904.73027653254,
+          14904.73027653254,
+          15465.328848233905,
+          15465.328848233905
+        ]
+      },
+      "maximumMeanError": 0.00023653614872037876,
+      "maximumIntervalEndpointError": 0.0035515114544310555,
+      "quadratureMeanRefinementError": 5.551115123125783e-16,
+      "passed": true
+    }
+  ],
+  "martingaleMeanError": 0.0006341658294240493,
+  "nationalExtreme80Rate": 0.0,
+  "projectionIterations": 9,
+  "integerElectorConservation": true,
+  "seconds": 0.532716491,
+  "passed": true
+}

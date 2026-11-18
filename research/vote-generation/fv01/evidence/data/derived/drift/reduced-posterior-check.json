@@ -1,0 +1,140 @@
+{
+  "method": "elliptical-slice versus finite-difference joint Laplace; independent Gaussian priors",
+  "reference": "https://proceedings.mlr.press/v9/murray10a.html",
+  "results": [
+    {
+      "counts": [
+        [
+          20,
+          35,
+          45
+        ],
+        [
+          50,
+          80,
+          70
+        ]
+      ],
+      "draws": 10000,
+      "evaluations": 143105,
+      "maxMeanDifference": 0.0016766870149434454,
+      "variables": [
+        {
+          "meanExact": 0.208084674823142,
+          "meanLaplace": 0.20967426420051008,
+          "widthExact90": 0.12487585330136533,
+          "widthLaplace90": 0.12282224542503556,
+          "meanDifference": 0.0015895893773680836,
+          "widthRatio": 0.9835548040550821
+        },
+        {
+          "meanExact": 0.33255350673718387,
+          "meanLaplace": 0.33264060437475695,
+          "widthExact90": 0.13368693735897963,
+          "widthLaplace90": 0.13625523779222987,
+          "meanDifference": 0.00008709763757308586,
+          "widthRatio": 1.0192113042903643
+        },
+        {
+          "meanExact": 0.45936181843967533,
+          "meanLaplace": 0.4576851314247319,
+          "widthExact90": 0.1480004365032328,
+          "widthLaplace90": 0.14504544372271821,
+          "meanDifference": -0.0016766870149434454,
+          "widthRatio": 0.9800338914510563
+        },
+        {
+          "meanExact": 0.24960541048855753,
+          "meanLaplace": 0.25124766809062143,
+          "widthExact90": 0.0985930857273854,
+          "widthLaplace90": 0.09645139032883288,
+          "meanDifference": 0.0016422576020639068,
+          "widthRatio": 0.9782774280493217
+        },
+        {
+          "meanExact": 0.37778577033590555,
+          "meanLaplace": 0.3769327147509809,
+          "widthExact90": 0.09663629209546881,
+          "widthLaplace90": 0.09711594751003622,
+          "meanDifference": -0.0008530555849246557,
+          "widthRatio": 1.0049635121978142
+        },
+        {
+          "meanExact": 0.3726088191755363,
+          "meanLaplace": 0.3718196171583968,
+          "widthExact90": 0.09826673186632101,
+          "widthLaplace90": 0.09714613782713061,
+          "meanDifference": -0.0007892020171395009,
+          "widthRatio": 0.9885964047251025
+        }
+      ]
+    },
+    {
+      "counts": [
+        [
+          0,
+          8,
+          12
+        ],
+        [
+          15,
+          4,
+          11
+        ]
+      ],
+      "draws": 10000,
+      "evaluations": 124452,
+      "maxMeanDifference": 0.005322377289157854,
+      "variables": [
+        {
+          "meanExact": 0.15921905986259224,
+          "meanLaplace": 0.16002516100911918,
+          "widthExact90": 0.19114708085637327,
+          "widthLaplace90": 0.1938135666715617,
+          "meanDifference": 0.000806101146526933,
+          "widthRatio": 1.0139499164896586
+        },
+        {
+          "meanExact": 0.36794893572780724,
+          "meanLaplace": 0.3724652118704422,
+          "widthExact90": 0.22048133515921287,
+          "widthLaplace90": 0.2179177916267559,
+          "meanDifference": 0.004516276142634945,
+          "widthRatio": 0.9883729680310318
+        },
+        {
+          "meanExact": 0.47283200440959683,
+          "meanLaplace": 0.467509627120439,
+          "widthExact90": 0.23507194251370017,
+          "widthLaplace90": 0.2327190881723672,
+          "meanDifference": -0.005322377289157854,
+          "widthRatio": 0.989990918030569
+        },
+        {
+          "meanExact": 0.40955754076837503,
+          "meanLaplace": 0.4114811766326785,
+          "widthExact90": 0.25434032745798985,
+          "widthLaplace90": 0.25468769777728295,
+          "meanDifference": 0.0019236358643034968,
+          "widthRatio": 1.0013657697258036
+        },
+        {
+          "meanExact": 0.23520278310564136,
+          "meanLaplace": 0.2347291909608813,
+          "widthExact90": 0.16922074299584094,
+          "widthLaplace90": 0.17557046470592674,
+          "meanDifference": -0.00047359214476005995,
+          "widthRatio": 1.0375233059356197
+        },
+        {
+          "meanExact": 0.35523967612598595,
+          "meanLaplace": 0.3537896324064423,
+          "widthExact90": 0.20617980032906108,
+          "widthLaplace90": 0.20534506570829814,
+          "meanDifference": -0.0014500437195436588,
+          "widthRatio": 0.9959514238570863
+        }
+      ]
+    }
+  ]
+}

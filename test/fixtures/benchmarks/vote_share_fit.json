@@ -1,0 +1,412 @@
+{
+  "schemaVersion": 1,
+  "stage": "FV-06",
+  "recordedDate": "2026-10-29",
+  "status": "browser-fitting-lifecycle-passed-editor-and-defaults-not-activated",
+  "baseRevision": "fb214a5d7fe52ff563d2ff72ef65dbb674062f87",
+  "model": "fast-share-kind-common-conservative-v1",
+  "numericalVersion": "fast-share-float64-v1",
+  "sourceHashPolicy": "SHA-256 of LF-normalized changed sources and pinned build/policy inputs",
+  "sourceHashes": {
+    "data/fast-share-default-policy.json": "910d7ea28d169d018ce1a8e672c9fbd58ae78605585f2e79b12230e77d39de45",
+    "web/package-lock.json": "c653b9a886821ed14ecf0a33caeaa6c8374aab80039fefda0d9685d0b9bee38b",
+    "web/playwright.config.ts": "82990779615c015537187cf55133ec474026831a79f4bf75dbf724abf9768915",
+    "web/playwright.fast-share.config.ts": "d2b458534b518fcf29a1ed5c214edd31956d9e0799013fa2013956fe3ff1661c",
+    "web/scripts/data-preparation/fast-share-release.ts": "c1f324f81ea75cbf03c4b731b6681cd168ee5737f36d5a1dee7193bb56c6822a",
+    "web/src/lib/politics/reform-2026/vote-share/execution.test.ts": "134980666d4bbf09f1218bb794bac5fba4a13e970f8adfc4c343e39e8e81cc75",
+    "web/src/lib/politics/reform-2026/vote-share/execution.ts": "7810eb6824d113476a54cd9a1fa74bbd670bd0aed7044d775f46179968b173c3",
+    "web/src/lib/politics/reform-2026/vote-share/fit-client.test.ts": "4d85bb48f37041eaf537e4ec69e072fa59aa76932818756031709eac0a8f9e5b",
+    "web/src/lib/politics/reform-2026/vote-share/fit-client.ts": "88771ce970a73251e242a57c4d623732d1d331edec8a6a02054a6c1b25a8b3d6",
+    "web/src/lib/politics/reform-2026/vote-share/fit-resources.ts": "aa2641b827c3480ce42cfede372dd874f345ef7bbfe47b3770136ab84ca4a80b",
+    "web/src/lib/politics/reform-2026/vote-share/fit-service.test.ts": "f75ec0d1e2fbbfc695db65437be57587cce0bb04ffaed2007d560671897cf51f",
+    "web/src/lib/politics/reform-2026/vote-share/fit-service.ts": "3b32c26e373a85a31fa938e82784780cdac0456ac4748f929593cea3ceb9d9a7",
+    "web/src/lib/politics/reform-2026/vote-share/fit-types.ts": "a0986e7d340e59c0195ed117c94a928f21a947c9238b1bdfd48d673f6a21e1a8",
+    "web/src/lib/politics/reform-2026/vote-share/gaussian.ts": "9be7db2094ad4dc7ebe49773d95e9f82fb71b3ff4784f60436b80f62b607c11d",
+    "web/src/lib/politics/reform-2026/vote-share/information.ts": "93d102606cbbe22cd673df74c44cce1a0c6c18ef55509864259ffd2c7dd2589c",
+    "web/src/lib/politics/reform-2026/vote-share/paired-source.ts": "9ae626afefcbce067c197ff0581e0293000c9129ba9ecc6f70ea763751689730",
+    "web/src/lib/politics/reform-2026/vote-share/profiles.ts": "c6ff76ba0d2e544a37c9c8640274c416b217996d1776a5a4140383de17fd2033",
+    "web/src/lib/politics/reform-2026/vote-share/release.ts": "b05f4976cc801d44bc72975e7f64347cdddef91d7ae3a937221cb7232f24ebc2",
+    "web/src/lib/politics/reform-2026/vote-share/source-compiler.ts": "9ad7784cd1290564107ffe9629ba3b73115dd48adb68a6c111504220107677c1",
+    "web/src/lib/politics/reform-2026/vote-share/state-shapes.ts": "1dc6a8c30f9ada7e48df684663088a4d28f34be8220acc693167cd5cbd62c193",
+    "web/src/lib/workers/reform-fit.worker.ts": "86861b4e90065a121c9985655d0b11a2d273a7ebb7108b1c82a7a6a64790e048",
+    "web/tests/e2e/fast-share-fit.spec.ts": "8bd174df268a156511d02db0323e73b5297aee6a53d5bf8186190a7ddc4c8585",
+    "web/tests/fixtures/fast-fit-consumer.worker.ts": "6a388f9d4496df961a1838d4c440ee466fc04eae38e405f451a0fec8598a25eb",
+    "web/tests/fixtures/fast-fit-harness.ts": "a8f5baae384a8f984b6ffea86e4787f662bed7a154de1a3f0de6194c1a3e73b4",
+    "web/tests/fixtures/fast-fit-input.ts": "f4d895c923f93dbd607603b830dd04d21c7d4d90434bb9b28cf825ef17eaaaad",
+    "web/tsconfig.node.json": "53a99b3d5fafe370d95e42a00c50e0da9c9b242bb2987864aa7a28089f04330e"
+  },
+  "environment": {
+    "node": "v24.20.0",
+    "platform": "win32",
+    "cpu": "Intel(R) Core(TM) i7-14700KF"
+  },
+  "catalogId": "fast-share-catalog-v1-0c4b7404b416112a0b9e00e944264b8a2bb6828ea9f979a11395ee675c8b6b34",
+  "sourceId": "fast-share-source-v1-95d505ed1f7ea79c99cd0bf91a86dbc6a2d54c1f24fd9b37bec40a57e3c72511",
+  "defaultPolicyUnchanged": true,
+  "parity": {
+    "before": {
+      "reducedFit": "24e01c03459af202f35f584357c912d1d57580c8124b3d0fc1b121638d32271e",
+      "reducedProfile": "7b59b2dd6b9fec57b7e001532c8e8934a3fd5ceaa74ccee81223ebccb951d700",
+      "defaultFit": "43c693f43d8ac296c0d6af7b8e479282ec1ac8268b0cd960904af685f93c0742",
+      "defaultProfile": "ec9ca9b4ef6a8e26effb8dbc6b3d8d37a6b11e73c9e6ffed86cef1ed483c7169",
+      "defaultAdapter": "15382a81e859805557cf06bb592f1e9197be548b11626421cd42386ca233a938",
+      "defaultInput": "69df2536ebaf6dcc5ef9a68b65794fc72262392c8fa39f455f9447bafc636193"
+    },
+    "after": {
+      "reducedFit": "24e01c03459af202f35f584357c912d1d57580c8124b3d0fc1b121638d32271e",
+      "reducedProfile": "7b59b2dd6b9fec57b7e001532c8e8934a3fd5ceaa74ccee81223ebccb951d700",
+      "defaultFit": "43c693f43d8ac296c0d6af7b8e479282ec1ac8268b0cd960904af685f93c0742",
+      "defaultProfile": "ec9ca9b4ef6a8e26effb8dbc6b3d8d37a6b11e73c9e6ffed86cef1ed483c7169",
+      "defaultAdapter": "15382a81e859805557cf06bb592f1e9197be548b11626421cd42386ca233a938",
+      "defaultInput": "21c519bd93689f3cab9294e68f6153a6219b2317489b8e43576f7bd406b1177a"
+    },
+    "exactReducedAndDefaultFitProfilePayloads": true,
+    "inputChanges": 1390,
+    "inputChangeScope": "Only fitted/profile content IDs in provenance.sourceVersions and chamberModel.sourceVersions; every other input field is identical.",
+    "normalizedGeneratedInputHash": "63eaa214dcfbfacb177c253a2780d72a6c97c5e05b3d40b53bafff5122fa0870",
+    "normalizedLegalResultHash": "243fc4d9c5823a64237f2240c2a01845de68dbbd9521cc6d9cb5cc22e7a40481",
+    "legalResultStatus": "complete",
+    "legalSeats": 588,
+    "qualification": "Regenerated state envelopes identify changed scheduling implementation. Normalization removes only those version IDs, whose exact changed paths were separately audited."
+  },
+  "browser": {
+    "root": {
+      "manual": {
+        "base": "",
+        "browser": "148.0.7778.96",
+        "defaultAudit": {
+          "nationalFits": 0,
+          "profileFits": 0,
+          "pairedFits": 0,
+          "sourceLoaded": false,
+          "numericBytes": 4619232,
+          "elapsedMs": 649.5,
+          "maximumNumericBatchMs": 0,
+          "progressMessages": 1
+        },
+        "validation": {
+          "national": true,
+          "profiles": false,
+          "paired": false,
+          "reasons": [
+            "national-evidence-or-fit-seed"
+          ],
+          "estimatedAggregateBytes": 409218338,
+          "reused": {
+            "national": false,
+            "cameraProfile": true,
+            "senateAdapter": true
+          }
+        },
+        "fit": {
+          "nationalFits": 1,
+          "profileFits": 0,
+          "pairedFits": 0,
+          "sourceLoaded": true,
+          "numericBytes": 4619232,
+          "elapsedMs": 3719.5,
+          "maximumNumericBatchMs": 120,
+          "progressMessages": 78
+        },
+        "plan": {
+          "national": true,
+          "profiles": false,
+          "paired": false,
+          "reasons": [
+            "national-evidence-or-fit-seed"
+          ],
+          "estimatedAggregateBytes": 409218338,
+          "reused": {
+            "national": false,
+            "cameraProfile": true,
+            "senateAdapter": true
+          }
+        },
+        "heartbeat": 358,
+        "numericFit": "fast-share-fit-v1-52e48de2f5f0b23a1e1fc303a8f583b11dea63adcf466fa72139420f65a55e66",
+        "profile": "fast-share-profiles-v1-e2b6dd809a7a3d0ea0f73a7cc84e79cc1904879da2d320035965192585d2c902",
+        "output": [
+          {
+            "id": 1,
+            "input": "a3b65b69333fcf36be696aea545cc050c8ddd50b36af7e11880a2e24d79cdcb6",
+            "scrutiny": "9c759ffee93b82ea2f1c8c1a8e4dba888964e0e76e9252f6af06f4e50e5656d7",
+            "status": "complete"
+          }
+        ],
+        "canRun": true
+      },
+      "evidence": {
+        "date": {
+          "nationalFits": 1,
+          "profileFits": 1,
+          "pairedFits": 1,
+          "sourceLoaded": true,
+          "numericBytes": 4619232,
+          "elapsedMs": 5782.299999982119,
+          "maximumNumericBatchMs": 122.90000000596046,
+          "progressMessages": 127
+        },
+        "membership": {
+          "nationalFits": 1,
+          "profileFits": 1,
+          "pairedFits": 1,
+          "sourceLoaded": true,
+          "numericBytes": 4619232,
+          "elapsedMs": 5782.200000017881,
+          "maximumNumericBatchMs": 117.09999999403954,
+          "progressMessages": 126
+        },
+        "canRun": true
+      },
+      "cancellation": {
+        "retryAudit": {
+          "nationalFits": 1,
+          "profileFits": 0,
+          "pairedFits": 0,
+          "sourceLoaded": true,
+          "numericBytes": 4619232,
+          "elapsedMs": 3746,
+          "maximumNumericBatchMs": 117.69999998807907,
+          "progressMessages": 78
+        },
+        "restored": true,
+        "error": "AbortError",
+        "stopped": "cancelled",
+        "cancelMilliseconds": 0,
+        "fitSeed": "fast-share-default-fit-v1",
+        "ready": true,
+        "audit": {
+          "nationalFits": 0,
+          "profileFits": 0,
+          "pairedFits": 0,
+          "sourceLoaded": false,
+          "numericBytes": 4619232,
+          "elapsedMs": 468,
+          "maximumNumericBatchMs": 0,
+          "progressMessages": 1
+        }
+      },
+      "parallel": {
+        "serial": [
+          {
+            "id": 1,
+            "input": "21c519bd93689f3cab9294e68f6153a6219b2317489b8e43576f7bd406b1177a",
+            "scrutiny": "50925e8a7b9ca585b10189a04303700df27a6319f447caf7d7183ce05b258553",
+            "status": "complete"
+          },
+          {
+            "id": 2,
+            "input": "72d906b1f2526b1a421a6a6148942daf3467b8c2fd34fa26ed4dd82bb5b7d879",
+            "scrutiny": "928546af2ed3df480aa69dc748b2e0a6a17e2891d5049daeefcdf0e9f8f9c1da",
+            "status": "complete"
+          }
+        ],
+        "parallel": [
+          {
+            "id": 1,
+            "input": "21c519bd93689f3cab9294e68f6153a6219b2317489b8e43576f7bd406b1177a",
+            "scrutiny": "50925e8a7b9ca585b10189a04303700df27a6319f447caf7d7183ce05b258553",
+            "status": "complete"
+          },
+          {
+            "id": 2,
+            "input": "72d906b1f2526b1a421a6a6148942daf3467b8c2fd34fa26ed4dd82bb5b7d879",
+            "scrutiny": "928546af2ed3df480aa69dc748b2e0a6a17e2891d5049daeefcdf0e9f8f9c1da",
+            "status": "complete"
+          }
+        ],
+        "ready": true
+      }
+    },
+    "project-base": {
+      "manual": {
+        "base": "/elezioni",
+        "browser": "148.0.7778.96",
+        "defaultAudit": {
+          "nationalFits": 0,
+          "profileFits": 0,
+          "pairedFits": 0,
+          "sourceLoaded": false,
+          "numericBytes": 4619232,
+          "elapsedMs": 702.5999999940395,
+          "maximumNumericBatchMs": 0,
+          "progressMessages": 1
+        },
+        "validation": {
+          "national": true,
+          "profiles": false,
+          "paired": false,
+          "reasons": [
+            "national-evidence-or-fit-seed"
+          ],
+          "estimatedAggregateBytes": 409218338,
+          "reused": {
+            "national": false,
+            "cameraProfile": true,
+            "senateAdapter": true
+          }
+        },
+        "fit": {
+          "nationalFits": 1,
+          "profileFits": 0,
+          "pairedFits": 0,
+          "sourceLoaded": true,
+          "numericBytes": 4619232,
+          "elapsedMs": 4560.600000023842,
+          "maximumNumericBatchMs": 122.5,
+          "progressMessages": 90
+        },
+        "plan": {
+          "national": true,
+          "profiles": false,
+          "paired": false,
+          "reasons": [
+            "national-evidence-or-fit-seed"
+          ],
+          "estimatedAggregateBytes": 409218338,
+          "reused": {
+            "national": false,
+            "cameraProfile": true,
+            "senateAdapter": true
+          }
+        },
+        "heartbeat": 413,
+        "numericFit": "fast-share-fit-v1-52e48de2f5f0b23a1e1fc303a8f583b11dea63adcf466fa72139420f65a55e66",
+        "profile": "fast-share-profiles-v1-e2b6dd809a7a3d0ea0f73a7cc84e79cc1904879da2d320035965192585d2c902",
+        "output": [
+          {
+            "id": 1,
+            "input": "a3b65b69333fcf36be696aea545cc050c8ddd50b36af7e11880a2e24d79cdcb6",
+            "scrutiny": "9c759ffee93b82ea2f1c8c1a8e4dba888964e0e76e9252f6af06f4e50e5656d7",
+            "status": "complete"
+          }
+        ],
+        "canRun": true
+      },
+      "evidence": {
+        "date": {
+          "nationalFits": 1,
+          "profileFits": 1,
+          "pairedFits": 1,
+          "sourceLoaded": true,
+          "numericBytes": 4619232,
+          "elapsedMs": 6633.4000000059605,
+          "maximumNumericBatchMs": 162.39999997615814,
+          "progressMessages": 137
+        },
+        "membership": {
+          "nationalFits": 1,
+          "profileFits": 1,
+          "pairedFits": 1,
+          "sourceLoaded": true,
+          "numericBytes": 4619232,
+          "elapsedMs": 6845.5999999940395,
+          "maximumNumericBatchMs": 168.7999999821186,
+          "progressMessages": 148
+        },
+        "canRun": true
+      },
+      "cancellation": {
+        "retryAudit": {
+          "nationalFits": 1,
+          "profileFits": 0,
+          "pairedFits": 0,
+          "sourceLoaded": true,
+          "numericBytes": 4619232,
+          "elapsedMs": 3723.2999999821186,
+          "maximumNumericBatchMs": 118.5,
+          "progressMessages": 78
+        },
+        "restored": true,
+        "error": "AbortError",
+        "stopped": "cancelled",
+        "cancelMilliseconds": 0.09999999403953552,
+        "fitSeed": "fast-share-default-fit-v1",
+        "ready": true,
+        "audit": {
+          "nationalFits": 0,
+          "profileFits": 0,
+          "pairedFits": 0,
+          "sourceLoaded": false,
+          "numericBytes": 4619232,
+          "elapsedMs": 472.5,
+          "maximumNumericBatchMs": 0,
+          "progressMessages": 1
+        }
+      },
+      "parallel": {
+        "serial": [
+          {
+            "id": 1,
+            "input": "21c519bd93689f3cab9294e68f6153a6219b2317489b8e43576f7bd406b1177a",
+            "scrutiny": "50925e8a7b9ca585b10189a04303700df27a6319f447caf7d7183ce05b258553",
+            "status": "complete"
+          },
+          {
+            "id": 2,
+            "input": "72d906b1f2526b1a421a6a6148942daf3467b8c2fd34fa26ed4dd82bb5b7d879",
+            "scrutiny": "928546af2ed3df480aa69dc748b2e0a6a17e2891d5049daeefcdf0e9f8f9c1da",
+            "status": "complete"
+          }
+        ],
+        "parallel": [
+          {
+            "id": 1,
+            "input": "21c519bd93689f3cab9294e68f6153a6219b2317489b8e43576f7bd406b1177a",
+            "scrutiny": "50925e8a7b9ca585b10189a04303700df27a6319f447caf7d7183ce05b258553",
+            "status": "complete"
+          },
+          {
+            "id": 2,
+            "input": "72d906b1f2526b1a421a6a6148942daf3467b8c2fd34fa26ed4dd82bb5b7d879",
+            "scrutiny": "928546af2ed3df480aa69dc748b2e0a6a17e2891d5049daeefcdf0e9f8f9c1da",
+            "status": "complete"
+          }
+        ],
+        "ready": true
+      }
+    }
+  },
+  "release": {
+    "byteBudget": {
+      "generationPayloadCompressedBytes": 4396317,
+      "catalogCompressedBytes": 6158,
+      "pointerBytes": 505,
+      "generationCompressedBytes": 4402980,
+      "refitCompressedBytes": 4512456
+    },
+    "cache": {
+      "source": true,
+      "legal": true,
+      "fit": true,
+      "profiles": true
+    },
+    "staticBuild": true,
+    "applicationChecks": true,
+    "basePath": ""
+  },
+  "verification": {
+    "unitFiles": 95,
+    "unitTests": 1192,
+    "unitCommand": "npm test -- --maxWorkers=4",
+    "browserTestsPerBase": 7,
+    "bases": [
+      "",
+      "/elezioni"
+    ],
+    "checkData": "passed",
+    "check": "0 errors / 0 warnings",
+    "productionAssetCheck": "passed",
+    "fv01OriginalInventory": 1433,
+    "fv01RetainedEvidence": 61,
+    "rootBuildRestored": true
+  },
+  "limitations": [
+    "Current 10-coordinate candidate and 25 reference-supported components remain unchanged; no predictive/default activation acceptance.",
+    "Measured current-candidate Chromium desktop tasks, not maximum supported basis/history/polls, throttled browsers or all supported engines.",
+    "Numeric-batch timing excludes asynchronous loading and compilation/adapter batches; immediate worker termination is the cancellation fallback.",
+    "Aggregate fitting/generation budgets are conservative allocation estimates, not measured browser heap/free RAM. Generation tests explicitly supply an 8 GiB planning hint.",
+    "UI/parser/results/export integration, maximum-envelope latency, measured aggregate memory and production predictive/1000-run seats remain FV-07/08.",
+    "No research archival, public deployment or commit."
+  ]
+}

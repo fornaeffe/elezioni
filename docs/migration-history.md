@@ -1,0 +1,11919 @@
+# Migration History
+
+## M08 0.0.1 consistency and pipeline review (2026-11-18)
+
+Completed the [initial review](../research/vote-generation/m08-review.md).
+The chamber draws can produce the integer college counts required by both
+current law adapters. The next specification needs explicit poll and reference
+denominators, historical and joint geography, identified priors, and separate
+national and local dispersion. Checked a partial-ballot example where the
+transfer shifts the expected Senato share and verified the pinned default's
+poll metadata and chamber geography. The review proposes defaults and fixture
+checks. Model-detail decisions, fitting and predictive verification remain open.
+
+## M08 Camera–Senato draft link (2026-11-18)
+
+Specified the joint-election link in the [M08 draft](model-drafts/M08v0.0.1.md).
+Camera counts are allocated to simulation cells with the college totals fixed.
+Political ballot overlap controls how much of the realized Camera result
+informs the Senato mean and overdispersion. The draft defines how to estimate
+the link concentration from paired returns at comparable geography.
+
+Checked the equations for identical, disjoint and partly overlapping ballots,
+both margins of the Camera allocation, and zero Camera counts and electorates.
+Empirical calibration remains open.
+
+## Table-section E2E triage (2026-11-16)
+
+Inspected the saved 73-test HTML report: 64 passed and nine failed with 14 actual
+Playwright workers. Five failures were stale UI assumptions after moving stored
+tables inside the collapsed `Tabelle` result section: four lifecycle cases
+looked for the removed `.result-tables` wrapper, and diagnostic inspection tried
+to edit the hidden simulation filter. Added the idempotent `openResultTables`
+fixture, selected the section by its exact accessible region name, and opened
+it before interaction and after reload. Preserved existing data assertions and
+the staged application changes.
+
+The other four failures found their territorial chart panels but still saw
+`caricamento…` after the default five-second assertion timeout. They were not
+missing targets. The territorial view already mounts its selected panel with
+`eager`, which requests statistics immediately rather than waiting for viewport
+intersection. Those four tests passed unchanged both in the affected-file run
+and the subsequent full run. Resource contention from the original 14-worker
+run is a plausible explanation, not a proven backend defect.
+
+Verification from `web/`, Windows, root base, Chromium, no retries:
+
+- `npx playwright test common-politics-lifecycle.spec.ts reform-messages.spec.ts
+  reform-statistics.spec.ts --project=chromium --workers=2 --reporter=line`:
+  17/17 passed (1.2 minutes).
+- `npx playwright test --project=chromium --workers=4 --reporter=line`:
+  72/73 passed (3.0 minutes). All nine originally failing cases passed. The
+  separate editor test `invalid imports and missing pins...` timed out waiting
+  for `Dati esatti non disponibili` while model preparation and file loading
+  were still active.
+- The unchanged editor case passed alone with
+  `npx playwright test common-politics-editor.spec.ts --grep
+  'invalid imports and missing pins' --project=chromium --workers=1
+  --reporter=line` (18.4 seconds). This does not establish a fully passing
+  combined suite.
+- Production builds and `git diff --check` passed; Vite retained its large-chunk
+  warning. No application code, worker configuration, assertion timeouts or
+  expected result values were changed by this triage.
+
+Proposed follow-up: bound default E2E parallelism (initially four workers), wait
+for model readiness after edits where a test assumes an idle workspace, and
+give asynchronous import/statistics completion assertions explicit operation
+budgets instead of relying on the five-second default. Preserve the error,
+draft-integrity and numerical assertions. These changes remain proposals;
+the current evidence does not demonstrate an election-result regression.
+
+## Politics result component ownership (2026-11-16)
+
+Introduced `results/ResultSection.svelte` as the single owner of result
+disclosures, summary styles, focus appearance and open state, including a
+compact message-detail variant. Split general diagnostics, simulation summaries
+and affected-simulation inspection; the latter now sits inside its message
+disclosure, retaining its controls across collapse/reopen and resetting when
+closed or another group is selected. Diagnostic content styles are shared in
+a stylesheet bounded by their wrapper.
+
+`PoliticsSessionResults` now only composes sections and forwards revisioned
+inspection requests. Stored-table selection/paging and single-simulation seats
+own their controls, loaders, request guards and independent errors. Repeating
+an inspection synchronizes both views without coupling subsequent edits.
+Renamed the cross-law statistics composition to `PoliticsResultStatistics`;
+means, boxplots and summary pagination own their respective state. Pure boxplot
+assembly moved to a TypeScript presentation helper. Adjacent section wrappers
+retain lazy national-chart/probability mounting, while territorial selectors
+remain mounted and own their plot activation. Preserved default open states,
+the keyed session reset, eager boxplot statistics and committed-input loading.
+See the [component task map](web-workspaces.md#politics-result-components).
+
+Verification from `web/` on Windows, root base path:
+
+- `npm run check`: zero errors and warnings. The official Svelte autofixer
+  reported no issues in the extracted/changed components; generic effect
+  suggestions were reviewed against guarded worker requests and independent
+  navigation/control state.
+- Focused Vitest: `result-presentation.test.ts` and `result-series.test.ts` under
+  `src/lib/politics/reform-2026/`, plus `src/lib/core/diagnostic-messages.test.ts`:
+  14/14 passed.
+- `npx playwright test reform-messages.spec.ts reform-statistics.spec.ts
+  --project=chromium --workers=2 --reporter=line`: 9/9 passed, including uniform
+  computed summary styles, independent controls, repeated inspection, nested
+  drill-down visibility/reset, sparse archives and retained territorial choices.
+- `npx playwright test common-politics-lifecycle.spec.ts --grep
+  'common lifecycle .*/M01:' --project=chromium --workers=2 --reporter=line`:
+  2/2 passed for Rosatellum/reform, including mean selectors, law-specific
+  sections, stored-table selection, durable execution, reload and archive reuse.
+- Playwright's production builds and `git diff --check` passed. Vite retained
+  its large-chunk warning. No project-base acceptance matrix was run.
+
+The expanded diagnostics test initially timed out on an exact wrapped-select
+label lookup; selecting by accessible combobox role/name resolved the test
+failure. No new test files or package dependencies were added.
+
+## Chamber-aware vote-generation research (2026-11-16)
+
+Reopened `research/vote-generation/` with a separate current-code campaign,
+task-oriented index, protocol, defining equations, generated comparison tables
+and a curated source/code/hash receipt. The archived original-layout scripts,
+FV-01/FV-09 evidence, production generators/defaults and protected model drafts
+remain unchanged. Research M05/M06/M07 identify Joint Gaussian, covariance-matched
+Joint Student-t and spatial transition bootstrap, adapted to six whole-ticket
+families without fabricating historical within-ticket counts.
+
+Completed 40 cases/11,776 draws: Camera 2018/2022, 15/365-day mixed-history folds,
+Camera-only sensitivities, paired 2022 and explicit in-sample reconstruction
+ablations. College/constituency/national scores include Error30, Coverage90, MAE,
+WIS and signed chamber-difference scores on identical reconstructed footprints.
+The 2018 Senate contrast sensitivity is labelled age-confounded; common-18+
+eligibility is waived only in research preparation. Reconstruction uses 2022
+contrasts and is not a held-out predictive success. All generated rows conserve
+electors with valid nonnegative integer counts.
+
+Actual released posterior diagnostics establish that correlated MCMC row indices
+do not correlate political posterior values as intended. Reordering whole rows
+changes that dependence without changing the empirical posterior. In the
+2022-contrast reconstruction, national difference RMS ratios fall from 62.09
+(current M02) to 18.75 (row synchronization), 1.59 (full coupling), and 1.00
+(one common M02 field). The latter preserves Camera's seeded law and improves
+reconstruction coverage, but a fixed 2018 contrast undercovers 2022 differences.
+M01 leads the primary marginal Error30/near-nominal-coverage comparison;
+M05/M06 improve territorial MAE/WIS with more extreme errors. No replacement was
+adopted. Full-component/filing/reference and browser acceptance remain directive
+work in the plan; a changed common-field probability law requires MAJOR versioning.
+
+Six 512-draw paired resource cases ran sequentially in isolated Node processes;
+remaining accuracy jobs used bounded parallelism, with their timings excluded
+from speed ranking. Generation measured 207/837/734/609/616/611 ms per draw for
+M01/M02/shared-M02/M05/M06/M07, respectively, with 513–609 MiB peak whole-process
+RSS on the six-family panel. These exclude browser/worker/scrutiny acceptance.
+Resume checks retained completed cases only under identical transitive code/
+lockfile identities. Standalone ESM and explicit Node type roots resolved the
+research directory's package/type boundary; probability apportionment wrappers
+were corrected to supply the active helper's required integer weights before
+accepted runs.
+
+Verification from `web/`: the campaign `tsc` check and native test runner passed
+5/5 tests, including active-M02 integer parity at draws 1/2/7, Camera
+marginal preservation, deterministic endpoints and cutoff leakage checks;
+`npm run check:data` passed; the research-import-boundary Vitest passed 1/1;
+`npm run test:research:archive` verified 212 archive files and 61 retained evidence
+files. Receipt curation also verifies exact 512-draw Camera score parity and a
+single source/code identity across all cases. See the
+[findings and acceptance boundary](../research/vote-generation/campaign-2026-11/results.md).
+
+## SvelteKit path resolution (2026-11-15)
+
+Replaced every deprecated `$app/paths` `base` import in `web/src` with
+`resolve()` for route navigation and `asset()` for pinned static assets. Worker
+requests still receive the base prefix, derived from `resolve('/')` with its
+trailing slash removed.
+
+The first editor browser run caught that `asset(pin.uri)` treats a relative URI
+as relative to the current route. Passing an absolute static path to `asset()`
+fixed the resulting `/politics/data/...` requests.
+
+Verification: the final `npm run check` passed with zero errors and warnings.
+The common politics editor suite passed 10/10 at `/`; its representative file
+reload test passed at `/elezioni`. Workflow selector and regional worker tests
+passed at both prefixes. Vite emitted its existing large-chunk warning during
+the browser builds.
+
+## M04 0.0.2 model specification (2026-11-15)
+
+Added the current research specification at
+[`model-drafts/M04v0.0.2.md`](model-drafts/M04v0.0.2.md), retaining 0.0.1 unchanged.
+The initial consistency review and model-definition steps are complete; fitting
+framework selection, synthetic/real fitting, prior calibration, predictive
+comparison and browser acceptance remain open.
+
+The model now separates baseline simplex support and concentration, uses
+reference-anchored Gaussian log-ratio/local drift with an explicit future branch,
+and defines European effects and national source errors. Proper terminal priors
+permit explicitly prior-driven unidentified component splits. The 50% prior
+expectation applies only to terminal baseline non-valid support $q_{0,t^\star}$;
+there is no intercept calibration or centering requirement on local/source
+probabilities. Physical parts share municipal support, while historical
+observations retain their original resolution and aggregate likelihoods.
+
+Selected Dirichlet-multinomial answer counts and beta-binomial non-valid counts
+instead of rejecting exact zero/one shares. Polls use declared respondent bases;
+references use 1,000 pseudo-respondents and ignore per-reference uncertainty.
+Exact counts are preferred; largest-remainder reconstruction from reported
+shares is explicitly approximate for rounded/weighted publications and can lose
+sub-count positive shares. The common overdispersion concentration is retained,
+so 1,000 pseudo-respondents do not imply 1,000 independent effective responses.
+Poll target-territory aggregation and elector/valid-voter denominators are explicit.
+Design effects, full rounding likelihoods and shared survey errors remain deferred.
+
+Verification: `git diff --check` passed. In-memory checks passed for current-draft
+links, Markdown math/table structure, Dirichlet-multinomial normalization and
+zero/full-count probabilities, binary beta-binomial equivalence, the answer-share
+variance formula, and count-apportionment endpoint/tie/precision-loss examples.
+The 0.0.1 SHA-256 remains
+`9940398d5769d510cfd8e35e32fa5edb3c3f94445398b7f407f4e01c086af2af`.
+No production code/data, M03 draft, or frozen regression expectations were changed;
+no model fit, predictive benchmark or browser benchmark was run for this
+documentation step.
+
+## Conditional college election probabilities (2026-11-15)
+
+The reform election-position table now offers the existing all-simulations metric
+and two subsets according to whether the ordinary slate's capolista appears in
+any bonus slate of the same chamber. The classification uses candidate identity,
+independent of bonus award and final election. The cumulative final-local-winner
+event and default requested-run denominator are unchanged. Each conditional row
+shows its selected denominator and the number of simulations without a position
+observation; unknown outcomes within the group retain the existing lower-bound
+convention. A zero denominator is unavailable, not zero probability.
+
+The position observation table is now v2 and records the capolista condition.
+No v1 archive compatibility was added, as requested; old position data, including
+the last-position chart, requires a new run. Unit and browser coverage includes
+same-chamber identity matching, missing observations and outcomes, empty groups,
+the selector, and imported disk-backed data beyond 1,000 simulations.
+
+Verification from `web/`: `npm run check` (zero errors/warnings),
+`npm run check:data`, `npm test -- --maxWorkers=4 --reporter=dot` (120 files,
+1,334 tests), and `npm run build` passed. The broad Chromium Playwright run with
+four workers passed 70 of 71 tests; an unrelated editor import-status check timed
+out while model preparation was active and passed alone. Focused position UI and
+disk statistics tests passed alone, including the 1,201-run conditional scan.
+The build emitted the existing large-chunk warning. The first focused browser
+attempt also timed out during concurrent full unit testing and passed on rerun.
+
+## Mobile application-status indicator (2026-11-15)
+
+Restricted the mobile hiding rule to the status label so the working spinner
+remains visible. The existing accessible name and reduced-motion behavior remain
+in place. A Playwright regression holds editor data requests pending and checks
+the working icon, label, reduced motion and desktop layout, as well as the mobile
+ready and error icons.
+
+Verification from `web/`: `npm run check` passed with no errors or warnings;
+`npx playwright test tests/e2e/app-status.spec.ts --reporter=line` passed all
+three Chromium tests. The build emitted a large-chunk warning.
+
+## Common politics editor non-valid references E2E (2026-11-15)
+
+Updated the editor E2E coverage for the non-valid reference controls' move into
+scenario Advanced settings. The zero/default-uncertainty check now edits the
+national Camera reference using its current label, and the responsive reference
+test confirms that this control appears after opening Advanced settings and its
+reference section.
+
+Verification: `git diff --check` passed. The focused Playwright test was not
+run.
+
+## Politics result colors (2026-11-15)
+
+The common reform execution now attaches the executed scenario's list and coalition presentation metadata when producing result series. This keeps presentation outside legal and generation inputs while allowing national and territorial charts and probabilities to use the configured colors. Rosatellum already records those colors. The reform single-run seat chart now colors its bars by the executed scenario's subject, with a neutral fallback for unmatched owners. Existing stored series are not rewritten; newly generated sessions contain the corrected metadata.
+
+Verification: `npm run check` passed with no errors or warnings. The existing reform presentation and series, common result-presentation, and common execution Vitest files passed (30 tests); after updating the existing execution assertions, the execution and presentation files passed again (23 tests). No new tests were added.
+
+Record through: 2026-11-08
+
+This file preserves the detailed migration record: completed implementation,
+decisions and rationale, verification results, encountered problems,
+workarounds, risks, and dated checkpoints. It is historical context, not the
+active task list. See [`../MIGRATION_PLAN.md`](../MIGRATION_PLAN.md) for the
+current directive-only plan and [`../AGENTS.md`](../AGENTS.md) for stable agent
+instructions.
+
+## Purpose
+
+The sections before the checkpoint log capture the consolidated state through
+2026-06-06. The dated checkpoints retain the implementation
+sequence and the evidence available at each point in time.
+
+## Initial R Baseline And Constraints
+
+Measured on 2026-06-01 with R 4.5.1 at
+`C:\Program Files\R\R-4.5.1\bin\Rscript.exe` and 28 detected cores:
+
+- `simula_comunali("Bologna", ..., 1000)`: about 3.0 seconds elapsed.
+- Emilia-Romagna regional workflow, 1000 simulations: about 6.8 seconds.
+- `simula_politiche(..., 10)`: about 7.1 seconds.
+- `simula_politiche(..., 100)`: about 20.8 seconds.
+
+The 100-simulation politics phases measured about 0.4 seconds and 47 MB to load
+filtered cached data, 0.1 seconds and 3 MB for `calcola_collegi`, 3.2 seconds
+and 8 MB for `calcola_parametri_input`, 3.3 seconds and 33 MB for
+`genera_candidati`, 2.4 seconds and 25 MB for `genera_voti_politiche`, and 9.3
+seconds with a 37 MB output for `esegui_scrutini_politiche`.
+
+The ten-simulation debug scrutiny fixture round-tripped exactly against the R
+output, including the warning-producing simulation 4. At this point
+`R/politiche/simula.R` stated that politics simulation required at least 16 GB
+of RAM; this motivated the browser requirement to avoid large row-object
+materialization and to use typed arrays, chunking, or worker-side columnar data.
+
+## Initial Target And Performance Gate
+
+Target architecture: a SvelteKit static TypeScript app under `web/`, with
+simulation and scrutiny running in browser workers. The first migrated workflow
+is `politiche`, because it has the largest legal and performance risk.
+
+The browser path remains preferred as long as the optimized politics workflow is
+not 10x or more slower than the same full R baseline on the same machine. If a
+future browser benchmark reaches that stop threshold after one optimization
+pass, pause and present Python fallback options before continuing.
+
+## Consolidated State Snapshot (2026-06-05)
+
+| Area | State | Evidence or reference at the time |
+| --- | --- | --- |
+| Migration tracking | Done | Root agent guidance and migration plan were present. |
+| R safety fixes | Done | `candidati_pluri_sim_` renamed to `candidati_pluri_sim`; debug scrutiny still matches. |
+| Politics golden fixtures | Done for current politics slice | `scripts/export_politics_golden.R`, `test/fixtures/politiche/debug_scrutinio.json`. |
+| R and browser benchmarks | Done for current politics slice | `scripts/benchmark_r_workflows.R`, `web/tests/benchmarks/politics-worker.spec.ts`, benchmark JSON under `test/fixtures/benchmarks/`. |
+| SvelteKit app scaffold | Done | `web/` with strict TypeScript, static adapter, Vitest, Playwright. |
+| Shared TypeScript core | Usable, still growing | Worker API types, seeded RNG, allocation primitives, scenario types, severity-aware warning/result contracts, politics result presentation, result export/import helpers, R-style politics result charts. |
+| Politics scrutiny | R-parity direct fixture passes | `web/src/lib/politics/scrutiny.ts`; registry id `politiche-r-parity-v1`. Split only when boundaries are clearer. |
+| Politics generation pipeline | Current browser path working | Candidate generation, vote generation, vote preparation, direct-scrutiny adaptation, worker chunking. |
+| Production static politics snapshot | Bridge done, richer raw data added | `scripts/export_politics_static_snapshot.R` writes schema v4 `web/static/data/v1/politics-static.json`, including raw historical municipal list votes, a compact municipality catalog for UI lookup, and named politics college metadata for candidate-slot selection. |
+| Politics scenario defaults | Bridge done | `scripts/export_politics_scenario_defaults.mjs` writes `web/src/lib/scenario/politics-defaults.generated.ts`. |
+| Scenario editor | Core workflow plus compact advanced controls working | List/coalition/share editor, mean-mode global share overrides, separate abstention input, local percentage override editor, historical correspondence editor, JSON save/load, localStorage, reset, validation. |
+| Rich correspondence parameter builder | Done and wired | `web/src/lib/politics/parameter-preparation.ts` rebuilds politics `liste`, `liste_elezioni`, and `comuni_liste` from raw historical votes and correspondences. `scenario-projection.ts` uses it when snapshot raw votes are present. |
+| R correspondence audit | Done | Current R output is coherent for the politics workbook because all historical list keys are mapped, but `calcola_parametri_input.R` drops unmatched rows instead of automatically sending them to `astensione`. |
+| Generated data storage | Done | Large generated JSON snapshots/fixtures are ignored and untracked; regenerate locally from scripts. Small generated TypeScript remains tracked. |
+| Politics browser vertical slice | Stabilized | `web/src/lib/politics/vertical-slice.test.ts` guards snapshot -> scenario -> projection -> generation -> scrutiny. |
+| Performance gate | Passed | Chromium worker on the R-exported production static snapshot is below fresh full R politics baselines for 10, 100, and 1000 simulations. |
+| Emilia-Romagna regional workflow | Browser slice migrated | Static snapshot, default scenario, vote generation, scrutiny, worker, UI, parity tests, e2e, and benchmark are in place. |
+| Municipal workflow | Not started | Migrate after the politics and Emilia-Romagna browser workflows are stable enough. |
+| Data-preparation migration | Deferred | Reassess typed Python vs Node/TypeScript after simulator workflows are migrated. |
+
+## Superseded Plan Snapshot (2026-06-05)
+
+This was the ordered implementation plan at the time. It is retained because
+its completion notes and sequencing rationale are part of the record; use the
+root plan for current work.
+
+1. Keep the politics browser vertical slice green while scenario semantics grow.
+   Every change to defaults, projection, generation, worker behavior, or the
+   scrutiny registry should preserve or deliberately update
+   `web/src/lib/politics/vertical-slice.test.ts`.
+2. Implement richer correspondence semantics in staged slices:
+   raw historical municipal list votes are in the static politics snapshot, and
+   the `calcola_parametri_input()` correspondence/parameter math now exists in
+   a tested TypeScript module with unmapped original-list votes explicitly
+   falling back to `astensione`.
+3. Extend scenario/UI semantics for historical correspondences. Done for this
+   slice: the advanced editor now exposes grouped historical correspondence
+   rows with destination, factor, split, delete, and reset controls; the old
+   source-model reuse concept has been removed from the UI and scenario
+   helpers; projection treats every active scenario list as simulatable and
+   generates candidate slots from the legal college grid independently of
+   historical vote correspondences.
+4. Keep the current global mean-mode share override semantics stable while the
+   scenario model grows. Done for this slice: list shares are valid-vote
+   percentages, abstention is a separate advanced elector-share input,
+   projection converts to internal elector fractions, non-overridden list
+   fractions are normalized from source data, all-overridden shares are
+   normalized with a warning when needed, and overridden list model dates are
+   set to the projection current date. Fixed modes are explicitly deferred.
+5. Build the UI for local percentage overrides only after the data contract has
+   been exercised on production data. Done for this slice: scenario JSON
+   carries municipality/province/region list valid-vote share overrides,
+   validation guards malformed or impossible partial local totals, projection
+   keeps local abstention fixed from the base municipality model, calibrates
+   province/region targets across covered municipalities while preserving
+   historical geographic variation, applies more specific overrides after
+   broader ones with overlap warnings, recomputes municipal `DELTA`/`DATA` rows
+   before vote generation, and the advanced scenario UI exposes searchable
+   municipality/province/region list/share editing.
+6. Preserve architecture hooks for future fixed behavior without exposing it:
+   a globally fixed mode should bypass random vote generation and produce a
+   single deterministic vote distribution/scrutiny output; an optional
+   per-percentage fixed mode may later remove uncertainty for selected global
+   shares or local deltas. Both require a separate design pass.
+7. Build the rich candidate-template editor only after the slot-selection UX is
+   clear. Done for this slice: scenario JSON carries uninominal and
+   plurinominal candidate templates, validation guards malformed or duplicate
+   slots, projection applies matching templates to the worker candidate source,
+   unmatched templates warn while generated candidates still fill every
+   unspecified place, and the advanced scenario UI exposes a slot-by-slot
+   candidate editor backed by a compact generated named-college catalog.
+8. Continue improving politics result presentation. Done for this slice:
+   `web/src/lib/politics/result-presentation.ts` builds tested user-facing
+   summary tables for election overview, plurinominal seats by list, valid-vote
+   share distributions by list, and uninominal winners by support. JSON/CSV
+   result export helpers and UI buttons are also implemented. Worker messages
+   now carry optional severity, and the UI separates informational run notes
+   from real warnings/errors. R-style web charts now mirror the current
+   `presentazione_risultati.R` politics report slice: summary bars, simulated
+   valid-vote boxplots, list and coalition seat-vote scatter plots, list
+   spinograms, and a selectable plurinominal-college spinogram using
+   `NUMERO_MAX`. Spinograms use darker colors for higher seat counts,
+   contrast-aware labels, x-axis valid-vote percentage break labels, and
+   click-to-enlarge overlays. Keep diagnostic tables such as
+   `Generated pipeline runs` collapsed by default. Bundled result exports use
+   compact columnar result tables, are downloaded as `.json.gz`, and can be
+   re-imported to restore both the generating scenario and displayed results
+   without rerunning the worker.
+9. Refactor politics scrutiny only when it lowers risk. The likely target is
+   stage-focused modules behind the existing scrutiny algorithm registry, but
+   do not split during active parity discovery just for size alone.
+10. Add a second politics scrutiny algorithm only for a concrete law-review or
+   comparison need. Expose UI selection/comparison only after at least two real
+   same-election-kind algorithms exist.
+11. Repeat the politics browser performance gate after major scenario, data,
+   generation, or scrutiny changes.
+12. Done 2026-06-06: Emilia-Romagna regional workflow migrated with R golden
+    fixture export, static snapshot export, scenario defaults, shared vote
+    generation, R-parity scrutiny, worker dispatch, `/emilia-romagna` UI,
+    landing selector, e2e coverage, and regional browser/R benchmarks.
+13. Migrate the municipal workflow: first add R golden fixtures and benchmarks,
+    preserve current behavior, and keep known runoff/councilor-candidate
+    business TODOs explicit for later law review.
+14. Generalize the web app across election kinds: routing, snapshot selection,
+    scenario defaults, worker dispatch, result components, validation, and
+    shared UI patterns.
+15. Migrate data preparation after simulator workflows are migrated. Reassess
+    typed Python versus Node/TypeScript then; keep it a periodic,
+    election-kind-agnostic devops/GitHub Actions pipeline producing static
+    previous-election bundles.
+16. Retire temporary bridge artifacts and update user/developer documentation
+    once migrated workflows no longer depend on R-exported intermediary
+    snapshots.
+
+## Completed Foundations Snapshot (2026-06-05)
+
+- Created durable migration notes in `AGENTS.md` and this living plan.
+- Measured local R baselines and created repeatable benchmark scripts.
+- Renamed the R politics output key to `candidati_pluri_sim` and verified the
+  debug scrutiny fixture still matches.
+- Exported politics golden-master fixtures and direct scrutiny trace tables.
+- Scaffolded the SvelteKit static app with strict TypeScript, Vitest,
+  Playwright, static adapter, worker API types, seeded RNG, and allocation
+  primitives.
+- Ported politics scrutiny enough for the direct debug fixture to match R final
+  outputs across Camera and Senato.
+- Added the politics scrutiny algorithm registry with `politiche-r-parity-v1`
+  as the current default.
+- Ported the politics candidate generation, vote generation, vote preparation,
+  and direct-scrutiny input adaptation path with focused fixture tests.
+- Built the generated politics worker path with chunked execution and progress.
+- Exported the R-produced production static snapshot bridge at
+  `web/static/data/v1/politics-static.json`.
+- Upgraded the production static snapshot bridge to schema v4 with
+  `data.comuni_liste_elezioni`, the raw historical municipal list votes needed
+  to rebuild correspondence-based parameters in TypeScript, plus
+  `data.municipalities`, a compact municipality/province/region catalog for UI
+  lookup, and named uninominal/plurinominal college metadata for candidate-slot
+  lookup.
+- Added `web/src/lib/politics/parameter-preparation.ts`, the TypeScript port of
+  the deterministic `calcola_parametri_input()` parameter math from raw
+  historical municipal votes and list correspondences. Synthetic tests cover
+  factor normalization, one-to-many splits, many-to-one aggregation, and
+  unmapped original-list votes becoming `astensione`; gated parity tests rebuild
+  the R-exported production default parameters when local generated data exists.
+- Wired the parameter builder into `scenario-projection.ts` and the worker when
+  raw historical votes are present. Scenario lists now receive
+  historical/static/synthetic parameters directly, without a source-model reuse
+  layer.
+- Stopped tracking large generated JSON snapshots and bridge fixtures in Git.
+  They remain local/generated artifacts and snapshot-dependent tests skip
+  clearly when they are absent.
+- Generated the default web politics scenario from that static snapshot,
+  including bundled list correspondences.
+- Built the basic scenario editor: metadata, list/coalition/share editing,
+  validation, reset, JSON import/export, localStorage autosave, and plain
+  worker-safe scenario snapshots.
+- Added scenario schema-v4 abstention fields and an advanced UI input for
+  abstention as a percentage of electors. Projection now treats list shares as
+  valid-vote percentages and converts them to elector fractions using the active
+  abstention fraction.
+- Added scenario schema-v5 local share overrides and projection hooks; the same
+  scenario array now supports municipality/province/region list valid-vote
+  share overrides.
+- Added scenario schema-v6 candidate templates and projection hooks for
+  uninominal/plurinominal candidate slots. Matching templates pin
+  `CANDIDATO_ID`/`DATA_NASCITA` before candidate generation; unspecified slots
+  remain generated.
+- Added `web/src/lib/scenario/politics-candidate-slots.generated.ts`, a compact
+  generated catalog of named uninominal and plurinominal candidate slots.
+- Added `web/src/lib/politics/result-presentation.ts`, a tested politics
+  presentation boundary that turns scrutiny runs into primary result tables:
+  election overview, plurinominal seats by list, valid-vote share distribution
+  by list, and uninominal winners by supporting coalition/list.
+- Added `web/src/lib/core/result-export.ts` and result-panel export actions.
+  Users can download a compressed JSON payload containing scenario plus worker
+  result, or a sectioned CSV containing all result tables.
+- Added strict bundled result JSON import. The Results panel can load app
+  exports containing both scenario and result, and the existing scenario upload
+  accepts the same bundled file while preserving result provenance. Result JSON
+  export schema v2 is the only supported result schema and stores table rows
+  columnarly to reduce repeated keys; result files are imported/exported through
+  gzip-only `.json.gz` in the UI.
+- Added optional severity to `ScrutinyWarning` and split result-panel messages
+  into informational run notes versus warnings/errors. Production static
+  snapshot and scenario-projection metadata now render as notes instead of
+  warning-looking messages.
+- Added `web/src/lib/politics/result-charts.ts` and
+  `web/src/lib/politics/PoliticsResultCharts.svelte`. The result panel now has
+  tested chart extraction/rendering for average seats, mean vote shares,
+  simulated valid-vote boxplots, list/coalition seat-vote scatter plots, list
+  spinograms, and a selectable plurinominal-college spinogram.
+- Removed the provisional global `fixed` UI/projection behavior. The active
+  scenario share mode is mean-only; older serialized `fixed` values normalize
+  to `mean` until fixed semantics get their own design pass.
+- Added a grouped historical correspondence editor in the scenario advanced UI.
+  It edits destination lists, split factors, deletion, and reset-to-default for
+  bundled historical election/list rows.
+- Added scenario projection from the web-native scenario into the generated
+  worker source, including explicit share overrides, proportional recalculation
+  for non-overridden active lists, historical/static/synthetic parameter source
+  reporting, and candidate slot generation from legal college grids.
+- Completed the current global mean-mode share override semantics: overridden
+  valid-vote shares are converted to elector fractions, all-overridden totals
+  that are not 100% are normalized with a warning, and overridden list
+  parameter `DATA` values are set to the worker/projection current date so
+  temporal drift starts from today.
+- Added typed local share override hooks and the advanced local override UI.
+  `Scenario.localShareOverrides` stores municipality/province/region list
+  valid-vote share overrides. Projection expands aggregate province/region rows
+  only in memory, weights covered municipalities by expected valid votes,
+  calibrates shares to the requested aggregate target while preserving
+  historical geographic variation, keeps local abstention fixed, and
+  recomputes local `DELTA` plus `DATA` before the existing vote generator
+  runs. The UI searches municipalities, provinces, and regions by name/code and
+  edits grouped location/list percentages.
+- Reworked the web page into a single-column scenario-then-results layout.
+  Primary user-facing summaries appear before diagnostics, with generated
+  pipeline details collapsed by default. The worker now delegates politics
+  result summarization to `result-presentation.ts` instead of keeping
+  presentation math in the orchestration layer.
+- Added the production politics vertical-slice guard.
+- Passed the current browser performance gate for 10, 100, and 1000 politics
+  simulations.
+
+## Decision Record Through 2026-06-05
+
+- SvelteKit/browser remains the primary migration target because it gives the
+  best usability and distribution story.
+- Architecture may change freely, but business/legal behavior must match R
+  unless Luca explicitly approves a correction.
+- Scrutiny code is the highest-risk migration surface. Keep law comments close
+  to translated logic, golden-master tests nearby, and `TODO(law-review)` on
+  suspicious parity-preserving behavior.
+- The web UI is the preferred long-term scenario editor. Excel scenarios do not
+  need to remain a first-class migrated input.
+- Scenario defaults come first from bundled defaults for election kind and
+  territory; if absent, use the most voted lists from the last same-kind
+  election in the same territory; if past coalitions are unavailable, each list
+  defaults to its own coalition.
+- Users should be able to specify only some global list shares. Unspecified
+  list shares should be recalculated from previous results and list
+  correspondences, preserving the current R model's intent.
+- Rich correspondence semantics are now defined: original historical votes are
+  projected into future lists per municipality/election; many originals can
+  aggregate into one future list; one original can split across future lists by
+  normalized factors; original abstention and unmapped original-list votes count
+  as `astensione`.
+- UI list percentages are percentages of valid votes, excluding abstention.
+  Internal pipeline fractions are elector fractions and must include
+  `astensione` to sum to 1. Abstention should be an advanced separate input,
+  not a normal scenario list.
+- User global share overrides in mean mode represent a current known
+  `P_{l,t-1}` for that list, with `data_{t-1}` set to today.
+- Fixed percentage behavior is deferred. A future globally fixed mode should
+  bypass random vote generation completely, treat all percentages as fixed,
+  and produce one deterministic vote distribution plus one scrutiny output; the
+  municipal distribution method must reflect historical local distribution
+  while guaranteeing the requested global percentages and is still to be
+  chosen. A future optional per-percentage fixed mode may remove uncertainty
+  for selected global shares or local deltas, but only after its interaction
+  with local variation is explicitly designed.
+- Location-specific percentages are first-class for municipalities, provinces,
+  and regions. Province/region rows stay compact in scenario JSON and are
+  expanded only during projection; region overrides apply first, then province,
+  then municipality, so more specific rows win. Candidate-template editing and
+  rich correspondence matrices remain advanced features to build only when the
+  underlying data contract is stable.
+- Scrutiny algorithms must remain modular and swappable. Keep the registry hook
+  even while there is only one registered politics algorithm.
+- Results UI should prioritize election outputs and keep diagnostic pipeline
+  tables behind an explicit detail/debug affordance.
+- Result charts should stay downstream of tested result-table/presentation
+  boundaries. Avoid putting computation-specific aggregation in Svelte
+  components; derive chart-friendly structures in small TypeScript helpers.
+- Result exports should preserve both the scenario that produced the run and
+  the worker result. CSV exports are table-oriented for spreadsheet use; JSON
+  exports are the durable structured format for reproducing or reviewing runs.
+- Worker messages should use severity deliberately: `info` for run metadata and
+  benign implementation notes, `warning` for scenario/projection/result issues
+  that may affect interpretation, and `error` for failed execution paths.
+- Data preparation should be migrated last. It should remain a periodic
+  devops/GitHub Actions workflow and stay agnostic about election kind. Typed
+  Python was retained as an option because `pydantic` or dataclasses with
+  `mypy`/`pyright`, plus `polars`, `pyarrow`, and optionally `numpy`, offer a
+  strong validation and columnar-performance path. The trade-off is losing the
+  install-free browser advantage unless the pipeline is paired with a server or
+  packaged desktop workflow, so the Python-versus-Node decision was deferred.
+
+## Verification Snapshot
+
+Latest full web verification on 2026-06-05:
+
+- `cd web; npx vitest run src/lib/scenario/politics.test.ts src/lib/politics/scenario-projection.test.ts src/lib/politics/parameter-preparation.test.ts`: passed, 31 tests.
+- `cd web; npx vitest run src/lib/politics/result-presentation.test.ts`: passed, 3 tests.
+- `cd web; npx vitest run src/lib/core/result-export.test.ts`: passed, 2 tests.
+- `cd web; npx vitest run src/lib/politics/result-charts.test.ts`: passed, 3 tests.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 156 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test, including the
+  advanced abstention, manual correspondence controls, result export buttons,
+  politics result charts, and the spinogram enlarged-overlay interaction. The
+  smoke test also checks that normal static-snapshot metadata is shown as an
+  informational note, with no warning block for the default edited scenario.
+
+Verification note: do not run `npm run build` and `npm run test:e2e` in
+parallel. Both commands touch SvelteKit build/prerender output and can produce a
+transient hashed-asset 404 even when each command passes alone.
+
+Current performance gate:
+
+| Workflow | Simulations | Elapsed | Fixture |
+| --- | ---: | ---: | --- |
+| R full politics workflow | 10 | 6.20 s | `test/fixtures/benchmarks/r_baseline_politics_10_compare.json` |
+| R full politics workflow | 100 | 19.58 s | `test/fixtures/benchmarks/r_baseline_politics_100_compare.json` |
+| R full politics workflow | 1000 | 151.96 s | `test/fixtures/benchmarks/r_baseline_politics_1000_compare.json` |
+| Chromium politics worker, R-exported static bridge | 10 | 1.357 s | `test/fixtures/benchmarks/browser_politics_worker.json` |
+| Chromium politics worker, R-exported static bridge | 100 | 13.194 s | `test/fixtures/benchmarks/browser_politics_worker.json` |
+| Chromium politics worker, R-exported static bridge | 1000 | 123.229 s | `test/fixtures/benchmarks/browser_politics_worker.json` |
+
+Gate result: pass. The 1000-simulation browser run is about 0.81x the fresh
+full R workflow elapsed time, far below the 10x stop threshold. Repeat the gate
+after major scenario/schema/snapshot/generation/scrutiny changes.
+
+## Caveats And Risks Snapshot (2026-06-05)
+
+- `web/src/lib/politics/scrutiny.ts` is large. Keep it stable while parity is
+  still being discovered; split it into stage-focused modules only when the
+  tested boundaries are clear.
+- Several politics `sorteggio` paths preserve R stable ordering where law
+  comments may imply random draws. These are marked `TODO(law-review)` where
+  found and should be reviewed with Luca before business correction.
+- The R candidate-only vote attribution appears inconsistent with its law
+  comment: the comment says highest remainders, while current R effectively
+  sorts `RESTO` ascending because `order()` receives six `decreasing` values
+  for five keys and ignores the final `TRUE`. TypeScript preserves R behavior
+  for parity.
+- The R subentro block has parity-sensitive behaviors that look accidental:
+  although `subentro(livello = "pluri", coal = TRUE)` and
+  `subentro(livello = "circ", coal = TRUE)` describe same-coalition searches,
+  the non-national plurinominal path calls `cerca_accettori(i)` without those
+  arguments. Later `merge()` calls implicitly include the retained
+  `CIFRA_PERCENTUALE` column as a join key, so ripescati uninominal candidates
+  with `NA` can fail to receive `ELETTI`. TypeScript preserves both for parity.
+- The production static snapshot is still an R-exported bridge, not the final
+  migrated data-preparation pipeline. The snapshot JSON is ignored by Git
+  because it is large and generated. Regenerate it with
+  `Rscript scripts/export_politics_static_snapshot.R`, then regenerate
+  dependent tracked defaults with
+  `node scripts/export_politics_scenario_defaults.mjs` and
+  `node scripts/export_politics_municipality_catalog.mjs` when the default
+  scenario or municipality metadata changes.
+- Bundled list correspondences in the generated default are durable metadata for
+  defaults and the current advanced editor. Editing a bundled row marks that row
+  manual; reset restores the generated default rows for that historical source.
+- `web/src/lib/politics/parameter-preparation.ts` is wired into projection and
+  the worker when raw historical votes are available. The editor now exposes real historical
+  split/merge factors, and projection treats candidate slots as independent
+  legal grid rows for every active scenario list.
+- `abstentionOverride` currently makes the global `astensione` parameter fixed
+  by setting its `SIGMA_GLOBAL` to zero. Local share overrides keep each
+  municipality's base abstention fraction fixed; there is not yet a separate
+  local abstention override schema or UI.
+- Fixed percentage modes are deliberately not active. The scenario schema keeps
+  the `globalShareMode` slot as `mean` for future extensibility, and legacy
+  serialized `fixed` values normalize back to `mean`.
+- `calcola_parametri_input.R` currently relies on exhaustive correspondence
+  rows. Its data.table join uses `nomatch = NULL`, so unmatched original-list
+  votes would be dropped from the calculated denominator instead of becoming
+  `astensione`. The current politics workbook is exhaustive, so this does not
+  affect the present default scenario, but the web implementation must not copy
+  this fragility.
+- New/unmatched scenario lists are ignored by the current static-snapshot
+  worker path unless they reuse one current source-model list through a declared
+  correspondence. The worker reports this as a warning.
+- Placeholder uninominal candidates may be generated when a matched scenario
+  list uses a coalition absent from the current candidate template. This keeps
+  the browser workflow runnable but needs final scenario/data semantics.
+- The generated worker path currently runs in 50-simulation chunks and is
+  capped at 1000 simulations. Revisit after columnar packaging or if larger UI
+  runs are needed.
+- `npm audit` reports 3 low-severity findings through SvelteKit's transitive
+  `cookie` dependency. The suggested automatic fix is a semver-major downgrade
+  to obsolete SvelteKit packages, so it has not been applied.
+
+## 2026-06-01 Checkpoint 2
+
+Completed after the initial scaffold commit:
+
+- Added Svelte 5 runes-mode guidance to `AGENTS.md`.
+- Fixed `scripts/export_politics_golden.R` so simulations serialize as arrays
+  and warning/message strings do not split into characters.
+- Regenerated `test/fixtures/politiche/debug_scrutinio.json`.
+- Added typed politics fixture/scrutiny types under `web/src/lib/politics`.
+- Ported the first politics scrutiny stage: uninominal candidate election.
+- Added golden parity tests for uninominal election across all 10 Camera and 10
+  Senato fixture simulations.
+- Refactored the scenario page to Svelte 5 runes style with `$state` and
+  `$derived`.
+- Fixed worker payload cloning by deriving a plain scenario snapshot before
+  `postMessage()`.
+
+Verification:
+
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm test`: passed, 27 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-01 Checkpoint 3
+
+Completed in the next scrutiny-port pass:
+
+- Extended `scripts/export_politics_golden.R` to export schema v2 fixtures with
+  early R trace tables for each Camera/Senato debug simulation.
+- Regenerated `test/fixtures/politiche/debug_scrutinio.json`.
+- Added TypeScript trace types for the early politics scrutiny stages.
+- Ported the early politics scrutiny pipeline:
+  - uninominal candidate election;
+  - candidate-only vote attribution to linked lists;
+  - uninominal list figures;
+  - plurinominal list figures and percentages;
+  - circumscription list figures;
+  - uninominal candidate percentages;
+  - circumscription totals.
+- Added golden parity tests for all early trace tables across all 10 Camera and
+  10 Senato debug simulations.
+- Preserved the current R remainder ordering for parity and added a
+  `TODO(law-review)` because the law comment says remainders should be ordered
+  descending while the current R call sorts them ascending.
+
+Verification:
+
+- `Rscript scripts/export_politics_golden.R`: passed.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm test`: passed, 47 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-01 Checkpoint 4
+
+Completed in the national-threshold scrutiny pass:
+
+- Extended `scripts/export_politics_golden.R` to export schema v3 fixtures with
+  national list figures, national/circumscription coalition figures, and
+  threshold/admission flags.
+- Regenerated `test/fixtures/politiche/debug_scrutinio.json`.
+- Added TypeScript trace types for:
+  - `liste_naz_soglie`;
+  - `liste_circ_soglie`;
+  - `coal_naz_soglie`;
+  - `coal_circ_cifre`;
+  - `totale_naz`.
+- Added `runPoliticsScrutinyTrace()` with ramo/list metadata context.
+- Ported national list/coalition figures and 1%/3%/10% threshold flags against
+  the R trace.
+- Added golden parity tests for the threshold trace across all 10 Camera and 10
+  Senato debug simulations.
+
+Verification:
+
+- `Rscript scripts/export_politics_golden.R`: passed.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm test`: passed, 67 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-01 Checkpoint 5
+
+Completed in the Camera national-riparto pass:
+
+- Extended `scripts/export_politics_golden.R` to export schema v4 fixtures with
+  nested `camera_riparto` traces.
+- Regenerated `test/fixtures/politiche/debug_scrutinio.json`.
+- Added TypeScript trace types for:
+  - Camera national proportional riparto;
+  - internal coalition/list riparto;
+  - Camera list-to-riparto-subject mapping.
+- Added the required `totali_pluri` and `totale_seggi` fields to
+  `PoliticsScrutinyContext`.
+- Ported Camera national proportional seat allocation and internal coalition
+  allocation to `runPoliticsScrutinyTrace()`.
+- Preserved R stable-order behavior for `sorteggio` tie cases and marked both
+  national and internal-coalition riparto paths with `TODO(law-review)`.
+- Extended golden parity assertions for all 10 Camera and 10 Senato debug
+  simulations. Senato intentionally receives empty/null `camera_riparto` traces
+  at this stage.
+
+Verification so far:
+
+- `Rscript scripts/export_politics_golden.R`: passed.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm test`: passed, 67 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-01 Checkpoint 6
+
+Completed in the subject-level circumscription riparto pass:
+
+- Extended `scripts/export_politics_golden.R` to export schema v5 fixtures with
+  nested `circ_riparto` traces.
+- Regenerated `test/fixtures/politiche/debug_scrutinio.json`.
+- Added TypeScript trace types for:
+  - circumscription totals with seats and quotients;
+  - list-to-riparto-subject mappings;
+  - subject-level circumscription allocation rows;
+  - Camera national reconciliation counters after circumscription allocation.
+- Ported the shared subject-level circumscription allocation:
+  - Camera: decimal allocation plus flipper reconciliation back to national
+    subject seats;
+  - Senato: regional remainder allocation.
+- The debug fixture exercises Camera flipper moves, so the reconciliation loop is
+  covered by golden parity tests.
+- Added `TODO(law-review)` for the Senato equal-remainder `sorteggio` path,
+  preserving R stable ordering for parity.
+
+Verification so far:
+
+- `Rscript scripts/export_politics_golden.R`: passed.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm test`: passed, 67 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-01 Checkpoint 7
+
+Completed in the internal list-in-coalition circumscription riparto pass:
+
+- Extended `scripts/export_politics_golden.R` to export schema v6 fixtures with
+  nested `internal_circ_riparto` traces.
+- Regenerated `test/fixtures/politiche/debug_scrutinio.json`.
+- Added TypeScript trace types for:
+  - admitted circumscription lists;
+  - internal subject/list quotients;
+  - list-level circumscription allocation rows;
+  - Camera list-level national reconciliation counters.
+- Ported internal list-in-coalition circumscription allocation:
+  - Camera: decimal allocation plus second flipper reconciliation back to
+    national list seats;
+  - Senato: regional remainder allocation inside each subject.
+- The debug fixture exercises Camera list-level flipper moves, so the second
+  reconciliation loop is covered by golden parity tests.
+- Preserved the R behavior that decrements the recipient list's
+  `SEGGI_ECCEDENTI_CONTATORE` during the Camera list-level flipper. This is
+  marked `TODO(law-review)` in TypeScript because it appears counterintuitive.
+- Added `TODO(law-review)` for the Senato internal equal-remainder `sorteggio`
+  path, preserving R stable ordering for parity.
+
+Verification so far:
+
+- `Rscript scripts/export_politics_golden.R`: passed.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm test`: passed, 67 tests.
+
+## 2026-06-01 Checkpoint 8
+
+Completed in the plurinominal riparto pass:
+
+- Extended `scripts/export_politics_golden.R` to export schema v7 fixtures with
+  nested `pluri_riparto` traces.
+- Regenerated `test/fixtures/politiche/debug_scrutinio.json`.
+- Added TypeScript trace types for:
+  - admitted plurinominal list rows;
+  - plurinominal college totals, quotients, and remaining seats;
+  - circumscription list reconciliation counters;
+  - final pre-subentro plurinominal seat rows.
+- Ported Camera and Senato plurinominal seat allocation before candidate
+  availability/subentro handling.
+- Preserved R stable ordering for equal decimal remainders/equal figures where
+  the law comments mention `sorteggio`; marked the path `TODO(law-review)`.
+- The debug fixture exercises the plurinominal reconciliation flipper: across
+  the 10 simulations it has 430 moved Camera rows and 162 moved Senato rows.
+- Noted the architecture goal that scrutiny algorithms should remain swappable
+  behind a stable interface. `scrutiny.ts` is large, but splitting is deferred
+  until the golden-tested stage boundaries are stable enough to make the
+  refactor safer.
+
+Verification so far:
+
+- `Rscript scripts/export_politics_golden.R`: passed.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm test`: passed, 67 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-01 Checkpoint 9
+
+Completed in the final direct-scrutiny output pass:
+
+- Added `runPoliticsScrutiny()` as the public TypeScript function that builds
+  final politics scrutiny output from the already-tested trace stages.
+- Ported candidate availability, candidate exhaustion/subentro passes,
+  pluricandidature resolution, and final
+  `liste_pluri`/`candidati_uni`/`candidati_pluri` projection.
+- Added golden parity tests for final direct scrutiny output across all 10
+  Camera and 10 Senato debug simulations.
+- Preserved two R behaviors that look accidental but affect parity:
+  - non-national same-coalition subentro calls do not pass `coal`/`livello` to
+    `cerca_accettori()`;
+  - after the first pluricandidature merge, `CIFRA_PERCENTUALE` remains on
+    `candidati_pluri` and becomes an implicit join key for later merges, so
+    late ripescati with `NA` may fail to receive `ELETTI`.
+- Both behaviors are marked `TODO(law-review)` in TypeScript and noted in
+  `AGENTS.md`.
+
+Verification so far:
+
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm test`: passed, 87 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-01 Checkpoint 10
+
+Completed in the worker direct-scrutiny bridge pass:
+
+- Added `scripts/export_politics_worker_snapshot.mjs`.
+- Generated `web/static/data/v1/politics-debug-scrutiny.json`, a compact
+  browser snapshot derived from the golden fixture with direct scrutiny inputs
+  and contexts only.
+- Updated `web/static/data/v1/metadata.json` to document the bridge snapshot.
+- Wired the worker to load the compact snapshot and run `runPoliticsScrutiny()`
+  for Camera and Senato debug simulations.
+- The worker now returns completed result tables for direct scrutiny runs and
+  average plurinominal list seats.
+- The worker deliberately warns with `POLITICS_SCENARIO_GENERATOR_PENDING`
+  because scenario-to-vote generation is not ported yet.
+- Updated the Playwright smoke test to assert the real worker scrutiny path.
+
+Verification so far:
+
+- `node scripts/export_politics_worker_snapshot.mjs`: passed.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm test`: passed, 87 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-01 Checkpoint 11
+
+Completed in the generated-input adapter pass:
+
+- Added `scripts/export_politics_adapter_fixture.R`.
+- Exported `test/fixtures/politiche/generated_adapter.json`, an 8.1 MB fixture
+  containing the R-style generated vote/candidate tables consumed by
+  `esegui_scrutini_politiche()`.
+- Added generated politics source table types and `web/src/lib/politics/adapter.ts`.
+- Ported the deterministic adapter boundary from generated R-style tables to:
+  - `PoliticsScrutinyContext`;
+  - per-simulation `PoliticsScrutinyInput`.
+- Preserved the R minority-list rule used before scrutiny: for Camera,
+  `REG_COD` is derived from `CIRC_COD` by removing the last two digits; for
+  Senato, `REG_COD` is `CIRC_COD`.
+- Added exact adapter parity tests against the existing direct R golden fixture
+  for Camera and Senato.
+
+Verification so far:
+
+- `Rscript scripts/export_politics_adapter_fixture.R`: passed.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm test`: passed, 92 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-01 Checkpoint 12
+
+Completed in the vote-preparation pass:
+
+- Added `scripts/export_politics_vote_preparation_fixture.R`.
+- Exported `test/fixtures/politiche/vote_preparation.json`, an 8.7 MB fixture
+  for the deterministic `prepara_dts()` boundary.
+- Added TypeScript source/output types for raw uninominal list votes, generated
+  uninominal candidates, and prepared politics vote tables.
+- Added `web/src/lib/politics/vote-preparation.ts`, porting:
+  - `astensione` filtering;
+  - uninominal college joins;
+  - list-to-coalition joins;
+  - uninominal candidate joins by simulation, college, and coalition;
+  - candidate-vote aggregation;
+  - filtering to plurinominal list/circumscription validity.
+- Preserved R/data.table order-sensitive behavior by keeping grouped candidate
+  vote totals and valid plurinominal rows in first-seen order.
+- Added exact parity tests against the R-produced fixture for Camera and Senato.
+
+Verification so far:
+
+- `Rscript scripts/export_politics_vote_preparation_fixture.R`: passed.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm test`: passed, 95 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-01 Checkpoint 13
+
+Completed in the generic vote-generation pass:
+
+- Added `scripts/export_vote_generation_fixture.R`.
+- Exported `test/fixtures/core/vote_generation.json`, a small synthetic trace
+  for the generic `genera_voti()` logic.
+- Added `createNormalSampler()` to `web/src/lib/core/rng.ts`, using the existing
+  seeded uniform RNG and Box-Muller transform for reproducible browser normal
+  draws.
+- Added `web/src/lib/core/vote-generation.ts`, porting:
+  - temporal distance calculation;
+  - global list-level normal draws;
+  - local delta normal draws;
+  - R/data.table-style expansion and join order;
+  - logit-to-probability normalization by simulation/locality;
+  - R-compatible half-to-even rounding for vote counts.
+- Added fixture parity tests that inject R-produced normal draw values, so the
+  TypeScript generator matches R formula and row order while production browser
+  runs remain seeded by TypeScript.
+
+Verification so far:
+
+- `Rscript scripts/export_vote_generation_fixture.R`: passed.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm test`: passed, 98 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-01 Checkpoint 14
+
+Completed in the politics vote-generation orchestration pass:
+
+- Added `scripts/export_politics_vote_generation_fixture.R`.
+- Exported `test/fixtures/politiche/vote_generation.json`, a compact synthetic
+  trace for `genera_voti_politiche()` orchestration.
+- Added politics vote-generation source and fixture types.
+- Added `web/src/lib/politics/vote-generation.ts`, porting:
+  - municipal list-parameter joins to political base data;
+  - unit-level vote generation through the generic core generator;
+  - Camera aggregation by `CU20_COD`;
+  - Senato aggregation by `SU20_COD`;
+  - handoff to `preparePoliticsVoteTables()` for R-compatible prepared vote
+    tables.
+- The synthetic fixture includes three municipalities, shared Camera/Senato
+  colleges, `astensione`, and a list valid in one plurinominal college but not
+  another, so aggregation and filtering paths are covered.
+- Added parity tests that inject R-produced normal draw values and reproducible
+  TypeScript-seed tests for browser runs.
+
+Verification so far:
+
+- `Rscript scripts/export_politics_vote_generation_fixture.R`: passed.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm test`: passed, 101 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-01 Checkpoint 15
+
+Completed in the politics candidate-generation pass:
+
+- Added `scripts/export_politics_candidate_generation_fixture.R`.
+- Exported `test/fixtures/politiche/candidate_generation.json`, a compact
+  synthetic trace for `genera_candidati()`.
+- Added candidate-generation source, output, sample-draw, and fixture types.
+- Added `web/src/lib/politics/candidate-generation.ts`, porting:
+  - validation for `frazioni_pluricandidature`;
+  - generated uninominal candidate IDs;
+  - random selection of uninominal candidates that may also appear in
+    plurinominal lists;
+  - coalition/list normalized percentage assignment;
+  - plurinominal candidate filling with Hare-Niemeyer fraction allocation;
+  - repeated plurinominal candidate reuse for pluricandidature;
+  - default generated-candidate birthdate cleanup.
+- The fixture includes fixed and generated uninominal candidates, fixed and
+  missing plurinominal slots, minority-list rows, uninominal-to-plurinominal
+  reuse, and repeated-candidate pluricandidature paths.
+- Added parity tests that replay R-recorded `sample()` outputs and verify every
+  sample population, sample size, replacement flag, and context.
+- Captured the R default generated-candidate date from the fixture because
+  `as.POSIXct("2000-01-01")` depends on the local timezone.
+
+Verification so far:
+
+- `Rscript scripts/export_politics_candidate_generation_fixture.R`: passed.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm test`: passed, 104 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-01 Checkpoint 16
+
+Completed in the composed politics pipeline pass:
+
+- Added `scripts/export_politics_pipeline_fixture.R`.
+- Exported `test/fixtures/politiche/pipeline.json`, a compact synthetic trace
+  that combines candidate generation, vote generation, `prepara_dts()` parity
+  behavior, and direct-scrutiny input adaptation.
+- Added `PoliticsPipelineSource` and related fixture/source types.
+- Added `web/src/lib/politics/pipeline.ts`, which builds a
+  `PoliticsDirectScrutinySnapshot` from:
+  - candidate generation;
+  - politics vote generation;
+  - generated-table adapter context;
+  - per-simulation direct scrutiny input splitting.
+- Added parity tests that replay both R `sample()` draws and R normal draws,
+  then compare the complete direct-scrutiny snapshot against R.
+- Preserved the R edge where candidate generation can propagate an `NA`
+  candidate into plurinominal slots when list assignment samples an empty
+  right-join row. This is noted in `AGENTS.md` as a business-review caveat.
+
+Verification so far:
+
+- `Rscript scripts/export_politics_pipeline_fixture.R`: passed.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm test`: passed, 107 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-01 Checkpoint 17
+
+Completed in the real-source pipeline smoke pass:
+
+- Added `scripts/export_politics_pipeline_source.R`.
+- Exported `test/fixtures/politiche/pipeline_source_debug.json`, a compact
+  politics generation-source snapshot derived from `dati/debug_scrutinio.RData`.
+- The fixture includes real debug-source lists, municipality/list parameters,
+  base college data, college maps, and fixed candidate tables for Camera and
+  Senato. It defaults to one simulation and can be overridden by tests or future
+  worker code.
+- Added `web/src/lib/politics/pipeline-source.test.ts`.
+- The new test builds a `PoliticsDirectScrutinySnapshot` from the real debug
+  source with seeded browser random draws, then runs `runPoliticsScrutiny()` for
+  Camera and Senato.
+- This was a smoke/equivalence-boundary test, not the browser performance gate.
+  At this checkpoint, the worker still ran the compact direct-scrutiny snapshot
+  bridge; Checkpoint 18 replaces that UI worker path with generated pipeline
+  execution.
+
+Verification:
+
+- `Rscript scripts/export_politics_pipeline_source.R`: passed.
+- `cd web; npx vitest run src/lib/politics/pipeline-source.test.ts src/lib/politics/pipeline.test.ts`: passed, 5 tests.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm test`: passed, 109 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-01 Checkpoint 18
+
+Completed in the generated worker integration pass:
+
+- Exported `web/static/data/v1/politics-pipeline-source-debug.json` from the
+  real debug generation-source fixture.
+- Updated `web/static/data/v1/metadata.json` to describe both the old direct
+  scrutiny bridge and the new generated pipeline source bridge.
+- Rewired `web/src/lib/workers/simulation.worker.ts` to:
+  - load the generated pipeline source snapshot;
+  - apply the request election date, seed, and simulation count;
+  - project scenario list shares by exact list-name matches;
+  - build a generated `PoliticsDirectScrutinySnapshot`;
+  - run Camera/Senato scrutiny on generated simulations.
+- Updated the scenario editor defaults to the real source list and coalition
+  names so edits map cleanly into the worker projection.
+- Updated the Playwright smoke test to assert the generated worker path.
+- Kept a conservative 100-simulation worker cap pending chunked execution and
+  browser performance benchmarking.
+
+Verification:
+
+- `Rscript scripts/export_politics_pipeline_source.R web/static/data/v1/politics-pipeline-source-debug.json`: passed.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm test`: passed, 109 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-01 Checkpoint 19
+
+Completed in the first browser performance-gate pass:
+
+- Added `web/playwright.benchmark.config.ts`.
+- Added `web/tests/benchmarks/politics-worker.spec.ts`.
+- Added `cd web; npm run benchmark:politics`, separate from the normal
+  Playwright smoke suite.
+- Added a stable `data-testid="elapsed-ms"` hook to the result elapsed-time UI.
+- The benchmark drives the built static app in Chromium, runs the generated
+  politics worker path for 10 and 100 simulations, asserts the generated
+  Camera/Senato run rows, and writes
+  `test/fixtures/benchmarks/browser_politics_worker.json`.
+- Re-ran fresh same-machine R politics baselines for comparison:
+  - `test/fixtures/benchmarks/r_baseline_politics_10_compare.json`
+  - `test/fixtures/benchmarks/r_baseline_politics_100_compare.json`
+- Current gate result: pass for the debug-source generated worker path.
+  Chromium ran 10 simulations in 1.248 s and 100 in 14.025 s, while fresh full
+  R politics baselines were 6.20 s and 19.58 s. This is far below the 10x stop
+  threshold, so there is no reason to switch to Python at this stage.
+
+Verification:
+
+- `Rscript scripts/benchmark_r_workflows.R --politics-sims=10 --municipal-sims=1 --regional-sims=1 --output=test/fixtures/benchmarks/r_baseline_politics_10_compare.json`: passed.
+- `Rscript scripts/benchmark_r_workflows.R --politics-sims=100 --municipal-sims=1 --regional-sims=1 --output=test/fixtures/benchmarks/r_baseline_politics_100_compare.json`: passed.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm test`: passed, 109 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+- `cd web; npm run benchmark:politics`: passed.
+
+## 2026-06-02 Checkpoint 20
+
+Completed in the chunked worker and 1000-simulation benchmark pass:
+
+- Raised the generated politics worker cap from 100 to 1000 simulations.
+- Added 50-simulation chunking inside `web/src/lib/workers/simulation.worker.ts`.
+- The worker now builds and scrutinizes one chunk at a time, remaps local chunk
+  simulations back to global simulation IDs, and keeps compact per-run summaries
+  instead of retaining every full scrutiny output until the end.
+- Updated `web/tests/benchmarks/politics-worker.spec.ts` to benchmark 10, 100,
+  and 1000 simulations.
+- Regenerated `test/fixtures/benchmarks/browser_politics_worker.json`.
+- Added fresh 1000-simulation full R politics baseline at
+  `test/fixtures/benchmarks/r_baseline_politics_1000_compare.json`.
+- Current gate result: pass for the debug-source generated worker path.
+  Chromium ran 1000 simulations in 122.608 s, while the fresh full R politics
+  baseline was 151.96 s. This remains far below the 10x stop threshold.
+
+Verification:
+
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 109 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+- `cd web; npm run benchmark:politics`: passed.
+- `Rscript scripts/benchmark_r_workflows.R --politics-sims=1000 --municipal-sims=1 --regional-sims=1 --output=test/fixtures/benchmarks/r_baseline_politics_1000_compare.json`: passed.
+
+## 2026-06-02 Checkpoint 21
+
+Completed in the production-shaped static snapshot bridge pass:
+
+- Added `scripts/export_politics_static_snapshot.mjs`.
+- Generated `web/static/data/v1/politics-static-debug.json` from the existing
+  debug pipeline-source bridge.
+- Added static snapshot and scenario snapshot TypeScript types:
+  - reusable data: `base_dati`, Camera/Senato uninominal colleges, and
+    Camera/Senato plurinominal colleges;
+  - default scenario: election date, list model parameters, municipality/list
+    model parameters, candidate-generation settings, and candidate templates.
+- Added `web/src/lib/politics/static-snapshot.ts` with
+  `buildPoliticsPipelineSourceFromSnapshot()`, keeping the existing internal
+  compute shape stable.
+- Added `web/src/lib/politics/static-snapshot.test.ts`, proving the split
+  static snapshot reconstructs the previous `PoliticsPipelineSource` exactly.
+- Rewired `web/src/lib/workers/simulation.worker.ts` to load
+  `politics-static-debug.json` instead of the older pipeline-source bridge.
+- Updated data metadata, browser smoke, and benchmark expectations to use
+  `POLITICS_DEBUG_STATIC_SNAPSHOT`.
+- Regenerated `test/fixtures/benchmarks/browser_politics_worker.json`; the
+  1000-simulation Chromium run is 131.616 s against the fresh full R baseline
+  of 151.96 s, still comfortably below the 10x stop threshold.
+
+Verification:
+
+- `node scripts/export_politics_static_snapshot.mjs`: passed.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 111 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+- `cd web; npm run benchmark:politics`: passed.
+
+## 2026-06-02 Checkpoint 22
+
+Completed in the first web-native scenario editor pass:
+
+- Added `web/src/lib/scenario/politics.ts` as the typed politics scenario
+  helper module.
+- Added default scenario construction, cloning, normalization, validation,
+  schema-v1 JSON serialization/parsing, and the versioned localStorage key.
+- Added `web/src/lib/scenario/politics.test.ts` with coverage for valid
+  defaults, JSON round-trips, malformed/partial scenarios, duplicate list
+  names, and unknown coalitions.
+- Reworked `web/src/routes/+page.svelte` around one `scenarioDraft` state
+  object instead of separate list/coalition arrays.
+- The page now supports:
+  - editing scenario name and election date;
+  - adding/removing/renaming coalitions;
+  - adding/removing lists and editing names, coalitions, colors, and global
+    shares;
+  - validation before worker execution;
+  - reset to defaults;
+  - JSON download/upload;
+  - automatic localStorage persistence.
+- The localStorage writer is side-effect-only and uses `$derived` snapshots; it
+  does not update state inside `$effect`.
+- Added unique default names for newly created lists/coalitions so repeated add
+  actions do not immediately create duplicate-name validation errors.
+- This is still the basic scenario editor slice. Partial override semantics,
+  past-to-future correspondences, location overrides, fixed/mean modes, and
+  candidate templates remain deferred until the next scenario model/data
+  packaging pass.
+
+Verification:
+
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 115 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+- Built-app desktop/mobile layout overflow check with Playwright: passed.
+
+## 2026-06-02 Checkpoint 23
+
+Completed in the scenario-to-worker projection pass:
+
+- Extended `ScenarioList` with `shareOverride`, making partial global share
+  overrides first-class in the scenario model.
+- Bumped the serialized politics scenario contract to schema v2 while keeping
+  old schema-v1 JSON compatible by defaulting missing override flags to
+  `false`.
+- Updated the UI so editing a list percentage automatically marks that list's
+  share as used, and added a compact per-list checkbox to enable/disable the
+  override.
+- Added `web/src/lib/politics/scenario-projection.ts`, a tested projection
+  boundary between the web-native scenario and the generated politics worker
+  source.
+- The projection now:
+  - removes static-snapshot source lists not present in the scenario;
+  - ignores and warns about scenario lists missing from the current snapshot;
+  - applies explicit global share overrides;
+  - recalculates non-overridden matched lists proportionally from source data;
+  - projects matched list coalitions into the generated source;
+  - creates placeholder generated uninominal candidates for newly named matched
+    coalitions, with a warning.
+- Rewired `web/src/lib/workers/simulation.worker.ts` to use the projection
+  helper and return a `Scenario projection` result table.
+- Updated the Playwright smoke test to edit `Partito Democratico` to 30%,
+  verify the override checkbox activates, run the worker, and assert the worker
+  output includes that projected scenario row.
+
+Verification:
+
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 121 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+- Built-app desktop/mobile layout overflow check with Playwright: passed.
+
+## 2026-06-02 Checkpoint 24
+
+Completed in the production static snapshot bridge pass:
+
+- Added `scripts/export_politics_static_snapshot.R`.
+- The exporter runs the current R politics preparation path:
+  - loads `dati/dati.RData` through `carica_dati()`;
+  - filters to `camera 2018`, `europee 2019`, `camera 2022`, and
+    `europee 2024`;
+  - computes `dati_collegi`;
+  - computes `parametri_input` from `scenari/politiche_2027.xlsx`;
+  - loads candidate templates with `carica_candidati()`;
+  - writes a split static snapshot with reusable data and `default_scenario`.
+- Exported `web/static/data/v1/politics-static.json`, about 12.5 MB.
+- Updated `web/static/data/v1/metadata.json` to list the production static
+  bridge snapshot.
+- Extended static snapshot TypeScript types for optional scenario metadata used
+  by future defaults/correspondence work: coalitions, historical list results,
+  and list correspondences.
+- Rewired the worker to prefer `/data/v1/politics-static.json` and fall back to
+  `/data/v1/politics-static-debug.json` if the production bridge is absent.
+- Updated the browser smoke and benchmark expectations from
+  `POLITICS_DEBUG_STATIC_SNAPSHOT` to `POLITICS_STATIC_SNAPSHOT`.
+- Updated visible politics scenario default shares to match the production
+  static snapshot's political-list percentages.
+- Re-ran the browser performance gate on the production static bridge:
+  - 10 simulations: 1.289 s;
+  - 100 simulations: 12.283 s;
+  - 1000 simulations: 125.006 s.
+- Gate result: pass. The 1000-simulation browser run remains below the fresh
+  full R politics baseline of 151.96 s and far below the 10x stop threshold.
+
+Verification:
+
+- `C:\Program Files\R\R-4.5.1\bin\Rscript.exe scripts/export_politics_static_snapshot.R`: passed.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 122 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+- `cd web; npm run benchmark:politics`: passed.
+
+## 2026-06-02 Checkpoint 25
+
+Completed in the first results-priority UI pass:
+
+- Updated `web/src/routes/+page.svelte` so user-facing result tables are
+  separated from diagnostic tables.
+- Prioritized `Average plurinominal seats by list` ahead of `Scenario
+  projection`, keeping the primary election summary visible first.
+- Hid `Generated pipeline runs` by default behind a `Mostra dettagli` /
+  `Nascondi dettagli` toggle.
+- Reset the diagnostics toggle on scenario reset, scenario load, and new worker
+  runs so repeated simulations start from the user-facing result view.
+- Updated the Playwright smoke test to assert that diagnostics are hidden until
+  the details toggle is opened.
+- Updated the browser benchmark test to open diagnostics explicitly before
+  counting generated Camera/Senato run rows.
+- Regenerated `test/fixtures/benchmarks/browser_politics_worker.json`; the
+  production static bridge benchmark remains below the R baseline and far below
+  the 10x stop threshold.
+
+Verification:
+
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 122 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+- Built-app desktop/mobile layout overflow check with Playwright: passed.
+- `cd web; npm run benchmark:politics`: passed, 10 simulations in 1.357 s,
+  100 simulations in 13.194 s, and 1000 simulations in 123.229 s.
+
+## 2026-06-03 Checkpoint 26
+
+Completed in the scrutiny-algorithm registry pass:
+
+- Added optional `scrutinyAlgorithmId` to `SimulationRequest` and
+  `SimulationBenchmark`.
+- Added `web/src/lib/politics/scrutiny-algorithms.ts`, registering
+  `politiche-r-parity-v1` as the default politics scrutiny algorithm.
+- Rewired the generated politics worker to resolve the algorithm through the
+  registry instead of importing `runPoliticsScrutiny()` directly.
+- Recorded the selected algorithm in benchmark metadata and added a fallback
+  warning for unknown requested algorithm IDs.
+- Added registry tests proving the default algorithm is registered, unknown IDs
+  fall back explicitly, and the default registry path calls the same
+  implementation as the direct R-parity scrutiny function.
+- Kept the UI selector deferred: there is still only one real politics
+  algorithm, so exposing a visible choice would add noise without user value.
+
+Verification:
+
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 125 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-04 Checkpoint 27
+
+Completed in the politics browser vertical-slice stabilization pass:
+
+- Added `web/src/lib/politics/vertical-slice.test.ts`.
+- The new guard loads the production `web/static/data/v1/politics-static.json`
+  snapshot and verifies that the UI default politics scenario:
+  - validates successfully;
+  - has the same active list names as the production snapshot;
+  - uses coalition names matching the production snapshot;
+  - keeps displayed list shares within a small rounding tolerance of the
+    snapshot's normalized political-list shares.
+- The same guard projects the default scenario into the production source,
+  verifies projection emits no warnings, builds one generated direct-scrutiny
+  snapshot, and runs the registered `politiche-r-parity-v1` algorithm for both
+  Camera and Senato.
+- This stabilizes the current politics browser slice before the scenario JSON
+  contract grows. Future changes to defaults, correspondences, projection,
+  generation, or algorithm registration should keep this test green or update
+  it deliberately with the changed contract.
+
+Verification:
+
+- `cd web; npx vitest run src/lib/politics/vertical-slice.test.ts`: passed, 2 tests.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 127 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-04 Checkpoint 28
+
+Completed in the politics scenario JSON contract maturation pass:
+
+- Bumped the politics scenario contract to schema v3.
+- Added typed scenario fields for:
+  - `defaultSource`, recording bundled/default provenance such as election
+    kind, territory, data version, and snapshot id;
+  - `globalShareMode`, currently `mean` or `fixed`;
+  - `listCorrespondences`, the future scenario-owned structure for
+    past-to-future list mappings.
+- Kept old saved scenario JSON compatible: v1/v2 payloads without the new
+  fields normalize to bundled politics defaults, `globalShareMode = "mean"`,
+  and no list correspondences.
+- Added validation for default-source metadata and malformed/duplicated list
+  correspondences. Correspondences may target active scenario lists or the
+  special `astensione` destination used by the existing R/static snapshot
+  bridge.
+- Implemented the first safe `globalShareMode = "fixed"` behavior in
+  `projectScenarioOntoPoliticsSource()`: active political list rows keep their
+  projected percentages but get `SIGMA_GLOBAL = 0`, while default `mean` mode
+  preserves existing stochastic behavior.
+- Added tests for v3 round-trip compatibility, malformed correspondences, old
+  schema compatibility, and mean/fixed projection behavior.
+- Updated the planned future steps so the next work uses the v3 contract for
+  improved defaults/projection instead of redoing the contract step.
+
+Verification:
+
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 130 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-04 Checkpoint 29
+
+Completed in the v3 scenario projection/defaults pass:
+
+- Extended `projectScenarioOntoPoliticsSource()` so scenario lists now resolve
+  against the static source in this order:
+  - homonymous source-model list name;
+  - one-to-one declared correspondence from a current source-model list to a
+    future scenario list.
+- Propagated correspondence-based list renames through:
+  - global list model rows;
+  - municipal list parameter rows;
+  - Camera/Senato plurinominal candidate templates;
+  - scenario projection result rows.
+- Added `sourceList` and `matchMode` to projection rows, and exposed them in
+  the worker `Scenario projection` result table. Users can now distinguish
+  homonymous matches, declared-correspondence matches, removed source rows, and
+  unmatched scenario rows.
+- Made unmatched/new list warnings more explicit: ignored scenario lists now
+  report that no homonymous source list or usable declared correspondence was
+  found.
+- Added manual stale-correspondence warnings. Bundled correspondence metadata is
+  allowed to remain quiet until it is used by richer default/projection logic.
+- Kept multi-source correspondence aggregation deferred. The current safe
+  bridge supports one current source-model list per future scenario list; split
+  factors and multi-list merges still need explicit semantics for combining
+  local deltas, variability, and candidate templates.
+
+Verification:
+
+- `cd web; npx vitest run src/lib/politics/scenario-projection.test.ts`: passed, 7 tests.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 132 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-04 Checkpoint 30
+
+Completed in the bundled scenario defaults pass:
+
+- Added `scripts/export_politics_scenario_defaults.mjs`.
+- Generated `web/src/lib/scenario/politics-defaults.generated.ts` from the
+  production `web/static/data/v1/politics-static.json` snapshot.
+- Rewired `web/src/lib/scenario/politics.ts` so the default politics scenario is
+  imported from the generated snapshot-derived module rather than maintained as
+  a hand-written object.
+- Preserved the editor's stable coalition order (`sinistra`, `centro`,
+  `destra`, `PaP`) while deriving names, shares, and bundled correspondences
+  from the static snapshot.
+- The generated default now carries the 95 bundled `corrispondenza_liste`
+  records from the R-exported production static scenario as typed schema-v3
+  `listCorrespondences`.
+- Updated scenario and vertical-slice tests so the generated default
+  correspondence metadata is part of the expected contract, while partial and
+  legacy saved JSON still normalize missing correspondences to an empty array.
+- Kept rich correspondence UI and multi-source correspondence aggregation
+  deferred. Bundled correspondences are metadata for defaults/future advanced
+  editing; the current projection continues to use homonymous and safe
+  one-to-one declared source-model matches.
+
+Verification:
+
+- `node scripts/export_politics_scenario_defaults.mjs`: passed.
+- `cd web; npx vitest run src/lib/scenario/politics.test.ts src/lib/politics/vertical-slice.test.ts`: passed, 10 tests.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 132 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-04 Checkpoint 31
+
+Completed in the first advanced scenario-control pass:
+
+- Added an `Impostazioni avanzate` expander to the politics scenario panel.
+- Added a segmented `Variabilita quote` control bound to
+  `scenarioDraft.globalShareMode`.
+- The control exposes the existing schema/projection behavior:
+  - `Media` keeps stochastic global list variation;
+  - `Fissa` uses the already-tested projection path that sets active political
+    list `SIGMA_GLOBAL` values to zero.
+- Kept the implementation event-driven and Svelte 5 runes friendly: no state is
+  updated from `$effect`, and the worker still receives a plain cloned scenario
+  snapshot.
+- Updated the Playwright smoke test to open the advanced section, choose
+  `Fissa`, and then run the worker path.
+- Updated the active plan so the next scenario task is the compact one-to-one
+  correspondence view/editor.
+
+Verification:
+
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+- `cd web; npm run test`: passed, 132 tests.
+- `cd web; npm run build`: passed.
+
+## 2026-06-04 Checkpoint 32
+
+Completed in the compact correspondence editor pass:
+
+- Added `createScenarioListCorrespondence()` and
+  `defaultPoliticsSourceModelListNames` to `web/src/lib/scenario/politics.ts`.
+- Added a compact manual list-correspondence editor inside the scenario
+  advanced section.
+- The editor supports the currently safe projection semantics only: one future
+  scenario list can reuse one current source-model list. It does not implement
+  multi-source aggregation or split-factor behavior.
+- Kept bundled correspondence metadata quiet during validation, so removing or
+  renaming a list does not produce validation errors for bundled mappings that
+  are not part of the user's manual edits.
+- Updated the Playwright smoke path to rename `+Europa`, add a manual
+  correspondence back to the `+Europa` source model list, and assert the worker
+  projection reports `declared-correspondence`.
+- Updated the active plan so the next scenario work is deciding richer
+  correspondence semantics or moving to candidate-template support.
+
+Verification:
+
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npx vitest run src/lib/scenario/politics.test.ts src/lib/politics/scenario-projection.test.ts`: passed, 17 tests.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+- `cd web; npm run test`: passed, 134 tests.
+- `cd web; npm run build`: passed.
+
+## 2026-06-04 Checkpoint 33
+
+Completed in the rich-correspondence audit and first data-contract pass:
+
+- Audited `R/calcolo_parametri_input.R` against the intended historical-list
+  correspondence semantics and `_spiegazione_metodo.qmd`.
+- Confirmed the current politics scenario output is substantially coherent
+  because `scenari/politiche_2027.xlsx` maps all 92 filtered historical
+  `(DATA, ELEZIONE, LISTA_ORIGINALE)` keys.
+- Recorded the important fragility: the R implementation uses
+  `nomatch = NULL` when joining historical votes to correspondences, so an
+  incomplete correspondence sheet would drop unmatched original-list votes
+  instead of sending them to `astensione`.
+- Decided to implement richer semantics in staged slices rather than one large
+  pass. The next implementation target is a tested TypeScript parameter
+  builder that explicitly maps unmapped original-list votes to `astensione`.
+- Upgraded `scripts/export_politics_static_snapshot.R` to write snapshot schema
+  v2 with `data.comuni_liste_elezioni`, the raw historical municipal list-vote
+  rows needed by the TypeScript parameter builder.
+- Regenerated `web/static/data/v1/politics-static.json` and the generated
+  default scenario module.
+- Added a snapshot test guard that the production static snapshot is schema v2
+  and carries the raw historical vote rows.
+- Added the correspondence, valid-vote display, abstention, override
+  normalization, fixed-mode, and local-delta requirements to `AGENTS.md`.
+
+Verification:
+
+- `C:\Program Files\R\R-4.5.1\bin\Rscript.exe scripts/export_politics_static_snapshot.R`: passed.
+- `node scripts/export_politics_scenario_defaults.mjs`: passed.
+- `cd web; npx vitest run src/lib/politics/static-snapshot.test.ts src/lib/politics/vertical-slice.test.ts`: passed, 5 tests.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 134 tests.
+- `cd web; npm run build`: passed.
+
+## 2026-06-04 Checkpoint 34
+
+Completed in the generated-data repo hygiene pass:
+
+- Stopped tracking large generated JSON snapshots and fixtures with
+  `git rm --cached`, while keeping Luca's local copies on disk.
+- Added explicit `.gitignore` entries for:
+  - `web/static/data/v1/politics-static.json`;
+  - `web/static/data/v1/politics-static-debug.json`;
+  - `web/static/data/v1/politics-pipeline-source-debug.json`;
+  - `web/static/data/v1/politics-debug-scrutiny.json`;
+  - `test/fixtures/politiche/debug_scrutinio.json`;
+  - `test/fixtures/politiche/generated_adapter.json`;
+  - `test/fixtures/politiche/pipeline_source_debug.json`;
+  - `test/fixtures/politiche/vote_preparation.json`.
+- Kept small generated code and small synthetic fixtures tracked, including
+  `web/src/lib/scenario/politics-defaults.generated.ts`,
+  `test/fixtures/politiche/pipeline.json`,
+  `test/fixtures/politiche/candidate_generation.json`, and
+  `test/fixtures/politiche/vote_generation.json`.
+- Added `web/src/lib/test/generated-fixtures.ts` so tests that depend on large
+  generated JSON artifacts skip clearly when the local generated files are
+  absent.
+- Gated snapshot-dependent Vitest suites, the Playwright smoke test, and the
+  politics worker benchmark on the presence of generated static snapshot data.
+- Documented the policy in `AGENTS.md`: large generated data belongs outside
+  normal Git, while scripts and small generated code/fixtures remain tracked.
+
+Verification with local generated artifacts present:
+
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 134 tests.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+- `cd web; npm run build`: passed.
+
+## 2026-06-04 Checkpoint 35
+
+Completed in the first rich-correspondence implementation slice:
+
+- Added `web/src/lib/politics/parameter-preparation.ts`.
+- Ported the deterministic `calcola_parametri_input()` parameter math from raw
+  historical municipal votes to TypeScript:
+  - historical original-list votes are projected into future-list rows;
+  - multiple original lists can aggregate into one future list;
+  - one original list can split into several future lists by normalized
+    correspondence factors;
+  - original `astensione` and unmapped original-list votes become
+    `astensione`;
+  - global list/election percentages, logits, and global drift sigmas are
+    computed;
+  - municipal deltas and local drift sigmas are computed.
+- Added `web/src/lib/politics/parameter-preparation.test.ts` with synthetic
+  split/merge/unmapped-to-abstention tests.
+- Added a gated production parity test that rebuilds the R-exported default
+  politics `liste`, `liste_elezioni`, and `comuni_liste` from
+  `data.comuni_liste_elezioni` when local ignored `politics-static.json`
+  exists.
+- Kept the builder deliberately unwired from the worker for now. The current
+  compact correspondence UI maps to the static source model, while this builder
+  expects real historical election/list correspondences.
+
+Verification with local generated artifacts present:
+
+- `cd web; npx vitest run src/lib/politics/parameter-preparation.test.ts`: passed, 3 tests.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 137 tests.
+- `cd web; npm run build`: passed.
+
+## 2026-06-04 Checkpoint 36
+
+Completed in the rich-parameter projection wiring slice:
+
+- Wired `web/src/lib/politics/parameter-preparation.ts` into
+  `web/src/lib/politics/scenario-projection.ts`.
+- Updated projection so schema-v2 raw historical municipal votes rebuild
+  `liste` and `comuni_liste` before vote generation.
+- Preserved the current compact correspondence UI by treating
+  `pastElection = "politics-static source model"` as source-model template
+  reuse. Historical/bundled correspondences are retargeted through those active
+  source-model mappings before the parameter builder runs.
+- Restricted source-model list reuse to the explicit special election label, so
+  real historical correspondences are no longer accidentally interpreted as
+  candidate-template reuse instructions.
+- Wired the worker and production vertical-slice test to pass
+  `data.comuni_liste_elezioni` and `percentualiPartenza = "europee"` into
+  projection.
+- Added a scenario-projection integration test proving a renamed source-model
+  list receives retargeted historical parameters.
+
+Verification with local generated artifacts present:
+
+- `cd web; npx vitest run src/lib/politics/scenario-projection.test.ts`: passed, 8 tests.
+- `cd web; npx vitest run src/lib/politics/parameter-preparation.test.ts src/lib/politics/scenario-projection.test.ts src/lib/politics/vertical-slice.test.ts`: passed, 13 tests.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 138 tests.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+- `cd web; npm run build`: passed.
+
+## 2026-06-04 Checkpoint 37
+
+Completed in the valid-vote share and abstention slice:
+
+- Extended the shared `Scenario` contract with schema-v4
+  `abstentionShare` and `abstentionOverride` fields.
+- Updated `scripts/export_politics_scenario_defaults.mjs` so generated default
+  politics scenarios carry the bundled abstention percentage over electors.
+- Regenerated `web/src/lib/scenario/politics-defaults.generated.ts`.
+- Updated scenario normalization and validation so old JSON stays compatible
+  and invalid abstention percentages are rejected.
+- Added an advanced scenario UI control for abstention as a percentage of
+  electors, with its own `Usa` checkbox. Editing the value automatically marks
+  it as used.
+- Updated projection so list shares remain valid-vote percentages in the UI but
+  are converted to internal elector fractions using the active abstention
+  fraction. Overridden abstention fixes the global `astensione` parameter by
+  setting `SIGMA_GLOBAL = 0`.
+- Added tests for schema-v4 round-tripping, abstention validation, projection
+  conversion, and the Playwright smoke path.
+
+Verification with local generated artifacts present:
+
+- `cd web; npx vitest run src/lib/scenario/politics.test.ts src/lib/politics/scenario-projection.test.ts src/lib/politics/vertical-slice.test.ts`: passed, 22 tests.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 140 tests.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+- `cd web; npm run build`: passed.
+
+## 2026-06-04 Checkpoint 38
+
+Completed in the R-style politics result presentation slice:
+
+- Extended `web/src/lib/politics/result-presentation.ts` so each scrutiny run
+  also exposes chart-ready list seat-vote points, coalition seat-vote points,
+  and plurinominal-college seat-vote points.
+- Added internal plot-data result tables for list, coalition, and
+  plurinominal-college charts. These are hidden from the main table stack but
+  remain part of the worker result for charting and export reproducibility.
+- Rebuilt `web/src/lib/politics/result-charts.ts` around the R presentation
+  plots in `R/presentazione_risultati.R` and
+  `R/politiche/presentazione_risultati/grafico_eletti_pluri.R`: summary bars,
+  valid-vote boxplots, list/coalition seat-vote scatter plots, list spinograms,
+  and a selectable plurinominal-college spinogram using `NUMERO_MAX`.
+- Added `web/src/lib/politics/PoliticsResultCharts.svelte` to render the chart
+  model downstream of tested TypeScript helpers.
+- Rearranged `web/src/routes/+page.svelte` into a single-column layout with
+  scenario controls above results. Result chart sections can still arrange
+  chart panels side by side on large screens.
+- Kept plot-data tables out of the visible primary and diagnostic table stacks.
+
+Verification with local generated artifacts present:
+
+- `cd web; npm run test -- src/lib/politics/result-presentation.test.ts src/lib/politics/result-charts.test.ts`: passed, 6 tests.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 156 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-05 Checkpoint 39
+
+Completed in the spinogram refinement slice:
+
+- Reversed spinogram color ordering so larger seat counts receive darker
+  colors and lower counts receive lighter colors.
+- Added contrast-aware spinogram cell labels so dark cells render white text.
+- Added valid-vote percentage break labels on the spinogram x axis.
+- Added click-to-enlarge spinogram overlays, including the selectable
+  plurinominal-college chart.
+- Extended the Playwright smoke test to open and close an enlarged spinogram.
+
+Verification with local generated artifacts present:
+
+- `cd web; npm run test -- src/lib/politics/result-charts.test.ts`: passed, 3 tests.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 156 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 1 Playwright test.
+
+## 2026-06-05 Checkpoint 40
+
+Completed in the historical correspondence editor slice:
+
+- Replaced the compact source-model correspondence editor with grouped
+  historical correspondence controls in the advanced scenario panel.
+- Added scenario helpers for historical correspondence grouping, split/delete,
+  reset-to-default, and list rename/removal cascades through correspondences,
+  local share overrides, and plurinominal candidate templates.
+- Removed the old `politics-static source model` projection concept from the
+  web scenario path.
+- Updated projection so every active scenario list receives vote parameters
+  from historical correspondences when raw history is available, and candidate
+  slots are generated independently from the legal uninominal/plurinominal
+  college grids.
+- Updated the worker projection table and Playwright smoke path to report
+  historical/static/synthetic parameter sources instead of source-model
+  matches.
+
+Verification with local generated artifacts present:
+
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 162 tests.
+- `cd web; npm run test:e2e`: passed, 4 Playwright tests.
+
+## 2026-06-05 Checkpoint 41
+
+Completed in the advanced candidate-generation settings slice:
+
+- Extended the shared politics `Scenario` contract to schema v7 with
+  `candidateGeneration.uninominalToPlurinominalShare` and friendly
+  exact-candidacy-count shares for plurinominal pluricandidatures.
+- Added scenario conversion helpers between exact candidate-count shares and the
+  R-compatible `frazioni_pluricandidature` slot-layer vector.
+- Updated generated politics defaults so the bundled scenario derives the
+  friendly candidate-generation settings from the static snapshot.
+- Wired scenario projection to override `frazione_uni_in_pluri` and
+  `frazioni_pluricandidature` before worker candidate generation.
+- Added advanced UI controls for uninominal-to-plurinominal reuse and the
+  five-value exact-candidacy distribution.
+- Tightened candidate-generation validation to require five finite,
+  non-negative, non-increasing internal fractions summing to 1.
+
+Verification with local generated artifacts present:
+
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 166 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 4 Playwright tests.
+
+## 2026-06-05 Checkpoint 44
+
+Completed in the rich candidate-template editor slice:
+
+- Upgraded the production static snapshot bridge to schema v4 by preserving
+  `CIRC_DEN`, `PLURI_DEN`, `UNI_DEN`, and plurinominal `MAX_CANDIDATI` from
+  the R college builder.
+- Added `scripts/export_politics_candidate_slots.mjs` and
+  `web/src/lib/scenario/politics-candidate-slots.generated.ts`, a compact
+  named-college catalog for candidate-slot selection in the UI.
+- Added scenario helpers for candidate-template create/upsert/update/remove
+  behavior and coalition rename/removal cascades through uninominal templates.
+- Added the advanced `Candidati` editor: slot-by-slot uninominal and
+  plurinominal candidate pins, searchable named college slots, candidate
+  number/minority controls for plurinominal rows, editable grouped rows, and
+  duplicate-slot validation through the existing scenario contract.
+- Extended the Playwright smoke path to add one Camera uninominal candidate
+  and one Camera plurinominal candidate before running the worker.
+
+Verification with local generated artifacts present:
+
+- `C:\Program Files\R\R-4.5.1\bin\Rscript.exe scripts/export_politics_static_snapshot.R`: passed.
+- `node scripts/export_politics_scenario_defaults.mjs`: passed.
+- `node scripts/export_politics_candidate_slots.mjs`: passed.
+- `node scripts/export_politics_municipality_catalog.mjs`: passed.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 175 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 4 Playwright tests.
+
+## 2026-06-05 Checkpoint 43
+
+Completed in the province/region local override slice:
+
+- Extended local share override scopes from municipalities to municipalities,
+  provinces, and regions while keeping the same
+  `Scenario.localShareOverrides` JSON array shape.
+- Updated scenario normalization, validation, grouping, upsert, update, and
+  removal helpers so rows are keyed by `(scope, locationCode, list)` and old
+  municipality-only JSON remains compatible.
+- Passed the static municipality catalog into scenario projection and used it
+  to resolve province/region coverage. If catalog metadata is missing or a
+  location code cannot be matched, aggregate local rows warn and are ignored.
+- Added aggregate projection calibration for province/region overrides:
+  municipalities are weighted by expected valid votes, local abstention stays
+  fixed, requested valid-vote shares are matched with multiplicative
+  adjustments, and adjusted municipal `DELTA`/`DATA` rows are written only in
+  the projected worker source.
+- Applied scope precedence in projection: region first, then province, then
+  municipality. More specific overrides win, and overlap warnings explain when
+  a broader aggregate may no longer match exactly.
+- Extended the advanced `Quote locali` UI with an area selector, searchable
+  municipality/province/region options, and grouped override rows that show the
+  covered municipality count for aggregate locations.
+
+Verification with local generated artifacts present:
+
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 171 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 4 Playwright tests.
+
+## 2026-06-05 Checkpoint 42
+
+Completed in the candidate-generation defaults refinement:
+
+- Updated the advanced scenario UI so the "exactly 1 candidacy" share is
+  disabled and recalculated from the editable exactly 2-5 candidacy shares.
+- Clamped editable pluricandidature shares in the UI so normal edits keep the
+  stored five-value distribution summing to 1.
+- Updated `scripts/export_politics_static_snapshot.R` to use the current
+  `politiche_2027.qmd` defaults: `frazione_uni_in_pluri = 0.35` and
+  `frazioni_pluricandidature = c(0.8, 0.1, 0.05, 0.03, 0.02)`.
+- Regenerated `web/static/data/v1/politics-static.json` locally and then
+  regenerated `web/src/lib/scenario/politics-defaults.generated.ts`; the
+  friendly default exact-candidacy distribution is now
+  `[0.875, 0.0625, 0.025, 0.0125, 0.025]`.
+
+Verification with local generated artifacts present:
+
+- `C:\Program Files\R\R-4.5.1\bin\Rscript.exe scripts/export_politics_static_snapshot.R`: passed.
+- `node scripts/export_politics_scenario_defaults.mjs`: passed.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 166 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 4 Playwright tests.
+
+## 2026-06-06 Checkpoint 45
+
+Completed in the Emilia-Romagna regional workflow migration:
+
+- Added `scripts/export_regional_er_static_snapshot.R`,
+  `scripts/export_regional_er_golden.R`, and
+  `scripts/export_regional_er_scenario_defaults.mjs`.
+- Exported local generated regional artifacts:
+  `web/static/data/v1/regional-er-static.json` and
+  `test/fixtures/regionali-er/debug_scrutiny.json`. Both follow the politics
+  storage policy and remain ignored; the small generated default scenario
+  `web/src/lib/scenario/regional-er-defaults.generated.ts` is tracked.
+- Updated `web/static/data/v1/metadata.json` and `.gitignore` for the regional
+  snapshot and golden fixture.
+- Split the app routes: `/` is now the election selector, the existing politics
+  editor moved to `/politics`, and `/emilia-romagna` hosts the regional editor.
+- Added regional scenario helpers and UI for metadata, coalitions, lists,
+  abstention, historical correspondences, local overrides, validation,
+  import/export, charts, and result tables. Candidate controls are intentionally
+  absent because Emilia-Romagna regional multiple candidacy is forbidden in this
+  workflow slice.
+- Added `web/src/lib/regional-er/` modules for static snapshot loading,
+  scenario projection, shared vote generation, pipeline adaptation, scrutiny,
+  result presentation, result charts, and chart rendering.
+- Ported `scrutinio_regionali_ER` to TypeScript with law comments near the
+  translated logic for provincial population seats, 3%/5% thresholds,
+  provincial quotient allocation, regional residual recovery, majority
+  bonus/guarantee, runner-up reservation, and province-level placement with
+  candidate caps.
+- Preserved the current R regional starting-point behavior: the default path
+  uses `scenari/BO_insieme.xlsx` and does not force
+  `percentuali_partenza = "europee"`, despite the older `.qmd` prose.
+- Extended the simulation worker with separate politics and regional dispatch.
+  The regional path requires `/data/v1/regional-er-static.json`, runs in
+  50-simulation chunks, and is capped at 1000 simulations.
+- Added golden parity tests, a regional production vertical slice test, a
+  regional e2e smoke test, a landing-page selector e2e, and a regional browser
+  benchmark.
+
+Benchmark snapshot with local generated artifacts present:
+
+| Workflow | Simulations | Elapsed | Source |
+| --- | ---: | ---: | --- |
+| R Emilia-Romagna regional workflow | 1000 | 7.78 s | `test/fixtures/benchmarks/r_baseline_regional_er_1000_compare.json` |
+| Chromium regional worker, R-exported static bridge | 10 | 0.211 s | `test/fixtures/benchmarks/browser_regional_er_worker.json` |
+| Chromium regional worker, R-exported static bridge | 100 | 0.557 s | `test/fixtures/benchmarks/browser_regional_er_worker.json` |
+| Chromium regional worker, R-exported static bridge | 1000 | 6.405 s | `test/fixtures/benchmarks/browser_regional_er_worker.json` |
+
+Verification with local generated artifacts present:
+
+- `C:\Program Files\R\R-4.5.1\bin\Rscript.exe scripts/export_regional_er_static_snapshot.R`: passed.
+- `C:\Program Files\R\R-4.5.1\bin\Rscript.exe scripts/export_regional_er_golden.R`: passed.
+- `node scripts/export_regional_er_scenario_defaults.mjs`: passed.
+- `cd web; npm run check`: passed with 0 warnings.
+- `cd web; npm run test`: passed, 187 tests.
+- `cd web; npm run build`: passed.
+- `cd web; npm run test:e2e`: passed, 6 Playwright tests.
+- `cd web; npm run benchmark:regional-er`: passed.
+- `C:\Program Files\R\R-4.5.1\bin\Rscript.exe scripts/benchmark_r_workflows.R --politics-sims=1 --municipal-sims=1 --regional-sims=1000 --output=test/fixtures/benchmarks/r_baseline_regional_er_1000_compare.json`: passed.
+
+## 2026-10-16 Politics reform implementation documentation
+
+Completed documentation only, following Luca's approved implementation proposal
+and three additional requests for modelling discussions:
+
+- Added [`politics-reform-2026-plan.md`](politics-reform-2026-plan.md) with
+  21 pending steps, dependencies, legal function boundaries, test cases, and
+  acceptance criteria. The steps retain the original 18-stage scope and add
+  three explicit modelling decisions before dependent production generation.
+- Added [`politics-reform-2026-modelling.md`](politics-reform-2026-modelling.md)
+  to isolate the decisions on bonus-only ballots, preferences, and Camera-Senato
+  differences. No statistical model was selected or implemented.
+- Preserved Luca's proposal to interpret generated list votes as final totals
+  including redistributed bonus-only votes. Required checks distinguish exact
+  representation equivalence, integer/geographic attribution effects, and
+  sensitivity to unobserved behavior; they cannot establish empirical absence
+  of bias without calibration data. Double redistribution is explicitly excluded.
+- Documented missing-preference alternatives and their effects on candidate
+  identities, multiple elections, exhaustion, and final filled seats. Documented
+  chamber-dependence alternatives and their effect on the joint bonus condition.
+- Linked the focused plan and decisions from `MIGRATION_PLAN.md` and the reform
+  transcription. Retained stable guidance in `AGENTS.md` and kept narrative here.
+- Kept all reform steps unchecked. Normative concordance, modelling decisions,
+  legal scrutiny, generators, worker, and UI remain future work. The quoted legal
+  transcription was not changed.
+
+Verification:
+
+- `git diff --check`: passed; Git emitted only LF-to-CRLF conversion notices.
+- A read-only Python check validated 37 local Markdown file/section links in
+  the active migration plan and three reform documents, all 21 ordered step
+  headings and matching unchecked entries, and exact preservation of the legal
+  transcription from its original introductory paragraph onward against `HEAD`.
+- Changes are limited to Markdown documentation. Application tests, builds,
+  benchmarks, and normative source reconciliation were not run for this task.
+
+## 2026-10-16 R26-01: normative specification and provisional decisions
+
+Completed the specification and updated it to Luca's requested scope:
+
+- The [transcription](politics-reform-2026.md) is the current consolidated
+  operative source for all and only statutory provisions translated within the
+  domestic initial-scrutiny scope. Promulgated law and official corrections
+  control conflicts with other official sources. Provisional interpretations
+  remain separate in the [specification](politics-reform-2026-specification.md).
+- Included constitutional elective totals, foreign-seat endowments, population
+  apportionment and electorate/candidate ages; majority age; single-chamber
+  candidatures; applicable territorial/list coverage; ordinary and special
+  vote attribution, allocations, proclamations and initial recovery. The
+  promulgated Bolzano U04-U06 mapping contains 116 municipalities.
+- Kept filing/signature/symbol procedures, individual ballot adjudication,
+  foreign scrutiny and later supplementary elections outside the transcription's
+  operational scope. Large unchanged geography/census tables remain sourced
+  input catalogs rather than duplicated algorithmic text.
+- The specification contains 29 norm-to-function/test boundaries and nine
+  interpretation/data policies. Test IDs are obligations for later coding,
+  not application tests executed during this documentation task.
+- Legal-source review uses Law 9 October 2026, no. 180 (26G00201, GU 235),
+  the A.C. 2822-B dossier and parliamentary erratum, and the Presidency of the
+  Republic's constitutional text. The reform enters into force on 24 October.
+  The dated source register records the local/official comparison PDF hashes.
+
+Luca's provisional decisions, recorded on 16 October 2026 and revisable when
+further legal evidence arises:
+
+- I03: after all express legal criteria, resolve an otherwise unspecified tie
+  with an injected seeded draw and report a warning in every affected simulation.
+  Preserve tied alternatives, draw context and outcome; do not override express
+  preference-list order or age criteria.
+- I05: apply symmetry, truncating both majority and minority Camera cap indices
+  at six decimals before normalization.
+- I06: resolve equal Senate cap-removal ranks by warned seeded draw; trace
+  used/unused state and never reuse a remainder for another award/removal.
+- I07: add pending R26-01a before R26-02 to research any relevant past Senate
+  recovery case, establish its primary-source outcome and legal applicability,
+  and record the supported provisional recovery reading and tests. No such
+  precedent is asserted or researched as completed in this documentation update.
+- I08: until the election decree exists, generate provisional seat tables from
+  the latest legally declared population census, applying constitutional/special
+  constraints and the documented interim population quota/remainder method.
+  The identified baseline is DPR 20 January 2023's legal population at
+  31 December 2021; recheck the applicable latest source at R26-07 generation.
+  Label/version census-based tables and replace them with verified decree
+  tables when available, preserving replay of prior runs.
+
+Plan changes:
+
+- Only R26-01 is complete. R26-01a is the next step and R26-02 depends on it;
+  no modelling decision, legal implementation, generator, worker or UI step
+  was implemented here. Relevant downstream directives now carry the provisional
+  policies, warnings and seat-table provenance.
+- After completion of all web simulator/data-preparation migration work, plan
+  foreign-seat simulation, historical Senate-result modelling if not already
+  delivered through R26-04 (accounting for the voter-age change), and
+  away-from-home voter distribution. R26-04 first audits available source data;
+  statistical choices remain pending.
+
+Verification of the updated documents:
+
+- Read-only checks passed for 56 local file/section links across the root plan
+  and four reform documents; 22 ordered reform checklist entries with only
+  R26-01 complete; R26-01a before and required by R26-02; all N01-N29 and I01-I09
+  rows; and the provisional policy, warning and scope references.
+- Checked 23 retained scrutiny article bodies for content consistency after
+  source/typography normalization. Compared constitutional articles 56-58 and
+  the added C18-bis(2-ter), S9(2-bis), S11(3-bis) excerpts directly with downloaded
+  official text, normalizing publication typography only.
+- Confirmed the Bolzano table reproduces the promulgated annex's 116 distinct
+  municipality entries: U04 has 2, U05 has 59 and U06 has 55. The table preserves
+  the source's bilingual names; geography joins still belong to R26-07.
+- Exact rational checks passed for bonus-only attribution, integer versus
+  non-truncated quotas, six-decimal truncation and the 314/154/220/113 seat
+  identities. These are documentation checks, not implemented reform tests.
+- `git diff --check`: passed. Application tests/build/browser checks were not
+  run because all changes are Markdown; application behavior and generated
+  data remain unchanged. Temporary source/review scripts stayed outside the
+  repository. The Senate precedent search and census-table generation remain
+  pending in their own steps.
+
+## 2026-10-16 R26-01a: Senate recovery precedents and approved I07
+
+Completed the requested primary-source research and, after Luca approved the
+proposal, recorded the provisional [I07 protocol and worked fixture expectations](politics-reform-2026-specification.md#senate-initial-recovery-i07).
+This completes the research decision step, not recovery implementation. It
+supersedes the pending-I07 status in the preceding R26-01 entry. R26-02 is the
+next discussion; all subsequent implementation steps remain open.
+
+### Initial exhaustion: Sicily to Umbria, Pavanelli (2019)
+
+The 2018 Senate election left a proportional M5S seat in Sicilia-02 unfilled
+because the list's candidates were exhausted. Candidates already elected in
+uninominal seats, including Nunzia Catalfo, could not fill that additional seat;
+there were no remaining eligible regional candidates and M5S had no coalition
+partner to receive it.
+
+The Giunta delle elezioni e delle immunità parlamentari adopted its proposed
+solution on 26 June 2019. The Assembly approved **Doc. XVI no. 2 on 31 July 2019**;
+the Giunta identified Emma Pavanelli in Umbria and the President proclaimed her
+that day. This was an initial-allocation deficiency resolved later during
+verification of powers, rather than a seat vacated during the term.
+
+Primary evidence:
+
+- [Doc. XVI no. 2, majority report](https://www.senato.it/service/PDF/PDFServer/DF/346068.pdf),
+  particularly pp. 7-9, and the [relator's explanation on 25 July 2019](https://www.senato.it/show-doc?id=1119720&idoggetto=0&leg=18&part=doc_dc-ressten_rs-gentit_ddddxn2rgeeissnars&tipodoc=Resaula):
+  regional same-list recovery, then the then-existing unsuccessful-uninominal
+  recovery, then regional coalition recovery; only after those failed, residual
+  S19(2)/C86/C84(4) recovery for the same list in another region, selected by the
+  greatest unused quotient remainder.
+- [Official procedure and outcome](https://www.senato.it/legislature/18/leggi-e-documenti/attivita-non-legislative/procedure?documentoId=42318),
+  [Assembly proceedings of 31 July 2019](https://www.senato.it/show-doc?id=1120170&leg=18&part=doc_dc&tipodoc=Resaula)
+  and [Pavanelli's official profile](https://www.senato.it/leg/18/BGT/Schede/Attsen/00034677.htm)
+  establish the actual transfer and proclamation in Umbria. Her later
+  convalidation date is distinct from the 2019 proclamation.
+
+This supplies a relevant parliamentary precedent for an initial unfilled seat
+crossing a regional boundary as a residual remedy. The outcome was contested;
+it is not a judicial determination that every such transfer is constitutional.
+
+### Later vacancy: Veneto to Calabria, Minasi (2021)
+
+Lega senator Paolo Saviane died on 20 August 2021. With Lega candidates exhausted
+in Veneto, the Giunta on **11 November 2021** rejected the proposal to replace
+him with the regional coalition partner's Bartolomeo Amidei (FdI), and adopted
+the same-list cross-region solution of Clotilde Minasi (Lega) in Calabria.
+The Assembly approved **Doc. XVI no. 7 on 2 December 2021**, and Minasi was
+proclaimed that day.
+
+Primary evidence:
+
+- [Giunta decision of 11 November 2021](https://www.senato.it/show-doc?id=1317860&idoggetto=0&leg=18&part=doc_dc-sedetit_vdp&tipodoc=SommComm)
+  records the rejected regional-coalition proposal and the adopted alternative.
+- [Doc. XVI no. 7, majority report](https://www.senato.it/service/PDF/PDFServer/DF/365843.pdf),
+  [official procedure and final outcome](https://www.senato.it/legislature/18/leggi-e-documenti/attivita-non-legislative/procedure?documentoId=46913)
+  and [Assembly proceedings of 2 December 2021](https://www.senato.it/show-doc?id=1321518&leg=18&part=doc_dc-ressten_rs-gentit_ddddxn7rgeeipssvirv&tipodoc=Resaula)
+  establish the legal argument, approval and proclamation.
+
+This confirms that a same-list cross-region replacement actually occurred, but
+in a **later vacancy**. Its priority over an available regional coalition
+candidate must not replace the regional-first order for initial allocation.
+Later vacancies remain outside the current simulation's scope.
+
+### Constitutional proceedings and applicability limits
+
+The Constitutional Court's [order 86/2020](https://www.cortecostituzionale.it/scheda-pronuncia/2020/86),
+decided on 7 April and deposited on 7 May 2020, declared Gregorio De Falco's
+conflict of powers concerning the Pavanelli procedure **inadmissible**. The
+Court found no demonstrated substantial impairment of his individual
+parliamentary powers; he could not assert the electoral offices' powers or a
+generic interest in legality. It did not decide the regional-transfer issue
+on its merits. The bounded research did not identify a merits judgment settling
+the Minasi issue; that is a search limit, not a claim that none exists.
+
+The historical decisions applied the pre-reform system. Their old C84(3)
+unsuccessful-uninominal remedy is abolished by the reform and is excluded from
+the approved protocol. Neither decision addresses the new bonus slates or
+directly validates the S16-bis(1-quinquies) mechanism.
+
+Some Senate pages/PDFs returned access challenges or HTTP 403 during direct
+retrieval. Official indexed text supplied the relevant report/proceeding
+passages; official procedure/profile records corroborated the outcomes. The
+Court's decision text was accessible. These access limits do not amount to a
+complete visual review of every linked Senate PDF.
+
+### Approved decision and documentation changes
+
+I07 is a provisional simulator interpretation, revisable on further legal
+evidence, separate from the consolidated statutory transcription:
+
+- Initial ordinary recovery, including releases after multiple elections,
+  exhausts same-region list and coalition remedies under C84(2),(5), then uses
+  S19(2)/C86(2)/C84(4) for the original list in another region. It does not
+  activate C84(7)'s cross-region coalition remedy.
+- Bonus shortages follow the separate express
+  S16-bis(1-quinquies)/C83(1-quinquies)/C86(1) route: local recovery first, then
+  cross-region recovery for the bonus-winning list or coalition, unused before
+  used remainders. A coalition bonus is not split into arbitrary list shares.
+  This is a provisional reading of the new cross-reference, rather than a
+  result proved by the historical cases.
+- Cross-region recovery requires an I07 warning and a reproducible trace,
+  preserving original entitlement and actual election territories. Ordinary
+  allocation is not recalculated to hide a movement; exhausted permitted
+  routes leave an explicitly unfilled seat.
+
+Updated the specification's N27 boundary, I07 register entry and six constructed
+fixture expectations; carried the policy into R26-17 and result/export
+requirements in R26-20. Marked only R26-01a newly complete and updated the root
+plan's next-step directive. The legal transcription, modelling choices,
+application code and generated inputs are unchanged.
+
+Verification:
+
+- Checked 66 local file/section links across the root plan, four reform
+  documents and this history entry; all resolved. Confirmed 22 ordered reform
+  checklist entries with only R26-01 and R26-01a complete, and R26-02 still
+  dependent on R26-01a.
+- Confirmed N01-N29 and I01-I09 remain present, all six I07 fixture boundaries
+  are recorded, and active directives no longer describe I07 as pending.
+  Only four Markdown files changed; the statutory transcription is unchanged.
+- `git diff --check` passed. No application tests/build were run for this
+  documentation-only change; the worked expectations are future test
+  obligations, not implemented or executed tests.
+
+## 2026-10-17 R26-02: approved final-attributed vote model
+
+Luca approved generation of **final attributed list totals**, retaining explicit
+direct-list and bonus-only/candidate-only components for supplied scenarios and
+legal tests. Recorded the active [R26-02 contract and implementation protocol](politics-reform-2026-modelling.md#bonus-only-votes-r26-02)
+and marked the decision step complete. R26-03 is next; preferences and chamber
+dependence remain undecided. No generator, input conversion or legal scrutiny
+function was implemented in this documentation update.
+
+### Decision, alternatives and limits
+
+Scenario shares and local overrides describe final list support, including
+lawfully attributed bonus-only votes. Their ballot composition remains unknown;
+no default random bonus-only count or implicit zero count is introduced. Explicit
+components undergo attribution once before admission. The same convention
+applies separately to special candidate-only votes at uninominal level; generated
+special candidate totals equal the sum of their linked lists' final totals.
+The model ID is `final-attributed-list-totals-v1`; future results/exports must
+retain representation and source/conversion provenance.
+
+Alternatives assessed:
+
+| Alternative | Decision and rationale |
+| --- | --- |
+| Generate final attributed totals | Selected default: understandable forecast-share semantics without an unsupported intermediate ballot-composition model; fits the existing generator's list-total boundary. |
+| Generate direct votes and random bonus-only counts | Not selected: frequency, geography, coalition effects and chamber correlation lack calibration. Adding assumptions can change the forecast distribution without evidence of improved accuracy. |
+| Accept supplied explicit components | Retained for controlled scenarios and independently testable legal attribution; this does not require a calibrated random composition model or a new UI control in this step. |
+| Use historical candidate-only behaviour as a bonus-only proxy | Not selected as default calibration: different ballot/election context. Historical evidence may inform explicitly labelled sensitivity hypotheses. |
+
+The algebraic identity before integer rounding is
+`T[i] = D[i] * (1 + B / sum(D))` for positive direct total. It preserves
+within-coalition proportions at the attribution college. Thus identical final
+totals support identical downstream scrutiny, conditional on identical other
+legal inputs and downstream draws. This is representation equivalence, not
+empirical evidence that the forecast is unbiased. Unknown correlations between
+ballot behaviour and territorial/list strength remain uncalibrated.
+
+Use the legal [N04/N10 boundaries](politics-reform-2026-specification.md#inputs-votes-and-admission):
+ordinary attribution at plurinominal college, special attribution at uninominal
+college, with integer additions/remainders and I03/I04 tie/zero-support policies.
+Do not infer preferences from the unknown composition; R26-03 decides that model.
+Revisit R26-02 if calibrated composition data become available, composition is
+a requested output, or implementation checks reveal a material limitation.
+
+### Reproducible arithmetic and source-data evidence
+
+Read-only Python exact-integer/Fraction checks, repeated when recording approval:
+
+- Enumerated list counts 2, 3 and 4; every direct-vote vector with entries in
+  `0..6`, excluding the all-zero vector; and every bonus-only count in `0..16`.
+  For each, assigned `floor(B*D[i]/sum(D))`, then one addition per remaining
+  highest remainder `B*D[i] mod sum(D)`. Equal remainders were ordered by list
+  index only for this arithmetic enumeration, not as a proposed legal tie rule.
+- All **47,430** cases conserved `sum(D)+B`. The largest absolute list deviation
+  from the ideal proportional total was **3/4 vote**; every deviation was less
+  than one vote. This bound concerns fixed explicit `D/B` at one attribution
+  college, not decomposition of an arbitrary target total or a bound on seats.
+- Worked example: direct `(60,30,10)` plus seven bonus-only ballots gives
+  `(64,32,11)`. Geography counterexample: two units each with direct `(1,2)`
+  and one only ballot give `(2,6)` if attributed separately and then summed,
+  versus `(3,5)` when the combined `(2,4)` and two only ballots are attributed
+  once. Hence municipal/national substitution cannot be presumed equivalent.
+
+Inspected the existing [vote generator](../web/src/lib/politics/vote-generation.ts)
+and [historical loader](../R/caricamento_dati.R), which selects the 2022
+`VOTILISTA` field. Audited the bundled
+[2022 Camera CSV](../dati/camera-20220925/Camera_Italia_LivComune.csv), SHA-256
+`9f4f49dd0dfde3d1ea32ccda9665d6d230959f97ce074418ef2553242aa675b3`:
+
+- Read as UTF-8 with BOM handling and semicolon delimiter. Grouped by
+  `CIRC-REG`, `COLLPLURI`, `COLLUNINOM`, `COMUNE`, `COGNOME`, `NOME`,
+  `DATANASCITA`; summed list votes and counted the repeated candidate total once.
+- All **70,539** groups had a consistent candidate total, never below the list
+  sum; **42,740** had a positive difference. The combined excess was
+  **1,027,135 votes**. This is historical candidate-only evidence, not an
+  estimate of future bonus-only participation.
+- Reform calibration must reconcile each source's vote categories using that
+  election's attribution rules at their legal geographic level. Document any
+  finer-resolution reconstruction assumption. Do not merely relabel the raw
+  list field or alter the preserved legacy parity path. This conversion remains
+  an R26-19 implementation obligation.
+
+Updated R26-05 representation/provenance requirements, R26-08 equivalence checks,
+R26-19 historical calibration requirements and R26-20 export semantics. The
+specification now points to the approved statistical contract; the legal
+transcription remains unchanged. Full seat/bonus equivalence is still a future
+implementation check with exact zero-discrepancy acceptance for matched inputs
+and isolated downstream draws. Any stochastic sensitivity experiment must state
+hypotheses, margins and seed/replication budget before examining results.
+
+Verification of this documentation update:
+
+- All 73 local file/section links across the root plan, four reform documents
+  and this history entry resolved. Confirmed 22 ordered steps with only
+  R26-01, R26-01a and R26-02 complete, and all N01-N29/I01-I09 entries retained.
+- R26-03/04 decision sections and the statutory transcription are unchanged.
+  Exactly five Markdown files changed; no application/generated data changed.
+- Repeated the arithmetic enumeration and CSV audit above; counts and source
+  hash matched. These are decision-evidence checks, not reform application tests.
+- `git diff --check` passed. Application tests/build/browser checks were not
+  run for this documentation-only update; generator integration, historical
+  conversion and full downstream scrutiny equivalence remain unimplemented.
+
+## 2026-10-17 R26-03: approved historical-pattern preference model
+
+Luca approved fitting a **synthetic preference model informed by historical
+patterns**, with supplied valid counts taking precedence. Recorded the active
+[model, calibration and output contract](politics-reform-2026-modelling.md#preferences-r26-03)
+and marked the decision step complete. R26-04 remains the next discussion.
+This approval selects the model family and validation obligations; no parameters
+were fitted, generator implemented or source data changed.
+
+### Decision and alternatives
+
+The approved generator separates effective preference intensity, candidate
+concentration and territorial variation. It uses partial pooling when evidence
+is sparse, shared underlying strength across a person's candidatures, and local
+variation. New candidates without individual evidence receive exchangeable
+synthetic strengths informed by the historical distribution. Historical names
+and their measured support are not automatically mapped onto new people.
+
+Generate counts of valid combinations of zero to three distinct eligible
+preferences, excluding capolista and applying gender constraints. The resulting
+candidate counts have a constructive realizability trace. The central profile
+uses maximum entropy over valid combinations subject to selected intensity and
+candidate-strength constraints; this is an explicit modelling convention.
+Aggregate source counts do not identify individual ballot combinations or the
+zero/one/two/three-preference mix. Alternative multiplicity/pairing assumptions,
+especially the regional source's unobserved third preference, require sensitivity
+checks. Preference-list ties still use statutory presentation order.
+
+The convention preserves R26-02: attributed totals support effective preference
+intensity without reconstruction of bonus-only counts. The zero-preference
+category is unspecified composition. When direct/bonus-only components are
+explicit, only direct list votes supply the preference budget. Supplied valid
+preference counts take precedence; missing counts are never silently zero.
+
+| Alternative | Decision and rationale |
+| --- | --- |
+| Historically informed synthetic preferences | Selected: supports complete candidate-dependent scrutiny while learning concentration/territorial patterns and exposing transfer assumptions. |
+| Supplied counts only | Retained as the preferred input when available; insufficient by itself for automated future-election generation. |
+| Defer preferences and restrict outputs | Honest fallback for incomplete inputs, but not the chosen primary model; candidate resolution/recovery cannot be claimed complete. |
+| Uniform preferences or independent random rankings | Useful diagnostic baselines; discard observed concentration and shared candidate strength. |
+| Copy historical candidate profiles directly | Not selected: list lengths, candidate identities, campaigns, protected capolista and electoral systems differ. |
+
+### Preference source audit and evidence
+
+The assessment located preference data already downloaded locally. Repeated the
+read-only cache checks when recording approval, using `readRDS()` with R 4.5.1;
+the `.RData` suffix does not make these workspace images:
+
+| Source | Audited coverage/content | SHA-256 |
+| --- | --- | --- |
+| [Raw ER 2024 preferences](<../dati/raw/regionali 2024Regionali_EmiliaRomagna_2024_Preferenze.csv.RData>) | 325,133 candidate-section rows; 4,529 distinct municipality/section keys, 330 municipalities, nine constituencies, 11 list labels and 547 candidate slots in 97 list-constituency pairs. No duplicate candidate-section keys were found in the assessment. | `0518457791af919962d448a3e0604cb49679e22421266db0083e5749ee739631` |
+| [Matching raw scrutiny](<../dati/raw/regionali 2024Regionali_EmiliaRomagna_2024_Scrutini.csv.RData>) | 49,819 rows; summed list votes 1,494,375. Two blank-list zero-vote placeholders have no matching preference slate; do not interpret them as missing positive support. | `a4fbc2f7c1e3309a287e0ef7d567911670d45aef5d5f40b2c959dd2a02ec01d6` |
+| [Prepared bundle](../dati/dati.RData), `preferenze` | 22,050 municipal candidate-preference rows, all ER regional 2024; lower resolution than the raw section cache. | `1d5b7fbde447bdacf54574ac638e8a004dcc637cf0c4d46ed6e332f5f2526fdf` |
+
+Reproduce the concentration diagnostic by aggregating raw `PREFERENZE` over
+`CIRCOSCRIZIONE, LISTA, NUM_CANDIDATO`, then dividing each list-constituency's
+maximum candidate count by its preference total. Across the 97 pairs, the
+unweighted minimum/median/maximum leading share is **18.3% / 38.6% / 81.3%**.
+Lists have three to eleven candidates; these summaries are diagnostics, not
+national parameters. The 547 entries identify candidatures, not 547 distinct
+people or independent statistical observations.
+
+The cache sums to **644,626 preference marks**, or **0.4313683 marks per list
+vote**. That is not a measured fraction of voters expressing preferences: the
+source allows two. The [regional metadata and voting rules](https://statistica.regione.emilia-romagna.it/dati/rappresentazioni-grafiche-dati/visualizzazione-elezioni-regionali-2024-emilia-romagna-risultati/visualizzazione-elezioni-regionali-2024-emilia-romagna-risultati-metadati)
+confirm the section/municipality scope and double preference with different
+genders. The raw candidate fields include list position and names, but no gender;
+join verified rosters before gender-based calibration, rather than inferring it.
+
+The later [regional publication, table 4.1, PDF page 74](https://statistica.regione.emilia-romagna.it/studi-analisi/2025/elezioni-regionali-2024-emilia-romagna-pubblicazioni/documenti-allegati/pubblicazione_elet_2024_web.pdf/@@download/file)
+reports **644,089** marks, 537 fewer than the cache. Its reading notes distinguish
+official electoral-office records from ministerial election-night data, and
+table 4.1 specifically identifies its preference totals as ministerial. This
+establishes a version/reconciliation requirement, not the cause of every
+difference or a completed correction. Preserve source status and provenance.
+
+Additional sources checked during the assessment, not added to the repository:
+
+- [Bologna municipal 2021, PD candidate preferences](https://opendata.comune.bologna.it/explore/dataset/elezioni-amministrative-2021-preferenze-lista-partito-democratico-lepore-sindaco/):
+  the public API returned 445 section records with candidate columns. Other
+  municipal lists were located in the same catalogue.
+- [Bologna European 2024 candidate preferences](https://opendata.comune.bologna.it/explore/dataset/elezioni-europee-2024-preferenze-ai-candidati-suddivisi-per-sezione/):
+  the public API returned 73,870 records with section, list, candidate number/name
+  and valid preference votes. European data can inform three-preference
+  sensitivity, but do not resolve joint-ballot identification from marginals.
+- [Bari European 2024, official Puglia catalogue](https://dati.puglia.it/ckan/dataset/elezioni-europee-2024):
+  verified catalogue metadata/resources for candidate preferences and list votes
+  by section. File contents were not validated in this assessment.
+
+Some browser fetches failed while direct public-API requests succeeded. The
+Ministry's European ZIP URL returned content that was not a ZIP; no national
+preference extract was claimed or imported from it. Geographic expansion,
+cleaning, source reconciliation and calibration remain R26-19 work. A complete
+regional cache and large section row count do not establish national coverage
+or an equally large independent sample.
+
+### Downstream requirements and supported claims
+
+Use model ID `preferences-empirical-synthetic-v1` with separately versioned fitted
+parameters/profiles, sources, seeds and supplied/generated provenance. Before
+production integration, reconcile totals/rosters, adjust list length and the
+capolista exclusion, validate held-out provinces and later elections/regions,
+and run paired sensitivity with votes/candidatures fixed. Account for repeated
+candidates and clustered sections. Declare diagnostic/acceptance criteria and
+seed budgets before inspecting stochastic results.
+
+Propagate alternative profiles through multiple elections, bonus precedence,
+candidate exhaustion and recovery. Separate vote-based seat entitlements from
+final filled seats and candidate/recovery outcomes conditional on preferences.
+Synthetic candidate probabilities are conditional scenario outputs; profile
+sensitivity is not a calibrated confidence interval or a forecast for real names.
+New data, actual reform results, candidate evidence or material validation
+failures can justify revisiting the model.
+
+Updated R26-05 contracts, R26-16 fixture independence, R26-19 fitting/generation,
+R26-20 reporting and the specification's scope references. The selected model
+does not settle Camera-Senato vote dependence, change legal ranking rules or
+simulate invalid-ballot adjudication. R26-04 remains pending; all application
+implementation and acceptance steps remain open.
+
+Verification of this documentation update:
+
+- All 76 local file/section links across the root plan, four reform documents
+  and this entry resolved. Confirmed 22 ordered steps with only R26-01, R26-01a,
+  R26-02 and R26-03 complete, and all N01-N29/I01-I09 entries retained.
+- The R26-02 contract, pending R26-04 discussion section and statutory
+  transcription are unchanged. Exactly five Markdown files changed.
+- Read-only R checks reproduced the cache coverage, preference/list-vote sums
+  and leading-share diagnostics. All three recorded source hashes remained
+  unchanged. No fitting, stochastic model experiment or application test ran.
+- `git diff --check` passed. Application build/browser checks were not run for
+  this documentation-only update; calibration and implementation acceptance
+  remain assigned to their later steps.
+
+## 2026-10-17 R26-04: approved paired chamber vote model
+
+Luca approved **shared political shocks plus historical chamber contrasts and
+correlated residuals**, refined so a supplied common national/local share anchors
+model-derived chamber references and explicit per-chamber shares take precedence.
+Recorded the [model, input precedence and validation contract](politics-reform-2026-modelling.md#camera-senato-votes-r26-04)
+and marked the decision step complete. R26-01/01a/02/03/04 are now complete as
+documentary/decision steps; R26-05 contracts are next. No parameters were fitted,
+generator implemented or production data imported.
+
+### Decision and reference precedence
+
+The model combines shared national/territorial movement with regularized
+historical contrasts and chamber-specific national, regional and local variation.
+Its joint covariance must preserve the intended marginal uncertainty; adding
+unbudgeted Senate noise to an existing Camera draw is not the selected method.
+Numerical residual scales and dependence parameters require fitting or explicitly
+labelled assumptions, with weaker/stronger dependence and gap sensitivity.
+
+A supplied common share is a shared starting anchor from which the model derives
+distinct Camera and Senato references. An explicit reference replaces the
+modelled reference adjustment for that chamber at that scope. When only one
+chamber is explicitly supplied, the other still derives from the common anchor,
+or from its historical/model baseline if no common input exists. Both explicit
+references override both modelled adjustments. Correlated election-day
+uncertainty remains active in mean mode; explicit reference values are not
+fixed simulation results.
+
+Across geographic scopes retain the established broader-to-more-specific
+resolution. Within the same scope, per-chamber input wins over common-derived
+references, which win over model defaults. This preserves local specificity,
+partial-share rules, abstention handling, valid-vote/elector conversion and
+normalization/warnings. Trace the common anchor, supplied/derived references,
+scope and reconciliation rather than interpreting a shared input as Camera-only.
+
+| Alternative | Decision and rationale |
+| --- | --- |
+| Identical territorial votes | Retain as a benchmark, not the production model: omits chamber behaviour and can couple joint-bonus events too tightly. |
+| Independent chamber generation | Not selected: discards the common political environment. |
+| Separate historical baselines with identical shocks | Not selected as the full model: treats the chamber gap's uncertainty as absent. |
+| Shared shocks, historical contrasts, correlated residuals | Selected: represents common movement and chamber differences, with explicit transfer/dependence uncertainty. |
+| Supplied chamber-specific inputs | Retained with precedence over model-derived references at the same scope. |
+
+### Official source audit and exploratory comparison
+
+The decision review found no Senate election history in the existing
+`dati/dati.RData` bundle. Its historical elections were Camera 2018/2022,
+European 2019/2024 and regional 2020/2024. The existing
+[vote generator](../web/src/lib/politics/vote-generation.ts) draws one territorial
+list table and aggregates it into each chamber's geography. Downstream list
+coverage/filtering can still produce differences; this is not a claim that all
+final legacy chamber figures are identical.
+
+Official archives were downloaded on 17 October 2026 to the operating-system
+temporary directory `elezioni-r26-04`, outside the repository. The Ministry's
+[2022 catalogue entry](https://www.dati.gov.it/node/view-dataset/dataset?id=caca3eec-122a-4668-a75b-3a2426ce3ae6)
+identifies municipal Camera and Senato result files. The historical download
+endpoint redirected successfully to the DAIT archive; direct ZIP retrieval
+worked even where browser page retrieval returned access errors.
+
+| Archive | Bytes | SHA-256 |
+| --- | --- | --- |
+| [Camera 2022](https://dait.interno.gov.it/documenti/opendata/camera/camera-20220925.zip) | 1,216,091 | `dd8ede158ea3f7b0aae65024135a27e34ab9e959728df95f0e977cd56edf88ff` |
+| [Senato 2022](https://dait.interno.gov.it/documenti/opendata/senato/senato-20220925.zip) | 1,181,512 | `ffaf0296cbb3702d1e0d13a9b7f88b6370f2ea2930b44d8b80a57c5fcc759c05` |
+| [Senato 2018](https://dait.interno.gov.it/documenti/opendata/senato/senato-20180304.zip) | 1,314,885 | `ebee153d2546a99a1e14682a070f05f6fa6008f53ac13a658506e0a9a3d87920` |
+
+The 2022 ordinary tables are `camera2022_Italia_LivComune.csv` (117,591 rows,
+including Camera TAA rows) and `Senato_Italia_LivComune.csv` (117,510 rows).
+They contain municipality, electoral colleges, electorate/turnout, direct list
+votes and repeated candidate totals. Senate Valle d'Aosta/TAA results and turnout
+tables are separate; both ZIPs also contain foreign results, which were not
+incorporated into this domestic assessment. The 2018 archive contains municipal
+and aggregate Senate results; availability was verified, not age-adjusted fitting.
+
+Exploratory Python comparison, reproducible from the fingerprinted ZIPs:
+
+- Read the two 2022 ordinary CSVs as UTF-8 with BOM handling and semicolon
+  delimiter. Normalize Camera `CIRC-REG` to region by removing a trailing
+  constituency number 1-4; exclude regions starting `TRENTINO` or `VALLE` in both
+  ordinary tables. Match on region and municipality name, then sum `VOTILISTA`
+  by that key and list label. All **7,548** resulting keys match across chambers.
+  This name-based join is exploratory; verify ISTAT identities, ambiguities,
+  geography and correspondence before production fitting.
+- On that common ordinary footprint, summed raw direct list votes are
+  **26,600,019 Camera** and **26,601,426 Senato**. These are raw-field diagnostics,
+  not final attributed national figures or a completed calibration dataset.
+- For illustration, FdI's raw share differs by about **-0.122 percentage points**
+  (Senato minus Camera), while the unweighted municipality difference's
+  nearest-index 10th/90th percentiles are about **-2.083/+1.941 points**. List coverage, vote
+  volume, candidate effects and attribution must be reconciled before interpreting
+  that spread as chamber behaviour or future residual variance.
+
+The [Ministry's age-change explanation](https://www.interno.gov.it/it/notizie/18enni-chiamati-voto-prima-volta-eleggere-senato-repubblica)
+identifies 2022's common 18+ electorate after constitutional law 1/2021. Its
+[2018 election instructions](https://www.interno.gov.it/it/notizie/elezioni-2018-come-vota-corpo-elettorale-tessera-elettorale)
+state the former Camera 18+/Senato 25+ bases. Therefore 2022 is the primary paired
+baseline reviewed here; older differences confound electorate age and chamber
+behaviour. Scaling by population alone cannot recover unobserved age-specific
+voting choices.
+
+One comparable election's municipality pairs do not supply repeated independent
+national forecasting errors. Geographic share correlation must not be reported
+as a calibrated future-shock correlation. The reform also changes the old
+uninominal candidate/ballot context, limiting transfer of 2022 contrasts. No
+numerical future correlation, mean gap or residual variance was estimated here.
+
+### Downstream requirements and scope
+
+Use `paired-chamber-votes-v1`, separately versioned parameter/profiles and sources,
+age/geography/coverage assumptions, seeds and supplied/common/model-derived
+reference provenance. R26-05 must reserve those contracts. R26-19 must acquire
+and prepare paired Senate history, reconcile R26-02 attribution, fit or explicitly
+label covariance/contrast assumptions, implement the precedence table and scope
+rules, preserve marginal uncertainty and validate paired sensitivity/replay.
+R26-20 must report reference provenance and joint-bonus dependence assumptions.
+
+Required fixtures cover common-only, one/both explicit chamber references,
+chamber-only input without a common anchor, partial lists, conflicting scopes,
+mean-mode uncertainty, normalization/abstention and coverage. Keep constructed
+legal fixtures for different/linked/unlinked winners, one chamber at/below 42%,
+single-chamber renewal and incomplete joint inputs independent of model fitting.
+Separate Monte Carlo uncertainty within profiles from dependence sensitivity;
+do not claim a universal direction of bias or measured certainty for assumptions.
+
+The root plan and specification now include paired Senate-history preparation in
+the current R26-19 scope. Post-migration work reviews/extends historical coverage
+instead of planning a duplicate model; approval of R26-04 is not delivery of that
+data pipeline. Updated dependent contracts, generation and reporting directives.
+R26-02/03 contracts and the statutory transcription remain unchanged; all
+application implementation/acceptance steps remain open.
+
+Verification of this documentation update:
+
+- All 77 local file/section links across the root plan, four reform documents
+  and this entry resolved. Confirmed 22 ordered steps with only R26-01, R26-01a
+  and R26-02/03/04 complete; R26-05 depends on those approved decisions. All
+  N01-N29 and I01-I09 entries remain present.
+- Checked common-only, one/both chamber references and chamber-only input
+  without a common anchor are documented, together with same-scope precedence,
+  geographic specificity and continuing mean-mode uncertainty. No obsolete
+  pending-R26-04 directive remains in the active documents.
+- R26-02/03 contracts and the statutory transcription are unchanged. Exactly
+  five Markdown files changed. Rechecked all three temporary source ZIPs'
+  fingerprints and readable directory entries; no source data were imported
+  into the repository or fitted in this update.
+- `git diff --check` passed. Application tests/build/browser checks and
+  stochastic calibration experiments were not run for this documentation-only
+  update. The contract/precedence checks above do not claim runtime behavior.
+
+## 2026-10-17 R26-05 scrutiny contracts and validation
+
+Implemented the isolated [reform contract boundary](../web/src/lib/politics/reform-2026/README.md)
+and marked R26-05 complete. R26-06 is next. The new schema version and reserved
+algorithm ID identify a legal input envelope; this step does not register an
+executable algorithm or change saved scenario/snapshot versions.
+
+### Delivered boundary
+
+- Readonly, JSON/worker-safe input/result contracts cover joint/single renewal,
+  chamber-specific votes and references, reciprocal political links, coverage,
+  global person identities, affiliations, ordinary/bonus slates, preferences,
+  special contests and sourced seat endowments. The shared simulation ID pairs
+  chamber inputs. Model metadata carries supplied/generated provenance,
+  versions, common anchors, resolved scopes and chamber reference origins.
+- A strict structural schema rejects missing/extra fields, mixed vote variants,
+  invalid dates, non-finite/negative/fractional/unsafe counts and incompatible
+  envelope versions. Semantic validators report coded issues and paths. Successful
+  validation returns an owned clone with a branded readonly type; callers cannot
+  invalidate it by editing their original payload. No coercion or legacy migration.
+- Raw ordinary components retain bonus-only ballots; attributed totals have no
+  such field. Special candidate-only components remain separate and reconcile to
+  candidate totals, counted once for the valid-ballot/electorate bound. Every
+  college and contesting list/candidate requires a row/count, including zeros.
+  Zero-vote elections remain accepted for later explicit I04 stage failures.
+- Candidature checks cover seven filed slots, alternating genders, election-day
+  ages 25/40, rounded national bonus/special gender limits, same-badge and multiple
+  candidacy limits, local ordinary/bonus prefix links, special incompatibilities,
+  single-renewal exclusions and foreign/other-chamber declarations. Subsequent
+  candidate unavailability keeps the original filed slate intact and is accepted
+  for later recovery, rather than misreported as a malformed filing.
+- Coverage validation separates Camera and Senate: Camera's ordinary-contesting
+  lists need half-constituency coverage, including declared linked special
+  candidatures, subject to the asserted minority exception; Senate may contest
+  one region. Both need two-thirds college coverage per filed ordinary territory.
+  Special-only lists do not acquire a nationwide filing requirement. TAA
+  proportional slates use the imported seven-slot/alternating rules. Camera TAA
+  and Senate special uninominal gender checks are distinct, under I09.
+- Missing preferences retain a reason. Supplied adjudicated counts assert upstream
+  ballot validity, with identities and aggregate bounds still checked. Generated
+  counts require the approved valid-combination certificate: distinct eligible
+  candidates, up to three marks, mixed genders for multiple marks, correct exact
+  margins and complete ballot budget. Raw components use direct list votes as
+  that budget; attributed totals preserve unknown composition. Validity assertion
+  and constructive certificate remain explicit alternatives, not inferred zeros.
+- Endowment validation checks 392/196 domestic seats, 70/35 bonuses, special
+  totals, college kinds/capacities and territorial reductions. Sources distinguish
+  constructed, I08 provisional-census and official-decree tables. Provisional
+  sources carry census, geography, method and table versions.
+- Result types reserve stage and overall partial/non-computable status, subject
+  decisions/reasons, conditional conclusions, severity-bearing warnings, policy
+  versions, exact fraction strings, injected draw requests/traces, separate seat
+  categories, allocation transfers and candidate recovery state. Original
+  entitlement and actual election location remain separate, including I07
+  cross-region recovery and explicit unfilled or
+  unresolved seats; I06 remainder consumption has before/after states.
+
+### Verification and boundaries
+
+- Added **57 reform contract tests**, using tracked, invented geography and
+  complete domestic totals independently of generated artifacts. Cases cover
+  valid joint/single inputs, missing versus zero preferences, later unavailable
+  candidates, malformed references/slots/links, coverage and age constraints,
+  incompatible candidatures, double attribution, special candidate-only totals,
+  invalid/safe numeric domains and constructive preference validity. Metadata
+  fixtures cover common-only, one/both explicit chamber references, no common
+  anchor, differing scopes and duplicate scope rejection. A typed JSON/structured
+  clone round-trip preserves conditional partial results, I03 warning/draw links,
+  I06 consumed remainders, I07 destinations and exact integers beyond JS's safe
+  number range. This is contract evidence, not execution of those legal stages.
+- `npm run check`: zero errors/warnings. `npm run test`: **23 files, 244 tests
+  passed**, including existing legacy regressions. `npm run build` produced the
+  static site successfully; Vite emitted timing advisories only. Verified all
+  **107 local file/section links** across the root plan, four reform documents,
+  history and contract README. `git diff --check` and a separate whitespace scan
+  of the new contract files passed.
+- Actual official geography, Bolzano joins, complete real regional coverage,
+  constitutional regional minima and census apportionment remain R26-07;
+  constructed fixtures assert internal accounting, not an official election map.
+  Numerical/draw execution remains R26-06, attribution R26-08, special scrutiny
+  R26-10 and initial recovery R26-17. Output JSON validation and actual result
+  production are not implemented by the type declarations.
+- The accepted R26-02/03/04 models remain unfitted. R26-19 must implement scope/
+  supplied-share precedence, preference construction and statistical generators;
+  current metadata tests establish representability and reference consistency.
+  Legacy scrutiny, random streams, scenario schema, algorithm registry, workers,
+  UI and generated/default data were left unchanged. Browser/performance checks
+  are deferred to integration; no new application path is active in this step.
+
+## 2026-10-17 R26-06 exact numerical primitives and explicit draws
+
+Implemented the [numerical execution boundary](../web/src/lib/politics/reform-2026/README.md#numerical-execution-r26-06)
+and marked R26-06 complete. R26-07 territories and seat endowments is next.
+The implementation is isolated under the reform directory and exported through
+its public index; no reform algorithm is registered or activated.
+
+### Delivered boundary
+
+- Nonnegative rational arithmetic uses bigint intermediates and reduced decimal
+  string fractions at JSON/worker boundaries. Comparisons, integer/decimal parts,
+  ratios and threshold comparisons remain exact beyond JS's safe number range.
+  Unsafe number inputs and undefined/negative fraction operations are rejected.
+  `truncateToSixDecimals()` computes `floor(x * 10^6) / 10^6` exactly.
+- `allocateByQuotaAndRemainders()` separates integer quotas (truncate the quota
+  first) from exact quotas used by TAA/attribution and normalized active indices.
+  Callers provide exact figures, explicit secondary criteria at the prescribed
+  geographic scope, terminal draw rules and optional residual-seat exclusions.
+  Results expose raw/applied quotas, the exact initial-seat total, integer seats,
+  vote remainders, quotient decimal parts and single-use remainder states.
+- I04 outcomes are explicit: zero seats completes without division; no subjects,
+  zero positive-seat vote total, zero integer quota, initial overallocation and
+  impossible residual allocation return coded non-computable results with no
+  assignments. Feasibility is checked before drawing; overallocation totals are
+  checked exactly before conversion to safe seat counts. Malformed primitive
+  arguments throw separately from these legal-domain failures.
+- `resolveTie()` applies successive exact ascending/descending criteria, tracing
+  surviving alternatives. Only a final unresolved tie consumes the injected
+  resolver. Canonical ID ordering makes draws independent of source-array order;
+  list presentation order, electoral figures, dates and percentages remain
+  explicit caller-selected criteria. Injected trace/request inconsistencies are
+  rejected instead of recording an ineligible or misidentified outcome.
+- `createSeededDrawContext()` owns a private RNG seeded by the supplied seed and
+  stream ID, with integer rejection sampling. No default/global RNG is added.
+  Every I03 fallback returns a simulation-specific `warning` linked to its draw;
+  express statutory draws retain their distinct rule and do not emit I03 warnings.
+  The README requires downstream composition to preserve both returned arrays
+  and the owning stage's applied interpretation versions.
+
+### Verification and limits
+
+- Added **49 numerical/tie tests**. Independently worked anchors cover ordinary
+  `(10,3,1), 6 -> (5,1,0)` versus exact-quota `(4,1,1)`, and the arithmetic for
+  N04 `(60,30,10), 7 -> (4,2,1)`. Tests inspect quotas and remainder values/state,
+  scope-specific secondary criteria, list-order/age/percentage priorities,
+  injected draws, six permutations, seeded stream isolation, per-simulation I03
+  warnings and explicit failure paths. A constructed I05 arithmetic fixture
+  changes a seat after truncating both indices; it does not execute the cap stage.
+  Safe-number boundary and larger exact-intermediate fixtures round-trip through
+  JSON. Small exhaustive exact-quota cases verify conservation and single use.
+- On Windows, Node **v24.20.0**, npm **11.19.0**, from `web/`: `npm run check`
+  reported **zero errors/warnings**; `npm run test` passed **26 files / 293 tests**
+  in 4.37 s, including existing politics/regional and legacy allocation regressions.
+  `npm run build` produced the static site successfully (Vite plugin timing
+  advisory only). Subsequently `npm run test:e2e -- --reporter=line` passed
+  **all 7 Chromium tests** in 13.3 s, including both worker workflows and result
+  import/restore. Build and browser tests ran sequentially; Playwright also ran
+  its configured build before starting preview. Browser output included existing
+  color-environment notices and the Vite timing advisory, with no failed tests.
+- All **113 local file/section links** across the root plan, reform documents,
+  history and core README resolved. `git diff --check` and a separate whitespace
+  scan covering all 17 reform TypeScript files, including untracked additions,
+  passed.
+- Statutory stage attribution remains R26-08/10, target corrections/caps
+  R26-12 through R26-15, and candidate recovery R26-17. The generic six-decimal and tie
+  helpers do not infer which provisional policies a caller must record. Undefined
+  percentages and inactive zero-target groups must be guarded by the owning
+  stage; no undefined value is converted to zero. Simulation-level warning
+  propagation will be exercised when actual stages are composed in R26-18.
+- Legacy helpers, scrutiny, seeds, registry, scenarios, generated data, workers
+  and UI were not changed. No statistical fitting or performance benchmark was
+  run; this step adds constructed numerical execution, not reform application
+  acceptance. The existing legal specification/policies were implemented without
+  introducing a new interpretation or changing the statutory transcription.
+
+## 2026-10-18 R26-07 geography, census preparation and seat endowments
+
+Implemented R26-07 and its [reproducible preparation workflow](../data/README.md).
+R26-08 is next. Luca approved migrating shared acquisition/geography/census now,
+using `data/sources` and `data/derived`, retaining `dati` as legacy, checking the
+usability of the original spreadsheets, and permitting explicit population
+estimates when finer data are unavailable. Historical vote/preference importers
+and model calibration remain later consumers, including R26-19.
+
+### Delivered boundary and source decisions
+
+- Added reusable Node/TypeScript source acquisition, checksum verification,
+  cached/manual import and immutable artifact writing. The tracked manifest pins
+  **12 downloads / 145,471,137 bytes**; raw and intermediate files are ignored.
+  Generation is offline, independent of R caches and scenario workbooks. Census,
+  geography, actual used-source hashes, method, seed, population assumptions and
+  reconstruction availability determine replayable versions.
+- Investigated all four definitive 2020 XLSX tables. Explicit continuation/header
+  handling extracts **8,073 A1 memberships / 147 colleges**, **146 A2 relations /
+  49 colleges**, **8,073 B1 memberships / 74 colleges**, and **67 B2 relations /
+  26 colleges**. A2/B2 relations agree with the machine-readable DBF. The primary
+  catalog uses the government's **2022-updated `UT_Collegi2020.dbf`**, avoiding
+  presentation-format dependence, obsolete proposal membership and manual Lazio
+  patches. It includes Misiliscemi and the two municipalities moved to
+  Emilia-Romagna. No polygon/GIS processing or second runtime is required.
+- Applied the reform's Bolzano U04/U05/U06 overlay. Independent parsing of
+  statutory annexes 4 and 5 yields the same **116 municipal memberships**;
+  U04 contains Bolzano and Laives. A documented alias reconciles Montagna's
+  post-census rename. Both autonomous provinces retain three Senate contests.
+- Rechecked [Istat's electoral-population reference](https://www.istat.it/notizia/popolazione-censuaria/):
+  the pinned 2021 legal census covers **7,904 municipalities / 59,030,133 people**.
+  No applicable reform allocation decree was verified, so generated endowments
+  are explicitly **provisional I08-v1**, not official decree allocations.
+- Used Istat's 2021 population for Roma's **155 urban zones**, totaling exactly
+  **2,749,031**. Their code crosswalk assumes continuity with electoral geography;
+  geometric boundary identity has not been independently verified. An Italian
+  warning is retained in the artifact and legal input's additive optional
+  `SeatTableSource.populationNotes` field, without changing existing schema-1
+  constructed inputs. `seatTableMessages()` separates this warning from ordinary
+  provisional-table information; R26-20 must render the messages at integration.
+- Missing fine-geography population uses available observations, historical
+  weights and, only without informative weights, equal weights. Reconstruction
+  conserves the legal municipal total and records method, inputs, estimates and
+  seeded ties. Missing submunicipal files produce a different immutable version,
+  rather than making the application depend on their availability. Corrupt
+  downloads still fail integrity checks. Unused change-history/section-population
+  files are cached for future importers, without claiming them as consumed inputs.
+- Added pure catalog/table validation, exact I08 allocations, constrained Senate
+  minima, alternative college capacities, a validated chamber adapter and a small
+  tracked offline bundle. Camera has 54 active colleges and Senato 33. Endowments
+  reconcile to Camera **8 special + 384 ordinary**, or **8 + 314 + 70 bonus**;
+  Senato **7 special + 189 ordinary**, or **7 + 154 + 35 bonus**. Camera TAA has
+  four uninominal seats plus three proportional seats. Official tables can later
+  replace capacities with distinct decree provenance and versions, preserving
+  earlier artifacts. Incompatible statutory totals/capacities remain errors.
+
+### Verification, problems and limits
+
+- On Windows, Node **v24.20.0**, npm **11.19.0**, from `web/`:
+  `npm run check` reported **zero errors/warnings**; `npm run check:data` passed;
+  `npm run test` passed **29 files / 328 tests** in 5.52 s. The **35 new tests**
+  cover acquisition, source parsing, real municipal coverage/Bolzano, missing-data
+  estimation, minima, accounting, immutable versions, official replacement,
+  deterministic I03 draws and an independent Alabama-paradox example
+  (`29 -> [14,1,14]`, `24 -> [11,2,11]`). After a validator guard refinement,
+  preparation typechecking and the affected **28 tests** passed again. A final
+  zero-information reconstruction refinement passed its **7 population tests**
+  and preparation typechecking; all-zero inconsistent observations use available
+  historical weights before falling back to equal weights.
+- Real-source preparation tests explicitly skip when their ignored archives are
+  absent. Tracked table/core fixtures and synthetic format/I/O fixtures require
+  no network or large downloaded artifacts. The missing-submunicipal-file test
+  generates and validates a usable complete seat bundle with estimation notices.
+- `npm run data:download -- --sources ../data/derived/clean-clone-sources`
+  downloaded/verified all originals into an initially empty cache. Generation
+  into a separate empty output directory reproduced the published JSON **byte
+  for byte**. Table version: `r26-seats-census-2021-i08-v1-9672c20529b2`;
+  compact JSON-content SHA-256:
+  `02bc849b58bbc1178c3216e898e7a09d07c46238a8e8d2d486ba30bf11ab97a3`.
+- A separate Python `fractions.Fraction` audit over normalized populations,
+  without importing TypeScript allocation helpers, independently reproduced
+  **244 territorial/bonus/college-capacity comparisons**. No production
+  remainder-cutoff ties occurred. Python was used only for this independent
+  verification, not added to the preparation workflow.
+- `npm run build` produced the static site (13.43 s; Vite plugin timing advisory).
+  Subsequently `npm run test:e2e -- --reporter=line` passed **all 7 Chromium
+  tests** in 13.3 s, including existing politics/regional workers and result
+  import/restore. Build and e2e ran sequentially; browser output also included
+  existing color-environment notices.
+- Workarounds: the geographic archive is approximately 98 MB despite the source
+  page's 23 MB label; its DBF attributes require Windows-1252 although the `.cpg`
+  says UTF-8. Istat's SDMX endpoint returns HTTP 500 (`languageTag1`) for Node's
+  default wildcard language header; the manifest's explicit `Accept-Language: it`
+  resolves it and reproduces the pinned CSV bytes.
+- The four added preparation dependencies are pinned dev dependencies. The npm
+  audit reports nine findings in the existing SvelteKit/Vite/Vitest toolchain
+  and transitive dependencies; none names the added preparation packages.
+  Unrelated dependency upgrades were not folded into this step.
+- All **122 local document links/anchors** resolved. `git diff --check` and a
+  whitespace scan including untracked additions passed.
+- Legacy R logic/data, snapshots/defaults, registry, workers and UI behavior
+  remain unchanged. No reform algorithm is activated, no statistical model is
+  fitted and no application/performance acceptance is claimed. No dependent
+  legacy defaults require regeneration from this separate geography artifact.
+
+## 2026-10-18: R26-08 electoral figures and preference rankings
+
+Implemented only R26-08 under `web/src/lib/politics/reform-2026/`; R26-09
+admission is the next step. The [module contract](../web/src/lib/politics/reform-2026/README.md#electoral-figures-and-rankings-r26-08)
+documents calls, scopes and remaining boundaries. Consulted the
+[promulgated act](https://www.gazzettaufficiale.it/eli/id/2026/10/09/26G00201/sg)
+and [official comparison](https://documenti.camera.it/leg19/dossier/Pdf/AC0469g.pdf)
+against the scoped transcription/specification. This step does not change the
+normative source version or claim the future annotated republication was checked.
+
+### Delivered boundary
+
+- `distributeBonusOnlyVotes()` implements N04 at the ordinary plurinominal
+  college, using R26-06's exact quota/remainder primitive. The independent
+  `(60,30,10), B=7` fixture gives quota `100/7`, initial additions `(4,2,0)`,
+  quotient fractions `(1/5,1/10,7/10)` and final additions `(4,2,1)`.
+  Already attributed totals bypass allocation and draw consumption. Mixed
+  representations are rejected. Zero only-ballots and single linked lists
+  avoid division; positive only-ballots with multiple zero-support lists return
+  a non-computable outcome with no invented or partial totals. All groups are
+  preflighted before draws; group order and tied alternatives are canonical.
+- `aggregateElectoralFigures()` implements N06 over disjoint attributed ordinary
+  and special uninominal college rows. It supplies list/coalition figures and
+  exact shares at college, territory, region and national scope. National figures
+  include VdA/TAA for admission, first place and bonus eligibility; ordinary
+  allocation figures exclude both. All list ballots stay in denominators and
+  coalition totals include sub-1% members. Special-only lists remain represented.
+  Missing/extra colleges or incomplete/duplicate/non-contesting list rows fail
+  explicitly rather than silently producing partial national figures.
+- Camera TAA proportional figures are a view of its uninominal territorial sum,
+  not an additional ballot partition. The envelope's TAA `ordinaryVotes` row
+  is not supplied as an ordinary aggregation contribution; its slate continues
+  to carry preferences. No second copy of those ballots enters national totals.
+  Raw special candidate-only attribution remains N10/R26-10: callers must supply
+  attributed special list totals or future N10 output, never add candidate totals
+  to list figures. The functions require validated political/geographic references;
+  they are legal-stage helpers, not a composed scrutiny entry point.
+- `rankPreferenceCandidates()` implements N05: capolista excluded, preferences
+  descending, filed order breaking ties without a draw. Missing preferences
+  remain a separate outcome from explicit zeros. Filed unavailable candidates
+  stay in this ranking for later proclamation/recovery stages to handle.
+  `calculatePercentages()` uses all valid college votes (TAA constituency votes
+  for its proportional slate), with exact fractions in percentage units. A zero
+  denominator yields an explicit undefined percentage, while zero-vote counts
+  themselves can still be aggregated. Unsafe scalar counts/sums throw; bigint
+  protects intermediate percentage multiplication.
+- Representation-equivalence tests for both chambers use matching candidate
+  identities/preferences and final totals after a deliberately tied raw
+  attribution. Separate attribution/downstream streams give exactly equal
+  aggregates, rankings and downstream tie traces. This is an accounting and
+  reproducibility check; it does not establish statistical absence of bias.
+  I03 ties retain simulation-specific warnings and JSON-safe traces.
+
+### Verification and limits
+
+- Windows, Node **v24.20.0**, npm **11.19.0**, commands from `web/`.
+  Final `npm run check`: **zero errors/warnings**. `npm run test`:
+  **32 files / 351 tests passed**, 4.50 s, including **23 new tests** in three
+  files. Tests cover worked arithmetic, college-before-aggregation rounding,
+  conservation across integer cases, zero support, direct-total bypass,
+  multi-subject draw ordering/preflight, all aggregation scopes, special ballots,
+  subthreshold contributions, preference ties/denominators, missing versus zero,
+  exact arithmetic/overflow, owned outputs and downstream equivalence.
+- `npm run build`: static build succeeded, 4.45 s reported by Vite.
+  Subsequently `npm run test:e2e -- --reporter=line`: **7 Chromium tests passed**,
+  12.6 s, covering the existing politics/regional workers and result imports.
+  Build and e2e ran sequentially. Existing plugin-timing and color-environment
+  notices were non-blocking. An initial readonly assignment in a permutation
+  test failed typechecking; replacing it with an owned object copy resolved it.
+- `git diff --check` passed. No R code, persistent data, generated defaults,
+  registry, workers or UI were changed. No reform application path, admission,
+  special scrutiny, generator/calibration, full composition or performance
+  acceptance is implemented by this step. Changes are left uncommitted.
+
+## 2026-10-18: R26-09 admission and preliminary special winners
+
+Implemented only R26-09 under `web/src/lib/politics/reform-2026/`;
+R26-10 special territories is next. The [module contract](../web/src/lib/politics/reform-2026/README.md#admission-and-preliminary-special-winners-r26-09)
+documents inputs, outputs and the dependency order. Consulted the
+[promulgated act and its Camera/Senato amendment articles](https://www.gazzettaufficiale.it/atto/vediMenuHTML?atto.codiceRedazionale=26G00201&atto.dataPubblicazioneGazzetta=2026-10-09&tipoSerie=serie_generale&tipoVigenza=originario)
+and [official comparison](https://documenti.camera.it/leg19/dossier/Pdf/AC0469g.pdf)
+against C83(1)(e), S16-bis(1)(e), C93(2)-(3), C93-septies(1)(a)-(b),(2)
+and S21(1)-(2) in the scoped transcription/specification. No normative source
+version changed; this does not check the future annotated republication.
+
+### Delivered boundary
+
+- `determineCameraAdmission()` and `determineSenateAdmission()` implement N07/N08
+  with distinct coalition, standalone-list and internal-member decisions, stable
+  reason codes and legal references. Evidence retains exact national shares,
+  qualifying regions, protected-minority shares and required/actual uninominal
+  wins. Comparisons use bigint products of counts at inclusive 3%, 10% and 20%;
+  display percentages do not decide access. Special ballots remain in national
+  figures and excluded votes remain in every applicable denominator.
+- A coalition needs both national 10% and a qualifying member. Qualifying
+  members enter under (2-bis); (2-ter) adds exactly one highest-national-figure
+  otherwise excluded list, including a list below 1% or with zero votes. It
+  adds none when every member already qualifies. Equal figures use canonical,
+  injected I03 draws with simulation/chamber-specific warnings. Coalition order
+  and tied alternatives cannot change the seeded draw sequence.
+- Failed-coalition lists are evaluated for independent access. Camera's 20%
+  minority route requires protected recognition, autonomous-region status and
+  exclusive presentation. The quarter-uninominal-wins alternative is reserved
+  to unlinked minorities and cannot qualify a coalition or its (2-bis) members.
+  The independent fixture with five uninominal colleges requires two wins, not
+  one. A failed-coalition minority below national 3% remains excluded nationally;
+  `taaLocalExceptions` records I01 local 20% access separately, preserving
+  C93-septies(2)'s anomalous (2-bis) reference without extending nationwide access.
+- Senate's regional 20% route applies to any list, ordinary or special region,
+  independently or inside an admitted coalition, and is not restricted to a
+  minority or to allocation in the qualifying region. Zero-valid-vote regions
+  cannot supply a 20% pass. Zero national valid votes return a non-computable
+  stage with no invented exclusions/admissions or admission draws.
+- `determineSpecialWinners()` implements preliminary N09 before admission,
+  independent of list access or special proportional allocation. It uses the
+  adjudicated candidate totals already present in both vote representations:
+  most votes, then younger Camera/older Senate candidate, then warned I03 on
+  equal dates. Counts/references for all colleges are preflighted before any
+  draws; college and alternative order are canonical. The ledger preserves
+  candidate, college/territory/region, votes, political subject, all list links,
+  separate affiliation and tie traces. Camera admission requires the same
+  simulation's complete preliminary winners, never recomputes their outcome
+  and does not emit their draws/warnings again. R26-10 must reuse this ledger.
+- The functions require validated political/geographic/candidate references and
+  N06 aggregates from the same simulation. Focused completeness guards do not
+  replace envelope validation. Full validated Camera/Senato fixtures run through
+  preliminary winners, attributed aggregation and admission without generators
+  or TAA proportional allocation. Public exports and the module reading map are
+  updated; the existing result envelope and algorithm registry are unchanged.
+
+### Verification and limits
+
+- Windows, Node **v24.20.0**, npm **11.19.0**, commands from `web/`.
+  `npm run check`: **zero errors/warnings**. `npm run test`:
+  **34 files / 391 tests passed**, 4.49 s, including **40 new tests** in two
+  files. Coverage includes below/at/above thresholds, coalition qualification,
+  independent access, minority coverage, I01, rounded-up quarter wins, regional
+  Senate access, sub-1%/zero-vote rescue, multiple canonical I03 draws,
+  same-preliminary-winner reuse, candidate age precedence, raw/attributed winner
+  equivalence, all-zero denominators, large exact counts, JSON-safe owned results,
+  swapped chambers and missing/duplicate special contributions.
+- An initial fixture-array inference error was fixed with explicit input-array
+  types; subsequent typechecking passed. A final strengthening of the vote-over-age
+  test passed all **10 special-winner tests** again (254 ms).
+- `npm run build`: static build succeeded, 3.95 s reported by Vite.
+  Subsequently `npm run test:e2e -- --reporter=line`: **7 Chromium tests passed**,
+  12.7 s, covering existing politics/regional workers and result imports.
+  Build and e2e ran sequentially. Existing plugin-timing and color-environment
+  notices were non-blocking.
+- `git diff --check` and a whitespace scan including untracked additions passed.
+  No R code, persistent data, generated defaults, registry, workers or UI changed.
+  Special list-vote attribution and TAA proportional seats remain R26-10;
+  joint bonus, later allocations/proclamations/recovery, composition, generation,
+  integration and reform application/performance acceptance remain pending.
+  Changes are left uncommitted.
+
+## 2026-10-18: R26-10 special territories, proportional seats and cap ledger
+
+R26-09 was already implemented at the start of this task; retained its admission
+and preliminary-winner behavior and completed R26-10 only. The
+[module boundary](../web/src/lib/politics/reform-2026/README.md#special-territories-r26-10)
+documents stage order, inputs, outputs and remaining dependencies. Checked the
+[promulgated Camera amendments](https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticoloDefault/originario?atto.codiceRedazionale=26G00201&atto.dataPubblicazioneGazzetta=2026-10-09&atto.tipoProvvedimento=LEGGE)
+and [Senate amendments](https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticolo?art.codiceRedazionale=26G00201&art.dataPubblicazioneGazzetta=2026-10-09&art.flagTipoArticolo=0&art.idArticolo=2&art.idGruppo=0&art.idSottoArticolo=1&art.idSottoArticolo1=10&art.progressivo=0&art.versione=1)
+against the scoped C92-C93-octies and S20-S21 transcription and N09-N11/I01-I04
+specification. No normative source version changed; the future annotated
+republication remains an acceptance check.
+
+### Delivered boundary and rationale
+
+- `attributeSpecialVotes()` translates N10 separately from preliminary winner
+  calculation. Candidate-only ballots are attributed at each uninominal college,
+  using exact quota/remainders for each candidate's linked lists, before any
+  territorial sum. Single-list and zero-only cases avoid division; positive
+  multi-list only-votes without direct support return a named non-computable
+  result. The entire college is preflighted before draws; candidate/list order is
+  canonical. Equal residuals use warned I03 draws without an invented secondary
+  vote criterion. Senate uses the approved I02 cross-reference reading.
+- Attributed special inputs bypass redistribution. Candidate totals remain
+  unchanged in both representations; their ballots enter national admission and
+  bonus figures once, including VdA-only lists, and never enter ordinary allocation
+  figures. Traces retain additions, exact quotas/remainders and draw/warning events.
+- `allocateCameraTaaSeats()` implements N11 with exact subject and internal-list
+  quotas, then local electoral figures and express statutory draws on equal
+  remainders/figures. The independent `(10,3,1)`, six-seat fixture yields
+  `(4,1,1)`, rather than the ordinary integer-quota `(5,1,0)`. Its capacity is the
+  proportional college's own invariant endowment, with no second subtraction of
+  uninominal seats. I01 local standalone exceptions are unioned/deduplicated with
+  the national communication without changing nationwide admission.
+- Clarified the N11 specification: C93-septies(2)(b) allocates inside an admitted
+  coalition among its locally filed coalition lists. It lacks C83(1)(g)'s express
+  limitation to national (2-bis)/(2-ter) members. A dedicated fixture keeps a list
+  nationally excluded while awarding it local proportional seats. This is the
+  special provision's distinct allocation route, not a change to N07 decisions.
+- TAA provisional candidates follow capolista then preference rank, with filed
+  order on equal counts and all-valid territorial percentage denominators.
+  Missing preferences permit the head but leave later identities unresolved;
+  explicit zero counts remain computable. Unavailable/exhausted candidates retain
+  entitlements with explicit R26-16/17 recovery requirements. Whole-chamber
+  multiple-election precedence and refilling are still deferred to those steps.
+- Corrected TAA preference-budget validation to use the territorial special-list
+  ballots, excluding raw candidate-only components. Previously the compatibility
+  `ordinaryVotes` row could incorrectly reject preferences supported by actual
+  territorial ballots. Schema version 1 still requires that row; it never supplies
+  extra ballots or a separate preference budget. Tests cover both a valid count
+  exceeding its duplicate view and rejection above the raw direct-list budget.
+- `proclaimSpecialUninominalWinners()` consumes the same matching N09 winner
+  communication and accepts no draw dependency. Excluded linked lists cannot
+  remove a winner. Availability may block the identity but not the entitlement.
+  Links and personal affiliation remain separate; coalition seats have no
+  invented individual-list attribution. Nested N09 traces are retained for
+  evidence, not emitted as another set of top-level events.
+- `summarizeSpecialSeats()` counts known uninominal and TAA entitlements once per
+  subject for later caps. Validated Camera/Senate fixtures produce 8/7 special
+  seats. Missing preferences do not change known counts; missing/non-computable
+  Camera proportional entitlement remains null. Ordinary/foreign seats and cap
+  decisions are outside this helper. Public exports and reading maps are updated.
+
+### Verification and limits
+
+- Windows, Node **v24.20.0**, npm **11.19.0**, commands from `web/`.
+  `npm run check`: **zero errors/warnings**. `npm run test`:
+  **37 files / 438 tests passed**, 4.54 s, including **47 new tests** in three
+  files. The focused reform suite passed **15 files / 242 tests** (469 ms).
+  Coverage includes college-before-aggregation rounding, integer conservation,
+  multi-candidate preflight/draw ordering, raw/attributed downstream equivalence
+  with isolated draw streams, local/national access separation, both exact quota
+  stages, local tie criteria/statutory draws, provisional candidates, special
+  restrictions, winner reuse, owned JSON-safe results and validated-envelope
+  integration. Existing N07/N08 and younger-Camera/older-Senate tests still pass.
+- An initial discriminated-union narrowing error was corrected before the final
+  typecheck. One fixture intended to exclude a coalition list initially gave it
+  the best national subthreshold figure; increasing the other subthreshold
+  member's national figure fixed the independent admission expectation.
+- `npm run build`: static build succeeded, 12.50 s reported by Vite.
+  Subsequently `npm run test:e2e -- --reporter=line`: **7 Chromium tests passed**,
+  13.2 s, including existing politics/regional worker and result-import paths.
+  Build and e2e ran sequentially. Existing plugin-timing/color notices were
+  non-blocking. `git diff --check` and whitespace scans of tracked/untracked
+  additions passed.
+- No R code, persistent data, generated defaults, algorithm registry, worker or
+  UI changed. Joint bonus, ordinary allocations/caps, final multiple-election
+  precedence/recovery, generators/calibration and application integration remain
+  R26-11 onward. Later supplementary elections remain outside initial scrutiny.
+  The plan now continues with R26-11. Changes are left uncommitted.
+
+## 2026-10-18: R26-11 joint governability bonus decision
+
+Implemented the requested N12 stage in `reform-2026/bonus.ts`, exported through
+the core index. The [module boundary](../web/src/lib/politics/reform-2026/README.md#joint-bonus-decision-r26-11)
+documents the stage contract and its remaining dependencies. Rechecked the
+applicable [Camera amendments](https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticolo?art.codiceRedazionale=26G00201&art.dataPubblicazioneGazzetta=2026-10-09&art.flagTipoArticolo=0&art.idArticolo=1&art.idGruppo=0&art.idSottoArticolo=1&art.idSottoArticolo1=10&art.progressivo=0&art.versione=1)
+and [Senate amendments](https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticolo?art.codiceRedazionale=26G00201&art.dataPubblicazioneGazzetta=2026-10-09&art.flagTipoArticolo=0&art.idArticolo=2&art.idGruppo=0&art.idSottoArticolo=1&art.idSottoArticolo1=10&art.progressivo=0&art.versione=1)
+against the scoped C83/S16-bis transcription and N12/I03/I04 specification.
+No normative source version changed; the announced annotated republication and
+later corrections remain acceptance checks. Operative excerpts and article
+references are retained beside the translated logic.
+
+### Delivered boundary and rationale
+
+- `determineGovernabilityBonus()` consumes the declared renewal scope, both
+  admission communications, N06 national all-valid figures and explicit bonus
+  links. It selects first place only among admitted coalitions/standalone lists;
+  coalition members are not ranked again. Counts include VdA/TAA votes once and
+  retain excluded subjects' ballots in the threshold denominator.
+- Exact integer cross-products implement inclusive 42% independently in both
+  chambers, ignoring display percentages. Both selected first subjects must be
+  explicitly reciprocally linked. Equal IDs/names imply no link; list/coalition
+  kinds remain distinct. A lower linked subject never replaces the first.
+  Successful output awards 70/35 to the paired subjects, preserving coalition
+  ownership without inventing shares for member lists or candidate identities.
+- Results distinguish awards, computed no-award reasons and non-computable
+  blockers. Threshold and linkage failures can both be reported. Single renewal
+  follows the statutory no-bonus path without ranking/drawing; absent data in a
+  declared joint renewal never synthesizes a chamber or implies single renewal.
+  Both chambers are preflighted before consuming any legal draw.
+- Equal first figures use the existing injected I03 resolver, canonical subject
+  identities and fixed Camera/Senato order. Each fallback emits a warning with
+  simulation/chamber/policy/context metadata; traces retain the selected subject
+  and paired bonus effect. Admission events are not emitted again. Computed
+  results retain counts, denominators, exact percentages and threshold decisions
+  as owned JSON-safe data. Pairing stage records to the same simulation remains
+  the caller's responsibility, as N06/N07/N08 records lack independent run IDs.
+
+### Verification and limits
+
+- Windows, Node **v24.20.0**, npm **11.19.0**, commands from `web/`.
+  `npm run check`: **zero errors/warnings**. `npm run test`:
+  **38 files / 468 tests passed**, 4.48 s, including **30 new bonus tests**.
+  Cases cover exact/below/above 42%, differing chamber winners, reciprocal/missing
+  links, single and incomplete joint renewals, blocked-stage preflight,
+  special-only first subjects, coalition/list identity collisions, excluded
+  subjects, large exact counts, deterministic/permutation-invariant warned draws,
+  chosen-tie bonus effects, ownership/JSON transfer and validated-envelope
+  composition through special attribution, figures and admission.
+- Verification caught a test union-narrowing omission and two expectations that
+  specified only one element of a two-chamber array; corrected the tests before
+  the final passing checks. No scrutiny change was needed for those failures.
+- `npm run build`: static build succeeded, 12.81 s reported by Vite.
+  Subsequently `npm run test:e2e -- --reporter=line`: **7 Chromium tests passed**,
+  13.3 s, covering existing politics/regional worker and import workflows.
+  Build and e2e ran sequentially; existing plugin-timing/color notices were
+  non-blocking. `git diff --check` and new-file whitespace scans passed.
+- No R code, generated data/defaults, registry, worker or UI changed. This is
+  bonus entitlement only: ordinary allocations/caps, territorial bonus seats,
+  candidate proclamations/recovery, generators and application composition remain
+  their later R26 steps. Both plans now continue with R26-12. Changes are left
+  uncommitted.
+
+## 2026-10-18: R26-12 Camera national allocation and cap
+
+Implemented N13/N14 in `reform-2026/camera-national.ts`, exported through the
+core index. The [stage boundary](../web/src/lib/politics/reform-2026/README.md#camera-national-allocation-r26-12)
+documents inputs, traces and subsequent dependencies. Rechecked the applicable
+[Camera amendments, article 1(22)(g)-(n)](https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticolo?art.codiceRedazionale=26G00201&art.dataPubblicazioneGazzetta=2026-10-09&art.flagTipoArticolo=0&art.idArticolo=1&art.idGruppo=0&art.idSottoArticolo=1&art.idSottoArticolo1=10&art.progressivo=0&art.versione=1)
+against the scoped C83 transcription and N13/N14/I04/I08 specification. No
+normative source version changed. Operative excerpts and article references
+remain beside the translated logic; later corrections and annotated
+republication remain acceptance checks.
+
+### Delivered boundary and rationale
+
+- `allocateCameraNationalSeats()` consumes the validated Camera input and the
+  same run's N06/N07/N10/N12 communications. It isolates provisional subject
+  allocation, the cap check, cap correction and internal coalition-list targets.
+  No bonus allocates 384 ordinary seats; bonus paths first allocate 314 and
+  retain 70 bonus seats under the winning subject's ownership.
+- Ordinary list figures exclude VdA/TAA votes. At subject level, coalitions
+  include every linked list's votes; internal allocation uses only admitted
+  (2-bis)/(2-ter) members, including the single best excluded list. All quota
+  allocations discard the quota fraction before assigning integer seats and
+  residuals, using exact remainders, ordinary national figures and injected
+  statutory draws. Zero-seat coalitions do not require division.
+- The cap check includes linked special seat entitlements, even when candidate
+  identities remain unresolved. Exactly 220 is unchanged; 221 triggers a fresh
+  national allocation. For five special seats, majority ordinary entitlement is
+  145, minority entitlement is 169 and the winner retains 220 domestic seats
+  including the bonus. The majority quota is floored for R26-13 without
+  reapportioning its directly fixed target. Estero has no allocation/cap input.
+- Output preserves provisional and final targets separately, majority/minority
+  quotas, coalition allocations, remainder consumption and seeded draw evidence.
+  Bonus seats are never divided among member lists. Results are owned,
+  JSON-safe data and preserve seat-table provenance. The R26-07 bundled table
+  remains provisional census data; the 392 = 384 ordinary + 8 special ledger
+  and 314 + 70 ordinary/bonus alternatives are checked before allocation.
+  Incompatible endowments are rejected rather than rescaled.
+- Incomplete admission/bonus or required special totals block before allocation
+  draws; I04 arithmetic failures retain the failed stage and attempted traces
+  without publishing final targets. Unknown bonus capacity remains null.
+  Upstream draw/warning events are not re-emitted. The N12 simulation ID is
+  checked; pairing N06/N07/N10 communications remains the caller's responsibility
+  because those records lack independent run IDs.
+
+### Verification and limits
+
+- Windows, Node **v24.20.0**, npm **11.19.0**, commands from `web/`.
+  `npm run check`: **zero errors/warnings**. `npm run test`:
+  **39 files / 506 tests passed**, 4.52 s, including **38 new national-allocation
+  tests**. Coverage includes all three paths, 220/221, zero through eight linked
+  special seats, 314-seat conservation, quota/remainder traces, coalition-member
+  filtering and corrected minority coalitions, identity collisions, statutory
+  draws/replay/permutation invariance, I04 failures, endowment checks, ownership
+  and validated single/joint-envelope composition through preceding legal stages.
+- Verification caught two fixture expectations that used an incorrect raw-quota
+  fraction and a TypeScript mutable-fixture assertion mismatch. Corrected the
+  expectations and supplied an explicitly typed input before cloning; the final
+  typecheck and full suite passed.
+- `npm run build`: static build succeeded, 3.95 s reported by Vite.
+  Subsequently `npm run test:e2e -- --reporter=line`: **7 Chromium tests passed**,
+  12.1 s, including politics/regional worker and result-import regressions.
+  Build and e2e ran sequentially; plugin-timing/color notices were non-blocking.
+- No R code, generated data/defaults, registry, worker or UI changed. This step
+  establishes national seat entitlements, not territorial allocation or candidate
+  outcomes. R26-13 onward retain their implementation scope. Both plans now
+  continue with R26-13; changes are left uncommitted.
+
+## 2026-10-18: R26-13 Camera territorial allocation
+
+Implemented N15-N18 in `reform-2026/camera-territorial.ts` with the scoped matrix
+engine in `camera-territorial-matrix.ts`, exported through the core index. Use
+the [stage boundary](../web/src/lib/politics/reform-2026/README.md#camera-territorial-allocation-r26-13)
+for API order, matrix contracts, correction rules and blockers. Rechecked the
+applicable [Camera amendments, article 1(22)(l)-(n) and (23)](https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticolo?art.codiceRedazionale=26G00201&art.dataPubblicazioneGazzetta=2026-10-09&art.flagTipoArticolo=0&art.idArticolo=1&art.idGruppo=0&art.idSottoArticolo=1&art.idSottoArticolo1=10&art.progressivo=0&art.versione=1)
+and unchanged C83(h) wording in the
+[official consolidated comparison](https://documenti.camera.it/leg19/dossier/Pdf/AC0469g.pdf)
+against the scoped transcription and N15-N18/I03/I04/I05 specification. No
+normative source version changed. Applicable operative excerpts/references
+remain beside the translated operations; the later republication/correction
+and decree checks remain R26-21 acceptance work.
+
+### Delivered boundary and rationale
+
+- `allocateCameraConstituencies()` consumes final N13/N14 subject targets,
+  ordinary constituency figures and the selected endowments. N15 uses integer
+  local quotas, exact decimal parts, ordinary national figures and statutory
+  draws. N17 instead uses the corrected majority/minority national divisors,
+  truncates both sides before normalization, and records `I05-v1` explicitly.
+  `allocateCameraCapConstituencies()` is also independently callable.
+- `allocateCameraCoalitionListsInConstituencies()` uses only the national
+  admitted internal-list targets. Initial N16 ties use constituency list votes;
+  corrections import h's national criteria. Excluded linked votes still count
+  in the coalition's subject figure, but not its internal denominator.
+- `allocateCameraColleges()` uses only positive constituency list targets.
+  The normal branch applies college integer quotas with constituency-vote
+  residual ties. The cap branch first calculates majority/minority group
+  quotients and both truncated college indices, reconciles groups within each
+  college, then allocates each group's lists separately. Zero-target groups
+  are inactive and do not evaluate an undefined quota/index.
+- `allocateCameraTerritorialSeats()` composes these three communications,
+  retaining each stage result. It does not proclaim candidates, distribute
+  coalition bonus identities, execute recovery, or register a full algorithm.
+  Missing preferences do not prevent computing ordinary seat entitlements.
+- Matrices expose capacities, divisor/quotient arithmetic, raw/truncated indices,
+  integer parts, decimal parts, reached-target exclusions, provisional/final
+  seats, used/unused/consumed remainders and ordered movements. Integer parts
+  are computed across the full matrix before reached-target residual exclusions,
+  avoiding an arbitrary geographic ordering. Inputs are unmodified; results
+  are separately owned and JSON-safe. Draws are canonical/injected; missing
+  correction tie-breaks warn under I03, separately from statutory initial draws.
+  Upstream events are not re-emitted by downstream stages.
+
+### Correction accounting and explicit limits
+
+- N15/N16/N17 process surplus subjects by excess seats, then ordinary national
+  figure. They search all eligible same-constituency movements before falling
+  back across constituencies. Donors use ascending used decimals; recipients
+  use descending unused decimals. Same-constituency recipient ties use national
+  figures; unspecified cross-constituency destination ties use I03. Movements
+  consume donor remainders and use recipient remainders once.
+- The independent worked fallback `(A,B,C)` fixture has capacities `(2,2,3)` and
+  votes `(40,35,25)`, `(45,40,15)`, `(100,45,155)`. Initial allocations total
+  `(3,2,2)` against targets `(2,3,2)`. Removing A's used `.8` in the first
+  constituency and assigning B's unused `.45` in the third yields the required
+  national targets and local totals `(1,2,4)`. Thus a statutory fallback need
+  not preserve the original individual constituency capacities.
+- If that corrected local communication cannot match its fixed college
+  endowment, N18 returns `constituency-capacity-target-mismatch` and the affected
+  territory, retaining complete N15/N16 results. No compensating seat movement
+  or decree-table rescaling is invented. Any subsequent reconciliation requires
+  reviewed legal support. The scoped coordinator must preserve the blocker;
+  this step does not claim a composed full scrutiny for that exceptional case.
+- N18 normal/list-within-group movements rank donor and recipient colleges
+  independently and can change college totals while preserving constituency
+  list entitlements and total seats. Its cap-group correction instead conserves
+  each college capacity. These operations remain distinct. Undefined arithmetic,
+  impossible residuals or no eligible correction progress return explicit
+  non-computable results without final targets.
+
+### Verification
+
+- Windows, Node **v24.20.0**, npm **11.19.0**, commands from `web/`.
+  `npm run check`: **zero errors/warnings**. `npm run test`:
+  **41 files / 548 tests passed**. The **42 new tests** cover independently
+  worked matrices, all three national paths, local versus national tie criteria,
+  surplus ordering, same/cross-area movements, consumed remainders, no-progress
+  failures, zero groups, I05 sixth/seventh-decimal boundaries and changed-seat
+  cases, special exclusion, stage prerequisites, seeded replay/permutations,
+  ownership and JSON round trips. Existing validated single/joint-envelope tests
+  now continue through N18 with **384/314** ordinary entitlements respectively.
+- Fixture development caught impossible expectations: four required recipient
+  remainder seats cannot be supplied by three single-use remainder cells, and
+  a cap-group donor without a remainder seat cannot cede an integer seat under
+  the specified route. Corrected those hand-worked fixtures; separate tests
+  retain the explicit no-progress behavior. Typechecking also caught an overly
+  narrow mutable-fixture assertion; cloning an explicitly typed input fixed it.
+- `npm run build`: static build succeeded, **3.95 s** reported by Vite.
+  Subsequently `npm run test:e2e -- --reporter=line`: **7 Chromium tests passed**,
+  **12.6 s**, covering politics/regional workers and result import. Build and
+  e2e ran sequentially. Plugin-timing/color notices were non-blocking.
+- No R code, generated snapshots/defaults, registry, worker or UI changed.
+  Senate allocation, proclamations, multiple-election precedence, recovery and
+  application integration retain their subsequent steps. Both plans now continue
+  with R26-14; changes are left uncommitted.
+
+## 2026-10-19: R26-14 Senato regional allocation and cap
+
+Implemented N19/N20 in `reform-2026/senate-regional.ts`, exported through the core
+index. Use the [regional stage boundary](../web/src/lib/politics/reform-2026/README.md#senato-regional-allocation-r26-14)
+for inputs, arithmetic, ordered cap movements, failure states and later-stage
+limits. Rechecked S16-bis against the scoped transcription and the
+[official Senate amendments, article 2(9)(f)-(h)](https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticolo?art.codiceRedazionale=26G00201&art.dataPubblicazioneGazzetta=2026-10-09&art.flagTipoArticolo=0&art.idArticolo=2&art.idGruppo=0&art.idSottoArticolo=1&art.idSottoArticolo1=10&art.progressivo=0&art.versione=1).
+No source version changed. Operative excerpts and references remain beside the
+translated operations. Acceptance-time correction/decree checks remain R26-21.
+
+### Delivered behavior and accounting
+
+- `allocateSenateRegions()` consumes same-run N06/N08/N10/N12 communications.
+  N19 allocates subjects independently in each ordinary region, using integer
+  quotas, exact remainders, regional electoral figures and statutory draws.
+  Every linked list contributes to its coalition's figure; coalition-to-list
+  allocation remains N21. National totals are sums of regional allocations,
+  never a national proportional allocation redistributed to regions.
+- Endowments conserve 196 domestic seats: 189 ordinary plus 7 special, or
+  154 ordinary plus 35 bonus plus 7 special. Regional alternative-capacity
+  differences must match regional bonus seats. Incompatible tables are rejected
+  without rescaling. Bundled census-table provenance remains provisional I08.
+- `applySenateCap()` exposes the independently callable N20 boundary. Exactly
+  113 is unchanged; 114 triggers correction. The majority ordinary target is
+  `78 - linkedSpecialSeats`, retaining the 35 bonus seats. Special entitlements
+  count once regardless of unresolved candidate identities; Estero is absent.
+  No bonus means no cap check or correction.
+- The ascending national removal ranking uses raw vote remainders that supplied
+  majority seats. Regional quotient decimal parts would give a different order
+  when regional quotas differ. Equal values share a rank until a required
+  removal invokes I03, avoiding draws for irrelevant ordering below the cap.
+- After the single-use remainder removals, percentage passes rank exact
+  majority shares against all valid regional votes, including excluded lists.
+  The first pass excludes remainder-phase regions and protects a sole seat.
+  Later passes readmit remainder-phase regions and protect the current final
+  seat. The six-sentence structure of S16-bis(1-ter)(a) matters: sentence six
+  repeats only sentences three/four (percentage ranking/one per region), not
+  sentence five's initial exclusions, and specifies current-last-seat protection.
+  Final review temporarily carried the initial exclusions into every pass after
+  miscounting those sentences; checking the numbered wording corrected that
+  interpretation before final verification. Tests cover re-entry, an empty
+  first pass, and sole used-remainder seats which can become zero before the
+  percentage protection applies.
+- Every removal has a corresponding assignment in the same region. Recipients
+  use their largest unused remainder once, then regional votes after all such
+  remainders are exhausted. Equal removal remainders, percentages, recipient
+  remainders and fallback votes use warned seeded I03 draws. No unexpressed
+  regional-vote secondary criterion is imported into remainder-correction ties.
+- Results retain provisional regions and national totals separately from final
+  targets, exact quotas/remainders, `I06-v1`, ordered movements, pass numbers,
+  donor/recipient seat counts and remainder states before/after, tie resolutions,
+  draws and warnings. Donated used remainders become consumed; recipient unused
+  remainders become used. Each paired movement preserves its region's capacity.
+- Incomplete prerequisites block before allocation draws. I04 arithmetic failures
+  retain the affected region and attempted quota trace. No eligible recipient
+  or no lawful removal progress retains provisional data and attempted movements
+  without publishing final targets. Outputs are owned and JSON-safe; input
+  permutations preserve replay. Upstream warnings/draws are not re-emitted.
+  N12's simulation ID is checked; N06/N08/N10 pairing remains the caller's
+  responsibility because those communications lack independent run IDs.
+
+### Verification and limits
+
+- Windows, Node **v24.20.0**, npm **11.19.0**, commands from `web/`.
+  `npm run check`: **zero errors/warnings**. Final `npm run test`:
+  **42 files / 611 tests passed**, 6.05 s, including **63 new tests**.
+  Coverage includes all three paths, every zero-to-seven linked special-seat
+  count at 113/114, regional rather than national allocation/ties, raw-remainder
+  ranking, repeated passes and exclusions, last-seat protection, recipient
+  exhaustion/fallback, I03 warnings, explicit no-progress and arithmetic failures,
+  zero-seat regions, endowment/prerequisite checks, coalition/list identity
+  collisions, ownership, JSON and seeded permutation replay. Validated single
+  and joint envelopes continue through N19/N20 with 189/154 ordinary seats;
+  the joint majority has 71 ordinary + 7 special + 35 bonus = 113.
+- Fixture verification caught an inconsistent national capacity, an incorrect
+  expectation for a floored quota and mutable/union fixture typing errors.
+  Corrected the fixtures; the final checks above passed.
+- `npm run build`: static build succeeded, **5.33 s** reported by Vite.
+  Subsequently `npm run test:e2e -- --reporter=line`: **7 Chromium tests passed**,
+  **15.7 s**, covering politics/regional workers and result import. Build and
+  browser checks ran sequentially; plugin-timing/color notices were non-blocking.
+- No R code, generated snapshots/defaults, registry, worker or UI changed.
+  Internal Senate lists/colleges, proclamations, recovery and full application
+  integration retain their later steps. Both plans now continue with R26-15;
+  changes are left uncommitted.
+
+## 2026-10-19: R26-15 Senato list and college allocation
+
+Implemented N21/N22 in `reform-2026/senate-territorial.ts`, exported through the
+core index. Use the [stage boundary](../web/src/lib/politics/reform-2026/README.md#senato-list-and-college-allocation-r26-15)
+for inputs, arithmetic, traces, failures and remaining scope. Rechecked S17
+against the scoped transcription and [official article 2(10)](https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticolo?art.codiceRedazionale=26G00201&art.dataPubblicazioneGazzetta=2026-10-09&art.flagTipoArticolo=0&art.idArticolo=2&art.idGruppo=0&art.idSottoArticolo=1&art.idSottoArticolo1=10&art.progressivo=0&art.versione=1).
+No source version or interpretation policy changed; acceptance-time source and
+decree checks remain R26-21.
+
+### Delivered behavior and rationale
+
+- Regional coalition-list allocation uses corrected N19/N20 subject targets,
+  only admitted 2-bis/2-ter members, integer quotas, exact remainders, regional
+  list votes and statutory draws. Single-college regions take those targets
+  directly. Ordinary list allocation never divides the coalition's 35 bonus
+  seats among member lists.
+- Multi-college ordinary allocation uses integer quotas, reached-target
+  exclusion, independently ranked surplus/deficit movements and college votes
+  for initial remainder ties. The corrected-cap path first allocates majority
+  and minority groups with both indices truncated to six decimals; group ties
+  also use college votes. Group corrections stay within each college, then
+  S17(4) allocates the lists within each group. Region and regional list totals
+  are conserved; independent list corrections may change college totals.
+- Extracted the existing Camera matrix arithmetic to `territorial-matrix.ts`,
+  with explicit chamber and caller-selected criteria. Camera criteria, context
+  IDs and algorithms retain their behavior. Equivalent college correction and
+  index formulas are shared; Senate regional and college tie figures remain
+  distinct. Matrix traces now identify the chamber explicitly.
+- Stage communications check source/run identity where available, final subject
+  and admitted-list coverage, regional capacities and college/regional figure
+  reconciliation. N06/N08 still lack run IDs, so their pairing is the caller's
+  responsibility. Zero-seat stages/groups skip undefined divisions. Invalid
+  communications throw; non-computable prerequisites, I04 failures and missing
+  lawful correction progress retain traces without final targets. Statutory
+  draws and warned I03 correction draws remain distinct, and upstream events
+  are not emitted again by downstream stages.
+
+### Verification and limits
+
+- Windows, Node **v24.20.0**, npm **11.19.0**; commands from `web/`.
+  Final `npm run check`: **zero errors/warnings**. `npm run test`:
+  **43 files / 649 tests passed**, **6.15 s**, including **38 new tests**.
+  Existing Camera matrix/territorial and old-law regressions passed.
+- Worked fixtures cover integer versus exact coalition quotas, admitted-member
+  denominators, single/multiple colleges, independent regions and shared-region
+  territories, regional list targets, surplus/deficit corrections, reached-target
+  exclusion, zero-capacity colleges/groups, six-decimal changed-seat examples,
+  college-versus-regional tie figures, statutory/I03 draws, no-progress failures,
+  source/run/figure checks, ownership, JSON and seeded permutation replay.
+  Validated single/joint envelopes now continue through N22: 189/154 ordinary
+  seats respectively, with the joint majority retaining 71 ordinary seats plus
+  7 special and 35 bonus seats from N20.
+- Initial fixture runs exposed missing contesting slates, shared source-object
+  aliases, fixture admission below threshold, readonly fixture typing and an
+  expectation omitting the separate I03 recipient draw. Corrected the fixtures;
+  final checks above passed. The validated multi-college envelopes legitimately
+  require seeded correction draws rather than the previous no-draw test context.
+- `npm run build`: static build succeeded, **5.46 s** reported by Vite.
+  Subsequently `npm run test:e2e -- --reporter=line`: **7 Chromium tests passed**,
+  **15.5 s**. Build and browser checks ran sequentially. Plugin-timing/color
+  notices were non-blocking.
+- No R code, generated snapshots/defaults, registry, worker or UI changed.
+  Candidate proclamations, multiple-election precedence, recovery and application
+  integration retain their later steps. Both plans now continue with R26-16;
+  changes are left uncommitted.
+
+## 2026-10-19: R26-16 proclamations and multiple elections
+
+Implemented N23 in `reform-2026/proclamations.ts` and N24 in
+`reform-2026/multiple-elections.ts`, exported through the legal-core index.
+Use the [stage boundary](../web/src/lib/politics/reform-2026/README.md#proclamations-and-multiple-elections-r26-16)
+for inputs, provisional batches, precedence decisions and the R26-17 handoff.
+Rechecked Camera C83-bis/C84/C85/C93-octies and Senate S17/S17-bis/S20-bis
+against the scoped transcription, [official Camera amendments](https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticolo?art.codiceRedazionale=26G00201&art.dataPubblicazioneGazzetta=2026-10-09&art.flagTipoArticolo=0&art.idArticolo=1&art.idGruppo=0&art.idSottoArticolo=1&art.idSottoArticolo1=10&art.progressivo=0&art.versione=1),
+[Senate amendments](https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticolo?art.codiceRedazionale=26G00201&art.dataPubblicazioneGazzetta=2026-10-09&art.flagTipoArticolo=0&art.idArticolo=2&art.idGruppo=0&art.idSottoArticolo=1&art.idSottoArticolo1=10&art.progressivo=0&art.versione=1)
+and the [Camera consolidated comparison](https://documenti.camera.it/leg19/dossier/Pdf/AC0469g.pdf)
+for unchanged cross-references. No source version or interpretation policy
+changed; acceptance-time source and decree checks remain R26-21.
+
+### Delivered behavior and rationale
+
+- N23 receives final ordinary list targets and the existing special/TAA and
+  bonus communications. It elects the winning bonus slate in filed order,
+  retaining personal affiliation separately from coalition entitlement, then
+  ordinary/TAA capolista and preference-ranked candidates. Special winners are
+  reused without new draws; TAA seat IDs are preserved without double counting.
+- Missing preferences leave dependent identities unresolved while preserving
+  known heads and all entitled seats. Explicit zeros use filed preference order.
+  Unavailable candidates and exhaustion remain explicit recovery requirements;
+  no replacement route is run implicitly. Stage/run/source checks and target,
+  figure and seat-total checks reject mismatched communications. Filed
+  special/bonus incompatibilities are rejected before proclaiming candidates.
+- N24 applies special uninominal, bonus and capolista precedence in order.
+  Repeated heads use the lowest exact list percentage; other repeated wins use
+  the highest exact individual percentage. Only the surviving role's wins enter
+  comparisons. Final equal percentages use canonical seeded I03 draws with
+  warnings; undefined percentages leave competing seats unresolved without
+  fabricating a zero or a winner.
+- Each person retains at most one filled seat. Released seats retain their ID,
+  category and original entitlement, with explicit links to the former candidate
+  and retained seat. Decisions record eligible/considered seats, legal references
+  and draw IDs. Outputs are owned, JSON-safe and replay under source permutations.
+  A complete N23 batch is provisional; released/unresolved seats keep N24 partial.
+
+### Verification and limits
+
+- Windows, Node **v24.20.0**, npm **11.19.0**; commands from `web/`.
+  `npm run check`: **zero errors/warnings**. `npm run test`: **45 files /
+  699 tests passed**, **4.64 s**, including **50 new tests**. Focused N23/N24
+  verification also passed **50/50**, including the final fixture refinement.
+- Worked fixtures cover both chambers, every precedence, mixed roles, list
+  percentage versus individual percentage, exact I03 ties, undefined values,
+  missing/zero preferences, unavailable candidates, exhaustion, preserved seat
+  identities, incompatible input, communication checks, ownership and JSON replay.
+  Validated joint envelopes continue through N23/N24 with **392/196** entitled
+  seats and **70/35** retained bonus members. Mixed-affiliation coalition slates
+  keep coalition `listId: null`; a real special/TAA double election retains the
+  special seat. Deliberately oversized fixture colleges remain exhausted/partial,
+  correctly preserving entitlements rather than claiming complete recovery.
+- Initial verification caught fixture-only readonly typing and an incorrect
+  Camera helper import name; these were corrected before the final checks.
+- `npm run build`: static build succeeded, **5.12 s** reported by Vite.
+  Subsequently `npm run test:e2e -- --reporter=line`: **7 Chromium tests passed**,
+  **12.6 s**. Build and browser checks ran sequentially. Plugin-timing/color
+  notices were non-blocking; existing politics/regional workflows passed.
+- R26-17 still owns ordered exhaustion/replacement routes and repeated
+  proclamation/recovery with a progress condition. R26-18 composition/registry
+  and later generators, workers and UI remain inactive. No R code or generated
+  snapshots/defaults changed. Both plans now continue with R26-17; changes are
+  left uncommitted.
+
+## 2026-10-19: R26-17 initial exhaustion and replacements
+
+Implemented N25/N26/N27 in `reform-2026/recovery.ts`, exported through the
+legal-core index. Use the [recovery boundary](../web/src/lib/politics/reform-2026/README.md#initial-exhaustion-and-replacements-r26-17)
+for its inputs, immutable remainder evidence, rounds and R26-18 handoff.
+Rechecked Camera C84/C86/C83(1-quinquies) and Senate S17-bis/S19/S16-bis against
+the scoped transcription, [official Camera amendments](https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticolo?art.codiceRedazionale=26G00201&art.dataPubblicazioneGazzetta=2026-10-09&art.flagTipoArticolo=0&art.idArticolo=1&art.idGruppo=0&art.idSottoArticolo=1&art.idSottoArticolo1=10&art.progressivo=0&art.versione=1),
+[Senate amendments](https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticolo?art.codiceRedazionale=26G00201&art.dataPubblicazioneGazzetta=2026-10-09&art.flagTipoArticolo=0&art.idArticolo=2&art.idGruppo=0&art.idSottoArticolo=1&art.idSottoArticolo1=10&art.progressivo=0&art.versione=1)
+and the [Camera consolidated comparison](https://documenti.camera.it/leg19/dossier/Pdf/AC0469g.pdf).
+The approved I07 regional-first protocol remains unchanged; final official-source
+and seat-decree checks remain R26-21.
+
+### Delivered behavior and rationale
+
+- Camera initial exhaustion follows all permitted C84 levels. Initial releases
+  use C86(2)'s limited reference and cannot reach C84(7). Senate ordinary
+  recovery exhausts the original regional list and coalition before residual
+  same-list cross-region recovery. It never imports ordinary C84(7).
+- Bonus shortages use the separate express C83/S16-bis route: local winning
+  list/coalition, member-list unused then used remainder, best college list
+  percentage, candidate ranking; only then other territories ranked by the
+  bonus-winning subject. Coalition entitlement is preserved without invented
+  member-list bonus quotas. Territorial admissions are explicit inputs, so an
+  excluded filed list cannot become a coalition replacement.
+- Final allocation decimals and states remain immutable priority evidence,
+  separate from allocation-transfer traces. Already-consumed correction
+  decimals are already-used, never unused. Recovery fills further eligible
+  candidate slots without recalculating quotas or imposing an invented quota
+  on the number of replacement identities a destination may supply.
+- Proposal rounds apply N24 repeatedly. Each successful round adds an unelected
+  identity; undefined comparisons freeze their seats and unchanged states stop.
+  A released recovered seat searches at its actual election location while its
+  original entitlement, category and ID survive. Missing preferences do not
+  become zero and do not conceal independently proven candidate exhaustion.
+  Missing applicable ranking evidence remains unresolved; exhausted routes
+  remain unfilled. Lower already-used missing decimals do not block a known
+  unused tier.
+- Ordinary decimal ties use statutory C84(8) draws. Bonus ties retain I03.
+  Extended N24 only for explicitly marked ordinary-recovery proposals into
+  multiple bonus seats: no final comparison is supplied, so warned I03 chooses
+  between those seats. Filed multiple bonus candidatures remain invalid.
+  The specification records this I03 boundary. Every proposed I07 cross-region
+  recovery warns, including subsequent releases; trace dispositions and draw
+  references preserve the complete history.
+
+### Verification and limits
+
+- Windows, Node **v24.20.0**, npm **11.19.0**; commands from `web/`.
+  `npm run check`: **zero errors/warnings**. `npm run test`: **46 files /
+  748 tests passed**, **4.53 s**, including **49 new recovery tests**.
+  Focused recovery and proclamation verification passed **74/74**.
+- Worked fixtures cover I07-A through I07-F, every route, used/unused ordering,
+  coalition and bonus selection, all-used variants, statutory versus I03 draws,
+  repeated subentro, fully exhausted candidates, undefined comparisons, missing
+  preferences/quotients, admitted lists, ownership and source-permutation replay.
+  A cross-region recovered seat released by N24 is replaced at its actual
+  destination while preserving its original regional entitlement.
+- Existing validated joint fixtures now continue through recovery with
+  **392/196** entitlements, **70/35** bonus holders, unique final identities and
+  unchanged special winners. Their deliberately oversized colleges correctly
+  retain unfilled residue rather than claiming full scrutiny acceptance.
+- Initial focused checks exposed source-order-dependent eligibility trace
+  ordering; canonicalized that evidence. An equal-percentage fixture required
+  corrected supplied counts for its intended no-draw comparison, and test
+  mutations needed explicit union narrowing. Final focused/full checks passed.
+- `npm run build`: static build succeeded, **3.85 s** reported by Vite.
+  Subsequently `npm run test:e2e -- --reporter=line`: **7 Chromium tests passed**,
+  **12.6 s**. Build and browser checks ran sequentially. Plugin-timing/color
+  notices were non-blocking. `git diff --check` passed.
+- R26-18 still owns complete stage composition, admission/remainder adapters
+  and registry activation. Later scenario/generator, worker and UI stages remain
+  inactive. Future vacancies and supplementary elections remain outside scope.
+  No R code, generated snapshots/defaults or persistent data changed. Both plans
+  now continue with R26-18; changes are left uncommitted.
+
+## 2026-10-19: GitHub Actions/Pages target and final publication gate
+
+Luca selected GitHub Actions plus GitHub Pages on GitHub Free as the desired
+hosting target for the whole migration, with reassessment and conditional
+publication as its last step, before post-migration additions. Luca retains the
+merge into `main`; the current checkout is named `migrazione` (the migration
+branch), and no branch rename or merge was performed.
+
+### Decision and targeted documentation changes
+
+- `MIGRATION_PLAN.md` now sets the hosting target and ends with a gate covering
+  current free-tier eligibility/limits, complete cold/warm-cache Linux runner
+  measurements, production transfer sizes, all migrated election kinds and
+  project-base browser checks. Passing feasibility leads to publication from
+  `main` after Luca's merge and deployed smoke tests. A failed assessment keeps
+  the task open and triggers a review of free alternatives.
+- `AGENTS.md` retains only stable hosting/base-path and release-data rules.
+  `data/README.md` owns the shared non-interactive Node preparation contract:
+  clean-clone regeneration, versioned sources/models/bundles/defaults, optional
+  caches, checksum failures and production-only payloads. Its existing
+  `--publish` command publishes a local source artifact, not a website.
+- R26-18 keeps the composed legal core browser-worker compatible. R26-19
+  delivers its required historical import/calibration through shared Node
+  commands; R26-20 handles configurable project-base URLs, versioned payloads
+  and explicit missing-data failures. R26-21 includes preparation typechecking
+  and production-data/base-path acceptance. Its application acceptance remains
+  distinct from final all-election hosting acceptance and publication.
+- Existing model/legal decisions, R26 ordering and completion markers remain
+  unchanged. The final gate contains no fixed provider quotas that could become
+  stale; recheck the official [Pages limits](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits),
+  [Actions limits](https://docs.github.com/en/actions/reference/limits),
+  [runner resources](https://docs.github.com/en/actions/reference/runners/github-hosted-runners)
+  and [billing allowances](https://docs.github.com/en/billing/concepts/product-billing/github-actions)
+  when executing it.
+
+### Assessment evidence and verification scope
+
+- The preceding hosting assessment verified a public repository and measured
+  145,471,137 bytes of pinned source downloads, cached geography/census generation
+  in 1.67 s, and a successful static build in 4.71 s (28 files / 116,030,390 bytes).
+  The politics snapshot was 75,921,415 bytes, or 4,034,519 bytes with gzip;
+  Emilia-Romagna was 5,102,281 bytes, or 325,628 bytes with gzip. These were local
+  Windows measurements, excluding cold downloads, dependency installation,
+  future import/calibration and actual deployed content encoding. They do not
+  establish free-runner or publication acceptance.
+- Documentation-only verification: `git diff --check` passed; all **100 local
+  links/anchors** in the five edited documents resolved. A structural check
+  confirmed the publication gate is the last migration task before the
+  post-migration section. Application tests were not rerun for these prose edits.
+  No application, workflow, source manifest, generated data or legal/model
+  implementation changed; no R26 step or publication was completed.
+
+## 2026-10-19: R26-18 composed scrutiny and simulation registry
+
+Implemented the requested composition/registry step. Operational state is in the
+[reform plan](politics-reform-2026-plan.md#r26-18-composition-and-registry); use the
+[core boundary](../web/src/lib/politics/reform-2026/README.md#composition-and-registry-r26-18)
+for direct execution, request/result types, registry availability and limitations.
+
+### Delivered behavior and rationale
+
+- `runPoliticsReformScrutiny()` validates the full owned envelope before draws,
+  derives all stage communications within one global simulation, and composes
+  N01-N27 through N28. It reuses special winners, attributes raw votes once,
+  aggregates distinct national/ordinary figures, decides the paired bonus, runs
+  each allocation/cap path, proclaims candidates, resolves multiple elections,
+  and performs terminal initial recovery. It accepts single-chamber renewals.
+- Added the simulation-level `runPoliticsSimulation()` boundary and registered
+  both real algorithms. The legacy adapter calls the unchanged scrutiny and
+  checks supplied `SIM` tags. Reform requests must match their envelope's
+  algorithm/simulation. Unknown IDs are rejected by the common resolver; reform
+  is explicitly unavailable in production mode until R26-19/20. The existing
+  legacy generator/worker resolver retains its reported unknown-ID fallback,
+  but now rejects a known reform request instead of executing the old law.
+- Default legal streams include seed, stream version, algorithm and simulation
+  ID; callers can still inject draws. Results retain source/model/seat metadata,
+  conditions, applied policy versions, admission/bonus reasons, detailed stage
+  communications, exact arithmetic, located allocation movements and final
+  original/actual seat locations. Owning stages contribute warnings/draws once.
+  Terminal ledgers check domestic entitlement totals and unique candidates.
+- Recovery adapters use admissions, including zero-seat lists and local TAA
+  exceptions, rather than positive targets alone. They preserve final matrix
+  decimal states, Senate cap transitions, regional coalition-list quotas and TAA
+  quotas with source IDs. A consumed decimal stays in the already-used tier;
+  recovery does not consume it again. Coalition affiliations remain separate
+  from bonus entitlements. Located transfer summaries also preserve coalition
+  membership rather than relabelling member lists as standalone subjects.
+- Composition exposed the need for a unique TAA proportional communication.
+  Added an endowment check for exactly one Camera TAA proportional college,
+  preventing selection of an arbitrary view or duplicate proportional counting
+  before any draw. Legal references remain next to this validation and the
+  existing scrutiny operations.
+
+### Verification, problems and limits
+
+- Independently worked complete fixtures use six-seat ordinary colleges,
+  disjoint seven-person slates and supplied preferences. Full domestic A/B/C
+  entitlements are: no bonus Camera `179/149/64`, Senate `92/73/31`; bonus
+  without cap Camera `217/122/53`, Senate `111/59/26`; corrected cap Camera
+  `220/121/51`, Senate `113/64/19`. Tests explain their quota/remainder arithmetic,
+  count 8/7 special seats, preserve 70/35 bonuses, and fill 392/196 unique people.
+- Additional composed fixtures cover mixed-affiliation coalition bonuses,
+  ordinary/bonus replacement, I07 cross-region ordinary and bonus recovery,
+  missing preferences, fully unavailable candidates, single renewals, zero-vote
+  and zero-direct-support failures, injected/seeded replay, simulation identity,
+  owned JSON output, source remainder states and raw/final vote equivalence.
+- Some source stages do not calculate college/coalition or single-college
+  quotients. The adapter does not invent them or substitute cap group indices.
+  A constructed shortage test proves the affected recovery ends explicitly
+  `unresolved` with `missing-recovery-remainder`, retaining all 588 entitlements.
+  This remains a candidate-output limitation requiring reviewed source-stage
+  support before claiming unrestricted candidate-level acceptance. The existing
+  focused R26-17 boundary can accept independently established communications.
+- The initial legacy adapter test compared R keyed-table ordering directly to
+  TypeScript emission order. Corrected the test to compare keyed tables, as the
+  existing golden checks do, while also requiring exact equality with the direct
+  TypeScript function. All ten paired old-law simulations, including simulation
+  4, pass without changing legacy legal behavior. An initial exhaustion fixture
+  used low counts that correctly failed I04 integer-quota allocation; replaced
+  it with a valid full allocation and explicit post-filing unavailability.
+- `npm run check:data` passed; `npm run check` passed with zero errors/warnings;
+  `npm run test` passed **766 tests in 48 files**, without skips. The static build
+  passed. Browser verification passed **8 Chromium tests**, including politics
+  and regional regressions and a new bundled module-worker test of direct reform
+  execution, transferable paired results, replay and unavailable/unknown IDs.
+  The browser worker is test-only and does not activate production dispatch.
+  Build/e2e ran sequentially; Vite plugin timing and terminal color notices were
+  informational, with successful exits.
+- R26-19 generation/model fitting and R26-20 scenario/production worker/UI/export
+  integration remain inactive. No generated defaults, data bundles, legal
+  interpretation policy, production deployment or saved-file migration changed.
+  Both plans now continue with R26-19. Changes are left uncommitted.
+
+## 2026-10-19: recovery evidence handoffs and provisional I10
+
+Follow-up to R26-18, explicitly authorized by Luca: repair missing downstream
+communications without new legal assumptions; research the inherited C84(5)
+coalition phrase and the R implementation; use the proposed member-list maximum
+provisionally if the evidence does not establish another interpretation. The
+[interpretation register](politics-reform-2026-specification.md#interpretation-register)
+contains the operational I10-v1 policy. The [core README](../web/src/lib/politics/reform-2026/README.md#composition-and-registry-r26-18)
+describes execution and the remaining boundary.
+
+### Source review and authorized decision
+
+- Searched the exact phrase and C84(5) recovery terminology, including election
+  instructions, candidate exhaustion, parliamentary material and interpretations.
+  The [2017 Senate dossier 548 comparison](https://www.parlamento.it/show-doc?id=1046530&leg=17&part=dossier_dossier1-sezione_sezione11-h2_h21&tipodoc=DOSSIER)
+  confirms that the wording predates the reform. The [Camera dossier of 26 June 2026](https://documenti.camera.it/leg19/dossier/testi/AC0469b.htm)
+  discusses member-list decimals, but its summary does not conclusively resolve
+  the exact college-selection operation. The [6 October 2021 Senate debate](https://www.parlamento.it/show-doc?id=1313906&leg=18&part=doc_dc-sedetit_vdp-genbl_rv-intervento_durnwalderautsvppattuv&tipodoc=SommComm)
+  quotes C84(5) and debates coalition replacements; the cited intervention is not
+  an authoritative algorithm specifying this maximum. No conclusive official
+  ruling or operational interpretation was located. This is a scoped search
+  finding, not proof that no interpretation exists.
+- Inspected `R/politiche/scrutinio.R`: `cerca_accettori()` filters candidate-bearing
+  list/college rows and sorts unused before used, then descending list decimal.
+  `cerca_naz()` filters the requested lists and unused/used tier, then aggregates
+  list decimals by constituency with `max`. It never constructs a new coalition
+  quotient. This corroborates member-list maximum reasoning in a different
+  territorial operation, not empirical proof of C84(5)'s college ordering.
+- Crucially, `subentro()` calls the local `cerca_accettori(i)` without forwarding
+  `coal`/`pluri`; this is the previously recorded legacy parity boundary. Thus
+  real-election output agreement cannot establish this branch's interpretation
+  without demonstrated coverage. No assertion was made that the disputed case
+  actually occurred in a historical election. The R and legacy TypeScript paths
+  remain unchanged, including this known forwarding behavior.
+- With inconclusive exact evidence and no established contrary interpretation,
+  applied Luca's authorized provisional I10-v1: rank candidate-bearing colleges
+  by the largest unused decimal of any admitted member list filed there, then
+  the largest already-used decimal. Preserve actual member-list source IDs and
+  states; do not sum votes/decimals or invent coalition quotients. Allocation
+  records of an exhausted member still contribute to that college's priority;
+  eligible candidates in another member list can fill its seat. Then apply
+  the normal member-list ordering inside the selected college. Equal college
+  priorities use the statutory C84(8) draw. Emit an I10 warning on application,
+  retain I10 in the recovery trace and composed policy metadata, and preserve
+  independent I07 cross-region warnings and route ordering.
+
+### Mechanical repairs, tests and remaining boundary
+
+- A sole candidate-bearing alternative now bypasses a comparison that cannot
+  affect the choice. No missing quotient or percentage is replaced by zero;
+  existing evidence is retained and no draw is consumed. Multiple alternatives
+  still require all applicable ranking evidence.
+- The S17(3) single-college path now receives the existing regional list quotient
+  and final state from N19 (standalone) or N21 (coalition member). New scoped IDs
+  retain `sourceId` pointing to the original record; no allocation or vote ratio
+  is recomputed. Tests include Senate cap states and coalition member records.
+- The formerly blocked constructed coalition-shortage election now fills all
+  588 domestic seats. Added tests for member maxima conflicting with artificial
+  coalition decimals, exhausted member witnesses, unused versus used/consumed
+  states, statutory ties and permutation replay, singleton comparisons, exact
+  source aliases, warning/trace/policy retention, and direct browser-worker I10
+  execution. Existing missing-evidence tests now supply multiple alternatives,
+  because a single alternative no longer needs that comparison.
+- One distinct problem remains, reproduced with a full valid envelope: an
+  admitted list has zero regional entitlement, hence is excluded from the local
+  college-allocation denominator. There is no original college/list quotient
+  to communicate. Recovery can choose a sole destination (and the single-college
+  regional evidence is carried), but comparison between two such destination
+  colleges remains `unresolved: missing-recovery-remainder`. Establishing a
+  divisor or alternative priority here requires an additional legal/modelling
+  decision; this is not the now-resolved absence of a coalition quotient. The
+  regression preserves this distinction and all seat entitlements. The same
+  principle preserves nulls for zero-capacity allocation paths. Recorded the
+  remaining comparison as a precondition for unrestricted candidate acceptance.
+- Verification: `npm run check:data` and `npm run check` passed (zero diagnostics);
+  `npm run test` passed **775 tests in 49 files**, with no skips; the static build
+  passed; **9 Chromium browser tests** passed, including I10 recovery and policy
+  warnings in a bundled module worker. Build/e2e ran sequentially. No production
+  generation, UI selector, source data, generated defaults or deployment changed.
+  Changes are left uncommitted.
+
+## 2026-10-19: provisional I11 excludes zero territorial targets from recovery
+
+Luca explicitly resolved the last edge case with the provisional reading that a
+list with zero territorial seat entitlement has no college quotient and cannot
+obtain a recovery seat. This supersedes the zero-entitlement limitation recorded
+in the preceding I10 follow-up. The current rule is in the
+[interpretation register](politics-reform-2026-specification.md#interpretation-register).
+
+- Implemented `I11-v1` before every recovery candidate/priority selection,
+  including a sole destination, coalition partners and bonus replacements.
+  Admitted zero-target lists also cannot supply an I10 priority witness. Targets
+  are the final ordinary list allocations after territorial/cap operations and
+  before recovery: Camera constituency, Senate region, and Camera TAA
+  proportional allocation. A zero allocation in one college does not exclude a
+  list whose territorial target is positive.
+- Added explicit nonnegative `ordinarySeats` to the internal recovery admission
+  communications. The coordinator obtains these from final constituency/regional
+  list and TAA targets, without inferring missing targets as zero. Standalone
+  recovery calls must supply the same evidence; malformed/missing counts fail
+  before execution. Existing initial ordinary entitlements must have a positive
+  territorial list target.
+- `InitialRecoveryResult.excludedLists` records excluded territory/list pairs
+  with `zero-territorial-entitlement`; recovery and composed policy metadata
+  record I11-v1. Final targets remain immutable throughout recovery. Zero-target
+  Senate/TAA college aliases are not created, while original territorial
+  allocation traces remain available.
+- Both full-envelope regressions (one and two zero-target destination colleges)
+  now exclude those candidates and terminate with explicit unfilled seats when
+  permitted routes exhaust, preserving all 588 domestic entitlements. They no
+  longer end in `missing-recovery-remainder` or fill the formerly permitted sole
+  zero-target destination. This closes the identified zero-territorial-target
+  ambiguity under the authorized provisional policy; genuinely missing evidence
+  and undefined arithmetic remain separate failure states.
+- Added focused cases for Camera/Senate singleton exclusions despite supplied
+  quotients, continuing after an excluded coalition partner, coalition bonus
+  replacement, missing/invalid target rejection and TAA zero-target evidence.
+  Updated prior stage fixtures to communicate their real territorial totals.
+- Verification: `npm run check:data` and `npm run check` passed, with zero
+  diagnostics. All **784 unit tests in 49 files** and **9 Chromium browser tests**
+  passed, including browser transfer of I11 metadata and exclusions. Playwright's
+  static build passed before browser execution. Plans and current API
+  documentation now describe the resolved boundary. Legacy law and later
+  generator/UI integration remain untouched; changes are left uncommitted.
+
+## 2026-10-19: R26-19 scenarios, historical preparation and generation
+
+Implemented the approved R26-02/03/04 generation boundary after verifying the
+existing R26-18 composition and registry. The production selector/worker remains
+unavailable for the reform until R26-20. The
+[generation guide](politics-reform-2026-generation.md) owns the task map, commands,
+contracts and replay instructions; the separate
+[protocol](politics-reform-2026-generation-protocol.md) owns diagnostic gates and
+replication budgets.
+
+### Preparation and evidence
+
+- Added a pinned eight-source historical/model manifest and non-interactive
+  `data:reform:download`, `data:reform:generate`, `data:reform:check` and
+  `data:reform:validate` commands on the existing Node/TypeScript acquisition,
+  checksumming, geography and immutable-output foundation. Preparation reads no
+  legacy R cache and performs no fitting/downloads in the browser.
+- The 2022 Camera/Senato domestic sources independently resolve to all **7,904
+  municipalities** and **46,120,143 electors** in each chamber. The source list
+  fields are direct votes. Old-law uninominal attribution adds **1,027,135**
+  candidate-only Camera ballots to **27,069,655** direct ordinary list votes,
+  giving **28,096,790**. Senate ordinary figures are **26,601,426 + 963,877 =
+  27,565,303**. Separate special archives contribute **53,746 / 557,313** valid
+  ballots. Municipal reconstruction conserves both each list's historical
+  uninominal total and each municipality's candidate-only margin. Independent
+  per-list rounding was replaced with controlled row/column reconciliation.
+- Geography joins reject ambiguity/missing rows. Explicit aliases cover changed
+  and bilingual names; original college membership resolves ambiguous same-region
+  names. Reform submunicipal support uses labelled census-weight estimates.
+  Special candidate ballot groups retain their own identities, without invented
+  member-list decomposition. Source candidate links supply historical coalition
+  metadata for defaults. Older Senate 2018 data are acquired and audited but
+  excluded from the central fit because of the 25+ electorate.
+- Reconciled ER 2024's **547 roster slots / 532 recorded people**, with verified
+  gender and birth metadata. List numbers differ between releases, so joins use
+  exact names to establish list identity, then verify filed slots. This also
+  resolves the two Rimini spelling/name variants without inferring gender.
+  The later regional publication has **644,089** marks against the ministerial
+  cache's **644,626**, with identical **1,494,375** list votes. The later coherent
+  preference/list release is used for fitting; the **-537** difference and the
+  unidentified causes remain in the audit.
+- Expanded preferences to all five European 2024 municipal workbooks, with
+  recorded roster gender/birth fields and **15,588,458** marks. The flat XLSX
+  reader iterates rows without a million-cell object graph, supports only the
+  pinned source encoding and rejects formulas/unsupported cells. Complete
+  roster and list-budget/footprint checks pass. The fit uses **93,659 positive
+  ballot observations**, with **zero invalid-budget/roster exclusions**; known
+  zero-ballot observations remain in source reconciliation rather than becoming
+  invented intensity observations.
+- Equal-election weighting, partial pooling, roster concentration and separate
+  within-person local dispersion yield baseline effective intensity
+  **0.5501554059**, log-strength sigma **1.5971061015** and local sigma
+  **0.3954103197**. Twenty-nine province/region hold-outs exclude all training
+  observations sharing the held-out candidate identities. Intensity MAE
+  **0.1957805028** and pooled leading-share MAE **0.0592449574** pass the
+  predeclared 0.25 transfer-diagnostic gates. Zero/tie and dispersion errors are
+  also retained by fold. These are distributional transfer diagnostics, not
+  calibration of future named-candidate forecasts.
+
+### Runtime contracts and corrections
+
+- Added strict versioned reform scenario/snapshot/model contracts, independent
+  fitted-parameter/profile/default identities, typed persistence and explicit
+  opt-in legacy conversion. The legacy parser rejects reform/unknown-algorithm
+  envelopes and unsupported future versions instead of silently restoring old-law
+  defaults. Existing legacy scenarios, inputs, generator and R-parity behavior
+  remain available. Unreconciled manual historical mappings and gender-less old
+  candidate templates require explicit resolution during conversion.
+- Correspondences normalize splits per historical list, aggregate many-to-one
+  mappings and send unmapped support to abstention. Common anchors and explicit
+  chamber references follow the approved same-scope precedence, then broader to
+  narrower geography. IPF preserves local abstention and filed-support zeros;
+  incompatible targets fail explicitly. Dates retain election-day mean-mode
+  uncertainty. References, scope, normalizations, source/model versions and seeds
+  are transferable and reproducible.
+- Vote shocks split a marginal variance budget among shared and chamber-specific
+  components rather than adding Senate noise. Future daily scales and joint
+  correlations are explicit assumptions; one 2022 paired election cannot identify
+  future national forecast covariance. Weaker/central/stronger dependence, gap
+  sensitivity and identical/independent benchmarks remain distinguishable.
+- Candidate generation constructs seven alternating-gender positions, ordinary
+  bonus prefixes, coalition bonus affiliations, special links and compatible
+  same-list multiple candidacies, respecting filed templates. Generated identities
+  are distinct across chambers; shared ordinary identities retain their underlying
+  preference strength. Supplied preferences or explicit missing counts take
+  precedence. Supplied component inputs use only direct votes for preferences;
+  Camera TAA certificates partition the actual special ballot budget once.
+- Synthetic preferences use maximum entropy over valid zero-to-three-name
+  combinations and aggregate binomial/multinomial sampling, with constructive
+  certificates. Capolista is excluded and multiple preferences contain both
+  genders. The central persistence share is derived from the fitted variance
+  components. Review corrected a confound in the initial implementation:
+  persistence now partitions a fixed fitted total variance instead of also
+  changing marginal concentration. A dedicated 1,000-seed variance check guards it.
+- Entity-addressed streams isolate shared/chamber vote components, candidates,
+  person/local preference strengths, combination counts and legal draws. R26-18's
+  default attribution stream is now isolated from downstream legal draws too.
+  Complete representation-equivalence checks cover 30/42/45/50/60 majority cases,
+  special ballots and a tied coalition attribution with identical downstream
+  results. This establishes tested arithmetic/representation equivalence, not
+  empirical absence of all unobserved behavioral bias.
+
+### Reproduction, limits and verification
+
+- Accepted catalog versions: snapshot **`r26-generation-v1-c5c4be9fafb5`**, models
+  **`r26-models-v1-f71a72020aaa`**, preference parameters
+  **`r26-preferences-fit-v1-cf0024e3b8e3`**, paired parameters
+  **`r26-paired-2022-assumptions-v1-31896d7dffaa`**, defaults
+  **`r26-defaults-v1-f204e831aad3`**. Runtime size is **992,943 compressed bytes /
+  13,870,007 uncompressed bytes**. The generated catalog records both hashes and
+  the defaults fingerprint. Only the current runtime gzip is present in static
+  assets; exploratory versions were removed from runtime/source publication paths.
+- Acquired all geography/model sources into an initially empty
+  `data/derived/r26-clean-sources` directory, then generated into a separate empty
+  output directory with the same commands. This checks cache-miss reproduction
+  locally; it is not a hosted Linux/Actions measurement or a fresh `npm ci` clone.
+- The first artificial twenty-region preference-conditioning experiment hit
+  the already documented N18 capacity blocker. Its 700 non-complete runs were
+  rejected as evidence of complete legal propagation, without changing the law
+  or rescaling endowments. The corrected conditioning uses the independently
+  worked complete election fixture, and its TAA budget is the actual special
+  ballots rather than the redundant proportional view. Detailed failed/final
+  experiments remain separate in `data/derived/`.
+- Browser execution initially exposed Node 24's JSON import-attribute requirement
+  in the test runner; added `with { type: 'json' }` to the tracked seat import.
+  No UI route or application algorithm selector was activated.
+- N18 non-computability remains a legal/input boundary for some generated
+  scenarios. R26-20 must report it and retain the requested-run denominator,
+  without rerolling or silently dropping failures. Synthetic probabilities are
+  conditional; pairing/triple behavior and future chamber covariance remain
+  assumptions. Whole-application acceptance, performance and publication remain
+  R26-21 and the final migration gate.
+
+Final verification on Windows x64, Node **24.20.0**:
+
+- Empty-cache acquisition/generation produced **byte-identical snapshot, model
+  and default JSON** against normal preparation. The actual production check
+  verifies gzip/uncompressed/default fingerprints and completes all **41 legal
+  stage entries**, filling **588/588 domestic seats**, with no unfilled,
+  unresolved or non-computable output for the default seed.
+- `data:reform:validate` on the final model ran **100 paired full legal runs for
+  each of seven preference profiles**. All **700** runs filled 588 seats, with
+  zero entitlement changes and zero non-computable stages. Compared with central,
+  mean changed candidate identities were **5.25 concentrated, 6.20 dispersed,
+  178.71 weak persistence, 6.97 strong persistence, 4.43 no triples and 4.51 enhanced
+  triples**. Mean recovery activity varied from 97.50 to 97.54 operations. These
+  are conditional worked-fixture diagnostics, not real-candidate probabilities.
+- Paired vote diagnostics used **1,000 seeds per profile/benchmark**. Measured
+  normalized correlations were **0.4989 / 0.8497 / 0.9802** for assumed
+  **0.50 / 0.85 / 0.98** dependence. Marginal variance/mean gates and integer
+  conservation passed. In the constructed near-42% example, conditional joint-42
+  frequencies were **0.283 / 0.317 / 0.322**, with Monte Carlo standard errors
+  about **0.014–0.015**. Zero/doubled gap frequencies were **0.415 / 0.173**;
+  identical/independent benchmarks were **0.502 / 0.254**. This is model sensitivity,
+  not a measured national bonus forecast or a confidence interval. The final
+  versioned detailed report is
+  `data/derived/r26-models-v1-f71a72020aaa-validation-v2.json`.
+- `npm run check:data` and `npm run check` passed with **zero diagnostics**.
+  `npm run test` passed **815 tests in 52 files**, without skips, in **7.83 s**;
+  this includes old-law golden, registry and production-data checks. The static
+  build passed in about **4.06 s**. Build and e2e ran sequentially.
+- Final Chromium suite passed **10/10**, including Node/browser-worker replay of
+  generated scenarios, direct registry execution and I10/I11 recovery evidence.
+  An earlier full browser run had a single landing-heading timeout, which passed
+  in isolation and on subsequent full runs; no unrelated UI change was made.
+- R26-19 is complete within these explicit model/legal limits. R26-20/21 remain
+  open. No commit, deployment, hosted-runner acceptance or whole-migration
+  completion is claimed.
+
+## 2026-10-20 — N18 ordinary corrections with unequal local totals
+
+Luca approved applying C83-bis(1)(b)(3) as independent subtraction of excess
+list seats and assignment of missing list seats in the ordinary Camera branch
+(no bonus or bonus without cap). This supersedes the blanket N18 local-capacity
+blocker documented under R26-13. The controlling amendment, law 180/2026,
+article 1(23), was rechecked against the
+[promulgated text](https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticolo?art.codiceRedazionale=26G00201&art.dataPubblicazioneGazzetta=2026-10-09&art.flagTipoArticolo=0&art.idArticolo=1&art.idGruppo=0&art.idSottoArticolo=1&art.idSottoArticolo1=10&art.progressivo=0&art.versione=1).
+The separate cap-group branch retains `constituency-capacity-target-mismatch`:
+C83-bis(1-bis)(c)'s same-college transfers cannot reconcile unequal totals.
+
+- Added an explicit `independent-colleges` matrix correction mode, restricted
+  to Camera N18 list quotas. Initial integer quotas still use the supplied
+  decree endowments. Remove excess seats by ascending used donor decimals,
+  then assign missing seats by descending unused recipient decimals; preserve
+  single-use remainder states and I03 draws for unspecified equal ranks.
+  Other matrix modes retain their capacity-equality checks and paired behavior.
+- Ordinary N18 now accepts different initial and communicated local totals,
+  while checking preservation of national list entitlements. Corrections record
+  genuine one-sided operations: removals have a null recipient and additions
+  have a null donor, including in composed `SeatTransferTrace` results. Recovery
+  continues to receive the exact final remainder values and states.
+- Retained arithmetic, impossible-residual and no-eligible-donor/recipient
+  blockers without publishing final college targets. The earlier `(2,2,3)`
+  cross-constituency fixture still blocks in X with
+  `no-eligible-donor-remainder`: its excess consists of integer seats.
+  No integer-seat fallback, table rescaling or reroll was introduced.
+- Added an independently worked N15–N18 regression with endowments `(4,2,4)`
+  and corrected constituency totals `(3,3,4)`. Independent college removal and
+  addition complete the allocation, preserving national list targets `(3,4,3)`.
+  Separate tests cover the two-seat `60/40` example reaching targets `(2,1)`,
+  removal without a recipient, both ordinary national paths, cap blocking,
+  exhausted remainder pools, trace export, recovery evidence and seeded replay.
+- Updated the operational plan, normative specification, legal-core README and
+  generation limits to distinguish ordinary correction failures from the cap
+  gap. An initial impossible-residual test fixture actually allowed residual
+  allocation and reached a correction tie; replaced it with the independently
+  checked exhausted-pool case. No production source or generated data changed.
+
+Verification on Windows x64, Node **24.20.0**, npm **11.19.0**, from `web/`:
+
+- Focused territorial suite: **55 tests passed** in two files.
+- `npm run check` and `npm run check:data`: **zero diagnostics**.
+- `npm run test`: **828 tests passed in 52 files**, no skips, **12.21 s**.
+- `npm run build`: static build passed, **15.02 s** reported for the full Vite
+  build; plugin-timing notices were informational. Build and e2e ran sequentially.
+- `npm run test:e2e -- --reporter=line`: **10 Chromium tests passed, 19.9 s**,
+  including reform generation and full scrutiny replay in browser workers.
+- `git diff --check`: passed. No commit or publication performed.
+
+
+## 2026-10-20: R26-20 worker, results and application integration
+
+Implemented only R26-20. The common registry now exposes both algorithms to the
+production worker and selector. Legacy politics remains the default; reform
+scenarios have separate storage and are never inferred from an old saved file.
+The [application guide](politics-reform-2026-application.md) is the focused entry
+point for UI/worker/export work; legal and generation guides retain their scopes.
+
+- Reform generation prepares references once and sends each globally numbered
+  paired Camera/Senato simulation through the existing common scrutiny entry
+  point, retaining 50-run chunk boundaries. Old-law generation keeps its random
+  streams; both legacy chambers now share the same global envelope ID. Optional
+  wrapper instrumentation preserves measured per-chamber diagnostic times
+  without adding nondeterministic fields to replayable legal results.
+- Added typed presentation tables for bonus eligibility/reasons, national and
+  territorial entitlements, cap effects, special seats, candidate outcomes,
+  entitlement/election territories, admission, draws, recovery and I11 exclusions.
+  Conditions, model/profile/source/conversion provenance, geographic reference
+  resolution, census/decree messages and applied interpretations remain
+  inspectable. Repeated metadata/warnings are deduplicated with occurrence counts.
+  Chart structures derive from the table contract and display political names.
+- Complete, partial, domain-blocked and execution-failed runs remain in the
+  requested denominator. N18 cap-capacity and ordinary no-progress failures
+  produce explicit errors/stage rows; there is no reroll, legal rescaling or
+  successful-run normalization. Candidate/profile conclusions are explicitly
+  conditional; dependence-profile sensitivity is separate from calibrated
+  uncertainty and does not add cross-law comparison UI.
+- The new reform viewer renders one selected simulation/chamber plot, one
+  selected detail table with at most 50 rows and at most ten warnings. Existing
+  legacy/regional plot and table visibility is preserved. Reform has no arbitrary
+  run cap. Legacy retains 1,000 because its simultaneous scatter plots create
+  one SVG element per subject/run; exceeding it now fails instead of silently
+  truncating. Regional aggregate charts have no equivalent structural cap.
+  Exported/stored reform detail still grows with run count; R26-21 must measure
+  large-run time and memory rather than infer performance acceptance here.
+- Generic schema-v2 columnar exports preserve the executed scenario, worker
+  result, algorithm/model/data identities and seed, including after draft edits.
+  Reform imports check algorithm/seed/data agreement; old exports without an
+  algorithm explicitly resolve to the legacy ID. Warning chamber/interpretation/
+  seat/draw context survives roundtrip. Imports route to the appropriate law;
+  full reform scenarios expose supplied input and explicit conversion provenance.
+- `BASE_PATH` controls navigation, worker and data URLs. Framework base resolution
+  stays in routes and crosses the worker request boundary: importing `$app/paths`
+  inside the worker initially failed to bundle unsupported SvelteKit client
+  dependencies. The shared runtime loader verifies pinned gzip/decoded hashes.
+  Vite preview serves `.json.gz` as HTTP `Content-Encoding: gzip`, so Fetch has
+  already decoded it; that path verifies the pinned decoded digest directly.
+  Raw gzip assets verify both compressed and decoded digests. Missing production
+  inputs fail; the old politics debug fallback was removed. Defaults/models
+  follow the regenerated catalog rather than hard-coded immutable filenames.
+
+Verification on Windows x64 / Node 24.20.0, from `web/`, with the existing required
+production artifacts available (no source/data regeneration or publication):
+
+- `npm run check:data` and `npm run check`: zero diagnostics.
+- `npm run test`: **832 tests passed in 54 files**, no skips, **12.15 s**; subsequent
+  focused presentation/export/registry checks also passed after final refinements.
+- Root static builds passed; build and browser execution ran sequentially.
+- Full Chromium regression: **13 passed**, no skips, **34.3 s**, covering old-law,
+  regional, reform production UI/replay/imports, explicit missing input failure,
+  and a constructed-bundle compilation of the actual production worker across
+  simulation IDs 1/50/51. The constructed worker test needs no ignored artifacts.
+- Project-base `/elezioni/` regression: **5 passed**, no skips; both politics laws,
+  regional simulation, navigation and import/replay/export were exercised.
+- Svelte MCP checked the modified components; the new component has no reported
+  issues. Existing large pages retain advisory unkeyed-loop/style suggestions;
+  no unrelated rendering refactor was performed. Visually inspected the new
+  workspace screenshot; changed chart labels from internal IDs to political names.
+- `git diff --check` passed. R26-20 is checked in both plans; R26-21 and the final
+  whole-migration publication gate remain open. No commit or deployment performed.
+
+
+## 2026-10-20: R26-20 bounded reform results after browser clone exhaustion
+
+The reported 1000-run `DedicatedWorkerGlobalScope.postMessage` failure came from
+cloning the complete accumulated presentation result. Pagination bounded the DOM
+but did not bound worker retention or structured-clone cost. A production-default
+50-run diagnostic contained 112,553 presentation rows and about 121.8 MiB of row
+JSON, including 77.5 MiB of candidate-recovery traces. Export/import also created
+whole-result copies and whole-file strings. The failure did not justify changing
+legal calculations, discarding traces or imposing a reform run-count cap.
+
+- Added IndexedDB result sessions and gzip row chunks, targeted at 256 KiB or
+  256 rows with an explicit 16 MiB individual-record guard. The reform worker
+  persists and releases each run; compact manifests and selected page/run queries
+  replace the full-result worker message. Shared context is stored once with
+  occurrence-count vectors. No existing plot/table visibility was reduced.
+- Run manifests act as commit markers. Partially written chunks remain invisible
+  after quota/write failure. Cancellation and a closed worker preserve published
+  runs as interrupted sessions, retaining the original denominator and global
+  simulation IDs. Recovery never rerolls, rescales endowments or changes a legal
+  failure into a successful run. The existing seven-slot-slate validation failure
+  in production-default simulation 19 remains an explicit non-computable run.
+- Added same-tab session restoration and owner-scoped deletion. JSON.gz/CSV
+  exports stream stored rows into OPFS files and send a disk-backed File to the
+  UI; downloads retain their temporary source until session deletion. OPFS is
+  required for this large-file export path. Compressed-chunk bytes shown by the
+  UI exclude metadata, indexes and temporary export files.
+- Plain/gzip schema-v2 imports parse incrementally into isolated staging
+  sessions. Existing identity validation and legacy routing remain in force.
+  Invalid imports clean only their staging session; arbitrary table-field order,
+  split UTF-8, escaping and column widths are covered. The synchronous generic
+  export API rejects storage references to prevent accidental full-result copies.
+- Initial per-run metadata lookups were unnecessarily slow. A calculation-scoped
+  dictionary of distinct shared keys plus persisted count vectors removes those
+  repeated IndexedDB lookups without retaining simulation details. Scrutiny and
+  generation algorithms, RNG streams and source/generated data were unchanged.
+- Added `npm run test:results` as a separate long Chromium check using actual
+  production bundles, detailed queries, full gzip export/import/re-export and
+  post-GC UI/worker heap samples. Its temporary persistent profile is isolated
+  from ordinary browser tests. R26-21 remains open: these samples do not measure
+  peak process memory or replace its generation/scrutiny/presentation benchmarks.
+
+Verification on Windows x64 / Node 24.20.0 / Chromium 148.0.7778.96, with all
+required existing production artifacts available:
+
+- `npm run check:data` and `npm run check`: zero diagnostics.
+- `npm run test`: **835 tests passed in 55 files**, no skips, **7.95 s**.
+  Browser storage tests additionally cover real IndexedDB, cross-chunk pages,
+  shared metadata counts, quota isolation, malformed staging cleanup and
+  out-of-order JSON fields. Constructed production-worker tests cover seeded
+  replay, IDs 1/50/51, cancellation and cold recovery without large artifacts.
+- Processed and saved **1000/1000** production-default runs through the UI in
+  **714.344 s** of worker time (11 min 54 s). Outcomes were **698 complete,
+  302 non-computable**, with 468 bonuses and the unchanged requested denominator
+  of 1000. These existing legal/model execution paths remain visible; this work
+  does not establish that every requested scrutiny succeeds.
+- Post-GC calculation samples at 100 through 900 runs showed **4.70–4.85 MiB**
+  retained UI JavaScript heap and **47.88–76.91 MiB** retained worker heap, with
+  no sustained increase. After archive roundtrip the sample was **6.32 MiB UI /
+  0.94 MiB worker**. These are retained-heap samples, not peak browser/process RAM.
+- Full export contained **2,144,543,961 uncompressed bytes**, compressed to
+  **83,637,510 bytes**. Export took about **53 s**. Import/re-export preserved
+  every byte after export-timestamp normalization; SHA-256:
+  `f7537fe10b347988b98cd18f22f477f39e3fb3cfb9483092e1a0bc438ecc353d`.
+  The complete archive passed another import/export cycle and detail queries.
+  No browser page errors occurred.
+- The first long test used `innerText` as an expected `textContent` assertion,
+  causing a formatting-only failure after successful calculation/export/import.
+  Corrected it to wait for changed rows and compare the same text representation
+  by hash. Verification resumed from the saved archive without rerunning draws;
+  both complete hashes matched. A stale `imported` status made one import timer
+  invalid; its duration is omitted, and the test now waits for a new session ID.
+  The [small evidence report](../test/fixtures/benchmarks/browser_reform_results_1000.json)
+  records versions, seed, counts, samples, hashes and these measurement limits.
+- Full root Chromium regression: **15 passed**, no skips, **22.8 s**. Project-base
+  `/elezioni/` regression: **5 passed**, no skips, **15.9 s**, covering both
+  politics laws, the completed regional workflow and navigation. Static builds
+  and browser suites ran sequentially. Restored the default root build afterward.
+- Svelte MCP reported no component issues; asynchronous worker queries account
+  for its effect suggestions. Type checks are clean. Visually inspected the
+  workspace, including the local-session controls and unchanged chart/table scope.
+- Final repeated-import/session-change regression: **2 focused workspace tests
+  passed, 16.0 s**, after correcting the test selector's accessible-name match.
+- `git diff --check` passed. R26-21 and the whole-migration publication gate remain
+  open. No commit, source/data regeneration or deployment was performed.
+
+## 2026-10-20: R26-20a bounded parallel reform execution and worker choice
+
+Completed the approved pre-R26-21 parallelization, including Luca's requested
+resource-based maximum/default and explicit user choice. Operational contracts,
+the capacity formula and benchmark command are in the
+[application guide](politics-reform-2026-application.md#parallel-execution).
+
+- Added a compute task for one complete global simulation ID, keeping joint
+  chambers together and single renewals single. Generation, legal algorithms,
+  RNG namespaces and model/source bundles are unchanged. Each compute worker
+  loads and verifies its own production bundle and prepares its references once.
+- Added a bounded pool with one outstanding simulation per worker. A single
+  result-service coordinator drains and durably commits ascending IDs, reusing a
+  slot only after commit. It receives pull-driven transferable columnar buffers
+  targeted at 256 KiB/256 rows, retaining the existing 16 MiB record guard.
+  Shared context is emitted once by simulation 1; presentation helpers aggregate
+  per-run counters. There is no full-result message or growing reorder queue.
+- Cancellation finishes the already assigned contiguous prefix and stops new
+  dispatch. Compute/native-worker/transport failures interrupt the session;
+  quota/write failures preserve the last published manifest and hide incomplete
+  chunks. Neither path rerolls or converts infrastructure failure into a legal
+  non-computable run. Pools close on completion/failure; a browser test also
+  verifies that closing their coordinator leaves no compute descendants.
+- Added **Processi di calcolo**, from 1 to the estimated maximum, initially
+  selecting that maximum. The preference is saved separately from the scenario
+  and clamped to current capacity on reload. Actual pool size also respects the
+  requested simulation count. UI and coordinator share strict count validation.
+  Archives preserve optional chosen/actual/maximum counts, memory-estimate
+  identity and accumulated phase/storage durations; older archives remain valid.
+
+Memory estimation and scope:
+
+- A production-data Node 24.20.0 probe of IDs 1–20 sampled after generation,
+  scrutiny, presentation and encoding, without forced GC, while retaining raw
+  and prepared snapshots. Largest observed used heap: **929,540,912 bytes**;
+  process RSS: **1,147,371,520 bytes**. This includes Node/loader costs and is a
+  stage-boundary observation, not an absolute peak or browser measurement.
+- Adopted versioned **1,536 MiB per compute worker**, plus **512 MiB for the
+  coordinator**, using half of reported device memory and reserving one reported
+  logical processor. Missing/invalid hints conservatively permit one worker.
+  Reported memory is approximate total RAM, not available RAM. The UI explains
+  the estimate and permits choosing fewer workers; there is no fixed four-worker
+  cap. Native Chromium hints on this machine give a maximum/default of **10**,
+  exercised by the production default-pool browser test.
+- The production matrix's largest sampled compute-worker heap was **265.33 MiB**;
+  its largest combined coordinator/compute heap sample was about **859.59 MiB**
+  with four workers. Sampling was periodic and unforced; these values are not
+  absolute peaks, retained-after-GC measurements or process RAM. Retained-heap
+  samples alone were not used to reduce the conservative resource budget.
+
+Production performance verification on Windows x64 / Node 24.20.0 /
+Chromium 148.0.7778.96 / Intel i7-14700KF / 63.79 GiB physical RAM, using
+`politiche-reform-2026-v1`, snapshot `r26-generation-v1-c5c4be9fafb5`, model
+`r26-models-v1-f71a72020aaa` and seed `r26-default-v1`:
+
+| Requested simulations | 1 worker | 2 workers | 4 workers |
+| ---: | ---: | ---: | ---: |
+| 10 | 16.228 s | 14.439 s | 12.690 s |
+| 100 | 110.948 s | 41.310 s | 24.262 s |
+| 1000 | 1033.859 s | 380.101 s | 206.564 s |
+
+- `npm run benchmark:reform`: **all nine matrix cases passed**, about 30.7 min
+  in the test. Controlled benchmark hints (8 logical processors / 16 GiB) allowed
+  1/2/4 workers under a recorded maximum of 5, independently of native privacy
+  limits. Each run included new pool setup and production load/verification.
+  The single ordered sweep included CDP sampling; these are machine-specific
+  comparisons, not portable speedup guarantees or comparisons against another
+  instrumentation setup. Four workers were about **5.0 times** faster than the
+  matching one-worker 1000-run case.
+- Every worker count preserved the same outcome, table-row and warning counts.
+  At 1000 requested runs: **698 complete, 302 non-computable, 468 bonuses**.
+  Known legal/model failures, including the generation failure at ID 19, remain
+  visible with the original denominator. Complete normalized archive content
+  (all tables, draws, warning rows and shared metadata counts) also matched in
+  constructed browser runs with 1/2/4 workers.
+- The [benchmark report](../test/fixtures/benchmarks/browser_reform_workers.json)
+  records all cases, phase durations and heap samples. Phase durations use
+  `performance.now()` inside workers, may overlap and are not process CPU time
+  or additive end-to-end latency. Storage includes decoding, compression and
+  durable writes; presentation timing covers row derivation.
+
+Other verification:
+
+- `npm run check:data` and `npm run check`: **zero diagnostics**.
+- `npm run test`: **852 tests in 58 files passed**, no skips, 9.22 s in the final
+  run. Added capacity/fallback validation, bounded out-of-order completion,
+  cancellation, failure/identity handling, chunk transport/presentation parity
+  and execution-metadata roundtrip checks.
+- `npm run data:reform:check`: verified pinned checksums; production simulation 1
+  complete, **41 stages / 588 filled seats**, no missing production data.
+- Root and `/elezioni/` static builds and browser suites ran sequentially.
+  Final root regression: **20 passed**, no skips, 58.2 s, restoring the default
+  root build after project-base verification.
+  Project-base regression: **11 passed**, no skips, 44.1 s, including paired and
+  default-sized production pools, recovery, native worker crashes, quota failure,
+  archive equivalence, legacy selector/navigation and the regional workflow.
+- Svelte MCP reported no component issues. Its suggestions concern the existing
+  asynchronous page/chart/warning effects. Visually inspected the new control,
+  memory explanation and existing results in the project-base screenshot.
+- During development, fixed a missing required timestamp in a new test, gave the
+  new selector an explicit accessible name, and replaced a Vite-only defaults
+  import in the benchmark with reading the catalog-selected JSON file. These
+  were test/accessibility setup issues, not changes to legal/model behavior.
+- Final `git diff --check`: passed.
+
+R26-20a is complete. R26-21 legal/application acceptance and the whole-migration
+publication gate remain open. No commit, source/data regeneration or deployment
+was performed.
+
+## 2026-10-20: R26-21 production acceptance and diagnostic frequencies
+
+Implemented the [local acceptance procedure](politics-reform-2026-acceptance.md).
+At Luca's direction, R retirement is already decided: removed the active R/browser
+comparison and 10x stop rule. Historical R measurements remain dated evidence.
+The municipal migration, remaining preparation importers and final hosting/publication
+gate remain separate and open.
+
+- Added `npm run acceptance:reform`: requires the legacy politics, regional and
+  reform production bundles, records their sizes/SHA-256, checks reform digests
+  and its production vertical slice, then runs `check:data`, `check`, the full
+  unit suite, root build/e2e and `/elezioni` build/e2e sequentially. Successful
+  acceptance restores the root build. Missing bundles, unit/browser skips,
+  TODOs, expected failures or retries cannot pass. Ordinary development skips
+  remain explicit. Report-validator tests cover those rejection paths.
+- Added direct-load, refresh and navigation browser checks. Existing browser
+  suites exercise both politics algorithms, regional simulation, worker/data
+  loading, candidate output, parallel execution, interruption, detail queries
+  and archive replay. The constructed production-worker check also queries
+  diagnostic frequencies across 51 simulation IDs without production fixtures.
+- Added a streaming post-run `diagnostics` query over the saved presentation
+  warning ledger. Errors, warnings and informational notes have separate groups;
+  each exact code/message reason retains occurrence counts, distinct affected
+  simulations, shared-context occurrences, requested/processed denominators and
+  both frequencies. Duplicate notices within a run do not inflate its frequency.
+  Distinct reasons can overlap. Session-wide notes have no affected simulation.
+  Infrastructure failures remain manifest errors and fail benchmark completion;
+  they are not converted into legal non-computability. Query/deletion takes
+  place after the measured execution interval. No legal/model logic changed.
+- Extended the production browser benchmark with those diagnostic groups,
+  complete executed scenario/default identity, architecture and an optional
+  report destination, preserving the earlier nine-case worker matrix.
+
+Preparation and application verification:
+
+- Regenerated both legacy production snapshots using the existing R exporters
+  and regenerated politics defaults, municipality/candidate catalogs and regional
+  defaults. The inherited `LC_ALL=C.UTF-8` is unsupported by Windows R and its
+  first export corrupted accented college labels. Repeated with
+  `LC_ALL=English_United States.utf8`; generated tracked defaults/catalogs matched
+  their previous contents. No legacy cache was modified.
+- Ran `data:download`, `data:generate`, `data:reform:download` and
+  `data:reform:generate -- --publish`. All pinned cached originals verified.
+  Regeneration preserved snapshot `r26-generation-v1-c5c4be9fafb5`, model
+  `r26-models-v1-f71a72020aaa`, defaults `r26-defaults-v1-f204e831aad3` and census
+  table `r26-seats-census-2021-i08-v1-9672c20529b2`. Compressed reform runtime:
+  **992,943 bytes**, decoded JSON **13,870,007 bytes**. Held-out preference fit
+  passed; no generated defaults were edited by hand.
+- `data:reform:validate` completed its calculations but refused to replace an
+  existing immutable validation-v2 report. Added an optional `--output` directory
+  and reran into `data/derived/r26-21-acceptance/`, preserving the previous file.
+  The new run passed **7 preference profiles × 100 complete legal fixtures** and
+  **7 chamber profiles/benchmarks × 1000 replicates**, with conserved entitlements
+  and no non-computable conditioning fixtures. Comparing the two reports found
+  17 differing scalar summaries, all under conditional `candidateChanges`;
+  other summaries matched. The earlier report is not asserted to reproduce the
+  current implementation. The new report is separate evidence; no model, legal
+  behavior or acceptance threshold was changed to match the older counts.
+- `npm run acceptance:reform`: **PASS**, **856 unit tests**, **21 root browser
+  tests** and **21 `/elezioni` browser tests**, with **zero skips**. Preparation
+  and application type checks had zero diagnostics. Static builds and browser
+  suites ran sequentially. Production reform simulation 1 completed with
+  **41 stages and 588 filled domestic seats**. Detailed JSON reports and input
+  digests are under `data/derived/r26-21-acceptance/`; the
+  [compact acceptance record](../test/fixtures/benchmarks/reform_application_acceptance.json)
+  preserves the passed checks, artifact identities and scope in the repository.
+
+Source refresh on **20 October 2026**:
+
+- Reopened the [controlling GU act](https://www.gazzettaufficiale.it/eli/id/2026/10/09/26G00201/sg),
+  its operative article and the [Camera legislative record](https://www.camera.it/leg19/126?idDocumento=2822-B&leg=19).
+  The correction labels had no linked correction; targeted official-source
+  searches for `26G00201`, errata/rettifica and reform seat decrees found no
+  subsequent applicable correction or decree table. This is a dated search,
+  not proof that future corrections/decrees cannot appear.
+- The law's [publication warning](https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticoloDefault/originario?atto.codiceRedazionale=26G00201&atto.dataPubblicazioneGazzetta=2026-10-09&atto.tipoProvvedimento=LEGGE)
+  still announces republication with notes on **23 October 2026**; entry into
+  force is **24 October 2026**. Both dates are later than this acceptance.
+  Retained the current legal transcription and explicitly provisional I08
+  census-based allocation. Recheck that republication and any new decree before
+  a later release. This acceptance does not claim official-decree support has
+  been exercised, whole-chamber foreign-seat support, supplementary elections,
+  nationally calibrated individual-candidate forecasts or universal computability.
+
+Production performance on Windows x64 / Node 24.20.0 / Chromium 148.0.7778.96 /
+Intel i7-14700KF / 63.79 GiB physical RAM, algorithm `politiche-reform-2026-v1`,
+the regenerated versions above and seed `r26-default-v1`:
+
+| Requested | Elapsed, 4 workers | Generation total | Scrutiny total | Presentation total | Storage/coordinator total | Complete | Non-computable |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 10 | 4.873 s | 5.275 s | 2.137 s | 0.042 s | 1.663 s | 8 | 2 |
+| 100 | 22.970 s | 49.219 s | 21.064 s | 0.452 s | 6.429 s | 68 | 32 |
+| 1000 | 197.351 s | 482.152 s | 199.361 s | 4.116 s | 47.237 s | 698 | 302 |
+
+- Ran `benchmark:reform` with `REFORM_BENCHMARK_WORKERS=4` and
+  `REFORM_BENCHMARK_REPORT=../test/fixtures/benchmarks/browser_reform_acceptance.json`:
+  **all three sizes passed**, about 3.9 minutes including setup/teardown. This
+  is a new four-worker acceptance sweep, not a repeat of the previous full
+  nine-case matrix, which remains preserved in its original report. Browser
+  regressions still prove complete normalized archive equivalence at 1/2/4
+  workers. No R performance comparison or stop rule was applied.
+- Controlled browser resource hints were 8 logical processors / 16 GiB,
+  maximum 5 workers, selected/actual 4. Each case started a fresh coordinator
+  and pool, including production loading/verification/preparation in elapsed time.
+  Worker phase totals overlap and are neither additive elapsed time nor measured
+  process CPU time. The largest periodic unforced combined worker JavaScript
+  heap observation was **844.70 MiB**; the largest individual compute-worker
+  observation was **255.81 MiB**. These are sampled maxima, not absolute peaks,
+  retained-after-GC heaps or browser process RAM. The existing conservative
+  1536 MiB/worker memory budget was retained.
+- The [new benchmark report](../test/fixtures/benchmarks/browser_reform_acceptance.json)
+  records every exact reason separately at **10, 100 and 1000** runs, alongside
+  the executed scenario, phase timings and memory samples. At 1000 requested
+  and processed runs, there were **1390 error occurrences in 302 simulations**
+  and **2613 warning occurrences in 914 simulations**, including **two shared
+  warning contexts**; informational context had **three occurrences**. There
+  were **468 bonuses**. No run was rerolled or removed from the denominator.
+
+Errors by exact stage/reason at 1000 requested runs (each listed occurrence is
+in a distinct simulation for that row; downstream rows and chambers can overlap):
+
+| Code/stage | Chamber | Reason | Occurrences / affected runs | Frequency / requested |
+| --- | --- | --- | ---: | ---: |
+| R26_N18_NON_COMPUTABLE | Camera | impossible-residual | 7 | 0.7% |
+| R26_N18_NON_COMPUTABLE | Camera | no-eligible-donor-remainder | 151 | 15.1% |
+| R26_N18_NON_COMPUTABLE | Camera | no-eligible-recipient-remainder | 1 | 0.1% |
+| R26_N21_NON_COMPUTABLE | Senato | no-eligible-donor-remainder | 59 | 5.9% |
+| R26_N22_NON_COMPUTABLE | Senato | alternative-allocation-path | 57 | 5.7% |
+| R26_N23_NON_COMPUTABLE | Camera | ordinary-allocation-non-computable | 159 | 15.9% |
+| R26_N23_NON_COMPUTABLE | Senato | ordinary-allocation-non-computable | 59 | 5.9% |
+| R26_N24_NON_COMPUTABLE | Camera | ordinary-allocation-non-computable | 159 | 15.9% |
+| R26_N24_NON_COMPUTABLE | Senato | ordinary-allocation-non-computable | 59 | 5.9% |
+| R26_N25_NON_COMPUTABLE | Camera | prerequisite-non-computable | 159 | 15.9% |
+| R26_N26_NON_COMPUTABLE | Camera | prerequisite-non-computable | 159 | 15.9% |
+| R26_N27_NON_COMPUTABLE | Senato | prerequisite-non-computable | 59 | 5.9% |
+| R26_N28_NON_COMPUTABLE | Joint | stage-prerequisite-non-computable | 216 | 21.6% |
+| R26_RUN_ERROR | Generation/run | Supply a validated seven-slot slate and its college figures | 86 | 8.6% |
+
+Warnings, independently counted:
+
+- `I03_DRAW`: **690 occurrences**, **55 affected runs / 5.5%**.
+- `I07_CROSS_REGION_RECOVERY`: **93 occurrences** across **42 distinct exact
+  route/disposition reasons**. Every individual reason's occurrences, affected
+  runs and frequency are recorded separately in the linked JSON; same-list,
+  same-college and coalition recovery, retained versus released, and source/
+  destination territories are not merged. Frequencies range from **0.1% to 0.5%**
+  per exact reason. Their union must not be inferred by summing them.
+- `I08_PROVISIONAL_SEATS`: **1828 occurrences**, **914 affected runs / 91.4%**.
+  Both chambers can issue the notice in one run. Generation failures do not
+  reach scrutiny and therefore do not emit it.
+- `R26_CONDITIONAL_CANDIDATES` and `R26_SEAT_TABLE_3` (Rome boundary-continuity
+  assumption): **one shared context occurrence each**, no simulation frequency.
+  Informational seat/geography/model notes are recorded separately, not counted
+  as warnings. These known model/legal boundaries remain visible in acceptance.
+
+Final safeguards and completion:
+
+- Temporarily moved only the three generated production bundles aside, with
+  checked workspace paths and `finally` restoration. The reform suite passed
+  **626 tests**, with exactly **one explicit production-bundle skip**. This
+  demonstrates that constructed law/model fixtures do not require those files.
+  The production acceptance command then failed at its required-data preflight,
+  before any suite could turn missing data into an accepted skip. Restored all
+  three bundles and reran the full no-skip application gate successfully.
+- Diagnostic frequencies require a native per-simulation ledger. Imported
+  archives may contain older all-run aggregation with only a first simulation
+  ID; the query explicitly rejects them rather than inventing affected-run
+  counts. Browser coverage verifies this rejection after archive import.
+- R26-21 is complete as **local application/performance acceptance with
+  provisional I08 census tables and conditional preference/chamber models**.
+  The non-computable branches above are retained limitations, not successful
+  allocations. The final hosting/publication, municipal and remaining
+  data-preparation steps remain open. No commit, push or deployment was performed.
+
+## 2026-10-20: Compact 1000-run diagnostics CSV by code
+
+Exported [the compact CSV](../test/fixtures/benchmarks/browser_reform_1000_diagnostics_by_code.csv)
+with `severity,code,occurrences,simulations`: **10 error codes and 5 warning
+codes**, merging all reasons of each code. Occurrences are additive; affected
+simulations require a distinct union. The original reason-only report lacked
+the IDs needed to obtain those unions safely.
+
+Added tested code-level counters to the existing streaming diagnostic query and
+replayed the same production scenario/seed at 1000 runs with four workers.
+The replay passed and matched the original overview and every reason's counts
+exactly. Enriched the original report with `codes` summaries and explicit replay
+provenance, preserving its original timings. The replay's own elapsed time was
+217.130 s, recorded separately under `data/derived/r26-21-acceptance/`.
+For example, N23 and N24 each have **218 occurrences in 216 distinct simulations**;
+I07 cross-region recovery has **93 occurrences in 55 simulations**. Session-wide
+context warnings have one occurrence and zero per-run simulation IDs. No legal
+logic, source data or draws changed. Focused counter tests and the production
+browser replay passed.
+
+
+## 2026-10-20: Territorial eligibility review and provisional I12
+
+Investigated the benchmark's `R26_RUN_ERROR` with message `Supply a validated
+seven-slot slate and its college figures`. Replay of simulation 19 showed
+successful generation/validation, followed by an N20 cap transfer to a
+special-only Valle d'Aosta group with zero votes and no ordinary slate in
+Lombardia. N23 then threw for its missing college slate. The old report's
+"Generation/run" category did not establish a generation failure.
+
+Official-source findings and decision:
+
+- Reopened the promulgated GU amendment articles 1 and 2, including
+  C18-bis(2-bis), C31(4-bis), S1(4-ter), S9(2), S11(3-bis), the territorial
+  allocation rules and S16-bis(1-ter)(b). Filing/ballot/proclamation structure
+  supports territorial presence; special-only groups need not file elsewhere.
+  Found no decisive official instruction expressly authorizing or excluding
+  an absent-list recipient in the precise cap-remainder case. Apply Luca's
+  explicitly authorized **provisional I12-v1**. Exact source links, evidence
+  versus inference, and the dated search limits are in the
+  [I12 source review](politics-reform-2026-specification.md#territorial-eligibility-and-zero-remainders-i12).
+- Targeted official GU/Camera/Senato/Interior Ministry/judicial searches did
+  not establish either proposed rule that zero votes produce no remainder,
+  or that a zero remainder cannot receive a remainder seat. Applied **neither**
+  change; no provisional numerical exclusion was authorized.
+
+Implementation:
+
+- Added one filed-slate coverage helper. A list needs an ordinary filed slate
+  in the Camera constituency/Senate region; a coalition needs at least one
+  filed member, and internal list splits use each member's own coverage.
+  National admission, special votes and national bonus eligibility are retained.
+- Camera N15/N16/N17 matrices carry explicit cell eligibility. Absent cells
+  cannot receive initial or corrective seats; their absence is distinct from
+  a filed zero-vote cell. Senate N19 supplies explicit regional subject
+  eligibility; N20 filters both unused-remainder and regional-vote recipients,
+  and N21 restricts coalition-list remainder eligibility. Keep zero targets
+  in complete communications. A region with no permissible recipient produces
+  `no-eligible-recipient` before any unpaired seat change.
+- Composed results retain `I12-v1`; chambers with admitted lists absent from
+  ordinary territories emit `I12_TERRITORIAL_ELIGIBILITY`. Candidate exhaustion,
+  I07/I10/I11 recovery, special allocation and partial college coverage inside
+  an otherwise filed territory keep their existing semantics.
+- Added ten constructed regressions, including an admitted special-only Senate
+  group through full 588-seat scrutiny, coalition/standalone Camera corrections,
+  no-recipient failure and both filed-zero-vote and positive-vote/zero-remainder
+  recipients. Two initial failures concerned an old bundled-seat fixture's
+  stale slate college IDs and an exact-object expectation missing the new
+  eligibility field; corrected those fixtures. A new synthetic coalition fixture
+  initially had only integer-seat donors and correctly blocked; revised its
+  inputs to exercise remainder transfers. Type checking also caught two
+  readonly fixture assignments, replaced with immutable copies.
+
+Verification:
+
+- `npm run check:data`: pass. `npm run check`: zero errors/warnings.
+- `npm test`: **866 tests, 61 files, zero skips**, including the legacy politics
+  and regional suites. Production bundles were present.
+- `npm run build`: pass. `npm run test:e2e`: **21 passed at root**; repeat with
+  `BASE_PATH=/elezioni`: **21 passed**. Build and browser suites ran sequentially;
+  no deployment was performed. Color-environment/plugin timing notices did
+  not affect successful exits.
+- Direct replay of recorded benchmark simulation **19**, unchanged scenario,
+  data and seed: **complete, 588 seats, zero non-computable stages**, no ordinary
+  entitlement for the special-only group, and the explicit I12 warning.
+- Replayed **all 1000 recorded simulation IDs** through generation and composed
+  scrutiny in four isolated Node workers, using the recorded scenario,
+  `r26-default-v1` seed and digest-verified production bundle. Outcome:
+  **823 complete, 0 partial, 177 structured non-computable, 0 exceptions**
+  (hence no `R26_RUN_ERROR`, versus 86 in the historical browser report).
+  All 1000 runs remained in the denominator. Other legal-stage blockers remain;
+  their revised counts are separate evidence, not conclusions about their legal
+  cause. There were 1000 explicit I12 warning occurrences. Reproducible runner
+  and exact summary are under `data/derived/r26-i12-review-20261020/`
+  (`replay.mjs`, `replay-summary.json`), including baseline-report and runner
+  digests. This is a deterministic legal-output replay, not a browser benchmark
+  or a new latency/memory acceptance measurement.
+
+The historical browser benchmark report remains unchanged. Revised legal output
+must not be described as reproducing its old frequencies or timing measurements.
+
+## 2026-10-20: N28 diagnostic investigation and ordinary N18 donor restriction
+
+`R26_N28_NON_COMPUTABLE` is the presentation of the composed N28 stage, not
+an independent statutory operation. `scrutiny.ts` marks the result non-computable
+when any renewed chamber has no recovery result or a non-computable recovery.
+Its `stage-prerequisite-non-computable` reason propagates earlier blockers.
+Unfilled/unresolved seats with computable recovery instead produce `partial`.
+The historical browser report has 216 N28 occurrences; the previously recorded
+post-I12 direct replay has 177. Neither count establishes the legal cause.
+
+Replayed the recorded scenario and seed `r26-default-v1`, digest-verifying the
+production snapshot. Current simulation 4 reproduces N18 Camera
+`no-eligible-donor-remainder`, followed by N23/N24 ordinary-allocation blockers,
+N25/N26 prerequisite blockers and joint N28. Senate recovery completes 196
+seats. No bonus is awarded. In Basilicata (`camera:territory:22`), the single
+college `camera:P:170001` has four seats and communicated list targets of one
+each for M5S, Azione–Italia Viva, AVS and Forza Italia. Their included votes are
+88,446 / 45,804 / 28,436 / 7,630: quota 170,316 / 4 = 42,579. Integer seats
+are 2/1/0/0; the remainder goes to AVS, producing 2/1/1/0. M5S must lose one
+seat and Forza Italia gain one. The code rejects M5S because neither seat was
+awarded through a remainder.
+
+Reopened the [controlling article 1(23)](https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticolo?art.codiceRedazionale=26G00201&art.dataPubblicazioneGazzetta=2026-10-09&art.flagTipoArticolo=0&art.idArticolo=1&art.idGruppo=0&art.idSottoArticolo=1&art.idSottoArticolo1=10&art.progressivo=0&art.versione=1).
+C83-bis(1)(b)(3) ranks donor colleges by the smallest decimal part without
+requiring a remainder-awarded donor seat. C83-bis(1-bis)(c), the separate cap
+group rule, expressly requires seats obtained through decimal parts. The
+ordinary `independent-colleges` predicate imports this additional restriction.
+This revises the earlier assumption that ordinary integer-seat donors must
+block: this simulation demonstrates an implementation/interpretation restriction,
+not an unavoidable failure of literal ordinary b(3). It does not classify every
+N18/N21 blocker or settle repeated-removal semantics.
+
+Verification was investigative, with no scrutiny-source change. The runner
+under `data/derived/r26-n28-review-20261020/inspect.mjs` saves the input/result
+and `observed-summary.json`. Its `--counterfactual` mode bundles an in-memory
+change to only the ordinary donor predicate, permitting positive-seat donors
+with defined decimals. Simulation 4 then completes all 588 domestic seats,
+including Basilicata targets 1/1/1/1; `counterfactual-summary.json` records it.
+This is a narrow causal experiment, not an implemented or generally validated
+correction, nor a new benchmark. No migration checklist item was completed.
+
+## 2026-10-20: Approved I13 integer-seat donor fallback and legal-gap register
+
+Luca clarified that the strict C83-bis(1)(b)(3) reading requires
+remainder-awarded donor seats and classifies their exhaustion as a legal gap.
+This supersedes the preceding investigation's classification of the ordinary
+restriction as an implementation defect. The separate cap-group rule expressly
+has the same restriction. He authorized a warned loose reading for both when
+strict donor exhaustion prevents completion, subject to downstream checks.
+Reopened article 1(23) of the controlling GU act; no claim is made that the
+workaround represents a binding official interpretation or observed office practice.
+
+Implemented provisional I13-v1 only for Camera N18: ordinary independent list
+corrections, the b(3) list rule imported inside cap groups, and cap-group
+corrections. Exhaust strict remainder donors first, then rank positive-seat
+donors by ascending existing decimal. Repeated integer removals are bounded by
+the surplus and remaining seats; tied ranks use the existing seeded I03 draw.
+Each fallback removal emits `I13_INTEGER_SEAT_REMOVAL`, severity `warning`,
+with simulation/chamber and college/subject context. Applied policy metadata
+records I13-v1, and exported list-allocation transfers mark I13. Cap-group
+movements retain their detailed matrix trace rather than fictitious candidate
+seat IDs. No Senate or Camera constituency donor rule changed.
+
+Integer removals preserve original integer/provisional allocation evidence and
+the decimal's exact value and used/unused/consumed state. Thus recovery does
+not mistake integer-seat removal for consumption of an unused decimal or a
+second remainder donation. Strict donations still consume once. Every operation
+reduces an excess by one without negative seats; cap-group recipients stay in
+the same college and all communicated list/group totals remain binding.
+Recipient exhaustion and numerical failures keep their existing blockers.
+
+Created the [legal-gap register](politics-reform-2026-legal-gaps.md), linked from
+the transcription, specification, code reading map and active migration plan.
+LG01 records ordinary donor exhaustion, LG02 cap-group donor exhaustion, and
+LG03 the C3 capacity/upstream constituency-total conflict. LG03 remains blocked
+as `constituency-capacity-target-mismatch`; no table resizing or cross-college
+cap-group workaround was authorized. The specification and code reading map
+now distinguish strict law, the approved workaround and unresolved cases.
+
+Verification:
+
+- Focused constructed/production regressions: **64 passed**. Cover Basilicata's
+  exact 42,579 quota, strict-donor priority, repeated integer removals, unchanged
+  unused/consumed decimal evidence, cap-group same-college conservation through
+  internal list allocation and recovery communications, I13 transfer exports,
+  seeded permutation/JSON replay and unchanged LG03/Senate/constituency blockers.
+- Production simulation 4 completes **392 Camera + 196 Senate seats**, all 588
+  candidate identities unique, with I13 warnings and applied policy metadata.
+- `npm run check:data`: pass; `npm run check`: zero errors/warnings.
+  `npm test`: **61 files / 872 passed, no skips**. The first full run hit the
+  production test's old five-second timeout after adding the second replay;
+  set that test's explicit timeout to 30 seconds and the rerun passed.
+- `npm run build`: pass. After build completion, `ACCEPTANCE_PREBUILT=1 npm run
+  test:e2e`: **21 passed**. No route/component or base-path logic changed.
+- Browser production benchmark, 100 simulations / four workers: **passed**,
+  25.564 s elapsed, 96 complete / four non-computable. Diagnostics include the
+  applied warning: 22 integer removals in 17 simulations. Report:
+  `data/derived/r26-i13-review-20261020/browser-100.json`.
+  A direct Node replay ran concurrently, so this is browser execution evidence,
+  not an isolated latency comparison or replacement acceptance sweep.
+- Replayed all **1000 recorded IDs**, unchanged scenario/seed and digest-verified
+  production bundle, in four isolated Node workers: **977 complete, 0 partial,
+  23 non-computable, 0 exceptions**. The post-I12/pre-I13 replay recorded
+  823 complete / 177 non-computable; the net improvement is 154 complete results.
+  Recorded **180 I13 removals in 155 simulations**: 130 ordinary independent
+  removals and 50 internal cap-list removals. No cap-group fallback was needed
+  in this sample; that branch is proved by constructed regressions, including
+  downstream internal list allocation and recovery communications.
+- Remaining root blockers: Camera N18 has four
+  `no-eligible-recipient-remainder` and eight `impossible-residual` results;
+  Senate N21 retains ten donor-exhaustion and one recipient-exhaustion result.
+  N28 propagates those 23 failures. New reachable recipient blockers do not
+  establish a new legal conclusion; no automatic workaround was added for them.
+  Exact summary and reproducible runner are under
+  `data/derived/r26-i13-review-20261020/` (`replay-summary.json`, `replay.mjs`).
+
+Historical benchmark and post-I12 evidence were preserved. This change adds no
+new migration phase, public deployment, commit or publication.
+
+## 2026-10-21: I14 repeated initial Camera list remainder rankings
+
+Luca authorized interpreting C83-bis(1)(b)(2)'s descending decimal ranking as
+repeatable when a first pass cannot fill the college. Rechecked the
+[promulgated Camera amendment, article 1(23)](https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticolo?art.codiceRedazionale=26G00201&art.dataPubblicazioneGazzetta=2026-10-09&art.flagTipoArticolo=0&art.idArticolo=1&art.idGruppo=0&art.idSottoArticolo=1&art.idSottoArticolo1=10&art.progressivo=0&art.versione=1):
+b(2) does not expressly prescribe a single traversal; b(3) expressly refers to
+unused recipient decimals, and (1-bis)(d) imports the list rule within cap groups.
+The earlier diagnosis of benchmark 165 as intrinsically defective depended on
+the single-pass reading. I14 is a provisional interpretation, not a new legal
+gap; the legal-gap register is unchanged. See the
+[operative contract](politics-reform-2026-specification.md#initial-camera-list-remainder-passes-i14).
+
+The compatibility review found no need to redesign inputs, result schemas,
+workers, storage, exports or recovery. Existing `provisionalSeats - integerSeats`
+counts initial remainder awards; `remainderSeat` records whether any were given.
+One local correction change was necessary: a donor decimal that supplied several
+initial seats remains `used` after partial removal and becomes `consumed` only
+after the last such seat is removed. Transfer traces mark these removals with
+I14; I13 integer fallback still starts only after remainder-awarded donors are
+exhausted. Recovery already distinguishes unused from already-used evidence and
+needs no multiplicity field or recomputed quotient.
+
+Implementation preserves the simultaneous first pass. Additional whole-matrix
+passes reuse established rankings and tie outcomes, excluding lists that reached
+their constituency target at the pass boundary. Only N18 list matrices may
+repeat, including internal cap lists; cap-group indices, Senate stages and
+correction-recipient eligibility keep their previous contracts. Empty eligible
+pools still block. Each additional college pass emits warning
+`I14_REPEATED_REMAINDER_PASS`; composed metadata records `I14-v1`.
+
+Verification on Windows x64, Node **24.20.0**, from `web/`:
+
+- `npm run check` and `npm run check:data`: zero diagnostics.
+- `npm run test`: **61 files / 881 tests passed**, **13.51 s**. Coverage includes
+  two and more passes, newly reached targets, stable ties/permutations, empty
+  pools, multiple donor removals before I13, internal cap-list allocation,
+  recovery communications, metadata and JSON serialization.
+- `npm run build`: static build passed, **11.68 s** reported; then
+  `ACCEPTANCE_PREBUILT=1 npm run test:e2e -- --reporter=line`: **21 Chromium tests
+  passed**, **30.3 s**. Build and e2e ran sequentially; plugin-timing/color notices
+  were informational.
+- Compared all **1,000 recorded benchmark IDs** against an isolated pre-I14
+  matrix graph from commit `5925ef42e58e05c0183c17caf0f6e6009869aedf`, using the
+  same generated inputs, scenario/seed, digest-verified production snapshot
+  `r26-generation-v1-c5c4be9fafb5` and model `r26-models-v1-f71a72020aaa`.
+  Results changed from **977 complete / 23 non-computable** to **985 complete /
+  15 non-computable**, with **zero partials or exceptions**. Full serialized
+  result objects for the other **992 IDs are identical**, including warnings,
+  transfers, draws and recovery evidence. This is a direct Node comparison,
+  not a browser latency benchmark.
+- All eight previous N18 `impossible-residual` IDs (**165, 349, 435, 437, 488,
+  511, 567, 673**) complete with **588 domestic seats** and one I14 warning each.
+  In 165, Veneto 1's +Europa receives its third seat in the second pass;
+  its original decimal reaches recovery marked `used`. The existing composed
+  ledger checks preserve seat and elected-candidate uniqueness. Remaining root
+  blockers are four Camera recipient-exhaustion and eleven Senate failures.
+- `REFORM_BENCHMARK_COUNTS=200 REFORM_BENCHMARK_WORKERS=1,4
+  REFORM_BENCHMARK_REPORT=../data/derived/r26-i14-review-20261021/browser-200.json
+  npm run benchmark:reform`: **passed**, **181.46 s** with one compute worker
+  and **44.69 s** with four. Both runs store **195 complete / 5 non-computable**
+  results, including 165's I14 warning, with identical result tables, row counts,
+  warning counts and diagnostics. The preceding Node comparison had finished
+  before these browser runs. These measurements do not replace the historical
+  full acceptance sweep or establish a pre/post performance comparison.
+
+The reproducible comparison and exact summary are in
+`data/derived/r26-i14-review-20261021/` (`replay.mjs`, `replay-summary.json`).
+Historical reports and the previous investigation artifacts remain unchanged.
+No commit, deployment or publication was performed.
+
+## 2026-10-21: N21 donor-exhaustion investigation
+
+Replayed recorded benchmark IDs from 1 until the first current Senate
+`no-eligible-donor-remainder`: simulation **31**, seed `r26-default-v1`,
+digest-verified snapshot `r26-generation-v1-c5c4be9fafb5`, model
+`r26-models-v1-f71a72020aaa`. This is an investigative Node replay, not a new
+browser benchmark or a remeasurement of the historical 59 occurrences. The
+existing post-I14 1,000-ID comparison records ten current donor-exhaustion
+failures; this investigation independently checks one of them.
+
+No bonus is awarded. Campania has 18 ordinary seats. Regional subject allocation
+uses integer quota 168,720; coalition splitting yields M5S/+Europa/Azione-IV/
+FdI/FI targets **11/3/1/2/1**. PD, AVS and Lega receive zero seats, so S17(4)(a)
+excludes their combined 157,332 votes from the college denominators. The two
+colleges have capacities 10/8, included votes 1,672,542/1,207,087 and integer
+quotas **167,254/150,885**. M5S receives **7+5 integer seats**, already exceeding
+its regional target. Reached-target exclusion prevents further remainder seats
+but cannot undo this integer surplus. Initial complete college allocations are
+M5S/+Europa/Azione-IV/FdI/FI **7/1/0/1/1** and **5/1/0/1/1**.
+
+The first correction removes FI's remainder seat in `senato:P:150002`
+(decimal about 0.468734) and gives it to Azione-IV in `senato:P:150001`
+(about 0.429138). M5S remains at 12 instead of 11; +Europa remains at two
+instead of three. Neither M5S cell was awarded a remainder seat, so the donor
+pool is empty. Both +Europa recipient decimals remain unused. No draw occurs.
+N21 blocks, followed by Senate N23/N24/N27 and joint N28 prerequisite failures.
+
+Reopened the [controlling Senate amendment, article 2(10)](https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticolo?art.codiceRedazionale=26G00201&art.dataPubblicazioneGazzetta=2026-10-09&art.flagTipoArticolo=0&art.idArticolo=2&art.idGruppo=0&art.idSottoArticolo=1&art.idSottoArticolo1=10&art.progressivo=0&art.versione=1).
+S17(4)(c) has the same relevant donor wording as C83-bis(1)(b)(3). Under the
+strict remainder-awarded-seat reading adopted for Camera LG01, this is the same
+kind of legal gap, not an arithmetic defect in this replay. The ordinary list
+wording remains interpretive: reading it as ranking donor colleges regardless
+of seat origin would instead make the predicate an implementation restriction.
+Do not confuse that alternative with the more explicit S17(5)(c) cap-group rule.
+I13 remains expressly scoped to Camera; no Senate workaround was applied and
+no new gap-register entry was added during this analysis.
+
+Evidence under `data/derived/r26-n21-review-20261021/`: reproducible `inspect.mjs`,
+full `simulation-31.json`, scoped `summary.json`, and `verify.mjs` with independent
+BigInt quota/floor/decimal assertions, initial capacity checks, exact transfer
+identities and donor/recipient pool checks (`arithmetic-verification.json`).
+All assertions passed. No scrutiny implementation changed.
+
+## 2026-10-21: extend I13 to Senate N21/N22
+
+Luca authorized extending I13 to Senate and updating LG01/LG02. The shared
+matrix now enables the existing warned fallback for Senate N21 college lists
+and N22 cap groups/internal lists. Strict remainder-awarded donors retain
+priority; only their exhaustion enables positive-seat donors ranked by ascending
+existing decimal, with warned seeded I03 draws for equal ranks. The same I13-v1
+warning, transfer and metadata contracts apply. Integer removal preserves the
+donor decimal and unused/used/consumed state. Senate list transfers retain their
+paired corrections and regional targets; cap-group transfers stay within the
+same college and preserve its capacity. Recipient eligibility, Senate regional
+and cap stages, Camera constituency rules and Camera-only I14 are unchanged.
+
+Expanded LG01 to S17(4)(c) and its S17(5)(d) import, with simulation 31 as the
+worked Senate example. Expanded LG02 to S17(5)(c), backed by constructed Senate
+group corrections through internal list allocation/recovery communication.
+Updated the operative specification, code reading map and migration-plan
+boundary. LG03 remains unresolved. Existing warning-driven metadata and located
+transfer exports already support Senate, so no schema or UI change was needed.
+
+Verification:
+
+- `npm run check`: zero errors/warnings; `npm run check:data`: passed.
+- `npm test`: **61 files / 885 passed, no skips**. Covers strict-donor priority,
+  unused and consumed donor-state preservation, repeated cap-group integer
+  removals, nonnegative seats, college capacities, seeded draws, permutation/JSON
+  replay, N22 internal list fallback, recovery evidence and located N21 exports.
+  A first tiny-vote repeated-removal fixture encountered an unrelated internal
+  list arithmetic blocker; replaced its vote figures with a case that verifies
+  repeated removals and full internal allocation without relaxing that blocker.
+- Production simulation **31** completes **588 domestic seats**, all elected
+  identities unique, with a Senate I13 warning, metadata and located transfer.
+- `npm run build`: passed; then prebuilt `npm run test:e2e -- --reporter=line`:
+  **21 Chromium tests passed**. Build plugin-timing/color notices were informational.
+- Compared **all 1,000 recorded IDs** before/after the extension, using the same
+  generated inputs and digest-verified snapshot/model/seed. The saved pre-change
+  matrix forms an isolated baseline module graph. Results improve from
+  **985 complete / 15 non-computable** to **994 complete / 6 non-computable**,
+  with zero partials/exceptions. Full serialized results for **990 IDs are
+  identical**. Nine IDs complete with 588 seats and one Senate I13 removal each:
+  **31, 173, 350, 593, 610, 664, 940, 970, 980**. ID **242** changes from donor
+  exhaustion to recipient exhaustion before any fallback transfer; no recipient
+  workaround was added. The remaining root blockers are four Camera and two
+  Senate recipient-exhaustion cases. No donor-exhaustion blocker remains in this
+  sample. Senate cap-group fallback is verified by constructed tests rather
+  than claimed as observed in this production sample.
+- Production browser check, **100 simulations / four compute workers**:
+  **97 complete / 3 non-computable**, all three recipient-exhaustion cases;
+  **23 I13 removals in 18 simulations** across both chambers. The Node replay
+  ran concurrently, so the 25.802 s browser elapsed time is execution evidence,
+  not an isolated performance comparison.
+
+Reproducible baseline/comparison and exact reports are under
+`data/derived/r26-i13-senate-review-20261021/` (`baseline-territorial-matrix.ts`,
+`replay.mjs`, `replay-summary.json`, `browser-100.json`). Prior investigation
+artifacts and historical benchmark reports remain unchanged. No commit,
+deployment or publication was performed.
+
+## 2026-10-21: correct N22 stage failure reporting
+
+Luca approved the bounded N22 reporting correction. `scrutiny.ts` previously
+passed `alternative-allocation-path` regardless of whether N22 was inactive or
+its selected cap allocation had failed. The stage recorder retained that fixed
+reason on failure, and presentation/export correctly propagated the wrong text.
+
+N22 now records `not-run / regional-allocation-non-computable` when regional
+allocation fails before path selection, and reserves `not-run /
+alternative-allocation-path` for a completed regional allocation using another
+path. On the selected cap path it records the actual college status, failure
+reason and available affected region. Successful N22 records have no reason.
+The existing N21 aggregate stage and all allocation/recovery algorithms remain
+unchanged; this adds no legal interpretation or gap-register entry.
+
+Verification: extended existing composition tests cover no bonus, bonus without
+cap correction, successful cap correction and failed regional prerequisites.
+The digest-verified production regression for simulation **242**, seed
+`r26-default-v1`, confirms the active N22 minority-list correction still fails
+with `no-eligible-recipient-remainder`, now reporting affected region **08**.
+Its stage table and error message carry the correct reason, and JSON result
+export/import preserves both the reason and region. Historical benchmark
+artifacts were not rewritten; no new 1,000-run benchmark is claimed.
+
+`npm run check`: zero errors/warnings. `npm test`: **61 files / 885 passed,
+no skips**. `npm run build`: static build passed; plugin-timing notices were
+informational. No commit, deployment or publication was performed.
+
+## 2026-10-21: LG03 disjoined Camera cap-group correction (I15)
+
+Luca authorized a provisional solution for `constituency-capacity-target-mismatch`:
+apply C83-bis(1-bis)(c) disjoined when the constituency's upstream entitlement
+differs from its C3 college total. The controlling article 1(23) text was
+rechecked against the Gazzetta Ufficiale on 21 October 2026. Its literal rule
+pairs removal with reassignment in the same college; it does not expressly
+authorize disjoining or additions from used decimals. I15-v1 therefore records
+the approved simulator policy, without claiming established office practice.
+
+Initial group indices/quotas retain C3 capacities. For mismatched Camera N18
+cap-group matrices only, remove surplus group seats by ascending used decimal,
+retaining I13 integer donor fallback after strict donors exhaust. Independently
+fill deficits by descending unused decimal, then one pass over used decimals,
+including those used by an earlier addition. Reuse each used decimal at most
+once; recheck deficits after each seat. Exhausted pools and undefined arithmetic
+remain non-computable. Ties retain seeded I03 resolution. Balanced Camera group
+matrices, Senate rules and ordinary/internal list recipient rules are unchanged.
+
+Final college totals may differ from C3, while every upstream group and
+constituency/national list target stays binding. Detailed matrices retain
+original capacity and final seats; corrected group counts become capacities for
+the existing internal list split. Proclamation, multiple elections and recovery
+need no algorithm change. Recovery still consumes final list remainders, never
+group indices. No decree/endowment input is rewritten and no wire schema
+version changes. `I15_DISJOINED_GROUP_CORRECTION` warns once per affected
+constituency, survives later failure and supplies applied `I15-v1` metadata.
+Disjoined group traces have one null endpoint and I15 metadata; I13 removals
+retain I13 metadata. They remain group evidence rather than fictitious
+candidate-seat transfers. The specification, legal-gap register, core README
+and active plans now describe this boundary.
+
+Verification:
+
+- `npm run check:data` passed; `npm run check` found zero errors/warnings.
+- `npm test`: **62 files / 894 passed, no skips**. New tests cover both mismatch
+  directions, exact donor/recipient ordering, unused-before-used addition,
+  bounded reuse/exhaustion, I13 interaction, deterministic I03 permutations,
+  scope guards, JSON traces, internal list/recovery communications and national
+  conservation. A tie fixture was corrected to guarantee an actual correction
+  tie instead of depending on the initial statutory draw outcome.
+- `npm run build` passed; plugin-timing notices were informational.
+- `ACCEPTANCE_PREBUILT=1 npm run test:e2e`: **21 passed**.
+- Replayed the existing full constructed N18 diagnostic input, not an
+  unconditioned simulation: it previously failed LG03, now completes with
+  **588 seats / 588 distinct elected candidates**, no non-computable stage and
+  both chambers' recovery `complete / all-filled`. National allocation and
+  the full upstream constituency-list communication remain byte-identical;
+  all final college-list totals match those targets. I15 warns for Veneto 1
+  (**11 -> 12**) and Puglia (**21 -> 20**). JSON roundtrip and deterministic
+  replay match. Evidence: `data/derived/r26-i15-review-20261021/constructed-summary.json`.
+
+After those tests, ran **1,000 paired simulations** directly in Node against
+both an isolated pre-I15 module graph and the changed implementation, using the
+saved acceptance scenario, seed `r26-default-v1`, snapshot
+`r26-generation-v1-c5c4be9fafb5` and model `r26-models-v1-f71a72020aaa`.
+Compressed/uncompressed production bundle SHA-256 checks passed. Saved acceptance
+report SHA-256: `bf12f43b8019326203cfb46d6366aa35145d8e0fb37c781cad5f2d0ff4b19373`.
+This is a correctness replay, not a new browser performance benchmark.
+
+Both versions produce **994 complete / 0 partial / 6 non-computable**, with
+**zero exceptions** and **all 1,000 full serialized results identical**.
+Every complete result has 588 seats and 588 distinct elected candidates.
+There are **zero LG03/I15 cases in this frequency sample**; the constructed
+diagnostic above provides applicability evidence, not a measured failure rate.
+
+Remaining root failures (first failing stage in each chamber):
+
+| Chamber / stage | Reason | Simulations | Frequency / 1,000 | IDs |
+| --- | --- | ---: | ---: | --- |
+| Camera N18 | `no-eligible-recipient-remainder` | 4 | 0.4% | 42, 80, 598, 792 |
+| Senate N21 aggregate / N22 cap path | `no-eligible-recipient-remainder` | 2 | 0.2% | 49, 242 |
+
+Presentation error codes include propagation and overlap; they represent six
+failed simulations, not the sum of the rows:
+
+| Code | Occurrences | Affected simulations | Frequency / 1,000 |
+| --- | ---: | ---: | ---: |
+| `R26_N18_NON_COMPUTABLE` | 4 | 4 | 0.4% |
+| `R26_N21_NON_COMPUTABLE` | 2 | 2 | 0.2% |
+| `R26_N22_NON_COMPUTABLE` | 2 | 2 | 0.2% |
+| `R26_N23_NON_COMPUTABLE` | 6 | 6 | 0.6% |
+| `R26_N24_NON_COMPUTABLE` | 6 | 6 | 0.6% |
+| `R26_N25_NON_COMPUTABLE` | 4 | 4 | 0.4% |
+| `R26_N26_NON_COMPUTABLE` | 4 | 4 | 0.4% |
+| `R26_N27_NON_COMPUTABLE` | 2 | 2 | 0.2% |
+| `R26_N28_NON_COMPUTABLE` | 6 | 6 | 0.6% |
+
+Simulation warnings, excluding informational notes and session context:
+
+| Code | Occurrences | Affected simulations | Frequency / 1,000 |
+| --- | ---: | ---: | ---: |
+| `I03_DRAW` | 1 | 1 | 0.1% |
+| `I07_CROSS_REGION_RECOVERY` | 99 | 58 | 5.8% |
+| `I08_PROVISIONAL_SEATS` | 2,000 | 1,000 | 100% |
+| `I12_TERRITORIAL_ELIGIBILITY` | 1,000 | 1,000 | 100% |
+| `I13_INTEGER_SEAT_REMOVAL` | 189 | 164 | 16.4% |
+| `I14_REPEATED_REMAINDER_PASS` | 8 | 8 | 0.8% |
+| `I15_DISJOINED_GROUP_CORRECTION` | 0 | 0 | 0% |
+
+All 1,000 simulations have warnings. Session-only warning context is
+`R26_CONDITIONAL_CANDIDATES` and `R26_SEAT_TABLE_3`, one occurrence each and no
+simulation frequency. Informational notes remain separate in the complete CSV.
+
+Reproduction source, pre-I15 source copies, exact ID sets and reports are in
+`data/derived/r26-i15-review-20261021/`: `replay.mjs`, `report.mjs`,
+`replay-summary.json`, `diagnostics-by-code.csv`, `report.md` and the constructed
+summary. Generated artifacts are intentionally ignored; no historical benchmark
+was overwritten. No commit, deployment or publication was performed.
+
+## 2026-10-21: N18/N21/N22 recipient-exhaustion investigation
+
+Replayed the six remaining recorded failures, Camera **42, 80, 598, 792** and
+Senate **49, 242**, with the current implementation and the saved acceptance
+scenario. Every run reproduces `no-eligible-recipient-remainder` in the
+correction phase. Both Senate roots are internal minority-list allocation on
+the active N22 cap path; N21 also reports the aggregate failure. This was a
+six-ID diagnostic replay, not a new 1,000-run frequency or browser benchmark.
+
+In every case the deficient list has used every college decimal and still
+needs one seat. Its upstream target exceeds the sum of its integer seats plus
+one decimal award per college by exactly one: Camera 42/792 PD **2 > 0+1**;
+80 PD **4 > 1+2**; 598 PD **5 > 2+2**; Senate 49 PD **4 > 0+3**; 242 M5S
+**4 > 1+2**. This impossibility under the single-use recipient reading exists
+before correction ordering is chosen. Initial colleges are full in every
+failing matrix. I13 can supply donors in 42/792/242, but cannot provide an
+unused recipient; I14's initial pass and I15's mismatched cap-group exception
+do not cover this condition.
+
+Rechecked promulgated article 1(23), C83-bis(1)(b)(3)/(1-bis)(d), and article
+2(10), S17(4)(c)/(5)(d), against the Gazzetta Ufficiale. Both list-correction
+rules require an unused recipient decimal without prescribing an exhaustion
+fallback. Added **LG04**, with worked Camera 42 and Senate 242 chains and the
+boundary of this strict-reading classification. In 242, N19's coalition/M5S/PD
+allocation 10/1/0 becomes 6/4/1 through four N20 cap movements; the subsequent
+college split cannot give M5S its fourth seat using each decimal once.
+No recipient policy or scrutiny implementation changed. The plan retains both
+items as open, linking the completed investigation to the pending decision.
+
+Evidence: `data/derived/r26-recipient-review-20261021/inspect.mjs`,
+`overview.json`, `summary-{id}.json` and full `simulation-{id}.json` inputs/results.
+Compressed and uncompressed SHA-256 checks pass for snapshot
+`r26-generation-v1-c5c4be9fafb5`, model `r26-models-v1-f71a72020aaa`, seed
+`r26-default-v1`; the saved acceptance report hash remains
+`bf12f43b8019326203cfb46d6366aa35145d8e0fb37c781cad5f2d0ff4b19373`.
+Independent BigInt checks verify each failing matrix's vote-based quota,
+quotient integer/decimal parts and full initial college capacities. Assertions
+replay every correction transfer and remainder-state transition, verify the
+empty recipient pools and the single-use upper bounds, and confirm identical
+full results on a second scrutiny invocation. All checks passed for all six IDs.
+No historical benchmark was overwritten; no commit or publication was made.
+
+## 2026-10-21: implement LG04 recipient reuse and unlimited I15 passes
+
+Luca confirmed LG04 and authorized reusing the greatest used recipient decimals
+after unused decimals exhaust, without a limit on reuses, including removal of
+I15's one-pass limit. Implemented **I16-v1** for Camera N18 and Senate N21/N22
+ordinary/internal cap-list correction and updated mismatched Camera cap-group
+correction to **I15-v2**. Each descending used-decimal pass visits an eligible
+cell once, then restarts if deficits remain; targets are rechecked after every
+seat. Unused recipients retain priority even over greater used decimals.
+Absent, consumed and undefined decimals remain ineligible.
+
+No conflict was found with allocation or recovery contracts. Each addition
+reduces the finite total deficit, and additions stop at each target. A list
+receiving correction seats therefore cannot become a donor later in that
+matrix. Retain exact decimal values and `used -> used` state without adding
+a multiplicity counter or changing the initial integer/provisional evidence.
+I13 donor removal, I14 initial passes, balanced group correction and all
+constituency/regional/recovery algorithms retain their prior scopes.
+
+Each reused list seat emits `I16_REUSED_RECIPIENT_REMAINDER` with severity
+`warning`, list/college/context, pass and seat counts; composed metadata records
+I16-v1. I15 retains its per-constituency warning, now describing unlimited
+descending passes and recording I15-v2. A transfer combining I13/I14 donor
+fallback with I16 reuse preserves its primary donor `interpretationId` and
+adds optional `interpretationIds` containing both policies. Located transfer
+exports retain that field; existing JSON/CSV presentation needs no special
+case or input/result schema-version change. Updated the specification, legal
+gap register, scoped README and both active plans.
+
+Verification:
+
+- `npm run check`: zero errors/warnings; `npm run check:data`: passed.
+- `npm test`: **62 files / 901 passed, no skips**. Includes unlimited reuse in
+  independent and paired N18/N21/N22 corrections, unused-before-used priority,
+  repeated descending passes across colleges, immediate target exclusion,
+  genuinely empty recipient pools, I13/I16 compound transfers, recovery states,
+  seeded I03 permutation/JSON replay and I15 reuse beyond one pass.
+- Production regressions for **42, 49, 80, 242, 598, 792** all complete.
+  Simulation 242 verifies I13/I16 annotations, final used recipient recovery
+  evidence, warning/stage presentation and JSON export/import preservation.
+- `npm run build`: passed; plugin-timing notices were informational.
+  Prebuilt `ACCEPTANCE_PREBUILT=1 npm run test:e2e -- --reporter=line`:
+  **21 Chromium tests passed**. These are functional checks, not performance
+  measurements; the direct comparison also ran during part of verification.
+- Replayed **all 1,000 saved acceptance IDs** against the changed implementation
+  and an isolated pre-I16 module graph. Compressed/uncompressed production
+  SHA-256 checks passed; snapshot `r26-generation-v1-c5c4be9fafb5`, model
+  `r26-models-v1-f71a72020aaa`, seed `r26-default-v1`, saved acceptance report
+  SHA-256 `bf12f43b8019326203cfb46d6366aa35145d8e0fb37c781cad5f2d0ff4b19373`.
+  Results improve from **994 complete / 6 non-computable** to **1,000 complete /
+  0 non-computable**, with zero partials or exceptions. Full serialized results
+  for the other **994 IDs are identical**. Every complete result has 588 seats
+  and 588 distinct elected candidates. All changed runs retain byte-equivalent
+  upstream national/regional/list communications and satisfy every final matrix
+  and territorial list target. I16 emits **seven warnings in six simulations**:
+  simulation 49 also encounters and resolves a second minority-list exhaustion
+  in Lazio after resolving Lombardia. This is a direct Node correctness replay,
+  not a new browser frequency/performance benchmark.
+- The existing constructed LG03 full input still completes with 588 distinct
+  elected candidates and both recoveries `complete / all-filled`, now recording
+  I15-v2. Full deterministic replay and JSON roundtrip assertions pass. The
+  constructed group tests separately demonstrate the newly unlimited I15 reuse.
+
+Reproducible baseline/comparison, changed inputs/results and per-run summaries:
+`data/derived/r26-i16-review-20261021/` (`replay.mjs`, baseline source copies,
+`replay-summary.json`, `verify-constructed.mjs`, `constructed-summary.json`).
+Previous investigation artifacts and historical benchmarks remain unchanged.
+Closed the listed error investigations in `MIGRATION_PLAN.md`; the publication
+gate remains separate. No commit, deployment or publication was performed.
+
+## 2026-10-22 — Reform scenario editor alignment
+
+Implemented the scenario-editor item in `MIGRATION_PLAN.md`, with Luca's decisions:
+persist presentation metadata; common editing as the initial workflow; explicit
+advanced Camera/Senato scopes; supplied data stays JSON; expose the existing bonus
+planner and compatible templates; defer legacy conversion UI; retain mean mode.
+The result-table/plot alignment item remains open.
+
+`ReformScenarioEditor` coordinates typed immutable edits and separate subject,
+reference, historical-mapping, filing, bonus-link and candidate sections. Lists
+and searches, filing/template tables and preview tables use bounded slices;
+advanced panels mount only when opened. Extracted the earlier editor's percentage
+input for both workflows and reused its grouped editing/search conventions.
+Chamber overrides retain precedence after common edits. Structural changes show
+dependent-removal counts before application; supplied ballot data requires JSON
+reconciliation before structural edits. Invalid drafts do not replace the last
+valid saved scenario. Stale JSON drafts cannot overwrite newer form edits.
+
+Reform scenario v2 adds scenario title, list colors and coalition labels/colors.
+The strict parser/export path retains valid v1 reform scenarios verbatim; only
+editable drafts upgrade explicitly with deterministic presentation defaults.
+Existing result sessions keep their executed scenario, and presentation-only
+upgrades do not trigger a false changed-scenario notice. Metadata changes leave
+legal inputs, generation output and RNG streams identical. No legacy conversion
+wizard or alternative share model was added.
+
+Added a compact editor catalog generated/fingerprinted alongside production
+defaults, containing municipality/geography labels and historical list metadata
+without municipal vote matrices. Regenerated through the existing Node pipeline:
+snapshot `r26-generation-v1-c5c4be9fafb5` and model
+`r26-models-v1-f71a72020aaa` remained unchanged; defaults are
+`r26-defaults-v2-45ca4adeaaa8` and editor catalog is
+`r26-editor-v1-72979a99ca58`. The preparation check verifies the editor projection
+against the checksum-verified snapshot. Generated artifacts were not hand-edited.
+
+An independent browser worker prepares references and one deterministic generated
+input. It previews actual ordinary/bonus/special placements, including bonus
+ordinary-prefix affiliations, resolved share references, weighted abstention and
+normalization warnings. Templates pin compatible identities without allowing a
+new bonus composition/order. Previews invalidate on edits and remain explicitly
+conditional on simulation 1: they do not run scrutiny or establish computability
+for all simulations.
+
+Verification: `npm run acceptance:reform` passed in this checkout with all required
+production bundles: checksum/catalog checks and a complete 41-stage/588-filled-seat
+vertical slice; preparation/application type checks (zero Svelte errors/warnings);
+909 unit tests, zero skipped; 25 browser tests at `/` and 25 at `/elezioni`, zero
+skips/retries; both static builds and final root-build restoration. The eight
+new unit tests cover v1/v2 scenario/result archives, unchanged generation, common
+and chamber edits, filing/mapping dependencies and bonus-prefix templates. Four
+new browser tests cover persistence/export, explicit chamber controls, dependency
+review, invalid-draft retention, v1 imports, JSON supplied data, production worker
+preview/template compatibility and mobile overflow. Existing result replay,
+workers, missing-data handling and legacy/regional paths passed unchanged.
+Acceptance evidence: `data/derived/r26-21-acceptance/report.json` and its unit/browser
+reports (generated, untracked). `git diff --check` passed. Build chunk-size/plugin
+timing notices remain informational; the politics page bundle is about 182 kB
+gzip. No new performance claim, commit, deployment or publication is implied.
+
+Browser-test development exposed a selector issue: nested select-label text
+includes option text for `getByLabel(..., exact: true)`, even though its accessible
+combobox name is correct. Use `getByRole('combobox', { name, exact: true })` for
+these controls. Svelte read proxies also require copying JSON trees at editing
+boundaries rather than passing proxies to `structuredClone` or worker messages.
+The final browser/type/acceptance checks include these corrections.
+
+Operational details and task-oriented code map:
+[`politics-reform-2026-editor.md`](politics-reform-2026-editor.md).
+
+## 2026-10-22 — Row-local presence and editor-local chamber controls
+
+Replaced the global common/Camera/Senato switch following Luca's revised UI
+request. Coalition and list rows now have Settings2 icon buttons with titles,
+expanded-state semantics, hidden details and badges. Coalition details declare
+chamber presence; list details combine presence and protected-minority controls.
+Name/membership edits affect existing occurrences without resurrecting absent
+lists. Removing presence previews dependent removals; restored lists remain
+unfiled. The last list occurrence is removed through the trash action.
+
+Coalition declarations persist in optional v2 presentation `chambers`; old files
+infer them from member lists, preserving archive/default compatibility. Populated
+coalitions present in both chambers acquire reciprocal automatic links; empty
+coalition declarations remain editable until membership makes a legal link
+possible. Disabling coalition presence unassigns local members. Re-enabling it
+restores matching member identities already present in that chamber. Automatic
+same-coalition links are identified in the link editor instead of offering an
+inconsistent manual unlink action.
+
+References have their own common/Camera/Senato selector; historical mappings have
+an independent selector. Coverage is always chamber-specific, with an optional
+chamber filter alongside region and college kind, row checkboxes and filtered
+bulk actions. Candidate placement already has its own chamber selector. Shared
+row sizing and trash controls remain in place.
+
+Added unit regressions for presence restoration, non-resurrection on name edits,
+empty declarations, automatic links and serialization, plus browser coverage for
+row toggles/badges, protection and independent reference/history/coverage scopes.
+Updated the editor guide/application/plan for the revised workflow. A Windows
+text-write encoding issue was caught by the production build and corrected to
+UTF-8; line endings were normalized after diff checking. Final verification is
+recorded below.
+
+Final verification: `npm run acceptance:reform` passed with 911 unit tests and
+26 browser tests at each of `/` and `/elezioni`, zero skips/retries; production
+checksum/vertical-slice and preparation/application type checks passed (zero
+Svelte errors/warnings). Static builds passed and the root build was restored.
+`git diff --check` passed. No commit or deployment was performed.
+
+## 2026-10-22 — Reform result tables and plots alignment
+
+Implemented the approved alignment at `MIGRATION_PLAN.md:209`. Reform results
+now offer paired mean-elected/valid-vote bars and summary tables, percentage
+boxplots, chamber/list and chamber/supporting-subject scatter panels, national
+list spinograms, and a searchable college spinogram with final-election and
+original-entitlement measures. The pre-2026 adapter uses the extracted shared
+renderer and colour helpers; its existing visible charts remain available.
+Broader routing/election-kind generalization remains a separate plan item.
+
+New presentation rows retain final personal affiliation and compact national
+and college observations before generated inputs/stage objects are released.
+List counts include every domestic seat category by final affiliation; coalition
+counts preserve legal ownership and never invent member-list bonus quotas.
+Independent special winners have an explicit unaffiliated bucket. Local counts
+use actual election locations, including bonus recoveries, while original
+entitlements remain a separately labelled measure. No legal algorithm, model,
+RNG stream, generated snapshot/default or production data was changed.
+
+Per-chamber unknowns remain null. Complete means require full requested
+coverage; confirmed elected totals divided by requested simulations are labelled
+lower bounds otherwise. Boxplots describe available percentages, scatter panels
+report missing pairs, and spinograms retain grey unknown-outcome cells plus
+missing-percentage counts. Preferences and candidate outcomes remain conditional.
+Calculations and quantile/bin boundaries preserve precision; labels alone round.
+
+The worker builds disposable on-disk series/value indexes and supplies at most
+256 observations per request. Canvas draws every available scatter/outlier point
+without one DOM node per observation. Panels mount when opened and query near
+the viewport; local series indexes are built only when selected. Exact type-7
+quantiles use indexed ranks. Canonical summaries need only subject counters,
+so cache quota exhaustion cannot interrupt an otherwise complete election.
+Owner checks, cache invalidation, failed-build cleanup and deletion after active
+queries protect canonical sessions and prevent surviving derived samples.
+
+Schema-v2 JSON.gz/CSV stays generic and streaming. Canonical presentation tables
+include capabilities, observations and list summaries; derivative caches never
+alter archive content. Older reform archives use only saved evidence, explicitly
+limit non-reconstructible affiliations/local percentages, and never rerun draws.
+The operational definitions, compatibility limits and scoped code/check map live
+in [`politics-reform-2026-results.md`](politics-reform-2026-results.md).
+
+Verification: `npm run acceptance:reform` passed with 915 unit tests and 28 browser
+tests at each of `/` and `/elezioni`, zero skips/retries. Production checksums
+and the 41-stage/588-filled-seat vertical slice, preparation/application types
+(zero errors/warnings), static builds and root-build restoration passed.
+The new 1,201-observation browser fixture verifies exact disk quantiles, unknown
+outcomes, bounded pages, every chart family, enlargement, local measure/search,
+old archives, ownership, cache-quota isolation, rebuild and scoped cleanup.
+An asynchronous import/index needs an explicit readiness wait in concurrent
+browser suites; exact select lookup uses the combobox role because nested option
+text affects `getByLabel`. A precision assertion uses the original arithmetic
+value rather than rounding the stored observation to a decimal literal.
+
+The separate `npm run test:results` production check passed: 1,000 stored
+simulations, all 1,000 observations drawn in the checked scatter panel, boxplot
+and spinogram/enlargement queries, paginated legal detail, and complete streamed
+gzip import/re-export with the same content hash. Computation took 114.892 s,
+the exercised chart queries 11.830 s, initial export 79.475 s and import 76.728 s
+on this Windows/Chromium checkout. The archive contains 2,969,183,961 decoded
+bytes / 128,631,873 compressed bytes. Sampled post-GC retained heap peaked at
+11.03 MiB in the UI and 20.47 MiB in the coordinator worker, below the existing
+32/256 MiB acceptance limits. These are retained JS heaps, not peak process RAM.
+There were no page errors. The report and compressed archive are retained under
+`data/derived/r26-21-acceptance/results-alignment-1000.json[.gz]`; the archive's
+decoded-content SHA-256 is
+`2ce0f5db46b706b808eeae935465c652dfce6b45abeeb1f259f0d8977c3c560c`.
+
+The college search/select is constrained to its container for long list/college
+labels on mobile; a 390-pixel browser assertion checks its right edge and the
+statistics container's overflow. The final acceptance replay passed with the
+same 915 unit tests and 28 browser tests at each base, now including these mobile
+assertions. The root build was restored and `git diff --check` passed. Build
+chunk-size/plugin-timing notices remain informational. No commit, deployment or
+publication was performed.
+
+## 2026-10-22 — Reform message priority and affected simulations
+
+Implemented the approved three-level message presentation: general conditions
+first, a severity/code frequency summary second, and affected simulation IDs
+only after selecting a summary row. Global warnings remain expanded; information
+notes use compact details. Execution failures and interrupted saved/requested
+coverage have their own labels. Unknown scope never becomes an all-simulation
+claim merely because no simulation ID was recorded. Code titles are Italian;
+original wording, severity, references and context remain available.
+
+The tested presentation reducer counts distinct simulation unions per code and
+severity. Totals across codes are unions, not summed frequencies; occurrence
+counts remain additive. Requested simulations remain the primary denominator,
+with saved-run percentages secondary during interruption. Reason and chamber
+filters use explicit saved evidence; they neither merge causes heuristically
+nor change scrutiny or rerun simulations. Summary, general, ID and original
+context pages contain at most 50 entries. ID CSV export streams the complete
+filtered sequence, independent of the current page. IDs can select their result
+chart or reveal the matching original messages.
+
+The old warning deduplication discarded differing chamber/seat/draw context and
+appended occurrence text to messages. New full-context deduplication preserves
+those differences and stores counts separately. `Diagnostic events v1` carries
+scope, membership, original reason and source context into schema-v2 archives.
+Optional `completedSimulations` preserves zero-run interruption coverage; import
+validates it against any saved run ledger. Reading global/execution messages
+from canonical chunks avoids the manifest's 20-information-note preview limit.
+
+Older native run-indexed ledgers still establish frequencies and IDs, with an
+explicit unavailable-context explanation and disabled chamber filter. Older
+imported first-ID aggregates expose occurrences and original texts while marking
+exact frequencies/IDs unavailable. New versioned imports retain exact diagnostic
+membership even with rows before column labels; the existing diagnostic API now
+recognizes this evidence. Its earlier blanket-import-rejection browser assertion
+was updated to require equality with native frequencies for new archives and
+continued rejection of legacy aggregates. No algorithm, legal interpretation or
+model choice changed. The focused reading/code map is in
+[`politics-reform-2026-messages.md`](politics-reform-2026-messages.md).
+
+Queries stream committed rows and retain per-code counters and bounded pages,
+without an all-ID/all-reason collection or new diagnostic cache. Owner checks
+and deletion waits cover message queries and exports. Temporary export files
+are registered atomically so simultaneous ID/full-result exports cannot lose
+each other's cleanup entries.
+
+Verification: `npm run acceptance:reform` passed with 925 unit tests and 29 browser
+tests at each of `/` and `/elezioni`, zero skips/retries. Production checksums,
+the vertical slice, preparation/application types (zero errors/warnings), static
+builds and root-build restoration passed. The new browser fixture exercises
+1,201 affected simulations, overlapping severities/codes, exact context, complete
+ID CSV, interruption including zero saved runs, notes beyond the preview limit,
+mobile layout and old-archive limitations. The Svelte checker reported no issues;
+its general effect suggestions were reviewed: these effects synchronize external
+worker queries with cleanup guards. Concurrent export registration also passed
+the IndexedDB browser check. Evidence is under ignored
+`data/derived/r26-21-acceptance/messages-acceptance.log` and `report.json`.
+
+The separate `npm run test:results` check passed on 1,000 fresh production
+simulations, including the bounded frequency/ID UI, a complete CSV containing
+1,000 unique ascending affected IDs, chart/detail regressions and unchanged
+message frequencies after import. Full gzip import/re-export retained the same
+decoded-content hash across 2,970,611,188 bytes (128,674,527 compressed bytes).
+Computation took 116.126 s, initial export 81.394 s and import 98.496 s on this
+Windows/Chromium checkout. Sampled retained JS heap peaked at 11.16 MiB in the
+UI and 20.57 MiB in the coordinator, below the existing 32/256 MiB limits; these
+are retained heaps, not peak process RAM. There were no page errors. The report
+and archive are retained under
+`data/derived/r26-21-acceptance/messages-1000.json[.gz]`; the decoded-content
+SHA-256 is `2b20cfa643d247957a3d695ba3a13919c7a5d1a364a9944eddb219c14af69981`.
+
+Final boundary review added an empty-table guard so zero-run interruption does
+not issue an invalid table-page request. Explicit saved coverage of zero proves
+an empty per-simulation ledger even before the first table exists; it does not
+classify unprocessed simulations as message-free. The regression checks this
+case alongside the zero-count gzip export.
+
+The final acceptance replay passed with the same 925 unit tests and 29 browser
+tests at each base, including the zero-run guard. The root build was restored
+and `git diff --check` passed. Build chunk-size/plugin-timing notices remain
+informational. No commit, deployment or publication was performed.
+
+## 2026-10-23 — Selected poll archive and reconciliation pilot
+
+Added the approved three-substep poll task immediately after completed migration
+steps. Completed only import/reconciliation; poll-informed live references and
+historical bias calibration remain open. The focused code/operation map is in
+[`polls-preparation.md`](polls-preparation.md).
+
+Selected the government archive rather than YouTrend aggregates: the seven
+user-supplied PDFs retain individual pollster metadata and cost only 117,701
+bytes. Together with reviewed metadata, question translations and entity aliases,
+the selected Git source set is 163,233 bytes (159.4 KiB), below its enforced 1 MiB
+budget. `.gitignore` allows only those selected files and `.gitattributes` pins
+JSON LF/PDF binary bytes. Other downloaded sources and derived output stay ignored.
+Fresh clones verify and prepare this archive offline; there is no recurring
+website scrape, PDF dependency or poll-specific executable parser.
+
+Eight reviewed questions span fieldwork 6–19 October 2026 and five pollsters.
+There are seven survey groups and three conditional questions: LAB21's reform
+question and SWG's two leader alternatives. These groups prevent alternatives
+from acquiring separate sample sizes; they do not assert independence between
+repeated waves. Coalition totals/nonresponse remain source metadata, simulated
+seats and unrelated questions are excluded, and Eumetra's attached cross-page
+table is transcribed. Effective question sample sizes remain unknown rather
+than silently becoming full-survey N. Repeated labels and the substring shared
+by the Italian start/end-date headings made automatic field extraction unsafe;
+the retained metadata was reviewed/corrected against the PDFs, with distinct
+start/end dates and known source totals asserted in tests.
+
+The common typed helper reuses verified aliases and normalized historical
+correspondences, sums many-to-one mappings and records inferred splits. Missing
+support becomes an explicit residual, allocated by available baseline weights
+or equal eligible-list weights. The reviewed FN/Lega proxy is an assumption,
+not measured voter transfer. Present FN keeps its polled support; missing
+geography uses a recorded donor/uniform-filed-support recipe for substep 2.
+Corrupt sources, malformed contracts and absent legal target support still fail;
+missing political evidence does not make reconciliation non-computable.
+
+`data:polls:check` verifies every selected byte and produces 16 separate ordinary
+Camera/Senato previews against tracked defaults, with 86 estimated assignments.
+`data:polls:generate` writes immutable observation/audit/preview artifacts under
+`data/derived/polls/`. Observation version is
+`poll-observations-v1-e2965f1e70d1`; preview version is
+`poll-reconciliation-v1-46440e3c9230`. Two generations retained identical SHA-256
+values: observations `50ce506230750e241a01fa695a3432f3bd13ec24b33559325919c75f5cf306e5`,
+preview `d53f1e95376068e86de2037f558e1e51fb341a1aa06289d6d42e9e6616fd01dd`.
+All 16 vectors were finite/nonnegative and conserved total support to 1e-12.
+The preview applies no live shares/turnout, alters no scenario/default and makes
+no accuracy/calibration claim. Special-territory inputs keep their own boundary.
+
+Verification on Windows/Node 24: 14 focused tests passed, including an isolated
+source-only copy with networking forbidden, checksum corruption, size-budget
+failure, conditional questions, rounding/missing totals, mapping precedence,
+splits, proxies and mass conservation. `npm run check:data` and `npm run check`
+passed (zero Svelte errors/warnings). The full suite passed 939 tests in 67 files
+without skips (13.52 s). `npm run build` passed; the subsequent
+`npm run test:e2e` passed all 29 root-base Chromium tests (28.5 s). Chunk-size,
+plugin-timing and terminal-color notices were informational. No UI/worker/legal
+generation changes, commit or publication were made.
+
+
+## 2026-10-23 — Poll-informed references (substep 2)
+
+Implemented explicit poll-informed scenario preparation, leaving historical bias
+calibration open. `data:polls:references` consumes verified production history and
+the selected archive, writes immutable report/scenario JSON under ignored
+`data/derived/polls/`, and validates one paired generation/full scrutiny before
+writing. Defaults and existing saved scenarios remain unchanged. The operation
+and exact assumed policy are documented in `polls-preparation.md`.
+
+`poll-reference-v1` uses compatible questions available at the reference date,
+one recent wave per pollster, generic ballots by default and explicitly selected
+conditional alternatives. It combines recency/effective-N weights with a weak
+historical prior. All weights, exclusions, inferred decided samples, reconciled
+mass/proxies and source versions survive in the report. No house-effect or
+historical-accuracy correction is asserted. The numerical policy is an assumption
+awaiting substep 3, not calibrated confidence coverage.
+
+Opt-in scenario v3 stores date, rows, reference-date uncertainty and territorial
+donors. Versions 1/2 keep existing interpretation and streams. A presentation
+upgrade initially forced every draft to v2; it now retains v3, with an import,
+edit, reload and export browser regression. Generated vote/chamber provenance
+includes polling source/reference versions and assumptions. The generator applies
+poll targets only in ordinary geography before explicit national/local user
+references, preserves historical turnout/special inputs, and records donor or
+uniform-filed-support estimates for newly supported parties. Unmapped history
+with observed raw valid votes uses those totals as a labelled turnout proxy.
+Reference-date error has shared chamber draws and compositional normalization;
+future movement stays in the existing independent named streams. National
+polling refreshes the national date while territorial uncertainty retains its
+historical date. User-supplied
+references remove polling measurement error only in their own scope/chamber.
+
+The 23 October preparation selected Eumetra 14358/q4, Piepoli 14364/q1, Only
+Numbers 14362/q1 and SWG 14346/q1. Conditional SWG/LAB21 questions were excluded
+by default. The produced reference is `poll-reference-v1-2a6c7e0ef629`; the scenario
+fingerprint suffix is `475ad8234360`. Its production paired generation and composed
+scrutiny were computable. Repeating preparation reproduced the immutable output.
+
+Verification: preparation and application type checks passed (zero Svelte
+errors/warnings); 947 unit tests in 68 files passed, including eight new tests
+for selection/as-of dates, conditional replacement, round trips, geographic
+fallbacks, override precedence, zero-horizon measurement variance, shared-chamber
+errors and deterministic replay. Production build passed. The existing 29
+root-base Chromium tests passed (40.2 s); the additional focused v3 browser
+compatibility test passed (8.0 s). Chunk/plugin/color notices remain informational.
+No new UI control, default activation, historical fitting, commit or deployment
+was performed.
+
+
+## 2026-10-23 — Historical poll calibration pipeline (substep 3)
+
+Implemented matched historical inputs, official-result import, partially pooled
+candidate fitting and chronological validation. The pipeline substep is complete;
+the parent forecasting task and forecast acceptance remain open. Current v1
+parameters remain assumptions: no unsupported correction was enabled. Operations
+and statistical boundaries are in [polls-calibration.md](polls-calibration.md).
+
+Selected 16 original government-submitted PDFs: SWG/Demos/Tecnè for Camera
+2013/2018/2022; SWG/Demos for European 2014; all three for European 2019;
+SWG/Tecnè for European 2024. The retained historical selection includes reviewed
+question/page IDs, dates, methods, sample bases, translations and checksums.
+PDFs total 275,342 bytes; the complete historical source/target set is 380,434
+bytes (371.5 KiB), below its enforced 1 MiB budget. Together with current polls,
+tracked selected inputs total 543,667 bytes. Ordinary preparation needs no
+network, PDF parser, Python, R or ignored caches.
+
+Archive fieldwork filters also return local and later-published surveys.
+Excluded Demos 11857 (post-election Veneto autonomy), 12931 (Veneto vote),
+SWG 1350 (Bari), later Demos 2019 topic releases, and Tecnè 1331 (generic
+political-party table without an established European ballot). Correct national
+Demos 2022 source is 11839. PDF publication dates control eligibility, not archive
+insertion dates. SWG 2018/Tecnè 2019 range midpoints are labelled estimates;
+Demos decision certainty is not a vote-table nonresponse fraction. Complete PDF
+text was inspected; representative attachment/range tables were also rendered
+and visually reviewed. Metadata N/methods were checked against the sources.
+
+Downloaded eight pinned Interior Ministry archives: Camera 2008/2013/2018/2022
+and European 2009/2014/2019/2024. Earlier same-kind elections supply baselines.
+Large originals remain ignored under `data/sources/poll-history/`; tracked
+`results.json` retains full list totals, denominators, member/source hashes and
+the comparable panel. Node `verify-results` reproduced it exactly from all eight
+originals; download/cache verification passed. `freeze-results` is an explicit
+reviewed input refresh, never part of normal check/generate. Candidate-preference
+members repeat list votes and are excluded. Camera excludes Valle d'Aosta and
+overseas; European totals include domestic Valle d'Aosta and separate 2024
+out-of-town voters, excluding overseas. Adult poll frames approximate these scopes.
+
+Camera 2018 uses attributed national totals. Camera 2022 reuses the existing
+original-college candidate-only attribution: restore 1,027,135 candidate-only
+votes, yielding 28,096,790 valid list votes. An initial test used an incorrect
+remembered M5S total; independent source candidature summation confirmed
+4,336,660, and the expectation was corrected. Pinned open-data snapshots are
+not asserted to equal every later/live proclamation release. Baseline snapshots
+are current frozen historical results, not reconstructed download vintages.
+
+The comparable partition is PD, M5S, Lega and all other lists. Each selected poll
+observes the three parties separately; other is a changing exact complement,
+not a transferable party identity. Missing FdI detail is not zero or inferred
+from future results. European translations retain this panel and complete PDFs;
+Camera translations retain fuller tables. Empty 2008/2009 M5S result mappings
+explicitly mean ballot absence. Selection is purposive, not a complete poll census.
+
+Five expanding chronological holdouts run from European 2014 through 2024,
+including two Camera holdouts. Each fold trains only on earlier elections;
+election scores have equal weight regardless of house count. Reuse production
+v1 weighting/prior code. Center house deviations within elections, then shrink
+house and aggregate bias toward zero with three prior election equivalents.
+Fit separate error floors for corrected/uncorrected means, subtracting existing
+measurement/prior variance and assumed future movement before adding a
+nonnegative floor. Blackout movement, shared response bias and electorate
+mismatch cannot be identified separately from these endpoint errors.
+
+Held-out MAE in percentage points and pointwise nominal 90% interval coverage,
+with four equally weighted panel categories per election:
+
+| Candidate | All-event MAE | Coverage | Camera MAE | Camera coverage |
+| --- | ---: | ---: | ---: | ---: |
+| Previous same-kind election | 14.26 | — | 11.55 | — |
+| Weighted polls alone | 3.21 | — | 3.48 | — |
+| V1 historical/poll blend | 4.36 | 35% | 4.09 | 25% |
+| Pooled bias/house correction | 4.70 | 45% | 4.07 | 50% |
+| Additional error floor only | 4.36 | 70% | 4.09 | 87.5% |
+| Bias plus error floor | 4.70 | 55% | 4.07 | 62.5% |
+| Previous election + original national uncertainty | 14.26 | 65% | 11.55 | 75% |
+| Weighted polls + original national uncertainty | 3.21 | 20% | 3.48 | 0% |
+| Previous election + original uncertainty + fitted floor | 14.26 | 70% | 11.55 | 75% |
+| Weighted polls + original uncertainty + fitted floor | 3.21 | 65% | 3.48 | 62.5% |
+
+The last four rows were added in the later comparison extension, report
+`poll-calibration-v2-d9116fb3de48`; the six original rows are unchanged. Original
+uncertainty here means the simulator's national component (0.02 logit units per
+square-root day), measured from the previous election date for historical
+references and from the cutoff for weighted polls. This is the same national
+surrogate boundary as the existing rows, not full municipal-generator coverage.
+Additional floors are fitted separately for each benchmark using earlier events
+only. See the extension entry below for structural-zero handling and interval
+scores.
+
+The uncertainty-only interval score improves from 42.76 to 22.59 percentage
+points overall, and 36.21 to 16.96 for Camera. Its Camera metric check passes;
+bias/combined candidates fail improvement requirements. Intervals use 4,000
+deterministic joint logistic-normal draws per event/candidate: a compositional
+national valid-share surrogate, not municipal/turnout/chamber generator or
+simultaneous coverage. There are six independent events, not independent
+party-survey trials. The current v1 intervals under-cover this panel.
+
+Report `poll-calibration-v1-854b5ebc5454` replays deterministically. Acceptance
+requires three Camera holdouts, improved interval score, >=80% empirical Camera
+coverage and full-generator coverage validation; mean corrections also need
+>=5% Camera MAE improvement, while uncertainty-only must preserve MAE. Only two
+Camera holdouts and no full-generator validation are available, so corrections
+remain withheld. Reference preparation writes the calibration report/receipt and
+embeds rejection reasons while retaining v1 shares, proxies and computability.
+The production generation/composed scrutiny passed for reference
+`poll-reference-v1-f09e53578bd2`, scenario suffix `373d6c1df654`. Expand same-kind
+evidence, revisit prior strength and validate full-generator intervals before
+forecast acceptance. No calibrated forecast or default activation is claimed.
+
+Verification on Windows/Node 24: 954 unit tests in 69 files passed, including seven
+calibration tests for chronological leakage, whole-event pooling, source totals,
+offline source-only copies, corruption rejection and receipt behavior.
+Preparation/application checks passed with zero Svelte errors/warnings. Build
+passed, followed sequentially by all 30 root-base Chromium tests (47.8 s),
+including poll-v3 import/edit/reload/export. Official-result replay, calibration
+generation and the production reference vertical slice passed. Chunk/plugin/color
+notices were informational. A legacy non-UTF8 dash in the preceding history
+heading was normalized while appending this entry. No commit, publication,
+legal scrutiny change, default activation or persistent user-data change occurred.
+
+
+## 2026-10-23 — Authoritative poll JSON and optional manual audits
+
+At Luca's request, the poll archive's three JSON files are now the local source
+of truth: `archive.json`, `manifest.json`, `entities.json`, in both the current
+and historical selections. This supersedes the PDF retention/checksum policy in
+the preceding poll entries. Survey facts, percentages, mappings and statistical
+assumptions remain unchanged.
+
+The v2 poll manifests replace document path/SHA-256/byte-size fields with a
+human survey `reference` such as `Sondaggio14362`. They retain government URL,
+retrieval instructions, title, pollster, dates and methodological metadata for
+optional manual audits. Question/page numbers remain available. Removed
+`reviewedFiles` checksum pins too: accepted JSON edits must not require repinning
+a manifest that is itself an authoritative source. Strict schema, date,
+uniqueness, source/question/entity linkage, sample-base and support-total checks
+remain active. Missing/malformed JSON still fails; missing or invalid optional
+PDF downloads cannot affect preparation, size accounting or output identity.
+
+Preparation reads exactly three JSON files, with no network or source-document
+access. Generated source/version fingerprints are computed from that JSON for
+replay and immutable output naming; they are not upstream audit hashes or
+maintainer-updated pins. Observation/preparation schemas and identifiers are v2;
+the archive/entity question schemas and saved scenario-v3 contract remain valid.
+The independent official election-result manifests, ZIP hashes and target-table
+pins remain unchanged.
+
+Removed PDF allowlists and PDF-specific Git attributes. No poll PDF was already
+in the Git index, so there was nothing to remove from it. Existing local PDFs
+were preserved as ignored optional downloads. Verified that Git lists no tracked
+poll PDFs and ignores both current and historical downloads. Updated the active
+plan and focused preparation/calibration guides to describe JSON maintenance and
+optional government-reference audits.
+
+Current poll JSON totals 45,433 bytes; historical poll JSON plus separate election
+target inputs totals 106,378 bytes. Observation version is
+`poll-observations-v2-ff126a8195d4`, calibration version
+`poll-calibration-v1-7b7af9479543`, and production reference version
+`poll-reference-v1-c13ddf5cede1` (scenario suffix `16ae1353f5fd`). Compared against
+the preceding generated artifacts: every calibration fold, fitted parameter,
+metric, acceptance decision and production poll-reference row is identical.
+Only source representation, provenance/version metadata and archive byte counts
+changed. Production paired generation/composed scrutiny remained computable.
+
+Verification on Windows/Node 24: all 31 focused poll tests passed, then all 956
+unit tests in 69 files passed (13.71 s). New coverage proves that only JSON is
+needed, optional malformed PDFs are ignored, valid observation/manifest/entity
+edits are consumed without repinning and get new derived identities, and missing
+or malformed JSON, unusable/duplicate references and invalid links/dates fail.
+Historical calibration is tested from six JSON files with no PDFs; separate
+corrupt election-target pins still fail. Preparation/application type checks
+passed with zero Svelte errors/warnings. Production build passed (12.77 s SSR),
+as did actual poll generation and the production reference vertical slice.
+The subsequent full root-base Chromium suite passed all 30 tests (46.8 s).
+Git diff whitespace checks passed; build chunk/plugin/color notices remained
+informational. No commit, publication, default activation or legal scrutiny
+change was performed.
+
+
+## 2026-10-23 — Original-uncertainty and error-floor benchmark comparison
+
+Extended the historical comparison with four requested rows: previous same-kind
+election and weighted polls alone, each with original uncertainty and with
+original uncertainty plus a separately fitted error floor. Retained the existing
+two point-only rows and all four blend/correction rows. The earlier comparison
+table above now includes the four added rows, explicitly labelled as this later
+extension. The focused calibration guide documents their timing and scope.
+
+Original uncertainty uses the simulator's pre-poll national logit movement
+component, sigma=0.02 per square-root day, inside the same compositional national
+surrogate as the existing comparisons. Previous-election references accumulate
+movement from the actual previous election date (read from the official source
+ID), not merely from the polling cutoff. Weighted polls alone are treated as
+references supplied at the cutoff and accumulate movement until election day.
+No v1 poll measurement variance, pseudo-sample variance or shared-error term is
+silently attached to these original-uncertainty rows. Regional/local shocks,
+elector-share/turnout normalization and chamber coupling are outside this
+surrogate; these are not claimed as exact full-generator coverage measurements.
+
+Fit each benchmark floor from its own earlier-event errors, subtracting its own
+original movement variance and pooling with three prior election equivalents.
+Held-out outcomes never enter their prediction, intervals or fitted floors.
+Structural zero/one references remain boundaries, matching original generator
+support semantics. Their unbounded logit errors are excluded from floor fitting;
+usable-event counts and zero fallback floors are explicit. In particular, a
+historical-only M5S reference absent from the 2008/2009 ballots cannot be invented
+by noise. These new rows are diagnostic; existing runtime acceptance checks and
+active scenarios are unchanged.
+
+Added results: MAE and interval scores below are in percentage points; coverage
+is pointwise at a nominal 90%, over five holdout events/four categories (Camera:
+two holdouts/four categories). Lower interval score is better.
+
+| Benchmark | All MAE | All coverage | All interval score | Camera MAE | Camera coverage | Camera interval score |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Previous election + original national uncertainty | 14.26 | 65% | 98.76 | 11.55 | 75% | 56.00 |
+| Weighted polls + original national uncertainty | 3.21 | 20% | 33.13 | 3.48 | 0% | 36.51 |
+| Previous election + original uncertainty + fitted floor | 14.26 | 70% | 92.54 | 11.55 | 75% | 55.58 |
+| Weighted polls + original uncertainty + fitted floor | 3.21 | 65% | 14.85 | 3.48 | 62.5% | 12.39 |
+
+The historical reference's long uncertainty horizon gives broad intervals but
+poor central accuracy and interval score; higher coverage alone is not better
+forecast quality. Poll-only cutoff-to-election movement is insufficient for
+empirical error in this panel. Its own fitted floor improves intervals while
+preserving its central estimates, but does not validate 90% coverage. All six
+previous score rows, original fitted bias/house/error parameters, acceptance
+checks and actual production reference rows were compared with the preceding
+report and are unchanged.
+
+Comparison policy/report is now v2: `poll-calibration-v2-d9116fb3de48`. The
+production reference receipt is `poll-reference-v1-3396faf5e852`, scenario suffix
+`0786c2ae3948`; actual paired generation and composed scrutiny passed. New report
+provenance records baseline dates, original movement variances, extra floors and
+per-category training counts. Repeating generation preserves the immutable
+version. No poll inputs or source-of-truth policy changed.
+
+Verification on Windows/Node 24: nine focused calibration tests passed, followed
+by all 958 unit tests in 69 files (12.40 s). Added tests assert reference dates,
+original variance formula, unchanged benchmark means, floor provenance,
+structural-zero behavior and held-out interval independence. Preparation and
+application type checks passed with zero Svelte errors/warnings. Production
+build passed (4.39 s SSR); production reference generation/scrutiny and original
+six-row regression comparisons passed. Browser verification follows below.
+The subsequent full root-base Chromium suite passed all 30 tests (46.2 s).
+Git diff whitespace checks passed. Build chunk/plugin/color notices were
+informational. No commit, deployment, default change or correction activation
+was performed.
+
+
+## 2026-10-23 — Weighted-poll joint uncertainty study and geographic integration proposal
+
+At Luca's request, researched uncertainty estimators appropriate to the six
+available independent elections and retested weighted polling under each practical
+candidate. Added a focused proposal in `docs/polls-uncertainty.md`, with primary
+research references, equations, prior/horizon restrictions, source-extension
+priorities and regional/local compatibility. Runtime policy and source JSON are
+unchanged. The active plan now identifies conditional geographic reconciliation
+as a dependency before integrating a calibrated joint national distribution.
+
+Added deterministic offline `data:polls:uncertainty:check` / `:generate` commands.
+They reuse the verified calibration cases and existing weighted-poll point
+function, then fit only on earlier elections in five expanding holdouts. New
+research modules implement joint log-ratio error fitting, simulation and scoring;
+no third-party numerical dependency or new source download is required. Existing
+calibration report remains exactly `poll-calibration-v2-d9116fb3de48` after
+extracting its case loader; original comparison values are unchanged.
+
+Compared regularized Gaussian errors, covariance-integrated Student-t prediction,
+symmetrized whole-election residual resampling and exact-rank conformal boxes.
+The first two share a zero-mean Gaussian/inverse-Wishart covariance model in
+three orthonormal log-ratio coordinates, prior df=5, scale=0.2^2 I. Student-t
+predictive df is n+3; Gaussian uses the same posterior mean covariance. Prior
+0.1/0.3 and same-kind-only fits were prespecified sensitivities, not tuned on the
+held-out outcomes. Keep complete election vectors and uncentered errors; no
+partisan/house mean correction is fitted. Bootstrap symmetry is an assumption,
+and only 2n residual vectors exist. Conformal rank ceil(0.9*(n+1)) exceeds n for
+all folds, so its 90% bounds are 0-100%; exchangeability is also unverified.
+
+All fits target total near-election endpoint error, including sampling, shared
+polling errors, blackout movement and electorate mismatch. Adding the old
+national movement/measurement variance again would double count error. The
+selected 15-16 day horizons do not identify a separate time-series diffusion or
+justify year-ahead extrapolation. Four-category dependence cannot be transferred
+independently to each party inside other. The weighted point is retained, but
+inverse log-ratio predictive means/medians can differ and are scored separately.
+
+Pointwise nominal 90% results below, over five events/four categories (Camera:
+two events/four categories). Width and interval scores are percentage points;
+lower interval score is better. Fixed-point MAE stays 3.21 pp overall / 3.48 Camera.
+
+| Weighted-poll uncertainty | Overall coverage | Average width | Interval score | Camera coverage | Camera interval score |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Original national uncertainty | 20% | 3.75 | 33.13 | 0% | 36.51 |
+| Previous additional floor | 65% | 8.49 | 14.85 | 62.5% | 12.39 |
+| Regularized joint Gaussian | 100% | 13.29 | 13.29 | 100% | 12.87 |
+| Joint Student-t, central prior | 100% | 12.72 | 12.72 | 100% | 12.47 |
+| Whole-election bootstrap | 85% | 10.68 | 15.06 | 87.5% | 12.21 |
+| Exact conformal box | 100% | 100.00 | 100.00 | 100% | 100.00 |
+
+Joint coverage of all categories is 5/5 events for Gaussian/Student-t, 3/5 for
+bootstrap. Gaussian/Student-t energy scores are close (4.83/4.85 pp); the small
+panel does not establish a decisive ranking. Student-t prior 0.1 and same-kind
+fits give 90% overall coverage, prior 0.3 gives 100%; all cover 8/8 Camera
+categories. Default Student-t predictive-mean MAE is 3.25/3.45 pp overall/Camera.
+Bootstrap marginal-median MAE is 4.30 pp overall, exposing its discrete small-sample
+instability. Twenty correlated category outcomes are not twenty independent
+elections, and perfect historical coverage is not a future guarantee.
+
+A separate constructed-fixture audit exercises the actual paired municipal
+generator, with national/measurement noise disabled. Across 1,000 simulations,
+regional-only effects move the national share by 2.13 pp RMS, local-only by
+2.15 pp, and both by 2.90 pp (maximum 10.30 pp); all-zero effects give zero drift.
+The equal-sized one-municipality-per-region fixture is a mechanical counterexample,
+not an empirical estimate of Italian geographic error. Current IPF aligns
+references before sampling, so later geographic/turnout shocks can alter national
+margins. None of the new joint distributions is a drop-in diagonal sigma map.
+
+Recommend Student-t as the first integration candidate, with Gaussian as a close
+comparator and bootstrap as a sensitivity diagnostic. Rework statistical
+composition: draw the national endpoint vector once, draw turnout and geographic
+residuals conditional on it, then reconcile each realization to those national
+valid-vote margins using legal filing support and realized turnout weights. Reuse
+IPF, historical profiles/donors and legal scrutiny; preserve overrides and shared
+chamber dependence. This redesign is proposed, not activated. Official municipal
+archives already available can inform spatial residuals after harmonizing party
+and geographic definitions; earlier within-campaign poll waves can inform time
+and sampling components but do not increase independent-election counts.
+
+Study version `poll-uncertainty-v1-b93db6c425fe` regenerated with identical bytes.
+The JSON report retains all folds, covariance fits, intervals, prior sensitivities,
+proper interval/energy scores, predictive summaries and geographic audit evidence.
+Verification: all 965 unit tests in 70 files passed (12.24 s); the seven research
+tests also passed after the final overlap guard check. Tests cover ILR geometry,
+closed-form covariance/Cholesky identities, chronological leakage, prior/kind
+isolation, unsupported horizons, conformal rank and actual geographic leakage.
+Preparation/application type checks passed, zero Svelte errors/warnings. Build
+passed (4.45 s SSR). Browser verification follows below. No active uncertainty,
+default, legal algorithm, deployment or source-policy change was made.
+The subsequent full root-base Chromium suite passed all 30 tests (50.1 s).
+Git diff whitespace checks passed; chunk/plugin/color notices remained
+informational. No commit or publication was performed.
+
+## 2026-10-23 — National and municipal generation-model comparison
+
+At Luca's request, added a research-only replacement-model comparison, keeping
+production generation, scenario editing, legal scrutiny and bundled defaults
+unchanged. Findings and implementation boundaries are in
+`docs/vote-generation-research.md`; equations, metrics, source restrictions and
+code pointers are in `docs/vote-generation-methods.md`. The active plan records
+the completed study separately from runtime implementation and acceptance.
+
+Migrated the historical municipal input path needed for this study to offline
+Node/TypeScript. It reads the eight existing pinned Ministry Camera/European
+archives, reconstructs attributed candidate-only votes where necessary, retains
+raw list tables and voters/electors/valid ballots, and emits versioned history
+with source/mapping/geography audits. This is a partial preparation migration;
+it does not retire legacy `dati/` or regenerate every production snapshot.
+Historical matching conserves and reports source mass: main forecast pairs
+retain 99.03–99.95% of target valid votes. Invalid municipal turnout denominators
+remain in source national totals and are excluded from local fitting/scoring,
+not silently corrected. The audit exposes Camera2018's 142-vote Lega/other
+attribution discrepancy and 17,442 European2024 fuori-sede ballots lacking
+resident-municipality attribution. Both election kinds use a common comparison
+domain excluding Valle d'Aosta; no absent region receives invented zero shares.
+
+Added 17 reviewed primary Demos observations and 18 early-cutoff selections in
+separate authoritative JSON, with publication/fieldwork dates and optional
+source PDF/image pins. The existing government archive is unchanged. Some
+observations were up to 97 publication-days old at cutoff; all ask about Camera,
+so their use for European targets is explicitly cross-kind. A separate six-party
+input preserves seven complete Camera terminal questions and reviewed extra
+early evidence; unreported FdI is never treated as observed zero.
+
+The main experiment replays six targets at 730/365/90/15-day origins, comparing
+12 Camera-only and 24 mixed-history forecasts. Every source, fitting outcome,
+and fitting election's own predictor is filtered at its correct historical
+cutoff. Forecast electors come from the historical baseline, never the held-out
+target. The actual native generator is called with common central references
+and its current poll-v1 measurement sigmas, then compared with regularized joint
+Gaussian, equal-covariance predictive Student-t and a Gaussian-national/spatial
+transition-bootstrap hybrid. New candidates draw the national endpoint once,
+sample joint regional/local/valid-rate deviations, then reconcile each draw
+under its sampled valid-vote weights before row-conserving integer rounding.
+The bootstrap additionally pools historical profiles and uses signed transition
+fields. Models are research modules, not runtime registry additions.
+
+Metrics follow Luca's order: hard accounting and concentration stress;
+50/80/90/95% coverage with widths, interval/WIS/energy scores; predictive-mean
+MAE/RMSE/bias at national/regional/municipal levels, including voter-weighted
+municipal versions. Coverage by all pointwise intervals is reported without
+calling it a separately calibrated simultaneous confidence region. Elections
+are the independent validation units; municipalities/horizons do not inflate N.
+The study uses explicit priors, no fitted partisan bias correction, and does
+not extrapolate the previous 15-day covariance by square-root time. Training
+includes earlier no-poll fallbacks when that was the available information,
+which is a conditional-calibration limitation.
+
+Complete main artifact: `municipal-generation-v1-c332a0b4b6d2/report-14125e1b.json`
+under `data/derived/generation/`. All 36 forecasts × four models × 256 full
+municipal draws pass hard numerical/integer/electorate checks. Continuous
+national margin error is below 1e-8; maximum observed rounded discrepancy is
+0.00567 percentage points (0.00310 in mixed forecasts). Near voting (mixed, six targets), current/Gaussian/
+Student national 90% coverage is 58.3/91.7/91.7%; municipal coverage is
+85.93/91.21/90.68%, municipal predictive-mean MAE 5.05/4.97/5.01 pp. Gaussian
+national WIS improves from 1.65 to 1.48 pp, but municipal WIS worsens slightly
+from 2.57 to 2.66 as intervals broaden. The spatial bootstrap has inferior
+municipal coverage/means and is not recommended.
+
+Long-horizon rejection is material: at 730 days, Gaussian coverage is better
+but national MAE/WIS are 9.94/5.20 pp versus current 9.57/5.00, with national
+category concentration above 80% in 3.71% of Gaussian draws versus none current.
+Student-t does not resolve that tradeoff. These coarse thresholds include the
+changing other group; they are stress diagnostics, not automatic impossibility
+rules. Initial 2013/new-party failures remain in the tables. No tested candidate
+is accepted as an unchanged operational year-/two-year forecasting model.
+
+On the same Camera targets, adding European history improves Gaussian municipal
+mean MAE at every horizon (15 days: 5.93 to 5.38 pp), while national mean gains
+are not uniform. Recommend retaining cross-kind vote-share information and
+testing adjustments empirically. Recommend the joint Gaussian conditional
+architecture as the primary replacement candidate, with Student-t sensitivity;
+this is a family choice, not a claim that all long-horizon requirements passed.
+
+Six-category sensitivity artifact:
+`data/derived/generation/camera-six-category-v1-cbed83d338e3.json`. It separately
+models PD/M5S/Lega/FdI/FI-PdL/other, stores the prior-only 2013 audit, and scores
+only Camera 2018/2022 at original terminal cutoffs. At 256 draws, current/Gaussian/
+Student national coverage is 75/100/100%, national mean MAE 2.730/2.417/2.419 pp;
+municipal coverage 90.05/91.97/91.13%, municipal mean MAE 5.173/5.029/5.039 pp.
+FdI local coverage rises 84.82→94.32% Gaussian and mean MAE 5.62→5.10 pp.
+Municipal WIS is essentially tied. Both candidates' national valid-ballot-rate
+coverage is only 1/2 events, despite vote-share improvements. All hard checks
+pass; no national category exceeds 80%. These scores are not directly comparable
+with four-category averages and do not establish all-list or Senate calibration.
+
+Production follow-up preserves editable source-election correspondence matrices,
+reviewed exact-name defaults and explicit uncertain donors/splits, while
+generalizing composition dimensions, separating electors/turnout/invalid ballots,
+reconstructing dated geography, enforcing filed support and compatible overrides,
+and calibrating paired-chamber, regional/local dependence and seats. No clipped
+distribution or default correction is activated without its own backtest.
+
+Verification on Windows, Node 24.20.0/npm 11.19.0: `npm run check:data` passed;
+`npm run check` found zero errors/warnings; all 990 tests in 74 files passed
+(12.60 s), including 25 new research tests. `npm run build` passed (4.57 s SSR),
+then the sequential root-base Chromium suite passed all 30 tests (27.6 s), no
+skips/retries reported. Research arithmetic/replay/cutoff tests cover sampled
+margin conservation, common Student scaling, unavailable outcome mutations,
+source reconciliation, six-dimensional geometry and integer accounting.
+The main run used three independent processes over disjoint fold sets; typical
+native 256-draw generation plus scoring was about 29 s per forecast, Gaussian 5–7 s.
+Full cached replay verifies immutable report bytes. Existing chunk-size/plugin
+and color-environment notices are informational. No commit, deployment,
+production-data write or runtime-model activation was performed.
+
+## 2026-10-24 — Revised drift requirements and combined non-valid outcome
+
+Luca did not select the previous endpoint models and proposed national/local
+Gaussian drift in multinomial log scores. After review, he accepts a count
+observation layer for observed zeros; corrected identification, initial-state,
+time and innovation conventions; the staged comparison hierarchy; and four
+polling requirements: separate sample-dependent uncertainty, shared polling
+error, fieldwork measurement versus publication availability, and polling noise
+confined to its observation likelihood. Both regional innovations and local
+mean reversion are retained as planned stage-7 comparisons, not optional
+alternatives to be dropped without testing.
+
+Added docs/vote-generation-drift-model.md as the focused current specification.
+Replaced the raw draft in the historical methods guide with a direct pointer,
+marked the completed comparison's recommendation as historical/not selected,
+and updated the active plan without changing the old measured results.
+
+The working electorate-wide proposal adds outcome 0 for electors without a
+valid attributed political vote: observed count equals electors minus actual
+valid votes after source reconciliation. It uses a joint multinomial over
+political outcomes plus outcome 0. This can represent combined abstention and
+blank/invalid voting without separate processes; future electorate size still
+requires an input/forecast. It cannot identify abstention and ballot validity
+separately, and neither survey undecided/nonresponse nor unmapped political
+votes become outcome 0.
+
+Documented both pending polling links conditional on a valid political vote.
+The aggregate link divides summed elector-weighted list probabilities by
+summed elector-weighted valid probabilities, equivalently weighting municipal
+conditional preferences by expected valid votes. The non-valid score cancels
+from a municipality's conditional party shares; party-only polls do not
+directly identify the total non-valid fraction, though heterogeneous valid
+weights and state correlations allow indirect information. Outcome 0 remains
+in volatility/chamber comparisons while staying outside political lists and
+legal seat allocation. Global-softmax coupling of participation and political
+scores is a model assumption to inspect, not proof of political independence.
+
+The joint drift/count proposal does not impose an independently sampled national
+margin. National summaries must agree with municipal counts, rather than be
+IPF-forced to softmax of the national factor. Sparse Laplace fitting is the first
+scalable candidate for the accepted non-Gaussian count layer; exact Kalman
+methods apply only to a Gaussian log-ratio approximation with linear observations.
+
+Verification in this documentation-only step: mathematical conditioning and
+multinomial accounting identities checked; relative-document links and diff
+whitespace checked. No new polls were downloaded, parameters fitted, backtests
+run, production code/data changed, commits created or model activation performed.
+The combined-outcome formulation is documented for this abstention review;
+future research execution remains a subsequent task.
+
+## 2026-10-24 — Electorate-wide latent-drift research and staged comparisons
+
+Implemented the authorized research path with combined non-valid voting as
+outcome 0. The native TypeScript fitter uses observed multinomial counts,
+masked absent filings, centered Gaussian innovations, municipal Gaussian-chain
+elimination and iterated Laplace working likelihoods. It keeps sample-dependent
+poll uncertainty, shared half-year errors, fieldwork measurement dates and
+publication availability in the observation layer. Aggregate polls retain
+cross-time geographic covariance; future national totals come from municipal
+counts without sampled-endpoint reconciliation.
+
+Used the eight pinned Camera/European archives and already downloaded
+compatible polls only. Camera 2018/2022 candidate-only attribution is reconstructed
+before computing non-valid counts. The input inventory has 38 compatible waves
+from 41 questions; three conditional alternatives are audited separately.
+No additional polls were downloaded. New research commands, pure numerical
+and leakage/accounting tests, protocol and measured report are separate from
+production generation and legal scrutiny. The correspondence editor and its
+editable defaults remain unchanged.
+
+Completed eight drift variants through the agreed hierarchy on four development
+elections and four horizons. The conditional separable-local comparison was not
+triggered; both regional innovations and local mean reversion were tested.
+Froze aggregate polling + regularized election-kind effects + common national
+and local Brownian scales before Camera 2022/European 2024 confirmation.
+Retained the actual current generator and all-common literal baseline.
+Additional 512-draw development refinement, six-group/current comparisons,
+Camera-only training and local-scale perturbations bring the run to 299 cases
+and 84,352 country draws. Screening is `latent-drift-v1-367ca6e3b6a9`;
+512-draw finalists are `latent-drift-v1-53927eca1222`.
+
+In confirmation, selected/current national political coverage is 84.38%/37.50%
+and MAE 5.38/10.46 percentage points; municipal coverage is 96.75%/66.84%.
+Regional innovations improve coverage further but have higher pooled stress-tail
+frequency. Their worst-case tail ordering reverses under higher Monte Carlo
+resolution, so the selected baseline is not an established unique winner.
+Participation intervals remain broad; the six-group national sensitivity is
+not calibrated to its nominal 90% level. Keep runtime adoption and full-list,
+electorate, override, filing, paired-chamber and seat validation open. Exact
+metrics, matched-mass audits, stage decisions and limitations are in
+`docs/vote-generation-drift-results.md`; priors, inference approximations and
+replay commands are in `docs/vote-generation-drift-testing.md`.
+
+Verification: all 253 fitted cases pass declared mode/chain/covariance gates;
+all 299 forecasts preserve valid integer/elector accounting. The reduced
+seven-dimensional Bayesian reference includes an observed zero; mean differences
+from Laplace are at most 0.53 percentage points in its two examples. Preparation
+and Svelte checks pass; all 1,002 unit tests pass; static build and then all
+30 browser tests pass. No production model/default activation, commit, push or
+publication was performed.
+
+
+## 25 October 2026 - Markdown math delimiter compatibility
+
+Replaced LaTeX inline and display delimiters in
+`docs/vote-generation-drift-model.md` with single-dollar inline delimiters and
+double-dollar display blocks for GitHub and VS Code native Markdown previews.
+Scanned all files under `docs/`; no other documentation used the same delimiters.
+Verified all 41 inline formulas and 9 display formulas retain their exact
+contents, including whitespace; only their delimiters changed. No mathematical
+or model semantics changed. Rendering in the two preview applications was not
+manually exercised.
+
+## 2026-10-25 — Scenario-owned party memberships and fitting contract
+
+Consolidated Luca's correspondence proposal and approvals into
+`docs/vote-generation-drift-model.md`. Latent processes now describe stable
+political components; ballot observations sum their probabilities into lists.
+Defined partition constraints, separate probability notation and observed
+non-valid counts. Renames retain identity, joint lists group components, and
+organizational mergers retain historical components. Availability exclusions
+redistribute support across remaining choices, including non-valid voting;
+voter-flow research and origin–destination parameters are excluded.
+
+The complete effective historical/poll/future membership table belongs to the
+scenario, with versioned preparation defaults. Semantic edits require browser-
+worker re-estimation; precomputed default posteriors need a matching fitting
+fingerprint. Recorded invalidation, archive compatibility, progress/cancellation
+and browser-performance requirements without claiming an implementation.
+
+Poll choices follow reported political answers. Political Other groups eligible
+components outside named groups; it constrains their sum without identifying
+all members or imposing future caps. Retained geographic/chamber context,
+fieldwork/availability dates and sampling/shared observation error. Political
+scenario shares use the aggregate valid-voter link with reference dates,
+optional scoped overrides, percentage-point uncertainty and exact reference
+constraints when uncertainty is zero. Non-valid overrides retain an elector
+denominator. New components have regularized spatial/process defaults;
+historical births use proper weak pooled priors and original observations,
+without arbitrary pre-birth drift.
+
+Marked the original draft as superseded without altering its mathematical body.
+Scoped earlier testing/results to their fixed-outcome experiments and updated
+the plan: specification approval is complete; grouped browser fitting and
+revalidation remain open. The staged hierarchy is retained on the party basis;
+old measured scores and production behavior are unchanged.
+
+Verification: synthetic checks cover partition/normalization, choice-set removal,
+Other complements, the zero-shared-error limit and an aggregate national root
+solve. Checked local links, dollar delimiters, encoding, preserved proposal body
+and diff whitespace. No production code, fit, source data or measured backtest
+changed. Browser-fitting and visual-renderer acceptance were not performed.
+
+## 2026-10-26 — Neutral reference-date priors and backward history
+
+Updated `docs/vote-generation-drift-model.md` with Luca's approved prior policy.
+Political contrasts have exchangeable, zero-centered proper priors. Calibrate
+the non-valid score offset to expected elector share 0.5 in the declared
+reference context, including municipal aggregation and covariance uncertainty;
+this is not a hard participation constraint. Use finite, weakly informative
+scales, prior predictive checks and sensitivity analysis. Informative evidence
+can override the prior, while unidentified contrasts remain prior-sensitive.
+
+Anchor national/local states at the scenario reference date, construct history
+with backward Gaussian increments, and forecast forward from that date.
+Birth dates bound historical support rather than supplying another independent
+initial prior. The specification distinguishes backward construction from the
+earlier forward-process independence assumptions and requires normalized
+transitions so extra unobserved history does not change retained marginals.
+
+Moving the reference date resets the neutral prior and requires a new fit even
+if the available observations do not change. Default precomputed fits carry a
+fixed reference date; cache fingerprints and visible invalidation must include
+that date and the prior calibration policy. Earlier posteriors may initialize
+computation, but do not become evidence or the next prior. Updated the active
+plan and stage-0 validation requirements; implementation remains pending.
+
+Verification: standard-library numerical integration checks the illustrated
+Gaussian offset calibration, exchangeable expected shares and gauge invariance;
+Gaussian covariance checks confirm empty-window extension invariance and the
+distinction between resetting and propagating a prior. Used standard-library
+checks because local Python has no NumPy. Checked Markdown links, math
+delimiters, UTF-8 and diff whitespace. Preserved the pre-existing edit removing
+the obsolete exit-projection sentence. No runtime code, fitted parameters or
+historical research results changed; no backtest or browser fitting was run.
+
+## 2026-10-26 — Party-model transition without legacy adapters
+
+Removed the requirement to preserve old scenarios/results through adapters from
+`docs/vote-generation-drift-model.md`, as approved by Luca. The app is in early
+development and existing artifacts are tests; the new party-level contract may
+break compatibility, with old tests replayed in the old app version if needed.
+Versioning and fitting fingerprints remain required for the new contract.
+
+Verification: checked the focused documentation diff and whitespace; model math
+is unchanged. No runtime code or data changed. The active plan has no party-model
+legacy-adapter requirement to remove; its pre-existing edits were preserved.
+
+## 2026-10-26 — Party drift stage-0 implementation and inference stop
+
+Implemented a separate offline research path in
+`web/scripts/data-preparation/party-drift-*.ts`: versioned count/membership
+validation and semantic fingerprints; exact original grouped multinomial
+likelihood/gradient/observed Hessian; availability, Other and expected-valid-vote
+aggregate operators; conditional-scale neutral reference-prior calibration and
+backward/forward Gaussian construction; multiple-start reduced Laplace fitting,
+exact-likelihood elliptical slice sampling, chain diagnostics and independent
+aggregate/split-coordinate quadrature. Added focused unit tests and
+`data:forecast:party:validate` / `data:forecast:party:profile` commands. No source
+counts are split or converted to inferred component observations.
+
+Stopped at the requested preliminary gate. The separate-component posterior
+passes, but five inseparable-list fixtures fail the prespecified Laplace
+accuracy limits. A balanced 40% joint list has exact posterior mean 39.98%
+versus Laplace 52.38%; across fixtures the largest component mean discrepancy
+is 11.53 percentage points and largest 90% width ratio 2.47. All 54 starts reach
+gradient tolerance; 53 have positive-definite curvature and one symmetric
+saddle is excluded. Reference maximum split R-hat is 1.0073 and minimum ESS 684.
+Independent fine/coarse quadrature agrees to below 3e-13 in means and with
+sampling to 0.075 percentage points. This isolates a curved grouped-posterior
+approximation problem rather than a routine optimizer failure.
+
+The reduced validation takes 7.29 seconds on the i7-14700KF/64 GiB machine.
+Original-data census and 256/1,024/4,096-row kernel probes cover 63,426 usable
+municipality/election observations. Extrapolated countrywide count-only
+likelihood scans take 0.081 seconds. Direct reference-sampler expansion projects
+to 2.7 hours serial even with one proposal per iteration, or 14–18 hours using
+observed reduced proposal counts, before latent-state/poll/hyperparameter costs.
+This exceeds the 30-minute threshold; no countrywide fit was launched. Faster
+sparse inference has no accepted total-time estimate while its accuracy is open.
+
+Recommend retaining the probabilistic model while investigating explicit
+non-Gaussian integration of weak split directions, with sparse approximations
+only in validated directions. Did not tighten priors, collapse requested
+identities or select an alternative engine automatically. The decision, exact
+measurements, artifact paths, commands and remaining scope are in
+`docs/vote-generation-party-drift-stage0.md`; the active plan now requires
+resolving this blocker before full-data fitting or stages 1–7. Complete scenario
+and browser contracts, joint scale fitting, hard/soft constraint posterior
+conditioning, grouped poll/temporal posterior checks and prior sensitivity
+remain open. Earlier fixed-outcome results are unchanged.
+
+Verification: `npm run check:data` passes; all 1,018 tests in 77 files pass,
+including 16 new research tests. The separate research validation command saves
+its evidence and exits nonzero for the measured accuracy failure; a passing
+unit suite does not approve the approximation. No UI/browser acceptance was
+run for these offline-only scripts. Production generator, defaults and source
+data are unchanged; stages 1–7, full-data fitting, commit and publication were
+not performed.
+
+## 2026-10-26 — Restricted components, offline Stan and user-requested pause
+
+Added Luca's admissible-component restriction to the model and research-v2
+contract: collective distinguishing information must be available at each
+cutoff; neutral priors alone do not authorize a requested split. Implemented
+share-scale soft-reference calibration and exact aggregate hard conditioning.
+All eight restricted reference samplers pass their diagnostics. Laplace passes
+seven fixtures but misses the broad soft-reference within-list mean by 7.75 pp
+(largest elector component error 4.35 pp). Exact-density Student-t importance
+correction passes the one-city case but fails ESS/weight gates at eight cities.
+The authorized final offline Stan fallback passes reduced soft/hard references;
+its 30-minute gate is waived. Detailed measurements and reproduction are in
+`docs/vote-generation-party-drift-restricted.md`.
+
+Prepared the source-backed provisional membership proposal for Luca's later
+review: 189 source-label rows, 107 statistical identities, original counts
+conserved. Restored full answer lists from two already cached 2024 survey PDFs
+only in a research sidecar, without duplicate surveys or production-source
+changes. The full-list cutoff audit leaves 23/24 cases unresolved. Luca chose
+admissible research panels; implemented conservative cutoff-specific pooling,
+original-basis Other complements and source-preserving outcome coarsening. The
+first 24-panel structural preflight passes with 5–28 components. Final geography
+preparation also retains future-only municipalities as missing-history units.
+
+Implemented a conditional-scale real-data Stan pilot with original grouped
+counts, backward Gaussian priors, common volatility inference and literal polls.
+Independent NumPy density/gradient checks pass. A 47-parameter real case completes
+in 1.13 seconds with R-hat 1.0045, minimum ESS 1,266 and no divergence/depth hits.
+Its rough city-linear full-size estimate is 75.8 minutes; this is not an estimate
+or convergence result for the larger later models. Corrected the initial metric's
+array serialization after two explicitly unusable interrupted engineering runs.
+
+**Luca requested pausing on 26 October 2026 at 16:10 Europe/Rome.** Stopped all
+four verified active chain processes and preserved the checkpoint under
+`data/derived/party-drift/stan-real-673eff932932/paused-attempt.json`. That larger
+16-municipality/4,762-parameter pilot reached warmup iteration 100 in all chains;
+its 349-second interrupted run supplies no accepted posterior or convergence
+failure. No countrywide fitting, stages 1–7, production changes, commit or
+publication occurred. Resume with fresh warmup from the saved prepared inputs.
+Focused verification reached 23 passing research tests and a passing preparation
+type check; the full suite was not rerun after the follow-up's final edits.
+
+## 2026-10-26 — Partial reform share references and special-territory capacity
+
+Fixed the approved reform editor reference-share bug in
+`paired-vote-generation.ts`. The former remainder calculation promoted every
+unspecified list to a hard national target. Entering a common FdI anchor of
+26.7% in the bundled scenario implicitly demanded about 54,743 Camera votes
+from Valle d'Aosta ballot groups, despite their fixed 53,746 valid votes and
+exclusive territorial support; 1,000 reconciliation passes could not satisfy
+those contradictory targets.
+
+Reconciliation now constrains only entered shares and chamber shares derived
+from common anchors. Unspecified lists keep their local relative proportions
+while their aggregate shares adjust to geographic capacity. Preserved local
+turnout, filing zeros, explicit zero references, scope/chamber precedence and
+fully supplied normalization. Exactly exhausted supplied mass removes the free
+remainder directly; a reference exactly at its filed capacity removes competing
+local mass. These feasible boundary references do not converge only
+asymptotically. References exceeding their filed valid-vote capacity fail with
+the requested and maximum possible shares; other infeasible combinations still
+fail rather than receiving votes outside their filings. Poll-reference setup
+continues to supply its existing complete target map.
+
+Added nine constructed regressions for disconnected ballots, common and
+chamber-specific 26.7% inputs, higher/lower anchors, turnout and structural zeros,
+infeasible references, geographic capacity boundaries and 0%/100% endpoints.
+Three required-bundle regressions also prepare each production FdI 26.7% editor
+variant and generate a validated
+simulation input. These tests clearly skip if the production bundle is absent;
+the release acceptance gate continues to require it. Updated the editor and
+generation guides and marked the corrective task complete in the active plan.
+
+Verification: all 1,037 tests in 78 files passed with no skips; `npm run check`
+reported zero errors/warnings; the static production build and `git diff --check`
+passed. The build reported plugin timing and chunk-size warnings. No browser
+acceptance was run for this TypeScript reconciliation change. No source data,
+generated defaults, legal scrutiny rules or saved archives were rewritten.
+Re-running scenarios with partial references uses the corrected reconciliation;
+existing exported results retain their stored outcomes. No commit or publication
+was performed.
+
+## 2026-10-26 — Manual archive: 19 non-computable runs traced to LG05/LG06
+
+Inspected `data/derived/r26-manual-tests/r26-risultati (2).json.gz`
+(135,131,224 bytes; SHA-256
+`681673ac7027d62618f86625eecf8f56be810ad89fa7bb7ebfe086a5a8700045`).
+The archive reports 1,000 requested, 981 complete, zero partial and 19
+non-computable runs. All root blockers are in Camera; Senate has no
+non-computable stage in these runs. Later N18/proclamation/recovery/N28 failures
+propagate the first blocker and are not additional independent defects.
+
+| Root stage/reason | Simulation IDs |
+| --- | --- |
+| N16 `no-eligible-donor-remainder` | 163, 251, 299, 331, 375, 381, 416, 767, 910, 932, 989 |
+| N18 `zero-index-quota`, Molise | 311, 323, 571, 660, 819 |
+| N18 `zero-index-quota`, Basilicata | 421, 449, 974 |
+
+All eleven N16 failures have Sud chiama Nord exceeding its national entitlement
+by one seat, with all its current seats obtained through integer quotas in
+Sicilia 1/2. There is no remainder-awarded donor. Example 163 has target four,
+initial/current five (two plus three); Lega is one seat short. Existing I13
+is expressly limited to college corrections and does not cover N16. Registered
+this constituency-level analogue of LG01 as LG05, with an unapproved proposal
+to extend the donor policy narrowly while preserving N16 correction criteria.
+
+All eight N18 first failures follow an N16 correction awarding Sud chiama Nord
+a seat in a constituency where it is filed but has zero votes. N16's same-area
+route can select its defined zero decimal before considering positive decimals
+elsewhere. On the cap path, only positive-entitlement local lists enter the
+group denominator. Sud chiama Nord is then alone in one group with one seat
+and zero votes. Its quota is zero; the required index would divide zero by zero.
+Example 311 has Molise targets Sud chiama Nord 1 / PD 1, and group vote totals
+0 / 18,514. Registered LG06 after reviewing C83-bis(1-bis)(a)-(b), with an
+unapproved single-college direct-communication proposal; all eight first-failure
+constituencies contain one college. This is distinct from an inactive group
+with zero seats. Sparse historical support and nationwide filed coverage are
+both present in the supplied scenario; zero votes do not mean missing filings.
+
+Verified C83(1)(h)/(i) and C83-bis against the official annotated republication
+of 23 October 2026, linked in the gap register. No statutory fallback covering
+these cases was identified; current explicit blockers agree with the adopted
+contracts. No scrutiny implementation correction was applied.
+
+Verification: streamed the gzip archive, then regenerated all 19 affected IDs
+using its exact scenario and installed production snapshot. All 1,254 archived
+national list vote counts match, as do every first-failure stage/reason and
+394 Camera allocation transfers' remainder evidence/draw contexts. Independent
+Python integer arithmetic confirms each N16 surplus is one integer-only seat;
+all eight failed N18 groups have zero votes and one seat. Local evidence and
+replay/verification scripts are under `data/derived/r26-manual-tests/`, including
+`r26-risultati-2-verification.json`. The one-off streaming extractor used Python
+`ijson` installed under the OS temporary directory; no project dependency was
+added. No runtime code, scenario, generated bundle or input archive was changed;
+no workaround, full acceptance, commit or publication was performed.
+
+## 2026-10-26 — Approved I13 N16 extension and Sud chiama Nord support trace
+
+Luca approved extending I13 to N16 and explicitly rejected passing positive-seat
+zero-vote targets automatically to a sole college. Implemented the N16 donor
+extension in `territorial-matrix.ts`, preserving C83(1)(h)'s surplus-list order,
+same-area recipient preference and cross-area fallback. Only the currently
+ordered surplus list supplies integer donors after its strict donors exhaust.
+Retained existing decimal/remainder states, seeded I03 ties and per-removal
+`I13_INTEGER_SEAT_REMOVAL` warnings/transfer metadata. Separated the existing
+college donor scope from the new N16 scope so I16 recipient reuse is not enabled
+in N16 accidentally. N15/N17 subject donor policies remain strict.
+
+Replayed all 19 archived failures against the approved extension. All eleven
+former N16 failures now complete, each with 588 seats, 588 distinct elected
+candidates and one N16 I13 integer-removal warning. All 1,254 national list vote
+counts remain identical to the archive. The other eight retain exactly the same
+Camera territorial communications and N18 `zero-index-quota` blockers as before.
+Evidence is in `data/derived/r26-manual-tests/r26-risultati-2-after-i13-n16.json`
+and `i13-n16-verification.json`; the original archive and pre-change replay were
+preserved. This was a replay of the 19 affected IDs, not a new 1,000-run archive
+or browser performance acceptance.
+
+Reconstructed the zero Molise votes from source through municipal generation:
+
+1. The scenario maps future `lista-3` only to historical `list-847ac39a103a9017`
+   (`SUD CHIAMA NORD`), with factor one in both chambers. It supplies a common
+   national reference of 1.4%, no geographic share overrides and no poll proxy.
+   The Camera/Senato Molise colleges both include the future filed list.
+2. Both pinned ministerial 2022 ZIPs have 1,768 Molise rows over 136 municipalities,
+   but no Sud chiama Nord row. Basilicata also has no row for that list. Verified
+   both ZIP SHA-256 values against the manifest/snapshot source versions.
+   Therefore this absence originates in the historical source, not the importer.
+   It is historical absence, not an observed positive-candidature zero to impose
+   on future support.
+3. Historical projection initializes future municipal support to zero where no
+   mapped row exists. National reference reconciliation seeds available zero
+   cells with `1e-12`; fitting national totals multiplicatively mostly rescales
+   existing support elsewhere. The common reference resolves to Camera
+   1.313881112% and Senate 1.491678265%. Molise's prepared Camera valid shares
+   remain only `1.703282e-12`–`2.984495e-12`, corresponding to about `2.464847e-7`
+   votes before future drift. The numerical seed is not a meaningful territorial
+   prior for a newly filed area.
+4. In simulation 311, the generator's logit floor and actual paired shocks produce
+   normalized Camera Molise weights equivalent to about 0.000471070 votes in
+   total, at most 0.000107148 in one municipality. Largest-remainder integer
+   apportionment awards zero in all 136 municipalities. Municipal and college
+   totals are both zero in both chambers for all eight inspected zero-quota IDs;
+   college aggregation does not discard positive municipal votes.
+
+The defect is the absence of a meaningful territorial-support estimate when a
+future filed list has no historical local candidature/support. Filing only
+defines eligibility, while a national anchor does not identify a local profile.
+Luca requested diagnosis rather than a new support rule: no generator, scenario,
+filing, source or bundle changes were made in this follow-up. Documented the
+limitation in the generation guide and replaced LG06's proposed sole-college
+bypass with the explicit rejection and upstream-correction requirement. Kept the
+plan open for a selected local estimate/reference policy; the unrelated drift
+research remains paused. Source and numerical traces/scripts are retained as
+`scn-source-audit.json` and `scn-molise-trace.json` in the manual-test directory.
+
+Verification: added seven regressions for N16 fallback ordering, same/cross-area
+routes, preserved evidence, I03 replay, unchanged I16 scope, transfer export and
+the retained sole-college zero-vote blocker. All 1,044 tests in 78 files pass
+without skips; `npm run check` reports zero errors/warnings; `git diff --check`
+passes. No browser acceptance, commit or publication was performed.
+
+## 2026-10-26 — Approved I17 exclusion of zero-vote cap-path N16 recipients
+
+Luca selected a provisional exclusion of zero-vote recipients for the discussed
+LG06 chain, conditional on proving it resolves the observed failures. He
+explicitly accepted recipient exhaustion as non-computable and required other
+positive-seat zero-vote cases to remain for separate discussion.
+
+Before modifying runtime sources, built isolated copies of the matrix, Camera
+territorial and composed scrutiny modules under
+`data/derived/r26-manual-tests/`, with a recipient filter enabled only in Camera
+cap-path N16 corrections. Replayed all 19 original failed IDs: the eight LG06
+runs completed with 588 distinct elected candidates each, and the eleven runs
+already completed by the N16 I13 extension retained identical Camera territorial
+allocations. All 1,254 archived national list vote counts matched. This satisfied
+the user's condition; evidence is in `counterfactual-i17.json` and
+`probe-i17.mts` with its isolated module copies. The earlier proposed neutral
+allocation weights were not implemented.
+
+Implemented I17-v1 through an explicit `camera-cap-positive-votes` correction
+recipient policy in `allocateCameraCoalitionListsInConstituencies`, enabled only
+when the national path is `bonus-with-cap`. Matrix guards reject the policy
+outside Camera N16 constituency-list corrections. Before same-area donor
+preference, remove zero-vote list/constituency cells from the unused recipient
+pool and continue the existing same-area/cross-area search. Zero constituency
+votes imply zero votes in every college there; this addresses the upstream
+cause without bypassing N18. Retained list priority, I03 ties, I13 donors,
+national entitlements and existing exact quotient/remainder state.
+
+The exclusion uses actual votes, not decimal size: positive votes with zero
+arithmetic decimal remain eligible. Initial N16 awards, non-cap N16, N15/N17,
+N18, Senate and candidate recovery retain their existing rules. A positive
+constituency total with a zero in just one college is outside this change.
+Recipient exhaustion still returns `no-eligible-recipient-remainder`; it does
+not relax the rule or enable I16 reuse in N16.
+
+Emit `I17_ZERO_VOTE_CORRECTION_RECIPIENT` with severity `warning` once per matrix
+that excludes recipients, including the simulation, chamber, context, legal
+reference and sorted excluded cell IDs. Keep the warning if a later step fails.
+Composed results record `I17-v1`; affected allocation transfers carry I17, or
+retain an I13 donor's primary policy with both IDs. Added an Italian diagnostic
+title; generic JSON/CSV warning and transfer exports preserve the new context.
+Updated the specification, LG06 register, generation guide and active plan;
+the source-generation shortcoming remains separately open.
+
+Post-implementation replay also completes all 19 IDs with 588 seats and 588
+distinct candidates each, matching the isolated counterfactual's final college
+targets. Exactly the eight former zero-quota runs carry I17 warnings/metadata;
+the eleven previously completed runs retain their college/list targets and have
+no I17 warning. National votes, national entitlements and N15/N17 constituency
+subject communications are unchanged. Every cap-path N16 correction recipient
+in this replay has positive votes. Example 311 now redirects the correction
+to constituency `camera:territory:11`, where Sud chiama Nord has 4,853 votes,
+instead of its zero-vote Molise destination. Evidence/scripts are
+`r26-risultati-2-after-i17.json`, `replay-i17.ts`, `verify-i17.py` and
+`i17-verification.json` in the manual-test directory. Original archives and
+earlier replay evidence were preserved. This is a 19-ID replay, not a newly
+generated 1,000-run archive or a claim about every other zero-vote seat case.
+
+Verification: added thirteen regressions covering alternate recipient search,
+positive votes with zero decimals, I13/I17 combined transfers, explicit exhausted
+pools and untouched donor state, unchanged initial zero-vote awards, guarded
+scope, cap-only caller opt-in, JSON replay and exported transfer evidence.
+All 1,057 tests in 78 files pass without skips; `npm run check` reports zero
+errors/warnings; `git diff --check` passes. No generator, scenario, source bundle,
+neutral allocation, browser acceptance, commit or publication change was made.
+
+## 2026-10-26 Italian briefing on electoral reform gaps for policymakers
+
+Created `docs/politics-reform-2026-nota-legislatore.md` and its six-page Word
+edition, linked from the legal-gap register. The briefing covers all six
+registered allocation gaps, unspecified terminal ties and Senate cross-region
+recovery. It states the problems, full statutory references, worked examples
+and decisions requiring clarification, without implementation identifiers,
+project notation or presenting simulation policies as statutory rules.
+Distinguished the two possible readings of ordinary list donor decimals from
+express remainder restrictions, and the regional-recovery ambiguity from a
+claim of constitutional invalidity.
+
+Rechecked the official 23 October annotated republication, articles 1 and 2,
+and Constitutional Court order 86/2020. The order establishes the Pavanelli
+background but dismissed the conflict as inadmissible; it did not settle the
+constitutional merits of moving a Senate seat between regions.
+
+Read the user-designated `data/derived/r26-manual-tests/r26-risultati (3).json.gz`
+without changing it. Archive SHA-256:
+`39e33b69d6588cdbc5a2219286b0be13cb0772fcdf013efb1cb28411ded42bc2`;
+exported at `2026-10-26T18:19:02.865Z`. All 1,000 runs are complete, after the
+existing interpretive policies. Deduplicated warning events by simulation ID
+and checked the counts against the diagnostic-event table. Classified integer
+removals by legal reference/context so constituency-list corrections are not
+mistaken for college-list corrections. Recorded frequencies:
+
+| Situation | Distinct simulations | Events |
+| --- | ---: | ---: |
+| LG01 college list integer removals | 328 | 446 |
+| LG02 cap-group integer removals | 0 | 0 |
+| LG03 constituency/college capacity conflict | 7 | 14 |
+| LG04 reused list recipient decimals | 16 | 17 |
+| LG05 constituency internal-list integer removals | 11 | 11 |
+| LG06 preventive zero-vote recipient exclusions | 60 | 60 |
+| Unspecified terminal ties | 8 | 8 |
+| Senate cross-region recovery | 1 | 1 |
+
+LG06 exclusions are preventive eligibility checks, not 60 observed zero-quota
+failures; the briefing explicitly marks the latter incidence as undetermined.
+The seven LG03 simulations involve fourteen constituency occurrences. For
+LG01, 323 simulations affect Camera and 12 Senate, with overlap; chamber
+counts must not be added as distinct elections. The recovered Senate seat in
+simulation 772 moves from Toscana to Emilia-Romagna for the same list; its
+candidate recovery trace was checked. Simulation 163's internal-list integer
+removal was also corroborated against the transfer table. Frequencies remain
+conditional on this scenario, synthetic candidatures/preferences and provisional
+census-derived seat tables; they are not forecasts or a strict-law failure rate.
+
+Evidence is retained under the ignored manual-test directory in
+`policymaker-frequency-audit.json`, `policymaker-frequency-verification.json`
+and `policymaker-document-verification.json`. Independently verified the
+briefing's quota arithmetic, five official-source hyperlinks, absence of
+internal identifiers and nine-row summary table. Rendered and visually
+inspected all six final pages. The packaged renderer initially failed because
+Windows has no bundled LibreOffice; Word COM was also unavailable. Used a
+task-isolated LibreOffice Portable 26.2.4 package from the official publisher
+with a valid Authenticode signature, retaining the packaged renderer and
+bundled Python/Poppler. No installed desktop LibreOffice was used. Removed the
+default template's title border and rerendered before final visual review.
+
+This is a standalone documentation task, so no migration checklist completion
+was claimed. No scrutiny logic, scenarios, historical inputs, archived results,
+release/deployment state or production data changed. No commit or publication
+was performed.
+
+## 2026-10-26 Reform result chart selectors
+
+Completed the first **Refine UI** item: reform results now display one chamber
+at a time for mean elected/valid-vote bars and simulated list-percentage
+boxplots, with independent Camera/Senato controls. Scatterplots share one
+section for lists and coalitions/autonomous lists. Both that section and
+national spinograms offer grouping, chamber and entity selectors and mount
+only the selected series through `ReformSeriesChart.svelte`.
+
+Selections resolve to an available series after changing chamber/grouping;
+missing combinations show an explicit empty state. Keyed remounts replace
+series statistics, streamed scatter points and boxplot outliers when the
+selection changes, preventing stale plots. Existing lazy loading, complete
+point streaming, unknown-outcome semantics, spinogram enlargement, summary
+tables, local-college controls and old-archive reading are retained. The
+remaining UI checklist items stay pending.
+
+Verification:
+
+- `npm run check`: zero errors and warnings; the official Svelte autofixer
+  also reported no issues in either changed/new component.
+- `npm test -- result-presentation.test.ts statistics chart-builders`:
+  seven tests passed across two matching files.
+- `npm run test:e2e -- reform-statistics.spec.ts --workers=1 --reporter=line`:
+  all three tests passed at `/`; repeated at `/elezioni` with retries disabled,
+  also three passes. The synthetic multi-series archive exercises both
+  chambers, both groupings and two entities per combination, checking one
+  rendered panel and the selected series' distinct known-observation count.
+  Existing tests still cover all 1,201 observations, sparse archives and local
+  entitlement charts. Adjusted the latter test to scroll its lazy panel into
+  view after the added controls moved it below the viewport.
+- Visually inspected desktop and 390px mobile screenshots; mobile controls
+  and charts remain within their container. Updated the separate production
+  result-acceptance test's section locators; that long-running acceptance was
+  not rerun for this presentation-only change.
+
+Static builds passed as part of both browser runs, retaining the existing
+large-chunk advisory. No scrutiny, generation or archived-result data changed.
+
+### Follow-up: remove the nested national-spinogram toggle
+
+The selected plot in **Spinogrammi degli eletti** now renders directly inside
+the outer collapsible section. The shared chart renderer supports an optional
+non-collapsible wrapper, enabled only for the national series selector; other
+chart sections retain their existing behavior. The plot, coverage notes and
+click-to-enlarge dialog are preserved. Added an assertion to the existing
+browser check that this section contains no nested `details` element.
+
+Verification: `npm run check` reported zero errors/warnings. All three
+`reform-statistics.spec.ts` browser tests passed, including plot visibility,
+selector changes and opening/closing the enlargement dialog; the static build
+also passed. The Svelte autofixer found no issues in the three affected
+components (its existing `bind:this` refactoring suggestion was outside scope).
+
+## 2026-10-26 Remaining reform UI refinements
+
+Completed the remaining **Refine UI** checklist (the requested lines 329–357):
+
+- Added a chamber/list election-probability table with one row per filed college
+  and seven positions: capolista followed by the first six preference ranks.
+  New executions export compact per-run position outcomes in
+  `Reform college election positions v1`. The presentation helper reuses the
+  existing preference-ranking function and reads final election locations,
+  including recoveries into the selected college/list and excluding elections
+  elsewhere. It records confirmed wins, unknown outcomes and absent positions
+  separately. Worker queries stream these rows with counters bounded by the
+  selected list's colleges; duplicate/unordered/invalid observations fail
+  explicitly. The UI uses all requested simulations as denominator, labels
+  incomplete frequencies as lower bounds, and explains that ranks can represent
+  different people across simulations. Older archives remain readable and show
+  an explicit unavailable state; opening them never reruns scrutiny.
+- Added lists/coalitions-or-autonomous-lists selectors to mean bars and vote
+  percentage boxplots. Both reuse the existing national statistical series,
+  including coalition seat ownership and final personal list affiliation.
+  Added chamber-selectable bonus frequency bars with adjacent percentages,
+  derived from the actual joint award decision and first-subject evidence,
+  independently of seats subsequently filled. No-award simulations remain in
+  the denominator; unknown award decisions remain explicit.
+- Split local spinogram selection into chamber, college and list. Colleges are
+  deduplicated across lists; changing college preserves the visible list when
+  filed there and falls back to an available list otherwise. The existing
+  actual-election/original-entitlement measure selector is retained.
+- Moved application state, worker progress, scenario-preview activity and
+  import/export activity into a compact collapsible fixed corner overlay.
+  Interaction errors, scenario validation and preview notifications use
+  dismissible fixed toasts. Dismissing validation never enables an invalid
+  execution; changing the draft can show its current validation again.
+  Result information, warnings, execution failures and stale-result notices
+  remain in the results section. Dependency-removal review remains an explicit
+  in-place decision with its existing actions.
+- Put the single-simulation seat chart and its controls into a collapsible
+  section; stored chart queries wait until it opens. Inspecting a diagnostic
+  opens that section before scrolling/focusing the simulation control.
+  Expanded the summary-table explanation to distinguish requested/known
+  observation counts, complete means and category-specific minimum means.
+
+Verification:
+
+- `npm run check`: zero errors and warnings. The official Svelte autofixer found
+  no issues in all seven changed/new components; generic effect suggestions
+  were reviewed and retained for asynchronous worker-read lifecycle handling.
+- 29 targeted unit tests passed across seven files: election probability,
+  result-series/presentation, compute/pool and result-export coverage. Position
+  tests distinguish preference rank, recovery location, election elsewhere,
+  unknown outcomes, absent ranks and invalid/duplicate observations.
+- All 14 browser tests in `reform-statistics.spec.ts`, `reform-editor.spec.ts`
+  and `reform-workspace.spec.ts` passed at both `/` and `/elezioni`, without
+  retries or skips. They cover coalition/chamber selectors, exact constructed
+  probability and bonus frequencies, list preservation/fallback, collapsed
+  chart and overlay, validation dismissal, archive compatibility, production
+  worker runs and scenario/result roundtrip/replay. Repeated the four statistics
+  browser tests after final validation changes, adding invalid-file toast
+  dismissal and a failed rerun whose error stays in results.
+- Static builds passed during browser checks, retaining the existing large-chunk
+  advisory. Visually reviewed desktop and 390px mobile chart/table screenshots;
+  tables scroll within their containers and controls remain within the viewport.
+  Updated the separate long-running production acceptance test to open the
+  single-simulation section; that acceptance was not rerun.
+
+No legal scrutiny or statistical-generation algorithm, generated default,
+source dataset, deployment or existing archive was changed. New runs include
+additional exportable presentation evidence. No commit or publication was made.
+
+## 2026-10-27 Reference-based bonus candidates and supplied positions
+
+Implemented Luca's approved bonus-candidate proposal, including the subsequent
+requirements to leave missing territorial support to parameter estimation and
+to exclude supplied ordinary people from automatic bonus selection unless their
+identity also has an explicit bonus template. The dedicated
+[candidate guide](politics-reform-2026-candidates.md) contains the policy,
+constraints, replay contract and implementation map; the generation/editor
+guides link to it rather than duplicating its algorithm.
+
+- Added the optional, versioned `candidateGeneration.bonusPolicy` value
+  `reference-proportional-v1`. New defaults opt in. Absence retains the original
+  generator, including its original candidate streams and template semantics,
+  in `legacy-candidate-generation.ts`. Its function body matches the former
+  implementation after the export rename. Parsing, metadata editing and opening
+  old scenarios do not silently switch policies; the candidature editor offers
+  **Aggiorna selezione del premio** for an explicit draft upgrade.
+- Resolve central municipal references once and project fractional vote totals
+  through filing-aware census splits and electoral capacities. Normalize
+  coalition member support locally for each constituency and chamber. Hamilton
+  allocation and its seeded exact ties do not use simulation IDs, realized
+  election votes, supplied election results or future shocks. No territorial
+  support correction, arbitrary positive prior or equal-share fallback was
+  introduced. Standalone lists require no coalition weighting.
+- Place supplied ordinary candidates in their exact positions and reserve
+  supplied bonus positions. Resolve affiliation from its explicit declaration,
+  existing ordinary badge or the unpinned proportional plan. Ordinary-only
+  supplied identities block their qualifying prefix, including later positions;
+  they are never silently promoted. Repeated supplied identities remain one
+  person. A bonus person can use an existing local witness or an additional
+  compatible ordinary placement.
+- Plan feasible local witness prefixes and national rounded 60% gender budgets.
+  Supplied declarations, capacity and gender constraints can adapt Hamilton's
+  candidate counts. Minimize absolute departures first, then squared fractional
+  deviations; preserve the earliest feasible traversal before preferring closer
+  national gender balance. An explicit final-review regression covers every
+  production constituency so gender ties do not unnecessarily replace the
+  approved heads-first traversal with deeper positions.
+- Per simulation, uniformly shuffle each list's locally filed colleges using a
+  separate entity-addressed stream and traverse the same order at successive
+  candidate levels. Reserve distinct bonus witnesses before reuse, retain pinned
+  bonus positions and interleave remaining member-list queues. Ordinary reuse
+  includes bonus people, with consistent badge/gender, no duplicate within a
+  slate, at most five ordinary colleges and unchanged special incompatibilities.
+  Impossible combinations fail explicitly rather than changing votes or rerolling.
+- Record reference shares, Hamilton and constrained counts, gender budgets and
+  policy/date in the generation receipt and deduplicated result metadata.
+  `BONUS_SELECTION_CONSTRAINTS` reports changed candidate allocations without
+  inventing legal coalition-member seat entitlements. Bonus previews show a
+  qualifying placement in the correct constituency even for people reused
+  elsewhere; ordinary previews show the selected college.
+- Regenerated defaults/catalog through `data:reform:generate -- --publish`:
+  defaults are now `r26-defaults-v2-a0179c6c253e`. Snapshot
+  `r26-generation-v1-c5c4be9fafb5`, model `r26-models-v1-f71a72020aaa`, production
+  compressed bytes/checksums and estimated source parameters remain unchanged.
+  Older defaults remain available. This command only published local artifacts.
+
+Verification on Windows, Node v24.20.0 and Chromium 148.0.7778.96:
+
+- `npm run check`: zero errors/warnings; `npm run check:data`: passed. The
+  official Svelte autofixer reported no issues or suggestions for the changed
+  candidature component. Production static builds passed at `/` and `/elezioni`,
+  retaining the existing large-chunk advisory.
+- Final `npm test`: **80 files / 1,073 tests passed**, including 14 focused
+  bonus-policy regressions. Coverage includes fractional split conservation,
+  filing zeros, local references, fixed allocations and replay, shuffled college
+  order, every constituency's unconstrained traversal, five ordinary uses,
+  declared/undeclared supplied identities, duplicate bonus prevention, fixed
+  bonus order, constrained allocations, unavailable supplied people, gender
+  budgets and explicit conflicts. Existing worker, result/export, old-law and
+  production regressions remain green.
+- Final full browser suite: **33 passed** at `/`, without retries/skips.
+  Includes new explicit policy-upgrade persistence and existing production
+  named-candidate preview, scenario/result roundtrip, archive replay, worker
+  cancellation/failure handling and 1/2/4-worker output invariance. Focused editor,
+  workspace and static-route browser checks at `/elezioni`: **12 passed**.
+- `data:reform:check` verified production checksums and completed **41 stages /
+  588 filled seats / zero unresolved or unfilled seats** with the new defaults.
+- Final production worker benchmark, 10 simulations with one/two compute
+  workers: **10.679 s / 7.858 s** elapsed, respectively, no execution errors and
+  identical outcomes across worker counts. Aggregate generation times were
+  5.115 s / 5.802 s. Report:
+  `data/derived/r26-bonus-selection/browser-workers-final.json`; CPU i7-14700KF,
+  63.79 GiB physical RAM, controlled 8-core/16-GiB browser resource hints.
+  This is a focused performance check, not renewed whole-migration acceptance.
+- `git diff --check`: passed.
+
+Verification workarounds: the full browser run exposed an existing assertion
+that required an alert element while checking that no unknown-table error was
+present. It now checks that matching error alerts have count zero, accepting a
+properly absent alert without weakening the error check. Running type checks,
+the unit suite and the 14-worker browser suite together hit three existing
+five-second unit-test limits. After the browser run finished, the entire unit
+suite passed on its own; no time limits or product behavior were relaxed.
+
+No legal scrutiny, vote/preference parameter estimation, R source, existing
+executed scenario or public deployment was changed. No commit was made.
+
+## 2026-10-27 — Resumed party-level research with a fast share model
+
+Luca authorized model simplification for practical performance while preserving
+plausible municipal list distributions, election/poll information and
+historical/joint/new-list scenario support. The focused
+[fast research report](../research/vote-generation/docs/vote-generation-fast-research.md) now owns the model,
+mathematics, commands, artifact map and acceptance limits. Earlier Stan results
+remain historical evidence; production generation/editor/defaults are unchanged.
+
+- Tried exact Gaussian marginalization of the former joint-state model. The
+  two-city case passes independent density/gradient and sampling checks in
+  0.72 s. A richer four-city case exceeds a 120 s profiling limit; fixed-scale
+  profiling takes 115.30 s but fails R-hat/ESS. A national-only grouped
+  Dirichlet-multinomial experiment also exceeds the short limit. No failed or
+  timed-out chain is accepted; the waived final-Stan 30-minute gate remains waived.
+- Implemented a bounded Gaussian share-information reference target, exact
+  native truncated-normal conditional sampling, four-chain diagnostics,
+  mean-preserving Beta-stick forecasts and empirical geographic filtering.
+  This deliberately replaces the former likelihood and joint municipality-state
+  posterior; original grouped observations/counts are never replaced by inferred
+  component counts. Country-margin probability projection before integer draws
+  is another explicit model change, now documented.
+- Added a headless scenario prototype for indivisible historical units, joints,
+  new units with mandatory references, reference uncertainty and volatility
+  overrides. It preserves choice-set substitution and exact list/elector
+  aggregation. Added a portable compressed research posterior/profile contract;
+  browser worker/editor integration, filing and paired-chamber validation remain open.
+- Frozen development selects common local volatility, separate regularized kind
+  contexts and conservative election discrepancy. Corrected 512-draw replays
+  cover 16 development and eight confirmation forecasts. Confirmation averages
+  86.0% national and 91.3% municipal valid-share coverage at nominal 90%.
+  Only two confirmation elections exist, with party-specific errors still
+  material; this does not establish unbiased means or full-list calibration.
+- The first confirmation attempt found a loader that discarded already pinned,
+  reviewed FDI/FI answers in 13 early survey views, plus a generic optimizer
+  failure at a feasible mode. Restored the same-survey answers with input/date/
+  core-share checks and replaced the solver with an independently verified convex
+  active-set implementation. Statistical settings were not retuned from
+  confirmation; both phases were replayed. These corrected replays are not
+  described as untouched holdouts. No source archive was changed.
+- Wider `all`-catalog preparation exposes unsupported future-only residuals and
+  now rejects them explicitly rather than repeating an unresolved merge.
+  They require reference information or an observed residual; no historical
+  votes/splits are invented. The existing provisional membership review remains open.
+
+Computability gate: 128-unit timings projected 4.98 s fitting / 20.21 s generation
+at complete compatible scale. The full benchmark, on the i7-14700KF under WSL
+Ubuntu with single-thread BLAS/OMP, measures **5.18 s total fitting**, **10.72 s
+for 512 draws across 7,821 future municipalities**, **25.82 s including scores/
+posterior writes**, and **1.90 GiB** peak Python resident memory. It processes
+55,605 training municipality/election cells and the 8,194-identity geography
+union; Valle d'Aosta/unmatchable source rows remain outside this research domain.
+The 30-minute approximate-model gate passes comfortably. Full-domain municipal
+90% coverage is 92.9%, mean absolute error 2.89 pp. All integer elector totals
+are conserved; probability-margin residual is below $10^{-9}$.
+
+Verification: `npm run check:data` passed; full `npm test` passed **80 files /
+1,075 tests**. Eleven Python functional tests passed. Independent four-fixture
+quadrature bounds mean error at 0.151 pp and 90% endpoint error at 0.356 pp;
+the 120,000-draw martingale check bounds mean error at 0.064 pp. All 24 corrected
+real reference fits pass R-hat/ESS/tail-ESS gates. Repeated 3.67-MiB exports are
+byte-identical and pass dimension/probability/common-scale checks; modified
+prepared input is rejected before export. `git diff --check` passed.
+
+Final generated evidence is indexed in the fast report. The production
+comparator, broader source/list calibration, actual upcoming-election input
+refresh, browser parity and legal-geography/chamber integration still gate any
+adoption. No production bundle, source election, R/legal code, commit or public
+deployment was changed.
+
+## 2026-10-27 — College spinogram bonus filter and simulation counts
+
+Added the single-college spinogram selector for all simulations (default),
+joint bonus awarded, and joint bonus not awarded. The selection persists across
+chamber, college, list and elected/entitled measure changes. Filtering reads the
+archived `Reform runs.Bonus` decision independently of the selected list's
+filled bonus seats; missing/non-computable decisions enter neither subset.
+
+The result worker recomputes exact type-7 deciles, bin frequencies and coverage
+for the selected subset. Value-index scans use bounded 256-observation pages
+and retain only the quantile ranks required, plus selected simulation IDs.
+Derived caches and canonical exports keep their existing formats. The panel
+reports plotted simulations (known percentages, including unknown outcomes)
+and selected simulations separately; no-data subsets show zero and no plot.
+Updated the active plan and the focused results guide.
+
+Verification:
+
+- `npm run check`: zero errors/warnings; Svelte MCP review found no issues
+  (retained the existing `bind:this`/IntersectionObserver lifecycle).
+- `npm test -- result-presentation.test.ts result-series.test.ts`: 11 tests
+  passed across three files.
+- `npm run test:e2e -- reform-statistics.spec.ts --workers=1 --reporter=line`:
+  all five browser tests passed, including exact filtered ranks/deciles on
+  1,201 archived simulations, both measures, missing X/Y, unknown bonus
+  decisions, old archives with no decision, empty subsets, selector persistence
+  and unchanged canonical exports. The first run exposed an overly strict
+  test label lookup; using the control's accessible combobox name resolved it.
+- The browser suite built the static app successfully; existing chunk-size and
+  plugin-timing advisories remain. Inspected the 390-pixel mobile screenshot:
+  the selector and counts wrap within the panel. `git diff --check` passed.
+
+## 2026-10-27 — Independent college spinogram share source
+
+Added normally collapsed advanced X-axis controls to the college spinogram.
+An opt-in checkbox enables a searchable college and list selector within the
+current chamber. The main controls continue to select Y-axis elected counts or
+original entitlements. The active sources remain labelled above the plot when
+advanced controls are collapsed; disabling the option restores matching axes.
+The plot now renders directly in the main college section, with no nested
+collapsible chart. Its enlarged view retains the independent X-source label.
+
+The result service accepts an optional `xSeries`. Statistics use that series for
+share distributions/deciles and merge both ordered series by simulation ID in
+bounded pages. A missing outcome row remains unknown, a known zero remains zero,
+and an absent/null share remains a missing percentage. Both measures and all
+bonus subsets use the same pairing. Cache and canonical archive formats remain
+unchanged. Updated the plan and focused results guide.
+
+Verification:
+
+- `npm run check`: zero errors/warnings; Svelte MCP found no issues, retaining
+  the existing observer lifecycle suggestion.
+- `npm test -- result-presentation.test.ts result-series.test.ts result-charts.test.ts`:
+  14 tests passed in four files.
+- All six `reform-statistics.spec.ts` browser tests passed across the suite run
+  and a targeted rerun. The first run passed five tests; its disk-test assertion
+  incorrectly expected an odd seat count in the even-simulation subset. Fixed
+  that expectation and reran the disk test against the same static build.
+  The 1,201-run fixture checks distinct X/Y sources, unequal/missing simulation
+  rows, missing shares/outcomes, both measures, all bonus subsets, and unchanged
+  exports. UI checks cover default collapse, independent selection, collapse
+  persistence, source labels, enlarged view, matching-axis reset, list/chamber
+  changes and absence of an inner chart toggle.
+- The static build passed with existing chunk-size/plugin-timing advisories.
+  Inspected the 390-pixel screenshot of the advanced controls, source labels and
+  plot; the controls fit within the panel. `git diff --check` passed.
+
+## 2026-10-28 — Complete the legislator note's legal references and examples
+
+Replaced the requested comments in `politics-reform-2026-nota-legislatore.md`
+with a statutory tie-reference catalogue and seven worked simulation examples:
+163 (Camera constituency integer donor), 2 (Camera college integer donor),
+28 (Senate college integer donor), 354/312 (Camera/Senate exhausted recipient
+decimals), 22 (unspecified correction tie), and 19 (Camera territorial-capacity
+conflict). Each example traces upstream entitlements, initial allocation,
+intervening corrections, the uncovered state and any provisional simulator
+treatment. Corrected the cap-group correction reference from C83-bis(1-bis)(b)
+to (c), and the constituency terminology/heading typo in section 4.
+
+Rechecked GU's 23 October annotated republication, articles 1 and 2, and the
+parliamentary comparison for unchanged surrounding provisions. Linked these
+sources and identified the archive, seed and provisional seat-table scope.
+Kept two `esempio non trovato` comments for empirical LG02 cap-group donor
+exhaustion: none appears in the designated archive or the other local archived
+simulation warning sets inspected. Constructed legal-core fixtures were not
+presented as observed simulation examples.
+
+Verification used the current `r26-risultati (2).json.gz`, exported at
+`2026-10-26T23:33:07.368Z` (27 October, 00:33 in Italy), SHA-256
+`00a085ca4b2fbaa03a9a4d79a4798a8482d52781b4c93378a864011f68dd23f5`.
+Stream-read the relevant archive tables and all header warnings; regenerated
+the seven selected runs from their archived scenario and pinned generation
+snapshot. All 462 national list vote totals and all 565 exported transfers
+match exactly. Independently checked the examples' integer quotas, initial
+seats, correction chains, exhausted decimals, exact tie and group totals;
+checked constituency names against the generation geography. All seven runs
+complete with 588 seat records under the existing provisional policies.
+Evidence and replay/verification scripts are retained in the ignored
+`data/derived/r26-manual-tests/note-20261028-*` artifacts.
+
+Documentation checks confirm only the two requested missing-example comments
+remain, Markdown math delimiters are balanced, and `git diff --check` passes.
+No scrutiny/runtime changes, archive writes, frequency-table recalculation,
+Word regeneration or migration-step completion are included.
+
+## 2026-10-28 — Standalone SCN scenario and artifact-independent note examples
+
+Executed a new series of 1,000 paired runs from the current
+`r26-risultati (2).json.gz` scenario, making SCN standalone in both chambers.
+Luca chose an equal-weight mean across Abruzzo, Calabria, Emilia-Romagna and
+Puglia, using the available chamber per region and the two-chamber mean within
+Calabria; Sicily is excluded. Pinned attributed 2022 counts give
+**0.18986691282818832%**. Explicitly supplied the same fraction in every missing
+regional branch with filed SCN support: 14 Camera and 15 Senate values across
+16 regions. Preserved all other scenario properties, including the 1.4%
+national reference, seed, filings, dates, candidates policy and bonus declarations.
+Unfiled VdA/TAA remain unchanged; source ZIP hashes and the exact scenario delta
+were independently verified.
+
+Saved the executed scenario, calculation, full schema-v2 result and audit under
+`data/derived/r26-manual-tests/scn-autonoma-20261028/`; its README is the artifact
+map. Eight Node compute processes reused the existing generator, scrutiny,
+presenter and statistics helpers. IDs 1–1,000 were executed once each, with
+Camera/Senato together, in about 396 seconds including initial export. All runs
+complete with 588 filled, distinct candidates each; 641 award the joint bonus.
+The final result gzip is 279,165,138 bytes, SHA-256
+`3f3b2f2afa54b90c39f9572a6702dcf5728c92dc0c2bf00322b6058f8a0a8f06`.
+Production `importResultStream` read the entire archive successfully, verifying
+scenario/benchmark agreement, every table count, 1,000 complete runs and all
+588,000 elected-seat records. This is import validation, not browser UI acceptance.
+
+The standalone runner uses `.mts`: `.ts` outside `web/` otherwise selects CJS
+and rejects top-level await. Kept Node worker measurements in the sidecar run
+report; reserialized the saved tables without rerunning simulations to omit
+optional browser resource-estimate fields from the canonical export.
+
+No new constituency donor exhaustion, cap-group donor exhaustion or Camera
+capacity mismatch occurred. All eleven old constituency integer removals involve
+SCN; all seven old capacity-conflict transfers likewise involve SCN. Replaced
+examples 1.a and 4 with `esempio non trovato`; retained and updated those comments
+for 1.d and 1.e. Preserved Luca's removal of simulator workarounds from the note.
+
+Replaced the zero-vote tie example with old archive `(1)`, run 332, Senate VdA:
+two top candidates each receive 10,930 positive votes and share the synthetic
+birth date 1977-01-01, defeating the express S21(2) age criterion. Rechecked the
+official provision and matched the replay's 47 national list totals and 73
+transfers to the archived rows. The note explicitly labels synthetic birth dates.
+Old positive-decimal ties 556/798 and new ties 570/621/843 only change correction
+order in the checked cases: reversing each draw leaves its entire 588-seat
+ledger unchanged. They were not used as necessary outcome-deciding examples.
+
+Regional overrides do not fill intra-region historical holes: Camera colleges
+080002 and 190203 still have zero SCN votes in every new run. This concrete
+generation limitation is recorded in the research README and verification report;
+no selected note example relies on it. The note explicitly retains the original
+frequency table as original-cohort counts, including its SCN cases. No frequency
+recalculation, runtime changes, Word regeneration or migration-step completion
+is claimed. Scenario/evidence assertions and `git diff --check` pass.
+
+## 2026-10-28 — Confirmed reset of the reform scenario
+
+Added **Ripristina scenario predefinito** beside the reform scenario download.
+A native confirmation explains that current scenario edits will be lost and
+calculated results retained. Acceptance reloads the catalog-selected bundled
+defaults and remounts the editor to discard pending structural changes, JSON
+drafts and previews. Cancellation leaves both the scenario and editor intact.
+Reset is disabled during initialization, execution, import/export and preview
+checks; simulation count and compute-worker preferences remain separate.
+
+Initialization now preserves an existing locally saved draft when restoring
+result tables. Otherwise a reload after reset would silently restore the old
+executed scenario. Result scenarios, exports and explicit result restoration
+retain their existing behavior. Updated the editor guide and migration checklist.
+
+Verification: `npm run check` reports zero errors/warnings; the official Svelte
+autofixer reports no issues (its suggestions concern existing asynchronous table
+effects). Production build and all 12 editor/workspace Playwright tests pass,
+without skips or retries. Coverage includes confirmation/cancellation, complete
+default restoration, discarded JSON drafts, busy-state protection, persistence
+across reload with calculated results, and restoration of the original executed
+scenario. `git diff --check` passes. Existing build chunk-size/plugin-timing
+warnings remain non-blocking. No generated data or scrutiny behavior changed.
+
+
+## 2026-10-28 — Unique Other category across implemented elections
+
+Implemented Luca's approved Other-list plan with the revised UI: one separate
+**Includi Altre liste** switch, a reserved `__other__` identity, fixed **Altre
+liste** name and grey `#9ca3af`, and no per-list type selector. Reference shares,
+geographic overrides and historical correspondences remain available; reform
+also retains chamber presence and editable voting coverage. Disabling removes
+owned references; reform uses its existing dependency-removal preview. Ordinary
+list defaults and generated bundles were not edited.
+
+The category is explicit `kind: 'other'` metadata, never name-based inference.
+Legacy projection, candidate generation, vote preparation and adaptation retain
+candidate-free votes; null candidate references do not enter attribution or
+candidate pools. Every national/regional/minority admission path excludes Other,
+including the Senate's later regional threshold route. Regional allocation and
+presidential rankings exclude it while valid-vote denominators retain its votes.
+The executable R scrutiny counterparts implement the same convention.
+
+Reform generation separates voting coverage from candidate filings through
+optional `ChamberInput.otherListCoverage`. It skips ordinary, bonus and special
+candidates for both candidature policies, rejects supplied affiliations, links
+and preferences, and records `other-list-excluded` admission decisions. Special
+valid-vote totals add unlinked Other votes exactly once; Camera TAA remains an
+overlapping view. National and college statistics retain Other shares and zero
+seats, including when other outcomes are unknown. Candidate probability and
+bonus-contender selectors omit it. Existing legal allocation/recovery policies
+remain unchanged.
+
+Old inputs omit the optional discriminator and retain ordinary behavior. Scenario
+exports with Other use politics v8/regional v2 envelopes, while ordinary exports
+retain v7/v1. Reform schemas accept the additive fields without rewriting old
+scenario fingerprints or candidate policies. Scenario conversion and archive
+round trips preserve the category. The compact entry point for future work is
+[the shared category contract](other-list.md), linked from the reform editor guide.
+
+Verification and workarounds:
+
+- New coverage includes 21 focused unit tests and three browser tests across all
+  editors/workers: uniqueness, fixed metadata, persistence and archives, history
+  without supplied shares, forbidden candidate/bonus associations, geography,
+  vote conservation and Other shares through 100% under both reform candidate
+  policies. Regional high-share tests conserve 48 list seats plus presidential
+  and runner-up seats, with zero for Other.
+- `scripts/check_other_lists.R` and
+  `web/scripts/check-other-list-parity.ts` pass for real Camera/Senato golden
+  inputs extended with Other, and constructed regional cases at 1/30/80%.
+  R's candidate birth-date columns must be reconstructed as POSIXct from JSON;
+  otherwise existing multi-column `order()` calls take an incompatible path.
+- Re-exported both R golden suites to temporary files. Regional output equals
+  the existing fixture; politics trace/output content equals the existing
+  fixture after canonicalizing table row order. The host's default R locale
+  differs from fixture collation. Windows R needed
+  `LC_ALL=English_United States.utf8` for explicit UTF-8 sourcing. No fixture was
+  overwritten.
+- Official Svelte checks found no issues in the reform editor changes. Legacy
+  route suggestions concern existing unkeyed loops, actions and local Map
+  helpers; the existing asynchronous result-fetch effect remains intentional.
+- The first unbounded browser run passed 37/39 tests but exposed timing in two
+  existing statistics tests; all six statistics tests passed with one worker.
+  The archive-replacement test now waits for the new result before opening its
+  panels. A later unbounded unit run exceeded the existing five-second deadline
+  in the serial/parallel scrutiny-comparison test. The acceptance runner now
+  accepts optional `ACCEPTANCE_TEST_WORKERS` (1–64), applied to Vitest and
+  Playwright. This limits simultaneous test processes, not simulated compute
+  workers; runtime resource limits and assertions are unchanged.
+- The four-process browser run passed 39/39 at `/`; `/elezioni` passed 38/39
+  with the old-archive statistics preparation exceeding its existing timeout.
+  Final full acceptance with `ACCEPTANCE_TEST_WORKERS=1` passed: production
+  checksums/vertical slice, preparation and application types, 1,095 unit tests,
+  39 browser tests at `/` and 39 at `/elezioni`, zero skips/retries, both static
+  builds and restoration of the root build. Its report is
+  `data/derived/r26-21-acceptance/report.json` (ignored generated evidence).
+- Final layout polish uses a wrapping fixed-category row and a grey marker with
+  normal-contrast name text. Post-polish Svelte check is clean; responsive row
+  screenshots were inspected at 390px for legacy politics and regional rows.
+  Post-polish focused browser tests pass at both base paths.
+- Final review added a regional summary guard for ordinary standalone inputs
+  with null coalition metadata: Other must not be included in that contender's
+  final vote totals. The new regression and latest full unit suite pass:
+  81 files / 1,096 tests. Preparation/application type checks also pass.
+- All three worker benchmark tests pass. Legacy politics 10/100/1000 simulations:
+  3.805/17.227/147.627 s; regional: 0.206/0.512/3.639 s. Focused production reform
+  10-simulation runs with 1/2 compute workers: 10.549/7.458 s, zero errors and
+  invariant outcomes/warnings. These are current-host observations, not a
+  controlled comparison against older reports. Reports are temporary
+  `elezioni-other-*-benchmark.json` files; tracked benchmark reports were restored
+  byte-for-byte. No full reform 100/1000-worker matrix was rerun.
+
+No commit, publication, source-data update or generated-default change was made.
+
+## 2026-10-28 — Formalize the fast research model description
+
+Expanded the three model-definition sections of
+[the fast research report](../research/vote-generation/docs/vote-generation-fast-research.md) at Luca's request.
+Added a notation/denominator guide and worked grouped-choice example; defined
+the observation matrices, residual covariance, movement-scale estimators,
+bounded Gaussian priors/posteriors, three construction updates and separate
+non-valid fit. Defined the finite-step Beta transition, its actual variance and
+conditional mean preservation, scale mixtures and election-discrepancy estimate.
+The municipal section now specifies historical features, regional shrinkage,
+local scale estimation/filtering, fallback uncertainty, regional/local random
+scores, country-margin raking and integer list/count aggregation.
+
+Checked equations against `fast_party_model.py`, `run_fast.py`,
+`modular_geography.py` and the native conditional sampler. Explicitly distinguish
+fitting approximations from forecast dynamics, common future local scales from
+component filter scales, and a martingale property from empirical unbiasedness.
+This documents the existing implementation; no model/code/data or numerical
+results were changed and no fitting runs were needed. The scenario boundary,
+evidence and reproduction sections remain unchanged. Markdown math/link and
+whitespace checks passed. Research/adoption status is unchanged.
+
+## 2026-10-28 — Plan fast vote generation for the reform browser workflow
+
+Luca selected `docs/vote-generation-fast-research.md` as the production model and
+requested periodic compact-data/default-fit preparation plus optional browser
+re-estimation, limited to the 2026 reform workflow. Added
+[the production plan](vote-generation-production-plan.md), FV-01 through FV-09,
+and a separate [research archive/cleanup plan](vote-generation-research-archive-plan.md).
+The main migration checklist now follows that implementation instead of waiting
+for the superseded joint-state/Stan posterior gate. Earlier completed research
+and its rejected corrections remain historical evidence, not production acceptance.
+
+The plan uses one browser-safe TypeScript numerical engine for local/CI
+prefitting and worker refitting; compact original grouped observations support
+changed source memberships and dates. A posterior/profile export alone cannot
+do that. National, profile, composition and run dependencies are separate, so
+ordinary list composition/reference edits can reuse the fit while polls,
+historical memberships and reference-date changes invalidate the relevant state.
+The final static build follows source/data/default-fit preparation and validation.
+
+Include demand loading, loading/ready/error/retry feedback and cancellable
+estimation now; defer speculative prefetch, background-ready notifications and a
+persistent cache manager. Reform poll entry moves into FV-07 rather than waiting
+until the whole migration. Retain the prior approved breaking reform-contract
+transition without adding legacy adapters; other election workflows keep their
+current generators. Production gates explicitly include multiple/scoped uncertain
+references, full component/geographic support, physical ballot filing, special
+territories, paired Camera/Senato marginals/dependence, scrutiny/results/exports,
+and browser/CI resource measurements. The numerical/predictive research limits
+remain visible; Python performance is not a browser performance claim.
+
+Read the fast Python/native fit, profile, scenario and export boundaries, current
+R26 types/preparation/generation/workers/loaders/editor, data/source manifests and
+research dependency families. The research exporter is held-out-case-oriented,
+excludes VdA/unmatchable rows, and has no validated Senate pairing; it cannot be
+installed as the upcoming-election default. The source dependency audit identified
+reviewed early poll answers, membership policies and historical readers that must
+be promoted before archiving research code. Framework worker/static/base-path
+references were checked against official Svelte/Vite documentation and MDN.
+
+Read-only local inventory at planning time found 81 files / 244.36 MiB under
+`data/derived/generation/`, 434 / 17.60 MiB under `data/derived/drift/`, and
+646 / 541.58 MiB under `data/derived/party-drift/`. These are candidate inventory
+sizes, not recoverable-space promises. Cleanup must first preserve small frozen
+summaries, failed/repaired experiment diagnostics, source/code pins and reduced
+fixtures; archive all superseded research reports/code outside production globs;
+then delete exact manifest-listed regenerable leftovers. Curated source JSON,
+active generators and unrelated legal/manual/result evidence are excluded.
+
+Updated the reform plan, installed-generation/editor guides, fast/earlier-drift
+status notices and data reading map to distinguish approved future work from the
+installed workflow. Verification: checked relative documentation links and target
+anchors, FV checklist/section consistency, unchanged existing model formulas and
+diff whitespace. This was planning/documentation only: no code, source data,
+defaults, fit, bundle, runtime behavior, research file location or generated
+artifact was changed; no app test suite, fit, build, cleanup or deployment ran.
+
+## 2026-10-28 — FV-01 production contracts and preserved research evidence
+
+Completed FV-01 only. Extracted the approved numerical model's 768-line
+national/forecast/municipal definition unchanged into
+[the maintained model contract](vote-generation-fast-model.md). Separate
+[scenario/data](vote-generation-fast-contracts.md),
+[reference/chamber](vote-generation-fast-references.md) and
+[validation](vote-generation-fast-validation.md) contracts keep numerical,
+preparation, editor and acceptance tasks independently readable. Updated the
+main FV-01 checklist, production/archive reading maps, research status notice and
+data entry point; FV-02 through FV-09 remain open.
+
+The prototype exposed a real reference-policy difference: changing one political
+reference can change non-valid support through joint elector-weight normalization.
+Luca explicitly selected the installed workflow's separate turnout rule:
+**list-reference edits preserve turnout; changing turnout is a separate input**.
+Recorded `fixed-turnout-reference-v1`, with worked elector/valid-share examples
+and a distinct availability-removal operation that still renormalizes non-valid
+support as approved. This decision precedes runtime implementation.
+
+Reserved scenario v4 and separate statistical, numerical, representation,
+reference, chamber, RNG, fitted-state and asset identities without changing the
+installed parser/constants/catalog. Defined original grouped compact observations,
+daily availability/cutoff/source-range semantics, strict membership/Other/new-unit
+validation, semantic versus provenance identities and fit/profile/composition/run
+invalidation. Specified a calibrated joint logistic-normal reference family for
+multiple uncertain shares, exact constraints, common/chamber precedence and local
+override examples; its numerical calibration/acceptance remains FV-04. The C/E
+fit is not a Senate fit. Paired adaptation preserves marginal variance budgets,
+with the existing dependence profiles explicitly treated as assumptions.
+
+Froze independent matrix/reference fixtures, seed/draw budgets, diagnostics,
+numerical/Monte Carlo tolerances, predictive non-deterioration comparisons,
+resource targets and input-envelope probes. Distinguished the research report's
+observed 0.151/0.356 pp errors from the original harness's 0.5/0.8 pp absolute
+ceilings. Neither convergence nor the small empirical replay establishes
+universal calibration; unsupported moments and material regressions must be
+reported instead of silently altering inputs or tolerances.
+
+Created the [research evidence index](../research/vote-generation/README.md),
+exact hash/disposition/consumer inventory and read-only default-domain snapshot.
+The capture records base HEAD `3e062924c8adcc6c8c0a21a3f6108e66724959a7` plus exact
+working-tree hashes/modified source paths, not a new commit. Preserved **61**
+evidence records, **8,307,728 bytes** (7.92 MiB), including failed/corrected runs,
+selection/source pins and older poll/endpoint/drift/Stan diagnostics. Large
+municipal score rows are explicit JSON omissions with original byte/hash pins;
+retained aggregates/diagnostics are checked against the originals.
+
+The inventory covers **1,433** files, including mixed poll outputs and
+research-owned Python bytecode. Mixed active poll artifacts remain keep/review
+items and every record has `deletionAuthorized: false`. The domain snapshot
+covers all **7,904** installed-target municipalities, **86** physical colleges
+and the separate derived Camera TAA view. It inventories **47** proposed component
+identities; provisional memberships and opaque special groups still require
+FV-03/04 review/admissibility, not automatic acceptance as new defaults.
+
+Verification passed: Node syntax check; `freeze.mjs --check`; `--check-sources`
+rehashing all 1,433 originals and checking compact extracts; unchanged capture
+replay; arithmetic/grouped/Other/turnout/common/local examples and four independent
+reduced matrix targets. An isolated copy with no original ignored data passed;
+corrupted retained evidence was rejected and the restored copy passed. Markdown
+local links/anchors, formula extraction and diff whitespace were checked.
+Pinned frozen JSON/JSONL bytes with local Git attributes and verified a temporary
+Git-index checkout using `core.autocrlf=true`; snapshot hashes still pass without
+original ignored data. Documentation checks covered 11 Markdown files, 161 local
+links/anchors and 253 unchanged research formula spans. No files were staged in
+the project repository by that isolated checkout test.
+No production engine, parser, scenario/default, bundle, source observation or
+legal behavior changed. No fit, forecast/backtest, app suite/build or browser
+acceptance ran. Research originals/code were neither moved nor deleted, and no
+commit or publication was made.
+
+## 2026-10-29 — FV-02 browser-safe reference fitting and profile estimation
+
+Completed FV-02's reduced numerical/browser gate. The
+[engine guide](../web/src/lib/politics/reform-2026/vote-share/README.md) maps the
+pure Float64 TypeScript modules, typed inputs, entry points and reproduction
+commands. The engine implements the selected `kind-common-conservative`
+national Camera/European fit, separate non-valid fit and empirical municipal
+profiles. It returns retained posterior chains and diagnostics, not a mode-only
+replacement. Marked FV-02 complete and kept the unaccepted maximum-envelope
+latency explicit in FV-08. Production source preparation, Senate adaptation,
+forecasts/interventions, default installation and application refit orchestration
+remain later steps.
+
+Ported original disjoint grouped observations, movement/error scales, Brownian
+and shared-survey covariance, three GLS construction updates, training-only
+election discrepancy and constrained active-set modes. True boundary modes
+remain zero. The sampler uses independent addressed chains, exact conditional
+pair transfers, stable truncated-normal rejection, four-chain rank-normalized
+split/folded R-hat and bulk/tail ESS. Accepted fits retain the frozen
+1,000-burn/thin-2 budget and deterministic 2,000/4,000/8,000 draw escalation;
+diagnostic failures throw. Known constrained constants are distinguished from
+stuck free coordinates. The fitted raw election-discrepancy scale is separate
+from FV-04's selected 1.5 forecast multiplier.
+
+Small covariance systems use equilibrated Cholesky solves; larger systems apply
+the same matrix through Brownian age prefix/suffix sums, shared-group sums and
+block-preconditioned CG. Every solve checks its actual relative residual against
+`1e-11`; no extra ridge, covariance deletion or observation thinning was added.
+Factoring grouped incidence as `H(S - r*u)` reduced work per record from O(KG)
+to O(K + G²). On this host the 28-component/128-poll construction fell from
+about 5.86 to 1.46 seconds; 64/128 fell from about 29.85 to 4.87 seconds.
+Dense selection for smaller systems also avoids unnecessary iterative solves.
+Guards bound dimensions and estimated numerical workspace rather than claiming
+to measure browser process memory.
+
+The profile estimator makes two sparse city passes and returns target-ordered
+buffers, labelled pooled/missing-history fallbacks, component filtering scales
+and separate common future scales. Targets contain IDs, regions and electorates,
+not future vote counts. Historical-only cities can inform regional initialization;
+observed zeros remain source zeros. Tests cover grouped-only and unmatchable
+features, missing/new cities, region/context fallback, cutoff/date propagation
+and raw-count validation.
+
+Added an independent pinned NumPy 2.3.4/SciPy 1.16.3 oracle fixture and optional
+regenerator. Matrix construction, mode/scales/participation, profiles and
+diagnostics are checked against the unchanged separate Python implementation;
+adaptive quadrature/CDF root finding independently supplies means and 5%/95%
+endpoints for the four frozen posterior targets. Normal TypeScript/browser
+validation requires no Python, C++ or Stan. Oracle generation used an isolated
+Python environment because the installed interpreter lacked NumPy; research
+sources and bytecode were not modified.
+
+All four posterior targets passed under the three frozen seeds, with four
+2,000-draw chains each. Maximum mean error was **0.14816 pp** and maximum endpoint
+error **0.54804 pp**. These pass both the frozen absolute ceilings and
+observed-baseline-plus-four-block-MCSE limits; the latter endpoint error is not
+below the old observed 0.356 pp alone. MCSE uses 200 chain-stratified block
+resamples of length 50, distinct from later predictive bootstrap budgets.
+Maximum R-hat was 1.000972, minimum bulk ESS 7,431 and minimum tail ESS 6,975.
+Independent quadrature mean/endpoint refinement was below `2e-13`.
+
+The test-only worker runs without a production route or asset. Initial native
+trigonometric normal generation differed between Node and Chromium by one ULP,
+so it was replaced with the distribution-equivalent polar method; arithmetic
+half-angle FFT roots similarly remove native trigonometric diagnostic rounding.
+Identical inputs, solvers and seeds now produce identical raw sample SHA-256
+hashes and diagnostics in both runtimes, including all three seeds per target.
+Dense versus matrix-free comparisons use numerical tolerances, since their
+operation order differs. The reduced full reference fit took 134 ms in Node and
+about 209 ms in Chromium 148.0.7778.96; browser profile construction took 1.4 ms.
+
+Recorded the [benchmark snapshot](../test/fixtures/benchmarks/vote_share_numerics.json)
+with LF-normalized engine/oracle hashes, environment, numerical errors,
+diagnostics, measurements and qualifications. Detailed reports remain ignored
+under `data/derived/fv02-numerics/`. The Node scaling command probes 28/64/128
+components by 0/128/512 poll questions without accepting its short sampler pilots
+as posterior fits. On Node v24.20.0 / Windows 10.0.26200 / i7-14700KF:
+
+- The synthetic 128-unit, 28-component, four-event profile panel took a cold
+  56.8 ms and five warm runs with median/max 53.5/54.9 ms. Proportional
+  8,194-unit extrapolation at that fixed history is 3.42 s / 9.93 MiB estimated
+  workspace. Scaling time by the real panel's 55,605 historical rows instead
+  gives 5.81 s; neither estimate executes the real municipal fit or includes
+  source decoding/browser overhead.
+- After those reduced measurements, an additional national-only fit used the
+  existing admissible 28-component panel at cutoff 2024-05-24: seven historical
+  elections and 33 polls. It passed at 2,000 retained draws per chain in 14.43 s,
+  political R-hat 1.00425 / minimum bulk ESS 1,975 / minimum tail ESS 3,492.
+  The numerical audit reports 604,736 workspace bytes and retained chains use
+  3,840,000 bytes. The snapshot pins the exact prepared input hash. Reading
+  municipal metadata only supplied extrapolation dimensions; no future counts,
+  full municipal fitting or forecast were used.
+- The largest synthetic 128-component/512-poll construction took **59.13 s**
+  for 4,092 contrasts, with estimated workspace 23.22 MiB and all actual solve
+  residuals below `1e-11`. A short sampler pilot projects about 67.35 s total
+  for a 2,000-draw fit; that full posterior was not executed/accepted. Node peak
+  RSS was about 207 MiB including the harness/input, not a browser peak measure.
+
+**The maximum envelope has not met the 30-second desktop target.** Improve its
+solve latency or explicitly approve measured support limits before production
+defaults; reduced FV-02 success does not accept the entire envelope. Full real
+geography, production source admissibility, Senate, decoded/retained/aggregate
+browser memory, four-times-throttled latency, cancellation and other browser
+engines remain FV-03/04/06/08 work. No input limits or numerical gates were
+silently weakened to obtain these results.
+
+Verification passed: application check (zero errors/warnings), preparation
+typecheck, full unit suite **82 files / 1,120 tests**, including 24 new numerical
+tests, and focused numerical reruns after final residual/audit guards. Static
+builds and **six worker browser tests at each of `/` and `/elezioni`** passed;
+the root build was restored. Existing large-chunk build advisories remain.
+FV-01's checker rehashed all 1,433 original inventory files and checked 61
+preserved evidence records; its numerical model extraction remains unchanged.
+Final checks covered documentation links, benchmark source hashes and diff
+whitespace. No production generator, scenario/default, source observation,
+legal behavior, research location or original artifact changed. No research
+cleanup, commit or publication was performed.
+
+## 2026-10-29 — FV-03 compact editable production history
+
+Completed FV-03's original-source boundary, documented in the
+[source preparation guide](vote-generation-fast-data.md). Added separate active
+history, membership, poll-view, assembly and CLI modules, portable source types,
+chunk codec and explicit selection/compiler. Added non-interactive
+`data:reform:shares:download/prepare/check/prefit` commands. The prefitting wrapper
+requires a complete explicit selection and writes accepted C/E reference draws,
+input/provenance identities, seed and request; it selects no default. Updated
+the migration checklist, active reading maps and archive exclusions. FV-04
+onward remain open.
+
+The source manifest composes the existing pinned census/geography, historical
+Camera/European and reform Senate archives. Promoted copies of the required
+correspondence/citation/restoration JSON into `data/sources/fast-share/`, retaining
+the provisional correspondence status and warnings in the runtime envelope.
+Original research code/data are unchanged. Active preparation imports no
+`party-drift-*`, `generation-history`, Stan, R cache or ignored research artifact.
+Existing reviewed old-college attribution and geographic normalization remain
+shared active dependencies.
+
+Prepared all ten events: Camera 2008/2013/2018/2022, European
+2009/2014/2019/2024 and Senate 2018/2022. Retained all VdA/TAA choices, unmatched
+and invalid-denominator observations and separately identified unlocated
+fuori-sede records. Direct source counts accompany attributed integer list
+totals; special candidate/group outcomes remain opaque. The dictionary has
+8,456 historical/target/unlocated identities and 296 source choices, representing
+149 proposed historical atoms before any requested pooling. This is not a claim
+that all atoms form an admissible <=128-component default basis.
+
+The complete target contains all 7,904 municipalities, 86 physical colleges and
+15,810 membership cells, conserving census population by municipality/chamber.
+Camera TAA's proportional view is not a second physical ballot. Same-place
+matches retain target codes; unresolved mergers/homonyms are labelled missing
+crosswalks rather than guessed or deleted. Both 2022 chambers reproduce all
+15,808 municipality/chamber records from the independently prepared installed
+baseline exactly, including every named/special choice count and electorate.
+Senate 2018 is explicitly 25+ age-confounded audit-only; it cannot enter C/E
+fitting, and 2022's paired input does not itself validate the future adapter.
+
+The archives lack pinned result-publication timestamps. Added a declared
+retrospective assumption of 30 days after the final polling day, including the
+second day for Camera 2008/2013. The bundle labels this as an assumption, not an
+official timestamp, and the compiler enforces it at inclusive daily cutoffs.
+No current clock decides data eligibility. Bundled elections end 2024-06-09;
+the selected poll archive's latest publication is 2026-10-19. Extrapolation and
+source vintage remain explicit.
+
+All 41 poll questions preserve original and normalized answers, sample/decided
+bases, the single design-effect adjustment, effective-sample cap, shared survey
+and semester/context errors, rounding, dates and citations. Thirty-eight are
+supported; three conditional questions remain excluded with reasons. Early
+FDI/FI restoration refines the same conserved residual and survey, never adds
+a duplicate observation. Contemporary named answers with no established history
+use distinct `poll-only-*` atoms; no Lega donor or inferred party ancestry is
+imported. Reviewed JSON suffices in a clean tree without optional PDFs.
+
+The compiler rebuilds grouped national/profile information from original counts
+after membership/date/selection edits. It rejects competing raw memberships,
+opaque splits, unknown/incomplete pooling, duplicate surveys and unavailable or
+excluded observations. Other complements are formed before pooling named and
+unnamed support. Admissibility tests conditional offered-set contrasts: a
+one-choice observation supplies no distinguishing information. National sums
+retain unmatched resident observations; invalid source denominators produce
+explicit local exclusions. Unlocated ballots remain source data without being
+assigned residential denominators. Profiles sum whole groups into the national
+observable partition; absent target history remains a labelled fallback.
+Numerical keys exclude display/citation changes, while provenance binds both
+numerical keys and the source/edit evidence.
+
+The immutable `fast-share-source` bundle has compressed/decoded hashes and
+sizes, dictionaries and one little-endian uint32 chunk per event. Explicit
+offsets/lengths and row flags distinguish missing voters, unmatched/unlocated
+geography and invalid denominators. All integer conversions, indices, shapes,
+offered zeros and national sums are checked. Exact input/decoded row round trips
+preserve **81,734 explicit zeros**. Audit files have their own content identities
+so an audit correction cannot overwrite an immutable source version.
+
+The [benchmark snapshot](../test/fixtures/benchmarks/vote_share_sources.json)
+pins final preparation/codec/compiler source hashes, envelope/asset identities,
+source range, counts, exclusions, environment and qualified measurements.
+Detailed reports are ignored under `data/derived/fv03-acceptance/`. The bundle is
+**4,512,430 bytes compressed / 19,823,299 bytes decoded** (4.30 / 18.91 MiB),
+including 3,785,547 decoded metadata bytes. Preparation took about 17.4 seconds
+on the current Windows/Node 24 host. Sequential event decode's largest live
+numeric allocation is 4,494,961 bytes; this excludes metadata, hash copies and
+JS row objects. Measured Node decode/check lifetime peak RSS was 268,880 KiB
+(262.6 MiB), with inflate/column/row-boundary heap/buffer samples recorded.
+This is not a browser process-memory claim.
+
+Full-source worker validation passed in Chromium 148.0.7778.96 at `/` and
+`/elezioni`, with one first-worker run and five warm runs per path. First runs
+took about 367/371 ms; warm medians 329/336 ms, maxima 343/350 ms. These include
+local intercepted asset delivery and validation, not internet transfer speed.
+The reduced source fixture produces identical content/numerical keys and
+compiled observations in Node and Chromium. Browser aggregate process memory,
+combined retained state, maximum-envelope fitting, full default admissibility,
+Senate dependence and predictive acceptance remain FV-04/05/06/08 gates.
+
+Verification: acquisition into an initially empty source cache succeeded from
+the pinned network URLs. A separate source-only tree, independently installed
+with `npm ci`, regenerated offline without original ignored/derived artifacts;
+all 13 final generated files match byte for byte. This clean-tree run was on
+Windows; Linux release acceptance remains FV-08. Missing chunks and corrupted
+compressed chunks failed CLI checks without fallback. The explicit reduced
+prefit CLI passed with four accepted chains; no full-country fit/forecast ran.
+Application/preparation checks passed with zero Svelte diagnostics; the full
+unit suite passed **84 files / 1,133 tests**, including 13 new source tests.
+Focused tests passed after final provenance/audit corrections. Static builds
+and two browser tests per base passed, and the root build was restored. Existing
+chunk-size build advisories remain. FV-01 evidence verification, unchanged FV-02
+numerical source hashes, documentation links and diff whitespace passed.
+No installed scenario/default, generator, legal behavior or authoritative old
+observation changed; no research move/deletion, commit or publication occurred.
+
+## 2026-10-29 — Approved next-day historical availability and deferred live-count forecasting
+
+Luca approved replacing FV-03's arbitrary 30-day fallback with availability
+**by the end of the first civil day after the final polling day**, only where
+availability is unknown. Versioned the preparation policy as
+`fast-share-production-sources-v2` / `retrospective-next-day-end-v1`. Added
+explicit final-polling-day overrides for Camera 2008/2013 and a separate
+`knownDates` table with required citations. Known dates take precedence, including
+known same-final-day availability; currently that table is empty rather than
+inventing publication evidence. UTC civil-date arithmetic preserves the existing
+inclusive daily cutoff and the actual observation dates. Examples now qualify
+on 2008-04-15, 2013-02-26 and 2022-09-26 respectively.
+
+Regenerated the compact source and verified its CLI integrity/conservation checks.
+The new source ID is
+`fast-share-source-v1-95d505ed1f7ea79c99cd0bf91a86dbc6a2d54c1f24fd9b37bec40a57e3c72511`.
+All ten observation chunks, national counts, election dates, poll records and
+geography remain unchanged; only availability/policy/provenance metadata changes.
+The prior [FV-03 benchmark](../test/fixtures/benchmarks/vote_share_sources.json)
+remains historical evidence for its original policy and measurements. The
+[separate policy-check record](../test/fixtures/benchmarks/vote_share_availability.json)
+pins current sources/metadata, all ten new availability dates and the comparison.
+
+All 24 frozen six-election/horizon cases retain identical eligible election IDs.
+Compiling all eight C/E elections at reference 2026-10-19 with an explicit reduced
+two-component basis and conditional target inputs preserves national/profile
+numerical keys while changing provenance. This is an eligibility/input comparison,
+not a new fitted-posterior or predictive run. Source changes are generated offline
+under `data/derived/fv03-next-day-output/`; no app defaults or production dispatch
+are installed.
+
+Added tests for multi-day contests, leap/year boundaries, known-date precedence,
+invalid evidence/date overrides, inclusive eligibility on the availability day,
+rejection on the preceding day and unchanged observation time. Both focused test
+files pass **16 tests** and preparation typechecking passes. Source preparation
+and the full ten-event data checker pass; documentation links, source evidence
+hashes and diff whitespace were checked. No model equations or sampler changed.
+
+At Luca's request, appended a task at the end of the post-migration list for
+short-term forecasting of the **current election's final scrutiny result** from
+incomplete incoming returns. It requires timestamped counting snapshots,
+reporting/denominator information, uneven-reporting and revision treatment, and
+chronological final-result/uncertainty validation. It is explicitly separate from
+forecasting subsequent elections and from this retrospective availability rule.
+No partial-return ingestion or live-count model was implemented now.
+
+## 2026-10-29 — FV-04: headless fast generation and paired physical ballots
+
+Implemented the [generation boundary](vote-generation-fast-generation.md) for the
+2026 reform and completed FV-04. It consumes accepted C/E reference chains,
+municipal profiles, explicit future component/list compositions, physical filing
+and dated conditional electorates. It applies finite-step Beta movement, the
+selected scale mixtures, reference-profile uncertainty, regional/local noise,
+the conservative 1.5 election discrepancy, global projection and integer
+multinomial counts. The original FV-02 numerical kernels and frozen research
+extraction are unchanged; `index.ts` only gains additive public exports.
+
+Political interventions hold each cell's turnout fixed; separate non-valid
+references use elector denominators. Implemented joint uncertain partial/full
+references, deterministic full-centre normalization with before/after trace,
+common/explicit chamber precedence and national-to-municipal shadowing. Effective
+local probabilities determine the country reference before future movement.
+List identity remains distinct when the same component files under different
+lists in disjoint territories. New support requires explicit references and
+labelled profile/local/national uncertainty; Other retains its fixed legal
+identity. Missing/unfiled support is not filled with epsilon.
+
+The logistic-normal calibrator uses positive Laplace factorization and verifies
+moments/refinement against independent direct normal tensor integration on reduced
+fixtures. An initial coarse outer quadrature missed the frozen tolerance; raised
+its integration order rather than relaxing acceptance. Closed families compare
+deterministic starting solutions by the contract objectives. Numerical v1 exposes
+a resource bound of 16 simultaneous uncertain categories; arbitrary moment
+combinations are not promised representable. Impossible/overlapping targets fail.
+
+Physical electorates are apportioned before sampling, preserving municipal
+integers. Transportation feasibility detects joint filing capacities; residual
+cycles identify saturated support faces before globally raking. All passes use
+the same country target, tolerance `1e-9` and 120-update limit. No target repair
+or reroll occurs. Camera TAA is one set of physical special ballots with one
+derived proportional view; VdA/TAA remain in both chamber boundaries.
+
+Added `compilePairedHistory` and `paired-18plus-logratio-adapter-v1`. The adapter
+uses original same-date Camera/Senate 2022 counts with equal common-18+
+denominators, reviewed whole-group correspondences, clipped national/local
+contrasts and explicit shrinkage/fallback assumptions. Every current target is
+eligible: 7,904 included, no paired denominator exclusions. Senate 2018 25+ is
+rejected from the adapter. Senate draws push forward Camera coordinates; European
+coordinates are never relabelled. Latent Gaussian-copula correlations
+0.50/0.85/0.98 share one existing marginal innovation budget, without adding old
+paired shocks. These remain assumptions, not measured vote/seat correlations or
+an empirically calibrated direct Senate fit.
+
+Extracted shared final-count assembly from the installed generator and narrowed
+its candidate/bonus contracts. New central physical reference support drives
+bonus candidature planning. The existing people, special/ordinary candidate,
+supplied-count, preference-budget, Other and legal-tie behavior remains shared.
+Early strict-input checks caught statistical list fields crossing the legal
+boundary; the adapter now passes only legal list fields. Byte comparison against
+the previous `HEAD` implementation passed 12 joint/single and bonus-policy cases,
+including complete generated inputs and traces. The temporary comparison module
+was removed. Legal scrutiny algorithms were not edited.
+
+Verification and measurements are pinned in
+[the benchmark snapshot](../test/fixtures/benchmarks/vote_share_generation.json),
+including LF-normalized source hashes and environment. Regenerable full reports
+stay under ignored `data/derived/fv04-generation/`:
+
+- The frozen 120,000 two-year transition draws have maximum mean error
+  **0.00008578**, within four MCSE, and zero >80% events in this fixture.
+- Four partial/closed uncertain-reference fixtures pass independent integration
+  and 50,000 draws for each of `fv04-reference-0/1/2`; requested means/SDs agree
+  within four MCSE. Maximum calibration moment error is about `3.7e-11`; maximum
+  refinement difference about `1.01e-10`. Direct integration also passes the
+  separate frozen `1e-6` / `1e-7` limits.
+- Copula/Beta marginal mean and variance checks pass for all dependence profiles,
+  including adaptive Gamma rejection. The 32 synthetic legal runs per profile
+  retain all requested IDs: 15/13/20 non-computable runs out of 32 for weaker/
+  central/stronger dependence. Bonus and seat summaries explicitly distinguish
+  computable runs. Tiny synthetic electorates can trigger statutory truncated-
+  quota `initial-overallocation`; that outcome is tested and preserved. This is
+  a mechanics/sensitivity screen, not production predictive acceptance.
+- Before full processing, the source-backed 128-target profile pilot took
+  **15.7 ms**, projecting about 0.97 seconds for 7,904 targets. The explicit
+  two-observable-pool/no-poll country check then fit in **111 ms**, prepared full
+  profiles in **692 ms**, prepared the paired generator in **248 ms** and generated
+  one pair in **650 ms**. All **15,810 physical cells** conserve **46,120,143**
+  conditional electors per chamber; legal scrutiny has no non-computable stage.
+  Global projection residual is `2.16e-10` within seven updates. The actual
+  reference/election dates are 2026-10-19 / 2027-09-25; electorates are explicitly
+  held at the 2022 vintage. This test basis is not a proposed political default.
+- Initial country generation took about 7.6 seconds because projection passes
+  rebuilt identical random scores. Flat per-chamber Float64 score caching and
+  lazy private-stream creation reduced it to 0.65 seconds without changing
+  complete inputs/traces/audits in four byte-comparison cases. Scores are built
+  in bounded chunks, retained for one chamber/pass and included in workspace
+  estimates; no simulations × geography × components tensor is allocated.
+- Node process lifetime peak RSS for the full source/fit/generation/legal check
+  was **434,068 KiB** (about 424 MiB). This includes original history/compilation,
+  temporary objects and legal results, not just numerical buffers. It is not a
+  browser memory or concurrent-worker acceptance claim.
+- The final full unit suite passes **87 files / 1,162 tests**. `check` reports
+  zero errors/warnings and `check:data` passes. Chromium **148.0.7778.96** test
+  workers at `/` and `/elezioni` produce byte-identical Node legal inputs across
+  chunk sizes and simulation ordering, and matching calibrated parameters.
+  Both static builds pass; the root build was restored. Existing bundle-size
+  and plugin-timing advisories remain. FV-01 verifies 1,433 original inventory
+  entries and 61 retained evidence files; documentation links and whitespace
+  were checked.
+
+Installed parsers/defaults/catalogs/dispatch/editor remain unchanged. FV-05 must
+select an admissible explicit default basis and package verified state; FV-06/07
+own browser estimation/revisions/editor integration. FV-08 still owns default
+predictive, 1,000-run production seat, full input-envelope, retention and combined
+worker-memory acceptance. A feasible final reference does not repair an earlier
+infeasible baseline projection. No predictive coverage/latency claim for arbitrary
+128-component states follows from this reduced-basis boundary check. FV-09
+archive/deletion work, public deployment and commits were not performed.
+
+## 2026-10-29 — FV-05: reproducible prefitted candidate release
+
+Completed FV-05 for the 2026 reform only. The
+[release guide](vote-generation-fast-release.md) is the task-specific entry point;
+the [small evidence snapshot](../test/fixtures/benchmarks/vote_share_release.json)
+pins inputs, implementation hashes, artifact hashes and measured outcomes.
+`data:reform:shares:release -- --download` now acquires/verifies pinned sources,
+prepares original compact history and unchanged legal/preference inputs, prefits
+the explicit default, builds both chamber profiles, packages immutable states,
+runs application/data checks and a static build, verifies every final copied
+asset and finally atomically selects the candidate pointer. Offline replay omits
+the download flag. The same non-interactive Node 24 commands are available for
+local and CI execution; no Linux runner measurement or public workflow deployment
+was performed.
+
+The tracked policy fixes reference/election dates 2026-10-19 / 2027-09-25, fit and
+simulation seeds, all eight C/E histories, 35 selected polls and six explicit
+exclusions. Three multiple-residual-answer polls cannot be represented by the
+single offered-complement policy; three already had conditional-ballot exclusions.
+All 41 original questions and all ten original historical chunks remain available,
+including the unselected Senate-2018 25+ audit. Senate adaptation uses the original
+2022 common-18+ pair. Conditional future electorates remain 46,120,143 per chamber
+at the Camera-2022 municipal vintage, not a demographic forecast.
+
+The installed filing choice set has eight ordinary nationwide Camera lists;
+its other lists are geographically restricted, including opaque special-ballot
+groups. Directly fitting unrestricted national margins for every minor group
+would demand more votes than their physical filing permits in some territories.
+The explicit candidate therefore fits nine main components plus an unfiled
+historical residual, keeping current joint groups whole and Azione/Italia Viva
+separate. The other 25 future components use the existing reference-supported
+mechanism, with paired-2022 regional anchors conditional on physical filing and
+declared fallback profile/innovation scales. Their original counts remain in
+the pooled historical likelihood and source. This is a labelled candidate
+baseline, not an empirical fit of each restricted party or predictive acceptance.
+The resulting complete choice set retains 22 Camera / 25 Senate lists, 35 future
+components, 7,904 municipalities and 15,810 physical cells. FV-08 must review these
+fallbacks and sensitivity before activation.
+
+An earlier exploratory 24-coordinate basis failed the unchanged `1e-11` solve
+residual gate; an intermediate computable basis still exposed joint TAA filing
+capacity failure. No ridge, relaxed tolerance, forced target repair or numerical
+kernel change was retained. The final explicit coarsening and regional anchors
+use the existing approved whole-group/new-support operations. The FV-02 numerical
+kernel hashes and FV-01 frozen research remain unchanged.
+
+Portable fitted/profile/runtime/scenario/catalog envelopes now preserve all
+accepted joint-context Float64 draws and typed integer/fallback columns, with
+explicit shapes, little-endian layout, deterministic gzip and both compressed
+and decoded SHA-256. Semantic composition/run keys separate evidence-dependent
+fits from future-list/reference/run changes. Cache hits validate immutable
+content and parents; present corruption is a failure. Provenance-only changes
+can re-envelope compatible numeric arrays. Normal candidate loading calls neither
+fitting function and fetches no original source data.
+
+The first source-only checkout exposed the old Node preparation dependency on
+generated `.svelte-kit/tsconfig.json`. Added a standalone Node configuration for
+these commands and preparation checking, allowing preparation before the first
+app build. Browser tests then exposed transparent HTTP gzip decoding; an explicit
+HTTP response wrapper now verifies decoded size/hash when compressed wire bytes
+are unavailable. Disk/cache validation still requires exact compressed bytes.
+Vite preview serves intermediate SvelteKit output and can retain the pointer
+copied before final selection. Candidate browser acceptance therefore serves
+the adapter's actual final `build/`, rather than relying on that preview copy.
+
+Verification:
+
+- Isolated source-only cold/warm preparation starts without research, ignored
+  production/debug bundles, originals or numerical caches; fresh dependency
+  installation, pinned downloads, application/data checks and final builds pass.
+  Cold/warm and local artifacts match byte for byte, including the pointer.
+  Missing lazy-refit chunks and corrupted fit caches fail explicitly; failed
+  preparation preserves the previously selected candidates.
+- On Windows with Node **24.20.0** / Intel i7-14700KF, the final cold release took
+  **233.36 seconds**, including pinned downloads, historical/preference preparation,
+  validation and build. The local warm release took **53.23 seconds**, with all
+  four caches reused. Cold preparation-process peak RSS was **2,056,120 KiB**
+  (about 1.96 GiB), including raw extraction/preference preparation and excluding
+  build-child/browser memory. These are periodic preparation measurements, not
+  browser parameter-fit latency or numerical-workspace acceptance.
+- Generation payload including pointer/catalog is **4,402,973 bytes**; all optional
+  refit metadata/history adds **4,512,456 bytes**. No Float64 quantization or
+  reference-draw thinning was introduced. The accepted political and non-valid
+  states each retain four chains with 2,000 draws per chain. Political maximum
+  R-hat is **1.001501**, minimum bulk ESS **3,365**, minimum tail ESS **5,012**;
+  non-valid diagnostics also pass.
+- One complete default paired draw conserves each chamber's conditional
+  electorate, has projection residual **9.6765e-10**, and passes legal scrutiny
+  with all **588** seats filled. This is a package/computability check, not the
+  1,000-run production seat or predictive acceptance required by FV-08.
+- Chromium **148.0.7778.96** passes three actual-static-HTTP tests at each of `/`
+  and `/elezioni`: Node-identical fitted buffers and legal input without refitting,
+  demand-loaded original source including the 25+ audit, and explicit required
+  asset failure. HTTP tests distinguish encoded Content-Length from transparently
+  decoded body bytes. The main page remains responsive during the test-worker run.
+- The full suite passes **92 files / 1,181 tests** with `--maxWorkers=4`.
+  The first unconstrained run hit the existing five-second timeouts in two
+  unrelated large legacy tests under parallel load; bounding test workers resolved
+  this without changing tests, numerical tolerances or runtime behavior.
+  `check:data`, `check` (zero errors/warnings), both static builds, FV-01's 1,433
+  original inventory / 61 retained-evidence checks, link targets and whitespace
+  checks pass. Existing bundle-size/plugin-timing advisories remain. The root
+  static build was restored.
+
+Installed parsers/defaults/catalogs/dispatch/editor and legal scrutiny algorithms
+were not changed. Candidate artifacts are ignored regenerable files. Browser
+refitting, cancellation/revision ownership, full input-envelope latency/combined
+memory, predictive acceptance and app activation remain FV-06/07/08. Research
+archive/deletion remains FV-09. No commit, push or public deployment was performed.
+
+## 2026-10-29 — FV-06: browser refitting and revision-bound state
+
+Completed the [browser fitting infrastructure](vote-generation-fast-fitting.md)
+for the 2026 reform. Added `reform-fit.worker.ts`, a typed ephemeral-worker client,
+scenario/evidence fingerprints, refit plans, atomic accepted-state installation,
+memory planning and owned generation handoffs. The
+[FV-06 snapshot](../test/fixtures/benchmarks/vote_share_fit.json) records code hashes,
+pre-step parity and browser outcomes. The existing editor/parser/dispatch remain
+inactive for this model; FV-07/08 retain integration and activation.
+
+The worker loads the prefitted default without original-history requests or
+parameter estimation. Future-only edits validate against reusable accepted state.
+Evidence edits compile exact national/profile/paired keys before selecting work:
+manual polls refit the national reference, historical/date changes refit affected
+profiles, and paired-only changes can retain the C/E fit and Camera profile.
+A complete scenario-owned poll record can add or override a bundled ID; selection
+controls removal. Availability, effective samples, supported observation policies,
+duplicate surveys and admissible grouped bases remain enforced. Original counts,
+source metadata and FV-05's explicit political basis/fallback policy are unchanged.
+In particular, refitting does not automatically estimate its 25 reference-supported
+components separately.
+
+Introduced shared arithmetic steppers for GLS solve columns, Gaussian sampling
+and profile passes. The existing synchronous APIs drive the same steppers without
+awaiting. The browser yields between numeric batches while preserving iteration,
+RNG and draw order. Dense solves/factorization, diagnostics and some compilation/
+adapter work remain synchronous; the client sends cancellation and terminates
+immediately as the fallback. Four-chain diagnostics, retention escalation,
+residual tolerances, model equations and the numerical/model IDs are unchanged.
+
+Each task binds request ID, scenario revision and fingerprint. Async fingerprint
+completion, queued progress and late replies cannot install a stale result.
+Errors/cancellation preserve the previous accepted buffers and leave the draft
+editable; stale drafts cannot create new generation packets. Restore explicitly
+returns to an accepted compatible revision. Workers are recreated for subsequent
+requests, so decoded history is not retained after task completion/cancellation.
+
+The client keeps authoritative accepted buffers private. Each generation consumer
+receives a reserved copy with an owned transfer list; transferring it does not
+detach accepted state. Consumer leases are released after worker termination;
+active consumers block estimation to avoid unbudgeted fitting/compute overlap.
+Capacity accounting adds fit/packet copies to the existing conservative scrutiny/
+results budgets and can report zero safe slots. Missing memory hints are not
+permission to force a nominal worker. The fitting task defaults to a 512 MiB
+aggregate plan and 256 MiB numerical workspace, including a 64 MiB results reserve.
+These are documented estimates, not measured browser heap or production-envelope
+acceptance; FV-08 must measure/refine supported limits and browser behavior.
+
+Code review and integration tests also corrected object-key-order-sensitive
+comparison of source chunk descriptors to canonical comparison. Offline and
+interactive serialization now share explicit joint-chain/profile shape helpers,
+preserving the portable schema for subsequent export/import integration.
+
+Verification:
+
+- Independently replayed the pre-FV-06 reduced kernels from repository `HEAD` and
+  froze exact fit/profile hashes. Cooperative and synchronous execution match
+  those hashes. Regenerated default fit, Camera profile and Senate adapter also
+  match their pre-step numerical payloads exactly. Implementation/content IDs
+  change because scheduling code changed; generated-input provenance therefore
+  carries new fitted/profile IDs. The parity audit distinguishes those metadata
+  updates from vote/preference/candidate/legal fields.
+- The full unit suite passes **95 files / 1,192 tests** with four test workers,
+  including new lifecycle, semantic invalidation, source immutability, budget,
+  cancellation, stale/mismatched reply and transferred-copy tests.
+- Chromium **148.0.7778.96** passes **seven browser checks at each of `/` and
+  `/elezioni`**, against actual static candidate files and the real Vite-emitted
+  fitting worker. Tests cover zero-fit startup, manual polling with Node-identical
+  fitted IDs/generated input and retained profiles, date/membership refits,
+  required-source failure followed by successful retry, cancellation/restore,
+  and identical serial/parallel generated inputs and scrutiny results for the
+  same simulation IDs. Test consumers use an explicit 8 GiB planning hint;
+  this is not a browser RAM measurement or a maximum-concurrency acceptance.
+- The project-path run measured about **4.56 seconds** for a manual-poll fit,
+  **6.63 seconds** for a one-day reference-date refit and **6.85 seconds** for
+  historical membership refitting. Its largest measured numeric batch was about
+  **169 ms**. Cancellation feedback was below one millisecond. The current
+  candidate's fitted/profile numeric buffers total **4,619,232 bytes**; its
+  conservative aggregate refit estimate is about **390 MiB**. Phase measurements
+  exclude main-thread fingerprint/startup and are not full browser-heap evidence.
+- `check:data`, `check` (zero errors/warnings), root/project static builds and
+  candidate asset verification pass. FV-01 still verifies 1,433 original inventory
+  entries and 61 retained evidence files. The root static build was restored;
+  existing chunk-size/plugin-timing advisories remain.
+
+FV-07 must wire forms, parser, loading states, build-pinned implementation IDs
+and this lifecycle into the editor. FV-08 still owns expanded-default review,
+predictive/1,000-run seat acceptance, input-envelope latency/throttling, measured
+aggregate memory, supported browsers and activation. FV-09 archival and public
+publication remain separate. No commit or deployment was performed.
+
+## 2026-10-29 — FV-07 candidate browser workspace and fitted-session replay
+
+Implemented the strict-v4 editor in the existing reform workspace, behind
+`REFORM_FAST_CANDIDATE=1`. Vite supplies independently fingerprinted generation,
+fitting and profile implementation identities. The installed v1-v3 editor is
+retained as `InstalledReformWorkspace.svelte`; the normal build still selects it.
+The [workspace guide](vote-generation-fast-workspace.md) is the task entry point;
+the [verification snapshot](../test/fixtures/benchmarks/vote_share_workspace.json)
+records source hashes and measured results.
+
+The small default scenario/catalog loads first. Heavy fitted/runtime data loads
+on request, and the source catalog loads when advanced editing is opened.
+Future-only edits validate without original history or numerical fitting. Poll,
+membership, historical baseline, fit-seed and reference-date changes require an
+explicit cancellable refit. Forms cover list/component composition, new support
+with labelled fallback assumptions, references and uncertainties, separate
+turnout inputs, filing with filtered batch actions, coalitions, bonus links and
+the shared candidate editor/preview. Complete strict JSON retains supplied
+votes/preferences, pooling, protected-minority settings and detailed fallbacks.
+Pending JSON blocks execution. Other keeps its fixed identity/color and legal
+exclusions. List removal confirms dependent changes; supplied fixed votes prevent
+automatic deletion. The FV-05 basis remains 10 fitted and 25 reference-supported
+components, visibly distinguished in the editor.
+
+Added portable fitted sessions: lossless encoded fit/profile/runtime states,
+their hashes and semantic keys, the accepted scenario, and a separately editable
+draft. An evidence-stale saved draft remains stale after loading. Custom refits
+can be restored without fitting again; original count chunks stay server-side
+and are fetched only for subsequent refitting. Schema-3 result archives include
+the exact executed v4 scenario and fitted checkpoint. Streaming JSON.gz/CSV,
+bounded tables, result diagnostics and charts use the existing result service.
+Run packets are copied under capacity reservations and independently checked in
+compute workers; an editor change during execution cannot alter that run's
+stored result or export. Result restoration never silently replaces a separate
+draft. Lightweight valid drafts use their own localStorage namespace; persistent
+model-cache management and background prefetch/notifications remain deferred.
+
+Verification on Node 24.20.0 / Windows / headless Chromium 148.0.7778.96:
+
+- `check:data` and `check` pass, with zero Svelte errors/warnings; **96 unit
+  files / 1,199 tests** pass. The Svelte MCP reports no component issues. Its
+  generic effect suggestions were reviewed: revision-checked asynchronous table
+  and chart reads intentionally remain effects rather than synchronous derived
+  values.
+- **4 UI + 7 existing numerical/worker browser checks at each of `/` and
+  `/elezioni`** pass. Coverage includes demand loading, edited-before-load state,
+  fixed-turnout references, manual original-set/Other poll entry and optional
+  question subsamples, cancellation/retry, custom-state replay, frozen results,
+  streamed exports/imports, metadata retry, mobile viewport/keyboard editing,
+  new-list filing and invalid/legacy-file handling. The original numerical checks
+  retain Node/browser parity, history/date invalidation, serial/parallel legal
+  equivalence and explicit missing-asset failure.
+- Both candidate releases verify **7,904 municipalities, 15,810 physical cells,
+  588 filled seats**, matching semantic keys and zero startup fits. The UI's
+  one-run edited-reference examples took approximately **8.5 seconds**, including
+  result storage; they fetched no original history and produced no page errors.
+  These are functional examples, not FV-08 latency or measured-heap acceptance.
+- Restored the **standard root static build** and passed **12 installed editor
+  and workspace browser regressions**, including v1/v3 import, candidate preview,
+  confirmation/reset, paired execution and result replay.
+- FV-01 `freeze.mjs --check-sources` still verifies **61 retained evidence files
+  and all 1,433 original inventory entries**. Research was not moved or deleted.
+
+Browser integration exposed and resolved a Svelte-proxy clone failure at the
+candidate-pointer boundary, stale custom-fit parent IDs after default reload,
+and the static test server's missing extensionless HTML resolution. An initial
+synthetic Other poll incorrectly named pooled fitting coordinates instead of
+original offered atoms: the compiler correctly rejected the uninformative merged
+partition. The form/test now preserve original offered-set semantics and prevent
+overlapping named answers. Poll editing preserves its observation date and
+question subsample and rejects implicit Senate-to-Camera conversion.
+
+The candidate UI gives an actionable standard-build message for older generator
+files. FV-08 must accept their routing in the finally activated application,
+along with predictive/full-list/geographic/paired/seat and complete resource
+acceptance. FV-06's conservative capacity policy can still disable simulation on
+an unsupported device; a mobile viewport does not establish handheld resource
+support. Existing build chunk-size/plugin-timing advisories remain. FV-09 research
+archival and the final publication gate are still separate. No commit, deployment
+or production-default activation was performed.
+
+## 2026-10-30 — FV-08 acceptance engineering and blocked default selection
+
+FV-08 remains **open**. The [acceptance guide](vote-generation-fast-acceptance.md)
+records execution commands, the model decision and remaining gates. The
+[curated acceptance report](../test/fixtures/benchmarks/vote_share_acceptance.json)
+retains the failed preflight, distinct catalog provenance, browser results and
+resource/replay qualifications. No reform default, public deployment or research
+archive switch was performed.
+
+Implemented original-generator dispatch for reform archives: a bounded streaming
+header reader routes v1-v3 scenarios/results to the installed generator and v4
+scenarios/fitted sessions to the fast workspace. Changing workspaces preserves
+their respective draft namespaces; importing a result does not overwrite an
+unrelated editable draft. The candidate browser checks exercise an actual v3
+archive, original model identifiers and a return to the fitted v4 session.
+
+Two numerical implementation improvements preserve the selected statistical
+target. Compatible repeated full-ballot polls with identical date, context and
+shared-error group use exact Gaussian sufficient statistics, including their
+within-group residual information; partial offered sets remain separate. An
+independent uncollapsed dense calculation checks precision and mode agreement.
+Dense covariance solves use iterative residual refinement when necessary, with
+the original residual gate and covariance unchanged. For difficult but feasible
+filing geometry, global projection uses a damped, gauge-fixed Newton step after
+the original scaling prefix, without a ridge, target repair, relaxed tolerance
+or larger 120-update budget. Independent saturated-support and joint-capacity
+fixtures distinguish numerical difficulty from physical impossibility.
+
+The full-country preflight exposed a **statistical support defect** in the
+expanded default. Its reference-supported restricted-filing components receive
+national future Beta-stick innovations. Their requested national elector mass
+can exceed all physical electors where they are filed. Current-engine diagnostic
+repeats of frozen seeds 33 and 45 reproduce the exact infeasible margins at the
+future projection in `generation.ts`; the first requests **0.2571%** for the
+seven Valle d'Aosta identities against **0.2129%** physical capacity. A max-flow
+cut certificate reports both requested and available mass. Scrutiny is never
+given these invalid targets. The requested-draw ledger retains every failure;
+diagnostic repeats never replace its original entries. This concentration
+defect blocks default selection under the already frozen protocol.
+
+The completed **1,000-request Node preflight** took **45.58 minutes**: **965
+complete runs**, each with all **588 seats filled**, and **35 generation
+capacity errors**. The observed generation-failure frequency is **3.5%**
+(Wilson 95% simulation interval **2.53–4.83%**, conditional on this candidate and
+scenario). No generated run was legally non-computable. The successful maximum
+projection residual was `9.981900861433246e-10`. These are requested-denominator
+counts, not a matched failure-rate comparison with the installed generator;
+the screen does not replace the required complete browser-pipeline campaign.
+
+A support-aware conditional transition is proposed for investigation, with
+explicit equations and reference/Camera/Senate semantics to agree before
+implementation. Rerolling, clipping or reducing uncertainty after inspecting
+failures would not establish acceptance for the approved model. Work requiring
+a successful candidate—matched expanded historical/seat comparisons and 1,000
+complete browser storage/plot/export runs—remains open rather than being
+silently substituted by the Node generation/legal screen.
+
+Verification and measured limits, on Node 24.20.0 / Windows / i7-14700KF:
+
+- **99 unit files / 1,207 tests**, `check:data`, `check` (zero Svelte diagnostics),
+  candidate preparation/verification and static builds pass. The first unrestricted
+  unit run exceeded one existing 5-second timeout while other validation ran;
+  the complete suite passed with two Vitest workers and the same timeout. The
+  Svelte MCP found no component issues. Fixed-input scrutiny implementations were
+  not changed, and **12 installed editor/workspace browser regressions** pass.
+- At each of `/` and `/elezioni`, **8 Chromium/Firefox candidate UI checks pass**;
+  Windows WebKit 26.4 passes 3 and fails the export workflow. This port lacks
+  `navigator.storage`, including OPFS. Capability guards now give the intended
+  explanatory error and retain stored results. Required WebKit export acceptance
+  is still failed, not skipped; these results do not establish Safari support.
+- The synthetic **128-component / 512-poll** full-budget national fit took
+  **11.26–11.54 seconds** over one cold and five warm repetitions, median
+  **11.44 seconds**, with **46,383,008 bytes** audited numerical workspace. The
+  original unoptimized probe took 64.29 seconds. This is a repeated-partition
+  dimension probe, not acceptance of arbitrary dates/partitions, empirical
+  geographic fitting, browser latency or actual 4x worker throttling.
+- Fast generation capacity now has its own **512 MiB aggregate reservation**,
+  including coordinator and packet copies, with no change to the installed
+  generator's capacity rules. The one-run Chromium page/worker samples peaked at
+  **254.9 MiB root / 271.1 MiB project-base**. This includes V8 used heap, backing
+  stores and embedder heap; it is not an unsampled RSS bound or multiworker
+  acceptance. Fit/cancellation and the complete constrained-device envelope
+  remain separate required measurements.
+- Original-domain replay completed **24 cases × two choice-set-order variants**,
+  **512 predictive draws each**, without a technical failure and with maximum
+  projection residual below `1e-9`. Point scores and raw score inputs are retained.
+  Simulation MCSE, regional/cluster sensitivity and the full-country benchmark
+  remain open; these point comparisons do not accept predictive parity.
+- The **7 existing Chromium release/fit/worker checks** pass at the restored root
+  build, including Node-identical fits and legal inputs, zero startup fitting,
+  date/history invalidation, cancellation/retry, serial/parallel identity and
+  required-asset failure. This is functional coverage, not the full resource
+  or predictive envelope.
+- A source-only Linux/WSL checkout, with an initially empty numerical/source
+  cache and no research directory, prepares the candidate using Node alone;
+  its offline warm repeat retains identical assets. Catalog identities and exact
+  timings (**129.71 seconds cold / 33.02 seconds warm**) are retained in the
+  curated report and match the current Windows catalog. Generation assets are approximately
+  **4.20 MiB compressed**, advanced refit assets **4.30 MiB**; the release smoke
+  verifies **7,904 municipalities, 15,810 physical cells, 588 filled seats** and
+  zero startup fits. A changed-source preparation was correctly rejected by the
+  implementation fingerprint; preparation was repeated with stable sources.
+- FV-01 `freeze.mjs --check-sources` still verifies **61 evidence files and all
+  1,433 original inventory entries**. No research files were moved or deleted.
+
+Existing Vite chunk-size/plugin-timing advisories remain. Large raw outputs stay
+ignored under `data/derived/fv08-acceptance`; the curated compressed production
+ledger preserves requested denominators and its checksum. Its older candidate
+catalog is identified separately from the current diagnostic repeats and builds;
+it must not be presented as final current-engine or browser-pipeline acceptance.
+
+
+## 2026-10-30 — Filing-aware replacement models and requested future default
+
+Luca authorized implementing and comparing replacement forecast laws, retaining
+only the municipality/college plausibility, actual-result support and mean
+accuracy priorities, membership architecture, Italian context, history/poll
+inputs and a complete browser computation below 30 minutes. Earlier Beta and
+hard national-margin properties remain historical comparator contracts. This
+continues FV-08 research; it does not activate the ordinary reform default.
+
+Before predictive comparisons, authored and prepared Luca's 24-list default in
+both chambers. Ora!/DSP use the requested 14 Camera constituencies and, following
+Luca's confirmation, the nine corresponding entire Senate regions. All other
+ordinary/TAA/VdA filings, coalitions and five minority declarations follow the
+scenario request. Historical counts remain grouped and unchanged. The fit has
+28 observed-supported coordinates; 34 components are available in the future
+scenario, including historical-rest, which is not filed by default. Six future
+components use explicit reference support. New-party, provincial, cross-chamber
+and whole-alliance VdA proxies are labelled assumptions, not invented observed
+party splits. Exact identities and primary-source links are retained beside the
+authored scenario. See the [results and default assumptions](../research/vote-generation/docs/vote-generation-feasible-results.md).
+
+Implemented three browser-safe forecast fields: filing-stratum Beta, uniform
+bounded pair transfers and mass-weighted bounded pair transfers. Feasible local
+probabilities generate national totals, avoiding unsupported national future
+margin requests. Symmetric bounded transfers conserve mass, retain structural
+zeros and preserve conditional municipal means. A separate regional reference
+profile term reallocates existing variance without increasing municipal marginal
+variance. Existing reference interventions, fixed turnout for list edits,
+physical reconstruction, count generation and legal scrutiny remain in use.
+National/local list uncertainty controls also reach the new kernels. Model,
+scale and regional covariance are serialized and included in generation keys.
+Equations and qualifications are in the [model guide](../research/vote-generation/docs/vote-generation-feasible-model.md).
+
+Ran 134 candidate/case comparisons, each with 512 predictive draws, using cutoff
+eligible historical elections and polls: Camera 2013/2018 development, reused
+Camera 2022 validation, 730/365/90/15-day horizons, and full retained 2018/2022
+short-horizon municipal domains. They are variants of three elections, not 134
+independent elections or a fresh holdout. Original grouped observations define
+observable truth; current-college reconstructions use labelled population splits.
+The full retained domains have 7,883/7,830 municipalities and 52 current Camera
+colleges; VdA and nine unmatched 2022 municipalities limit geographic validation.
+No Senate predictive calibration is claimed from the functional paired tests.
+
+Sequential selection chose mass-weighted pairs, scale 1.5 and regional profile
+variance share 0.25. Protocols and selections are tracked in `data/filing-aware-*`.
+Country-calibrated references worsened development accuracy/interval scores and
+were rejected. Uniform matching had insufficient major-party variability when
+many tiny components were present. Regional profile covariance improved college
+coverage without adding municipal marginal variance. The selected model is a
+compromise: full 2022 municipal tail-error probability falls from 1.384% to
+1.114%, while college 90% coverage is 80.11% versus global Beta's 79.78% and
+69.90% for mass-weighted pairs without the regional reference term. Full 2018
+college coverage is 84.29%; its small college-tail difference is unresolved by
+simulation error. Neither nominal coverage nor absence of systematic bias is
+established; named-group and long-horizon errors remain explicit.
+
+The actual single-worker Chromium 148.0.7778.96 computation on the i7-14700KF
+completed **512/512 paired Camera/Senate generations and legal scrutinies in
+1,583.0 seconds (26.38 minutes)**, including loading and a real national/profile/
+paired refit after changing the reference date to 20 October. Every request filled
+all 588 modelled domestic seats; technical and non-computable failures were zero.
+Refitting took 6.75 seconds, generation 1,413.28 seconds and scrutiny 160.34 seconds.
+The existing memory policy permits one consumer for the larger packet and rejects
+an unsafe second reservation. This is the measured default draw budget, not the
+maximum edited envelope or full-campaign storage/export acceptance.
+
+Curated comparison, original report summaries, group errors, joint-draw tail-rate
+MCSE/paired intervals and the complete browser ledger are under
+`test/fixtures/benchmarks/vote_share_feasible_*`. Raw country predictive arrays
+stay ignored and stream through gzip below V8's single-string limit. An initial
+2022 output attempt was interrupted before reporting; its identified orphan was
+stopped and the completed repeat retained identical inputs, parameters and seeds.
+Pooled-group summaries were corrected from identical saved draws to predeclared
+equal-group-within-unit/equal-unit weighting, without a statistical rerun. The
+curator checks the reconstructed joint-draw rates against report values.
+
+Repeated profile lookups and temporary shock vectors were removed from the hot
+path. Independent zero-scale, conservation, exact-support, deterministic-stream,
+moment, component-granularity and covariance fixtures pass. The uniform-pair
+64-draw hash remains unchanged through optimization, and resolved profile caching
+retains identical full-default draws in the fixed three-draw comparison. Default
+integration tests caught malformed UTF-8 labels and an expected-ID sort error;
+these were corrected before the full browser run. Browser harness action/HTTP
+transport mistakes were corrected explicitly. Older ten-share/two-consumer test
+fixtures were adapted to the expanded basis and actual memory policy; no runtime
+validation or memory limit was weakened. A five-second unit timeout under heavy
+parallel validation passed both its targeted repeat and the full bounded-worker
+suite with the unchanged timeout.
+
+Verification completed so far: **105 unit files / 1,232 tests**, data and browser
+harness TypeScript checks, zero Svelte diagnostics, static candidate release
+verification, **7 Chromium release/refit/worker checks**, and **8 root-path
+Chromium/Firefox workspace checks**. Required assets are present. The FV-01
+preservation check still verifies all **61 evidence files / 1,433 inventory
+entries**. No research source or artifact was moved or deleted. FV-09 inventory
+now includes this comparison while preserving the selected runtime modules.
+The corrected export/replay checks pass at both `/` and `/elezioni`: **16
+Chromium/Firefox functional workspace checks** in total. The nested check
+exposed fractional `estimatedWorkerMemoryMiB` metadata, rejected by the existing
+result importer. The producer now rounds its reported MiB estimate up, without
+changing reservation budgets or forecast code. Tests now parse the actual export
+and reject result-service errors, preventing stale stored results from masking
+a failed import. An initial nested memory assertion measured 589.64 MiB and
+failed; that engineering result is retained. Corrected samples measured 420.85
+MiB root and 444.69 MiB project-base. The authorized comparison records the older
+512 MiB threshold diagnostically; default FV-08 test mode still enforces it.
+These samples are not an unsampled RSS bound or a full-campaign resource gate.
+The complete 1,232-test suite passed again after the metadata correction.
+Root/project-base releases retain the same catalog/generation fingerprint, and
+the standard root build was restored with fast dispatch opt-in. FV-08's wider
+resource/export/public-default gates remain open. No commit or deployment was
+performed.
+
+
+## 2026-10-30 — Feasibility of an actual production legacy comparison
+
+Assessed Luca's request to compare the selected candidate against the installed
+R-derived reform generator. The earlier global-Beta comparator is a predecessor
+of the fast model, not that production generator. The active assessment is
+[the legacy comparison plan](../research/vote-generation/docs/vote-generation-legacy-comparison-plan.md).
+No runtime code, default, fitted asset or correspondence table was changed.
+
+Verified the actual production catalog/default and implementation: September
+2022 historical baseline, 22 Camera/25 Senate lists, no active poll references
+or supplied shares, and assumed national/regional/local logit scales. Optional
+poll-reference support exists in schema 3. Share overrides reset national and
+territorial uncertainty dates; an unchanged historical-only scenario retains
+its historical date regardless of projectionDate. Unmapped or future-unfiled
+historical votes enter combined non-valid support. Factors normalize over all
+mappings before future filing, so a lone 0.3 weight does not preserve only 30%.
+
+An in-memory 24-list structural translation with correct legacy presentation
+metadata passes validation. All constituent-college future filing masks agree
+within each municipality. A first structural probe omitted required schema-2
+presentation metadata; correcting that routine shape conversion removed its
+only validation error. No numerical correspondence decisions were applied.
+The source/membership audit identified joint-list split decisions (including
+Azione/IV and Noi Moderati/UDC), new/unsupported support, grouped residuals and
+special-territory proxies. Source event/chamber and list-versus-group IDs must
+be retained when printed names coincide.
+
+Read-only Node 24.20.0 smoke probes used the actual installed default: reference
+preparation 438.6 ms, three paired municipal draws 278.6/270.9/268.1 ms with count
+conservation. A separate complete default smoke measured 781.3 ms preparation,
+645.0 ms generation/assembly/preferences, 384.3 ms scrutiny, complete status and
+all 588 filled seats. These are not new-24-list timings or browser acceptance.
+
+Repeating the study is feasible with an isolated adapter and cutoff-specific
+historical snapshots. Reuse the earlier Camera accuracy panels and scoring,
+plus the actual future 24-list paired scenario for distribution/technical/browser
+checks. Counterfactual 2026 list shares are not observed historical truth.
+Decisions remain explicit before benchmarking: no-poll versus controlled-input
+variants, reviewed historical split ratios, zero versus scenario-assisted support
+for new lists, and preservation versus controlled matching of turnout/residual
+semantics. No full comparative benchmark or predictive result is claimed.
+
+## 2026-10-30 — Display fixed reform seat endowments
+
+Added two fixed endowment tables to the reform results before the existing
+elected-and-percentages summary: college seat counts with and without the bonus,
+and bonus-slate seat counts by constituency. They are built from the validated
+seat-table snapshot once in the shared presentation context, persisted with the
+result, and read independently of simulation statistics. College rows include
+all college types; bonus-slate rows include only ordinary constituencies with a
+positive bonus endowment. Older archives without these tables continue to load
+without showing an empty endowment section. Marked the corresponding result UI
+item complete in the migration plan.
+
+Verification: `npm run check` reports zero errors/warnings and `npm run build`
+passes. No tests were added or run, as requested. The build retains its existing
+chunk-size and plugin-timing advisories.
+
+## 2026-10-30 — Installed legacy generator comparison with and without poll refresh
+
+Completed the authorized comparison against the actual installed R-derived
+`paired-vote-generation.ts` engine. It is distinct from the earlier fast-model
+comparator named `legacy-global-beta-v1`. The two procedures preserve production
+transition scales, seeded streams, integer reconstruction and legal scrutiny.
+Both use explicit eligible poll points for otherwise unsupported new lists;
+the no-refresh procedure omits general polling updates. The poll procedure uses
+simple latest-publication points through the existing poll-reference interface,
+not the separate production multi-house polling estimator. All assumptions,
+mixed-wave normalization, source dates and reference-clock limits are recorded
+in the [results](../research/vote-generation/docs/vote-generation-legacy-comparison-results.md) and
+[execution guide](../research/vote-generation/docs/vote-generation-legacy-comparison-plan.md).
+
+Historical Camera 2013/2018/2022 use four source cutoffs and 512 draws, with the
+same reduced truth/observable groups and full 2018/2022 short-horizon domains as
+the selected candidate. There are 28 case/variant comparisons and 25 distinct
+effective input sets: the three later no-refresh 2018 cutoffs reuse the first
+forecast. Every historical draw conserves electors exactly. Snapshots use
+original preceding Camera list counts and a labelled regional fallback for
+missing/invalid municipality history. The candidate's original compact-source
+geography supplies the same scoring crosswalk; its fitted parameters/profiles
+are not copied. The full municipal domains contain 7,883/7,830 observations,
+with 100/nine omitted only from area scores because no unique current-college
+crosswalk is available, and 94/40 regional historical fallbacks. College and
+constituency scores cover 52/27 units. Joint truth is never internally split.
+
+Reviewed deterministic matrix assumptions include Azione/IV 56/44,
+Noi Moderati/UDC 75/25 and LeU 40/50/10. Unrecognized original lists remain
+unmapped, hence non-valid support. Poll availability/publication gates exclude
+post-cutoff information. A source review rejected reading SWG's joint
+LibDem/Ora answer as separately observed shares; Ora uses the separate eligible
+8 October Youtrend point instead. New named-ticket audits link exact TEAM K
+identity and split the three explicitly named Senate TAA joint candidate groups.
+An explicit national-poll proxy supplies positive FN support in TAA, which the
+ordinary poll refresh excludes. Special-region positivity is checked before
+benchmarking. VdA whole-alliance references remain labelled scenario proxies.
+
+Technical pilots exposed two replay problems, corrected without changing
+production code: historical TAA filing containers had incorrectly entered the
+ordinary poll domain, and incomplete future regional reference vectors left
+no support for a free remainder. The first correction leaves the no-poll law
+unchanged, verified independently, so its completed forecasts were reused.
+Future input audits also caught opaque named joint tickets that required manual
+recognized-party splits. Preliminary browser pilots were stopped and restarted
+after those input corrections; their partial timings are not the final evidence.
+Historical accuracy inputs/weights were not tuned to held-out results.
+
+The selected candidate improves full 2018 tails, mean errors and distribution
+scores. Full 2022 is mixed: the poll-informed legacy procedure has lower
+municipal mean error (3.23 versus 3.35 pp) and higher college coverage/lower
+college mean error, while the selected candidate has fewer college errors above
+30 pp. Whole-draw Monte Carlo intervals and per-group signed biases are retained;
+these reused elections do not establish future calibration or isolate transition
+laws from differences in information/reference construction.
+
+Final Chromium 148.0.7778.96 runs attempted 1,000 paired simulations per
+procedure. No-refresh took 19.49 minutes: 998 complete 588-seat results and two
+exceptions. Poll-refresh took 21.30 minutes: 981 complete results, 18 exceptions
+and one returned non-computable 399-seat result. Both measured workloads pass
+the current 60-minute time budget, but both browser reliability gates fail.
+The exception reproduces in Node (including poll-informed draw 23 and
+no-refresh draw 131): recovery eligibility omits a nationally unadmitted TAA
+coalition member already awarded a proportional seat. An isolated diagnostic
+build changed only the error message to inspect the rejected row; production
+sources/benchmark bundles were unchanged. Poll-informed draw 135 separately
+returns Senate Sicilia `N21/impossible-residual`. Added both investigations to
+the plan; no legal rule or fallback was changed to force completion.
+
+Verification: 33 focused adapter/existing production-generation tests pass;
+`npm run check:data` and formatting checks pass. Both complete browser commands
+return a failing gate and retain all attempted IDs/results. Compact evidence is
+in `test/fixtures/benchmarks/vote_share_legacy_comparison.json` and
+`vote_share_legacy_details.json.gz`; full regenerable inputs/scores remain in
+`data/derived/legacy-comparison/`. Extended the later FV-09 archive inventory,
+without executing moves/deletions. The benchmark is excluded from ordinary E2E
+discovery and has its own explicit configuration/budget. Production defaults,
+generators, scrutiny, public dispatch and deployment are unchanged.
+
+## 2026-10-30 — Camera TAA admitted-member allocation and exception replay
+
+Luca reported external legal review supporting an implicit admitted-list restriction
+in C93-septies(2)(b), and explicitly authorized updating the specification, algorithm
+and tests, followed by replay of all 20 legacy-comparison exceptions. This
+supersedes the all-locally-filed-members interpretation recorded in R26-10 and the
+subsequent proposal to widen recovery eligibility. It is an adopted interpretation
+of the existing provision, not a new recovery fallback or a claim of an official
+adjudication.
+
+`taa-allocation.ts` retains all locally filed coalition votes in the subject-level
+allocation under (2)(a), then uses only locally filed admitted (2-bis)/(2-ter)
+members for the internal quota and recipients under (2)(b). The best excluded list
+admitted under (2-ter) remains eligible. Otherwise excluded members receive no list
+entitlement or list remainder. National admission, I01 local minority access,
+recovery admission filtering and I11 zero-entitlement exclusions are unchanged.
+Positive coalition targets without admitted local recipients or admitted local
+support remain explicitly non-computable; excluded lists cannot repair them.
+
+Replaced the former all-members regression and added tests for coalition vote
+conservation versus the internal quota, best-excluded admission, zero admitted
+support and no admitted local slate. A full single-Camera fixture gives an excluded
+member dominant local support while checking that the admitted members receive
+all three TAA seats. Its available/unavailable-capolista variants both finish all
+392 seats with unique identities and consistent recovery/remainder evidence.
+
+The reproducible `web/scripts/acceptance/taa-admission-replay.ts` reads the exact
+exception IDs from the original curated comparison, verifies each frozen variant
+input hash, and preserves the original benchmark and diagnostic receipts. The
+separate `test/fixtures/benchmarks/taa_admission_replay.json` records source/input
+hashes, generated-input hashes and per-draw checks. All 20 exceptions pass:
+no-refresh 131/580; poll-informed 23, 59, 125, 239, 285, 417, 495, 516, 570, 617,
+637, 692, 726, 785, 825, 832, 875 and 935. Each returns a complete 588-seat result,
+392 Camera plus 196 Senate, all filled by 588 distinct candidates. Draw 23's
+generated-input hash matches the original; its centrosinistra TAA seat now belongs
+to PD instead of `europa-piu-uno-cd`.
+
+The separate poll-informed draw 135 control retains Senate Sicilia
+`N21/impossible-residual` and 399 filled seats, with its original generated-input
+hash. That investigation remains open. The targeted Node replay does not refresh
+the original 1,000-draw browser timings or establish full release acceptance.
+
+Updated the N11 specification, core reading map, comparison results/reproduction
+guide and migration checklist. Verification: 52 reform-core test files / 854 tests
+pass, `npm run check:data` passes, `npm run check` reports zero errors and warnings,
+and `git diff --check` passes. Changes remain uncommitted; no public deployment or
+default-generator switch was performed.
+
+## 2026-10-30 — Senate Sicilia N21 draw 135 diagnosis and proposed interpretation
+
+Investigated the remaining poll-informed legacy comparison failure without
+changing production scrutiny or the approved interpretation register. The
+[scoped diagnosis](senate-sicilia-n21-review.md) contains the event chain,
+current primary-source review, exact college arithmetic, proposed policy and
+implementation acceptance criteria. The [compact receipt](../test/fixtures/benchmarks/senate_sicilia_n21_review.json)
+preserves the minimal matrix, before/after traces and source/input hashes.
+
+Regenerated draw 135 from the frozen scenario/snapshot and matched its original
+legal-input hash `efbb30bc9ff2be283b083d7d28205276e1fa1f1bc7234265df2d1dfabc7bb23d`.
+Validation, regional seat conservation and regional/list allocations succeed.
+The bonus-without-cap path uses Sicilia's three bonus seats and 6/6 ordinary
+college capacities. M5S/Futuro Nazionale reach their regional targets through
+integer allocations. Sicilia 1 then needs four initial remainder awards but
+only PD/FdI/FI remain eligible; the Camera-only I14 scope leaves Senate N21
+subject to the single-pass `4 > 3` preflight failure. Proclamation/recovery
+failures are downstream; 399 is the partial ledger, not candidate exhaustion.
+
+S17(4)(b)'s wording agrees between the original GU text and the 23 October
+republication. It supports proposing the same repeated-ranking interpretation
+as Camera I14, but does not expressly prescribe repetition. This is an
+implementation restriction at an interpretative edge, not a demonstrated new
+legal lacuna. Approval is needed to extend I14 to Senate N21 and the internal
+list operation imported by N22/S17(5)(d); group-index allocation remains outside
+the proposal. The active migration item remains unchecked pending that decision,
+implementation and release verification.
+
+An isolated derived bundle changed only the repeated-pass scope. On the same
+input it completes 588 filled seats (392/196), with 588 distinct candidates,
+unchanged regional and regional-list results, one second-pass warning, and no
+Sicilia corrective transfers. FI receives the last seat in Sicilia 1, yielding
+FI 3/1, FdI 1/1, M5S 1/2, PD 1/1, Futuro Nazionale 0/1. The standalone matrix
+matches full scrutiny and is invariant under reversed input arrays. This is
+a proposal feasibility check, not a production fix or browser acceptance.
+The diagnostic uses the old I14-v1 label; an approved implementation must version
+the extension and correct the Senate warning's regional terminology.
+
+Original comparison, diagnostic and TAA replay receipts were preserved. The
+working diagnostic scripts/bundles are ignored under
+`data/derived/n21-sicilia-review-20261030/`; decisive evidence is in the compact
+tracked receipt. No default-generator or public-deployment change was made.
+
+Verification: 115 existing focused Senate-territorial/Camera-matrix tests pass.
+Independent BigInt arithmetic checks confirm the college quotas and integer
+seats, unchanged decimals, final college capacities and regional list targets;
+original-receipt and production-source hashes match. `git diff --check` passes.
+
+## 2026-10-30 — Approved I14-v2 Senate extension and full frozen-workload replay
+
+Luca approved extending I14 to the Senate. `territorial-matrix.ts` now applies
+the existing repeated initial ranking to N21 list matrices and N22 internal
+lists under S17(5)(d), excluding index/group and regional allocations. It keeps
+simultaneous first-pass behavior, freezes reached regional targets per later
+whole-matrix pass, preserves college-vote ties without redrawing, and retains
+the existing multiply-awarded remainder state. Empty eligible pools and invalid
+arithmetic remain explicit failures. I13/I16 and candidate recovery retain their
+scope. Warnings and composed metadata record I14-v2; Senate warning text uses
+regional targets. Camera's allocation behavior is retained, with the current
+I14 version label updated.
+
+Added the frozen Sicilia minimal-matrix regression, N21/N22 repeated-pass,
+target-exclusion, permutation, tie, donor-consumption and metadata tests. The
+adapter tests exercise N22's imported minority-list operation and I14/I16
+transfer/recovery evidence. Replaced the former single-pass failure fixture
+with a successful repeated pass, retaining an actual empty-pool matrix failure.
+A browser worker reproduces the exact Sicilia result and remainder state.
+Updated the specification, core reading map, scoped plan and diagnosis. No new
+legal-gap entry was added: this is the approved provisional interpretation.
+
+Both frozen legacy workloads were compared against the pre-extension code at
+commit `b3830ec4c127ea45d1409a0eb24bacfc0fb83d6e`, using the identical generated
+input per draw and every ID 1–1,000. The no-refresh workload remains 1,000/1,000
+complete; the poll-informed workload improves from 999 to 1,000. Every result
+has 588 filled seats, 392 Camera/196 Senate, with 588 distinct candidates. Draw
+135 alone changes allocation: FI receives Sicilia 1's last seat on pass two;
+regional/list targets and its original generated-input hash are unchanged.
+Across 2,000 objects, 1,992 are byte-identical and seven change only I14-v1/v2
+warning/metadata labels. All original 20 TAA exceptions also pass separately.
+
+Evidence: [paired replay receipt](../test/fixtures/benchmarks/senate_i14_replay.json),
+its compressed 2,000-row detail ledger, and
+[updated TAA/control receipt](../test/fixtures/benchmarks/taa_admission_senate_i14_replay.json).
+The TAA script now requires completed draw 135 with I14-v2 and writes a new
+receipt, preserving the original control/failure records. Original receipt
+hashes were checked. Working baseline/implemented bundles, sharded replay
+scripts and logs are ignored under
+`data/derived/n21-sicilia-implementation-20261030/`.
+
+Verification: **107 unit files / 1,257 tests pass** with `--maxWorkers=2`;
+`npm run check:data` and `npm run check` pass with zero diagnostics. Static
+builds and both focused browser suites pass at `/` and `/elezioni` (**nine tests
+per base path**, including production-worker replay). An initial unrestricted
+unit run exceeded two existing five-second deadlines while the sharded replays
+were active; reducing test concurrency resolved both without modifying their
+deadlines or assertions. `git diff --check` passes.
+
+Marked the scoped migration item complete. These functional Node replays do
+not refresh the original browser performance timings or satisfy separate
+publication gates. Changes remain uncommitted; no default-generator switch,
+push or public deployment was performed.
+
+## 2026-10-30 Cumulative slate-position probabilities and last-position spinogram
+
+Completed the two ranked-position result items originally at
+`MIGRATION_PLAN.md:399` and `:406`. Each probability cell now counts election
+in that position OR any later position in the same college/list. Luca approved
+the literal OR without causality, final election locations including recoveries,
+and an unavailable measurement for entries without candidate-slate evidence.
+An election elsewhere alone never counts.
+
+The shared `slatePositionOutcomes` helper derives both cumulative threshold
+outcomes and the exact last locally elected position from the existing direct
+`Reform college election positions v1` evidence. It retains confirmed threshold
+successes when later outcomes are unknown, while an unknown position above the
+last confirmed winner makes the exact last position unknown. Earlier unknowns
+below a confirmed last winner do not obscure it. Complete no-winner evidence
+gives zero; absent ranks remain distinct. Table percentages keep all requested
+simulations as denominator and retain lower-bound/unknown labels.
+
+The college spinogram adds “Ultima posizione eletta nella lista”: 0 for nobody,
+1 for capolista, 2–7 for the first through sixth preference ranks, including
+skipped positions. Its worker query streams archived evidence and joins the
+chosen share stream by simulation ID. It preserves bonus filtering, independent
+X-axis shares, exact deciles, missing-data coverage and enlarged chart labels.
+Missing observations stay unknown. Missing position tables or missing selected
+slate evidence show an explicit unavailable state. Canonical tables, archive
+formats, legal scrutiny and derived sample-cache schemas are unchanged; opening
+an archive never reruns generation or scrutiny.
+
+Added exhaustive checks of all 128 complete position patterns, partial-evidence
+cases, final/recovered locations and probability denominators. Browser worker
+checks cover 1,201 observations, independent X streams, both bonus subsets,
+missing observations, unavailable slates, invalid national-measure requests and
+unchanged archive exports. UI checks cover cumulative percentages, the new
+measure, filter/axis changes, enlargement and archives without position data.
+
+Verification: `npm test` passed **107 files / 1,259 tests**; the final focused
+unit run passed **four files / 15 tests**. `npm run check` passed with zero
+errors/warnings, and `npm run check:data` passed. Static builds and all seven
+`reform-statistics.spec.ts` browser cases passed at both `/` and `/elezioni`
+(the root run's six passing cases plus the corrected new UI case in a targeted
+run; all seven passed together at the project base). Svelte autofixer found no
+issues in the three changed components; existing asynchronous-effect and DOM-ref
+suggestions were reviewed without expanding this task into lifecycle refactoring.
+`git diff --check` passed. Full production acceptance and the separate production
+performance/archive benchmark were not run.
+
+An initial TypeScript narrowing diagnostic was resolved by explicit winner/unknown
+flags. Initial browser assertions incorrectly expected position 7 in the even-only
+subset (whose maximum is 6), used a label locator instead of the existing control's
+accessible role, and waited for a saved-result selector before the first import.
+The tests now use the correct subset expectation and wait for result-ID changes
+only when an existing result is present. No deadlines were increased.
+
+Updated the results guide and marked both items complete. The subsequent
+college/constituency selector remains pending. Changes are uncommitted.
+
+
+## 2026-10-31 — Constituency spinogram and simpler territorial controls
+
+Implemented the approved constituency extension of the college spinogram.
+The shared section offers College / Constituency, ordinary territory dropdowns,
+chamber and entity selection; constituency mode supports lists or coalitions /
+standalone lists. Both axes always describe that entity and geography. Removed
+territory search and the advanced alternative X-axis UI, worker request and
+pairing helper. Closing the section retains selector state while unmounting
+the plot. Opening it or changing its controls requests the chosen series
+immediately, independently of viewport position. The national plot remains separate.
+
+Constituency elected counts default to ordinary + bonus, with an ordinary-only
+option. Categories follow the original seat, including bonus recoveries into
+ordinary slates; counts follow the final election territory. List affiliation
+and coalition seat ownership remain distinct. Initial bonus winners without a
+college are included. Original entitlements remain ordinary-only and disable
+the category selector. Last-position measurement is disabled for constituencies,
+resets to elected counts when changing level, and is also rejected by the worker.
+VdA and TAA retain existing special views, including the TAA college selector.
+
+New runs export `Reform constituency series v1`, with raw constituency vote totals,
+valid-vote denominators, final ordinary/bonus counts, completeness and ordinary
+entitlements. Shares never average college percentages. Lazy disk-backed indexes
+and exact filtered quantiles remain bounded. Older archives can reconstruct the
+view from saved coverage, raw college totals, endowments, national completeness,
+seat locations and candidate affiliations; absent capabilities are unavailable,
+missing observations remain unknown and no scrutiny is rerun. No legal algorithm,
+model, RNG stream, generated defaults or production input was changed.
+
+Initial browser checks required updating removed search selectors and checking the native
+option's disabled attribute; a synthetic 1,201-run fixture was corrected to keep
+its percentages within 0–100. Captured acceptance logs now live outside Playwright's
+output directory after an initial cleanup delay. A reproducible loading stall
+showed that an opened territorial panel could remain below the viewport after a
+measure change, leaving its visibility observer untriggered. Territorial queries
+now start on open/change; no longer assertion timeout is needed. All eight focused
+statistics browser tests pass with two workers, including retained selectors,
+archived reconstruction, offscreen queries and the formerly stalled measure.
+
+Final verification: `npm run acceptance:reform` passed with
+`ACCEPTANCE_TEST_WORKERS=2`: all 1,264 unit tests and 51 browser tests at each
+of `/` and `/elezioni`, zero skips or retries. Production bundle checksums and
+the 41-stage / 588-filled-seat scrutiny fixture, preparation/application types,
+static builds and final root-build restoration passed. Svelte MCP reported no
+component issues; mobile rendering was inspected. `git diff --check` passed.
+Scale assertions use the 1,201-observation constructed archive; the separate
+1,000-run production results benchmark was not rerun. The results guide and
+migration checklist are updated. Changes remain uncommitted; no deployment.
+
+
+## FV-08 unified scenario and generation workflow — 31 October 2026
+
+Luca approved one reform workflow offering the selected bounded mass-pair field
+by default and the exact compared latest-publication legacy poll procedure as
+an alternative. Scenario v5 shares original source chunks, conditional target
+electorates, geography, legal lists, filing and candidate settings. The legacy
+adapter selects the latest eligible same-date common-18+ Camera/Senato pair
+(currently 2022); original regional proportions provide labelled missing-history
+fallbacks. It does no candidate fitting. Frozen legacy inputs travel with saved
+sessions/results, while candidate evidence fingerprints survive legacy edits
+and require genuinely stale fitting when switching back. v1-v3 archives retain
+their original generator/policy; v4 remains candidate-only.
+
+The correspondence contract keeps binary source/future membership $S_i$ separate
+from nonnegative assumed source composition $W_i$; the legacy destination matrix
+is $C_{i,f}=W_iS_f^\top$. $B_i$ retains its existing covariance meaning. Column
+exclusivity applies within actual ballots/questions, preserving distinct special
+territorial tickets. Defaults import the reviewed comparison weights and partial
+named points; equal allocation is an explicit action, and typed ratios remain
+unchanged until model-boundary normalization. Opaque TAA legacy proxies are
+labelled separately and never identify a candidate fitted split. Candidate
+pooling, unresolved fitted-split rejection and reference-supported fallback
+components remain. Missingness/exclusion derives from original masks, dates,
+choice sets and explicit deselection rather than a user-authored missing matrix.
+
+The new legacy policy conditions mapped political composition on filed choices
+while preserving the historical valid fraction. Incomplete mappings/unfiled
+support do not silently become nonvalid votes. Where no political destination
+remains, use labelled mapped regional support or an equal filed-list fallback.
+Original archive policy is untouched. A separate post-FV-08 audit in the plan
+will quantify incomplete destinations, ceased/new components, unfiled support
+and overlapping/submunicipal filing capacity before further policy changes.
+Legacy retains whole-list point references and equivalent single-component
+points; SDs, uncertainty/fallback scales and unsupported partial within-list
+component interventions remain candidate-only and persist when inactive.
+
+Worker selection is CPU-based (reserve two logical processors at four or more,
+otherwise one; minimum one worker). Memory estimates determine recommendations
+and warnings, not which CPU options are selectable. The 512 MiB aggregate cap
+is waived; numerical workspace remains 256 MiB. Recommendations aim at at most
+half declared RAM, using 320 MiB candidate / 384 MiB compact-legacy scratch plus owned
+packet copies and coordinator reserves; unknown RAM recommends one.
+
+Two 26-worker attempts failed: the first renderer disappeared during preparation;
+a subsequent single-packet handoff attempt remained at prepare 0/1000 until its
+60-minute calculation / 70-minute test timeout. The first trace is retained under
+`data/derived/fv08-unified/failed-full-startup-26/`; the second error was inspected
+before the restart but its trace was not retained. Luca independently reported
+a selected-model out-of-memory failure at 26 and successful trials of both
+models at 10 (manual draw count unspecified). Bulk IPC was therefore not proved
+the sole cause. Startup now sends one owned packet to the coordinator and
+initializes compute workers separately. Memory planning additionally uses a
+conservative 3 GiB browser-heap allowance, reserving 512 MiB for interface/
+coordinator and at least 256 MiB per worker; V8's shared pointer-compression cage
+can constrain a renderer independently of physical RAM. This yields a 10-worker
+default on this 28-processor/64-GiB machine, preserving all 1-26 choices and
+adding a separate browser-memory warning. Both ten-draw / ten-worker browser
+probes passed, including streaming export/import (26.507 s selected; 32.734 s
+legacy). The original CDP sampler omitted nested compute workers: its samples
+are now explicitly partial, with separate Windows renderer working-set/private
+measurements including nested workers and transient copies.
+
+Before the restart, source-only cold Linux preparation and offline/warm identical
+assets passed, including missing/corrupt-cache failure and pointer preservation.
+The current-source Linux warm report retains the same catalog. Six actual full
+default refits took 8.41-8.51 s, without startup fits; six synthetic maximum
+128-coordinate / 512-poll / 7,904-municipality numerical/profile probes took
+26.34-26.68 s. A real Windows job-object quarter-core cap on the private benchmark
+renderers, including the numerical worker, took 112.27 s. Chromium rejects CPU
+emulation on worker targets, so a page-only throttle was not used as evidence.
+All resource probes pass the 30/120-second and 256 MiB workspace gates. Raw
+reports are under `data/derived/fv08-unified/resources/`; synthetic dimensions
+do not establish identifiable political splits or predictive calibration.
+
+The active workflow and authorized protocol amendments are documented in
+[vote-generation-unified-workflow.md](vote-generation-unified-workflow.md) and
+[vote-generation-fast-validation.md](vote-generation-fast-validation.md). Earlier
+global-Beta capacity failures and statistical comparison limitations are retained.
+Luca deferred Windows WebKit export work; Chromium/Firefox acceptance does not
+claim Safari export capability. No commit, publication or deployment is implied.
+
+
+Final integration review corrected legacy poll projection to use each chamber's
+future membership matrix independently. A chamber union could misattribute a
+component when Camera and Senate tickets differ. New fixtures swap the two
+chamber compositions and check the derived point references, reject duplicate
+within-question memberships and invented poll identities, and normalize extreme
+finite composition ratios safely. The compared symmetric-ticket poll procedure
+still matches its original implementation exactly. Nonresponsive worker
+initialization now fails explicitly after 60 seconds without automatic retries.
+Only explicit selector changes save worker preferences; running an automatic
+recommendation does not turn it into a permanent user preference.
+
+The pre-correction full browser campaigns passed calculation, storage, plots,
+streaming export, import and scenario restoration: selected 1,000/1,000 in
+443.779 s with 10 workers; legacy 1,000/1,000 in 313.806 s with its then-automatic
+9-worker recommendation. Each run filled all 588 seats with 588 distinct
+candidates. Native whole-renderer private-memory samples peaked at about
+4.0 GiB selected and 4.3 GiB legacy. The compact legacy adapter's scratch
+estimate is now 384 MiB plus actual packet copies, replacing the old larger
+workspace's 1,536 MiB estimate; both final recommendations are 10 on this device.
+These earlier receipts/archives remain under
+`data/derived/fv08-unified/pre-chamber-correction/`. The final fingerprinted
+release is rerun with the same frozen seeds, not substituted into those receipts.
+
+Fresh final-code cold Linux preparation passed in 331.398 s and produced exactly
+the Windows catalog `fast-share-catalog-v1-4e39f79a06472053c91ca3b0d97e22e74ce3666e1fc66ab3989c0601b9b6680e`.
+Offline warm preparation and the missing-refit/corrupt-cache/pointer-preservation
+checks also passed (`data/derived/fv05-acceptance/isolated-acceptance.json`,
+checkout `clean-4YDTs8`). Final application/resource/browser measurements follow
+below once their current-code gates complete.
+
+
+### Final FV-08 acceptance and approved classification
+
+FV-08 is complete. The installed reform workflow selects the bounded mass-pair
+field by default and retains the reviewed latest-publication legacy procedure
+with the approved per-chamber new-list classification. The final source matches
+`implementation-v1-9c6267ec47223aacfe9d40ed76c2830dca98fa956a2be0e9c1dd024978cdea33`
+and catalog `fast-share-catalog-v1-4e39f79a06472053c91ca3b0d97e22e74ce3666e1fc66ab3989c0601b9b6680e`.
+
+The final complete application acceptance passed all **1,272 unit tests and
+122 browser checks** (51 retained plus 10 unified checks at each of `/` and
+`/elezioni`), with no skipped tests or retries. Required production assets,
+checksums, preparation/application types, the legal vertical slice and restored
+root static build passed. The dedicated suites add **30 passing checks**: seven
+release/refit/worker checks and eight Chromium/Firefox editor checks per base.
+They cover original-source availability, Node/browser input parity, no-fit
+startup, explicit refitting, cancellation feedback, retry, source errors, mobile
+keyboard forms, strict drafts, new supported lists, filing, plots and archives.
+Svelte MCP found no component issues; remaining effect suggestions refer to
+intentional asynchronous table/chart queries.
+
+The first final application attempt exposed a stale worker preference when
+switching model: the previous 26-worker selection remained visible while legacy
+preparation ran. Resource estimates now use the current draft model, and a model
+switch immediately restores its own explicit preference or recommendation. Both
+browser regressions and the full application rerun pass. The failed root report
+is preserved under `data/derived/fv08-unified/failed-worker-preference-switch/`.
+A separate dedicated Firefox export exceeded its generic 15-second action wait
+while both full workloads were calculating. The entire root editor suite passed
+without that heavy calculation load; the measured 9.4-MB Firefox archive took
+13.332 s (Chromium 2.910 s). The browser harness now gives asynchronous file
+generation an explicit bounded 60-second wait. Product export logic is unchanged;
+the contended failure/trace is retained under `contended-ui-root/`. All nested
+checks also passed. No calculation, cancellation, refit or workspace threshold
+was relaxed.
+
+The final full campaigns ran concurrently in two isolated Chromium 148 instances
+against a frozen `/elezioni` build, with **10 compute workers per model**. The
+browser reported 28 processors and 32 GiB RAM on this physically 64-GiB machine.
+Selected calculation took **638.092 s** and legacy **380.602 s**, including
+contention. Both produced **1,000/1,000 complete simulations**, each with 588
+filled seats, 588 distinct elected candidates, 392 Camera and 196 Senate seats
+and zero unfilled seats. Both archives passed streaming export/import, recorded
+ledger and list-seat-total checks, scenario restoration and zero page errors.
+The first attempt to parallelize was stopped after discovering that Playwright
+still serialized tests within the file; explicit file parallelism was enabled
+without changing frozen simulation seeds. Its progress log is retained under
+`interrupted-parallel-harness/`. Final reports have no retries.
+
+Whole-renderer sampled private-memory peaks were **4,285,210,624 bytes selected**
+and **5,148,151,808 bytes legacy** (about 3.99/4.79 GiB); these are sampled process
+footprints including nested workers/native allocations, not free-RAM measurements.
+The partial CDP samples are separately qualified. Legacy's compact-adapter
+estimate uses 384 MiB scratch plus owned packet copies; the 3-GiB browser-heap
+planning allowance yields a 10-worker recommendation while preserving all
+1-26 selectable CPU options and independent browser/device-memory warnings.
+
+Final resource acceptance passed two browser tests. Six complete default refits
+took **8.534-8.726 s** with zero startup fitting; six maximum-dimension probes
+took **26.953-27.422 s**, and the actual quarter-core job-object probe took
+**110.778 s**. Numerical workspace was **46,383,008 bytes**, below 256 MiB.
+The final source-only cold Linux run took 331.398 s; after synchronizing current
+task files, offline/warm preparation took **128.463 s**, all four caches reused,
+the identical catalog selected and zero Svelte diagnostics. Source integrity,
+missing-refit and corrupt-cache failure, and pointer preservation passed.
+
+Final parity review found that the per-chamber new-list classification changes
+the legacy Senate result slightly relative to the earlier cross-chamber rule:
+one net Senate seat shifts from AVS to PD across 1,000 runs (0.001 mean seats),
+with maximum national mean vote-share difference about 0.00043 percentage points.
+Selected draw/seat/vote summaries are identical to the earlier campaign. Luca
+explicitly accepted the new classification and requested no additional acceptance
+round; the accepted implementation is the already-tested fingerprint above.
+The latest-publication wave selection, normalization and measurement rules remain
+those of the reviewed comparison. These conditional differences do not establish
+predictive calibration.
+
+Curated evidence is retained in
+`test/fixtures/benchmarks/vote_share_unified_acceptance.json`, including source/
+implementation IDs, archive/ledger hashes, complete denominators, vote/seat/
+admission/bonus/cap summaries and qualified timing/memory measurements. Raw
+reports/archives are ignored under `data/derived/fv08-unified/`. Earlier global-
+Beta failures and their statistical limitations remain historical evidence.
+The post-FV-08 correspondence-policy audit, FV-09 cleanup and public deployment
+remain open. Changes are uncommitted; no publication/deployment was performed.
+Automatic approval review rejected optional removal of empty temporary folders
+under `web/data/derived/fv08-unified/`; they remain empty and untracked.
+
+## Post-FV-08 correspondence-policy audit — 1 November 2026
+
+Completed the audit requested in the migration plan without changing generation,
+scrutiny, defaults, source compositions or archive policies. Findings and proposed
+corrections live in [the focused audit](../research/vote-generation/docs/correspondence-policy-audit.md); the plan
+closes the audit and separately tracks review/implementation of corrections.
+
+Added eight constructed characterization cases covering incomplete destinations,
+selected-versus-legacy non-valid conditioning, regional/equal fallback and its
+zero-mass discontinuity, incomplete poll groups and disjoint territorial tickets,
+unsupported/new lists, physical submunicipal capacity and order-dependent greedy
+college allocation. The latter reproduces a feasible 50/50 allocation rejected
+when the flexible list consumes restricted capacity first. Existing joint-capacity
+tests verify that selected projection detects overlapping capacity conflicts.
+These tests deliberately document current defects; they do not bless them as
+desired future behavior.
+
+The read-only `web/scripts/acceptance/correspondence-policy-audit.ts` recompiles
+legacy from the installed v5 release and isolates historical preparation before
+poll/manual references. Curated output is retained in
+`test/fixtures/benchmarks/correspondence_policy_audit.json`, with catalog/source/
+compiled-input bindings. All 7,904 municipalities in each chamber have baseline
+history. Raw mapping/filing loss is 1,359,094 Camera and 1,238,443 Senate valid
+votes; each chamber uses equal-list fallback for 74 municipalities. The default
+has no heterogeneous filing within split municipalities, so constructed stress
+cases are essential. The report includes all national list deltas and the largest
+integer baseline college deltas against the original projection rule applied to
+the same current inputs. These are deterministic preparation sensitivity results,
+not archived-result replays, final forecast/seat effects or empirical calibration.
+
+Corrected the unified workflow's documentation: selected full-elector-vector
+conditioning does not generally preserve the non-valid fraction, while explicit
+political reference interventions do preserve the resulting cell turnout. Legacy
+historical-turnout restoration is a separate substantive transfer assumption.
+Further numerical corrections, including physical-cell poll allocation and a
+joint transportation allocator, remain proposals awaiting Luca's decisions.
+
+Verification: the audit reader completed against the bound production bundles;
+the audit, unified-generation and forecast-numerics suites passed **25 tests in
+3 files**, with no skips; `npm run check:data`, `npm run check` (zero errors and
+warnings) and `git diff --check` passed.
+The first audit-reader college probe incorrectly supplied fractional weights to
+the integer-only apportioner; it was corrected to use the existing $10^{12}$
+integer probability-weight convention before recording the successful report.
+No full acceptance campaign, publication, commit or deployment was performed.
+
+### Correspondence semantics decision — 1 November 2026
+
+Luca agreed to one conditioning policy for known absent components, regardless
+of whether an identity ceased to exist or is simply not offered. Updated the
+[correction list](../research/vote-generation/docs/correspondence-policy-audit.md#proposed-corrections-before-implementation)
+to record full offered-choice-set proportional conditioning as the central
+assumption, including electoral non-valid support, with substitution uncertainty
+still to be designed. Polls retain their represented response denominator;
+political percentages do not identify missing nonresponse probabilities.
+
+Components without historical records or genuinely unidentifiable must have an
+explicit scenario reference, also within joint lists; missing references must
+invalidate the scenario rather than trigger an implicit zero/equal/donor
+replacement. Remaining reference/profile and fallback design stays open.
+The plan records Luca's implementation boundary: settle all correspondence-policy
+decisions first, then implement them in one coordinated pass. This update changes
+documentation only; no algorithm, validation code, default or data was changed.
+
+### Local historical support and geographic inference — 1 November 2026
+
+Recorded Luca's agreed component-level rules in correction 4 of the
+[correspondence audit](../research/vote-generation/docs/correspondence-policy-audit.md#proposed-corrections-before-implementation):
+use identifiable local positive/zero evidence; infer never-offered local support
+from regional, then national evidence; require explicit legacy joint-list
+compositions; and retain selected-model group evidence with references for
+otherwise unidentified components. Geographic evidence availability is distinct
+from positivity, and historical offered-set denominators must be respected.
+This settles the discontinuous fallback policy apart from list packaging.
+
+Specified national or complete territorial/chamber reference coverage for new
+components and selected-model unidentified components, also inside future joint
+tickets. Documented fixed legacy historical inputs, its existing zero branch,
+selected-model smoothing, and the implementation gaps identified during the
+preceding read-only review. Exact estimators and uncertainty design remain open.
+All changes await the single coordinated pass after remaining policy decisions
+are settled. This update changes only the audit and history; `git diff --check`
+passed. No code, data or defaults were changed and no tests were rerun for this
+documentation-only update.
+
+### Legacy observed-zero regularization decision — 1 November 2026
+
+Added agreed correction 5 to the
+[correspondence audit](../research/vote-generation/docs/correspondence-policy-audit.md#proposed-corrections-before-implementation):
+use a half-vote probability for identifiable historical-zero local logits after
+correspondence compilation and before poll/reference reconciliation. Raw counts
+remain zero; positive fractional counts remain unchanged. Missing observations,
+unfiled choices, explicit zero interventions and capacity-required zeros retain
+their separate meanings. Final integer allocation conserves the electorate and
+may still produce zero votes in individual draws. Documented the original R and
+TypeScript half-vote-floor precedent and its difference from this zero-only rule.
+
+Also recorded the already-discussed resolution of the equal-list fallback's
+packaging issue: establish component support first and remove the equal-list
+emergency allocation; territorial-ticket projection remains a separate issue.
+Implementation of these and all other settled decisions stays deferred to the
+single coordinated pass after remaining decisions are settled. Updated only the
+audit and history; `git diff --check` passed. No code, data, defaults or tests
+were changed, and no tests were rerun for this documentation update.
+
+### Component-based legacy generation decision — 1 November 2026
+
+Luca approved component-based legacy historical preparation, probabilities,
+movement shocks and count generation, followed by aggregation to filed lists.
+Recorded this as correction 2 in the correspondence audit, with physical filing
+conditioning before counts, independent component movement innovations and the
+existing shock-scale settings. The adopted poll-error treatment draws one
+measurement realization per observed group and splits its share by fixed legacy
+composition; shared measurement error is distinct from independent movements.
+
+Both models' scenario political references now target components, including
+historical/fitted components. Mandatory-reference cases retain national or full
+territorial/chamber coverage; a future list-level control/translation remains
+undecided. Reworded correction 5 to regularize historical-zero component logits
+before list aggregation, retaining its other boundaries.
+
+Luca explicitly superseded backward archive compatibility in the web app:
+latest generator algorithms only, with earlier production code optionally
+archived outside browser/worker dependencies for terminal comparison tests.
+Updated the audit, active-plan wording and unified workflow's design-status note
+to prevent the earlier v1–v3 routing requirement from carrying into the update.
+The direct-cell redesign also narrows correction 3's allocation perimeter while
+retaining physical reference-capacity checks. Implementation remains deferred
+to the coordinated pass after remaining decisions are settled. Documentation
+only; no code, data, defaults, tests or archives changed. `git diff --check`
+passed; no tests rerun for this documentation update.
+
+### Physical capacity and allocation perimeter decision — 1 November 2026
+
+Updated correction 3 in the correspondence audit following Luca's agreement:
+physical-cell conditioning and direct component count generation resolve the
+municipal filing-union and greedy reconstruction defects. The active path needs
+no municipal-to-college vote relocation or replacement transportation allocator;
+aggregate cell counts by summation. Retain individual and joint physical
+reference-capacity validation with the correct scopes/denominators, explicit
+infeasibility reporting, structural filing zeros and electorate conservation.
+A flow-based constraint feasibility check remains distinct from vote relocation.
+
+Implementation remains deferred to the coordinated pass. Changed only the audit
+and history; `git diff --check` passed. No code, data, defaults or tests changed;
+no tests rerun for this documentation update.
+
+### Pre-filing reference-date support decision — 1 November 2026
+
+Luca clarified that component references anchor support at the reference date
+before future filing. Recorded the sequence in correction 2 of the audit:
+reference support, future movement, local support, physical filing conditioning,
+counts and list aggregation. Final filed shares need not reproduce the original
+or shocked pre-filing national shares. Both installed generators need adaptation:
+their current reference application already incorporates filing restrictions,
+although both subsequently allow future movement. The selected model can retain
+its distinct movement mechanism, with distributional revalidation after reordering.
+
+Revised correction 3 to supersede the previous individual/joint physical
+reference-capacity validation requirement. No such solver is required for dated
+pre-filing support references. Retain valid-distribution/metadata/coverage checks,
+positive remaining probability mass after conditioning, filing zeros and
+electorate conservation. An empty remaining-support vector is an explicit error,
+not an invented allocation. Aligned correction 5's regularization boundary and
+the active-plan wording. Implementation remains deferred to the coordinated pass.
+Documentation only: audit, plan and history updated; no code, data, defaults or
+tests changed. `git diff --check` passed; no tests rerun for this update.
+
+### Conditioning and scenario-reference uncertainty decisions — 1 November 2026
+
+Luca settled two further correspondence-policy decisions. Proportional
+conditioning is deterministic within each simulated support vector, with no
+additional substitution-error draw. Scenario-reference uncertainty applies only
+to the selected model: legacy uses fixed reference-date political/non-valid
+shares followed by national, regional and local movement shocks. Original
+poll-group measurement uncertainty remains separate and unchanged.
+
+Recorded these decisions in the focused audit. Geographic inference and
+reference-backed unidentified splits remain under discussion; no proposed
+estimator or split rule was adopted in this update. Model implementation remains
+deferred to the coordinated pass. Documentation only; no model, data or default
+changes. `git diff --check` passed; no tests rerun for this update.
+
+### Geographic inference and unidentified-split adoption — 1 November 2026
+
+Luca adopted the proposed model-specific geographic inference and selected-model
+reference-backed split procedures. Updated the focused correspondence audit with
+the legacy conditional-frequency pooling objective, national/regional borrowing,
+local conditional-proportion completion and fixed preparation inputs. Retained
+the selected profile estimator and its uncertainty conventions, adapting historical
+comparisons to original offered sets rather than interpreting unavailable choices
+as observed zeros.
+
+Recorded the selected group-plus-contrast representation: intact grouped history,
+component-reference calibration, local/regional/shared-group profile hierarchy,
+shared group uncertainty and separate missing-history contrast uncertainty.
+Current references may intervene on the group total without altering historical
+counts. Overlapping evidence and identification checks remain required; no legacy
+composition becomes a selected-model measurement.
+
+Removed stale remaining-policy wording and updated the active plan to distinguish
+settled policy from pending coordinated implementation and acceptance. Changes are
+limited to the audit, plan and history; no model code, generated data or defaults
+changed. `git diff --check` passed; no model tests rerun for documentation only.
+
+
+### Adopted correspondence corrections implemented — 1 November 2026
+
+Implemented the complete approved policy for the selected model and the revised
+legacy derivative. Both now construct unrestricted component support at the
+reference date, apply their own future movement, deterministically condition on
+each physical ballot including non-valid support, and allocate counts directly
+in that cell. Component counts aggregate to filed lists; municipal greedy vote
+relocation and filing-capacity validation of pre-filing references leave the
+active path. Exports distinguish dated reference support, future support before
+filing, filed probabilities and realized list counts.
+
+Legacy preparation preserves original counts/electorates, mandatory explicit
+joint compositions and actual historical/poll offered sets. Conditional
+frequency pooling and regional/national completion replace the all-or-nothing
+municipality fallback. Only observed political zeros receive the half-vote
+logit input; tiny positive decompositions remain unchanged. Disconnected positive
+choice sets cannot be identified through an observed-zero alternative: national
+relative masses require references, while regional unidentified masses borrow
+the national donor. Legacy movement innovations are component-specific and
+independent between components, retaining within-component chamber dependence.
+One poll-group measurement error is shared by its fixed split, geography and
+reused chambers. Complete smaller-choice-set questions constrain only their
+original conditional denominator; partial questions keep their unreported
+residual. Scenario-reference means are fixed for legacy, with all future shocks
+starting at the reference date; their SDs remain selected-model inputs only.
+
+The selected compiler keeps original heterogeneous ballot strata, grouped
+observations and profile choice sets. Identical observation columns fit group
+totals; reference-backed internal contrasts and other overlapping unidentified
+directions stay separate. Group-first reference calibration changes the current
+group total where requested, then splits each cell without altering that cell's
+group mass or historical counts. Shared group-profile uncertainty and separate
+unidentified contrast uncertainty avoid fabricated component measurements.
+
+Keeping original strata exposed an ill-conditioned Gaussian covariance solve in
+full-country preparation. Bounded noise whitening and Givens elimination compute
+the same sufficient statistics without a new ridge; an independent reduced
+covariance calculation agrees within 1e-8. The 256 MiB workspace gate, original
+matrix-free fallback and residual check remain. Orthogonality and covariance
+residuals are separately labelled, and elimination yields cooperatively for
+worker cancellation. Unrestricted reference projection also bypasses an
+unnecessary transport-flow test whose finite tolerance incorrectly rejected
+positive residuals around machine precision; tiny support remains positive.
+
+Luca explicitly chose selected-model reference estimates as the six missing
+legacy default anchors (IdV, Futuro Nazionale, PLD/LibDem, +Uno, Progetto Civico,
+PSI/civici). Default preparation records reference-only means and sample SDs from
+256 deterministic draws before adding the anchors, plus seed and parent
+fit/profile IDs. They are editable model-based assumptions, with selected-only
+uncertainty and fixed legacy means. No missing runtime reference is silently
+replaced. Default poll compositions, including dated Other complements, are
+explicit authored inputs. Generated release assets were regenerated through the
+release pipeline rather than edited manually.
+
+Versioned provenance uses `component-prefiling-conditioning-v2`,
+`fast-share-float64-v2`, `fast-share-prefiling-physical-cells-v2`, a revised profile
+policy and composition key, plus transitive implementation identities. The browser
+accepts only the current v5 reform workflow. Old scenario/result imports are
+rejected, old browser research/comparison entry points are retired, and retained
+historical comparators live outside runtime dependencies. Shared legal assembly
+was extracted without changing scrutiny rules. Current worker/storage/statistics
+regressions use frozen v5 sessions, including cancellation, ordered IDs, parallel
+replay, crashes, quota failures and empty saved results. The current plain scenario
+import and empty-result table selection were corrected during browser acceptance.
+A startup regression also caught reference-component IDs in the historical
+evidence key: seed/reference-only edits needlessly downloaded original history.
+`browser-fit-evidence-v2` excludes intervention inputs, while generation still
+validates mandatory reference coverage. The regression verifies no source reads
+or fits after adding a component reference. This cache correction does not alter
+the generation implementation identity or vote law.
+
+Functional acceptance passed on the final model implementation
+`implementation-v1-c3c448cf68330e5fd097c15a6bd86958da529e072939360e7915a41f62f9adac`,
+catalog `fast-share-catalog-v1-27d815959e9a6a1f4193e4e68297577972e2899d56afc1a4daaaa3477f88b1fc`:
+
+- `npm run acceptance:reform`: production asset integrity/vertical slice,
+  preparation types, Svelte checks (zero errors/warnings), **1,296 unit tests**,
+  and static builds at `/` and `/elezioni`. Each base passed **43** Chromium
+  application regressions, **4** current-editor checks and **10** unified workflow
+  checks across Chromium/Firefox, with no accepted skips or retries. Root build
+  restored at the end.
+- Final concurrent Chromium campaigns: **1,000/1,000 complete per model**, all
+  **588** seats filled with **588 distinct candidates** in every run. Ten compute
+  workers per model; measured run elapsed **725,693 ms selected** and
+  **1,190,924 ms legacy**. Both passed full JSON.gz export, reimport, ledger
+  comparison and frozen-scenario restoration, with no page errors. Archives were
+  **178,103,484** and **208,724,721** bytes. Total campaign-suite wall time was
+  **27.9 minutes**, including the archive checks.
+- Six full default browser refits passed with stable fitted identities and
+  elapsed times **12,784–14,482 ms**. The first maximum-dimension synthetic probe
+  hit **38,076 ms** during concurrent work, exceeding its unchanged 30-second
+  gate. The failed measurement and trace are retained at
+  `data/derived/correspondence-corrections/contended-*` and `resource-artifacts/`.
+  The isolated repeat passed all six normal-speed probes (**28,286–28,696 ms**,
+  median **28,378 ms**) and the real quarter-CPU run (**117,423 ms**, below the
+  unchanged 120-second gate). Maximum reported numerical workspace was
+  **46,383,008 bytes**, below 256 MiB. The earlier failure is consistent with
+  concurrent workload contention; the isolated pass does not erase that receipt.
+- Current production checks passed three selected and three legacy legal runs,
+  required-reference coverage, source integrity and matching semantic keys;
+  release preparation checked **7,904 municipalities**, **15,810 physical cells**,
+  **28 fitted / 34 future components**, 2,000 retained draws per chain and a
+  complete 588-seat allocation. Built JavaScript contains none of the retired
+  generation/greedy-filing implementation markers. The final acceptance curator
+  rejects missing/failed reports or stale campaign identities; preparation types
+  passed again after curation tooling was added. `git diff --check` passed.
+
+Detailed local receipts: `data/derived/r26-21-acceptance/report.json`,
+`data/derived/correspondence-corrections/node-summary.json`,
+`data/derived/fv08-unified/browser/*-root-1000.json.gz.receipt.json`, and
+`data/derived/fv08-unified/resources/`. The maintained compact receipt is
+[test/fixtures/benchmarks/correspondence_corrections_acceptance.json](../test/fixtures/benchmarks/correspondence_corrections_acceptance.json).
+These are functional and engineering checks, not predictive calibration.
+FV-09 generated-output cleanup and public deployment remain separate work.
+
+
+### M01/M02 specifications and semantic identities — 1 November 2026
+
+Named the corrected component-based legacy law **M01** and the default joint-fit,
+bounded-transfer law **M02**. Created self-contained current specifications and
+equations in `docs/models/M01.md` and `docs/models/M02.md`; historical derivations
+now point to them instead of presenting old Beta forecasts as current equations.
+The specifications cover original offered sets, identification, fixed versus
+uncertain references, geographical borrowing/profiles, chamber coupling,
+movement, discrepancy, physical conditioning, multinomial counts, defaults,
+provenance and limits. R's original generators and older research candidates do
+not retroactively become these corrected laws.
+
+Adopted independent **1.0.0** model-contract versions. SemVer describes changes
+to each model's accepted inputs, probability law and output meanings: law/meaning
+changes are MAJOR; optional compatible extensions are MINOR; law-preserving
+clarifications/corrections are PATCH. This is contract stability, not predictive
+calibration. Source/scenario/fitted-state/numerical/RNG/file-format/implementation
+identities remain separate, and the runtime accepts exact supported model versions.
+
+A shared registry supplies M01/M02 names, versions and labels. Current scenarios
+store `generation.model` and `generation.modelVersion`; controls, worker dispatch,
+resource estimates, default preparation, traces and acceptance workflows use
+those identities. Model selection changes the model/version together. Unsupported
+names/versions or inconsistent preparation fail. Current defaults were regenerated
+through the release pipeline. Historical reports, archived comparisons, RNG
+namespaces and reference-row IDs retain their original spelling for traceability
+and seeded behavior; they are not accepted current selector aliases.
+
+Before renaming, saved full-country ballot/candidate hashes for two simulation
+IDs per model. The corresponding four runs after regeneration are byte-identical
+when provenance metadata is excluded. No statistical equation, random stream,
+legal scrutiny rule or scenario probability setting changed. The new model/version
+metadata intentionally changes implementation/state binding identities.
+
+Verification passed:
+
+- **112 test files / 1,298 tests**, without skips, including exact model-version
+  validation and M01 preparation matching.
+- **20 browser workflow checks**: ten each at `/` and `/elezioni`, across Chromium
+  and Firefox. Covered both model selections, exported/reimported version metadata,
+  frozen restore, composition controls, M01 reference uncertainty controls and
+  resource settings. The root production build was restored afterward.
+- Full release regeneration passed source integrity, semantic bindings and the
+  complete legal vertical slice: **7,904 municipalities**, **15,810 physical cells**,
+  **28 fitted / 34 future components**, 2,000 retained draws per chain and 588 seats.
+  Preparation TypeScript, Svelte check (zero errors/warnings) and production builds
+  passed. Modified Svelte components also passed the official component checker.
+- The four full-country pre/post naming comparisons preserved sampled ballots and
+  candidate data exactly. This is not a fresh 1,000-simulation campaign per model;
+  the earlier numerical acceptance remains historical evidence.
+- Specification math delimiters and relative links were checked. Initial stale
+  asset/consumer checks were resolved by completing the rename and regenerating
+  defaults through the release pipeline.
+
+The compact maintained receipt is
+[model_identity_acceptance.json](../test/fixtures/benchmarks/model_identity_acceptance.json).
+Detailed local logs use `data/derived/model-naming-*`. No publication or FV-09
+cleanup was performed.
+
+## M01/M02 comparison feasibility — 2 November 2026
+
+Assessed Luca's request for the previous comparison's metrics using only the
+updated M01/M02 models. The [focused assessment](../research/vote-generation/docs/model-comparison-feasibility.md)
+records the blocked historical scope, available future operational path and
+required evaluation-design decision. No old model was rerun and no predictive
+or 1,000-draw browser campaign was started.
+
+Added `scripts/acceptance/model-comparison-feasibility.ts` under `web/`, which
+loads and validates the installed release/source and reads the frozen comparison
+receipt solely to recover its target/cutoff combinations. It invokes current
+preparation guards without fitting, generating votes or running scrutiny. The
+[new receipt](../test/fixtures/benchmarks/model_comparison_feasibility.json)
+pins source/catalog identities, old-receipt hash and probe implementation hashes.
+
+All 12 original target/cutoff combinations fail M01's common-18+ pair selection.
+Both supplied pair choices fail M02's paired compilation at each cutoff (24
+rejections). Senate 2018 is age-25+ audit information; the only common-18+ pair
+is 2022, available from 26 September, after the latest requested cutoff of
+10 September 2022. The full 2018/2022 cases use the same blocked short-horizon
+cutoffs. A positive control at 19 October 2026 compiles 7,904 matched municipal
+rows. No source-loading failure or missing generated bundle caused these results.
+
+Using the 2022 pair retrospectively would leak held-out outcomes. A Camera-only
+renewal alone does not avoid M02's current paired-refit compilation; M01's current
+baseline contract also explicitly requires the pair. The plan therefore records
+the need to agree a Camera-only historical evaluation/preparation design before
+implementing a current-model scoring adapter. Original metric definitions and
+scoring helpers can be reused without rerunning the old procedures. The old
+historical execution script still invokes its old list-based kernel and its
+former browser configuration is absent; these cannot be treated as current-model
+test entry points.
+
+Verification: the direct feasibility probe and `npm run check:data` passed.
+The positive control compiles observations only; it is not new predictive or
+future scrutiny acceptance. No model law, default, historical source, production
+routing or legal scrutiny changed.
+
+## Current M01/M02 Camera-only comparison — 2 November 2026
+
+Completed Luca's requested comparison of the updated models after explicit
+approval of a test-only Camera preparation exception. The
+[results and reproduction guide](../research/vote-generation/docs/current-camera-comparison-results.md) retain
+the same historical observable-group scores, conditional electorates/filing,
+2013/2018/2022 cutoffs, reduced panels and full short-horizon domains as the
+previous comparison. No older model was rerun. Production model contracts,
+generated defaults, sources, routing and legal scrutiny remain unchanged.
+
+The isolated `current-camera-models.ts` adapter invokes current M01 conditional
+pooling, local completion, original-group poll reconciliation and component-shock
+kernels, and current M02 reference fitting, original-offered profiles,
+unrestricted raking and bounded mass-pair kernels. Historical M01 uses the latest
+eligible Camera baseline without a paired Senate prerequisite; M02 omits Senate
+adaptation. Original counts remain integers for M02; M01's explicit original-list
+composition fractions remain unrounded. The frozen cutoff-specific research
+bases are retained for this experiment; they are not the current 34-component
+future default or an invariant marginalization of its nonlinear laws.
+
+Recorded all M01 joint/pooled composition assumptions, existing reviewed weights,
+equal-weight fallbacks and mandatory named-poll anchors. The 2022 Impegno Civico
+residual zero is an explicit consequence of the already reviewed Centro
+Democratico 100% composition, not an inferred zero for missing data. Target vote
+counts are excluded from the preparation boundary; only conditional electorate,
+region and filed identities enter. Physical-cell electorates are apportioned
+before generation, with shared municipal profile/shock streams and final filing
+conditioning. Fine-crosswalk failures remain in municipal/evaluated-area scores.
+
+An initial draft adapter exposed a source-contract problem: the old export has
+merged national groups without original offered-set strata. Discarded those draft
+scores, reconstructed strata from pinned original municipal counts, checked exact
+elector/non-valid totals against each frozen aggregate, enabled the corrected
+original-offered profile policy, and restarted the historical comparison. Final
+models use independent stream namespaces; no forecast parameters or legal rules
+were tuned against the results. The full workload was split across separate
+processes; the sequential driver was stopped after the two completed 2018 cases
+to avoid duplicating the separately running 2022 cases.
+
+Final historical evidence comprises **28 model/case rows**, each with **512
+draws**, no generation exceptions, accepted numerical diagnostics and exact
+elector conservation. Full domains contain 7,883/7,830 municipalities, with
+100/nine unmatched fine crosswalks, 52 colleges and 27 constituencies. The M01
+missing-baseline audits retain 94/40 regional fallbacks. All requested distribution
+scores, multi-level coverage, widths, mean errors, WIS/CRPS, finite-band near-truth
+frequencies, tail frequencies and elector-denominator summaries are retained;
+group bias and whole-draw Monte Carlo errors are curated separately.
+
+Full municipal Error30/Coverage90/mean MAE are respectively:
+
+- 2018 M01: **0.78% / 49.48% / 5.91 pp**; M02: **2.36% / 89.17% / 5.50 pp**.
+- 2022 M01: **0.44% / 57.95% / 3.80 pp**; M02: **1.28% / 83.75% / 3.95 pp**.
+
+M01's lower tails accompany severe undercoverage; M02 has better coverage/WIS
+but is not universally better in mean accuracy. Current M02 has worse full-domain
+municipal Error30/MAE than the frozen older selected candidate's point results.
+Those old figures were reused without rerunning it; changed preparation and
+forecast semantics prevent attributing the difference to one isolated law change.
+These fixed, reused cases do not accept general predictive calibration or change
+the production-default decision.
+
+The separate Chromium **148.0.7778.96** campaign used the actual current 24-list
+default, Camera only, a loaded prefit, production generation/candidatures and
+legal scrutiny in **four dedicated workers**. Removed Senate-specific references
+from that Camera-only scenario; leaving them in initially caused the correct
+non-renewed-chamber preparation rejection before any simulation attempt. Final
+campaigns each attempted **1,000** draws: all returned complete results with
+**392 filled seats and 392 distinct candidates**, zero Senate seats, exceptions,
+non-computable results or unfilled seats. Wall times were **9.77 minutes M01**
+and **6.45 minutes M02**. Worker phase sums include all attempts and are not
+additive wall phases. These narrower, contended workloads are not an isolated
+speed ranking, a cold-refit benchmark, paired acceptance or UI/export acceptance.
+
+Maintained evidence is
+`test/fixtures/benchmarks/current_camera_comparison.json` and
+`current_camera_details.json.gz`; raw reports/inputs/scores remain under
+`data/derived/current-camera-comparison/`. Curated details retain group bias,
+college/constituency/area scores and joint tail draws rather than all regenerable
+municipal rows. Code, source, old-receipt and raw-report hashes bind the results.
+
+Verification passed: **seven focused adapter checks**, `npm run check:data`,
+the complete case/source/diagnostic curation gates, and original-count/unique-raw-
+identity audits across all six training elections. Final artifact/link checks
+and `git diff --check` passed. Old benchmark/model files are unchanged; no
+publication, deployment or commit was performed.
+
+## M01/M02 pre-correction restoration — 2 November 2026
+
+Luca requested restoration of both implementations to immediately before
+`4ee5a91` after reviewing the historical regression, and updated definitions with
+advanced versions. The baseline is its parent,
+`1c19d54d4ccd0e0f3a05940c3cd28fa5bcab0a1b`. Both laws are now **2.0.0**: the
+change to specified probability laws/input meanings requires MAJOR under the
+existing model-version contract. Canonical M01/M02 identities, current v5 routing,
+shared legal assembly and unrelated UI fixes remain; no scrutiny rule changed.
+
+M01 again projects historical source compositions onto future lists, preserves
+historical turnout after mapping/filing, uses the original regional/equal-list
+fallback, latest-publication list polling and list-level shocks, apportions
+municipal counts, and reconstructs college counts afterwards. This deliberately
+restores municipal filing-union, territorial-ticket, zero-support and greedy
+allocation limitations documented in the revised definition. M01 scenario SDs
+remain inactive; joint-list component-subset references are M02-only.
+
+M02 again uses coarsened national observations, the original exact-group national
+profile baselines, early national/local filing conditioning and locally normalized
+reference fields. The default retains mass-weighted bounded pairs, scale 1.5 and
+regional profile correlation 0.25. Compulsory unrestricted raking, original-strata
+fitting/profile amendments, reference-backed unidentified contrasts and final
+post-movement filing conditioning were removed. Pre-correction optional forecast
+submethods remain explicit scenario choices. Restored defaults omit the six
+model-derived missing-component anchors introduced by the superseded policy.
+
+Updated the authoritative M01/M02 definitions and current documentation pointers,
+registry labels, strict scenario versions, provenance, reference editor and release
+preparation. Old 1.0.0 scenarios/aliases do not execute under 2.0.0. Preserved the
+1.0.0 definitions under `docs/models/archive/` and isolated their historical Camera
+kernels in `web/scripts/acceptance/archive/models-v1/`; these have no application
+runtime dependencies. The historical adapter's seven checks remain in the unit
+suite. Original reports/benchmark receipts are not overwritten. Historical
+campaign/curation commands fail on unsupported 1.0.0 rather than mislabel output;
+the report instructs reproduction at its original commit. The current smoke
+script writes only `data/derived/model-rollback/`.
+
+Verification:
+
+- **113 unit-test files / 1,291 tests passed**, no skips. Two new regressions
+  distinguish conditional from country-calibrated references and require filing
+  zeros before movement; restored pre-correction reference/generation tests pass.
+- `npm run check:data`, Svelte checks (zero errors/warnings), and static builds at
+  `/` and `/elezioni` passed. Svelte autofixer found no issues in either changed
+  editor. Local links in both current and archived definitions and
+  `git diff --check` pass.
+- Regenerated all release assets through the normal source-pinned pipeline.
+  Final catalog:
+  `fast-share-catalog-v1-0c255ade89a4f9e84edefd4e1d727c4de00496d0f2ce23778b7ebf0007ce61db`.
+  It covers 7,904 municipalities, 15,810 cells, 28 fitted and 34 future components;
+  preparation verifies source integrity, semantic keys, zero startup fits and a
+  complete 588-filled-seat legal smoke run. The final root build is restored.
+- `scripts/acceptance/model-rollback-parity.ts` extracts the pinned Git baseline
+  into ignored derived storage and compares both laws on the same restored
+  full-default input. Draws **1, 2 and 7 for each model** match the predecessor's
+  complete generated inputs, including votes/candidatures, after excluding public
+  model/parameter versions and the legacy input hashes containing the changed
+  selector/version. The first strict comparison exposed only those provenance
+  hashes; the normalization is explicit in the script and receipt. No votes or
+  candidate data are excluded. Compact evidence:
+  `test/fixtures/benchmarks/model_restoration_parity.json`.
+- Seven Chromium release/refit/worker checks pass at each base path (**14**).
+  Both model workflows pass in Firefox at `/` and Chromium at `/elezioni`
+  (**four** more). The initial root Chromium suite passed both model workflows,
+  composition editing and high-RAM worker controls; its low-RAM control timed out
+  before the election selector appeared. That unchanged test passed in isolation
+  on the final build. These are **23 successful focused browser checks across
+  the runs**, with that original navigation failure recorded, not one pristine
+  campaign. Cause of the initial timeout is not established; no wait or production
+  rule was weakened to pass it.
+
+The first release attempt caught a Windows encoding/newline mistake while
+restoring the reference editor; converted it to UTF-8 with normalized newlines
+and rebuilt successfully. A preparation check also caught the missing explicit
+model gate during the port; both direct and dispatched generation now enforce
+the supported identities. Derived release/parity reports are in
+`data/derived/model-rollback/`. Existing receipts retain their historical scope.
+No new 1,000-draw predictive/resource acceptance campaign, manual acceptance,
+commit or public deployment is claimed.
+
+## FV-09 research archive and cleanup — 2 November 2026
+
+Luca concluded model research with **M01 2.0.0** and **M02 2.0.0** selected and
+authorized FV-09, explicitly excluding `docs/model-drafts/`. Both files in that
+folder retain their original paths and byte identities. No model law, source
+observation, production default or scrutiny rule changed.
+
+The [archive index](../research/vote-generation/README.md) now separates current
+model/release instructions from historical reports and replay. Relocated **151**
+exact research source/report/protocol files into `research/vote-generation/`:
+endpoint/six-category, fixed-outcome drift, party exact/Laplace/importance/Stan,
+fast-model references, feasible-field alternatives, legacy comparisons, superseded
+correspondence work and the 1.0.0 Camera kernels/specifications. All code/protocol
+bytes are unchanged. The bodies of **22** archived/extracted reports are unchanged;
+Markdown edits only repair links and add archive notices. Historical paths,
+model versions, failed draws and old source/code fingerprints retain their meaning.
+
+The [exact manifest](../research/vote-generation/fv09/manifest.json) records paths,
+sizes/hashes, dispositions, consumers, retained evidence and regeneration/replay
+bindings. FV-01's original inventory/evidence is unchanged. Added exact compressed
+copies of **59** later reports, selections, browser ledgers and failure diagnostics,
+plus the original cleanup proposal. Existing curated benchmark/group/college
+receipts remain unchanged. The calibration report was extracted to the archive;
+its active guide now contains source acquisition, pins and current commands only.
+
+The dependency audit found one current poll regression importing the historical
+comparison adapter. Captured that adapter's expected output before moving it,
+then changed the test to use the small frozen fixture. A new boundary regression
+rejects active application/preparation/test imports into research. Retired **22**
+research npm commands and moved their code/tests outside normal TypeScript,
+Vitest and build discovery. `test:research:archive` is optional. Full historical
+CLI/suite reproduction uses the report's pinned original-layout Git worktree;
+the moved scripts are not advertised as directly runnable production tools.
+
+Kept the production `fast-share-*` preparation closure, both
+`data/legacy-comparison-*.json` policies used by unified-default preparation,
+reviewed poll/membership/source records, and calibration/reference modules with
+active consumers. Kept R workflows, raw source caches, `dati/`, production bundles,
+legal investigations, standalone legal inputs and people's result archives.
+Unknown/new/manual research artifacts remain in place. The separate compressed
+retention inventory records **9,819** deliberately retained files.
+
+After an exact dry run and evidence verification, native PowerShell checked
+resolved research roots, file types, sizes and SHA-256 identities, then deleted
+**1,260 files / 4,301,573,109 bytes**: 1,255 known regenerable arrays/reports and
+five FV-01-inventoried Python bytecode files. No recursive directory deletion was
+used. This is gross deleted storage; new archive/acceptance artifacts are separate.
+The [execution receipt](../research/vote-generation/fv09/execution.json) records
+actual completed moves/deletions rather than a proposed cleanup.
+
+Verification is retained in the [FV-09 receipt](../research/vote-generation/fv09/verification.json):
+
+- Optional archive checks pass for **212** relocated/extracted/compressed files,
+  all **61** original evidence files and the **1,433**-entry FV-01 inventory,
+  physical coverage, worked contract arithmetic, independent reduced Gaussian
+  targets and Helmert orthogonality. The checks also pass from an isolated
+  archive-only copy without Git metadata, npm dependencies or original outputs.
+- Source-only isolated acceptance passes `npm ci`, cold source download and
+  production preparation/build, warm preparation/build and clean/local byte
+  equality. Cold/warm assets are identical at catalog
+  `fast-share-catalog-v1-0c255ade89a4f9e84edefd4e1d727c4de00496d0f2ce23778b7ebf0007ce61db`.
+  Required-asset omission and corrupt-fit-cache checks fail as intended without
+  changing selected candidates. The legal smoke fills all **588** seats with
+  verified source identities, matching semantic keys and zero startup fits.
+- **100 unit-test files / 1,201 tests** pass, with no failures/skips/TODOs.
+  `npm run check:data` and Svelte checks pass; Svelte reports zero errors/warnings.
+- Static builds and **22 focused browser checks** pass: seven Chromium
+  release/refit/worker checks and both M01/M02 workflows in Chromium and Firefox,
+  at both `/` and `/elezioni`, without retries/skips. The final local build uses
+  `/`. Emitted build inventories contain no research code or raw-source files.
+- Compared **596** protected production/source/draft file hashes and checked the
+  retained inventory's existence/sizes, allowing intentional documentation-link
+  edits. The draft directory's complete file set and bytes are identical.
+  Documentation relocation links/anchors and `git diff --check` pass. The existing
+  legal-guide link to the absent generated legislator `.docx` remains outside scope;
+  cleanup did not remove that file.
+
+Problems and workarounds: the pre-existing FV-01 checker failed against a
+maintained model guide that had evolved since extraction. Pinned both original
+documents from `6f2e23b`, recorded their hashes and retained the exact extraction
+comparison, instead of weakening it. The clean-checkout harness needed to apply
+deleted files as well as additions when overlaying the current diff; it now does,
+and cold acceptance runs with no research directory. An initial documentation
+rewrite hit Windows' implicit CP1252 encoding; restored the affected document from
+the initially clean HEAD, reapplied edits in UTF-8 and verified every archived
+report body. An initial browser filter selected no tests; corrected the filter
+and ran all selected model workflows successfully. No test timeout or product
+rule was weakened.
+
+This cleanup adds no new 1,000-draw predictive/resource campaign, calibration,
+manual acceptance, commit or public deployment. The final publication gate stays
+separate.
+
+## Migration checklist review and cleanup — 2 November 2026
+
+Reviewed the two open items at Luca's request before pruning completed tasks.
+The **Fast vote-share model in production: 2026 reform only** parent is complete:
+FV-01–FV-09 and its follow-up tasks are delivered, the runtime registry selects
+M01/M02 2.0.0 with M02 as default, and the current release/archive verification
+is recorded in the preceding restoration and FV-09 entries. Closed the parent
+and removed it with the other completed checklist entries. This closes the
+implementation scope; it does not establish predictive calibration or a fresh
+1,000-draw resource campaign for 2.0.0. The earlier acceptance receipts retain
+their original model/version scope. Public deployment remains the final gate.
+
+**Local support for future filed lists without local history remains open.**
+The [generation diagnosis](politics-reform-2026-generation.md#filed-lists-without-local-history),
+current M01 reference preparation and restored 2.0.0 definitions still expose the
+missing-support limitation: a national reference/numerical seed does not identify
+a meaningful local profile. The superseded 1 November inference corrections do
+not close this task after the restoration. Moved its complete directive to
+**After completion of the web migration**, retaining Sud chiama Nord in
+Molise/Basilicata, the estimate/reference decision, I17's limited legal scope
+and the rejected sole-college bypass.
+
+Removed **27 completed top-level entries**, including the newly closed fast-model
+parent and all their completed children. Existing history already records the
+foundations/parity/benchmarks, politics and Emilia-Romagna delivery, R26-01–21,
+legal-gap investigations and approved resolutions, editor/results/messages,
+poll preparation/calibration research, Other category, reference-based bonus
+candidates, FV-01–09/model follow-ups and UI/table/spinogram refinements. Kept
+all five remaining migration directives and every post-migration task. Replaced
+the deferred poll-editor task's obsolete FV-07 checklist pointer with its
+maintained workspace guide, and corrected the production plan's stale statement
+that implementation acceptance was still open.
+
+Verification: reviewed the current registry, restored model/reference code,
+generation diagnosis, dated history and FV-09 verification receipt. Ran
+`cd web; npm test -- src/lib/politics/reform-2026/vote-share/correspondence-policy-audit.test.ts src/lib/politics/reform-2026/vote-share/generation.test.ts`:
+**2 files / 22 tests passed**, no skips. Checklist comparison confirms that all
+previously open tasks survive unchanged except the completed fast-model parent,
+with local support moved intact; no checked entries remain. Changed-document
+local links and `git diff --check` pass. Only documentation changed; no new full
+build, browser, predictive/resource or publication acceptance is claimed.
+
+
+## 2026-11-02 — Shared web workspaces and politics defaults
+
+Implemented the approved workspace-uniformity scope in the first two remaining
+migration directives. The remaining clean-clone Node data-preparation migration
+stays separate. The [workspace guide](web-workspaces.md) provides the focused
+routing/defaults/data/UI task map and regeneration/check commands.
+
+### Workspace and data boundaries
+
+Added a typed registry for previous-law politics, reform politics with M01/M02,
+and Emilia-Romagna regional elections. It owns supported combinations, routes,
+capabilities and run limits; the worker validates the same combinations. Municipal
+simulation remains unregistered/unavailable. Existing routes and the previous-law
+politics default selection remain intact. Route components now compose adapters;
+legacy execution moved out of the dispatcher into a lazy runner.
+
+Shared the navigation shell, run controls, severity-separated messages and table
+renderer. Legacy adapters share owned worker cancellation/teardown and draft
+persistence, retaining their existing storage keys. Reform keeps its specialized
+fit/checkpoint/pool/storage ownership. Memory and stored tables share a page-access
+contract; presentation aggregation remains in the existing TypeScript helpers and
+exports remain in `core/result-export.ts`. Imports inspect scenario metadata,
+including cross-route one-shot handoffs, without parsing whole large result
+archives. Unknown/mismatched combinations fail explicitly.
+
+Reset confirms replacement of the draft and preserves the executed scenario,
+results and their interpretation warnings. Stale results can restore their
+original scenario. Workers terminate on cancellation/navigation; revision guards
+reject late replies. Execution errors now retain real elapsed time and, for legal
+run failures, simulation/chamber/reason context. No partial forecast tables are
+manufactured after a fatal legacy error.
+
+Generated exact schema/byte/SHA-256 descriptors for the existing R politics and ER
+snapshots. UI/worker loading and required-data acceptance consume these contracts;
+missing/corrupt data has no debug fallback. Added `data:workspaces:generate` and
+`data:workspaces:check`; the existing politics default exporter invokes the
+compiler, and `acceptance:reform` includes its check. These are runtime/default
+contracts around existing assets, not replacements for the remaining R importers.
+No legacy `dati/` consumer was removed.
+
+### Shared authored default and compatibility
+
+Both active politics paths use the established authored
+`data/fast-share-future-scenario.json`: 24 lists, the two requested political
+coalitions, autonomous lists, geographic filing and minority declarations.
+The older-law compiler consumes promoted membership rules, reviewed comparison
+weights and named poll references. Unspecified internal historical splits retain
+explicit equal-member assumptions and unmapped-to-abstention behavior. Historical
+lists retain projected means; national overrides are initially active for named
+references without compatible historical membership. Camera/common special and
+provincial reference means from the accepted reform default are explicitly
+borrowed into the older shared field. Assumptions/provenance survive in
+`defaultSource.notes`; reference SDs do not acquire new legacy semantics.
+
+Autonomous lists keep `coalition: null` in the editable scenario. Singleton
+candidate tickets are compiled only at the previous-law boundary, with rename,
+removal, validation and candidate-template support. They do not appear as extra
+political coalitions. Final visual review caught and corrected an initial leak
+of these adapter tickets into the coalition editor.
+
+Scenario schema 9 adds optional per-chamber constituency filing and minority
+regions. Older scenarios without these fields retain their prior interpretation.
+New coverage filters candidate slots and cross-list candidate reuse and conditions
+shared latent votes per chamber while preserving each unit's non-valid fraction.
+Typed arrays replace expanded per-simulation object arrays for explicit-filing
+scenarios, with a 256 MiB numerical-workspace bound; chunks remain 50. Historical
+scenarios use the untouched generation path. Local-only lists with zero national
+historical support use an explicit candidate-weight fallback; old joins retain
+their R behavior. No R or TypeScript scrutiny implementation was edited.
+
+### Verification
+
+Environment: Windows, Node 24.20.0, Chromium 148.0.7778.96. Commands below ran from
+`web/`; builds and browser suites ran sequentially.
+
+- `npm run check:data` and `npm run check`: passed; **zero Svelte errors/warnings**.
+  Svelte MCP checks found no remaining component issues. Existing local Map
+  builders are nonreactive calculations; effects retained for storage, external
+  busy-state synchronization and asynchronous result-page loading are intentional.
+- `npm test -- --maxWorkers=2 --reporter=json --outputFile=../data/derived/workspace-refactor/unit.json`:
+  **102 files / 1,212 tests passed, zero skips**. Historical snapshot tests now
+  explicitly use the frozen snapshot default rather than assuming a new UI
+  default must equal the old workbook. New coverage tests include normal-draw
+  equivalence with unrestricted filing, valid-mass preservation, owned copies,
+  autonomous tickets, both chamber assemblies, rejected corrupt assets and the
+  preserved Camera failure described below.
+- `npm run data:workspaces:check`: passed. Reform cached release preparation,
+  staging/build and `data:reform:shares:release:check` passed, including the staged
+  production candidate. Source identity stayed
+  `fast-share-source-v1-95d505ed1f7ea79c99cd0bf91a86dbc6a2d54c1f24fd9b37bec40a57e3c72511`;
+  the regenerated local catalog is
+  `fast-share-catalog-v1-2d9327e717551b20c4c0a3b801f0c2d5ee7f7d5695daea6455cea9cf7efcdd45`.
+- `npm run build`, then prebuilt `npm run test:e2e -- --workers=2 --reporter=json`:
+  **47 Chromium checks passed at `/` (50.0 s)**. Repeated build and suite with
+  `BASE_PATH=/elezioni`: **47 passed (49.0 s)**. Both had zero skips/retries/flaky
+  results. Reports are `data/derived/workspace-refactor/browser-root.json` and
+  `browser-project-base.json`. Covered direct loads, refreshes, navigation, both
+  politics defaults, ER, archive/import compatibility, cancellation, reset/stale
+  results, independent tickets, required-data errors and bounded stored results.
+  Mounted 390×844 viewport checks and screenshots for all three workspaces
+  confirmed document width 390 with no horizontal overflow.
+- Before/after seeded generation of the frozen historical scenario, projection
+  date `2026-11-02`, seed `workspace-parity-v1`, stayed byte-identical:
+  SHA-256 `5485bc46c8d1bc648f4e48113f2e2d5da8abed3cee7ef4047bd4f1d9107d5dde`.
+- Updated the constructed production-worker harness to serve all emitted lazy
+  dependency chunks at both bases. Updated a stale FV-04 reference fixture to
+  reference its fitted list basis under the current contract, retaining its
+  Node/browser equality assertions. An existing Node type-overload issue in the
+  research-boundary test was fixed by explicitly converting directory entries to
+  strings. Import-error browser assertions now use the separate error section.
+
+### Preserved Camera failure and benchmark qualification
+
+`POLITICS_BENCHMARK_OUTPUT=../data/derived/workspace-refactor/politics-benchmark.json`
+with `npm run benchmark:politics` successfully completed **10 runs in 4.637 s** and
+**100 runs in 12.948 s**. The **1,000-run request failed**, reproducibly, at global
+simulation **584 / Camera**, seed `politiche-2027`, chunk start 551, local run 34:
+`Non ho a chi dare il seggio eccedente`.
+
+This is the preserved exception at `scrutiny.ts`'s Camera national/constituency
+flipper, also present in `R/politiche/scrutinio.R`. Input counts are finite,
+nonnegative and match declared filing. At the failure, Futuro Nazionale retains
+one excess seat; the remaining deficit subject is Die Freiheitlichen. Its eligible
+constituency row already received a remainder seat, so the unchanged recipient
+filter returns no row. This records program behavior, not an approved legal
+interpretation or correction. Replayed the exact input independently and froze
+the failure in the generated-production test. Raw replay/trace evidence is under
+ignored `data/derived/workspace-refactor/legacy-failure*.json`. The Camera input
+remained byte-identical after the autonomous-ticket presentation correction:
+SHA-256 `fad5b52c83fff7e5d5983c1473277ad38bd404f585d61e6c6ae5097f79759c28`.
+
+The benchmark now fails immediately on an execution error and writes its passing
+prefix plus failed-request diagnostic, rather than waiting seven minutes for an
+absent result table or losing successful timings. The existing tracked benchmark
+receipt was not overwritten. Added a separate open legal-review/publication
+blocker in the active plan. No seat-transfer fallback, reroll, skipped simulation,
+changed denominator or accepted 1,000-run result is claimed. M01/M02 probability
+laws, broader predictive acceptance and their earlier resource campaigns remain
+outside this workspace refactor.
+
+The two workspace/default directives are complete; Node importers/clean-clone
+bundles, bridge retirement, the newly recorded legal blocker and the final
+hosting/publication gate remain open. No commit, push, deployment, new Linux
+runner measurement or full cold-source preparation acceptance occurred.
+
+## 2026-11-02: Complete Node production data preparation
+
+Completed the data-preparation directive using the approved revised geographic
+reference. R scripts and `dati/` remain for the separate retirement step. No R
+script was edited, executed or functionally tested during this work.
+
+Implementation and source ownership:
+
+- Added the [complete preparation workflow](data-preparation.md): from `web/`,
+  `npm run data:prepare -- --download`, then `npm run data:check`. Preparation
+  orchestrates all current production bundles, model/preference inputs, defaults,
+  descriptors and catalogs; release acceptance now requires the complete check.
+  Sources/output/model-cache locations can be isolated. Cache misses are supported;
+  offline regeneration verifies already acquired inputs. Runtime publication here
+  means local generated files, not website deployment.
+- Replaced production preparation dependencies on R caches and Excel with pinned
+  originals and authored `data/workspace-defaults.json`. The authored reference
+  preserves the earlier politics/ER choices; the visible politics default still
+  uses its existing shared scenario compiler. Named/minority candidate templates
+  were absent from the previous reference snapshot; synthetic grids retain the
+  existing generation settings. Civil election dates serialize at UTC midnight,
+  independently of the preparation host's timezone.
+- Added law-neutral DBF/census reading, previous-law geography/endowments and
+  historical import modules. Targets use 7,904 municipalities and population
+  59,030,133, with 147 Camera and 74 Senate uninominal colleges. Previous-law
+  identifiers remain compatible with saved filing declarations. Physical-unit
+  identifiers now name definitive DBF records. Previous-law capacities retain
+  their existing formula, with 392/196 domestic totals and provisional labels.
+  Only reform preparation applies the Bolzano overlay. Salorno remains ordinary
+  Senate U04 while the reform places it in U05.
+- Reconciled all four national election histories completely onto that reference.
+  Municipal totals and every source electorate are conserved. Trapani/Misiliscemi
+  reconstruction is explicit for 2018/2019; seven post-census mergers require
+  labelled reconstruction in European-2024 history. Regional coverage is 328
+  observations in 2020 and 330 in 2024. Montecopiolo/Sassofeltrio are absent from
+  ER-2020, not zero. The four superseded A1/B1 membership records for their transfer
+  are audited; other spreadsheet/DBF discrepancies fail.
+- Historical direct-list views stay separate from reform candidate-only
+  attribution and preference calibration. Camera-2022 VdA uses its separate
+  official group/turnout files. The Camera-2018 Sauze di Cesana source anomaly
+  (270 list votes, 200 electors, residual -70) is preserved and audited rather
+  than silently repairing votes/electors. Data assumptions survive scenario and
+  result export; ER provenance describes its own history gap, not national seats.
+- Reused the existing compiler contracts. Both visible defaults and the earlier
+  politics reference bind to exact snapshot hashes; geography identity alone is
+  insufficient for the worker's strict version check. Added a binding regression
+  test. Snapshot schemas/compatibility paths remain unchanged; immutable derived
+  versions and runtime SHA-256 descriptors identify their contents. Generated
+  outputs are checked rather than silently regenerated by release validation.
+- Retained frozen compressed TypeScript regression inputs/outputs under
+  `test/fixtures/`, with a checksum manifest. These support clean-clone tests
+  without R and are never production inputs/fallbacks. Debug bridge files stay
+  in their original local source locations but are excluded from the final
+  distributable. The final `build/data/v1/` contains metadata and the two actual
+  production snapshots only.
+
+Problems found and resolved:
+
+- Identical ISTAT historical API requests reordered rows sharing a municipal code,
+  causing a legitimate checksum failure in the first Linux cold run. Verified
+  that the repeated responses contained identical record multisets. Added four
+  reviewed, canonically sorted compressed source snapshots under
+  `data/sources/geography/`; their manifest retains original URLs/response hashes,
+  canonical hashes and exact compressed checksums. Clones use these authoritative
+  repository sources offline; no live response bypasses checksum validation.
+  Each election uses its dated crosswalk, preventing later mergers from leaking
+  into earlier observations.
+- Preparation commands previously inherited a missing `.svelte-kit/tsconfig.json`
+  in a clean checkout. They now use the independent Node configuration, including
+  the workspace compiler subprocess. No app build is needed to prepare data.
+- ER scenario parsing discarded provenance notes; normalization/cloning now retain
+  them. A temporary geography-version/default binding failed worker validation;
+  exact snapshot identities fix it. Existing smoke assertions now expect the
+  explicit data-assumption messages.
+- An existing real-source test assumed hard links across filesystems, which failed
+  between Linux `/var/tmp` and `/tmp`; fixture setup now copies the required files.
+  The reform editor acceptance test used a fitted-component reference rejected by
+  the current model contract. It now edits that component's filed list reference;
+  model/reference laws were not changed.
+
+Verification on Node 24.20.0:
+
+- Windows complete preparation and `data:check` passed. Final preparation took
+  74.9 seconds. The independent Linux/Ubuntu WSL source checkout contained no
+  generated runtime bundles, legacy caches or SvelteKit configuration initially.
+  `npm ci` and empty-source/empty-model-cache preparation succeeded; the final
+  cold run took 140.4 seconds. Warm offline preparation under `TZ=Europe/Rome`
+  took 73.9 seconds; preparation/checks also ran under `TZ=UTC`.
+- All 11 final receipt artifacts matched Windows/Linux byte for byte. Receipt:
+  `89b7b99eef846fb63b31ef2948d9257abb2d9e1ad2f078bcbca27b260e3a52cd`.
+  Politics snapshot: 78,780,421 bytes; ER: 5,254,154 bytes. The existing reform
+  generation bundle regenerated as `r26-generation-v1-c5c4be9fafb5`, 992,943 gzip
+  bytes, with its checksum/588-filled-seat scrutiny slice passing.
+- Linux preparation/application checks, 103 unit files / 1,218 tests, and the
+  `/elezioni` static build passed. No unit skips. These are local Linux results,
+  not a claim about a GitHub-hosted runner or free-tier eligibility.
+- Final Windows `ACCEPTANCE_TEST_WORKERS=2 npm run acceptance:reform` passed:
+  1,218 unit tests and, at each of `/` and `/elezioni`, 47 main browser checks,
+  four editor checks and ten Chromium/Firefox model/storage/export checks.
+  Total: 122 browser checks, no accepted skips/retries. Required builds/browser
+  checks ran sequentially; the gate restored a root build. Timed checks totalled
+  767.2 seconds. M01/M02 application checks used the gate's three-draw setting,
+  not a new 1,000-run predictive/performance acceptance campaign.
+- Reports/logs are under `data/derived/production-migration/`,
+  `data/derived/r26-21-acceptance/` and `data/derived/production-migration-*.log`.
+  Documentation local-link and whitespace checks passed.
+
+The revised inputs no longer reproduce the old Camera failure at that particular
+seed/simulation. Its exact pre-migration input/context was frozen in
+`legacy-camera-flipper-584.json.gz` and still throws the original exception in
+the TypeScript regression. This is not a legal correction or an accepted
+1,000-run campaign. The legal-review, R/bridge retirement and hosting/publication
+steps remain open. No commit, push, workflow activation or deployment occurred.
+
+## 2026-11-02 — Production acceptance pruning and stale entry-point retirement
+
+Applied the approved acceptance audit without changing generation or legal
+scrutiny behavior. The application gate now runs `data:check` once: it already
+includes the reform checksum/vertical slice, workspace/default and share-release
+checks formerly repeated by the runner. It builds `/elezioni` once for complete
+behavioral coverage, then `/` once for focused URL integration; building root
+last also removes the separate restore build.
+
+The required browser matrix is now:
+
+- `/elezioni`: all 47 general Chromium checks; four Chromium scenario-editor
+  checks; ten unified Chromium/Firefox checks, including both current models,
+  three paired simulations with two compute workers, model/UI capacity controls,
+  durable results and archive replay.
+- `/`: seven route/refresh/navigation, workspace/import/cancellation and regional
+  checks; both models run one paired simulation in each of Chromium and Firefox
+  (four additional checks). Full numerical, statistical and editor behavior is
+  exercised at the project path rather than repeated at root.
+
+Every required browser suite now uses the same first-attempt/no-skips/no-expected-
+failures report validation, including the previously unvalidated editor suite.
+Unified functional checks omit heap/process instrumentation; the separate
+`FV08_FULL=1` campaigns retain resource sampling and their 60-minute per-model
+execution bound. No smaller draw count replaces those full campaigns.
+
+Retired `test:results` and `benchmark:reform`, deleting their specs and the
+now-unused results Playwright configuration. They used unsupported old defaults
+or UI/worker assumptions. Existing reports remain historical evidence. The current
+unified workflow now additionally queries indexed details for the final run,
+compares those details after import, and streams/hash-compares every decompressed
+byte of the imported/re-exported archive except the export timestamp. This
+preserves useful detail/archive checks from the retired entry points. Existing
+constructed-input 1/2/4-worker invariance, chunk-boundary, crash/quota/cancellation,
+large statistical-query and legal regression checks remain. Full-source throughput
+matrices and memory campaigns stay separate from routine acceptance.
+
+Captured ten exact historical legal inputs (simulations 1, 4, 165, 31, 42, 80,
+598, 792, 49 and 242), their traces and presentation context in
+`test/fixtures/reform-legal-inputs-v1.json.gz` (2,691,396 bytes). Its adjacent
+manifest pins compressed/uncompressed and per-input SHA-256, source catalog and
+seed. `legal-regressions.test.ts` preserves the I13/I14/I16, seat/candidate,
+remainder, stage, warning, presentation and obsolete-export rejection assertions
+without regenerating these cases or depending on current production data.
+The small production-bundle/reference integration tests remain. The one-time
+capture script under `web/scripts/fixtures/` refuses overwrites; legal changes
+require a reviewed new fixture version, not a refreshed failing seed.
+
+Verification on Windows, Node v24.20.0:
+
+- Focused frozen-legal/production tests: two files, five tests passed.
+- `npm run check:data`: passed before acceptance; repeated by the actual gate.
+- From `web/`, `$env:ACCEPTANCE_TEST_WORKERS='2'; npm run acceptance:reform`:
+  passed on the first complete run, with **1,219 unit tests and 72 browser
+  checks**, no skips/retries/expected failures. Both type checks passed;
+  Svelte reported zero errors and warnings. The final root build is available.
+- Recorded subprocess time: **551.8 seconds (9m11.8s)** versus **767.2 seconds
+  (12m47.2s)** in the preceding saved run with the same worker bound, platform,
+  Node version and identical three production-input SHA-256 values. This is a
+  **215.4-second / 28.1% reduction**, despite adding full archive re-export
+  comparisons. It is one local before/after comparison of the revised workload,
+  not a repeated isolated performance benchmark. The production integration file took 7.15s and the frozen legal file 3.51s;
+  their combined wall time is not the sum because the test processes overlap.
+
+Raw evidence: `data/derived/r26-21-acceptance/`,
+`data/derived/acceptance-pruning-run.log` and unified browser receipts under
+`data/derived/fv08-unified/browser/`. Earlier acceptance evidence was preserved
+under `data/derived/acceptance-before-pruning-20261102/`. Updated the acceptance,
+application, results, data-preparation and unified verification instructions;
+archived FV-08 curators are no longer presented as current active commands.
+Local documentation-link and `git diff --check` verification passed.
+The existing staged plan changes were preserved; only this task's checkbox was
+updated in the working tree. No new 1,000-run predictive/resource campaign,
+manual acceptance, legal correction, R retirement, commit, push or deployment
+was performed.
+
+## 2026-11-02 — R and temporary bridge retirement
+
+Retired the R implementation, RStudio project/session files, Quarto workflows
+and rendered examples/caches, Excel scenarios, legacy `dati/`, R exporters and
+benchmark/check commands. Removed the two temporary Node bridge exporters and
+the one-time R/TypeScript Other checker. Kept the four Node default/catalog
+compilers in `scripts/`: the production pipeline still invokes them.
+
+The three local `web/static/data/v1/politics-*-debug*.json`/debug-scrutiny
+bridges were removed. `npm run build` now invokes Vite directly; its former
+post-build debug-file filter is unnecessary. Added an asset-boundary regression
+that rejects debug files in `static/data/v1`. Renamed snapshot test descriptions
+to distinguish frozen historical regression from Node production contracts.
+No legal algorithm, model, generated default or fixture expectation changed.
+
+Frozen JSON/gzip references remain under `test/fixtures/`, including the
+checksum-pinned R outputs and the independent Camera simulation-584 failure.
+They are regression evidence consumed directly by TypeScript, not temporary
+runtime/preparation bridges. Historical benchmark receipts and research evidence
+remain. `test/fixtures/README.md` documents this boundary and versioning rules.
+
+The pre-retirement revision is
+`9bcbe403342c2570c83f547f7ae70adddec9961f`. It retains the R sources and Excel
+workbooks cited by `data/workspace-defaults.json`; those provenance paths/hashes
+remain historical identities. Municipal simulation is still unimplemented in
+TypeScript, and no municipal golden fixtures or acceptance are claimed. The
+future municipal step now explicitly requires an isolated historical checkout
+for reference/fixture capture before translation. This removal does not resolve
+the known previous-law Camera flipper failure or any deferred legal issue.
+
+Automatic approval review rejected the initial recursive deletion command
+(`blocked by policy`). Used a reversible move instead: 39 explicit paths,
+including ignored local caches, were archived outside the repository at
+`C:\Users\forna\Repos\elezioni-retired-r-20261102`. All resolved source and
+destination paths were checked against their intended roots before moving.
+The archive is a local recovery aid, not a build/test/preparation dependency.
+An ignored-file audit also found eight old clean-checkout copies under
+`data/derived/` and 42 third-party R sample/test scripts in the local Python
+analysis environment. Archived those copies/scripts under the same root;
+Python runtime files and independent analysis results remain in place.
+Independent analysis, legal investigations under `_output/`, research archives
+and authoritative `data/` sources were preserved.
+
+Rewrote the Italian user README for supported browser workflows, Node-only setup,
+checks, export/import and remaining limits. Updated agent guidance, preparation,
+workspace, Other and acceptance documentation, retired obsolete R ignore rules,
+and labelled the old legal implementation reference as historical. Earlier
+migration-history entries remain an account of their original state.
+
+Layout decision: retain `web/`. The root still owns `data/`, `docs/`,
+`test/fixtures/`, research and independent investigations. Flattening would
+require coordinated changes to preparation roots, fixture URLs, replay bindings
+and documented commands, with little benefit to this split. A root invocation
+can use `npm --prefix web run <script>` without introducing another package or
+workspace wrapper. No folder relocation was performed.
+
+Verification after removal (Windows, Node v24.20.0, npm, two test workers):
+
+- From `web/`, `$env:ACCEPTANCE_TEST_WORKERS='2'; npm run acceptance:reform`:
+  passed on the first complete run. Complete Node production-data verification,
+  preparation and application types passed; Svelte reported zero errors/warnings.
+- **1,220 unit tests and 72 browser checks** passed, without skips or retries.
+  Sequential Vite builds and browser checks covered `/elezioni` and `/`,
+  Chromium/Firefox M01/M02 workflows, storage and archive round trips. Total
+  recorded subprocess time was 602.4 seconds; this is functional acceptance,
+  not a new 1,000-run predictive or resource campaign.
+- Frozen compressed/uncompressed fixture hashes passed. The three runtime
+  debug bridges are absent from both `web/static/data/v1` and `web/build/data/v1`.
+- An ignored/hidden-file scan found no remaining `.R`, `.r`, `.RData`,
+  `.Rhistory`, `.Rproj`, `.qmd`, `.rds` or `.rda` files outside `.git/`,
+  including installed dependencies and old preparation directories.
+- Changed-document local file links and `git diff --check` passed. The final
+  root build remains available. Evidence: `data/derived/r-retirement-acceptance.log`
+  and `data/derived/r26-21-acceptance/`.
+
+Marked the retirement step complete. No municipal acceptance, legal correction,
+commit, push, workflow activation or public deployment was performed.
+
+## 2026-11-02 — Local derived-data cleanup
+
+Reviewed all regular files and links under `data/derived/` against active
+preparation/test readers, candidate/cache dependency graphs, documented legal
+investigations, completed result archives and retained benchmark evidence.
+Distinguished CLI/test output destinations from actual input dependencies.
+The inventory excluded junction targets, which otherwise inflate directory
+counts by including the live `web/node_modules/` tree more than once.
+
+Retained **673 regular files, 3,304,967,601 bytes** (about 3.08 GiB): production
+intermediates, the local candidate's complete closure, relevant preparation/model
+caches, acceptance summaries and final archives, poll/reference outputs and
+legal replay evidence. The installed runtime candidate and the local preparation
+candidate remain distinct; neither was changed or selected by cleanup.
+Frozen fixtures, authoritative sources, curated research, model drafts and
+application/legal/model code were preserved.
+
+Automatic approval review rejected preparation of the deletion script with
+`blocked by policy`. Used the user's authorized fallback: moved **15,866 regular
+files, 18,226,313,861 bytes** (about 16.97 GiB), plus **five links**, to
+`C:\Users\forna\Repos\elezioni-derived-cleanup-20261102`. Nothing was permanently
+deleted. Superseded checkouts/builds/toolchains, clean-run/source copies, obsolete
+research/acquisition scratch, expanded CSV/replay outputs, old logs and SCN
+worker spools are outside the repository. Empty directories were also moved.
+The complete SCN gzip, selected full legal cases and compact verification remain
+in place; reconstructing that historical archive with `--export-only` requires
+restoring its worker spools first.
+
+The external `manifest.json` records every retained/moved file, reason, original
+path and identity; `execution.json`, `summary.json` and `verification.json` record
+the move and checks. Manifest SHA-256:
+`fed5b870e9db2fd30ea97dcf017d1850d9543e09cc0a991757ca6422d26b4a32`.
+Checked every regular file's unchanged Windows file identity, size and modification
+time after same-volume moves, plus SHA-256 for files up to 1 MiB. Large files were
+not content-hashed. Moved junctions as links without traversing their targets;
+live dependencies remained available. There were no unexpected remaining files
+or empty directories at verification. Subsequent production checking refreshed
+its normal `production/check-report.json` receipt.
+
+Verification before and after cleanup: `npm run data:check` passed with the same
+11-artifact receipt identity; **104 test files / 1,220 unit tests** passed with
+two workers, without skips. The post-cleanup test run took 46.20 seconds.
+Both optional research archive checks passed (212 archived files and 61 frozen
+evidence files). `git diff --check` and changed-document local links passed.
+No fresh browser/resource campaign or full data regeneration was needed or claimed.
+
+Added the focused [retention/recovery guide](derived-data-retention.md) and its
+data entry-point link. No migration directive, production default, legal policy,
+commit, push or publication changed. Repository footprint was reduced; disk
+space was not reclaimed because the fallback archive remains on the same volume.
+
+## 2026-11-04 — Election-wide bonus winner chart
+
+Removed the chamber selector and its state/filter from the bonus-winner chart.
+The chart now groups awarded simulations by the linked Camera/Senato subject
+pair, using the election-level status in `Reform runs` and matching the two
+`Bonus eligibility` rows by simulation. Each awarded simulation contributes
+once; equal display names appear once, while distinct names are joined. The
+requested-simulation denominator and known-decision lower-bound behavior are
+preserved. Missing or duplicate pair evidence is reported as an error rather
+than silently counted.
+
+Verification: focused stored bonus-pair tests passed (2 tests), including equal
+names, distinct names, and duplicate-chamber rejection; `npm run check` passed
+with zero Svelte/type errors and warnings; `git diff --check` passed. No issues
+or workarounds.
+
+Follow-up: E2E archives with no `Bonus` field exposed that a bonus-statistics
+error could abort construction of unrelated vote boxplots. Isolated that request
+to the bonus section and surfaced its error there; chart loading now continues.
+All eight tests in `reform-statistics.spec.ts` pass, including the two affected
+chart-family cases, and `npm run check` remains clean.
+
+## 2026-11-04 — Election probability table colors
+
+Probability cells now blend from white at 0% to the selected list color at
+100%. List colors with less than 3:1 contrast against white are darkened to
+that threshold before calculating the scale. Cell text selects black or white
+for at least 4.5:1 contrast. Added helper tests for endpoints, faint-color
+darkening, and text contrast; the table's probability labels and calculations
+are unchanged. Verification: all 5 election-probability tests pass,
+`npm run check` reports zero errors and warnings, and `git diff --check` passes.
+
+## 2026-11-07 — Common politics generator and session decisions
+
+Updated the [workspace guidelines](common-politics-scenario/guidelines.md) with
+approved D01/D02/D08/D17: reusable generator identities with validated law
+adapters; replace M00 with M01 for Rosatellum; retain reform + M01/M02; select
+M01 on switching to Rosatellum and M02 on switching to reform. Historical M01
+compositions remain distinct from binary future memberships. Exact versions and
+cross-law version-impact assessment remain explicit. M00 retirement avoids a
+third maintained model and intentionally replaces its statistical semantics;
+Rosatellum candidature policies, legal scrutiny and frozen evidence are preserved.
+
+Specified common durable bounded execution, multiworker determinism and result
+sessions independent of draft selection. Remove the Rosatellum-specific
+1,000-run ceiling in the target design, while acceptance campaigns remain at
+1,000 simulations per approved pair: Luca explicitly excluded larger runs.
+Updated dependent implementation steps and the page draft's comments for these
+rules. The merger remains unimplemented and its migration item stays open.
+
+Verification: decision-register consistency and the acceptance-size restriction
+passed; all 15 local guideline links/anchors resolved; the Svelte draft parsed,
+and comparison with HEAD proved its markup unchanged after removing comments
+and whitespace. `git diff --check` passed. Documentation only; no runtime tests,
+resource campaigns or model/legal implementation changes were performed.
+
+### Follow-up — Remember generator selection per law
+
+Revised D02, the common scenario contract, authored-default instructions,
+implementation checks and page-draft comments: store an exact generator/version
+selection for each law. New scenarios initialize Rosatellum to M01 and reform
+to M02. Model changes update only the active law's choice; law changes restore
+the destination law's saved choice, superseding the unconditional switching
+defaults above. Persist both choices through reload and scenario JSON/gzip
+roundtrips, deriving the active generator instead of duplicating it. Missing or
+unsupported choices remain validation errors. Acceptance still excludes runs
+above 1,000; session-selection rules are unchanged.
+
+Verification: per-law selection contract, removal of the prior switching rule,
+unique decision IDs and unchanged acceptance restriction passed. The page draft
+parsed and its changes were comments only; `git diff --check` passed. No runtime
+implementation or acceptance campaigns were performed.
+
+### Follow-up — Shared list declarations and linked chamber memberships
+
+Recorded approved D05: shared coalition/list names, list coalition affiliation
+and minority declaration; distinct lists represent differences between chambers.
+List filings declare chamber-only participation, without a separate list-presence
+toggle. Explicit reform bonus links are available in advanced coalition and
+autonomous-list options for subjects filed in one chamber only, with eligible
+coalition or autonomous-list counterparts. D11's automatic-link serialization
+and precedence choices remain open.
+
+Expanded D08 and the annotated page draft with separate Camera/Senato future
+membership lists, side by side when space permits. Each future list has a
+default-locked chain control: Camera edits both sets; unlocking preserves them
+and allows independent edits; re-locking replaces Senato with Camera, including
+removals and empty sets. Specified atomic conflict validation, saved lock state,
+inactive-data retention and per-chamber fallback activation. Historical-source
+editing and M01 source fractions remain separate from binary future memberships.
+
+Verification: the Svelte autofixer reported no issues or suggestions; the draft
+parsed, guideline links/anchors and decision-register consistency passed, and
+`git diff --check` passed. Documentation and annotated draft only; no production
+UI, generator, scrutiny or data changes, and no runtime acceptance campaign.
+The workspace-merger migration item remains open.
+
+### Follow-up — Coalition link eligibility follows declared chamber scope
+
+Corrected the guidelines and page draft to distinguish a coalition's declared
+scope from effective member-list participation. A coalition declared in both
+chambers automatically links its two counterparts, even if one side has no
+filed members; it cannot declare another link or be selected as another
+subject's explicit counterpart. Only a coalition declared in one chamber can
+use the corresponding explicit-link controls. Member-list effective filings
+respect that scope; removing the last filed member never changes link eligibility.
+Empty counterparts are handled separately during execution validation/assembly,
+without changing the declared relationship or substituting another counterpart.
+
+Updated both coalition and autonomous-list counterpart selectors and narrowed
+D11 to remaining serialization/retained-declaration handling. Verification:
+Svelte autofixer, draft parsing, guideline links/anchors, decision-register
+consistency and `git diff --check` passed. Changes are documentation and draft
+comments only; no runtime implementation or acceptance campaign.
+
+### Follow-up — D06 references and D09 candidate declarations approved (2026-11-07)
+
+Recorded Luca's approval of D06's reference representation, uncertainty defaults,
+feasibility and persistence policy, and D09's candidate identity rules in
+`common-politics-scenario/guidelines.md`. Declared identities, biography and
+availability are shared; placements and external candidacies are law-specific.
+Reuse is explicit, edits propagate, identity deletion removes all dependent
+candidate declarations, and removing one placement retains the identity and
+other pins. Required name/gender and a persisted, labelled assumed birth date
+(January 1 of election year minus 50) replace the earlier incomplete-identity
+recommendation. Generated-candidate policies and immutable results are preserved.
+
+Updated the contract ownership table, approved/open register and dependent CP-02
+and CP-06 instructions, removing obsolete D06/D09 approval gates. Verification:
+reviewed the documentation diff, checked decision-register consistency and ran
+`git diff --check`. Documentation only; no runtime implementation or acceptance
+campaign. D11/D14 and the workspace-merger migration item remain open.
+
+### Follow-up — D11 bonus-link persistence approved (2026-11-07)
+
+Recorded Luca's approval in the common-scenario guidelines and annotated page
+draft. Automatic links are derived; explicit reciprocal Camera–Senato pairs are
+saved once with typed stable-ID endpoints. Scope, filing and affiliation edits
+retain ineligible pairs as inactive, with automatic reactivation when eligibility
+returns and no rebinding or chamber reversal. Each chamber endpoint has at most
+one saved pair, including inactive declarations; explicit replacement removes
+affected pairs and subject deletion removes its pairs. Advanced options retain
+counterpart/status/reason and remove/replace controls, with reactivation and
+replacement disclosures. Strict imports reject malformed or conflicting pairs.
+One resolver serves validation, UI and assembly; adapters emit only effective
+links and no joint links for single-chamber renewal. Empty coalition counterparts
+retain automatic relationships and receive separate participation validation.
+
+Moved D11 to the approved register and updated CP-02/CP-03/CP-06 checks. D14 is
+the only remaining open decision. Verification: Svelte autofixer reported no
+issues or suggestions, the draft parsed, non-comment markup was unchanged apart
+from blank lines, decision IDs were unique and register checks passed.
+The initial comment-stripping comparison retained the new comment's blank line;
+excluding blank-only lines resolved that verification mismatch. `git diff --check`
+passed. Documentation and draft comments only; no runtime implementation or
+acceptance campaign. The workspace-merger migration item remains open.
+
+### Follow-up — D14 editor scope approved (2026-11-07)
+
+Recorded Luca's D14 decisions in the common-scenario guidelines and annotated
+page draft. Keep historical membership/M01 composition controls, fallback and
+component-reference editors. Add a basic optional “Non valido / astensione”
+reference immediately below lists, visible by default, with attached collapsed
+national uncertainty, chamber references and common/chamber local-reference
+trees. Show electorate data under advanced settings without editing it.
+Preserve inactive values and model-specific meanings, including settings that
+have no UI editor during migration.
+
+Historical-source/poll editors, model-specific historical selection,
+supplied-vote/preference editors and model/profile editors (including M01
+partial observations) are deferred to the end of the post-migration plan.
+Their UI editability is explicitly excluded from CP-06/CP-08 acceptance;
+contract validation, execution and roundtrip preservation remain required.
+Updated CP-01/CP-06 and the decision register; no decisions remain open there,
+but the merger itself remains unimplemented and its migration item stays open.
+
+Pooling is retained in CP-06 because the current default uses it. Traced the
+active policy through `fast-share-default.ts`, `fast-share-future-default.ts`
+and `fast-share-release.ts`; decoded the local candidate catalog/scenario and
+confirmed 154 component-map entries, including 126 original IDs mapped to
+`historical-rest`. This is whole-component pooling, not merely an alias.
+CP-01 must recheck the authored default before implementation and defer the
+editor only if pooling is no longer used. No data was regenerated or modified.
+
+Verification: all 40 local links/anchors in the guidelines and migration plan
+resolved; the register has 18 unique approved decision IDs, with D13 superseded;
+obsolete D14 gates are absent and deferred tasks follow migration completion.
+The Svelte autofixer reported no issues or suggestions, the annotated draft
+parsed, and its non-comment markup matched HEAD after whitespace normalization.
+`git diff --check` passed. Documentation and draft comments only; no runtime
+implementation or acceptance campaign.
+
+### CP-01 — Inventory and preserve behavior (2026-11-07)
+
+Completed the first common-politics implementation step against source revision
+`a700d19b04272f39fad17ddd3ceb9e48048ea623`. Added the task-oriented
+[`inventory`](common-politics-scenario/inventory.md),
+[`baseline guide`](common-politics-scenario/baselines.md) and
+[`observed default/asset report`](common-politics-scenario/default-inventory.json).
+The mapping covers all original `Scenario` and released v5 inherited fields,
+candidate identity/placements/external declarations, per-chamber values, supplied
+votes/preferences and validity evidence, source/poll metadata, model settings,
+runtime/checkpoint/session ownership, exact dependencies and intentional M00
+retirement. It separates retained inputs, CP-06 editors and post-migration D14
+editors. No production schema, UI, generation, scrutiny or defaults changed.
+
+Rechecked the authored-choice/policy/compiler chain and the checksummed local
+release scenario: 154 component-map entries, 126 to `historical-rest`, 34
+components, 53 M01 source compositions, two partial named observations, 17
+political references and four non-valid references. Pooling remains required in
+CP-06. The read-only `common-politics-inventory.ts` collector records both
+compiled defaults, source/manifest hashes, release pointer/asset pins and exact
+filing/reference choices. It verifies compressed and decoded catalogue/scenario
+descriptors; it neither prepares assets nor supplies runtime defaults.
+
+Added a separate constructed M01/M02 2.0.0 generation/candidature corpus and
+replay test in `web/scripts/acceptance/common-politics-baseline{,.test}.ts`, with
+tracked output in `web/tests/fixtures/common-politics-baseline.json`. Fourteen
+cases cover joint and single renewals, distinct chamber references, territorial
+filing, manual identity pins, residual and new-component support, VdA/TAA, and
+trace diagnostics. Thirteen successful cases record 43 draws, national and
+college-level values, first-list sample moments, separate ballot/candidature
+hashes and declared biography. The fixed input recipe, source revision and
+input hashes permit replay; these small samples do not establish predictive
+acceptance. Exact old draws/IDs remain supporting evidence, not an architectural
+constraint. Rosatellum+M01 remains CP-03 work, with retained M01 statistical
+evidence and separate existing Rosatellum legal/candidature regressions.
+
+The reduced M01 restricted-filing case exposes the existing preparation error
+`Reference votes conflict with filing/capacity camera/990001/A`; M02 completes
+the equivalent case. Recorded the error verbatim rather than changing validation,
+rerolling or claiming successful execution. During corpus construction, an
+individual-college restriction failed the legal two-thirds coverage rule; the
+final case removes the list from a whole territory. The residual case uses the
+reserved identity/grey color and distinct component membership. These were test
+input corrections, not application fixes. The frozen Rosatellum Camera flipper
+584 input and all R/legal expectation/checksum manifests remain unchanged.
+
+Verification on Windows/PowerShell, Node v24.20.0, from `web/`:
+
+- Both read-only collectors completed; default catalogue/scenario checksums
+  verified. The final report also pins the four preparation source manifests.
+- `npm run check:data` passed; `npm run check` reported zero errors/warnings.
+- `npm test -- --maxWorkers=2`: 106 files, 1,224 tests passed, no skips, 49.14 s;
+  includes frozen R/checksum/legal failures, model-policy and portable-session
+  tests. After adding college-level output, the focused baseline replay passed
+  again (one test, 6.02 s including startup).
+- `npm run test:e2e -- workspace-uniformity.spec.ts reform-production-worker.spec.ts --workers=2`:
+  production build followed sequentially by nine passing Chromium tests at `/`,
+  53.6 s total, no retries/skips. Covered current draft/reset/import/navigation,
+  corrupt dependencies, cancellation/closed workers, 50-run boundaries,
+  1/2/4-worker exported rows/diagnostics, worker crashes and quota failures with
+  durable committed prefixes. Existing build timing/chunk-size and color-env
+  warnings were nonblocking.
+- Local documentation links/anchors, corpus counts and `git diff --check` passed.
+
+Added CP-01–08 to the active plan and checked only CP-01. CP-02–08, the parent
+workspace merger and final deployment gate remain open. No project-base release
+campaign, 1,000-run campaign, schema migration, commit or publication is claimed.
+
+### CP-02 — Establish the shared domain contract (2026-11-07)
+
+Added the independent common-politics domain under
+`web/src/lib/politics/scenario/`, with a task-oriented
+[contract guide](common-politics-scenario/contract.md). `scenarioShape` is the
+authoritative strict v1 runtime grammar and supplies the inferred readonly
+`PoliticsScenario` type. Independent law/model blocks are versioned; generator
+and scrutiny registries expose the three approved target pairs, capabilities,
+exact versions and per-law saved selections. Initial selection metadata is
+reform/M02 with Rosatellum/M01 saved. The first explicit scrutiny metadata
+version is `1.0.0` for the existing algorithm IDs, without a legal change.
+M01/M02 remain exactly `2.0.0` at this domain boundary; CP-03 must assess and
+apply any probability-law version impact before cross-law execution is enabled.
+
+The contract retains shared stable subjects, component presentation overrides,
+chamber memberships/lock metadata, owned fallback assumptions, historical
+source/poll selection and provenance, pooling, M01 compositions/partial polls,
+M02 methods/profiles, references with explicit units, shared candidate biography,
+per-law pins/external candidacies, both candidate-generation parameterizations,
+supplied legal evidence and requested seeds/workers. It excludes generated
+objects, fits and execution/storage ownership. Unknown/old formats, extra fields,
+missing selections/blocks and unsupported versions/pairs fail without conversion
+or replacement defaults. Scenario-only JSON/gzip roundtrips retain inactive
+declarations and distinguish absent/null uncertainty, empty declarations and
+explicit zero support/SD/counts. Result/archive headers and executed provenance
+have separate design interfaces; strict payloads and lifecycle integration remain
+later steps, not accepted import formats at CP-02.
+
+Added detached, atomic edit operations for selections, renewal, subjects,
+filings, memberships/locking, shared identities, ordered pins and links.
+Locked Camera edits update both sets; independent edits and re-locking validate
+both chambers before returning. New subjects initialize every law; new lists
+receive explicit eligible filings and owned fallback identities. Shared candidate
+creation requires selected gender and persists the labelled assumed birth date
+once; identity deletion removes inactive-law pins/external declarations, while
+individual pin removal preserves other ordered slots. A failed edit never moves
+another list's members or partially mutates the original draft.
+
+One D11 resolver derives automatic/active/retained links and reasons. Coalition
+scope remains independent of member participation; affiliation/scope/filing edits
+retain original explicit endpoints and automatically reactivate eligible pairs.
+Endpoint uniqueness includes inactive pairs and is independent of JSON property
+order. Explicit replacement reports every removed pair; subject deletion removes
+pairs without name-based restoration. Materialization excludes retained competitors
+and emits no joint links for single-chamber renewal. Empty counterparts retain
+their declared relationship and receive separate participation validation.
+
+Whole-document validation checks structure, internal IDs and supplied pinned
+catalogue relationships across active and inactive blocks. Selected-domain
+preflight adds required exact assets, active settings/history and candidate
+biography/availability/incompatibilities. Law/chamber/location namespaces and
+explicit catalogue hierarchy prevent equal-looking college codes or unrelated
+territories from activating candidate pins. Rosatellum filings are explicit
+plurinominal colleges; later default preparation expands old constituency scopes.
+Incomplete inactive semantics can remain saved, then fail when selected.
+Existing model/candidature/legal validators still belong at CP-03's preparation
+and assembly boundary. In particular, supplied candidate keys can refer to
+runtime-generated candidates and must be resolved against the assembled ballot;
+the scenario must not invent their biographies just to satisfy import validation.
+
+Reference helpers implement D06's scoped capped SD defaults, origin/policy
+metadata, explicit reviewable initialization and multiplier inheritance. The
+family helper calls the existing M02 feasibility/calibration engine after the
+selected adapter resolves precedence/physical filed sets. It proposes matching
+complementary defaults without overwriting explicit SDs, including explicit zero,
+and rejects infeasible families without clipping. This does not introduce common
+cross-model precedence or assign M02 SD semantics to M01.
+
+Asset descriptors pin exact decoded bytes/schema/version/SHA-256 and retrieval
+URIs. Conflicting pins anywhere fail; required dependencies select shared assets
+and only the active law/model's assets. Resolution has no latest/debug fallback;
+byte verification and dependency fingerprints are exposed. These fingerprints
+identify assets, not complete fit-cache inputs; stage-specific consumed-input
+keys remain CP-03/07 work. Extracted the existing strict JSON grammar primitives
+to `core/json-shape.ts`, retaining reform reexports and unchanged runtime checks.
+Initial compilation exposed TypeScript's union-array assignment inference;
+typed reads and deletion on detached arrays fixed it without weakening the
+law-specific placement types.
+
+Verification from `web/` on Windows/PowerShell:
+
+- `npm run check:data` passed; `npm run check` reported zero errors/warnings.
+- The new contract suite passed 40 tests, including all three target pairs,
+  inactive settings, exact dependencies/checksums, chamber conflict/relock behavior,
+  identity lifecycle, all retained supplied-input unions, source/poll metadata,
+  geography hierarchy, reference feasibility and D11 transitions/imports.
+- Final `npm test -- --maxWorkers=2`: 107 files, 1,264 tests passed, no skips,
+  47.62 s. Existing legal/checksum fixtures, CP-01 replay and model-policy tests
+  passed without updating expectations.
+- `npm run build` passed with the existing plugin-timing/chunk-size warnings.
+- Documentation links and `git diff --check` passed.
+
+Checked only CP-02 in the active merger plan and linked the implemented API from
+workspace guidance. No existing worker, route, default compiler, import routing,
+draft/result storage or legal algorithm was switched to this contract. Frozen
+fixtures/manifests and generated defaults/assets remain unchanged. CP-03–08,
+the parent merger and final publication gate remain open; no browser release or
+1,000-run campaign, commit or publication is claimed.
+
+
+## CP-03 — Adapt existing execution paths (2026-11-07)
+
+Implemented the common scenario's preparation/generation/assembly boundary under
+`web/src/lib/politics/execution/`; the task map and decoded asset contracts are in
+[the execution guide](common-politics-scenario/execution.md). It strictly dispatches
+Rosatellum/M01, reform/M01 and reform/M02 through the CP-02 supported-pair registry.
+Original-column sources, explicit common-18+ conditional electorates, catalogues,
+reference geography and active law/model parameters are checksum/schema/version
+checked before use. Inactive declarations retain structural validation without
+loading inactive numerical/geographic bundles. Source/question/choice encoding is
+normalized explicitly; poll edits retain observed counts and metadata. M01's
+saved parameter date stays separate from the evidence cutoff.
+
+Moved original-source M01 compilation, latest-publication polling, municipal list
+shocks and college reconstruction into vote-only modules under `politics/generation/`.
+Extracted M02 physical-cell generation behind the same count/trace boundary.
+Existing reform entry points are thin envelopes around those implementations,
+so CP-01 remains an executable unchanged baseline. Rosatellum receives M01 votes
+without constructing a fake reform legal scenario. Its legal adapter validates an
+explicit physical/uni/pluri/constituency/region crosswalk, conserves conditional
+electorates and reuses the existing candidature sampler, reuse share and five-bin
+candidature distribution. Candidate pin tokens and a collision-free generated
+namespace preserve declared identities, including IDs that resemble generated IDs.
+The fixed-input scrutiny implementations and accepted tie/failure behavior are
+unchanged; M00-to-M01 statistical and generated-ID differences are the approved
+D01 replacement, not an M00 distribution comparison.
+
+CP-02's pluri-only Rosatellum filing vocabulary could not represent actual VdA
+ballots or Senate TAA: the frozen geography has null proportional codes there.
+Added statutory uni-only filing locations, retained their zero-seat/null legal
+context rows and rejected uni filings that have an ordinary pluri parent. The
+same eligibility helper now initializes new lists under every law, including all
+eight chamber-specific uni-only locations. Ordinary college IDs are not remapped
+on law switching; the previous-law grid does not acquire the reform Bolzano overlay.
+
+Reform legal assembly retains its existing bonus reference plan, candidature,
+preferences and supplied-evidence validators. Only the shared D11 resolver's
+automatic/eligible explicit links enter assembly. Retained competing declarations
+stay saved, eligibility restoration reactivates the original endpoints, empty
+counterparts fail separate participation checks and single renewal emits no joint
+links. Active declared candidates retain availability, biography, external
+candidacies and compatibility checks.
+
+Assessed cross-law support against M01's published contract and retained **2.0.0**
+for both laws: the existing statistical law already consumes conditional
+electorates and geographic filing context; the new law adapter adds no model
+capability or probability parameter. Adapter `rosatellum-m01-v1`, scrutiny metadata,
+implementation hashes, data pins and schema versions remain separate. Added
+consumed-input preparation/generation/assembly keys plus an actual transitive
+execution implementation hash. Draft name/color, inactive-law/model and candidate
+edits do not invalidate unrelated statistical preparation. Workers check their own
+compiled implementation ID and repeat common parsing, exact dependency checks,
+supported-pair validation, preparation and assembly-key checks.
+
+Added `init-politics` to the real compute worker/client. All three pairs reuse
+one-simulation-at-a-time execution, pull-driven bounded encoding and the existing
+ordered pool; the common boundary has no 1,000-run ceiling. Generation/legal
+failures retain simulation/chamber context and error diagnostics without rerolling.
+This is the execution adapter layer: authored defaults/packaging remain CP-04,
+new files/drafts CP-05 and editor/controller/session integration CP-06/07. In
+particular, this initial common packet repeats preparation per initialized compute
+worker; shared prepared-state reuse and full resource campaigns remain later work.
+The current workspace UI is transitional and is not an old-format converter.
+
+During extraction the only initial CP-01 mismatch was JSON property order in the
+recorded input digest; restoring the compatibility envelope's original order kept
+the stored baseline unchanged. The first new Rosatellum browser replay comparison
+also compared measured scrutiny time; the test now excludes only its two timing
+columns, retaining every electoral result/diagnostic comparison. A read-only data
+check correctly caught a stale implementation pin after the last source cleanup;
+rerunning the complete production pipeline regenerated the pin and passed the
+same checks. No frozen fixture, checksum manifest or legal expectation was refreshed.
+
+
+Verification on Windows x64, Node 24.20.0, Intel i7-14700KF (28 logical
+processors), Playwright 1.60.0/Chromium, from `web/`:
+
+- `npm run data:prepare`: passed the complete pinned-source pipeline, final run
+  124.90 s. `npm run data:check`: passed, 24.41 s. Production receipt SHA-256:
+  `bcddec80635e6c7e2d3fc393764543fc48f78511db9d950a254d752d88c8dc23`.
+  Existing defaults/catalogues were generated through their normal compilers;
+  no generated default was edited by hand and their tracked bytes did not change.
+- `npm run check:data`: passed. `npm run check`: zero errors/warnings.
+- `npm test -- --maxWorkers=2`: 108 files, **1,282 tests passed**, no skips,
+  56.80 s. This includes unchanged frozen checksum/legal failures and CP-01's exact
+  14-case retained-generation/candidature report, plus the common executor's
+  single-renewal, restricted-support, residual/new-list, manual-pin, D11,
+  dependency/version, implementation-binding and invalidation checks.
+- After the final nested model-schema guard and per-chamber timing correction,
+  the focused common execution suite passed all 18 tests again (13.93 s).
+  Timings use actual chamber observations; they are not part of deterministic
+  electoral replay comparisons.
+- `npm run build`: passed at `/` (final 4.94 s) and with `BASE_PATH=/elezioni`
+  (final 5.27 s). Existing plugin-timing/chunk-size notices remain informational.
+- With each matching build already prepared, `ACCEPTANCE_PREBUILT=1 npm run
+  test:e2e -- --workers=2 --reporter=line`: **50/50 passed at `/`** (58.4 s)
+  and **50/50 at `/elezioni`** (56.0 s), no retries/skips. These cover current
+  workspaces, regional isolation, fixed legal paths, storage/cancellation and
+  the actual common compute worker for every required pair.
+- Final `common-politics-worker.spec.ts` rechecks after the last guards/timing
+  change passed all three pairs at both bases (6.3 s / 5.9 s). Each actual worker
+  initializes from checksum-pinned common inputs and replays IDs 7, 1, 7 through
+  bounded transferable chunks, independently of wall-clock timing.
+- Documentation link and whitespace audits, including `git diff --check`, passed.
+
+Marked CP-03 complete and linked its API/adapter guide. CP-04–08 and the parent
+workspace merger remain open. No 1,000-run campaign, final resource acceptance,
+public deployment or commit is claimed by this step.
+
+
+## CP-04 — Replace authored-default construction (2026-11-08)
+
+Added the complete schema-1 `data/politics-default-scenario.json` as the installed
+politics choice set. It materializes D03/D04/D07: reform/M02/joint startup,
+Rosatellum/M01 saved selection, the approved ID/name/dates/seeds, ten simulations,
+explicit model-aware automatic workers, all list/coalition colors, and explicit
+filings under both laws. Complete M01/M02 blocks retain reviewed compositions,
+partial named polls, selected/excluded observations, pooling, separate chamber
+references and explicit SDs (including zero), candidate policies, and empty manual
+candidate/supplied-input declarations. M01 retains its distinct 16 October
+parameter date. Common reference-only components use owned `new:<list>` identities;
+reviewed aliases are explicit source memberships over unchanged original counts.
+These identity/encoding changes do not revise a probability law or legal rule.
+
+Added scenario-independent common source, catalogue, reference-geography,
+conditional 18+ electorate, geography, seat and model assets with exact pins.
+Rosatellum uses definitive 2022 boundaries and legal-census physical cells from
+its existing population reconstruction, without the reform overlay. Validation
+checks every baseline pair, statutory ballots, physical population conservation,
+model/schema/version compatibility and checksums. Preparation refuses incompatible
+authored pins and never replaces them with a latest bundle. The ten decoded
+common assets are ignored regenerable outputs, included in the production receipt
+and static site. Workspace descriptors and catalogues are generated before
+release implementation hashes; final checks are read-only.
+
+Replaced independent politics-default compilers with deterministic projections
+from the authored contract. Release fitting uses its exact selection, pooling,
+seeds and settings; browser startup and reset consume that release and its run
+preferences. Transitional M00 share previews project the authored M01 named polls
+and the pinned paired Camera observation; local preview fields retain their
+Camera/common limitation, while both complete chamber inputs stay in the common
+scenario. The existing common execution API remains available for all three
+pairs. Actual common editor/session wiring stays in CP-06/07, and new file/draft
+isolation stays in CP-05.
+
+Removed the obsolete snapshot exporter/shared compiler/unified default augmenter.
+Moved the historical snapshot scenario and retained compiler regression helpers
+to test-only fixtures. Traced regional preparation: ER keeps its independent
+exporter and unchanged default, and still needs the shared historical snapshot
+preparation. `workspace-defaults.json` and the old reform preparation sidecars
+remain historical/reference scaffolds, not installed common politics choices.
+Old authored choice/policy JSON is now comparison evidence only. No frozen legal
+fixture, checksum manifest, CP-01 baseline or legal expectation changed.
+
+Browser validation exposed an extra common fitting-RNG field leaking into the
+strict transitional reform schema. The packaging boundary now selects only that
+format's supported fields and calls its parser before writing. The startup/reset
+browser check loads the model before editing run counts, matching the current
+editor's disabled-until-loaded controls. Existing previous-law browser tests now
+select that law explicitly instead of relying on its former startup default.
+
+Verification on Windows x64/Node 24.20.0, from `web/`:
+
+- Complete cold-cache preparation with separate `--output` and `--cache` passed
+  in 133.53 s; all 20 required artifacts were present. Final regenerated pipeline
+  passed in 84.39 s; read-only `data:check` passed in 23.37 s with matching receipt
+  SHA-256 `9c686c08fc244424a0d6fc00416676212cd7e8cf1edc3e7e346829680057e5d1`.
+  The release check filled all 588 domestic seats without a new default fit.
+- `check:data` passed; `check` reported zero errors/warnings. Svelte MCP found no
+  component issues; suggestions concerned existing lifecycle/local-map code.
+- Final `npm test -- --maxWorkers=2`: 109 files, **1,287 tests passed**, no skips,
+  56.69 s. This includes the new authored/pin/projection tests and unchanged legal,
+  checksum and CP-01 regression evidence.
+- Static builds passed at `/` (5.14 s) and `/elezioni` (5.03 s), with the existing
+  plugin-timing/chunk-size notices. Matching prebuilt Playwright runs passed
+  **51/51 at `/`** (55.5 s) and **51/51 at `/elezioni`** (53.0 s), no retries/skips.
+  The added browser case checks fresh law/model/name/seed/count/palette, loads
+  the real prefit and verifies edited run-count/seed reset and reload.
+- Documentation file links, frozen-evidence diff audit and `git diff --check`
+  passed. Local acceptance logs are retained under
+  `data/derived/cp04-acceptance-20261108/` rather than the working tree.
+
+Marked CP-04 and the separately approved palette task complete. CP-05–08, the
+parent merger, final resource/1,000-run acceptance and public deployment remain
+open. No commit, publication or manual user acceptance is claimed.
+
+
+## CP-05 — Enforce new-format files and draft isolation (2026-11-08)
+
+Implemented the [common file/draft API](common-politics-scenario/files.md) under
+`web/src/lib/politics/files/`, with strict inferred schemas in
+`politics/scenario/envelopes.ts` and generic result-export entry points reexported
+from `core/result-export.ts`. Scenario, result and archive versions remain
+independent. Results preserve the complete detached executed scenario, both saved
+generator choices and inactive settings, actual execution provenance and stage
+keys, worker benchmark, session identity/outcomes, diagnostics and columnar cells.
+Parsing checks exact supported versions/pairs, dependency and seed identities,
+coverage, simulation membership, unique columns and row widths. No scrutiny,
+generation policy, model version or frozen legal expectation changed.
+
+Archive import stages rows/diagnostics through a separate sink and commits only
+after EOF and complete identity/checkpoint validation. Late corruption aborts
+staging instead of replacing current results. Metadata inspection cancels after
+routing headers without parsing result details; it is explicitly not a complete
+validity check. JSON/gzip readers reject duplicate keys, trailing data and invalid
+UTF-8. Row decoding stops at the 4,096-cell bound. Export streams external row
+sources, diagnostics and portable-state chunks without constructing a whole
+archive string.
+
+The new checkpoint wrapper binds the full common-scenario fingerprint, exact
+active dependencies, model, fitting seed, numerical policy, preparation key and
+implementation checksum. It retains the existing v1 fit/profile numeric codecs,
+verifies hashes, dimensions, sampler/diagnostic policy, dates and metadata parents,
+and rejects former scenario/catalog/runtime states. Portable bytes are bounded
+at 64 MiB and base64 transport strings at 64 KiB; final review replaced a single
+potentially oversized fitted-asset token with individually streamed chunks. The
+execution owner still checks the restored component/geography basis against its
+loaded exact assets before reuse; durable reuse integration belongs to CP-07.
+
+`readPoliticsDraft`/`writePoliticsDraft` access only
+`elezioni:politics:common-draft:v1` and validate before storage writes. Both old
+politics draft readers/writers were removed from the transitional browser
+editors; their old keys stay unused and untouched. Old external politics files
+and scenario-bearing checkpoint restores fail before changing draft/results or
+routing to another editor. Independent regional routing, formats and persistence
+retain their existing behavior.
+
+The projected editors cannot represent the complete common scenario without the
+conversion excluded by D12. Their edits therefore remain memory-only until
+CP-06/07 wire the new draft/file/session APIs. Valid common files are readable
+through the new APIs; the transitional upload guard preserves the current screen
+and explains that loading requires the new editor. Existing internal projected
+export/read helpers remain until CP-08 retirement. Retained result-presentation
+browser evidence now seeds isolated test storage directly rather than requiring
+old files to pass public upload validation. Historical fixtures/checksum manifests
+remain separate, unchanged evidence.
+
+Verification on Windows x64 / Node 24.20.0, from `web/`:
+
+- Final complete `data:prepare` passed in 148.90 s; read-only `data:check` passed
+  in 23.71 s. Both verified all 20 artifacts with receipt SHA-256
+  `035e2ce040d797204b2702793f3fdd4f555f2b8265260f1b4f9747618c96899e`.
+  Release checks filled all 588 domestic seats with zero default-start fits.
+- `check:data` passed; `check` reported zero errors/warnings. Svelte MCP's initial
+  component pass found no issues (existing lifecycle/local-map suggestions were
+  reviewed without unrelated refactoring). A final remote repeat failed at the
+  Svelte MCP HTTP transport; current local Svelte/TypeScript checks still passed.
+- `npm test -- --maxWorkers=4`: 110 files, **1,295 tests passed**, no skips,
+  35.02 s. The final checkpoint streaming refinement also passed its focused
+  eight-test rerun, including JSON/gzip roundtrips, exact bindings, bounded chunks,
+  late-corruption rollback, metadata inspection and draft-key isolation.
+- Final static builds passed at `/` (5.10 s) and `/elezioni` (8.00 s), with the
+  existing plugin-timing/chunk-size notices. Sequential prebuilt Playwright
+  acceptance passed **53/53 at `/`** (42.7 s) and **53/53 at `/elezioni`** (46.3 s),
+  no retries/skips. This includes actual-browser-worker gzip archive codecs,
+  commit/abort behavior, old-file rejection with current draft/results preserved,
+  both ignored old draft keys, common-file transitional isolation, regional
+  navigation, all three common compute pairs and retained presentation evidence.
+- Documentation file links, frozen-evidence diff audit and `git diff --check`
+  passed. Local acceptance logs remain under
+  `data/derived/cp05-acceptance-20261108/`, outside the tracked tree.
+
+The first unrestricted unit run overlapped type checking and hit two existing
+five-second computation timeouts; the bounded-worker full rerun passed. Browser
+updates initially used an obsolete coalition value/error-region label; current
+labels corrected those test selectors. A preparation attempt caught a stale
+implementation pin after source edits during hash capture; stable-code
+regeneration and the matching final read-only check passed. No pin, default or
+regression output was edited by hand.
+
+Marked CP-05 complete. CP-06–08, the parent merger, durable common-session/editor
+integration, final 1,000-run/resource acceptance and publication remain open.
+No commit, deployment or manual user acceptance is claimed.
+
+## CP-06 — Build the common editor (2026-11-14)
+
+Implemented the capability-driven common editor under
+`web/src/lib/politics/editor/`; use the [component map](common-politics-scenario/editor.md)
+for task-specific entry points. The review route `/politics/editor` is linked
+from `/politics` and uses the new shared draft key. Kept the existing simulator
+available during this step: replacing its execution/session owner belongs to
+CP-07, rather than disabling working simulation while delivering the editor.
+
+The editor contains shared subject presentation/affiliation/minority controls,
+per-law tri-state filings and lazy candidate trees, shared candidate identities,
+future Camera/Senato membership locks, source/option membership and M01
+composition controls, M02 whole-component pooling, fallback/component references,
+the visible basic non-valid reference and advanced national/chamber/local trees,
+read-only electorate data, candidate-generation settings and separate seed/worker
+controls. Deferred D14 declarations remain stored. Ordinary reform slots use
+the existing seven-candidate legal contract; no scrutiny or generation policy
+was changed.
+
+Law switching restores its saved generator; model edits affect only that law.
+Detached validated edits reject conflicts atomically. Filings retain inactive
+pins; pin removal retains identities and other positions. Bonus controls use
+the shared resolver, retain inactive reciprocal declarations with reasons,
+filter eligible counterparts, disclose replacements and clean up on deletion.
+SD controls preserve explicit values, resolve/persist defaults, distinguish zero
+from absence and remain hidden but stored under M01. Model-family feasibility
+and complete legal validation remain authoritative at the execution boundary.
+
+Automatic editor loading verifies pinned assets and selected model parameters.
+Scenario imports stage decoding, checksum verification and contextual validation
+before replacement; newer edits/imports or disposal defeat delayed replies.
+JSON/gzip downloads preserve inactive inputs. Storage errors retain the visible
+in-memory draft and report that it was not saved. Former draft keys and regional
+routing remain independent. `RunControls` exposes the optional CP-07 execution,
+fit, checkpoint and cancellation port; the review host explicitly disables those
+actions. Loading editor data is not claimed as a statistical fit or a result run.
+
+Verification on Windows x64 / Node 24.20.0, from `web/`:
+
+- `npm run check`: zero errors/warnings. Svelte MCP checked all 15 changed/new
+  Svelte files; corrected components were checked again with no remaining issues
+  or suggestions.
+- `npm test -- --maxWorkers=4`: **111 files, 1,303 tests passed**, no skips,
+  28.80 s. Eight new pure-editor tests cover scope identity, default/explicit SDs,
+  inactive/model-specific declarations, per-law selections, JSON/gzip roundtrips,
+  atomic membership conflicts and candidate option reasons.
+- Static builds passed at `/` (Vite 5.51 s) and `/elezioni` (5.01 s), with the
+  existing plugin-timing/chunk-size notices. Sequential prebuilt Playwright runs
+  passed **14/14 at `/`** (15.0 s) and **14/14 at `/elezioni`** (14.5 s), no
+  skips/retries. Nine editor cases cover selections/reload/both file encodings,
+  default/reset/import failures, non-valid/local references, new lists/locks,
+  candidate identities and inactive sparse pins, bonus link transitions,
+  pooling/source/fallback/electorate forms and keyboard/mobile layout. Five
+  retained cases cover startup/reset, former draft/file isolation, navigation
+  and an actual Emilia-Romagna worker simulation.
+- Inspected the mobile render at 390 px, with visible keyboard focus and no
+  horizontal overflow. Expensive selectors/trees remain absent until expanded.
+  `git diff --check` passed; no generated defaults, pins, data or frozen fixtures
+  changed.
+
+Browser verification caught a proxied pending-link object passed to
+`structuredClone`; immutable `$state.raw` fixed it. A scope-key check also
+removed JSON property-order dependence for imported local references. Test
+selectors now use accessible combobox roles and the native disabled property
+for options; a mixed parent checkbox test explicitly changes a checked leaf
+because native `uncheck()` is a no-op when a mixed checkbox is not checked.
+
+Marked CP-06 complete. CP-07/08, the parent merger, execution/checkpoint/session
+integration, the final three 1,000-run campaigns and publication remain open.
+No commit, deployment or manual user acceptance is claimed.
+
+
+## CP-07 — Unify lifecycle, persistence and results (2026-11-14)
+
+Connected both politics routes to `CommonPoliticsWorkspace` and one detached
+`PoliticsWorkspaceController`. The shared draft persists through law/model
+switches and reload; storage failures retain the in-memory edit. Viewed sessions
+remain independent: edits/switching preserve their executed identity and stale
+indicator, browsing/importing never replaces the draft, and explicit scenario
+loading validates before replacement. A missing selected session is reported
+without substituting another. The session index uses a new common key and leaves
+former politics keys untouched.
+
+The coordinator automatically loads exact dependencies and prepares/reuses the
+selected model. Separate bounded national-fit and profile caches avoid M02 refits
+for presentation, inactive, candidature or simulation-seed edits; fitting-seed
+changes retain compatible profiles. One M01 preparation is retained in memory.
+A one-entry IndexedDB cache stores verified new-format M02 states for reuse after
+reload, independently of the live draft. Explicit checkpoints retain the stricter
+whole-scenario/dependency/build binding. Worker packets carry validated M02
+numeric parents and states instead of repeating sampling in every compute worker.
+The actual namespaced implementation key is kept for execution; portable envelopes
+store its raw SHA-256 and numeric metadata binds both representations.
+
+Execution locks edits before awaiting preparation, exposes explicit cancellation,
+records requested/effective workers and disposes nested workers on navigation.
+Each seed button remains an ordinary edit of only its own visible field; loading,
+preparation and running preserve both seeds. Progress is throttled, and numerical
+steppers yield worker tasks so cancellation/new revisions can be handled during
+long fits. The recommendation for 1,000 runs requires ten complete outcomes and
+never changes the count or starts a run.
+
+All three pairs now use the existing ordered bounded pool, chunk store, lazy
+queries, disk statistics and OPFS streaming export service. Manifest commits
+publish only whole simulations; cancellation drains assigned IDs and quota
+failure recovers the durable prefix, preserving outcomes and the original
+requested denominator. Rosatellum's 1,000-run ceiling is removed; positive safe
+counts, CPU worker limits and a 64 MiB compact membership estimate remain bounded.
+Rosatellum uses the conservative prior 1536 MiB scrutiny scratch budget plus
+actual packet copies; national footprint calibration remains CP-08 evidence,
+not a claim about currently free RAM or measured performance above 1,000 runs.
+
+Rosatellum presentation adapts the existing plurinominal list and total-support
+seat meanings to the tested disk-series contract, resolves typed ticket names
+and colors, preserves explicit zero, and supplies an exact diagnostic-event
+ledger. Reform-only bonus/position views are hidden for Rosatellum. Common JSON.gz
+archives stream their immutable scenario, provenance, membership, rows,
+diagnostics and portable M02 checkpoint; CSV stays table-oriented. Imports stage
+under a fresh local ID, validate EOF/identities/checkpoints and row/diagnostic
+membership, then select without editing the draft. Generic synchronous retired
+export helpers reject common scenarios rather than emit an old envelope.
+
+Retained independent regional parsing/storage. Common and regional file metadata
+now hand off to the appropriate route from scenario inputs, with delayed-reply
+guards; regional result uploads keep their gzip contract and reject old politics
+formats. Updated the scoped editor/file/execution/workspace guides and added the
+[lifecycle entry-point guide](common-politics-scenario/lifecycle.md).
+
+Verification from `web/`:
+
+- `npm run check`: zero errors and warnings; `npm run check:data` passed.
+- `npm test -- --maxWorkers=4 --reporter=dot`: 114 files / 1,315 tests passed.
+  A concurrent unrestricted run hit the existing 5-second production local-
+  override test timeout; the complete suite passed with four test workers,
+  without changing that test's timeout or its expected output.
+- Static builds passed for `/` and `/elezioni`. The common editor, lifecycle,
+  files, worker and regional-smoke suites passed 20/20 at each base with two
+  browser test workers. Final focused lifecycle/file/compute checks were repeated
+  after the synchronous-export guard, using matching freshly built assets.
+- Lifecycle browser cases compare actual stored observations and diagnostic rows
+  for all three pairs with one and two compute workers, three simulations each;
+  exercise JSON.gz archive export/import, queries, selected-session reload, stale
+  results, explicit scenario loading, exact checkpoint restore and cache reuse.
+  Cancellation requests ten runs and verifies retained contiguous membership.
+  Injected quota failure retains exactly simulation 1 of 3 through reload with
+  `RESULT_STORAGE_ERROR` and the original denominator. Cross-route imports and
+  corrupt-file retention also pass.
+- Svelte MCP found no issues in changed common components. The regional component
+  retained only existing advisory suggestions for local nonreactive Maps,
+  attachments and its prior busy callback; its change is confined to file routing.
+  `git diff --check` passed. Authored defaults, generated pins/data and frozen
+  legal fixtures/checksum manifests were not edited.
+
+Browser checks initially exposed excessive progress traffic and promise-only
+worker stepping that delayed cancellation; throttling plus regular task yields
+fixed this and restored the production editor suite. Streamed membership checks
+were also corrected to validate nullable global diagnostic rows by their scope,
+while retaining strict membership for simulation rows.
+
+Marked CP-07 complete. CP-08, the parent merger and publication remain open:
+retarget superseded workspace-specific browser suites before the full production
+acceptance gate, retire old mounted-flow helpers, measure national resources and
+run the three sequential 1,000-simulation campaigns. No campaign above 1,000 was
+run; the 1,001-count check validates configuration only. Existing legal failures
+and their frozen evidence remain unchanged. No commit, deployment or manual user
+acceptance is claimed.
+
+## M02 resource investigation after CP-07 (2026-11-14)
+
+Investigated Luca's Chrome 157.0.8103.51 tab crash around simulation 250 of a
+1,000-run reform/M02 request with automatic workers. The
+[scoped report](common-politics-scenario/resource-investigation-2026-11-14.md)
+contains attribution, source entry points, limitations and proposed fixes; its
+linked compact JSON receipt preserves short-run measurements.
+
+Found redundant historical compilation during common compute-worker startup,
+retained numeric parents alongside the generator's cloned arrays, and an
+automatic worker policy inherited from older calibration. The HTTP common
+packet also carries decoded source columns, not just compressed disk bytes.
+The bounded ordered pool still retains at most one pending simulation per
+worker; no growing per-simulation queue was found. Rewriting the large portable
+checkpoint with every result manifest is shared with the retained pre-CP path,
+so it is an optimization opportunity rather than a new CP-specific leak.
+
+Sequential 60-run probes completed: retained fast execution services with ten
+workers and the pinned pre-CP M02 generation source peaked at 5.36 GiB renderer
+private memory in Chromium 148. With the current CP-03 compatibility wrapper,
+the same services peaked at 5.71 GiB; the current production UI with automatic
+ten workers peaked at 5.78 GiB in that browser. The pinned-source run uses a
+diagnostic Vite load override, not a production source edit. It matters because
+the CP-03 compatibility wrapper itself retains original numeric assets for run
+metadata alongside the extracted generator's clones. The roughly 8% rise over
+the pinned source is consistent with added ownership/allocation pressure, but
+single sampled probes do not attribute the exact difference, reproduce the
+former complete editor or establish a CP throughput slowdown.
+Installed Chrome 157.0.8103.51 completed 60 runs with four workers,
+peaking at 3.28 GiB. Separate temporary browser profiles kept user sessions
+untouched. Whole-renderer private samples include nested workers and native
+allocations; they are not JavaScript heap measurements or hard maxima.
+
+The comparison harness initially needed raw compressed fixture responses:
+preview serves history/state gzip with Content-Encoding, so browser fetch
+returns decoded bytes. Retrying with explicit raw-file responses preserved
+the existing portable-file checksum contract. Only successful probe receipts
+are included in the comparison.
+
+Focused verification from `web/`:
+`npx vitest run scripts/acceptance/common-politics-baseline.test.ts src/lib/politics/execution/execution.test.ts src/lib/politics/execution/lifecycle.test.ts src/lib/workers/reform-pool.test.ts --maxWorkers=2 --reporter=dot`
+passed **4 files / 28 tests** in 23.64 s, including the exact CP-01 replay and
+common-versus-retained ballot/legal-outcome checks. Added the resource follow-up
+under the still-open CP-08 item. No runtime/model/scrutiny change, generated
+asset modification, 1,000-run acceptance, reproduction of the reported crash,
+commit or publication is claimed. Proposed implementation remains separate.
+
+## Common execution resource fixes (2026-11-14)
+
+Implemented Luca's approved follow-up to the
+[M02 resource investigation](common-politics-scenario/resource-investigation-2026-11-14.md).
+The [execution guide](common-politics-scenario/execution.md#workers-and-workspace-integration)
+owns the compute contract; the [lifecycle guide](common-politics-scenario/lifecycle.md#sessions-and-bounded-resources)
+owns resource estimates and checkpoint persistence.
+
+- The coordinator validates pinned assets, compiles observations and prepares
+  M01 references or M02 fits/profiles. Workers receive only prepared inputs,
+  with no catalogue/JSON bytes, source-column buffers or fitting cache. Exact
+  build/graph SHA binding covers typed columns and ordered Maps without numeric
+  JSON expansion. M02 workers independently check consumed-input parents and
+  the generation key; preparation identity v2 hashes the paired-input parent
+  instead of retransmitting observations just to reproduce an identity.
+- Worker-owned and coordinator-owned immutable M02 arrays no longer incur an
+  extra defensive numeric clone. Other generator callers keep defensive copying
+  by default. The retained compatibility wrapper precomputes provenance so its
+  closure releases original numeric assets. The probability law, RNG, seeds,
+  scrutiny logic and model versions remain unchanged.
+- Automatic workers are capped at four and may be lower for resource hints or
+  large inputs. Planning accounts for initialization, pending results, GC and
+  retained coordinator caches, using 768 MiB coordinator scratch and 512/640/
+  1536 MiB worker scratch for M02/M01/Rosatellum. Explicit CPU-based choices,
+  warnings and actual-worker provenance remain available.
+- The result database's forward version-3 upgrade moves old inline common
+  checkpoints and retained reform fit files into an immutable per-session store
+  atomically. New sessions store the payload once with the first manifest, then
+  release it from the live record. Ordinary queries and commits read/write lean
+  manifests; explicit archive/checkpoint access hydrates the payload. Deletion
+  covers both stores, and synchronous quota errors abort queued writes as well.
+  Archive/file schemas and immutable executed identities remain unchanged.
+
+Verification from `web/`:
+
+- `npm test -- --maxWorkers=4 --reporter=dot`: **116 files / 1,319 tests passed**,
+  31.04 s, including exact CP-01 replay and all retained legal/checksum evidence.
+  New checks cover owned numeric transfer, read-only generation, all three pairs,
+  numeric/parent tampering, Map/buffer hashing and conservative automatic sizing.
+- `npm run check`: zero errors/warnings; `npm run check:data` passed. Static
+  builds passed at `/` and `/elezioni`.
+- The common lifecycle, compute, files and result-store browser suites passed
+  **12/12 at `/`**. The focused nested matrix including shared disk statistics
+  and regional ER execution passed **14/14 at `/elezioni`**. These include real
+  forward migration, zero payload rewrites across commits, attachment quota
+  atomicity, immutability, scoped cleanup, JSON.gz roundtrips, reload, cancellation
+  and one/two-worker outcome/row equivalence.
+- An initial Rosatellum check exposed an ambiguous import-error alert locator
+  once the stricter explicit-worker memory warning also rendered; the assertion
+  now targets the actual import-error alert. A broader statistics command also
+  ran seven stale UI cases: their unchanged helper still seeds the retired
+  `elezioni:politics-reform-2026:fast-results:v1` key ignored by CP-07. Those cases
+  fail looking for old charts and remain CP-08 retargeting work; the shared disk
+  statistics/storage/archive case passed. They were not converted or hidden by
+  these resource changes.
+
+Added `npm run benchmark:common-politics` for explicit sequential national
+Chrome resource campaigns (1–1,000 simulations), with required-production-data
+checks, renderer-wide Windows memory sampling and progress/final receipts under
+`data/derived/common-politics-resources/`. This does not run as part of routine
+functional tests. The full CP-08 matrix, other national pairs and publication
+remain separate; no commit, deployment or manual user acceptance is claimed.
+
+The reform/M02 national resource campaign completed with the installed
+**Chrome 157.0.8103.51**, both chambers, **1,000/1,000 complete legal outcomes**,
+no partial/failed membership and no page errors or renderer crash. Automatic
+selection used **four compute workers** on the reported 28 processors / 32 GiB
+device-memory hint, retaining the authored fitting and simulation seeds. Total
+browser fitting-plus-execution time was **960.40 s (16.01 min)**, including
+29.55 s preparation; the stored run measured 927.49 s. This passes the one-hour
+target for this pair on this machine.
+
+Sampled renderer private memory peaked at **3.3504 GiB** (working set
+**3.3115 GiB**) and repeatedly returned to roughly 2.6–2.9 GiB well beyond the
+reported simulation-250 failure point. These are sampled whole-renderer process
+metrics including nested workers/native allocations, not JS heap or guaranteed
+hard maxima. The final **1,170,550-byte manifest** contains no inline checkpoint;
+exactly **one** immutable checkpoint record is stored. The executed common code
+SHA-256 is `f5befd5cb72912b1bcbd4074c9aa1e281e46efb8b35ca220cb751a62d4bc1504`.
+
+The full local receipt is
+`data/derived/common-politics-resources/M02-politiche-reform-2026-v1-1000-auto.json`
+(SHA-256 `5f338a267e394824bf05d43851b3f8b75156806fa1ba0be62233ef3410077c3e`),
+with progress samples, exact execution dependencies/seeds, outcome membership,
+storage descriptors and actual-worker provenance. `npm run benchmark:common-politics`
+passed **1/1** with retries disabled. Root static output was rebuilt for the
+campaign, and final Svelte/TypeScript checks plus `git diff --check` passed.
+Marked only the resource-hardening follow-up complete. CP-08's full release
+matrix and the Rosatellum/M01 and reform/M01 national campaigns remain open.
+
+
+## CP-08 — Acceptance, cleanup and documentation (2026-11-14)
+
+Implemented the [current acceptance procedure](common-politics-scenario/acceptance.md).
+The full gate and national campaigns are complete under the clarified same-votes
+criterion. CP-08 and its parent merger are closed; final evidence follows below.
+
+Retired the superseded previous-law/reform/fast workspace and editor trees,
+M00 worker dispatch, old politics draft writers, the old default-model loader and
+the obsolete candidate-UI build flag. The shared numerical implementation pins
+remain enforced. The former M00 scenario/default and old transport/file harnesses
+are isolated under `web/tests/fixtures/retired-*`, with no application imports.
+The independent regional worker now uses `workspaces/regional-runner.ts`.
+Production preparation no longer generates or receipts the M00 default; the
+current full offline preparation passed with **19 required artifacts** and
+receipt SHA-256 `391a21d8b0d3993602be5d4cfda5e3c57643a01c095e9cd66d45c31c47847162`.
+Authored politics pins, model laws/versions and frozen legal/checksum fixtures
+were not changed.
+
+Retargeted browser checks to the common draft, strict files and durable session
+index. Chart/diagnostic tests keep their detailed synthetic saved-table evidence;
+old schema support is confined to test-only harnesses. The public result service
+always uses the strict common reader, including without the former opt-in flag.
+The production gate now runs the complete general/editor/national file matrix at
+both `/elezioni` and `/`, rejecting skips, TODOs, expected failures and retries.
+Its explicit test-process bound also applies to dedicated editor/unified checks.
+
+Acceptance review found and repaired these integration gaps:
+
+- The common result view now restores the lazy single-simulation reform seat
+  chart, querying at most 1,000 saved rows for one requested simulation. Its
+  tested presentation helper resolves names from the immutable common scenario.
+  A zero-prefix interrupted session no longer queries a nonexistent result table.
+- The common editor now exposes **Attiva/Disattiva Altre liste** with an explicit
+  choice of free components/pools, fixed identity/color, linked initial chambers
+  and complete per-law filings. No component is silently reassigned. Real worker
+  checks verify a positive residual vote reference with zero seats for all three
+  supported pairs, plus reload and fresh reactivation. Regional controls retain
+  their independent behavior.
+- Rosatellum's retained scrutiny requires the residual category's canonical
+  label, whereas the common scenario uses `__other__`. Its adapter now translates
+  that identifier at the legal boundary and restores stable IDs in presentation;
+  the scrutiny guard and allocation rules remain unchanged. Tests distinguish a
+  known zero result from missing saved evidence.
+- A Run requested after failed preparation retains the original diagnostic and
+  dispatches no simulations. The exploratory all-zero sole-filed residual case
+  remains an infeasible M01 override; it was not converted to missing support or
+  repaired by changing the model. The positive-reference case tests the approved
+  candidate-free exclusion directly.
+- The static acceptance server now resolves `politics.html` when the adjacent
+  `politics/` directory exists for `politics/editor.html` but has no index page.
+  Extracted historical transport tests retain their invalid-request error replies.
+  These are local acceptance fixes, not hosted Pages acceptance.
+
+Current workspace, preparation, user, residual-category and M01/M02 workflow docs
+now point to the common editor/lifecycle/files and one acceptance procedure.
+D19 comparisons retain the CP-01 corpus and fixed-input legal regressions without
+keeping a second application architecture. Candidate-count fraction conversion
+was extracted from the old editor while preserving its arithmetic order. No
+M00-to-M01 distribution equivalence or model improvement is claimed.
+
+Focused verification before the final gate: all **four** regional/common residual
+browser cases passed at `/elezioni`; the dedicated editor checks passed **3/3**,
+and national scenario/result/archive checks passed **6/6** across Chromium and
+Firefox before the final residual follow-up. A one-draw installed-Chrome resource
+smoke passed with process sampling and complete archive import/re-export byte
+comparison. This smoke is not a 1,000-run campaign. Current preparation/application
+types and **1,321 unit tests** passed; the authoritative two-base gate and campaign
+outcomes follow below. Svelte tooling reported no issues on the changed common
+subjects/results components, and mobile viewport inspection found no overflow.
+
+The national harness preserves exact execution identities, actual workers,
+complete/partial/failed membership, original denominators and legal error reasons.
+It records all 1,000 actual legal outcomes and separately records post-execution
+archive timing/memory and every decoded-byte digest, normalizing only export time.
+The initial all-complete criterion was superseded by the clarification below;
+failed membership and original receipts remain explicit. No legal draw is rerolled.
+
+### CP-08 final acceptance (2026-11-15)
+
+Luca clarified that `Non ho a chi dare il seggio eccedente` errors are acceptable:
+the target is the **same political output, including expected errors, given the
+same votes**. Updated the guidelines, acceptance guide and campaign policy
+accordingly. The policy permits the retained Rosatellum Camera diagnostic only
+with its original execution-error code and scrutiny-failed reason, preserves
+failed membership, and rejects unexplained failures or inconsistent membership.
+Three new policy tests cover accepted errors and rejected changes, laws/chambers,
+missing diagnostics and mismatched membership. The scrutiny cores, frozen legal
+inputs, expected outputs and checksum manifests remain unchanged.
+
+The complete production gate passed at **both `/elezioni` and `/`**, with all
+required production data, preparation/application types, **1,321 unit tests at
+gate time**, and **152 browser checks**: 67 general, 3 editor and 6 real national
+Chromium/Firefox checks per base. There were no skips, TODOs, expected test
+failures or retries. Its receipt is `data/derived/cp08-acceptance/report.json`.
+After restoring an inadvertently replaced pre-existing presentation test and
+adding the acceptance-policy tests, the final full suite passed **1,325/1,325**,
+with no skips/TODOs, and both type checks passed with **0 Svelte errors/warnings**.
+The final unit receipt and type logs are `data/derived/cp08-final-*`.
+
+Ran the three national campaigns **sequentially**, with the authored fitting and
+simulation seeds and automatic worker policy, using installed Chrome
+**157.0.8103.79** on this machine (28 reported processors, 32 GiB device-memory
+hint). Each includes browser preparation, generation, both chambers' scrutiny and
+durable results. No campaign exceeded 1,000 draws or rerolled an error.
+
+| Pair | Actual workers | Complete / partial / failed | Preparation (s) | Fitting + execution (min) | Sampled private / working-set peak (GiB) |
+| --- | ---: | --- | ---: | ---: | --- |
+| Rosatellum/M01 | 1 | 981 / 0 / 19 | 5.56 | 10.69 | 1.457 / 1.492 |
+| Reform/M01 | 2 | 1,000 / 0 / 0 | 5.54 | 12.28 | 2.415 / 2.440 |
+| Reform/M02 | 4 | 1,000 / 0 / 0 | 28.18 | 17.75 | 3.429 / 3.398 |
+
+All pairs meet the under-60-minute fitting-plus-execution target and have no
+infrastructure failure, page error or renderer crash. Rosatellum's 19 failures
+all retain the same Camera error at simulation IDs **35, 137, 167, 174, 263, 291,
+307, 391, 431, 458, 486, 487, 520, 586, 644, 732, 805, 869, 875**. The campaign
+finished and its archive roundtrip passed before the clarification; its original
+receipt remains `state: failed` because the initial assertion required 1,000
+complete outcomes. Reassessed that saved evidence under the clarified criterion
+without running another draw. The two reform receipts passed directly. This
+acceptance does not relabel failed legal outcomes as successful elections.
+
+Each complete archive was exported, imported and re-exported, preserving exact
+execution and session membership. Re-read both saved archive copies in a separate
+final assessment and matched every decoded byte, normalizing only export time:
+
+| Pair | Decoded archive bytes | Export/import/re-export (s) | Sampled private / working-set peak during archive check (GiB) |
+| --- | ---: | ---: | --- |
+| Rosatellum/M01 | 135,233,412 | 53.66 | 0.783 / 0.894 |
+| Reform/M01 | 3,595,452,519 | 382.34 | 1.360 / 1.468 |
+| Reform/M02 | 2,867,655,237 | 368.72 | 1.739 / 1.834 |
+
+These additional archive timings are separate from fitting/execution. Memory
+figures are sampled whole-renderer Windows private/working-set bytes, including
+nested workers and native allocations; they are neither JS heap nor guaranteed
+maxima. Reform/M02 stores exactly one immutable checkpoint, no inline checkpoint,
+and a **1,170,554-byte manifest**. Resource/quota failure retention, cancellation,
+interrupted recovery, worker-count determinism and session transitions also
+passed in the production gate's focused lifecycle suites.
+
+The [tracked evidence summary](common-politics-scenario/acceptance-2026-11-15.json)
+contains SHA-256/byte fingerprints of the original receipts and both compressed
+archive copies, decoded archive digests, exact model/law/adapter/data/build/RNG
+versions, seeds, worker provenance and the explicit Rosatellum reassessment.
+Full receipts and archives remain under `data/derived/cp08-resources/`;
+the final assessment did not overwrite them. Fixed-input legal and CP-01
+comparison regressions passed in the full unit suite, preserving same-vote
+outputs and expected errors without requiring old seeded generation parity.
+`git diff --check` passed and frozen `test/fixtures/` has no changes.
+
+Marked CP-08 and the parent merger complete. Deferred D14 editors, performance
+above 1,000 draws, legal/model corrections and public deployment remain separate.
+No commit, deployment or manual UI acceptance is claimed.
+
+
+## Fixed application status box (2026-11-15)
+
+Moved status presentation to a viewport-fixed, collapsible application box with ready, working and error indicators. Political and regional workspaces report their operations and errors independently, with applicable cancellation and retry actions; the collapsed mobile control uses only an icon. Removed duplicated simulation status and cancellation controls. The separate import/export performance and parallelization assessment remains open.
+
+Verification: `npm run check` passed; a production build and targeted Chromium tests covered mobile fixed positioning, political and regional import errors, political lifecycle, cancellation, and draft isolation. The initial browser run reused a preview server that stopped during testing; rerunning against a fresh build passed the targeted checks.
+
+
+### 2026-11-15 — Common politics editor subject rows
+
+- Aligned coalition and list controls under shared headers, with responsive compact labels and row-local icon controls for advanced options. List national references remain in the basic row; advanced reference controls now live in the list options panel.
+- Reference percentage fields use `% auto` as their empty placeholder across lists, components, abstention and territorial and chamber references. This is presentation only; explicit zero, inheritance and scenario data are unchanged.
+
+### 2026-11-15 — Animate working status icon
+
+- Added a continuous linear rotation to the application status box's working icon. The ready and error icons remain static; users who request reduced motion see a static working icon.
+- Verification: `git diff --check` passed. No browser animation review was performed.
+
+### 2026-11-15 — Move reference date into advanced scenario settings
+
+- Moved the reference date input from the basic scenario row into the existing collapsed advanced scenario section. Scenario editing and validation behavior are unchanged.
+- Updated the common politics editor E2E coverage to check that the control is hidden until advanced settings are opened, edits persist in the draft, and the selected date survives reload.
+- Verification: not run in this change.
+
+### 2026-11-15 — Collapsible advanced simulation settings
+
+- Grouped fitting and simulation seeds, worker selection, candidate-generation parameters, and M02 fitting/checkpoint controls inside a collapsed advanced simulation panel. Kept the simulation count and run action in the primary section.
+- Moved requested/recommended/maximum worker counts, per-worker memory estimate, and the conditional worker memory guidance into that panel. Replaced the warning text with the requested retry guidance.
+- Verification: Svelte autofixer reported no issues. No test suite or browser review was run.
+## 2026-11-15 — Common politics Altre liste layout
+
+Replaced the duplicated residual fieldset and ordinary list row with one
+dedicated row. Activation uses a searchable explicit checkbox selection; active
+options expose existing memberships, advanced references and coverage, and
+deactivation explains dependent removal before confirmation. Fixed identity,
+linked initial chambers and validated domain edits are unchanged. The coverage
+tree omits candidate counts for this candidate-free category.
+
+Verification: `npm run check` passed without diagnostics; production builds
+passed at `/` and `/elezioni`. The focused Other-list Playwright suite passed
+4/4 at each base, covering activation, search, narrow layout, simulations,
+persistence and reactivation. An additional `/elezioni` run of the Rosatellum
+case passed with membership and coverage panel checks. An initial run exposed
+the test's stale scrutiny-control label; updating it to the existing **Legge
+elettorale** label resolved the timeout.
+### 2026-11-15 — Collapsible result import and selection
+
+- Grouped result import, law/model filters, session selection, loading the
+  selected session's scenario, and JSON.gz/CSV downloads under a collapsed
+  “Caricamento, selezione e download dei risultati” section.
+- Kept result summary and tables outside the section so the selected results
+  remain visible when it is collapsed.
+- Verification: `npm run check` passed with zero errors and warnings; the Svelte
+  autofixer reported no issues. No browser review was performed.
+
+### 2026-11-15 — Uniform collapsible results sections
+
+- Made general information and simulation messages collapsible and closed by
+  default. Matched their summary styling to the other results panels.
+- Moved the bonus winners panel ahead of elected averages and left it open by
+  default. Made the elected averages and valid-vote percentages a single open
+  collapsible section.
+- Moved boxplot grouping and chamber controls into the boxplot section, which
+  is closed by default; the chart body is mounted when that section opens.
+- Verification: `npm run check` passed with zero Svelte errors and warnings;
+  the Svelte autofixer reported no issues in the changed statistics component.
+  No browser review was performed.
+
+### 2026-11-15 — Close affected simulation list
+
+- Added a close button to the affected simulations panel in simulation messages.
+  Closing clears the selected message and its detail filters, returning to the
+  message summary.
+- Marked the migration plan item complete.
+- Verification: not run.
+
+### 2026-11-15 — Archive import/export performance and progress
+
+- Implemented the approved assessment for migration-plan lines 139–140.
+  Scalar table rows now use bounded framing and native parsing; object headers
+  retain the duplicate-key-rejecting reader. Export buffers small strings before
+  UTF-8/gzip. Archive scans batch IndexedDB reads within a 4 MiB target (at most
+  16 chunks), while ordinary pages still fetch one chunk and uncommitted
+  sequences remain invisible.
+- Added an operation-owned two-worker decompression pool for stored archives
+  at least 2 MiB on browsers reporting four or more logical processors. Ordered
+  replies, retained compressed inputs, serial retry on failures/timeouts and
+  cleanup preserve the existing staged publication boundary. Storage writes
+  and the outer archive gzip stream remain ordered. No schema or legal/model
+  algorithm was changed. Four workers added little benefit in the exploratory
+  100,000-row comparison, so production uses two.
+- Request-scoped progress reports input bytes, rows and verification/export
+  totals through the existing application status panel, throttled within each
+  phase to ten updates per second. Validation, saving and file finalization
+  remain explicit phases; completion follows durable saving/export registration.
+- Added `npm run benchmark:archives` and the focused task map and reproduction
+  commands in [archive performance](archive-performance.md). Chrome
+  `157.0.8103.79`, three sequential trials, constructed M01 archive with
+  1,000,000 rows / 16 cells each, 154,364,079 decoded input bytes and 20,840,845
+  gzip bytes. Baseline source was
+  `d21b119777b1ef4cc05f9110003f67b56debb591`.
+
+  | Median operation | Baseline | Optimized serial | Optimized two workers |
+  | --- | ---: | ---: | ---: |
+  | Import, including storage and membership validation | 16.890 s | 7.657 s | 7.466 s |
+  | Export through gzip and OPFS | 11.164 s | 4.052 s | 3.698 s |
+
+  Final import is 2.26 times faster; export is 3.02 times faster. Two workers
+  improve export another 8.7% over the optimized serial path, and import 2.5%.
+  Every trial verified import/export/reimport/reexport row counts and SHA-256
+  of all decoded bytes, normalizing only export time. Receipts are under
+  `data/derived/archive-performance/`: `baseline-1000000.json`,
+  `serial-1000000.json`, `final-1000000.json`, plus 100,000-row exploration.
+  These are constructed transfer measurements, not a new national M02 campaign.
+- Sampled renderer-wide private peaks were 1.923 GiB baseline and 2.061 GiB
+  optimized (181 and 80 samples). They include synthetic input construction,
+  whole-file hash verification, workers and GC; they neither isolate codec
+  memory nor establish a hard memory maximum. Serial optimized peak was
+  2.222 GiB. The bounded operation buffers are separate implementation limits.
+- Fixed an existing standalone M01 `.json.gz` result-import error: after
+  decoding, its temporary JSON archive now has a `.json` filename rather than
+  being decompressed twice. Added browser regression coverage.
+- Verification: 120 Vitest files / 1,332 tests passed with
+  `npm test -- --maxWorkers=4 --reporter=dot`; `npm run check` reported zero
+  errors/warnings; `npm run check:data`, final `npm run data:check` and
+  production builds at `/` and `/elezioni` passed. Focused browser suites
+  `common-politics-files`, `common-politics-lifecycle`, `result-store` and
+  `politics-file-isolation` passed 12/12 at both `/` and `/elezioni`, including mounted progress,
+  all three law/model archive/checkpoint roundtrips, interruption/quota recovery,
+  draft isolation, regional routing and prefetch hiding uncommitted chunks.
+- Initial `data:check` correctly rejected stale generated release artifacts
+  with `RELEASE_IMPLEMENTATION_MISMATCH`: the repository's transitive code hash
+  includes archive dependencies. Ran the prescribed `npm run data:prepare`,
+  which passed with 19 artifacts and receipt SHA-256
+  `a10c3e13920ca5325809fa95b17913ee8cca36de78bc9fc5aca886e6978b2565`.
+  No generated defaults were edited by hand. The broad 70-test browser suite
+  was attempted, then interrupted after existing editor label/layout selectors
+  failed (`Algoritmo di scrutinio`, the former non-valid reference section and
+  mobile status). It is not reported as passed. Updated only the relevant
+  transfer lifecycle/draft-isolation tests for current control names and closed
+  sections; broader editor-test maintenance remains separate. No claim of full
+  release acceptance or a new 1,000-simulation national campaign is made.
+
+## 2026-11-15: Browser tests after editor and results rearrangement
+
+- Updated browser tests to open the current simulation settings, reference,
+  result transfer, chart and message disclosures; use the current accessible
+  control names; and inspect import errors in the shared application status.
+  Retained assertions for scenario persistence, rejection without replacement,
+  result content, chart selections and exports.
+- The mobile status test formerly selected two spans when the working spinner
+  was present. Its text assertion now targets the label. Inspection found a
+  separate product issue: at widths up to 650px the rule hiding toggle spans
+  also hides the working spinner, leaving the busy toggle visually empty.
+  The issue remains open; no application behavior was changed in this work.
+- Verification: the production build succeeded and the full default Chromium
+  Playwright suite passed 70/70 at `/` with four workers and no retries. This
+  does not constitute the separate release acceptance or base-path matrix.
+
+## 2026-11-15 — November national poll update
+
+- Reviewed the government archive after the previous 2026-10-19 latest fieldwork. Added ten unconditional national vote-intention surveys: Sondaggio14424 (Eumetra), 14423 (Only Numbers), 14421 (LAB21), 14420 (Youtrend), 14419 and 14389 (BiDiMedia), 14411 (Ixè), 14398 (Piepoli), 14400 (EMG), and 14387 (Ipsos). Latest fieldwork ends 2026-11-11; the Eumetra and Only Numbers polls were published 2026-11-12. Selection favors distinct houses and detailed party tables. The reviewed national surveys do not provide geographically disaggregated party observations; none were invented. Excluded newer coalition-conditional questions and the LAB21 overlapping potential-vote index. A newer Piepoli table omits two percentage points, so its complete earlier table was selected instead. Local PDFs are optional ignored audit evidence; reviewed JSON remains authoritative.
+- Retained separate group answers and new named identities. Modern separate Rifondazione and Potere al Popolo answers are distinct; historical joint PaP remains unchanged. Separate blank-ballot and undecided percentages in the BiDiMedia surveys do not identify a combined nonresponse fraction, so the existing unknown-fraction assumption applies. Future-only poll atoms do not enter the fitted basis until selected and available at the scenario reference date.
+- Refreshed the authored historical and catalogue pins and regenerated the production assets. The authored default retains its 2026-10-19 cutoff and selected poll IDs: the new observations are included in the dataset but do not change that default forecast. `npm run data:polls:generate`, `npm run data:prepare`, `npm run data:check`, and `npm run check:data` passed; the focused poll, preparation and politics execution tests passed (54 tests). Preparation and check shared receipt `87aa783497f30e84b0143a7c6d75c1c9f6041c1b6f4d27784ea8a6a6652562e4`. The initial runs exposed stale authored pins and future-only components in the fitted basis; after review and correction, one transient Windows rename EPERM was resolved by rerunning.
+
+## 2026-11-15 — Include November polls in the common default
+
+- Advanced the authored reference date to 2026-11-15 and selected all ten newly reviewed unconditional questions in addition to the existing historical selection. The explicit M01 parameter date remains 2026-10-16; it is a separate model setting. The compiled M02 national input contains all ten new poll IDs. Existing explicit political references and their model-specific precedence remain intact.
+- The Eumetra, Youtrend and Ixè questionnaires report several residual categories. Their original rows remain in the source; the M02 offered-complement observation uses their sum under the reviewed assumption that these responses are disjoint. The two BiDiMedia surveys report UDC separately, so UDC is not also assigned to their Noi Moderati row. These transformations preserve the reported shares and avoid inventing individual-list splits. Updated historical/catalogue content pins and rebuilt the fitted release.
+- `npm run data:prepare` and `npm run data:check` passed with matching receipt `3e3bd7659775332597d09ede8221a513f84d139180714fb05bbbdc6073b7776f`; release diagnostics and scrutiny passed. Focused poll and common-execution/default tests passed (54 tests), as did `npm run check:data`. M01 preparation also succeeded for both reform and Rosatellum with the new cutoff and 45 selected polls. Initial fitting attempts rejected multiple residual categories and overlapping UDC membership, leading to the reviewed transformations above.
+
+
+## November model adoption (2026-11-16)
+
+Followed the chamber-aware research with production acceptance of M01, shared
+M02 as **3.0.0**, and M06. The [adoption report](model-acceptance-2026-11.md)
+owns commands, receipts and forecast qualifications; [M02's specification](models/M02.md)
+owns the new law. The original M02 2.0.0 specification and frozen CP-01 M02
+receipt remain historical evidence. Protected model drafts and frozen scrutiny
+fixtures were not changed.
+
+M02 now draws one unrestricted common Camera field, applies the paired and
+explicit-reference chamber contrasts, then conditions each physical ballot
+separately and draws independent integer counts. One municipal innovation
+address survives either law's geography. New-component fallback profile noise is
+shared, explicit chamber zeros and distinct references survive transport, and
+conflicting component innovation budgets fail explicitly. Reference/group
+fitting and the M01 law remain unchanged. The actual 30-component unrestricted
+Camera counts match the isolated pre-adoption source exactly for draws 1, 2 and 7.
+Both laws' 36-component defaults passed structural checks, including six new
+components, seven joint lists, filing independence and gap sensitivities 0/1/2.
+Fixed future contrasts are an assumption, not calibrated joint-bonus forecasts.
+
+The full-panel M06 gate found joint or absent component observations in every
+one of the eight selected elections. The published six-family endpoint law has
+no grouped-data endpoint state/error rule for those 30 components, nor a complete
+new-component rule. Adoption was rejected at that boundary without inventing
+historical splits; its browser/resource gate was not entered. The next modelling
+step is explicit in the plan.
+
+The UI and exact-version registry offer M01 2.0.0 and M02 3.0.0 for both laws;
+M02 2.0.0 is no longer runnable. Authored model pins were refreshed and generated
+assets were rebuilt through production preparation. Saved result-index validation
+now derives active version tags from the registry, retaining the old M02 tag
+only for viewing stored tables. Unsupported scenarios/checkpoints are not
+silently relabelled. Common compute packets carry the generation context for
+both law adapters.
+
+Acceptance work exposed stale assertions and harness selectors: the current
+November sources identify 30 fitted components rather than the old assertion's
+28; tests now open advanced/results disclosures, read the shared status panel,
+and check the current memory warning. The portable checkpoint rejection test
+now checks its actual identity-mismatch diagnostic. A reused debug preview server
+shut down mid-run; that failed diagnostic was preserved and the isolated check
+passed with its own server. The final gate continues completed stages only after
+verifying unchanged inputs and the compiled computation identity. The initial
+failed driver receipt is retained. One early release preparation also rejected
+an implementation hash changed during editing; complete regeneration on the
+stable implementation passed. No failures or simulation IDs were rerolled for
+legal acceptance.
+
+Acceptance completed: native/full-panel checks, both type checks, all 1,346
+unit tests and all 168 browser checks passed without skips or retries. Both bases
+passed 73 general, 3 checkpoint/editor and 8 national browser checks. The four
+fresh 1,000-draw campaigns passed with four workers, all under the 60-minute
+fitting-plus-execution limit. Fit/execution times were 3.10 minutes for
+Rosatellum/M01, 6.75 for reform/M01, 12.52 for Rosatellum/M02 and 15.09 for
+reform/M02. The two Rosatellum campaigns preserved 15 and 2 approved Camera
+surplus-seat failures respectively; both reform campaigns completed every legal
+outcome. No infrastructure failures, page errors or crashes occurred. Every
+campaign's archive import/re-export matched all decoded content except the export
+timestamp. Exact timings, sampled memory, identities, source pins and digests are
+in [the curated receipt](model-acceptance-2026-11.json).
+
+The previous M01 performance receipts use another source bundle and were not
+substituted for current-source acceptance. M01 2.0.0 and M02 3.0.0 are locally
+accepted and selectable for both laws. M06's current research law is rejected at
+the full-component boundary; its explicitly deferred law-design task is not an
+unfinished production acceptance claim. Public deployment remains separate.
+
+## Acceptance output and selective inspection (2026-11-16)
+
+- The production acceptance driver now saves each subprocess's complete combined
+  stdout/stderr under `ACCEPTANCE_OUTPUT/logs/`, recording its log path, elapsed
+  time, exit code/signal and status in `report.json`. Console output contains
+  starts, minute heartbeats, completion/count summaries and bounded failure
+  excerpts. Structured unit/browser reports and the strict no-skip/no-retry
+  validators remain unchanged. Validation failures after exit zero still fail.
+- National resource campaigns use a compact Playwright reporter plus a full
+  JSON reporter. Complete stdout/stderr and test errors remain in `.log` and
+  `.playwright.json` files beside the original receipt. New `.summary.json`
+  sidecars expose actual legal outcome counts, approved/unexpected failure
+  counts, infrastructure/page errors, model version/workers, timings, sampled
+  memory and archive verification with evidence paths. Unknown values remain
+  `null`; approved failed elections remain failed membership. No model, legal,
+  seed, simulation or archive acceptance criterion changed.
+- Campaign console progress is one line per minute and phase change across
+  preparation, execution and archive work. Actual UI counters are retained when
+  available; missing counters are not invented. Five-second memory sampling and
+  thirty-second execution receipt saves remain intact. Shared full-panel checks
+  now print a short result and file path instead of duplicating their receipt.
+- Added [acceptance reporting](acceptance-reporting.md) as the focused guide to
+  file locations and selective PowerShell inspection. Stable agent instructions
+  now require starting with summaries, selecting failed checks/fields/IDs and
+  bounded source ranges, and avoiding repeated empty polling and unchanged
+  report dumps. Full evidence remains on disk.
+- Verification on Windows / Node 24.20.0: both `npm run check:data` and
+  `npm run check` passed (zero Svelte diagnostics); the complete two-worker unit
+  suite passed **1,351 tests**, no pending/TODO/failures, in 63.7 seconds. The
+  focused output/legal/report tests passed **10/10**, including large-output
+  retention, bounded excerpts, spawn/exit failures and genuine progress counts.
+  The static build passed; its full log and verification receipts are under
+  ignored `data/derived/acceptance-output-verification/`.
+- Tiny Playwright tests, without browser fixtures or electoral simulations,
+  exercised successful and deliberately failing reporter runs: 20,403/30,552
+  characters remained in full logs while console output was 527/4,180 characters.
+  A synthetic npm shim exercised the real gate driver: success completed all 12
+  subprocess stages; exit 9 and an exit-zero skipped-unit report both failed the
+  gate with linked evidence. These are reporting tests, not production acceptance.
+  Replaying all four existing 1,000-ID receipts through the formatters preserved
+  outcome/error counts, actual workers and archive verification: summaries were
+  about 1.3 KB and final console lines 440–448 characters. Original receipts
+  and archives were read only.
+  Resource configuration was inspected with `--list` only; no new resource
+  campaign or full application browser matrix ran. An initial build-verification
+  wrapper guessed the wrong local npm CLI path; invoking installed npm directly
+  resolved that verification-only failure.
+
+## 2026-11-16 — Final hosting reassessment implementation
+
+- Retained GitHub Actions plus GitHub Pages. Live repository metadata confirms
+  `fornaeffe/elezioni` is public, defaults to `main`, and has no Pages site yet.
+  The [hosting guide](hosting.md) records current primary-source limits,
+  implementation choices, evidence locations and the publication procedure.
+  Eligibility and local results do not establish hosted-runner acceptance.
+- Added a SHA-pinned workflow on `ubuntu-24.04` / Node 24. It measures a fresh
+  npm/source/model-cache pipeline and a warm replay on the same runner, runs
+  the unchanged strict application gate in each pass, and requires identical
+  production payload manifests. GNU time records Linux command resources;
+  five-second samples retain host available RAM and disk. Sources/model-cache
+  sizes and complete preparation/acceptance receipts are retained. There is no
+  persistent Actions cache; large site/evidence artifacts expire after one day,
+  while small status/identity and public-transfer receipts remain for 30 days. The
+  combined cold/warm assessment has a 330-minute ceiling below GitHub's six-hour
+  job limit, allowing both complete matrices on the standard four-CPU runner;
+  this ceiling is not a measured hosted duration or a model-performance result.
+- Publication requires a manual request on `main`, repository variable
+  `PAGES_PUBLICATION_ENABLED=true`, and successful cold/warm gates. Pushes and
+  merges alone never deploy. A request on another branch or without the switch
+  fails explicitly. Separate least-permission deployment and public-smoke jobs
+  verify the deployed revision, routes, actual workers, simulation and exports.
+- Added a production-only staging graph: current snapshot descriptors, all
+  authored politics asset pins, the selected reform candidate and its complete
+  transitive source/state/column dependencies, compiled client assets and the
+  four prerendered routes. Missing/corrupt dependencies, links, source maps and
+  an over-budget site fail. Unreferenced historical versions and research/test
+  evidence are excluded. `release.json` records the baseline revision and data
+  identities; `BUILD_REVISION` makes hosted SvelteKit versioning deterministic.
+- Static routes now use directory indexes. The release test server redirects
+  extensionless directory requests and can exercise raw gzip delivery; existing
+  transparent-HTTP-gzip acceptance remains available. National archive receipts
+  can be directed to each gate's evidence directory, preserving cold/warm
+  exports separately. These changes do not alter models, legal algorithms,
+  approved failures, frozen fixtures or acceptance criteria.
+- Local verification uses Windows / Node 24.20.0, 28 logical CPUs and about
+  63.8 GiB RAM. The final production regeneration passed in 86.4 seconds, both
+  type checks passed, and all **1,353 unit tests** passed in 62.8 seconds. The focused graph
+  checks also passed after exercising missing/corrupt lazy binary dependencies.
+  Actionlint 1.7.12 validates the complete workflow. The final application gate
+  passed **168 browser checks**, without skips or retries, in 34 minutes
+  33 seconds: each base passed 73 general, three editor and eight national
+  Chromium/Firefox workflow checks. The final staged-site matrix passed **6/6**
+  in 138.9 seconds with no page/network errors. It covers all four supported
+  national law/model pairs, Emilia-Romagna, direct loads/refreshes/navigation and
+  structured/CSV exports. The complete local warm hosting command passed in
+  **38 minutes 26 seconds**, including regeneration, application acceptance,
+  final Pages build and staged-site checks. This is not a cold installation or
+  a hosted Linux timing.
+- The final publishable directory contains **68 files / 112,870,858 bytes**;
+  **241** accumulated build files are excluded. Summed gzip size is an estimate
+  of **20,862,493 bytes**, not a CDN measurement. Two additional fresh builds,
+  using the same baseline revision, matched the tested site's entire manifest:
+  `6040401b4abd07e1f17189cf8b77d786e969854689b59c20342fe3747a44ec5d`.
+  Retained sources occupy 503,942,038 bytes and model caches 34,054,066 bytes.
+  Full local evidence excluding the site is 154,635,598 bytes for this pass,
+  before artifact compression. Start with `data/derived/hosting/local/report.json`
+  for combined local verification or `data/derived/hosting/warm/report.json`
+  for the complete command, linked logs/reports, source receipts and archives.
+  Payload reports and `site/release.json` retain exact data versions/hashes.
+  The baseline is `55647ca7f53edea047bdc128947addb1063f82f7` plus these uncommitted
+  changes (`workingTreeDirty=true`), not a claim that the implementation is
+  contained in that commit.
+- Local encoded body transfers from final raw static delivery were **21,907,131 /
+  24,753,419 bytes** for Rosatellum M01/M02, **21,806,620 / 24,652,908 bytes**
+  for reform M01/M02, and **6,000,704 bytes** for Emilia-Romagna. Each uses a
+  fresh browser context and includes execution/exports; exports themselves are
+  generated locally. The repeated direct-route matrix transferred 106,632,796
+  bytes and is not a representative single visit. Public CDN compression and
+  transfer remain unmeasured; the raw national workflows imply roughly
+  4,000–4,600 workflows per 100 GB before compression or repeated-browser reuse.
+- Development failures remain on disk: the first run caught a new test's law-ID
+  type widening; initial staged checks exposed the test server's missing
+  directory redirect. That incomplete run was stopped and preserved, then the
+  corrected six-test matrix passed. The first broad browser run then reported
+  26 passes and 47 failures: Vite preview also serves directory indexes without
+  the canonical redirect, breaking relative imports on extensionless direct
+  loads. General browser acceptance now uses the release static server as well;
+  focused direct-route and national-execution checks passed 2/2 before the full
+  rerun. Original failure reports/logs remain under
+  `data/derived/hosting/failed-warm-preview/`. That rerun passed 67/73; six
+  assertions encountered active import/preparation or queued chart queries.
+  The missing-pin validation assertion now permits 30 seconds for streamed
+  metadata; authored startup uses the existing two-minute preparation budget;
+  synthetic presentation setup waits for worker readiness before asserting
+  chart content. Expected errors, values, preserved drafts, legal outcomes and
+  no-retry/no-skip requirements are unchanged. The failed run remains under
+  `data/derived/hosting/failed-warm-async/`. All six affected cases then passed
+  together before the final complete gate. Graph staging explicitly distinguishes
+  binary `.u32` history/state columns from JSON metadata. No failing legal draw
+  was replaced or rerolled to resolve these infrastructure issues.
+- Remote work remains outstanding: this session has repository/workflow reads
+  but no workflow-dispatch tool, and GitHub CLI is absent. The new workflow must
+  first be committed/pushed; its migration-branch push runs the hosted gate
+  without publishing. Local Windows/WSL cannot establish standard hosted Linux
+  resource acceptance or Pages CDN behavior. No commit, push, merge, Pages
+  setting, publication or public smoke was performed. Luca retains the merge;
+  the final plan item stays open through hosted acceptance and publication.
+
+## 2026-11-17 — Hosted source update and acquisition consistency
+
+- The first [hosted reassessment](https://github.com/fornaeffe/elezioni/actions/runs/43937023815)
+  of `b09df0bceeca7447d4874d36ea8c7236dab44792` stopped at
+  `municipalities-2021` on Node 24.22.2. This is source drift, not evidence of a
+  Linux/Node incompatibility or insufficient runner resources. A live local
+  request returned 3,410,103 bytes instead of the pinned 3,410,100 bytes.
+  Comparison found exactly 58 changed `COD_COM_FISCALE` values, no added/removed
+  municipalities, and identical fields consumed by the simulator. Unlike the
+  earlier crosswalk case, this was actual field drift rather than row ordering.
+- Luca chose the newer upstream response without tracking its raw bytes in
+  Git. A fresh 17 November request confirmed the reviewed 3,410,103-byte response,
+  SHA-256 `94564a573ee2a98585f530bfd0d546c4110aa6b19df634701b9e220cd2b8ceef`.
+  Updated the source manifest's checksum, byte count and review date; the URL
+  and ignored cache path remain unchanged. Removed the uncommitted repository
+  snapshot proposal and its Git ignore/attribute exceptions. Future
+  upstream drift must still fail rather than be accepted automatically.
+- Acquisition now honors repository snapshots centrally, including specialized
+  download commands. Explicit imports remain available; valid caches are reused,
+  corrupt caches still fail, and missing/bad snapshots do not fall back to live
+  data. Repository paths must stay within the checkout.
+- Source-manifest fingerprints omit only the local `repositoryPath`, retaining
+  checksums, sizes, URLs, headers and other provenance. Preparation-code
+  fingerprints also remain enforced. Unlike the discarded snapshot-only fix,
+  this reviewed source update intentionally changes data identities. The earlier
+  trial's evidence remains under `data/derived/hosting-source-diagnosis/` and
+  does not establish acceptance of the newly updated inputs.
+- Regenerated and registered the matching reform seat table before model
+  preparation, then regenerated production bundles, defaults and catalogs.
+  This ordering is required by the existing geography/seat version guard; an
+  initial bootstrap attempt stopped there, with evidence in
+  `data/derived/municipality-source-update/bootstrap.log`. Updated six asset
+  pins and 2,716 geography references in the authoritative common default by
+  script, preserving electoral choices, seeds, dates and model versions. No
+  election-law correction or implicit latest-asset substitution was introduced.
+- Equivalence checks compare the prior accepted local data with the update:
+  previous-law and Emilia-Romagna electoral data/default choices are identical;
+  all ten common asset payloads differ only in the reviewed source provenance
+  and dependent version references. Model parameters, populations, geography
+  memberships, seat allocations and historical observation chunk descriptors
+  are unchanged. Detailed evidence: `data/derived/municipality-source-update/`.
+- The rebuilt candidate's national/paired inputs, electorate identity and
+  generation implementation are unchanged. Fitted, profile and runtime binary
+  columns are byte-identical. State differences are confined to provenance and
+  dependency keys; their allowed paths are checked in
+  `candidate-equivalence-report.json`, alongside `equivalence-report.json` and
+  complete source/asset/state differences in the same evidence directory.
+- The first unit pass found two historical-fixture couplings. The constructed
+  generation fixture now explicitly reads its original tracked seat table,
+  keeping the complete CP-01 M01 baseline replay unchanged, including its input,
+  ballot and candidature hashes. No baseline JSON was rewritten. Workspace
+  tests retain the retired M00 scenarios' historical pins instead of requiring
+  those frozen inputs to reference today's descriptor. Current production
+  assets remain covered by their separate strict packaging/release checks.
+  The two affected files then passed all 10 tests; initial reports/differences
+  remain in the source-update evidence directory.
+- Saved user scenarios, checkpoints and results are not rewritten. Existing
+  supported result archives retain their original results/provenance. Old
+  scenarios still need their exact bundles; current-only publication does not
+  retain those bundles. Explicitly rebased scenarios require checkpoints bound
+  to the new identities. Luca accepted these compatibility consequences.
+- Added a post-migration review of tracked sources/artifacts and their sizes,
+  reproducibility, download/regeneration policy, mutable endpoints, retention
+  and historical evidence. Existing artifact tracking policy otherwise remains.
+- Windows / Node 24.20.0 validation: preparation from initially empty source
+  and model-cache directories acquired all **31 required sources** and passed
+  in **261.5 seconds**; `data:check` passed in **24.8 seconds**. Warm preparation
+  passed in **137.7 seconds**, with all **19 receipt artifacts byte-identical**.
+  A further data check after the historical-fixture correction retained the
+  same receipt. Both type checks, all **1,355 unit tests** with zero skips,
+  the production build and all **six staged-site browser checks** passed.
+  Browser checks took **277.8 seconds**, with no skips or retries, covering
+  project-base direct routes/refreshes/navigation, both national laws under
+  M01/M02, Emilia-Romagna workers and structured/CSV exports. The full 168-check
+  application browser campaign was not repeated for this source update.
+  The regenerated legacy defaults/editor differ only in their snapshot-version
+  references; `tracked-equivalence-report.json` records that comparison.
+  The staged payload contains **68 files /
+  112,870,832 bytes**, with **20,862,477 bytes** estimated gzip transfer; public
+  CDN transfer remains unmeasured. Full logs and receipts are under
+  `data/derived/municipality-source-update/`, starting with `report.json`.
+- No further user logs were needed. Hosted Linux cold/warm acceptance, Luca's
+  merge and public publication remain outstanding; no commit, push, merge or
+  deployment was performed during this correction.
+
+## 2026-11-17 — Bounded source-download retries
+
+- The [second hosted cold run](https://github.com/fornaeffe/elezioni/actions/runs/44102471591)
+  of `0df367812bc1e687df46bfb1979f39e75bc71713` stopped before verifying the
+  first source, `camera-a1`: Node 24.22.2 reported `UND_ERR_CONNECT_TIMEOUT`
+  connecting to `www.riformeistituzionali.gov.it:443` after 10 seconds. The
+  existing 180-second abort signal did not extend Undici's separate connection
+  timeout. The log establishes a connection failure, not source checksum drift;
+  its cause on the runner (temporary outage/routing/access restriction) remains
+  unproven by successful local requests.
+- Shared acquisition now uses `source-download.ts` and an explicitly pinned
+  Node preparation dependency, `undici@7.29.0`. Each source GET uses a scoped
+  dispatcher with a **30-second connection timeout**, at most **three attempts**,
+  and one **180-second deadline** covering all attempts, bodies and waits.
+  No global dispatcher is changed. Dispatchers are destroyed after success or
+  failure, and the deadline timer is cleared.
+- Only recognized transient network errors and HTTP 408/429/500/502/503/504
+  retry, with 2- then 5-second backoff. Longer numeric/date `Retry-After` values
+  are honored within the deadline; excessive values cannot overflow timers or
+  extend the budget. Attempts log source ID, host, elapsed time and the failure
+  code. Final errors retain the original cause. Response bodies are cancelled
+  before retrying HTTP errors, and interrupted body reads can retry the GET.
+- Repository snapshots and explicit imports retain their existing precedence.
+  TLS validation, permanent HTTP errors, corrupt caches/imports, invalid
+  snapshots and checksum mismatches still fail. Byte verification remains
+  outside the transport retry loop, and files are written only after successful
+  verification. No alternate source, cache repair, TLS bypass or automatic
+  source-pin update was introduced.
+- Added deterministic fake-clock tests for retries/backoff, exhaustion, body
+  interruption, HTTP status classification, `Retry-After`, shared-deadline
+  expiry, contextual diagnostics and unchanged cache/checksum enforcement.
+  The focused acquisition suite passed **29 tests** before full validation.
+- Source manifests and authored scenario pins are unchanged. The added lockfile
+  dependency and downloader code legitimately change implementation provenance.
+  Regenerated the candidate: **18/19 receipt artifacts are byte-identical** to
+  the previous release; only its pointer changes. Source envelope/chunks,
+  national/profile/paired inputs, electorates, dates and fitted/profile/runtime
+  binary columns are unchanged. State payload differences are limited to
+  implementation IDs and dependent fitted/profile/composition/run references.
+  The comparison also checks the new generation fingerprint against the code.
+  Detailed proof is in `equivalence-report.json` and `state-diff.json`.
+  Evidence and full command logs are under
+  `data/derived/hosting-network-fix/`, starting with `report.json`.
+- The first staged-browser pass completed all five election worker/export
+  workflows. Its navigation assertions also completed, but that synthetic
+  matrix's `afterEach` hook timed out awaiting transfer-size promises for
+  abandoned requests. The trace places navigation completion around three
+  seconds, followed by the 240-second bookkeeping timeout. Complete failed
+  reports and trace remain in `browser.json`, `initial-report.json` and
+  `browser-output/`. No electoral run was changed or rerolled to address it.
+- The synthetic navigation matrix now records HTTP statuses and page/network
+  errors with explicitly null transfer sizes and estimates. It no longer waits
+  for abandoned responses' size promises. All route assertions and HTTP/error
+  checks remain; the five complete election workflows still require their full
+  measured-transfer receipts. `docs/hosting.md` describes this distinction.
+- Windows / Node 24.20.0 verification passed: empty-source/model-cache
+  preparation verified all **31 sources** in **176.3 seconds**, `data:check`
+  passed in **25.5 seconds**, and warm preparation passed in **87.1 seconds**.
+  All **19 cold/warm receipt artifacts are byte-identical**. Both type checks,
+  all **1,373 unit tests** with zero skips, and the production build passed.
+  Application types were rechecked after the navigation-receipt adjustment.
+  All **six final staged browser checks** passed in **141.6 seconds**, with no
+  skips or retries. The full 168-check application browser campaign was not
+  repeated. Final reports are `browser-final.json` and `transfers-final/`;
+  `transfer-validation.json` confirms five measured election workflows and one
+  explicitly unmeasured synthetic navigation matrix. The staged site contains
+  **68 files / 112,870,846 bytes**, with a **20,862,492-byte** gzip estimate.
+- Standard hosted Linux acceptance still requires the next committed/pushed
+  revision; local success
+  cannot prove that a GitHub runner can reach every upstream host. No commit,
+  push, workflow rerun, merge or deployment was performed in this correction.
+
+## 2026-11-17 — Hosted browser readiness and diagnostic correction
+
+- Luca downloaded the `af5325764261f119a2add1a73c73c4688bfed1ac` hosted run
+  into `data/github-artifacts/`. Its cold preparation passed in **350 seconds**;
+  data/type checks and **1,373 units** passed. The first project-base browser
+  suite ran **73 checks in 1,193 seconds: 49 passed, 24 timeout failures**, with
+  no skips/retries. `browserChecks=0` meant no complete browser suite had passed
+  acceptance. All four national law/model lifecycle cases passed. Available
+  system RAM stayed above **9.2 GiB** on the four-CPU runner; these reports do
+  not establish CPU contention as the sole cause of every stalled DOM action.
+- Identified contradictory budgets (30-second tests containing 120-second
+  preparation waits), editor readiness that checked only `dati verificati`,
+  synthetic storage seeding competing with live initialization, and a trace
+  policy (`on-first-retry`) that recorded nothing with zero retries. The M02
+  residual case was still progressing at `covariance-solves · 130/180` when its
+  old two-minute preparation assertion expired.
+- Acceptance now records independent unit/browser worker limits. Hosting uses
+  **two unit workers and one browser context**; application compute workers
+  remain governed by their existing scenario/capacity contracts. Explicit new
+  environment variables override the legacy shared-worker fallback. General
+  browser tests default to one worker in CI and zero retries; failures retain
+  traces/screenshots. Each suite/base has its own output directory, preventing
+  later commands from deleting earlier evidence.
+- Before the full first-base browser matrix, a **four-check fail-fast diagnostic
+  preflight** covers controlled status/error UI, list creation, M02 residual
+  fitting/execution and sparse result presentation. It uses one context, zero
+  retries and `--max-failures=1`; all four checks must pass. Diagnostic counts
+  live separately in `report.json.diagnostics` and never inflate accepted full
+  matrix counts. Full project/root, editor and unified acceptance remain required.
+- Shared setup now waits for actual model readiness; editor setup also requires
+  verified assets. Startup waits remain bounded at **two minutes**, refitting
+  at **five minutes**, ordinary politics UI tests at **six minutes**, and the
+  multi-phase residual M02 case at **fifteen minutes**. General DOM actions have
+  a **30-second** cap. Controlled status tests hold data acquisition explicitly;
+  presentation seeding leaves the simulator for the neutral home route before
+  writing IndexedDB/localStorage, then reenters the viewer and awaits readiness.
+  No expected political output, legal failure, sample membership, default,
+  production data pin, law or model implementation was changed.
+- Added focused worker-policy validation and updated operational instructions
+  in `docs/hosting.md` and `docs/common-politics-scenario/acceptance.md`. Existing
+  downloaded artifacts and Luca's pre-existing `.gitignore` edit are preserved.
+  Initial-trial evidence is under `data/derived/hosted-browser-readiness/`;
+  final evidence is under `data/derived/hosted-browser-readiness-final/`.
+  Begin with `report.json` and its linked `application/report.json`.
+  Hosted Linux cold/warm confirmation still requires the committed/pushed
+  correction; local timings are not runner proof.
+- The initial local trial exposed a race in the first readiness helper: hidden
+  status details could match an older ready entry, followed by a non-retried
+  read of the still-changing visible status. It now polls only the active
+  status toggle's accessible label. Residual-list transitions explicitly await
+  preparation after reload and law changes before opening controls. Initial
+  failed contexts/traces remain preserved; the final correction is rerun in
+  `data/derived/hosted-browser-readiness-final/`. All browser commands now fail
+  fast with line-plus-JSON logging; no partial matrix is accepted as complete.
+- Final Windows / Node 24.20.0 application acceptance passed in **7,789.1
+  seconds**: complete production-data validation, both type checks, all
+  **1,380 unit tests**, all **168 full browser checks**, and **four separate
+  diagnostic checks**, with zero skips or retries. General/editor/unified
+  counts remain **73/3/8 at each base**. Project-base suites took
+  **2,679.2 / 407.9 / 847.7 seconds**; root suites took
+  **2,362.8 / 380.0 / 663.7 seconds**. The diagnostic preflight took
+  **332.8 seconds**. All previously failing editor/presentation areas and the
+  M02 residual lifecycle are covered by these complete matrices.
+- The final project-base Pages build and all **six staged-site browser checks**
+  passed; the latter took **248.7 seconds**, with zero skips or retries.
+  The staged payload contains **68 files / 112,870,855 bytes**, with a
+  **20,862,491-byte** gzip estimate. These are local staging measurements,
+  not public-CDN transfer measurements. Final logs, JSON reports, archives and
+  transfer receipts remain under `data/derived/hosted-browser-readiness-final/`.
+- Production implementation, source pins, authored defaults and frozen fixtures
+  are unchanged. `git diff --check` passed. No additional logs from Luca were
+  needed. Commit/push the correction on `migrazione`, then require the new
+  revision's hosted cold **and** warm passes before merge. No repository-variable
+  adjustment is needed. The final hosting/publication task remains open;
+  no commit, push, merge or publication was performed here.
+
+## 2026-11-18 — Focused acceptance profiles and Firefox startup deadline
+
+- Luca supplied the hosted evidence for
+  `069fe40e87165d7ba3a1938c9be2c5d2b7604fcb` and approved all proposed
+  reductions after the timing review. Its cold preparation, data/type checks,
+  1,380 units, 73 general checks, three editor checks and four preflight checks
+  passed. Firefox Rosatellum/M02 then exceeded the remaining two-minute initial
+  preparation wait. The trace shows covariance solving advancing from 18/180
+  at 51 seconds to 150/180 at 120 seconds. The observed 63.5-minute failed cold
+  run and earlier 129.8-minute local application campaign motivated the cuts;
+  these are earlier measurements, not timings of this implementation.
+- Real initial/refit readiness now has one five-minute cap with bounded detailed
+  progress on failure. Production workflows allow ten minutes overall; the
+  multi-refit residual M02 case retains fifteen. Controlled UI readiness is
+  bounded at 20 seconds. Zero retries, active-status readiness and failure traces
+  remain. The retained Firefox production workflow runs early, once.
+- Added explicit `focused-browser-v2` contracts: development requires 66 general
+  cases plus one controlled editor cancellation (67); release requires 70 general,
+  one editor cancellation, two representative production archive workflows and
+  one root smoke (74). The optional extended profile requires all eight archive
+  law/model/browser combinations plus general/editor checks at both bases (158).
+  Every profile still requires production-data validation, both type checks and
+  every unit. Wrong selected counts and partial/skipped/flaky reports fail.
+- Removed the duplicate diagnostic preflight and default full root replay. Root
+  release smoke uses the existing constructed scenario/real worker, nested
+  compute, pinned test data, direct routes, refreshes and navigation. Extracted
+  that unchanged constructed setup for reuse with the four existing law/model
+  lifecycle cases. Staged cold acceptance still requires all six real production
+  route/worker/export checks, including all four national law/model pairs.
+- Pure editor/default/draft/legacy-import and synthetic presentation specs now
+  install a test-only controlled worker preparation boundary. Actual pinned
+  editor assets, import validation, forms, serialization, persistence and result
+  queries remain real; election execution and checkpoint creation are explicitly
+  rejected by the boundary. It cannot supply numeric production acceptance.
+  Cancellation holds a controlled refit until cancel, then permits retry; real
+  execution cancellation/prefix preservation remains in the constructed suite.
+  Worker-count/warning UI checks moved to this boundary.
+- Removed three redundant v1–v4 rejection browser cases, retaining one and
+  enumerating retired versions in unit coverage. Removed the separate
+  alignment/placeholder case and the production cosmetic/checkpoint editor
+  case; one mobile/keyboard smoke, constructed checkpoint/lifecycle checks and
+  file/execution units remain. Legal outputs, frozen regression manifests,
+  conservation, deterministic seeds, explicit zero and failed/partial membership
+  expectations are unchanged.
+- Pushes now prepare required assets and run `acceptance:dev` with Chromium.
+  Hosted cold/warm reassessment is an explicit manual workflow (`publish=false`,
+  normally `extended=false`). Cold runs release application/staged acceptance;
+  warm runs preparation, data validation and project build, requiring matching
+  artifact membership/bytes/SHA-256 and exact staged payload identity. Warm names
+  its reused cold acceptance honestly and requires the same revision/policy.
+  Publication still requires explicit dispatch, `main`, the publication variable
+  and successful cold/warm reassessment. No new repository variables are needed.
+- Added compact policy tests for profile/count enforcement and warm artifact
+  equality. Updated active plan and operational guides around the new contracts.
+  Static TypeScript parsing, package/workflow parsing, source enumeration
+  (70 general / 4 production-tagged / 66 development) and `git diff --check`
+  succeeded. Static evidence: `data/derived/acceptance-rationalization/static-review.json`.
+  No type checks, builds, preparation, unit/browser tests or acceptance campaigns
+  were executed: Luca explicitly retained execution. Runtime/type verification
+  and post-change timings remain outstanding. Start with the commands in the
+  common-politics acceptance guide, then manually dispatch the new committed
+  revision's hosted release gate. No commit, push, merge or publication occurred.
+
+## 2026-11-18 — Explicit worker mode in the editor control check
+
+- The next Luca-run development gate passed data validation, both type checks
+  and all 1,382 units, then reached the worker-control browser check after twelve
+  passing browser cases. Its trace showed a ready editor with automatic workers
+  selected and no failed requests or browser errors. This is separate from the
+  earlier `ERR_NO_BUFFER_SPACE` startup failure.
+- Moving this check away from `openCommon()` had removed its implicit fixed-two-
+  worker setup. The authored default uses automatic workers, so the numeric input
+  was correctly absent. The test now selects explicit worker mode, asserts that
+  the input is visible, enters 26, waits for readiness and retains the memory
+  warning/value assertions. Application behavior and timeout budgets are unchanged.
+- Luca authorized retrying only this case. It passed in Chromium at `/elezioni`
+  in **2.9 seconds**, with one worker, zero retries and no skips, against the
+  existing static build. Complete output and structured evidence are in
+  `data/derived/worker-control-fix/browser.log` and `browser.json`.
+  `git diff --check` passed. No other test, build or preparation ran. The full
+  suite remains for Luca, and no startup recovery or buffer-error workaround
+  was implemented. No commit, push, merge or publication occurred.
+
+## 2026-11-18 — Bounded retries for source hostname lookup failures
+
+- Luca's complete local development and release application reports passed:
+  1,382 units in each, 67 development browser checks and 74 release browser
+  checks, with no skips. After commit/push, the development job for
+  `fbb1ddb5f99178cf87bd51ba9a976a4e31a5ceae` stopped during preparation, before
+  application acceptance. Its artifact contains `prepare.log`; ten downloads
+  from `dait.interno.gov.it` succeeded before `europee-20190526` failed hostname
+  lookup with `ENOTFOUND` after 4.5 seconds. That code was absent from the
+  transient allowlist, so the downloader stopped at attempt 1/3.
+- The preceding diagnosis confirmed successful local hostname resolution and
+  HTTP HEAD 200 with the pinned 31,187,859-byte response length. This supports
+  an intermittent lookup problem; it does not identify the failing resolver or
+  verify a newly downloaded archive's hash. No additional logs were needed.
+- Added `ENOTFOUND` to the shared retry allowlist. The existing three-attempt
+  limit, 2/5-second backoff, 30-second connection cap and single 180-second total
+  deadline remain. Persistent lookup errors still fail with the underlying cause.
+  Source URLs, byte/hash pins, TLS validation, permanent HTTP classification,
+  cache/import verification and checksum mismatch behavior are unchanged.
+- Added focused fake-clock tests for wrapped lookup failure/recovery, exhaustion
+  with exact backoff and diagnostics, and changed bytes after recovery. The last
+  case verifies there is no third request or cached/partial file after checksum
+  rejection. All **21 downloader tests passed**, without skips or TODOs.
+  Reports and complete logs: `data/derived/source-dns-fix/unit.json` and `unit.log`.
+- Dependency-graph inspection shows this transport change affects source/legal
+  preparation cache identities, while browser compute, generation, fitting and
+  profile implementation entry graphs do not include the changed downloader.
+  The existing pipeline handles cache rebuilding. No production artifacts,
+  manifests, authored defaults or frozen fixtures were regenerated or edited.
+  Inspection evidence: `data/derived/source-dns-fix/implementation-dependencies.json`.
+- Updated preparation instructions and the active blocker. `git diff --check`
+  passed. No full acceptance, browser suite or preparation campaign ran here.
+  Commit/push the fix and require the new hosted development job to pass, then
+  manually run the release cold/warm reassessment before merge. No commit, push,
+  workflow dispatch, merge or publication was performed here.

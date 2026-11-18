@@ -1,0 +1,154 @@
+# Common politics lifecycle and results (CP-07)
+
+Use this guide for task ownership, fit reuse, session persistence and durable
+execution. Use [editor.md](editor.md) for forms, [execution.md](execution.md) for
+model/law adapters and [files.md](files.md) for strict portable formats.
+
+## Entry points
+
+Both `/politics` and `/politics/editor` mount the same workspace. Apply the
+configured project base to navigation, assets and workers. The regional route
+keeps its independent lifecycle and formats. Retired workspace implementations have been removed; isolated old scenario and
+transport evidence lives only under `web/tests/fixtures/retired-*`.
+
+| Responsibility | File under `web/src/lib/` |
+| --- | --- |
+| Single draft, revision guards, execution lock, independent viewed session | `politics/workspace-controller.ts` |
+| Mount/disposal, editor execution port and session actions | `politics/CommonPoliticsWorkspace.svelte` |
+| Worker requests, progress, failure/disposal handling | `politics/execution/client.ts`, `workers/politics-workspace.worker.ts` |
+| Consumed-stage reuse, numeric-state validation and legal assembly | `politics/execution/prepare.ts` |
+| One-entry durable M02 numeric cache | `politics/execution/preparation-store.ts` |
+| Resource validation and requested/effective workers | `politics/execution/resources.ts` |
+| Prepared compute inputs and exact transfer binding | `politics/execution/compute-inputs.ts`, `compute-packet.ts`, `keys.ts` |
+| Ordered durable run commits and interruption recovery | `politics/execution/stored-run.ts`; existing `workers/reform-pool.ts`, `core/result-store.ts` |
+| Immutable session checkpoint storage and forward v2-to-v3 migration | `core/result-store.ts`: `withStoredFittedState`, `saveStoredResult` |
+| Checkpoint construction and exact restore | `politics/execution/checkpoint.ts`, `politics/files/checkpoint.ts` |
+| Staged archive storage and bounded row-membership checks | `politics/files/stored-archive.ts` |
+| Pages, messages, disk statistics and streaming exports | `workers/result-service.ts`, `core/result-export.ts`; `politics/PoliticsSessionResults.svelte` |
+
+## Ownership and reuse
+
+The controller validates and detaches each draft replacement, writes only
+`elezioni:politics:common-draft:v1`, and retains the in-memory edit on storage
+failure. It ignores former politics draft keys. Preparation starts automatically
+at initialization and after edits. Each reply belongs to a task and draft
+revision; late progress/results cannot replace newer state. Execution locks
+editing before waiting for preparation. Cancellation is explicit and preserves
+the ordered assigned prefix. Navigation asks the coordinator to close nested
+workers, with a bounded termination fallback.
+
+Numeric steppers yield worker tasks regularly for cancellation and throttle UI
+progress to at most ten messages per second. Statistical caches hold one M01
+preparation, one M02 national fit and one M02 profile/paired state. National and
+profile dependencies remain separate: changing the fitting seed refits the
+national stage while retaining compatible profiles. Names/colors, inactive
+settings, candidates and simulation seeds do not refit M02. Generation and legal
+keys still change for their consumed inputs.
+
+Authoritative numeric arrays are immutable and shared with the coordinator's
+generator. The compact compute packet contains prepared generation/legal inputs;
+raw source/catalogue bytes stay in the coordinator. Each worker receives owned
+copies, verifies their exact graph hash/build and M02 consumed-input parents,
+then uses the numeric arrays without another clone. No compute handle retains
+the fit cache or portable checkpoint. See [execution](execution.md#workers-and-workspace-integration).
+
+`elezioni-politics-preparation-v1` stores one replaceable, verified new-format
+M02 checkpoint plus its consumed-stage keys. It restores numeric caches after
+reload without loading its scenario into the draft. Cache corruption, unavailable
+storage or quota failure falls back to ordinary visible preparation, with a
+status note. Explicit checkpoint imports remain bound to the entire current
+scenario and exact implementation/dependencies; failed imports retain the
+previous compatible preparation. No action randomizes seeds: each visible seed
+button edits only its own field.
+
+## Sessions and bounded resources
+
+`elezioni:politics:common-sessions:v1` stores the owner, selected session ID and
+compact session index; canonical rows remain in the existing IndexedDB chunk
+store. Browsing, importing and law/model switching keep the draft independent.
+Only **Carica lo scenario di questa sessione** validates and replaces it. Reload
+restores exactly the selected session, reports unavailable storage, and never
+substitutes another session. Stale results keep their immutable executed identity.
+
+All four pairs use the ordered pull-driven pool: one pending simulation per
+worker, bounded row chunks, and a manifest commit only after the entire simulation
+is stored. Stable simulation IDs and RNG streams do not depend on pool width.
+Failures retain complete/partial/failed membership and the original requested
+denominator. Quota failures recover the last durable manifest and leave orphaned
+uncommitted chunks invisible. Later deletion removes that session's chunks.
+
+The `common-worker-memory-v2` planning estimate reserves 768 MiB for coordinator,
+editor and GC scratch, adds retained source/numeric caches and packet copies,
+and reserves 512 MiB per M02 worker, 640 MiB per M01 worker, or 1536 MiB for
+Rosatellum scrutiny. The separate 3 GiB heap plan includes worker scratch and
+payloads. Automatic selection is provisionally capped at four, and may select
+fewer with low/missing RAM hints or larger inputs. CPU remains the ceiling for
+explicit choices, with the existing memory warnings and requested/effective
+worker provenance. These are conservative estimates, not available-RAM or hard
+browser-limit measurements; [CP-08 acceptance](acceptance.md) records campaign calibration. Simulation counts are positive safe integers,
+with a 64 MiB compact membership budget (64 estimated bytes per requested run),
+rather than the former Rosatellum 1,000-run ceiling. This bound does not establish
+performance above the approved 1,000-run acceptance size.
+
+The result store's version-3 IndexedDB upgrade moves existing common checkpoints
+and retained reform portable fit files into a separate `checkpoints` store in
+one atomic upgrade transaction, one manifest at a time. New sessions add that
+immutable payload once with their manifest, then commit only the compact
+manifest. `withStoredFittedState` loads it explicitly for archives/checkpoints;
+ordinary queries do not read it. Successful saves release inline payloads from
+the live record. Session deletion removes both manifest and payload atomically;
+quota failures retain the prior durable prefix and cannot publish a payload-less
+new session. File schemas and archive binding remain unchanged.
+
+Stored tables/charts use tested presentation helpers and the existing disk
+statistics service. Rosatellum lists retain the prior plurinominal-seat meaning;
+coalition/support series also include uninominal winners. The UI labels this
+distinction and hides reform-only bonus/candidate views for Rosatellum.
+Simulation diagnostics use the versioned event ledger for exact membership.
+JSON.gz exports stream the common archive and its executed scenario/checkpoint;
+CSV remains table-oriented. Imports stage rows under a fresh local ID, validate
+EOF, identities and row/diagnostic membership, then select the session without
+editing the draft. Corrupt imports delete only staging data.
+
+## Focused verification
+
+Run npm commands from `web/`; build and browser tests must be sequential:
+
+```text
+npm run check
+npm test
+npm run build
+npx playwright test tests/e2e/common-politics-lifecycle.spec.ts tests/e2e/common-politics-editor.spec.ts tests/e2e/common-politics-worker.spec.ts tests/e2e/common-politics-files.spec.ts --workers=2
+```
+
+`workspace-controller.test.ts` covers session actions and delayed replies;
+`execution/lifecycle.test.ts` covers consumed-stage reuse, exact checkpoint restore
+and resource bounds; `execution/result-presentation.test.ts` checks Rosatellum seat
+meanings and ticket labels. The browser lifecycle suite uses constructed exact assets,
+three simulations per deterministic comparison and ten requested simulations for
+explicit interruption. It tests real workers, one/two-worker row equivalence,
+queries, archive roundtrips, reload, portable checkpoints, execution locking and
+injected quota failure. The editor suite additionally uses production bundles.
+`compute-packet.test.ts` checks owned transfers, unchanged numeric parents,
+outcomes for all pairs and independent parent/buffer tampering.
+`result-store.spec.ts` checks forward migration, zero checkpoint rewrites across
+commits, attachment quota atomicity, immutability and scoped cleanup. The shared
+statistics storage case also checks retained reform JSON archive hydration.
+Repeat focused checks under `BASE_PATH=/elezioni` after the corresponding build.
+
+For an explicit national Chrome resource campaign, run `npm run benchmark:common-politics`
+from `web/`. Its default is reform/M02, automatic workers and 1,000 simulations;
+it builds first and requires the production bundles. Optional PowerShell env
+variables are `CP_RESOURCE_SIMULATIONS` (1–1000), `CP_RESOURCE_MODEL`,
+`CP_RESOURCE_LAW` and `CP_RESOURCE_WORKERS`. It samples Windows renderer private
+memory, including nested workers/native allocations, retains progress receipts
+under `data/derived/common-politics-resources/`, and records exact browser/build,
+dependency identities, actual workers, membership and manifest/checkpoint separation. The
+one-hour fitting-plus-execution ceiling applies; these process samples are not
+JavaScript heap measurements. Resource campaigns run sequentially.
+The [CP-08 acceptance guide](acceptance.md) owns the full production gate,
+regional smoke cases, national campaigns and measured performance/memory.
+The former workspace suites now exercise mounted common controls, strict files
+and durable sessions. Detailed presentation fixtures retain their saved-table
+assertions through test-only historical transport. Public deployment has its own
+gate in the migration plan.

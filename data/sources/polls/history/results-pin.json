@@ -1,0 +1,9 @@
+{
+  "id": "camera-european-calibration-results-v1",
+  "path": "results.json",
+  "url": "https://dait.interno.gov.it/elezioni/open-data",
+  "headers": {},
+  "sha256": "6b5a7500c71c45cfb235051e760ee4e8851da7327a3b771008ca79d2f96ce185",
+  "bytes": 24767,
+  "manifestSha256": "c2b3acde94158b48170b7b1d39c45fa8fbe0f6b028bce2c8a010bef64789483c"
+}

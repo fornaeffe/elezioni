@@ -1,0 +1,2539 @@
+{
+  "purpose": "CP-01 observed defaults and pins, 2026-11-07; generated report, not an authored default",
+  "authoredHashes": [
+    {
+      "path": "data/fast-share-future-scenario.json",
+      "sha256": "389204bc105a9d9fa8ae1ceccbf902634f8dddba534fb6a2daa283fd17904f53"
+    },
+    {
+      "path": "data/fast-share-default-policy.json",
+      "sha256": "01391d9068ef8b0c911041de93bd55692b39f8b8ab9f24c6b7cac8f92e8f3a8e"
+    },
+    {
+      "path": "data/legacy-comparison-policy.json",
+      "sha256": "b3a571ed76ea7dcbdda00c98ebf52e9ba68219d0ff8e80d2181f094604933aeb"
+    },
+    {
+      "path": "data/legacy-comparison-future-polls.json",
+      "sha256": "137f2fa1b9fd49fcf54baf51f1e7af858e7bb3139c3e510a02f2bb70a0fe0ad6"
+    },
+    {
+      "path": "data/sources/fast-share/memberships-policy.json",
+      "sha256": "0af66510826f299f2df45a08df67a4a44c9e528f9304f2a5a3c6d406ce3c9627"
+    },
+    {
+      "path": "data/source-manifest.json",
+      "sha256": "84c1f5bf10bc60bb1d368eaa72fa79d7d4ec8a2f2f93d97de1be68dbc2dfd837"
+    },
+    {
+      "path": "data/workspace-source-manifest.json",
+      "sha256": "0cf16e7fc2a6a7cf20ee34cde4a8fde8f59b74004be5c4d56597d786f4b9e39c"
+    },
+    {
+      "path": "data/fast-share-source-manifest.json",
+      "sha256": "c0bb13b0fc4a4da1e1155d55dff75445290ff6c95d4f0ba0fb7a5fdfd23cadbd"
+    },
+    {
+      "path": "data/reform-model-source-manifest.json",
+      "sha256": "539a2ff0d7f41adb9c669d8f92046d726303f36d97362ddfb019f76fd1b46717"
+    }
+  ],
+  "pointer": {
+    "assetRoot": "data/reform-2026/fast-share/",
+    "catalog": {
+      "compressedBytes": 6300,
+      "decodedBytes": 17114,
+      "decodedSha256": "c802e0012400a8dd116d4bafe7d76015baaee23fc2618ca8e00cbb7010605778",
+      "path": "fast-share-catalog-01a0b31849d60f5b54aaaf3f895768e9aeaef022238ccdb19ea6966ecb14e239.gz",
+      "sha256": "01a0b31849d60f5b54aaaf3f895768e9aeaef022238ccdb19ea6966ecb14e239"
+    },
+    "catalogId": "fast-share-catalog-v1-916e7741cadc5933a76a0bafb500ecff4ba2d3766543262d385e11b71780a8a7",
+    "kind": "fast-share-candidate",
+    "schemaVersion": 1
+  },
+  "assets": {
+    "fit": {
+      "compressedBytes": 6589,
+      "decodedBytes": 15770,
+      "decodedSha256": "c29bf7b923d98bbefeb30b13e38bed0db7d05e7d1f69e0323fcb385655f181fd",
+      "path": "fast-share-fit-b3000ce4628258369aaa39e94c43d63fc8d2fcef0466bbd4f6f0441c99b6bf0a.gz",
+      "sha256": "b3000ce4628258369aaa39e94c43d63fc8d2fcef0466bbd4f6f0441c99b6bf0a"
+    },
+    "profiles": {
+      "compressedBytes": 44293,
+      "decodedBytes": 248931,
+      "decodedSha256": "2c0ae377402d7bc98e0db6df2a90a84b28eea03295bab6fe805dc7d27ab5b0cd",
+      "path": "fast-share-profiles-e215406ac4a6d40c559e6e0b04f2b2a2704734f63f7e94ed2aeb192c250ce085.gz",
+      "sha256": "e215406ac4a6d40c559e6e0b04f2b2a2704734f63f7e94ed2aeb192c250ce085"
+    },
+    "runtime": {
+      "compressedBytes": 296291,
+      "decodedBytes": 2845544,
+      "decodedSha256": "524acbc55126cf4dc230be740378b68369e28a922fed3bbba20ccb974b4a7f14",
+      "path": "fast-share-runtime-d40a4bb42bd12e4809003ece41ab0ca23df5bcfca922af872a04e4335b117dcf.gz",
+      "sha256": "d40a4bb42bd12e4809003ece41ab0ca23df5bcfca922af872a04e4335b117dcf"
+    },
+    "scenario": {
+      "compressedBytes": 64172,
+      "decodedBytes": 423060,
+      "decodedSha256": "b3ad7a6106de2ab14594b7da47b67b8d5e31c39860f67be2f8ca5f7f128e1f29",
+      "path": "fast-share-scenario-c332197e61c92d1968a76aad230c976ed7e05ee4c7472da7159cf3b6e853ca1a.gz",
+      "sha256": "c332197e61c92d1968a76aad230c976ed7e05ee4c7472da7159cf3b6e853ca1a"
+    },
+    "source": {
+      "compressedBytes": 394332,
+      "decodedBytes": 3785805,
+      "decodedSha256": "b4f60b9b24b35a1ac6564af03662c62ca58bddd0e0ac21b7436c10acb344aecf",
+      "path": "source-dfe474fbb2677ac4799f24bdf87e9a3fde4701fb800f1d47cb070cdd7019dc63.gz",
+      "sha256": "dfe474fbb2677ac4799f24bdf87e9a3fde4701fb800f1d47cb070cdd7019dc63"
+    }
+  },
+  "electorateKey": "conditional-electorates-v1-051b65db0553f30dcc1330b08be0961bffe730ee21b4e77e8889ed8036f0863e",
+  "previous": {
+    "id": "politics-reform-future-choice-set-20261030-v1",
+    "name": "Politiche — scenario nazionale",
+    "electionDate": "2027-09-25",
+    "defaultSource": {
+      "kind": "bundled",
+      "electionKind": "politiche",
+      "territory": "Italia",
+      "dataVersion": "politics:d758a3ffe9a248abe72f56ed69a28da3f873d47d8cf1cb1c6f1d566824b77394",
+      "notes": [
+        "Collegi definitivi 2022 senza sovrapposizione Bolzano della riforma. Popolazione legale 2021; elettori e risultati subcomunali ricostruiti con pesi censuari, non osservati. Dotazioni calcolate provvisorie, non decreto ufficiale.",
+        "Risultati di lista diretti; il residuo sugli elettori conserva la convenzione astensione del modello precedente. Le ricostruzioni per fusioni/scorpori sono stime censuarie esplicite.",
+        "Le anomalie dei denominatori nelle fonti storiche restano esplicite nell’audit: i residui negativi sono conservati, senza inventare elettori o cancellare voti.",
+        "Future coalitions, joint tickets and filing are Luca's scenario instructions, not claims about finalized real electoral agreements.",
+        "IV/Casa Riformista and PSI/Avanti retain recognized identities. Più Uno, Progetto Civico, Futuro Nazionale and Ora retain their existing poll-only atoms; no historical vote inheritance is inferred from leadership changes.",
+        "UDC remains separate from Noi Moderati. Historical joint observations stay grouped; uncertainty of their internal split is not replaced by fabricated component counts.",
+        "Spazio Pubblico is represented within the user's joint Azione/PLD ticket, without a separately invented historical support coordinate.",
+        "Valdostan tickets and Union Valdôtaine must not be equated with the entirety of broader historical alliance votes without an explicit labelled reference assumption.",
+        "Protected-minority declarations are scenario inputs requested by Luca, not a legal certification of eligibility.",
+        "Team K and Süd-Tiroler Freiheit references distinguish Bolzano from Trento. Provincial/cross-chamber references and new-filing priors are explicit assumptions, not newly fitted political counts.",
+        "Previous-law adapter: standalone lists have singleton electoral tickets; these are not political alliances.",
+        "Senate filing covers whole corresponding regions, as in the shared authored definition.",
+        "Historical joint counts use reviewed comparison weights, otherwise equal member weights. These are explicit legacy assumptions, not observed component counts.",
+        "Named share references come from legacy-comparison-future-polls.json; unmapped historical votes retain the legacy abstention semantics.",
+        "Historical lists retain projected means by default. Named poll references initialize editable shares; only lists without compatible historical membership activate those national overrides automatically.",
+        "Special references retain the accepted reform default fast-share-source-v1-95d505ed1f7ea79c99cd0bf91a86dbc6a2d54c1f24fd9b37bec40a57e3c72511. The old shared field uses Camera/common means in both chambers; reference SDs retain the legacy mean-mode uncertainty law.",
+        "Territorial filing conditions the shared latent votes separately for each chamber while preserving each unit non-valid share.",
+        "Special-only lists without identifiable compatible history retain a labelled proxy reference; no absent history is treated as an observed zero."
+      ],
+      "snapshotId": "politics-static.json"
+    },
+    "globalShareMode": "mean",
+    "abstentionShare": 55.18,
+    "abstentionOverride": false,
+    "candidateGeneration": {
+      "uninominalToPlurinominalShare": 0.35,
+      "plurinominalCandidacyCountShares": [
+        0.875,
+        0.0625,
+        0.025000000000000005,
+        0.012499999999999997,
+        0.024999999999999998
+      ]
+    },
+    "listCount": 24,
+    "coalitions": [
+      {
+        "id": "centrodestra",
+        "name": "Centrodestra",
+        "color": "#3267b1"
+      },
+      {
+        "id": "centrosinistra",
+        "name": "Centrosinistra",
+        "color": "#c04444"
+      }
+    ],
+    "lists": [
+      {
+        "id": "fdi",
+        "name": "Fratelli d'Italia",
+        "coalition": "Centrodestra",
+        "color": "#3267b1",
+        "startingShare": 28.1,
+        "shareOverride": false,
+        "filing": {
+          "camera": [
+            "101",
+            "102",
+            "301",
+            "302",
+            "303",
+            "304",
+            "501",
+            "502",
+            "601",
+            "701",
+            "801",
+            "901",
+            "1001",
+            "1101",
+            "1201",
+            "1202",
+            "1301",
+            "1401",
+            "1501",
+            "1502",
+            "1601",
+            "1701",
+            "1801",
+            "1901",
+            "1902",
+            "2001",
+            "401"
+          ],
+          "senato": [
+            "1",
+            "3",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20",
+            "4"
+          ]
+        }
+      },
+      {
+        "id": "fi",
+        "name": "Forza Italia",
+        "coalition": "Centrodestra",
+        "color": "#5d8ed8",
+        "startingShare": 7.1,
+        "shareOverride": false,
+        "filing": {
+          "camera": [
+            "101",
+            "102",
+            "301",
+            "302",
+            "303",
+            "304",
+            "501",
+            "502",
+            "601",
+            "701",
+            "801",
+            "901",
+            "1001",
+            "1101",
+            "1201",
+            "1202",
+            "1301",
+            "1401",
+            "1501",
+            "1502",
+            "1601",
+            "1701",
+            "1801",
+            "1901",
+            "1902",
+            "2001",
+            "401"
+          ],
+          "senato": [
+            "1",
+            "3",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20",
+            "4"
+          ]
+        }
+      },
+      {
+        "id": "lega",
+        "name": "Lega",
+        "coalition": "Centrodestra",
+        "color": "#2f8a68",
+        "startingShare": 5.2,
+        "shareOverride": false,
+        "filing": {
+          "camera": [
+            "101",
+            "102",
+            "301",
+            "302",
+            "303",
+            "304",
+            "501",
+            "502",
+            "601",
+            "701",
+            "801",
+            "901",
+            "1001",
+            "1101",
+            "1201",
+            "1202",
+            "1301",
+            "1401",
+            "1501",
+            "1502",
+            "1601",
+            "1701",
+            "1801",
+            "1901",
+            "1902",
+            "2001",
+            "401"
+          ],
+          "senato": [
+            "1",
+            "3",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20",
+            "4"
+          ]
+        }
+      },
+      {
+        "id": "noi-moderati",
+        "name": "Noi Moderati",
+        "coalition": "Centrodestra",
+        "color": "#9b6b37",
+        "startingShare": 1,
+        "shareOverride": false,
+        "filing": {
+          "camera": [
+            "101",
+            "102",
+            "301",
+            "302",
+            "303",
+            "304",
+            "501",
+            "502",
+            "601",
+            "701",
+            "801",
+            "901",
+            "1001",
+            "1101",
+            "1201",
+            "1202",
+            "1301",
+            "1401",
+            "1501",
+            "1502",
+            "1601",
+            "1701",
+            "1801",
+            "1901",
+            "1902",
+            "2001",
+            "401"
+          ],
+          "senato": [
+            "1",
+            "3",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20",
+            "4"
+          ]
+        }
+      },
+      {
+        "id": "udc",
+        "name": "Unione di Centro",
+        "coalition": "Centrodestra",
+        "color": "#7559a0",
+        "startingShare": 0,
+        "shareOverride": false,
+        "filing": {
+          "camera": [
+            "101",
+            "102",
+            "301",
+            "302",
+            "303",
+            "304",
+            "501",
+            "502",
+            "601",
+            "701",
+            "801",
+            "901",
+            "1001",
+            "1101",
+            "1201",
+            "1202",
+            "1301",
+            "1401",
+            "1501",
+            "1502",
+            "1601",
+            "1701",
+            "1801",
+            "1901",
+            "1902",
+            "2001",
+            "401"
+          ],
+          "senato": [
+            "1",
+            "3",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20",
+            "4"
+          ]
+        }
+      },
+      {
+        "id": "sud-chiama-nord",
+        "name": "Sud chiama Nord",
+        "coalition": "Centrodestra",
+        "color": "#3267b1",
+        "startingShare": 1,
+        "shareOverride": false,
+        "filing": {
+          "camera": [
+            "101",
+            "102",
+            "301",
+            "302",
+            "303",
+            "304",
+            "501",
+            "502",
+            "601",
+            "701",
+            "801",
+            "901",
+            "1001",
+            "1101",
+            "1201",
+            "1202",
+            "1301",
+            "1401",
+            "1501",
+            "1502",
+            "1601",
+            "1701",
+            "1801",
+            "1901",
+            "1902",
+            "2001"
+          ],
+          "senato": [
+            "1",
+            "3",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20"
+          ]
+        }
+      },
+      {
+        "id": "cdx-vda",
+        "name": "Centrodestra valdostano",
+        "coalition": "Centrodestra",
+        "color": "#5d8ed8",
+        "startingShare": 0,
+        "shareOverride": false,
+        "filing": {
+          "camera": [
+            "201"
+          ],
+          "senato": [
+            "2"
+          ]
+        }
+      },
+      {
+        "id": "pd",
+        "name": "Partito Democratico",
+        "coalition": "Centrosinistra",
+        "color": "#d94848",
+        "startingShare": 20.7,
+        "shareOverride": false,
+        "filing": {
+          "camera": [
+            "101",
+            "102",
+            "301",
+            "302",
+            "303",
+            "304",
+            "501",
+            "502",
+            "601",
+            "701",
+            "801",
+            "901",
+            "1001",
+            "1101",
+            "1201",
+            "1202",
+            "1301",
+            "1401",
+            "1501",
+            "1502",
+            "1601",
+            "1701",
+            "1801",
+            "1901",
+            "1902",
+            "2001",
+            "401"
+          ],
+          "senato": [
+            "1",
+            "3",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20",
+            "4"
+          ]
+        }
+      },
+      {
+        "id": "m5s",
+        "name": "Movimento 5 Stelle",
+        "coalition": "Centrosinistra",
+        "color": "#d8b400",
+        "startingShare": 12.7,
+        "shareOverride": false,
+        "filing": {
+          "camera": [
+            "101",
+            "102",
+            "301",
+            "302",
+            "303",
+            "304",
+            "501",
+            "502",
+            "601",
+            "701",
+            "801",
+            "901",
+            "1001",
+            "1101",
+            "1201",
+            "1202",
+            "1301",
+            "1401",
+            "1501",
+            "1502",
+            "1601",
+            "1701",
+            "1801",
+            "1901",
+            "1902",
+            "2001",
+            "401"
+          ],
+          "senato": [
+            "1",
+            "3",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20",
+            "4"
+          ]
+        }
+      },
+      {
+        "id": "avs",
+        "name": "Alleanza Verdi Sinistra",
+        "coalition": "Centrosinistra",
+        "color": "#44a36f",
+        "startingShare": 6.4,
+        "shareOverride": false,
+        "filing": {
+          "camera": [
+            "101",
+            "102",
+            "301",
+            "302",
+            "303",
+            "304",
+            "501",
+            "502",
+            "601",
+            "701",
+            "801",
+            "901",
+            "1001",
+            "1101",
+            "1201",
+            "1202",
+            "1301",
+            "1401",
+            "1501",
+            "1502",
+            "1601",
+            "1701",
+            "1801",
+            "1901",
+            "1902",
+            "2001",
+            "401"
+          ],
+          "senato": [
+            "1",
+            "3",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20",
+            "4"
+          ]
+        }
+      },
+      {
+        "id": "italia-viva",
+        "name": "Italia Viva - Casa Riformista",
+        "coalition": "Centrosinistra",
+        "color": "#3267b1",
+        "startingShare": 2.4,
+        "shareOverride": false,
+        "filing": {
+          "camera": [
+            "101",
+            "102",
+            "301",
+            "302",
+            "303",
+            "304",
+            "501",
+            "502",
+            "601",
+            "701",
+            "801",
+            "901",
+            "1001",
+            "1101",
+            "1201",
+            "1202",
+            "1301",
+            "1401",
+            "1501",
+            "1502",
+            "1601",
+            "1701",
+            "1801",
+            "1901",
+            "1902",
+            "2001",
+            "401"
+          ],
+          "senato": [
+            "1",
+            "3",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20",
+            "4"
+          ]
+        }
+      },
+      {
+        "id": "europa-piu-uno-cd",
+        "name": "+ Europa - Più Uno - Centro Democratico",
+        "coalition": "Centrosinistra",
+        "color": "#5d8ed8",
+        "startingShare": 1.4000000000000001,
+        "shareOverride": false,
+        "filing": {
+          "camera": [
+            "101",
+            "102",
+            "301",
+            "302",
+            "303",
+            "304",
+            "501",
+            "502",
+            "601",
+            "701",
+            "801",
+            "901",
+            "1001",
+            "1101",
+            "1201",
+            "1202",
+            "1301",
+            "1401",
+            "1501",
+            "1502",
+            "1601",
+            "1701",
+            "1801",
+            "1901",
+            "1902",
+            "2001",
+            "401"
+          ],
+          "senato": [
+            "1",
+            "3",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20",
+            "4"
+          ]
+        }
+      },
+      {
+        "id": "progetto-civico-psi",
+        "name": "Progetto Civico Italia - Avanti PSI",
+        "coalition": "Centrosinistra",
+        "color": "#2f8a68",
+        "startingShare": 0,
+        "shareOverride": false,
+        "filing": {
+          "camera": [
+            "101",
+            "102",
+            "301",
+            "302",
+            "303",
+            "304",
+            "501",
+            "502",
+            "601",
+            "701",
+            "801",
+            "901",
+            "1001",
+            "1101",
+            "1201",
+            "1202",
+            "1301",
+            "1401",
+            "1501",
+            "1502",
+            "1601",
+            "1701",
+            "1801",
+            "1901",
+            "1902",
+            "2001"
+          ],
+          "senato": [
+            "1",
+            "3",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20"
+          ]
+        }
+      },
+      {
+        "id": "csx-vda",
+        "name": "Campo progressista valdostano",
+        "coalition": "Centrosinistra",
+        "color": "#9b6b37",
+        "startingShare": 0,
+        "shareOverride": false,
+        "filing": {
+          "camera": [
+            "201"
+          ],
+          "senato": [
+            "2"
+          ]
+        }
+      },
+      {
+        "id": "azione-libdem",
+        "name": "Azione – Partito Liberaldemocratico – Spazio Pubblico",
+        "coalition": null,
+        "color": "#7559a0",
+        "startingShare": 4.2,
+        "shareOverride": false,
+        "filing": {
+          "camera": [
+            "101",
+            "102",
+            "301",
+            "302",
+            "303",
+            "304",
+            "501",
+            "502",
+            "601",
+            "701",
+            "801",
+            "901",
+            "1001",
+            "1101",
+            "1201",
+            "1202",
+            "1301",
+            "1401",
+            "1501",
+            "1502",
+            "1601",
+            "1701",
+            "1801",
+            "1901",
+            "1902",
+            "2001",
+            "401"
+          ],
+          "senato": [
+            "1",
+            "3",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20",
+            "4"
+          ]
+        }
+      },
+      {
+        "id": "futuro-nazionale",
+        "name": "Futuro Nazionale",
+        "coalition": null,
+        "color": "#3267b1",
+        "startingShare": 7.199999999999999,
+        "shareOverride": true,
+        "filing": {
+          "camera": [
+            "101",
+            "102",
+            "301",
+            "302",
+            "303",
+            "304",
+            "501",
+            "502",
+            "601",
+            "701",
+            "801",
+            "901",
+            "1001",
+            "1101",
+            "1201",
+            "1202",
+            "1301",
+            "1401",
+            "1501",
+            "1502",
+            "1601",
+            "1701",
+            "1801",
+            "1901",
+            "1902",
+            "2001",
+            "401",
+            "201"
+          ],
+          "senato": [
+            "1",
+            "3",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20",
+            "4",
+            "2"
+          ]
+        }
+      },
+      {
+        "id": "pap-prc",
+        "name": "Potere al Popolo - Rifondazione Comunista",
+        "coalition": null,
+        "color": "#5d8ed8",
+        "startingShare": 0,
+        "shareOverride": false,
+        "filing": {
+          "camera": [
+            "101",
+            "102",
+            "301",
+            "302",
+            "303",
+            "304",
+            "501",
+            "502",
+            "601",
+            "701",
+            "801",
+            "901",
+            "1001",
+            "1101",
+            "1201",
+            "1202",
+            "1301",
+            "1401",
+            "1501",
+            "1502",
+            "1601",
+            "1701",
+            "1801",
+            "1901",
+            "1902",
+            "2001"
+          ],
+          "senato": [
+            "1",
+            "3",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20"
+          ]
+        }
+      },
+      {
+        "id": "ora",
+        "name": "Ora!",
+        "coalition": null,
+        "color": "#2f8a68",
+        "startingShare": 1.2,
+        "shareOverride": true,
+        "filing": {
+          "camera": [
+            "101",
+            "102",
+            "301",
+            "302",
+            "501",
+            "502",
+            "701",
+            "801",
+            "901",
+            "1201",
+            "1202",
+            "1501",
+            "1901",
+            "1902"
+          ],
+          "senato": [
+            "1",
+            "3",
+            "5",
+            "7",
+            "8",
+            "9",
+            "12",
+            "15",
+            "19"
+          ]
+        }
+      },
+      {
+        "id": "dsp",
+        "name": "Democrazia Sovrana Popolare",
+        "coalition": null,
+        "color": "#9b6b37",
+        "startingShare": 0,
+        "shareOverride": false,
+        "filing": {
+          "camera": [
+            "101",
+            "102",
+            "301",
+            "302",
+            "501",
+            "502",
+            "701",
+            "801",
+            "901",
+            "1201",
+            "1202",
+            "1501",
+            "1901",
+            "1902"
+          ],
+          "senato": [
+            "1",
+            "3",
+            "5",
+            "7",
+            "8",
+            "9",
+            "12",
+            "15",
+            "19"
+          ]
+        }
+      },
+      {
+        "id": "uv",
+        "name": "Union Valdôtaine",
+        "coalition": null,
+        "color": "#7559a0",
+        "startingShare": 0,
+        "shareOverride": false,
+        "filing": {
+          "camera": [
+            "201"
+          ],
+          "senato": [
+            "2"
+          ]
+        },
+        "minorityRegion": "02"
+      },
+      {
+        "id": "svp-patt",
+        "name": "SVP - PATT",
+        "coalition": null,
+        "color": "#3267b1",
+        "startingShare": 0,
+        "shareOverride": false,
+        "filing": {
+          "camera": [
+            "401"
+          ],
+          "senato": [
+            "4"
+          ]
+        },
+        "minorityRegion": "04"
+      },
+      {
+        "id": "team-k",
+        "name": "Team K",
+        "coalition": null,
+        "color": "#5d8ed8",
+        "startingShare": 0,
+        "shareOverride": false,
+        "filing": {
+          "camera": [
+            "401"
+          ],
+          "senato": [
+            "4"
+          ]
+        },
+        "minorityRegion": "04"
+      },
+      {
+        "id": "freiheitlichen",
+        "name": "Die Freiheitlichen",
+        "coalition": null,
+        "color": "#2f8a68",
+        "startingShare": 0,
+        "shareOverride": false,
+        "filing": {
+          "camera": [
+            "401"
+          ],
+          "senato": [
+            "4"
+          ]
+        },
+        "minorityRegion": "04"
+      },
+      {
+        "id": "suedtiroler-freiheit",
+        "name": "Süd-Tiroler Freiheit",
+        "coalition": null,
+        "color": "#9b6b37",
+        "startingShare": 0,
+        "shareOverride": false,
+        "filing": {
+          "camera": [
+            "401"
+          ],
+          "senato": [
+            "4"
+          ]
+        },
+        "minorityRegion": "04"
+      }
+    ],
+    "localShareOverrides": [
+      {
+        "id": "shared-declared-regional-anchor:camera:valdostano-cdx",
+        "scope": "region",
+        "locationCode": "02",
+        "list": "Centrodestra valdostano",
+        "startingShare": 29.799426934097422
+      },
+      {
+        "id": "shared-declared-regional-anchor:camera:valdostano-csx",
+        "scope": "region",
+        "locationCode": "02",
+        "list": "Campo progressista valdostano",
+        "startingShare": 10.86778550961932
+      },
+      {
+        "id": "shared-declared-regional-anchor:camera:union-valdotaine",
+        "scope": "region",
+        "locationCode": "02",
+        "list": "Union Valdôtaine",
+        "startingShare": 38.63171212741413
+      },
+      {
+        "id": "shared-declared-regional-anchor:camera:svp-patt",
+        "scope": "region",
+        "locationCode": "04",
+        "list": "SVP - PATT",
+        "startingShare": 23.148111512926224
+      },
+      {
+        "id": "shared-declared-regional-anchor:camera:freiheitlichen",
+        "scope": "region",
+        "locationCode": "04",
+        "list": "Die Freiheitlichen",
+        "startingShare": 2.8787920962950886
+      },
+      {
+        "id": "shared-declared-subregional:suedtiroler-freiheit:021",
+        "scope": "province",
+        "locationCode": "021",
+        "list": "Süd-Tiroler Freiheit",
+        "startingShare": 10
+      },
+      {
+        "id": "shared-declared-subregional:suedtiroler-freiheit:022",
+        "scope": "province",
+        "locationCode": "022",
+        "list": "Süd-Tiroler Freiheit",
+        "startingShare": 0.3
+      },
+      {
+        "id": "shared-declared-subregional:team-k:021",
+        "scope": "province",
+        "locationCode": "021",
+        "list": "Team K",
+        "startingShare": 0.3
+      },
+      {
+        "id": "shared-declared-subregional:team-k:022",
+        "scope": "province",
+        "locationCode": "022",
+        "list": "Team K",
+        "startingShare": 0.3
+      },
+      {
+        "id": "shared-compared-taa-fn:camera",
+        "scope": "region",
+        "locationCode": "04",
+        "list": "Futuro Nazionale",
+        "startingShare": 7.199999999999999
+      }
+    ],
+    "correspondenceCount": 108,
+    "candidateTemplates": []
+  },
+  "reform": {
+    "schemaVersion": 5,
+    "generation": {
+      "model": "M02",
+      "modelVersion": "2.0.0",
+      "compositionCount": 53,
+      "supplementalPollCount": 2
+    },
+    "electionDate": "2027-09-25",
+    "referenceDate": "2026-10-19",
+    "seed": "fast-share-default-v1",
+    "fitSeed": "fast-share-default-fit-v1",
+    "data": {
+      "fittedStateId": "fast-share-fit-v1-9c96dfc7055e97ec9578caf24366747ee2adac27a3011e21897a621d0fb223af",
+      "geographyVersion": "r26-geography-2022-bolzano-2026-census-2021-v1-6b2bd725432d",
+      "preferenceModelVersion": "r26-preferences-fit-v1-cf0024e3b8e3",
+      "profileStateId": "fast-share-profiles-v1-52c82b1fb6687665a45bbb8d149f33471918c37c1e4be1a0bf93473b9e5353fa",
+      "seatTableVersion": "r26-seats-census-2021-i08-v1-9672c20529b2",
+      "sourceBundleId": "fast-share-source-v1-95d505ed1f7ea79c99cd0bf91a86dbc6a2d54c1f24fd9b37bec40a57e3c72511"
+    },
+    "models": {
+      "chambers": "fast-share-paired-v1",
+      "forecast": "bounded-mass-pair-field-v2",
+      "forecastScale": 1.5,
+      "generationImplementationId": "implementation-v1-222aa965660b746a1b68ac1d8d1e55cfea6b5031a78d7cbe4c56f997ef2317b1",
+      "numerical": "fast-share-float64-v1",
+      "profileRegionCorrelation": 0.25,
+      "references": "fixed-turnout-reference-v1",
+      "rng": "fast-share-forecast-streams-v1",
+      "statistical": "fast-share-kind-common-conservative-v1"
+    },
+    "renewal": "joint",
+    "historySelection": {
+      "electionIds": [
+        "camera-2008",
+        "camera-2013",
+        "camera-2018",
+        "camera-2022",
+        "european-2009",
+        "european-2014",
+        "european-2019",
+        "european-2024"
+      ],
+      "pairedCamera": "camera-2022",
+      "pairedSenato": "senato-2022"
+    },
+    "polls": {
+      "added": [],
+      "excluded": {
+        "pcm-14338-q1": "Bundled conditional-ballot exclusion",
+        "pcm-14363-q1": "Bundled conditional-ballot exclusion",
+        "pcm-14363-q2": "Bundled conditional-ballot exclusion",
+        "pcm-551-q1": "Multiple distinct residual answers cannot be represented by the single offered-complement observation policy",
+        "pcm-553-q1": "Multiple distinct residual answers cannot be represented by the single offered-complement observation policy",
+        "pcm-566-q1": "Multiple distinct residual answers cannot be represented by the single offered-complement observation policy"
+      },
+      "selected": [
+        "demos-a00558",
+        "demos-a00652",
+        "demos-a00693",
+        "demos-a00753",
+        "demos-a00856",
+        "demos-a00942",
+        "demos-a01231",
+        "demos-a01362",
+        "demos-a01384",
+        "demos-a01438",
+        "demos-a01506",
+        "demos-a01570",
+        "demos-a01757",
+        "demos-a01886",
+        "demos-a01988",
+        "demos-a02093",
+        "demos-a02187",
+        "pcm-11832-q2",
+        "pcm-11839-q1",
+        "pcm-11848-q1",
+        "pcm-12951-q1",
+        "pcm-12952-q3",
+        "pcm-1333-q1",
+        "pcm-1342-q1",
+        "pcm-14342-q1",
+        "pcm-14346-q1",
+        "pcm-14358-q4",
+        "pcm-14362-q1",
+        "pcm-14364-q1",
+        "pcm-7135-q2",
+        "pcm-7145-q1",
+        "pcm-7154-q1",
+        "pcm-8779-q2",
+        "pcm-8787-q3",
+        "pcm-8790-q1"
+      ]
+    },
+    "componentMapCount": 154,
+    "pooledToHistoricalRest": 126,
+    "components": [
+      {
+        "id": "art1",
+        "kind": "fitted",
+        "provenance": "Future component coordinate; observations remain grouped. Unidentified/new coordinates retain prior uncertainty, not empirical identification."
+      },
+      {
+        "id": "azione",
+        "kind": "fitted",
+        "provenance": "Future component coordinate; observations remain grouped. Unidentified/new coordinates retain prior uncertainty, not empirical identification."
+      },
+      {
+        "id": "centro-democratico",
+        "kind": "fitted",
+        "provenance": "Future component coordinate; observations remain grouped. Unidentified/new coordinates retain prior uncertainty, not empirical identification."
+      },
+      {
+        "id": "fdi",
+        "kind": "fitted",
+        "provenance": "Future component coordinate; observations remain grouped. Unidentified/new coordinates retain prior uncertainty, not empirical identification."
+      },
+      {
+        "id": "fi-pdl",
+        "kind": "fitted",
+        "provenance": "Future component coordinate; observations remain grouped. Unidentified/new coordinates retain prior uncertainty, not empirical identification."
+      },
+      {
+        "id": "freiheitlichen",
+        "kind": "fitted",
+        "provenance": "Future component coordinate; observations remain grouped. Unidentified/new coordinates retain prior uncertainty, not empirical identification."
+      },
+      {
+        "id": "historical-rest",
+        "kind": "fitted",
+        "provenance": "Future component coordinate; observations remain grouped. Unidentified/new coordinates retain prior uncertainty, not empirical identification."
+      },
+      {
+        "id": "idv",
+        "kind": "fitted",
+        "provenance": "Future component coordinate; observations remain grouped. Unidentified/new coordinates retain prior uncertainty, not empirical identification."
+      },
+      {
+        "id": "isp-dsp",
+        "kind": "fitted",
+        "provenance": "Future component coordinate; observations remain grouped. Unidentified/new coordinates retain prior uncertainty, not empirical identification."
+      },
+      {
+        "id": "italia-viva",
+        "kind": "fitted",
+        "provenance": "Future component coordinate; observations remain grouped. Unidentified/new coordinates retain prior uncertainty, not empirical identification."
+      },
+      {
+        "id": "lega",
+        "kind": "fitted",
+        "provenance": "Future component coordinate; observations remain grouped. Unidentified/new coordinates retain prior uncertainty, not empirical identification."
+      },
+      {
+        "id": "m5s",
+        "kind": "fitted",
+        "provenance": "Future component coordinate; observations remain grouped. Unidentified/new coordinates retain prior uncertainty, not empirical identification."
+      },
+      {
+        "id": "noi-residual",
+        "kind": "fitted",
+        "provenance": "Future component coordinate; observations remain grouped. Unidentified/new coordinates retain prior uncertainty, not empirical identification."
+      },
+      {
+        "id": "pap-residual",
+        "kind": "fitted",
+        "provenance": "Future component coordinate; observations remain grouped. Unidentified/new coordinates retain prior uncertainty, not empirical identification."
+      },
+      {
+        "id": "pd",
+        "kind": "fitted",
+        "provenance": "Future component coordinate; observations remain grouped. Unidentified/new coordinates retain prior uncertainty, not empirical identification."
+      },
+      {
+        "id": "piu-europa",
+        "kind": "fitted",
+        "provenance": "Future component coordinate; observations remain grouped. Unidentified/new coordinates retain prior uncertainty, not empirical identification."
+      },
+      {
+        "id": "poll-only-futuro-nazionale",
+        "kind": "fitted",
+        "provenance": "Future component coordinate; observations remain grouped. Unidentified/new coordinates retain prior uncertainty, not empirical identification."
+      },
+      {
+        "id": "poll-only-libdem",
+        "kind": "fitted",
+        "provenance": "Future component coordinate; observations remain grouped. Unidentified/new coordinates retain prior uncertainty, not empirical identification."
+      },
+      {
+        "id": "poll-only-piu-uno",
+        "kind": "fitted",
+        "provenance": "Future component coordinate; observations remain grouped. Unidentified/new coordinates retain prior uncertainty, not empirical identification."
+      },
+      {
+        "id": "poll-only-progetto-civico",
+        "kind": "fitted",
+        "provenance": "Future component coordinate; observations remain grouped. Unidentified/new coordinates retain prior uncertainty, not empirical identification."
+      },
+      {
+        "id": "prc",
+        "kind": "fitted",
+        "provenance": "Future component coordinate; observations remain grouped. Unidentified/new coordinates retain prior uncertainty, not empirical identification."
+      },
+      {
+        "id": "psi-civici",
+        "kind": "fitted",
+        "provenance": "Future component coordinate; observations remain grouped. Unidentified/new coordinates retain prior uncertainty, not empirical identification."
+      },
+      {
+        "id": "scelta-civica",
+        "kind": "fitted",
+        "provenance": "Future component coordinate; observations remain grouped. Unidentified/new coordinates retain prior uncertainty, not empirical identification."
+      },
+      {
+        "id": "sel-si",
+        "kind": "fitted",
+        "provenance": "Future component coordinate; observations remain grouped. Unidentified/new coordinates retain prior uncertainty, not empirical identification."
+      },
+      {
+        "id": "sud-chiama-nord",
+        "kind": "fitted",
+        "provenance": "Future component coordinate; observations remain grouped. Unidentified/new coordinates retain prior uncertainty, not empirical identification."
+      },
+      {
+        "id": "svp-patt",
+        "kind": "fitted",
+        "provenance": "Future component coordinate; observations remain grouped. Unidentified/new coordinates retain prior uncertainty, not empirical identification."
+      },
+      {
+        "id": "udc",
+        "kind": "fitted",
+        "provenance": "Future component coordinate; observations remain grouped. Unidentified/new coordinates retain prior uncertainty, not empirical identification."
+      },
+      {
+        "id": "verdi",
+        "kind": "fitted",
+        "provenance": "Future component coordinate; observations remain grouped. Unidentified/new coordinates retain prior uncertainty, not empirical identification."
+      },
+      {
+        "fallback": {
+          "geographicLogProfile": 0,
+          "localInnovationSd": 0.25,
+          "nationalInnovationSd": 0.35,
+          "profileSd": 0.45
+        },
+        "id": "poll-only-ora",
+        "kind": "new",
+        "provenance": "Explicit scenario reference; no separately observed compatible fitting support."
+      },
+      {
+        "fallback": {
+          "geographicLogProfile": 0,
+          "localInnovationSd": 0.25,
+          "nationalInnovationSd": 0.35,
+          "profileSd": 0.45
+        },
+        "id": "suedtiroler-freiheit",
+        "kind": "new",
+        "provenance": "Explicit scenario reference; no separately observed compatible fitting support."
+      },
+      {
+        "fallback": {
+          "geographicLogProfile": 0,
+          "localInnovationSd": 0.25,
+          "nationalInnovationSd": 0.35,
+          "profileSd": 0.45
+        },
+        "id": "team-k",
+        "kind": "new",
+        "provenance": "Explicit scenario reference; no separately observed compatible fitting support."
+      },
+      {
+        "fallback": {
+          "geographicLogProfile": 0,
+          "localInnovationSd": 0.25,
+          "nationalInnovationSd": 0.35,
+          "profileSd": 0.45
+        },
+        "id": "union-valdotaine",
+        "kind": "new",
+        "provenance": "Explicit scenario reference; no separately observed compatible fitting support."
+      },
+      {
+        "fallback": {
+          "geographicLogProfile": 0,
+          "localInnovationSd": 0.25,
+          "nationalInnovationSd": 0.35,
+          "profileSd": 0.45
+        },
+        "id": "valdostano-cdx",
+        "kind": "new",
+        "provenance": "Explicit scenario reference; no separately observed compatible fitting support."
+      },
+      {
+        "fallback": {
+          "geographicLogProfile": 0,
+          "localInnovationSd": 0.25,
+          "nationalInnovationSd": 0.35,
+          "profileSd": 0.45
+        },
+        "id": "valdostano-csx",
+        "kind": "new",
+        "provenance": "Explicit scenario reference; no separately observed compatible fitting support."
+      }
+    ],
+    "lists": {
+      "camera": [
+        {
+          "coalitionId": "centrodestra",
+          "componentIds": [
+            "fdi"
+          ],
+          "id": "fdi",
+          "name": "Fratelli d'Italia",
+          "protectedMinority": null
+        },
+        {
+          "coalitionId": "centrodestra",
+          "componentIds": [
+            "fi-pdl"
+          ],
+          "id": "fi",
+          "name": "Forza Italia",
+          "protectedMinority": null
+        },
+        {
+          "coalitionId": "centrodestra",
+          "componentIds": [
+            "lega"
+          ],
+          "id": "lega",
+          "name": "Lega",
+          "protectedMinority": null
+        },
+        {
+          "coalitionId": "centrodestra",
+          "componentIds": [
+            "noi-residual",
+            "scelta-civica",
+            "idv"
+          ],
+          "id": "noi-moderati",
+          "name": "Noi Moderati",
+          "protectedMinority": null
+        },
+        {
+          "coalitionId": "centrodestra",
+          "componentIds": [
+            "udc"
+          ],
+          "id": "udc",
+          "name": "Unione di Centro",
+          "protectedMinority": null
+        },
+        {
+          "coalitionId": "centrodestra",
+          "componentIds": [
+            "sud-chiama-nord"
+          ],
+          "id": "sud-chiama-nord",
+          "name": "Sud chiama Nord",
+          "protectedMinority": null
+        },
+        {
+          "coalitionId": "centrodestra",
+          "componentIds": [
+            "valdostano-cdx"
+          ],
+          "id": "cdx-vda",
+          "name": "Centrodestra valdostano",
+          "protectedMinority": null
+        },
+        {
+          "coalitionId": "centrosinistra",
+          "componentIds": [
+            "pd",
+            "art1"
+          ],
+          "id": "pd",
+          "name": "Partito Democratico",
+          "protectedMinority": null
+        },
+        {
+          "coalitionId": "centrosinistra",
+          "componentIds": [
+            "m5s"
+          ],
+          "id": "m5s",
+          "name": "Movimento 5 Stelle",
+          "protectedMinority": null
+        },
+        {
+          "coalitionId": "centrosinistra",
+          "componentIds": [
+            "verdi",
+            "sel-si"
+          ],
+          "id": "avs",
+          "name": "Alleanza Verdi Sinistra",
+          "protectedMinority": null
+        },
+        {
+          "coalitionId": "centrosinistra",
+          "componentIds": [
+            "italia-viva"
+          ],
+          "id": "italia-viva",
+          "name": "Italia Viva - Casa Riformista",
+          "protectedMinority": null
+        },
+        {
+          "coalitionId": "centrosinistra",
+          "componentIds": [
+            "piu-europa",
+            "poll-only-piu-uno",
+            "centro-democratico"
+          ],
+          "id": "europa-piu-uno-cd",
+          "name": "+ Europa - Più Uno - Centro Democratico",
+          "protectedMinority": null
+        },
+        {
+          "coalitionId": "centrosinistra",
+          "componentIds": [
+            "poll-only-progetto-civico",
+            "psi-civici"
+          ],
+          "id": "progetto-civico-psi",
+          "name": "Progetto Civico Italia - Avanti PSI",
+          "protectedMinority": null
+        },
+        {
+          "coalitionId": "centrosinistra",
+          "componentIds": [
+            "valdostano-csx"
+          ],
+          "id": "csx-vda",
+          "name": "Campo progressista valdostano",
+          "protectedMinority": null
+        },
+        {
+          "coalitionId": null,
+          "componentIds": [
+            "azione",
+            "poll-only-libdem"
+          ],
+          "id": "azione-libdem",
+          "name": "Azione – Partito Liberaldemocratico – Spazio Pubblico",
+          "protectedMinority": null
+        },
+        {
+          "coalitionId": null,
+          "componentIds": [
+            "poll-only-futuro-nazionale"
+          ],
+          "id": "futuro-nazionale",
+          "name": "Futuro Nazionale",
+          "protectedMinority": null
+        },
+        {
+          "coalitionId": null,
+          "componentIds": [
+            "pap-residual",
+            "prc"
+          ],
+          "id": "pap-prc",
+          "name": "Potere al Popolo - Rifondazione Comunista",
+          "protectedMinority": null
+        },
+        {
+          "coalitionId": null,
+          "componentIds": [
+            "poll-only-ora"
+          ],
+          "id": "ora",
+          "name": "Ora!",
+          "protectedMinority": null
+        },
+        {
+          "coalitionId": null,
+          "componentIds": [
+            "isp-dsp"
+          ],
+          "id": "dsp",
+          "name": "Democrazia Sovrana Popolare",
+          "protectedMinority": null
+        },
+        {
+          "coalitionId": null,
+          "componentIds": [
+            "union-valdotaine"
+          ],
+          "id": "uv",
+          "name": "Union Valdôtaine",
+          "protectedMinority": {
+            "legalReference": "Scenario declaration requested by Luca; eligibility remains subject to the reform legal rules.",
+            "regionId": "02"
+          }
+        },
+        {
+          "coalitionId": null,
+          "componentIds": [
+            "svp-patt"
+          ],
+          "id": "svp-patt",
+          "name": "SVP - PATT",
+          "protectedMinority": {
+            "legalReference": "Scenario declaration requested by Luca; eligibility remains subject to the reform legal rules.",
+            "regionId": "04"
+          }
+        },
+        {
+          "coalitionId": null,
+          "componentIds": [
+            "team-k"
+          ],
+          "id": "team-k",
+          "name": "Team K",
+          "protectedMinority": {
+            "legalReference": "Scenario declaration requested by Luca; eligibility remains subject to the reform legal rules.",
+            "regionId": "04"
+          }
+        },
+        {
+          "coalitionId": null,
+          "componentIds": [
+            "freiheitlichen"
+          ],
+          "id": "freiheitlichen",
+          "name": "Die Freiheitlichen",
+          "protectedMinority": {
+            "legalReference": "Scenario declaration requested by Luca; eligibility remains subject to the reform legal rules.",
+            "regionId": "04"
+          }
+        },
+        {
+          "coalitionId": null,
+          "componentIds": [
+            "suedtiroler-freiheit"
+          ],
+          "id": "suedtiroler-freiheit",
+          "name": "Süd-Tiroler Freiheit",
+          "protectedMinority": {
+            "legalReference": "Scenario declaration requested by Luca; eligibility remains subject to the reform legal rules.",
+            "regionId": "04"
+          }
+        }
+      ],
+      "senato": [
+        {
+          "coalitionId": "centrodestra",
+          "componentIds": [
+            "fdi"
+          ],
+          "id": "fdi",
+          "name": "Fratelli d'Italia",
+          "protectedMinority": null
+        },
+        {
+          "coalitionId": "centrodestra",
+          "componentIds": [
+            "fi-pdl"
+          ],
+          "id": "fi",
+          "name": "Forza Italia",
+          "protectedMinority": null
+        },
+        {
+          "coalitionId": "centrodestra",
+          "componentIds": [
+            "lega"
+          ],
+          "id": "lega",
+          "name": "Lega",
+          "protectedMinority": null
+        },
+        {
+          "coalitionId": "centrodestra",
+          "componentIds": [
+            "noi-residual",
+            "scelta-civica",
+            "idv"
+          ],
+          "id": "noi-moderati",
+          "name": "Noi Moderati",
+          "protectedMinority": null
+        },
+        {
+          "coalitionId": "centrodestra",
+          "componentIds": [
+            "udc"
+          ],
+          "id": "udc",
+          "name": "Unione di Centro",
+          "protectedMinority": null
+        },
+        {
+          "coalitionId": "centrodestra",
+          "componentIds": [
+            "sud-chiama-nord"
+          ],
+          "id": "sud-chiama-nord",
+          "name": "Sud chiama Nord",
+          "protectedMinority": null
+        },
+        {
+          "coalitionId": "centrodestra",
+          "componentIds": [
+            "valdostano-cdx"
+          ],
+          "id": "cdx-vda",
+          "name": "Centrodestra valdostano",
+          "protectedMinority": null
+        },
+        {
+          "coalitionId": "centrosinistra",
+          "componentIds": [
+            "pd",
+            "art1"
+          ],
+          "id": "pd",
+          "name": "Partito Democratico",
+          "protectedMinority": null
+        },
+        {
+          "coalitionId": "centrosinistra",
+          "componentIds": [
+            "m5s"
+          ],
+          "id": "m5s",
+          "name": "Movimento 5 Stelle",
+          "protectedMinority": null
+        },
+        {
+          "coalitionId": "centrosinistra",
+          "componentIds": [
+            "verdi",
+            "sel-si"
+          ],
+          "id": "avs",
+          "name": "Alleanza Verdi Sinistra",
+          "protectedMinority": null
+        },
+        {
+          "coalitionId": "centrosinistra",
+          "componentIds": [
+            "italia-viva"
+          ],
+          "id": "italia-viva",
+          "name": "Italia Viva - Casa Riformista",
+          "protectedMinority": null
+        },
+        {
+          "coalitionId": "centrosinistra",
+          "componentIds": [
+            "piu-europa",
+            "poll-only-piu-uno",
+            "centro-democratico"
+          ],
+          "id": "europa-piu-uno-cd",
+          "name": "+ Europa - Più Uno - Centro Democratico",
+          "protectedMinority": null
+        },
+        {
+          "coalitionId": "centrosinistra",
+          "componentIds": [
+            "poll-only-progetto-civico",
+            "psi-civici"
+          ],
+          "id": "progetto-civico-psi",
+          "name": "Progetto Civico Italia - Avanti PSI",
+          "protectedMinority": null
+        },
+        {
+          "coalitionId": "centrosinistra",
+          "componentIds": [
+            "valdostano-csx"
+          ],
+          "id": "csx-vda",
+          "name": "Campo progressista valdostano",
+          "protectedMinority": null
+        },
+        {
+          "coalitionId": null,
+          "componentIds": [
+            "azione",
+            "poll-only-libdem"
+          ],
+          "id": "azione-libdem",
+          "name": "Azione – Partito Liberaldemocratico – Spazio Pubblico",
+          "protectedMinority": null
+        },
+        {
+          "coalitionId": null,
+          "componentIds": [
+            "poll-only-futuro-nazionale"
+          ],
+          "id": "futuro-nazionale",
+          "name": "Futuro Nazionale",
+          "protectedMinority": null
+        },
+        {
+          "coalitionId": null,
+          "componentIds": [
+            "pap-residual",
+            "prc"
+          ],
+          "id": "pap-prc",
+          "name": "Potere al Popolo - Rifondazione Comunista",
+          "protectedMinority": null
+        },
+        {
+          "coalitionId": null,
+          "componentIds": [
+            "poll-only-ora"
+          ],
+          "id": "ora",
+          "name": "Ora!",
+          "protectedMinority": null
+        },
+        {
+          "coalitionId": null,
+          "componentIds": [
+            "isp-dsp"
+          ],
+          "id": "dsp",
+          "name": "Democrazia Sovrana Popolare",
+          "protectedMinority": null
+        },
+        {
+          "coalitionId": null,
+          "componentIds": [
+            "union-valdotaine"
+          ],
+          "id": "uv",
+          "name": "Union Valdôtaine",
+          "protectedMinority": {
+            "legalReference": "Scenario declaration requested by Luca; eligibility remains subject to the reform legal rules.",
+            "regionId": "02"
+          }
+        },
+        {
+          "coalitionId": null,
+          "componentIds": [
+            "svp-patt"
+          ],
+          "id": "svp-patt",
+          "name": "SVP - PATT",
+          "protectedMinority": {
+            "legalReference": "Scenario declaration requested by Luca; eligibility remains subject to the reform legal rules.",
+            "regionId": "04"
+          }
+        },
+        {
+          "coalitionId": null,
+          "componentIds": [
+            "team-k"
+          ],
+          "id": "team-k",
+          "name": "Team K",
+          "protectedMinority": {
+            "legalReference": "Scenario declaration requested by Luca; eligibility remains subject to the reform legal rules.",
+            "regionId": "04"
+          }
+        },
+        {
+          "coalitionId": null,
+          "componentIds": [
+            "freiheitlichen"
+          ],
+          "id": "freiheitlichen",
+          "name": "Die Freiheitlichen",
+          "protectedMinority": {
+            "legalReference": "Scenario declaration requested by Luca; eligibility remains subject to the reform legal rules.",
+            "regionId": "04"
+          }
+        },
+        {
+          "coalitionId": null,
+          "componentIds": [
+            "suedtiroler-freiheit"
+          ],
+          "id": "suedtiroler-freiheit",
+          "name": "Süd-Tiroler Freiheit",
+          "protectedMinority": {
+            "legalReference": "Scenario declaration requested by Luca; eligibility remains subject to the reform legal rules.",
+            "regionId": "04"
+          }
+        }
+      ]
+    },
+    "references": [
+      {
+        "channel": "camera",
+        "id": "declared-regional-anchor:camera:valdostano-cdx",
+        "mean": 0.2979942693409742,
+        "scope": {
+          "code": "02",
+          "kind": "region"
+        },
+        "sdPercentagePoints": 0,
+        "subject": {
+          "id": "valdostano-cdx",
+          "kind": "component"
+        }
+      },
+      {
+        "channel": "camera",
+        "id": "declared-regional-anchor:camera:valdostano-csx",
+        "mean": 0.10867785509619321,
+        "scope": {
+          "code": "02",
+          "kind": "region"
+        },
+        "sdPercentagePoints": 0,
+        "subject": {
+          "id": "valdostano-csx",
+          "kind": "component"
+        }
+      },
+      {
+        "channel": "camera",
+        "id": "declared-regional-anchor:camera:union-valdotaine",
+        "mean": 0.3863171212741413,
+        "scope": {
+          "code": "02",
+          "kind": "region"
+        },
+        "sdPercentagePoints": 0,
+        "subject": {
+          "id": "union-valdotaine",
+          "kind": "component"
+        }
+      },
+      {
+        "channel": "camera",
+        "id": "declared-regional-anchor:camera:svp-patt",
+        "mean": 0.23148111512926225,
+        "scope": {
+          "code": "04",
+          "kind": "region"
+        },
+        "sdPercentagePoints": 0,
+        "subject": {
+          "id": "svp-patt",
+          "kind": "list"
+        }
+      },
+      {
+        "channel": "camera",
+        "id": "declared-regional-anchor:camera:freiheitlichen",
+        "mean": 0.028787920962950887,
+        "scope": {
+          "code": "04",
+          "kind": "region"
+        },
+        "sdPercentagePoints": 0,
+        "subject": {
+          "id": "freiheitlichen",
+          "kind": "list"
+        }
+      },
+      {
+        "channel": "senato",
+        "id": "declared-regional-anchor:senato:valdostano-cdx",
+        "mean": 0.34049559410585184,
+        "scope": {
+          "code": "02",
+          "kind": "region"
+        },
+        "sdPercentagePoints": 0,
+        "subject": {
+          "id": "valdostano-cdx",
+          "kind": "component"
+        }
+      },
+      {
+        "channel": "senato",
+        "id": "declared-regional-anchor:senato:valdostano-csx",
+        "mean": 0.10022259423462536,
+        "scope": {
+          "code": "02",
+          "kind": "region"
+        },
+        "sdPercentagePoints": 0,
+        "subject": {
+          "id": "valdostano-csx",
+          "kind": "component"
+        }
+      },
+      {
+        "channel": "senato",
+        "id": "declared-regional-anchor:senato:union-valdotaine",
+        "mean": 0.3363196526794091,
+        "scope": {
+          "code": "02",
+          "kind": "region"
+        },
+        "sdPercentagePoints": 0,
+        "subject": {
+          "id": "union-valdotaine",
+          "kind": "component"
+        }
+      },
+      {
+        "channel": "senato",
+        "id": "declared-regional-anchor:senato:svp-patt",
+        "mean": 0.23064335903482228,
+        "scope": {
+          "code": "04",
+          "kind": "region"
+        },
+        "sdPercentagePoints": 0,
+        "subject": {
+          "id": "svp-patt",
+          "kind": "list"
+        }
+      },
+      {
+        "channel": "senato",
+        "id": "declared-regional-anchor:senato:freiheitlichen",
+        "mean": 0.028787920962950887,
+        "scope": {
+          "code": "04",
+          "kind": "region"
+        },
+        "sdPercentagePoints": 0,
+        "subject": {
+          "id": "freiheitlichen",
+          "kind": "list"
+        }
+      },
+      {
+        "channel": "common",
+        "id": "declared-unidentified:poll-only-ora",
+        "mean": 0.005,
+        "scope": {
+          "kind": "national"
+        },
+        "sdPercentagePoints": 0.5,
+        "subject": {
+          "id": "poll-only-ora",
+          "kind": "component"
+        }
+      },
+      {
+        "channel": "common",
+        "id": "declared-subregional:suedtiroler-freiheit:021",
+        "mean": 0.1,
+        "scope": {
+          "code": "021",
+          "kind": "province"
+        },
+        "sdPercentagePoints": 6,
+        "subject": {
+          "id": "suedtiroler-freiheit",
+          "kind": "component"
+        }
+      },
+      {
+        "channel": "common",
+        "id": "declared-subregional:suedtiroler-freiheit:022",
+        "mean": 0.003,
+        "scope": {
+          "code": "022",
+          "kind": "province"
+        },
+        "sdPercentagePoints": 0.3,
+        "subject": {
+          "id": "suedtiroler-freiheit",
+          "kind": "component"
+        }
+      },
+      {
+        "channel": "common",
+        "id": "declared-subregional:team-k:021",
+        "mean": 0.003,
+        "scope": {
+          "code": "021",
+          "kind": "province"
+        },
+        "sdPercentagePoints": 2,
+        "subject": {
+          "id": "team-k",
+          "kind": "component"
+        }
+      },
+      {
+        "channel": "common",
+        "id": "declared-subregional:team-k:022",
+        "mean": 0.003,
+        "scope": {
+          "code": "022",
+          "kind": "province"
+        },
+        "sdPercentagePoints": 0.3,
+        "subject": {
+          "id": "team-k",
+          "kind": "component"
+        }
+      },
+      {
+        "channel": "camera",
+        "id": "compared-taa-fn:camera",
+        "mean": 0.072,
+        "scope": {
+          "code": "04",
+          "kind": "region"
+        },
+        "sdPercentagePoints": 0,
+        "subject": {
+          "id": "futuro-nazionale",
+          "kind": "list"
+        }
+      },
+      {
+        "channel": "senato",
+        "id": "compared-taa-fn:senato",
+        "mean": 0.072,
+        "scope": {
+          "code": "04",
+          "kind": "region"
+        },
+        "sdPercentagePoints": 0,
+        "subject": {
+          "id": "futuro-nazionale",
+          "kind": "list"
+        }
+      }
+    ],
+    "nonValidReferences": [
+      {
+        "channel": "camera",
+        "id": "baseline-nonvalid:camera:02",
+        "mean": 0.452615926752014,
+        "scope": {
+          "code": "02",
+          "kind": "region"
+        },
+        "sdPercentagePoints": 0
+      },
+      {
+        "channel": "camera",
+        "id": "baseline-nonvalid:camera:04",
+        "mean": 0.3767197776588582,
+        "scope": {
+          "code": "04",
+          "kind": "region"
+        },
+        "sdPercentagePoints": 0
+      },
+      {
+        "channel": "senato",
+        "id": "baseline-nonvalid:senato:02",
+        "mean": 0.4463727377351381,
+        "scope": {
+          "code": "02",
+          "kind": "region"
+        },
+        "sdPercentagePoints": 0
+      },
+      {
+        "channel": "senato",
+        "id": "baseline-nonvalid:senato:04",
+        "mean": 0.37983936000473484,
+        "scope": {
+          "code": "04",
+          "kind": "region"
+        },
+        "sdPercentagePoints": 0
+      }
+    ],
+    "candidateGeneration": {
+      "bonusPolicy": "reference-proportional-v1",
+      "maximumOrdinaryCandidacies": 5,
+      "reuseProbability": 0.2
+    },
+    "candidateTemplates": [],
+    "suppliedVotes": [],
+    "suppliedPreferences": [],
+    "bonusLinks": [
+      {
+        "camera": {
+          "id": "centrodestra",
+          "kind": "coalition"
+        },
+        "cameraDeclares": true,
+        "senato": {
+          "id": "centrodestra",
+          "kind": "coalition"
+        },
+        "senatoDeclares": true
+      },
+      {
+        "camera": {
+          "id": "centrosinistra",
+          "kind": "coalition"
+        },
+        "cameraDeclares": true,
+        "senato": {
+          "id": "centrosinistra",
+          "kind": "coalition"
+        },
+        "senatoDeclares": true
+      },
+      {
+        "camera": {
+          "id": "azione-libdem",
+          "kind": "list"
+        },
+        "cameraDeclares": true,
+        "senato": {
+          "id": "azione-libdem",
+          "kind": "list"
+        },
+        "senatoDeclares": true
+      },
+      {
+        "camera": {
+          "id": "futuro-nazionale",
+          "kind": "list"
+        },
+        "cameraDeclares": true,
+        "senato": {
+          "id": "futuro-nazionale",
+          "kind": "list"
+        },
+        "senatoDeclares": true
+      },
+      {
+        "camera": {
+          "id": "pap-prc",
+          "kind": "list"
+        },
+        "cameraDeclares": true,
+        "senato": {
+          "id": "pap-prc",
+          "kind": "list"
+        },
+        "senatoDeclares": true
+      },
+      {
+        "camera": {
+          "id": "ora",
+          "kind": "list"
+        },
+        "cameraDeclares": true,
+        "senato": {
+          "id": "ora",
+          "kind": "list"
+        },
+        "senatoDeclares": true
+      },
+      {
+        "camera": {
+          "id": "dsp",
+          "kind": "list"
+        },
+        "cameraDeclares": true,
+        "senato": {
+          "id": "dsp",
+          "kind": "list"
+        },
+        "senatoDeclares": true
+      },
+      {
+        "camera": {
+          "id": "uv",
+          "kind": "list"
+        },
+        "cameraDeclares": true,
+        "senato": {
+          "id": "uv",
+          "kind": "list"
+        },
+        "senatoDeclares": true
+      },
+      {
+        "camera": {
+          "id": "svp-patt",
+          "kind": "list"
+        },
+        "cameraDeclares": true,
+        "senato": {
+          "id": "svp-patt",
+          "kind": "list"
+        },
+        "senatoDeclares": true
+      },
+      {
+        "camera": {
+          "id": "team-k",
+          "kind": "list"
+        },
+        "cameraDeclares": true,
+        "senato": {
+          "id": "team-k",
+          "kind": "list"
+        },
+        "senatoDeclares": true
+      },
+      {
+        "camera": {
+          "id": "freiheitlichen",
+          "kind": "list"
+        },
+        "cameraDeclares": true,
+        "senato": {
+          "id": "freiheitlichen",
+          "kind": "list"
+        },
+        "senatoDeclares": true
+      },
+      {
+        "camera": {
+          "id": "suedtiroler-freiheit",
+          "kind": "list"
+        },
+        "cameraDeclares": true,
+        "senato": {
+          "id": "suedtiroler-freiheit",
+          "kind": "list"
+        },
+        "senatoDeclares": true
+      }
+    ]
+  }
+}

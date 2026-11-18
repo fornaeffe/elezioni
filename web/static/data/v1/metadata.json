@@ -1,0 +1,17 @@
+{
+  "version": "node-production-v1",
+  "source": "Pinned Node/TypeScript production preparation",
+  "workflows": [
+    "politiche",
+    "regionali-er"
+  ],
+  "files": {
+    "politicsStatic": "politics-static.json",
+    "regionalErStatic": "regional-er-static.json"
+  },
+  "notes": [
+    "Prepared by npm run data:prepare; verified by npm run data:check.",
+    "Runtime checksums and schemas are pinned by the generated workspace descriptors.",
+    "Reform assets have separate versioned catalogs. Debug bridges and R caches are not production inputs."
+  ]
+}

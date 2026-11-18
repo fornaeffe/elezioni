@@ -1,0 +1,50 @@
+import type { ReformGenerationSnapshot } from '../politics/reform-2026/generation-types';
+import { computeReformRun, encodeReformRun, prepareFastCompute, type PreparedFastCompute, type ReformRunChunk } from './reform-compute';
+import type { GenerationPacket } from '../politics/reform-2026/vote-share/fit-types';
+import { preparePoliticsCompute, computePoliticsRun, type PoliticsComputePacket } from './politics-compute';
+import type { PreparedPoliticsCompute } from '../politics/execution/compute-inputs';
+
+export type ReformComputeRequest = { requestId: number } & (
+  { action: 'init'; scenario: unknown; basePath: string } |
+  { action:'init-fast';packet:GenerationPacket } |
+  { action:'init-politics';packet:PoliticsComputePacket } |
+  { action: 'compute'; simulation: number } | { action: 'pull' }
+);
+export interface ReformComputeReply { requestId: number; ok: boolean; data?: unknown; error?: string }
+
+let prepared: PreparedFastCompute | undefined;
+let politics: PreparedPoliticsCompute | undefined;
+let chunks: Generator<ReformRunChunk> | undefined;
+let busy = false;
+self.onmessage = async (event: MessageEvent<ReformComputeRequest>) => {
+  const request = event.data;
+  try {
+    if (busy) throw new Error('Compute worker already handling a request');
+    busy = true;
+    let data: unknown;
+    if(request.action==='init-politics') {
+      if (prepared || politics) throw new Error('Compute worker already initialized'); politics = await preparePoliticsCompute(request.packet); data = null;
+    } else if(request.action==='init-fast'){
+      if(prepared || politics)throw new Error('Compute worker already initialized');prepared=await prepareFastCompute(request.packet);data=null;
+    }else if (request.action === 'init') {
+      if (prepared || politics) throw new Error('Compute worker already initialized');
+      throw new Error('Only latest fitted reform sessions can execute in this application');
+    } else if (request.action === 'compute') {
+      if ((!prepared && !politics) || chunks) throw new Error('Compute worker is not ready for another simulation');
+      const run = politics ? computePoliticsRun(politics, request.simulation) : computeReformRun(prepared!, request.simulation);
+      chunks = encodeReformRun(run.batch);
+      data = run.ready;
+    } else {
+      if (!chunks) throw new Error('No simulation available to drain');
+      const next = chunks.next();
+      if (next.done) { chunks = undefined; data = null; }
+      else {
+        self.postMessage({ requestId: request.requestId, ok: true, data: next.value } satisfies ReformComputeReply, { transfer: [next.value.buffer] });
+        return;
+      }
+    }
+    self.postMessage({ requestId: request.requestId, ok: true, data } satisfies ReformComputeReply);
+  } catch (error) {
+    self.postMessage({ requestId: request.requestId, ok: false, error: error instanceof Error ? `${error.name}: ${error.message}` : String(error) } satisfies ReformComputeReply);
+  } finally { busy = false; }
+};

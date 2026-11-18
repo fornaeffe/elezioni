@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "scope": "Worked FV-01 contracts and independent FV-02 targets; no production fitting has run",
+  "source": "web/scripts/data-preparation/stan/check_fast_fixtures.py",
+  "quadratureCases": [
+    {"id":"interior","components":3,"blocks":1,"Q":[[800,0,0],[0,500,0],[0,0,400]],"b":[240,225,100],"mode":[0.3,0.45,0.25]},
+    {"id":"near-zero","components":3,"blocks":1,"Q":[[900,0,0],[0,200,0],[0,0,200]],"b":[-90,140,80],"mode":[0,0.65,0.35]},
+    {"id":"joint-and-distinguishing-information","components":3,"blocks":1,"Q":[[984,-420,-420],[-420,200,156],[-420,156,220]],"b":[1.3333333333333333,1.3333333333333333,1.3333333333333333]},
+    {"id":"coupled-kinds","components":2,"blocks":2,"Q":[[2700,0,-1800,0],[0,2700,0,-1800],[-1800,0,2700,0],[0,-1800,0,2700]],"b":[315,585,495,405],"mode":[0.43,0.57,0.47,0.53]}
+  ],
+  "workedReferences": {
+    "base": {"nonValid":0.3,"validShares":[0.2,0.3,0.5]},
+    "hardA40": {"validShares":[0.4,0.225,0.375],"electorProbabilities":[0.3,0.28,0.1575,0.2625]},
+    "newN10": {"validShares":[0.18,0.27,0.45,0.1],"electorProbabilities":[0.3,0.126,0.189,0.315,0.07]},
+    "nonValid40": {"validShares":[0.2,0.3,0.5],"electorProbabilities":[0.4,0.12,0.18,0.3]},
+    "choiceRemoval": {"baseElectorProbabilities":[0.2,0.3,0.5],"removePoliticalIndex":0,"expectedRemainingElectorProbabilities":[0.2857142857142857,0.7142857142857143]},
+    "groupedObservation": {"validShares":[0.2,0.1,0.3,0.4],"groups":[[0,1],[2]],"offered":[0,1,2],"expectedShares":[0.5,0.5]},
+    "pollOther": {"validShares":[0.2,0.1,0.3,0.4],"namedGroups":[[0,1],[2]],"otherMembers":[3],"expectedShares":[0.3,0.3,0.4]},
+    "localPrecedence": {"equalValidPopulationRegions":true,"nationalA":0.4,"region1A":0.8,"expectedEffectiveNationalA":0.6},
+    "commonAnchor": {"anchor":0.35,"cameraBaseline":0.3,"senatoBaseline":0.4,"gapMultiplier":1,"cameraExplicit":0.42,"expectedCameraWhenExplicit":0.42,"expectedSenatoOriginWhenCameraExplicit":"common-derived"},
+    "singleSoft": {"hardA":0.2,"softBMean":0.3,"softBSdPercentagePoints":2,"softBUpper":0.8,"expectedSdFraction":0.02,"residualC":"0.8-B"},
+    "multipleSoft": {"means":[0.3,0.4],"sdPercentagePoints":[2,3],"residual":"1-A-B","requiredProperties":["joint-simplex","calibrated-marginal-moments","nonnegative-residual","unchanged-non-valid"]},
+    "fullComplementarySoft": {"means":[0.4,0.6],"sdPercentagePoints":[2,2],"requiredCorrelation":-1},
+    "fullCentralNormalization": {"meansBefore":[0.2,0.3],"meansAfter":[0.4,0.6],"warning":"NORMALIZED_REFERENCE_CENTRES"}
+  },
+  "invalidReferences": [
+    {"id":"inconsistent-full-SDs","means":[0.4,0.6],"sdPercentagePoints":[2,3],"expectedError":"REFERENCE_MOMENTS_UNSUPPORTED"},
+    {"id":"overlapping-groups","groups":[["A","B"],["B","C"]],"expectedError":"REFERENCE_OVERLAP"},
+    {"id":"partial-overfull","means":[0.7,0.4],"freeGroupPresent":true,"expectedError":"REFERENCE_CONFLICT"},
+    {"id":"unsupported-retrospective-child","parent":"opaque-AB","requestedChild":"unknown-A","expectedError":"COMPONENT_NOT_IDENTIFIED"},
+    {"id":"missing-new-reference","componentKind":"new","reference":null,"expectedError":"NEW_COMPONENT_REFERENCE_REQUIRED"},
+    {"id":"unavailable-positive-target","target":0.4,"availableValidCapacity":0.1,"expectedError":"REFERENCE_CAPACITY"},
+    {"id":"changed-reference-date","fitDate":"2026-10-19","scenarioDate":"2026-10-20","expectedError":"FIT_STALE"}
+  ]
+}

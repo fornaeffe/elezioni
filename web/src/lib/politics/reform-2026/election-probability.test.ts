@@ -1,0 +1,152 @@
+import { expect, it } from 'vitest';
+import { completeScrutinyFixture } from './scrutiny.fixture';
+import { generationFixture } from './generation.fixture';
+import { runPoliticsReformScrutiny, type ComposedReformScrutinyResult } from './scrutiny';
+import { electionPositionRows, positionAccumulator, positionColumns, probabilityCellColors, probabilityLabel, slatePositionOutcomes } from './election-probability';
+
+it('classifies only the capolista against every bonus slate in the same chamber', () => {
+  const input = completeScrutinyFixture(60), { snapshot } = generationFixture();
+  if (input.renewal.kind !== 'joint') throw new Error();
+  const camera = input.renewal.camera, senato = input.renewal.senato;
+  const slate = camera.ordinarySlates[0], bonus = camera.bonusSlates[0];
+  const result = runPoliticsReformScrutiny(input);
+  const classify = () => electionPositionRows(input, result, snapshot).find(r => r.Chamber === 'camera' && r.College === slate.collegeId && r.List === slate.listId)!['Capolista in bonus slate'];
+  const slot = bonus.candidates[0];
+  camera.bonusSlates = [{ ...bonus, territoryId: 'other-territory', candidates: [{ ...slot, candidateId: slate.candidateIds[1] }] }];
+  senato.bonusSlates = [{ ...senato.bonusSlates[0], candidates: [{ ...slot, candidateId: slate.candidateIds[0] }] }];
+  expect(classify()).toBe(false);
+  camera.bonusSlates[0].candidates.push({ ...slot, candidateId: slate.candidateIds[0] });
+  expect(classify()).toBe(true);
+  camera.bonusSlates = [];
+  expect(classify()).toBe(false);
+});
+
+it('uses a per-college conditional denominator and keeps missing membership and unknown outcomes distinct', () => {
+  const yes = positionAccumulator(5, 'capolista-bonus');
+  const no = positionAccumulator(5, 'capolista-no-bonus');
+  const inputs = [
+    { ...observation([1, 0, null, 0, 0, 0, 0], 1), 'Capolista in bonus slate': true },
+    { ...observation([0, 0, 0, 0, 0, 0, 0], 2), 'Capolista in bonus slate': false },
+    { ...observation([0, 0, 0, 0, 0, 0, 0], 3), 'Capolista in bonus slate': true },
+    { ...observation([0, 0, 'absent', 'absent', 'absent', 'absent', 'absent'], 4), 'Capolista in bonus slate': false }
+  ];
+  for (const input of inputs) { yes.add(input); no.add(input); }
+  const a = yes.rows()[0], b = no.rows()[0];
+  expect([a.denominator, b.denominator, a.observed, b.observed]).toEqual([2, 2, 4, 4]);
+  expect(probabilityLabel(a.positions[0], a.denominator)).toBe('50%');
+  expect(probabilityLabel(a.positions[1], a.denominator)).toBe('≥ 0%');
+  expect(probabilityLabel(b.positions[0], b.denominator)).toBe('0%');
+  expect(probabilityLabel(b.positions[2], b.denominator)).toBe('0%');
+  const empty = positionAccumulator(1, 'capolista-bonus');
+  empty.add({ ...inputs[1], Simulation: 1 });
+  expect(empty.rows()[0].denominator).toBe(0);
+  expect(probabilityLabel(empty.rows()[0].positions[0], 0)).toBe('n.d.');
+  expect(() => positionAccumulator(1, 'capolista-bonus').add(observation([0, 0, 0, 0, 0, 0, 0]))).toThrow(/bonus slate observation/);
+});
+
+it('counts the preference rank and final election location, including a recovered seat but excluding a winner elsewhere', () => {
+  const input = completeScrutinyFixture(60), { snapshot } = generationFixture();
+  if (input.renewal.kind !== 'joint') throw new Error();
+  const slate = input.renewal.camera.ordinarySlates[0];
+  const counts = slate.candidateIds.slice(1).map((candidateId, i) => ({ candidateId, count: i + 1 }));
+  const result = runPoliticsReformScrutiny(input);
+  if (slate.preferences.kind === 'missing') throw new Error();
+  slate.preferences = { ...slate.preferences, counts };
+  const first = slate.candidateIds.at(-1)!;
+  const winner = result.seats.find(s => s.status === 'filled' && s.entitlement.chamber === 'camera')!;
+  const seat = { ...winner, status: 'filled' as const, candidateId: first, category: 'bonus' as const,
+    electedAt: { ...winner.entitlement, collegeId: slate.collegeId, listId: slate.listId } };
+  let modified: ComposedReformScrutinyResult = { ...result, seats: [seat] };
+  const find = () => electionPositionRows(input, modified, snapshot).find(r => r.Chamber === 'camera' && r.College === slate.collegeId && r.List === slate.listId)!;
+  expect(find()['Preference 1']).toBe(1);
+  expect(find().Capolista).toBe(0);
+  expect(slatePositionOutcomes(find()).last).toBe(2);
+  expect(slatePositionOutcomes(find()).reached.slice(0, 2)).toEqual([1, 1]);
+  seat.electedAt.collegeId = 'another-college';
+  expect(find()['Preference 1']).toBe(0);
+  expect(slatePositionOutcomes(find()).last).toBe(0);
+  modified = { ...modified, seats: [{ ...seat, status: 'unresolved', reason: 'missing evidence' }] };
+  expect(find()['Preference 1']).toBeNull();
+  expect(find().Capolista).toBeNull();
+  expect(slatePositionOutcomes(find()).last).toBeNull();
+});
+
+it('keeps absent ranks, missing preferences and partial-run denominators explicit', () => {
+  const input = completeScrutinyFixture(60), { snapshot } = generationFixture();
+  if (input.renewal.kind !== 'joint') throw new Error();
+  const slate = input.renewal.camera.ordinarySlates[0];
+  slate.preferences = { kind: 'missing', reason: 'No preferences' };
+  const rows = electionPositionRows(input, runPoliticsReformScrutiny(input), snapshot);
+  const row = rows.find(r => r.Chamber === 'camera' && r.College === slate.collegeId && r.List === slate.listId)!;
+  expect(row['Preference 1']).toBeNull();
+  const accumulator = positionAccumulator(3);
+  const trailing = Object.fromEntries(positionColumns.slice(2).map(column => [column, 0]));
+  accumulator.add({ ...row, ...trailing, Simulation: 1, Capolista: 1, 'Preference 1': null, 'Preference 6': 'absent' });
+  accumulator.add({ ...row, ...trailing, Simulation: 2, Capolista: 0, 'Preference 1': 0, 'Preference 6': 'absent' });
+  const cells = accumulator.rows()[0].positions;
+  expect(cells).toHaveLength(7);
+  expect(probabilityLabel(cells[0], 3)).toBe('≥ 33,3%');
+  expect(probabilityLabel(cells[1], 3)).toBe('≥ 0%');
+  expect(probabilityLabel(cells[6], 2)).toBe('—');
+  expect(probabilityLabel({ wins: 0, known: 0, absent: 0 }, 3)).toBe('n.d.');
+  expect(positionColumns).toHaveLength(7);
+  expect(() => accumulator.add({ ...row, Simulation: 2 })).toThrow(/Duplicate/);
+  expect(() => positionAccumulator(3).add({ ...row, Simulation: 4 })).toThrow(/invalid/);
+  expect(() => positionAccumulator(3).add({ ...row, Simulation: 1, Capolista: 2 })).toThrow(/Invalid election position outcome/);
+});
+
+const observation = (values: (number | null | string)[], simulation = 1) => ({ Simulation: simulation, College: 'C', Name: 'College', ...Object.fromEntries(positionColumns.map((column, i) => [column, values[i]])) });
+
+it('uses the last local winner, not the number of winners or elections elsewhere', () => {
+  for (let mask = 0; mask < 128; mask++) {
+    const raw = positionColumns.map((_, i) => (mask >> i) & 1);
+    const last = mask ? 32 - Math.clz32(mask) : 0;
+    const { reached, last: measured } = slatePositionOutcomes(observation(raw));
+    expect(measured).toBe(last);
+    expect(reached).toEqual(positionColumns.map((_, i) => Number(i < last)));
+  }
+  const accumulator = positionAccumulator(2);
+  // Only the second preference wins locally; earlier candidates may have won
+  // elsewhere or be unavailable. Neither their identities nor causality matter.
+  accumulator.add(observation([0, 0, 1, 0, 0, 0, 0]));
+  accumulator.add(observation([0, 0, 0, 0, 0, 0, 0], 2));
+  expect(accumulator.rows()[0].positions.map(cell => probabilityLabel(cell, 2))).toEqual(['50%', '50%', '50%', '0%', '0%', '0%', '0%']);
+});
+
+it('retains confirmed reaches when the last position is unknown, and resolves unknown earlier ranks beneath a known last winner', () => {
+  expect(slatePositionOutcomes(observation([1, 0, null, 0, 0, 0, 0]))).toEqual({ reached: [1, null, null, 0, 0, 0, 0], last: null });
+  expect(slatePositionOutcomes(observation([null, null, 1, 0, 0, 0, 0]))).toEqual({ reached: [1, 1, 1, 0, 0, 0, 0], last: 3 });
+  expect(slatePositionOutcomes(observation([null, null, null, null, null, null, 1]))).toEqual({ reached: [1, 1, 1, 1, 1, 1, 1], last: 7 });
+  expect(slatePositionOutcomes(observation([0, 0, 'absent', 'absent', 'absent', 'absent', 'absent']))).toEqual({ reached: [0, 0, 'absent', 'absent', 'absent', 'absent', 'absent'], last: 0 });
+  const accumulator = positionAccumulator(2);
+  accumulator.add(observation([1, 0, null, 0, 0, 0, 0]));
+  accumulator.add(observation([0, 0, 0, 0, 0, 0, 0], 2));
+  expect(accumulator.rows()[0].positions.map(cell => probabilityLabel(cell, 2))).toEqual(['50%', '≥ 0%', '≥ 0%', '0%', '0%', '0%', '0%']);
+  expect(() => slatePositionOutcomes(observation([0, 'absent', 1, 0, 0, 0, 0]))).toThrow(/trailing suffix/);
+});
+
+it('colors probability cells from white to the list color with readable text', () => {
+  const faint = probabilityCellColors('#ffff00', 1);
+  const faintRgb = { red: Number.parseInt(faint.background.slice(1, 3), 16), green: Number.parseInt(faint.background.slice(3, 5), 16), blue: Number.parseInt(faint.background.slice(5, 7), 16) };
+  const luminance = (channel: number) => {
+    const value = channel / 255;
+    return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+  };
+  const relativeLuminance = 0.2126 * luminance(faintRgb.red) + 0.7152 * luminance(faintRgb.green) + 0.0722 * luminance(faintRgb.blue);
+  expect(1.05 / (relativeLuminance + 0.05)).toBeGreaterThanOrEqual(3);
+  expect(faint.background).not.toBe('#ffff00');
+  expect(probabilityCellColors('#ffff00', 0).background).toBe('#ffffff');
+  expect(probabilityCellColors('#003399', 1).background).toBe('#003399');
+  expect(probabilityCellColors('#003399', 0).background).toBe('#ffffff');
+  expect(probabilityCellColors('#003399', 0.5).background).not.toBe('#ffffff');
+  for (const probability of [0, 0.25, 0.5, 0.75, 1]) {
+    const colors = probabilityCellColors('#ffff00', probability);
+    const channels = [1, 3, 5].map(offset => Number.parseInt(colors.background.slice(offset, offset + 2), 16));
+    const backgroundLuminance = 0.2126 * luminance(channels[0]) + 0.7152 * luminance(channels[1]) + 0.0722 * luminance(channels[2]);
+    const textLuminance = colors.foreground === '#000000' ? 0 : 1;
+    const ratio = (Math.max(backgroundLuminance, textLuminance) + 0.05) / (Math.min(backgroundLuminance, textLuminance) + 0.05);
+    expect(ratio).toBeGreaterThanOrEqual(4.5);
+  }
+  expect(() => probabilityCellColors('yellow', 0.5)).toThrow(/Invalid election probability color/);
+  expect(() => probabilityCellColors('#003399', Number.NaN)).toThrow(/Invalid election probability/);
+});

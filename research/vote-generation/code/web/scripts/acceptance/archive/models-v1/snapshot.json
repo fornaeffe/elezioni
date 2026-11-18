@@ -1,0 +1,20 @@
+{
+  "sourceCommit": "8dcb830bb5372a73b2c87b964e3864e5cf1b0314",
+  "purpose": "Frozen 1.0.0 Camera probability kernels; imports rebased, CompiledLegacy type extracted. No runtime selector.",
+  "sha256": {
+    "component-policy.ts": "db45808428f0f76fd4eac9be861dbcf45eefd9361c85c9a4fd6a7e360181895b",
+    "correspondences.ts": "fc490aa5c682c9725bad729137f1d5d04e6e15dc6b9001261df3bbd1b4b47885",
+    "feasible-field.ts": "3a9b4ba070153b26940d7fedb81fbe1fcdd925c0bdb381547eb29ba64528af27",
+    "identification.ts": "a80886bf22b678415d6cbadae7cae9d7137eae2c8422bbe68585c8966ba7b548",
+    "information.ts": "4e7b14372d394f1a821db8936c60595f00977e8a3da3546bbb80d691e7c12f16",
+    "interventions.ts": "b81c5b326a2a2798697b75dcb5937bc211888015bb36e53bfed0e1c835b78828",
+    "legacy-components.ts": "234baa8bc6f7608f67782095a0987049c26efac154408045a76546f4a6c46efa",
+    "legacy-observations.ts": "20cd08e4327487731e357fe6fb9e0bbd71cc87738816d1bb322a28133701e60b",
+    "legacy-polls.ts": "f909351f56cd876d2db33a565e85a51fb2456e5610c3979842acc99c60d90a07",
+    "legacy-types.ts": "3caa5cf229c79c9e27dddb35fd44dd2c3252ade2cdb80e101de23d53d7ad9252",
+    "profiles.ts": "812272ae0975af9cc7c39f9ae9cf5bd7b4b2f2640b2beed815f6a4d5709b3a55",
+    "projection.ts": "bd147e8aa1d04d171d857ecce7a4af89f8dab09c43c97785b84b4371a9963fe3",
+    "reference-groups.ts": "a987463f04a2ecd145b1ce7cc483a2329294362e711607a05cb68000eb205ee2",
+    "types.ts": "2b0d52f4cc47be244d84b75e96e55d5d3848ba7448b295b6f197683b0f4857da"
+  }
+}

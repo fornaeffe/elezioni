@@ -1,26 +1,67 @@
 # elezioni
-Simulatore per le elezioni italiane (politiche, comunali e regionali)
 
-In futuro ho intenzione di trasformarlo in un pacchetto, per ora per usarlo
-bisogna arrangiarsi un po', usando i file .qmd come esempio.
+Simulatore delle elezioni italiane: applicazione web statica in SvelteKit e
+TypeScript, con generazione dei voti e scrutinio eseguiti nel browser.
 
-Gli script necessari al funzionamento si trovano nella cartella R/.
+Sono disponibili le simulazioni delle elezioni politiche con lo "Stabilicum"
+(Legge 9 ottobre 2026, n. 180), il "Rosatellum" (Legge 3 novembre 2017, n. 165)
+e le regionali Emilia-Romagna.
 
-Il workflow tipico per l'utilizzo di questi script è:
+## Avvio locale
 
-1 - Caricamento dei dati (funzione carica_dati() in R/caricamento_dati.R):
-la funzione scarica i dati necessari da internet, li salva in un file di cache
-(consiglio di indicare un percorso permanente per il salvataggio così da non
-doverli scaricare ogni volta) e li restituisce come lista di data.table
-2 - Creazione e modifica manuale di un file Excel di scenario (R/creazione_file_scenario.R)
-3 - Calcolo dei parametri di input (funzione calcola_parametri_input() in R/generazione_voti.R):
-la funzione, partendo dai dati e dal file di scenario, calcola le percentuali
-di partenza di ogni lista in ogni comune, e la loro variabilità.
-4 - Generazione dei voti simulati (funzione genera_voti() in R/generazione_voti.R)
-5 - Scrutinio dei voti simulati (ogni tipo di elezione ha il suo file R/scrutinio_...)
-6 - Presentazione grafica dei risultati con le varie funzioni in R/presentazione_risultati.R.
+Servono **Node 24 e npm**. Dopo aver clonato il repository, dalla root:
 
-Quasi tutti i dati necessari dovrebbero essere scaricati automaticamente da carica_dati(),
-ad eccezione della base dati dei collegi delle elezioni politiche: in questo caso è
-necessario caricare manualmente un file csv "BaseDati_Proposta_Commissione.csv"
-ottenuto esportando l'omonima tabella dal file http://www.riformeistituzionali.gov.it/media/1367/proposta_commissione_13112020.zip
+```powershell
+cd web
+npm ci
+npm run data:prepare -- --download
+npm run dev
+```
+
+Aprire in un browser l'indirizzo locale indicato da Vite.
+
+La prima preparazione (`data:prepare`) acquisisce dal web
+le fonti fissate dai manifest e genera tutti i dati richiesti. Con le fonti
+già presenti, omettere `--download` per rigenerare offline il dataset.
+
+Nell'app scegliere lo spazio di lavoro, modificare lo scenario se necessario,
+impostare il numero di simulazioni, quindi avviare il calcolo. Esaminare
+risultati e avvisi; usare esportazione/importazione per conservare e riprendere
+scenari e risultati.
+
+## Sviluppo e verifica
+
+Eseguire i comandi npm da `web/`. La [guida alla preparazione](docs/data-preparation.md)
+descrive fonti, rigenerazione, controlli e riproduzione da un clone pulito.
+La [guida agli spazi di lavoro](docs/web-workspaces.md) identifica moduli,
+scenari predefiniti e punti di intervento.
+
+```powershell
+npm run data:check
+npm run check:data
+npm run check
+npm test -- --maxWorkers=2
+npm run build
+npm run preview
+```
+
+Per la verifica completa usare la [procedura di accettazione](docs/politics-reform-2026-acceptance.md).
+Build e test browser vanno eseguiti in sequenza, anche con `BASE_PATH=/elezioni`.
+I dati di produzione generati e non tracciati sono necessari per l'accettazione.
+La [guida all'hosting](docs/hosting.md) descrive verifica Linux, misure del sito
+e pubblicazione esplicita su GitHub Pages dopo il merge in `main`.
+
+Il codice applicativo resta in `web/`; `data/` contiene fonti e preparazione
+condivise, `docs/` le specifiche, `test/fixtures/` i riferimenti di regressione
+e `research/` gli studi separati dalla produzione.
+
+Attività aperte e verifiche effettuate sono
+nel [piano](MIGRATION_PLAN.md) e nella [cronologia](docs/migration-history.md).
+
+## Modelli di generazione dei voti
+
+- [M01 2.0.0 — corrispondenze e shock per lista](docs/models/M01.md).
+- [M02 3.0.0 — campo politico condiviso e trasferimenti limitati](docs/models/M02.md), predefinito.
+
+Le specifiche includono equazioni, assunzioni e regole di versionamento. Dati,
+numerica e scrutinio legale hanno identità separate.

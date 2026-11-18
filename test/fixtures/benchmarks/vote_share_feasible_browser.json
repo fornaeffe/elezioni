@@ -1,0 +1,5174 @@
+{
+  "schemaVersion": 1,
+  "scope": "Measured single-worker default refit plus 512 paired generation/legal runs; wider FV-08 production gates remain open",
+  "recordedAt": "2026-10-30T12:54:19.356Z",
+  "environment": {
+    "node": "v24.20.0",
+    "cpu": "Intel(R) Core(TM) i7-14700KF"
+  },
+  "browserReportSha256": "fb95ceacedeb4636a039042c4c6725a5753721d90842711065a7eb6300c55dab",
+  "catalogAtRun": "fast-share-catalog-v1-3e81622314ca86490604778d0a6fe04838578df21924c3a52bcd69a9f16048f6",
+  "catalogQualification": "Local pointer held fixed during measurement; expected generation fingerprint and final selected release verified against the request.",
+  "generationImplementationId": "implementation-v1-e2a14315ec316081941de96186516bc19658d30d67024c0fa5d4b739d2d9684a",
+  "release": {
+    "stage": "FV-05",
+    "status": "candidate-only",
+    "environment": {
+      "node": "v24.20.0",
+      "platform": "win32",
+      "cpu": "Intel(R) Core(TM) i7-14700KF"
+    },
+    "catalog": "fast-share-catalog-v1-3e81622314ca86490604778d0a6fe04838578df21924c3a52bcd69a9f16048f6",
+    "cache": {
+      "source": false,
+      "legal": false,
+      "fit": true,
+      "profiles": false
+    },
+    "audit": {
+      "fittedComponents": 28,
+      "futureComponents": 34,
+      "lists": {
+        "camera": 24,
+        "senato": 24
+      },
+      "polls": {
+        "included": [
+          "demos-a00558",
+          "demos-a00652",
+          "demos-a00693",
+          "demos-a00753",
+          "demos-a00856",
+          "demos-a00942",
+          "demos-a01231",
+          "demos-a01362",
+          "demos-a01384",
+          "demos-a01438",
+          "demos-a01506",
+          "demos-a01570",
+          "demos-a01757",
+          "demos-a01886",
+          "demos-a01988",
+          "demos-a02093",
+          "demos-a02187",
+          "pcm-11832-q2",
+          "pcm-11839-q1",
+          "pcm-11848-q1",
+          "pcm-12951-q1",
+          "pcm-12952-q3",
+          "pcm-1333-q1",
+          "pcm-1342-q1",
+          "pcm-14342-q1",
+          "pcm-14346-q1",
+          "pcm-14358-q4",
+          "pcm-14362-q1",
+          "pcm-14364-q1",
+          "pcm-7135-q2",
+          "pcm-7145-q1",
+          "pcm-7154-q1",
+          "pcm-8779-q2",
+          "pcm-8787-q3",
+          "pcm-8790-q1"
+        ],
+        "excluded": {
+          "pcm-14338-q1": "Bundled conditional-ballot exclusion",
+          "pcm-14363-q1": "Bundled conditional-ballot exclusion",
+          "pcm-14363-q2": "Bundled conditional-ballot exclusion",
+          "pcm-551-q1": "Multiple distinct residual answers cannot be represented by the single offered-complement observation policy",
+          "pcm-553-q1": "Multiple distinct residual answers cannot be represented by the single offered-complement observation policy",
+          "pcm-566-q1": "Multiple distinct residual answers cannot be represented by the single offered-complement observation policy"
+        }
+      },
+      "pair": {
+        "policy": "paired-original-equal-18plus-v1",
+        "included": 7904,
+        "excluded": [],
+        "conditionalElectors": 46120143,
+        "assumption": "Only matched equal original 18+ denominators enter contrasts; unmatched or different-roll municipalities use labelled reference-profile fallbacks. No source counts or denominators are changed."
+      },
+      "preferenceFit": {
+        "observations": 93659,
+        "exclusions": [],
+        "validation": {
+          "intensityMae": 0.19578050278267298,
+          "leadingShareMae": 0.05924495739036957,
+          "folds": [
+            {
+              "election": "er-2024",
+              "scope": "bologna",
+              "trainObservations": 92751,
+              "heldObservations": 605,
+              "heldPeople": 120,
+              "intensityError": 0.0931644353387654,
+              "leadingShareError": 0.0847682535527966,
+              "zeroShareError": 0.2388331129039144,
+              "tiePairShareError": 0.23773336400824308,
+              "strengthSigmaError": 0.5614446296451008,
+              "localSigmaError": 0.35511185039244364
+            },
+            {
+              "election": "er-2024",
+              "scope": "ferrara",
+              "trainObservations": 93296,
+              "heldObservations": 231,
+              "heldPeople": 43,
+              "intensityError": 0.22514188487069275,
+              "leadingShareError": 0.06712419280798965,
+              "zeroShareError": 0.38049734291525145,
+              "tiePairShareError": 0.30029688979091373,
+              "strengthSigmaError": 0.9388507887356994,
+              "localSigmaError": 0.6239835023901092
+            },
+            {
+              "election": "er-2024",
+              "scope": "forlicesena",
+              "trainObservations": 93241,
+              "heldObservations": 329,
+              "heldPeople": 55,
+              "intensityError": 0.12419400757221133,
+              "leadingShareError": 0.06924415001548467,
+              "zeroShareError": 0.24091963859182514,
+              "tiePairShareError": 0.20122776363452144,
+              "strengthSigmaError": 0.765792375525279,
+              "localSigmaError": 0.683340145703532
+            },
+            {
+              "election": "er-2024",
+              "scope": "modena",
+              "trainObservations": 92925,
+              "heldObservations": 517,
+              "heldPeople": 87,
+              "intensityError": 0.1261656525134605,
+              "leadingShareError": 0.0026676444341102723,
+              "zeroShareError": 0.2236326282360463,
+              "tiePairShareError": 0.2139939354029216,
+              "strengthSigmaError": 0.6212798081866308,
+              "localSigmaError": 0.5085655212228926
+            },
+            {
+              "election": "er-2024",
+              "scope": "parma",
+              "trainObservations": 93075,
+              "heldObservations": 482,
+              "heldPeople": 54,
+              "intensityError": 0.03690788318460925,
+              "leadingShareError": 0.053973090451631345,
+              "zeroShareError": 0.26336225801836893,
+              "tiePairShareError": 0.21480217729675455,
+              "strengthSigmaError": 0.8099418866948843,
+              "localSigmaError": 0.5778915716622319
+            },
+            {
+              "election": "er-2024",
+              "scope": "piacenza",
+              "trainObservations": 93169,
+              "heldObservations": 448,
+              "heldPeople": 39,
+              "intensityError": 0.043021528059219105,
+              "leadingShareError": 0.1149479156798976,
+              "zeroShareError": 0.2790097578386597,
+              "tiePairShareError": 0.24432079804014842,
+              "strengthSigmaError": 0.7837069563709672,
+              "localSigmaError": 0.45089867410550555
+            },
+            {
+              "election": "er-2024",
+              "scope": "ravenna",
+              "trainObservations": 93424,
+              "heldObservations": 180,
+              "heldPeople": 40,
+              "intensityError": 0.2700419131824169,
+              "leadingShareError": 0.0740858211998896,
+              "zeroShareError": 0.42038519781622496,
+              "tiePairShareError": 0.33782730599752386,
+              "strengthSigmaError": 1.0559708411238915,
+              "localSigmaError": 0.5983775203535084
+            },
+            {
+              "election": "er-2024",
+              "scope": "reggionellemilia",
+              "trainObservations": 92911,
+              "heldObservations": 462,
+              "heldPeople": 65,
+              "intensityError": 0.09456247047995653,
+              "leadingShareError": 0.018443424449834156,
+              "zeroShareError": 0.3239988959084785,
+              "tiePairShareError": 0.2902408902843112,
+              "strengthSigmaError": 0.6799774015747981,
+              "localSigmaError": 0.37881305869278964
+            },
+            {
+              "election": "er-2024",
+              "scope": "rimini",
+              "trainObservations": 93334,
+              "heldObservations": 296,
+              "heldPeople": 44,
+              "intensityError": 0.10836051051423129,
+              "leadingShareError": 0.08860141529560772,
+              "zeroShareError": 0.2709625659080436,
+              "tiePairShareError": 0.20340259777077485,
+              "strengthSigmaError": 0.9408203101329647,
+              "localSigmaError": 0.47777687285319964
+            },
+            {
+              "election": "european-2024",
+              "scope": "abruzzo",
+              "trainObservations": 22321,
+              "heldObservations": 3402,
+              "heldPeople": 214,
+              "intensityError": 0.19532721198425296,
+              "leadingShareError": 0.07291891702264314,
+              "zeroShareError": 0.17719391930493533,
+              "tiePairShareError": 0.15858193718022046,
+              "strengthSigmaError": 0.4858875371293119,
+              "localSigmaError": 0.11157381205413336
+            },
+            {
+              "election": "european-2024",
+              "scope": "basilicata",
+              "trainObservations": 22321,
+              "heldObservations": 1506,
+              "heldPeople": 214,
+              "intensityError": 0.4692496703779403,
+              "leadingShareError": 0.0627277307979946,
+              "zeroShareError": 0.11483164490654962,
+              "tiePairShareError": 0.07958390430528478,
+              "strengthSigmaError": 0.38152147619193255,
+              "localSigmaError": 0.08038781225872327
+            },
+            {
+              "election": "european-2024",
+              "scope": "calabria",
+              "trainObservations": 22321,
+              "heldObservations": 4613,
+              "heldPeople": 214,
+              "intensityError": 0.5911257597426669,
+              "leadingShareError": 0.03649610253267005,
+              "zeroShareError": 0.12313821417507165,
+              "tiePairShareError": 0.08722044883463448,
+              "strengthSigmaError": 0.5809565152829423,
+              "localSigmaError": 0.10724137830765457
+            },
+            {
+              "election": "european-2024",
+              "scope": "campania",
+              "trainObservations": 22321,
+              "heldObservations": 6436,
+              "heldPeople": 214,
+              "intensityError": 0.42053157078697945,
+              "leadingShareError": 0.0009268048128603934,
+              "zeroShareError": 0.04411016877346896,
+              "tiePairShareError": 0.013049577380608524,
+              "strengthSigmaError": 0.45844394850664494,
+              "localSigmaError": 0.12887556429694647
+            },
+            {
+              "election": "european-2024",
+              "scope": "emiliaromagna",
+              "trainObservations": 23416,
+              "heldObservations": 3897,
+              "heldPeople": 166,
+              "intensityError": 0.12035462640058864,
+              "leadingShareError": 0.09244252274536457,
+              "zeroShareError": 0.003891156533696649,
+              "tiePairShareError": 0.023078016583296723,
+              "strengthSigmaError": 0.10494758902311041,
+              "localSigmaError": 0.21190524863990656
+            },
+            {
+              "election": "european-2024",
+              "scope": "friuliveneziagiulia",
+              "trainObservations": 23416,
+              "heldObservations": 2506,
+              "heldPeople": 166,
+              "intensityError": 0.09083774295566804,
+              "leadingShareError": 0.01064563709250621,
+              "zeroShareError": 0.057388592699398555,
+              "tiePairShareError": 0.03220414759434509,
+              "strengthSigmaError": 0.3197262900721076,
+              "localSigmaError": 0.29067447368469423
+            },
+            {
+              "election": "european-2024",
+              "scope": "lazio",
+              "trainObservations": 25940,
+              "heldObservations": 4396,
+              "heldPeople": 180,
+              "intensityError": 0.3029274682901346,
+              "leadingShareError": 0.015117109842911203,
+              "zeroShareError": 0.0052667209455046216,
+              "tiePairShareError": 0.023790973627131506,
+              "strengthSigmaError": 0.2986841812789742,
+              "localSigmaError": 0.028503195518469138
+            },
+            {
+              "election": "european-2024",
+              "scope": "liguria",
+              "trainObservations": 16491,
+              "heldObservations": 2633,
+              "heldPeople": 221,
+              "intensityError": 0.00031140647454952486,
+              "leadingShareError": 0.039144820288062654,
+              "zeroShareError": 0.20445785788464943,
+              "tiePairShareError": 0.19540441452289298,
+              "strengthSigmaError": 0.2857283246384652,
+              "localSigmaError": 0.2699762634449512
+            },
+            {
+              "election": "european-2024",
+              "scope": "lombardia",
+              "trainObservations": 16491,
+              "heldObservations": 17302,
+              "heldPeople": 221,
+              "intensityError": 0.03861259793361638,
+              "leadingShareError": 0.03101727704091084,
+              "zeroShareError": 0.18168697959979052,
+              "tiePairShareError": 0.16838469494020764,
+              "strengthSigmaError": 0.2745648594903516,
+              "localSigmaError": 0.2738467090596939
+            },
+            {
+              "election": "european-2024",
+              "scope": "marche",
+              "trainObservations": 25940,
+              "heldObservations": 2646,
+              "heldPeople": 180,
+              "intensityError": 0.015801624057092623,
+              "leadingShareError": 0.06093085800042025,
+              "zeroShareError": 0.05729135253158646,
+              "tiePairShareError": 0.03421102136086701,
+              "strengthSigmaError": 0.33223301621469625,
+              "localSigmaError": 0.15108727648231868
+            },
+            {
+              "election": "european-2024",
+              "scope": "molise",
+              "trainObservations": 22321,
+              "heldObservations": 1510,
+              "heldPeople": 214,
+              "intensityError": 0.18192580918746037,
+              "leadingShareError": 0.1060647638888203,
+              "zeroShareError": 0.20608393400866643,
+              "tiePairShareError": 0.19114358242898605,
+              "strengthSigmaError": 0.45253963557805843,
+              "localSigmaError": 0.095413192603922
+            },
+            {
+              "election": "european-2024",
+              "scope": "piemonte",
+              "trainObservations": 16491,
+              "heldObservations": 13149,
+              "heldPeople": 221,
+              "intensityError": 0.23129379203953115,
+              "leadingShareError": 0.099675070313897,
+              "zeroShareError": 0.2937151947894189,
+              "tiePairShareError": 0.3071963796090131,
+              "strengthSigmaError": 0.32118988444282337,
+              "localSigmaError": 0.2851160593315393
+            },
+            {
+              "election": "european-2024",
+              "scope": "puglia",
+              "trainObservations": 22321,
+              "heldObservations": 3048,
+              "heldPeople": 214,
+              "intensityError": 0.4317029291109744,
+              "leadingShareError": 0.036027098582663564,
+              "zeroShareError": 0.02629699486570758,
+              "tiePairShareError": 0.009296907000808985,
+              "strengthSigmaError": 0.4867575326437834,
+              "localSigmaError": 0.08709167411401608
+            },
+            {
+              "election": "european-2024",
+              "scope": "sardegna",
+              "trainObservations": 32228,
+              "heldObservations": 3804,
+              "heldPeople": 86,
+              "intensityError": 0.21978052739875853,
+              "leadingShareError": 0.13298389616226813,
+              "zeroShareError": 0.004962990072975071,
+              "tiePairShareError": 0.05104836151329473,
+              "strengthSigmaError": 0.47068267269410646,
+              "localSigmaError": 0.14592403575186147
+            },
+            {
+              "election": "european-2024",
+              "scope": "sicilia",
+              "trainObservations": 32228,
+              "heldObservations": 4216,
+              "heldPeople": 86,
+              "intensityError": 0.6287232625900179,
+              "leadingShareError": 0.0025195977642036294,
+              "zeroShareError": 0.3147308590094984,
+              "tiePairShareError": 0.2963956598064468,
+              "strengthSigmaError": 0.0884805303618077,
+              "localSigmaError": 0.2145063201058271
+            },
+            {
+              "election": "european-2024",
+              "scope": "toscana",
+              "trainObservations": 25940,
+              "heldObservations": 3257,
+              "heldPeople": 180,
+              "intensityError": 0.18151003531977905,
+              "leadingShareError": 0.05809926924449266,
+              "zeroShareError": 0.024837261203676464,
+              "tiePairShareError": 0.038939427889827294,
+              "strengthSigmaError": 0.21583246493665342,
+              "localSigmaError": 0.18029022032872438
+            },
+            {
+              "election": "european-2024",
+              "scope": "trentinoaltoadige",
+              "trainObservations": 23416,
+              "heldObservations": 3245,
+              "heldPeople": 166,
+              "intensityError": 0.1663981636730565,
+              "leadingShareError": 0.1313122161329111,
+              "zeroShareError": 0.10011182786463513,
+              "tiePairShareError": 0.07460555637069005,
+              "strengthSigmaError": 0.22530266247838004,
+              "localSigmaError": 0.2893791751652425
+            },
+            {
+              "election": "european-2024",
+              "scope": "umbria",
+              "trainObservations": 25940,
+              "heldObservations": 1090,
+              "heldPeople": 180,
+              "intensityError": 0.05327244423081667,
+              "leadingShareError": 0.036518404887390055,
+              "zeroShareError": 0.003776751992085936,
+              "tiePairShareError": 0.022084310713029964,
+              "strengthSigmaError": 0.3142634708212684,
+              "localSigmaError": 0.09390324931970667
+            },
+            {
+              "election": "european-2024",
+              "scope": "valledaosta",
+              "trainObservations": 16491,
+              "heldObservations": 813,
+              "heldPeople": 221,
+              "intensityError": 0.19466639788219886,
+              "leadingShareError": 0.11780367793028157,
+              "zeroShareError": 0.22996491419587695,
+              "tiePairShareError": 0.20967784253488103,
+              "strengthSigmaError": 0.32673798555991174,
+              "localSigmaError": 0.3660873595764579
+            },
+            {
+              "election": "european-2024",
+              "scope": "veneto",
+              "trainObservations": 23416,
+              "heldObservations": 6640,
+              "heldPeople": 166,
+              "intensityError": 0.021721254545869706,
+              "leadingShareError": 0.0008760813502041165,
+              "zeroShareError": 0.038545026053341314,
+              "tiePairShareError": 0.05395196890982279,
+              "strengthSigmaError": 0.03968674478561307,
+              "localSigmaError": 0.19154332775044713
+            }
+          ]
+        },
+        "passed": true,
+        "diagnostics": [
+          {
+            "election": "er-2024",
+            "observations": 3550,
+            "meanIntensity": 0.3018662590303936,
+            "meanLeadingShare": 0.5377113567167786,
+            "meanZeroShare": 0.3572320895067374,
+            "meanTiedPairs": 4.905352112676057
+          },
+          {
+            "election": "european-2024",
+            "observations": 90109,
+            "meanIntensity": 0.5370865789581918,
+            "meanLeadingShare": 0.4924877402097481,
+            "meanZeroShare": 0.6441574617654835,
+            "meanTiedPairs": 68.610061148165
+          }
+        ]
+      },
+      "sourceKey": "source-preparation-cache-v1-173a9315c9bde1d921693620eb4f25de9c74ca89e319e506b3b183cef3e09b3e",
+      "legalKey": "legal-preparation-cache-v1-2895785230240ac2e62fdd1d854be9a0b8563a64d4bf15319e42bf757e2c5db4",
+      "fitCacheKey": "fit-cache-v1-e0a32ad3aaace6fe41d42aadadd4d216787c50cfe9744a208b56ed0a7e437b20",
+      "profileCacheKey": "profiles-cache-v1-4af16a1fe544ff655bf11e959f26a724c5873e3db34c1011e36079f272658509"
+    },
+    "byteBudget": {
+      "generationPayloadCompressedBytes": 8988389,
+      "catalogCompressedBytes": 6299,
+      "pointerBytes": 505,
+      "generationCompressedBytes": 8995193,
+      "refitCompressedBytes": 4512456
+    },
+    "verification": {
+      "catalogId": "fast-share-catalog-v1-3e81622314ca86490604778d0a6fe04838578df21924c3a52bcd69a9f16048f6",
+      "sourceId": "fast-share-source-v1-95d505ed1f7ea79c99cd0bf91a86dbc6a2d54c1f24fd9b37bec40a57e3c72511",
+      "referenceDate": "2026-10-19",
+      "electionDate": "2027-09-25",
+      "municipalities": 7904,
+      "physicalCells": 15810,
+      "fittedComponents": 28,
+      "futureComponents": 34,
+      "politicalDrawsPerChain": 2000,
+      "politicalDiagnostics": {
+        "coordinates": [
+          {
+            "bulkEss": 1477.5645182851351,
+            "constant": false,
+            "rhat": 1.0049071406899928,
+            "tailEss": 2514.396902008455
+          },
+          {
+            "bulkEss": 6732.648452081295,
+            "constant": false,
+            "rhat": 1.0001289041236086,
+            "tailEss": 7504.713701560219
+          },
+          {
+            "bulkEss": 7569.692881085943,
+            "constant": false,
+            "rhat": 1.0001997718835796,
+            "tailEss": 7731.162296178697
+          },
+          {
+            "bulkEss": 2287.1378988697347,
+            "constant": false,
+            "rhat": 1.0004463434314816,
+            "tailEss": 4186.206729383707
+          },
+          {
+            "bulkEss": 4125.199656773301,
+            "constant": false,
+            "rhat": 1.0003114837374296,
+            "tailEss": 5759.266357459458
+          },
+          {
+            "bulkEss": 7704.335328001562,
+            "constant": false,
+            "rhat": 1.0004274207402366,
+            "tailEss": 7970.887036928269
+          },
+          {
+            "bulkEss": 7047.060010047089,
+            "constant": false,
+            "rhat": 1.0001408239474112,
+            "tailEss": 7770.092877973842
+          },
+          {
+            "bulkEss": 7556.916384650184,
+            "constant": false,
+            "rhat": 1.000293041817237,
+            "tailEss": 7633.793538452981
+          },
+          {
+            "bulkEss": 7439.450098030617,
+            "constant": false,
+            "rhat": 1.0000563752910974,
+            "tailEss": 7453.211315426101
+          },
+          {
+            "bulkEss": 7304.800805450995,
+            "constant": false,
+            "rhat": 0.9998734576073021,
+            "tailEss": 7578.569640740184
+          },
+          {
+            "bulkEss": 4521.654153093982,
+            "constant": false,
+            "rhat": 1.0002230399889123,
+            "tailEss": 5838.4113965560955
+          },
+          {
+            "bulkEss": 3247.871898156402,
+            "constant": false,
+            "rhat": 1.0009396284350311,
+            "tailEss": 4830.340107114552
+          },
+          {
+            "bulkEss": 6907.901592440823,
+            "constant": false,
+            "rhat": 1.0001130766546396,
+            "tailEss": 6323.678716101483
+          },
+          {
+            "bulkEss": 7097.843761731515,
+            "constant": false,
+            "rhat": 1.0002072790197105,
+            "tailEss": 7663.63382816718
+          },
+          {
+            "bulkEss": 1423.4242054706035,
+            "constant": false,
+            "rhat": 1.005099475647069,
+            "tailEss": 2432.0333706176098
+          },
+          {
+            "bulkEss": 7226.655473733689,
+            "constant": false,
+            "rhat": 1.0004288122064189,
+            "tailEss": 6918.62324687423
+          },
+          {
+            "bulkEss": 5369.996992830208,
+            "constant": false,
+            "rhat": 1.0005894258940007,
+            "tailEss": 6624.412791837008
+          },
+          {
+            "bulkEss": 6344.681435433821,
+            "constant": false,
+            "rhat": 0.999936987210693,
+            "tailEss": 7427.425672485645
+          },
+          {
+            "bulkEss": 7129.949957159959,
+            "constant": false,
+            "rhat": 1.0003024224564243,
+            "tailEss": 7694.349941206227
+          },
+          {
+            "bulkEss": 6197.364822085159,
+            "constant": false,
+            "rhat": 1.0000621417376074,
+            "tailEss": 7258.449544726486
+          },
+          {
+            "bulkEss": 7001.757169314179,
+            "constant": false,
+            "rhat": 0.9996512773928706,
+            "tailEss": 7588.840472917418
+          },
+          {
+            "bulkEss": 7460.96148965786,
+            "constant": false,
+            "rhat": 0.9996364441088728,
+            "tailEss": 7573.336054773487
+          },
+          {
+            "bulkEss": 6813.9917832945175,
+            "constant": false,
+            "rhat": 1.000350027323291,
+            "tailEss": 6881.586288007072
+          },
+          {
+            "bulkEss": 2182.7002728107823,
+            "constant": false,
+            "rhat": 1.0013709627007132,
+            "tailEss": 4573.893106807656
+          },
+          {
+            "bulkEss": 7843.2350045223975,
+            "constant": false,
+            "rhat": 1.0006091181888177,
+            "tailEss": 7845.246198687694
+          },
+          {
+            "bulkEss": 7819.855418566888,
+            "constant": false,
+            "rhat": 0.9999953175772917,
+            "tailEss": 7609.632158959939
+          },
+          {
+            "bulkEss": 6920.25202050106,
+            "constant": false,
+            "rhat": 1.0002035987137068,
+            "tailEss": 7371.283711919869
+          },
+          {
+            "bulkEss": 2168.2961726694043,
+            "constant": false,
+            "rhat": 1.0012996023604326,
+            "tailEss": 4826.08409112179
+          },
+          {
+            "bulkEss": 2366.5675272335743,
+            "constant": false,
+            "rhat": 1.002739492355386,
+            "tailEss": 3539.5293665952286
+          },
+          {
+            "bulkEss": 5339.047250446734,
+            "constant": false,
+            "rhat": 1.000717407913817,
+            "tailEss": 6297.586265194352
+          },
+          {
+            "bulkEss": 7414.525399169928,
+            "constant": false,
+            "rhat": 1.0001250546957603,
+            "tailEss": 7577.1612777881155
+          },
+          {
+            "bulkEss": 2098.395521574654,
+            "constant": false,
+            "rhat": 1.0009273959418983,
+            "tailEss": 3657.393899486582
+          },
+          {
+            "bulkEss": 2659.1321310861167,
+            "constant": false,
+            "rhat": 1.001668015699003,
+            "tailEss": 3391.9292411921424
+          },
+          {
+            "bulkEss": 7869.917828077369,
+            "constant": false,
+            "rhat": 1.0004627019330188,
+            "tailEss": 7930.136185450486
+          },
+          {
+            "bulkEss": 6857.261908949921,
+            "constant": false,
+            "rhat": 0.9998648359969268,
+            "tailEss": 7539.064922520586
+          },
+          {
+            "bulkEss": 5887.595899804737,
+            "constant": false,
+            "rhat": 1.0003866893511646,
+            "tailEss": 6072.18979406589
+          },
+          {
+            "bulkEss": 7269.807808503573,
+            "constant": false,
+            "rhat": 0.9999566010546082,
+            "tailEss": 7768.885714779888
+          },
+          {
+            "bulkEss": 6424.178055844752,
+            "constant": false,
+            "rhat": 1.0006265681129556,
+            "tailEss": 7404.053133083219
+          },
+          {
+            "bulkEss": 3352.500450502515,
+            "constant": false,
+            "rhat": 1.0005260439044437,
+            "tailEss": 4429.551874778005
+          },
+          {
+            "bulkEss": 2206.2203540327023,
+            "constant": false,
+            "rhat": 1.000871718861128,
+            "tailEss": 3334.8615973989035
+          },
+          {
+            "bulkEss": 7210.722533536355,
+            "constant": false,
+            "rhat": 1.0002065349571765,
+            "tailEss": 7379.8183312095025
+          },
+          {
+            "bulkEss": 7347.70493171637,
+            "constant": false,
+            "rhat": 0.9998098026248406,
+            "tailEss": 7326.8597151221475
+          },
+          {
+            "bulkEss": 1430.0462224060195,
+            "constant": false,
+            "rhat": 1.003444805516106,
+            "tailEss": 3337.1450138818223
+          },
+          {
+            "bulkEss": 6262.156890573784,
+            "constant": false,
+            "rhat": 1.000150638130252,
+            "tailEss": 6971.780614481676
+          },
+          {
+            "bulkEss": 2118.5961725428974,
+            "constant": false,
+            "rhat": 1.0016050203381548,
+            "tailEss": 3599.80612405166
+          },
+          {
+            "bulkEss": 6128.2343976780385,
+            "constant": false,
+            "rhat": 1.000156349349393,
+            "tailEss": 7251.1060249019065
+          },
+          {
+            "bulkEss": 7158.286120377087,
+            "constant": false,
+            "rhat": 1.000124183733949,
+            "tailEss": 7690.600864399523
+          },
+          {
+            "bulkEss": 6208.076105903403,
+            "constant": false,
+            "rhat": 0.9999741577178527,
+            "tailEss": 7217.28577438767
+          },
+          {
+            "bulkEss": 6987.169070299575,
+            "constant": false,
+            "rhat": 1.000296424327897,
+            "tailEss": 7238.728851193969
+          },
+          {
+            "bulkEss": 7470.358713672234,
+            "constant": false,
+            "rhat": 0.9999964113581531,
+            "tailEss": 7889.044329126391
+          },
+          {
+            "bulkEss": 5820.648214074369,
+            "constant": false,
+            "rhat": 1.0004437697506299,
+            "tailEss": 6147.84483572208
+          },
+          {
+            "bulkEss": 2727.106307379231,
+            "constant": false,
+            "rhat": 1.0013624454665708,
+            "tailEss": 4803.6727814434025
+          },
+          {
+            "bulkEss": 6707.055175425538,
+            "constant": false,
+            "rhat": 1.0002165191095487,
+            "tailEss": 7182.600292473123
+          },
+          {
+            "bulkEss": 7857.78657125281,
+            "constant": false,
+            "rhat": 1.0000462351350725,
+            "tailEss": 7563.121993190956
+          },
+          {
+            "bulkEss": 6264.951000306244,
+            "constant": false,
+            "rhat": 1.0001885759753526,
+            "tailEss": 6848.472984918089
+          },
+          {
+            "bulkEss": 2533.805446136613,
+            "constant": false,
+            "rhat": 1.0008080138900413,
+            "tailEss": 5099.132461669425
+          }
+        ],
+        "maxRhat": 1.005099475647069,
+        "minEss": 1423.4242054706035,
+        "minTailEss": 2432.0333706176098,
+        "passed": true
+      },
+      "participationDiagnostics": {
+        "coordinates": [
+          {
+            "bulkEss": 8000,
+            "constant": false,
+            "rhat": 1.000438909046988,
+            "tailEss": 7602.325928261166
+          },
+          {
+            "bulkEss": 8000,
+            "constant": false,
+            "rhat": 1.000438909046988,
+            "tailEss": 7602.325928261166
+          },
+          {
+            "bulkEss": 8000,
+            "constant": false,
+            "rhat": 1.0004060597937383,
+            "tailEss": 7806.731085609442
+          },
+          {
+            "bulkEss": 8000,
+            "constant": false,
+            "rhat": 1.0004060597937383,
+            "tailEss": 7806.731085609442
+          }
+        ],
+        "maxRhat": 1.000438909046988,
+        "minEss": 8000,
+        "minTailEss": 7602.325928261166,
+        "passed": true
+      },
+      "projectionResidual": 0,
+      "legalStatus": "complete",
+      "seats": 588,
+      "filled": 588,
+      "sourceIntegrity": true,
+      "matchingSemanticKeys": true,
+      "defaultStartFits": 0
+    },
+    "staticBuild": true,
+    "applicationChecks": true,
+    "basePath": "",
+    "elapsedMs": 85816.5883,
+    "peakRssKiB": 1990216,
+    "qualification": "Pinned upcoming-election candidate, not predictive/default activation acceptance. No research export, application selector or deployment is used."
+  },
+  "browser": {
+    "browser": "148.0.7778.96",
+    "request": {
+      "action": "production",
+      "model": "bounded-mass-pair-field-v2",
+      "scale": 1.5,
+      "draws": 512,
+      "implementations": {
+        "generation": "implementation-v1-e2a14315ec316081941de96186516bc19658d30d67024c0fa5d4b739d2d9684a",
+        "fitting": "implementation-v1-3f7b7dcd6d7dcd05baa46cda8ffedc0d10f53187b54050f72196ca179f4464df",
+        "profiles": "implementation-v1-e2a14315ec316081941de96186516bc19658d30d67024c0fa5d4b739d2d9684a"
+      }
+    },
+    "result": {
+      "ok": true,
+      "action": "production",
+      "milliseconds": 1583000,
+      "loadMs": 908.4000000357628,
+      "refitMs": 6747.5,
+      "prepareMs": 619.0999999642372,
+      "generationLegalMs": 1574724.800000012,
+      "requested": 512,
+      "completed": 512,
+      "failed": 0,
+      "nonComputable": 0,
+      "generationOnlyMs": 1413281.3999999166,
+      "legalOnlyMs": 160336.19999992847,
+      "model": "bounded-mass-pair-field-v2",
+      "scale": 1.5,
+      "profileRegionCorrelation": 0.25,
+      "referenceDate": "2026-10-20",
+      "lists": 24,
+      "components": 34,
+      "refitAudit": {
+        "nationalFits": 1,
+        "profileFits": 1,
+        "pairedFits": 1,
+        "sourceLoaded": true,
+        "numericBytes": 11824864
+      },
+      "fitPlan": {
+        "national": true,
+        "profiles": true,
+        "paired": true,
+        "reasons": [
+          "reference-date",
+          "municipal-evidence-basis-or-reference-date",
+          "paired-baseline-or-camera-profile"
+        ],
+        "estimatedAggregateBytes": 465537836,
+        "reused": {
+          "national": false,
+          "cameraProfile": false,
+          "senateAdapter": false
+        }
+      },
+      "ledger": [
+        {
+          "id": 1,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 2,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 3,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 4,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 5,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 6,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 7,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 8,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 9,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 10,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 11,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 12,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 13,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 14,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 15,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 16,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 17,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 18,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 19,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 20,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 21,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 22,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 23,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 24,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 25,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 26,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 27,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 28,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 29,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 30,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 31,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 32,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 33,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 34,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 35,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 36,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 37,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 38,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 39,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 40,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 41,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 42,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 43,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 44,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 45,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 46,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 47,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 48,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 49,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 50,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 51,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 52,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 53,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 54,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 55,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 56,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 57,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 58,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 59,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 60,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 61,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 62,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 63,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 64,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 65,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 66,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 67,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 68,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 69,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 70,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 71,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 72,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 73,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 74,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 75,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 76,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 77,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 78,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 79,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 80,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 81,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 82,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 83,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 84,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 85,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 86,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 87,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 88,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 89,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 90,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 91,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 92,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 93,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 94,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 95,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 96,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 97,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 98,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 99,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 100,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 101,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 102,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 103,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 104,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 105,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 106,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 107,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 108,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 109,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 110,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 111,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 112,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 113,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 114,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 115,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 116,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 117,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 118,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 119,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 120,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 121,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 122,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 123,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 124,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 125,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 126,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 127,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 128,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 129,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 130,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 131,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 132,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 133,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 134,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 135,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 136,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 137,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 138,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 139,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 140,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 141,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 142,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 143,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 144,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 145,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 146,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 147,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 148,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 149,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 150,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 151,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 152,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 153,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 154,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 155,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 156,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 157,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 158,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 159,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 160,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 161,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 162,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 163,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 164,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 165,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 166,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 167,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 168,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 169,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 170,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 171,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 172,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 173,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 174,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 175,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 176,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 177,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 178,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 179,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 180,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 181,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 182,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 183,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 184,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 185,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 186,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 187,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 188,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 189,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 190,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 191,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 192,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 193,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 194,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 195,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 196,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 197,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 198,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 199,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 200,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 201,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 202,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 203,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 204,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 205,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 206,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 207,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 208,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 209,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 210,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 211,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 212,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 213,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 214,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 215,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 216,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 217,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 218,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 219,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 220,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 221,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 222,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 223,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 224,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 225,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 226,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 227,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 228,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 229,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 230,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 231,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 232,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 233,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 234,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 235,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 236,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 237,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 238,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 239,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 240,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 241,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 242,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 243,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 244,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 245,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 246,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 247,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 248,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 249,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 250,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 251,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 252,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 253,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 254,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 255,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 256,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 257,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 258,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 259,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 260,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 261,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 262,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 263,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 264,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 265,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 266,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 267,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 268,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 269,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 270,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 271,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 272,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 273,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 274,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 275,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 276,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 277,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 278,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 279,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 280,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 281,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 282,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 283,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 284,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 285,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 286,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 287,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 288,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 289,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 290,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 291,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 292,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 293,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 294,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 295,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 296,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 297,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 298,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 299,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 300,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 301,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 302,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 303,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 304,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 305,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 306,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 307,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 308,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 309,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 310,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 311,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 312,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 313,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 314,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 315,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 316,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 317,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 318,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 319,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 320,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 321,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 322,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 323,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 324,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 325,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 326,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 327,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 328,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 329,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 330,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 331,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 332,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 333,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 334,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 335,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 336,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 337,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 338,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 339,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 340,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 341,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 342,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 343,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 344,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 345,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 346,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 347,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 348,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 349,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 350,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 351,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 352,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 353,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 354,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 355,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 356,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 357,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 358,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 359,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 360,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 361,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 362,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 363,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 364,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 365,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 366,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 367,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 368,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 369,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 370,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 371,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 372,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 373,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 374,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 375,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 376,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 377,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 378,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 379,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 380,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 381,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 382,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 383,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 384,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 385,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 386,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 387,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 388,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 389,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 390,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 391,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 392,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 393,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 394,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 395,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 396,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 397,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 398,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 399,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 400,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 401,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 402,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 403,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 404,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 405,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 406,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 407,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 408,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 409,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 410,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 411,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 412,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 413,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 414,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 415,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 416,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 417,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 418,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 419,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 420,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 421,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 422,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 423,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 424,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 425,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 426,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 427,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 428,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 429,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 430,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 431,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 432,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 433,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 434,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 435,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 436,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 437,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 438,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 439,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 440,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 441,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 442,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 443,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 444,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 445,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 446,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 447,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 448,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 449,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 450,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 451,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 452,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 453,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 454,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 455,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 456,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 457,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 458,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 459,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 460,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 461,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 462,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 463,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 464,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 465,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 466,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 467,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 468,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 469,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 470,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 471,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 472,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 473,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 474,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 475,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 476,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 477,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 478,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 479,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 480,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 481,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 482,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 483,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 484,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 485,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 486,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 487,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 488,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 489,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 490,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 491,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 492,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 493,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 494,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 495,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 496,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 497,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 498,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 499,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 500,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 501,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 502,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 503,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 504,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 505,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 506,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 507,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 508,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 509,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 510,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 511,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        },
+        {
+          "id": 512,
+          "status": "complete",
+          "seats": 588,
+          "filled": 588,
+          "projectionResidual": 0,
+          "referenceConditioned": []
+        }
+      ]
+    }
+  },
+  "workspace": [
+    {
+      "name": "ui-root",
+      "sha256": "89f004c71bca0c7f19e96d1925153a94e7518c7aaed502f7dc4db92a8837e1db",
+      "stats": {
+        "startTime": "2026-10-30T12:51:09.408Z",
+        "duration": 110697.154,
+        "expected": 8,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      }
+    },
+    {
+      "name": "ui-nested",
+      "sha256": "dd5fbb23c0336df87e030e03b2443cb4e8d7a37cd7471d89103b2c1f130b0dbd",
+      "stats": {
+        "startTime": "2026-10-30T12:47:13.991Z",
+        "duration": 110561.928,
+        "expected": 8,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      }
+    },
+    {
+      "name": "chromium-root",
+      "sha256": "f94ebe07da108d6a95b9ad4896801f2e3c47373b0b6d0fbbf5a2cfd1a8c395e8",
+      "catalogId": "fast-share-catalog-v1-3e81622314ca86490604778d0a6fe04838578df21924c3a52bcd69a9f16048f6",
+      "browserVersion": "148.0.7778.96",
+      "memory": {
+        "supported": true,
+        "intervalMs": 100,
+        "samples": 288,
+        "peakBytes": 441289076,
+        "passed": true,
+        "qualification": "Sampled sum of V8 used heap, backing stores and embedder heap across page and active workers; browser framework/GPU and persisted results excluded. Not an unsampled RSS maximum."
+      },
+      "pageErrors": []
+    },
+    {
+      "name": "chromium-nested",
+      "sha256": "0a78ff82adb8b28b012fb91c795669888de06ad0a8b31355b7ab9b0c8d889bb9",
+      "catalogId": "fast-share-catalog-v1-3e81622314ca86490604778d0a6fe04838578df21924c3a52bcd69a9f16048f6",
+      "browserVersion": "148.0.7778.96",
+      "memory": {
+        "supported": true,
+        "intervalMs": 100,
+        "samples": 286,
+        "peakBytes": 466290165,
+        "passed": true,
+        "qualification": "Sampled sum of V8 used heap, backing stores and embedder heap across page and active workers; browser framework/GPU and persisted results excluded. Not an unsampled RSS maximum."
+      },
+      "pageErrors": []
+    },
+    {
+      "name": "firefox-root",
+      "sha256": "eff20c4ffff72ce72c3f3e2ad9ae405a100c11aa9af093e4b9d72a63aa1b479d",
+      "catalogId": "fast-share-catalog-v1-3e81622314ca86490604778d0a6fe04838578df21924c3a52bcd69a9f16048f6",
+      "browserVersion": "150.0.2",
+      "memory": {
+        "supported": false,
+        "reason": "CDP heap instrumentation requires Chromium"
+      },
+      "pageErrors": []
+    },
+    {
+      "name": "firefox-nested",
+      "sha256": "dd13decc62e7de7bd7cb65a43c782d0f3b41b917f9e89e24ec336b97e6bc42a9",
+      "catalogId": "fast-share-catalog-v1-3e81622314ca86490604778d0a6fe04838578df21924c3a52bcd69a9f16048f6",
+      "browserVersion": "150.0.2",
+      "memory": {
+        "supported": false,
+        "reason": "CDP heap instrumentation requires Chromium"
+      },
+      "pageErrors": []
+    }
+  ],
+  "preCorrectionWorkspaceCheck": {
+    "sha256": "85442c370d4fadb9734772a599f624370c160ef13bbf4b531d015197cbc246e5",
+    "stats": {
+      "startTime": "2026-10-30T12:42:42.706Z",
+      "duration": 110493.782,
+      "expected": 7,
+      "skipped": 0,
+      "unexpected": 1,
+      "flaky": 0
+    },
+    "observedPeakBytes": 618286979,
+    "qualification": "Pre-correction nested check failed the original memory assertion and exposed an archive-import metadata error. Retained as a failed engineering check; corrected functional runs do not erase it."
+  },
+  "workspaceMemoryQualification": "Original FV-08 512 MiB threshold is retained as a diagnostic for this authorized replacement comparison, not accepted by passing functional tests. Runtime reservation policy is unchanged.",
+  "interruptedHistoricalAttempts": {
+    "attempts": [
+      {
+        "attempt": 1,
+        "status": "interrupted-before-report",
+        "reason": "Replaced monolithic JSON serialization with streaming gzip before full-country output could exceed V8 single-string limit. Retry keeps identical inputs, candidate parameters and frozen seeds."
+      }
+    ]
+  },
+  "executionNotes": [
+    "Project-path replay exposed fractional estimatedWorkerMemoryMiB metadata, which failed the existing result importer. The producer now rounds its MiB estimate up; workspace tests validate the actual exported payload and require absence of result-service errors. The forecast implementation and its measured 512-run fingerprint are unchanged.",
+    "Expanded-default browser fixtures were updated from a hard-coded ten-share poll and an unconditional two-consumer request. The real packet permits one consumer under the unchanged budget; the test now requires unsafe parallelism to be rejected and checks identity within supported scheduling.",
+    "Browser harness development corrected action load-default to load and marked transparently decompressed HTTP asset bodies as transport:http. These initial harness failures are not successful model requests.",
+    "The first full-2022 artifact attempt was interrupted before reporting to replace a potentially oversized JSON string with streaming gzip. Its orphan child process was identified and stopped. The completed retry uses identical inputs, parameters and frozen seeds; no statistical reroll.",
+    "A full parallel unit run hit the unchanged five-second reform-compute timeout under concurrent research/browser load. The targeted repeat and complete bounded-worker suite passed.",
+    "Future-default integration assertions found malformed UTF-8 display labels and an expected-ID ordering error; authored labels/assertions were corrected and defaults regenerated before the full browser measurement.",
+    "Raw predictive arrays remain ignored; earlier failed global-Beta evidence is retained separately and never overwritten by current-catalog production diagnostics."
+  ]
+}

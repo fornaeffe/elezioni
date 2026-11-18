@@ -1,0 +1,20 @@
+import { expect, test } from '@playwright/test';
+import { openCommon, runCommon, base } from '../fixtures/common-page';
+import { ROSATELLUM } from '../../src/lib/politics/scenario/schema';
+test.setTimeout(180000);
+test('national previous-law execution preserves shared edits, visible seeds and result identity', { tag: '@production' }, async ({ page }) => {
+    const scenario = await openCommon(page, ROSATELLUM, 'M01');
+    const pd = page.getByRole('article', { name: 'Partito Democratico', exact: true });
+    await pd.getByRole('textbox', { name: 'Nome lista', exact: true }).fill('Shared renamed list');
+    await pd.getByRole('textbox', { name: 'Nome lista', exact: true }).blur();
+    await page.getByText('Impostazioni avanzate della simulazione', { exact: true }).click();
+    await expect(page.getByLabel('Seed delle simulazioni', { exact: true })).toHaveValue(scenario.execution.simulationSeed);
+    const saved = await runCommon(page);
+    expect(saved.politics.run.session.simulations).toEqual([{ id: 1, outcome: 'complete' }]);
+    expect(saved.politics.run.executedScenario.subjects.lists.some((l: any) => l.name === 'Shared renamed list')).toBe(true);
+    await page.getByLabel('Nome scenario', { exact: true }).fill('Changed after run');
+    await page.getByLabel('Nome scenario', { exact: true }).blur();
+    await expect(page.getByText('Scenario modificato. Risultati ed export conservano lo scenario eseguito.', { exact: true })).toBeVisible();
+    await page.goto(base + '/emilia-romagna');
+    await expect(page.locator('[data-workspace=regional-er]')).toBeVisible();
+});

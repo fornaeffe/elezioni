@@ -1,0 +1,456 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-11-01T23:08:17.498Z",
+  "scope": "M01@1.0.0 and M02@1.0.0 historical comparison feasibility; no model simulations executed",
+  "catalogId": "fast-share-catalog-v1-b998a45a8429bb0ee0fb34b9ad12ca01931ff85416a50bdb96fc21bab372dc20",
+  "sourceId": "fast-share-source-v1-95d505ed1f7ea79c99cd0bf91a86dbc6a2d54c1f24fd9b37bec40a57e3c72511",
+  "previous": {
+    "path": "test/fixtures/benchmarks/vote_share_legacy_comparison.json",
+    "sha256": "9f72f62bbb661f13f3e19ca73cc9c50803456dbfc88392c747f58d167beab0de",
+    "rows": 28
+  },
+  "codeHashes": {
+    "web/scripts/acceptance/model-comparison-feasibility.ts": "87303ddab8384f1f0a1433dd96a759ff1d4e958aafa2a25191efa551a2653b88",
+    "web/src/lib/politics/reform-2026/vote-share/legacy-adapter.ts": "5a16c8e3ea510962822c4aa8968655d9a68fd0170713e1ec4f50deca3154824d",
+    "web/src/lib/politics/reform-2026/vote-share/paired-source.ts": "9ae626afefcbce067c197ff0581e0293000c9129ba9ecc6f70ea763751689730"
+  },
+  "events": [
+    {
+      "id": "camera-2008",
+      "date": "2008-04-13",
+      "availableDate": "2008-04-15",
+      "context": "camera",
+      "minimumAge": 18,
+      "role": "reference"
+    },
+    {
+      "id": "camera-2013",
+      "date": "2013-02-24",
+      "availableDate": "2013-02-26",
+      "context": "camera",
+      "minimumAge": 18,
+      "role": "reference"
+    },
+    {
+      "id": "camera-2018",
+      "date": "2018-03-04",
+      "availableDate": "2018-03-05",
+      "context": "camera",
+      "minimumAge": 18,
+      "role": "reference"
+    },
+    {
+      "id": "camera-2022",
+      "date": "2022-09-25",
+      "availableDate": "2022-09-26",
+      "context": "camera",
+      "minimumAge": 18,
+      "role": "reference"
+    },
+    {
+      "id": "european-2009",
+      "date": "2009-06-07",
+      "availableDate": "2009-06-08",
+      "context": "european",
+      "minimumAge": 18,
+      "role": "reference"
+    },
+    {
+      "id": "european-2014",
+      "date": "2014-05-25",
+      "availableDate": "2014-05-26",
+      "context": "european",
+      "minimumAge": 18,
+      "role": "reference"
+    },
+    {
+      "id": "european-2019",
+      "date": "2019-05-26",
+      "availableDate": "2019-05-27",
+      "context": "european",
+      "minimumAge": 18,
+      "role": "reference"
+    },
+    {
+      "id": "european-2024",
+      "date": "2024-06-09",
+      "availableDate": "2024-06-10",
+      "context": "european",
+      "minimumAge": 18,
+      "role": "reference"
+    },
+    {
+      "id": "senato-2018",
+      "date": "2018-03-04",
+      "availableDate": "2018-03-05",
+      "context": "senato",
+      "minimumAge": 25,
+      "role": "age-audit"
+    },
+    {
+      "id": "senato-2022",
+      "date": "2022-09-25",
+      "availableDate": "2022-09-26",
+      "context": "senato",
+      "minimumAge": 18,
+      "role": "paired-adaptation"
+    }
+  ],
+  "cases": [
+    {
+      "target": "camera-2013",
+      "horizon": 730,
+      "cutoff": "2011-02-25",
+      "m01": {
+        "eligible": false,
+        "error": "No eligible common-18+ Camera/Senato pair at this reference date"
+      },
+      "m02": [
+        {
+          "pair": {
+            "camera": "camera-2018",
+            "senato": "senato-2018",
+            "electoratePolicy": "equal-only"
+          },
+          "eligible": false,
+          "error": "PAIRED_SOURCE_UNAVAILABLE: common 18+ cutoff-eligible observations required"
+        },
+        {
+          "pair": {
+            "camera": "camera-2022",
+            "senato": "senato-2022",
+            "electoratePolicy": "equal-only"
+          },
+          "eligible": false,
+          "error": "PAIRED_SOURCE_UNAVAILABLE: common 18+ cutoff-eligible observations required"
+        }
+      ]
+    },
+    {
+      "target": "camera-2013",
+      "horizon": 365,
+      "cutoff": "2012-02-25",
+      "m01": {
+        "eligible": false,
+        "error": "No eligible common-18+ Camera/Senato pair at this reference date"
+      },
+      "m02": [
+        {
+          "pair": {
+            "camera": "camera-2018",
+            "senato": "senato-2018",
+            "electoratePolicy": "equal-only"
+          },
+          "eligible": false,
+          "error": "PAIRED_SOURCE_UNAVAILABLE: common 18+ cutoff-eligible observations required"
+        },
+        {
+          "pair": {
+            "camera": "camera-2022",
+            "senato": "senato-2022",
+            "electoratePolicy": "equal-only"
+          },
+          "eligible": false,
+          "error": "PAIRED_SOURCE_UNAVAILABLE: common 18+ cutoff-eligible observations required"
+        }
+      ]
+    },
+    {
+      "target": "camera-2013",
+      "horizon": 90,
+      "cutoff": "2012-11-26",
+      "m01": {
+        "eligible": false,
+        "error": "No eligible common-18+ Camera/Senato pair at this reference date"
+      },
+      "m02": [
+        {
+          "pair": {
+            "camera": "camera-2018",
+            "senato": "senato-2018",
+            "electoratePolicy": "equal-only"
+          },
+          "eligible": false,
+          "error": "PAIRED_SOURCE_UNAVAILABLE: common 18+ cutoff-eligible observations required"
+        },
+        {
+          "pair": {
+            "camera": "camera-2022",
+            "senato": "senato-2022",
+            "electoratePolicy": "equal-only"
+          },
+          "eligible": false,
+          "error": "PAIRED_SOURCE_UNAVAILABLE: common 18+ cutoff-eligible observations required"
+        }
+      ]
+    },
+    {
+      "target": "camera-2013",
+      "horizon": 15,
+      "cutoff": "2013-02-09",
+      "m01": {
+        "eligible": false,
+        "error": "No eligible common-18+ Camera/Senato pair at this reference date"
+      },
+      "m02": [
+        {
+          "pair": {
+            "camera": "camera-2018",
+            "senato": "senato-2018",
+            "electoratePolicy": "equal-only"
+          },
+          "eligible": false,
+          "error": "PAIRED_SOURCE_UNAVAILABLE: common 18+ cutoff-eligible observations required"
+        },
+        {
+          "pair": {
+            "camera": "camera-2022",
+            "senato": "senato-2022",
+            "electoratePolicy": "equal-only"
+          },
+          "eligible": false,
+          "error": "PAIRED_SOURCE_UNAVAILABLE: common 18+ cutoff-eligible observations required"
+        }
+      ]
+    },
+    {
+      "target": "camera-2018",
+      "horizon": 730,
+      "cutoff": "2016-03-04",
+      "m01": {
+        "eligible": false,
+        "error": "No eligible common-18+ Camera/Senato pair at this reference date"
+      },
+      "m02": [
+        {
+          "pair": {
+            "camera": "camera-2018",
+            "senato": "senato-2018",
+            "electoratePolicy": "equal-only"
+          },
+          "eligible": false,
+          "error": "PAIRED_SOURCE_UNAVAILABLE: common 18+ cutoff-eligible observations required"
+        },
+        {
+          "pair": {
+            "camera": "camera-2022",
+            "senato": "senato-2022",
+            "electoratePolicy": "equal-only"
+          },
+          "eligible": false,
+          "error": "PAIRED_SOURCE_UNAVAILABLE: common 18+ cutoff-eligible observations required"
+        }
+      ]
+    },
+    {
+      "target": "camera-2018",
+      "horizon": 365,
+      "cutoff": "2017-03-04",
+      "m01": {
+        "eligible": false,
+        "error": "No eligible common-18+ Camera/Senato pair at this reference date"
+      },
+      "m02": [
+        {
+          "pair": {
+            "camera": "camera-2018",
+            "senato": "senato-2018",
+            "electoratePolicy": "equal-only"
+          },
+          "eligible": false,
+          "error": "PAIRED_SOURCE_UNAVAILABLE: common 18+ cutoff-eligible observations required"
+        },
+        {
+          "pair": {
+            "camera": "camera-2022",
+            "senato": "senato-2022",
+            "electoratePolicy": "equal-only"
+          },
+          "eligible": false,
+          "error": "PAIRED_SOURCE_UNAVAILABLE: common 18+ cutoff-eligible observations required"
+        }
+      ]
+    },
+    {
+      "target": "camera-2018",
+      "horizon": 90,
+      "cutoff": "2017-12-04",
+      "m01": {
+        "eligible": false,
+        "error": "No eligible common-18+ Camera/Senato pair at this reference date"
+      },
+      "m02": [
+        {
+          "pair": {
+            "camera": "camera-2018",
+            "senato": "senato-2018",
+            "electoratePolicy": "equal-only"
+          },
+          "eligible": false,
+          "error": "PAIRED_SOURCE_UNAVAILABLE: common 18+ cutoff-eligible observations required"
+        },
+        {
+          "pair": {
+            "camera": "camera-2022",
+            "senato": "senato-2022",
+            "electoratePolicy": "equal-only"
+          },
+          "eligible": false,
+          "error": "PAIRED_SOURCE_UNAVAILABLE: common 18+ cutoff-eligible observations required"
+        }
+      ]
+    },
+    {
+      "target": "camera-2018",
+      "horizon": 15,
+      "cutoff": "2018-02-17",
+      "m01": {
+        "eligible": false,
+        "error": "No eligible common-18+ Camera/Senato pair at this reference date"
+      },
+      "m02": [
+        {
+          "pair": {
+            "camera": "camera-2018",
+            "senato": "senato-2018",
+            "electoratePolicy": "equal-only"
+          },
+          "eligible": false,
+          "error": "PAIRED_SOURCE_UNAVAILABLE: common 18+ cutoff-eligible observations required"
+        },
+        {
+          "pair": {
+            "camera": "camera-2022",
+            "senato": "senato-2022",
+            "electoratePolicy": "equal-only"
+          },
+          "eligible": false,
+          "error": "PAIRED_SOURCE_UNAVAILABLE: common 18+ cutoff-eligible observations required"
+        }
+      ]
+    },
+    {
+      "target": "camera-2022",
+      "horizon": 730,
+      "cutoff": "2020-09-25",
+      "m01": {
+        "eligible": false,
+        "error": "No eligible common-18+ Camera/Senato pair at this reference date"
+      },
+      "m02": [
+        {
+          "pair": {
+            "camera": "camera-2018",
+            "senato": "senato-2018",
+            "electoratePolicy": "equal-only"
+          },
+          "eligible": false,
+          "error": "PAIRED_SOURCE_UNAVAILABLE: common 18+ cutoff-eligible observations required"
+        },
+        {
+          "pair": {
+            "camera": "camera-2022",
+            "senato": "senato-2022",
+            "electoratePolicy": "equal-only"
+          },
+          "eligible": false,
+          "error": "PAIRED_SOURCE_UNAVAILABLE: common 18+ cutoff-eligible observations required"
+        }
+      ]
+    },
+    {
+      "target": "camera-2022",
+      "horizon": 365,
+      "cutoff": "2021-09-25",
+      "m01": {
+        "eligible": false,
+        "error": "No eligible common-18+ Camera/Senato pair at this reference date"
+      },
+      "m02": [
+        {
+          "pair": {
+            "camera": "camera-2018",
+            "senato": "senato-2018",
+            "electoratePolicy": "equal-only"
+          },
+          "eligible": false,
+          "error": "PAIRED_SOURCE_UNAVAILABLE: common 18+ cutoff-eligible observations required"
+        },
+        {
+          "pair": {
+            "camera": "camera-2022",
+            "senato": "senato-2022",
+            "electoratePolicy": "equal-only"
+          },
+          "eligible": false,
+          "error": "PAIRED_SOURCE_UNAVAILABLE: common 18+ cutoff-eligible observations required"
+        }
+      ]
+    },
+    {
+      "target": "camera-2022",
+      "horizon": 90,
+      "cutoff": "2022-06-27",
+      "m01": {
+        "eligible": false,
+        "error": "No eligible common-18+ Camera/Senato pair at this reference date"
+      },
+      "m02": [
+        {
+          "pair": {
+            "camera": "camera-2018",
+            "senato": "senato-2018",
+            "electoratePolicy": "equal-only"
+          },
+          "eligible": false,
+          "error": "PAIRED_SOURCE_UNAVAILABLE: common 18+ cutoff-eligible observations required"
+        },
+        {
+          "pair": {
+            "camera": "camera-2022",
+            "senato": "senato-2022",
+            "electoratePolicy": "equal-only"
+          },
+          "eligible": false,
+          "error": "PAIRED_SOURCE_UNAVAILABLE: common 18+ cutoff-eligible observations required"
+        }
+      ]
+    },
+    {
+      "target": "camera-2022",
+      "horizon": 15,
+      "cutoff": "2022-09-10",
+      "m01": {
+        "eligible": false,
+        "error": "No eligible common-18+ Camera/Senato pair at this reference date"
+      },
+      "m02": [
+        {
+          "pair": {
+            "camera": "camera-2018",
+            "senato": "senato-2018",
+            "electoratePolicy": "equal-only"
+          },
+          "eligible": false,
+          "error": "PAIRED_SOURCE_UNAVAILABLE: common 18+ cutoff-eligible observations required"
+        },
+        {
+          "pair": {
+            "camera": "camera-2022",
+            "senato": "senato-2022",
+            "electoratePolicy": "equal-only"
+          },
+          "eligible": false,
+          "error": "PAIRED_SOURCE_UNAVAILABLE: common 18+ cutoff-eligible observations required"
+        }
+      ]
+    }
+  ],
+  "positiveControl": {
+    "referenceDate": "2026-10-19",
+    "camera": "camera-2022",
+    "senato": "senato-2022",
+    "matchedRows": 7904
+  },
+  "result": "blocked-all-historical-cases"
+}

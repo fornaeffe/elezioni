@@ -1,0 +1,116 @@
+{
+  "version": "legacy-future-poll-review-v2",
+  "notes": [
+    "Overrides the provisional 2026 row in legacy-comparison-policy.json. The Supermedia HTML table separates SWG's joint LibDem/Ora answer; do not treat that separation as two measured shares.",
+    "Ora uses the latest separately identified eligible observation found: Youtrend/Sky, published 8 October, fieldwork 5-6 October. It is not a 0.6% SWG observation.",
+    "Azione/PLD combines SWG's 19 October Azione 3.1% and Youtrend's latest separately identified PLD 1.1%. This mixed-wave point is a user scenario assumption.",
+    "Generic reviewed compact-source polls supplement these rows. Conditional coalition questions are excluded. No future outcome is used.",
+    "Senate TAA named joint candidate groups inherit only their explicitly named future identities. Approximate deterministic splits follow known 2022 Camera TAA relative strengths; they are user assumptions, not observed internal Senate counts. Wider civic identities receive no invented separate component. VdA broad alliances remain unmapped, with separately labelled scenario references."
+  ],
+  "polls": [
+    {
+      "id": "youtrend-20261008-ora-pld",
+      "date": "2026-10-06",
+      "available": "2026-10-08",
+      "groups": [
+        [
+          "poll-only-ora"
+        ],
+        [
+          "poll-only-libdem"
+        ]
+      ],
+      "shares": [
+        0.012,
+        0.011
+      ],
+      "sample": 201.25,
+      "source": "https://tg24.sky.it/politica/2026/10/08/sondaggio-nuova-legge-elettorale"
+    },
+    {
+      "id": "swg-20261019-generic-reviewed",
+      "date": "2026-10-19",
+      "available": "2026-10-19",
+      "groups": [
+        [
+          "fdi"
+        ],
+        [
+          "pd",
+          "art1"
+        ],
+        [
+          "m5s"
+        ],
+        [
+          "fi-pdl"
+        ],
+        [
+          "verdi",
+          "sel-si"
+        ],
+        [
+          "poll-only-futuro-nazionale"
+        ],
+        [
+          "lega"
+        ],
+        [
+          "azione",
+          "poll-only-libdem"
+        ],
+        [
+          "italia-viva"
+        ],
+        [
+          "piu-europa",
+          "centro-democratico"
+        ],
+        [
+          "noi-residual"
+        ],
+        [
+          "sud-chiama-nord"
+        ]
+      ],
+      "shares": [
+        0.281,
+        0.207,
+        0.127,
+        0.071,
+        0.064,
+        0.072,
+        0.052,
+        0.042,
+        0.024,
+        0.014,
+        0.01,
+        0.01
+      ],
+      "sample": 300,
+      "source": "https://supermedia.youtrend.it/sondaggi/",
+      "verification": "Generic party estimates cross-checked against https://sondaggibidimedia.com/sondaggio-swg-19-ottobre-2026/ (later mirror, not the information availability date). SWG original publication date verified in the pinned pcm-14363 manifest. PLD addition is separately sourced above."
+    }
+  ],
+  "historicalTicketSplits": {
+    "LEGA PER SALVINI PREM.-FORZA IT.-NOI MODERATI-FRAT. D'ITALIA": {
+      "fdi": 0.6,
+      "fi": 0.11,
+      "lega": 0.27,
+      "noi-moderati": 0.015,
+      "udc": 0.005
+    },
+    "PARTITO DEMOCRATICO - +EUROPA - ALLEANZA VERDI E SINISTRA": {
+      "pd": 0.65,
+      "europa-piu-uno-cd": 0.12,
+      "avs": 0.23
+    },
+    "CAMPOBASE +EUROPA-ALL.VERDI E SIN.? PD-AZIONE-ITALIA VIVA": {
+      "pd": 0.55,
+      "europa-piu-uno-cd": 0.09,
+      "avs": 0.18,
+      "azione-libdem": 0.1,
+      "italia-viva": 0.08
+    }
+  }
+}

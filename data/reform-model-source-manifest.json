@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "r26-model-sources-2026-10-19-v1",
+  "reviewedOn": "2026-10-19",
+  "sources": [
+    { "id": "camera-2022", "url": "https://dait.interno.gov.it/documenti/opendata/camera/camera-20220925.zip", "path": "camera-2022.zip", "bytes": 1216091, "sha256": "dd8ede158ea3f7b0aae65024135a27e34ab9e959728df95f0e977cd56edf88ff", "headers": {} },
+    { "id": "senato-2022", "url": "https://dait.interno.gov.it/documenti/opendata/senato/senato-20220925.zip", "path": "senato-2022.zip", "bytes": 1181512, "sha256": "ffaf0296cbb3702d1e0d13a9b7f88b6370f2ea2930b44d8b80a57c5fcc759c05", "headers": {} },
+    { "id": "senato-2018", "url": "https://dait.interno.gov.it/documenti/opendata/senato/senato-20180304.zip", "path": "senato-2018.zip", "bytes": 1314885, "sha256": "ebee153d2546a99a1e14682a070f05f6fa6008f53ac13a658506e0a9a3d87920", "headers": {} },
+    { "id": "regional-2024", "url": "https://dait.interno.gov.it/documenti/opendata/regionali/regionali-20241117.zip", "path": "regional-2024.zip", "bytes": 6957226, "sha256": "c07b4b7a16d983dad0022b1cca44395c672d0083c564704ab977cb1358f3a8e5", "headers": {} },
+    { "id": "er-roster-2024", "url": "https://www.regione.emilia-romagna.it/elezioni/elezioni-regionali-del-17-e-18-novembre-2024/candidati-e-liste/statistiche-sui-candidati-in-emilia-romagna/anagrafica-candidati-consiglieri-download.xlsx/@@download/file", "path": "er-roster-2024.xlsx", "bytes": 49671, "sha256": "6094a640d9e9acd123e74b34108d46b45ebfef257dec0aae3c4aa10e83df6eab", "headers": {} },
+    { "id": "er-preferences-published", "url": "https://statistica.regione.emilia-romagna.it/dati/rappresentazioni-grafiche-dati/visualizzazione-elezioni-regionali-2024-emilia-romagna-risultati/visualizzazione-elezioni-regionali-2024-emilia-romagna-risultati-dati/elezioni-regionali-2024-emilia-romagna-voti-ai-consiglieri.csv/@@download/file", "path": "er-preferences-published.csv", "bytes": 2256391, "sha256": "4fbf4132a333242d5a3886e439051bba0cc51640af0f433b585e3f8ce3088617", "headers": {} },
+    { "id": "er-votes-published", "url": "https://statistica.regione.emilia-romagna.it/dati/rappresentazioni-grafiche-dati/visualizzazione-elezioni-regionali-2024-emilia-romagna-risultati/visualizzazione-elezioni-regionali-2024-emilia-romagna-risultati-dati/elezioni-regionali-2024-emilia-romagna-voti-alle-liste.csv/@@download/file", "path": "er-votes-published.csv", "bytes": 4606570, "sha256": "3f434770d534d33d8fcb1d74f819562a2e9300e5cd88b221bed967575ab0fea1", "headers": {} },
+    { "id": "european-2024", "url": "https://dait.interno.gov.it/documenti/opendata/europee/europee-20240609.zip", "path": "european-2024.zip", "bytes": 123034781, "sha256": "1ea7b128447208691427af01443c9ba7b4bfc8d9e07cee361a9f87b3def460a5", "headers": {} }
+  ]
+}

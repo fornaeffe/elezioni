@@ -1,0 +1,2703 @@
+{
+  "schemaVersion": 1,
+  "version": "pcm-selected-november-2026-v3",
+  "reviewedOn": "2026-11-15",
+  "questions": [
+    {
+      "id": "pcm-14338-q1",
+      "sourceId": "pcm-14338",
+      "questionNumber": 1,
+      "pages": [
+        2
+      ],
+      "independenceGroup": "pcm-14338",
+      "text": "INTENZIONI DI VOTO STABILICUM",
+      "ballot": {
+        "kind": "conditional",
+        "label": "stabilicum-question",
+        "assumptions": [
+          "stabilicum-question"
+        ]
+      },
+      "denominator": {
+        "kind": "declared-vote-intentions",
+        "basis": "estimated",
+        "note": "Party and residual rows total approximately 100%; treat them as declared-intention shares. Nonresponse is separate and does not estimate turnout."
+      },
+      "questionSampleSize": null,
+      "answers": [
+        {
+          "label": "ALTRI PARTITI",
+          "percentage": 2.5,
+          "kind": "residual",
+          "entityIds": []
+        },
+        {
+          "label": "AZIONE",
+          "percentage": 2.9,
+          "kind": "list",
+          "entityIds": [
+            "azione"
+          ]
+        },
+        {
+          "label": "FUTURO NAZIONALE",
+          "percentage": 8.2,
+          "kind": "list",
+          "entityIds": [
+            "futuro-nazionale"
+          ]
+        },
+        {
+          "label": "TOTALE CENTROSINISTRA",
+          "percentage": 43.1,
+          "kind": "coalition-total",
+          "entityIds": []
+        },
+        {
+          "label": "PIU' EUROPA",
+          "percentage": 1.2,
+          "kind": "list",
+          "entityIds": [
+            "piu-europa"
+          ]
+        },
+        {
+          "label": "ITALIA VIVA",
+          "percentage": 2.9,
+          "kind": "list",
+          "entityIds": [
+            "italia-viva"
+          ]
+        },
+        {
+          "label": "ALLEANZA VERDI SINISTRA",
+          "percentage": 5.6,
+          "kind": "list",
+          "entityIds": [
+            "avs"
+          ]
+        },
+        {
+          "label": "MOVIMENTO 5 STELLE",
+          "percentage": 13.4,
+          "kind": "list",
+          "entityIds": [
+            "m5s"
+          ]
+        },
+        {
+          "label": "PARTITO DEMOCRATICO",
+          "percentage": 20,
+          "kind": "list",
+          "entityIds": [
+            "pd"
+          ]
+        },
+        {
+          "label": "TOTALE CENTRODESTRA",
+          "percentage": 43.3,
+          "kind": "coalition-total",
+          "entityIds": []
+        },
+        {
+          "label": "NOI MODERATI",
+          "percentage": 0.8,
+          "kind": "list",
+          "entityIds": [
+            "noi-moderati"
+          ]
+        },
+        {
+          "label": "SUD CHIAMA NORD",
+          "percentage": 1.6,
+          "kind": "list",
+          "entityIds": [
+            "sud-chiama-nord"
+          ]
+        },
+        {
+          "label": "LEGA",
+          "percentage": 5.5,
+          "kind": "list",
+          "entityIds": [
+            "lega"
+          ]
+        },
+        {
+          "label": "FORZA ITALIA",
+          "percentage": 7,
+          "kind": "list",
+          "entityIds": [
+            "fi"
+          ]
+        },
+        {
+          "label": "FRATELLI D'ITALIA",
+          "percentage": 28.4,
+          "kind": "list",
+          "entityIds": [
+            "fdi"
+          ]
+        }
+      ],
+      "notes": [
+        "Questions 2 and 3 simulate seats and are excluded. Coalition totals remain metadata."
+      ]
+    },
+    {
+      "id": "pcm-14342-q1",
+      "sourceId": "pcm-14342",
+      "questionNumber": 1,
+      "pages": [
+        2
+      ],
+      "independenceGroup": "pcm-14342",
+      "text": "INTENZIONI DI VOTO",
+      "ballot": {
+        "kind": "generic",
+        "label": null,
+        "assumptions": []
+      },
+      "denominator": {
+        "kind": "declared-vote-intentions",
+        "basis": "estimated",
+        "note": "Party and residual rows total approximately 100%; treat them as declared-intention shares. Nonresponse is separate and does not estimate turnout."
+      },
+      "questionSampleSize": null,
+      "answers": [
+        {
+          "label": "FRATELLI D'ITALIA-GIORGIA MELONI",
+          "percentage": 27.5,
+          "kind": "list",
+          "entityIds": [
+            "fdi"
+          ]
+        },
+        {
+          "label": "PARTITO DEMOCRATICO-PSE-SOCIALISTI & DEMOCRATICI",
+          "percentage": 19.5,
+          "kind": "list",
+          "entityIds": [
+            "pd"
+          ]
+        },
+        {
+          "label": "MOVIMENTO 5 STELLE-2050-#PACE",
+          "percentage": 11.7,
+          "kind": "list",
+          "entityIds": [
+            "m5s"
+          ]
+        },
+        {
+          "label": "FORZA ITALIA-BERLUSCONI PRESIDENTE-PPE",
+          "percentage": 7.5,
+          "kind": "list",
+          "entityIds": [
+            "fi"
+          ]
+        },
+        {
+          "label": "FUTURO NAZIONALE VANNACCI",
+          "percentage": 7,
+          "kind": "list",
+          "entityIds": [
+            "futuro-nazionale"
+          ]
+        },
+        {
+          "label": "ALLEANZA VERDI E SINISTRA-EUROPA VERDE-SINISTRA ITALIANA",
+          "percentage": 6.8,
+          "kind": "list",
+          "entityIds": [
+            "avs"
+          ]
+        },
+        {
+          "label": "LEGA-SALVINI PREMIER",
+          "percentage": 6.3,
+          "kind": "list",
+          "entityIds": [
+            "lega"
+          ]
+        },
+        {
+          "label": "AZIONE CON CALENDA SIAMO EUROPEI-RENEW EUROPE",
+          "percentage": 3.3,
+          "kind": "list",
+          "entityIds": [
+            "azione"
+          ]
+        },
+        {
+          "label": "CASA RIFORMISTA-ITALIA VIVA-RENZI",
+          "percentage": 2.3,
+          "kind": "list",
+          "entityIds": [
+            "italia-viva"
+          ]
+        },
+        {
+          "label": "+EUROPA",
+          "percentage": 2,
+          "kind": "list",
+          "entityIds": [
+            "piu-europa"
+          ]
+        },
+        {
+          "label": "NOI MODERATI",
+          "percentage": 1.1,
+          "kind": "list",
+          "entityIds": [
+            "noi-moderati"
+          ]
+        },
+        {
+          "label": "Altri",
+          "percentage": 5,
+          "kind": "residual",
+          "entityIds": []
+        },
+        {
+          "label": "INDECISI - ASTENSIONE",
+          "percentage": 43.9,
+          "kind": "nonresponse",
+          "entityIds": []
+        }
+      ],
+      "notes": [
+        "The housing question is excluded."
+      ]
+    },
+    {
+      "id": "pcm-14346-q1",
+      "sourceId": "pcm-14346",
+      "questionNumber": 1,
+      "pages": [
+        2
+      ],
+      "independenceGroup": "pcm-14346",
+      "text": "Se dovesse votare oggi alle elezioni nazionali, a quale dei seguenti partiti darebbe il suo voto più probabilmente?",
+      "ballot": {
+        "kind": "generic",
+        "label": null,
+        "assumptions": []
+      },
+      "denominator": {
+        "kind": "declared-vote-intentions",
+        "basis": "estimated",
+        "note": "Party and residual rows total approximately 100%; treat them as declared-intention shares. Nonresponse is separate and does not estimate turnout."
+      },
+      "questionSampleSize": null,
+      "answers": [
+        {
+          "label": "FRATELLI D'ITALIA",
+          "percentage": 27.7,
+          "kind": "list",
+          "entityIds": [
+            "fdi"
+          ]
+        },
+        {
+          "label": "PARTITO DEMOCRATICO",
+          "percentage": 20.4,
+          "kind": "list",
+          "entityIds": [
+            "pd"
+          ]
+        },
+        {
+          "label": "MOVIMENTO 5 STELLE",
+          "percentage": 12.7,
+          "kind": "list",
+          "entityIds": [
+            "m5s"
+          ]
+        },
+        {
+          "label": "FUTURO NAZIONALE",
+          "percentage": 7.6,
+          "kind": "list",
+          "entityIds": [
+            "futuro-nazionale"
+          ]
+        },
+        {
+          "label": "FORZA ITALIA",
+          "percentage": 7.3,
+          "kind": "list",
+          "entityIds": [
+            "fi"
+          ]
+        },
+        {
+          "label": "VERDI E SINISTRA",
+          "percentage": 6.6,
+          "kind": "list",
+          "entityIds": [
+            "avs"
+          ]
+        },
+        {
+          "label": "LEGA",
+          "percentage": 5.4,
+          "kind": "list",
+          "entityIds": [
+            "lega"
+          ]
+        },
+        {
+          "label": "AZIONE",
+          "percentage": 3.2,
+          "kind": "list",
+          "entityIds": [
+            "azione"
+          ]
+        },
+        {
+          "label": "ITALIA VIVA",
+          "percentage": 2.3,
+          "kind": "list",
+          "entityIds": [
+            "italia-viva"
+          ]
+        },
+        {
+          "label": "+EUROPA",
+          "percentage": 1.7,
+          "kind": "list",
+          "entityIds": [
+            "piu-europa"
+          ]
+        },
+        {
+          "label": "NOI MODERATI",
+          "percentage": 1,
+          "kind": "list",
+          "entityIds": [
+            "noi-moderati"
+          ]
+        },
+        {
+          "label": "SUD CHIAMA NORD",
+          "percentage": 1,
+          "kind": "list",
+          "entityIds": [
+            "sud-chiama-nord"
+          ]
+        },
+        {
+          "label": "ALTRE LISTE",
+          "percentage": 3.1,
+          "kind": "residual",
+          "entityIds": []
+        },
+        {
+          "label": "NON SI ESPRIME",
+          "percentage": 28,
+          "kind": "nonresponse",
+          "entityIds": []
+        }
+      ],
+      "notes": [
+        "Other questions use an 800-person subsample; that base does not apply to this vote-intention question."
+      ]
+    },
+    {
+      "id": "pcm-14358-q4",
+      "sourceId": "pcm-14358",
+      "questionNumber": 4,
+      "pages": [
+        3,
+        4
+      ],
+      "independenceGroup": "pcm-14358",
+      "text": "Se domani ci fossero le elezioni politiche, Lei per quale partito voterebbe?",
+      "ballot": {
+        "kind": "generic",
+        "label": null,
+        "assumptions": []
+      },
+      "denominator": {
+        "kind": "declared-vote-intentions",
+        "basis": "estimated",
+        "note": "Party and residual rows total approximately 100%; treat them as declared-intention shares. Nonresponse is separate and does not estimate turnout."
+      },
+      "questionSampleSize": null,
+      "answers": [
+        {
+          "label": "Fratelli d'Italia",
+          "percentage": 27.5,
+          "kind": "list",
+          "entityIds": [
+            "fdi"
+          ]
+        },
+        {
+          "label": "Lega",
+          "percentage": 5.7,
+          "kind": "list",
+          "entityIds": [
+            "lega"
+          ]
+        },
+        {
+          "label": "Forza Italia",
+          "percentage": 7.4,
+          "kind": "list",
+          "entityIds": [
+            "fi"
+          ]
+        },
+        {
+          "label": "Noi moderati",
+          "percentage": 1.1,
+          "kind": "list",
+          "entityIds": [
+            "noi-moderati"
+          ]
+        },
+        {
+          "label": "PD (Partito Democratico)",
+          "percentage": 20.3,
+          "kind": "list",
+          "entityIds": [
+            "pd"
+          ]
+        },
+        {
+          "label": "AVS",
+          "percentage": 6.5,
+          "kind": "list",
+          "entityIds": [
+            "avs"
+          ]
+        },
+        {
+          "label": "+Europa",
+          "percentage": 1.8,
+          "kind": "list",
+          "entityIds": [
+            "piu-europa"
+          ]
+        },
+        {
+          "label": "Movimento 5 Stelle",
+          "percentage": 12.6,
+          "kind": "list",
+          "entityIds": [
+            "m5s"
+          ]
+        },
+        {
+          "label": "Azione (Carlo Calenda)",
+          "percentage": 3.2,
+          "kind": "list",
+          "entityIds": [
+            "azione"
+          ]
+        },
+        {
+          "label": "Italia Viva",
+          "percentage": 2.2,
+          "kind": "list",
+          "entityIds": [
+            "italia-viva"
+          ]
+        },
+        {
+          "label": "Futuro nazionale (Vannacci)",
+          "percentage": 7.6,
+          "kind": "list",
+          "entityIds": [
+            "futuro-nazionale"
+          ]
+        },
+        {
+          "label": "Altro partito",
+          "percentage": 4.1,
+          "kind": "residual",
+          "entityIds": []
+        }
+      ],
+      "notes": [
+        "Numeric results are in Allegato Domanda across pages 3 and 4. Questions 1-3 are excluded."
+      ]
+    },
+    {
+      "id": "pcm-14362-q1",
+      "sourceId": "pcm-14362",
+      "questionNumber": 1,
+      "pages": [
+        2
+      ],
+      "independenceGroup": "pcm-14362",
+      "text": "Intenzioni di voto",
+      "ballot": {
+        "kind": "generic",
+        "label": null,
+        "assumptions": []
+      },
+      "denominator": {
+        "kind": "declared-vote-intentions",
+        "basis": "estimated",
+        "note": "Party and residual rows total approximately 100%; treat them as declared-intention shares. Nonresponse is separate and does not estimate turnout."
+      },
+      "questionSampleSize": null,
+      "answers": [
+        {
+          "label": "FRATELLI D'ITALIA-GIORGIA MELONI",
+          "percentage": 27.8,
+          "kind": "list",
+          "entityIds": [
+            "fdi"
+          ]
+        },
+        {
+          "label": "PARTITO DEMOCRATICO-PSE-SOCIALISTI & DEMOCRATICI",
+          "percentage": 20,
+          "kind": "list",
+          "entityIds": [
+            "pd"
+          ]
+        },
+        {
+          "label": "MOVIMENTO 5 STELLE-2050-#PACE",
+          "percentage": 11.1,
+          "kind": "list",
+          "entityIds": [
+            "m5s"
+          ]
+        },
+        {
+          "label": "FORZA ITALIA-BERLUSCONI PRESIDENTE-PPE",
+          "percentage": 7.7,
+          "kind": "list",
+          "entityIds": [
+            "fi"
+          ]
+        },
+        {
+          "label": "FUTURO NAZIONALE VANNACCI",
+          "percentage": 6.8,
+          "kind": "list",
+          "entityIds": [
+            "futuro-nazionale"
+          ]
+        },
+        {
+          "label": "ALLEANZA VERDI E SINISTRA-EUROPA VERDE-SINISTRA ITALIANA",
+          "percentage": 6.6,
+          "kind": "list",
+          "entityIds": [
+            "avs"
+          ]
+        },
+        {
+          "label": "LEGA-SALVINI PREMIER",
+          "percentage": 6,
+          "kind": "list",
+          "entityIds": [
+            "lega"
+          ]
+        },
+        {
+          "label": "AZIONE CON CALENDA SIAMO EUROPEI-RENEW EUROPE",
+          "percentage": 3.3,
+          "kind": "list",
+          "entityIds": [
+            "azione"
+          ]
+        },
+        {
+          "label": "CASA RIFORMISTA-ITALIA VIVA-RENZI",
+          "percentage": 2.3,
+          "kind": "list",
+          "entityIds": [
+            "italia-viva"
+          ]
+        },
+        {
+          "label": "+EUROPA",
+          "percentage": 1.4,
+          "kind": "list",
+          "entityIds": [
+            "piu-europa"
+          ]
+        },
+        {
+          "label": "PROGETTO CIVICO",
+          "percentage": 1.3,
+          "kind": "list",
+          "entityIds": [
+            "progetto-civico"
+          ]
+        },
+        {
+          "label": "NOI MODERATI",
+          "percentage": 1,
+          "kind": "list",
+          "entityIds": [
+            "noi-moderati"
+          ]
+        },
+        {
+          "label": "PIU' UNO",
+          "percentage": 0.7,
+          "kind": "list",
+          "entityIds": [
+            "piu-uno"
+          ]
+        },
+        {
+          "label": "SUD CHIAMA NORD",
+          "percentage": 0.6,
+          "kind": "list",
+          "entityIds": [
+            "sud-chiama-nord"
+          ]
+        },
+        {
+          "label": "Altri",
+          "percentage": 3.4,
+          "kind": "residual",
+          "entityIds": []
+        },
+        {
+          "label": "INDECISI - ASTENSIONE",
+          "percentage": 39.7,
+          "kind": "nonresponse",
+          "entityIds": []
+        }
+      ],
+      "notes": []
+    },
+    {
+      "id": "pcm-14363-q1",
+      "sourceId": "pcm-14363",
+      "questionNumber": 1,
+      "pages": [
+        2
+      ],
+      "independenceGroup": "pcm-14363",
+      "text": "Se alle prossime elezioni politiche i partiti si presentassero nelle seguenti coalizioni, quale partito voterebbe più probabilmente?",
+      "ballot": {
+        "kind": "conditional",
+        "label": "centrosinistra-schlein",
+        "assumptions": [
+          "centrosinistra-schlein"
+        ]
+      },
+      "denominator": {
+        "kind": "declared-vote-intentions",
+        "basis": "estimated",
+        "note": "Party and residual rows total approximately 100%; treat them as declared-intention shares. Nonresponse is separate and does not estimate turnout."
+      },
+      "questionSampleSize": null,
+      "answers": [
+        {
+          "label": "CENTROSINISTRA (E. SCHLEIN)",
+          "percentage": 44.6,
+          "kind": "coalition-total",
+          "entityIds": []
+        },
+        {
+          "label": "P. DEMOCRATICO",
+          "percentage": 21.2,
+          "kind": "list",
+          "entityIds": [
+            "pd"
+          ]
+        },
+        {
+          "label": "MOV. 5 STELLE",
+          "percentage": 11.8,
+          "kind": "list",
+          "entityIds": [
+            "m5s"
+          ]
+        },
+        {
+          "label": "VERDI E SINISTRA",
+          "percentage": 6.4,
+          "kind": "list",
+          "entityIds": [
+            "avs"
+          ]
+        },
+        {
+          "label": "ITALIA VIVA�C.RIF.",
+          "percentage": 2.4,
+          "kind": "list",
+          "entityIds": [
+            "italia-viva"
+          ]
+        },
+        {
+          "label": "+EUROPA",
+          "percentage": 1.3,
+          "kind": "list",
+          "entityIds": [
+            "piu-europa"
+          ]
+        },
+        {
+          "label": "ALTRI(PSI, Pr.Civ., Pi� Uno)",
+          "percentage": 1.5,
+          "kind": "list",
+          "entityIds": [
+            "psi",
+            "progetto-civico",
+            "piu-uno"
+          ]
+        },
+        {
+          "label": "CENTRODESTRA (G. MELONI)",
+          "percentage": 44,
+          "kind": "coalition-total",
+          "entityIds": []
+        },
+        {
+          "label": "FRATELLI D'ITALIA",
+          "percentage": 29.7,
+          "kind": "list",
+          "entityIds": [
+            "fdi"
+          ]
+        },
+        {
+          "label": "FORZA ITALIA",
+          "percentage": 7.2,
+          "kind": "list",
+          "entityIds": [
+            "fi"
+          ]
+        },
+        {
+          "label": "LEGA",
+          "percentage": 5.1,
+          "kind": "list",
+          "entityIds": [
+            "lega"
+          ]
+        },
+        {
+          "label": "NOI MODERATI",
+          "percentage": 1,
+          "kind": "list",
+          "entityIds": [
+            "noi-moderati"
+          ]
+        },
+        {
+          "label": "SUD CHIAMA NORD",
+          "percentage": 1,
+          "kind": "list",
+          "entityIds": [
+            "sud-chiama-nord"
+          ]
+        },
+        {
+          "label": "FUTURO NAZIONALE (Vannacci)",
+          "percentage": 5.6,
+          "kind": "list",
+          "entityIds": [
+            "futuro-nazionale"
+          ]
+        },
+        {
+          "label": "AZIONE con Spazio P. (Calenda)",
+          "percentage": 3.1,
+          "kind": "list",
+          "entityIds": [
+            "azione"
+          ]
+        },
+        {
+          "label": "ALTRI AREA CENTRO (LibDem, ORA!)",
+          "percentage": 1.3,
+          "kind": "list",
+          "entityIds": [
+            "libdem",
+            "ora"
+          ]
+        },
+        {
+          "label": "ALTRE LISTE",
+          "percentage": 1.4,
+          "kind": "residual",
+          "entityIds": []
+        },
+        {
+          "label": "NON SI ESPRIME",
+          "percentage": 28,
+          "kind": "nonresponse",
+          "entityIds": []
+        }
+      ],
+      "notes": [
+        "Alternative to question 2 in the same survey. Do not pool as independent polls. Source replacement characters in answer labels are retained."
+      ]
+    },
+    {
+      "id": "pcm-14363-q2",
+      "sourceId": "pcm-14363",
+      "questionNumber": 2,
+      "pages": [
+        3
+      ],
+      "independenceGroup": "pcm-14363",
+      "text": "Se alle prossime elezioni politiche i partiti si presentassero nelle seguenti coalizioni, quale partito voterebbe più probabilmente?",
+      "ballot": {
+        "kind": "conditional",
+        "label": "centrosinistra-conte",
+        "assumptions": [
+          "centrosinistra-conte"
+        ]
+      },
+      "denominator": {
+        "kind": "declared-vote-intentions",
+        "basis": "estimated",
+        "note": "Party and residual rows total approximately 100%; treat them as declared-intention shares. Nonresponse is separate and does not estimate turnout."
+      },
+      "questionSampleSize": null,
+      "answers": [
+        {
+          "label": "CENTROSINISTRA (G. CONTE)",
+          "percentage": 44.5,
+          "kind": "coalition-total",
+          "entityIds": []
+        },
+        {
+          "label": "P. DEMOCRATICO",
+          "percentage": 20.5,
+          "kind": "list",
+          "entityIds": [
+            "pd"
+          ]
+        },
+        {
+          "label": "MOV. 5 STELLE",
+          "percentage": 13.1,
+          "kind": "list",
+          "entityIds": [
+            "m5s"
+          ]
+        },
+        {
+          "label": "VERDI E SINISTRA",
+          "percentage": 6.5,
+          "kind": "list",
+          "entityIds": [
+            "avs"
+          ]
+        },
+        {
+          "label": "ITALIA VIVA�C.RIF.",
+          "percentage": 1.9,
+          "kind": "list",
+          "entityIds": [
+            "italia-viva"
+          ]
+        },
+        {
+          "label": "+EUROPA",
+          "percentage": 1.1,
+          "kind": "list",
+          "entityIds": [
+            "piu-europa"
+          ]
+        },
+        {
+          "label": "ALTRI (PSI, Pr.Civ., Pi� Uno)",
+          "percentage": 1.4,
+          "kind": "list",
+          "entityIds": [
+            "psi",
+            "progetto-civico",
+            "piu-uno"
+          ]
+        },
+        {
+          "label": "CENTRODESTRA (G. MELONI)",
+          "percentage": 44.1,
+          "kind": "coalition-total",
+          "entityIds": []
+        },
+        {
+          "label": "FRATELLI D'ITALIA",
+          "percentage": 29.8,
+          "kind": "list",
+          "entityIds": [
+            "fdi"
+          ]
+        },
+        {
+          "label": "FORZA ITALIA",
+          "percentage": 7.1,
+          "kind": "list",
+          "entityIds": [
+            "fi"
+          ]
+        },
+        {
+          "label": "LEGA",
+          "percentage": 5.1,
+          "kind": "list",
+          "entityIds": [
+            "lega"
+          ]
+        },
+        {
+          "label": "NOI MODERATI",
+          "percentage": 1.1,
+          "kind": "list",
+          "entityIds": [
+            "noi-moderati"
+          ]
+        },
+        {
+          "label": "SUD CHIAMA NORD",
+          "percentage": 1,
+          "kind": "list",
+          "entityIds": [
+            "sud-chiama-nord"
+          ]
+        },
+        {
+          "label": "FUTURO NAZIONALE (Vannacci)",
+          "percentage": 5.4,
+          "kind": "list",
+          "entityIds": [
+            "futuro-nazionale"
+          ]
+        },
+        {
+          "label": "AZIONE con Spazio P. (Calenda)",
+          "percentage": 3.2,
+          "kind": "list",
+          "entityIds": [
+            "azione"
+          ]
+        },
+        {
+          "label": "ALTRI AREA CENTRO (LibDem, ORA!)",
+          "percentage": 1.5,
+          "kind": "list",
+          "entityIds": [
+            "libdem",
+            "ora"
+          ]
+        },
+        {
+          "label": "ALTRE LISTE",
+          "percentage": 1.3,
+          "kind": "residual",
+          "entityIds": []
+        },
+        {
+          "label": "NON SI ESPRIME",
+          "percentage": 28,
+          "kind": "nonresponse",
+          "entityIds": []
+        }
+      ],
+      "notes": [
+        "Alternative to question 1 in the same survey. Do not pool as independent polls. Source replacement characters in answer labels are retained."
+      ]
+    },
+    {
+      "id": "pcm-14364-q1",
+      "sourceId": "pcm-14364",
+      "questionNumber": 1,
+      "pages": [
+        2
+      ],
+      "independenceGroup": "pcm-14364",
+      "text": "INTENZIONI DI VOTO",
+      "ballot": {
+        "kind": "generic",
+        "label": null,
+        "assumptions": []
+      },
+      "denominator": {
+        "kind": "declared-vote-intentions",
+        "basis": "reported",
+        "note": "Source explicitly states the declared-intention base."
+      },
+      "questionSampleSize": null,
+      "answers": [
+        {
+          "label": "CENTRODESTRA",
+          "percentage": 43.5,
+          "kind": "coalition-total",
+          "entityIds": []
+        },
+        {
+          "label": "CAMPO LARGO",
+          "percentage": 43,
+          "kind": "coalition-total",
+          "entityIds": []
+        },
+        {
+          "label": "FRATELLI D'ITALIA",
+          "percentage": 28,
+          "kind": "list",
+          "entityIds": [
+            "fdi"
+          ]
+        },
+        {
+          "label": "LEGA",
+          "percentage": 5,
+          "kind": "list",
+          "entityIds": [
+            "lega"
+          ]
+        },
+        {
+          "label": "FORZA ITALIA",
+          "percentage": 7.5,
+          "kind": "list",
+          "entityIds": [
+            "fi"
+          ]
+        },
+        {
+          "label": "NO MODERATI",
+          "percentage": 1.5,
+          "kind": "list",
+          "entityIds": [
+            "noi-moderati"
+          ]
+        },
+        {
+          "label": "SUD CHIAMA NORD",
+          "percentage": 1.5,
+          "kind": "list",
+          "entityIds": [
+            "sud-chiama-nord"
+          ]
+        },
+        {
+          "label": "PARTITO DEMOCRATICO",
+          "percentage": 20,
+          "kind": "list",
+          "entityIds": [
+            "pd"
+          ]
+        },
+        {
+          "label": "ALLEANZA VERDI SINISTRA",
+          "percentage": 6.5,
+          "kind": "list",
+          "entityIds": [
+            "avs"
+          ]
+        },
+        {
+          "label": "+EUROPA",
+          "percentage": 1.5,
+          "kind": "list",
+          "entityIds": [
+            "piu-europa"
+          ]
+        },
+        {
+          "label": "MOVIMENTO 5 STELLE",
+          "percentage": 12.5,
+          "kind": "list",
+          "entityIds": [
+            "m5s"
+          ]
+        },
+        {
+          "label": "ITALIA VIVA",
+          "percentage": 2.5,
+          "kind": "list",
+          "entityIds": [
+            "italia-viva"
+          ]
+        },
+        {
+          "label": "AZIONE",
+          "percentage": 3,
+          "kind": "list",
+          "entityIds": [
+            "azione"
+          ]
+        },
+        {
+          "label": "PARTITO LIBERALDEMOCRATICO",
+          "percentage": 1.5,
+          "kind": "list",
+          "entityIds": [
+            "libdem"
+          ]
+        },
+        {
+          "label": "FUTURO NAZIONALE VANNACCI",
+          "percentage": 7,
+          "kind": "list",
+          "entityIds": [
+            "futuro-nazionale"
+          ]
+        },
+        {
+          "label": "ALTRI PARTITI",
+          "percentage": 2,
+          "kind": "residual",
+          "entityIds": []
+        },
+        {
+          "label": "INDECISI-ASTENUTI",
+          "percentage": 28,
+          "kind": "nonresponse",
+          "entityIds": []
+        }
+      ],
+      "notes": [
+        "Parenthesized changes are not additional percentages. Repeated methodology on page 3 is not a second poll."
+      ]
+    },
+    {
+      "id": "pcm-14424-q4",
+      "sourceId": "pcm-14424",
+      "questionNumber": 4,
+      "pages": [
+        3,
+        4
+      ],
+      "independenceGroup": "pcm-14424",
+      "text": "Se domani ci fossero le elezioni politiche, Lei per quale partito voterebbe?",
+      "ballot": {
+        "kind": "generic",
+        "label": null,
+        "assumptions": []
+      },
+      "denominator": {
+        "kind": "declared-vote-intentions",
+        "basis": "estimated",
+        "note": "Party shares total approximately 100%; denominator inferred."
+      },
+      "questionSampleSize": null,
+      "answers": [
+        {
+          "label": "Fratelli d'Italia",
+          "percentage": 28.2,
+          "kind": "list",
+          "entityIds": [
+            "fdi"
+          ]
+        },
+        {
+          "label": "Lega",
+          "percentage": 6.2,
+          "kind": "list",
+          "entityIds": [
+            "lega"
+          ]
+        },
+        {
+          "label": "Forza Italia",
+          "percentage": 7.2,
+          "kind": "list",
+          "entityIds": [
+            "fi"
+          ]
+        },
+        {
+          "label": "Noi Moderati",
+          "percentage": 1.2,
+          "kind": "list",
+          "entityIds": [
+            "noi-moderati"
+          ]
+        },
+        {
+          "label": "Partito Democratico",
+          "percentage": 20.6,
+          "kind": "list",
+          "entityIds": [
+            "pd"
+          ]
+        },
+        {
+          "label": "Alleanza Verdi Sinistra",
+          "percentage": 6.1,
+          "kind": "list",
+          "entityIds": [
+            "avs"
+          ]
+        },
+        {
+          "label": "+Europa",
+          "percentage": 1.3,
+          "kind": "list",
+          "entityIds": [
+            "piu-europa"
+          ]
+        },
+        {
+          "label": "Movimento 5 Stelle",
+          "percentage": 12.1,
+          "kind": "list",
+          "entityIds": [
+            "m5s"
+          ]
+        },
+        {
+          "label": "Azione",
+          "percentage": 3.2,
+          "kind": "list",
+          "entityIds": [
+            "azione"
+          ]
+        },
+        {
+          "label": "Italia Viva",
+          "percentage": 2.5,
+          "kind": "list",
+          "entityIds": [
+            "italia-viva"
+          ]
+        },
+        {
+          "label": "Futuro Nazionale",
+          "percentage": 6.1,
+          "kind": "list",
+          "entityIds": [
+            "futuro-nazionale"
+          ]
+        },
+        {
+          "label": "Sud Chiama Nord",
+          "percentage": 1.2,
+          "kind": "list",
+          "entityIds": [
+            "sud-chiama-nord"
+          ]
+        },
+        {
+          "label": "Altri di centro sinistra",
+          "percentage": 1.5,
+          "kind": "residual",
+          "entityIds": []
+        },
+        {
+          "label": "Altro partito",
+          "percentage": 2.6,
+          "kind": "residual",
+          "entityIds": []
+        }
+      ],
+      "notes": [
+        "Party labels use reviewed canonical names; values transcribed from the government survey. Nonresponse is not election turnout."
+      ]
+    },
+    {
+      "id": "pcm-14423-q1",
+      "sourceId": "pcm-14423",
+      "questionNumber": 1,
+      "pages": [
+        2
+      ],
+      "independenceGroup": "pcm-14423",
+      "text": "INTENZIONI DI VOTO",
+      "ballot": {
+        "kind": "generic",
+        "label": null,
+        "assumptions": []
+      },
+      "denominator": {
+        "kind": "declared-vote-intentions",
+        "basis": "estimated",
+        "note": "Party shares total approximately 100%; denominator inferred."
+      },
+      "questionSampleSize": null,
+      "answers": [
+        {
+          "label": "Fratelli d'Italia",
+          "percentage": 28.2,
+          "kind": "list",
+          "entityIds": [
+            "fdi"
+          ]
+        },
+        {
+          "label": "Partito Democratico",
+          "percentage": 20.4,
+          "kind": "list",
+          "entityIds": [
+            "pd"
+          ]
+        },
+        {
+          "label": "Movimento 5 Stelle",
+          "percentage": 11.6,
+          "kind": "list",
+          "entityIds": [
+            "m5s"
+          ]
+        },
+        {
+          "label": "Forza Italia",
+          "percentage": 7.6,
+          "kind": "list",
+          "entityIds": [
+            "fi"
+          ]
+        },
+        {
+          "label": "Futuro Nazionale",
+          "percentage": 6.5,
+          "kind": "list",
+          "entityIds": [
+            "futuro-nazionale"
+          ]
+        },
+        {
+          "label": "Alleanza Verdi Sinistra",
+          "percentage": 6,
+          "kind": "list",
+          "entityIds": [
+            "avs"
+          ]
+        },
+        {
+          "label": "Lega",
+          "percentage": 6,
+          "kind": "list",
+          "entityIds": [
+            "lega"
+          ]
+        },
+        {
+          "label": "Azione",
+          "percentage": 3.3,
+          "kind": "list",
+          "entityIds": [
+            "azione"
+          ]
+        },
+        {
+          "label": "Italia Viva",
+          "percentage": 2.2,
+          "kind": "list",
+          "entityIds": [
+            "italia-viva"
+          ]
+        },
+        {
+          "label": "Schierarsi",
+          "percentage": 2.2,
+          "kind": "list",
+          "entityIds": [
+            "schierarsi"
+          ]
+        },
+        {
+          "label": "+Europa",
+          "percentage": 1.1,
+          "kind": "list",
+          "entityIds": [
+            "piu-europa"
+          ]
+        },
+        {
+          "label": "Progetto Civico",
+          "percentage": 1.1,
+          "kind": "list",
+          "entityIds": [
+            "progetto-civico"
+          ]
+        },
+        {
+          "label": "Noi Moderati",
+          "percentage": 1.1,
+          "kind": "list",
+          "entityIds": [
+            "noi-moderati"
+          ]
+        },
+        {
+          "label": "Sud Chiama Nord",
+          "percentage": 0.8,
+          "kind": "list",
+          "entityIds": [
+            "sud-chiama-nord"
+          ]
+        },
+        {
+          "label": "Più Uno",
+          "percentage": 0.5,
+          "kind": "list",
+          "entityIds": [
+            "piu-uno"
+          ]
+        },
+        {
+          "label": "Altri",
+          "percentage": 1.4,
+          "kind": "residual",
+          "entityIds": []
+        },
+        {
+          "label": "INDECISI - ASTENSIONE",
+          "percentage": 41,
+          "kind": "nonresponse",
+          "entityIds": []
+        }
+      ],
+      "notes": [
+        "Party labels use reviewed canonical names; values transcribed from the government survey. Nonresponse is not election turnout."
+      ]
+    },
+    {
+      "id": "pcm-14421-q1",
+      "sourceId": "pcm-14421",
+      "questionNumber": 1,
+      "pages": [
+        2
+      ],
+      "independenceGroup": "pcm-14421",
+      "text": "INTENZIONI DI VOTO HAI PARTITI",
+      "ballot": {
+        "kind": "generic",
+        "label": null,
+        "assumptions": []
+      },
+      "denominator": {
+        "kind": "declared-vote-intentions",
+        "basis": "estimated",
+        "note": "Party shares total approximately 100%; denominator inferred."
+      },
+      "questionSampleSize": null,
+      "answers": [
+        {
+          "label": "Altri partiti",
+          "percentage": 2.2,
+          "kind": "residual",
+          "entityIds": []
+        },
+        {
+          "label": "Noi Moderati",
+          "percentage": 0.9,
+          "kind": "list",
+          "entityIds": [
+            "noi-moderati"
+          ]
+        },
+        {
+          "label": "Partito Liberaldemocratico",
+          "percentage": 1,
+          "kind": "list",
+          "entityIds": [
+            "libdem"
+          ]
+        },
+        {
+          "label": "+Europa",
+          "percentage": 1.2,
+          "kind": "list",
+          "entityIds": [
+            "piu-europa"
+          ]
+        },
+        {
+          "label": "Progetto Civico",
+          "percentage": 1.2,
+          "kind": "list",
+          "entityIds": [
+            "progetto-civico"
+          ]
+        },
+        {
+          "label": "Sud Chiama Nord",
+          "percentage": 1.6,
+          "kind": "list",
+          "entityIds": [
+            "sud-chiama-nord"
+          ]
+        },
+        {
+          "label": "Italia Viva",
+          "percentage": 2.4,
+          "kind": "list",
+          "entityIds": [
+            "italia-viva"
+          ]
+        },
+        {
+          "label": "Azione",
+          "percentage": 3.1,
+          "kind": "list",
+          "entityIds": [
+            "azione"
+          ]
+        },
+        {
+          "label": "Lega",
+          "percentage": 5.6,
+          "kind": "list",
+          "entityIds": [
+            "lega"
+          ]
+        },
+        {
+          "label": "Alleanza Verdi Sinistra",
+          "percentage": 5.8,
+          "kind": "list",
+          "entityIds": [
+            "avs"
+          ]
+        },
+        {
+          "label": "Forza Italia",
+          "percentage": 6.8,
+          "kind": "list",
+          "entityIds": [
+            "fi"
+          ]
+        },
+        {
+          "label": "Futuro Nazionale",
+          "percentage": 6.8,
+          "kind": "list",
+          "entityIds": [
+            "futuro-nazionale"
+          ]
+        },
+        {
+          "label": "Movimento 5 Stelle",
+          "percentage": 13,
+          "kind": "list",
+          "entityIds": [
+            "m5s"
+          ]
+        },
+        {
+          "label": "Partito Democratico",
+          "percentage": 20.3,
+          "kind": "list",
+          "entityIds": [
+            "pd"
+          ]
+        },
+        {
+          "label": "Fratelli d'Italia",
+          "percentage": 28.1,
+          "kind": "list",
+          "entityIds": [
+            "fdi"
+          ]
+        }
+      ],
+      "notes": [
+        "Party labels use reviewed canonical names; values transcribed from the government survey. Nonresponse is not election turnout."
+      ]
+    },
+    {
+      "id": "pcm-14420-q1",
+      "sourceId": "pcm-14420",
+      "questionNumber": 1,
+      "pages": [
+        2
+      ],
+      "independenceGroup": "pcm-14420",
+      "text": "Intenzioni di voto (al netto degli astenuti)",
+      "ballot": {
+        "kind": "generic",
+        "label": null,
+        "assumptions": []
+      },
+      "denominator": {
+        "kind": "declared-vote-intentions",
+        "basis": "estimated",
+        "note": "Source says excluding abstainers; party shares total approximately 100%."
+      },
+      "questionSampleSize": null,
+      "answers": [
+        {
+          "label": "Fratelli d'Italia",
+          "percentage": 27.4,
+          "kind": "list",
+          "entityIds": [
+            "fdi"
+          ]
+        },
+        {
+          "label": "Partito Democratico",
+          "percentage": 20.3,
+          "kind": "list",
+          "entityIds": [
+            "pd"
+          ]
+        },
+        {
+          "label": "Movimento 5 Stelle",
+          "percentage": 13.2,
+          "kind": "list",
+          "entityIds": [
+            "m5s"
+          ]
+        },
+        {
+          "label": "Futuro Nazionale",
+          "percentage": 7.2,
+          "kind": "list",
+          "entityIds": [
+            "futuro-nazionale"
+          ]
+        },
+        {
+          "label": "Forza Italia",
+          "percentage": 6.7,
+          "kind": "list",
+          "entityIds": [
+            "fi"
+          ]
+        },
+        {
+          "label": "Alleanza Verdi Sinistra",
+          "percentage": 6.3,
+          "kind": "list",
+          "entityIds": [
+            "avs"
+          ]
+        },
+        {
+          "label": "Lega",
+          "percentage": 5.5,
+          "kind": "list",
+          "entityIds": [
+            "lega"
+          ]
+        },
+        {
+          "label": "Azione",
+          "percentage": 3.6,
+          "kind": "list",
+          "entityIds": [
+            "azione"
+          ]
+        },
+        {
+          "label": "Italia Viva",
+          "percentage": 2.9,
+          "kind": "list",
+          "entityIds": [
+            "italia-viva"
+          ]
+        },
+        {
+          "label": "ORA!",
+          "percentage": 1,
+          "kind": "list",
+          "entityIds": [
+            "ora"
+          ]
+        },
+        {
+          "label": "Altri centrodestra",
+          "percentage": 1.6,
+          "kind": "residual",
+          "entityIds": []
+        },
+        {
+          "label": "Altri centrosinistra",
+          "percentage": 1.3,
+          "kind": "residual",
+          "entityIds": []
+        },
+        {
+          "label": "Altri",
+          "percentage": 3,
+          "kind": "residual",
+          "entityIds": []
+        },
+        {
+          "label": "Indecisi + Astenuti",
+          "percentage": 36.8,
+          "kind": "nonresponse",
+          "entityIds": []
+        }
+      ],
+      "notes": [
+        "Party labels use reviewed canonical names; values transcribed from the government survey. Nonresponse is not election turnout."
+      ]
+    },
+    {
+      "id": "pcm-14419-q1",
+      "sourceId": "pcm-14419",
+      "questionNumber": 1,
+      "pages": [
+        2
+      ],
+      "independenceGroup": "pcm-14419",
+      "text": "Se domani si votasse per le elezioni politiche, lei per quale partito voterebbe?",
+      "ballot": {
+        "kind": "generic",
+        "label": null,
+        "assumptions": []
+      },
+      "denominator": {
+        "kind": "declared-vote-intentions",
+        "basis": "estimated",
+        "note": "Party shares total approximately 100%; blank/invalid ballots and undecided are separate."
+      },
+      "questionSampleSize": null,
+      "answers": [
+        {
+          "label": "Fratelli d'Italia",
+          "percentage": 26.3,
+          "kind": "list",
+          "entityIds": [
+            "fdi"
+          ]
+        },
+        {
+          "label": "Partito Democratico",
+          "percentage": 20.5,
+          "kind": "list",
+          "entityIds": [
+            "pd"
+          ]
+        },
+        {
+          "label": "Movimento 5 Stelle",
+          "percentage": 12,
+          "kind": "list",
+          "entityIds": [
+            "m5s"
+          ]
+        },
+        {
+          "label": "Forza Italia",
+          "percentage": 7.3,
+          "kind": "list",
+          "entityIds": [
+            "fi"
+          ]
+        },
+        {
+          "label": "Alleanza Verdi Sinistra",
+          "percentage": 6.5,
+          "kind": "list",
+          "entityIds": [
+            "avs"
+          ]
+        },
+        {
+          "label": "Futuro Nazionale",
+          "percentage": 6,
+          "kind": "list",
+          "entityIds": [
+            "futuro-nazionale"
+          ]
+        },
+        {
+          "label": "Lega",
+          "percentage": 5.6,
+          "kind": "list",
+          "entityIds": [
+            "lega"
+          ]
+        },
+        {
+          "label": "Azione",
+          "percentage": 2.8,
+          "kind": "list",
+          "entityIds": [
+            "azione"
+          ]
+        },
+        {
+          "label": "Progetto Civico - Controcorrente - PSI",
+          "percentage": 2,
+          "kind": "list",
+          "entityIds": [
+            "progetto-civico",
+            "psi"
+          ]
+        },
+        {
+          "label": "Italia Viva",
+          "percentage": 2,
+          "kind": "list",
+          "entityIds": [
+            "italia-viva"
+          ]
+        },
+        {
+          "label": "Sud Chiama Nord",
+          "percentage": 1.4,
+          "kind": "list",
+          "entityIds": [
+            "sud-chiama-nord"
+          ]
+        },
+        {
+          "label": "Noi Moderati",
+          "percentage": 1.1,
+          "kind": "list",
+          "entityIds": [
+            "noi-moderati"
+          ]
+        },
+        {
+          "label": "+Europa",
+          "percentage": 0.9,
+          "kind": "list",
+          "entityIds": [
+            "piu-europa"
+          ]
+        },
+        {
+          "label": "Partito Liberaldemocratico",
+          "percentage": 0.8,
+          "kind": "list",
+          "entityIds": [
+            "libdem"
+          ]
+        },
+        {
+          "label": "Rifondazione Comunista",
+          "percentage": 0.8,
+          "kind": "list",
+          "entityIds": [
+            "prc"
+          ]
+        },
+        {
+          "label": "ORA!",
+          "percentage": 0.7,
+          "kind": "list",
+          "entityIds": [
+            "ora"
+          ]
+        },
+        {
+          "label": "Italia Domani",
+          "percentage": 0.7,
+          "kind": "list",
+          "entityIds": [
+            "italia-domani"
+          ]
+        },
+        {
+          "label": "Unione di Centro",
+          "percentage": 0.5,
+          "kind": "list",
+          "entityIds": [
+            "udc"
+          ]
+        },
+        {
+          "label": "Potere al Popolo",
+          "percentage": 0.5,
+          "kind": "list",
+          "entityIds": [
+            "pap"
+          ]
+        },
+        {
+          "label": "Un’altra lista",
+          "percentage": 1.6,
+          "kind": "residual",
+          "entityIds": []
+        },
+        {
+          "label": "Bianche/Nulle",
+          "percentage": 1.8,
+          "kind": "nonresponse",
+          "entityIds": []
+        },
+        {
+          "label": "Indecisi",
+          "percentage": 24,
+          "kind": "nonresponse",
+          "entityIds": []
+        }
+      ],
+      "notes": [
+        "Party labels use reviewed canonical names; values transcribed from the government survey. Nonresponse is not election turnout.",
+        "Turnout is a range and is not transcribed as an answer. Separate blank/invalid and undecided percentages have different bases; no combined nonresponse rate inferred."
+      ]
+    },
+    {
+      "id": "pcm-14411-q1",
+      "sourceId": "pcm-14411",
+      "questionNumber": 1,
+      "pages": [
+        2
+      ],
+      "independenceGroup": "pcm-14411",
+      "text": "Se dovesse votare domani per le elezioni Politiche, a quale dei seguenti partiti darebbe il suo voto?",
+      "ballot": {
+        "kind": "generic",
+        "label": null,
+        "assumptions": []
+      },
+      "denominator": {
+        "kind": "declared-vote-intentions",
+        "basis": "estimated",
+        "note": "Party shares total approximately 100%; denominator inferred."
+      },
+      "questionSampleSize": null,
+      "answers": [
+        {
+          "label": "Fratelli d'Italia",
+          "percentage": 26.5,
+          "kind": "list",
+          "entityIds": [
+            "fdi"
+          ]
+        },
+        {
+          "label": "Partito Democratico",
+          "percentage": 20.9,
+          "kind": "list",
+          "entityIds": [
+            "pd"
+          ]
+        },
+        {
+          "label": "Movimento 5 Stelle",
+          "percentage": 13.9,
+          "kind": "list",
+          "entityIds": [
+            "m5s"
+          ]
+        },
+        {
+          "label": "Forza Italia",
+          "percentage": 7.5,
+          "kind": "list",
+          "entityIds": [
+            "fi"
+          ]
+        },
+        {
+          "label": "Futuro Nazionale",
+          "percentage": 7.2,
+          "kind": "list",
+          "entityIds": [
+            "futuro-nazionale"
+          ]
+        },
+        {
+          "label": "Alleanza Verdi Sinistra",
+          "percentage": 6.3,
+          "kind": "list",
+          "entityIds": [
+            "avs"
+          ]
+        },
+        {
+          "label": "Lega",
+          "percentage": 5.1,
+          "kind": "list",
+          "entityIds": [
+            "lega"
+          ]
+        },
+        {
+          "label": "Azione",
+          "percentage": 2.6,
+          "kind": "list",
+          "entityIds": [
+            "azione"
+          ]
+        },
+        {
+          "label": "Italia Viva",
+          "percentage": 2,
+          "kind": "list",
+          "entityIds": [
+            "italia-viva"
+          ]
+        },
+        {
+          "label": "altri centrodestra",
+          "percentage": 1.7,
+          "kind": "residual",
+          "entityIds": []
+        },
+        {
+          "label": "altri centrosinistra",
+          "percentage": 1.4,
+          "kind": "residual",
+          "entityIds": []
+        },
+        {
+          "label": "altri",
+          "percentage": 4.9,
+          "kind": "residual",
+          "entityIds": []
+        },
+        {
+          "label": "Indecisi/astenuti",
+          "percentage": 48.7,
+          "kind": "nonresponse",
+          "entityIds": []
+        }
+      ],
+      "notes": [
+        "Party labels use reviewed canonical names; values transcribed from the government survey. Nonresponse is not election turnout."
+      ]
+    },
+    {
+      "id": "pcm-14389-q1",
+      "sourceId": "pcm-14389",
+      "questionNumber": 1,
+      "pages": [
+        2
+      ],
+      "independenceGroup": "pcm-14389",
+      "text": "Se domani si votasse per le elezioni politiche, lei per quale partito voterebbe?",
+      "ballot": {
+        "kind": "generic",
+        "label": null,
+        "assumptions": []
+      },
+      "denominator": {
+        "kind": "declared-vote-intentions",
+        "basis": "estimated",
+        "note": "Party shares total approximately 100%; blank and undecided answers use separate bases."
+      },
+      "questionSampleSize": null,
+      "answers": [
+        {
+          "label": "Fratelli d'Italia",
+          "percentage": 26.6,
+          "kind": "list",
+          "entityIds": [
+            "fdi"
+          ]
+        },
+        {
+          "label": "Partito Democratico",
+          "percentage": 20.6,
+          "kind": "list",
+          "entityIds": [
+            "pd"
+          ]
+        },
+        {
+          "label": "Movimento 5 Stelle",
+          "percentage": 12,
+          "kind": "list",
+          "entityIds": [
+            "m5s"
+          ]
+        },
+        {
+          "label": "Forza Italia",
+          "percentage": 7.2,
+          "kind": "list",
+          "entityIds": [
+            "fi"
+          ]
+        },
+        {
+          "label": "Futuro Nazionale",
+          "percentage": 6.7,
+          "kind": "list",
+          "entityIds": [
+            "futuro-nazionale"
+          ]
+        },
+        {
+          "label": "Alleanza Verdi Sinistra",
+          "percentage": 6.7,
+          "kind": "list",
+          "entityIds": [
+            "avs"
+          ]
+        },
+        {
+          "label": "Lega",
+          "percentage": 5.4,
+          "kind": "list",
+          "entityIds": [
+            "lega"
+          ]
+        },
+        {
+          "label": "Azione",
+          "percentage": 3,
+          "kind": "list",
+          "entityIds": [
+            "azione"
+          ]
+        },
+        {
+          "label": "Italia Viva",
+          "percentage": 1.9,
+          "kind": "list",
+          "entityIds": [
+            "italia-viva"
+          ]
+        },
+        {
+          "label": "Sud Chiama Nord",
+          "percentage": 1.3,
+          "kind": "list",
+          "entityIds": [
+            "sud-chiama-nord"
+          ]
+        },
+        {
+          "label": "Noi Moderati",
+          "percentage": 1,
+          "kind": "list",
+          "entityIds": [
+            "noi-moderati"
+          ]
+        },
+        {
+          "label": "PSI",
+          "percentage": 1,
+          "kind": "list",
+          "entityIds": [
+            "psi"
+          ]
+        },
+        {
+          "label": "Progetto Civico",
+          "percentage": 1,
+          "kind": "list",
+          "entityIds": [
+            "progetto-civico"
+          ]
+        },
+        {
+          "label": "+Europa",
+          "percentage": 0.8,
+          "kind": "list",
+          "entityIds": [
+            "piu-europa"
+          ]
+        },
+        {
+          "label": "Potere al Popolo",
+          "percentage": 0.8,
+          "kind": "list",
+          "entityIds": [
+            "pap"
+          ]
+        },
+        {
+          "label": "Partito Liberaldemocratico",
+          "percentage": 0.7,
+          "kind": "list",
+          "entityIds": [
+            "libdem"
+          ]
+        },
+        {
+          "label": "ORA!",
+          "percentage": 0.7,
+          "kind": "list",
+          "entityIds": [
+            "ora"
+          ]
+        },
+        {
+          "label": "Rifondazione Comunista",
+          "percentage": 0.7,
+          "kind": "list",
+          "entityIds": [
+            "prc"
+          ]
+        },
+        {
+          "label": "Unione di Centro",
+          "percentage": 0.5,
+          "kind": "list",
+          "entityIds": [
+            "udc"
+          ]
+        },
+        {
+          "label": "Un’altra lista",
+          "percentage": 1.4,
+          "kind": "residual",
+          "entityIds": []
+        },
+        {
+          "label": "Bianche/Nulle",
+          "percentage": 1.9,
+          "kind": "nonresponse",
+          "entityIds": []
+        },
+        {
+          "label": "Indecisi",
+          "percentage": 24,
+          "kind": "nonresponse",
+          "entityIds": []
+        }
+      ],
+      "notes": [
+        "Party labels use reviewed canonical names; values transcribed from the government survey. Nonresponse is not election turnout."
+      ]
+    },
+    {
+      "id": "pcm-14398-q1",
+      "sourceId": "pcm-14398",
+      "questionNumber": 1,
+      "pages": [
+        2
+      ],
+      "independenceGroup": "pcm-14398",
+      "text": "INTENZIONI DI VOTO",
+      "ballot": {
+        "kind": "generic",
+        "label": null,
+        "assumptions": []
+      },
+      "denominator": {
+        "kind": "declared-vote-intentions",
+        "basis": "reported",
+        "note": "Source explicitly states expressed vote intentions."
+      },
+      "questionSampleSize": null,
+      "answers": [
+        {
+          "label": "CENTRODESTRA",
+          "percentage": 43.5,
+          "kind": "coalition-total",
+          "entityIds": []
+        },
+        {
+          "label": "CAMPO LARGO",
+          "percentage": 43.5,
+          "kind": "coalition-total",
+          "entityIds": []
+        },
+        {
+          "label": "Fratelli d'Italia",
+          "percentage": 28,
+          "kind": "list",
+          "entityIds": [
+            "fdi"
+          ]
+        },
+        {
+          "label": "Lega",
+          "percentage": 5,
+          "kind": "list",
+          "entityIds": [
+            "lega"
+          ]
+        },
+        {
+          "label": "Forza Italia",
+          "percentage": 7.5,
+          "kind": "list",
+          "entityIds": [
+            "fi"
+          ]
+        },
+        {
+          "label": "Noi Moderati",
+          "percentage": 1.5,
+          "kind": "list",
+          "entityIds": [
+            "noi-moderati"
+          ]
+        },
+        {
+          "label": "Sud Chiama Nord",
+          "percentage": 1.5,
+          "kind": "list",
+          "entityIds": [
+            "sud-chiama-nord"
+          ]
+        },
+        {
+          "label": "Partito Democratico",
+          "percentage": 20,
+          "kind": "list",
+          "entityIds": [
+            "pd"
+          ]
+        },
+        {
+          "label": "Alleanza Verdi Sinistra",
+          "percentage": 6.5,
+          "kind": "list",
+          "entityIds": [
+            "avs"
+          ]
+        },
+        {
+          "label": "+Europa",
+          "percentage": 1.5,
+          "kind": "list",
+          "entityIds": [
+            "piu-europa"
+          ]
+        },
+        {
+          "label": "Movimento 5 Stelle",
+          "percentage": 13,
+          "kind": "list",
+          "entityIds": [
+            "m5s"
+          ]
+        },
+        {
+          "label": "Italia Viva",
+          "percentage": 2.5,
+          "kind": "list",
+          "entityIds": [
+            "italia-viva"
+          ]
+        },
+        {
+          "label": "Azione",
+          "percentage": 3,
+          "kind": "list",
+          "entityIds": [
+            "azione"
+          ]
+        },
+        {
+          "label": "Partito Liberaldemocratico",
+          "percentage": 1.5,
+          "kind": "list",
+          "entityIds": [
+            "libdem"
+          ]
+        },
+        {
+          "label": "Futuro Nazionale",
+          "percentage": 6.5,
+          "kind": "list",
+          "entityIds": [
+            "futuro-nazionale"
+          ]
+        },
+        {
+          "label": "Altri partiti",
+          "percentage": 2,
+          "kind": "residual",
+          "entityIds": []
+        },
+        {
+          "label": "indecisi-astenuti",
+          "percentage": 30,
+          "kind": "nonresponse",
+          "entityIds": []
+        }
+      ],
+      "notes": [
+        "Party labels use reviewed canonical names; values transcribed from the government survey. Nonresponse is not election turnout."
+      ]
+    },
+    {
+      "id": "pcm-14400-q3",
+      "sourceId": "pcm-14400",
+      "questionNumber": 3,
+      "pages": [
+        2,
+        3
+      ],
+      "independenceGroup": "pcm-14400",
+      "text": "E PER QUALE PARTITO VOTEREBBE?",
+      "ballot": {
+        "kind": "generic",
+        "label": null,
+        "assumptions": []
+      },
+      "denominator": {
+        "kind": "declared-vote-intentions",
+        "basis": "reported",
+        "note": "Source states base is those intending to vote."
+      },
+      "questionSampleSize": null,
+      "answers": [
+        {
+          "label": "Totale cdx",
+          "percentage": 44.1,
+          "kind": "coalition-total",
+          "entityIds": []
+        },
+        {
+          "label": "Fratelli d'Italia",
+          "percentage": 26.3,
+          "kind": "list",
+          "entityIds": [
+            "fdi"
+          ]
+        },
+        {
+          "label": "Forza Italia",
+          "percentage": 7.4,
+          "kind": "list",
+          "entityIds": [
+            "fi"
+          ]
+        },
+        {
+          "label": "Lega",
+          "percentage": 7.3,
+          "kind": "list",
+          "entityIds": [
+            "lega"
+          ]
+        },
+        {
+          "label": "Noi Moderati",
+          "percentage": 1.7,
+          "kind": "list",
+          "entityIds": [
+            "noi-moderati"
+          ]
+        },
+        {
+          "label": "Sud Chiama Nord",
+          "percentage": 1.4,
+          "kind": "list",
+          "entityIds": [
+            "sud-chiama-nord"
+          ]
+        },
+        {
+          "label": "Totale csx",
+          "percentage": 43.6,
+          "kind": "coalition-total",
+          "entityIds": []
+        },
+        {
+          "label": "Partito Democratico",
+          "percentage": 20.2,
+          "kind": "list",
+          "entityIds": [
+            "pd"
+          ]
+        },
+        {
+          "label": "Movimento 5 Stelle",
+          "percentage": 12.1,
+          "kind": "list",
+          "entityIds": [
+            "m5s"
+          ]
+        },
+        {
+          "label": "Alleanza Verdi Sinistra",
+          "percentage": 5.9,
+          "kind": "list",
+          "entityIds": [
+            "avs"
+          ]
+        },
+        {
+          "label": "Italia Viva",
+          "percentage": 2.6,
+          "kind": "list",
+          "entityIds": [
+            "italia-viva"
+          ]
+        },
+        {
+          "label": "+Europa",
+          "percentage": 1.6,
+          "kind": "list",
+          "entityIds": [
+            "piu-europa"
+          ]
+        },
+        {
+          "label": "Altri di csx (Progetto Civico, PSI)",
+          "percentage": 1.2,
+          "kind": "list",
+          "entityIds": [
+            "progetto-civico",
+            "psi"
+          ]
+        },
+        {
+          "label": "Futuro Nazionale",
+          "percentage": 5.1,
+          "kind": "list",
+          "entityIds": [
+            "futuro-nazionale"
+          ]
+        },
+        {
+          "label": "Totale centro",
+          "percentage": 5.2,
+          "kind": "coalition-total",
+          "entityIds": []
+        },
+        {
+          "label": "Azione",
+          "percentage": 2.9,
+          "kind": "list",
+          "entityIds": [
+            "azione"
+          ]
+        },
+        {
+          "label": "Partito Liberaldemocratico",
+          "percentage": 1.8,
+          "kind": "list",
+          "entityIds": [
+            "libdem"
+          ]
+        },
+        {
+          "label": "ORA!",
+          "percentage": 0.5,
+          "kind": "list",
+          "entityIds": [
+            "ora"
+          ]
+        },
+        {
+          "label": "Altra lista",
+          "percentage": 2,
+          "kind": "residual",
+          "entityIds": []
+        }
+      ],
+      "notes": [
+        "Party labels use reviewed canonical names; values transcribed from the government survey. Nonresponse is not election turnout.",
+        "The reported geographic quota does not supply geographic party results. No local estimates are inferred."
+      ]
+    },
+    {
+      "id": "pcm-14387-q1",
+      "sourceId": "pcm-14387",
+      "questionNumber": 1,
+      "pages": [
+        2
+      ],
+      "independenceGroup": "pcm-14387",
+      "text": "Se si votasse oggi, per quale lista voterebbe alla Camera dei Deputati?",
+      "ballot": {
+        "kind": "generic",
+        "label": null,
+        "assumptions": []
+      },
+      "denominator": {
+        "kind": "declared-vote-intentions",
+        "basis": "reported",
+        "note": "Source explicitly states estimates on valid declarations."
+      },
+      "questionSampleSize": null,
+      "answers": [
+        {
+          "label": "Fratelli d'Italia",
+          "percentage": 26.7,
+          "kind": "list",
+          "entityIds": [
+            "fdi"
+          ]
+        },
+        {
+          "label": "Forza Italia",
+          "percentage": 6.3,
+          "kind": "list",
+          "entityIds": [
+            "fi"
+          ]
+        },
+        {
+          "label": "Noi Moderati",
+          "percentage": 0.8,
+          "kind": "list",
+          "entityIds": [
+            "noi-moderati"
+          ]
+        },
+        {
+          "label": "Lega",
+          "percentage": 5.6,
+          "kind": "list",
+          "entityIds": [
+            "lega"
+          ]
+        },
+        {
+          "label": "Futuro Nazionale",
+          "percentage": 7.9,
+          "kind": "list",
+          "entityIds": [
+            "futuro-nazionale"
+          ]
+        },
+        {
+          "label": "Partito Democratico",
+          "percentage": 19.9,
+          "kind": "list",
+          "entityIds": [
+            "pd"
+          ]
+        },
+        {
+          "label": "Movimento 5 Stelle",
+          "percentage": 14.9,
+          "kind": "list",
+          "entityIds": [
+            "m5s"
+          ]
+        },
+        {
+          "label": "Alleanza Verdi Sinistra",
+          "percentage": 6.3,
+          "kind": "list",
+          "entityIds": [
+            "avs"
+          ]
+        },
+        {
+          "label": "+Europa",
+          "percentage": 1.8,
+          "kind": "list",
+          "entityIds": [
+            "piu-europa"
+          ]
+        },
+        {
+          "label": "Italia Viva",
+          "percentage": 2,
+          "kind": "list",
+          "entityIds": [
+            "italia-viva"
+          ]
+        },
+        {
+          "label": "Azione",
+          "percentage": 3,
+          "kind": "list",
+          "entityIds": [
+            "azione"
+          ]
+        },
+        {
+          "label": "altre liste",
+          "percentage": 4.8,
+          "kind": "residual",
+          "entityIds": []
+        },
+        {
+          "label": "indecisi/astensione/bianche/nulle",
+          "percentage": 40.8,
+          "kind": "nonresponse",
+          "entityIds": []
+        }
+      ],
+      "notes": [
+        "Party labels use reviewed canonical names; values transcribed from the government survey. Nonresponse is not election turnout.",
+        "Estimates also use approximately 5,000 earlier interviews; the 1,000-person sample is not the full modelling information."
+      ]
+    }
+  ]
+}

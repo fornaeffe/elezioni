@@ -1,0 +1,1320 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-30",
+  "scope": "Investigation and isolated proposal; production code unchanged; not release acceptance",
+  "simulation": {
+    "variant": "polls",
+    "id": 135,
+    "frozenInput": "data/derived/legacy-comparison/future-polls.json",
+    "inputSha256": "44433654b3cb5ff3466ce07bf3f729fc3f5582decb803154e0db176ce9251412",
+    "generatedInputSha256": "efbb30bc9ff2be283b083d7d28205276e1fa1f1bc7234265df2d1dfabc7bb23d",
+    "validation": {
+      "valid": true,
+      "issues": []
+    }
+  },
+  "sourceHashes": {
+    "web/src/lib/politics/reform-2026/territorial-matrix.ts": "7622731d1ec903da7d688abc4416cc7842e96277446a6ba7aac4c2bf45913a57",
+    "web/src/lib/politics/reform-2026/senate-territorial.ts": "4d3ea45bd2316deee9d1664cafd69125447ec676425ac840607d630442af31a7",
+    "web/src/lib/politics/reform-2026/scrutiny.ts": "26a55634f72b72db6d472b5501d3aadf1a66b69c1ce6aad234867c5b1c32c024",
+    "web/src/lib/politics/reform-2026/generation.ts": "0fce44ba730eb9422a3e1067f71baa9ed6533021734aa0e4c04cd65c22496135"
+  },
+  "originalReceiptHashes": {
+    "data/derived/legacy-comparison/diagnostic-polls-135.json": "22e5c6d6a90dd3743deefcab20398369dfb59a09c161f422158c6da23bfbf5a2",
+    "data/derived/legacy-comparison/poll-noncomputable-135.json": "a8da9006dd4c4ef24977339745fd114b9e3592815282a6d926632404518ddf88",
+    "test/fixtures/benchmarks/vote_share_legacy_comparison.json": "9f72f62bbb661f13f3e19ca73cc9c50803456dbfc88392c747f58d167beab0de",
+    "test/fixtures/benchmarks/taa_admission_replay.json": "506cd2c61d6a8b8289145fa8bf22daa08d125561d5c493a56ec79b48fe222551"
+  },
+  "matrixInput": {
+    "chamber": "senato",
+    "norm": "N21",
+    "lawReference": "S17(4)(a)-(c)",
+    "simulationId": 135,
+    "contextId": "[\"senato\",135,\"19\",\"colleges\",\"lists\"]",
+    "correction": "colleges",
+    "initialTieFigure": "college-electoral-figure",
+    "targets": [
+      {
+        "id": "fdi",
+        "seats": 2,
+        "votes": 219304
+      },
+      {
+        "id": "fi",
+        "seats": 4,
+        "votes": 354545
+      },
+      {
+        "id": "futuro-nazionale",
+        "seats": 1,
+        "votes": 281715
+      },
+      {
+        "id": "m5s",
+        "seats": 3,
+        "votes": 571643
+      },
+      {
+        "id": "pd",
+        "seats": 2,
+        "votes": 236556
+      }
+    ],
+    "areas": [
+      {
+        "id": "senato:P:190001",
+        "seats": 6,
+        "entries": [
+          {
+            "id": "fdi",
+            "votes": 82753,
+            "tieVotes": 82753
+          },
+          {
+            "id": "fi",
+            "votes": 203815,
+            "tieVotes": 203815
+          },
+          {
+            "id": "futuro-nazionale",
+            "votes": 130345,
+            "tieVotes": 130345
+          },
+          {
+            "id": "m5s",
+            "votes": 264998,
+            "tieVotes": 264998
+          },
+          {
+            "id": "pd",
+            "votes": 123747,
+            "tieVotes": 123747
+          }
+        ]
+      },
+      {
+        "id": "senato:P:190002",
+        "seats": 6,
+        "entries": [
+          {
+            "id": "fdi",
+            "votes": 136551,
+            "tieVotes": 136551
+          },
+          {
+            "id": "fi",
+            "votes": 150730,
+            "tieVotes": 150730
+          },
+          {
+            "id": "futuro-nazionale",
+            "votes": 151370,
+            "tieVotes": 151370
+          },
+          {
+            "id": "m5s",
+            "votes": 306645,
+            "tieVotes": 306645
+          },
+          {
+            "id": "pd",
+            "votes": 112809,
+            "tieVotes": 112809
+          }
+        ]
+      }
+    ]
+  },
+  "baseline": {
+    "status": "non-computable",
+    "seats": 399,
+    "chamberSeats": [
+      {
+        "chamber": "camera",
+        "seats": 392
+      },
+      {
+        "chamber": "senato",
+        "seats": 7
+      }
+    ],
+    "failedMatrix": {
+      "chamber": "senato",
+      "norm": "N21",
+      "lawReference": "S17(4)(a)-(c)",
+      "contextId": "[\"senato\",135,\"19\",\"colleges\",\"lists\"]",
+      "initialTieFigure": "college-electoral-figure",
+      "correction": "colleges",
+      "indexQuotas": null,
+      "targets": [
+        {
+          "id": "fdi",
+          "seats": 2,
+          "votes": 219304
+        },
+        {
+          "id": "fi",
+          "seats": 4,
+          "votes": 354545
+        },
+        {
+          "id": "futuro-nazionale",
+          "seats": 1,
+          "votes": 281715
+        },
+        {
+          "id": "m5s",
+          "seats": 3,
+          "votes": 571643
+        },
+        {
+          "id": "pd",
+          "seats": 2,
+          "votes": 236556
+        }
+      ],
+      "cells": [
+        {
+          "id": "[\"senato:P:190001\",\"fdi\"]",
+          "areaId": "senato:P:190001",
+          "targetId": "fdi",
+          "allocationEligible": true,
+          "votes": 82753,
+          "rawIndex": null,
+          "index": null,
+          "quotient": {
+            "numerator": "82753",
+            "denominator": "134276"
+          },
+          "integerSeats": 0,
+          "decimalPart": {
+            "numerator": "82753",
+            "denominator": "134276"
+          },
+          "remainderExcluded": false,
+          "remainderSeat": false,
+          "provisionalSeats": 0,
+          "remainderState": "unused",
+          "seats": 0
+        },
+        {
+          "id": "[\"senato:P:190001\",\"fi\"]",
+          "areaId": "senato:P:190001",
+          "targetId": "fi",
+          "allocationEligible": true,
+          "votes": 203815,
+          "rawIndex": null,
+          "index": null,
+          "quotient": {
+            "numerator": "203815",
+            "denominator": "134276"
+          },
+          "integerSeats": 1,
+          "decimalPart": {
+            "numerator": "69539",
+            "denominator": "134276"
+          },
+          "remainderExcluded": false,
+          "remainderSeat": false,
+          "provisionalSeats": 1,
+          "remainderState": "unused",
+          "seats": 1
+        },
+        {
+          "id": "[\"senato:P:190001\",\"futuro-nazionale\"]",
+          "areaId": "senato:P:190001",
+          "targetId": "futuro-nazionale",
+          "allocationEligible": true,
+          "votes": 130345,
+          "rawIndex": null,
+          "index": null,
+          "quotient": {
+            "numerator": "130345",
+            "denominator": "134276"
+          },
+          "integerSeats": 0,
+          "decimalPart": {
+            "numerator": "130345",
+            "denominator": "134276"
+          },
+          "remainderExcluded": true,
+          "remainderSeat": false,
+          "provisionalSeats": 0,
+          "remainderState": "unused",
+          "seats": 0
+        },
+        {
+          "id": "[\"senato:P:190001\",\"m5s\"]",
+          "areaId": "senato:P:190001",
+          "targetId": "m5s",
+          "allocationEligible": true,
+          "votes": 264998,
+          "rawIndex": null,
+          "index": null,
+          "quotient": {
+            "numerator": "132499",
+            "denominator": "67138"
+          },
+          "integerSeats": 1,
+          "decimalPart": {
+            "numerator": "65361",
+            "denominator": "67138"
+          },
+          "remainderExcluded": true,
+          "remainderSeat": false,
+          "provisionalSeats": 1,
+          "remainderState": "unused",
+          "seats": 1
+        },
+        {
+          "id": "[\"senato:P:190001\",\"pd\"]",
+          "areaId": "senato:P:190001",
+          "targetId": "pd",
+          "allocationEligible": true,
+          "votes": 123747,
+          "rawIndex": null,
+          "index": null,
+          "quotient": {
+            "numerator": "123747",
+            "denominator": "134276"
+          },
+          "integerSeats": 0,
+          "decimalPart": {
+            "numerator": "123747",
+            "denominator": "134276"
+          },
+          "remainderExcluded": false,
+          "remainderSeat": false,
+          "provisionalSeats": 0,
+          "remainderState": "unused",
+          "seats": 0
+        },
+        {
+          "id": "[\"senato:P:190002\",\"fdi\"]",
+          "areaId": "senato:P:190002",
+          "targetId": "fdi",
+          "allocationEligible": true,
+          "votes": 136551,
+          "rawIndex": null,
+          "index": null,
+          "quotient": {
+            "numerator": "136551",
+            "denominator": "143017"
+          },
+          "integerSeats": 0,
+          "decimalPart": {
+            "numerator": "136551",
+            "denominator": "143017"
+          },
+          "remainderExcluded": false,
+          "remainderSeat": false,
+          "provisionalSeats": 0,
+          "remainderState": "unused",
+          "seats": 0
+        },
+        {
+          "id": "[\"senato:P:190002\",\"fi\"]",
+          "areaId": "senato:P:190002",
+          "targetId": "fi",
+          "allocationEligible": true,
+          "votes": 150730,
+          "rawIndex": null,
+          "index": null,
+          "quotient": {
+            "numerator": "150730",
+            "denominator": "143017"
+          },
+          "integerSeats": 1,
+          "decimalPart": {
+            "numerator": "7713",
+            "denominator": "143017"
+          },
+          "remainderExcluded": false,
+          "remainderSeat": false,
+          "provisionalSeats": 1,
+          "remainderState": "unused",
+          "seats": 1
+        },
+        {
+          "id": "[\"senato:P:190002\",\"futuro-nazionale\"]",
+          "areaId": "senato:P:190002",
+          "targetId": "futuro-nazionale",
+          "allocationEligible": true,
+          "votes": 151370,
+          "rawIndex": null,
+          "index": null,
+          "quotient": {
+            "numerator": "151370",
+            "denominator": "143017"
+          },
+          "integerSeats": 1,
+          "decimalPart": {
+            "numerator": "8353",
+            "denominator": "143017"
+          },
+          "remainderExcluded": true,
+          "remainderSeat": false,
+          "provisionalSeats": 1,
+          "remainderState": "unused",
+          "seats": 1
+        },
+        {
+          "id": "[\"senato:P:190002\",\"m5s\"]",
+          "areaId": "senato:P:190002",
+          "targetId": "m5s",
+          "allocationEligible": true,
+          "votes": 306645,
+          "rawIndex": null,
+          "index": null,
+          "quotient": {
+            "numerator": "306645",
+            "denominator": "143017"
+          },
+          "integerSeats": 2,
+          "decimalPart": {
+            "numerator": "20611",
+            "denominator": "143017"
+          },
+          "remainderExcluded": true,
+          "remainderSeat": false,
+          "provisionalSeats": 2,
+          "remainderState": "unused",
+          "seats": 2
+        },
+        {
+          "id": "[\"senato:P:190002\",\"pd\"]",
+          "areaId": "senato:P:190002",
+          "targetId": "pd",
+          "allocationEligible": true,
+          "votes": 112809,
+          "rawIndex": null,
+          "index": null,
+          "quotient": {
+            "numerator": "112809",
+            "denominator": "143017"
+          },
+          "integerSeats": 0,
+          "decimalPart": {
+            "numerator": "112809",
+            "denominator": "143017"
+          },
+          "remainderExcluded": false,
+          "remainderSeat": false,
+          "provisionalSeats": 0,
+          "remainderState": "unused",
+          "seats": 0
+        }
+      ],
+      "transfers": [],
+      "resolutions": [],
+      "areas": [
+        {
+          "id": "senato:P:190001",
+          "capacity": 6,
+          "rawQuota": {
+            "numerator": "402829",
+            "denominator": "3"
+          },
+          "quota": {
+            "numerator": "134276",
+            "denominator": "1"
+          },
+          "finalSeats": 2
+        },
+        {
+          "id": "senato:P:190002",
+          "capacity": 6,
+          "rawQuota": {
+            "numerator": "286035",
+            "denominator": "2"
+          },
+          "quota": {
+            "numerator": "143017",
+            "denominator": "1"
+          },
+          "finalSeats": 4
+        }
+      ],
+      "draws": [],
+      "warnings": [],
+      "status": "non-computable",
+      "phase": "remainders",
+      "reason": "impossible-residual"
+    },
+    "senatePath": "bonus-without-cap",
+    "siciliaRegion": {
+      "regionId": "19",
+      "ordinarySeats": 12,
+      "validVotes": 2375413,
+      "subjects": [
+        {
+          "subject": {
+            "kind": "coalition",
+            "id": "centrodestra"
+          },
+          "votes": 1062923,
+          "eligible": true
+        },
+        {
+          "subject": {
+            "kind": "coalition",
+            "id": "centrosinistra"
+          },
+          "votes": 893752,
+          "eligible": true
+        },
+        {
+          "subject": {
+            "kind": "list",
+            "id": "azione-libdem"
+          },
+          "votes": 51155,
+          "eligible": true
+        },
+        {
+          "subject": {
+            "kind": "list",
+            "id": "futuro-nazionale"
+          },
+          "votes": 281715,
+          "eligible": true
+        },
+        {
+          "subject": {
+            "kind": "list",
+            "id": "uv"
+          },
+          "votes": 0,
+          "eligible": false
+        }
+      ],
+      "allocation": {
+        "status": "complete",
+        "rawQuota": {
+          "numerator": "2289545",
+          "denominator": "12"
+        },
+        "quota": {
+          "numerator": "190795",
+          "denominator": "1"
+        },
+        "initialSeatTotal": "10",
+        "assignments": [
+          {
+            "id": "[\"coalition\",\"centrodestra\"]",
+            "quotient": {
+              "numerator": "1062923",
+              "denominator": "190795"
+            },
+            "integerSeats": 5,
+            "remainder": {
+              "numerator": "108948",
+              "denominator": "1"
+            },
+            "decimalPart": {
+              "numerator": "108948",
+              "denominator": "190795"
+            },
+            "remainderState": "used",
+            "remainderSeats": 1,
+            "seats": 6
+          },
+          {
+            "id": "[\"coalition\",\"centrosinistra\"]",
+            "quotient": {
+              "numerator": "893752",
+              "denominator": "190795"
+            },
+            "integerSeats": 4,
+            "remainder": {
+              "numerator": "130572",
+              "denominator": "1"
+            },
+            "decimalPart": {
+              "numerator": "130572",
+              "denominator": "190795"
+            },
+            "remainderState": "used",
+            "remainderSeats": 1,
+            "seats": 5
+          },
+          {
+            "id": "[\"list\",\"azione-libdem\"]",
+            "quotient": {
+              "numerator": "10231",
+              "denominator": "38159"
+            },
+            "integerSeats": 0,
+            "remainder": {
+              "numerator": "51155",
+              "denominator": "1"
+            },
+            "decimalPart": {
+              "numerator": "10231",
+              "denominator": "38159"
+            },
+            "remainderState": "unused",
+            "remainderSeats": 0,
+            "seats": 0
+          },
+          {
+            "id": "[\"list\",\"futuro-nazionale\"]",
+            "quotient": {
+              "numerator": "56343",
+              "denominator": "38159"
+            },
+            "integerSeats": 1,
+            "remainder": {
+              "numerator": "90920",
+              "denominator": "1"
+            },
+            "decimalPart": {
+              "numerator": "18184",
+              "denominator": "38159"
+            },
+            "remainderState": "unused",
+            "remainderSeats": 0,
+            "seats": 1
+          },
+          {
+            "id": "[\"list\",\"uv\"]",
+            "quotient": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "integerSeats": 0,
+            "remainder": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "decimalPart": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "remainderState": "unused",
+            "remainderSeats": 0,
+            "seats": 0
+          }
+        ],
+        "resolutions": [
+          {
+            "chosenId": "[\"coalition\",\"centrosinistra\"]",
+            "steps": [
+              {
+                "criterion": "remainder",
+                "remainingIds": [
+                  "[\"coalition\",\"centrosinistra\"]"
+                ]
+              }
+            ],
+            "draws": [],
+            "warnings": []
+          },
+          {
+            "chosenId": "[\"coalition\",\"centrodestra\"]",
+            "steps": [
+              {
+                "criterion": "remainder",
+                "remainingIds": [
+                  "[\"coalition\",\"centrodestra\"]"
+                ]
+              }
+            ],
+            "draws": [],
+            "warnings": []
+          }
+        ],
+        "draws": [],
+        "warnings": []
+      }
+    },
+    "siciliaCoalitionAllocations": [
+      {
+        "regionId": "19",
+        "coalitionId": "centrodestra",
+        "allocation": {
+          "status": "complete",
+          "rawQuota": {
+            "numerator": "100417",
+            "denominator": "1"
+          },
+          "quota": {
+            "numerator": "100417",
+            "denominator": "1"
+          },
+          "initialSeatTotal": "5",
+          "assignments": [
+            {
+              "id": "cdx-vda",
+              "quotient": {
+                "numerator": "0",
+                "denominator": "1"
+              },
+              "integerSeats": 0,
+              "remainder": {
+                "numerator": "0",
+                "denominator": "1"
+              },
+              "decimalPart": {
+                "numerator": "0",
+                "denominator": "1"
+              },
+              "remainderState": "unused",
+              "remainderSeats": 0,
+              "seats": 0
+            },
+            {
+              "id": "fdi",
+              "quotient": {
+                "numerator": "219304",
+                "denominator": "100417"
+              },
+              "integerSeats": 2,
+              "remainder": {
+                "numerator": "18470",
+                "denominator": "1"
+              },
+              "decimalPart": {
+                "numerator": "18470",
+                "denominator": "100417"
+              },
+              "remainderState": "unused",
+              "remainderSeats": 0,
+              "seats": 2
+            },
+            {
+              "id": "fi",
+              "quotient": {
+                "numerator": "354545",
+                "denominator": "100417"
+              },
+              "integerSeats": 3,
+              "remainder": {
+                "numerator": "53294",
+                "denominator": "1"
+              },
+              "decimalPart": {
+                "numerator": "53294",
+                "denominator": "100417"
+              },
+              "remainderState": "used",
+              "remainderSeats": 1,
+              "seats": 4
+            },
+            {
+              "id": "lega",
+              "quotient": {
+                "numerator": "28653",
+                "denominator": "100417"
+              },
+              "integerSeats": 0,
+              "remainder": {
+                "numerator": "28653",
+                "denominator": "1"
+              },
+              "decimalPart": {
+                "numerator": "28653",
+                "denominator": "100417"
+              },
+              "remainderState": "unused",
+              "remainderSeats": 0,
+              "seats": 0
+            }
+          ],
+          "resolutions": [
+            {
+              "chosenId": "fi",
+              "steps": [
+                {
+                  "criterion": "remainder",
+                  "remainingIds": [
+                    "fi"
+                  ]
+                }
+              ],
+              "draws": [],
+              "warnings": []
+            }
+          ],
+          "draws": [],
+          "warnings": []
+        }
+      },
+      {
+        "regionId": "19",
+        "coalitionId": "centrosinistra",
+        "allocation": {
+          "status": "complete",
+          "rawQuota": {
+            "numerator": "867788",
+            "denominator": "5"
+          },
+          "quota": {
+            "numerator": "173557",
+            "denominator": "1"
+          },
+          "initialSeatTotal": "4",
+          "assignments": [
+            {
+              "id": "avs",
+              "quotient": {
+                "numerator": "31818",
+                "denominator": "173557"
+              },
+              "integerSeats": 0,
+              "remainder": {
+                "numerator": "31818",
+                "denominator": "1"
+              },
+              "decimalPart": {
+                "numerator": "31818",
+                "denominator": "173557"
+              },
+              "remainderState": "unused",
+              "remainderSeats": 0,
+              "seats": 0
+            },
+            {
+              "id": "europa-piu-uno-cd",
+              "quotient": {
+                "numerator": "27771",
+                "denominator": "173557"
+              },
+              "integerSeats": 0,
+              "remainder": {
+                "numerator": "27771",
+                "denominator": "1"
+              },
+              "decimalPart": {
+                "numerator": "27771",
+                "denominator": "173557"
+              },
+              "remainderState": "unused",
+              "remainderSeats": 0,
+              "seats": 0
+            },
+            {
+              "id": "m5s",
+              "quotient": {
+                "numerator": "571643",
+                "denominator": "173557"
+              },
+              "integerSeats": 3,
+              "remainder": {
+                "numerator": "50972",
+                "denominator": "1"
+              },
+              "decimalPart": {
+                "numerator": "50972",
+                "denominator": "173557"
+              },
+              "remainderState": "unused",
+              "remainderSeats": 0,
+              "seats": 3
+            },
+            {
+              "id": "pd",
+              "quotient": {
+                "numerator": "236556",
+                "denominator": "173557"
+              },
+              "integerSeats": 1,
+              "remainder": {
+                "numerator": "62999",
+                "denominator": "1"
+              },
+              "decimalPart": {
+                "numerator": "62999",
+                "denominator": "173557"
+              },
+              "remainderState": "used",
+              "remainderSeats": 1,
+              "seats": 2
+            }
+          ],
+          "resolutions": [
+            {
+              "chosenId": "pd",
+              "steps": [
+                {
+                  "criterion": "remainder",
+                  "remainingIds": [
+                    "pd"
+                  ]
+                }
+              ],
+              "draws": [],
+              "warnings": []
+            }
+          ],
+          "draws": [],
+          "warnings": []
+        }
+      }
+    ],
+    "siciliaColleges": [
+      {
+        "id": "senato:P:190001",
+        "territoryId": "senato:territory:19",
+        "kind": "ordinary",
+        "seatsWithoutBonus": 7,
+        "seatsWithBonus": 6
+      },
+      {
+        "id": "senato:P:190002",
+        "territoryId": "senato:territory:19",
+        "kind": "ordinary",
+        "seatsWithoutBonus": 8,
+        "seatsWithBonus": 6
+      }
+    ],
+    "siciliaTerritory": {
+      "id": "senato:territory:19",
+      "regionId": "19",
+      "kind": "ordinary",
+      "bonusSeats": 3
+    },
+    "seatTable": {
+      "kind": "provisional-census",
+      "reference": "DPR 20 gennaio 2023, GU 53 del 3 marzo 2023, SO 10; legge 180/2026, allegati 4 e 5",
+      "version": "r26-seats-census-2021-i08-v1-9672c20529b2",
+      "censusDate": "2021-12-31",
+      "geographyVersion": "r26-geography-2022-bolzano-2026-census-2021-v1-6b2bd725432d",
+      "method": "I08-v1",
+      "populationNotes": []
+    },
+    "nonComputableStages": [
+      {
+        "norm": "N21",
+        "chamber": "senato",
+        "status": "non-computable",
+        "reason": "impossible-residual",
+        "affectedIds": []
+      },
+      {
+        "norm": "N23",
+        "chamber": "senato",
+        "status": "non-computable",
+        "reason": "ordinary-allocation-non-computable",
+        "affectedIds": []
+      },
+      {
+        "norm": "N24",
+        "chamber": "senato",
+        "status": "non-computable",
+        "reason": "ordinary-allocation-non-computable",
+        "affectedIds": []
+      },
+      {
+        "norm": "N27",
+        "chamber": "senato",
+        "status": "non-computable",
+        "reason": "prerequisite-non-computable",
+        "affectedIds": []
+      },
+      {
+        "norm": "N28",
+        "chamber": null,
+        "status": "non-computable",
+        "reason": "stage-prerequisite-non-computable",
+        "affectedIds": []
+      }
+    ]
+  },
+  "proposal": {
+    "before": "const repeatRemainders = input.chamber === 'camera' && input.norm === 'N18' && !input.indexQuotas &&\n    (input.correction === 'independent-colleges' || input.correction === 'colleges');",
+    "after": "const repeatRemainders = !input.indexQuotas && ((input.chamber === 'camera' && input.norm === 'N18' &&\n    (input.correction === 'independent-colleges' || input.correction === 'colleges')) ||\n    (input.chamber === 'senato' && (input.norm === 'N21' || input.norm === 'N22') && input.correction === 'colleges'));",
+    "method": "esbuild onLoad transform of territorial-matrix.ts in isolated derived bundle; every other module unchanged",
+    "status": "complete",
+    "seats": 588,
+    "filled": 588,
+    "uniqueCandidates": 588,
+    "chamberSeats": [
+      {
+        "chamber": "camera",
+        "seats": 392
+      },
+      {
+        "chamber": "senato",
+        "seats": 196
+      }
+    ],
+    "noNonComputableStages": true,
+    "unchangedRegionalAllocation": true,
+    "unchangedRegionalLists": true,
+    "minimalMatchesProductionMatrix": true,
+    "reversedInputInvariant": true,
+    "matrix": {
+      "chamber": "senato",
+      "norm": "N21",
+      "lawReference": "S17(4)(a)-(c)",
+      "contextId": "[\"senato\",135,\"19\",\"colleges\",\"lists\"]",
+      "initialTieFigure": "college-electoral-figure",
+      "correction": "colleges",
+      "indexQuotas": null,
+      "targets": [
+        {
+          "id": "fdi",
+          "seats": 2,
+          "votes": 219304
+        },
+        {
+          "id": "fi",
+          "seats": 4,
+          "votes": 354545
+        },
+        {
+          "id": "futuro-nazionale",
+          "seats": 1,
+          "votes": 281715
+        },
+        {
+          "id": "m5s",
+          "seats": 3,
+          "votes": 571643
+        },
+        {
+          "id": "pd",
+          "seats": 2,
+          "votes": 236556
+        }
+      ],
+      "cells": [
+        {
+          "id": "[\"senato:P:190001\",\"fdi\"]",
+          "areaId": "senato:P:190001",
+          "targetId": "fdi",
+          "allocationEligible": true,
+          "votes": 82753,
+          "rawIndex": null,
+          "index": null,
+          "quotient": {
+            "numerator": "82753",
+            "denominator": "134276"
+          },
+          "integerSeats": 0,
+          "decimalPart": {
+            "numerator": "82753",
+            "denominator": "134276"
+          },
+          "remainderExcluded": false,
+          "remainderSeat": true,
+          "provisionalSeats": 1,
+          "remainderState": "used",
+          "seats": 1
+        },
+        {
+          "id": "[\"senato:P:190001\",\"fi\"]",
+          "areaId": "senato:P:190001",
+          "targetId": "fi",
+          "allocationEligible": true,
+          "votes": 203815,
+          "rawIndex": null,
+          "index": null,
+          "quotient": {
+            "numerator": "203815",
+            "denominator": "134276"
+          },
+          "integerSeats": 1,
+          "decimalPart": {
+            "numerator": "69539",
+            "denominator": "134276"
+          },
+          "remainderExcluded": false,
+          "remainderSeat": true,
+          "provisionalSeats": 3,
+          "remainderState": "used",
+          "seats": 3
+        },
+        {
+          "id": "[\"senato:P:190001\",\"futuro-nazionale\"]",
+          "areaId": "senato:P:190001",
+          "targetId": "futuro-nazionale",
+          "allocationEligible": true,
+          "votes": 130345,
+          "rawIndex": null,
+          "index": null,
+          "quotient": {
+            "numerator": "130345",
+            "denominator": "134276"
+          },
+          "integerSeats": 0,
+          "decimalPart": {
+            "numerator": "130345",
+            "denominator": "134276"
+          },
+          "remainderExcluded": true,
+          "remainderSeat": false,
+          "provisionalSeats": 0,
+          "remainderState": "unused",
+          "seats": 0
+        },
+        {
+          "id": "[\"senato:P:190001\",\"m5s\"]",
+          "areaId": "senato:P:190001",
+          "targetId": "m5s",
+          "allocationEligible": true,
+          "votes": 264998,
+          "rawIndex": null,
+          "index": null,
+          "quotient": {
+            "numerator": "132499",
+            "denominator": "67138"
+          },
+          "integerSeats": 1,
+          "decimalPart": {
+            "numerator": "65361",
+            "denominator": "67138"
+          },
+          "remainderExcluded": true,
+          "remainderSeat": false,
+          "provisionalSeats": 1,
+          "remainderState": "unused",
+          "seats": 1
+        },
+        {
+          "id": "[\"senato:P:190001\",\"pd\"]",
+          "areaId": "senato:P:190001",
+          "targetId": "pd",
+          "allocationEligible": true,
+          "votes": 123747,
+          "rawIndex": null,
+          "index": null,
+          "quotient": {
+            "numerator": "123747",
+            "denominator": "134276"
+          },
+          "integerSeats": 0,
+          "decimalPart": {
+            "numerator": "123747",
+            "denominator": "134276"
+          },
+          "remainderExcluded": false,
+          "remainderSeat": true,
+          "provisionalSeats": 1,
+          "remainderState": "used",
+          "seats": 1
+        },
+        {
+          "id": "[\"senato:P:190002\",\"fdi\"]",
+          "areaId": "senato:P:190002",
+          "targetId": "fdi",
+          "allocationEligible": true,
+          "votes": 136551,
+          "rawIndex": null,
+          "index": null,
+          "quotient": {
+            "numerator": "136551",
+            "denominator": "143017"
+          },
+          "integerSeats": 0,
+          "decimalPart": {
+            "numerator": "136551",
+            "denominator": "143017"
+          },
+          "remainderExcluded": false,
+          "remainderSeat": true,
+          "provisionalSeats": 1,
+          "remainderState": "used",
+          "seats": 1
+        },
+        {
+          "id": "[\"senato:P:190002\",\"fi\"]",
+          "areaId": "senato:P:190002",
+          "targetId": "fi",
+          "allocationEligible": true,
+          "votes": 150730,
+          "rawIndex": null,
+          "index": null,
+          "quotient": {
+            "numerator": "150730",
+            "denominator": "143017"
+          },
+          "integerSeats": 1,
+          "decimalPart": {
+            "numerator": "7713",
+            "denominator": "143017"
+          },
+          "remainderExcluded": false,
+          "remainderSeat": false,
+          "provisionalSeats": 1,
+          "remainderState": "unused",
+          "seats": 1
+        },
+        {
+          "id": "[\"senato:P:190002\",\"futuro-nazionale\"]",
+          "areaId": "senato:P:190002",
+          "targetId": "futuro-nazionale",
+          "allocationEligible": true,
+          "votes": 151370,
+          "rawIndex": null,
+          "index": null,
+          "quotient": {
+            "numerator": "151370",
+            "denominator": "143017"
+          },
+          "integerSeats": 1,
+          "decimalPart": {
+            "numerator": "8353",
+            "denominator": "143017"
+          },
+          "remainderExcluded": true,
+          "remainderSeat": false,
+          "provisionalSeats": 1,
+          "remainderState": "unused",
+          "seats": 1
+        },
+        {
+          "id": "[\"senato:P:190002\",\"m5s\"]",
+          "areaId": "senato:P:190002",
+          "targetId": "m5s",
+          "allocationEligible": true,
+          "votes": 306645,
+          "rawIndex": null,
+          "index": null,
+          "quotient": {
+            "numerator": "306645",
+            "denominator": "143017"
+          },
+          "integerSeats": 2,
+          "decimalPart": {
+            "numerator": "20611",
+            "denominator": "143017"
+          },
+          "remainderExcluded": true,
+          "remainderSeat": false,
+          "provisionalSeats": 2,
+          "remainderState": "unused",
+          "seats": 2
+        },
+        {
+          "id": "[\"senato:P:190002\",\"pd\"]",
+          "areaId": "senato:P:190002",
+          "targetId": "pd",
+          "allocationEligible": true,
+          "votes": 112809,
+          "rawIndex": null,
+          "index": null,
+          "quotient": {
+            "numerator": "112809",
+            "denominator": "143017"
+          },
+          "integerSeats": 0,
+          "decimalPart": {
+            "numerator": "112809",
+            "denominator": "143017"
+          },
+          "remainderExcluded": false,
+          "remainderSeat": true,
+          "provisionalSeats": 1,
+          "remainderState": "used",
+          "seats": 1
+        }
+      ],
+      "transfers": [],
+      "resolutions": [
+        {
+          "chosenId": "[\"senato:P:190001\",\"pd\"]",
+          "steps": [
+            {
+              "criterion": "decimal-part",
+              "remainingIds": [
+                "[\"senato:P:190001\",\"pd\"]"
+              ]
+            }
+          ],
+          "draws": [],
+          "warnings": []
+        },
+        {
+          "chosenId": "[\"senato:P:190001\",\"fdi\"]",
+          "steps": [
+            {
+              "criterion": "decimal-part",
+              "remainingIds": [
+                "[\"senato:P:190001\",\"fdi\"]"
+              ]
+            }
+          ],
+          "draws": [],
+          "warnings": []
+        },
+        {
+          "chosenId": "[\"senato:P:190001\",\"fi\"]",
+          "steps": [],
+          "draws": [],
+          "warnings": []
+        },
+        {
+          "chosenId": "[\"senato:P:190002\",\"fdi\"]",
+          "steps": [
+            {
+              "criterion": "decimal-part",
+              "remainingIds": [
+                "[\"senato:P:190002\",\"fdi\"]"
+              ]
+            }
+          ],
+          "draws": [],
+          "warnings": []
+        },
+        {
+          "chosenId": "[\"senato:P:190002\",\"pd\"]",
+          "steps": [
+            {
+              "criterion": "decimal-part",
+              "remainingIds": [
+                "[\"senato:P:190002\",\"pd\"]"
+              ]
+            }
+          ],
+          "draws": [],
+          "warnings": []
+        }
+      ],
+      "areas": [
+        {
+          "id": "senato:P:190001",
+          "capacity": 6,
+          "rawQuota": {
+            "numerator": "402829",
+            "denominator": "3"
+          },
+          "quota": {
+            "numerator": "134276",
+            "denominator": "1"
+          },
+          "finalSeats": 6
+        },
+        {
+          "id": "senato:P:190002",
+          "capacity": 6,
+          "rawQuota": {
+            "numerator": "286035",
+            "denominator": "2"
+          },
+          "quota": {
+            "numerator": "143017",
+            "denominator": "1"
+          },
+          "finalSeats": 6
+        }
+      ],
+      "draws": [],
+      "warnings": [
+        {
+          "code": "I14_REPEATED_REMAINDER_PASS",
+          "severity": "warning",
+          "electionKind": "politiche",
+          "simulationId": 135,
+          "chamber": "senato",
+          "interpretationId": "I14",
+          "lawReference": "S17(4)(a)-(c)",
+          "message": "Provisional I14-v1: [\"senato\",135,\"19\",\"colleges\",\"lists\"]; senato:P:190001, initial remainder pass 2: 1 seats remained; reuse the established ranking for fi. Reached constituency targets excluded; decimal values and used state retained."
+        }
+      ],
+      "status": "complete"
+    },
+    "note": "Diagnostic warning reuses I14-v1 and constituency wording; a real implementation must version/document the Senate extension and use regional wording."
+  }
+}

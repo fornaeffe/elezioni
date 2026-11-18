@@ -1,0 +1,343 @@
+{
+  "schemaVersion": 1,
+  "version": "r26-models-v1-f71a72020aaa",
+  "modelIds": {
+    "votes": "final-attributed-list-totals-v1",
+    "preferences": "preferences-empirical-synthetic-v1",
+    "chambers": "paired-chamber-votes-v1"
+  },
+  "sourceVersions": [
+    "camera-2022:dd8ede158ea3f7b0aae65024135a27e34ab9e959728df95f0e977cd56edf88ff",
+    "senato-2022:ffaf0296cbb3702d1e0d13a9b7f88b6370f2ea2930b44d8b80a57c5fcc759c05",
+    "senato-2018:ebee153d2546a99a1e14682a070f05f6fa6008f53ac13a658506e0a9a3d87920",
+    "regional-2024:c07b4b7a16d983dad0022b1cca44395c672d0083c564704ab977cb1358f3a8e5",
+    "er-roster-2024:6094a640d9e9acd123e74b34108d46b45ebfef257dec0aae3c4aa10e83df6eab",
+    "er-preferences-published:4fbf4132a333242d5a3886e439051bba0cc51640af0f433b585e3f8ce3088617",
+    "er-votes-published:3f434770d534d33d8fcb1d74f819562a2e9300e5cd88b221bed967575ab0fea1",
+    "european-2024:1ea7b128447208691427af01443c9ba7b4bfc8d9e07cee361a9f87b3def460a5"
+  ],
+  "assumptions": [
+    "The 2022 paired baseline uses the common 18+ electorate. One election does not identify future national forecast covariance; 2018 Senate 25+ data are audit-only.",
+    "2022 direct list fields exclude candidate-only ballots. Attribute exactly at historical uninominal college, then reconstruct municipal additions proportionally with controlled integer rounding conserving both list-college and municipal candidate-only margins.",
+    "Special-only historical ballot-group labels remain separate synthetic list references. No unobserved intra-coalition list decomposition is inferred.",
+    "Municipal history is reconstructed onto reform colleges using legal-census population weights, including split municipalities; these are estimates of electoral support, not observed submunicipal votes.",
+    "Future national/regional/local marginal logit scales per square-root day are assumed, not estimated from cross-municipality chamber correlations.",
+    "Common-anchor contrasts are historical log-odds differences clipped to +/-1 and shrunk by 1/2. Their transfer from old candidate ballots is provisional.",
+    "Preference intensity is pooled with equal election weight. Pooled roster concentration and within-person local dispersion use Jeffreys 1/2 smoothing and approximate count-noise subtraction. Regional pools shrink toward the common baseline with 10000 ballot pseudo-observations.",
+    "Historical rosters have no protected capolista. The reform removes a filed position and uses six exchangeable synthetic strengths, without assigning any historical person to a future name.",
+    "Valid combinations use a central maximum-entropy counting measure. Historical marginals do not identify pairing or triple-preference behavior. The empty combination is not a bonus-only turnout estimate.",
+    "Candidate multiple candidacies are synthetic compatible same-list reuse. Coalition bonus affiliations follow filed ordinary prefixes, not proportional bonus seat quotas.",
+    "Candidate outcomes are conditional on synthetic preferences. Profile sensitivity is not a calibrated confidence interval."
+  ],
+  "preferences": {
+    "parameterVersion": "r26-preferences-fit-v1-cf0024e3b8e3",
+    "baseline": {
+      "intensity": 0.5501554058929964,
+      "strengthSigma": 1.5971061015416788,
+      "localSigma": 0.39541031965906903
+    },
+    "pools": [
+      {
+        "election": "er-2024",
+        "scope": "08",
+        "observations": 3550,
+        "parameters": {
+          "intensity": 0.43180094993530865,
+          "strengthSigma": 0.829689254480409,
+          "localSigma": 0.8891346600210986
+        }
+      },
+      {
+        "election": "european-2024",
+        "scope": "13",
+        "observations": 3402,
+        "parameters": {
+          "intensity": 0.711563072167552,
+          "strengthSigma": 1.7777081064360192,
+          "localSigma": 0.3359985521239503
+        }
+      },
+      {
+        "election": "european-2024",
+        "scope": "17",
+        "observations": 1506,
+        "parameters": {
+          "intensity": 0.9683983502311352,
+          "strengthSigma": 1.6732234696347705,
+          "localSigma": 0.5207095512634812
+        }
+      },
+      {
+        "election": "european-2024",
+        "scope": "18",
+        "observations": 4613,
+        "parameters": {
+          "intensity": 1.1019668613661409,
+          "strengthSigma": 1.8720702816737655,
+          "localSigma": 0.5512139942324367
+        }
+      },
+      {
+        "election": "european-2024",
+        "scope": "15",
+        "observations": 6436,
+        "parameters": {
+          "intensity": 0.9380009076831565,
+          "strengthSigma": 1.7530490220839103,
+          "localSigma": 0.5743688535615661
+        }
+      },
+      {
+        "election": "european-2024",
+        "scope": "08",
+        "observations": 3897,
+        "parameters": {
+          "intensity": 0.4543010524996,
+          "strengthSigma": 1.4956795689644204,
+          "localSigma": 0.2733205125955268
+        }
+      },
+      {
+        "election": "european-2024",
+        "scope": "06",
+        "observations": 2506,
+        "parameters": {
+          "intensity": 0.6626824204458357,
+          "strengthSigma": 1.7076600024520496,
+          "localSigma": 0.19801942524351768
+        }
+      },
+      {
+        "election": "european-2024",
+        "scope": "12",
+        "observations": 4396,
+        "parameters": {
+          "intensity": 0.8593166804519224,
+          "strengthSigma": 1.6400688618803263,
+          "localSigma": 0.47541002636844637
+        }
+      },
+      {
+        "election": "european-2024",
+        "scope": "07",
+        "observations": 2633,
+        "parameters": {
+          "intensity": 0.5796371643777187,
+          "strengthSigma": 1.6449602535275418,
+          "localSigma": 0.2402184027691827
+        }
+      },
+      {
+        "election": "european-2024",
+        "scope": "03",
+        "observations": 17302,
+        "parameters": {
+          "intensity": 0.5412056918579854,
+          "strengthSigma": 1.6344727968977444,
+          "localSigma": 0.23425076073468523
+        }
+      },
+      {
+        "election": "european-2024",
+        "scope": "11",
+        "observations": 2646,
+        "parameters": {
+          "intensity": 0.5421732939812482,
+          "strengthSigma": 1.6726722007462487,
+          "localSigma": 0.29768440189945977
+        }
+      },
+      {
+        "election": "european-2024",
+        "scope": "14",
+        "observations": 1510,
+        "parameters": {
+          "intensity": 0.6903954748384078,
+          "strengthSigma": 1.7370006614921185,
+          "localSigma": 0.3542040156281976
+        }
+      },
+      {
+        "election": "european-2024",
+        "scope": "01",
+        "observations": 13149,
+        "parameters": {
+          "intensity": 0.3495747215677754,
+          "strengthSigma": 1.680739942032442,
+          "localSigma": 0.22351627075802663
+        }
+      },
+      {
+        "election": "european-2024",
+        "scope": "16",
+        "observations": 3048,
+        "parameters": {
+          "intensity": 0.9482181042671046,
+          "strengthSigma": 1.780805887724137,
+          "localSigma": 0.5324857216264519
+        }
+      },
+      {
+        "election": "european-2024",
+        "scope": "20",
+        "observations": 3804,
+        "parameters": {
+          "intensity": 0.7416448051864544,
+          "strengthSigma": 1.9020097461419019,
+          "localSigma": 0.2895060313812486
+        }
+      },
+      {
+        "election": "european-2024",
+        "scope": "19",
+        "observations": 4216,
+        "parameters": {
+          "intensity": 1.1506063137051867,
+          "strengthSigma": 1.350896825769311,
+          "localSigma": 0.6460387856601078
+        }
+      },
+      {
+        "election": "european-2024",
+        "scope": "09",
+        "observations": 3257,
+        "parameters": {
+          "intensity": 0.3773877868453044,
+          "strengthSigma": 1.5576590706966464,
+          "localSigma": 0.26776705193893546
+        }
+      },
+      {
+        "election": "european-2024",
+        "scope": "04",
+        "observations": 3245,
+        "parameters": {
+          "intensity": 0.7359456354464282,
+          "strengthSigma": 1.6150760908826116,
+          "localSigma": 0.20009348036830776
+        }
+      },
+      {
+        "election": "european-2024",
+        "scope": "10",
+        "observations": 1090,
+        "parameters": {
+          "intensity": 0.5057128235881053,
+          "strengthSigma": 1.6543928521099118,
+          "localSigma": 0.35442614968918823
+        }
+      },
+      {
+        "election": "european-2024",
+        "scope": "02",
+        "observations": 813,
+        "parameters": {
+          "intensity": 0.7295362040364926,
+          "strengthSigma": 1.6687828671517015,
+          "localSigma": 0.19245763765777577
+        }
+      },
+      {
+        "election": "european-2024",
+        "scope": "05",
+        "observations": 6640,
+        "parameters": {
+          "intensity": 0.552440219844326,
+          "strengthSigma": 1.4307147798952942,
+          "localSigma": 0.2935612116769718
+        }
+      }
+    ],
+    "profiles": [
+      {
+        "id": "central-v1",
+        "intensityMultiplier": 1,
+        "concentrationMultiplier": 1,
+        "persistence": 0.942244659811117,
+        "tripleWeight": 1
+      },
+      {
+        "id": "concentrated-v1",
+        "intensityMultiplier": 1,
+        "concentrationMultiplier": 1.4,
+        "persistence": 0.942244659811117,
+        "tripleWeight": 1
+      },
+      {
+        "id": "dispersed-v1",
+        "intensityMultiplier": 1,
+        "concentrationMultiplier": 0.7,
+        "persistence": 0.942244659811117,
+        "tripleWeight": 1
+      },
+      {
+        "id": "weak-persistence-v1",
+        "intensityMultiplier": 1,
+        "concentrationMultiplier": 1,
+        "persistence": 0.2,
+        "tripleWeight": 1
+      },
+      {
+        "id": "strong-persistence-v1",
+        "intensityMultiplier": 1,
+        "concentrationMultiplier": 1,
+        "persistence": 0.95,
+        "tripleWeight": 1
+      },
+      {
+        "id": "no-triples-v1",
+        "intensityMultiplier": 1,
+        "concentrationMultiplier": 1,
+        "persistence": 0.942244659811117,
+        "tripleWeight": 0
+      },
+      {
+        "id": "enhanced-triples-v1",
+        "intensityMultiplier": 1,
+        "concentrationMultiplier": 1,
+        "persistence": 0.942244659811117,
+        "tripleWeight": 3
+      }
+    ]
+  },
+  "chambers": {
+    "parameterVersion": "r26-paired-2022-assumptions-v1-31896d7dffaa",
+    "sigmaPerSqrtDay": {
+      "national": 0.02,
+      "region": 0.01,
+      "local": 0.01
+    },
+    "profiles": [
+      {
+        "id": "central-v1",
+        "sharedVariance": 0.5,
+        "residualCorrelation": 0.7,
+        "gapMultiplier": 1
+      },
+      {
+        "id": "weaker-dependence-v1",
+        "sharedVariance": 0.5,
+        "residualCorrelation": 0,
+        "gapMultiplier": 1
+      },
+      {
+        "id": "stronger-dependence-v1",
+        "sharedVariance": 0.5,
+        "residualCorrelation": 0.96,
+        "gapMultiplier": 1
+      },
+      {
+        "id": "zero-gap-v1",
+        "sharedVariance": 0.5,
+        "residualCorrelation": 0.7,
+        "gapMultiplier": 0
+      },
+      {
+        "id": "double-gap-v1",
+        "sharedVariance": 0.5,
+        "residualCorrelation": 0.7,
+        "gapMultiplier": 2
+      }
+    ]
+  }
+}

@@ -1,0 +1,197 @@
+{
+  "version": "party-drift-stage0-503bbf6dd921",
+  "machine": {
+    "cpu": "Intel(R) Core(TM) i7-14700KF",
+    "logicalProcessors": 28,
+    "memoryBytes": 68498468864,
+    "node": "v24.20.0",
+    "platform": "win32"
+  },
+  "versions": [
+    {
+      "path": "web/scripts/data-preparation/party-drift-contract.ts",
+      "sha256": "a3b79853eeba33804c398c482c2bc84c8b8e20ef02f43b5bec6aaf1936ec5792"
+    },
+    {
+      "path": "web/scripts/data-preparation/party-drift-likelihood.ts",
+      "sha256": "fe192aca32abda0cefb8af30b11afe4a4f30df69ece700e51bfe83276f12efa3"
+    },
+    {
+      "path": "web/scripts/data-preparation/party-drift-prior.ts",
+      "sha256": "5dd9fc0b6bb9f7bb73b3c0af6801a56a17b89d48578cf9e5eba9813ada65ff50"
+    },
+    {
+      "path": "web/scripts/data-preparation/party-drift-fit.ts",
+      "sha256": "5970ac7c12bbf90fba4b18ebb733a5f3efeda3eb1c22e140868bc11a34c2edc8"
+    },
+    {
+      "path": "web/scripts/data-preparation/party-drift-research-cli.ts",
+      "sha256": "7bbc2f6e45191b8cf9f562900420f0d03fbd6ad47b33a1f6ae9c0cee0ebe0055"
+    },
+    {
+      "path": "web/scripts/data-preparation/drift-math.ts",
+      "sha256": "1209cc3d9bf5385946c587504f1130d5cd4aee9f7738611d65f8b8198aeafc89"
+    },
+    {
+      "path": "web/scripts/data-preparation/drift-gaussian.ts",
+      "sha256": "260e12defdeca8d804131f63a92c556b51635142f3a281cfa2a351145f11c381"
+    },
+    {
+      "path": "web/scripts/data-preparation/generation-metrics.ts",
+      "sha256": "a3ffdf6130c6273654570755331ecd050112f23a19c7913b159d4c9bec3f73c3"
+    },
+    {
+      "path": "web/scripts/data-preparation/sources.ts",
+      "sha256": "3c90989885970b80fa49da4eddded22b384cc976ce93b359c0f1cef0817f636e"
+    },
+    {
+      "path": "web/src/lib/core/rng.ts",
+      "sha256": "8c0bb91a79beffde408e90359aabe4d5b5bad4ff93d80f425910e3a62d55ef6e"
+    },
+    {
+      "path": "web/package-lock.json",
+      "sha256": "c653b9a886821ed14ecf0a33caeaa6c8374aab80039fefda0d9685d0b9bee38b"
+    }
+  ],
+  "policy": {
+    "prior": {
+      "version": "neutral-reference-conditional-v1",
+      "nationalSd": 1.5,
+      "localSd": 0.5,
+      "kindSd": 0.5,
+      "nationalInnovationSd": 0.35,
+      "localInnovationSd": 0.25,
+      "calibrationDraws": 32768,
+      "calibrationSeed": "party-drift-prior-calibration-v1",
+      "scaleLogPriorSd": 0.7,
+      "effectLogPriorSd": 0.35
+    },
+    "fit": {
+      "version": "exact-grouped-laplace-reference-v1",
+      "maxDimension": 192,
+      "maxIterations": 120,
+      "gradientTolerance": 0.000001,
+      "maxRidge": 100000000,
+      "posteriorMeanTolerance": 0.025,
+      "posteriorWidthRatio": [
+        0.65,
+        1.5
+      ],
+      "maxRhat": 1.05,
+      "minEss": 400
+    },
+    "reference": {
+      "chains": 4,
+      "burn": 6000,
+      "draws": 12000,
+      "thin": 2
+    },
+    "starts": 9
+  },
+  "phase": "profile-only",
+  "historyVersion": "municipality-generation-history-v1-fc077457a304e3ab",
+  "sourceVersions": [
+    "elections-manifest:c2b3acde94158b48170b7b1d39c45fa8fbe0f6b028bce2c8a010bef64789483c",
+    "camera-20080413:d9edb7e7d82de98ce025598cead45e75cec3ca1775f0e3c054f41b04e0b4592f",
+    "europee-20090607:54c7befc2463d9a8e9e8e06b11a95883fac7a7015d4c4330782882efe8788df7",
+    "camera-20130224:19749e05cead3a8d41ba7829fc0272962835ecd8fb73ced9e3a9eb727106a03a",
+    "europee-20140525:a54aa5ae6f25af865162f494a45530d71580d5718f16aa62619703913388f974",
+    "camera-20180304:98b2dc30821f96d640497421f9bfaeb62aba8013b29cb1bbea29352bfe329372",
+    "europee-20190526:81d21e26d5761ba81797a726316718ef82aa56894c0cdbd3ad236535148daa19",
+    "camera-20220925:dd8ede158ea3f7b0aae65024135a27e34ab9e959728df95f0e977cd56edf88ff",
+    "europee-20240609:1ea7b128447208691427af01443c9ba7b4bfc8d9e07cee361a9f87b3def460a5"
+  ],
+  "loadSeconds": 8.204008900000002,
+  "events": [
+    {
+      "id": "camera-2008",
+      "date": "2008-04-13",
+      "municipalities": 8027,
+      "sourceLists": 30,
+      "maxLocalLists": 18
+    },
+    {
+      "id": "european-2009",
+      "date": "2009-06-07",
+      "municipalities": 8024,
+      "sourceLists": 16,
+      "maxLocalLists": 15
+    },
+    {
+      "id": "camera-2013",
+      "date": "2013-02-24",
+      "municipalities": 8018,
+      "sourceLists": 47,
+      "maxLocalLists": 26
+    },
+    {
+      "id": "european-2014",
+      "date": "2014-05-25",
+      "municipalities": 7982,
+      "sourceLists": 12,
+      "maxLocalLists": 12
+    },
+    {
+      "id": "camera-2018",
+      "date": "2018-03-04",
+      "municipalities": 7883,
+      "sourceLists": 28,
+      "maxLocalLists": 22
+    },
+    {
+      "id": "european-2019",
+      "date": "2019-05-26",
+      "municipalities": 7841,
+      "sourceLists": 18,
+      "maxLocalLists": 17
+    },
+    {
+      "id": "camera-2022",
+      "date": "2022-09-25",
+      "municipalities": 7830,
+      "sourceLists": 23,
+      "maxLocalLists": 20
+    },
+    {
+      "id": "european-2024",
+      "date": "2024-06-09",
+      "municipalities": 7821,
+      "sourceLists": 15,
+      "maxLocalLists": 12
+    }
+  ],
+  "totalRows": 63426,
+  "uniqueMunicipalities": 8194,
+  "distinctSourceLabels": 146,
+  "benchmarks": [
+    {
+      "rows": 256,
+      "medianSeconds": 0.0018072999999994863,
+      "minSeconds": 0.0017304999999996652,
+      "maxSeconds": 0.001906699999999546,
+      "checksum": -21156221.928445198
+    },
+    {
+      "rows": 1024,
+      "medianSeconds": 0.007324749999999767,
+      "minSeconds": 0.00696310000000085,
+      "maxSeconds": 0.010098700000000464,
+      "checksum": -60716880.392872706
+    },
+    {
+      "rows": 4096,
+      "medianSeconds": 0.025573699999999915,
+      "minSeconds": 0.024285499999999956,
+      "maxSeconds": 0.040121799999998986,
+      "checksum": -185774193.21698168
+    }
+  ],
+  "timing": {
+    "estimatedCountDerivativeSweepSeconds": 0.3960052480957018,
+    "hundredSweepsSeconds": 39.60052480957018,
+    "fullFitSeconds": null,
+    "comparisonPlanSeconds": null,
+    "reason": "A count-kernel sweep omits sparse factorization, nonlinear polls, hyperparameter integration, mode exploration and posterior draws. Accuracy gate must pass before a defensible fitting-time estimate exists."
+  },
+  "fullFitStarted": false
+}

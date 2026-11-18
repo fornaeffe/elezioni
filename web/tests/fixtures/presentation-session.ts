@@ -1,0 +1,52 @@
+/** Seed retained result-table evidence directly into test storage. External old
+ * politics files are rejected by CP-05; presentation tests do not exercise import. */
+import { fileURLToPath } from 'node:url';
+import { build } from 'vite';
+import { expect, type Page } from '@playwright/test';
+import { openResultTransfers } from './common-page';
+import { installEditorPreparation } from './editor-preparation';
+import { allowPoliticsSetup, waitForPoliticsReady } from './politics-readiness';
+
+let bundle: Promise<string> | undefined;
+const installed = new WeakSet<Page>();
+export async function seedPresentationSession(page: Page, payload: unknown) {
+  await installEditorPreparation(page);
+  allowPoliticsSetup();
+  const viewerUrl = page.url(), base = process.env.BASE_PATH ?? '';
+  // Dispose the live simulator and its preparation worker before writing test
+  // storage. The home route has no fitting or result-restoration activity.
+  await page.goto(base + '/');
+  bundle ??= (async () => {
+    const bundled = await build({ configFile: false, logLevel: 'error',
+      resolve: { alias: { $lib: fileURLToPath(new URL('../../src/lib', import.meta.url)) } },
+      build: { write: false, minify: false, lib: { entry: fileURLToPath(new URL('./presentation-session.worker.ts', import.meta.url)), formats: ['es'], fileName: 'presentation-fixture' } } });
+    for (const output of Array.isArray(bundled) ? bundled : [bundled]) if ('output' in output)
+      for (const chunk of output.output) if (chunk.type === 'chunk' && chunk.isEntry) return chunk.code;
+    throw new Error('Missing presentation fixture bundle');
+  })();
+  const code = await bundle;
+  if (!installed.has(page)) {
+    await page.route('**/presentation-fixture.js', route => route.fulfill({ contentType: 'text/javascript', body: code }));
+    installed.add(page);
+  }
+  await page.evaluate(({ payload, workerUrl }) => new Promise<void>((resolve, reject) => {
+    const worker = new Worker(workerUrl, { type: 'module' });
+    worker.onerror = e => { worker.terminate(); reject(new Error(e.message)); };
+    worker.onmessage = ({ data }) => {
+      worker.terminate();
+      if (data.error) { reject(new Error(data.error)); return; }
+      localStorage.setItem('elezioni:politics:common-sessions:v1', JSON.stringify({ owner: data.owner, selected: data.resultId,
+        sessions: [{ id: data.resultId, law: data.scenario.selection.scrutiny.id, model: 'M01@2.0.0',
+          createdAt: '2026-11-14T00:00:00Z', renewal: data.scenario.renewal, completed: data.completed, requested: data.requested }] }));
+      localStorage.setItem('elezioni:politics:common-draft:v1', JSON.stringify(data.scenario));
+      resolve();
+    };
+    worker.postMessage(payload);
+  }), { payload, workerUrl: base + '/presentation-fixture.js' });
+  await page.goto(viewerUrl);
+  await openResultTransfers(page);
+  await expect(page.getByRole('combobox', { name: 'Sessione dei risultati', exact: true })).not.toHaveValue('');
+  // Result queries share the workspace worker with model preparation. Establish
+  // its ready state before measuring/asserting the synthetic presentation.
+  await waitForPoliticsReady(page);
+}

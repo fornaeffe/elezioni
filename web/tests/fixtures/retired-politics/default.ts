@@ -1,0 +1,4304 @@
+// Retired M00 default captured before CP-08. Test-only evidence; never regenerated or loaded by the app.
+import type { Scenario } from '../../../src/lib/core/types';
+export const generatedDefaultPoliticsScenario = {
+  "id": "politics-default-v1",
+  "name": "Politiche — scenario nazionale",
+  "electionDate": "2027-09-25",
+  "defaultSource": {
+    "kind": "bundled",
+    "electionKind": "politiche",
+    "territory": "Italia",
+    "dataVersion": "politics:d758a3ffe9a248abe72f56ed69a28da3f873d47d8cf1cb1c6f1d566824b77394",
+    "snapshotId": "politics-static.json",
+    "notes": [
+      "Senate 2018 is 25+ age-confounded audit information; only 2022 supplies the paired 18+ baseline. Data inclusion does not authorize Senate fitting as European history.",
+      "Keep opaque special candidate/group choices. Do not infer unobserved internal party allocations.",
+      "Historical candidate-only ballots use the reviewed old-college attribution and labelled integer municipal reconstruction; retain direct source counts too.",
+      "Same-place reviewed name matches use target ISTAT identities. Unmatched/ambiguous and unlocated records remain present with explicit status; do not invent merger crosswalks or zero history.",
+      "Poll Other complements are constructed on the original dated offered basis before pooling. Nonresponse only sets the effective sample, not election turnout.",
+      "Source zero is a present offered choice with count zero. Missing history is an absent row. Future targets contain geography/electorates separately from observed counts.",
+      "Collegi definitivi 2022 senza sovrapposizione Bolzano della riforma. Popolazione legale 2021; elettori e risultati subcomunali ricostruiti con pesi censuari, non osservati. Dotazioni calcolate provvisorie, non decreto ufficiale.",
+      "Risultati di lista diretti; il residuo sugli elettori conserva la convenzione astensione del modello precedente. Le ricostruzioni per fusioni/scorpori sono stime censuarie esplicite.",
+      "Le anomalie dei denominatori nelle fonti storiche restano esplicite nell’audit: i residui negativi sono conservati, senza inventare elettori o cancellare voti.",
+      "Future coalitions, joint tickets and filing are Luca's scenario instructions, not claims about finalized real electoral agreements.",
+      "IV/Casa Riformista and PSI/Avanti retain recognized identities. Più Uno, Progetto Civico, Futuro Nazionale and Ora retain their existing poll-only atoms; no historical vote inheritance is inferred from leadership changes.",
+      "UDC remains separate from Noi Moderati. Historical joint observations stay grouped; uncertainty of their internal split is not replaced by fabricated component counts.",
+      "Spazio Pubblico is represented within the user's joint Azione/PLD ticket, without a separately invented historical support coordinate.",
+      "Valdostan tickets and Union Valdôtaine must not be equated with the entirety of broader historical alliance votes without an explicit labelled reference assumption.",
+      "Protected-minority declarations are scenario inputs requested by Luca, not a legal certification of eligibility.",
+      "Team K and Süd-Tiroler Freiheit references distinguish Bolzano from Trento. Provincial/cross-chamber references and new-filing priors are explicit assumptions, not newly fitted political counts.",
+      "Special-only lists without identifiable compatible history retain a labelled proxy reference; no absent history is treated as an observed zero.",
+      "M01 parameter date is the retained latest reviewed Camera poll date, 2026-10-16; the evidence cutoff remains 2026-10-19.",
+      "Reviewed whole-component identity aliases are explicit source memberships. Original observation counts and labels remain unchanged.",
+      "Rosatellum geography uses definitive 2022 uni/pluri boundaries without the reform Bolzano overlay; municipal legal census totals and labelled reconstruction assumptions are conserved.",
+      "Transitional M00 presentation uses Camera/common reference means; full common M01 execution is provided by the CP-03 boundary."
+    ]
+  },
+  "globalShareMode": "mean",
+  "abstentionShare": 38.96260035446984,
+  "abstentionOverride": false,
+  "coalitions": [
+    {
+      "id": "centrodestra",
+      "name": "Centrodestra",
+      "color": "#2563EB"
+    },
+    {
+      "id": "centrosinistra",
+      "name": "Centrosinistra",
+      "color": "#DC2626"
+    }
+  ],
+  "lists": [
+    {
+      "id": "fdi",
+      "name": "Fratelli d'Italia",
+      "color": "#003366",
+      "coalition": "Centrodestra",
+      "startingShare": 28.1,
+      "shareOverride": false,
+      "filing": {
+        "camera": [
+          "101",
+          "102",
+          "301",
+          "302",
+          "303",
+          "304",
+          "401",
+          "501",
+          "502",
+          "601",
+          "701",
+          "801",
+          "901",
+          "1001",
+          "1101",
+          "1201",
+          "1202",
+          "1301",
+          "1401",
+          "1501",
+          "1502",
+          "1601",
+          "1701",
+          "1801",
+          "1901",
+          "1902",
+          "2001"
+        ],
+        "senato": [
+          "1",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "16",
+          "17",
+          "18",
+          "19",
+          "20"
+        ]
+      }
+    },
+    {
+      "id": "fi",
+      "name": "Forza Italia",
+      "color": "#0088CC",
+      "coalition": "Centrodestra",
+      "startingShare": 7.1,
+      "shareOverride": false,
+      "filing": {
+        "camera": [
+          "101",
+          "102",
+          "301",
+          "302",
+          "303",
+          "304",
+          "401",
+          "501",
+          "502",
+          "601",
+          "701",
+          "801",
+          "901",
+          "1001",
+          "1101",
+          "1201",
+          "1202",
+          "1301",
+          "1401",
+          "1501",
+          "1502",
+          "1601",
+          "1701",
+          "1801",
+          "1901",
+          "1902",
+          "2001"
+        ],
+        "senato": [
+          "1",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "16",
+          "17",
+          "18",
+          "19",
+          "20"
+        ]
+      }
+    },
+    {
+      "id": "lega",
+      "name": "Lega",
+      "color": "#008040",
+      "coalition": "Centrodestra",
+      "startingShare": 5.2,
+      "shareOverride": false,
+      "filing": {
+        "camera": [
+          "101",
+          "102",
+          "301",
+          "302",
+          "303",
+          "304",
+          "401",
+          "501",
+          "502",
+          "601",
+          "701",
+          "801",
+          "901",
+          "1001",
+          "1101",
+          "1201",
+          "1202",
+          "1301",
+          "1401",
+          "1501",
+          "1502",
+          "1601",
+          "1701",
+          "1801",
+          "1901",
+          "1902",
+          "2001"
+        ],
+        "senato": [
+          "1",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "16",
+          "17",
+          "18",
+          "19",
+          "20"
+        ]
+      }
+    },
+    {
+      "id": "noi-moderati",
+      "name": "Noi Moderati",
+      "color": "#2456A6",
+      "coalition": "Centrodestra",
+      "startingShare": 1,
+      "shareOverride": false,
+      "filing": {
+        "camera": [
+          "101",
+          "102",
+          "301",
+          "302",
+          "303",
+          "304",
+          "401",
+          "501",
+          "502",
+          "601",
+          "701",
+          "801",
+          "901",
+          "1001",
+          "1101",
+          "1201",
+          "1202",
+          "1301",
+          "1401",
+          "1501",
+          "1502",
+          "1601",
+          "1701",
+          "1801",
+          "1901",
+          "1902",
+          "2001"
+        ],
+        "senato": [
+          "1",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "16",
+          "17",
+          "18",
+          "19",
+          "20"
+        ]
+      }
+    },
+    {
+      "id": "udc",
+      "name": "Unione di Centro",
+      "color": "#5DADE2",
+      "coalition": "Centrodestra",
+      "startingShare": 0,
+      "shareOverride": false,
+      "filing": {
+        "camera": [
+          "101",
+          "102",
+          "301",
+          "302",
+          "303",
+          "304",
+          "401",
+          "501",
+          "502",
+          "601",
+          "701",
+          "801",
+          "901",
+          "1001",
+          "1101",
+          "1201",
+          "1202",
+          "1301",
+          "1401",
+          "1501",
+          "1502",
+          "1601",
+          "1701",
+          "1801",
+          "1901",
+          "1902",
+          "2001"
+        ],
+        "senato": [
+          "1",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "16",
+          "17",
+          "18",
+          "19",
+          "20"
+        ]
+      }
+    },
+    {
+      "id": "sud-chiama-nord",
+      "name": "Sud chiama Nord",
+      "color": "#F28C28",
+      "coalition": "Centrodestra",
+      "startingShare": 1,
+      "shareOverride": false,
+      "filing": {
+        "camera": [
+          "101",
+          "102",
+          "301",
+          "302",
+          "303",
+          "304",
+          "501",
+          "502",
+          "601",
+          "701",
+          "801",
+          "901",
+          "1001",
+          "1101",
+          "1201",
+          "1202",
+          "1301",
+          "1401",
+          "1501",
+          "1502",
+          "1601",
+          "1701",
+          "1801",
+          "1901",
+          "1902",
+          "2001"
+        ],
+        "senato": [
+          "1",
+          "3",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "16",
+          "17",
+          "18",
+          "19",
+          "20"
+        ]
+      }
+    },
+    {
+      "id": "cdx-vda",
+      "name": "Centrodestra valdostano",
+      "color": "#315A8A",
+      "coalition": "Centrodestra",
+      "startingShare": 0,
+      "shareOverride": false,
+      "filing": {
+        "camera": [
+          "201"
+        ],
+        "senato": [
+          "2"
+        ]
+      }
+    },
+    {
+      "id": "pd",
+      "name": "Partito Democratico",
+      "color": "#D71920",
+      "coalition": "Centrosinistra",
+      "startingShare": 20.7,
+      "shareOverride": false,
+      "filing": {
+        "camera": [
+          "101",
+          "102",
+          "301",
+          "302",
+          "303",
+          "304",
+          "401",
+          "501",
+          "502",
+          "601",
+          "701",
+          "801",
+          "901",
+          "1001",
+          "1101",
+          "1201",
+          "1202",
+          "1301",
+          "1401",
+          "1501",
+          "1502",
+          "1601",
+          "1701",
+          "1801",
+          "1901",
+          "1902",
+          "2001"
+        ],
+        "senato": [
+          "1",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "16",
+          "17",
+          "18",
+          "19",
+          "20"
+        ]
+      }
+    },
+    {
+      "id": "m5s",
+      "name": "Movimento 5 Stelle",
+      "color": "#F5C400",
+      "coalition": "Centrosinistra",
+      "startingShare": 12.7,
+      "shareOverride": false,
+      "filing": {
+        "camera": [
+          "101",
+          "102",
+          "301",
+          "302",
+          "303",
+          "304",
+          "401",
+          "501",
+          "502",
+          "601",
+          "701",
+          "801",
+          "901",
+          "1001",
+          "1101",
+          "1201",
+          "1202",
+          "1301",
+          "1401",
+          "1501",
+          "1502",
+          "1601",
+          "1701",
+          "1801",
+          "1901",
+          "1902",
+          "2001"
+        ],
+        "senato": [
+          "1",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "16",
+          "17",
+          "18",
+          "19",
+          "20"
+        ]
+      }
+    },
+    {
+      "id": "avs",
+      "name": "Alleanza Verdi Sinistra",
+      "color": "#4A9F38",
+      "coalition": "Centrosinistra",
+      "startingShare": 6.4,
+      "shareOverride": false,
+      "filing": {
+        "camera": [
+          "101",
+          "102",
+          "301",
+          "302",
+          "303",
+          "304",
+          "401",
+          "501",
+          "502",
+          "601",
+          "701",
+          "801",
+          "901",
+          "1001",
+          "1101",
+          "1201",
+          "1202",
+          "1301",
+          "1401",
+          "1501",
+          "1502",
+          "1601",
+          "1701",
+          "1801",
+          "1901",
+          "1902",
+          "2001"
+        ],
+        "senato": [
+          "1",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "16",
+          "17",
+          "18",
+          "19",
+          "20"
+        ]
+      }
+    },
+    {
+      "id": "italia-viva",
+      "name": "Italia Viva - Casa Riformista",
+      "color": "#D6348A",
+      "coalition": "Centrosinistra",
+      "startingShare": 2.4,
+      "shareOverride": false,
+      "filing": {
+        "camera": [
+          "101",
+          "102",
+          "301",
+          "302",
+          "303",
+          "304",
+          "401",
+          "501",
+          "502",
+          "601",
+          "701",
+          "801",
+          "901",
+          "1001",
+          "1101",
+          "1201",
+          "1202",
+          "1301",
+          "1401",
+          "1501",
+          "1502",
+          "1601",
+          "1701",
+          "1801",
+          "1901",
+          "1902",
+          "2001"
+        ],
+        "senato": [
+          "1",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "16",
+          "17",
+          "18",
+          "19",
+          "20"
+        ]
+      }
+    },
+    {
+      "id": "europa-piu-uno-cd",
+      "name": "+ Europa - Più Uno - Centro Democratico",
+      "color": "#E5B700",
+      "coalition": "Centrosinistra",
+      "startingShare": 1.4000000000000001,
+      "shareOverride": false,
+      "filing": {
+        "camera": [
+          "101",
+          "102",
+          "301",
+          "302",
+          "303",
+          "304",
+          "401",
+          "501",
+          "502",
+          "601",
+          "701",
+          "801",
+          "901",
+          "1001",
+          "1101",
+          "1201",
+          "1202",
+          "1301",
+          "1401",
+          "1501",
+          "1502",
+          "1601",
+          "1701",
+          "1801",
+          "1901",
+          "1902",
+          "2001"
+        ],
+        "senato": [
+          "1",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "16",
+          "17",
+          "18",
+          "19",
+          "20"
+        ]
+      }
+    },
+    {
+      "id": "progetto-civico-psi",
+      "name": "Progetto Civico Italia - Avanti PSI",
+      "color": "#E65B50",
+      "coalition": "Centrosinistra",
+      "startingShare": 0,
+      "shareOverride": false,
+      "filing": {
+        "camera": [
+          "101",
+          "102",
+          "301",
+          "302",
+          "303",
+          "304",
+          "501",
+          "502",
+          "601",
+          "701",
+          "801",
+          "901",
+          "1001",
+          "1101",
+          "1201",
+          "1202",
+          "1301",
+          "1401",
+          "1501",
+          "1502",
+          "1601",
+          "1701",
+          "1801",
+          "1901",
+          "1902",
+          "2001"
+        ],
+        "senato": [
+          "1",
+          "3",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "16",
+          "17",
+          "18",
+          "19",
+          "20"
+        ]
+      }
+    },
+    {
+      "id": "csx-vda",
+      "name": "Campo progressista valdostano",
+      "color": "#B83B45",
+      "coalition": "Centrosinistra",
+      "startingShare": 0,
+      "shareOverride": false,
+      "filing": {
+        "camera": [
+          "201"
+        ],
+        "senato": [
+          "2"
+        ]
+      }
+    },
+    {
+      "id": "azione-libdem",
+      "name": "Azione – Partito Liberaldemocratico – Spazio Pubblico",
+      "color": "#0066A1",
+      "coalition": null,
+      "startingShare": 4.2,
+      "shareOverride": false,
+      "filing": {
+        "camera": [
+          "101",
+          "102",
+          "301",
+          "302",
+          "303",
+          "304",
+          "401",
+          "501",
+          "502",
+          "601",
+          "701",
+          "801",
+          "901",
+          "1001",
+          "1101",
+          "1201",
+          "1202",
+          "1301",
+          "1401",
+          "1501",
+          "1502",
+          "1601",
+          "1701",
+          "1801",
+          "1901",
+          "1902",
+          "2001"
+        ],
+        "senato": [
+          "1",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "16",
+          "17",
+          "18",
+          "19",
+          "20"
+        ]
+      }
+    },
+    {
+      "id": "futuro-nazionale",
+      "name": "Futuro Nazionale",
+      "color": "#172B50",
+      "coalition": null,
+      "startingShare": 7.199999999999999,
+      "shareOverride": true,
+      "filing": {
+        "camera": [
+          "101",
+          "102",
+          "201",
+          "301",
+          "302",
+          "303",
+          "304",
+          "401",
+          "501",
+          "502",
+          "601",
+          "701",
+          "801",
+          "901",
+          "1001",
+          "1101",
+          "1201",
+          "1202",
+          "1301",
+          "1401",
+          "1501",
+          "1502",
+          "1601",
+          "1701",
+          "1801",
+          "1901",
+          "1902",
+          "2001"
+        ],
+        "senato": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "16",
+          "17",
+          "18",
+          "19",
+          "20"
+        ]
+      }
+    },
+    {
+      "id": "pap-prc",
+      "name": "Potere al Popolo - Rifondazione Comunista",
+      "color": "#B5121B",
+      "coalition": null,
+      "startingShare": 0,
+      "shareOverride": false,
+      "filing": {
+        "camera": [
+          "101",
+          "102",
+          "301",
+          "302",
+          "303",
+          "304",
+          "501",
+          "502",
+          "601",
+          "701",
+          "801",
+          "901",
+          "1001",
+          "1101",
+          "1201",
+          "1202",
+          "1301",
+          "1401",
+          "1501",
+          "1502",
+          "1601",
+          "1701",
+          "1801",
+          "1901",
+          "1902",
+          "2001"
+        ],
+        "senato": [
+          "1",
+          "3",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "16",
+          "17",
+          "18",
+          "19",
+          "20"
+        ]
+      }
+    },
+    {
+      "id": "ora",
+      "name": "Ora!",
+      "color": "#FFE000",
+      "coalition": null,
+      "startingShare": 1.2,
+      "shareOverride": true,
+      "filing": {
+        "camera": [
+          "101",
+          "102",
+          "301",
+          "302",
+          "501",
+          "502",
+          "701",
+          "801",
+          "901",
+          "1201",
+          "1202",
+          "1501",
+          "1901",
+          "1902"
+        ],
+        "senato": [
+          "1",
+          "3",
+          "5",
+          "7",
+          "8",
+          "9",
+          "12",
+          "15",
+          "19"
+        ]
+      }
+    },
+    {
+      "id": "dsp",
+      "name": "Democrazia Sovrana Popolare",
+      "color": "#800020",
+      "coalition": null,
+      "startingShare": 0,
+      "shareOverride": false,
+      "filing": {
+        "camera": [
+          "101",
+          "102",
+          "301",
+          "302",
+          "501",
+          "502",
+          "701",
+          "801",
+          "901",
+          "1201",
+          "1202",
+          "1501",
+          "1901",
+          "1902"
+        ],
+        "senato": [
+          "1",
+          "3",
+          "5",
+          "7",
+          "8",
+          "9",
+          "12",
+          "15",
+          "19"
+        ]
+      }
+    },
+    {
+      "id": "uv",
+      "name": "Union Valdôtaine",
+      "color": "#A6192E",
+      "coalition": null,
+      "startingShare": 0,
+      "shareOverride": false,
+      "filing": {
+        "camera": [
+          "201"
+        ],
+        "senato": [
+          "2"
+        ]
+      },
+      "minorityRegion": "02"
+    },
+    {
+      "id": "svp-patt",
+      "name": "SVP - PATT",
+      "color": "#252525",
+      "coalition": null,
+      "startingShare": 0,
+      "shareOverride": false,
+      "filing": {
+        "camera": [
+          "401"
+        ],
+        "senato": [
+          "4"
+        ]
+      },
+      "minorityRegion": "04"
+    },
+    {
+      "id": "team-k",
+      "name": "Team K",
+      "color": "#F2B800",
+      "coalition": null,
+      "startingShare": 0,
+      "shareOverride": false,
+      "filing": {
+        "camera": [
+          "401"
+        ],
+        "senato": [
+          "4"
+        ]
+      },
+      "minorityRegion": "04"
+    },
+    {
+      "id": "freiheitlichen",
+      "name": "Die Freiheitlichen",
+      "color": "#1976BC",
+      "coalition": null,
+      "startingShare": 0,
+      "shareOverride": false,
+      "filing": {
+        "camera": [
+          "401"
+        ],
+        "senato": [
+          "4"
+        ]
+      },
+      "minorityRegion": "04"
+    },
+    {
+      "id": "suedtiroler-freiheit",
+      "name": "Süd-Tiroler Freiheit",
+      "color": "#D52B2E",
+      "coalition": null,
+      "startingShare": 0,
+      "shareOverride": false,
+      "filing": {
+        "camera": [
+          "401"
+        ],
+        "senato": [
+          "4"
+        ]
+      },
+      "minorityRegion": "04"
+    }
+  ],
+  "listCorrespondences": [
+    {
+      "id": "authored:camera-2008:1fc67f12960651ad:SVP - PATT",
+      "futureList": "SVP - PATT",
+      "pastElection": "camera 2008",
+      "pastDate": "2008-04-13",
+      "pastList": "SVP",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2008:26be507468bcf2c1:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2008",
+      "pastDate": "2008-04-13",
+      "pastList": "UNIONE DEMOCRATICA PER I CONSUMATORI",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2008:28c4b102c606a567:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2008",
+      "pastDate": "2008-04-13",
+      "pastList": "MOVIMENTO P.P.A.",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2008:2cb4cb3e8a1b01af:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2008",
+      "pastDate": "2008-04-13",
+      "pastList": "PARTITO DI ALTERNATIVA COMUNISTA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2008:34bfc5449b574555:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2008",
+      "pastDate": "2008-04-13",
+      "pastList": "M.E.D.A.",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2008:39accd930cb5f4c4:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2008",
+      "pastDate": "2008-04-13",
+      "pastList": "AUT.LIB. DEMOCRATIE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2008:461fa4373623de3f:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2008",
+      "pastDate": "2008-04-13",
+      "pastList": "LG.VENETA REPUBBLICA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2008:46a75bc453af8e8d:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2008",
+      "pastDate": "2008-04-13",
+      "pastList": "PER IL BENE COMUNE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2008:47c98921356e908f:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2008",
+      "pastDate": "2008-04-13",
+      "pastList": "FORZA NUOVA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2008:4cbbbff12031dd2e:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2008",
+      "pastDate": "2008-04-13",
+      "pastList": "P.LIBERALE ITALIANO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2008:4d42f763a06388bc:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2008",
+      "pastDate": "2008-04-13",
+      "pastList": "L'INTESA VENETA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2008:591b6d1a6e839150:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2008",
+      "pastDate": "2008-04-13",
+      "pastList": "VALLEE D'AOSTE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2008:5efdc4dd461366af:Unione di Centro",
+      "futureList": "Unione di Centro",
+      "pastElection": "camera 2008",
+      "pastDate": "2008-04-13",
+      "pastList": "UNIONE DI CENTRO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2008:5f64599e7ad2bb58:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2008",
+      "pastDate": "2008-04-13",
+      "pastList": "MOVIMENTO PER L'AUTONOMIA ALL.PER IL SUD",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2008:674b6d7e32fb5359:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2008",
+      "pastDate": "2008-04-13",
+      "pastList": "IL LOTO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2008:6d125deb82759bad:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2008",
+      "pastDate": "2008-04-13",
+      "pastList": "LA SINISTRA L'ARCOBALENO",
+      "factor": 0.2,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2008:6d125deb82759bad:Potere al Popolo - Rifondazione Comunista",
+      "futureList": "Potere al Popolo - Rifondazione Comunista",
+      "pastElection": "camera 2008",
+      "pastDate": "2008-04-13",
+      "pastList": "LA SINISTRA L'ARCOBALENO",
+      "factor": 0.45,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2008:6d125deb82759bad:Alleanza Verdi Sinistra",
+      "futureList": "Alleanza Verdi Sinistra",
+      "pastElection": "camera 2008",
+      "pastDate": "2008-04-13",
+      "pastList": "LA SINISTRA L'ARCOBALENO",
+      "factor": 0.35,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2008:6f7070ec516261b6:Partito Democratico",
+      "futureList": "Partito Democratico",
+      "pastElection": "camera 2008",
+      "pastDate": "2008-04-13",
+      "pastList": "PARTITO DEMOCRATICO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2008:71195cff64217206:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2008",
+      "pastDate": "2008-04-13",
+      "pastList": "SINISTRA CRITICA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2008:7ada52980d7fd78b:Noi Moderati",
+      "futureList": "Noi Moderati",
+      "pastElection": "camera 2008",
+      "pastDate": "2008-04-13",
+      "pastList": "DI PIETRO ITALIA DEI VALORI",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2008:82ce4b91783bc009:Lega",
+      "futureList": "Lega",
+      "pastElection": "camera 2008",
+      "pastDate": "2008-04-13",
+      "pastList": "LEGA NORD",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2008:924c66b10352b748:Die Freiheitlichen",
+      "futureList": "Die Freiheitlichen",
+      "pastElection": "camera 2008",
+      "pastDate": "2008-04-13",
+      "pastList": "DIE FREIHEITLICHEN",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2008:a652c703ce944b67:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2008",
+      "pastDate": "2008-04-13",
+      "pastList": "ASS.DIFESA DELLA VITA ABORTO?NO,GRAZIE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2008:a9ee4898261b3510:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2008",
+      "pastDate": "2008-04-13",
+      "pastList": "LEGA NORD",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2008:ab4032306ba7c95d:Forza Italia",
+      "futureList": "Forza Italia",
+      "pastElection": "camera 2008",
+      "pastDate": "2008-04-13",
+      "pastList": "IL POPOLO DELLA LIBERTA'",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2008:b2a749bce85a28ab:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2008",
+      "pastDate": "2008-04-13",
+      "pastList": "LA DESTRA - FIAMMA TRICOLORE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2008:b6c6d5a5796a7351:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2008",
+      "pastDate": "2008-04-13",
+      "pastList": "LEGA SUD",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2008:b9b1539f3ccd81b9:Progetto Civico Italia - Avanti PSI",
+      "futureList": "Progetto Civico Italia - Avanti PSI",
+      "pastElection": "camera 2008",
+      "pastDate": "2008-04-13",
+      "pastList": "PARTITO SOCIALISTA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2008:babffa2636937487:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2008",
+      "pastDate": "2008-04-13",
+      "pastList": "PARTITO COMUNISTA DEI LAVORATORI",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2008:bf136466f7dcbd92:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2008",
+      "pastDate": "2008-04-13",
+      "pastList": "AZ.SOCIALE MUSSOLINI",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2008:cb2d2555c3eea8fa:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2008",
+      "pastDate": "2008-04-13",
+      "pastList": "UNION FUR SUD TIROL",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2008:d5350c18f7d021ea:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2008",
+      "pastDate": "2008-04-13",
+      "pastList": "LEGA PER L'AUTONOMIA ALL.LOMB. LEGA PENS",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2008:e199ad51fb080099:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2008",
+      "pastDate": "2008-04-13",
+      "pastList": "IL POPOLO DELLA LIBERTA'",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2008:f78700cbb032c7ef:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2008",
+      "pastDate": "2008-04-13",
+      "pastList": "SARDIGNA NATZIONE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2008:f85d50d3d6b89433:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2008",
+      "pastDate": "2008-04-13",
+      "pastList": "PS D'AZ.",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2008:fed4233593dfb9e0:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2008",
+      "pastDate": "2008-04-13",
+      "pastList": "LISTA DEI GRILLI PARLANTI",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:01650ec65d712148:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "STAMINALI D'ITALIA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:02a7c35a37706da4:Fratelli d'Italia",
+      "futureList": "Fratelli d'Italia",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "FRATELLI D'ITALIA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:050f44ceb500af21:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "FIAMMA TRICOLORE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:0b0ef218ce962fb5:+ Europa - Più Uno - Centro Democratico",
+      "futureList": "+ Europa - Più Uno - Centro Democratico",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "CENTRO DEMOCRATICO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:1fc67f12960651ad:SVP - PATT",
+      "futureList": "SVP - PATT",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "SVP",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:27a565805f46c63e:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "MIR - MODERATI IN RIVOLUZIONE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:28c4b102c606a567:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "MOVIMENTO P.P.A.",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:2cb4cb3e8a1b01af:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "PARTITO DI ALTERNATIVA COMUNISTA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:2e9bb63714bc76c5:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "FRATELLI D'ITALIA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:374217f8ccc8e0cb:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "INDIPENDENZA VENETA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:3922b2b7de6d43ba:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "MOVIMENTO 5 STELLE BEPPEGRILLO.IT",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:3cdb05da0244606f:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "FARE PER FERMARE IL DECLINO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:41831de63d8c60b3:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "I PIRATI",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:421dece96bfaa381:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "CASAPOUND ITALIA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:461fa4373623de3f:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "LG.VENETA REPUBBLICA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:4787b17d9d03beaf:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "FARE PER FERMARE IL DECLINO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:47c98921356e908f:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "FORZA NUOVA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:49f56d2530b57ecf:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "NATION VAL D'OUTA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:4acfd390523837a4:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "RIFORMISTI ITALIANI",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:5538be71ec336453:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "GRANDE SUD - MPA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:57800bdc6fcb91ac:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "LISTA AMNISTIA GIUSTIZIA LIBERTA'",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:591b6d1a6e839150:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "VALLEE D'AOSTE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:5aa392a3d4d92040:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "AUTONOMIE LIBERTE' DEMOCRATIE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:5efdc4dd461366af:Unione di Centro",
+      "futureList": "Unione di Centro",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "UNIONE DI CENTRO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:639a39fc6def01a6:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "RIFONDAZIONE MISSINA ITALIANA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:64af9640060bc3b3:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "UNIONE POP.",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:69b99ebd9cadb5a7:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "PROGETTO NAZIONALE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:6f7070ec516261b6:Partito Democratico",
+      "futureList": "Partito Democratico",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "PARTITO DEMOCRATICO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:71ec17b3d1006f53:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "MERIS",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:74355b725775a9ba:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "POPOLARI UNITI",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:743c913de30fab3f:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "MOVIMENTO PROGETTO ITALIA - MID",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:7742b50aa36e44f2:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "VENETO STATO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:79f752824b2ae73e:Alleanza Verdi Sinistra",
+      "futureList": "Alleanza Verdi Sinistra",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "SINISTRA ECOLOGIA LIBERTA'",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:7be1030506eec9b8:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "TUTTI INSIEME PER L'ITALIA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:7d4aa69f7b8dba82:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "FUTURO E LIBERTA'",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:82ce4b91783bc009:Lega",
+      "futureList": "Lega",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "LEGA NORD",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:875f0dfbfb5c8723:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "LIBERALI PER L'ITALIA - PLI",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:8eec3556e9a90765:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "CASAPOUND ITALIA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:8fe0ad6099105fca:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "VOTO DI PROTESTA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:924c66b10352b748:Die Freiheitlichen",
+      "futureList": "Die Freiheitlichen",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "DIE FREIHEITLICHEN",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:962ce631152dca35:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "PARTITO PENSIONATI",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:99ce3285980e9846:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "INTESA POPOLARE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:a209a7a0d43787c5:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "DEMOCRAZIA ATEA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:a9ee4898261b3510:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "LEGA NORD",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:ab4032306ba7c95d:Forza Italia",
+      "futureList": "Forza Italia",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "IL POPOLO DELLA LIBERTA'",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:b4f751992e7aa1dd:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "LIBERI PER UNA ITALIA EQUA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:babffa2636937487:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "PARTITO COMUNISTA DEI LAVORATORI",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:bf8c6bf83cbbab11:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "LA DESTRA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:cad9480fe7232e05:Noi Moderati",
+      "futureList": "Noi Moderati",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "RIVOLUZIONE CIVILE",
+      "factor": 0.3,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:cad9480fe7232e05:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "RIVOLUZIONE CIVILE",
+      "factor": 0.15,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:cad9480fe7232e05:Potere al Popolo - Rifondazione Comunista",
+      "futureList": "Potere al Popolo - Rifondazione Comunista",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "RIVOLUZIONE CIVILE",
+      "factor": 0.4,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:cad9480fe7232e05:Alleanza Verdi Sinistra",
+      "futureList": "Alleanza Verdi Sinistra",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "RIVOLUZIONE CIVILE",
+      "factor": 0.15,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:d09eae34751334c8:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "INDIPENDENZA PER LA SARDEGNA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:d1066133c4258141:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "PRI",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:d3f4e8f26ee4fc6c:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "IO AMO L'ITALIA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:d9d4d0bf94abc640:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "UNIONE DI CENTRO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:e3b2f8392b09e591:Noi Moderati",
+      "futureList": "Noi Moderati",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "SCELTA CIVICA CON MONTI PER L'ITALIA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:e9b231ccf4af04ac:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "UNION VALDOTAINE PROGRESSISTE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:ef92b04ced1bbeb0:Movimento 5 Stelle",
+      "futureList": "Movimento 5 Stelle",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "MOVIMENTO 5 STELLE BEPPEGRILLO.IT",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2013:f85d50d3d6b89433:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2013",
+      "pastDate": "2013-02-24",
+      "pastList": "PS D'AZ.",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:01864fa4530b636d:Noi Moderati",
+      "futureList": "Noi Moderati",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "CIVICA POPOLARE LORENZIN",
+      "factor": 0.5,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:01864fa4530b636d:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "CIVICA POPOLARE LORENZIN",
+      "factor": 0.5,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:13fc6fcfad454653:+ Europa - Più Uno - Centro Democratico",
+      "futureList": "+ Europa - Più Uno - Centro Democratico",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "+EUROPA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:190edb497e4f5f30:Partito Democratico",
+      "futureList": "Partito Democratico",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "LIBERI E UGUALI",
+      "factor": 0.4,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:190edb497e4f5f30:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "LIBERI E UGUALI",
+      "factor": 0.1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:190edb497e4f5f30:Alleanza Verdi Sinistra",
+      "futureList": "Alleanza Verdi Sinistra",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "LIBERI E UGUALI",
+      "factor": 0.5,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:197d39edaeecef9d:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "ITALIA AGLI ITALIANI",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:33991a8c4dde04f8:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "10 VOLTE MEGLIO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:3a9a762705023ce7:Progetto Civico Italia - Avanti PSI",
+      "futureList": "Progetto Civico Italia - Avanti PSI",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "ITALIA EUROPA INSIEME",
+      "factor": 0.5,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:3a9a762705023ce7:Alleanza Verdi Sinistra",
+      "futureList": "Alleanza Verdi Sinistra",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "ITALIA EUROPA INSIEME",
+      "factor": 0.5,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:421dece96bfaa381:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "CASAPOUND ITALIA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:459b49b2b15935fc:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "PD-UV-UVP-EPAV",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:48f24a9fb8e0dc22:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "PARTITO VALORE UMANO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:4ab230cc6793abc2:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "MOVIMENTO 5 STELLE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:4b4ecb738c9fa88d:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "ITALIA NEL CUORE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:4daff173089cdc44:Movimento 5 Stelle",
+      "futureList": "Movimento 5 Stelle",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "MOVIMENTO 5 STELLE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:4f13186ce8277ee4:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "POTERE AL POPOLO!",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:5abe8d0f42a577a5:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "POUR TOUS PER TUTTI PE TCHEUT",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:5d74ed3d3e24b46a:Potere al Popolo - Rifondazione Comunista",
+      "futureList": "Potere al Popolo - Rifondazione Comunista",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "POTERE AL POPOLO!",
+      "factor": 0.6666666666666666,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:5d74ed3d3e24b46a:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "POTERE AL POPOLO!",
+      "factor": 0.3333333333333333,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:5f5134556ba502a2:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "LISTA DEL POPOLO PER LA COSTITUZIONE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:6c03a9d0439e7a61:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "IL POPOLO DELLA FAMIGLIA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:6db45ab4e395f279:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "PER UNA SINISTRA RIVOLUZIONARIA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:6f7070ec516261b6:Partito Democratico",
+      "futureList": "Partito Democratico",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "PARTITO DEMOCRATICO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:7070a2a06c8b5585:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "PARTITO REPUBBLICANO ITALIANO - ALA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:78ee75e97bdf9f1a:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "GRANDE NORD",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:79fa6ff443b667e1:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "LEGA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:7ca2986148144229:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "BLOCCO NAZIONALE PER LE LIBERTA'",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:8604543770cc9bcd:Noi Moderati",
+      "futureList": "Noi Moderati",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "NOI CON L'ITALIA - UDC",
+      "factor": 0.6666666666666666,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:8604543770cc9bcd:Unione di Centro",
+      "futureList": "Unione di Centro",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "NOI CON L'ITALIA - UDC",
+      "factor": 0.3333333333333333,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:8eec3556e9a90765:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "CASAPOUND ITALIA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:a03f62cd18b075a1:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "PARTITO VALORE UMANO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:a8e20b340fbd7062:SVP - PATT",
+      "futureList": "SVP - PATT",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "SVP - PATT",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:b5a55c3bbf914327:Forza Italia",
+      "futureList": "Forza Italia",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "FORZA ITALIA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:b9b23550a25d3b22:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "RISPOSTA CIVICA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:be84270f3caaf16b:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "SIAMO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:c0d98ed451f3b859:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "FI -FRAT. D'IT. -MOV.NUOVA VALLE D'AOSTA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:c3dd5af9490ae7b7:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "PARTITO COMUNISTA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:c7b11deb09eacb20:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "AUTODETERMINATZIONE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:cc444eb4e6636016:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "PATTO PER L'AUTONOMIA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:d0f8a0db7e49f990:Fratelli d'Italia",
+      "futureList": "Fratelli d'Italia",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "FRATELLI D'ITALIA CON GIORGIA MELONI",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:de8999127d43f22a:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "RINASCIMENTO MIR",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2018:eb937d8820674f40:Lega",
+      "futureList": "Lega",
+      "pastElection": "camera 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "LEGA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2022:08bf193138b41fe2:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "VALLE D'AOSTA APERTA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2022:0f3745ea71529a05:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "LA RENAISSANCE VALDOTAINE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2022:13fc6fcfad454653:+ Europa - Più Uno - Centro Democratico",
+      "futureList": "+ Europa - Più Uno - Centro Democratico",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "+EUROPA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2022:30d4e8168071e307:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "MASTELLA NOI DI CENTRO EUROPEISTI",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2022:34554c0ea85f071b:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "UNIONE POPOLARE CON DE MAGISTRIS",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2022:390b5e4b5645563f:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "PARTITO ANIMALISTA - UCDL - 10 VOLTE MEGLIO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2022:43e27b126d0dc718:+ Europa - Più Uno - Centro Democratico",
+      "futureList": "+ Europa - Più Uno - Centro Democratico",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "IMPEGNO CIVICO LUIGI DI MAIO - CENTRO DEMOCRATICO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2022:4daff173089cdc44:Movimento 5 Stelle",
+      "futureList": "Movimento 5 Stelle",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "MOVIMENTO 5 STELLE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2022:529853267bfc75c5:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "PARTITO COMUNISTA ITALIANO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2022:53a30c98731cbad9:Sud chiama Nord",
+      "futureList": "Sud chiama Nord",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "SUD CHIAMA NORD",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2022:557050bd10081b9c:Lega",
+      "futureList": "Lega",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "LEGA PER SALVINI PREMIER",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2022:5cf6f60f53dca975:Partito Democratico",
+      "futureList": "Partito Democratico",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "PARTITO DEMOCRATICO - ITALIA DEMOCRATICA E PROGRESSISTA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2022:641b15ad9cdc7135:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "PARTITO COMUNISTA ITALIANO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2022:64fd2c9df8bd093d:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "VITA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2022:81f71996ff3abaeb:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "FORZA DEL POPOLO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2022:91f924c577ee4429:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "ITALEXIT PER L'ITALIA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2022:b556ef6002abd1ff:Azione – Partito Liberaldemocratico – Spazio Pubblico",
+      "futureList": "Azione – Partito Liberaldemocratico – Spazio Pubblico",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "AZIONE - ITALIA VIVA - CALENDA",
+      "factor": 0.56,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2022:b556ef6002abd1ff:Italia Viva - Casa Riformista",
+      "futureList": "Italia Viva - Casa Riformista",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "AZIONE - ITALIA VIVA - CALENDA",
+      "factor": 0.44,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2022:b5a55c3bbf914327:Forza Italia",
+      "futureList": "Forza Italia",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "FORZA ITALIA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2022:bdd5410ef0e1d8d3:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "VALLEE D?AOSTE ? AUTONOMIE PROGRES FEDERALISME",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2022:bf094d64fd83fc9d:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "ALTERNATIVA PER L'ITALIA - NO GREEN PASS",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2022:bfe3c20d43467ba0:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "ALLEANZA VERDI E SINISTRA",
+      "factor": 0.3333333333333333,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2022:bfe3c20d43467ba0:Alleanza Verdi Sinistra",
+      "futureList": "Alleanza Verdi Sinistra",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "ALLEANZA VERDI E SINISTRA",
+      "factor": 0.6666666666666666,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2022:c935bf99af87e510:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "PARTITO DELLA FOLLIA CREATIVA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2022:d0f8a0db7e49f990:Fratelli d'Italia",
+      "futureList": "Fratelli d'Italia",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "FRATELLI D'ITALIA CON GIORGIA MELONI",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2022:d10d4617efe07b0a:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "FREE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2022:e2cc7bf50cde4aae:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "LEGA PER SALVINI PREM.-FORZA IT.-NOI MODERATI-FRAT. D'ITALIA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2022:e6fc51875321f54c:Noi Moderati",
+      "futureList": "Noi Moderati",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "NOI MODERATI/LUPI - TOTI - BRUGNARO - UDC",
+      "factor": 0.75,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2022:e6fc51875321f54c:Unione di Centro",
+      "futureList": "Unione di Centro",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "NOI MODERATI/LUPI - TOTI - BRUGNARO - UDC",
+      "factor": 0.25,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2022:ecf12b480ca1b42b:Potere al Popolo - Rifondazione Comunista",
+      "futureList": "Potere al Popolo - Rifondazione Comunista",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "UNIONE POPOLARE CON DE MAGISTRIS",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2022:f05eb836d5ff6daa:astensione",
+      "futureList": "astensione",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "ITALIA SOVRANA E POPOLARE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2022:f218bf8193055257:Democrazia Sovrana Popolare",
+      "futureList": "Democrazia Sovrana Popolare",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "ITALIA SOVRANA E POPOLARE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:camera-2022:fc97d73fb4e7f251:SVP - PATT",
+      "futureList": "SVP - PATT",
+      "pastElection": "camera 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "SUDTIROLER VOLKSPARTEI (SVP) - PATT",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2009:050f44ceb500af21:astensione",
+      "futureList": "astensione",
+      "pastElection": "europee 2009",
+      "pastDate": "2009-06-07",
+      "pastList": "FIAMMA TRICOLORE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2009:1fc67f12960651ad:SVP - PATT",
+      "futureList": "SVP - PATT",
+      "pastElection": "europee 2009",
+      "pastDate": "2009-06-07",
+      "pastList": "SVP",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2009:345b42e958a60a1a:astensione",
+      "futureList": "astensione",
+      "pastElection": "europee 2009",
+      "pastDate": "2009-06-07",
+      "pastList": "VALLEE D'AOSTE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2009:373a7bbb0026b9d6:astensione",
+      "futureList": "astensione",
+      "pastElection": "europee 2009",
+      "pastDate": "2009-06-07",
+      "pastList": "LISTA MARCO PANNELLA - EMMA BONINO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2009:47c98921356e908f:astensione",
+      "futureList": "astensione",
+      "pastElection": "europee 2009",
+      "pastDate": "2009-06-07",
+      "pastList": "FORZA NUOVA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2009:5aa4d58654ed5a46:astensione",
+      "futureList": "astensione",
+      "pastElection": "europee 2009",
+      "pastDate": "2009-06-07",
+      "pastList": "AUTONOMIE LIBERTE' DEMOCRATIE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2009:5efdc4dd461366af:Unione di Centro",
+      "futureList": "Unione di Centro",
+      "pastElection": "europee 2009",
+      "pastDate": "2009-06-07",
+      "pastList": "UNIONE DI CENTRO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2009:6f7070ec516261b6:Partito Democratico",
+      "futureList": "Partito Democratico",
+      "pastElection": "europee 2009",
+      "pastDate": "2009-06-07",
+      "pastList": "PARTITO DEMOCRATICO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2009:7ada52980d7fd78b:Noi Moderati",
+      "futureList": "Noi Moderati",
+      "pastElection": "europee 2009",
+      "pastDate": "2009-06-07",
+      "pastList": "DI PIETRO ITALIA DEI VALORI",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2009:82ce4b91783bc009:Lega",
+      "futureList": "Lega",
+      "pastElection": "europee 2009",
+      "pastDate": "2009-06-07",
+      "pastList": "LEGA NORD",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2009:96f5d10360bff1a6:astensione",
+      "futureList": "astensione",
+      "pastElection": "europee 2009",
+      "pastDate": "2009-06-07",
+      "pastList": "LIBERAL DEMOCRATICI - MAIE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2009:9ef84464e5fc8d8e:astensione",
+      "futureList": "astensione",
+      "pastElection": "europee 2009",
+      "pastDate": "2009-06-07",
+      "pastList": "LA DESTRA-MPA- PENSIONATI -ALL.DI CENTRO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2009:ab4032306ba7c95d:Forza Italia",
+      "futureList": "Forza Italia",
+      "pastElection": "europee 2009",
+      "pastDate": "2009-06-07",
+      "pastList": "IL POPOLO DELLA LIBERTA'",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2009:acd3b9f00a722f4d:astensione",
+      "futureList": "astensione",
+      "pastElection": "europee 2009",
+      "pastDate": "2009-06-07",
+      "pastList": "RIFOND.COM. - SIN.EUROPEA - COM.ITALIANI",
+      "factor": 0.5,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2009:acd3b9f00a722f4d:Potere al Popolo - Rifondazione Comunista",
+      "futureList": "Potere al Popolo - Rifondazione Comunista",
+      "pastElection": "europee 2009",
+      "pastDate": "2009-06-07",
+      "pastList": "RIFOND.COM. - SIN.EUROPEA - COM.ITALIANI",
+      "factor": 0.5,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2009:babffa2636937487:astensione",
+      "futureList": "astensione",
+      "pastElection": "europee 2009",
+      "pastDate": "2009-06-07",
+      "pastList": "PARTITO COMUNISTA DEI LAVORATORI",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2009:ea7bfca832668a24:Progetto Civico Italia - Avanti PSI",
+      "futureList": "Progetto Civico Italia - Avanti PSI",
+      "pastElection": "europee 2009",
+      "pastDate": "2009-06-07",
+      "pastList": "SINISTRA E LIBERTA' ",
+      "factor": 0.3333333333333333,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2009:ea7bfca832668a24:Alleanza Verdi Sinistra",
+      "futureList": "Alleanza Verdi Sinistra",
+      "pastElection": "europee 2009",
+      "pastDate": "2009-06-07",
+      "pastList": "SINISTRA E LIBERTA' ",
+      "factor": 0.6666666666666666,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2014:1fc67f12960651ad:SVP - PATT",
+      "futureList": "SVP - PATT",
+      "pastElection": "europee 2014",
+      "pastDate": "2014-05-25",
+      "pastList": "SVP",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2014:2aa4af284bf5b787:astensione",
+      "futureList": "astensione",
+      "pastElection": "europee 2014",
+      "pastDate": "2014-05-25",
+      "pastList": "NUOVO CENTRO DESTRA - UDC",
+      "factor": 0.5,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2014:2aa4af284bf5b787:Unione di Centro",
+      "futureList": "Unione di Centro",
+      "pastElection": "europee 2014",
+      "pastDate": "2014-05-25",
+      "pastList": "NUOVO CENTRO DESTRA - UDC",
+      "factor": 0.5,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2014:3c11e7a33ba64d16:Noi Moderati",
+      "futureList": "Noi Moderati",
+      "pastElection": "europee 2014",
+      "pastDate": "2014-05-25",
+      "pastList": "ITALIA DEI VALORI",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2014:630ffa4a75ea0a6a:Potere al Popolo - Rifondazione Comunista",
+      "futureList": "Potere al Popolo - Rifondazione Comunista",
+      "pastElection": "europee 2014",
+      "pastDate": "2014-05-25",
+      "pastList": "L'ALTRA EUROPA CON TSIPRAS",
+      "factor": 0.5,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2014:630ffa4a75ea0a6a:Alleanza Verdi Sinistra",
+      "futureList": "Alleanza Verdi Sinistra",
+      "pastElection": "europee 2014",
+      "pastDate": "2014-05-25",
+      "pastList": "L'ALTRA EUROPA CON TSIPRAS",
+      "factor": 0.5,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2014:6f7070ec516261b6:Partito Democratico",
+      "futureList": "Partito Democratico",
+      "pastElection": "europee 2014",
+      "pastDate": "2014-05-25",
+      "pastList": "PARTITO DEMOCRATICO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2014:769f77556061d41a:Fratelli d'Italia",
+      "futureList": "Fratelli d'Italia",
+      "pastElection": "europee 2014",
+      "pastDate": "2014-05-25",
+      "pastList": "FRATELLI D'ITALIA - ALLEANZA NAZIONALE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2014:8f4b9faaa8a18de8:+ Europa - Più Uno - Centro Democratico",
+      "futureList": "+ Europa - Più Uno - Centro Democratico",
+      "pastElection": "europee 2014",
+      "pastDate": "2014-05-25",
+      "pastList": "SCELTA EUROPEA",
+      "factor": 0.3333333333333333,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2014:8f4b9faaa8a18de8:astensione",
+      "futureList": "astensione",
+      "pastElection": "europee 2014",
+      "pastDate": "2014-05-25",
+      "pastList": "SCELTA EUROPEA",
+      "factor": 0.3333333333333333,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2014:8f4b9faaa8a18de8:Noi Moderati",
+      "futureList": "Noi Moderati",
+      "pastElection": "europee 2014",
+      "pastDate": "2014-05-25",
+      "pastList": "SCELTA EUROPEA",
+      "factor": 0.3333333333333333,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2014:96429e268fae76a0:astensione",
+      "futureList": "astensione",
+      "pastElection": "europee 2014",
+      "pastDate": "2014-05-25",
+      "pastList": "IO CAMBIO - MAIE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2014:b5a55c3bbf914327:Forza Italia",
+      "futureList": "Forza Italia",
+      "pastElection": "europee 2014",
+      "pastDate": "2014-05-25",
+      "pastList": "FORZA ITALIA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2014:b7f2427809f6b617:Die Freiheitlichen",
+      "futureList": "Die Freiheitlichen",
+      "pastElection": "europee 2014",
+      "pastDate": "2014-05-25",
+      "pastList": "LEGA NORD-DIE FREIHEITLICHEN-BASTA EURO",
+      "factor": 0.5,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2014:b7f2427809f6b617:Lega",
+      "futureList": "Lega",
+      "pastElection": "europee 2014",
+      "pastDate": "2014-05-25",
+      "pastList": "LEGA NORD-DIE FREIHEITLICHEN-BASTA EURO",
+      "factor": 0.5,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2014:e9fcc1f1b34fbc01:Alleanza Verdi Sinistra",
+      "futureList": "Alleanza Verdi Sinistra",
+      "pastElection": "europee 2014",
+      "pastDate": "2014-05-25",
+      "pastList": "VERDI EUROPEI-GREEN ITALIA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2014:ef92b04ced1bbeb0:Movimento 5 Stelle",
+      "futureList": "Movimento 5 Stelle",
+      "pastElection": "europee 2014",
+      "pastDate": "2014-05-25",
+      "pastList": "MOVIMENTO 5 STELLE BEPPEGRILLO.IT",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2019:02a7c35a37706da4:Fratelli d'Italia",
+      "futureList": "Fratelli d'Italia",
+      "pastElection": "europee 2019",
+      "pastDate": "2019-05-26",
+      "pastList": "FRATELLI D'ITALIA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2019:0b8b77bc23108dd2:Lega",
+      "futureList": "Lega",
+      "pastElection": "europee 2019",
+      "pastDate": "2019-05-26",
+      "pastList": "LEGA SALVINI PREMIER",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2019:1fc67f12960651ad:SVP - PATT",
+      "futureList": "SVP - PATT",
+      "pastElection": "europee 2019",
+      "pastDate": "2019-05-26",
+      "pastList": "SVP",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2019:2004ff74775eaa1e:astensione",
+      "futureList": "astensione",
+      "pastElection": "europee 2019",
+      "pastDate": "2019-05-26",
+      "pastList": "EUROPA VERDE",
+      "factor": 0.5,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2019:2004ff74775eaa1e:Alleanza Verdi Sinistra",
+      "futureList": "Alleanza Verdi Sinistra",
+      "pastElection": "europee 2019",
+      "pastDate": "2019-05-26",
+      "pastList": "EUROPA VERDE",
+      "factor": 0.5,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2019:23c92f292ef10d8a:+ Europa - Più Uno - Centro Democratico",
+      "futureList": "+ Europa - Più Uno - Centro Democratico",
+      "pastElection": "europee 2019",
+      "pastDate": "2019-05-26",
+      "pastList": "+EUROPA - ITALIA IN COMUNE - PDE ITALIA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2019:297cb80d744a7001:astensione",
+      "futureList": "astensione",
+      "pastElection": "europee 2019",
+      "pastDate": "2019-05-26",
+      "pastList": "PPA MOVIMENTO POLITICO PENSIERO AZIONE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2019:39ac1a27ac12b74f:astensione",
+      "futureList": "astensione",
+      "pastElection": "europee 2019",
+      "pastDate": "2019-05-26",
+      "pastList": "POPOLO DELLA FAMIGLIA - ALTERNATIVA POPOLARE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2019:40d77b84a16df9d8:astensione",
+      "futureList": "astensione",
+      "pastElection": "europee 2019",
+      "pastDate": "2019-05-26",
+      "pastList": "AUTONOMIE PER L'EUROPA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2019:47c98921356e908f:astensione",
+      "futureList": "astensione",
+      "pastElection": "europee 2019",
+      "pastDate": "2019-05-26",
+      "pastList": "FORZA NUOVA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2019:4daff173089cdc44:Movimento 5 Stelle",
+      "futureList": "Movimento 5 Stelle",
+      "pastElection": "europee 2019",
+      "pastDate": "2019-05-26",
+      "pastList": "MOVIMENTO 5 STELLE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2019:6f7070ec516261b6:Partito Democratico",
+      "futureList": "Partito Democratico",
+      "pastElection": "europee 2019",
+      "pastDate": "2019-05-26",
+      "pastList": "PARTITO DEMOCRATICO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2019:ab0e4e9992966785:astensione",
+      "futureList": "astensione",
+      "pastElection": "europee 2019",
+      "pastDate": "2019-05-26",
+      "pastList": "POPOLARI PER L'ITALIA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2019:ac3c85bf2b375c23:astensione",
+      "futureList": "astensione",
+      "pastElection": "europee 2019",
+      "pastDate": "2019-05-26",
+      "pastList": "CASAPOUND ITALIA - DESTRE UNITE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2019:b5a55c3bbf914327:Forza Italia",
+      "futureList": "Forza Italia",
+      "pastElection": "europee 2019",
+      "pastDate": "2019-05-26",
+      "pastList": "FORZA ITALIA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2019:c3dd5af9490ae7b7:astensione",
+      "futureList": "astensione",
+      "pastElection": "europee 2019",
+      "pastDate": "2019-05-26",
+      "pastList": "PARTITO COMUNISTA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2019:d59a75d12ab1f367:astensione",
+      "futureList": "astensione",
+      "pastElection": "europee 2019",
+      "pastDate": "2019-05-26",
+      "pastList": "PARTITO PIRATA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2019:f987d574323db2c1:Potere al Popolo - Rifondazione Comunista",
+      "futureList": "Potere al Popolo - Rifondazione Comunista",
+      "pastElection": "europee 2019",
+      "pastDate": "2019-05-26",
+      "pastList": "LA SINISTRA",
+      "factor": 0.5,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2019:f987d574323db2c1:Alleanza Verdi Sinistra",
+      "futureList": "Alleanza Verdi Sinistra",
+      "pastElection": "europee 2019",
+      "pastDate": "2019-05-26",
+      "pastList": "LA SINISTRA",
+      "factor": 0.5,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2019:fcf8e6a03b279a1e:astensione",
+      "futureList": "astensione",
+      "pastElection": "europee 2019",
+      "pastDate": "2019-05-26",
+      "pastList": "PARTITO ANIMALISTA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2024:02a7c35a37706da4:Fratelli d'Italia",
+      "futureList": "Fratelli d'Italia",
+      "pastElection": "europee 2024",
+      "pastDate": "2024-06-09",
+      "pastList": "FRATELLI D'ITALIA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2024:06d26cc3d6063290:astensione",
+      "futureList": "astensione",
+      "pastElection": "europee 2024",
+      "pastDate": "2024-06-09",
+      "pastList": "LIBERTA'",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2024:0b8b77bc23108dd2:Lega",
+      "futureList": "Lega",
+      "pastElection": "europee 2024",
+      "pastDate": "2024-06-09",
+      "pastList": "LEGA SALVINI PREMIER",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2024:1d0797c822aaf8c9:Forza Italia",
+      "futureList": "Forza Italia",
+      "pastElection": "europee 2024",
+      "pastDate": "2024-06-09",
+      "pastList": "FORZA ITALIA - NOI MODERATI - PPE",
+      "factor": 0.2,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2024:1d0797c822aaf8c9:Noi Moderati",
+      "futureList": "Noi Moderati",
+      "pastElection": "europee 2024",
+      "pastDate": "2024-06-09",
+      "pastList": "FORZA ITALIA - NOI MODERATI - PPE",
+      "factor": 0.6000000000000001,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2024:1d0797c822aaf8c9:Unione di Centro",
+      "futureList": "Unione di Centro",
+      "pastElection": "europee 2024",
+      "pastDate": "2024-06-09",
+      "pastList": "FORZA ITALIA - NOI MODERATI - PPE",
+      "factor": 0.2,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2024:4d3feda3978c28ee:Azione – Partito Liberaldemocratico – Spazio Pubblico",
+      "futureList": "Azione – Partito Liberaldemocratico – Spazio Pubblico",
+      "pastElection": "europee 2024",
+      "pastDate": "2024-06-09",
+      "pastList": "AZIONE - SIAMO EUROPEI",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2024:4daff173089cdc44:Movimento 5 Stelle",
+      "futureList": "Movimento 5 Stelle",
+      "pastElection": "europee 2024",
+      "pastDate": "2024-06-09",
+      "pastList": "MOVIMENTO 5 STELLE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2024:584ecbfad6be609c:SVP - PATT",
+      "futureList": "SVP - PATT",
+      "pastElection": "europee 2024",
+      "pastDate": "2024-06-09",
+      "pastList": "SÜDTIROLER VOLKSPARTEI (SVP)",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2024:60ebeb9ede53919d:Democrazia Sovrana Popolare",
+      "futureList": "Democrazia Sovrana Popolare",
+      "pastElection": "europee 2024",
+      "pastDate": "2024-06-09",
+      "pastList": "DEMOCRAZIA SOVRANA POPOLARE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2024:6e96bae35593b604:Potere al Popolo - Rifondazione Comunista",
+      "futureList": "Potere al Popolo - Rifondazione Comunista",
+      "pastElection": "europee 2024",
+      "pastDate": "2024-06-09",
+      "pastList": "PACE TERRA DIGNITA'",
+      "factor": 0.5,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2024:6e96bae35593b604:astensione",
+      "futureList": "astensione",
+      "pastElection": "europee 2024",
+      "pastDate": "2024-06-09",
+      "pastList": "PACE TERRA DIGNITA'",
+      "factor": 0.5,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2024:6f3aa0e9fbb3c1bc:Italia Viva - Casa Riformista",
+      "futureList": "Italia Viva - Casa Riformista",
+      "pastElection": "europee 2024",
+      "pastDate": "2024-06-09",
+      "pastList": "STATI UNITI D'EUROPA",
+      "factor": 0.3333333333333333,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2024:6f3aa0e9fbb3c1bc:+ Europa - Più Uno - Centro Democratico",
+      "futureList": "+ Europa - Più Uno - Centro Democratico",
+      "pastElection": "europee 2024",
+      "pastDate": "2024-06-09",
+      "pastList": "STATI UNITI D'EUROPA",
+      "factor": 0.3333333333333333,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2024:6f3aa0e9fbb3c1bc:Progetto Civico Italia - Avanti PSI",
+      "futureList": "Progetto Civico Italia - Avanti PSI",
+      "pastElection": "europee 2024",
+      "pastDate": "2024-06-09",
+      "pastList": "STATI UNITI D'EUROPA",
+      "factor": 0.3333333333333333,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2024:6f7070ec516261b6:Partito Democratico",
+      "futureList": "Partito Democratico",
+      "pastElection": "europee 2024",
+      "pastDate": "2024-06-09",
+      "pastList": "PARTITO DEMOCRATICO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2024:a240b60b2d351497:astensione",
+      "futureList": "astensione",
+      "pastElection": "europee 2024",
+      "pastDate": "2024-06-09",
+      "pastList": "PARTITO ANIMALISTA - ITALEXIT PER L'ITALIA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2024:b5942fccf9087754:astensione",
+      "futureList": "astensione",
+      "pastElection": "europee 2024",
+      "pastDate": "2024-06-09",
+      "pastList": "RASSEMBLEMENT VALDÔTAIN",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2024:bfe3c20d43467ba0:Alleanza Verdi Sinistra",
+      "futureList": "Alleanza Verdi Sinistra",
+      "pastElection": "europee 2024",
+      "pastDate": "2024-06-09",
+      "pastList": "ALLEANZA VERDI E SINISTRA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:european-2024:e9f2aa3404335499:astensione",
+      "futureList": "astensione",
+      "pastElection": "europee 2024",
+      "pastDate": "2024-06-09",
+      "pastList": "ALTERNATIVA POPOLARE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:01864fa4530b636d:Noi Moderati",
+      "futureList": "Noi Moderati",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "CIVICA POPOLARE LORENZIN",
+      "factor": 0.5,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:01864fa4530b636d:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "CIVICA POPOLARE LORENZIN",
+      "factor": 0.5,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:025faacb584d2a80:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "SMS - STATO MODERNO SOLIDALE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:13fc6fcfad454653:+ Europa - Più Uno - Centro Democratico",
+      "futureList": "+ Europa - Più Uno - Centro Democratico",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "+EUROPA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:190edb497e4f5f30:Partito Democratico",
+      "futureList": "Partito Democratico",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "LIBERI E UGUALI",
+      "factor": 0.4,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:190edb497e4f5f30:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "LIBERI E UGUALI",
+      "factor": 0.1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:190edb497e4f5f30:Alleanza Verdi Sinistra",
+      "futureList": "Alleanza Verdi Sinistra",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "LIBERI E UGUALI",
+      "factor": 0.5,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:197d39edaeecef9d:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "ITALIA AGLI ITALIANI",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:3a9a762705023ce7:Progetto Civico Italia - Avanti PSI",
+      "futureList": "Progetto Civico Italia - Avanti PSI",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "ITALIA EUROPA INSIEME",
+      "factor": 0.5,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:3a9a762705023ce7:Alleanza Verdi Sinistra",
+      "futureList": "Alleanza Verdi Sinistra",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "ITALIA EUROPA INSIEME",
+      "factor": 0.5,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:421dece96bfaa381:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "CASAPOUND ITALIA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:459b49b2b15935fc:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "PD-UV-UVP-EPAV",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:48f24a9fb8e0dc22:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "PARTITO VALORE UMANO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:4ab230cc6793abc2:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "MOVIMENTO 5 STELLE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:4daff173089cdc44:Movimento 5 Stelle",
+      "futureList": "Movimento 5 Stelle",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "MOVIMENTO 5 STELLE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:4f13186ce8277ee4:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "POTERE AL POPOLO!",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:5abe8d0f42a577a5:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "POUR TOUS PER TUTTI PE TCHEUT",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:5d74ed3d3e24b46a:Potere al Popolo - Rifondazione Comunista",
+      "futureList": "Potere al Popolo - Rifondazione Comunista",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "POTERE AL POPOLO!",
+      "factor": 0.6666666666666666,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:5d74ed3d3e24b46a:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "POTERE AL POPOLO!",
+      "factor": 0.3333333333333333,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:5f5134556ba502a2:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "LISTA DEL POPOLO PER LA COSTITUZIONE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:6c03a9d0439e7a61:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "IL POPOLO DELLA FAMIGLIA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:6db45ab4e395f279:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "PER UNA SINISTRA RIVOLUZIONARIA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:6f7070ec516261b6:Partito Democratico",
+      "futureList": "Partito Democratico",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "PARTITO DEMOCRATICO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:7070a2a06c8b5585:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "PARTITO REPUBBLICANO ITALIANO - ALA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:7439d62c5bec7d14:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "DEMOCRAZIA CRISTIANA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:78ee75e97bdf9f1a:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "GRANDE NORD",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:79fa6ff443b667e1:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "LEGA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:8604543770cc9bcd:Noi Moderati",
+      "futureList": "Noi Moderati",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "NOI CON L'ITALIA - UDC",
+      "factor": 0.6666666666666666,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:8604543770cc9bcd:Unione di Centro",
+      "futureList": "Unione di Centro",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "NOI CON L'ITALIA - UDC",
+      "factor": 0.3333333333333333,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:8eec3556e9a90765:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "CASAPOUND ITALIA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:a03f62cd18b075a1:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "PARTITO VALORE UMANO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:a8e20b340fbd7062:SVP - PATT",
+      "futureList": "SVP - PATT",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "SVP - PATT",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:b5a55c3bbf914327:Forza Italia",
+      "futureList": "Forza Italia",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "FORZA ITALIA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:b9b23550a25d3b22:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "RISPOSTA CIVICA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:be84270f3caaf16b:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "SIAMO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:c0d98ed451f3b859:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "FI -FRAT. D'IT. -MOV.NUOVA VALLE D'AOSTA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:c3dd5af9490ae7b7:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "PARTITO COMUNISTA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:c7b11deb09eacb20:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "AUTODETERMINATZIONE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:ca8e0481321502bc:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "DESTRE UNITE - FORCONI",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:cc444eb4e6636016:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "PATTO PER L'AUTONOMIA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:d0f8a0db7e49f990:Fratelli d'Italia",
+      "futureList": "Fratelli d'Italia",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "FRATELLI D'ITALIA CON GIORGIA MELONI",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:de8999127d43f22a:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "RINASCIMENTO MIR",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2018:eb937d8820674f40:Lega",
+      "futureList": "Lega",
+      "pastElection": "senato 2018",
+      "pastDate": "2018-03-04",
+      "pastList": "LEGA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:08bf193138b41fe2:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "VALLE D'AOSTA APERTA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:13fc6fcfad454653:+ Europa - Più Uno - Centro Democratico",
+      "futureList": "+ Europa - Più Uno - Centro Democratico",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "+EUROPA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:1c5df98eb82c405d:Team K",
+      "futureList": "Team K",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "TEAM K",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:21b7f356fe48e4bd:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "AZIONE - ITALIA VIVA - CALENDA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:25aee3c6b00d5d73:Die Freiheitlichen",
+      "futureList": "Die Freiheitlichen",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "DIE FREIHEITLICHEN",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:30d4e8168071e307:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "MASTELLA NOI DI CENTRO EUROPEISTI",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:34554c0ea85f071b:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "UNIONE POPOLARE CON DE MAGISTRIS",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:390b5e4b5645563f:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "PARTITO ANIMALISTA - UCDL - 10 VOLTE MEGLIO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:43e27b126d0dc718:+ Europa - Più Uno - Centro Democratico",
+      "futureList": "+ Europa - Più Uno - Centro Democratico",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "IMPEGNO CIVICO LUIGI DI MAIO - CENTRO DEMOCRATICO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:4ab230cc6793abc2:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "MOVIMENTO 5 STELLE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:4daff173089cdc44:Movimento 5 Stelle",
+      "futureList": "Movimento 5 Stelle",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "MOVIMENTO 5 STELLE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:50afa62d31ab9eb0:Partito Democratico",
+      "futureList": "Partito Democratico",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "PARTITO DEMOCRATICO - +EUROPA - ALLEANZA VERDI E SINISTRA",
+      "factor": 0.65,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:50afa62d31ab9eb0:+ Europa - Più Uno - Centro Democratico",
+      "futureList": "+ Europa - Più Uno - Centro Democratico",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "PARTITO DEMOCRATICO - +EUROPA - ALLEANZA VERDI E SINISTRA",
+      "factor": 0.12,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:50afa62d31ab9eb0:Alleanza Verdi Sinistra",
+      "futureList": "Alleanza Verdi Sinistra",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "PARTITO DEMOCRATICO - +EUROPA - ALLEANZA VERDI E SINISTRA",
+      "factor": 0.23,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:529853267bfc75c5:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "PARTITO COMUNISTA ITALIANO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:53a30c98731cbad9:Sud chiama Nord",
+      "futureList": "Sud chiama Nord",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "SUD CHIAMA NORD",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:557050bd10081b9c:Lega",
+      "futureList": "Lega",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "LEGA PER SALVINI PREMIER",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:59553122817fe578:Partito Democratico",
+      "futureList": "Partito Democratico",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "CAMPOBASE +EUROPA-ALL.VERDI E SIN.? PD-AZIONE-ITALIA VIVA",
+      "factor": 0.55,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:59553122817fe578:Azione – Partito Liberaldemocratico – Spazio Pubblico",
+      "futureList": "Azione – Partito Liberaldemocratico – Spazio Pubblico",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "CAMPOBASE +EUROPA-ALL.VERDI E SIN.? PD-AZIONE-ITALIA VIVA",
+      "factor": 0.1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:59553122817fe578:+ Europa - Più Uno - Centro Democratico",
+      "futureList": "+ Europa - Più Uno - Centro Democratico",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "CAMPOBASE +EUROPA-ALL.VERDI E SIN.? PD-AZIONE-ITALIA VIVA",
+      "factor": 0.09,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:59553122817fe578:Italia Viva - Casa Riformista",
+      "futureList": "Italia Viva - Casa Riformista",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "CAMPOBASE +EUROPA-ALL.VERDI E SIN.? PD-AZIONE-ITALIA VIVA",
+      "factor": 0.08,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:59553122817fe578:Alleanza Verdi Sinistra",
+      "futureList": "Alleanza Verdi Sinistra",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "CAMPOBASE +EUROPA-ALL.VERDI E SIN.? PD-AZIONE-ITALIA VIVA",
+      "factor": 0.18,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:5cf6f60f53dca975:Partito Democratico",
+      "futureList": "Partito Democratico",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "PARTITO DEMOCRATICO - ITALIA DEMOCRATICA E PROGRESSISTA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:641b15ad9cdc7135:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "PARTITO COMUNISTA ITALIANO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:64fd2c9df8bd093d:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "VITA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:74e6dbd7c6e5d300:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "POUR L?AUTONOMIE ? PER L?AUTONOMIA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:81f71996ff3abaeb:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "FORZA DEL POPOLO",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:86a4377d31fbf08c:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "DESTRE UNITE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:8e0549130428cb26:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "ALLEANZA VERDI E SINISTRA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:91f924c577ee4429:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "ITALEXIT PER L'ITALIA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:a5cada0758daf5d9:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "SUDTIROLER VOLKSPARTEI (SVP) - PATT",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:b1b1891fefb8c88e:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "VITA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:b556ef6002abd1ff:Azione – Partito Liberaldemocratico – Spazio Pubblico",
+      "futureList": "Azione – Partito Liberaldemocratico – Spazio Pubblico",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "AZIONE - ITALIA VIVA - CALENDA",
+      "factor": 0.56,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:b556ef6002abd1ff:Italia Viva - Casa Riformista",
+      "futureList": "Italia Viva - Casa Riformista",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "AZIONE - ITALIA VIVA - CALENDA",
+      "factor": 0.44,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:b5a55c3bbf914327:Forza Italia",
+      "futureList": "Forza Italia",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "FORZA ITALIA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:babffa2636937487:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "PARTITO COMUNISTA DEI LAVORATORI",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:bdd5410ef0e1d8d3:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "VALLEE D?AOSTE ? AUTONOMIE PROGRES FEDERALISME",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:bf094d64fd83fc9d:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "ALTERNATIVA PER L'ITALIA - NO GREEN PASS",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:bfe3c20d43467ba0:Alleanza Verdi Sinistra",
+      "futureList": "Alleanza Verdi Sinistra",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "ALLEANZA VERDI E SINISTRA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:d0f8a0db7e49f990:Fratelli d'Italia",
+      "futureList": "Fratelli d'Italia",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "FRATELLI D'ITALIA CON GIORGIA MELONI",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:dc23c9e9c58fddb6:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "PARTITO DEMOCRATICO - ITALIA DEMOCRATICA E PROGRESSISTA",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:e2cc7bf50cde4aae:Fratelli d'Italia",
+      "futureList": "Fratelli d'Italia",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "LEGA PER SALVINI PREM.-FORZA IT.-NOI MODERATI-FRAT. D'ITALIA",
+      "factor": 0.6,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:e2cc7bf50cde4aae:Forza Italia",
+      "futureList": "Forza Italia",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "LEGA PER SALVINI PREM.-FORZA IT.-NOI MODERATI-FRAT. D'ITALIA",
+      "factor": 0.11,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:e2cc7bf50cde4aae:Noi Moderati",
+      "futureList": "Noi Moderati",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "LEGA PER SALVINI PREM.-FORZA IT.-NOI MODERATI-FRAT. D'ITALIA",
+      "factor": 0.015,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:e2cc7bf50cde4aae:Lega",
+      "futureList": "Lega",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "LEGA PER SALVINI PREM.-FORZA IT.-NOI MODERATI-FRAT. D'ITALIA",
+      "factor": 0.27,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:e2cc7bf50cde4aae:Unione di Centro",
+      "futureList": "Unione di Centro",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "LEGA PER SALVINI PREM.-FORZA IT.-NOI MODERATI-FRAT. D'ITALIA",
+      "factor": 0.005,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:e6fc51875321f54c:Noi Moderati",
+      "futureList": "Noi Moderati",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "NOI MODERATI/LUPI - TOTI - BRUGNARO - UDC",
+      "factor": 0.75,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:e6fc51875321f54c:Unione di Centro",
+      "futureList": "Unione di Centro",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "NOI MODERATI/LUPI - TOTI - BRUGNARO - UDC",
+      "factor": 0.25,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:ecf12b480ca1b42b:Potere al Popolo - Rifondazione Comunista",
+      "futureList": "Potere al Popolo - Rifondazione Comunista",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "UNIONE POPOLARE CON DE MAGISTRIS",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:f05eb836d5ff6daa:astensione",
+      "futureList": "astensione",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "ITALIA SOVRANA E POPOLARE",
+      "factor": 1,
+      "source": "bundled"
+    },
+    {
+      "id": "authored:senato-2022:f218bf8193055257:Democrazia Sovrana Popolare",
+      "futureList": "Democrazia Sovrana Popolare",
+      "pastElection": "senato 2022",
+      "pastDate": "2022-09-25",
+      "pastList": "ITALIA SOVRANA E POPOLARE",
+      "factor": 1,
+      "source": "bundled"
+    }
+  ],
+  "candidateTemplates": [],
+  "candidateGeneration": {
+    "uninominalToPlurinominalShare": 0.35,
+    "plurinominalCandidacyCountShares": [
+      0.875,
+      0.0625,
+      0.025,
+      0.0125,
+      0.025
+    ]
+  },
+  "localShareOverrides": [
+    {
+      "id": "declared-regional-anchor:camera:valdostano-cdx",
+      "scope": "region",
+      "locationCode": "02",
+      "list": "Centrodestra valdostano",
+      "startingShare": 29.799426934097422
+    },
+    {
+      "id": "declared-regional-anchor:camera:valdostano-csx",
+      "scope": "region",
+      "locationCode": "02",
+      "list": "Campo progressista valdostano",
+      "startingShare": 10.86778550961932
+    },
+    {
+      "id": "declared-regional-anchor:camera:union-valdotaine",
+      "scope": "region",
+      "locationCode": "02",
+      "list": "Union Valdôtaine",
+      "startingShare": 38.63171212741413
+    },
+    {
+      "id": "declared-regional-anchor:camera:svp-patt",
+      "scope": "region",
+      "locationCode": "04",
+      "list": "SVP - PATT",
+      "startingShare": 23.148111512926224
+    },
+    {
+      "id": "declared-regional-anchor:camera:freiheitlichen",
+      "scope": "region",
+      "locationCode": "04",
+      "list": "Die Freiheitlichen",
+      "startingShare": 2.8787920962950886
+    },
+    {
+      "id": "declared-subregional:suedtiroler-freiheit:021",
+      "scope": "province",
+      "locationCode": "021",
+      "list": "Süd-Tiroler Freiheit",
+      "startingShare": 10
+    },
+    {
+      "id": "declared-subregional:suedtiroler-freiheit:022",
+      "scope": "province",
+      "locationCode": "022",
+      "list": "Süd-Tiroler Freiheit",
+      "startingShare": 0.3
+    },
+    {
+      "id": "declared-subregional:team-k:021",
+      "scope": "province",
+      "locationCode": "021",
+      "list": "Team K",
+      "startingShare": 0.3
+    },
+    {
+      "id": "declared-subregional:team-k:022",
+      "scope": "province",
+      "locationCode": "022",
+      "list": "Team K",
+      "startingShare": 0.3
+    },
+    {
+      "id": "compared-taa-fn:camera",
+      "scope": "region",
+      "locationCode": "04",
+      "list": "Futuro Nazionale",
+      "startingShare": 7.199999999999999
+    }
+  ]
+} satisfies Scenario;

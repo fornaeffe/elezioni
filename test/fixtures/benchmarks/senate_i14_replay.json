@@ -1,0 +1,200 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-30",
+  "scope": "Approved Senate I14-v2 extension: functional Node paired replay, not a fresh browser performance benchmark",
+  "method": "Generate each frozen input once, run pre-extension and implemented scrutiny on that same payload, compare full serialized result hashes and hashes normalizing only I14-v1/v2 text. Retain every attempted ID. Eight deterministic ID partitions; no resampling.",
+  "baseline": {
+    "gitCommit": "b3830ec4c127ea45d1409a0eb24bacfc0fb83d6e",
+    "bundleSha256": "418ddcef067a45a29688dc1d8afc096bbb16789a467b566b2a8c1be011458874",
+    "sourceGitBlobIds": {
+      "web/src/lib/politics/reform-2026/territorial-matrix.ts": "6444fd9089a467ac8a8ed653dc953391f5cc4020",
+      "web/src/lib/politics/reform-2026/scrutiny-metadata.ts": "6ee4a7f01ec3694ecd658829af0dc180a31ab25e"
+    }
+  },
+  "implementation": {
+    "bundleSha256": "dad7db3e0124e32c65f56ad45f9ae7dbd7e699f7691bb58960c501aca78e1a1b",
+    "sourceHashes": {
+      "web/src/lib/politics/reform-2026/taa-allocation.ts": "8efb6f0caa29107ea2e2f797333f209cc3d30e23322120671a10fcb3b242dde6",
+      "web/src/lib/politics/reform-2026/recovery-communications.ts": "e88a27bf6b61e000f5642f3c97715e79bd6b89f0818806b007a53d2a9a43ac08",
+      "web/src/lib/politics/reform-2026/recovery.ts": "0177273e167f7d93875ecdf85d1685992a8755d37bd56b0a363871ee492505c8",
+      "web/src/lib/politics/reform-2026/scrutiny.ts": "26a55634f72b72db6d472b5501d3aadf1a66b69c1ce6aad234867c5b1c32c024",
+      "web/src/lib/politics/reform-2026/territorial-matrix.ts": "eee3b44c3aaa7f549fa37f81d18eb927053f7652572f4c9af3d16374206d9059",
+      "web/src/lib/politics/reform-2026/scrutiny-metadata.ts": "1c90cefe2a1c5dc930ca74db287a71f1bee54ec9fdeb677d1481ce02a0646d41",
+      "web/src/lib/politics/reform-2026/generation.ts": "0fce44ba730eb9422a3e1067f71baa9ed6533021734aa0e4c04cd65c22496135",
+      "web/src/lib/politics/reform-2026/paired-vote-generation.ts": "c49c872edfb48ee4efc3040be2cc2525f3b9e4bbd7c1ebe2c538ada80cf0a97c",
+      "web/scripts/acceptance/taa-admission-replay.ts": "83687b61470fbb748185966f7989cf78f21ad3ebea70dc17ed17c31ac140fda3"
+    }
+  },
+  "originalReceiptsPreserved": {
+    "data/derived/legacy-comparison/diagnostic-polls-135.json": "22e5c6d6a90dd3743deefcab20398369dfb59a09c161f422158c6da23bfbf5a2",
+    "data/derived/legacy-comparison/poll-noncomputable-135.json": "a8da9006dd4c4ef24977339745fd114b9e3592815282a6d926632404518ddf88",
+    "test/fixtures/benchmarks/vote_share_legacy_comparison.json": "9f72f62bbb661f13f3e19ca73cc9c50803456dbfc88392c747f58d167beab0de",
+    "test/fixtures/benchmarks/taa_admission_replay.json": "506cd2c61d6a8b8289145fa8bf22daa08d125561d5c493a56ec79b48fe222551"
+  },
+  "variants": [
+    {
+      "variant": "no-polls",
+      "inputSha256": "8a8679ed3a2673e6bf869316d074bd5232261abd70396b444a07dc4f236b7939",
+      "attempted": 1000,
+      "beforeComplete": 1000,
+      "afterComplete": 1000,
+      "failures": 0,
+      "byteIdentical": 995,
+      "i14VersionOnly": [
+        301,
+        346,
+        446,
+        522,
+        820
+      ],
+      "substantiveChanges": [],
+      "originalExceptionsPassed": [
+        131,
+        580
+      ]
+    },
+    {
+      "variant": "polls",
+      "inputSha256": "44433654b3cb5ff3466ce07bf3f729fc3f5582decb803154e0db176ce9251412",
+      "attempted": 1000,
+      "beforeComplete": 999,
+      "afterComplete": 1000,
+      "failures": 0,
+      "byteIdentical": 997,
+      "i14VersionOnly": [
+        443,
+        491
+      ],
+      "substantiveChanges": [
+        135
+      ],
+      "originalExceptionsPassed": [
+        23,
+        59,
+        125,
+        239,
+        285,
+        417,
+        495,
+        516,
+        570,
+        617,
+        637,
+        692,
+        726,
+        785,
+        825,
+        832,
+        875,
+        935
+      ]
+    }
+  ],
+  "failures": 0,
+  "control": {
+    "variant": "polls",
+    "id": 135,
+    "generatedInputSha256": "efbb30bc9ff2be283b083d7d28205276e1fa1f1bc7234265df2d1dfabc7bb23d",
+    "before": {
+      "status": "non-computable",
+      "filled": 399,
+      "unique": 399,
+      "camera": 392,
+      "senato": 7
+    },
+    "after": {
+      "status": "complete",
+      "filled": 588,
+      "unique": 588,
+      "camera": 392,
+      "senato": 196
+    },
+    "beforeSha256": "0b55025e2096511b4c53558583e54b5a337f7b76ea3b8cdc1602636a3283ef3f",
+    "afterSha256": "d9740d6c2374732ad02d5633aefd4f5a45411f659c06aeebc5c521327acb3afe",
+    "equivalentExceptI14Version": false,
+    "senateI14": 1,
+    "passed": true,
+    "upstreamUnchanged": true,
+    "interpretations": [
+      {
+        "id": "I01",
+        "version": "I01-v1"
+      },
+      {
+        "id": "I02",
+        "version": "I02-v1"
+      },
+      {
+        "id": "I04",
+        "version": "I04-v1"
+      },
+      {
+        "id": "I07",
+        "version": "approved-2026-10-16"
+      },
+      {
+        "id": "I08",
+        "version": "I08-v1"
+      },
+      {
+        "id": "I09",
+        "version": "I09-v1"
+      },
+      {
+        "id": "I11",
+        "version": "I11-v1"
+      },
+      {
+        "id": "I12",
+        "version": "I12-v1"
+      },
+      {
+        "id": "I14",
+        "version": "I14-v2"
+      }
+    ]
+  },
+  "details": {
+    "path": "test/fixtures/benchmarks/senate_i14_replay_details.json.gz",
+    "sha256": "91874743e857e661aa82e932866667a10a3dda715979794426881c5a0a6889f1",
+    "rows": 2000
+  },
+  "verification": {
+    "unit": {
+      "command": "npx vitest run --maxWorkers=2",
+      "files": 107,
+      "tests": 1257,
+      "failed": 0
+    },
+    "browser": {
+      "suites": [
+        "reform-core.spec.ts",
+        "reform-production-worker.spec.ts"
+      ],
+      "workers": 2,
+      "runs": [
+        {
+          "basePath": "/",
+          "passed": 9
+        },
+        {
+          "basePath": "/elezioni",
+          "passed": 9
+        }
+      ]
+    },
+    "typeChecks": [
+      "npm run check:data",
+      "npm run check (0 errors, 0 warnings)"
+    ],
+    "staticBuilds": [
+      "/",
+      "/elezioni"
+    ],
+    "taa": {
+      "path": "test/fixtures/benchmarks/taa_admission_senate_i14_replay.json",
+      "exceptionsPassed": 20,
+      "controlPassed": true
+    }
+  }
+}

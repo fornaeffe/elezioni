@@ -1,0 +1,1547 @@
+{
+  "schemaVersion": 1,
+  "version": "pcm-historical-camera-european-2013-2024-v2",
+  "reviewedOn": "2026-10-23",
+  "questions": [
+    {
+      "id": "pcm-551-q1",
+      "sourceId": "pcm-551",
+      "questionNumber": 1,
+      "pages": [
+        2
+      ],
+      "independenceGroup": "pcm-551",
+      "text": "Camera national proportional/list vote intention; see the referenced government question and attachment on listed pages.",
+      "ballot": {
+        "kind": "generic",
+        "label": null,
+        "assumptions": [
+          "National adult party intentions used as Camera list-share observation; electorate/scope approximation recorded in calibration report."
+        ]
+      },
+      "denominator": {
+        "kind": "declared-vote-intentions",
+        "basis": "reported",
+        "note": "Support normalized over declared party intentions, not all adults. Full sample N is not asserted as question-specific decided N."
+      },
+      "questionSampleSize": null,
+      "answers": [
+        {
+          "label": "Partito Democratico-PD",
+          "percentage": 29.5,
+          "kind": "list",
+          "entityIds": [
+            "pd"
+          ]
+        },
+        {
+          "label": "Popolo della Libertà-PDL",
+          "percentage": 19.5,
+          "kind": "list",
+          "entityIds": [
+            "pdl"
+          ]
+        },
+        {
+          "label": "Movimento 5 Stelle di Grillo",
+          "percentage": 18.8,
+          "kind": "list",
+          "entityIds": [
+            "m5s"
+          ]
+        },
+        {
+          "label": "Scelta Civica con Monti per l’Italia",
+          "percentage": 9,
+          "kind": "list",
+          "entityIds": [
+            "scelta-civica"
+          ]
+        },
+        {
+          "label": "Lega Nord e 3L di Tremonti",
+          "percentage": 5.2,
+          "kind": "list",
+          "entityIds": [
+            "lega"
+          ]
+        },
+        {
+          "label": "Rivoluzione Civile di Ingroia",
+          "percentage": 4.1,
+          "kind": "list",
+          "entityIds": [
+            "rivoluzione-civile"
+          ]
+        },
+        {
+          "label": "Sinistra Ecologia e Libertà",
+          "percentage": 3.6,
+          "kind": "list",
+          "entityIds": [
+            "sel"
+          ]
+        },
+        {
+          "label": "UDC - Unione di Centro",
+          "percentage": 2.7,
+          "kind": "list",
+          "entityIds": [
+            "udc"
+          ]
+        },
+        {
+          "label": "Lista FARE di Oscar Giannino",
+          "percentage": 1.7,
+          "kind": "list",
+          "entityIds": [
+            "fare"
+          ]
+        },
+        {
+          "label": "Futuro e Libertà di Fini",
+          "percentage": 1.7,
+          "kind": "list",
+          "entityIds": [
+            "fli"
+          ]
+        },
+        {
+          "label": "La Destra",
+          "percentage": 1.1,
+          "kind": "list",
+          "entityIds": [
+            "la-destra"
+          ]
+        },
+        {
+          "label": "Fratelli d’Italia di La Russa, Meloni e Crosetto",
+          "percentage": 1,
+          "kind": "list",
+          "entityIds": [
+            "fdi"
+          ]
+        },
+        {
+          "label": "altri di centro destra (Grande Sud, MIR, Marra)",
+          "percentage": 1,
+          "kind": "residual",
+          "entityIds": []
+        },
+        {
+          "label": "Altri di centro sinistra",
+          "percentage": 0.7,
+          "kind": "residual",
+          "entityIds": []
+        },
+        {
+          "label": "Altri partiti",
+          "percentage": 0.4,
+          "kind": "residual",
+          "entityIds": []
+        },
+        {
+          "label": "INDECISI +ASTENUTI",
+          "percentage": 31,
+          "kind": "nonresponse",
+          "entityIds": []
+        }
+      ],
+      "notes": [
+        "Combined 31% nonresponse includes 18.5% undecided and 12.5% abstention/blank/null; components are not added again. Exclude Senate coalition question and opinion questions."
+      ]
+    },
+    {
+      "id": "pcm-553-q1",
+      "sourceId": "pcm-553",
+      "questionNumber": 1,
+      "pages": [
+        2,
+        3
+      ],
+      "independenceGroup": "pcm-553",
+      "text": "Camera national proportional/list vote intention; see the referenced government question and attachment on listed pages.",
+      "ballot": {
+        "kind": "generic",
+        "label": null,
+        "assumptions": [
+          "National adult party intentions used as Camera list-share observation; electorate/scope approximation recorded in calibration report."
+        ]
+      },
+      "denominator": {
+        "kind": "declared-vote-intentions",
+        "basis": "reported",
+        "note": "Support normalized over declared party intentions, not all adults. Full sample N is not asserted as question-specific decided N."
+      },
+      "questionSampleSize": null,
+      "answers": [
+        {
+          "label": "Pd",
+          "percentage": 29.9,
+          "kind": "list",
+          "entityIds": [
+            "pd"
+          ]
+        },
+        {
+          "label": "Sel",
+          "percentage": 3.7,
+          "kind": "list",
+          "entityIds": [
+            "sel"
+          ]
+        },
+        {
+          "label": "Altri partiti di centro-sinistra",
+          "percentage": 0.5,
+          "kind": "residual",
+          "entityIds": []
+        },
+        {
+          "label": "Scelta Civica Con Monti per l’Italia",
+          "percentage": 11.5,
+          "kind": "list",
+          "entityIds": [
+            "scelta-civica"
+          ]
+        },
+        {
+          "label": "Udc",
+          "percentage": 3.5,
+          "kind": "list",
+          "entityIds": [
+            "udc"
+          ]
+        },
+        {
+          "label": "Altri partiti di centro",
+          "percentage": 1,
+          "kind": "residual",
+          "entityIds": []
+        },
+        {
+          "label": "Pdl",
+          "percentage": 20.4,
+          "kind": "list",
+          "entityIds": [
+            "pdl"
+          ]
+        },
+        {
+          "label": "Lega Nord",
+          "percentage": 5,
+          "kind": "list",
+          "entityIds": [
+            "lega"
+          ]
+        },
+        {
+          "label": "Altri partiti di centro-destra",
+          "percentage": 3.2,
+          "kind": "residual",
+          "entityIds": []
+        },
+        {
+          "label": "Movimento 5 Stelle - GRILLO",
+          "percentage": 16,
+          "kind": "list",
+          "entityIds": [
+            "m5s"
+          ]
+        },
+        {
+          "label": "Rivoluzione civile - INGROIA",
+          "percentage": 4,
+          "kind": "list",
+          "entityIds": [
+            "rivoluzione-civile"
+          ]
+        },
+        {
+          "label": "Altri partiti",
+          "percentage": 1.3,
+          "kind": "residual",
+          "entityIds": []
+        },
+        {
+          "label": "Febbraio 2013: astenuti, incerti, reticenti",
+          "percentage": 25,
+          "kind": "nonresponse",
+          "entityIds": []
+        }
+      ],
+      "notes": [
+        "Coalition subtotals 34.1, 16 and 28.6 are excluded. FdI is not separately reported; its absence is not zero support. February grey-area fraction comes from question 2, page 3."
+      ]
+    },
+    {
+      "id": "pcm-566-q1",
+      "sourceId": "pcm-566",
+      "questionNumber": 1,
+      "pages": [
+        2
+      ],
+      "independenceGroup": "pcm-566",
+      "text": "Camera national proportional/list vote intention; see the referenced government question and attachment on listed pages.",
+      "ballot": {
+        "kind": "generic",
+        "label": null,
+        "assumptions": [
+          "National adult party intentions used as Camera list-share observation; electorate/scope approximation recorded in calibration report."
+        ]
+      },
+      "denominator": {
+        "kind": "declared-vote-intentions",
+        "basis": "reported",
+        "note": "Support normalized over declared party intentions, not all adults. Full sample N is not asserted as question-specific decided N."
+      },
+      "questionSampleSize": null,
+      "answers": [
+        {
+          "label": "RIVOLUZIONE CIVILE",
+          "percentage": 4.9,
+          "kind": "list",
+          "entityIds": [
+            "rivoluzione-civile"
+          ]
+        },
+        {
+          "label": "PD",
+          "percentage": 29.5,
+          "kind": "list",
+          "entityIds": [
+            "pd"
+          ]
+        },
+        {
+          "label": "SEL",
+          "percentage": 3.5,
+          "kind": "list",
+          "entityIds": [
+            "sel"
+          ]
+        },
+        {
+          "label": "ALTRI DI CS",
+          "percentage": 0.6,
+          "kind": "residual",
+          "entityIds": []
+        },
+        {
+          "label": "UDC",
+          "percentage": 3.2,
+          "kind": "list",
+          "entityIds": [
+            "udc"
+          ]
+        },
+        {
+          "label": "FLI",
+          "percentage": 0.9,
+          "kind": "list",
+          "entityIds": [
+            "fli"
+          ]
+        },
+        {
+          "label": "SCELTA CIVICA - CON MONTI PER L’ITALIA",
+          "percentage": 8.9,
+          "kind": "list",
+          "entityIds": [
+            "scelta-civica"
+          ]
+        },
+        {
+          "label": "PDL",
+          "percentage": 20.1,
+          "kind": "list",
+          "entityIds": [
+            "pdl"
+          ]
+        },
+        {
+          "label": "LA DESTRA",
+          "percentage": 0.9,
+          "kind": "list",
+          "entityIds": [
+            "la-destra"
+          ]
+        },
+        {
+          "label": "ALTRI DI CD",
+          "percentage": 2.5,
+          "kind": "residual",
+          "entityIds": []
+        },
+        {
+          "label": "LEGA NORD",
+          "percentage": 5.7,
+          "kind": "list",
+          "entityIds": [
+            "lega"
+          ]
+        },
+        {
+          "label": "M5S",
+          "percentage": 16.3,
+          "kind": "list",
+          "entityIds": [
+            "m5s"
+          ]
+        },
+        {
+          "label": "ALTRI",
+          "percentage": 3,
+          "kind": "residual",
+          "entityIds": []
+        },
+        {
+          "label": "NON VOTO - INCERTI",
+          "percentage": 32.7,
+          "kind": "nonresponse",
+          "entityIds": []
+        }
+      ],
+      "notes": [
+        "Use the first party table only. The following overlapping coalition table, including FARE 1.6, is excluded. Generic political-vote wording is treated as Camera-compatible for adult national list shares; this is an explicit ballot proxy."
+      ]
+    },
+    {
+      "id": "pcm-7154-q1",
+      "sourceId": "pcm-7154",
+      "questionNumber": 1,
+      "pages": [
+        2
+      ],
+      "independenceGroup": "pcm-7154",
+      "text": "Camera national proportional/list vote intention; see the referenced government question and attachment on listed pages.",
+      "ballot": {
+        "kind": "generic",
+        "label": null,
+        "assumptions": [
+          "National adult party intentions used as Camera list-share observation; electorate/scope approximation recorded in calibration report."
+        ]
+      },
+      "denominator": {
+        "kind": "declared-vote-intentions",
+        "basis": "estimated",
+        "note": "Support normalized over declared party intentions, not all adults. Full sample N is not asserted as question-specific decided N."
+      },
+      "questionSampleSize": null,
+      "answers": [
+        {
+          "label": "Forza Italia",
+          "percentage": 15.2,
+          "kind": "list",
+          "entityIds": [
+            "fi"
+          ]
+        },
+        {
+          "label": "Lega",
+          "percentage": 13.4,
+          "kind": "list",
+          "entityIds": [
+            "lega"
+          ]
+        },
+        {
+          "label": "Fratelli d’Italia",
+          "percentage": 4.4,
+          "kind": "list",
+          "entityIds": [
+            "fdi"
+          ]
+        },
+        {
+          "label": "Noi con l’Italia - UDC",
+          "percentage": 2.2,
+          "kind": "list",
+          "entityIds": [
+            "noi-italia"
+          ]
+        },
+        {
+          "label": "Partito Democratico",
+          "percentage": 23.5,
+          "kind": "list",
+          "entityIds": [
+            "pd"
+          ]
+        },
+        {
+          "label": "Civica Popolare Lorenzin",
+          "percentage": 1,
+          "kind": "list",
+          "entityIds": [
+            "civica-popolare"
+          ]
+        },
+        {
+          "label": "+Europa di Emma Bonino",
+          "percentage": 2.9,
+          "kind": "list",
+          "entityIds": [
+            "piu-europa"
+          ]
+        },
+        {
+          "label": "Lista Insieme con Verdi e Socialisti",
+          "percentage": 0.8,
+          "kind": "list",
+          "entityIds": [
+            "insieme"
+          ]
+        },
+        {
+          "label": "SVP",
+          "percentage": 0.4,
+          "kind": "list",
+          "entityIds": [
+            "svp"
+          ]
+        },
+        {
+          "label": "Movimento 5 Stelle",
+          "percentage": 28.3,
+          "kind": "list",
+          "entityIds": [
+            "m5s"
+          ]
+        },
+        {
+          "label": "Liberi e Uguali di Grasso",
+          "percentage": 5.9,
+          "kind": "list",
+          "entityIds": [
+            "leu"
+          ]
+        },
+        {
+          "label": "Potere al Popolo",
+          "percentage": 0.9,
+          "kind": "list",
+          "entityIds": [
+            "pap"
+          ]
+        },
+        {
+          "label": "Altro partito",
+          "percentage": 1.1,
+          "kind": "residual",
+          "entityIds": []
+        },
+        {
+          "label": "Indecisi",
+          "percentage": 18,
+          "kind": "nonresponse",
+          "entityIds": []
+        }
+      ],
+      "notes": [
+        "All support levels are explicit midpoint estimates of published ranges: FI 14.2–16.2; Lega 12.4–14.4; FdI 4.2–4.6; Noi Italia 2.0–2.4; PD 22.5–24.5; Civica 0.8–1.2; +Europa 2.7–3.1; Insieme 0.6–1.0; SVP 0.3–0.5; M5S 27.3–29.3; LeU 5.6–6.2; PaP 0.7–1.1; other 0.9–1.3. These ranges are not additional sampling confidence intervals. Exclude coalition subtotals and Senate question. Undecided 18% does not identify all abstainers; sample-base adjustment remains an estimate."
+      ]
+    },
+    {
+      "id": "pcm-7145-q1",
+      "sourceId": "pcm-7145",
+      "questionNumber": 1,
+      "pages": [
+        2
+      ],
+      "independenceGroup": "pcm-7145",
+      "text": "Camera national proportional/list vote intention; see the referenced government question and attachment on listed pages.",
+      "ballot": {
+        "kind": "generic",
+        "label": null,
+        "assumptions": [
+          "National adult party intentions used as Camera list-share observation; electorate/scope approximation recorded in calibration report."
+        ]
+      },
+      "denominator": {
+        "kind": "declared-vote-intentions",
+        "basis": "reported",
+        "note": "Support normalized over declared party intentions, not all adults. Full sample N is not asserted as question-specific decided N."
+      },
+      "questionSampleSize": null,
+      "answers": [
+        {
+          "label": "M5s",
+          "percentage": 27.8,
+          "kind": "list",
+          "entityIds": [
+            "m5s"
+          ]
+        },
+        {
+          "label": "Pd",
+          "percentage": 21.9,
+          "kind": "list",
+          "entityIds": [
+            "pd"
+          ]
+        },
+        {
+          "label": "Forza Italia",
+          "percentage": 16.3,
+          "kind": "list",
+          "entityIds": [
+            "fi"
+          ]
+        },
+        {
+          "label": "Lega",
+          "percentage": 13.2,
+          "kind": "list",
+          "entityIds": [
+            "lega"
+          ]
+        },
+        {
+          "label": "Liberi e Uguali",
+          "percentage": 6.1,
+          "kind": "list",
+          "entityIds": [
+            "leu"
+          ]
+        },
+        {
+          "label": "Fratelli d’Italia-An",
+          "percentage": 4.8,
+          "kind": "list",
+          "entityIds": [
+            "fdi"
+          ]
+        },
+        {
+          "label": "+Europa-Centro democratico",
+          "percentage": 3.5,
+          "kind": "list",
+          "entityIds": [
+            "piu-europa"
+          ]
+        },
+        {
+          "label": "Altri",
+          "percentage": 6.4,
+          "kind": "residual",
+          "entityIds": []
+        }
+      ],
+      "notes": [
+        "Only the Camera vote table. The separate 53% decided / 45% uncertain / 2% no-answer question measures decision certainty, not the vote-table response base; it is not used as nonresponse."
+      ]
+    },
+    {
+      "id": "pcm-7135-q2",
+      "sourceId": "pcm-7135",
+      "questionNumber": 2,
+      "pages": [
+        2,
+        3
+      ],
+      "independenceGroup": "pcm-7135",
+      "text": "Camera national proportional/list vote intention; see the referenced government question and attachment on listed pages.",
+      "ballot": {
+        "kind": "generic",
+        "label": null,
+        "assumptions": [
+          "National adult party intentions used as Camera list-share observation; electorate/scope approximation recorded in calibration report."
+        ]
+      },
+      "denominator": {
+        "kind": "declared-vote-intentions",
+        "basis": "reported",
+        "note": "Support normalized over declared party intentions, not all adults. Full sample N is not asserted as question-specific decided N."
+      },
+      "questionSampleSize": null,
+      "answers": [
+        {
+          "label": "Movimento 5 stelle",
+          "percentage": 28.3,
+          "kind": "list",
+          "entityIds": [
+            "m5s"
+          ]
+        },
+        {
+          "label": "partito democratico",
+          "percentage": 21.8,
+          "kind": "list",
+          "entityIds": [
+            "pd"
+          ]
+        },
+        {
+          "label": "forza italia",
+          "percentage": 18.3,
+          "kind": "list",
+          "entityIds": [
+            "fi"
+          ]
+        },
+        {
+          "label": "lega",
+          "percentage": 12.8,
+          "kind": "list",
+          "entityIds": [
+            "lega"
+          ]
+        },
+        {
+          "label": "liberi e uguali",
+          "percentage": 5.3,
+          "kind": "list",
+          "entityIds": [
+            "leu"
+          ]
+        },
+        {
+          "label": "fratelli d’Italia",
+          "percentage": 5,
+          "kind": "list",
+          "entityIds": [
+            "fdi"
+          ]
+        },
+        {
+          "label": "noi con l’Italia",
+          "percentage": 2.9,
+          "kind": "list",
+          "entityIds": [
+            "noi-italia"
+          ]
+        },
+        {
+          "label": "+ europa",
+          "percentage": 2.6,
+          "kind": "list",
+          "entityIds": [
+            "piu-europa"
+          ]
+        },
+        {
+          "label": "altri partiti",
+          "percentage": 3,
+          "kind": "residual",
+          "entityIds": []
+        },
+        {
+          "label": "Non voterebbero - sono indecisi",
+          "percentage": 39.2,
+          "kind": "nonresponse",
+          "entityIds": []
+        }
+      ],
+      "notes": [
+        "Use question 2 proportional OGGI levels only. Exclude UNA SETTIMANA FA comparison, uninominal coalition table, and decision-certainty question."
+      ]
+    },
+    {
+      "id": "pcm-11848-q1",
+      "sourceId": "pcm-11848",
+      "questionNumber": 1,
+      "pages": [
+        2
+      ],
+      "independenceGroup": "pcm-11848",
+      "text": "Camera national proportional/list vote intention; see the referenced government question and attachment on listed pages.",
+      "ballot": {
+        "kind": "generic",
+        "label": null,
+        "assumptions": [
+          "National adult party intentions used as Camera list-share observation; electorate/scope approximation recorded in calibration report."
+        ]
+      },
+      "denominator": {
+        "kind": "declared-vote-intentions",
+        "basis": "reported",
+        "note": "Support normalized over declared party intentions, not all adults. Full sample N is not asserted as question-specific decided N."
+      },
+      "questionSampleSize": null,
+      "answers": [
+        {
+          "label": "FRATELLI D’ITALIA",
+          "percentage": 27,
+          "kind": "list",
+          "entityIds": [
+            "fdi"
+          ]
+        },
+        {
+          "label": "PARTITO DEMOCRATICO",
+          "percentage": 20.4,
+          "kind": "list",
+          "entityIds": [
+            "pd"
+          ]
+        },
+        {
+          "label": "LEGA",
+          "percentage": 12.1,
+          "kind": "list",
+          "entityIds": [
+            "lega"
+          ]
+        },
+        {
+          "label": "MOVIMENTO 5 STELLE",
+          "percentage": 12,
+          "kind": "list",
+          "entityIds": [
+            "m5s"
+          ]
+        },
+        {
+          "label": "AZIONE – ITALIA VIVA",
+          "percentage": 7.5,
+          "kind": "list",
+          "entityIds": [
+            "azione-italia-viva"
+          ]
+        },
+        {
+          "label": "FORZA ITALIA",
+          "percentage": 6.7,
+          "kind": "list",
+          "entityIds": [
+            "fi"
+          ]
+        },
+        {
+          "label": "VERDI E SINISTRA",
+          "percentage": 4,
+          "kind": "list",
+          "entityIds": [
+            "avs"
+          ]
+        },
+        {
+          "label": "ITALEXIT CON PARAGONE",
+          "percentage": 2.9,
+          "kind": "list",
+          "entityIds": [
+            "italexit"
+          ]
+        },
+        {
+          "label": "+EUROPA",
+          "percentage": 2.1,
+          "kind": "list",
+          "entityIds": [
+            "piu-europa"
+          ]
+        },
+        {
+          "label": "NOI MODERATI",
+          "percentage": 1.4,
+          "kind": "list",
+          "entityIds": [
+            "noi-moderati"
+          ]
+        },
+        {
+          "label": "IMPEGNO CIVICO",
+          "percentage": 1,
+          "kind": "list",
+          "entityIds": [
+            "impegno-civico"
+          ]
+        },
+        {
+          "label": "UNIONE POPOLARE",
+          "percentage": 1,
+          "kind": "list",
+          "entityIds": [
+            "unione-popolare"
+          ]
+        },
+        {
+          "label": "ALTRE LISTE",
+          "percentage": 1.9,
+          "kind": "residual",
+          "entityIds": []
+        },
+        {
+          "label": "NON SI ESPRIME",
+          "percentage": 41,
+          "kind": "nonresponse",
+          "entityIds": []
+        }
+      ],
+      "notes": [
+        "Generic national party wording is treated as Camera-compatible for adult list shares; explicit ballot proxy."
+      ]
+    },
+    {
+      "id": "pcm-11839-q1",
+      "sourceId": "pcm-11839",
+      "questionNumber": 1,
+      "pages": [
+        2
+      ],
+      "independenceGroup": "pcm-11839",
+      "text": "Camera national proportional/list vote intention; see the referenced government question and attachment on listed pages.",
+      "ballot": {
+        "kind": "generic",
+        "label": null,
+        "assumptions": [
+          "National adult party intentions used as Camera list-share observation; electorate/scope approximation recorded in calibration report."
+        ]
+      },
+      "denominator": {
+        "kind": "declared-vote-intentions",
+        "basis": "reported",
+        "note": "Support normalized over declared party intentions, not all adults. Full sample N is not asserted as question-specific decided N."
+      },
+      "questionSampleSize": null,
+      "answers": [
+        {
+          "label": "Fratelli d’Italia",
+          "percentage": 24.6,
+          "kind": "list",
+          "entityIds": [
+            "fdi"
+          ]
+        },
+        {
+          "label": "Pd-Italia democratica e progressista",
+          "percentage": 22.4,
+          "kind": "list",
+          "entityIds": [
+            "pd"
+          ]
+        },
+        {
+          "label": "M5s",
+          "percentage": 13.8,
+          "kind": "list",
+          "entityIds": [
+            "m5s"
+          ]
+        },
+        {
+          "label": "Lega",
+          "percentage": 12,
+          "kind": "list",
+          "entityIds": [
+            "lega"
+          ]
+        },
+        {
+          "label": "Forza Italia",
+          "percentage": 7.7,
+          "kind": "list",
+          "entityIds": [
+            "fi"
+          ]
+        },
+        {
+          "label": "Azione e Italia Viva",
+          "percentage": 6.8,
+          "kind": "list",
+          "entityIds": [
+            "azione-italia-viva"
+          ]
+        },
+        {
+          "label": "Europa Verde-Verdi e Sinistra Italiana",
+          "percentage": 3.4,
+          "kind": "list",
+          "entityIds": [
+            "avs"
+          ]
+        },
+        {
+          "label": "+Europa",
+          "percentage": 2.2,
+          "kind": "list",
+          "entityIds": [
+            "piu-europa"
+          ]
+        },
+        {
+          "label": "Italexit",
+          "percentage": 2,
+          "kind": "list",
+          "entityIds": [
+            "italexit"
+          ]
+        },
+        {
+          "label": "Altri",
+          "percentage": 5.1,
+          "kind": "residual",
+          "entityIds": []
+        }
+      ],
+      "notes": [
+        "Only Camera vote table. Not the Veneto autonomy survey (11857) or Veneto vote estimate returned by the same archive search."
+      ]
+    },
+    {
+      "id": "pcm-11832-q2",
+      "sourceId": "pcm-11832",
+      "questionNumber": 2,
+      "pages": [
+        2,
+        3
+      ],
+      "independenceGroup": "pcm-11832",
+      "text": "Camera national proportional/list vote intention; see the referenced government question and attachment on listed pages.",
+      "ballot": {
+        "kind": "generic",
+        "label": null,
+        "assumptions": [
+          "National adult party intentions used as Camera list-share observation; electorate/scope approximation recorded in calibration report."
+        ]
+      },
+      "denominator": {
+        "kind": "declared-vote-intentions",
+        "basis": "reported",
+        "note": "Support normalized over declared party intentions, not all adults. Full sample N is not asserted as question-specific decided N."
+      },
+      "questionSampleSize": null,
+      "answers": [
+        {
+          "label": "fdi",
+          "percentage": 25.4,
+          "kind": "list",
+          "entityIds": [
+            "fdi"
+          ]
+        },
+        {
+          "label": "lega",
+          "percentage": 11.4,
+          "kind": "list",
+          "entityIds": [
+            "lega"
+          ]
+        },
+        {
+          "label": "fi-ppe",
+          "percentage": 10.2,
+          "kind": "list",
+          "entityIds": [
+            "fi"
+          ]
+        },
+        {
+          "label": "noi moderati",
+          "percentage": 1.3,
+          "kind": "list",
+          "entityIds": [
+            "noi-moderati"
+          ]
+        },
+        {
+          "label": "pd",
+          "percentage": 21.6,
+          "kind": "list",
+          "entityIds": [
+            "pd"
+          ]
+        },
+        {
+          "label": "verdi/si",
+          "percentage": 3.2,
+          "kind": "list",
+          "entityIds": [
+            "avs"
+          ]
+        },
+        {
+          "label": "+europa",
+          "percentage": 2,
+          "kind": "list",
+          "entityIds": [
+            "piu-europa"
+          ]
+        },
+        {
+          "label": "impegno civico",
+          "percentage": 0.9,
+          "kind": "list",
+          "entityIds": [
+            "impegno-civico"
+          ]
+        },
+        {
+          "label": "m5s",
+          "percentage": 12.2,
+          "kind": "list",
+          "entityIds": [
+            "m5s"
+          ]
+        },
+        {
+          "label": "iv/azione",
+          "percentage": 6.4,
+          "kind": "list",
+          "entityIds": [
+            "azione-italia-viva"
+          ]
+        },
+        {
+          "label": "italexit",
+          "percentage": 2.6,
+          "kind": "list",
+          "entityIds": [
+            "italexit"
+          ]
+        },
+        {
+          "label": "altri partiti",
+          "percentage": 2.8,
+          "kind": "residual",
+          "entityIds": []
+        },
+        {
+          "label": "ASTENSIONE E INCERTI",
+          "percentage": 43.2,
+          "kind": "nonresponse",
+          "entityIds": []
+        }
+      ],
+      "notes": [
+        "Question 2 proportional Camera levels only. 43.2% nonresponse is from question 1; exclude turnout prediction, uninominal coalitions and seats."
+      ]
+    },
+    {
+      "id": "pcm-1342-q1",
+      "sourceId": "pcm-1342",
+      "questionNumber": 1,
+      "pages": [
+        2
+      ],
+      "independenceGroup": "pcm-1342",
+      "text": "Se oggi dovesse votare per le Elezioni europee, quale partito voterebbe? (National party-support table; exact wording available in the referenced government survey.)",
+      "ballot": {
+        "kind": "generic",
+        "label": null,
+        "assumptions": [
+          "European national adult vote intentions, not Camera or regional preferences."
+        ]
+      },
+      "denominator": {
+        "kind": "declared-vote-intentions",
+        "basis": "reported",
+        "note": "Valid declared list intentions; full N is not decided-voter N."
+      },
+      "questionSampleSize": null,
+      "answers": [
+        {
+          "label": "PD (European list)",
+          "percentage": 34.8,
+          "kind": "list",
+          "entityIds": [
+            "pd"
+          ]
+        },
+        {
+          "label": "Movimento 5 Stelle (European list)",
+          "percentage": 24,
+          "kind": "list",
+          "entityIds": [
+            "m5s"
+          ]
+        },
+        {
+          "label": "Lega (European list)",
+          "percentage": 5.6,
+          "kind": "list",
+          "entityIds": [
+            "lega"
+          ]
+        },
+        {
+          "label": "[all other reported list support: derived complement]",
+          "percentage": 35.6,
+          "kind": "residual",
+          "entityIds": []
+        },
+        {
+          "label": "Reported undecided / nonresponse (see notes)",
+          "percentage": 17.5,
+          "kind": "nonresponse",
+          "entityIds": []
+        }
+      ],
+      "notes": [
+        "This historical translation selects only PD, M5S and Lega; all remaining reported parties are the exact derived complement 100 minus these levels. No within-other party split is inferred. The complete source table can be manually consulted using the government survey reference in manifest.json."
+      ]
+    },
+    {
+      "id": "pcm-1333-q1",
+      "sourceId": "pcm-1333",
+      "questionNumber": 1,
+      "pages": [
+        2
+      ],
+      "independenceGroup": "pcm-1333",
+      "text": "Se oggi dovesse votare per le Elezioni europee, quale partito voterebbe? (National party-support table; exact wording available in the referenced government survey.)",
+      "ballot": {
+        "kind": "generic",
+        "label": null,
+        "assumptions": [
+          "European national adult vote intentions, not Camera or regional preferences."
+        ]
+      },
+      "denominator": {
+        "kind": "declared-vote-intentions",
+        "basis": "reported",
+        "note": "Valid declared list intentions; full N is not decided-voter N."
+      },
+      "questionSampleSize": null,
+      "answers": [
+        {
+          "label": "PD (European list)",
+          "percentage": 32.8,
+          "kind": "list",
+          "entityIds": [
+            "pd"
+          ]
+        },
+        {
+          "label": "Movimento 5 Stelle (European list)",
+          "percentage": 22,
+          "kind": "list",
+          "entityIds": [
+            "m5s"
+          ]
+        },
+        {
+          "label": "Lega (European list)",
+          "percentage": 4.5,
+          "kind": "list",
+          "entityIds": [
+            "lega"
+          ]
+        },
+        {
+          "label": "[all other reported list support: derived complement]",
+          "percentage": 40.7,
+          "kind": "residual",
+          "entityIds": []
+        }
+      ],
+      "notes": [
+        "This historical translation selects only PD, M5S and Lega; all remaining reported parties are the exact derived complement 100 minus these levels. No within-other party split is inferred. The complete source table can be manually consulted using the government survey reference in manifest.json."
+      ]
+    },
+    {
+      "id": "pcm-8790-q1",
+      "sourceId": "pcm-8790",
+      "questionNumber": 1,
+      "pages": [
+        2
+      ],
+      "independenceGroup": "pcm-8790",
+      "text": "Se oggi dovesse votare per le Elezioni europee, quale partito voterebbe? (National party-support table; exact wording available in the referenced government survey.)",
+      "ballot": {
+        "kind": "generic",
+        "label": null,
+        "assumptions": [
+          "European national adult vote intentions, not Camera or regional preferences."
+        ]
+      },
+      "denominator": {
+        "kind": "declared-vote-intentions",
+        "basis": "reported",
+        "note": "Valid declared list intentions; full N is not decided-voter N."
+      },
+      "questionSampleSize": null,
+      "answers": [
+        {
+          "label": "PD (European list)",
+          "percentage": 22.5,
+          "kind": "list",
+          "entityIds": [
+            "pd"
+          ]
+        },
+        {
+          "label": "Movimento 5 Stelle (European list)",
+          "percentage": 22.7,
+          "kind": "list",
+          "entityIds": [
+            "m5s"
+          ]
+        },
+        {
+          "label": "Lega (European list)",
+          "percentage": 30.5,
+          "kind": "list",
+          "entityIds": [
+            "lega"
+          ]
+        },
+        {
+          "label": "[all other reported list support: derived complement]",
+          "percentage": 24.3,
+          "kind": "residual",
+          "entityIds": []
+        },
+        {
+          "label": "Reported undecided / nonresponse (see notes)",
+          "percentage": 17,
+          "kind": "nonresponse",
+          "entityIds": []
+        }
+      ],
+      "notes": [
+        "This historical translation selects only PD, M5S and Lega; all remaining reported parties are the exact derived complement 100 minus these levels. No within-other party split is inferred. The complete source table can be manually consulted using the government survey reference in manifest.json."
+      ]
+    },
+    {
+      "id": "pcm-8779-q2",
+      "sourceId": "pcm-8779",
+      "questionNumber": 2,
+      "pages": [
+        2,
+        3
+      ],
+      "independenceGroup": "pcm-8779",
+      "text": "Se oggi dovesse votare per le Elezioni europee, quale partito voterebbe? (National party-support table; exact wording available in the referenced government survey.)",
+      "ballot": {
+        "kind": "generic",
+        "label": null,
+        "assumptions": [
+          "European national adult vote intentions, not Camera or regional preferences."
+        ]
+      },
+      "denominator": {
+        "kind": "declared-vote-intentions",
+        "basis": "reported",
+        "note": "Valid declared list intentions; full N is not decided-voter N."
+      },
+      "questionSampleSize": null,
+      "answers": [
+        {
+          "label": "PD (European list)",
+          "percentage": 20.4,
+          "kind": "list",
+          "entityIds": [
+            "pd"
+          ]
+        },
+        {
+          "label": "Movimento 5 Stelle (European list)",
+          "percentage": 22.6,
+          "kind": "list",
+          "entityIds": [
+            "m5s"
+          ]
+        },
+        {
+          "label": "Lega (European list)",
+          "percentage": 32.2,
+          "kind": "list",
+          "entityIds": [
+            "lega"
+          ]
+        },
+        {
+          "label": "[all other reported list support: derived complement]",
+          "percentage": 24.8,
+          "kind": "residual",
+          "entityIds": []
+        }
+      ],
+      "notes": [
+        "This historical translation selects only PD, M5S and Lega; all remaining reported parties are the exact derived complement 100 minus these levels. No within-other party split is inferred. The complete source table can be manually consulted using the government survey reference in manifest.json.",
+        "Exclude question 1 decision certainty. The party table continues onto page 3."
+      ]
+    },
+    {
+      "id": "pcm-8787-q3",
+      "sourceId": "pcm-8787",
+      "questionNumber": 3,
+      "pages": [
+        3
+      ],
+      "independenceGroup": "pcm-8787",
+      "text": "Se oggi dovesse votare per le Elezioni europee, quale partito voterebbe? (National party-support table; exact wording available in the referenced government survey.)",
+      "ballot": {
+        "kind": "generic",
+        "label": null,
+        "assumptions": [
+          "European national adult vote intentions, not Camera or regional preferences."
+        ]
+      },
+      "denominator": {
+        "kind": "declared-vote-intentions",
+        "basis": "estimated",
+        "note": "Valid declared list intentions; full N is not decided-voter N."
+      },
+      "questionSampleSize": null,
+      "answers": [
+        {
+          "label": "PD (European list)",
+          "percentage": 21.5,
+          "kind": "list",
+          "entityIds": [
+            "pd"
+          ]
+        },
+        {
+          "label": "Movimento 5 Stelle (European list)",
+          "percentage": 22.5,
+          "kind": "list",
+          "entityIds": [
+            "m5s"
+          ]
+        },
+        {
+          "label": "Lega (European list)",
+          "percentage": 31,
+          "kind": "list",
+          "entityIds": [
+            "lega"
+          ]
+        },
+        {
+          "label": "[all other reported list support: derived complement]",
+          "percentage": 25.0,
+          "kind": "residual",
+          "entityIds": []
+        },
+        {
+          "label": "Reported undecided / nonresponse (see notes)",
+          "percentage": 46,
+          "kind": "nonresponse",
+          "entityIds": []
+        }
+      ],
+      "notes": [
+        "This historical translation selects only PD, M5S and Lega; all remaining reported parties are the exact derived complement 100 minus these levels. No within-other party split is inferred. The complete source table can be manually consulted using the government survey reference in manifest.json.",
+        "Support is the midpoint estimate of published ranges: Lega 29–33, M5S 20.5–24.5, PD 19.5–23.5. Full table midpoint total is 100. Source method/sample headings are swapped: N1000 and 4413 contacts appear under information collection, CATI-CAMI-CAWI under sample size; retain both in methodological provenance."
+      ]
+    },
+    {
+      "id": "pcm-12951-q1",
+      "sourceId": "pcm-12951",
+      "questionNumber": 1,
+      "pages": [
+        2
+      ],
+      "independenceGroup": "pcm-12951",
+      "text": "Se oggi dovesse votare per le Elezioni europee, quale partito voterebbe? (National party-support table; exact wording available in the referenced government survey.)",
+      "ballot": {
+        "kind": "generic",
+        "label": null,
+        "assumptions": [
+          "European national adult vote intentions, not Camera or regional preferences."
+        ]
+      },
+      "denominator": {
+        "kind": "declared-vote-intentions",
+        "basis": "reported",
+        "note": "Valid declared list intentions; full N is not decided-voter N."
+      },
+      "questionSampleSize": null,
+      "answers": [
+        {
+          "label": "PD (European list)",
+          "percentage": 22,
+          "kind": "list",
+          "entityIds": [
+            "pd"
+          ]
+        },
+        {
+          "label": "Movimento 5 Stelle (European list)",
+          "percentage": 14.7,
+          "kind": "list",
+          "entityIds": [
+            "m5s"
+          ]
+        },
+        {
+          "label": "Lega (European list)",
+          "percentage": 8.6,
+          "kind": "list",
+          "entityIds": [
+            "lega"
+          ]
+        },
+        {
+          "label": "[all other reported list support: derived complement]",
+          "percentage": 54.7,
+          "kind": "residual",
+          "entityIds": []
+        }
+      ],
+      "notes": [
+        "This historical translation selects only PD, M5S and Lega; all remaining reported parties are the exact derived complement 100 minus these levels. No within-other party split is inferred. The complete source table can be manually consulted using the government survey reference in manifest.json."
+      ]
+    },
+    {
+      "id": "pcm-12952-q3",
+      "sourceId": "pcm-12952",
+      "questionNumber": 3,
+      "pages": [
+        2,
+        3
+      ],
+      "independenceGroup": "pcm-12952",
+      "text": "Se oggi dovesse votare per le Elezioni europee, quale partito voterebbe? (National party-support table; exact wording available in the referenced government survey.)",
+      "ballot": {
+        "kind": "generic",
+        "label": null,
+        "assumptions": [
+          "European national adult vote intentions, not Camera or regional preferences."
+        ]
+      },
+      "denominator": {
+        "kind": "declared-vote-intentions",
+        "basis": "reported",
+        "note": "Valid declared list intentions; full N is not decided-voter N."
+      },
+      "questionSampleSize": null,
+      "answers": [
+        {
+          "label": "PD (European list)",
+          "percentage": 21,
+          "kind": "list",
+          "entityIds": [
+            "pd"
+          ]
+        },
+        {
+          "label": "Movimento 5 Stelle (European list)",
+          "percentage": 15.5,
+          "kind": "list",
+          "entityIds": [
+            "m5s"
+          ]
+        },
+        {
+          "label": "Lega (European list)",
+          "percentage": 8,
+          "kind": "list",
+          "entityIds": [
+            "lega"
+          ]
+        },
+        {
+          "label": "[all other reported list support: derived complement]",
+          "percentage": 55.5,
+          "kind": "residual",
+          "entityIds": []
+        },
+        {
+          "label": "Reported undecided / nonresponse (see notes)",
+          "percentage": 46,
+          "kind": "nonresponse",
+          "entityIds": []
+        }
+      ],
+      "notes": [
+        "This historical translation selects only PD, M5S and Lega; all remaining reported parties are the exact derived complement 100 minus these levels. No within-other party split is inferred. The complete source table can be manually consulted using the government survey reference in manifest.json.",
+        "Use reported central levels, not interval endpoints. Exclude turnout and seats."
+      ]
+    }
+  ]
+}

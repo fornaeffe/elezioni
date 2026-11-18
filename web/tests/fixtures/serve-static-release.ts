@@ -1,0 +1,62 @@
+/** Test server for adapter-static's final build, including transparent HTTP gzip. */
+import { createServer } from 'node:http';
+import { readFile, stat } from 'node:fs/promises';
+import { resolve, relative, isAbsolute, extname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+const root = process.env.ACCEPTANCE_BUILD_ROOT ? resolve(process.env.ACCEPTANCE_BUILD_ROOT) : fileURLToPath(new URL('../../build/', import.meta.url)),
+  base = process.env.BASE_PATH ?? '',
+  port = Number(process.env.ACCEPTANCE_SERVER_PORT ?? 4174);
+if (!Number.isSafeInteger(port) || port < 1 || port > 65535) throw new Error('Invalid acceptance server port');
+const types: Record<string, string> = {
+  '.html': 'text/html',
+  '.js': 'text/javascript',
+  '.css': 'text/css',
+  '.json': 'application/json',
+  '.svg': 'image/svg+xml',
+  '.gz': 'application/octet-stream',
+};
+const server = createServer(async (request, response) => {
+  try {
+    const url = decodeURIComponent(
+      new URL(request.url!, 'http://localhost').pathname,
+    );
+    if (!url.startsWith(base + '/')) throw new Error('Outside base');
+    let path = resolve(root, '.' + url.slice(base.length));
+    const rel = relative(root, path);
+    if (rel.startsWith('..') || isAbsolute(rel))
+      throw new Error('Outside build');
+    try {
+      if ((await stat(path)).isDirectory()) {
+        if (!url.endsWith('/')) {
+          response.writeHead(308, { Location: url + '/' });
+          response.end();
+          return;
+        }
+        const directory = path;
+        path = resolve(directory, 'index.html');
+        try { await stat(path); }
+        catch (error) {
+          if ((error as NodeJS.ErrnoException).code !== 'ENOENT' || directory === root) throw error;
+          // /politics/editor creates a directory beside politics.html. The
+          // parent route still resolves when that directory has no index page.
+          path = directory + '.html';
+        }
+      }
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT' || extname(path)) throw error;
+      // adapter-static writes /politics.html; Pages resolves extensionless URLs.
+      path += '.html';
+    }
+    const body = await readFile(path);
+    response.writeHead(200, {
+      'Content-Type': types[extname(path)] ?? 'application/octet-stream',
+      'Content-Length': body.length,
+      ...(path.endsWith('.gz') && process.env.ACCEPTANCE_GZIP_ENCODING !== '0' ? { 'Content-Encoding': 'gzip' } : {}),
+    });
+    response.end(body);
+  } catch {
+    response.writeHead(404);
+    response.end('Missing static release file');
+  }
+});
+server.listen(port, '127.0.0.1');

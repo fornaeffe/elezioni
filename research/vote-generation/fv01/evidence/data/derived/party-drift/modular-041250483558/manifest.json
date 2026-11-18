@@ -1,0 +1,180 @@
+{
+  "version": "041250483558",
+  "modelSource": "modular-party-drift.stan",
+  "modelHash": "46685ef952f078514b61acb8d2465d21bfc15c911d7a436a352126ad97becb50",
+  "sourceVersions": [
+    {
+      "path": "party-drift-modular-export-cli.ts",
+      "sha256": "2b233da989a2f173a66046d94d3dfa1a9a8d21274e676eff985fd572833b3bc9"
+    },
+    {
+      "path": "party-drift-panel-data.ts",
+      "sha256": "4122ce7b219e48173db5cc8894569a6ac5fba1036bff6fef7b1dbcab0318bc93"
+    },
+    {
+      "path": "party-drift-panel.ts",
+      "sha256": "760d9212638c29172164bfbbb51fb3c7ccde0da565cfe2556bc5b05fbca07576"
+    },
+    {
+      "path": "party-drift-memberships.ts",
+      "sha256": "a6dedb6e820612d39f3a34a829a56f17af946dde584c6b75d27f61da3835cfe3"
+    },
+    {
+      "path": "party-drift-prior.ts",
+      "sha256": "5dd9fc0b6bb9f7bb73b3c0af6801a56a17b89d48578cf9e5eba9813ada65ff50"
+    },
+    {
+      "path": "party-drift-likelihood.ts",
+      "sha256": "ffbeb6412cbc88978ad864a372ed3df48fa163ee888c9f4f01b7fa25ad0e76a2"
+    },
+    {
+      "path": "stan/modular-party-drift.stan",
+      "sha256": "46685ef952f078514b61acb8d2465d21bfc15c911d7a436a352126ad97becb50"
+    },
+    {
+      "path": "stan/run_modular.py",
+      "sha256": "10071aaee9c2c0ef19f28727daaf8016f0cc5b07cf648a454a15d11eeaf39ead"
+    },
+    {
+      "path": "stan/modular_geography.py",
+      "sha256": "816cba385d0a1327694319944a2c85576ef5a3a527a8ed5b87a33473c8ee76d9"
+    },
+    {
+      "path": "stan/fast_party_model.py",
+      "sha256": "7fc7c79a1d4c819cb8a5a832a63fc2c8cbf348b7cc658ac074aa11aedcb5ba7b"
+    },
+    {
+      "path": "stan/simplex_gibbs.cpp",
+      "sha256": "6a6deef1c9547105b14ac802bacc496f4964708079ca6ac77cb16c836ec44707"
+    },
+    {
+      "path": "stan/run_fast.py",
+      "sha256": "181564bf264a8b13b6c34074932a339393d6233e0c238f6b53266c07bd986e6d"
+    },
+    {
+      "path": "stan/fast_scenario.py",
+      "sha256": "cd46046cd67cd70129f957de2f75889bbc2e9fc904a0996c72c557600167dfe4"
+    }
+  ],
+  "inputs": [
+    "elections-manifest:c2b3acde94158b48170b7b1d39c45fa8fbe0f6b028bce2c8a010bef64789483c",
+    "camera-20080413:d9edb7e7d82de98ce025598cead45e75cec3ca1775f0e3c054f41b04e0b4592f",
+    "europee-20090607:54c7befc2463d9a8e9e8e06b11a95883fac7a7015d4c4330782882efe8788df7",
+    "camera-20130224:19749e05cead3a8d41ba7829fc0272962835ecd8fb73ced9e3a9eb727106a03a",
+    "europee-20140525:a54aa5ae6f25af865162f494a45530d71580d5718f16aa62619703913388f974",
+    "camera-20180304:98b2dc30821f96d640497421f9bfaeb62aba8013b29cb1bbea29352bfe329372",
+    "europee-20190526:81d21e26d5761ba81797a726316718ef82aa56894c0cdbd3ad236535148daa19",
+    "camera-20220925:dd8ede158ea3f7b0aae65024135a27e34ab9e959728df95f0e977cd56edf88ff",
+    "europee-20240609:1ea7b128447208691427af01443c9ba7b4bfc8d9e07cee361a9f87b3def460a5",
+    "data/sources/party-drift/memberships-policy.json:0af66510826f299f2df45a08df67a4a44c9e528f9304f2a5a3c6d406ce3c9627",
+    "data/sources/party-drift/membership-sources.json:1ff5e2aa209f3aa57eaaecac4094db5fe51d8b09b3c4db5dfef010504ca563e8",
+    "poll-refinements:4db13cb018bcc5ded1644e73ffec29d7f638f804c0fe29d987dc2f2b71c0df16",
+    "manifest.json:86f801d9a71ec9c874dc3123cf10b1a7b12c009f0abdbafeb877e3baf43e03fa",
+    "archive.json:2072695f0baadee807fd34ccdee834455ec406d14642f423cf20df31d0b80123",
+    "entities.json:a940555f2a139272a4a57cfff9da41e7acf10f97c821577ecc7d229084fb0935",
+    "manifest.json:4750f5347a7719c35ecdf4cf94a8e342ecf558c813281092adbb431ff7d9f65e",
+    "archive.json:fb34123fc5dd6051aeca10478b926ef3048677cca2605999d2d66054b508d1c7",
+    "entities.json:0931d274c905e99ec4543642db3ca714baaaf651d362f2dbfb927099bf62300f",
+    "early:8ff0178c1a1bd5e9df4b0ca3ff2688dc7d392b6d183d207523e428e92c2bd9fd",
+    "reviewed-early-six:4a3901566f5403dd826eb6ac7250f240d56093c042d40968133716b46f6d9e54"
+  ],
+  "dataHash": "0640dca2bcf876672541728438488b2a2b76f8b43ba51ccece149822bfa8682a",
+  "profileHash": "57ebcc028ca33087dcc97c74eb0d96c4c7e0209b656b1b183fc0e332efa4f9bb",
+  "target": "european-2024",
+  "horizon": 15,
+  "cutoff": "2024-05-24",
+  "componentScope": "main",
+  "components": [
+    "art1",
+    "azione",
+    "centro-democratico",
+    "fare",
+    "fdi",
+    "fi-pdl",
+    "freiheitlichen",
+    "idv",
+    "impegno-residual",
+    "italia-viva",
+    "lega",
+    "m5s",
+    "ncd-ap",
+    "noi-residual",
+    "pap-residual",
+    "pci-pdci",
+    "pd",
+    "piu-europa",
+    "popolo-famiglia",
+    "possible",
+    "prc",
+    "psi-civici",
+    "ptd-residual",
+    "research-other",
+    "scelta-civica",
+    "sel-si",
+    "udc",
+    "verdi"
+  ],
+  "nationalCountRows": 7,
+  "nationalTrainingMunicipalCells": 55605,
+  "profileCities": 8194,
+  "fullCities": 8194,
+  "calibration": {
+    "offset": 4.454539303606831,
+    "expectedNonValid": 0.49999999999999994,
+    "draws": 32768,
+    "seed": "party-drift-prior-calibration-v1",
+    "context": {
+      "components": 28,
+      "cells": [
+        {
+          "electors": 1,
+          "available": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28
+          ],
+          "kind": "european"
+        }
+      ],
+      "nationalSd": 1.5,
+      "localSd": 0,
+      "kindSd": 0.5
+    }
+  },
+  "scope": "Research modular empirical-Bayes alternative; national Dirichlet-multinomial dynamic model, geographic predictive residuals; not the former joint posterior",
+  "policy": {
+    "chains": 4,
+    "warmup": 512,
+    "sampling": 512,
+    "adaptDelta": 0.95,
+    "maxTreedepth": 12,
+    "seed": 20261027,
+    "maxRhat": 1.05,
+    "minEss": 400
+  }
+}

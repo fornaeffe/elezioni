@@ -1,0 +1,2328 @@
+{
+  "metadata": {
+    "schema_version": 1,
+    "source": "synthetic composed politics pipeline trace",
+    "random_seed": 20260601,
+    "purpose": "Golden fixture for candidate generation plus vote generation plus direct-scrutiny input adaptation."
+  },
+  "input": {
+    "data_elezione": "2027-03-01T00:00:00Z",
+    "simulazioni": 2,
+    "frazione_uni_in_pluri": 0.75,
+    "frazioni_pluricandidature": [
+      0.42,
+      0.27,
+      0.18,
+      0.09,
+      0.04
+    ],
+    "default_data_nascita": "1999-12-31T23:00:00Z",
+    "liste": [
+      {
+        "LISTA": "Lista A",
+        "COALIZIONE": "Coalizione 1",
+        "PERCENTUALE": 0.6,
+        "DATA": "2024-06-08T00:00:00Z",
+        "LOGIT_P": -0.8,
+        "SIGMA_GLOBAL": 0.012
+      },
+      {
+        "LISTA": "Lista B",
+        "COALIZIONE": "Coalizione 1",
+        "PERCENTUALE": 0.4,
+        "DATA": "2024-07-15T00:00:00Z",
+        "LOGIT_P": -1.25,
+        "SIGMA_GLOBAL": 0.02
+      },
+      {
+        "LISTA": "Lista C",
+        "COALIZIONE": "Coalizione 2",
+        "PERCENTUALE": 0.25,
+        "DATA": "2024-10-01T12:00:00Z",
+        "LOGIT_P": -2.1,
+        "SIGMA_GLOBAL": 0.018
+      },
+      {
+        "LISTA": "astensione",
+        "COALIZIONE": "astensione",
+        "PERCENTUALE": 0.2,
+        "DATA": "2024-06-08T00:00:00Z",
+        "LOGIT_P": -1.6,
+        "SIGMA_GLOBAL": 0.01
+      }
+    ],
+    "comuni_liste": [
+      {
+        "CODICE_COMUNE": 10,
+        "LISTA": "Lista A",
+        "DATA": "2024-06-08T00:00:00Z",
+        "DELTA": 0.05,
+        "SIGMA_DELTA": 0.03
+      },
+      {
+        "CODICE_COMUNE": 10,
+        "LISTA": "Lista B",
+        "DATA": "2024-06-08T00:00:00Z",
+        "DELTA": -0.1,
+        "SIGMA_DELTA": 0.025
+      },
+      {
+        "CODICE_COMUNE": 10,
+        "LISTA": "Lista C",
+        "DATA": "2024-06-08T00:00:00Z",
+        "DELTA": -0.35,
+        "SIGMA_DELTA": 0.018
+      },
+      {
+        "CODICE_COMUNE": 10,
+        "LISTA": "astensione",
+        "DATA": "2024-06-08T00:00:00Z",
+        "DELTA": -0.2,
+        "SIGMA_DELTA": 0.02
+      },
+      {
+        "CODICE_COMUNE": 20,
+        "LISTA": "Lista A",
+        "DATA": "2024-07-15T00:00:00Z",
+        "DELTA": -0.15,
+        "SIGMA_DELTA": 0.02
+      },
+      {
+        "CODICE_COMUNE": 20,
+        "LISTA": "Lista B",
+        "DATA": "2024-07-15T00:00:00Z",
+        "DELTA": 0.08,
+        "SIGMA_DELTA": 0.03
+      },
+      {
+        "CODICE_COMUNE": 20,
+        "LISTA": "Lista C",
+        "DATA": "2024-07-15T00:00:00Z",
+        "DELTA": -0.22,
+        "SIGMA_DELTA": 0.015
+      },
+      {
+        "CODICE_COMUNE": 20,
+        "LISTA": "astensione",
+        "DATA": "2024-07-15T00:00:00Z",
+        "DELTA": -0.3,
+        "SIGMA_DELTA": 0.02
+      },
+      {
+        "CODICE_COMUNE": 30,
+        "LISTA": "Lista A",
+        "DATA": "2024-10-01T12:00:00Z",
+        "DELTA": 0.12,
+        "SIGMA_DELTA": 0.018
+      },
+      {
+        "CODICE_COMUNE": 30,
+        "LISTA": "Lista B",
+        "DATA": "2024-10-01T12:00:00Z",
+        "DELTA": -0.05,
+        "SIGMA_DELTA": 0.022
+      },
+      {
+        "CODICE_COMUNE": 30,
+        "LISTA": "Lista C",
+        "DATA": "2024-10-01T12:00:00Z",
+        "DELTA": -0.28,
+        "SIGMA_DELTA": 0.017
+      },
+      {
+        "CODICE_COMUNE": 30,
+        "LISTA": "astensione",
+        "DATA": "2024-10-01T12:00:00Z",
+        "DELTA": -0.25,
+        "SIGMA_DELTA": 0.02
+      }
+    ],
+    "base_dati": [
+      {
+        "CODICE_COMUNE": 10,
+        "CODITA_20N": 10001,
+        "ELETTORI": 600,
+        "CU20_COD": 101,
+        "SU20_COD": 1001
+      },
+      {
+        "CODICE_COMUNE": 20,
+        "CODITA_20N": 20001,
+        "ELETTORI": 700,
+        "CU20_COD": 201,
+        "SU20_COD": 1001
+      },
+      {
+        "CODICE_COMUNE": 30,
+        "CODITA_20N": 30001,
+        "ELETTORI": 500,
+        "CU20_COD": 201,
+        "SU20_COD": 2001
+      }
+    ],
+    "camera": {
+      "uni": [
+        {
+          "CIRC_COD": 1,
+          "PLURI_COD": 11,
+          "UNI_COD": 101
+        },
+        {
+          "CIRC_COD": 2,
+          "PLURI_COD": 21,
+          "UNI_COD": 201
+        }
+      ],
+      "pluri": [
+        {
+          "CIRC_COD": 1,
+          "PLURI_COD": 11,
+          "SEGGI_PLURI": 3
+        },
+        {
+          "CIRC_COD": 2,
+          "PLURI_COD": 21,
+          "SEGGI_PLURI": 2
+        }
+      ],
+      "candidati_uni": [
+        {
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 101,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 101,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "camera_fixed_101_C2",
+          "DATA_NASCITA": "1970-01-01T00:00:00Z"
+        },
+        {
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 201,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 201,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "camera_fixed_201_C2",
+          "DATA_NASCITA": "1970-01-01T00:00:00Z"
+        }
+      ],
+      "candidati_pluri": [
+        {
+          "CIRC_COD": 1,
+          "LISTA": "Lista A",
+          "PLURI_COD": 11,
+          "NUMERO_CANDIDATO": 1,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "camera_Lista A_fixed",
+          "DATA_NASCITA": "1960-02-02T00:00:00Z"
+        },
+        {
+          "CIRC_COD": 1,
+          "LISTA": "Lista A",
+          "PLURI_COD": 11,
+          "NUMERO_CANDIDATO": 2,
+          "MINORANZA": false,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "CIRC_COD": 1,
+          "LISTA": "Lista A",
+          "PLURI_COD": 11,
+          "NUMERO_CANDIDATO": 3,
+          "MINORANZA": false,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "CIRC_COD": 1,
+          "LISTA": "Lista A",
+          "PLURI_COD": 11,
+          "NUMERO_CANDIDATO": 4,
+          "MINORANZA": false,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "CIRC_COD": 1,
+          "LISTA": "Lista A",
+          "PLURI_COD": 11,
+          "NUMERO_CANDIDATO": 5,
+          "MINORANZA": false,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "CIRC_COD": 1,
+          "LISTA": "Lista B",
+          "PLURI_COD": 11,
+          "NUMERO_CANDIDATO": 1,
+          "MINORANZA": false,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "CIRC_COD": 1,
+          "LISTA": "Lista B",
+          "PLURI_COD": 11,
+          "NUMERO_CANDIDATO": 2,
+          "MINORANZA": false,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "CIRC_COD": 1,
+          "LISTA": "Lista B",
+          "PLURI_COD": 11,
+          "NUMERO_CANDIDATO": 3,
+          "MINORANZA": false,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "CIRC_COD": 2,
+          "LISTA": "Lista C",
+          "PLURI_COD": 21,
+          "NUMERO_CANDIDATO": 1,
+          "MINORANZA": true,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "CIRC_COD": 2,
+          "LISTA": "Lista C",
+          "PLURI_COD": 21,
+          "NUMERO_CANDIDATO": 2,
+          "MINORANZA": true,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "CIRC_COD": 2,
+          "LISTA": "Lista C",
+          "PLURI_COD": 21,
+          "NUMERO_CANDIDATO": 3,
+          "MINORANZA": true,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        }
+      ]
+    },
+    "senato": {
+      "uni": [
+        {
+          "CIRC_COD": 10,
+          "PLURI_COD": 110,
+          "UNI_COD": 1001
+        },
+        {
+          "CIRC_COD": 20,
+          "PLURI_COD": 210,
+          "UNI_COD": 2001
+        }
+      ],
+      "pluri": [
+        {
+          "CIRC_COD": 10,
+          "PLURI_COD": 110,
+          "SEGGI_PLURI": 3
+        },
+        {
+          "CIRC_COD": 20,
+          "PLURI_COD": 210,
+          "SEGGI_PLURI": 2
+        }
+      ],
+      "candidati_uni": [
+        {
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 1001,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 1001,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "senato_fixed_1001_C2",
+          "DATA_NASCITA": "1970-01-01T00:00:00Z"
+        },
+        {
+          "COALIZIONE": "Coalizione 1",
+          "UNI_COD": 2001,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "COALIZIONE": "Coalizione 2",
+          "UNI_COD": 2001,
+          "LISTA_MINORANZA": null,
+          "CANDIDATO_ID": "senato_fixed_2001_C2",
+          "DATA_NASCITA": "1970-01-01T00:00:00Z"
+        }
+      ],
+      "candidati_pluri": [
+        {
+          "CIRC_COD": 10,
+          "LISTA": "Lista A",
+          "PLURI_COD": 110,
+          "NUMERO_CANDIDATO": 1,
+          "MINORANZA": false,
+          "CANDIDATO_ID": "senato_Lista A_fixed",
+          "DATA_NASCITA": "1960-02-02T00:00:00Z"
+        },
+        {
+          "CIRC_COD": 10,
+          "LISTA": "Lista A",
+          "PLURI_COD": 110,
+          "NUMERO_CANDIDATO": 2,
+          "MINORANZA": false,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "CIRC_COD": 10,
+          "LISTA": "Lista A",
+          "PLURI_COD": 110,
+          "NUMERO_CANDIDATO": 3,
+          "MINORANZA": false,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "CIRC_COD": 10,
+          "LISTA": "Lista A",
+          "PLURI_COD": 110,
+          "NUMERO_CANDIDATO": 4,
+          "MINORANZA": false,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "CIRC_COD": 10,
+          "LISTA": "Lista A",
+          "PLURI_COD": 110,
+          "NUMERO_CANDIDATO": 5,
+          "MINORANZA": false,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "CIRC_COD": 10,
+          "LISTA": "Lista B",
+          "PLURI_COD": 110,
+          "NUMERO_CANDIDATO": 1,
+          "MINORANZA": false,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "CIRC_COD": 10,
+          "LISTA": "Lista B",
+          "PLURI_COD": 110,
+          "NUMERO_CANDIDATO": 2,
+          "MINORANZA": false,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "CIRC_COD": 10,
+          "LISTA": "Lista B",
+          "PLURI_COD": 110,
+          "NUMERO_CANDIDATO": 3,
+          "MINORANZA": false,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "CIRC_COD": 20,
+          "LISTA": "Lista C",
+          "PLURI_COD": 210,
+          "NUMERO_CANDIDATO": 1,
+          "MINORANZA": true,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "CIRC_COD": 20,
+          "LISTA": "Lista C",
+          "PLURI_COD": 210,
+          "NUMERO_CANDIDATO": 2,
+          "MINORANZA": true,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        },
+        {
+          "CIRC_COD": 20,
+          "LISTA": "Lista C",
+          "PLURI_COD": 210,
+          "NUMERO_CANDIDATO": 3,
+          "MINORANZA": true,
+          "CANDIDATO_ID": null,
+          "DATA_NASCITA": null
+        }
+      ]
+    }
+  },
+  "sample_draws": [
+    {
+      "context": {
+        "phase": "select_uni_for_pluri",
+        "ramo": "camera",
+        "sim": 1
+      },
+      "values": [
+        1,
+        3
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        1
+      ]
+    },
+    {
+      "context": {
+        "phase": "assign_uni_to_list",
+        "ramo": "camera",
+        "sim": 1,
+        "coalizione": "Coalizione 1",
+        "lista": "Lista A"
+      },
+      "values": [
+        1
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        1
+      ]
+    },
+    {
+      "context": {
+        "phase": "assign_uni_to_list",
+        "ramo": "camera",
+        "sim": 1,
+        "coalizione": "Coalizione 1",
+        "lista": "Lista B"
+      },
+      "values": [
+        1
+      ],
+      "size": 0,
+      "replace": false,
+      "result": []
+    },
+    {
+      "context": {
+        "phase": "assign_uni_to_list",
+        "ramo": "camera",
+        "sim": 1,
+        "coalizione": "Coalizione 2",
+        "lista": "Lista C"
+      },
+      "values": [
+        1
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        1
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_first_fraction_from_uni",
+        "ramo": "camera",
+        "sim": 1,
+        "lista": "Lista A"
+      },
+      "values": [
+        "UNI_1_1"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "UNI_1_1"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "camera",
+        "sim": 1,
+        "lista": "Lista A",
+        "fraction": 2
+      },
+      "values": [
+        "UNI_1_1",
+        "PLURI_1_Lista A_1"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "UNI_1_1"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "camera",
+        "sim": 1,
+        "lista": "Lista A",
+        "fraction": 3
+      },
+      "values": [
+        "UNI_1_1"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "UNI_1_1"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "camera",
+        "sim": 1,
+        "lista": "Lista B",
+        "fraction": 2
+      },
+      "values": [
+        "PLURI_1_Lista B_1"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "PLURI_1_Lista B_1"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "camera",
+        "sim": 1,
+        "lista": "Lista B",
+        "fraction": 3
+      },
+      "values": [
+        "PLURI_1_Lista B_1"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "PLURI_1_Lista B_1"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_first_fraction_from_uni",
+        "ramo": "camera",
+        "sim": 1,
+        "lista": "Lista C"
+      },
+      "values": [
+        null
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        null
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "camera",
+        "sim": 1,
+        "lista": "Lista C",
+        "fraction": 2
+      },
+      "values": [
+        null
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        null
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "camera",
+        "sim": 1,
+        "lista": "Lista C",
+        "fraction": 3
+      },
+      "values": [
+        null
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        null
+      ]
+    },
+    {
+      "context": {
+        "phase": "select_uni_for_pluri",
+        "ramo": "camera",
+        "sim": 2
+      },
+      "values": [
+        1,
+        3
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        3
+      ]
+    },
+    {
+      "context": {
+        "phase": "assign_uni_to_list",
+        "ramo": "camera",
+        "sim": 2,
+        "coalizione": "Coalizione 1",
+        "lista": "Lista A"
+      },
+      "values": [
+        1
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        1
+      ]
+    },
+    {
+      "context": {
+        "phase": "assign_uni_to_list",
+        "ramo": "camera",
+        "sim": 2,
+        "coalizione": "Coalizione 1",
+        "lista": "Lista B"
+      },
+      "values": [
+        1
+      ],
+      "size": 0,
+      "replace": false,
+      "result": []
+    },
+    {
+      "context": {
+        "phase": "assign_uni_to_list",
+        "ramo": "camera",
+        "sim": 2,
+        "coalizione": "Coalizione 2",
+        "lista": "Lista C"
+      },
+      "values": [
+        1
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        1
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_first_fraction_from_uni",
+        "ramo": "camera",
+        "sim": 2,
+        "lista": "Lista A"
+      },
+      "values": [
+        "UNI_2_2"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "UNI_2_2"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "camera",
+        "sim": 2,
+        "lista": "Lista A",
+        "fraction": 2
+      },
+      "values": [
+        "UNI_2_2",
+        "PLURI_2_Lista A_1"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "UNI_2_2"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "camera",
+        "sim": 2,
+        "lista": "Lista A",
+        "fraction": 3
+      },
+      "values": [
+        "UNI_2_2"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "UNI_2_2"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "camera",
+        "sim": 2,
+        "lista": "Lista B",
+        "fraction": 2
+      },
+      "values": [
+        "PLURI_2_Lista B_1"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "PLURI_2_Lista B_1"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "camera",
+        "sim": 2,
+        "lista": "Lista B",
+        "fraction": 3
+      },
+      "values": [
+        "PLURI_2_Lista B_1"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "PLURI_2_Lista B_1"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_first_fraction_from_uni",
+        "ramo": "camera",
+        "sim": 2,
+        "lista": "Lista C"
+      },
+      "values": [
+        null
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        null
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "camera",
+        "sim": 2,
+        "lista": "Lista C",
+        "fraction": 2
+      },
+      "values": [
+        null
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        null
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "camera",
+        "sim": 2,
+        "lista": "Lista C",
+        "fraction": 3
+      },
+      "values": [
+        null
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        null
+      ]
+    },
+    {
+      "context": {
+        "phase": "select_uni_for_pluri",
+        "ramo": "senato",
+        "sim": 1
+      },
+      "values": [
+        1,
+        3
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        1
+      ]
+    },
+    {
+      "context": {
+        "phase": "assign_uni_to_list",
+        "ramo": "senato",
+        "sim": 1,
+        "coalizione": "Coalizione 1",
+        "lista": "Lista A"
+      },
+      "values": [
+        1
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        1
+      ]
+    },
+    {
+      "context": {
+        "phase": "assign_uni_to_list",
+        "ramo": "senato",
+        "sim": 1,
+        "coalizione": "Coalizione 1",
+        "lista": "Lista B"
+      },
+      "values": [
+        1
+      ],
+      "size": 0,
+      "replace": false,
+      "result": []
+    },
+    {
+      "context": {
+        "phase": "assign_uni_to_list",
+        "ramo": "senato",
+        "sim": 1,
+        "coalizione": "Coalizione 2",
+        "lista": "Lista C"
+      },
+      "values": [
+        1
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        1
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_first_fraction_from_uni",
+        "ramo": "senato",
+        "sim": 1,
+        "lista": "Lista A"
+      },
+      "values": [
+        "UNI_1_1"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "UNI_1_1"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "senato",
+        "sim": 1,
+        "lista": "Lista A",
+        "fraction": 2
+      },
+      "values": [
+        "UNI_1_1",
+        "PLURI_1_Lista A_1"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "UNI_1_1"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "senato",
+        "sim": 1,
+        "lista": "Lista A",
+        "fraction": 3
+      },
+      "values": [
+        "UNI_1_1"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "UNI_1_1"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "senato",
+        "sim": 1,
+        "lista": "Lista B",
+        "fraction": 2
+      },
+      "values": [
+        "PLURI_1_Lista B_1"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "PLURI_1_Lista B_1"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "senato",
+        "sim": 1,
+        "lista": "Lista B",
+        "fraction": 3
+      },
+      "values": [
+        "PLURI_1_Lista B_1"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "PLURI_1_Lista B_1"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_first_fraction_from_uni",
+        "ramo": "senato",
+        "sim": 1,
+        "lista": "Lista C"
+      },
+      "values": [
+        null
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        null
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "senato",
+        "sim": 1,
+        "lista": "Lista C",
+        "fraction": 2
+      },
+      "values": [
+        null
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        null
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "senato",
+        "sim": 1,
+        "lista": "Lista C",
+        "fraction": 3
+      },
+      "values": [
+        null
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        null
+      ]
+    },
+    {
+      "context": {
+        "phase": "select_uni_for_pluri",
+        "ramo": "senato",
+        "sim": 2
+      },
+      "values": [
+        1,
+        3
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        3
+      ]
+    },
+    {
+      "context": {
+        "phase": "assign_uni_to_list",
+        "ramo": "senato",
+        "sim": 2,
+        "coalizione": "Coalizione 1",
+        "lista": "Lista A"
+      },
+      "values": [
+        1
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        1
+      ]
+    },
+    {
+      "context": {
+        "phase": "assign_uni_to_list",
+        "ramo": "senato",
+        "sim": 2,
+        "coalizione": "Coalizione 1",
+        "lista": "Lista B"
+      },
+      "values": [
+        1
+      ],
+      "size": 0,
+      "replace": false,
+      "result": []
+    },
+    {
+      "context": {
+        "phase": "assign_uni_to_list",
+        "ramo": "senato",
+        "sim": 2,
+        "coalizione": "Coalizione 2",
+        "lista": "Lista C"
+      },
+      "values": [
+        1
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        1
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_first_fraction_from_uni",
+        "ramo": "senato",
+        "sim": 2,
+        "lista": "Lista A"
+      },
+      "values": [
+        "UNI_2_2"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "UNI_2_2"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "senato",
+        "sim": 2,
+        "lista": "Lista A",
+        "fraction": 2
+      },
+      "values": [
+        "UNI_2_2",
+        "PLURI_2_Lista A_1"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "PLURI_2_Lista A_1"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "senato",
+        "sim": 2,
+        "lista": "Lista A",
+        "fraction": 3
+      },
+      "values": [
+        "PLURI_2_Lista A_1"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "PLURI_2_Lista A_1"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "senato",
+        "sim": 2,
+        "lista": "Lista B",
+        "fraction": 2
+      },
+      "values": [
+        "PLURI_2_Lista B_1"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "PLURI_2_Lista B_1"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "senato",
+        "sim": 2,
+        "lista": "Lista B",
+        "fraction": 3
+      },
+      "values": [
+        "PLURI_2_Lista B_1"
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        "PLURI_2_Lista B_1"
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_first_fraction_from_uni",
+        "ramo": "senato",
+        "sim": 2,
+        "lista": "Lista C"
+      },
+      "values": [
+        null
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        null
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "senato",
+        "sim": 2,
+        "lista": "Lista C",
+        "fraction": 2
+      },
+      "values": [
+        null
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        null
+      ]
+    },
+    {
+      "context": {
+        "phase": "fill_repeated_fraction",
+        "ramo": "senato",
+        "sim": 2,
+        "lista": "Lista C",
+        "fraction": 3
+      },
+      "values": [
+        null
+      ],
+      "size": 1,
+      "replace": false,
+      "result": [
+        null
+      ]
+    }
+  ],
+  "normal_draws": [
+    {
+      "phase": "global",
+      "LISTA": "Lista A",
+      "SIM": 1,
+      "LOCALITA": null,
+      "mean": -0.8,
+      "sd": 0.378713612113428,
+      "value": -0.604424753621828
+    },
+    {
+      "phase": "global",
+      "LISTA": "Lista A",
+      "SIM": 2,
+      "LOCALITA": null,
+      "mean": -0.8,
+      "sd": 0.378713612113428,
+      "value": -0.769425114148639
+    },
+    {
+      "phase": "global",
+      "LISTA": "Lista B",
+      "SIM": 1,
+      "LOCALITA": null,
+      "mean": -1.25,
+      "sd": 0.619354502688081,
+      "value": -2.08168628391516
+    },
+    {
+      "phase": "global",
+      "LISTA": "Lista B",
+      "SIM": 2,
+      "LOCALITA": null,
+      "mean": -1.25,
+      "sd": 0.619354502688081,
+      "value": -1.38451794447861
+    },
+    {
+      "phase": "global",
+      "LISTA": "Lista C",
+      "SIM": 1,
+      "LOCALITA": null,
+      "mean": -2.1,
+      "sd": 0.53411796449848,
+      "value": -1.70127652418181
+    },
+    {
+      "phase": "global",
+      "LISTA": "Lista C",
+      "SIM": 2,
+      "LOCALITA": null,
+      "mean": -2.1,
+      "sd": 0.53411796449848,
+      "value": -2.15899630432295
+    },
+    {
+      "phase": "global",
+      "LISTA": "astensione",
+      "SIM": 1,
+      "LOCALITA": null,
+      "mean": -1.6,
+      "sd": 0.31559467676119,
+      "value": -1.62246560927662
+    },
+    {
+      "phase": "global",
+      "LISTA": "astensione",
+      "SIM": 2,
+      "LOCALITA": null,
+      "mean": -1.6,
+      "sd": 0.31559467676119,
+      "value": -1.67142763811414
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista A",
+      "SIM": 1,
+      "LOCALITA": 10001,
+      "mean": 0.05,
+      "sd": 0.94678403028357,
+      "value": 0.927208708145174
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista A",
+      "SIM": 1,
+      "LOCALITA": 20001,
+      "mean": -0.15,
+      "sd": 0.619354502688081,
+      "value": 0.890208824005228
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista A",
+      "SIM": 1,
+      "LOCALITA": 30001,
+      "mean": 0.12,
+      "sd": 0.53411796449848,
+      "value": -0.0872347450310439
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista A",
+      "SIM": 2,
+      "LOCALITA": 10001,
+      "mean": 0.05,
+      "sd": 0.94678403028357,
+      "value": 1.0921389179569
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista A",
+      "SIM": 2,
+      "LOCALITA": 20001,
+      "mean": -0.15,
+      "sd": 0.619354502688081,
+      "value": -0.206626579183431
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista A",
+      "SIM": 2,
+      "LOCALITA": 30001,
+      "mean": 0.12,
+      "sd": 0.53411796449848,
+      "value": -0.679159851679348
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista B",
+      "SIM": 1,
+      "LOCALITA": 10001,
+      "mean": -0.1,
+      "sd": 0.788986691902975,
+      "value": 0.532422486373459
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista B",
+      "SIM": 1,
+      "LOCALITA": 20001,
+      "mean": 0.08,
+      "sd": 0.929031754032121,
+      "value": 1.50254399742836
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista B",
+      "SIM": 1,
+      "LOCALITA": 30001,
+      "mean": -0.05,
+      "sd": 0.652810845498143,
+      "value": -0.790965072886349
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista B",
+      "SIM": 2,
+      "LOCALITA": 10001,
+      "mean": -0.1,
+      "sd": 0.788986691902975,
+      "value": -0.701661775320098
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista B",
+      "SIM": 2,
+      "LOCALITA": 20001,
+      "mean": 0.08,
+      "sd": 0.929031754032121,
+      "value": 0.600937390376498
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista B",
+      "SIM": 2,
+      "LOCALITA": 30001,
+      "mean": -0.05,
+      "sd": 0.652810845498143,
+      "value": -0.370675055704012
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista C",
+      "SIM": 1,
+      "LOCALITA": 10001,
+      "mean": -0.35,
+      "sd": 0.568070418170142,
+      "value": 0.00208421556504745
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista C",
+      "SIM": 1,
+      "LOCALITA": 20001,
+      "mean": -0.22,
+      "sd": 0.464515877016061,
+      "value": 0.11195152258982
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista C",
+      "SIM": 1,
+      "LOCALITA": 30001,
+      "mean": -0.28,
+      "sd": 0.504444744248565,
+      "value": -0.546299335612711
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista C",
+      "SIM": 2,
+      "LOCALITA": 10001,
+      "mean": -0.35,
+      "sd": 0.568070418170142,
+      "value": 0.00186843780966811
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista C",
+      "SIM": 2,
+      "LOCALITA": 20001,
+      "mean": -0.22,
+      "sd": 0.464515877016061,
+      "value": -0.0861076652878902
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista C",
+      "SIM": 2,
+      "LOCALITA": 30001,
+      "mean": -0.28,
+      "sd": 0.504444744248565,
+      "value": 0.208016957260689
+    },
+    {
+      "phase": "local",
+      "LISTA": "astensione",
+      "SIM": 1,
+      "LOCALITA": 10001,
+      "mean": -0.2,
+      "sd": 0.63118935352238,
+      "value": 0.848338498371753
+    },
+    {
+      "phase": "local",
+      "LISTA": "astensione",
+      "SIM": 1,
+      "LOCALITA": 20001,
+      "mean": -0.3,
+      "sd": 0.619354502688081,
+      "value": 0.277131405962098
+    },
+    {
+      "phase": "local",
+      "LISTA": "astensione",
+      "SIM": 1,
+      "LOCALITA": 30001,
+      "mean": -0.25,
+      "sd": 0.593464404998312,
+      "value": -0.260727544528493
+    },
+    {
+      "phase": "local",
+      "LISTA": "astensione",
+      "SIM": 2,
+      "LOCALITA": 10001,
+      "mean": -0.2,
+      "sd": 0.63118935352238,
+      "value": -0.294028919817445
+    },
+    {
+      "phase": "local",
+      "LISTA": "astensione",
+      "SIM": 2,
+      "LOCALITA": 20001,
+      "mean": -0.3,
+      "sd": 0.619354502688081,
+      "value": -0.265065855993955
+    },
+    {
+      "phase": "local",
+      "LISTA": "astensione",
+      "SIM": 2,
+      "LOCALITA": 30001,
+      "mean": -0.25,
+      "sd": 0.593464404998312,
+      "value": -0.406392500882586
+    }
+  ],
+  "expected": {
+    "schema_version": 1,
+    "source_schema_version": 1,
+    "source": "generated politics TypeScript pipeline",
+    "purpose": "Direct-scrutiny snapshot produced by the composed politics generation pipeline.",
+    "rami": {
+      "camera": {
+        "totali_pluri": [
+          {
+            "CIRCOSCRIZIONE": 1,
+            "COLLEGIOPLURINOMINALE": 11,
+            "SEGGI": 3
+          },
+          {
+            "CIRCOSCRIZIONE": 2,
+            "COLLEGIOPLURINOMINALE": 21,
+            "SEGGI": 2
+          }
+        ],
+        "liste_naz": [
+          {
+            "LISTA": "Lista A",
+            "COALIZIONE": "Coalizione 1",
+            "MINORANZA": false
+          },
+          {
+            "LISTA": "Lista B",
+            "COALIZIONE": "Coalizione 1",
+            "MINORANZA": false
+          },
+          {
+            "LISTA": "Lista C",
+            "COALIZIONE": "Coalizione 2",
+            "MINORANZA": true
+          },
+          {
+            "LISTA": "astensione",
+            "COALIZIONE": "astensione",
+            "MINORANZA": false
+          }
+        ],
+        "totale_seggi": 392,
+        "simulations": [
+          {
+            "sim": 1,
+            "input": {
+              "liste_uni": [
+                {
+                  "CIRCOSCRIZIONE": 1,
+                  "COLLEGIOPLURINOMINALE": 11,
+                  "COLLEGIOUNINOMINALE": 101,
+                  "CANDIDATO": "UNI_1_1",
+                  "CAND_MINORANZA": false,
+                  "LISTA": "Lista A",
+                  "MINORANZA": false,
+                  "VOTI_LISTA": 284,
+                  "SIM": 1
+                },
+                {
+                  "CIRCOSCRIZIONE": 1,
+                  "COLLEGIOPLURINOMINALE": 11,
+                  "COLLEGIOUNINOMINALE": 101,
+                  "CANDIDATO": "UNI_1_1",
+                  "CAND_MINORANZA": false,
+                  "LISTA": "Lista B",
+                  "MINORANZA": false,
+                  "VOTI_LISTA": 86,
+                  "SIM": 1
+                },
+                {
+                  "CIRCOSCRIZIONE": 2,
+                  "COLLEGIOPLURINOMINALE": 21,
+                  "COLLEGIOUNINOMINALE": 201,
+                  "CANDIDATO": "camera_fixed_201_C2",
+                  "CAND_MINORANZA": false,
+                  "LISTA": "Lista C",
+                  "MINORANZA": true,
+                  "VOTI_LISTA": 169,
+                  "SIM": 1
+                }
+              ],
+              "candidati_uni": [
+                {
+                  "CIRCOSCRIZIONE": 1,
+                  "COLLEGIOPLURINOMINALE": 11,
+                  "COLLEGIOUNINOMINALE": 101,
+                  "CANDIDATO": "UNI_1_1",
+                  "DATA_NASCITA": "1999-12-31T23:00:00Z",
+                  "VOTI_CANDIDATO": 370,
+                  "SIM": 1
+                },
+                {
+                  "CIRCOSCRIZIONE": 2,
+                  "COLLEGIOPLURINOMINALE": 21,
+                  "COLLEGIOUNINOMINALE": 201,
+                  "CANDIDATO": "UNI_1_2",
+                  "DATA_NASCITA": "1999-12-31T23:00:00Z",
+                  "VOTI_CANDIDATO": 813,
+                  "SIM": 1
+                },
+                {
+                  "CIRCOSCRIZIONE": 1,
+                  "COLLEGIOPLURINOMINALE": 11,
+                  "COLLEGIOUNINOMINALE": 101,
+                  "CANDIDATO": "camera_fixed_101_C2",
+                  "DATA_NASCITA": "1970-01-01T00:00:00Z",
+                  "VOTI_CANDIDATO": 76,
+                  "SIM": 1
+                },
+                {
+                  "CIRCOSCRIZIONE": 2,
+                  "COLLEGIOPLURINOMINALE": 21,
+                  "COLLEGIOUNINOMINALE": 201,
+                  "CANDIDATO": "camera_fixed_201_C2",
+                  "DATA_NASCITA": "1970-01-01T00:00:00Z",
+                  "VOTI_CANDIDATO": 169,
+                  "SIM": 1
+                }
+              ],
+              "candidati_pluri": [
+                {
+                  "CIRCOSCRIZIONE": 1,
+                  "COLLEGIOPLURINOMINALE": 11,
+                  "LISTA": "Lista A",
+                  "NUMERO": 1,
+                  "CANDIDATO": "camera_Lista A_fixed",
+                  "SIM": 1
+                },
+                {
+                  "CIRCOSCRIZIONE": 1,
+                  "COLLEGIOPLURINOMINALE": 11,
+                  "LISTA": "Lista A",
+                  "NUMERO": 2,
+                  "CANDIDATO": "UNI_1_1",
+                  "SIM": 1
+                },
+                {
+                  "CIRCOSCRIZIONE": 1,
+                  "COLLEGIOPLURINOMINALE": 11,
+                  "LISTA": "Lista A",
+                  "NUMERO": 3,
+                  "CANDIDATO": "PLURI_1_Lista A_1",
+                  "SIM": 1
+                },
+                {
+                  "CIRCOSCRIZIONE": 1,
+                  "COLLEGIOPLURINOMINALE": 11,
+                  "LISTA": "Lista A",
+                  "NUMERO": 4,
+                  "CANDIDATO": "UNI_1_1",
+                  "SIM": 1
+                },
+                {
+                  "CIRCOSCRIZIONE": 1,
+                  "COLLEGIOPLURINOMINALE": 11,
+                  "LISTA": "Lista A",
+                  "NUMERO": 5,
+                  "CANDIDATO": "UNI_1_1",
+                  "SIM": 1
+                },
+                {
+                  "CIRCOSCRIZIONE": 1,
+                  "COLLEGIOPLURINOMINALE": 11,
+                  "LISTA": "Lista B",
+                  "NUMERO": 1,
+                  "CANDIDATO": "PLURI_1_Lista B_1",
+                  "SIM": 1
+                },
+                {
+                  "CIRCOSCRIZIONE": 1,
+                  "COLLEGIOPLURINOMINALE": 11,
+                  "LISTA": "Lista B",
+                  "NUMERO": 2,
+                  "CANDIDATO": "PLURI_1_Lista B_1",
+                  "SIM": 1
+                },
+                {
+                  "CIRCOSCRIZIONE": 1,
+                  "COLLEGIOPLURINOMINALE": 11,
+                  "LISTA": "Lista B",
+                  "NUMERO": 3,
+                  "CANDIDATO": "PLURI_1_Lista B_1",
+                  "SIM": 1
+                },
+                {
+                  "CIRCOSCRIZIONE": 2,
+                  "COLLEGIOPLURINOMINALE": 21,
+                  "LISTA": "Lista C",
+                  "NUMERO": 1,
+                  "CANDIDATO": null,
+                  "SIM": 1
+                },
+                {
+                  "CIRCOSCRIZIONE": 2,
+                  "COLLEGIOPLURINOMINALE": 21,
+                  "LISTA": "Lista C",
+                  "NUMERO": 2,
+                  "CANDIDATO": null,
+                  "SIM": 1
+                },
+                {
+                  "CIRCOSCRIZIONE": 2,
+                  "COLLEGIOPLURINOMINALE": 21,
+                  "LISTA": "Lista C",
+                  "NUMERO": 3,
+                  "CANDIDATO": null,
+                  "SIM": 1
+                }
+              ]
+            }
+          },
+          {
+            "sim": 2,
+            "input": {
+              "liste_uni": [
+                {
+                  "CIRCOSCRIZIONE": 1,
+                  "COLLEGIOPLURINOMINALE": 11,
+                  "COLLEGIOUNINOMINALE": 101,
+                  "CANDIDATO": "UNI_2_1",
+                  "CAND_MINORANZA": false,
+                  "LISTA": "Lista A",
+                  "MINORANZA": false,
+                  "VOTI_LISTA": 379,
+                  "SIM": 2
+                },
+                {
+                  "CIRCOSCRIZIONE": 1,
+                  "COLLEGIOPLURINOMINALE": 11,
+                  "COLLEGIOUNINOMINALE": 101,
+                  "CANDIDATO": "UNI_2_1",
+                  "CAND_MINORANZA": false,
+                  "LISTA": "Lista B",
+                  "MINORANZA": false,
+                  "VOTI_LISTA": 72,
+                  "SIM": 2
+                },
+                {
+                  "CIRCOSCRIZIONE": 2,
+                  "COLLEGIOPLURINOMINALE": 21,
+                  "COLLEGIOUNINOMINALE": 201,
+                  "CANDIDATO": "camera_fixed_201_C2",
+                  "CAND_MINORANZA": false,
+                  "LISTA": "Lista C",
+                  "MINORANZA": true,
+                  "VOTI_LISTA": 192,
+                  "SIM": 2
+                }
+              ],
+              "candidati_uni": [
+                {
+                  "CIRCOSCRIZIONE": 1,
+                  "COLLEGIOPLURINOMINALE": 11,
+                  "COLLEGIOUNINOMINALE": 101,
+                  "CANDIDATO": "UNI_2_1",
+                  "DATA_NASCITA": "1999-12-31T23:00:00Z",
+                  "VOTI_CANDIDATO": 451,
+                  "SIM": 2
+                },
+                {
+                  "CIRCOSCRIZIONE": 2,
+                  "COLLEGIOPLURINOMINALE": 21,
+                  "COLLEGIOUNINOMINALE": 201,
+                  "CANDIDATO": "UNI_2_2",
+                  "DATA_NASCITA": "1999-12-31T23:00:00Z",
+                  "VOTI_CANDIDATO": 803,
+                  "SIM": 2
+                },
+                {
+                  "CIRCOSCRIZIONE": 1,
+                  "COLLEGIOPLURINOMINALE": 11,
+                  "COLLEGIOUNINOMINALE": 101,
+                  "CANDIDATO": "camera_fixed_101_C2",
+                  "DATA_NASCITA": "1970-01-01T00:00:00Z",
+                  "VOTI_CANDIDATO": 68,
+                  "SIM": 2
+                },
+                {
+                  "CIRCOSCRIZIONE": 2,
+                  "COLLEGIOPLURINOMINALE": 21,
+                  "COLLEGIOUNINOMINALE": 201,
+                  "CANDIDATO": "camera_fixed_201_C2",
+                  "DATA_NASCITA": "1970-01-01T00:00:00Z",
+                  "VOTI_CANDIDATO": 192,
+                  "SIM": 2
+                }
+              ],
+              "candidati_pluri": [
+                {
+                  "CIRCOSCRIZIONE": 1,
+                  "COLLEGIOPLURINOMINALE": 11,
+                  "LISTA": "Lista A",
+                  "NUMERO": 1,
+                  "CANDIDATO": "camera_Lista A_fixed",
+                  "SIM": 2
+                },
+                {
+                  "CIRCOSCRIZIONE": 1,
+                  "COLLEGIOPLURINOMINALE": 11,
+                  "LISTA": "Lista A",
+                  "NUMERO": 2,
+                  "CANDIDATO": "UNI_2_2",
+                  "SIM": 2
+                },
+                {
+                  "CIRCOSCRIZIONE": 1,
+                  "COLLEGIOPLURINOMINALE": 11,
+                  "LISTA": "Lista A",
+                  "NUMERO": 3,
+                  "CANDIDATO": "PLURI_2_Lista A_1",
+                  "SIM": 2
+                },
+                {
+                  "CIRCOSCRIZIONE": 1,
+                  "COLLEGIOPLURINOMINALE": 11,
+                  "LISTA": "Lista A",
+                  "NUMERO": 4,
+                  "CANDIDATO": "UNI_2_2",
+                  "SIM": 2
+                },
+                {
+                  "CIRCOSCRIZIONE": 1,
+                  "COLLEGIOPLURINOMINALE": 11,
+                  "LISTA": "Lista A",
+                  "NUMERO": 5,
+                  "CANDIDATO": "UNI_2_2",
+                  "SIM": 2
+                },
+                {
+                  "CIRCOSCRIZIONE": 1,
+                  "COLLEGIOPLURINOMINALE": 11,
+                  "LISTA": "Lista B",
+                  "NUMERO": 1,
+                  "CANDIDATO": "PLURI_2_Lista B_1",
+                  "SIM": 2
+                },
+                {
+                  "CIRCOSCRIZIONE": 1,
+                  "COLLEGIOPLURINOMINALE": 11,
+                  "LISTA": "Lista B",
+                  "NUMERO": 2,
+                  "CANDIDATO": "PLURI_2_Lista B_1",
+                  "SIM": 2
+                },
+                {
+                  "CIRCOSCRIZIONE": 1,
+                  "COLLEGIOPLURINOMINALE": 11,
+                  "LISTA": "Lista B",
+                  "NUMERO": 3,
+                  "CANDIDATO": "PLURI_2_Lista B_1",
+                  "SIM": 2
+                },
+                {
+                  "CIRCOSCRIZIONE": 2,
+                  "COLLEGIOPLURINOMINALE": 21,
+                  "LISTA": "Lista C",
+                  "NUMERO": 1,
+                  "CANDIDATO": null,
+                  "SIM": 2
+                },
+                {
+                  "CIRCOSCRIZIONE": 2,
+                  "COLLEGIOPLURINOMINALE": 21,
+                  "LISTA": "Lista C",
+                  "NUMERO": 2,
+                  "CANDIDATO": null,
+                  "SIM": 2
+                },
+                {
+                  "CIRCOSCRIZIONE": 2,
+                  "COLLEGIOPLURINOMINALE": 21,
+                  "LISTA": "Lista C",
+                  "NUMERO": 3,
+                  "CANDIDATO": null,
+                  "SIM": 2
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "senato": {
+        "totali_pluri": [
+          {
+            "CIRCOSCRIZIONE": 10,
+            "COLLEGIOPLURINOMINALE": 110,
+            "SEGGI": 3
+          },
+          {
+            "CIRCOSCRIZIONE": 20,
+            "COLLEGIOPLURINOMINALE": 210,
+            "SEGGI": 2
+          }
+        ],
+        "liste_naz": [
+          {
+            "LISTA": "Lista A",
+            "COALIZIONE": "Coalizione 1",
+            "MINORANZA": false
+          },
+          {
+            "LISTA": "Lista B",
+            "COALIZIONE": "Coalizione 1",
+            "MINORANZA": false
+          },
+          {
+            "LISTA": "Lista C",
+            "COALIZIONE": "Coalizione 2",
+            "MINORANZA": true
+          },
+          {
+            "LISTA": "astensione",
+            "COALIZIONE": "astensione",
+            "MINORANZA": false
+          }
+        ],
+        "totale_seggi": 196,
+        "simulations": [
+          {
+            "sim": 1,
+            "input": {
+              "liste_uni": [
+                {
+                  "CIRCOSCRIZIONE": 10,
+                  "COLLEGIOPLURINOMINALE": 110,
+                  "COLLEGIOUNINOMINALE": 1001,
+                  "CANDIDATO": "UNI_1_1",
+                  "CAND_MINORANZA": false,
+                  "LISTA": "Lista A",
+                  "MINORANZA": false,
+                  "VOTI_LISTA": 590,
+                  "SIM": 1
+                },
+                {
+                  "CIRCOSCRIZIONE": 10,
+                  "COLLEGIOPLURINOMINALE": 110,
+                  "COLLEGIOUNINOMINALE": 1001,
+                  "CANDIDATO": "UNI_1_1",
+                  "CAND_MINORANZA": false,
+                  "LISTA": "Lista B",
+                  "MINORANZA": false,
+                  "VOTI_LISTA": 278,
+                  "SIM": 1
+                },
+                {
+                  "CIRCOSCRIZIONE": 20,
+                  "COLLEGIOPLURINOMINALE": 210,
+                  "COLLEGIOUNINOMINALE": 2001,
+                  "CANDIDATO": "senato_fixed_2001_C2",
+                  "CAND_MINORANZA": false,
+                  "LISTA": "Lista C",
+                  "MINORANZA": true,
+                  "VOTI_LISTA": 78,
+                  "SIM": 1
+                }
+              ],
+              "candidati_uni": [
+                {
+                  "CIRCOSCRIZIONE": 10,
+                  "COLLEGIOPLURINOMINALE": 110,
+                  "COLLEGIOUNINOMINALE": 1001,
+                  "CANDIDATO": "UNI_1_1",
+                  "DATA_NASCITA": "1999-12-31T23:00:00Z",
+                  "VOTI_CANDIDATO": 868,
+                  "SIM": 1
+                },
+                {
+                  "CIRCOSCRIZIONE": 20,
+                  "COLLEGIOPLURINOMINALE": 210,
+                  "COLLEGIOUNINOMINALE": 2001,
+                  "CANDIDATO": "UNI_1_2",
+                  "DATA_NASCITA": "1999-12-31T23:00:00Z",
+                  "VOTI_CANDIDATO": 315,
+                  "SIM": 1
+                },
+                {
+                  "CIRCOSCRIZIONE": 10,
+                  "COLLEGIOPLURINOMINALE": 110,
+                  "COLLEGIOUNINOMINALE": 1001,
+                  "CANDIDATO": "senato_fixed_1001_C2",
+                  "DATA_NASCITA": "1970-01-01T00:00:00Z",
+                  "VOTI_CANDIDATO": 167,
+                  "SIM": 1
+                },
+                {
+                  "CIRCOSCRIZIONE": 20,
+                  "COLLEGIOPLURINOMINALE": 210,
+                  "COLLEGIOUNINOMINALE": 2001,
+                  "CANDIDATO": "senato_fixed_2001_C2",
+                  "DATA_NASCITA": "1970-01-01T00:00:00Z",
+                  "VOTI_CANDIDATO": 78,
+                  "SIM": 1
+                }
+              ],
+              "candidati_pluri": [
+                {
+                  "CIRCOSCRIZIONE": 10,
+                  "COLLEGIOPLURINOMINALE": 110,
+                  "LISTA": "Lista A",
+                  "NUMERO": 1,
+                  "CANDIDATO": "senato_Lista A_fixed",
+                  "SIM": 1
+                },
+                {
+                  "CIRCOSCRIZIONE": 10,
+                  "COLLEGIOPLURINOMINALE": 110,
+                  "LISTA": "Lista A",
+                  "NUMERO": 2,
+                  "CANDIDATO": "UNI_1_1",
+                  "SIM": 1
+                },
+                {
+                  "CIRCOSCRIZIONE": 10,
+                  "COLLEGIOPLURINOMINALE": 110,
+                  "LISTA": "Lista A",
+                  "NUMERO": 3,
+                  "CANDIDATO": "PLURI_1_Lista A_1",
+                  "SIM": 1
+                },
+                {
+                  "CIRCOSCRIZIONE": 10,
+                  "COLLEGIOPLURINOMINALE": 110,
+                  "LISTA": "Lista A",
+                  "NUMERO": 4,
+                  "CANDIDATO": "UNI_1_1",
+                  "SIM": 1
+                },
+                {
+                  "CIRCOSCRIZIONE": 10,
+                  "COLLEGIOPLURINOMINALE": 110,
+                  "LISTA": "Lista A",
+                  "NUMERO": 5,
+                  "CANDIDATO": "UNI_1_1",
+                  "SIM": 1
+                },
+                {
+                  "CIRCOSCRIZIONE": 10,
+                  "COLLEGIOPLURINOMINALE": 110,
+                  "LISTA": "Lista B",
+                  "NUMERO": 1,
+                  "CANDIDATO": "PLURI_1_Lista B_1",
+                  "SIM": 1
+                },
+                {
+                  "CIRCOSCRIZIONE": 10,
+                  "COLLEGIOPLURINOMINALE": 110,
+                  "LISTA": "Lista B",
+                  "NUMERO": 2,
+                  "CANDIDATO": "PLURI_1_Lista B_1",
+                  "SIM": 1
+                },
+                {
+                  "CIRCOSCRIZIONE": 10,
+                  "COLLEGIOPLURINOMINALE": 110,
+                  "LISTA": "Lista B",
+                  "NUMERO": 3,
+                  "CANDIDATO": "PLURI_1_Lista B_1",
+                  "SIM": 1
+                },
+                {
+                  "CIRCOSCRIZIONE": 20,
+                  "COLLEGIOPLURINOMINALE": 210,
+                  "LISTA": "Lista C",
+                  "NUMERO": 1,
+                  "CANDIDATO": null,
+                  "SIM": 1
+                },
+                {
+                  "CIRCOSCRIZIONE": 20,
+                  "COLLEGIOPLURINOMINALE": 210,
+                  "LISTA": "Lista C",
+                  "NUMERO": 2,
+                  "CANDIDATO": null,
+                  "SIM": 1
+                },
+                {
+                  "CIRCOSCRIZIONE": 20,
+                  "COLLEGIOPLURINOMINALE": 210,
+                  "LISTA": "Lista C",
+                  "NUMERO": 3,
+                  "CANDIDATO": null,
+                  "SIM": 1
+                }
+              ]
+            }
+          },
+          {
+            "sim": 2,
+            "input": {
+              "liste_uni": [
+                {
+                  "CIRCOSCRIZIONE": 10,
+                  "COLLEGIOPLURINOMINALE": 110,
+                  "COLLEGIOUNINOMINALE": 1001,
+                  "CANDIDATO": "UNI_2_1",
+                  "CAND_MINORANZA": false,
+                  "LISTA": "Lista A",
+                  "MINORANZA": false,
+                  "VOTI_LISTA": 616,
+                  "SIM": 2
+                },
+                {
+                  "CIRCOSCRIZIONE": 10,
+                  "COLLEGIOPLURINOMINALE": 110,
+                  "COLLEGIOUNINOMINALE": 1001,
+                  "CANDIDATO": "UNI_2_1",
+                  "CAND_MINORANZA": false,
+                  "LISTA": "Lista B",
+                  "MINORANZA": false,
+                  "VOTI_LISTA": 343,
+                  "SIM": 2
+                },
+                {
+                  "CIRCOSCRIZIONE": 20,
+                  "COLLEGIOPLURINOMINALE": 210,
+                  "COLLEGIOUNINOMINALE": 2001,
+                  "CANDIDATO": "senato_fixed_2001_C2",
+                  "CAND_MINORANZA": false,
+                  "LISTA": "Lista C",
+                  "MINORANZA": true,
+                  "VOTI_LISTA": 109,
+                  "SIM": 2
+                }
+              ],
+              "candidati_uni": [
+                {
+                  "CIRCOSCRIZIONE": 10,
+                  "COLLEGIOPLURINOMINALE": 110,
+                  "COLLEGIOUNINOMINALE": 1001,
+                  "CANDIDATO": "UNI_2_1",
+                  "DATA_NASCITA": "1999-12-31T23:00:00Z",
+                  "VOTI_CANDIDATO": 959,
+                  "SIM": 2
+                },
+                {
+                  "CIRCOSCRIZIONE": 20,
+                  "COLLEGIOPLURINOMINALE": 210,
+                  "COLLEGIOUNINOMINALE": 2001,
+                  "CANDIDATO": "UNI_2_2",
+                  "DATA_NASCITA": "1999-12-31T23:00:00Z",
+                  "VOTI_CANDIDATO": 295,
+                  "SIM": 2
+                },
+                {
+                  "CIRCOSCRIZIONE": 10,
+                  "COLLEGIOPLURINOMINALE": 110,
+                  "COLLEGIOUNINOMINALE": 1001,
+                  "CANDIDATO": "senato_fixed_1001_C2",
+                  "DATA_NASCITA": "1970-01-01T00:00:00Z",
+                  "VOTI_CANDIDATO": 151,
+                  "SIM": 2
+                },
+                {
+                  "CIRCOSCRIZIONE": 20,
+                  "COLLEGIOPLURINOMINALE": 210,
+                  "COLLEGIOUNINOMINALE": 2001,
+                  "CANDIDATO": "senato_fixed_2001_C2",
+                  "DATA_NASCITA": "1970-01-01T00:00:00Z",
+                  "VOTI_CANDIDATO": 109,
+                  "SIM": 2
+                }
+              ],
+              "candidati_pluri": [
+                {
+                  "CIRCOSCRIZIONE": 10,
+                  "COLLEGIOPLURINOMINALE": 110,
+                  "LISTA": "Lista A",
+                  "NUMERO": 1,
+                  "CANDIDATO": "senato_Lista A_fixed",
+                  "SIM": 2
+                },
+                {
+                  "CIRCOSCRIZIONE": 10,
+                  "COLLEGIOPLURINOMINALE": 110,
+                  "LISTA": "Lista A",
+                  "NUMERO": 2,
+                  "CANDIDATO": "UNI_2_2",
+                  "SIM": 2
+                },
+                {
+                  "CIRCOSCRIZIONE": 10,
+                  "COLLEGIOPLURINOMINALE": 110,
+                  "LISTA": "Lista A",
+                  "NUMERO": 3,
+                  "CANDIDATO": "PLURI_2_Lista A_1",
+                  "SIM": 2
+                },
+                {
+                  "CIRCOSCRIZIONE": 10,
+                  "COLLEGIOPLURINOMINALE": 110,
+                  "LISTA": "Lista A",
+                  "NUMERO": 4,
+                  "CANDIDATO": "PLURI_2_Lista A_1",
+                  "SIM": 2
+                },
+                {
+                  "CIRCOSCRIZIONE": 10,
+                  "COLLEGIOPLURINOMINALE": 110,
+                  "LISTA": "Lista A",
+                  "NUMERO": 5,
+                  "CANDIDATO": "PLURI_2_Lista A_1",
+                  "SIM": 2
+                },
+                {
+                  "CIRCOSCRIZIONE": 10,
+                  "COLLEGIOPLURINOMINALE": 110,
+                  "LISTA": "Lista B",
+                  "NUMERO": 1,
+                  "CANDIDATO": "PLURI_2_Lista B_1",
+                  "SIM": 2
+                },
+                {
+                  "CIRCOSCRIZIONE": 10,
+                  "COLLEGIOPLURINOMINALE": 110,
+                  "LISTA": "Lista B",
+                  "NUMERO": 2,
+                  "CANDIDATO": "PLURI_2_Lista B_1",
+                  "SIM": 2
+                },
+                {
+                  "CIRCOSCRIZIONE": 10,
+                  "COLLEGIOPLURINOMINALE": 110,
+                  "LISTA": "Lista B",
+                  "NUMERO": 3,
+                  "CANDIDATO": "PLURI_2_Lista B_1",
+                  "SIM": 2
+                },
+                {
+                  "CIRCOSCRIZIONE": 20,
+                  "COLLEGIOPLURINOMINALE": 210,
+                  "LISTA": "Lista C",
+                  "NUMERO": 1,
+                  "CANDIDATO": null,
+                  "SIM": 2
+                },
+                {
+                  "CIRCOSCRIZIONE": 20,
+                  "COLLEGIOPLURINOMINALE": 210,
+                  "LISTA": "Lista C",
+                  "NUMERO": 2,
+                  "CANDIDATO": null,
+                  "SIM": 2
+                },
+                {
+                  "CIRCOSCRIZIONE": 20,
+                  "COLLEGIOPLURINOMINALE": 210,
+                  "LISTA": "Lista C",
+                  "NUMERO": 3,
+                  "CANDIDATO": null,
+                  "SIM": 2
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  }
+}

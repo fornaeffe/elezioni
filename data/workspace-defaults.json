@@ -1,0 +1,1353 @@
+{
+  "schemaVersion": 1,
+  "method": "workspace-authoring-v1",
+  "provenance": "Authored choices transcribed from the tracked scenario workbooks; no fitted parameters or generated election observations.",
+  "workspaces": {
+    "politics": {
+      "sourceWorkbook": "scenari/politiche_2027.xlsx",
+      "sourceSha256": "364dde01204bf51222fa2a37c33d6d7151a573b9e66929a422d20efaca7883b4",
+      "id": "politiche-2027",
+      "name": "Politiche 2027",
+      "electionDate": "2027-03-01",
+      "startingElection": "europee",
+      "lists": [
+        {
+          "name": "+Europa",
+          "coalition": "sinistra",
+          "color": "#FFC317"
+        },
+        {
+          "name": "Alleanza Verdi Sinistra",
+          "coalition": "sinistra",
+          "color": "#5FB900"
+        },
+        {
+          "name": "Azione - Italia Viva",
+          "coalition": "centro",
+          "color": "#D42894"
+        },
+        {
+          "name": "Forza Italia",
+          "coalition": "destra",
+          "color": "#00A2E8"
+        },
+        {
+          "name": "Fratelli d'Italia",
+          "coalition": "destra",
+          "color": "#003366"
+        },
+        {
+          "name": "Lega",
+          "coalition": "destra",
+          "color": "#203087"
+        },
+        {
+          "name": "Movimento 5 Stelle",
+          "coalition": "sinistra",
+          "color": "#FFEB3B"
+        },
+        {
+          "name": "Partito Democratico",
+          "coalition": "sinistra",
+          "color": "#FFA500"
+        },
+        {
+          "name": "Potere al Popolo!",
+          "coalition": "PaP",
+          "color": "#9B001F"
+        }
+      ],
+      "coalitions": [
+        {
+          "name": "destra",
+          "color": "#003366"
+        },
+        {
+          "name": "sinistra",
+          "color": "#FFA500"
+        },
+        {
+          "name": "centro",
+          "color": "#D42894"
+        },
+        {
+          "name": "PaP",
+          "color": "#9B001F"
+        }
+      ],
+      "correspondences": [
+        {
+          "election": "camera 2018",
+          "pastList": "IL POPOLO DELLA FAMIGLIA",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "NOI CON L'ITALIA - UDC",
+          "futureList": "Forza Italia",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "FRATELLI D'ITALIA CON GIORGIA MELONI",
+          "futureList": "Fratelli d'Italia",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "LEGA",
+          "futureList": "Lega",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "FORZA ITALIA",
+          "futureList": "Forza Italia",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "PARTITO VALORE UMANO",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "CIVICA POPOLARE LORENZIN",
+          "futureList": "astensione",
+          "factor": 1,
+          "note": "principalmente Alleanza popolare"
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "PARTITO DEMOCRATICO",
+          "futureList": "Partito Democratico",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "ITALIA EUROPA INSIEME",
+          "futureList": "Partito Democratico",
+          "factor": 0.5,
+          "note": "PSI"
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "ITALIA EUROPA INSIEME",
+          "futureList": "Alleanza Verdi Sinistra",
+          "factor": 0.5,
+          "note": "Verdi"
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "+EUROPA",
+          "futureList": "+Europa",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "CASAPOUND ITALIA",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "POTERE AL POPOLO!",
+          "futureList": "Potere al Popolo!",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "LIBERI E UGUALI",
+          "futureList": "Alleanza Verdi Sinistra",
+          "factor": 0.5,
+          "note": "SI + Possibile"
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "LIBERI E UGUALI",
+          "futureList": "Partito Democratico",
+          "factor": 0.5,
+          "note": "Art1"
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "MOVIMENTO 5 STELLE",
+          "futureList": "Movimento 5 Stelle",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "astensione",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "SVP - PATT",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "ITALIA AGLI ITALIANI",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "PD-UV-UVP-EPAV",
+          "futureList": "Partito Democratico",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "POUR TOUS PER TUTTI PE TCHEUT",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "FI -FRAT. D'IT. -MOV.NUOVA VALLE D'AOSTA",
+          "futureList": "Fratelli d'Italia",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "RISPOSTA CIVICA",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "PARTITO REPUBBLICANO ITALIANO - ALA",
+          "futureList": "astensione",
+          "factor": 1,
+          "note": "confluisce in Az-Iv ma non è rappresentativo"
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "PER UNA SINISTRA RIVOLUZIONARIA",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "10 VOLTE MEGLIO",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "PARTITO COMUNISTA",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "GRANDE NORD",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "BLOCCO NAZIONALE PER LE LIBERTA'",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "LISTA DEL POPOLO PER LA COSTITUZIONE",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "ITALIA NEL CUORE",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "RINASCIMENTO MIR",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "PATTO PER L'AUTONOMIA",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "SIAMO",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "AUTODETERMINATZIONE",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "FRATELLI D'ITALIA CON GIORGIA MELONI",
+          "futureList": "Fratelli d'Italia",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "LEGA PER SALVINI PREMIER",
+          "futureList": "Lega",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "FORZA ITALIA",
+          "futureList": "Forza Italia",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "NOI MODERATI/LUPI - TOTI - BRUGNARO - UDC",
+          "futureList": "Forza Italia",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "PARTITO DEMOCRATICO - ITALIA DEMOCRATICA E PROGRESSISTA",
+          "futureList": "Partito Democratico",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "ALLEANZA VERDI E SINISTRA",
+          "futureList": "Alleanza Verdi Sinistra",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "+EUROPA",
+          "futureList": "+Europa",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "IMPEGNO CIVICO LUIGI DI MAIO - CENTRO DEMOCRATICO",
+          "futureList": "Movimento 5 Stelle",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "MOVIMENTO 5 STELLE",
+          "futureList": "Movimento 5 Stelle",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "AZIONE - ITALIA VIVA - CALENDA",
+          "futureList": "Azione - Italia Viva",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "ITALEXIT PER L'ITALIA",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "UNIONE POPOLARE CON DE MAGISTRIS",
+          "futureList": "Potere al Popolo!",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "ITALIA SOVRANA E POPOLARE",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "VITA",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "astensione",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "SUDTIROLER VOLKSPARTEI (SVP) - PATT",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "MASTELLA NOI DI CENTRO EUROPEISTI",
+          "futureList": "Azione - Italia Viva",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "PARTITO COMUNISTA ITALIANO",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "ALTERNATIVA PER L'ITALIA - NO GREEN PASS",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "FREE",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "SUD CHIAMA NORD",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "PARTITO ANIMALISTA - UCDL - 10 VOLTE MEGLIO",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "PARTITO DELLA FOLLIA CREATIVA",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "FORZA DEL POPOLO",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "europee 2019",
+          "pastList": "CASAPOUND ITALIA - DESTRE UNITE",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "europee 2019",
+          "pastList": "PARTITO COMUNISTA",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "europee 2019",
+          "pastList": "PARTITO ANIMALISTA",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "europee 2019",
+          "pastList": "MOVIMENTO 5 STELLE",
+          "futureList": "Movimento 5 Stelle",
+          "factor": 1
+        },
+        {
+          "election": "europee 2019",
+          "pastList": "LEGA SALVINI PREMIER",
+          "futureList": "Lega",
+          "factor": 1
+        },
+        {
+          "election": "europee 2019",
+          "pastList": "PARTITO PIRATA",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "europee 2019",
+          "pastList": "EUROPA VERDE",
+          "futureList": "Alleanza Verdi Sinistra",
+          "factor": 1
+        },
+        {
+          "election": "europee 2019",
+          "pastList": "FRATELLI D'ITALIA",
+          "futureList": "Fratelli d'Italia",
+          "factor": 1
+        },
+        {
+          "election": "europee 2019",
+          "pastList": "PARTITO DEMOCRATICO",
+          "futureList": "Partito Democratico",
+          "factor": 1
+        },
+        {
+          "election": "europee 2019",
+          "pastList": "POPOLO DELLA FAMIGLIA - ALTERNATIVA POPOLARE",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "europee 2019",
+          "pastList": "POPOLARI PER L'ITALIA",
+          "futureList": "Forza Italia",
+          "factor": 1
+        },
+        {
+          "election": "europee 2019",
+          "pastList": "AUTONOMIE PER L'EUROPA",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "europee 2019",
+          "pastList": "LA SINISTRA",
+          "futureList": "Alleanza Verdi Sinistra",
+          "factor": 1
+        },
+        {
+          "election": "europee 2019",
+          "pastList": "+EUROPA - ITALIA IN COMUNE - PDE ITALIA",
+          "futureList": "+Europa",
+          "factor": 1
+        },
+        {
+          "election": "europee 2019",
+          "pastList": "FORZA ITALIA",
+          "futureList": "Forza Italia",
+          "factor": 1
+        },
+        {
+          "election": "europee 2019",
+          "pastList": "FORZA NUOVA",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "europee 2019",
+          "pastList": "astensione",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "europee 2019",
+          "pastList": "PPA MOVIMENTO POLITICO PENSIERO AZIONE",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "europee 2019",
+          "pastList": "SVP",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "europee 2024",
+          "pastList": "FORZA ITALIA - NOI MODERATI - PPE",
+          "futureList": "Forza Italia",
+          "factor": 1
+        },
+        {
+          "election": "europee 2024",
+          "pastList": "MOVIMENTO 5 STELLE",
+          "futureList": "Movimento 5 Stelle",
+          "factor": 1
+        },
+        {
+          "election": "europee 2024",
+          "pastList": "LEGA SALVINI PREMIER",
+          "futureList": "Lega",
+          "factor": 1
+        },
+        {
+          "election": "europee 2024",
+          "pastList": "STATI UNITI D'EUROPA",
+          "futureList": "+Europa",
+          "factor": 0.5,
+          "note": "+Europa"
+        },
+        {
+          "election": "europee 2024",
+          "pastList": "STATI UNITI D'EUROPA",
+          "futureList": "Azione - Italia Viva",
+          "factor": 0.5,
+          "note": "Italia Viva"
+        },
+        {
+          "election": "europee 2024",
+          "pastList": "FRATELLI D'ITALIA",
+          "futureList": "Fratelli d'Italia",
+          "factor": 1
+        },
+        {
+          "election": "europee 2024",
+          "pastList": "ALTERNATIVA POPOLARE",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "europee 2024",
+          "pastList": "AZIONE - SIAMO EUROPEI",
+          "futureList": "Azione - Italia Viva",
+          "factor": 1
+        },
+        {
+          "election": "europee 2024",
+          "pastList": "PARTITO DEMOCRATICO",
+          "futureList": "Partito Democratico",
+          "factor": 1
+        },
+        {
+          "election": "europee 2024",
+          "pastList": "ALLEANZA VERDI E SINISTRA",
+          "futureList": "Alleanza Verdi Sinistra",
+          "factor": 1
+        },
+        {
+          "election": "europee 2024",
+          "pastList": "PACE TERRA DIGNITA'",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "europee 2024",
+          "pastList": "LIBERTA'",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "europee 2024",
+          "pastList": "RASSEMBLEMENT VALDÔTAIN",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "europee 2024",
+          "pastList": "astensione",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "europee 2024",
+          "pastList": "SÜDTIROLER VOLKSPARTEI (SVP)",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "europee 2024",
+          "pastList": "DEMOCRAZIA SOVRANA POPOLARE",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "europee 2024",
+          "pastList": "PARTITO ANIMALISTA - ITALEXIT PER L'ITALIA",
+          "futureList": "astensione",
+          "factor": 1
+        }
+      ],
+      "candidateGeneration": {
+        "uninominalToPlurinominalShare": 0.35,
+        "plurinominalCandidacyCountShares": [
+          0.8,
+          0.1,
+          0.05,
+          0.03,
+          0.02
+        ]
+      },
+      "defaultBirthDate": "2000-01-01"
+    },
+    "regional-er": {
+      "sourceWorkbook": "scenari/BO_insieme.xlsx",
+      "sourceSha256": "da8a7c4b7899b352bdf40b58a6f82666f0c257febdc9e294435d19243820899d",
+      "id": "regionali-er-2027",
+      "name": "Regionali Emilia-Romagna 2027",
+      "electionDate": "2027-03-01",
+      "startingElection": null,
+      "lists": [
+        {
+          "name": "Alleanza Verdi Sinistra",
+          "coalition": "sinistra",
+          "color": "#bada55"
+        },
+        {
+          "name": "Destra Lista Sindaco",
+          "coalition": "destra",
+          "color": "#266bff"
+        },
+        {
+          "name": "Forza Italia",
+          "coalition": "destra",
+          "color": "#4287f5"
+        },
+        {
+          "name": "Fratelli d'Italia",
+          "coalition": "destra",
+          "color": "#0000ff"
+        },
+        {
+          "name": "Lega",
+          "coalition": "destra",
+          "color": "#417d00"
+        },
+        {
+          "name": "Movimento 5 Stelle",
+          "coalition": "sinistra",
+          "color": "#ffff00"
+        },
+        {
+          "name": "Partito Democratico",
+          "coalition": "sinistra",
+          "color": "#ff9d00"
+        },
+        {
+          "name": "Potere al Popolo!",
+          "coalition": "PaP",
+          "color": "#ff0000"
+        },
+        {
+          "name": "Sinistra Lista Sindaco",
+          "coalition": "sinistra",
+          "color": "#ff6200"
+        }
+      ],
+      "coalitions": [
+        {
+          "name": "sinistra",
+          "color": "#ff9d00"
+        },
+        {
+          "name": "destra",
+          "color": "#0000ff"
+        },
+        {
+          "name": "PaP",
+          "color": "#ff0000"
+        }
+      ],
+      "correspondences": [
+        {
+          "election": "camera 2018",
+          "pastList": "+EUROPA",
+          "futureList": "Sinistra Lista Sindaco",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "CASAPOUND ITALIA",
+          "futureList": "Forza Italia",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "CIVICA POPOLARE LORENZIN",
+          "futureList": "Sinistra Lista Sindaco",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "FORZA ITALIA",
+          "futureList": "Forza Italia",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "FRATELLI D'ITALIA CON GIORGIA MELONI",
+          "futureList": "Fratelli d'Italia",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "IL POPOLO DELLA FAMIGLIA",
+          "futureList": "Fratelli d'Italia",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "ITALIA AGLI ITALIANI",
+          "futureList": "Fratelli d'Italia",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "ITALIA EUROPA INSIEME",
+          "futureList": "Alleanza Verdi Sinistra",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "LEGA",
+          "futureList": "Lega",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "LIBERI E UGUALI",
+          "futureList": "Alleanza Verdi Sinistra",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "LISTA DEL POPOLO PER LA COSTITUZIONE",
+          "futureList": "Sinistra Lista Sindaco",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "MOVIMENTO 5 STELLE",
+          "futureList": "Movimento 5 Stelle",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "NOI CON L'ITALIA - UDC",
+          "futureList": "Forza Italia",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "PARTITO COMUNISTA",
+          "futureList": "Potere al Popolo!",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "PARTITO DEMOCRATICO",
+          "futureList": "Partito Democratico",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "PARTITO REPUBBLICANO ITALIANO - ALA",
+          "futureList": "Forza Italia",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "PARTITO VALORE UMANO",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "PER UNA SINISTRA RIVOLUZIONARIA",
+          "futureList": "Potere al Popolo!",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "POTERE AL POPOLO!",
+          "futureList": "Potere al Popolo!",
+          "factor": 1
+        },
+        {
+          "election": "camera 2018",
+          "pastList": "astensione",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "europee 2019",
+          "pastList": "+EUROPA - ITALIA IN COMUNE - PDE ITALIA",
+          "futureList": "Sinistra Lista Sindaco",
+          "factor": 1
+        },
+        {
+          "election": "europee 2019",
+          "pastList": "CASAPOUND ITALIA - DESTRE UNITE",
+          "futureList": "Fratelli d'Italia",
+          "factor": 1
+        },
+        {
+          "election": "europee 2019",
+          "pastList": "EUROPA VERDE",
+          "futureList": "Alleanza Verdi Sinistra",
+          "factor": 1
+        },
+        {
+          "election": "europee 2019",
+          "pastList": "FORZA ITALIA",
+          "futureList": "Forza Italia",
+          "factor": 1
+        },
+        {
+          "election": "europee 2019",
+          "pastList": "FORZA NUOVA",
+          "futureList": "Fratelli d'Italia",
+          "factor": 1
+        },
+        {
+          "election": "europee 2019",
+          "pastList": "FRATELLI D'ITALIA",
+          "futureList": "Fratelli d'Italia",
+          "factor": 1
+        },
+        {
+          "election": "europee 2019",
+          "pastList": "LA SINISTRA",
+          "futureList": "Alleanza Verdi Sinistra",
+          "factor": 1
+        },
+        {
+          "election": "europee 2019",
+          "pastList": "LEGA SALVINI PREMIER",
+          "futureList": "Lega",
+          "factor": 1
+        },
+        {
+          "election": "europee 2019",
+          "pastList": "MOVIMENTO 5 STELLE",
+          "futureList": "Movimento 5 Stelle",
+          "factor": 1
+        },
+        {
+          "election": "europee 2019",
+          "pastList": "PARTITO ANIMALISTA",
+          "futureList": "Forza Italia",
+          "factor": 1
+        },
+        {
+          "election": "europee 2019",
+          "pastList": "PARTITO COMUNISTA",
+          "futureList": "Potere al Popolo!",
+          "factor": 1
+        },
+        {
+          "election": "europee 2019",
+          "pastList": "PARTITO DEMOCRATICO",
+          "futureList": "Partito Democratico",
+          "factor": 1
+        },
+        {
+          "election": "europee 2019",
+          "pastList": "PARTITO PIRATA",
+          "futureList": "Potere al Popolo!",
+          "factor": 1
+        },
+        {
+          "election": "europee 2019",
+          "pastList": "POPOLARI PER L'ITALIA",
+          "futureList": "Forza Italia",
+          "factor": 1
+        },
+        {
+          "election": "europee 2019",
+          "pastList": "POPOLO DELLA FAMIGLIA - ALTERNATIVA POPOLARE",
+          "futureList": "Forza Italia",
+          "factor": 1
+        },
+        {
+          "election": "europee 2019",
+          "pastList": "PPA MOVIMENTO POLITICO PENSIERO AZIONE",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "europee 2019",
+          "pastList": "SVP",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "europee 2019",
+          "pastList": "astensione",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "regionali 2020",
+          "pastList": "+EUROPA - PSI - PRI",
+          "futureList": "Sinistra Lista Sindaco",
+          "factor": 1
+        },
+        {
+          "election": "regionali 2020",
+          "pastList": "BONACCINI PRESIDENTE",
+          "futureList": "Sinistra Lista Sindaco",
+          "factor": 1
+        },
+        {
+          "election": "regionali 2020",
+          "pastList": "EMILIA-ROMAGNA CORAGGIOSA ECOLOGISTA PROGRESSISTA",
+          "futureList": "Partito Democratico",
+          "factor": 1
+        },
+        {
+          "election": "regionali 2020",
+          "pastList": "EUROPA VERDE",
+          "futureList": "Alleanza Verdi Sinistra",
+          "factor": 1
+        },
+        {
+          "election": "regionali 2020",
+          "pastList": "FORZA ITALIA",
+          "futureList": "Forza Italia",
+          "factor": 1
+        },
+        {
+          "election": "regionali 2020",
+          "pastList": "FRATELLI D'ITALIA",
+          "futureList": "Fratelli d'Italia",
+          "factor": 1
+        },
+        {
+          "election": "regionali 2020",
+          "pastList": "GIOVANI PER L'AMBIENTE",
+          "futureList": "Forza Italia",
+          "factor": 1
+        },
+        {
+          "election": "regionali 2020",
+          "pastList": "IL POPOLO DELLA FAMIGLIA - CAMBIAMO!",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "regionali 2020",
+          "pastList": "L'ALTRA EMILIA ROMAGNA",
+          "futureList": "Potere al Popolo!",
+          "factor": 1
+        },
+        {
+          "election": "regionali 2020",
+          "pastList": "LEGA",
+          "futureList": "Lega",
+          "factor": 1
+        },
+        {
+          "election": "regionali 2020",
+          "pastList": "MOVIMENTO 3V VACCINI VOGLIAMO VERITA'",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "regionali 2020",
+          "pastList": "MOVIMENTO 5 STELLE",
+          "futureList": "Movimento 5 Stelle",
+          "factor": 1
+        },
+        {
+          "election": "regionali 2020",
+          "pastList": "PARTITO COMUNISTA",
+          "futureList": "Potere al Popolo!",
+          "factor": 1
+        },
+        {
+          "election": "regionali 2020",
+          "pastList": "PARTITO DEMOCRATICO",
+          "futureList": "Partito Democratico",
+          "factor": 1
+        },
+        {
+          "election": "regionali 2020",
+          "pastList": "POTERE AL POPOLO!",
+          "futureList": "Potere al Popolo!",
+          "factor": 1
+        },
+        {
+          "election": "regionali 2020",
+          "pastList": "PROGETTO EMILIA-ROMAGNA RETE CIVICA BORGONZONI PRESIDENTE",
+          "futureList": "Destra Lista Sindaco",
+          "factor": 1
+        },
+        {
+          "election": "regionali 2020",
+          "pastList": "VOLT EMILIA-ROMAGNA",
+          "futureList": "Sinistra Lista Sindaco",
+          "factor": 1
+        },
+        {
+          "election": "regionali 2020",
+          "pastList": "astensione",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "+EUROPA",
+          "futureList": "Sinistra Lista Sindaco",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "ALLEANZA VERDI E SINISTRA",
+          "futureList": "Alleanza Verdi Sinistra",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "AZIONE - ITALIA VIVA - CALENDA",
+          "futureList": "Sinistra Lista Sindaco",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "FORZA ITALIA",
+          "futureList": "Forza Italia",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "FRATELLI D'ITALIA CON GIORGIA MELONI",
+          "futureList": "Fratelli d'Italia",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "IMPEGNO CIVICO LUIGI DI MAIO - CENTRO DEMOCRATICO",
+          "futureList": "Movimento 5 Stelle",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "ITALEXIT PER L'ITALIA",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "ITALIA SOVRANA E POPOLARE",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "LEGA PER SALVINI PREMIER",
+          "futureList": "Lega",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "MASTELLA NOI DI CENTRO EUROPEISTI",
+          "futureList": "Destra Lista Sindaco",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "MOVIMENTO 5 STELLE",
+          "futureList": "Movimento 5 Stelle",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "NOI MODERATI/LUPI - TOTI - BRUGNARO - UDC",
+          "futureList": "Forza Italia",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "PARTITO ANIMALISTA - UCDL - 10 VOLTE MEGLIO",
+          "futureList": "Destra Lista Sindaco",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "PARTITO DEMOCRATICO - ITALIA DEMOCRATICA E PROGRESSISTA",
+          "futureList": "Partito Democratico",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "SUD CHIAMA NORD",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "UNIONE POPOLARE CON DE MAGISTRIS",
+          "futureList": "Potere al Popolo!",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "VITA",
+          "futureList": "Movimento 5 Stelle",
+          "factor": 1
+        },
+        {
+          "election": "camera 2022",
+          "pastList": "astensione",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "europee 2024",
+          "pastList": "ALLEANZA VERDI E SINISTRA",
+          "futureList": "Alleanza Verdi Sinistra",
+          "factor": 1
+        },
+        {
+          "election": "europee 2024",
+          "pastList": "ALTERNATIVA POPOLARE",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "europee 2024",
+          "pastList": "AZIONE - SIAMO EUROPEI",
+          "futureList": "Sinistra Lista Sindaco",
+          "factor": 1
+        },
+        {
+          "election": "europee 2024",
+          "pastList": "FORZA ITALIA - NOI MODERATI - PPE",
+          "futureList": "Forza Italia",
+          "factor": 1
+        },
+        {
+          "election": "europee 2024",
+          "pastList": "FRATELLI D'ITALIA",
+          "futureList": "Fratelli d'Italia",
+          "factor": 1
+        },
+        {
+          "election": "europee 2024",
+          "pastList": "LEGA SALVINI PREMIER",
+          "futureList": "Lega",
+          "factor": 1
+        },
+        {
+          "election": "europee 2024",
+          "pastList": "LIBERTA'",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "europee 2024",
+          "pastList": "MOVIMENTO 5 STELLE",
+          "futureList": "Movimento 5 Stelle",
+          "factor": 1
+        },
+        {
+          "election": "europee 2024",
+          "pastList": "PACE TERRA DIGNITA'",
+          "futureList": "Potere al Popolo!",
+          "factor": 1
+        },
+        {
+          "election": "europee 2024",
+          "pastList": "PARTITO DEMOCRATICO",
+          "futureList": "Partito Democratico",
+          "factor": 1
+        },
+        {
+          "election": "europee 2024",
+          "pastList": "STATI UNITI D'EUROPA",
+          "futureList": "Sinistra Lista Sindaco",
+          "factor": 1
+        },
+        {
+          "election": "europee 2024",
+          "pastList": "SÜDTIROLER VOLKSPARTEI (SVP)",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "europee 2024",
+          "pastList": "astensione",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "regionali 2024",
+          "pastList": "",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "regionali 2024",
+          "pastList": "ALLEANZA VERDI E SINISTRA - COALIZIONI CIVICHE - POSSIBILE",
+          "futureList": "Alleanza Verdi Sinistra",
+          "factor": 1
+        },
+        {
+          "election": "regionali 2024",
+          "pastList": "CIVICI, CON DE PASCALE PRESIDENTE",
+          "futureList": "Sinistra Lista Sindaco",
+          "factor": 1
+        },
+        {
+          "election": "regionali 2024",
+          "pastList": "EMILIA-ROMAGNA PER LA PACE, L'AMBIENTE E IL LAVORO",
+          "futureList": "Potere al Popolo!",
+          "factor": 1
+        },
+        {
+          "election": "regionali 2024",
+          "pastList": "FORZA ITALIA - BERLUSCONI - UGOLINI PRESIDENTE - NOI MODERATI",
+          "futureList": "Forza Italia",
+          "factor": 1
+        },
+        {
+          "election": "regionali 2024",
+          "pastList": "FRATELLI D'ITALIA - GIORGIA MELONI",
+          "futureList": "Fratelli d'Italia",
+          "factor": 1
+        },
+        {
+          "election": "regionali 2024",
+          "pastList": "LEALTA' COERENZA VERITA' - LUCA TEODORI",
+          "futureList": "astensione",
+          "factor": 1
+        },
+        {
+          "election": "regionali 2024",
+          "pastList": "LEGA SALVINI EMILIA-ROMAGNA - IL POPOLO DELLA FAMIGLIA",
+          "futureList": "Lega",
+          "factor": 1
+        },
+        {
+          "election": "regionali 2024",
+          "pastList": "MOVIMENTO 5 STELLE",
+          "futureList": "Movimento 5 Stelle",
+          "factor": 1
+        },
+        {
+          "election": "regionali 2024",
+          "pastList": "PARTITO DEMOCRATICO - DE PASCALE PRESIDENTE",
+          "futureList": "Partito Democratico",
+          "factor": 1
+        },
+        {
+          "election": "regionali 2024",
+          "pastList": "RETE CIVICA - ELENA UGOLINI PRESIDENTE",
+          "futureList": "Destra Lista Sindaco",
+          "factor": 1
+        },
+        {
+          "election": "regionali 2024",
+          "pastList": "RIFORMISTI EMILIA-ROMAGNA FUTURA - DE PASCALE PRESIDENTE",
+          "futureList": "Sinistra Lista Sindaco",
+          "factor": 1
+        },
+        {
+          "election": "regionali 2024",
+          "pastList": "astensione",
+          "futureList": "astensione",
+          "factor": 1
+        }
+      ],
+      "candidateGeneration": {
+        "uninominalToPlurinominalShare": 0.35,
+        "plurinominalCandidacyCountShares": [
+          0.8,
+          0.1,
+          0.05,
+          0.03,
+          0.02
+        ]
+      },
+      "defaultBirthDate": "2000-01-01"
+    }
+  }
+}

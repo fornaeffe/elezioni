@@ -1,0 +1,1437 @@
+{
+  "version": "restricted-party-drift-bfb302b30290",
+  "machine": {
+    "cpu": "Intel(R) Core(TM) i7-14700KF",
+    "logicalProcessors": 28,
+    "memoryBytes": 68498468864,
+    "node": "v24.20.0"
+  },
+  "policy": {
+    "version": "restricted-scenarios-v1",
+    "reference": {
+      "burn": 6000,
+      "draws": 12000,
+      "thin": 2,
+      "chains": 4
+    },
+    "starts": 5,
+    "importanceDraws": 32768,
+    "minImportanceEss": 1000,
+    "maxImportanceWeight": 0.02,
+    "prior": {
+      "version": "neutral-reference-conditional-v1",
+      "nationalSd": 1.5,
+      "localSd": 0.5,
+      "kindSd": 0.5,
+      "nationalInnovationSd": 0.35,
+      "localInnovationSd": 0.25,
+      "calibrationDraws": 32768,
+      "calibrationSeed": "party-drift-prior-calibration-v1",
+      "scaleLogPriorSd": 0.7,
+      "effectLogPriorSd": 0.35
+    },
+    "gates": {
+      "version": "exact-grouped-laplace-reference-v1",
+      "maxDimension": 192,
+      "maxIterations": 120,
+      "gradientTolerance": 0.000001,
+      "maxRidge": 100000000,
+      "posteriorMeanTolerance": 0.025,
+      "posteriorWidthRatio": [
+        0.65,
+        1.5
+      ],
+      "maxRhat": 1.05,
+      "minEss": 400
+    }
+  },
+  "versions": [
+    {
+      "path": "party-drift-restricted-cli.ts",
+      "sha256": "612059ec4092014cecb2d3d99ba8269f8817dcc8c8ccb5bb5bd49e706f79a473"
+    },
+    {
+      "path": "party-drift-fit.ts",
+      "sha256": "6ac7c354d1708278d174f6d3225090dd431e94a43d4e6119a90de83936d4fd21"
+    },
+    {
+      "path": "party-drift-prior.ts",
+      "sha256": "5dd9fc0b6bb9f7bb73b3c0af6801a56a17b89d48578cf9e5eba9813ada65ff50"
+    },
+    {
+      "path": "party-drift-likelihood.ts",
+      "sha256": "ffbeb6412cbc88978ad864a372ed3df48fa163ee888c9f4f01b7fa25ad0e76a2"
+    },
+    {
+      "path": "party-drift-reference.ts",
+      "sha256": "698a9a15f99ed37d9258d089e8efea3c057b29dabcc25ecce89efc6ff92d7b56"
+    },
+    {
+      "path": "party-drift-importance.ts",
+      "sha256": "c82480363fd1fa547c359567741aeb208294af4e635b1cac13a42ec801577021"
+    },
+    {
+      "path": "party-drift-identifiability.ts",
+      "sha256": "e8e77e05dcb25d464515f82db82b0241b9110c412358cd0752d4aa267b254260"
+    },
+    {
+      "path": "drift-math.ts",
+      "sha256": "1209cc3d9bf5385946c587504f1130d5cd4aee9f7738611d65f8b8198aeafc89"
+    },
+    {
+      "path": "drift-gaussian.ts",
+      "sha256": "260e12defdeca8d804131f63a92c556b51635142f3a281cfa2a351145f11c381"
+    },
+    {
+      "path": "generation-metrics.ts",
+      "sha256": "a3ffdf6130c6273654570755331ecd050112f23a19c7913b159d4c9bec3f73c3"
+    }
+  ],
+  "results": [
+    {
+      "fixture": {
+        "id": "separate-history",
+        "evidence": "counts",
+        "cities": 1
+      },
+      "dimension": 12,
+      "resolution": {
+        "resolved": true,
+        "rank": 3,
+        "dimensions": 3,
+        "nullDirections": [],
+        "informationIds": [
+          "joint",
+          "counts"
+        ],
+        "interpretation": "Structural component resolution only; dates, strength and latent pooling still require statistical validation"
+      },
+      "samplingPassed": false,
+      "diagnostics": [
+        {
+          "rhat": 1.0031926517986707,
+          "ess": 1230.0996727556899
+        },
+        {
+          "rhat": 1.0240636701190902,
+          "ess": 302.7095135187403
+        },
+        {
+          "rhat": 1.0270921630949574,
+          "ess": 312.5821549875802
+        },
+        {
+          "rhat": 1.0030412376106692,
+          "ess": 1172.702066031532
+        },
+        {
+          "rhat": 1.0304135443225493,
+          "ess": 266.57406188022003
+        },
+        {
+          "rhat": 1.0304419701974734,
+          "ess": 266.94518944224393
+        }
+      ],
+      "sampling": [
+        {
+          "evaluations": 233177,
+          "seconds": 0.47162390000000004
+        },
+        {
+          "evaluations": 232325,
+          "seconds": 0.4757691000000001
+        },
+        {
+          "evaluations": 233899,
+          "seconds": 0.47624199999999994
+        },
+        {
+          "evaluations": 233341,
+          "seconds": 0.47965540000000034
+        }
+      ],
+      "hardResidual": null,
+      "laplace": {
+        "variables": [
+          {
+            "referenceMean": 0.3021625159206685,
+            "candidateMean": 0.2988716139386129,
+            "meanDifference": -0.0032909019820556162,
+            "referenceWidth90": 0.138524232570942,
+            "candidateWidth90": 0.1386865441211038,
+            "widthRatio": 1.001171719540685
+          },
+          {
+            "referenceMean": 0.162188073359919,
+            "candidateMean": 0.15953754350292113,
+            "meanDifference": -0.002650529856997874,
+            "referenceWidth90": 0.18119148549296893,
+            "candidateWidth90": 0.1943571613275541,
+            "widthRatio": 1.0726616694971356
+          },
+          {
+            "referenceMean": 0.2386016247730977,
+            "candidateMean": 0.2481658060921275,
+            "meanDifference": 0.00956418131902978,
+            "referenceWidth90": 0.20338121377225152,
+            "candidateWidth90": 0.21322340614956534,
+            "widthRatio": 1.0483928293806684
+          },
+          {
+            "referenceMean": 0.29704778594631276,
+            "candidateMean": 0.2934250364663444,
+            "meanDifference": -0.003622749479968379,
+            "referenceWidth90": 0.13593245313213034,
+            "candidateWidth90": 0.13816165923865734,
+            "widthRatio": 1.0163993664144362
+          },
+          {
+            "referenceMean": 0.40556513465204896,
+            "candidateMean": 0.3916324650810225,
+            "meanDifference": -0.013932669571026457,
+            "referenceWidth90": 0.4385581971130327,
+            "candidateWidth90": 0.4447801389792059,
+            "widthRatio": 1.0141872661533438
+          },
+          {
+            "referenceMean": -0.4129692481678281,
+            "candidateMean": -0.47821763827141384,
+            "meanDifference": -0.06524839010358574,
+            "referenceWidth90": 1.9567945767593278,
+            "candidateWidth90": 2.017172674573515,
+            "widthRatio": 1.0308556138346314
+          }
+        ],
+        "passed": true
+      },
+      "modes": [
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 1.293030960081154e-11,
+          "logPosterior": -515.3062112017217,
+          "seconds": 0.001956700000000012
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 2.7190071028027063e-10,
+          "logPosterior": -515.3062112017217,
+          "seconds": 0.000427899999999994
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 5.277722703311838e-14,
+          "logPosterior": -515.3062112017217,
+          "seconds": 0.00028589999999999806
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 6.560460588667105e-8,
+          "logPosterior": -515.3062112017217,
+          "seconds": 0.00018999999999999773
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 1.690057892522745e-7,
+          "logPosterior": -515.3062112017217,
+          "seconds": 0.00018919999999999958
+        }
+      ]
+    },
+    {
+      "fixture": {
+        "id": "separate-poll",
+        "evidence": "poll",
+        "cities": 1
+      },
+      "dimension": 8,
+      "resolution": {
+        "resolved": true,
+        "rank": 3,
+        "dimensions": 3,
+        "nullDirections": [],
+        "informationIds": [
+          "joint",
+          "poll"
+        ],
+        "interpretation": "Structural component resolution only; dates, strength and latent pooling still require statistical validation"
+      },
+      "samplingPassed": true,
+      "diagnostics": [
+        {
+          "rhat": 1.0004426112994675,
+          "ess": 8280.148436999361
+        },
+        {
+          "rhat": 1.0048123105581623,
+          "ess": 609.0969751206972
+        },
+        {
+          "rhat": 1.0045461015284007,
+          "ess": 804.3026599496048
+        },
+        {
+          "rhat": 1.0030472323719375,
+          "ess": 828.3189868714028
+        },
+        {
+          "rhat": 1.00724588977972,
+          "ess": 537.9907475242603
+        },
+        {
+          "rhat": 1.007428893925129,
+          "ess": 537.873428706773
+        }
+      ],
+      "sampling": [
+        {
+          "evaluations": 233173,
+          "seconds": 0.7696217000000002
+        },
+        {
+          "evaluations": 233596,
+          "seconds": 0.7716075999999998
+        },
+        {
+          "evaluations": 232440,
+          "seconds": 0.7728638000000001
+        },
+        {
+          "evaluations": 233742,
+          "seconds": 0.7831666999999998
+        }
+      ],
+      "hardResidual": null,
+      "laplace": {
+        "variables": [
+          {
+            "referenceMean": 0.3034355975704472,
+            "candidateMean": 0.30455822269058724,
+            "meanDifference": 0.0011226251201400528,
+            "referenceWidth90": 0.15139076952208347,
+            "candidateWidth90": 0.14806215777548867,
+            "widthRatio": 0.9780131129717968
+          },
+          {
+            "referenceMean": 0.1397830370115458,
+            "candidateMean": 0.14040322269166527,
+            "meanDifference": 0.0006201856801194838,
+            "referenceWidth90": 0.07305654096755282,
+            "candidateWidth90": 0.0748578616637472,
+            "widthRatio": 1.0246565286603757
+          },
+          {
+            "referenceMean": 0.2581135884186548,
+            "candidateMean": 0.257188516530854,
+            "meanDifference": -0.0009250718878007769,
+            "referenceWidth90": 0.10203284974182125,
+            "candidateWidth90": 0.10257101461328591,
+            "widthRatio": 1.005274427528256
+          },
+          {
+            "referenceMean": 0.29866777699935293,
+            "candidateMean": 0.2978500380868925,
+            "meanDifference": -0.0008177389124604528,
+            "referenceWidth90": 0.10414558249031466,
+            "candidateWidth90": 0.10353806535244534,
+            "widthRatio": 0.9941666547601687
+          },
+          {
+            "referenceMean": 0.3515275203669578,
+            "candidateMean": 0.3533746227362145,
+            "meanDifference": 0.0018471023692567257,
+            "referenceWidth90": 0.15670485073877166,
+            "candidateWidth90": 0.16192578053761758,
+            "widthRatio": 1.0333169635415387
+          },
+          {
+            "referenceMean": -0.6188972695124205,
+            "candidateMean": -0.6110976723741972,
+            "meanDifference": 0.007799597138223313,
+            "referenceWidth90": 0.6937020993974726,
+            "candidateWidth90": 0.7152229417709786,
+            "widthRatio": 1.0310231760754338
+          }
+        ],
+        "passed": true
+      },
+      "modes": [
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 2.013861299943187e-11,
+          "logPosterior": -109.25907927562321,
+          "seconds": 0.008372399999999744
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 4.753049722000524e-7,
+          "logPosterior": -109.25907927562321,
+          "seconds": 0.0027464999999997418
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 3.0044869370193794e-11,
+          "logPosterior": -109.25907927562321,
+          "seconds": 0.0022562000000002627
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 9.685275359494483e-10,
+          "logPosterior": -109.25907927562322,
+          "seconds": 0.002989799999999832
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 8.522899053176047e-11,
+          "logPosterior": -109.25907927562322,
+          "seconds": 0.0031101999999996223
+        }
+      ]
+    },
+    {
+      "fixture": {
+        "id": "hard-reference",
+        "evidence": "hard",
+        "cities": 1
+      },
+      "dimension": 5,
+      "resolution": {
+        "resolved": true,
+        "rank": 3,
+        "dimensions": 3,
+        "nullDirections": [],
+        "informationIds": [
+          "joint",
+          "hard"
+        ],
+        "interpretation": "Structural component resolution only; dates, strength and latent pooling still require statistical validation"
+      },
+      "samplingPassed": true,
+      "diagnostics": [
+        {
+          "rhat": 1.000033359152021,
+          "ess": 30877.31937769996
+        },
+        {
+          "rhat": 1.0000333591520212,
+          "ess": 30877.3193776958
+        },
+        {
+          "rhat": 1.0000717043173009,
+          "ess": 27982.038211627132
+        },
+        {
+          "rhat": 1.0001139420163687,
+          "ess": 28551.98241364437
+        },
+        {
+          "rhat": 1.0000805550425298,
+          "ess": 26944.322077555375
+        },
+        {
+          "rhat": 1.0000854090858122,
+          "ess": 27131.652757495278
+        }
+      ],
+      "sampling": [
+        {
+          "evaluations": 175380,
+          "seconds": 13.963695500000002
+        },
+        {
+          "evaluations": 175147,
+          "seconds": 14.093019800000002
+        },
+        {
+          "evaluations": 174805,
+          "seconds": 13.9698468
+        },
+        {
+          "evaluations": 175335,
+          "seconds": 13.968622200000006
+        }
+      ],
+      "hardResidual": 1.2112533198660458e-13,
+      "laplace": {
+        "variables": [
+          {
+            "referenceMean": 0.30398311235026243,
+            "candidateMean": 0.30363753148831807,
+            "meanDifference": -0.0003455808619443612,
+            "referenceWidth90": 0.14891170305634469,
+            "candidateWidth90": 0.1485362216610598,
+            "widthRatio": 0.9974784964003613
+          },
+          {
+            "referenceMean": 0.13920337752994807,
+            "candidateMean": 0.13927249370233674,
+            "meanDifference": 0.00006911617238866685,
+            "referenceWidth90": 0.029782340611160016,
+            "candidateWidth90": 0.02970724433232777,
+            "widthRatio": 0.997478496407898
+          },
+          {
+            "referenceMean": 0.25598538756431666,
+            "candidateMean": 0.2588515658548763,
+            "meanDifference": 0.002866178290559629,
+            "referenceWidth90": 0.14604550745095538,
+            "candidateWidth90": 0.1453716640775465,
+            "widthRatio": 0.995386072566216
+          },
+          {
+            "referenceMean": 0.30082812255547303,
+            "candidateMean": 0.2982384089544676,
+            "meanDifference": -0.0025897136010054056,
+            "referenceWidth90": 0.15025987773596883,
+            "candidateWidth90": 0.14762473984731234,
+            "widthRatio": 0.9824627975986586
+          },
+          {
+            "referenceMean": 0.3562113251245662,
+            "candidateMean": 0.35351562809417497,
+            "meanDifference": -0.002695697030391242,
+            "referenceWidth90": 0.12436388163639717,
+            "candidateWidth90": 0.11935114108381895,
+            "widthRatio": 0.9596929551681735
+          },
+          {
+            "referenceMean": -0.5956627177913101,
+            "candidateMean": -0.6072382072782125,
+            "meanDifference": -0.011575489486902457,
+            "referenceWidth90": 0.5414588726583578,
+            "candidateWidth90": 0.5220808393665719,
+            "widthRatio": 0.9642114401105903
+          }
+        ],
+        "passed": true
+      },
+      "modes": [
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 7.667241536113423e-9,
+          "logPosterior": -107.97594271525186,
+          "seconds": 0.03333520000000044
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 6.008420150305227e-9,
+          "logPosterior": -107.97594271525048,
+          "seconds": 0.03810949999999957
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 4.882343331846783e-7,
+          "logPosterior": -107.97594271525045,
+          "seconds": 0.028787699999999857
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 8.866451425282307e-7,
+          "logPosterior": -107.97594271525288,
+          "seconds": 0.03363860000000023
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 1.2590085668451323e-8,
+          "logPosterior": -107.9759427152523,
+          "seconds": 0.037522500000000035
+        }
+      ]
+    },
+    {
+      "fixture": {
+        "id": "soft-reference-1pp",
+        "evidence": "soft",
+        "sdPp": 1,
+        "cities": 1
+      },
+      "dimension": 6,
+      "resolution": {
+        "resolved": true,
+        "rank": 3,
+        "dimensions": 3,
+        "nullDirections": [],
+        "informationIds": [
+          "joint",
+          "soft"
+        ],
+        "interpretation": "Structural component resolution only; dates, strength and latent pooling still require statistical validation"
+      },
+      "soft": {
+        "enteredMean": 0.2,
+        "enteredSdPercentagePoints": 1,
+        "location": -1.3874661471631788,
+        "scale": 0.06251715475004281,
+        "moments": {
+          "mean": 0.2,
+          "variance": 0.00010000000000001674
+        }
+      },
+      "samplingPassed": true,
+      "diagnostics": [
+        {
+          "rhat": 1.000199840144103,
+          "ess": 8708.46823137952
+        },
+        {
+          "rhat": 1,
+          "ess": 11207.66481343165
+        },
+        {
+          "rhat": 1.0010399184868082,
+          "ess": 7199.078740843238
+        },
+        {
+          "rhat": 1.0013967376993098,
+          "ess": 7602.318184222889
+        },
+        {
+          "rhat": 1.0012400476895842,
+          "ess": 7517.384664377635
+        },
+        {
+          "rhat": 1.0012203555406332,
+          "ess": 7548.996472261657
+        }
+      ],
+      "sampling": [
+        {
+          "evaluations": 235434,
+          "seconds": 0.5592018000000099
+        },
+        {
+          "evaluations": 235560,
+          "seconds": 0.5680966999999946
+        },
+        {
+          "evaluations": 236404,
+          "seconds": 0.564391100000008
+        },
+        {
+          "evaluations": 236495,
+          "seconds": 0.5632599999999948
+        }
+      ],
+      "hardResidual": null,
+      "laplace": {
+        "variables": [
+          {
+            "referenceMean": 0.30418571717819826,
+            "candidateMean": 0.30419057350682316,
+            "meanDifference": 0.000004856328624902595,
+            "referenceWidth90": 0.14983356674980977,
+            "candidateWidth90": 0.14915051675011645,
+            "widthRatio": 0.9954412751794538
+          },
+          {
+            "referenceMean": 0.13900478294400428,
+            "candidateMean": 0.1377724636527134,
+            "meanDifference": -0.0012323192912908898,
+            "referenceWidth90": 0.03795041914717036,
+            "candidateWidth90": 0.037278468182636124,
+            "widthRatio": 0.9822939777837912
+          },
+          {
+            "referenceMean": 0.25627088853921126,
+            "candidateMean": 0.25976180061783,
+            "meanDifference": 0.0034909120786187353,
+            "referenceWidth90": 0.149121969165269,
+            "candidateWidth90": 0.1466307084493295,
+            "widthRatio": 0.9832938048640002
+          },
+          {
+            "referenceMean": 0.3005386113385825,
+            "candidateMean": 0.2982751622226325,
+            "meanDifference": -0.0022634491159500003,
+            "referenceWidth90": 0.15051565807500147,
+            "candidateWidth90": 0.14868840664542957,
+            "widthRatio": 0.9878600575319453
+          },
+          {
+            "referenceMean": 0.3556716634827683,
+            "candidateMean": 0.35022485728530667,
+            "meanDifference": -0.005446806197461629,
+            "referenceWidth90": 0.13735510094107578,
+            "candidateWidth90": 0.13084964406414568,
+            "widthRatio": 0.9526376753949539
+          },
+          {
+            "referenceMean": -0.5989270952684805,
+            "candidateMean": -0.6226626353917842,
+            "meanDifference": -0.0237355401233037,
+            "referenceWidth90": 0.5998481811299092,
+            "candidateWidth90": 0.578556582359104,
+            "widthRatio": 0.9645050207025733
+          }
+        ],
+        "passed": true
+      },
+      "modes": [
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 6.873457414346973e-9,
+          "logPosterior": -104.65331694397463,
+          "seconds": 0.0014629999999888242
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 1.1670414634679105e-11,
+          "logPosterior": -104.65331694397462,
+          "seconds": 0.0013641999999963446
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 9.687890212273231e-9,
+          "logPosterior": -104.65331694397463,
+          "seconds": 0.0012323000000033061
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 6.173221767102888e-9,
+          "logPosterior": -104.65331694397463,
+          "seconds": 0.0012620999999926425
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 4.321602919965528e-8,
+          "logPosterior": -104.65331694397464,
+          "seconds": 0.0009910999999992783
+        }
+      ]
+    },
+    {
+      "fixture": {
+        "id": "soft-reference-5pp",
+        "evidence": "soft",
+        "sdPp": 5,
+        "cities": 1
+      },
+      "dimension": 6,
+      "resolution": {
+        "resolved": true,
+        "rank": 3,
+        "dimensions": 3,
+        "nullDirections": [],
+        "informationIds": [
+          "joint",
+          "soft"
+        ],
+        "interpretation": "Structural component resolution only; dates, strength and latent pooling still require statistical validation"
+      },
+      "soft": {
+        "enteredMean": 0.2,
+        "enteredSdPercentagePoints": 5,
+        "location": -1.4155719712955785,
+        "scale": 0.3148286288100367,
+        "moments": {
+          "mean": 0.19999999999999998,
+          "variance": 0.002500000000000009
+        }
+      },
+      "samplingPassed": true,
+      "diagnostics": [
+        {
+          "rhat": 1.000065734460678,
+          "ess": 22892.053374221196
+        },
+        {
+          "rhat": 1.000170397381139,
+          "ess": 13187.278143480524
+        },
+        {
+          "rhat": 1.0002755906409744,
+          "ess": 13264.448232556484
+        },
+        {
+          "rhat": 1.0000133629735286,
+          "ess": 21024.709402202214
+        },
+        {
+          "rhat": 1.0002993755974867,
+          "ess": 11464.417585033898
+        },
+        {
+          "rhat": 1.000306154286394,
+          "ess": 11586.454156679045
+        }
+      ],
+      "sampling": [
+        {
+          "evaluations": 189811,
+          "seconds": 0.48488340000000607
+        },
+        {
+          "evaluations": 189141,
+          "seconds": 0.4656392000000051
+        },
+        {
+          "evaluations": 189383,
+          "seconds": 0.47024469999999563
+        },
+        {
+          "evaluations": 190056,
+          "seconds": 0.4661606999999931
+        }
+      ],
+      "hardResidual": null,
+      "laplace": {
+        "variables": [
+          {
+            "referenceMean": 0.3041282955936675,
+            "candidateMean": 0.3024467267872807,
+            "meanDifference": -0.0016815688063868128,
+            "referenceWidth90": 0.14982399449170147,
+            "candidateWidth90": 0.14923318630626595,
+            "widthRatio": 0.9960566517570171
+          },
+          {
+            "referenceMean": 0.13635776291563548,
+            "candidateMean": 0.13293761923010594,
+            "meanDifference": -0.0034201436855295364,
+            "referenceWidth90": 0.1170095023437909,
+            "candidateWidth90": 0.11422716953835538,
+            "widthRatio": 0.9762213089560827
+          },
+          {
+            "referenceMean": 0.2598217921506105,
+            "candidateMean": 0.26830632299169505,
+            "meanDifference": 0.008484530841084525,
+            "referenceWidth90": 0.18824804612925905,
+            "candidateWidth90": 0.18201271588518603,
+            "widthRatio": 0.966877051994518
+          },
+          {
+            "referenceMean": 0.2996921493400852,
+            "candidateMean": 0.29630933099091805,
+            "meanDifference": -0.0033828183491671493,
+            "referenceWidth90": 0.1508693904016101,
+            "candidateWidth90": 0.1470239133547353,
+            "widthRatio": 0.9745112177053394
+          },
+          {
+            "referenceMean": 0.3481942872501134,
+            "candidateMean": 0.33449598227460087,
+            "meanDifference": -0.013698304975512554,
+            "referenceWidth90": 0.3156351769023911,
+            "candidateWidth90": 0.2925500960534914,
+            "widthRatio": 0.9268615080376841
+          },
+          {
+            "referenceMean": -0.6526925937597412,
+            "candidateMean": -0.7152753769846895,
+            "meanDifference": -0.06258278322494826,
+            "referenceWidth90": 1.4295901592860172,
+            "candidateWidth90": 1.3602576370413346,
+            "widthRatio": 0.9515018190393046
+          }
+        ],
+        "passed": true
+      },
+      "modes": [
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 8.862870826131797e-9,
+          "logPosterior": -106.24538611280985,
+          "seconds": 0.0011239000000059605
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 7.525981421396821e-9,
+          "logPosterior": -106.2453861128099,
+          "seconds": 0.0010626000000047498
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 4.042460810538273e-12,
+          "logPosterior": -106.2453861128099,
+          "seconds": 0.0015161000000080095
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 2.275346577818027e-12,
+          "logPosterior": -106.24538611280985,
+          "seconds": 0.001430099999997765
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 8.964456779669838e-8,
+          "logPosterior": -106.24538611280988,
+          "seconds": 0.000990300000004936
+        }
+      ]
+    },
+    {
+      "fixture": {
+        "id": "soft-reference-15pp",
+        "evidence": "soft",
+        "sdPp": 15,
+        "cities": 1
+      },
+      "dimension": 6,
+      "resolution": {
+        "resolved": true,
+        "rank": 3,
+        "dimensions": 3,
+        "nullDirections": [],
+        "informationIds": [
+          "joint",
+          "soft"
+        ],
+        "interpretation": "Structural component resolution only; dates, strength and latent pooling still require statistical validation"
+      },
+      "soft": {
+        "enteredMean": 0.2,
+        "enteredSdPercentagePoints": 15,
+        "location": -1.664298754542175,
+        "scale": 1.0307210596405665,
+        "moments": {
+          "mean": 0.19999999999999998,
+          "variance": 0.02249999999999998
+        }
+      },
+      "samplingPassed": true,
+      "diagnostics": [
+        {
+          "rhat": 1.0000266435693517,
+          "ess": 27361.282125787573
+        },
+        {
+          "rhat": 1.0023339371049815,
+          "ess": 3534.2215091881476
+        },
+        {
+          "rhat": 1.0019998400214145,
+          "ess": 3912.8405704371753
+        },
+        {
+          "rhat": 1.0001192334420053,
+          "ess": 27119.107631644998
+        },
+        {
+          "rhat": 1.0023696746100614,
+          "ess": 3401.6520647882367
+        },
+        {
+          "rhat": 1.0023601493461096,
+          "ess": 3221.359665993137
+        }
+      ],
+      "sampling": [
+        {
+          "evaluations": 179027,
+          "seconds": 0.44790350000000034
+        },
+        {
+          "evaluations": 178652,
+          "seconds": 0.442988400000002
+        },
+        {
+          "evaluations": 179810,
+          "seconds": 0.4469612999999954
+        },
+        {
+          "evaluations": 179307,
+          "seconds": 0.44714280000000145
+        }
+      ],
+      "hardResidual": null,
+      "laplace": {
+        "variables": [
+          {
+            "referenceMean": 0.30356872988443095,
+            "candidateMean": 0.29382826559504666,
+            "meanDifference": -0.009740464289384299,
+            "referenceWidth90": 0.15059062988777272,
+            "candidateWidth90": 0.15500081144774777,
+            "widthRatio": 1.029285896229146
+          },
+          {
+            "referenceMean": 0.11796222240676316,
+            "candidateMean": 0.09564374326173203,
+            "meanDifference": -0.022318479145031128,
+            "referenceWidth90": 0.30349756202471384,
+            "candidateWidth90": 0.2501305243248445,
+            "widthRatio": 0.8241599130357309
+          },
+          {
+            "referenceMean": 0.2787237144999558,
+            "candidateMean": 0.322215213689344,
+            "meanDifference": 0.043491499189388216,
+            "referenceWidth90": 0.3554845578249089,
+            "candidateWidth90": 0.25979528960711507,
+            "widthRatio": 0.7308201830108051
+          },
+          {
+            "referenceMean": 0.2997453332088492,
+            "candidateMean": 0.2883127774538783,
+            "meanDifference": -0.01143255575497093,
+            "referenceWidth90": 0.14968559224930178,
+            "candidateWidth90": 0.15241901812534248,
+            "widthRatio": 1.0182611154150907
+          },
+          {
+            "referenceMean": 0.30046444709223685,
+            "candidateMean": 0.22292727058936962,
+            "meanDifference": -0.07753717650286723,
+            "referenceWidth90": 0.7880149352984649,
+            "candidateWidth90": 0.5306091503406686,
+            "widthRatio": 0.6733491036431911
+          },
+          {
+            "referenceMean": -1.069976740304959,
+            "candidateMean": -1.5310432366169597,
+            "meanDifference": -0.4610664963120008,
+            "referenceWidth90": 4.669646482630951,
+            "candidateWidth90": 3.5967579629516613,
+            "widthRatio": 0.7702420250290964
+          }
+        ],
+        "passed": false
+      },
+      "alternative": {
+        "method": "exact-density Student-t mixture importance",
+        "variables": [
+          {
+            "referenceMean": 0.30356872988443095,
+            "candidateMean": 0.3028885199907883,
+            "meanDifference": -0.0006802098936426471,
+            "referenceWidth90": 0.15059062988777272,
+            "candidateWidth90": 0.1457388678841095,
+            "widthRatio": 0.9677817802656182
+          },
+          {
+            "referenceMean": 0.11796222240676316,
+            "candidateMean": 0.12133793291279002,
+            "meanDifference": 0.0033757105060268633,
+            "referenceWidth90": 0.30349756202471384,
+            "candidateWidth90": 0.32307794532368594,
+            "widthRatio": 1.0645157844707092
+          },
+          {
+            "referenceMean": 0.2787237144999558,
+            "candidateMean": 0.27558935387588834,
+            "meanDifference": -0.003134360624067467,
+            "referenceWidth90": 0.3554845578249089,
+            "candidateWidth90": 0.3645485386696139,
+            "widthRatio": 1.0254975375025133
+          },
+          {
+            "referenceMean": 0.2997453332088492,
+            "candidateMean": 0.30018419322054374,
+            "meanDifference": 0.0004388600116945196,
+            "referenceWidth90": 0.14968559224930178,
+            "candidateWidth90": 0.1483988851738016,
+            "widthRatio": 0.9914039350336593
+          },
+          {
+            "referenceMean": 0.30046444709223685,
+            "candidateMean": 0.30888425874804526,
+            "meanDifference": 0.008419811655808407,
+            "referenceWidth90": 0.7880149352984649,
+            "candidateWidth90": 0.8178433668884647,
+            "widthRatio": 1.037852622144404
+          },
+          {
+            "referenceMean": -1.069976740304959,
+            "candidateMean": -1.0265532072207244,
+            "meanDifference": 0.04342353308423452,
+            "referenceWidth90": 4.669646482630951,
+            "candidateWidth90": 4.896596460174953,
+            "widthRatio": 1.0486011046849384
+          }
+        ],
+        "passed": true,
+        "ess": 1487.4114299282849,
+        "maxWeight": 0.011633375536977422,
+        "seconds": 0.10462380000000121
+      },
+      "modes": [
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 3.902820844281507e-10,
+          "logPosterior": -107.19070643235918,
+          "seconds": 0.0011582000000053085
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 6.760703108454891e-11,
+          "logPosterior": -107.1907064323592,
+          "seconds": 0.0011713999999919905
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 5.563577785139273e-7,
+          "logPosterior": -107.19070643235919,
+          "seconds": 0.0009913999999989756
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 7.34012850500676e-12,
+          "logPosterior": -107.1907064323592,
+          "seconds": 0.0011025999999983468
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 1.0065773770051578e-9,
+          "logPosterior": -107.19070643235919,
+          "seconds": 0.0014553000000014436
+        }
+      ]
+    },
+    {
+      "fixture": {
+        "id": "hard-reference-shared-geography",
+        "evidence": "hard",
+        "cities": 2
+      },
+      "dimension": 8,
+      "resolution": {
+        "resolved": true,
+        "rank": 3,
+        "dimensions": 3,
+        "nullDirections": [],
+        "informationIds": [
+          "joint",
+          "hard"
+        ],
+        "interpretation": "Structural component resolution only; dates, strength and latent pooling still require statistical validation"
+      },
+      "samplingPassed": true,
+      "diagnostics": [
+        {
+          "rhat": 1.00010239058784,
+          "ess": 26555.145037284008
+        },
+        {
+          "rhat": 1.0001023905878392,
+          "ess": 26555.145037282313
+        },
+        {
+          "rhat": 1.0002207245737877,
+          "ess": 23838.20243543048
+        },
+        {
+          "rhat": 1.000225490293324,
+          "ess": 24284.491682328942
+        },
+        {
+          "rhat": 1.0002543765218805,
+          "ess": 23391.51769069543
+        },
+        {
+          "rhat": 1.0042313873411275,
+          "ess": 787.4162291280047
+        }
+      ],
+      "sampling": [
+        {
+          "evaluations": 199702,
+          "seconds": 31.99400170000001
+        },
+        {
+          "evaluations": 199988,
+          "seconds": 32.157900799999986
+        },
+        {
+          "evaluations": 199259,
+          "seconds": 31.750491700000012
+        },
+        {
+          "evaluations": 199877,
+          "seconds": 31.55748300000001
+        }
+      ],
+      "hardResidual": 1.2198575483068907e-13,
+      "laplace": {
+        "variables": [
+          {
+            "referenceMean": 0.2527278748417307,
+            "candidateMean": 0.25220313433063574,
+            "meanDifference": -0.0005247405110949677,
+            "referenceWidth90": 0.09893528276005936,
+            "candidateWidth90": 0.09969197645323663,
+            "widthRatio": 1.0076483704505341
+          },
+          {
+            "referenceMean": 0.1494544250316533,
+            "candidateMean": 0.1495593731338701,
+            "meanDifference": 0.00010494810221681194,
+            "referenceWidth90": 0.019787056551959392,
+            "candidateWidth90": 0.01993839529064098,
+            "widthRatio": 1.007648370452886
+          },
+          {
+            "referenceMean": 0.29787486284575343,
+            "candidateMean": 0.30057720020017376,
+            "meanDifference": 0.0027023373544203255,
+            "referenceWidth90": 0.10535606746807233,
+            "candidateWidth90": 0.10527192481475986,
+            "widthRatio": 0.9992013497149752
+          },
+          {
+            "referenceMean": 0.2999428372808606,
+            "candidateMean": 0.29766029233532054,
+            "meanDifference": -0.0022825449455400326,
+            "referenceWidth90": 0.10572932885966721,
+            "candidateWidth90": 0.10416399540068555,
+            "widthRatio": 0.985194898370543
+          },
+          {
+            "referenceMean": 0.33560563030347706,
+            "candidateMean": 0.333698712634825,
+            "meanDifference": -0.0019069176686520861,
+            "referenceWidth90": 0.07417294752430187,
+            "candidateWidth90": 0.072417649797763,
+            "widthRatio": 0.9763350684430632
+          },
+          {
+            "referenceMean": -0.6389657685704498,
+            "candidateMean": -0.669699779422693,
+            "meanDifference": -0.030734010852243143,
+            "referenceWidth90": 1.8124558551332393,
+            "candidateWidth90": 1.7968571550509083,
+            "widthRatio": 0.9913936110288412
+          }
+        ],
+        "passed": true
+      },
+      "modes": [
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 1.9240895543504166e-8,
+          "logPosterior": -211.30884472976715,
+          "seconds": 0.1258850999999995
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 5.3171028691068045e-8,
+          "logPosterior": -211.30884472976632,
+          "seconds": 0.16586079999999492
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 4.270926784455398e-8,
+          "logPosterior": -211.3088447297667,
+          "seconds": 0.1642603999999992
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 5.954023718501844e-9,
+          "logPosterior": -211.308844729768,
+          "seconds": 0.16329409999999916
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 1.379552694302788e-8,
+          "logPosterior": -211.30884472976774,
+          "seconds": 0.30779230000000096
+        }
+      ]
+    },
+    {
+      "fixture": {
+        "id": "soft-reference-shared-geography",
+        "evidence": "soft",
+        "sdPp": 5,
+        "cities": 2
+      },
+      "dimension": 9,
+      "resolution": {
+        "resolved": true,
+        "rank": 3,
+        "dimensions": 3,
+        "nullDirections": [],
+        "informationIds": [
+          "joint",
+          "soft"
+        ],
+        "interpretation": "Structural component resolution only; dates, strength and latent pooling still require statistical validation"
+      },
+      "soft": {
+        "enteredMean": 0.2,
+        "enteredSdPercentagePoints": 5,
+        "location": -1.4155719712955785,
+        "scale": 0.3148286288100367,
+        "moments": {
+          "mean": 0.19999999999999998,
+          "variance": 0.002500000000000009
+        }
+      },
+      "samplingPassed": true,
+      "diagnostics": [
+        {
+          "rhat": 1.0001025838268767,
+          "ess": 21064.84264160563
+        },
+        {
+          "rhat": 1.0002081483961953,
+          "ess": 6947.7631600043
+        },
+        {
+          "rhat": 1.0003818658142989,
+          "ess": 7856.159731812941
+        },
+        {
+          "rhat": 1.0003738112278193,
+          "ess": 19984.504106321077
+        },
+        {
+          "rhat": 1.000277230121196,
+          "ess": 6482.389032591646
+        },
+        {
+          "rhat": 1.0075189397317792,
+          "ess": 613.925395758981
+        }
+      ],
+      "sampling": [
+        {
+          "evaluations": 206808,
+          "seconds": 0.9735321000000112
+        },
+        {
+          "evaluations": 207225,
+          "seconds": 0.9544024000000209
+        },
+        {
+          "evaluations": 206726,
+          "seconds": 0.9543868999999832
+        },
+        {
+          "evaluations": 206885,
+          "seconds": 0.9507678000000015
+        }
+      ],
+      "hardResidual": null,
+      "laplace": {
+        "variables": [
+          {
+            "referenceMean": 0.25247087558361686,
+            "candidateMean": 0.24923873407383987,
+            "meanDifference": -0.0032321415097769923,
+            "referenceWidth90": 0.09928848038117744,
+            "candidateWidth90": 0.10037589566612165,
+            "widthRatio": 1.0109520790404842
+          },
+          {
+            "referenceMean": 0.14818309968210674,
+            "candidateMean": 0.14878935841721208,
+            "meanDifference": 0.0006062587351053361,
+            "referenceWidth90": 0.12356980010965919,
+            "candidateWidth90": 0.12472116583984248,
+            "widthRatio": 1.0093175333225557
+          },
+          {
+            "referenceMean": 0.29930903967681843,
+            "candidateMean": 0.3077871214822267,
+            "meanDifference": 0.008478081805408266,
+            "referenceWidth90": 0.16272329953424647,
+            "candidateWidth90": 0.15638360137397012,
+            "widthRatio": 0.9610400097685943
+          },
+          {
+            "referenceMean": 0.3000369850574553,
+            "candidateMean": 0.29418478602672105,
+            "meanDifference": -0.005852199030734251,
+            "referenceWidth90": 0.10665079535548397,
+            "candidateWidth90": 0.10520999236257086,
+            "widthRatio": 0.9864904618093969
+          },
+          {
+            "referenceMean": 0.3326827826111865,
+            "candidateMean": 0.32667154347601424,
+            "meanDifference": -0.006011239135172264,
+            "referenceWidth90": 0.2841595248276546,
+            "candidateWidth90": 0.2679320820048243,
+            "widthRatio": 0.9428931941216034
+          },
+          {
+            "referenceMean": -0.6603557082499464,
+            "candidateMean": -0.7148902415667022,
+            "meanDifference": -0.05453453331675584,
+            "referenceWidth90": 2.169360635438551,
+            "candidateWidth90": 2.0826397011999758,
+            "widthRatio": 0.9600246575779486
+          }
+        ],
+        "passed": true
+      },
+      "modes": [
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 3.1002422851145184e-12,
+          "logPosterior": -209.57650440484545,
+          "seconds": 0.007259999999980209
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 1.6905361138741526e-8,
+          "logPosterior": -209.57650440484545,
+          "seconds": 0.005803299999999581
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 5.460057922457295e-7,
+          "logPosterior": -209.57650440484542,
+          "seconds": 0.005527899999986403
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 2.4113711027951013e-11,
+          "logPosterior": -209.57650440484542,
+          "seconds": 0.004449599999992643
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 3.712030682834211e-12,
+          "logPosterior": -209.57650440484542,
+          "seconds": 0.005613199999992503
+        }
+      ]
+    }
+  ],
+  "seconds": 225.48482410000003,
+  "laplacePassed": false,
+  "candidatePassed": false,
+  "productionChanged": false
+}

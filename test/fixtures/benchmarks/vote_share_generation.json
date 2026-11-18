@@ -1,0 +1,1000 @@
+{
+  "schemaVersion": 1,
+  "stage": "FV-04",
+  "recordedDate": "2026-10-29",
+  "status": "headless-generation-and-paired-physical-boundary-passed-defaults-not-selected",
+  "baseRevision": "ea9c7f6bfa7d724941d6a008235e9d5980bb1acc",
+  "model": "fast-share-kind-common-conservative-v1",
+  "generationVersion": "fast-share-physical-cells-v1",
+  "referencePolicy": "fixed-turnout-reference-v1",
+  "referenceNumerics": "independent-logweights-laplace-quadrature-v1",
+  "senateAdapter": "paired-18plus-logratio-adapter-v1",
+  "rng": "fast-share-forecast-streams-v1",
+  "sourceHashPolicy": "SHA-256 of LF-normalized sources",
+  "sourceHashes": {
+    "web/package.json": "c1d589eccd9c4789b7847d137cef4476f174e06e588401b702ce9705ecd062e1",
+    "web/scripts/data-preparation/fv04-country-cli.ts": "20b7f81dfab5a65fb0393eb17dc5ba0fc17c2aadd5fef7ee52c961867ed27406",
+    "web/scripts/data-preparation/fv04-generation-cli.ts": "2e4a7f0ae4fbe06190987f1da6c4b5634d86691ae24964a7bf1a568304fd939b",
+    "web/src/lib/politics/reform-2026/bonus-reference-support.ts": "6760fa6342151ca8efe35c564a7e3ea29537a4ae6c9d3f0c3297aa45d125e3c7",
+    "web/src/lib/politics/reform-2026/generation-types.ts": "486b875441e01b66f7f7c0c1e25865f5f0c2049ee3019cf5e5daafb2a5a75cdb",
+    "web/src/lib/politics/reform-2026/generation.ts": "0fce44ba730eb9422a3e1067f71baa9ed6533021734aa0e4c04cd65c22496135",
+    "web/src/lib/politics/reform-2026/input.ts": "e5a57e3c5353ac1c3857295bf501cdf2e12c9c40337f7ff1dff516d5623f5cda",
+    "web/src/lib/politics/reform-2026/legacy-candidate-generation.ts": "8a0252d6103f47047017d8377707a992da0bfc5761175ce960a5024429f6c5c3",
+    "web/src/lib/politics/reform-2026/paired-vote-generation.ts": "fcf1bbe2eb5f510c52b85b416e636474c5c73c3eceb8ebc34ce9daca0d8eca59",
+    "web/src/lib/politics/reform-2026/reference-bonus-plan.ts": "94fb774cb0460970d4adc20307bfd864fc35b94f710e1ad226cf4076c59db0c2",
+    "web/src/lib/politics/reform-2026/reform-candidate-generation.ts": "606340d12a4d9d8d139616458a1a92ecbf79fc6d36f24a70f4997229ed2aec28",
+    "web/src/lib/politics/reform-2026/shape.ts": "a7e9c11f70cdca6733c56c1c2c3a71cf67102804b37495e8980e7c7e8a3070cf",
+    "web/src/lib/politics/reform-2026/vote-share/forecast-numerics.test.ts": "29a03a39623dbaec59b52dc12323b6077869035c42eccd11509dcd82c3811971",
+    "web/src/lib/politics/reform-2026/vote-share/forecast-random.ts": "3ed3eedcddec51d907cd72ca5a975803ae3862a346d24e480d2a4ca8d3749804",
+    "web/src/lib/politics/reform-2026/vote-share/forecast-types.ts": "a2b1395f9b52137abd139371f838b08842fd89d69ff1004c19efe0a78f0be75d",
+    "web/src/lib/politics/reform-2026/vote-share/generation.test.ts": "5731472232680c80b446d169e7a429025dfca17b663b018fac1d494245aeef5d",
+    "web/src/lib/politics/reform-2026/vote-share/generation.ts": "b7c16beec63b13be3ec0cd542157e2a526c15da5905e66b900740797c94895ef",
+    "web/src/lib/politics/reform-2026/vote-share/index.ts": "0c300c74a34b54fc8d9b5fa8ebbc5add1b8879743fbc487558c8719d1a5f8ffe",
+    "web/src/lib/politics/reform-2026/vote-share/interventions.ts": "defb797807d1ae383119692df9e41709436e4e2e7b1d06bdc3605af9dc68758e",
+    "web/src/lib/politics/reform-2026/vote-share/paired-source.test.ts": "9f21d713062eaf9349f68adf36af98789b47426f9a0d7dc6d1479130679de588",
+    "web/src/lib/politics/reform-2026/vote-share/paired-source.ts": "ea851255c20576705005ba697e771e470042d05d5b1468318090a74b3a59b62f",
+    "web/src/lib/politics/reform-2026/vote-share/physical-cells.ts": "0564a4957be6489b820993ace4526bb46b5ece0e65beb3ced23726918398e8ce",
+    "web/src/lib/politics/reform-2026/vote-share/projection.ts": "4c6ada5aa1ea82f2d165dd13a5b95b0bd42f3e213aef7a8d629dc31017ed2e2b",
+    "web/src/lib/politics/reform-2026/vote-share/reference-family.ts": "b63ea550c4b8ef0d7dbdeaf6fb176965cf400559be2e3c73ebeadd0b6add0528",
+    "web/src/lib/politics/reform-2026/vote-share/reference-plans.ts": "7f4cf99d3ac959c78b7c07ddaf755e5a376b638e8070bdc0056434146f4b5e08",
+    "web/src/lib/politics/reform-2026/vote-share/senate-adapter.ts": "d13dc0ed8cbdb5bc9b113b4e7c9eec7a60e88c974f345bee188fe4db5926c49e",
+    "web/src/lib/politics/reform-2026/vote-share/transition.ts": "751593b5f657f909b5dfcafbaea7bd296d09313f42f200eff043beab85c53a2b",
+    "web/tests/e2e/fast-share-generation.spec.ts": "e2d6378c3978efb8556d665e9fc675f8f9ccc8544c23758dcd9c206cd4f1c46b",
+    "web/tests/fixtures/fast-generation-input.ts": "abe91581b6b2501ebbe9fb47e5f3eb358ec0517f4ea8ce482831f6ec38e79fc0",
+    "web/tests/fixtures/fast-generation.worker.ts": "b78e6f9406d104ac606f915a78d18dfbe303710b47e4fd88ec79dba64c8ffbec",
+    "web/tests/fixtures/fast-reference-oracle.ts": "ef0e4ace01d352a7361d6f7c7d886344f3bb1248fd5393bdac5b2357ca729684"
+  },
+  "unchangedFV02NumericalKernels": [
+    "web/src/lib/politics/reform-2026/vote-share/diagnostics.ts",
+    "web/src/lib/politics/reform-2026/vote-share/gaussian.ts",
+    "web/src/lib/politics/reform-2026/vote-share/information.ts",
+    "web/src/lib/politics/reform-2026/vote-share/linalg.ts",
+    "web/src/lib/politics/reform-2026/vote-share/profiles.ts",
+    "web/src/lib/politics/reform-2026/vote-share/random.ts",
+    "web/src/lib/politics/reform-2026/vote-share/types.ts"
+  ],
+  "qualification": "Additive index exports changed; original numerical kernels and frozen research extraction did not.",
+  "environment": {
+    "node": "v24.20.0",
+    "platform": "win32",
+    "release": "10.0.26200",
+    "cpu": "Intel(R) Core(TM) i7-14700KF"
+  },
+  "martingale": {
+    "draws": 120000,
+    "horizon": 2,
+    "sigma": 0.4,
+    "moments": [
+      {
+        "mean": 0.299931925880436,
+        "expected": 0.3,
+        "error": 0.00006807411956399889,
+        "mcse": 0.0002929978183886936
+      },
+      {
+        "mean": 0.250085779681588,
+        "expected": 0.25,
+        "error": 0.0000857796815880163,
+        "mcse": 0.0002705733115545473
+      },
+      {
+        "mean": 0.19996584148829089,
+        "expected": 0.2,
+        "error": 0.00003415851170912587,
+        "mcse": 0.00023829786483762816
+      },
+      {
+        "mean": 0.10000678132932878,
+        "expected": 0.1,
+        "error": 0.000006781329328769958,
+        "mcse": 0.00014724632394684368
+      },
+      {
+        "mean": 0.07994219225250328,
+        "expected": 0.08,
+        "error": 0.00005780774749672424,
+        "mcse": 0.00012353628568463577
+      },
+      {
+        "mean": 0.07006747936786518,
+        "expected": 0.07,
+        "error": 0.00006747936786517805,
+        "mcse": 0.00011080267632841229
+      }
+    ],
+    "over80Rate": 0
+  },
+  "references": [
+    {
+      "id": "single-partial",
+      "family": {
+        "version": "independent-logweights-laplace-quadrature-v1",
+        "groups": [
+          {
+            "id": "g0",
+            "members": [
+              "p0"
+            ],
+            "mean": 0.3,
+            "sdPercentagePoints": 2
+          }
+        ],
+        "free": true,
+        "upper": 1,
+        "uncertain": [
+          0
+        ],
+        "mu": [
+          -0.8491140728444515,
+          0
+        ],
+        "sigma": [
+          0.09538535777819988,
+          0
+        ],
+        "residualCategory": true,
+        "integrationError": 1.005320826585887e-10,
+        "momentError": 1.888621897760956e-11,
+        "iterations": 2,
+        "normalization": null
+      },
+      "independent": {
+        "mean": [
+          0.30000000000004734,
+          0.699999999999953
+        ],
+        "sd": [
+          0.020000000018825504,
+          0.02000000001882134
+        ]
+      },
+      "seeds": [
+        {
+          "seed": "fv04-reference-0",
+          "draws": 50000,
+          "moments": [
+            {
+              "mean": 0.3000028589603023,
+              "sd": 0.019932924021458867,
+              "meanMcse": 0.00008914274620464101,
+              "sdMcse": 0.0000625043873600032
+            }
+          ]
+        },
+        {
+          "seed": "fv04-reference-1",
+          "draws": 50000,
+          "moments": [
+            {
+              "mean": 0.29996333231501743,
+              "sd": 0.020071156112054216,
+              "meanMcse": 0.00008976093890712722,
+              "sdMcse": 0.00006308648381528436
+            }
+          ]
+        },
+        {
+          "seed": "fv04-reference-2",
+          "draws": 50000,
+          "moments": [
+            {
+              "mean": 0.2998437739821683,
+              "sd": 0.02002649871497549,
+              "meanMcse": 0.00008956122495599476,
+              "sdMcse": 0.00006425418246209415
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "two-partial",
+      "family": {
+        "version": "independent-logweights-laplace-quadrature-v1",
+        "groups": [
+          {
+            "id": "g0",
+            "members": [
+              "p0"
+            ],
+            "mean": 0.3,
+            "sdPercentagePoints": 2
+          },
+          {
+            "id": "g1",
+            "members": [
+              "p1"
+            ],
+            "mean": 0.4,
+            "sdPercentagePoints": 3
+          }
+        ],
+        "free": true,
+        "upper": 1,
+        "uncertain": [
+          0,
+          1
+        ],
+        "mu": [
+          -0.000863669032267405,
+          0.2862239902426032,
+          0
+        ],
+        "sigma": [
+          0.06585895953573878,
+          0.12105593883918307,
+          0
+        ],
+        "residualCategory": true,
+        "integrationError": 3.385321883930814e-11,
+        "momentError": 2.8696753306967082e-11,
+        "iterations": 4,
+        "normalization": null
+      },
+      "independent": {
+        "mean": [
+          0.300000000000098,
+          0.40000000000006386,
+          0.29999999999983845
+        ],
+        "sd": [
+          0.019999999974567157,
+          0.029999999971266237,
+          0.01566360265842637
+        ]
+      },
+      "seeds": [
+        {
+          "seed": "fv04-reference-0",
+          "draws": 50000,
+          "moments": [
+            {
+              "mean": 0.3000714675549,
+              "sd": 0.019993255191523458,
+              "meanMcse": 0.00008941255539949406,
+              "sdMcse": 0.0000629484761360618
+            },
+            {
+              "mean": 0.3998269758322622,
+              "sd": 0.02999168262127448,
+              "meanMcse": 0.00013412688220153763,
+              "sdMcse": 0.00009420077361240821
+            }
+          ]
+        },
+        {
+          "seed": "fv04-reference-1",
+          "draws": 50000,
+          "moments": [
+            {
+              "mean": 0.2999472004700729,
+              "sd": 0.020041494498227275,
+              "meanMcse": 0.00008962828813744845,
+              "sdMcse": 0.00006290098194433837
+            },
+            {
+              "mean": 0.4001487337235775,
+              "sd": 0.029997540669231673,
+              "meanMcse": 0.00013415308018843312,
+              "sdMcse": 0.0000944186645472767
+            }
+          ]
+        },
+        {
+          "seed": "fv04-reference-2",
+          "draws": 50000,
+          "moments": [
+            {
+              "mean": 0.2999329394515116,
+              "sd": 0.020002678091827757,
+              "meanMcse": 0.00008945469589074528,
+              "sdMcse": 0.00006293907104022115
+            },
+            {
+              "mean": 0.4001612984118799,
+              "sd": 0.030068442289800733,
+              "meanMcse": 0.00013447016187504774,
+              "sdMcse": 0.0000938031929715173
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "two-closed",
+      "family": {
+        "version": "independent-logweights-laplace-quadrature-v1",
+        "groups": [
+          {
+            "id": "g0",
+            "members": [
+              "p0"
+            ],
+            "mean": 0.4,
+            "sdPercentagePoints": 2
+          },
+          {
+            "id": "g1",
+            "members": [
+              "p1"
+            ],
+            "mean": 0.6,
+            "sdPercentagePoints": 2
+          }
+        ],
+        "free": false,
+        "upper": 1,
+        "uncertain": [
+          0,
+          1
+        ],
+        "mu": [
+          -0.20308030794335336,
+          0.20308030794335336
+        ],
+        "sigma": [
+          0.05901980828600566,
+          0.05901980828600566
+        ],
+        "residualCategory": false,
+        "integrationError": 8.435752096858096e-11,
+        "momentError": 3.6895771160505575e-11,
+        "iterations": 2,
+        "normalization": null
+      },
+      "independent": {
+        "mean": [
+          0.3999999999999764,
+          0.600000000000023
+        ],
+        "sd": [
+          0.02000000003680973,
+          0.020000000036829158
+        ]
+      },
+      "seeds": [
+        {
+          "seed": "fv04-reference-0",
+          "draws": 50000,
+          "moments": [
+            {
+              "mean": 0.39999308090863056,
+              "sd": 0.01995074089710263,
+              "meanMcse": 0.00008922242569481324,
+              "sdMcse": 0.00006280451972860231
+            },
+            {
+              "mean": 0.600006919091371,
+              "sd": 0.01995074089710258,
+              "meanMcse": 0.00008922242569481303,
+              "sdMcse": 0.00006280451972860292
+            }
+          ]
+        },
+        {
+          "seed": "fv04-reference-1",
+          "draws": 50000,
+          "moments": [
+            {
+              "mean": 0.39981953531951425,
+              "sd": 0.020021885786098592,
+              "meanMcse": 0.00008954059531090653,
+              "sdMcse": 0.00006316492215176372
+            },
+            {
+              "mean": 0.6001804646804877,
+              "sd": 0.020021885786098533,
+              "meanMcse": 0.00008954059531090627,
+              "sdMcse": 0.00006316492215176428
+            }
+          ]
+        },
+        {
+          "seed": "fv04-reference-2",
+          "draws": 50000,
+          "moments": [
+            {
+              "mean": 0.399847130337536,
+              "sd": 0.02003463418352493,
+              "meanMcse": 0.00008959760787740548,
+              "sdMcse": 0.00006384698625222606
+            },
+            {
+              "mean": 0.6001528696624602,
+              "sd": 0.020034634183524924,
+              "meanMcse": 0.00008959760787740545,
+              "sdMcse": 0.0000638469862522256
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "three-closed",
+      "family": {
+        "version": "independent-logweights-laplace-quadrature-v1",
+        "groups": [
+          {
+            "id": "g0",
+            "members": [
+              "p0"
+            ],
+            "mean": 0.2,
+            "sdPercentagePoints": 2
+          },
+          {
+            "id": "g1",
+            "members": [
+              "p1"
+            ],
+            "mean": 0.3,
+            "sdPercentagePoints": 3
+          },
+          {
+            "id": "g2",
+            "members": [
+              "p2"
+            ],
+            "mean": 0.5,
+            "sdPercentagePoints": 4
+          }
+        ],
+        "free": false,
+        "upper": 1,
+        "uncertain": [
+          0,
+          1,
+          2
+        ],
+        "mu": [
+          -0.44117273968759163,
+          -0.035726382812958146,
+          0.47689912250054967
+        ],
+        "sigma": [
+          0.07700427573168311,
+          0.09505723619178379,
+          0.14739164813861497
+        ],
+        "residualCategory": false,
+        "integrationError": 1.6705387073656652e-11,
+        "momentError": 1.80004691707758e-11,
+        "iterations": 4,
+        "normalization": null
+      },
+      "independent": {
+        "mean": [
+          0.2000000000026442,
+          0.29999999999932614,
+          0.49999999999799166
+        ],
+        "sd": [
+          0.02000000001801851,
+          0.02999999999119983,
+          0.039999999990394365
+        ]
+      },
+      "seeds": [
+        {
+          "seed": "fv04-reference-0",
+          "draws": 50000,
+          "moments": [
+            {
+              "mean": 0.19998679932462252,
+              "sd": 0.019939181287666155,
+              "meanMcse": 0.00008917072954982663,
+              "sdMcse": 0.00006397349361793368
+            },
+            {
+              "mean": 0.3000125506012804,
+              "sd": 0.03014761705858056,
+              "meanMcse": 0.0001348242422052368,
+              "sdMcse": 0.00009450426914295626
+            },
+            {
+              "mean": 0.5000006500740939,
+              "sd": 0.04007382950761305,
+              "meanMcse": 0.0001792156137955194,
+              "sdMcse": 0.0001249924555857359
+            }
+          ]
+        },
+        {
+          "seed": "fv04-reference-1",
+          "draws": 50000,
+          "moments": [
+            {
+              "mean": 0.20001516467839126,
+              "sd": 0.019984860548160076,
+              "meanMcse": 0.00008937501341307929,
+              "sdMcse": 0.00006354378536798183
+            },
+            {
+              "mean": 0.29977665924915287,
+              "sd": 0.030069004930029043,
+              "meanMcse": 0.0001344726780786425,
+              "sdMcse": 0.0000949222993314095
+            },
+            {
+              "mean": 0.5002081760724529,
+              "sd": 0.04008224058319021,
+              "meanMcse": 0.00017925322926902825,
+              "sdMcse": 0.000125673614459148
+            }
+          ]
+        },
+        {
+          "seed": "fv04-reference-2",
+          "draws": 50000,
+          "moments": [
+            {
+              "mean": 0.19993835218567618,
+              "sd": 0.019966207846416287,
+              "meanMcse": 0.000089291595994953,
+              "sdMcse": 0.00006412195894231548
+            },
+            {
+              "mean": 0.2999029778924869,
+              "sd": 0.029940951819811948,
+              "meanMcse": 0.0001339000071602911,
+              "sdMcse": 0.00009484193726191296
+            },
+            {
+              "mean": 0.500158669921832,
+              "sd": 0.039804555555911766,
+              "meanMcse": 0.0001780113840743713,
+              "sdMcse": 0.00012369220892854984
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "dependence": {
+    "qualification": "32 paired synthetic runs per dependence assumption show sensitivity and retain all legal failures. Production predictive/1000-run seat acceptance belongs to FV-08.",
+    "profiles": [
+      {
+        "latentCorrelation": 0.5,
+        "requested": 32,
+        "nonComputable": 15,
+        "firstListId": "B",
+        "cameraFirstListOver42": 21,
+        "senatoFirstListOver42": 28,
+        "bonusStatuses": {
+          "awarded": 17,
+          "not-awarded": 15
+        },
+        "computableSeatRuns": 17,
+        "seats": [
+          {
+            "chamber": "camera",
+            "mean": 197.11764705882354,
+            "min": 76,
+            "max": 338
+          },
+          {
+            "chamber": "senato",
+            "mean": 101.76470588235294,
+            "min": 52,
+            "max": 136
+          }
+        ]
+      },
+      {
+        "latentCorrelation": 0.85,
+        "requested": 32,
+        "nonComputable": 13,
+        "firstListId": "B",
+        "cameraFirstListOver42": 21,
+        "senatoFirstListOver42": 23,
+        "bonusStatuses": {
+          "not-awarded": 17,
+          "awarded": 15
+        },
+        "computableSeatRuns": 19,
+        "seats": [
+          {
+            "chamber": "camera",
+            "mean": 191.1578947368421,
+            "min": 59,
+            "max": 341
+          },
+          {
+            "chamber": "senato",
+            "mean": 99.57894736842105,
+            "min": 34,
+            "max": 181
+          }
+        ]
+      },
+      {
+        "latentCorrelation": 0.98,
+        "requested": 32,
+        "nonComputable": 20,
+        "firstListId": "B",
+        "cameraFirstListOver42": 21,
+        "senatoFirstListOver42": 27,
+        "bonusStatuses": {
+          "not-awarded": 16,
+          "awarded": 16
+        },
+        "computableSeatRuns": 12,
+        "seats": [
+          {
+            "chamber": "camera",
+            "mean": 189.25,
+            "min": 76,
+            "max": 291
+          },
+          {
+            "chamber": "senato",
+            "mean": 113.16666666666667,
+            "min": 70,
+            "max": 151
+          }
+        ]
+      }
+    ]
+  },
+  "reduced": {
+    "physicalCells": 86,
+    "components": 4,
+    "generationMedianMs": 49.934799999999996,
+    "generationMaxMs": 80.97479999999996,
+    "estimated7904MunicipalityMs": 9179.874279069767,
+    "qualification": "Linear conservative planning estimate includes fixed candidate/legal assembly; not a measured full-country/default latency or validation of the maximum component envelope."
+  },
+  "country": {
+    "step": "FV-04",
+    "sourceId": "fast-share-source-v1-95d505ed1f7ea79c99cd0bf91a86dbc6a2d54c1f24fd9b37bec40a57e3c72511",
+    "accepted": true,
+    "qualification": "Source-backed physical-boundary mechanics only. Two mechanically pooled observable blocks, no polls, constructed preference/dependence settings. Not default selection, political predictive validation or maximum-envelope acceptance.",
+    "pooling": {
+      "poolA": [
+        "art1",
+        "azione",
+        "centro-democratico",
+        "fare",
+        "fi-pdl",
+        "idv",
+        "impegno-residual",
+        "italia-viva",
+        "ncd-ap",
+        "noi-residual",
+        "pap-residual",
+        "pci-pdci",
+        "pd",
+        "piu-europa",
+        "popolo-famiglia",
+        "possible",
+        "prc",
+        "psi-civici",
+        "ptd-residual",
+        "scelta-civica",
+        "sel-si",
+        "udc",
+        "verdi"
+      ],
+      "poolB": [
+        "animalisti",
+        "atomic-000e45c0d0",
+        "atomic-0431501957",
+        "atomic-0580e086f2",
+        "atomic-05e6738735",
+        "atomic-05e8221f07",
+        "atomic-19f1fa5ec9",
+        "atomic-1aceaad5db",
+        "atomic-2189a73976",
+        "atomic-25c6160705",
+        "atomic-2893dc1c73",
+        "atomic-29f80628ed",
+        "atomic-2a201c59c0",
+        "atomic-2c69250c71",
+        "atomic-32eb0f7d57",
+        "atomic-3483d495c4",
+        "atomic-37a0617b6d",
+        "atomic-3a8dce414f",
+        "atomic-3ebb9b05f4",
+        "atomic-4b29b20843",
+        "atomic-4bafe5580b",
+        "atomic-502412ebed",
+        "atomic-5128694843",
+        "atomic-51f097dcd0",
+        "atomic-53bd593ef3",
+        "atomic-59b1cd2011",
+        "atomic-5a9bdae27d",
+        "atomic-60fcb38836",
+        "atomic-6e013445c4",
+        "atomic-7188fbad87",
+        "atomic-72814aa5ce",
+        "atomic-73d319c9cd",
+        "atomic-77350f8c24",
+        "atomic-77e7ef252b",
+        "atomic-787b800fda",
+        "atomic-84ae78a356",
+        "atomic-85f7b48f98",
+        "atomic-86bee032ed",
+        "atomic-8aa48479a6",
+        "atomic-8d38658375",
+        "atomic-8d8a4aadad",
+        "atomic-8db9a8bff6",
+        "atomic-90d8aaa792",
+        "atomic-993e67417c",
+        "atomic-99c04ee532",
+        "atomic-9eae1d79c5",
+        "atomic-a48a45ae55",
+        "atomic-aa176c53e9",
+        "atomic-ac23cdb2c2",
+        "atomic-acd16b86b8",
+        "atomic-aebd1e0590",
+        "atomic-affa41075d",
+        "atomic-b57f9f57b5",
+        "atomic-bdf5658069",
+        "atomic-c6c515a1d6",
+        "atomic-d0c3f0fbf4",
+        "atomic-d2f2352da9",
+        "atomic-d54164d249",
+        "atomic-d84f49a550",
+        "atomic-dd74b31441",
+        "atomic-e1de4f3742",
+        "atomic-e89e645944",
+        "atomic-e9975d36b5",
+        "atomic-ea5ae8a380",
+        "atomic-f7d5666505",
+        "casapound",
+        "dieci-vm",
+        "fdi",
+        "fiamma",
+        "forza-nuova",
+        "freiheitlichen",
+        "grande-sud",
+        "isp-dsp",
+        "italexit",
+        "la-destra",
+        "lega",
+        "m5s",
+        "mpa",
+        "pc-rizzo",
+        "pcl",
+        "pda-comunista",
+        "pda-sardo",
+        "pensionati",
+        "pli",
+        "ppa",
+        "pri",
+        "scr",
+        "special-01a5c8f145417270",
+        "special-03951d120bd081c2",
+        "special-0431501957fefa14",
+        "special-1541caed7b79dc88",
+        "special-15be3110294aac69",
+        "special-18c325a166a01154",
+        "special-223c891e9c62849e",
+        "special-2a201c59c068f523",
+        "special-2b71fc0cc3e4c28d",
+        "special-32a594109c6fed22",
+        "special-3481ee7eda619a67",
+        "special-36105f98f814f285",
+        "special-39d2a45f26544030",
+        "special-3abb7b670c847f42",
+        "special-3b3d75dfce0c1778",
+        "special-3e91e98ebe38c80f",
+        "special-3f304312f6ca0d5b",
+        "special-4ab7d4d99226aaa1",
+        "special-4ebc1f9a90c604ac",
+        "special-5e2fd56feb349281",
+        "special-5f4c452c77cc07db",
+        "special-71a592ddeaf87fa2",
+        "special-73d319c9cdf1fd9b",
+        "special-7671e936cde48411",
+        "special-7bcaa94be241b91d",
+        "special-7c02934e33a09214",
+        "special-8aa48479a6cadf89",
+        "special-936af5f312a14b2a",
+        "special-93905ea80e2f8e1e",
+        "special-94e5962186e77a08",
+        "special-ab1be92f10521852",
+        "special-bb89dc9388d26d2a",
+        "special-c85d7c30644a4638",
+        "special-ca10f0ad1d46bc42",
+        "special-d4e9f25a53984e86",
+        "special-edca6f4eb1309561",
+        "special-eefe529a12b04aaf",
+        "special-f64e5130dd228df2",
+        "svp-patt"
+      ]
+    },
+    "municipalities": 7904,
+    "physicalCells": 15810,
+    "totals": [
+      {
+        "chamber": "camera",
+        "electors": 46120143
+      },
+      {
+        "chamber": "senato",
+        "electors": 46120143
+      }
+    ],
+    "paired": {
+      "policy": "paired-original-equal-18plus-v1",
+      "included": 7904,
+      "excluded": [],
+      "conditionalElectors": 46120143,
+      "assumption": "Only matched equal original 18+ denominators enter contrasts; unmatched or different-roll municipalities use labelled reference-profile fallbacks. No source counts or denominators are changed."
+    },
+    "fitMs": 110.90160000000014,
+    "reducedProfileMs": 15.740700000000288,
+    "estimatedFullProfileMs": 971.9882250000178,
+    "profileMs": 692.0926,
+    "adapterMs": 21.756400000000212,
+    "preparationMs": 248.2177999999999,
+    "generationMs": 650.1337000000003,
+    "projectionResidual": 2.1525697890822926e-10,
+    "projectionIterations": 7,
+    "nonComputable": [],
+    "peakRssKiB": 434068
+  },
+  "browser": [
+    {
+      "base": "",
+      "browserVersion": "148.0.7778.96",
+      "node": "v24.20.0",
+      "inputHashes": [
+        {
+          "id": 7,
+          "hash": "414e7e228679ccaf3c4e77083f483d97feeef973e8354f7326bfac1a26e1efe1"
+        },
+        {
+          "id": 2,
+          "hash": "d9659eb6f54167448da6c38b94635bf8697dc67ac9c23bfbd615a84dd6b6efff"
+        }
+      ],
+      "nodeBrowserInputByteIdentical": true,
+      "calibrationTolerance": 1e-10,
+      "workerMilliseconds": 190.5,
+      "qualification": "One test-worker run, structured-cloned prepared assets and intercepted worker script. Functional parity only; not a production latency or browser process memory benchmark."
+    },
+    {
+      "base": "/elezioni",
+      "browserVersion": "148.0.7778.96",
+      "node": "v24.20.0",
+      "inputHashes": [
+        {
+          "id": 7,
+          "hash": "414e7e228679ccaf3c4e77083f483d97feeef973e8354f7326bfac1a26e1efe1"
+        },
+        {
+          "id": 2,
+          "hash": "d9659eb6f54167448da6c38b94635bf8697dc67ac9c23bfbd615a84dd6b6efff"
+        }
+      ],
+      "nodeBrowserInputByteIdentical": true,
+      "calibrationTolerance": 1e-10,
+      "workerMilliseconds": 187.69999998807907,
+      "qualification": "One test-worker run, structured-cloned prepared assets and intercepted worker script. Functional parity only; not a production latency or browser process memory benchmark."
+    }
+  ],
+  "legacyByteParity": {
+    "baseRevision": "ea9c7f6bfa7d724941d6a008235e9d5980bb1acc",
+    "cases": [
+      {
+        "renewal": "joint",
+        "bonus": false,
+        "id": 1,
+        "sha256": "881afdeb77d7e742982e5010e42ac3f3db765e35e642a08ae67d41d07318f68d"
+      },
+      {
+        "renewal": "joint",
+        "bonus": false,
+        "id": 7,
+        "sha256": "92d361df68e2c9de90e8e21ff1c2c446f8e9e9f70848b6e253abc8599976538d"
+      },
+      {
+        "renewal": "joint",
+        "bonus": true,
+        "id": 1,
+        "sha256": "881afdeb77d7e742982e5010e42ac3f3db765e35e642a08ae67d41d07318f68d"
+      },
+      {
+        "renewal": "joint",
+        "bonus": true,
+        "id": 7,
+        "sha256": "92d361df68e2c9de90e8e21ff1c2c446f8e9e9f70848b6e253abc8599976538d"
+      },
+      {
+        "renewal": "camera",
+        "bonus": false,
+        "id": 1,
+        "sha256": "caad8c8d352da0d5b07c5d52cbea281adb6e9faecad1e2cad5d84cc890ef4c4d"
+      },
+      {
+        "renewal": "camera",
+        "bonus": false,
+        "id": 7,
+        "sha256": "8f07729f8b195af878539dbf683974bd0fafbf92daefb4cef0367f255472c862"
+      },
+      {
+        "renewal": "camera",
+        "bonus": true,
+        "id": 1,
+        "sha256": "caad8c8d352da0d5b07c5d52cbea281adb6e9faecad1e2cad5d84cc890ef4c4d"
+      },
+      {
+        "renewal": "camera",
+        "bonus": true,
+        "id": 7,
+        "sha256": "8f07729f8b195af878539dbf683974bd0fafbf92daefb4cef0367f255472c862"
+      },
+      {
+        "renewal": "senato",
+        "bonus": false,
+        "id": 1,
+        "sha256": "a316549f91f0772241b7bb9c8409b7345ca8345a90d179751bb8505cf0c10e2d"
+      },
+      {
+        "renewal": "senato",
+        "bonus": false,
+        "id": 7,
+        "sha256": "b96c9d92b9982eb0a235312d93a1154fc9919762aa35d1741806c1b7e54d79d3"
+      },
+      {
+        "renewal": "senato",
+        "bonus": true,
+        "id": 1,
+        "sha256": "a316549f91f0772241b7bb9c8409b7345ca8345a90d179751bb8505cf0c10e2d"
+      },
+      {
+        "renewal": "senato",
+        "bonus": true,
+        "id": 7,
+        "sha256": "b96c9d92b9982eb0a235312d93a1154fc9919762aa35d1741806c1b7e54d79d3"
+      }
+    ]
+  },
+  "scoreCacheByteParity": {
+    "cases": [
+      {
+        "ref": false,
+        "id": 1,
+        "hash": "967abead8a0a5362ec102f025cc08699e4e4b4d8e7b2a710b7a301594926217c"
+      },
+      {
+        "ref": false,
+        "id": 7,
+        "hash": "d4f757cc7a34492d832a8f9a31f796cad7b06f29a6694e77c54c0eb8bd51e213"
+      },
+      {
+        "ref": true,
+        "id": 1,
+        "hash": "e60188167912b5d5c9d65d468b164536325c9bc987097c9efeb6b270c51d7b97"
+      },
+      {
+        "ref": true,
+        "id": 7,
+        "hash": "43b541d6d93d5d226d3e46cbcad45caaf8ba9b60083d5f065ccca1e3117c03ed"
+      }
+    ],
+    "verifiedIdenticalAfterCacheAndLazyStreams": true
+  },
+  "verification": {
+    "unitFiles": 87,
+    "unitTests": 1162,
+    "check": true,
+    "checkData": true,
+    "rootAndProjectBaseBuild": true,
+    "rootBuildRestored": true,
+    "frozenResearchInventory": true,
+    "originalEvidenceFiles": 61,
+    "originalInventoryEntries": 1433
+  },
+  "remainingGates": [
+    "FV-05 explicit default basis and reproducible asset packaging",
+    "FV-06 bounded browser fitting/revision/cancellation/worker ownership",
+    "FV-07 installed schema/editor integration",
+    "FV-08 predictive, 1000-run production seat and full resource-envelope acceptance",
+    "FV-09 archival/deletion"
+  ],
+  "reproducibleReports": "data/derived/fv04-generation/ (ignored; regenerate with documented commands)",
+  "resourceQualification": "Country measurements use two mechanically pooled observable blocks, no polls and one paired run. Node process lifetime peak RSS includes source compilation/history objects, fits and candidate/preferences/scrutiny. Not browser/concurrent-worker/max-component/default acceptance."
+}

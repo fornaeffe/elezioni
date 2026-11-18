@@ -1,0 +1,11 @@
+# Keep reviewed poll JSON consistent across Windows and Linux.
+data/sources/polls/*.json text eol=lf
+data/sources/polls/history/*.json text eol=lf
+data/sources/fast-share/*.json text eol=lf
+data/fast-share-source-manifest.json text eol=lf
+data/fast-share-default-policy.json text eol=lf
+data/workspace-defaults.json text eol=lf
+data/workspace-source-manifest.json text eol=lf
+web/src/lib/scenario/*.generated.ts text eol=lf
+web/src/lib/workspaces/snapshots.generated.ts text eol=lf
+test/fixtures/r-reference-manifest.json text eol=lf

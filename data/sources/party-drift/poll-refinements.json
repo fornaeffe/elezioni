@@ -1,0 +1,33 @@
+{
+  "schemaVersion":1,
+  "reviewedOn":"2026-10-26",
+  "scope":"Research-only restoration of complete already-cached 2024 questions. Replace the earlier coarsened view of the SAME question; never add a duplicate survey. No source archive or production poll bundle is modified.",
+  "questions":[
+    {"id":"pcm-12951-q1","sourceId":"pcm-12951","sourceFile":"data/sources/polls/history/Sondaggio12951.pdf","sourceSha256":"91b16dbe8774ffbdf8337573cc88ba164b777c90c065768f3b299e41ec006c5f","pages":[2],"answers":[
+      {"label":"FRATELLI D'ITALIA","percentage":27.3,"members":["fdi"]},
+      {"label":"PARTITO DEMOCRATICO","percentage":22,"members":["pd","art1"]},
+      {"label":"MOVIMENTO 5 STELLE","percentage":14.7,"members":["m5s"]},
+      {"label":"LEGA","percentage":8.6,"members":["lega"]},
+      {"label":"FORZA ITALIA-NOI MODERATI","percentage":8.6,"members":["fi-pdl","noi-residual","udc","scelta-civica","idv"]},
+      {"label":"VERDI E SINISTRA","percentage":4.6,"members":["verdi","sel-si"]},
+      {"label":"STATI UNITI D'EUROPA","percentage":4.2,"members":["italia-viva","piu-europa","psi-civici"]},
+      {"label":"AZIONE","percentage":4,"members":["azione"]},
+      {"label":"PACE TERRA DIGNITA","percentage":2.5,"members":["prc","ptd-residual"]},
+      {"label":"LIBERTA","percentage":2,"sourceLabel":"LIBERTA'"},
+      {"label":"ALTRE LISTE (sotto 1%)","percentage":1.5,"other":true}
+    ]},
+    {"id":"pcm-12952-q3","sourceId":"pcm-12952","sourceFile":"data/sources/polls/history/Sondaggio12952.pdf","sourceSha256":"061f9c608ab1c6048f95def87a662dbcfb2b67b4701bf54d9b1c441e5746e743","pages":[2,3],"answers":[
+      {"label":"Fratelli d'Italia","percentage":27,"members":["fdi"]},
+      {"label":"Partito Democratico","percentage":21,"members":["pd","art1"]},
+      {"label":"Movimento 5 Stelle","percentage":15.5,"members":["m5s"]},
+      {"label":"Forza Italia/Noi Moderati","percentage":9.5,"members":["fi-pdl","noi-residual","udc","scelta-civica","idv"]},
+      {"label":"Lega","percentage":8,"members":["lega"]},
+      {"label":"Verdi e Sinistra","percentage":4.5,"members":["verdi","sel-si"]},
+      {"label":"Stati Uniti d'Europa","percentage":4.5,"members":["italia-viva","piu-europa","psi-civici"]},
+      {"label":"Azione","percentage":4,"members":["azione"]},
+      {"label":"Liberta","percentage":2,"sourceLabel":"LIBERTA'"},
+      {"label":"Pace Terra Dignita","percentage":2,"members":["prc","ptd-residual"]},
+      {"label":"Altri partiti","percentage":2,"other":true}
+    ]}
+  ]
+}

@@ -1,0 +1,117 @@
+import { generatedSnapshotPoliticsScenario } from '../../../tests/fixtures/legacy-snapshot-scenario';
+import { cloneScenario } from '../../../tests/fixtures/retired-politics/scenario';
+import { fileURLToPath } from 'node:url';
+import { expect, test } from 'vitest';
+import { describeWithGeneratedFixtures, loadGeneratedJsonFixture } from '$lib/test/generated-fixtures';
+import { createDefaultPoliticsScenario, validateScenario } from '../../../tests/fixtures/retired-politics/scenario';
+import { buildPoliticsDirectScrutinySnapshot } from './pipeline';
+import { projectScenarioOntoPoliticsSource } from './scenario-projection';
+import { defaultPoliticsScrutinyAlgorithmId, resolvePoliticsScrutinyAlgorithm } from './scrutiny-algorithms';
+import { buildPoliticsPipelineSourceFromSnapshot } from './static-snapshot';
+import type { PoliticsStaticSnapshot, Ramo } from './types';
+
+const productionStaticSnapshotPath = fileURLToPath(
+  new URL('../../../../web/static/data/v1/politics-static.json', import.meta.url)
+);
+
+function loadProductionStaticSnapshot(): PoliticsStaticSnapshot {
+  return loadGeneratedJsonFixture<PoliticsStaticSnapshot>(productionStaticSnapshotPath);
+}
+
+function politicalListSharePercent(snapshot: PoliticsStaticSnapshot, listName: string): number {
+  const politicalLists = snapshot.default_scenario.liste.filter((row) => row.LISTA !== 'astensione');
+  const totalPoliticalShare = politicalLists.reduce((sum, row) => sum + row.PERCENTUALE, 0);
+  const list = politicalLists.find((row) => row.LISTA === listName);
+
+  if (!list) {
+    throw new Error(`Missing production snapshot list ${listName}`);
+  }
+
+  return (list.PERCENTUALE / totalPoliticalShare) * 100;
+}
+
+describeWithGeneratedFixtures('politics browser vertical slice', [productionStaticSnapshotPath], () => {
+  const snapshot = loadProductionStaticSnapshot();
+
+  test('keeps historical snapshot defaults aligned with the production static snapshot', () => {
+    const scenario = cloneScenario(generatedSnapshotPoliticsScenario);
+    const snapshotListNames = snapshot.default_scenario.liste
+      .filter((row) => row.LISTA !== 'astensione')
+      .map((row) => row.LISTA);
+    const snapshotCoalitionNames = new Set(snapshot.default_scenario.coalizioni?.map((row) => row.COALIZIONE) ?? []);
+
+    expect(validateScenario(scenario)).toEqual([]);
+    expect(scenario.lists.map((row) => row.name)).toEqual(snapshotListNames);
+    expect(new Set(scenario.coalitions.map((row) => row.name))).toEqual(snapshotCoalitionNames);
+    expect(scenario.listCorrespondences).toHaveLength(snapshot.default_scenario.corrispondenza_liste?.length ?? 0);
+    expect(scenario.listCorrespondences.every((row) => row.source === 'bundled')).toBe(true);
+
+    for (const list of scenario.lists) {
+      const snapshotList = snapshot.default_scenario.liste.find((row) => row.LISTA === list.name);
+      expect(snapshotList?.COALIZIONE).toBe(list.coalition);
+      expect(Math.abs(list.startingShare - politicalListSharePercent(snapshot, list.name))).toBeLessThanOrEqual(0.05);
+    }
+  });
+
+  test('projects a production local percentage override onto municipal parameters', () => {
+    const scenario = cloneScenario(generatedSnapshotPoliticsScenario);
+    scenario.localShareOverrides = [
+      {
+        id: 'local-aglie-pd',
+        scope: 'municipality',
+        locationCode: '001001',
+        list: 'Partito Democratico',
+        startingShare: 45
+      }
+    ];
+    const source = buildPoliticsPipelineSourceFromSnapshot(snapshot, { simulations: 1 });
+    const projection = projectScenarioOntoPoliticsSource(source, scenario, {
+      currentDate: '2026-06-05',
+      electionDate: scenario.electionDate,
+      historicalVotes: snapshot.data.comuni_liste_elezioni,
+      municipalities: snapshot.data.municipalities,
+      parameterPercentualiPartenza: 'europee',
+      simulations: 1
+    });
+    const municipalityRows = projection.source.comuni_liste.filter((row) => String(row.CODICE_COMUNE) === '001001');
+    const overriddenRow = municipalityRows.find((row) => row.LISTA === 'Partito Democratico');
+
+    expect(snapshot.data.municipalities?.some((row) => String(row.CODICE_COMUNE) === '001001')).toBe(true);
+    expect(overriddenRow?.DATA).toBe('2026-06-05T00:00:00.000Z');
+    expect(projection.warnings).toEqual([]);
+  });
+
+  test('projects, generates, and scrutinizes one production politics browser simulation', { timeout: 30_000 }, () => {
+    const scenario = cloneScenario(generatedSnapshotPoliticsScenario);
+    const source = buildPoliticsPipelineSourceFromSnapshot(snapshot, { simulations: 1 });
+    const projection = projectScenarioOntoPoliticsSource(source, scenario, {
+      electionDate: scenario.electionDate,
+      historicalVotes: snapshot.data.comuni_liste_elezioni,
+      municipalities: snapshot.data.municipalities,
+      parameterPercentualiPartenza: 'europee',
+      simulations: 1
+    });
+    const scrutinyAlgorithm = resolvePoliticsScrutinyAlgorithm(defaultPoliticsScrutinyAlgorithmId).algorithm;
+
+    expect(projection.warnings).toEqual([]);
+    expect(projection.rows.every((row) => row.status === 'active')).toBe(true);
+
+    const directSnapshot = buildPoliticsDirectScrutinySnapshot(projection.source, {
+      seed: 'production-vertical-slice'
+    });
+
+    for (const ramo of ['camera', 'senato'] as Ramo[]) {
+      const ramoSnapshot = directSnapshot.rami[ramo];
+      const output = scrutinyAlgorithm.run(ramoSnapshot.simulations[0].input, {
+        ramo,
+        liste_naz: ramoSnapshot.liste_naz,
+        totali_pluri: ramoSnapshot.totali_pluri,
+        totale_seggi: ramoSnapshot.totale_seggi
+      });
+
+      expect(output.liste_pluri.length).toBeGreaterThan(0);
+      expect(output.candidati_uni.filter((row) => row.ELETTO)).toHaveLength(ramo === 'camera' ? 147 : 74);
+      expect(output.candidati_pluri.filter((row) => row.ELETTO).length).toBeGreaterThan(0);
+    }
+  });
+});

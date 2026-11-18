@@ -1,0 +1,428 @@
+{
+  "kind": "post-fv08-correspondence-policy-audit-v1",
+  "catalogId": "fast-share-catalog-v1-4e39f79a06472053c91ca3b0d97e22e74ce3666e1fc66ab3989c0601b9b6680e",
+  "sourceId": "fast-share-source-v1-95d505ed1f7ea79c99cd0bf91a86dbc6a2d54c1f24fd9b37bec40a57e3c72511",
+  "legacyInputKey": "unified-legacy-input-v1-54983d92402b3942bb3455ea18b64709879e697e58f1f2cb056564a829e73674",
+  "scope": "Deterministic historical preparation before polls/manual references; not a simulation or acceptance campaign.",
+  "baseline": {
+    "camera": "camera-2022",
+    "senato": "senato-2022"
+  },
+  "missingHistory": 0,
+  "chambers": [
+    {
+      "chamber": "camera",
+      "municipalities": 7904,
+      "electors": 46120143,
+      "historicalValid": 28150536,
+      "rawMappedFiledMass": 26791441.99999998,
+      "rawMissingMass": 1359094.0000000186,
+      "incompleteMunicipalities": 7896,
+      "duplicatedMunicipalities": 0,
+      "splitMunicipalities": 1,
+      "varyingFilingMunicipalities": 0,
+      "historicalNonValid": 0.38962600354469845,
+      "originalPolicyNonValid": 0.41173447792648865,
+      "fallbackMunicipalities": 74,
+      "equalFallbackMunicipalities": 74,
+      "largestLosses": [
+        {
+          "code": "058091",
+          "lost": 49298.66666666651,
+          "valid": 1308902
+        },
+        {
+          "code": "015146",
+          "lost": 26743.333333333256,
+          "valid": 634115
+        },
+        {
+          "code": "001272",
+          "lost": 19464,
+          "valid": 396123
+        },
+        {
+          "code": "007003",
+          "lost": 14673,
+          "valid": 14673
+        },
+        {
+          "code": "010025",
+          "lost": 13162.333333333343,
+          "valid": 270751
+        }
+      ],
+      "lists": [
+        {
+          "id": "fdi",
+          "votes": 7665905.045031445,
+          "deltaFromOriginalArchivePolicy": 360887.0450314451
+        },
+        {
+          "id": "fi",
+          "votes": 2385849.169696063,
+          "deltaFromOriginalArchivePolicy": 106528.1696960628
+        },
+        {
+          "id": "lega",
+          "votes": 2588327.5062613,
+          "deltaFromOriginalArchivePolicy": 123840.50626129983
+        },
+        {
+          "id": "noi-moderati",
+          "votes": 200761.25702096793,
+          "deltaFromOriginalArchivePolicy": 9676.257020967925
+        },
+        {
+          "id": "udc",
+          "votes": 66920.41900698935,
+          "deltaFromOriginalArchivePolicy": 3225.419006989352
+        },
+        {
+          "id": "sud-chiama-nord",
+          "votes": 218702.84202751485,
+          "deltaFromOriginalArchivePolicy": 5837.842027514853
+        },
+        {
+          "id": "cdx-vda",
+          "votes": 13436.5,
+          "deltaFromOriginalArchivePolicy": 13436.5
+        },
+        {
+          "id": "pd",
+          "votes": 5625635.098194625,
+          "deltaFromOriginalArchivePolicy": 267173.0981946252
+        },
+        {
+          "id": "m5s",
+          "votes": 4528901.595580253,
+          "deltaFromOriginalArchivePolicy": 192241.59558025282
+        },
+        {
+          "id": "avs",
+          "votes": 714332.7382403075,
+          "deltaFromOriginalArchivePolicy": -304011.26175969245
+        },
+        {
+          "id": "italia-viva",
+          "votes": 1009790.724496667,
+          "deltaFromOriginalArchivePolicy": 47380.484496672754
+        },
+        {
+          "id": "europa-piu-uno-cd",
+          "votes": 1010414.2781547084,
+          "deltaFromOriginalArchivePolicy": 47489.278154708445
+        },
+        {
+          "id": "progetto-civico-psi",
+          "votes": 0,
+          "deltaFromOriginalArchivePolicy": 0
+        },
+        {
+          "id": "csx-vda",
+          "votes": 13436.5,
+          "deltaFromOriginalArchivePolicy": 13436.5
+        },
+        {
+          "id": "azione-libdem",
+          "votes": 1285188.1948139386,
+          "deltaFromOriginalArchivePolicy": 60302.434813932516
+        },
+        {
+          "id": "futuro-nazionale",
+          "votes": 13436.5,
+          "deltaFromOriginalArchivePolicy": 13436.5
+        },
+        {
+          "id": "pap-prc",
+          "votes": 417815.7686363063,
+          "deltaFromOriginalArchivePolicy": 19078.768636306282
+        },
+        {
+          "id": "ora",
+          "votes": 0,
+          "deltaFromOriginalArchivePolicy": 0
+        },
+        {
+          "id": "dsp",
+          "votes": 245442.13602037315,
+          "deltaFromOriginalArchivePolicy": 10457.136020373146
+        },
+        {
+          "id": "uv",
+          "votes": 13436.5,
+          "deltaFromOriginalArchivePolicy": 13436.5
+        },
+        {
+          "id": "svp-patt",
+          "votes": 132803.2268185151,
+          "deltaFromOriginalArchivePolicy": 15793.226818515104
+        },
+        {
+          "id": "team-k",
+          "votes": 0,
+          "deltaFromOriginalArchivePolicy": 0
+        },
+        {
+          "id": "freiheitlichen",
+          "votes": 0,
+          "deltaFromOriginalArchivePolicy": 0
+        },
+        {
+          "id": "suedtiroler-freiheit",
+          "votes": 0,
+          "deltaFromOriginalArchivePolicy": 0
+        }
+      ],
+      "largestCollegeDeltas": [
+        {
+          "collegeId": "camera:P:050101",
+          "listId": "fdi",
+          "delta": 19249
+        },
+        {
+          "collegeId": "camera:P:110001",
+          "listId": "fdi",
+          "delta": 17737
+        },
+        {
+          "collegeId": "camera:P:060001",
+          "listId": "fdi",
+          "delta": 16804
+        },
+        {
+          "collegeId": "camera:P:030101",
+          "listId": "avs",
+          "delta": -16729
+        },
+        {
+          "collegeId": "camera:P:040001",
+          "listId": "svp-patt",
+          "delta": 15794
+        },
+        {
+          "collegeId": "camera:P:080002",
+          "listId": "pd",
+          "delta": 15189
+        },
+        {
+          "collegeId": "camera:P:030401",
+          "listId": "fdi",
+          "delta": 13677
+        },
+        {
+          "collegeId": "camera:P:080002",
+          "listId": "avs",
+          "delta": -13443
+        }
+      ]
+    },
+    {
+      "chamber": "senato",
+      "municipalities": 7904,
+      "electors": 46120143,
+      "historicalValid": 28122616,
+      "rawMappedFiledMass": 26884173,
+      "rawMissingMass": 1238443,
+      "incompleteMunicipalities": 7849,
+      "duplicatedMunicipalities": 0,
+      "splitMunicipalities": 0,
+      "varyingFilingMunicipalities": 0,
+      "historicalNonValid": 0.3902313789443368,
+      "originalPolicyNonValid": 0.41708391927579236,
+      "fallbackMunicipalities": 74,
+      "equalFallbackMunicipalities": 74,
+      "largestLosses": [
+        {
+          "code": "058091",
+          "lost": 34579,
+          "valid": 1310246
+        },
+        {
+          "code": "021008",
+          "lost": 18419,
+          "valid": 48852
+        },
+        {
+          "code": "007003",
+          "lost": 14668,
+          "valid": 14668
+        },
+        {
+          "code": "015146",
+          "lost": 13234,
+          "valid": 633278
+        },
+        {
+          "code": "001272",
+          "lost": 12118,
+          "valid": 396136
+        }
+      ],
+      "lists": [
+        {
+          "id": "fdi",
+          "votes": 7575299.257800608,
+          "deltaFromOriginalArchivePolicy": 323070.2578006098
+        },
+        {
+          "id": "fi",
+          "votes": 2386720.3046547924,
+          "deltaFromOriginalArchivePolicy": 90889.65465479298
+        },
+        {
+          "id": "lega",
+          "votes": 2592757.001161503,
+          "deltaFromOriginalArchivePolicy": 115806.95116150193
+        },
+        {
+          "id": "noi-moderati",
+          "votes": 192501.76655368521,
+          "deltaFromOriginalArchivePolicy": 8267.791553685238
+        },
+        {
+          "id": "udc",
+          "votes": 64167.25551789505,
+          "deltaFromOriginalArchivePolicy": 2755.9305178950526
+        },
+        {
+          "id": "sud-chiama-nord",
+          "votes": 278709.5265470957,
+          "deltaFromOriginalArchivePolicy": 6584.52654709568
+        },
+        {
+          "id": "cdx-vda",
+          "votes": 13589.75,
+          "deltaFromOriginalArchivePolicy": 13589.75
+        },
+        {
+          "id": "pd",
+          "votes": 5521894.12667387,
+          "deltaFromOriginalArchivePolicy": 223471.92667386867
+        },
+        {
+          "id": "m5s",
+          "votes": 4433524.800087348,
+          "deltaFromOriginalArchivePolicy": 144882.80008734763
+        },
+        {
+          "id": "avs",
+          "votes": 1041474.9722177805,
+          "deltaFromOriginalArchivePolicy": 45852.99221778056
+        },
+        {
+          "id": "italia-viva",
+          "votes": 982480.8306862814,
+          "deltaFromOriginalArchivePolicy": 36368.95068628737
+        },
+        {
+          "id": "europa-piu-uno-cd",
+          "votes": 1014212.8086160161,
+          "deltaFromOriginalArchivePolicy": 39788.348616015865
+        },
+        {
+          "id": "progetto-civico-psi",
+          "votes": 0,
+          "deltaFromOriginalArchivePolicy": 0
+        },
+        {
+          "id": "csx-vda",
+          "votes": 13589.75,
+          "deltaFromOriginalArchivePolicy": 13589.75
+        },
+        {
+          "id": "azione-libdem",
+          "votes": 1250188.7596850947,
+          "deltaFromOriginalArchivePolicy": 46229.27968508843
+        },
+        {
+          "id": "futuro-nazionale",
+          "votes": 13589.75,
+          "deltaFromOriginalArchivePolicy": 13589.75
+        },
+        {
+          "id": "pap-prc",
+          "votes": 387736.73063582915,
+          "deltaFromOriginalArchivePolicy": 13576.730635829153
+        },
+        {
+          "id": "ora",
+          "votes": 0,
+          "deltaFromOriginalArchivePolicy": 0
+        },
+        {
+          "id": "dsp",
+          "votes": 242648.4673184766,
+          "deltaFromOriginalArchivePolicy": 8233.467318476614
+        },
+        {
+          "id": "uv",
+          "votes": 13589.75,
+          "deltaFromOriginalArchivePolicy": 13589.75
+        },
+        {
+          "id": "svp-patt",
+          "votes": 0,
+          "deltaFromOriginalArchivePolicy": 0
+        },
+        {
+          "id": "team-k",
+          "votes": 45287.0946533812,
+          "deltaFromOriginalArchivePolicy": 34130.0946533812
+        },
+        {
+          "id": "freiheitlichen",
+          "votes": 58653.297190323334,
+          "deltaFromOriginalArchivePolicy": 44174.297190323334
+        },
+        {
+          "id": "suedtiroler-freiheit",
+          "votes": 0,
+          "deltaFromOriginalArchivePolicy": 0
+        }
+      ],
+      "largestCollegeDeltas": [
+        {
+          "collegeId": "senato:U:040006",
+          "listId": "freiheitlichen",
+          "delta": 26522
+        },
+        {
+          "collegeId": "senato:P:050002",
+          "listId": "fdi",
+          "delta": 22368
+        },
+        {
+          "collegeId": "senato:U:040006",
+          "listId": "team-k",
+          "delta": 19428
+        },
+        {
+          "collegeId": "senato:P:090001",
+          "listId": "fdi",
+          "delta": 18395
+        },
+        {
+          "collegeId": "senato:P:090001",
+          "listId": "pd",
+          "delta": 18244
+        },
+        {
+          "collegeId": "senato:U:040005",
+          "listId": "freiheitlichen",
+          "delta": 17321
+        },
+        {
+          "collegeId": "senato:P:080002",
+          "listId": "pd",
+          "delta": 17012
+        },
+        {
+          "collegeId": "senato:P:050001",
+          "listId": "fdi",
+          "delta": 16428
+        }
+      ]
+    }
+  ]
+}

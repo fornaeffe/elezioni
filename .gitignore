@@ -1,49 +1,41 @@
-# History files
-.Rhistory
-.Rapp.history
-
-# Session Data files
-.RData
-
-# User-specific files
-.Ruserdata
-
-# Example code in package build process
-*-Ex.R
-
-# Output files from R CMD build
-/*.tar.gz
-
-# Output files from R CMD check
-/*.Rcheck/
-
-# RStudio files
-.Rproj.user/
-
-# produced vignettes
-vignettes/*.html
-vignettes/*.pdf
-
-# OAuth2 token, see https://github.com/hadley/httr/releases/tag/v0.3
-.httr-oauth
-
-# knitr and R markdown default cache directories
-*_cache/
-/cache/
-
-# Temporary files created by R markdown
-*.utf8.md
-*.knit.md
-
-# R Environment Variables
-.Renviron
-
-/.quarto/
-
 # Downloaded data
-/dati/
+/data/sources/*
+!/data/sources/geography/
+/data/sources/geography/*
+!/data/sources/geography/*.json.gz
+!/data/sources/fast-share/
+/data/sources/fast-share/*
+!/data/sources/fast-share/*.json
+!/data/sources/party-drift/
+/data/sources/party-drift/*
+!/data/sources/party-drift/memberships-policy.json
+!/data/sources/party-drift/membership-sources.json
+!/data/sources/party-drift/poll-refinements.json
+!/data/sources/polls/
+# Poll JSON is authoritative; downloaded PDFs remain ignored.
+/data/sources/polls/*
+!/data/sources/polls/archive.json
+!/data/sources/polls/entities.json
+!/data/sources/polls/manifest.json
+!/data/sources/polls/history/
+/data/sources/polls/history/*
+!/data/sources/polls/history/*.json
+/data/derived/
+/data/completed-runs/
+/data/github-artifacts/
+
+# Large generated migration data
+/web/static/data/v1/politics-static.json
+/web/static/data/v1/regional-er-static.json
+/web/static/data/reform-2026/*.json.gz
+/web/static/data/reform-2026/fast-share/
+/web/static/data/politics/
+/test/fixtures/politiche/debug_scrutinio.json
+/test/fixtures/politiche/generated_adapter.json
+/test/fixtures/politiche/pipeline_source_debug.json
+/test/fixtures/politiche/vote_preparation.json
+/test/fixtures/regionali-er/debug_scrutiny.json
 
 # Output
+__pycache__/
 /_output/
-/*_files/
-/*.html

@@ -1,0 +1,3 @@
+# Frozen SHA-256 evidence and metadata must survive Git checkouts byte for byte.
+*.json -text
+*.jsonl -text

@@ -1,0 +1,2401 @@
+{
+  "version": "party-drift-stage0-8ceb6b4a44a5",
+  "machine": {
+    "cpu": "Intel(R) Core(TM) i7-14700KF",
+    "logicalProcessors": 28,
+    "memoryBytes": 68498468864,
+    "node": "v24.20.0",
+    "platform": "win32"
+  },
+  "versions": [
+    {
+      "path": "web/scripts/data-preparation/party-drift-contract.ts",
+      "sha256": "68a38022df17dc2bd8a835d3ee1b480da07561beebb327386f3dc8c265a00ab7"
+    },
+    {
+      "path": "web/scripts/data-preparation/party-drift-likelihood.ts",
+      "sha256": "ffbeb6412cbc88978ad864a372ed3df48fa163ee888c9f4f01b7fa25ad0e76a2"
+    },
+    {
+      "path": "web/scripts/data-preparation/party-drift-prior.ts",
+      "sha256": "5dd9fc0b6bb9f7bb73b3c0af6801a56a17b89d48578cf9e5eba9813ada65ff50"
+    },
+    {
+      "path": "web/scripts/data-preparation/party-drift-fit.ts",
+      "sha256": "a13c49bcd3457a17ca421019f5e459f8bc856d3b33fd92daa0f43e66adfe45a5"
+    },
+    {
+      "path": "web/scripts/data-preparation/party-drift-research-cli.ts",
+      "sha256": "334596e810ed6e746c1932e62fea058fed0ac9cf9d2fcbaedbbe3230476350a7"
+    },
+    {
+      "path": "web/scripts/data-preparation/party-drift-quadrature.ts",
+      "sha256": "5592bb6e4984425eef031d81922d629a4b4a15cf9c52450bd92b71e321ac8341"
+    },
+    {
+      "path": "web/scripts/data-preparation/drift-math.ts",
+      "sha256": "1209cc3d9bf5385946c587504f1130d5cd4aee9f7738611d65f8b8198aeafc89"
+    },
+    {
+      "path": "web/scripts/data-preparation/drift-gaussian.ts",
+      "sha256": "260e12defdeca8d804131f63a92c556b51635142f3a281cfa2a351145f11c381"
+    },
+    {
+      "path": "web/scripts/data-preparation/generation-metrics.ts",
+      "sha256": "a3ffdf6130c6273654570755331ecd050112f23a19c7913b159d4c9bec3f73c3"
+    },
+    {
+      "path": "web/scripts/data-preparation/sources.ts",
+      "sha256": "3c90989885970b80fa49da4eddded22b384cc976ce93b359c0f1cef0817f636e"
+    },
+    {
+      "path": "web/scripts/data-preparation/generation-history.ts",
+      "sha256": "ab69e895a2bddc235e139464bde235f52a22cbb3fb2c9c51729c81e1f0370599"
+    },
+    {
+      "path": "web/scripts/data-preparation/poll-calibration-sources.ts",
+      "sha256": "911d614aa3eb3f81f8b98682cef402601fb7300c4b40652b5118d55fee89da5e"
+    },
+    {
+      "path": "web/scripts/data-preparation/reform-history.ts",
+      "sha256": "782ea8a46273c47f5a15318fa40aa087b3dee943da014945c0160a7b88021bf3"
+    },
+    {
+      "path": "web/scripts/data-preparation/formats.ts",
+      "sha256": "4ef48c03ab7277e0e74ca0e19928c91788eb40ac2f2c2d4c7029124897677ed0"
+    },
+    {
+      "path": "web/src/lib/core/rng.ts",
+      "sha256": "8c0bb91a79beffde408e90359aabe4d5b5bad4ff93d80f425910e3a62d55ef6e"
+    },
+    {
+      "path": "web/package-lock.json",
+      "sha256": "c653b9a886821ed14ecf0a33caeaa6c8374aab80039fefda0d9685d0b9bee38b"
+    }
+  ],
+  "policy": {
+    "prior": {
+      "version": "neutral-reference-conditional-v1",
+      "nationalSd": 1.5,
+      "localSd": 0.5,
+      "kindSd": 0.5,
+      "nationalInnovationSd": 0.35,
+      "localInnovationSd": 0.25,
+      "calibrationDraws": 32768,
+      "calibrationSeed": "party-drift-prior-calibration-v1",
+      "scaleLogPriorSd": 0.7,
+      "effectLogPriorSd": 0.35
+    },
+    "fit": {
+      "version": "exact-grouped-laplace-reference-v1",
+      "maxDimension": 192,
+      "maxIterations": 120,
+      "gradientTolerance": 0.000001,
+      "maxRidge": 100000000,
+      "posteriorMeanTolerance": 0.025,
+      "posteriorWidthRatio": [
+        0.65,
+        1.5
+      ],
+      "maxRhat": 1.05,
+      "minEss": 400
+    },
+    "reference": {
+      "chains": 4,
+      "burn": 6000,
+      "draws": 12000,
+      "thin": 2
+    },
+    "starts": 9,
+    "quadrature": {
+      "step": 0.04,
+      "splitStep": 0.06,
+      "coarseStep": 0.08,
+      "coarseSplitStep": 0.12,
+      "meanTolerance": 0.005,
+      "resolutionTolerance": 0.0001
+    }
+  },
+  "phase": "stage-0-reduced-conditional-posterior",
+  "results": [
+    {
+      "id": "separate-components",
+      "fixture": {
+        "id": "separate-components",
+        "groups": [
+          [
+            0
+          ],
+          [
+            1
+          ],
+          [
+            2
+          ],
+          [
+            3
+          ]
+        ],
+        "counts": [
+          [
+            30,
+            35,
+            25,
+            10
+          ]
+        ]
+      },
+      "dimension": 6,
+      "calibration": {
+        "offset": 1.7344969680310274,
+        "expectedNonValid": 0.49999999999999994,
+        "draws": 32768,
+        "seed": "party-drift-prior-calibration-v1",
+        "context": {
+          "components": 3,
+          "cells": [
+            {
+              "electors": 100,
+              "available": [
+                1,
+                2,
+                3
+              ]
+            }
+          ],
+          "nationalSd": 1.5,
+          "localSd": 0.5,
+          "kindSd": 0
+        }
+      },
+      "samplingPassed": true,
+      "approximationPassed": true,
+      "passed": true,
+      "comparisons": [
+        {
+          "name": "non-valid",
+          "referenceMean": 0.3040854534098006,
+          "laplaceMean": 0.3030279053913716,
+          "meanDifference": -0.0010575480184289998,
+          "referenceWidth90": 0.15034394863278716,
+          "laplaceWidth90": 0.14850930033727694,
+          "widthRatio": 0.9877969927476674,
+          "rhat": 1.0000784774774656,
+          "ess": 22816.340791909428,
+          "referenceInterval90": {
+            "level": 0.9,
+            "lower": 0.23101972135952886,
+            "upper": 0.381363669992316,
+            "covered": false,
+            "score": 4.770738375823365
+          },
+          "laplaceInterval90": {
+            "level": 0.9,
+            "lower": 0.23232522989263005,
+            "upper": 0.380834530229907,
+            "covered": false,
+            "score": 4.795013898189878
+          }
+        },
+        {
+          "name": "component-a",
+          "referenceMean": 0.3468051075299144,
+          "laplaceMean": 0.3447847206291791,
+          "meanDifference": -0.002020386900735305,
+          "referenceWidth90": 0.15496595718521688,
+          "laplaceWidth90": 0.15272637345818085,
+          "widthRatio": 0.9855478985984046,
+          "rhat": 1.0000087059910403,
+          "ess": 22956.309628459265,
+          "referenceInterval90": {
+            "level": 0.9,
+            "lower": 0.2712502959533464,
+            "upper": 0.42621625313856326,
+            "covered": false,
+            "score": 5.579971876252146
+          },
+          "laplaceInterval90": {
+            "level": 0.9,
+            "lower": 0.2706204145322605,
+            "upper": 0.42334678799044134,
+            "covered": false,
+            "score": 5.565134664103392
+          }
+        },
+        {
+          "name": "component-b",
+          "referenceMean": 0.24774091660119496,
+          "laplaceMean": 0.24788567688459176,
+          "meanDifference": 0.0001447602833967998,
+          "referenceWidth90": 0.14038756785961642,
+          "laplaceWidth90": 0.1397365513080941,
+          "widthRatio": 0.9953627193529463,
+          "rhat": 1.0001038022738353,
+          "ess": 20274.041044688984,
+          "referenceInterval90": {
+            "level": 0.9,
+            "lower": 0.18053285586153234,
+            "upper": 0.32092042372114876,
+            "covered": false,
+            "score": 3.7510446850902635
+          },
+          "laplaceInterval90": {
+            "level": 0.9,
+            "lower": 0.18187047160415903,
+            "upper": 0.3216070229122531,
+            "covered": false,
+            "score": 3.777145983391275
+          }
+        },
+        {
+          "name": "component-c",
+          "referenceMean": 0.10136852245908806,
+          "laplaceMean": 0.10430169709485056,
+          "meanDifference": 0.002933174635762495,
+          "referenceWidth90": 0.09604852576096187,
+          "laplaceWidth90": 0.09870370976103054,
+          "widthRatio": 1.0276441931724876,
+          "rhat": 1.0000505398104214,
+          "ess": 13150.732094119077,
+          "referenceInterval90": {
+            "level": 0.9,
+            "lower": 0.057769659847337396,
+            "upper": 0.15381818560829927,
+            "covered": false,
+            "score": 1.25144172270771
+          },
+          "laplaceInterval90": {
+            "level": 0.9,
+            "lower": 0.06150107659741402,
+            "upper": 0.16020478635844457,
+            "covered": false,
+            "score": 1.3287252417093112
+          }
+        },
+        {
+          "name": "national-a-within-joint",
+          "referenceMean": 0.5833282034909757,
+          "laplaceMean": 0.5817511953855906,
+          "meanDifference": -0.0015770081053850804,
+          "referenceWidth90": 0.20789287116336258,
+          "laplaceWidth90": 0.20612969477355647,
+          "widthRatio": 0.9915188222667789,
+          "rhat": 1.0000434074388025,
+          "ess": 21740.17133102473,
+          "referenceInterval90": {
+            "level": 0.9,
+            "lower": 0.47779243863740256,
+            "upper": 0.6856853098007651,
+            "covered": false,
+            "score": 9.763741643911416
+          },
+          "laplaceInterval90": {
+            "level": 0.9,
+            "lower": 0.4771319671320363,
+            "upper": 0.6832616619055928,
+            "covered": false,
+            "score": 9.748769037414284
+          }
+        },
+        {
+          "name": "local-log-a-over-b",
+          "referenceMean": 0.34223021654618535,
+          "laplaceMean": 0.33547082744103085,
+          "meanDifference": -0.006759389105154501,
+          "referenceWidth90": 0.868912834879382,
+          "laplaceWidth90": 0.8603378835730788,
+          "widthRatio": 0.9901314021820227,
+          "rhat": 1.0000411420223707,
+          "ess": 21736.575827119996,
+          "referenceInterval90": {
+            "level": 0.9,
+            "lower": -0.08888872658657043,
+            "upper": 0.7800241082928115,
+            "covered": true,
+            "score": 0.868912834879382
+          },
+          "laplaceInterval90": {
+            "level": 0.9,
+            "lower": -0.09153599176456002,
+            "upper": 0.7688018918085188,
+            "covered": true,
+            "score": 0.8603378835730788
+          }
+        }
+      ],
+      "sampling": [
+        {
+          "evaluations": 190540,
+          "seconds": 0.1910723
+        },
+        {
+          "evaluations": 190480,
+          "seconds": 0.18043230000000005
+        },
+        {
+          "evaluations": 190437,
+          "seconds": 0.18329949999999998
+        },
+        {
+          "evaluations": 190454,
+          "seconds": 0.19212850000000004
+        }
+      ],
+      "modes": [
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 2.079028338375366e-10,
+          "logPosterior": -130.98484642244378,
+          "seconds": 0.0007218000000000018,
+          "iterations": 5,
+          "output": [
+            0.30403314301687406,
+            0.34657134719628113,
+            0.24791141606278963,
+            0.1014840937240551,
+            0.5829796398070639,
+            0.33501721658708783
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 1.4150902671872245e-12,
+          "logPosterior": -130.98484642244378,
+          "seconds": 0.00032450000000000046,
+          "iterations": 8,
+          "output": [
+            0.3040331430172748,
+            0.34657134719673727,
+            0.24791141606308711,
+            0.10148409372290096,
+            0.5829796398070921,
+            0.33501721658720396
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 2.4189816816289067e-11,
+          "logPosterior": -130.9848464224438,
+          "seconds": 0.0001863999999999919,
+          "iterations": 5,
+          "output": [
+            0.30403314301723094,
+            0.34657134719668725,
+            0.24791141606305359,
+            0.10148409372302823,
+            0.58297963980709,
+            0.33501721658719513
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 1.885214206964747e-12,
+          "logPosterior": -130.9848464224438,
+          "seconds": 0.00021600000000000818,
+          "iterations": 6,
+          "output": [
+            0.3040331430172723,
+            0.34657134719673705,
+            0.247911416063087,
+            0.10148409372290353,
+            0.5829796398070921,
+            0.33501721658720374
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 1.317109596943311e-7,
+          "logPosterior": -130.98484642244375,
+          "seconds": 0.000198599999999999,
+          "iterations": 6,
+          "output": [
+            0.3040331437031673,
+            0.3465713466561132,
+            0.24791141589299462,
+            0.10148409374772491,
+            0.5829796395946542,
+            0.3350172157133846
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 9.809841827745913e-11,
+          "logPosterior": -130.98484642244378,
+          "seconds": 0.000113900000000001,
+          "iterations": 6,
+          "output": [
+            0.30403314301691625,
+            0.34657134719643024,
+            0.2479114160635441,
+            0.10148409372310963,
+            0.5829796398064288,
+            0.3350172165844748
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 9.995251848415876e-9,
+          "logPosterior": -130.98484642244375,
+          "seconds": 0.0004568999999999903,
+          "iterations": 8,
+          "output": [
+            0.30403314299582174,
+            0.3465713471702544,
+            0.24791141611952577,
+            0.10148409371439829,
+            0.5829796397331682,
+            0.3350172162831335
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 1.7750245717707003e-12,
+          "logPosterior": -130.98484642244378,
+          "seconds": 0.00007040000000000645,
+          "iterations": 6,
+          "output": [
+            0.30403314301726925,
+            0.34657134719673854,
+            0.24791141606309955,
+            0.10148409372289272,
+            0.5829796398070809,
+            0.3350172165871577
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 1.071365218763276e-14,
+          "logPosterior": -130.9848464224438,
+          "seconds": 0.00012119999999998754,
+          "iterations": 6,
+          "output": [
+            0.30403314301727596,
+            0.34657134719674104,
+            0.24791141606308997,
+            0.10148409372289298,
+            0.582979639807092,
+            0.3350172165872034
+          ]
+        }
+      ]
+    },
+    {
+      "id": "inseparable-balanced",
+      "fixture": {
+        "id": "inseparable-balanced",
+        "groups": [
+          [
+            0
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            3
+          ]
+        ],
+        "counts": [
+          [
+            30,
+            40,
+            30
+          ]
+        ]
+      },
+      "dimension": 6,
+      "calibration": {
+        "offset": 1.7344969680310274,
+        "expectedNonValid": 0.49999999999999994,
+        "draws": 32768,
+        "seed": "party-drift-prior-calibration-v1",
+        "context": {
+          "components": 3,
+          "cells": [
+            {
+              "electors": 100,
+              "available": [
+                1,
+                2,
+                3
+              ]
+            }
+          ],
+          "nationalSd": 1.5,
+          "localSd": 0.5,
+          "kindSd": 0
+        }
+      },
+      "samplingPassed": true,
+      "approximationPassed": false,
+      "quadrature": {
+        "coarse": {
+          "means": [
+            0.3035230274489949,
+            0.19989959147676856,
+            0.1998995914767687,
+            0.2966777895973937,
+            0.5000000000000064
+          ],
+          "boundaryWeightFraction": 5.175116358621612e-13,
+          "evaluations": 697068,
+          "options": {
+            "counts": [
+              30,
+              40,
+              30
+            ],
+            "offset": 1.7344969680310274,
+            "scoreVariance": 2.5,
+            "step": 0.08,
+            "splitStep": 0.12
+          }
+        },
+        "fine": {
+          "means": [
+            0.3035230274487334,
+            0.19989959147670433,
+            0.19989959147670447,
+            0.2966777895974851,
+            0.5000000000000436
+          ],
+          "boundaryWeightFraction": 2.5880394324156274e-13,
+          "evaluations": 5447334,
+          "options": {
+            "counts": [
+              30,
+              40,
+              30
+            ],
+            "offset": 1.7344969680310274,
+            "scoreVariance": 2.5,
+            "step": 0.04,
+            "splitStep": 0.06
+          }
+        },
+        "maxResolutionDifference": 2.615130334504556e-13,
+        "maxSamplerDifference": 0.0007488745375173744,
+        "passed": true
+      },
+      "passed": false,
+      "comparisons": [
+        {
+          "name": "non-valid",
+          "referenceMean": 0.3033824688007712,
+          "laplaceMean": 0.24070288152818356,
+          "meanDifference": -0.06267958727258763,
+          "referenceWidth90": 0.14936273178867465,
+          "laplaceWidth90": 0.25611625874666416,
+          "widthRatio": 1.71472666360327,
+          "rhat": 1.0003287798135012,
+          "ess": 28289.292461833855,
+          "referenceInterval90": {
+            "level": 0.9,
+            "lower": 0.23098457873591433,
+            "upper": 0.380347310524589,
+            "covered": false,
+            "score": 4.769054306506963
+          },
+          "laplaceInterval90": {
+            "level": 0.9,
+            "lower": 0.09705769678355432,
+            "upper": 0.35317395553021846,
+            "covered": false,
+            "score": 2.197270194417751
+          }
+        },
+        {
+          "name": "component-a",
+          "referenceMean": 0.20043043636095248,
+          "laplaceMean": 0.2625894086564344,
+          "meanDifference": 0.062158972295481896,
+          "referenceWidth90": 0.39487962755642747,
+          "laplaceWidth90": 0.7084609403139459,
+          "widthRatio": 1.7941187411921076,
+          "rhat": 1.0015504424540482,
+          "ess": 3009.1764514860092,
+          "referenceInterval90": {
+            "level": 0.9,
+            "lower": 0.013875384895973796,
+            "upper": 0.40875501245240126,
+            "covered": false,
+            "score": 0.6723873254759034
+          },
+          "laplaceInterval90": {
+            "level": 0.9,
+            "lower": 0.01081278484197488,
+            "upper": 0.7192737251559208,
+            "covered": false,
+            "score": 0.9247166371534435
+          }
+        },
+        {
+          "name": "component-b",
+          "referenceMean": 0.19981313490986927,
+          "laplaceMean": 0.26123010072403874,
+          "meanDifference": 0.06141696581416947,
+          "referenceWidth90": 0.3950098002926038,
+          "laplaceWidth90": 0.7132481714515857,
+          "widthRatio": 1.8056467736325696,
+          "rhat": 1.001717524858852,
+          "ess": 3017.3286013148327,
+          "referenceInterval90": {
+            "level": 0.9,
+            "lower": 0.012365980953191375,
+            "upper": 0.40737578124579515,
+            "covered": false,
+            "score": 0.6423294193564313
+          },
+          "laplaceInterval90": {
+            "level": 0.9,
+            "lower": 0.011240252587096353,
+            "upper": 0.7244884240386821,
+            "covered": false,
+            "score": 0.9380532231935128
+          }
+        },
+        {
+          "name": "component-c",
+          "referenceMean": 0.2963739599284073,
+          "laplaceMean": 0.2354776090913461,
+          "meanDifference": -0.060896350837061214,
+          "referenceWidth90": 0.1480120998701072,
+          "laplaceWidth90": 0.25241636800281136,
+          "widthRatio": 1.705376575457868,
+          "rhat": 1.000147177745069,
+          "ess": 28606.015967178955,
+          "referenceInterval90": {
+            "level": 0.9,
+            "lower": 0.22484834124944267,
+            "upper": 0.37286044111954986,
+            "covered": false,
+            "score": 4.644978924858962
+          },
+          "laplaceInterval90": {
+            "level": 0.9,
+            "lower": 0.09422064275864735,
+            "upper": 0.3466370107614587,
+            "covered": false,
+            "score": 2.136829223175759
+          }
+        },
+        {
+          "name": "national-a-within-joint",
+          "referenceMean": 0.500748874537561,
+          "laplaceMean": 0.5017110383759079,
+          "meanDifference": 0.0009621638383469078,
+          "referenceWidth90": 0.9340263256157217,
+          "laplaceWidth90": 0.9696243244474285,
+          "widthRatio": 1.038112414881069,
+          "rhat": 1.001642370971149,
+          "ess": 2861.0553206638583,
+          "referenceInterval90": {
+            "level": 0.9,
+            "lower": 0.035132283593241,
+            "upper": 0.9691586092089627,
+            "covered": false,
+            "score": 1.636671997480542
+          },
+          "laplaceInterval90": {
+            "level": 0.9,
+            "lower": 0.014740152168729051,
+            "upper": 0.9843644766161576,
+            "covered": false,
+            "score": 1.2644273678220097
+          }
+        },
+        {
+          "name": "local-log-a-over-b",
+          "referenceMean": 0.018925585703229168,
+          "laplaceMean": 0.006269929558691307,
+          "meanDifference": -0.01265565614453786,
+          "referenceWidth90": 6.760441211359039,
+          "laplaceWidth90": 8.34478097290068,
+          "widthRatio": 1.234354491372486,
+          "rhat": 1.0017478511231774,
+          "ess": 2620.468469616733,
+          "referenceInterval90": {
+            "level": 0.9,
+            "lower": -3.3128705423678153,
+            "upper": 3.4475706689912236,
+            "covered": true,
+            "score": 6.760441211359039
+          },
+          "laplaceInterval90": {
+            "level": 0.9,
+            "lower": -4.202330205062072,
+            "upper": 4.142450767838608,
+            "covered": true,
+            "score": 8.34478097290068
+          }
+        }
+      ],
+      "sampling": [
+        {
+          "evaluations": 177500,
+          "seconds": 0.16991409999999996
+        },
+        {
+          "evaluations": 178195,
+          "seconds": 0.16458130000000007
+        },
+        {
+          "evaluations": 178589,
+          "seconds": 0.16945640000000003
+        },
+        {
+          "evaluations": 177831,
+          "seconds": 0.16518190000000005
+        }
+      ],
+      "modes": [
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 1.209772604315873e-8,
+          "logPosterior": -109.22884796028183,
+          "seconds": 0.00022870000000011715,
+          "iterations": 5,
+          "output": [
+            0.30433202569634726,
+            0.1990914576692315,
+            0.199091457669233,
+            0.2974850589651883,
+            0.4999999999999981,
+            -7.438494264988549e-15
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 6.172905450685384e-9,
+          "logPosterior": -109.22884796028184,
+          "seconds": 0.00012220000000002072,
+          "iterations": 9,
+          "output": [
+            0.30433202560089934,
+            0.19909145693975708,
+            0.19909145855653915,
+            0.29748505890280436,
+            0.49999999796979977,
+            -8.120800587541055e-9
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 4.906505051277543e-7,
+          "logPosterior": -109.22884796028184,
+          "seconds": 0.0005780999999999494,
+          "iterations": 11,
+          "output": [
+            0.3043320234157285,
+            0.1990914692637907,
+            0.19909145055288424,
+            0.2974850567675966,
+            0.5000000234953654,
+            9.398146200156887e-8
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 1.2427918416602068e-10,
+          "logPosterior": -109.22884796028184,
+          "seconds": 0.000189600000000155,
+          "iterations": 9,
+          "output": [
+            0.3043320256315272,
+            0.19909145771419776,
+            0.1990914577215426,
+            0.2974850589327324,
+            0.49999999999077704,
+            -3.689187844102548e-11
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 2.268993830323307e-7,
+          "logPosterior": -109.22884796028184,
+          "seconds": 0.00020460000000002766,
+          "iterations": 10,
+          "output": [
+            0.3043320245269667,
+            0.1990914526949349,
+            0.19909146492467178,
+            0.29748505785342666,
+            0.49999998464306683,
+            -6.142773276152091e-8
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 5.024869409453459e-13,
+          "logPosterior": -109.22884796028185,
+          "seconds": 0.00024870000000009896,
+          "iterations": 7,
+          "output": [
+            0.3043320256321336,
+            0.19909145771714282,
+            0.19909145771739745,
+            0.29748505893332605,
+            0.49999999999968026,
+            -1.2789769243681803e-12
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 1.636217647482674e-8,
+          "logPosterior": -109.2288479602818,
+          "seconds": 0.0003084999999998672,
+          "iterations": 11,
+          "output": [
+            0.3043320255540486,
+            0.1990914554473847,
+            0.19909146014154286,
+            0.2974850588570241,
+            0.49999999410552537,
+            -2.3577898466964342e-8
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 1.3241953367160164e-10,
+          "logPosterior": -109.22884796028184,
+          "seconds": 0.00034529999999995196,
+          "iterations": 12,
+          "output": [
+            0.30433202563157,
+            0.19909145772467501,
+            0.19909145771098072,
+            0.2974850589327742,
+            0.5000000000171959,
+            6.878403402410527e-11
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 9.247463832323666e-7,
+          "logPosterior": -109.22884796028184,
+          "seconds": 0.00016229999999995925,
+          "iterations": 9,
+          "output": [
+            0.3043320212487421,
+            0.19909145285704177,
+            0.1990914712440581,
+            0.2974850546501581,
+            0.49999997691134496,
+            -9.235461995160676e-8
+          ]
+        }
+      ]
+    },
+    {
+      "id": "inseparable-small-list",
+      "fixture": {
+        "id": "inseparable-small-list",
+        "groups": [
+          [
+            0
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            3
+          ]
+        ],
+        "counts": [
+          [
+            30,
+            5,
+            65
+          ]
+        ]
+      },
+      "dimension": 6,
+      "calibration": {
+        "offset": 1.7344969680310274,
+        "expectedNonValid": 0.49999999999999994,
+        "draws": 32768,
+        "seed": "party-drift-prior-calibration-v1",
+        "context": {
+          "components": 3,
+          "cells": [
+            {
+              "electors": 100,
+              "available": [
+                1,
+                2,
+                3
+              ]
+            }
+          ],
+          "nationalSd": 1.5,
+          "localSd": 0.5,
+          "kindSd": 0
+        }
+      },
+      "samplingPassed": true,
+      "approximationPassed": false,
+      "passed": false,
+      "comparisons": [
+        {
+          "name": "non-valid",
+          "referenceMean": 0.30057733377445955,
+          "laplaceMean": 0.295111458537811,
+          "meanDifference": -0.005465875236648543,
+          "referenceWidth90": 0.1478667043948952,
+          "laplaceWidth90": 0.15039967853425576,
+          "widthRatio": 1.0171301183030088,
+          "rhat": 1,
+          "ess": 34500.71365702842,
+          "referenceInterval90": {
+            "level": 0.9,
+            "lower": 0.22898686479378572,
+            "upper": 0.3768535691886809,
+            "covered": false,
+            "score": 4.72760400027061
+          },
+          "laplaceInterval90": {
+            "level": 0.9,
+            "lower": 0.2227622789226492,
+            "upper": 0.37316195745690495,
+            "covered": false,
+            "score": 4.60564525698724
+          }
+        },
+        {
+          "name": "component-a",
+          "referenceMean": 0.02917736504975097,
+          "laplaceMean": 0.040350714628490575,
+          "meanDifference": 0.011173349578739604,
+          "referenceWidth90": 0.06704955383890202,
+          "laplaceWidth90": 0.10893542081758714,
+          "widthRatio": 1.624700159516692,
+          "rhat": 1.000447654020357,
+          "ess": 4087.8858218968567,
+          "referenceInterval90": {
+            "level": 0.9,
+            "lower": 0.0032888493308107173,
+            "upper": 0.07033840316971274,
+            "covered": false,
+            "score": 0.13282654045511638
+          },
+          "laplaceInterval90": {
+            "level": 0.9,
+            "lower": 0.006173477423064072,
+            "upper": 0.11510889824065121,
+            "covered": false,
+            "score": 0.2324049692788686
+          }
+        },
+        {
+          "name": "component-b",
+          "referenceMean": 0.0295511460815615,
+          "laplaceMean": 0.04088994619908618,
+          "meanDifference": 0.01133880011752468,
+          "referenceWidth90": 0.06704781932520844,
+          "laplaceWidth90": 0.11131419665970871,
+          "widthRatio": 1.6602209852611438,
+          "rhat": 1.0005208753404637,
+          "ess": 4291.122114149478,
+          "referenceInterval90": {
+            "level": 0.9,
+            "lower": 0.0031899784716465603,
+            "upper": 0.070237797796855,
+            "covered": false,
+            "score": 0.13084738875813967
+          },
+          "laplaceInterval90": {
+            "level": 0.9,
+            "lower": 0.006312346436152257,
+            "upper": 0.11762654309586096,
+            "covered": false,
+            "score": 0.23756112538275387
+          }
+        },
+        {
+          "name": "component-c",
+          "referenceMean": 0.6406941550942254,
+          "laplaceMean": 0.6236478806346114,
+          "meanDifference": -0.01704627445961404,
+          "referenceWidth90": 0.15555443391244594,
+          "laplaceWidth90": 0.17242575309602548,
+          "widthRatio": 1.1084592625181973,
+          "rhat": 1.0000330677584686,
+          "ess": 28912.95943946228,
+          "referenceInterval90": {
+            "level": 0.9,
+            "lower": 0.5615751204914254,
+            "upper": 0.7171295544038714,
+            "covered": false,
+            "score": 11.387056843740957
+          },
+          "laplaceInterval90": {
+            "level": 0.9,
+            "lower": 0.5329827423491543,
+            "upper": 0.7054084954451798,
+            "covered": false,
+            "score": 10.832080600079113
+          }
+        },
+        {
+          "name": "national-a-within-joint",
+          "referenceMean": 0.4967170455012351,
+          "laplaceMean": 0.49770452313888425,
+          "meanDifference": 0.00098747763764917,
+          "referenceWidth90": 0.8752410240251969,
+          "laplaceWidth90": 0.8670674011631746,
+          "widthRatio": 0.9906612891333269,
+          "rhat": 1.000790482302689,
+          "ess": 2536.258323203285,
+          "referenceInterval90": {
+            "level": 0.9,
+            "lower": 0.06399722970796552,
+            "upper": 0.9392382537331624,
+            "covered": false,
+            "score": 2.1551856181845075
+          },
+          "laplaceInterval90": {
+            "level": 0.9,
+            "lower": 0.06544147802107832,
+            "upper": 0.932508879184253,
+            "covered": false,
+            "score": 2.175896961584741
+          }
+        },
+        {
+          "name": "local-log-a-over-b",
+          "referenceMean": -0.009858177504290659,
+          "laplaceMean": -0.014748598809916648,
+          "meanDifference": -0.004890421305625989,
+          "referenceWidth90": 5.420887419664753,
+          "laplaceWidth90": 5.284800638294499,
+          "widthRatio": 0.974895848071556,
+          "rhat": 1.0009176109056388,
+          "ess": 2448.432183866835,
+          "referenceInterval90": {
+            "level": 0.9,
+            "lower": -2.682778654768386,
+            "upper": 2.7381087648963676,
+            "covered": true,
+            "score": 5.420887419664753
+          },
+          "laplaceInterval90": {
+            "level": 0.9,
+            "lower": -2.658917975108503,
+            "upper": 2.6258826631859957,
+            "covered": true,
+            "score": 5.284800638294499
+          }
+        }
+      ],
+      "sampling": [
+        {
+          "evaluations": 169130,
+          "seconds": 0.1571244999999999
+        },
+        {
+          "evaluations": 169767,
+          "seconds": 0.15906359999999994
+        },
+        {
+          "evaluations": 168546,
+          "seconds": 0.15403859999999986
+        },
+        {
+          "evaluations": 168956,
+          "seconds": 0.1561600000000003
+        }
+      ],
+      "modes": [
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 1.74952569986786e-7,
+          "logPosterior": -80.46788914206127,
+          "seconds": 0.00018489999999974315,
+          "iterations": 6,
+          "output": [
+            0.30125838351056883,
+            0.028721663463019638,
+            0.0287216634630196,
+            0.6412982895633917,
+            0.5000000000000003,
+            1.3322676295501878e-15
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 6.978681224012462e-7,
+          "logPosterior": -80.46788914206131,
+          "seconds": 0.0002505000000001019,
+          "iterations": 8,
+          "output": [
+            0.3012583822455024,
+            0.02872165865687213,
+            0.02872167240024874,
+            0.6412982866973769,
+            0.49999988037448073,
+            -4.785020770725623e-7
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 9.975220649494076e-11,
+          "logPosterior": -80.46788914206122,
+          "seconds": 0.00014829999999983555,
+          "iterations": 9,
+          "output": [
+            0.3012583839364495,
+            0.028721662771829876,
+            0.028721662770076067,
+            0.6412982905216447,
+            0.5000000000152656,
+            6.106226635438361e-11
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 1.802502591630173e-12,
+          "logPosterior": -80.46788914206124,
+          "seconds": 0.0000783000000001266,
+          "iterations": 9,
+          "output": [
+            0.3012583839366867,
+            0.028721662770581777,
+            0.028721662770549966,
+            0.6412982905221816,
+            0.5000000000002769,
+            1.1077805339709812e-12
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 1.781100877895625e-8,
+          "logPosterior": -80.46788914206124,
+          "seconds": 0.00009720000000015716,
+          "iterations": 8,
+          "output": [
+            0.3012583838935393,
+            0.0287216630046734,
+            0.02872166267719968,
+            0.6412982904245876,
+            0.500000002850407,
+            1.1401628308149725e-8
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 2.759570350008289e-12,
+          "logPosterior": -80.46788914206124,
+          "seconds": 0.00009110000000009677,
+          "iterations": 7,
+          "output": [
+            0.3012583839366845,
+            0.028721662770594784,
+            0.02872166277054461,
+            0.6412982905221762,
+            0.5000000000004368,
+            1.7468249069452213e-12
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 8.029577003298982e-12,
+          "logPosterior": -80.46788914206127,
+          "seconds": 0.00009780000000000655,
+          "iterations": 8,
+          "output": [
+            0.30125838393667165,
+            0.028721662770516878,
+            0.028721662770663993,
+            0.6412982905221473,
+            0.4999999999987195,
+            -5.122124946410622e-12
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 3.3293947376833444e-8,
+          "logPosterior": -80.46788914206124,
+          "seconds": 0.00006480000000010478,
+          "iterations": 8,
+          "output": [
+            0.3012583838560249,
+            0.02872166319399494,
+            0.028721662610263942,
+            0.6412982903397163,
+            0.5000000050809297,
+            2.0323718707970784e-8
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 5.098890547561297e-7,
+          "logPosterior": -80.46788914206127,
+          "seconds": 0.00009069999999974243,
+          "iterations": 6,
+          "output": [
+            0.30125838280062467,
+            0.028721658341182454,
+            0.02872167090315022,
+            0.641298287955043,
+            0.4999998906577323,
+            -4.3736907051616924e-7
+          ]
+        }
+      ]
+    },
+    {
+      "id": "inseparable-dominant-list",
+      "fixture": {
+        "id": "inseparable-dominant-list",
+        "groups": [
+          [
+            0
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            3
+          ]
+        ],
+        "counts": [
+          [
+            15,
+            80,
+            5
+          ]
+        ]
+      },
+      "dimension": 6,
+      "calibration": {
+        "offset": 1.7344969680310274,
+        "expectedNonValid": 0.49999999999999994,
+        "draws": 32768,
+        "seed": "party-drift-prior-calibration-v1",
+        "context": {
+          "components": 3,
+          "cells": [
+            {
+              "electors": 100,
+              "available": [
+                1,
+                2,
+                3
+              ]
+            }
+          ],
+          "nationalSd": 1.5,
+          "localSd": 0.5,
+          "kindSd": 0
+        }
+      },
+      "samplingPassed": true,
+      "approximationPassed": false,
+      "passed": false,
+      "comparisons": [
+        {
+          "name": "non-valid",
+          "referenceMean": 0.1546343134314199,
+          "laplaceMean": 0.09239414867059627,
+          "meanDifference": -0.06224016476082363,
+          "referenceWidth90": 0.11673512659730284,
+          "laplaceWidth90": 0.1812724620454703,
+          "widthRatio": 1.5528527473208615,
+          "rhat": 1.000039850380404,
+          "ess": 32384.06129471268,
+          "referenceInterval90": {
+            "level": 0.9,
+            "lower": 0.10011949622618435,
+            "upper": 0.2168546228234872,
+            "covered": false,
+            "score": 2.11912505112099
+          },
+          "laplaceInterval90": {
+            "level": 0.9,
+            "lower": 0.004943546064060352,
+            "upper": 0.18621600810953065,
+            "covered": false,
+            "score": 0.2801433833266773
+          }
+        },
+        {
+          "name": "component-a",
+          "referenceMean": 0.3918925807257761,
+          "laplaceMean": 0.5071734754578295,
+          "meanDifference": 0.11528089473205344,
+          "referenceWidth90": 0.7909409962999582,
+          "laplaceWidth90": 0.938345405126267,
+          "widthRatio": 1.1863658724429134,
+          "rhat": 1.001394584209863,
+          "ess": 3105.923131728132,
+          "referenceInterval90": {
+            "level": 0.9,
+            "lower": 0.009465712395513378,
+            "upper": 0.8004067086954716,
+            "covered": false,
+            "score": 0.9802552442102258
+          },
+          "laplaceInterval90": {
+            "level": 0.9,
+            "lower": 0.0033823799492891725,
+            "upper": 0.9417277850755561,
+            "covered": false,
+            "score": 1.0059930041120504
+          }
+        },
+        {
+          "name": "component-b",
+          "referenceMean": 0.40096077463073493,
+          "laplaceMean": 0.3670949526621259,
+          "meanDifference": -0.033865821968609044,
+          "referenceWidth90": 0.7914739058195072,
+          "laplaceWidth90": 0.9892811854753571,
+          "widthRatio": 1.2499226799537206,
+          "rhat": 1.0014340243796773,
+          "ess": 3093.8990662031415,
+          "referenceInterval90": {
+            "level": 0.9,
+            "lower": 0.00959629205271352,
+            "upper": 0.8010701978722207,
+            "covered": false,
+            "score": 0.9833997468737776
+          },
+          "laplaceInterval90": {
+            "level": 0.9,
+            "lower": 0.0003627593305184418,
+            "upper": 0.9896439448058756,
+            "covered": false,
+            "score": 0.996536372085726
+          }
+        },
+        {
+          "name": "component-c",
+          "referenceMean": 0.05251233121207108,
+          "laplaceMean": 0.033337423209447666,
+          "meanDifference": -0.019174908002623413,
+          "referenceWidth90": 0.06979165722532797,
+          "laplaceWidth90": 0.07758839030252958,
+          "widthRatio": 1.1117143995023535,
+          "rhat": 1.0000430750920017,
+          "ess": 21957.300018556973,
+          "referenceInterval90": {
+            "level": 0.9,
+            "lower": 0.02258723164832001,
+            "upper": 0.09237888887364798,
+            "covered": false,
+            "score": 0.5215362901917283
+          },
+          "laplaceInterval90": {
+            "level": 0.9,
+            "lower": 0.0016650570628641882,
+            "upper": 0.07925344736539376,
+            "covered": false,
+            "score": 0.11088953155981335
+          }
+        },
+        {
+          "name": "national-a-within-joint",
+          "referenceMean": 0.49417205887463467,
+          "laplaceMean": 0.5957240432900929,
+          "meanDifference": 0.10155198441545821,
+          "referenceWidth90": 0.9760339544630311,
+          "laplaceWidth90": 0.9962121241212865,
+          "widthRatio": 1.0206736349345105,
+          "rhat": 1.0014138715573369,
+          "ess": 3075.080228549059,
+          "referenceInterval90": {
+            "level": 0.9,
+            "lower": 0.011869309631526576,
+            "upper": 0.9879032640945576,
+            "covered": false,
+            "score": 1.2134201470935626
+          },
+          "laplaceInterval90": {
+            "level": 0.9,
+            "lower": 0.0034030563662354476,
+            "upper": 0.999615180487522,
+            "covered": false,
+            "score": 1.0642732514459954
+          }
+        },
+        {
+          "name": "local-log-a-over-b",
+          "referenceMean": -0.03620709898169093,
+          "laplaceMean": 1.0685945112247053,
+          "meanDifference": 1.1048016102063962,
+          "referenceWidth90": 8.824508058883431,
+          "laplaceWidth90": 13.54202370923537,
+          "widthRatio": 1.5345924802689621,
+          "rhat": 1.0011780420461052,
+          "ess": 3411.156214943656,
+          "referenceInterval90": {
+            "level": 0.9,
+            "lower": -4.42185893231209,
+            "upper": 4.40264912657134,
+            "covered": true,
+            "score": 8.824508058883431
+          },
+          "laplaceInterval90": {
+            "level": 0.9,
+            "lower": -5.67967246015713,
+            "upper": 7.862351249078238,
+            "covered": true,
+            "score": 13.54202370923537
+          }
+        }
+      ],
+      "sampling": [
+        {
+          "evaluations": 154041,
+          "seconds": 0.1415293999999999
+        },
+        {
+          "evaluations": 154664,
+          "seconds": 0.14331190000000016
+        },
+        {
+          "evaluations": 154697,
+          "seconds": 0.14016949999999997
+        },
+        {
+          "evaluations": 154565,
+          "seconds": 0.14071090000000003
+        }
+      ],
+      "modes": [
+        {
+          "converged": true,
+          "positiveDefinite": false,
+          "gradient": 3.391929820906192e-7,
+          "logPosterior": -62.447776715943874,
+          "seconds": 0.0006341000000002168,
+          "iterations": 11,
+          "output": [
+            0.1559903327511681,
+            0.3953326114038564,
+            0.3953326114037896,
+            0.053344444441185926,
+            0.5000000000000422,
+            1.6897594434794883e-13
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 2.2644109698433112e-8,
+          "logPosterior": -62.43821605323391,
+          "seconds": 0.0003346000000001368,
+          "iterations": 11,
+          "output": [
+            0.1557071029092456,
+            0.5926167314414263,
+            0.19860191157006843,
+            0.05307425407925977,
+            0.7489923760970036,
+            1.093245491903696
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 9.299783165772624e-13,
+          "logPosterior": -62.43821605323392,
+          "seconds": 0.0005073000000002139,
+          "iterations": 13,
+          "output": [
+            0.15570710301738017,
+            0.5926167292116963,
+            0.1986019136515313,
+            0.05307425411939211,
+            0.7489923734192621,
+            1.0932454776606018
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 1.0652546067468904e-8,
+          "logPosterior": -62.43821605323392,
+          "seconds": 0.0003910000000000764,
+          "iterations": 13,
+          "output": [
+            0.15570710295307935,
+            0.19860191337655067,
+            0.5926167295728736,
+            0.053074254097496346,
+            0.25100762620585215,
+            -1.0932454796546456
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 6.167949595514699e-9,
+          "logPosterior": -62.43821605323393,
+          "seconds": 0.00011380000000008294,
+          "iterations": 9,
+          "output": [
+            0.1557071029873892,
+            0.5926167302063438,
+            0.19860191269877528,
+            0.05307425410749165,
+            0.7489923746367145,
+            1.0932454841363164
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 5.425524104429869e-7,
+          "logPosterior": -62.438216053234264,
+          "seconds": 0.00044090000000005604,
+          "iterations": 16,
+          "output": [
+            0.15570710121014042,
+            0.5926162181673652,
+            0.19860242606803047,
+            0.05307425455446385,
+            0.7489917262251163,
+            1.0932420351927348
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 8.354988922931739e-10,
+          "logPosterior": -62.43821605323394,
+          "seconds": 0.0001734999999998763,
+          "iterations": 9,
+          "output": [
+            0.15570710301337,
+            0.5926167293057509,
+            0.19860191356299828,
+            0.05307425411788065,
+            0.7489923735329083,
+            1.0932454782650938
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 2.836622625679297e-8,
+          "logPosterior": -62.43821605323394,
+          "seconds": 0.00023050000000012004,
+          "iterations": 11,
+          "output": [
+            0.1557071028712907,
+            0.5926167397413261,
+            0.19860190333766228,
+            0.05307425404972084,
+            0.7489923865231326,
+            1.0932455473610043
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 3.7095186700142335e-8,
+          "logPosterior": -62.43821605323392,
+          "seconds": 0.00016190000000005966,
+          "iterations": 8,
+          "output": [
+            0.15570710284281167,
+            0.5926167309989512,
+            0.19860191209993402,
+            0.05307425405830309,
+            0.7489923754550446,
+            1.0932454884890714
+          ]
+        }
+      ]
+    },
+    {
+      "id": "observed-zero-joint-list",
+      "fixture": {
+        "id": "observed-zero-joint-list",
+        "groups": [
+          [
+            0
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            3
+          ]
+        ],
+        "counts": [
+          [
+            30,
+            0,
+            70
+          ]
+        ]
+      },
+      "dimension": 6,
+      "calibration": {
+        "offset": 1.7344969680310274,
+        "expectedNonValid": 0.49999999999999994,
+        "draws": 32768,
+        "seed": "party-drift-prior-calibration-v1",
+        "context": {
+          "components": 3,
+          "cells": [
+            {
+              "electors": 100,
+              "available": [
+                1,
+                2,
+                3
+              ]
+            }
+          ],
+          "nationalSd": 1.5,
+          "localSd": 0.5,
+          "kindSd": 0
+        }
+      },
+      "samplingPassed": true,
+      "approximationPassed": false,
+      "passed": false,
+      "comparisons": [
+        {
+          "name": "non-valid",
+          "referenceMean": 0.29769542324563897,
+          "laplaceMean": 0.2977934379287602,
+          "meanDifference": 0.00009801468312120587,
+          "referenceWidth90": 0.14858967509410093,
+          "laplaceWidth90": 0.14831483927834238,
+          "widthRatio": 0.9981503707065481,
+          "rhat": 1.000035919990649,
+          "ess": 37763.05282967007,
+          "referenceInterval90": {
+            "level": 0.9,
+            "lower": 0.22579059476567898,
+            "upper": 0.3743802698597799,
+            "covered": false,
+            "score": 4.664401570407681
+          },
+          "laplaceInterval90": {
+            "level": 0.9,
+            "lower": 0.2267177480095967,
+            "upper": 0.3750325872879391,
+            "covered": false,
+            "score": 4.682669799470277
+          }
+        },
+        {
+          "name": "component-a",
+          "referenceMean": 0.007431034276802278,
+          "laplaceMean": 0.010917214058029683,
+          "meanDifference": 0.0034861797812274055,
+          "referenceWidth90": 0.02134956327414643,
+          "laplaceWidth90": 0.03331535053765887,
+          "widthRatio": 1.560469884552748,
+          "rhat": 1.0005984699457724,
+          "ess": 4859.634075153027,
+          "referenceInterval90": {
+            "level": 0.9,
+            "lower": 0.0006627184135047886,
+            "upper": 0.02201228168765122,
+            "covered": false,
+            "score": 0.034603931544242204
+          },
+          "laplaceInterval90": {
+            "level": 0.9,
+            "lower": 0.0012378713833707926,
+            "upper": 0.034553221921029664,
+            "covered": false,
+            "score": 0.05807277820507473
+          }
+        },
+        {
+          "name": "component-b",
+          "referenceMean": 0.007534237024928909,
+          "laplaceMean": 0.010973216028336782,
+          "meanDifference": 0.003438979003407873,
+          "referenceWidth90": 0.021824077147429195,
+          "laplaceWidth90": 0.03355153047517313,
+          "widthRatio": 1.5373630806251706,
+          "rhat": 1.000537980347404,
+          "ess": 4847.387380817755,
+          "referenceInterval90": {
+            "level": 0.9,
+            "lower": 0.0006307128015447821,
+            "upper": 0.022454789948973975,
+            "covered": false,
+            "score": 0.03443833317832484
+          },
+          "laplaceInterval90": {
+            "level": 0.9,
+            "lower": 0.0012562649842176048,
+            "upper": 0.034807795459390736,
+            "covered": false,
+            "score": 0.05867683015952523
+          }
+        },
+        {
+          "name": "component-c",
+          "referenceMean": 0.6873393054526333,
+          "laplaceMean": 0.6803161319848737,
+          "meanDifference": -0.0070231734677596025,
+          "referenceWidth90": 0.15154231657671757,
+          "laplaceWidth90": 0.15411362917419946,
+          "widthRatio": 1.0169676210286793,
+          "rhat": 1.0001371248268027,
+          "ess": 30369.38506441093,
+          "referenceInterval90": {
+            "level": 0.9,
+            "lower": 0.6093633738443628,
+            "upper": 0.7609056904210804,
+            "covered": false,
+            "score": 12.338809793463975
+          },
+          "laplaceInterval90": {
+            "level": 0.9,
+            "lower": 0.6000112112717133,
+            "upper": 0.7541248404459128,
+            "covered": false,
+            "score": 12.154337854608467
+          }
+        },
+        {
+          "name": "national-a-within-joint",
+          "referenceMean": 0.4988277999438397,
+          "laplaceMean": 0.4975199117862746,
+          "meanDifference": -0.001307888157565107,
+          "referenceWidth90": 0.8299330356518633,
+          "laplaceWidth90": 0.8102690275963247,
+          "widthRatio": 0.9763065124403758,
+          "rhat": 1.0010763341349422,
+          "ess": 3551.2001146931098,
+          "referenceInterval90": {
+            "level": 0.9,
+            "lower": 0.08548629099510807,
+            "upper": 0.9154193266469713,
+            "covered": false,
+            "score": 2.539658855554025
+          },
+          "laplaceInterval90": {
+            "level": 0.9,
+            "lower": 0.09336987509949198,
+            "upper": 0.9036389026958167,
+            "covered": false,
+            "score": 2.6776665295861646
+          }
+        },
+        {
+          "name": "local-log-a-over-b",
+          "referenceMean": -0.0006800481641628032,
+          "laplaceMean": -0.012779747916084742,
+          "meanDifference": -0.012099699751921938,
+          "referenceWidth90": 4.751712882646244,
+          "laplaceWidth90": 4.511493087739604,
+          "widthRatio": 0.9494456418476066,
+          "rhat": 1.0012035775255534,
+          "ess": 3393.9952041861065,
+          "referenceInterval90": {
+            "level": 0.9,
+            "lower": -2.370036434621421,
+            "upper": 2.3816764480248227,
+            "covered": true,
+            "score": 4.751712882646244
+          },
+          "laplaceInterval90": {
+            "level": 0.9,
+            "lower": -2.273165815948947,
+            "upper": 2.238327271790656,
+            "covered": true,
+            "score": 4.511493087739604
+          }
+        }
+      ],
+      "sampling": [
+        {
+          "evaluations": 168944,
+          "seconds": 0.15967519999999968
+        },
+        {
+          "evaluations": 167514,
+          "seconds": 0.1548140999999996
+        },
+        {
+          "evaluations": 168112,
+          "seconds": 0.15620859999999992
+        },
+        {
+          "evaluations": 168068,
+          "seconds": 0.15556310000000032
+        }
+      ],
+      "modes": [
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 2.531308496145357e-13,
+          "logPosterior": -65.33782871376025,
+          "seconds": 0.00008230000000003202,
+          "iterations": 6,
+          "output": [
+            0.2984445790296483,
+            0.006695303135993065,
+            0.0066953031359930585,
+            0.6881648146983655,
+            0.5000000000000002,
+            8.881784197001252e-16
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 6.128431095930864e-14,
+          "logPosterior": -65.33782871376023,
+          "seconds": 0.00006490000000030705,
+          "iterations": 8,
+          "output": [
+            0.29844457902964905,
+            0.00669530313599225,
+            0.006695303135992256,
+            0.6881648146983664,
+            0.4999999999999997,
+            -4.440892098500626e-16
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 8.620886748911261e-7,
+          "logPosterior": -65.33782871376023,
+          "seconds": 0.0000441000000000713,
+          "iterations": 5,
+          "output": [
+            0.2984445828155723,
+            0.006695304098147409,
+            0.00669530318115257,
+            0.6881648099051278,
+            0.500000034240226,
+            1.369609035073438e-7
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 2.7041151540174724e-9,
+          "logPosterior": -65.33782871376023,
+          "seconds": 0.00005709999999999127,
+          "iterations": 7,
+          "output": [
+            0.2984445790254273,
+            0.0066953031476052575,
+            0.006695303141598442,
+            0.6881648146853689,
+            0.5000000002242921,
+            8.971676734859102e-10
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 4.249837703973469e-9,
+          "logPosterior": -65.33782871376025,
+          "seconds": 0.00005379999999968277,
+          "iterations": 6,
+          "output": [
+            0.2984445790239082,
+            0.0066953031383745745,
+            0.0066953031570847225,
+            0.6881648146806324,
+            0.4999999993013704,
+            -2.7945183944666496e-9
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 1.3766765505351941e-14,
+          "logPosterior": -65.33782871376023,
+          "seconds": 0.00006509999999980209,
+          "iterations": 8,
+          "output": [
+            0.2984445790296488,
+            0.00669530313599225,
+            0.00669530313599225,
+            0.6881648146983668,
+            0.5,
+            -4.440892098500626e-16
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 7.175204874698693e-10,
+          "logPosterior": -65.33782871376026,
+          "seconds": 0.00005879999999979191,
+          "iterations": 7,
+          "output": [
+            0.29844457902867116,
+            0.0066953031396068995,
+            0.006695303136375588,
+            0.6881648146953462,
+            0.5000000001206559,
+            4.826237187671722e-10
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 7.01323221719008e-10,
+          "logPosterior": -65.33782871376023,
+          "seconds": 0.00006199999999989814,
+          "iterations": 7,
+          "output": [
+            0.29844457902870825,
+            0.006695303136365889,
+            0.006695303139465423,
+            0.6881648146954604,
+            0.4999999998842646,
+            -4.629407968081978e-10
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 3.835265438567603e-12,
+          "logPosterior": -65.33782871376023,
+          "seconds": 0.00009720000000015716,
+          "iterations": 8,
+          "output": [
+            0.29844457902964344,
+            0.006695303136011518,
+            0.0066953031359942485,
+            0.6881648146983509,
+            0.5000000000006448,
+            2.5788260415993136e-12
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shared-national-split",
+      "fixture": {
+        "id": "shared-national-split",
+        "groups": [
+          [
+            0
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            3
+          ]
+        ],
+        "counts": [
+          [
+            30,
+            40,
+            30
+          ],
+          [
+            20,
+            50,
+            30
+          ]
+        ]
+      },
+      "dimension": 9,
+      "calibration": {
+        "offset": 1.7346619960689957,
+        "expectedNonValid": 0.5,
+        "draws": 32768,
+        "seed": "party-drift-prior-calibration-v1",
+        "context": {
+          "components": 3,
+          "cells": [
+            {
+              "electors": 100,
+              "available": [
+                1,
+                2,
+                3
+              ]
+            },
+            {
+              "electors": 100,
+              "available": [
+                1,
+                2,
+                3
+              ]
+            }
+          ],
+          "nationalSd": 1.5,
+          "localSd": 0.5,
+          "kindSd": 0
+        }
+      },
+      "samplingPassed": true,
+      "approximationPassed": false,
+      "passed": false,
+      "comparisons": [
+        {
+          "name": "non-valid",
+          "referenceMean": 0.2522704261029825,
+          "laplaceMean": 0.18300311401585165,
+          "meanDifference": -0.06926731208713086,
+          "referenceWidth90": 0.09952633885180845,
+          "laplaceWidth90": 0.2217095817165327,
+          "widthRatio": 2.2276473170248052,
+          "rhat": 1.0000962860216487,
+          "ess": 24332.813360243395,
+          "referenceInterval90": {
+            "level": 0.9,
+            "lower": 0.20361384087222617,
+            "upper": 0.3031401797240346,
+            "covered": false,
+            "score": 4.171803156296333
+          },
+          "laplaceInterval90": {
+            "level": 0.9,
+            "lower": 0.05523056417021693,
+            "upper": 0.27694014588674964,
+            "covered": false,
+            "score": 1.3263208651208713
+          }
+        },
+        {
+          "name": "component-a",
+          "referenceMean": 0.22646341276152568,
+          "laplaceMean": 0.2988189463380363,
+          "meanDifference": 0.07235553357651062,
+          "referenceWidth90": 0.43079666567426267,
+          "laplaceWidth90": 0.8083845220191872,
+          "widthRatio": 1.8764874160619183,
+          "rhat": 1.0071036531462403,
+          "ess": 730.9606116338205,
+          "referenceInterval90": {
+            "level": 0.9,
+            "lower": 0.01641878356326018,
+            "upper": 0.4472154492375229,
+            "covered": false,
+            "score": 0.7591723369394663
+          },
+          "laplaceInterval90": {
+            "level": 0.9,
+            "lower": 0.006100027700603687,
+            "upper": 0.8144845497197909,
+            "covered": false,
+            "score": 0.930385076031261
+          }
+        },
+        {
+          "name": "component-b",
+          "referenceMean": 0.2229591751123528,
+          "laplaceMean": 0.3046311868408529,
+          "meanDifference": 0.08167201172850008,
+          "referenceWidth90": 0.43068772353817936,
+          "laplaceWidth90": 0.8147965335444648,
+          "widthRatio": 1.8918499158758473,
+          "rhat": 1.006842248125463,
+          "ess": 735.7444362783933,
+          "referenceInterval90": {
+            "level": 0.9,
+            "lower": 0.012826235085815556,
+            "upper": 0.4435139586239949,
+            "covered": false,
+            "score": 0.6872124252544904
+          },
+          "laplaceInterval90": {
+            "level": 0.9,
+            "lower": 0.006439599253918347,
+            "upper": 0.8212361327983831,
+            "covered": false,
+            "score": 0.9435885186228318
+          }
+        },
+        {
+          "name": "component-c",
+          "referenceMean": 0.298306986023144,
+          "laplaceMean": 0.2135467528052631,
+          "meanDifference": -0.08476023321788087,
+          "referenceWidth90": 0.10518168142056375,
+          "laplaceWidth90": 0.25984639332483506,
+          "widthRatio": 2.4704529326342684,
+          "rhat": 1.0001391710640701,
+          "ess": 25825.06565508991,
+          "referenceInterval90": {
+            "level": 0.9,
+            "lower": 0.24672498875005708,
+            "upper": 0.35190667017062083,
+            "covered": false,
+            "score": 5.039681456421706
+          },
+          "laplaceInterval90": {
+            "level": 0.9,
+            "lower": 0.0620611915715252,
+            "upper": 0.32190758489636023,
+            "covered": false,
+            "score": 1.5010702247553391
+          }
+        },
+        {
+          "name": "national-a-within-joint",
+          "referenceMean": 0.5038536449222291,
+          "laplaceMean": 0.49619610685802495,
+          "meanDifference": -0.007657538064204106,
+          "referenceWidth90": 0.9348591751083631,
+          "laplaceWidth90": 0.9847165125856934,
+          "widthRatio": 1.0533313880901378,
+          "rhat": 1.007122475009447,
+          "ess": 717.1924752550044,
+          "referenceInterval90": {
+            "level": 0.9,
+            "lower": 0.03656995664147411,
+            "upper": 0.9714291317498372,
+            "covered": false,
+            "score": 1.6662583079378455
+          },
+          "laplaceInterval90": {
+            "level": 0.9,
+            "lower": 0.0074230285797439646,
+            "upper": 0.9921395411654373,
+            "covered": false,
+            "score": 1.1331770841805726
+          }
+        },
+        {
+          "name": "local-log-a-over-b",
+          "referenceMean": 0.07742025014423005,
+          "laplaceMean": -0.02959270443767905,
+          "meanDifference": -0.1070129545819091,
+          "referenceWidth90": 6.835537875591907,
+          "laplaceWidth90": 9.269694623185897,
+          "widthRatio": 1.356103176062529,
+          "rhat": 1.0072527219999636,
+          "ess": 683.9598387741909,
+          "referenceInterval90": {
+            "level": 0.9,
+            "lower": -3.3016135302746017,
+            "upper": 3.533924345317305,
+            "covered": true,
+            "score": 6.835537875591907
+          },
+          "laplaceInterval90": {
+            "level": 0.9,
+            "lower": -4.674529239612094,
+            "upper": 4.595165383573803,
+            "covered": true,
+            "score": 9.269694623185897
+          }
+        }
+      ],
+      "sampling": [
+        {
+          "evaluations": 202800,
+          "seconds": 0.3698279000000002
+        },
+        {
+          "evaluations": 202926,
+          "seconds": 0.36941439999999964
+        },
+        {
+          "evaluations": 202212,
+          "seconds": 0.36532740000000014
+        },
+        {
+          "evaluations": 201910,
+          "seconds": 0.36439470000000074
+        }
+      ],
+      "modes": [
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 8.578954435733976e-9,
+          "logPosterior": -212.56478804455986,
+          "seconds": 0.0003375999999998385,
+          "iterations": 7,
+          "output": [
+            0.25271962530772957,
+            0.2242976537098656,
+            0.22429765370986682,
+            0.298685067272538,
+            0.4999999999999986,
+            -3.885780586188048e-15
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 6.1957106112231486e-12,
+          "logPosterior": -212.56478804455986,
+          "seconds": 0.00018209999999999128,
+          "iterations": 10,
+          "output": [
+            0.25271962527987296,
+            0.22429765372459592,
+            0.22429765371958374,
+            0.29868506727594746,
+            0.5000000000055865,
+            1.9932583361637057e-11
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 1.6969595723059783e-7,
+          "logPosterior": -212.56478804455983,
+          "seconds": 0.0003558000000002721,
+          "iterations": 14,
+          "output": [
+            0.25271962491844596,
+            0.2242976597530796,
+            0.22429764850250397,
+            0.2986850668259706,
+            0.500000012539783,
+            4.4733891368942125e-8
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 9.515099264056914e-9,
+          "logPosterior": -212.56478804455986,
+          "seconds": 0.000145900000000438,
+          "iterations": 10,
+          "output": [
+            0.2527196252600286,
+            0.22429765119544912,
+            0.22429765629325346,
+            0.2986850672512688,
+            0.4999999943180365,
+            -2.026988715764233e-8
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 9.6178065511765e-12,
+          "logPosterior": -212.56478804455986,
+          "seconds": 0.00011680000000069413,
+          "iterations": 8,
+          "output": [
+            0.25271962527987213,
+            0.2242976537277417,
+            0.2242976537164394,
+            0.2986850672759468,
+            0.5000000000125975,
+            4.497519023871632e-11
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 3.928205982717259e-9,
+          "logPosterior": -212.56478804455992,
+          "seconds": 0.000255500000000211,
+          "iterations": 10,
+          "output": [
+            0.2527196252770622,
+            0.22429765183535727,
+            0.2242976556149774,
+            0.298685067272603,
+            0.4999999957872719,
+            -1.503365920640931e-8
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 1.6697816129784826e-8,
+          "logPosterior": -212.56478804455986,
+          "seconds": 0.00021939999999995053,
+          "iterations": 11,
+          "output": [
+            0.25271962525933034,
+            0.22429766131634732,
+            0.22429764617368564,
+            0.2986850672506368,
+            0.5000000168778646,
+            6.020743686940833e-8
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 1.7139716440572883e-7,
+          "logPosterior": -212.56478804455986,
+          "seconds": 0.0005064000000002125,
+          "iterations": 14,
+          "output": [
+            0.25271962500655576,
+            0.22429770248490932,
+            0.22429760557224232,
+            0.2986850669362927,
+            0.5000001080179232,
+            3.85311867606708e-7
+          ]
+        },
+        {
+          "converged": true,
+          "positiveDefinite": true,
+          "gradient": 4.900505279348266e-9,
+          "logPosterior": -212.56478804455986,
+          "seconds": 0.00037229999999999566,
+          "iterations": 14,
+          "output": [
+            0.25271962526918534,
+            0.22429765377621136,
+            0.2242976536919627,
+            0.29868506726264066,
+            0.5000000000939028,
+            3.350872357366086e-10
+          ]
+        }
+      ]
+    }
+  ],
+  "passed": false,
+  "seconds": 7.2897248,
+  "productionChanged": false,
+  "fullFitStarted": false,
+  "remainingStage0": [
+    "Joint scale/hyperparameter inference",
+    "Exact hard/soft reference posterior conditioning",
+    "Grouped poll posterior checks",
+    "Backward-trajectory posterior checks",
+    "Scenario/default identity preparation"
+  ],
+  "stageComparisonsStarted": false
+}

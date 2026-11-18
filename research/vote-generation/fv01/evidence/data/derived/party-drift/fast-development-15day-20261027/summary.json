@@ -1,0 +1,55 @@
+{
+  "phase": "development",
+  "draws": 128,
+  "summaries": [
+    {
+      "variant": "kind-common-regional",
+      "cases": 4,
+      "failedFits": 0,
+      "nationalCoverage90": 0.675,
+      "municipalCoverage90": 0.8675725797151588,
+      "coverageShortfall": 0.09175,
+      "wis": 0.018518609349865576,
+      "meanMae": 0.035810939846171425,
+      "tailRate": 0.0,
+      "maxFitSeconds": 0.43232763699999843,
+      "maxGenerationSeconds": 0.07125088200000107
+    },
+    {
+      "variant": "kind-component-regional",
+      "cases": 4,
+      "failedFits": 0,
+      "nationalCoverage90": 0.675,
+      "municipalCoverage90": 0.8670347128524476,
+      "coverageShortfall": 0.09134999999999999,
+      "wis": 0.01854013541563425,
+      "meanMae": 0.03581439276456039,
+      "tailRate": 0.0,
+      "maxFitSeconds": 0.43232763699999843,
+      "maxGenerationSeconds": 0.07041661200000071
+    },
+    {
+      "variant": "pooled-common-regional",
+      "cases": 4,
+      "failedFits": 0,
+      "nationalCoverage90": 0.5916666666666666,
+      "municipalCoverage90": 0.8425627270368448,
+      "coverageShortfall": 0.14566666666666667,
+      "wis": 0.01897647595852093,
+      "meanMae": 0.03621410027627782,
+      "tailRate": 0.0,
+      "maxFitSeconds": 0.18030601699999949,
+      "maxGenerationSeconds": 0.07314881000000106
+    }
+  ],
+  "selected": "kind-common-regional",
+  "seconds": 4.345069584000001,
+  "sourceHashes": {
+    "study_fast.py": "6b54f5162806d6d52907ae97aa74ad8e87d5ec05c2cde8c1507e8a7539a8c420",
+    "run_fast.py": "7928393bbe594c565d9312d6796cd1090c3adc42bc792f184459ac39425cd87e",
+    "fast_party_model.py": "4382e22ce42f2aaba804a72b4dac567adfc098ce2f405f05888dd7d409badc89",
+    "modular_geography.py": "816cba385d0a1327694319944a2c85576ef5a3a527a8ed5b87a33473c8ee76d9",
+    "simplex_gibbs.cpp": "6a6deef1c9547105b14ac802bacc496f4964708079ca6ac77cb16c836ec44707"
+  },
+  "interpretation": "Research comparison only; 128 draws are screening, small election counts limit calibration claims; no production acceptance"
+}

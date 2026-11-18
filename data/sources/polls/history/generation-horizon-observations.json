@@ -1,0 +1,663 @@
+{
+  "schemaVersion": 1,
+  "version": "demos-generation-horizons-2011-2024-v1",
+  "reviewedOn": "2026-10-23",
+  "panel": [
+    "pd",
+    "m5s",
+    "lega",
+    "other"
+  ],
+  "shareUnit": "fraction",
+  "observations": [
+    {
+      "id": "demos-a00558",
+      "publicationDate": "2011-02-14",
+      "fieldworkStart": "2011-02-09",
+      "fieldworkEnd": "2011-02-11",
+      "kind": "camera",
+      "shares": [
+        0.243,
+        0.036,
+        0.118,
+        0.603
+      ],
+      "sampleSize": 1027,
+      "questionSampleSize": null,
+      "sourceUrl": "https://www.demos.it/a00558.php",
+      "tableUrl": "https://www.demos.it/2011/pdf/1705report_-_ap26.pdf#page=8",
+      "sourceId": "demos-a00558",
+      "pollster": "Demos & Pi",
+      "fieldworkInstitute": "Demetra",
+      "denominator": "declared-vote-intentions",
+      "corePercentages": {
+        "pd": 24.3,
+        "m5s": 3.6,
+        "lega": 11.8
+      },
+      "otherRule": "100 minus PD, M5S and Lega; includes all remaining parties, not just the table row labelled Altri."
+    },
+    {
+      "id": "demos-a00652",
+      "publicationDate": "2011-11-20",
+      "fieldworkStart": "2011-11-17",
+      "fieldworkEnd": "2011-11-18",
+      "kind": "camera",
+      "shares": [
+        0.294,
+        0.046,
+        0.077,
+        0.583
+      ],
+      "sampleSize": 1021,
+      "questionSampleSize": null,
+      "sourceUrl": "https://www.demos.it/a00652.php",
+      "tableUrl": "https://www.demos.it/2011/pdf/20242011.11.20_ap031.pdf#page=6",
+      "sourceId": "demos-a00652",
+      "pollster": "Demos & Pi",
+      "fieldworkInstitute": "Demetra",
+      "denominator": "declared-vote-intentions",
+      "corePercentages": {
+        "pd": 29.4,
+        "m5s": 4.6,
+        "lega": 7.7
+      },
+      "otherRule": "100 minus PD, M5S and Lega; includes all remaining parties, not just the table row labelled Altri."
+    },
+    {
+      "id": "demos-a00693",
+      "publicationDate": "2012-03-19",
+      "fieldworkStart": "2012-03-13",
+      "fieldworkEnd": "2012-03-15",
+      "kind": "camera",
+      "shares": [
+        0.272,
+        0.052,
+        0.101,
+        0.575
+      ],
+      "sampleSize": 1028,
+      "questionSampleSize": null,
+      "sourceUrl": "https://www.demos.it/a00693.php",
+      "tableUrl": "https://www.demos.it/2012/pdf/2182ap32_20120319.pdf#page=8",
+      "sourceId": "demos-a00693",
+      "pollster": "Demos & Pi",
+      "fieldworkInstitute": "Demetra",
+      "denominator": "declared-vote-intentions",
+      "corePercentages": {
+        "pd": 27.2,
+        "m5s": 5.2,
+        "lega": 10.1
+      },
+      "otherRule": "100 minus PD, M5S and Lega; includes all remaining parties, not just the table row labelled Altri."
+    },
+    {
+      "id": "demos-a00753",
+      "publicationDate": "2012-09-10",
+      "fieldworkStart": "2012-09-03",
+      "fieldworkEnd": "2012-09-07",
+      "kind": "camera",
+      "shares": [
+        0.27,
+        0.145,
+        0.055,
+        0.53
+      ],
+      "sampleSize": 1351,
+      "questionSampleSize": null,
+      "sourceUrl": "https://www.demos.it/a00753.php",
+      "tableUrl": "https://www.demos.it/2012/img/2361m1.gif",
+      "sourceId": "demos-a00753",
+      "pollster": "Demos & Pi",
+      "fieldworkInstitute": "Demetra",
+      "denominator": "declared-vote-intentions",
+      "corePercentages": {
+        "pd": 27.0,
+        "m5s": 14.5,
+        "lega": 5.5
+      },
+      "otherRule": "100 minus PD, M5S and Lega; includes all remaining parties, not just the table row labelled Altri."
+    },
+    {
+      "id": "demos-a00856",
+      "publicationDate": "2013-05-11",
+      "fieldworkStart": "2013-05-07",
+      "fieldworkEnd": "2013-05-09",
+      "kind": "camera",
+      "shares": [
+        0.25,
+        0.229,
+        0.032,
+        0.489
+      ],
+      "sampleSize": 1009,
+      "questionSampleSize": null,
+      "sourceUrl": "https://www.demos.it/a00856.php",
+      "tableUrl": "https://www.demos.it/2013/img/2671ap38_20130511_01.png",
+      "sourceId": "demos-a00856",
+      "pollster": "Demos & Pi",
+      "fieldworkInstitute": "Demetra",
+      "denominator": "declared-vote-intentions",
+      "corePercentages": {
+        "pd": 25.0,
+        "m5s": 22.9,
+        "lega": 3.2
+      },
+      "otherRule": "100 minus PD, M5S and Lega; includes all remaining parties, not just the table row labelled Altri."
+    },
+    {
+      "id": "demos-a00942",
+      "publicationDate": "2014-01-20",
+      "fieldworkStart": "2014-01-08",
+      "fieldworkEnd": "2014-01-15",
+      "kind": "camera",
+      "shares": [
+        0.342,
+        0.212,
+        0.032,
+        0.414
+      ],
+      "sampleSize": 1919,
+      "questionSampleSize": null,
+      "sourceUrl": "https://www.demos.it/a00942.php",
+      "tableUrl": "https://www.demos.it/2014/img/2922mappa20140120_1.png",
+      "sourceId": "demos-a00942",
+      "pollster": "Demos & Pi",
+      "fieldworkInstitute": "Demetra",
+      "denominator": "declared-vote-intentions",
+      "corePercentages": {
+        "pd": 34.2,
+        "m5s": 21.2,
+        "lega": 3.2
+      },
+      "otherRule": "100 minus PD, M5S and Lega; includes all remaining parties, not just the table row labelled Altri."
+    },
+    {
+      "id": "demos-a01231",
+      "publicationDate": "2016-02-27",
+      "fieldworkStart": "2016-02-22",
+      "fieldworkEnd": "2016-02-25",
+      "kind": "camera",
+      "shares": [
+        0.322,
+        0.258,
+        0.132,
+        0.288
+      ],
+      "sampleSize": 1014,
+      "questionSampleSize": null,
+      "sourceUrl": "https://www.demos.it/a01231.php",
+      "tableUrl": "https://www.demos.it/2016/img/3769m01.jpg",
+      "sourceId": "demos-a01231",
+      "pollster": "Demos & Pi",
+      "fieldworkInstitute": "Demetra",
+      "denominator": "declared-vote-intentions",
+      "corePercentages": {
+        "pd": 32.2,
+        "m5s": 25.8,
+        "lega": 13.2
+      },
+      "otherRule": "100 minus PD, M5S and Lega; includes all remaining parties, not just the table row labelled Altri."
+    },
+    {
+      "id": "demos-a01362",
+      "publicationDate": "2017-03-04",
+      "fieldworkStart": "2017-03-01",
+      "fieldworkEnd": "2017-03-02",
+      "kind": "camera",
+      "shares": [
+        0.272,
+        0.288,
+        0.106,
+        0.334
+      ],
+      "sampleSize": 1010,
+      "questionSampleSize": null,
+      "sourceUrl": "https://www.demos.it/a01362.php",
+      "tableUrl": "https://www.demos.it/2017/pdf/4242ap63_20170304_scissione.pdf#page=8",
+      "sourceId": "demos-a01362",
+      "pollster": "Demos & Pi",
+      "fieldworkInstitute": "Demetra",
+      "denominator": "declared-vote-intentions",
+      "corePercentages": {
+        "pd": 27.2,
+        "m5s": 28.8,
+        "lega": 10.6
+      },
+      "otherRule": "100 minus PD, M5S and Lega; includes all remaining parties, not just the table row labelled Altri."
+    },
+    {
+      "id": "demos-a01384",
+      "publicationDate": "2017-05-13",
+      "fieldworkStart": "2017-05-08",
+      "fieldworkEnd": "2017-05-11",
+      "kind": "camera",
+      "shares": [
+        0.285,
+        0.275,
+        0.129,
+        0.311
+      ],
+      "sampleSize": 1014,
+      "questionSampleSize": null,
+      "sourceUrl": "https://www.demos.it/a01384.php",
+      "tableUrl": "https://www.demos.it/2017/pdf/4324ap64_20171305_paese_confuso.pdf#page=7",
+      "sourceId": "demos-a01384",
+      "pollster": "Demos & Pi",
+      "fieldworkInstitute": "Demetra",
+      "denominator": "declared-vote-intentions",
+      "corePercentages": {
+        "pd": 28.5,
+        "m5s": 27.5,
+        "lega": 12.9
+      },
+      "otherRule": "100 minus PD, M5S and Lega; includes all remaining parties, not just the table row labelled Altri."
+    },
+    {
+      "id": "demos-a01438",
+      "publicationDate": "2017-10-16",
+      "fieldworkStart": "2017-10-09",
+      "fieldworkEnd": "2017-10-12",
+      "kind": "camera",
+      "shares": [
+        0.263,
+        0.276,
+        0.146,
+        0.315
+      ],
+      "sampleSize": 1227,
+      "questionSampleSize": null,
+      "sourceUrl": "https://www.demos.it/a01438.php",
+      "tableUrl": "https://www.demos.it/2017/pdf/4510ap67_20171016.pdf#page=14",
+      "sourceId": "demos-a01438",
+      "pollster": "Demos & Pi",
+      "fieldworkInstitute": "Demetra",
+      "denominator": "declared-vote-intentions",
+      "corePercentages": {
+        "pd": 26.3,
+        "m5s": 27.6,
+        "lega": 14.6
+      },
+      "otherRule": "100 minus PD, M5S and Lega; includes all remaining parties, not just the table row labelled Altri."
+    },
+    {
+      "id": "demos-a01506",
+      "publicationDate": "2018-05-20",
+      "fieldworkStart": "2018-05-17",
+      "fieldworkEnd": "2018-05-18",
+      "kind": "camera",
+      "shares": [
+        0.176,
+        0.311,
+        0.221,
+        0.292
+      ],
+      "sampleSize": 1006,
+      "questionSampleSize": null,
+      "sourceUrl": "https://www.demos.it/a01506.php",
+      "tableUrl": "https://www.demos.it/2018/img/4734ap75_20180520_1.png",
+      "sourceId": "demos-a01506",
+      "pollster": "Demos & Pi",
+      "fieldworkInstitute": "Demetra",
+      "denominator": "declared-vote-intentions",
+      "corePercentages": {
+        "pd": 17.6,
+        "m5s": 31.1,
+        "lega": 22.1
+      },
+      "otherRule": "100 minus PD, M5S and Lega; includes all remaining parties, not just the table row labelled Altri."
+    },
+    {
+      "id": "demos-a01570",
+      "publicationDate": "2019-02-02",
+      "fieldworkStart": "2019-01-28",
+      "fieldworkEnd": "2019-01-30",
+      "kind": "camera",
+      "shares": [
+        0.182,
+        0.249,
+        0.337,
+        0.232
+      ],
+      "sampleSize": 1006,
+      "questionSampleSize": null,
+      "sourceUrl": "https://www.demos.it/a01570.php",
+      "tableUrl": "https://www.demos.it/2019/img/4961ap78_20190202_1.png",
+      "sourceId": "demos-a01570",
+      "pollster": "Demos & Pi",
+      "fieldworkInstitute": "Demetra",
+      "denominator": "declared-vote-intentions",
+      "corePercentages": {
+        "pd": 18.2,
+        "m5s": 24.9,
+        "lega": 33.7
+      },
+      "otherRule": "100 minus PD, M5S and Lega; includes all remaining parties, not just the table row labelled Altri."
+    },
+    {
+      "id": "demos-a01757",
+      "publicationDate": "2020-08-29",
+      "fieldworkStart": "2020-08-24",
+      "fieldworkEnd": "2020-08-26",
+      "kind": "camera",
+      "shares": [
+        0.207,
+        0.162,
+        0.245,
+        0.386
+      ],
+      "sampleSize": 1014,
+      "questionSampleSize": null,
+      "sourceUrl": "https://www.demos.it/a01757.php",
+      "tableUrl": "https://www.demos.it/2020/pdf/5450ap89_20200929.pdf#page=7",
+      "sourceId": "demos-a01757",
+      "pollster": "Demos & Pi",
+      "fieldworkInstitute": "Demetra",
+      "denominator": "declared-vote-intentions",
+      "corePercentages": {
+        "pd": 20.7,
+        "m5s": 16.2,
+        "lega": 24.5
+      },
+      "otherRule": "100 minus PD, M5S and Lega; includes all remaining parties, not just the table row labelled Altri."
+    },
+    {
+      "id": "demos-a01886",
+      "publicationDate": "2021-09-04",
+      "fieldworkStart": "2021-08-30",
+      "fieldworkEnd": "2021-09-02",
+      "kind": "camera",
+      "shares": [
+        0.193,
+        0.166,
+        0.196,
+        0.445
+      ],
+      "sampleSize": 1014,
+      "questionSampleSize": null,
+      "sourceUrl": "https://www.demos.it/a01886.php",
+      "tableUrl": "https://www.demos.it/2021/pdf/5834ap96_20210904.pdf#page=7",
+      "sourceId": "demos-a01886",
+      "pollster": "Demos & Pi",
+      "fieldworkInstitute": "Demetra",
+      "denominator": "declared-vote-intentions",
+      "corePercentages": {
+        "pd": 19.3,
+        "m5s": 16.6,
+        "lega": 19.6
+      },
+      "otherRule": "100 minus PD, M5S and Lega; includes all remaining parties, not just the table row labelled Altri."
+    },
+    {
+      "id": "demos-a01988",
+      "publicationDate": "2022-05-27",
+      "fieldworkStart": "2022-05-23",
+      "fieldworkEnd": "2022-05-25",
+      "kind": "camera",
+      "shares": [
+        0.21,
+        0.134,
+        0.156,
+        0.5
+      ],
+      "sampleSize": 1004,
+      "questionSampleSize": null,
+      "sourceUrl": "https://www.demos.it/a01988.php",
+      "tableUrl": "https://www.demos.it/2022/pdf/6120ap101_20220527.pdf#page=6",
+      "sourceId": "demos-a01988",
+      "pollster": "Demos & Pi",
+      "fieldworkInstitute": "Demetra",
+      "denominator": "declared-vote-intentions",
+      "corePercentages": {
+        "pd": 21.0,
+        "m5s": 13.4,
+        "lega": 15.6
+      },
+      "otherRule": "100 minus PD, M5S and Lega; includes all remaining parties, not just the table row labelled Altri."
+    },
+    {
+      "id": "demos-a02093",
+      "publicationDate": "2023-04-29",
+      "fieldworkStart": "2023-04-26",
+      "fieldworkEnd": "2023-04-27",
+      "kind": "camera",
+      "shares": [
+        0.201,
+        0.156,
+        0.082,
+        0.561
+      ],
+      "sampleSize": 1007,
+      "questionSampleSize": null,
+      "sourceUrl": "https://www.demos.it/a02093.php",
+      "tableUrl": "https://www.demos.it/2023/pdf/6396ap108_20230429.pdf#page=7",
+      "sourceId": "demos-a02093",
+      "pollster": "Demos & Pi",
+      "fieldworkInstitute": "Demetra",
+      "denominator": "declared-vote-intentions",
+      "corePercentages": {
+        "pd": 20.1,
+        "m5s": 15.6,
+        "lega": 8.2
+      },
+      "otherRule": "100 minus PD, M5S and Lega; includes all remaining parties, not just the table row labelled Altri."
+    },
+    {
+      "id": "demos-a02187",
+      "publicationDate": "2024-02-10",
+      "fieldworkStart": "2024-02-05",
+      "fieldworkEnd": "2024-02-08",
+      "kind": "camera",
+      "shares": [
+        0.196,
+        0.169,
+        0.083,
+        0.552
+      ],
+      "sampleSize": 1001,
+      "questionSampleSize": null,
+      "sourceUrl": "https://www.demos.it/a02187.php",
+      "tableUrl": "https://www.demos.it/2024/pdf/6653ap112_20240210.pdf#page=7",
+      "sourceId": "demos-a02187",
+      "pollster": "Demos & Pi",
+      "fieldworkInstitute": "Demetra",
+      "denominator": "declared-vote-intentions",
+      "corePercentages": {
+        "pd": 19.6,
+        "m5s": 16.9,
+        "lega": 8.3
+      },
+      "otherRule": "100 minus PD, M5S and Lega; includes all remaining parties, not just the table row labelled Altri."
+    }
+  ],
+  "selections": [
+    {
+      "electionId": "camera-2013",
+      "electionDate": "2013-02-24",
+      "horizonDays": 730,
+      "cutoff": "2011-02-25",
+      "observationId": "demos-a00558",
+      "publicationAgeAtCutoffDays": 11,
+      "fieldworkAgeAtCutoffDays": 14,
+      "actualFieldworkHorizonDays": 744
+    },
+    {
+      "electionId": "camera-2013",
+      "electionDate": "2013-02-24",
+      "horizonDays": 365,
+      "cutoff": "2012-02-25",
+      "observationId": "demos-a00652",
+      "publicationAgeAtCutoffDays": 97,
+      "fieldworkAgeAtCutoffDays": 99,
+      "actualFieldworkHorizonDays": 464
+    },
+    {
+      "electionId": "camera-2013",
+      "electionDate": "2013-02-24",
+      "horizonDays": 90,
+      "cutoff": "2012-11-26",
+      "observationId": "demos-a00753",
+      "publicationAgeAtCutoffDays": 77,
+      "fieldworkAgeAtCutoffDays": 80,
+      "actualFieldworkHorizonDays": 170
+    },
+    {
+      "electionId": "european-2014",
+      "electionDate": "2014-05-25",
+      "horizonDays": 730,
+      "cutoff": "2012-05-25",
+      "observationId": "demos-a00693",
+      "publicationAgeAtCutoffDays": 67,
+      "fieldworkAgeAtCutoffDays": 71,
+      "actualFieldworkHorizonDays": 801
+    },
+    {
+      "electionId": "european-2014",
+      "electionDate": "2014-05-25",
+      "horizonDays": 365,
+      "cutoff": "2013-05-25",
+      "observationId": "demos-a00856",
+      "publicationAgeAtCutoffDays": 14,
+      "fieldworkAgeAtCutoffDays": 16,
+      "actualFieldworkHorizonDays": 381
+    },
+    {
+      "electionId": "european-2014",
+      "electionDate": "2014-05-25",
+      "horizonDays": 90,
+      "cutoff": "2014-02-24",
+      "observationId": "demos-a00942",
+      "publicationAgeAtCutoffDays": 35,
+      "fieldworkAgeAtCutoffDays": 40,
+      "actualFieldworkHorizonDays": 130
+    },
+    {
+      "electionId": "camera-2018",
+      "electionDate": "2018-03-04",
+      "horizonDays": 730,
+      "cutoff": "2016-03-04",
+      "observationId": "demos-a01231",
+      "publicationAgeAtCutoffDays": 6,
+      "fieldworkAgeAtCutoffDays": 8,
+      "actualFieldworkHorizonDays": 738
+    },
+    {
+      "electionId": "camera-2018",
+      "electionDate": "2018-03-04",
+      "horizonDays": 365,
+      "cutoff": "2017-03-04",
+      "observationId": "demos-a01362",
+      "publicationAgeAtCutoffDays": 0,
+      "fieldworkAgeAtCutoffDays": 2,
+      "actualFieldworkHorizonDays": 367
+    },
+    {
+      "electionId": "camera-2018",
+      "electionDate": "2018-03-04",
+      "horizonDays": 90,
+      "cutoff": "2017-12-04",
+      "observationId": "demos-a01438",
+      "publicationAgeAtCutoffDays": 49,
+      "fieldworkAgeAtCutoffDays": 53,
+      "actualFieldworkHorizonDays": 143
+    },
+    {
+      "electionId": "european-2019",
+      "electionDate": "2019-05-26",
+      "horizonDays": 730,
+      "cutoff": "2017-05-26",
+      "observationId": "demos-a01384",
+      "publicationAgeAtCutoffDays": 13,
+      "fieldworkAgeAtCutoffDays": 15,
+      "actualFieldworkHorizonDays": 745
+    },
+    {
+      "electionId": "european-2019",
+      "electionDate": "2019-05-26",
+      "horizonDays": 365,
+      "cutoff": "2018-05-26",
+      "observationId": "demos-a01506",
+      "publicationAgeAtCutoffDays": 6,
+      "fieldworkAgeAtCutoffDays": 8,
+      "actualFieldworkHorizonDays": 373
+    },
+    {
+      "electionId": "european-2019",
+      "electionDate": "2019-05-26",
+      "horizonDays": 90,
+      "cutoff": "2019-02-25",
+      "observationId": "demos-a01570",
+      "publicationAgeAtCutoffDays": 23,
+      "fieldworkAgeAtCutoffDays": 26,
+      "actualFieldworkHorizonDays": 116
+    },
+    {
+      "electionId": "camera-2022",
+      "electionDate": "2022-09-25",
+      "horizonDays": 730,
+      "cutoff": "2020-09-25",
+      "observationId": "demos-a01757",
+      "publicationAgeAtCutoffDays": 27,
+      "fieldworkAgeAtCutoffDays": 30,
+      "actualFieldworkHorizonDays": 760
+    },
+    {
+      "electionId": "camera-2022",
+      "electionDate": "2022-09-25",
+      "horizonDays": 365,
+      "cutoff": "2021-09-25",
+      "observationId": "demos-a01886",
+      "publicationAgeAtCutoffDays": 21,
+      "fieldworkAgeAtCutoffDays": 23,
+      "actualFieldworkHorizonDays": 388
+    },
+    {
+      "electionId": "camera-2022",
+      "electionDate": "2022-09-25",
+      "horizonDays": 90,
+      "cutoff": "2022-06-27",
+      "observationId": "demos-a01988",
+      "publicationAgeAtCutoffDays": 31,
+      "fieldworkAgeAtCutoffDays": 33,
+      "actualFieldworkHorizonDays": 123
+    },
+    {
+      "electionId": "european-2024",
+      "electionDate": "2024-06-08",
+      "horizonDays": 730,
+      "cutoff": "2022-06-09",
+      "observationId": "demos-a01988",
+      "publicationAgeAtCutoffDays": 13,
+      "fieldworkAgeAtCutoffDays": 15,
+      "actualFieldworkHorizonDays": 745
+    },
+    {
+      "electionId": "european-2024",
+      "electionDate": "2024-06-08",
+      "horizonDays": 365,
+      "cutoff": "2023-06-09",
+      "observationId": "demos-a02093",
+      "publicationAgeAtCutoffDays": 41,
+      "fieldworkAgeAtCutoffDays": 43,
+      "actualFieldworkHorizonDays": 408
+    },
+    {
+      "electionId": "european-2024",
+      "electionDate": "2024-06-08",
+      "horizonDays": 90,
+      "cutoff": "2024-03-10",
+      "observationId": "demos-a02187",
+      "publicationAgeAtCutoffDays": 29,
+      "fieldworkAgeAtCutoffDays": 31,
+      "actualFieldworkHorizonDays": 121
+    }
+  ],
+  "limitations": [
+    "This is a sparse single-house research panel, not an exhaustive multi-house poll average.",
+    "Fixed cutoffs select the latest available national Camera vote-intention table from the reviewed Demos Atlante reports; stale observations retain their real dates.",
+    "Every observation asks about Camera voting. European targets intentionally use Camera intentions as a cross-kind predictor; none is relabelled as a European-ballot poll.",
+    "Full interview sample sizes are reported for provenance; the decided-voter question sample sizes are unknown.",
+    "Other aggregates all parties outside PD, M5S and Lega and cannot support party-level FdI/FI/AVS conclusions.",
+    "Terminal 15-day observations belong to the existing government historical archive and are not reproduced as early-horizon inputs here."
+  ]
+}

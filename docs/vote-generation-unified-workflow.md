@@ -1,0 +1,152 @@
+# Unified M01/M02 workflow
+
+Current probability laws are [M01 2.0.0](models/M01.md) and
+[M02 3.0.0](models/M02.md), with M02 default. Both are offered for Rosatellum
+and reform. M02 uses one common unrestricted field, deterministic chamber
+transport and separate physical filing conditioning. M06's production law gate
+and operational evidence are recorded in [model acceptance](model-acceptance-2026-11.md).
+
+## Task map
+
+| Task | Entry point under `web/` |
+| --- | --- |
+| Public model identities/version checks | `src/lib/politics/reform-2026/vote-share/model-registry.ts`, `scenario.ts` |
+| Select/dispatch models | `src/lib/politics/editor/CommonPoliticsEditor.svelte`; `vote-share/unified-generation.ts` |
+| M01 original paired counts, compositions and named polls | `vote-share/legacy-adapter.ts`, `correspondences.ts`, `legacy-polls.ts` |
+| M01 list shocks and municipal-to-college allocation | parent `paired-vote-generation.ts`, `generation.ts` |
+| M02 grouped fitting/geography/physical fields | `vote-share/source-compiler.ts`, `information.ts`, `profiles.ts`, `senate-adapter.ts`, `generation.ts` |
+| Reference editing and scope resolution | `src/lib/politics/editor/ReferencesEditor.svelte`; `vote-share/{reference-plans,interventions}.ts` |
+| Shared candidature/preference/legal assembly | parent `assembly.ts`; scrutiny is independent |
+| Authored defaults and release | [CP-04 packaging guide](common-politics-scenario/defaults.md); `scripts/data-preparation/fast-share-release.ts` |
+| Current model smoke check | `scripts/acceptance/component-policy-current.ts` (writes only `data/derived/model-rollback/`) |
+| Frozen 1.0.0 historical kernels | `scripts/acceptance/archive/models-v1/README.md` |
+
+## Model boundary and restored semantics
+
+- M01 projects original historical compositions onto future lists, keeps historical
+  valid-vote fractions, refreshes named list polls and applies list-level shocks.
+  Its missing-mapping fallback is regional/equal-list; it generates municipal
+  integer counts and reconstructs colleges afterwards. Municipal filing unions,
+  per-list poll projection and greedy capacity allocation retain their documented
+  limits. No component-pooling or half-vote correction from 1.0.0 remains active.
+- M02 fits coarsened national groups, uses exact matching national baselines for
+  municipal profiles, and constructs one unrestricted common reference field.
+  The default locally normalizes it without compulsory national raking. Explicit
+  references precede shared movement; fixed chamber transport and separate
+  physical filing conditioning precede independent multinomial counts.
+  Unidentified fitted bases are rejected rather than split using references.
+- Political references preserve already constructed turnout in both models;
+  non-valid references are separate. M01 accepts list references and singleton
+  component references, ignoring reference SDs. M02 supports disjoint list/component
+  references and calibrated reference uncertainty. Their meanings are model-specific.
+- Both use the same original sources, geographic/legal scenario controls, seeded
+  worker orchestration, result tables and exports. Shared inputs do not imply
+  identical probability laws. No scrutiny rule is changed by the rollback.
+
+The [correspondence audit](../research/vote-generation/docs/correspondence-policy-audit.md) and
+[Camera comparison](../research/vote-generation/docs/current-camera-comparison-results.md) retain the superseded
+1.0.0 decisions/results. Reproduce those campaigns at their recorded commits;
+current command entry points reject 1.0.0 rather than relabelling 2.0.0 output.
+The 1.0.0 correction curator is likewise historical. Existing benchmark receipts
+are not overwritten or counted as fresh validation of the restored versions.
+
+## Defaults and verification
+
+Regenerate defaults and every fitted/profile/runtime/catalog asset through
+`npm run data:reform:shares:release`; do not hand-edit snapshots. The policy restores
+its pre-correction references and omits the six 1.0.0 model-derived anchors.
+M01/M02 selectors, checkpoints and result provenance require exact versions M01 2.0.0 / M02 3.0.0.
+Saved 1.0.0 scenarios do not execute implicitly under the restored laws.
+
+## Worker ownership and resource policy
+
+Both models use complete paired simulations, stable IDs, ordered bounded commits,
+cancellation and the shared result pipeline. Numerical workspace remains capped
+at 256 MiB. The previous 512 MiB aggregate ceiling remains waived. The following
+resource planning policy is retained; older measurements are provenance for its
+conservative estimates, not fresh measurements of the restored 2.0.0 algorithms.
+
+For $P$ declared logical processors, the selectable ceiling is
+$\max(1,P-2)$ when $P\ge4$, otherwise $\max(1,P-1)$. Two slots cover the main
+interface and coordinator; this is a CPU-based upper bound on potentially useful
+parallelism, not a measured speedup guarantee. RAM does not hide selectable CPU
+options. The recommendation is the largest allowed count whose estimated
+coordinator plus workers fits half the declared RAM and the browser-heap
+allowance below, with a minimum of one.
+Missing RAM reporting defaults to one. A saved explicit user choice is retained.
+
+Candidate accounting reserves 128 MiB coordinator scratch and 320 MiB per-worker
+scratch, adding owned state/packet copies. The M01 adapter reserves
+384 MiB per-worker scratch plus actual
+packet copies, calibrated conservatively against the nine-worker national
+1,000-run process peak (about 4.3 GiB including the coordinator). The earlier
+1,536 MiB estimate belonged to the larger original-workspace representation.
+Warn when the chosen count projects to all declared RAM or more; the warning
+does not prevent the authorized choice. Report estimated memory, declared RAM,
+recommendation and CPU ceiling; none measures free RAM.
+
+Device RAM does not represent allocatable browser heap. V8 documents a shared
+[4 GiB pointer-compression cage](https://github.com/v8/v8/blob/main/docs/heap/pointer-compression.md)
+for isolates in a process. A 26-worker campaign stalled during startup even
+after splitting initialization messages; Luca independently reported an
+out-of-memory failure at 26 and successful trials at 10. Both 10-worker browser
+probes passed. Planning therefore also allows 3 GiB of browser heap, reserving
+512 MiB for the coordinator/interface and at least 256 MiB per worker (or the
+larger owned-packet estimate). On this 28-processor/64-GiB device, the default
+is 10 workers for both models while 1–26 remain selectable. Above that allowance
+the editor warns about browser exhaustion independently of the whole-RAM
+warning. These are conservative estimates, not measured hard browser limits.
+
+Only one owned packet crosses the page/coordinator boundary. The coordinator
+initializes compute workers separately; pool width must not multiply the size
+of one serialized startup message. A nonresponsive initialization fails after
+60 seconds and preserves the interrupted requested denominator; it is not
+automatically retried. Whole-renderer Windows process measurements
+include nested compute workers; CDP enumeration alone misses some nested
+workers and its heap samples are explicitly labelled partial.
+
+The ordinary build installs the unified workspace. `REFORM_FAST_CANDIDATE=0`
+is a compatibility-test override. The ordinary browser accepts only current v5
+scenarios with exact M01 2.0.0 / M02 3.0.0 identities. Older formats or model versions
+are rejected; no statistical conversion is performed. JSON.gz retains the exact executed scenario and
+self-contained session; CSV remains table-oriented.
+
+## Verification commands
+
+From `web/`, Node 24, run `npm run acceptance:reform` after the complete production
+preparation. The [profile guide](common-politics-scenario/acceptance.md) defines development,
+release and optional extended matrices and their required reports. Do not repeat the
+same types, units, builds and browser suites separately as an additional routine
+gate. Dedicated release/editor commands remain available for focused diagnosis.
+
+Use the [CP-08 acceptance procedure](common-politics-scenario/acceptance.md) for
+sequential browser fitting-plus-1,000-run campaigns across all four pairs.
+`benchmark:common-politics` owns current renderer-memory/timing receipts.
+`test:reform:shares:unified` now checks the common editor/session and full archive
+roundtrip for Firefox Rosatellum/M02 and Chromium reform/M02 by default, with
+three draws at `/elezioni`. The extended profile runs all four pairs in both
+browsers at both bases (one draw at root). `FV08_DRAWS` selects a bounded focused run; it must be
+between 1 and 1,000. The old `FV08_FULL` campaign route and concurrent model
+campaign option are retired. Historical receipts retain their original meaning.
+
+Cold source-only Linux/offline-warm acceptance remains separate:
+`npm run acceptance:reform:shares:candidate`. The old FV-08 curation scripts and
+their two-path report requirements are archived under
+`research/vote-generation/code/web/scripts/acceptance/`. They describe historical
+campaigns, not the current application gate. Preserve historical receipts rather
+than rewriting their counts to match the revised matrix.
+
+The resource suite records six actual default national/profile/paired refits,
+then six 128-coordinate/512-poll numerical/profile probes over 7,904 synthetic
+municipalities. Its slower-device probe constrains the private Windows benchmark
+renderer processes to approximately one quarter of one logical CPU using a
+[Windows job-object CPU hard cap](https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-jobobject_cpu_rate_control_information).
+The cap includes the numerical worker thread. Chromium's worker target rejects
+`Emulation.setCPUThrottlingRate`; throttling the page alone is not accepted as
+worker evidence. The synthetic dimension probe does not make unsupported
+political splits admissible or establish predictive coverage.
+
+Chromium and Firefox are the current acceptance targets. Luca explicitly
+deferred the previously reported Windows WebKit export capability issue until
+it recurs in use; this does not claim Safari export acceptance. Public deployment
+and research archival remain separate tasks.

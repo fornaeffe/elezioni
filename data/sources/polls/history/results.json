@@ -1,0 +1,1071 @@
+{
+  "schemaVersion": 1,
+  "sourceManifest": "camera-european-calibration-targets-v1",
+  "results": [
+    {
+      "sourceId": "camera-20080413",
+      "sourceSha256": "d9edb7e7d82de98ce025598cead45e75cec3ca1775f0e3c054f41b04e0b4592f",
+      "method": "municipal-list-sum",
+      "total": 36452305,
+      "candidateOnly": 0,
+      "members": [
+        {
+          "name": "camera_italia-20080413.txt",
+          "sha256": "b35f6ff3d3b38ce2684c88779d67daac79085a9eea524801fa5bb8f594ac6d9a",
+          "bytes": 11378313
+        }
+      ],
+      "lists": [
+        {
+          "name": "ASS.DIFESA DELLA VITA ABORTO?NO,GRAZIE",
+          "votes": 135578
+        },
+        {
+          "name": "DI PIETRO ITALIA DEI VALORI",
+          "votes": 1593675
+        },
+        {
+          "name": "DIE FREIHEITLICHEN",
+          "votes": 28347
+        },
+        {
+          "name": "FORZA NUOVA",
+          "votes": 108837
+        },
+        {
+          "name": "IL LOTO",
+          "votes": 1799
+        },
+        {
+          "name": "IL POPOLO DELLA LIBERTA'",
+          "votes": 13628865
+        },
+        {
+          "name": "L'INTESA VENETA",
+          "votes": 2388
+        },
+        {
+          "name": "LA DESTRA - FIAMMA TRICOLORE",
+          "votes": 885229
+        },
+        {
+          "name": "LA SINISTRA L'ARCOBALENO",
+          "votes": 1124418
+        },
+        {
+          "name": "LEGA NORD",
+          "votes": 3024522
+        },
+        {
+          "name": "LEGA PER L'AUTONOMIA ALL.LOMB. LEGA PENS",
+          "votes": 14003
+        },
+        {
+          "name": "LEGA SUD",
+          "votes": 4346
+        },
+        {
+          "name": "LG.VENETA REPUBBLICA",
+          "votes": 31353
+        },
+        {
+          "name": "LISTA DEI GRILLI PARLANTI",
+          "votes": 66844
+        },
+        {
+          "name": "M.E.D.A.",
+          "votes": 16449
+        },
+        {
+          "name": "MOVIMENTO P.P.A.",
+          "votes": 945
+        },
+        {
+          "name": "MOVIMENTO PER L'AUTONOMIA ALL.PER IL SUD",
+          "votes": 410487
+        },
+        {
+          "name": "P.LIBERALE ITALIANO",
+          "votes": 103760
+        },
+        {
+          "name": "PARTITO COMUNISTA DEI LAVORATORI",
+          "votes": 208394
+        },
+        {
+          "name": "PARTITO DEMOCRATICO",
+          "votes": 12092998
+        },
+        {
+          "name": "PARTITO DI ALTERNATIVA COMUNISTA",
+          "votes": 2049
+        },
+        {
+          "name": "PARTITO SOCIALISTA",
+          "votes": 355581
+        },
+        {
+          "name": "PER IL BENE COMUNE",
+          "votes": 119420
+        },
+        {
+          "name": "PS D'AZ.",
+          "votes": 14856
+        },
+        {
+          "name": "SARDIGNA NATZIONE",
+          "votes": 7182
+        },
+        {
+          "name": "SINISTRA CRITICA",
+          "votes": 167673
+        },
+        {
+          "name": "SVP",
+          "votes": 147666
+        },
+        {
+          "name": "UNION FUR SUD TIROL",
+          "votes": 12836
+        },
+        {
+          "name": "UNIONE DEMOCRATICA PER I CONSUMATORI",
+          "votes": 91486
+        },
+        {
+          "name": "UNIONE DI CENTRO",
+          "votes": 2050319
+        }
+      ],
+      "panel": [
+        {
+          "id": "pd",
+          "votes": 12092998,
+          "share": 0.331748513571364
+        },
+        {
+          "id": "m5s",
+          "votes": 0,
+          "share": 0
+        },
+        {
+          "id": "lega",
+          "votes": 3024522,
+          "share": 0.08297203702207584
+        },
+        {
+          "id": "other",
+          "votes": 21334785,
+          "share": 0.5852794494065602
+        }
+      ]
+    },
+    {
+      "sourceId": "camera-20130224",
+      "sourceSha256": "19749e05cead3a8d41ba7829fc0272962835ecd8fb73ced9e3a9eb727106a03a",
+      "method": "municipal-list-sum",
+      "total": 34002523,
+      "candidateOnly": 0,
+      "members": [
+        {
+          "name": "camera_italia-20130224.txt",
+          "sha256": "238172463f62d3bdf5a7b571d481445f3d83ef02094db4f66b6f4deadc20d6dd",
+          "bytes": 13373104
+        }
+      ],
+      "lists": [
+        {
+          "name": "CASAPOUND ITALIA",
+          "votes": 47689
+        },
+        {
+          "name": "CENTRO DEMOCRATICO",
+          "votes": 167071
+        },
+        {
+          "name": "DEMOCRAZIA ATEA",
+          "votes": 556
+        },
+        {
+          "name": "DIE FREIHEITLICHEN",
+          "votes": 48317
+        },
+        {
+          "name": "FARE PER FERMARE IL DECLINO",
+          "votes": 380488
+        },
+        {
+          "name": "FIAMMA TRICOLORE",
+          "votes": 44744
+        },
+        {
+          "name": "FORZA NUOVA",
+          "votes": 89802
+        },
+        {
+          "name": "FRATELLI D'ITALIA",
+          "votes": 665835
+        },
+        {
+          "name": "FUTURO E LIBERTA'",
+          "votes": 159415
+        },
+        {
+          "name": "GRANDE SUD - MPA",
+          "votes": 148549
+        },
+        {
+          "name": "I PIRATI",
+          "votes": 4557
+        },
+        {
+          "name": "IL POPOLO DELLA LIBERTA'",
+          "votes": 7332829
+        },
+        {
+          "name": "INDIPENDENZA PER LA SARDEGNA",
+          "votes": 7598
+        },
+        {
+          "name": "INDIPENDENZA VENETA",
+          "votes": 33274
+        },
+        {
+          "name": "INTESA POPOLARE",
+          "votes": 25632
+        },
+        {
+          "name": "IO AMO L'ITALIA",
+          "votes": 42527
+        },
+        {
+          "name": "LA DESTRA",
+          "votes": 219671
+        },
+        {
+          "name": "LEGA NORD",
+          "votes": 1390153
+        },
+        {
+          "name": "LG.VENETA REPUBBLICA",
+          "votes": 15838
+        },
+        {
+          "name": "LIBERALI PER L'ITALIA - PLI",
+          "votes": 28025
+        },
+        {
+          "name": "LIBERI PER UNA ITALIA EQUA",
+          "votes": 3243
+        },
+        {
+          "name": "LISTA AMNISTIA GIUSTIZIA LIBERTA'",
+          "votes": 64713
+        },
+        {
+          "name": "MERIS",
+          "votes": 5901
+        },
+        {
+          "name": "MIR - MODERATI IN RIVOLUZIONE",
+          "votes": 81978
+        },
+        {
+          "name": "MOVIMENTO 5 STELLE BEPPEGRILLO.IT",
+          "votes": 8689584
+        },
+        {
+          "name": "MOVIMENTO P.P.A.",
+          "votes": 1526
+        },
+        {
+          "name": "MOVIMENTO PROGETTO ITALIA - MID",
+          "votes": 3967
+        },
+        {
+          "name": "PARTITO COMUNISTA DEI LAVORATORI",
+          "votes": 89991
+        },
+        {
+          "name": "PARTITO DEMOCRATICO",
+          "votes": 8644542
+        },
+        {
+          "name": "PARTITO DI ALTERNATIVA COMUNISTA",
+          "votes": 5159
+        },
+        {
+          "name": "PARTITO PENSIONATI",
+          "votes": 54857
+        },
+        {
+          "name": "POPOLARI UNITI",
+          "votes": 2992
+        },
+        {
+          "name": "PRI",
+          "votes": 7143
+        },
+        {
+          "name": "PROGETTO NAZIONALE",
+          "votes": 2865
+        },
+        {
+          "name": "PS D'AZ.",
+          "votes": 18585
+        },
+        {
+          "name": "RIFONDAZIONE MISSINA ITALIANA",
+          "votes": 3180
+        },
+        {
+          "name": "RIFORMISTI ITALIANI",
+          "votes": 8223
+        },
+        {
+          "name": "RIVOLUZIONE CIVILE",
+          "votes": 765194
+        },
+        {
+          "name": "SCELTA CIVICA CON MONTI PER L'ITALIA",
+          "votes": 2824064
+        },
+        {
+          "name": "SINISTRA ECOLOGIA LIBERTA'",
+          "votes": 1089562
+        },
+        {
+          "name": "STAMINALI D'ITALIA",
+          "votes": 585
+        },
+        {
+          "name": "SVP",
+          "votes": 146804
+        },
+        {
+          "name": "TUTTI INSIEME PER L'ITALIA",
+          "votes": 1452
+        },
+        {
+          "name": "UNIONE DI CENTRO",
+          "votes": 608205
+        },
+        {
+          "name": "UNIONE POP.",
+          "votes": 1515
+        },
+        {
+          "name": "VENETO STATO",
+          "votes": 11378
+        },
+        {
+          "name": "VOTO DI PROTESTA",
+          "votes": 12745
+        }
+      ],
+      "panel": [
+        {
+          "id": "pd",
+          "votes": 8644542,
+          "share": 0.25423236975679714
+        },
+        {
+          "id": "m5s",
+          "votes": 8689584,
+          "share": 0.25555703616463993
+        },
+        {
+          "id": "lega",
+          "votes": 1390153,
+          "share": 0.040883819121304614
+        },
+        {
+          "id": "other",
+          "votes": 15278244,
+          "share": 0.4493267749572583
+        }
+      ]
+    },
+    {
+      "sourceId": "camera-20180304",
+      "sourceSha256": "98b2dc30821f96d640497421f9bfaeb62aba8013b29cb1bbea29352bfe329372",
+      "method": "national-attributed-list-totals",
+      "total": 32841705,
+      "candidateOnly": 0,
+      "members": [
+        {
+          "name": "Camera2018_Liste_Italia_Liv_Naz.txt",
+          "sha256": "e9db26fe9e52d5f72178efdf3fdaec86f502e5633cd9fbd80bf70f3123fb27cf",
+          "bytes": 1367
+        }
+      ],
+      "lists": [
+        {
+          "name": "+EUROPA",
+          "votes": 841468
+        },
+        {
+          "name": "10 VOLTE MEGLIO",
+          "votes": 37354
+        },
+        {
+          "name": "AUTODETERMINATZIONE",
+          "votes": 19307
+        },
+        {
+          "name": "BLOCCO NAZIONALE PER LE LIBERTA'",
+          "votes": 3628
+        },
+        {
+          "name": "CASAPOUND ITALIA",
+          "votes": 312432
+        },
+        {
+          "name": "CIVICA POPOLARE LORENZIN",
+          "votes": 178107
+        },
+        {
+          "name": "FORZA ITALIA",
+          "votes": 4596956
+        },
+        {
+          "name": "FRATELLI D'ITALIA CON GIORGIA MELONI",
+          "votes": 1429550
+        },
+        {
+          "name": "GRANDE NORD",
+          "votes": 19846
+        },
+        {
+          "name": "IL POPOLO DELLA FAMIGLIA",
+          "votes": 219633
+        },
+        {
+          "name": "ITALIA AGLI ITALIANI",
+          "votes": 126543
+        },
+        {
+          "name": "ITALIA EUROPA INSIEME",
+          "votes": 190601
+        },
+        {
+          "name": "ITALIA NEL CUORE",
+          "votes": 574
+        },
+        {
+          "name": "LEGA",
+          "votes": 5698687
+        },
+        {
+          "name": "LIBERI E UGUALI",
+          "votes": 1114799
+        },
+        {
+          "name": "LISTA DEL POPOLO PER LA COSTITUZIONE",
+          "votes": 9921
+        },
+        {
+          "name": "MOVIMENTO 5 STELLE",
+          "votes": 10732066
+        },
+        {
+          "name": "NOI CON L'ITALIA - UDC",
+          "votes": 427152
+        },
+        {
+          "name": "PARTITO COMUNISTA",
+          "votes": 106816
+        },
+        {
+          "name": "PARTITO DEMOCRATICO",
+          "votes": 6161896
+        },
+        {
+          "name": "PARTITO REPUBBLICANO ITALIANO - ALA",
+          "votes": 20943
+        },
+        {
+          "name": "PARTITO VALORE UMANO",
+          "votes": 47953
+        },
+        {
+          "name": "PATTO PER L'AUTONOMIA",
+          "votes": 7079
+        },
+        {
+          "name": "PER UNA SINISTRA RIVOLUZIONARIA",
+          "votes": 29364
+        },
+        {
+          "name": "POTERE AL POPOLO!",
+          "votes": 372179
+        },
+        {
+          "name": "RINASCIMENTO MIR",
+          "votes": 772
+        },
+        {
+          "name": "SIAMO",
+          "votes": 1428
+        },
+        {
+          "name": "SVP - PATT",
+          "votes": 134651
+        }
+      ],
+      "panel": [
+        {
+          "id": "pd",
+          "votes": 6161896,
+          "share": 0.18762412000229586
+        },
+        {
+          "id": "m5s",
+          "votes": 10732066,
+          "share": 0.3267816332921814
+        },
+        {
+          "id": "lega",
+          "votes": 5698687,
+          "share": 0.17351982791392834
+        },
+        {
+          "id": "other",
+          "votes": 10249056,
+          "share": 0.3120744187915944
+        }
+      ]
+    },
+    {
+      "sourceId": "camera-20220925",
+      "sourceSha256": "dd8ede158ea3f7b0aae65024135a27e34ab9e959728df95f0e977cd56edf88ff",
+      "method": "old-college-candidate-only-attribution",
+      "total": 28096790,
+      "candidateOnly": 1027135,
+      "members": [
+        {
+          "name": "camera2022_Italia_LivComune.csv",
+          "sha256": "9f4f49dd0dfde3d1ea32ccda9665d6d230959f97ce074418ef2553242aa675b3",
+          "bytes": 25225702
+        }
+      ],
+      "lists": [
+        {
+          "name": "+EUROPA",
+          "votes": 793813
+        },
+        {
+          "name": "ALLEANZA VERDI E SINISTRA",
+          "votes": 1018344
+        },
+        {
+          "name": "ALTERNATIVA PER L'ITALIA - NO GREEN PASS",
+          "votes": 16882
+        },
+        {
+          "name": "AZIONE - ITALIA VIVA - CALENDA",
+          "votes": 2187296
+        },
+        {
+          "name": "FORZA DEL POPOLO",
+          "votes": 815
+        },
+        {
+          "name": "FORZA ITALIA",
+          "votes": 2279321
+        },
+        {
+          "name": "FRATELLI D'ITALIA CON GIORGIA MELONI",
+          "votes": 7305018
+        },
+        {
+          "name": "FREE",
+          "votes": 828
+        },
+        {
+          "name": "IMPEGNO CIVICO LUIGI DI MAIO - CENTRO DEMOCRATICO",
+          "votes": 169112
+        },
+        {
+          "name": "ITALEXIT PER L'ITALIA",
+          "votes": 534734
+        },
+        {
+          "name": "ITALIA SOVRANA E POPOLARE",
+          "votes": 348214
+        },
+        {
+          "name": "LEGA PER SALVINI PREMIER",
+          "votes": 2464487
+        },
+        {
+          "name": "MASTELLA NOI DI CENTRO EUROPEISTI",
+          "votes": 46109
+        },
+        {
+          "name": "MOVIMENTO 5 STELLE",
+          "votes": 4336660
+        },
+        {
+          "name": "NOI MODERATI/LUPI - TOTI - BRUGNARO - UDC",
+          "votes": 254780
+        },
+        {
+          "name": "PARTITO ANIMALISTA - UCDL - 10 VOLTE MEGLIO",
+          "votes": 21442
+        },
+        {
+          "name": "PARTITO COMUNISTA ITALIANO",
+          "votes": 24555
+        },
+        {
+          "name": "PARTITO DELLA FOLLIA CREATIVA",
+          "votes": 1418
+        },
+        {
+          "name": "PARTITO DEMOCRATICO - ITALIA DEMOCRATICA E PROGRESSISTA",
+          "votes": 5358462
+        },
+        {
+          "name": "SUD CHIAMA NORD",
+          "votes": 212865
+        },
+        {
+          "name": "SUDTIROLER VOLKSPARTEI (SVP) - PATT",
+          "votes": 117010
+        },
+        {
+          "name": "UNIONE POPOLARE CON DE MAGISTRIS",
+          "votes": 403068
+        },
+        {
+          "name": "VITA",
+          "votes": 201557
+        }
+      ],
+      "panel": [
+        {
+          "id": "pd",
+          "votes": 5358462,
+          "share": 0.19071438409868174
+        },
+        {
+          "id": "m5s",
+          "votes": 4336660,
+          "share": 0.15434716919619643
+        },
+        {
+          "id": "lega",
+          "votes": 2464487,
+          "share": 0.08771418371991961
+        },
+        {
+          "id": "other",
+          "votes": 15937181,
+          "share": 0.5672242629852022
+        }
+      ]
+    },
+    {
+      "sourceId": "europee-20090607",
+      "sourceSha256": "54c7befc2463d9a8e9e8e06b11a95883fac7a7015d4c4330782882efe8788df7",
+      "method": "municipal-list-sum",
+      "total": 30564083,
+      "candidateOnly": 0,
+      "members": [
+        {
+          "name": "europee-20090607.txt",
+          "sha256": "c0453e6bac86a6d66a69cfbc4cf5e4dadc09a43abcdb77a288275c198f85293f",
+          "bytes": 14437360
+        }
+      ],
+      "lists": [
+        {
+          "name": "AUTONOMIE LIBERTE' DEMOCRATIE",
+          "votes": 27030
+        },
+        {
+          "name": "DI PIETRO ITALIA DEI VALORI",
+          "votes": 2441533
+        },
+        {
+          "name": "FIAMMA TRICOLORE",
+          "votes": 242900
+        },
+        {
+          "name": "FORZA NUOVA",
+          "votes": 145782
+        },
+        {
+          "name": "IL POPOLO DELLA LIBERTA'",
+          "votes": 10778876
+        },
+        {
+          "name": "LA DESTRA-MPA- PENSIONATI -ALL.DI CENTRO",
+          "votes": 680727
+        },
+        {
+          "name": "LEGA NORD",
+          "votes": 3124577
+        },
+        {
+          "name": "LIBERAL DEMOCRATICI - MAIE",
+          "votes": 70771
+        },
+        {
+          "name": "LISTA MARCO PANNELLA - EMMA BONINO",
+          "votes": 740265
+        },
+        {
+          "name": "PARTITO COMUNISTA DEI LAVORATORI",
+          "votes": 165878
+        },
+        {
+          "name": "PARTITO DEMOCRATICO",
+          "votes": 7989423
+        },
+        {
+          "name": "RIFOND.COM. - SIN.EUROPEA - COM.ITALIANI",
+          "votes": 1035202
+        },
+        {
+          "name": "SINISTRA E LIBERTA' ",
+          "votes": 952481
+        },
+        {
+          "name": "SVP",
+          "votes": 142482
+        },
+        {
+          "name": "UNIONE DI CENTRO",
+          "votes": 1993301
+        },
+        {
+          "name": "VALLEE D'AOSTE",
+          "votes": 32855
+        }
+      ],
+      "panel": [
+        {
+          "id": "pd",
+          "votes": 7989423,
+          "share": 0.26139907420091746
+        },
+        {
+          "id": "m5s",
+          "votes": 0,
+          "share": 0
+        },
+        {
+          "id": "lega",
+          "votes": 3124577,
+          "share": 0.10223035318939554
+        },
+        {
+          "id": "other",
+          "votes": 19450083,
+          "share": 0.636370572609687
+        }
+      ]
+    },
+    {
+      "sourceId": "europee-20140525",
+      "sourceSha256": "a54aa5ae6f25af865162f494a45530d71580d5718f16aa62619703913388f974",
+      "method": "municipal-list-sum",
+      "total": 27371747,
+      "candidateOnly": 0,
+      "members": [
+        {
+          "name": "europee-20140525.txt",
+          "sha256": "e3d818ca58da1a1444f65584e163d89f23f0682e7496f7c18c6b93cfa38d1678",
+          "bytes": 10602855
+        }
+      ],
+      "lists": [
+        {
+          "name": "FORZA ITALIA",
+          "votes": 4605331
+        },
+        {
+          "name": "FRATELLI D'ITALIA - ALLEANZA NAZIONALE",
+          "votes": 1004037
+        },
+        {
+          "name": "IO CAMBIO - MAIE",
+          "votes": 48450
+        },
+        {
+          "name": "ITALIA DEI VALORI",
+          "votes": 179693
+        },
+        {
+          "name": "L'ALTRA EUROPA CON TSIPRAS",
+          "votes": 1103203
+        },
+        {
+          "name": "LEGA NORD-DIE FREIHEITLICHEN-BASTA EURO",
+          "votes": 1686556
+        },
+        {
+          "name": "MOVIMENTO 5 STELLE BEPPEGRILLO.IT",
+          "votes": 5792865
+        },
+        {
+          "name": "NUOVO CENTRO DESTRA - UDC",
+          "votes": 1199703
+        },
+        {
+          "name": "PARTITO DEMOCRATICO",
+          "votes": 11172861
+        },
+        {
+          "name": "SCELTA EUROPEA",
+          "votes": 196157
+        },
+        {
+          "name": "SVP",
+          "votes": 137448
+        },
+        {
+          "name": "VERDI EUROPEI-GREEN ITALIA",
+          "votes": 245443
+        }
+      ],
+      "panel": [
+        {
+          "id": "pd",
+          "votes": 11172861,
+          "share": 0.4081895466884156
+        },
+        {
+          "id": "m5s",
+          "votes": 5792865,
+          "share": 0.21163665585539718
+        },
+        {
+          "id": "lega",
+          "votes": 1686556,
+          "share": 0.061616673572205675
+        },
+        {
+          "id": "other",
+          "votes": 8719465,
+          "share": 0.31855712388398155
+        }
+      ]
+    },
+    {
+      "sourceId": "europee-20190526",
+      "sourceSha256": "81d21e26d5761ba81797a726316718ef82aa56894c0cdbd3ad236535148daa19",
+      "method": "municipal-list-sum",
+      "total": 26662962,
+      "candidateOnly": 0,
+      "members": [
+        {
+          "name": "europee-20190526.txt",
+          "sha256": "d5d6f581bc773bbca486415fd6ddc83b33e6aec6bfd0830c816f696a8b5f6260",
+          "bytes": 16803680
+        }
+      ],
+      "lists": [
+        {
+          "name": "+EUROPA - ITALIA IN COMUNE - PDE ITALIA",
+          "votes": 822764
+        },
+        {
+          "name": "AUTONOMIE PER L'EUROPA",
+          "votes": 17629
+        },
+        {
+          "name": "CASAPOUND ITALIA - DESTRE UNITE",
+          "votes": 88724
+        },
+        {
+          "name": "EUROPA VERDE",
+          "votes": 609678
+        },
+        {
+          "name": "FORZA ITALIA",
+          "votes": 2344465
+        },
+        {
+          "name": "FORZA NUOVA",
+          "votes": 40782
+        },
+        {
+          "name": "FRATELLI D'ITALIA",
+          "votes": 1723232
+        },
+        {
+          "name": "LA SINISTRA",
+          "votes": 465092
+        },
+        {
+          "name": "LEGA SALVINI PREMIER",
+          "votes": 9153638
+        },
+        {
+          "name": "MOVIMENTO 5 STELLE",
+          "votes": 4552527
+        },
+        {
+          "name": "PARTITO ANIMALISTA",
+          "votes": 159344
+        },
+        {
+          "name": "PARTITO COMUNISTA",
+          "votes": 234232
+        },
+        {
+          "name": "PARTITO DEMOCRATICO",
+          "votes": 6050351
+        },
+        {
+          "name": "PARTITO PIRATA",
+          "votes": 60308
+        },
+        {
+          "name": "POPOLARI PER L'ITALIA",
+          "votes": 79951
+        },
+        {
+          "name": "POPOLO DELLA FAMIGLIA - ALTERNATIVA POPOLARE",
+          "votes": 113875
+        },
+        {
+          "name": "PPA MOVIMENTO POLITICO PENSIERO AZIONE",
+          "votes": 5017
+        },
+        {
+          "name": "SVP",
+          "votes": 141353
+        }
+      ],
+      "panel": [
+        {
+          "id": "pd",
+          "votes": 6050351,
+          "share": 0.2269196873175606
+        },
+        {
+          "id": "m5s",
+          "votes": 4552527,
+          "share": 0.1707434830383811
+        },
+        {
+          "id": "lega",
+          "votes": 9153638,
+          "share": 0.34330911921938756
+        },
+        {
+          "id": "other",
+          "votes": 6906446,
+          "share": 0.25902771042467077
+        }
+      ]
+    },
+    {
+      "sourceId": "europee-20240609",
+      "sourceSha256": "1ea7b128447208691427af01443c9ba7b4bfc8d9e07cee361a9f87b3def460a5",
+      "method": "municipal-list-sum",
+      "total": 23308066,
+      "candidateOnly": 0,
+      "members": [
+        {
+          "name": "EUROPEE_SCRUTINI&LISTE_ITALIA_LivComune.csv",
+          "sha256": "656cdd31373b47d28d57c6408722f3a4571d4e607f759e6d6cf37294af1f7974",
+          "bytes": 13284241
+        },
+        {
+          "name": "EUROPEE_SCRUTINI&LISTE_FUORI_SEDE.csv",
+          "sha256": "6f18fa50a8b3a3bbcf5b556cfba6c501fea10841a24430777a071afab29e46b1",
+          "bytes": 126500
+        }
+      ],
+      "lists": [
+        {
+          "name": "ALLEANZA VERDI E SINISTRA",
+          "votes": 1569643
+        },
+        {
+          "name": "ALTERNATIVA POPOLARE",
+          "votes": 90663
+        },
+        {
+          "name": "AZIONE - SIAMO EUROPEI",
+          "votes": 780409
+        },
+        {
+          "name": "DEMOCRAZIA SOVRANA POPOLARE",
+          "votes": 36043
+        },
+        {
+          "name": "FORZA ITALIA - NOI MODERATI - PPE",
+          "votes": 2239368
+        },
+        {
+          "name": "FRATELLI D'ITALIA",
+          "votes": 6713952
+        },
+        {
+          "name": "LEGA SALVINI PREMIER",
+          "votes": 2096579
+        },
+        {
+          "name": "LIBERTA'",
+          "votes": 284629
+        },
+        {
+          "name": "MOVIMENTO 5 STELLE",
+          "votes": 2327868
+        },
+        {
+          "name": "PACE TERRA DIGNITA'",
+          "votes": 514183
+        },
+        {
+          "name": "PARTITO ANIMALISTA - ITALEXIT PER L'ITALIA",
+          "votes": 29327
+        },
+        {
+          "name": "PARTITO DEMOCRATICO",
+          "votes": 5613769
+        },
+        {
+          "name": "RASSEMBLEMENT VALDÔTAIN",
+          "votes": 14418
+        },
+        {
+          "name": "STATI UNITI D'EUROPA",
+          "votes": 877138
+        },
+        {
+          "name": "SÜDTIROLER VOLKSPARTEI (SVP)",
+          "votes": 120077
+        }
+      ],
+      "panel": [
+        {
+          "id": "pd",
+          "votes": 5613769,
+          "share": 0.24085091401405848
+        },
+        {
+          "id": "m5s",
+          "votes": 2327868,
+          "share": 0.09987392347353058
+        },
+        {
+          "id": "lega",
+          "votes": 2096579,
+          "share": 0.08995079214208507
+        },
+        {
+          "id": "other",
+          "votes": 13269850,
+          "share": 0.5693243703703259
+        }
+      ]
+    }
+  ]
+}

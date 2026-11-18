@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "qualification": "Recorded sequential research selections. Camera 2022 was already seen in earlier research; none is an untouched holdout.",
+  "initial": {
+    "schemaVersion": 1,
+    "stage": "selected-before-later-election-validation",
+    "developmentReportSha256": "53dd931aded65877b0703ad0d6d8fda7c612662ec8e24a88b8c2c62979c29185",
+    "leadingCandidate": {
+      "id": "bounded-pair-field-v1",
+      "scale": 1.5
+    },
+    "comparators": [
+      {
+        "id": "filing-strata-beta-v1",
+        "scale": 1
+      },
+      {
+        "id": "legacy-global-beta-v1",
+        "scale": 1
+      }
+    ],
+    "rationale": "Bounded pair scale 1.5 reduces municipal and college extreme/tail error frequencies with college coverage close to the old model, improved proper scores and mean error. Strata Beta scale 1 offers higher coverage as the main alternative. Both remain candidates; later-election and full-domain validation may reject, not retune, them.",
+    "selectionData": "Eight Camera 2013/2018 horizon cases, equal units; no Camera 2022 output inspected."
+  },
+  "mass": {
+    "schemaVersion": 1,
+    "stage": "selected-before-mass-validation",
+    "leadingCandidate": {
+      "id": "bounded-mass-pair-field-v2",
+      "scale": 1.5
+    },
+    "developmentReportSha256": "0811a560cd9940e765976dc097aadece4a35cb2bb5b842d936928abbbfaea375",
+    "reason": "Scale 1.5 gives the best coverage of the predeclared mass-weighted grid while reducing severe tail errors against the original model. Mass-weighted matching addresses the demonstrated component-count/major-party underdispersion defect; do not retune this scale on reused Camera 2022 validation. The strata Beta alternative is retained for comparison."
+  },
+  "regional": {
+    "selectedAt": "2026-10-30T11:57:31.754Z",
+    "leadingCandidate": {
+      "id": "bounded-mass-pair-field-v2",
+      "scale": 1.5,
+      "profileRegionCorrelation": 0.25
+    },
+    "developmentReportSha256": "536e0bdc021ecc30a29207c363e2d8528623228c08e293fca9c1b0677edca88f",
+    "rationale": "Select rho .25 on 8 development cases: municipal error30 .04208 vs .04196 for .5 is effectively unchanged; college error30 .02980 vs .03162, WIS .03324 vs .03337 and near-truth .2071 vs .2033 favour .25; coverage .8711 vs .8754 captures most shared-geography gain over rho0 .8558. Reused 2022 validation has not been inspected for these regional variants; not an untouched holdout."
+  }
+}

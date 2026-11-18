@@ -1,0 +1,552 @@
+{
+  "metadata": {
+    "schema_version": 1,
+    "source": "synthetic trace of R/generazione_voti.R",
+    "random_seed": 20260601,
+    "purpose": "Golden fixture for the generic vote-generation math and table order. Normal draws are exported from R and injected into the TypeScript test; browser production runs use the TypeScript seeded RNG instead."
+  },
+  "input": {
+    "data_elezione": "2027-03-01T00:00:00Z",
+    "simulazioni": 3,
+    "colonna_localita": "CODICE_COMUNE",
+    "liste": [
+      {
+        "LISTA": "Lista A",
+        "DATA": "2024-06-08T00:00:00Z",
+        "LOGIT_P": -0.8,
+        "SIGMA_GLOBAL": 0.012
+      },
+      {
+        "LISTA": "Lista B",
+        "DATA": "2024-07-15T00:00:00Z",
+        "LOGIT_P": -1.25,
+        "SIGMA_GLOBAL": 0.02
+      },
+      {
+        "LISTA": "Lista C",
+        "DATA": "2024-10-01T12:00:00Z",
+        "LOGIT_P": -2.1,
+        "SIGMA_GLOBAL": 0.018
+      }
+    ],
+    "comuni_liste": [
+      {
+        "CODICE_COMUNE": 1001,
+        "AREA": "nord",
+        "LISTA": "Lista A",
+        "DATA": "2024-06-08T00:00:00Z",
+        "DELTA": 0.05,
+        "SIGMA_DELTA": 0.03,
+        "ELETTORI": 1200
+      },
+      {
+        "CODICE_COMUNE": 1001,
+        "AREA": "nord",
+        "LISTA": "Lista B",
+        "DATA": "2024-06-08T00:00:00Z",
+        "DELTA": -0.1,
+        "SIGMA_DELTA": 0.025,
+        "ELETTORI": 1200
+      },
+      {
+        "CODICE_COMUNE": 1001,
+        "AREA": "nord",
+        "LISTA": "Lista C",
+        "DATA": "2024-06-08T00:00:00Z",
+        "DELTA": -0.35,
+        "SIGMA_DELTA": 0.018,
+        "ELETTORI": 1200
+      },
+      {
+        "CODICE_COMUNE": 1002,
+        "AREA": "sud",
+        "LISTA": "Lista A",
+        "DATA": "2024-07-15T00:00:00Z",
+        "DELTA": -0.15,
+        "SIGMA_DELTA": 0.02,
+        "ELETTORI": 900
+      },
+      {
+        "CODICE_COMUNE": 1002,
+        "AREA": "sud",
+        "LISTA": "Lista B",
+        "DATA": "2024-07-15T00:00:00Z",
+        "DELTA": 0.08,
+        "SIGMA_DELTA": 0.03,
+        "ELETTORI": 900
+      },
+      {
+        "CODICE_COMUNE": 1002,
+        "AREA": "sud",
+        "LISTA": "Lista C",
+        "DATA": "2024-07-15T00:00:00Z",
+        "DELTA": -0.22,
+        "SIGMA_DELTA": 0.015,
+        "ELETTORI": 900
+      }
+    ]
+  },
+  "normal_draws": [
+    {
+      "phase": "global",
+      "LISTA": "Lista A",
+      "SIM": 1,
+      "LOCALITA": null,
+      "mean": -0.8,
+      "sd": 0.378713612113428,
+      "value": -0.835062487452676
+    },
+    {
+      "phase": "global",
+      "LISTA": "Lista A",
+      "SIM": 2,
+      "LOCALITA": null,
+      "mean": -0.8,
+      "sd": 0.378713612113428,
+      "value": -1.02795168397218
+    },
+    {
+      "phase": "global",
+      "LISTA": "Lista A",
+      "SIM": 3,
+      "LOCALITA": null,
+      "mean": -0.8,
+      "sd": 0.378713612113428,
+      "value": -0.738899423284142
+    },
+    {
+      "phase": "global",
+      "LISTA": "Lista B",
+      "SIM": 1,
+      "LOCALITA": null,
+      "mean": -1.25,
+      "sd": 0.619354502688081,
+      "value": -1.54278779208701
+    },
+    {
+      "phase": "global",
+      "LISTA": "Lista B",
+      "SIM": 2,
+      "LOCALITA": null,
+      "mean": -1.25,
+      "sd": 0.619354502688081,
+      "value": -0.869406861133155
+    },
+    {
+      "phase": "global",
+      "LISTA": "Lista B",
+      "SIM": 3,
+      "LOCALITA": null,
+      "mean": -1.25,
+      "sd": 0.619354502688081,
+      "value": -1.07829568689001
+    },
+    {
+      "phase": "global",
+      "LISTA": "Lista C",
+      "SIM": 1,
+      "LOCALITA": null,
+      "mean": -2.1,
+      "sd": 0.53411796449848,
+      "value": -2.05525149457858
+    },
+    {
+      "phase": "global",
+      "LISTA": "Lista C",
+      "SIM": 2,
+      "LOCALITA": null,
+      "mean": -2.1,
+      "sd": 0.53411796449848,
+      "value": -2.72519717840531
+    },
+    {
+      "phase": "global",
+      "LISTA": "Lista C",
+      "SIM": 3,
+      "LOCALITA": null,
+      "mean": -2.1,
+      "sd": 0.53411796449848,
+      "value": -2.2968176415776
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista A",
+      "SIM": 1,
+      "LOCALITA": 1001,
+      "mean": 0.05,
+      "sd": 0.94678403028357,
+      "value": -0.894741747257471
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista A",
+      "SIM": 1,
+      "LOCALITA": 1002,
+      "mean": -0.15,
+      "sd": 0.619354502688081,
+      "value": -0.0494545640973414
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista A",
+      "SIM": 2,
+      "LOCALITA": 1001,
+      "mean": 0.05,
+      "sd": 0.94678403028357,
+      "value": 0.534473636626278
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista A",
+      "SIM": 2,
+      "LOCALITA": 1002,
+      "mean": -0.15,
+      "sd": 0.619354502688081,
+      "value": 0.816782108241198
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista A",
+      "SIM": 3,
+      "LOCALITA": 1001,
+      "mean": 0.05,
+      "sd": 0.94678403028357,
+      "value": -0.946355857962266
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista A",
+      "SIM": 3,
+      "LOCALITA": 1002,
+      "mean": -0.15,
+      "sd": 0.619354502688081,
+      "value": -0.152672695469891
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista B",
+      "SIM": 1,
+      "LOCALITA": 1001,
+      "mean": -0.1,
+      "sd": 0.788986691902975,
+      "value": -0.183785028760383
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista B",
+      "SIM": 1,
+      "LOCALITA": 1002,
+      "mean": 0.08,
+      "sd": 0.929031754032121,
+      "value": 0.871238890357662
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista B",
+      "SIM": 2,
+      "LOCALITA": 1001,
+      "mean": -0.1,
+      "sd": 0.788986691902975,
+      "value": 0.714802547843159
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista B",
+      "SIM": 2,
+      "LOCALITA": 1002,
+      "mean": 0.08,
+      "sd": 0.929031754032121,
+      "value": -0.363981112607943
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista B",
+      "SIM": 3,
+      "LOCALITA": 1001,
+      "mean": -0.1,
+      "sd": 0.788986691902975,
+      "value": -0.205567587931183
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista B",
+      "SIM": 3,
+      "LOCALITA": 1002,
+      "mean": 0.08,
+      "sd": 0.929031754032121,
+      "value": 0.171710396399591
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista C",
+      "SIM": 1,
+      "LOCALITA": 1001,
+      "mean": -0.35,
+      "sd": 0.568070418170142,
+      "value": -0.842482159146693
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista C",
+      "SIM": 1,
+      "LOCALITA": 1002,
+      "mean": -0.22,
+      "sd": 0.464515877016061,
+      "value": -0.170242032296765
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista C",
+      "SIM": 2,
+      "LOCALITA": 1001,
+      "mean": -0.35,
+      "sd": 0.568070418170142,
+      "value": -0.375221624258108
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista C",
+      "SIM": 2,
+      "LOCALITA": 1002,
+      "mean": -0.22,
+      "sd": 0.464515877016061,
+      "value": -0.388109868819083
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista C",
+      "SIM": 3,
+      "LOCALITA": 1001,
+      "mean": -0.35,
+      "sd": 0.568070418170142,
+      "value": -0.7167680984573
+    },
+    {
+      "phase": "local",
+      "LISTA": "Lista C",
+      "SIM": 3,
+      "LOCALITA": 1002,
+      "mean": -0.22,
+      "sd": 0.464515877016061,
+      "value": 0.836540343930181
+    }
+  ],
+  "expected": [
+    {
+      "SIM": 1,
+      "CODICE_COMUNE": 1001,
+      "AREA": "nord",
+      "LISTA": "Lista A",
+      "DATA": "2024-06-08T00:00:00Z",
+      "DELTA": 0.05,
+      "SIGMA_DELTA": 0.03,
+      "ELETTORI": 1200,
+      "PERCENTUALE_SIM": 0.425573818892516,
+      "VOTI_LISTA_SIM": 511
+    },
+    {
+      "SIM": 1,
+      "CODICE_COMUNE": 1002,
+      "AREA": "sud",
+      "LISTA": "Lista A",
+      "DATA": "2024-07-15T00:00:00Z",
+      "DELTA": -0.15,
+      "SIGMA_DELTA": 0.02,
+      "ELETTORI": 900,
+      "PERCENTUALE_SIM": 0.401499926372902,
+      "VOTI_LISTA_SIM": 361
+    },
+    {
+      "SIM": 2,
+      "CODICE_COMUNE": 1001,
+      "AREA": "nord",
+      "LISTA": "Lista A",
+      "DATA": "2024-06-08T00:00:00Z",
+      "DELTA": 0.05,
+      "SIGMA_DELTA": 0.03,
+      "ELETTORI": 1200,
+      "PERCENTUALE_SIM": 0.429016230463732,
+      "VOTI_LISTA_SIM": 515
+    },
+    {
+      "SIM": 2,
+      "CODICE_COMUNE": 1002,
+      "AREA": "sud",
+      "LISTA": "Lista A",
+      "DATA": "2024-07-15T00:00:00Z",
+      "DELTA": -0.15,
+      "SIGMA_DELTA": 0.02,
+      "ELETTORI": 900,
+      "PERCENTUALE_SIM": 0.625254234935083,
+      "VOTI_LISTA_SIM": 563
+    },
+    {
+      "SIM": 3,
+      "CODICE_COMUNE": 1001,
+      "AREA": "nord",
+      "LISTA": "Lista A",
+      "DATA": "2024-06-08T00:00:00Z",
+      "DELTA": 0.05,
+      "SIGMA_DELTA": 0.03,
+      "ELETTORI": 1200,
+      "PERCENTUALE_SIM": 0.372285407193003,
+      "VOTI_LISTA_SIM": 447
+    },
+    {
+      "SIM": 3,
+      "CODICE_COMUNE": 1002,
+      "AREA": "sud",
+      "LISTA": "Lista A",
+      "DATA": "2024-07-15T00:00:00Z",
+      "DELTA": -0.15,
+      "SIGMA_DELTA": 0.02,
+      "ELETTORI": 900,
+      "PERCENTUALE_SIM": 0.379165332887161,
+      "VOTI_LISTA_SIM": 341
+    },
+    {
+      "SIM": 1,
+      "CODICE_COMUNE": 1001,
+      "AREA": "nord",
+      "LISTA": "Lista B",
+      "DATA": "2024-06-08T00:00:00Z",
+      "DELTA": -0.1,
+      "SIGMA_DELTA": 0.025,
+      "ELETTORI": 1200,
+      "PERCENTUALE_SIM": 0.426743220033014,
+      "VOTI_LISTA_SIM": 512
+    },
+    {
+      "SIM": 1,
+      "CODICE_COMUNE": 1002,
+      "AREA": "sud",
+      "LISTA": "Lista B",
+      "DATA": "2024-07-15T00:00:00Z",
+      "DELTA": 0.08,
+      "SIGMA_DELTA": 0.03,
+      "ELETTORI": 900,
+      "PERCENTUALE_SIM": 0.46457031454063,
+      "VOTI_LISTA_SIM": 418
+    },
+    {
+      "SIM": 2,
+      "CODICE_COMUNE": 1001,
+      "AREA": "nord",
+      "LISTA": "Lista B",
+      "DATA": "2024-06-08T00:00:00Z",
+      "DELTA": -0.1,
+      "SIGMA_DELTA": 0.025,
+      "ELETTORI": 1200,
+      "PERCENTUALE_SIM": 0.522216842166817,
+      "VOTI_LISTA_SIM": 627
+    },
+    {
+      "SIM": 2,
+      "CODICE_COMUNE": 1002,
+      "AREA": "sud",
+      "LISTA": "Lista B",
+      "DATA": "2024-07-15T00:00:00Z",
+      "DELTA": 0.08,
+      "SIGMA_DELTA": 0.03,
+      "ELETTORI": 900,
+      "PERCENTUALE_SIM": 0.315264996868097,
+      "VOTI_LISTA_SIM": 284
+    },
+    {
+      "SIM": 3,
+      "CODICE_COMUNE": 1001,
+      "AREA": "nord",
+      "LISTA": "Lista B",
+      "DATA": "2024-06-08T00:00:00Z",
+      "DELTA": -0.1,
+      "SIGMA_DELTA": 0.025,
+      "ELETTORI": 1200,
+      "PERCENTUALE_SIM": 0.516277420093596,
+      "VOTI_LISTA_SIM": 620
+    },
+    {
+      "SIM": 3,
+      "CODICE_COMUNE": 1002,
+      "AREA": "sud",
+      "LISTA": "Lista B",
+      "DATA": "2024-07-15T00:00:00Z",
+      "DELTA": 0.08,
+      "SIGMA_DELTA": 0.03,
+      "ELETTORI": 900,
+      "PERCENTUALE_SIM": 0.375140863963797,
+      "VOTI_LISTA_SIM": 338
+    },
+    {
+      "SIM": 1,
+      "CODICE_COMUNE": 1001,
+      "AREA": "nord",
+      "LISTA": "Lista C",
+      "DATA": "2024-06-08T00:00:00Z",
+      "DELTA": -0.35,
+      "SIGMA_DELTA": 0.018,
+      "ELETTORI": 1200,
+      "PERCENTUALE_SIM": 0.147682961074469,
+      "VOTI_LISTA_SIM": 177
+    },
+    {
+      "SIM": 1,
+      "CODICE_COMUNE": 1002,
+      "AREA": "sud",
+      "LISTA": "Lista C",
+      "DATA": "2024-07-15T00:00:00Z",
+      "DELTA": -0.22,
+      "SIGMA_DELTA": 0.015,
+      "ELETTORI": 900,
+      "PERCENTUALE_SIM": 0.133929759086468,
+      "VOTI_LISTA_SIM": 121
+    },
+    {
+      "SIM": 2,
+      "CODICE_COMUNE": 1001,
+      "AREA": "nord",
+      "LISTA": "Lista C",
+      "DATA": "2024-06-08T00:00:00Z",
+      "DELTA": -0.35,
+      "SIGMA_DELTA": 0.018,
+      "ELETTORI": 1200,
+      "PERCENTUALE_SIM": 0.0487669273694512,
+      "VOTI_LISTA_SIM": 59
+    },
+    {
+      "SIM": 2,
+      "CODICE_COMUNE": 1002,
+      "AREA": "sud",
+      "LISTA": "Lista C",
+      "DATA": "2024-07-15T00:00:00Z",
+      "DELTA": -0.22,
+      "SIGMA_DELTA": 0.015,
+      "ELETTORI": 900,
+      "PERCENTUALE_SIM": 0.0594807681968195,
+      "VOTI_LISTA_SIM": 54
+    },
+    {
+      "SIM": 3,
+      "CODICE_COMUNE": 1001,
+      "AREA": "nord",
+      "LISTA": "Lista C",
+      "DATA": "2024-06-08T00:00:00Z",
+      "DELTA": -0.35,
+      "SIGMA_DELTA": 0.018,
+      "ELETTORI": 1200,
+      "PERCENTUALE_SIM": 0.111437172713401,
+      "VOTI_LISTA_SIM": 134
+    },
+    {
+      "SIM": 3,
+      "CODICE_COMUNE": 1002,
+      "AREA": "sud",
+      "LISTA": "Lista C",
+      "DATA": "2024-07-15T00:00:00Z",
+      "DELTA": -0.22,
+      "SIGMA_DELTA": 0.015,
+      "ELETTORI": 900,
+      "PERCENTUALE_SIM": 0.245693803149042,
+      "VOTI_LISTA_SIM": 221
+    }
+  ]
+}

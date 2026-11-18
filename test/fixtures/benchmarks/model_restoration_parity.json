@@ -1,0 +1,63 @@
+{
+  "status": "passed",
+  "baselineCommit": "1c19d54d4ccd0e0f3a05940c3cd28fa5bcab0a1b",
+  "catalog": "fast-share-catalog-v1-0c255ade89a4f9e84edefd4e1d727c4de00496d0f2ce23778b7ebf0007ce61db",
+  "excludedMetadata": [
+    "parameterVersion",
+    "modelVersion",
+    "unified-legacy-input-v1 hashes include public selector/version"
+  ],
+  "results": [
+    {
+      "model": "M02",
+      "version": "2.0.0",
+      "id": 1,
+      "currentHash": "50e5c0d6bda0652508162d37f0bca46e2e9cade555913a8334daeb3acbb768ca",
+      "baselineHash": "50e5c0d6bda0652508162d37f0bca46e2e9cade555913a8334daeb3acbb768ca",
+      "trace": "M02@2.0.0"
+    },
+    {
+      "model": "M02",
+      "version": "2.0.0",
+      "id": 2,
+      "currentHash": "a49deb0a4b90b8d26aeac0bb0b5e031f8a5a7a651ca3fd2bcf08d24897925196",
+      "baselineHash": "a49deb0a4b90b8d26aeac0bb0b5e031f8a5a7a651ca3fd2bcf08d24897925196",
+      "trace": "M02@2.0.0"
+    },
+    {
+      "model": "M02",
+      "version": "2.0.0",
+      "id": 7,
+      "currentHash": "f9e6917365b4e1f3cccebc2a70f18b0ca73bf94fa8680e48ffccd2dd8e4ceef6",
+      "baselineHash": "f9e6917365b4e1f3cccebc2a70f18b0ca73bf94fa8680e48ffccd2dd8e4ceef6",
+      "trace": "M02@2.0.0"
+    },
+    {
+      "model": "M01",
+      "version": "2.0.0",
+      "id": 1,
+      "currentHash": "816a00b4655b518589ce353d559bb53329e713bef6dd144fde682640504ba740",
+      "baselineHash": "816a00b4655b518589ce353d559bb53329e713bef6dd144fde682640504ba740",
+      "trace": "M01@2.0.0"
+    },
+    {
+      "model": "M01",
+      "version": "2.0.0",
+      "id": 2,
+      "currentHash": "f70861368f9e50fcdf4bec09b05a164f59be4bb6c9b689a5c29113abb3bbc047",
+      "baselineHash": "f70861368f9e50fcdf4bec09b05a164f59be4bb6c9b689a5c29113abb3bbc047",
+      "trace": "M01@2.0.0"
+    },
+    {
+      "model": "M01",
+      "version": "2.0.0",
+      "id": 7,
+      "currentHash": "846fd81f5831b536cb216eb269158542738ca6074be714bb73ad7a15e8ad78fe",
+      "baselineHash": "846fd81f5831b536cb216eb269158542738ca6074be714bb73ad7a15e8ad78fe",
+      "trace": "M01@2.0.0"
+    }
+  ],
+  "qualification": "Six paired full-default generated inputs; public version metadata and public-selector-dependent provenance hashes excluded. No predictive accuracy or 1000-draw campaign claim.",
+  "reproduce": "From web/: node --import tsx scripts/acceptance/model-rollback-parity.ts",
+  "scriptSha256": "f03ac7731bcab8c6dadeca4fa8deff1c9c07dbd25f5471f1748828c3346dafb9"
+}

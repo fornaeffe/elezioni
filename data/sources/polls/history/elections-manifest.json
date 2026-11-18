@@ -1,0 +1,252 @@
+{
+  "schemaVersion": 1,
+  "id": "camera-european-calibration-targets-v1",
+  "reviewedOn": "2026-10-23",
+  "sources": [
+    {
+      "id": "camera-20080413",
+      "url": "https://dait.interno.gov.it/documenti/opendata/camera/camera-20080413.zip",
+      "path": "poll-history/camera-20080413.zip",
+      "sha256": "d9edb7e7d82de98ce025598cead45e75cec3ca1775f0e3c054f41b04e0b4592f",
+      "bytes": 2636771,
+      "headers": {},
+      "member": "camera_italia-20080413.txt",
+      "method": "municipal-list-sum",
+      "panel": {
+        "pd": [
+          "PARTITO DEMOCRATICO"
+        ],
+        "m5s": [],
+        "lega": [
+          "LEGA NORD"
+        ]
+      }
+    },
+    {
+      "id": "camera-20130224",
+      "url": "https://dait.interno.gov.it/documenti/opendata/camera/camera-20130224.zip",
+      "path": "poll-history/camera-20130224.zip",
+      "sha256": "19749e05cead3a8d41ba7829fc0272962835ecd8fb73ced9e3a9eb727106a03a",
+      "bytes": 3276971,
+      "headers": {},
+      "member": "camera_italia-20130224.txt",
+      "method": "municipal-list-sum",
+      "panel": {
+        "pd": [
+          "PARTITO DEMOCRATICO"
+        ],
+        "m5s": [
+          "MOVIMENTO 5 STELLE BEPPEGRILLO.IT"
+        ],
+        "lega": [
+          "LEGA NORD"
+        ]
+      }
+    },
+    {
+      "id": "camera-20180304",
+      "url": "https://dait.interno.gov.it/documenti/opendata/camera/camera-20180304.zip",
+      "path": "poll-history/camera-20180304.zip",
+      "sha256": "98b2dc30821f96d640497421f9bfaeb62aba8013b29cb1bbea29352bfe329372",
+      "bytes": 1502314,
+      "headers": {},
+      "member": "Camera2018_Liste_Italia_Liv_Naz.txt",
+      "method": "national-attributed-list-totals",
+      "panel": {
+        "pd": [
+          "PARTITO DEMOCRATICO"
+        ],
+        "m5s": [
+          "MOVIMENTO 5 STELLE"
+        ],
+        "lega": [
+          "LEGA"
+        ]
+      }
+    },
+    {
+      "id": "camera-20220925",
+      "url": "https://dait.interno.gov.it/documenti/opendata/camera/camera-20220925.zip",
+      "path": "poll-history/camera-20220925.zip",
+      "sha256": "dd8ede158ea3f7b0aae65024135a27e34ab9e959728df95f0e977cd56edf88ff",
+      "bytes": 1216091,
+      "headers": {},
+      "member": "camera2022_Italia_LivComune.csv",
+      "method": "old-college-candidate-only-attribution",
+      "panel": {
+        "pd": [
+          "PARTITO DEMOCRATICO - ITALIA DEMOCRATICA E PROGRESSISTA"
+        ],
+        "m5s": [
+          "MOVIMENTO 5 STELLE"
+        ],
+        "lega": [
+          "LEGA PER SALVINI PREMIER"
+        ]
+      }
+    },
+    {
+      "id": "europee-20090607",
+      "url": "https://dait.interno.gov.it/documenti/opendata/europee/europee-20090607.zip",
+      "path": "poll-history/europee-20090607.zip",
+      "sha256": "54c7befc2463d9a8e9e8e06b11a95883fac7a7015d4c4330782882efe8788df7",
+      "bytes": 28362090,
+      "headers": {},
+      "member": "europee-20090607.txt",
+      "method": "municipal-list-sum",
+      "panel": {
+        "pd": [
+          "PARTITO DEMOCRATICO"
+        ],
+        "m5s": [],
+        "lega": [
+          "LEGA NORD"
+        ]
+      }
+    },
+    {
+      "id": "europee-20140525",
+      "url": "https://dait.interno.gov.it/documenti/opendata/europee/europee-20140525.zip",
+      "path": "poll-history/europee-20140525.zip",
+      "sha256": "a54aa5ae6f25af865162f494a45530d71580d5718f16aa62619703913388f974",
+      "bytes": 9125018,
+      "headers": {},
+      "member": "europee-20140525.txt",
+      "method": "municipal-list-sum",
+      "panel": {
+        "pd": [
+          "PARTITO DEMOCRATICO"
+        ],
+        "m5s": [
+          "MOVIMENTO 5 STELLE BEPPEGRILLO.IT"
+        ],
+        "lega": [
+          "LEGA NORD-DIE FREIHEITLICHEN-BASTA EURO"
+        ]
+      }
+    },
+    {
+      "id": "europee-20190526",
+      "url": "https://dait.interno.gov.it/documenti/opendata/europee/europee-20190526.zip",
+      "path": "poll-history/europee-20190526.zip",
+      "sha256": "81d21e26d5761ba81797a726316718ef82aa56894c0cdbd3ad236535148daa19",
+      "bytes": 31187859,
+      "headers": {},
+      "member": "europee-20190526.txt",
+      "method": "municipal-list-sum",
+      "panel": {
+        "pd": [
+          "PARTITO DEMOCRATICO"
+        ],
+        "m5s": [
+          "MOVIMENTO 5 STELLE"
+        ],
+        "lega": [
+          "LEGA SALVINI PREMIER"
+        ]
+      }
+    },
+    {
+      "id": "europee-20240609",
+      "url": "https://dait.interno.gov.it/documenti/opendata/europee/europee-20240609.zip",
+      "path": "poll-history/europee-20240609.zip",
+      "sha256": "1ea7b128447208691427af01443c9ba7b4bfc8d9e07cee361a9f87b3def460a5",
+      "bytes": 123034781,
+      "headers": {},
+      "member": "EUROPEE_SCRUTINI&LISTE_ITALIA_LivComune.csv",
+      "method": "municipal-list-sum",
+      "additionalMembers": [
+        "EUROPEE_SCRUTINI&LISTE_FUORI_SEDE.csv"
+      ],
+      "panel": {
+        "pd": [
+          "PARTITO DEMOCRATICO"
+        ],
+        "m5s": [
+          "MOVIMENTO 5 STELLE"
+        ],
+        "lega": [
+          "LEGA SALVINI PREMIER"
+        ]
+      }
+    }
+  ],
+  "elections": [
+    {
+      "id": "camera-2013",
+      "date": "2013-02-24",
+      "cutoff": "2013-02-08",
+      "resultSourceId": "camera-20130224",
+      "baselineSourceId": "camera-20080413",
+      "questionIds": [
+        "pcm-551-q1",
+        "pcm-553-q1",
+        "pcm-566-q1"
+      ],
+      "kind": "camera"
+    },
+    {
+      "id": "camera-2018",
+      "date": "2018-03-04",
+      "cutoff": "2018-02-16",
+      "resultSourceId": "camera-20180304",
+      "baselineSourceId": "camera-20130224",
+      "questionIds": [
+        "pcm-7154-q1",
+        "pcm-7145-q1",
+        "pcm-7135-q2"
+      ],
+      "kind": "camera"
+    },
+    {
+      "id": "camera-2022",
+      "date": "2022-09-25",
+      "cutoff": "2022-09-09",
+      "resultSourceId": "camera-20220925",
+      "baselineSourceId": "camera-20180304",
+      "questionIds": [
+        "pcm-11848-q1",
+        "pcm-11839-q1",
+        "pcm-11832-q2"
+      ],
+      "kind": "camera"
+    },
+    {
+      "id": "european-2014",
+      "kind": "european",
+      "date": "2014-05-25",
+      "cutoff": "2014-05-09",
+      "resultSourceId": "europee-20140525",
+      "baselineSourceId": "europee-20090607",
+      "questionIds": [
+        "pcm-1342-q1",
+        "pcm-1333-q1"
+      ]
+    },
+    {
+      "id": "european-2019",
+      "kind": "european",
+      "date": "2019-05-26",
+      "cutoff": "2019-05-10",
+      "resultSourceId": "europee-20190526",
+      "baselineSourceId": "europee-20140525",
+      "questionIds": [
+        "pcm-8790-q1",
+        "pcm-8779-q2",
+        "pcm-8787-q3"
+      ]
+    },
+    {
+      "id": "european-2024",
+      "kind": "european",
+      "date": "2024-06-08",
+      "cutoff": "2024-05-24",
+      "resultSourceId": "europee-20240609",
+      "baselineSourceId": "europee-20190526",
+      "questionIds": [
+        "pcm-12951-q1",
+        "pcm-12952-q3"
+      ]
+    }
+  ]
+}

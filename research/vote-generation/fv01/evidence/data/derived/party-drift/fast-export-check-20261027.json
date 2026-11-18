@@ -1,0 +1,10 @@
+{
+  "accepted": true,
+  "deterministicBytes": 3847035,
+  "sha256": "bde1498d2c1ce764dc065edd78b6baf05d8f7a6786725fcdffc8893ab8920228",
+  "municipalities": 7821,
+  "components": 28,
+  "posteriorDraws": 1024,
+  "commonLocalScale": true,
+  "changedInputRejected": true
+}

@@ -1,0 +1,33 @@
+{
+  "rows": [
+    {
+      "chamber": "camera",
+      "listId": "B",
+      "share": 0.5976095617529881,
+      "sigma": 0.14243907079480997,
+      "donorHistoricalListIds": []
+    },
+    {
+      "chamber": "camera",
+      "listId": "A",
+      "share": 0.402390438247012,
+      "sigma": 0.14228023842339882,
+      "donorHistoricalListIds": []
+    },
+    {
+      "chamber": "senato",
+      "listId": "B",
+      "share": 0.5976095617529881,
+      "sigma": 0.14243907079480997,
+      "donorHistoricalListIds": []
+    },
+    {
+      "chamber": "senato",
+      "listId": "A",
+      "share": 0.402390438247012,
+      "sigma": 0.14228023842339882,
+      "donorHistoricalListIds": []
+    }
+  ],
+  "projectionDate": "2026-10-18"
+}
