@@ -4,8 +4,11 @@ import type { Source } from './sources';
 
 const attempts = 3, deadlineMs = 180_000;
 const retryStatuses = new Set([408, 429, 500, 502, 503, 504]);
+// getaddrinfo may report ENOTFOUND for intermittent resolver/OS lookup failures,
+// even after this hostname succeeded. A persistent failure still exhausts the
+// same bounded attempts/deadline; source byte verification remains separate.
 const retryCodes = new Set(['UND_ERR_CONNECT_TIMEOUT', 'UND_ERR_HEADERS_TIMEOUT', 'UND_ERR_BODY_TIMEOUT',
-  'UND_ERR_SOCKET', 'ECONNRESET', 'ECONNREFUSED', 'ETIMEDOUT', 'EAI_AGAIN', 'ENETUNREACH', 'EHOSTUNREACH']);
+  'UND_ERR_SOCKET', 'ECONNRESET', 'ECONNREFUSED', 'ETIMEDOUT', 'EAI_AGAIN', 'ENOTFOUND', 'ENETUNREACH', 'EHOSTUNREACH']);
 
 class HttpFailure extends Error {
   readonly code: string;

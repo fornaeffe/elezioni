@@ -104,7 +104,8 @@ sizes, URLs and all other provenance remain part of that identity.
 HTTP acquisition uses a scoped Node/Undici dispatcher with a **30-second
 connection timeout**, at most **three attempts**, and one **180-second deadline
 per source**, including response bodies and waits. Transient connection/body
-failures and HTTP 408/429/500/502/503/504 retry after 2 then 5 seconds; a longer
+and lookup failures (including `EAI_AGAIN` and `ENOTFOUND`), and HTTP
+408/429/500/502/503/504 retry after 2 then 5 seconds; a longer
 `Retry-After` is honored within the same deadline. TLS validation and permanent
 HTTP failures stop immediately. Checksum mismatches, corrupt caches/imports and
 invalid repository snapshots never retry or switch sources. Logs identify the

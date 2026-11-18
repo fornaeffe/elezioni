@@ -50,12 +50,28 @@ describe('bounded source transport', () => {
     expect(warnings.mock.calls[0][0]).toContain('id=reviewed; host=example.invalid; attempt=1/3; elapsed=0.0s; code=UND_ERR_CONNECT_TIMEOUT; retry=true');
     expect(vi.getTimerCount()).toBe(0);
   });
-  it('stops after three failed attempts and preserves the underlying cause', async () => {
-    timers(); const { fetch } = setup(), error = networkError('ETIMEDOUT'); fetch.mockRejectedValue(error);
+  it('recovers from a wrapped ENOTFOUND without changing the request or deadline', async () => {
+    timers(); const { fetch, warnings } = setup();
+    fetch.mockRejectedValueOnce(networkError('ENOTFOUND')).mockResolvedValueOnce(new Response(bytes));
+    const checked = expect(downloadSource(source)).resolves.toEqual(bytes);
+    await vi.advanceTimersByTimeAsync(1999); expect(fetch).toHaveBeenCalledOnce();
+    await vi.advanceTimersByTimeAsync(1); await checked;
+    expect(fetch).toHaveBeenCalledTimes(2);
+    expect(fetch.mock.calls[1][0]).toBe(source.url);
+    expect(fetch.mock.calls[1][1]).toEqual(fetch.mock.calls[0][1]);
+    expect(warnings.mock.calls[0][0]).toContain('code=ENOTFOUND; retry=true');
+    expect(vi.getTimerCount()).toBe(0);
+  });
+  it.each(['ETIMEDOUT', 'ENOTFOUND'])('stops after three %s failures and preserves the underlying cause', async code => {
+    timers(); const { fetch, warnings } = setup(), error = networkError(code); fetch.mockRejectedValue(error);
     const result = downloadSource(source), checked = expect(result).rejects.toMatchObject({ cause: error,
-      message: expect.stringContaining('attempts=3/3; elapsed=7.0s; code=ETIMEDOUT') });
-    await vi.advanceTimersByTimeAsync(7000); await checked;
+      message: expect.stringContaining(`attempts=3/3; elapsed=7.0s; code=${code}`) });
+    await vi.advanceTimersByTimeAsync(1999); expect(fetch).toHaveBeenCalledTimes(1);
+    await vi.advanceTimersByTimeAsync(1); expect(fetch).toHaveBeenCalledTimes(2);
+    await vi.advanceTimersByTimeAsync(4999); expect(fetch).toHaveBeenCalledTimes(2);
+    await vi.advanceTimersByTimeAsync(1); await checked;
     expect(fetch).toHaveBeenCalledTimes(3); expect(vi.getTimerCount()).toBe(0);
+    expect(warnings.mock.calls[2][0]).toContain(`attempt=3/3; elapsed=7.0s; code=${code}; retry=false`);
   });
   it('retries a body interrupted after the response headers', async () => {
     timers(); const { fetch } = setup();
@@ -110,6 +126,20 @@ describe('bounded source transport', () => {
 });
 
 describe('strict acquisition after transport', () => {
+  it('rejects changed bytes after DNS recovery without a third attempt or a cached file', async () => {
+    const d = await directory(), { fetch } = setup();
+    timers();
+    let started!: () => void;
+    const firstFetch = new Promise<void>(resolve => { started = resolve; });
+    fetch.mockImplementationOnce(() => { started(); return Promise.reject(networkError('ENOTFOUND')); })
+      .mockResolvedValueOnce(new Response('changed upstream'));
+    const checked = expect(acquireSource(d, source)).rejects.toThrow('differs from its pinned version');
+    await firstFetch;
+    await vi.advanceTimersByTimeAsync(2000); await checked;
+    expect(fetch).toHaveBeenCalledTimes(2);
+    expect(await readdir(d)).toEqual([]);
+    expect(vi.getTimerCount()).toBe(0);
+  });
   it('rejects changed downloaded bytes immediately without caching or retrying', async () => {
     const d = await directory(), { fetch } = setup(); fetch.mockResolvedValue(new Response('changed upstream'));
     await expect(acquireSource(d, source)).rejects.toThrow('differs from its pinned version');
