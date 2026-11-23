@@ -4,12 +4,6 @@ This is the active task list. Record completed work and evidence according to
 [project history](docs/history/README.md). Order work by dependencies and update
 tasks when the evidence changes; detailed execution plans belong near their work.
 
-- [ ] **Document publication evidence.** Luca reports that the GitHub publication
-  workflow succeeded and the app is online at
-  https://fornaeffe.github.io/elezioni/. Record the published revision, data
-  versions, hosted cold/warm measurements and public smoke-check outcomes from
-  the actual workflow evidence; investigate any checks that remain unverified.
-  See [hosting](docs/hosting.md).
 - [ ] **Split migration history and retire completed plans.** Follow the
   [Luna task](docs/tasks/history-split-and-plan-cleanup.md).
 - [ ] **Deferred M06 research:** specify and validate its grouped-history endpoint

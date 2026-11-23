@@ -3,7 +3,8 @@
 Use this guide only for hosting reassessment and publication. The
 [preparation guide](data-preparation.md) owns source regeneration; the
 [acceptance guide](acceptance-reporting.md) owns application report inspection.
-The final migration task remains open until hosted and public checks pass.
+The initial publication evidence is recorded in
+[project history](history/2026/2026-11-23-publication-evidence.md).
 
 ## Decision and current limits
 
@@ -136,7 +137,7 @@ payload mismatches; source drift still requires explicit manifest review.
 Hosted jobs explicitly set two unit workers and one browser context. No new
 repository variables are needed. Reports reject incomplete selected matrices;
 zero retries, fail-fast commands, per-suite evidence and first-failure traces
-remain. Actual durations after this rationalization are not yet measured.
+remain.
 
 If a job fails, download its evidence within one day, preserving directory
 structure. For development start with `development-acceptance/report.json`; for
@@ -167,7 +168,7 @@ After Luca merges into `main`, publication is an explicit action:
    [project history](history/README.md), and update the publication evidence task in
    [TODO](../TODO.md).
 
-Public URL, as reported by Luca: `https://fornaeffe.github.io/elezioni/`.
-Record the supporting publication evidence as described above. If hosted measurements exceed the limits, retain the failed
+Public URL: `https://fornaeffe.github.io/elezioni/`.
+If hosted measurements exceed the limits, retain the failed
 receipts, identify the limiting stage, and reassess free alternatives before
 selecting a replacement. Current eligibility alone is not hosted acceptance.
