@@ -4,8 +4,6 @@ This is the active task list. Record completed work and evidence according to
 [project history](docs/history/README.md). Order work by dependencies and update
 tasks when the evidence changes; detailed execution plans belong near their work.
 
-- [ ] **Split migration history and retire completed plans.** Follow the
-  [Luna task](docs/tasks/history-split-and-plan-cleanup.md).
 - [ ] **Deferred M06 research:** specify and validate its grouped-history endpoint
   law, missing/new-component support and full-list accuracy before browser acceptance.
 

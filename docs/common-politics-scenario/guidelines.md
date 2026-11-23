@@ -852,14 +852,14 @@ verified result. Apply approved decisions and resolve remaining choices before
 committing to the relevant schema or behavior. Add the agreed steps to the active
 migration plan when implementation
 starts; record completed changes, rationale, verification and problems in
-[migration history](../migration-history.md). Keep the workspace-merger item open
+[migration history](../history/README.md). Keep the workspace-merger item open
 until CP-08 passes. This documentation proposal alone does not complete it.
 
 ### CP-01 — Inventory and preserve behavior
 
 Completed evidence: [field/control/asset inventory](inventory.md) and
 [reproducible comparison baselines](baselines.md). Verification is recorded in
-[migration history](../migration-history.md#cp-01--inventory-and-preserve-behavior-2026-11-07).
+[migration history](../history/2026/2026-11-07-2026-11-07-common-politics-generator-and-session-decisions.md#cp-01-inventory-and-preserve-behavior-2026-11-07).
 
 Read the current entry points listed below. Build a field/control/asset mapping
 from original `Scenario` and reform `ReleasedScenario` to the proposed contract,
@@ -882,7 +882,7 @@ seeded matching is useful evidence, not a condition that dictates architecture.
 ### CP-02 — Establish the shared domain contract
 
 Completed domain API: [contract guide](contract.md). Verification is recorded in
-[migration history](../migration-history.md#cp-02--establish-the-shared-domain-contract-2026-11-07).
+[migration history](../history/2026/2026-11-07-2026-11-07-common-politics-generator-and-session-decisions.md#cp-02-establish-the-shared-domain-contract-2026-11-07).
 
 Apply D01/D02/D05/D06/D07/D08/D09/D11/D12/D15/D17.
 Implement common types, strict runtime parsing/serialization, independent
@@ -903,7 +903,7 @@ are not serialized. Use one link resolver across validation, UI and assembly.
 
 Completed execution API: [dispatch, adapters and model-version assessment](execution.md).
 Verification is recorded in
-[migration history](../migration-history.md#cp-03--adapt-existing-execution-paths-2026-11-07).
+[migration history](../history/2026/2026-11-07-cp-03-adapt-existing-execution-paths-2026-11-07.md#cp-03-adapt-existing-execution-paths-2026-11-07).
 
 Apply D01/D02/D08/D10/D11/D17/D19 and implement one preparation/generation/assembly
 dispatch boundary. Replace M00 with shared M01 generation and a validated
@@ -931,7 +931,7 @@ valid. Worker validation uses the same supported-pair registry.
 
 Implemented default API and preparation boundaries: [authored defaults guide](defaults.md).
 Verification is recorded in
-[migration history](../migration-history.md#cp-04--replace-authored-default-construction-2026-11-08).
+[migration history](../history/2026/2026-11-08-cp-04-replace-authored-default-construction-2026-11-08.md#cp-04-replace-authored-default-construction-2026-11-08).
 
 Apply D03/D04/D07, including the approved subject palette. Create the single
 authored JSON with complete baseline law/model blocks; make preparation, browser
@@ -951,7 +951,7 @@ parity is required. No generated default is edited by hand.
 
 Implemented APIs and transitional-browser boundary: [files and drafts guide](files.md).
 Verification is recorded in
-[migration history](../migration-history.md#cp-05--enforce-new-format-files-and-draft-isolation-2026-11-08).
+[migration history](../history/2026/2026-11-08-cp-05-enforce-new-format-files-and-draft-isolation-2026-11-08.md#cp-05-enforce-new-format-files-and-draft-isolation-2026-11-08).
 
 Apply D12 and its D13 consequence. Implement strict new common-scenario and
 result/archive readers/writers, plus a new shared draft key. Inspect metadata
@@ -969,7 +969,7 @@ current state. Historical regression fixtures remain separate test evidence.
 
 Implemented editor components and review route: [editor guide](editor.md).
 Verification and the CP-07 integration boundary are recorded in
-[migration history](../migration-history.md#cp-06--build-the-common-editor-2026-11-14).
+[migration history](../history/2026/2026-11-14-cp-06-build-the-common-editor-2026-11-14.md#cp-06-build-the-common-editor-2026-11-14).
 
 Apply D02/D06/D07/D08/D09/D10/D14/D15/D16/D17/D18. Compose a single
 politics editor from subject, reference, membership, filing/candidate, generator-selection and
@@ -1005,7 +1005,7 @@ but their editors are not required for CP-06 or CP-08 acceptance.
 
 Implemented lifecycle: [controller, persistence and result guide](lifecycle.md).
 Verification and remaining CP-08 acceptance are recorded in
-[migration history](../migration-history.md#cp-07--unify-lifecycle-persistence-and-results-2026-11-14).
+[migration history](../history/2026/2026-11-14-cp-07-unify-lifecycle-persistence-and-results-2026-11-14.md#cp-07-unify-lifecycle-persistence-and-results-2026-11-14).
 
 Integrate the editor with one draft/controller and the execution adapters.
 Apply D15/D16/D17: implement execution locking/explicit cancellation, automatic

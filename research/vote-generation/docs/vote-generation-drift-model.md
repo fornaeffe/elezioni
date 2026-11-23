@@ -3,10 +3,9 @@
 Archived research. Current supported laws: [M01 2.0.0](../../../docs/models/M01.md) and [M02 2.0.0](../../../docs/models/M02.md). Reproduction and historical scope: [archive index](../README.md).
 
 **Superseded for production, 28 October 2026:** Luca selected the
-[fast share model](vote-generation-fast-research.md). Follow its
-[2026 browser implementation plan](../../../docs/vote-generation-production-plan.md), not the
-earlier posterior gates or likelihood/prior requirements below. This document
-remains historical research pending the [archive step](../../../docs/vote-generation-research-archive-plan.md).
+[fast share model](vote-generation-fast-research.md). The model below remains
+historical research; see the [archive index](../README.md) for retained reports
+and reproduction instructions.
 
 **Research revision, 27 October 2026:** Luca authorizes model simplification to
 meet the unchanged forecasting and scenario capabilities. The

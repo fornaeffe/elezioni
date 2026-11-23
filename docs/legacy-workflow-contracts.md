@@ -28,9 +28,10 @@ These retained contracts apply to the legacy election workflows and their parity
 ## Scenario Semantics
 
 These rules describe the existing election workflows. For the new 2026 reform
-vote-share engine, the approved [production plan](vote-generation-production-plan.md#model-and-scenario-contracts)
-supersedes factor-based historical splits, unmapped-to-abstention inference and
-the old uncertainty construction. Keep the other workflows' semantics intact.
+vote-share engine, the maintained [model](vote-generation-fast-model.md) and
+[scenario contracts](vote-generation-fast-contracts.md) supersede factor-based
+historical splits, unmapped-to-abstention inference and the old uncertainty
+construction. Keep the other workflows' semantics intact.
 
 - Make the web UI the preferred scenario editor. Excel scenarios do not need to
   remain a first-class migrated interface.

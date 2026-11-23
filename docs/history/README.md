@@ -20,7 +20,10 @@ working links when moving or renaming entries.
 
 ## Archives and milestones
 
-- [Migration history](../migration-history.md): existing record, awaiting the
-  separately scoped split in [TODO](../../TODO.md). Existing links remain valid
-  until that work updates them.
+- Migration work is split into dated task records under this directory. Search
+  titles and contents with `rg`; use
+  [`migration-history-map.json`](migration-history-map.json) to map original
+  headings and source hashes to their new files. Use
+  [`split_migration_history.py`](split_migration_history.py) to verify the
+  recorded split.
 - [Publication and history convention](2026/2026-11-23-publication-and-history-convention.md).

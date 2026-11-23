@@ -182,4 +182,4 @@ Old scenario/transport regressions use isolated test-only entry points.
 CP-08 owns the three full 1,000-run/performance campaigns and final merger acceptance.
 
 Verification commands and measured outcomes belong in
-[migration history](../migration-history.md#cp-03--adapt-existing-execution-paths-2026-11-07).
+[migration history](../history/2026/2026-11-07-cp-03-adapt-existing-execution-paths-2026-11-07.md#cp-03-adapt-existing-execution-paths-2026-11-07).

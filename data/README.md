@@ -11,8 +11,8 @@
 | Fast model original compact history/polls (2026 reform only) | [Source preparation](../docs/vote-generation-fast-data.md) |
 | Fast model default prefit, immutable candidate and clean-source release checks | [Candidate release guide](../docs/vote-generation-fast-release.md) |
 | Fast model browser refitting and state ownership | [Fitting guide](../docs/vote-generation-fast-fitting.md) |
-| Fast model scenario/state/browser integration | [Data/scenario contract](../docs/vote-generation-fast-contracts.md), [production plan](../docs/vote-generation-production-plan.md) |
-| Historical vote-generation research retention and cleanup | [Archive plan](../docs/vote-generation-research-archive-plan.md) |
+| Fast model scenario/state/browser integration | [Data/scenario contract](../docs/vote-generation-fast-contracts.md), [browser fitting](../docs/vote-generation-fast-fitting.md), [release](../docs/vote-generation-fast-release.md) |
+| Historical vote-generation research and retained evidence | [Research archive index](../research/vote-generation/README.md) |
 | Local derived outputs, retained evidence and scratch recovery | [Derived-data retention](../docs/derived-data-retention.md) |
 
 Reviewed poll JSON under `sources/polls/`, promoted correspondence/restoration
@@ -187,10 +187,9 @@ reference preparation records this decision while preserving computability.
 
 ## Checks
 
-For the selected fast model's production work, start with the
-[browser implementation plan](../docs/vote-generation-production-plan.md).
-Concluded research, its exact file dispositions and historical reproduction
-commands are in the [archive index](../research/vote-generation/README.md).
+For maintained fast-model preparation and browser workflows, use the guides
+linked above. Concluded research, its exact file dispositions and historical
+reproduction commands are in the [archive index](../research/vote-generation/README.md).
 FV-09 removed only hash-checked generated arrays. Curated observations under
 `data/sources/party-drift/` and `data/sources/polls/history/`, production
 `fast-share-*` sources and both `data/legacy-comparison-*.json` default policies

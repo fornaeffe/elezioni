@@ -16,5 +16,5 @@ decision and versioned evidence. The active checkout has no R exporters.
 
 For historical source inspection or the deferred municipal port, use revision
 `9bcbe403342c2570c83f547f7ae70adddec9961f` in an isolated checkout. See the
-[retirement record](../../docs/migration-history.md#2026-11-02--r-and-temporary-bridge-retirement)
+[retirement record](../../docs/history/2026/2026-11-02-2026-11-02-r-and-temporary-bridge-retirement.md#2026-11-02-r-and-temporary-bridge-retirement)
 for scope and verification.

@@ -8,7 +8,7 @@ M01 2.0.0, current M02 2.0.0, a simpler shared-field M02 candidate and M05/M06/M
 (Joint Gaussian, Joint Student-t, spatial transition bootstrap). The
 [protocol](campaign-2026-11/protocol.md) owns folds, scores, same-footprint chamber
 differences, age/reconstruction limitations and reproducible commands.
-The [code directory](campaign-2026-11/code/) is runnable against current kernels;
+The [code directory](campaign-2026-11/code) is runnable against current kernels;
 it does not reuse the archived original-layout CLI files below.
 
 ## Frozen earlier research

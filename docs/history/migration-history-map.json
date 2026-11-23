@@ -1,0 +1,2127 @@
+{
+  "source_sha256": "56657c526ccc71a8a6c6e0b7388f937088a3403f99a06b36a78e5ae2f92c5723",
+  "section_count": 195,
+  "entries": [
+    {
+      "date": "2026-11-18",
+      "title": "M08 0.0.1 consistency and pipeline review (2026-11-18)",
+      "path": "docs/history/2026/2026-11-18-m08-001-consistency-and-pipeline-review-2026-11-18.md",
+      "heading": "M08 0.0.1 consistency and pipeline review (2026-11-18)",
+      "output_sha256": "27ac249791d4b2d36b7ee7ee2b33528a58fb12d14f852f5b7c6b89b24ead69ff",
+      "sections": [
+        {
+          "heading": "M08 0.0.1 consistency and pipeline review (2026-11-18)",
+          "source_sha256": "4f69479cfd682abe4723573acd1aab1419401ae2c97d75e58dc500958df8b4f6"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-18",
+      "title": "M08 Camera–Senato draft link (2026-11-18)",
+      "path": "docs/history/2026/2026-11-18-m08-camerasenato-draft-link-2026-11-18.md",
+      "heading": "M08 Camera–Senato draft link (2026-11-18)",
+      "output_sha256": "006b73a4565557718296f5460513c1f661513eb48151cbd496899694533bf144",
+      "sections": [
+        {
+          "heading": "M08 Camera–Senato draft link (2026-11-18)",
+          "source_sha256": "d6f9b426d3fe402224f95b86a98a4c5b12275b7d97d7579125787fdda85a1525"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-16",
+      "title": "Table-section E2E triage (2026-11-16)",
+      "path": "docs/history/2026/2026-11-16-table-section-e2e-triage-2026-11-16.md",
+      "heading": "Table-section E2E triage (2026-11-16)",
+      "output_sha256": "685da4193483c96143718d425f55c89bd33f3e1ea2d05ca12be48fe4fdbd38c7",
+      "sections": [
+        {
+          "heading": "Table-section E2E triage (2026-11-16)",
+          "source_sha256": "685da4193483c96143718d425f55c89bd33f3e1ea2d05ca12be48fe4fdbd38c7"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-16",
+      "title": "Politics result component ownership (2026-11-16)",
+      "path": "docs/history/2026/2026-11-16-politics-result-component-ownership-2026-11-16.md",
+      "heading": "Politics result component ownership (2026-11-16)",
+      "output_sha256": "a8beed67d1690b15ea3da8cce1f9ce939b13ad07643bdbbd4457003816e4a36b",
+      "sections": [
+        {
+          "heading": "Politics result component ownership (2026-11-16)",
+          "source_sha256": "8f949e1b0ad79c105f205c4d06009ea8ea428187dd50bac290f556709190a044"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-16",
+      "title": "Chamber-aware vote-generation research (2026-11-16)",
+      "path": "docs/history/2026/2026-11-16-chamber-aware-vote-generation-research-2026-11-16.md",
+      "heading": "Chamber-aware vote-generation research (2026-11-16)",
+      "output_sha256": "9905de18d22afde56fb99bd9cc18eff775a483bfeed23999d1de32ccca1b73b1",
+      "sections": [
+        {
+          "heading": "Chamber-aware vote-generation research (2026-11-16)",
+          "source_sha256": "f9cad9670cc782850280df8ca98b43b38115994a07b958a62ef713a1efe71d91"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "title": "SvelteKit path resolution (2026-11-15)",
+      "path": "docs/history/2026/2026-11-15-sveltekit-path-resolution-2026-11-15.md",
+      "heading": "SvelteKit path resolution (2026-11-15)",
+      "output_sha256": "f426ccd97e2ad7a4f7cd0ec2ae974fc2f29e93b12d8c55dfc6c3fadbdbb7e46c",
+      "sections": [
+        {
+          "heading": "SvelteKit path resolution (2026-11-15)",
+          "source_sha256": "f426ccd97e2ad7a4f7cd0ec2ae974fc2f29e93b12d8c55dfc6c3fadbdbb7e46c"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "title": "M04 0.0.2 model specification (2026-11-15)",
+      "path": "docs/history/2026/2026-11-15-m04-002-model-specification-2026-11-15.md",
+      "heading": "M04 0.0.2 model specification (2026-11-15)",
+      "output_sha256": "6eebf3ac61e077ea9bb3622687f55dc3fa2b98bfe3d6cb41c849eac4a7af6d0b",
+      "sections": [
+        {
+          "heading": "M04 0.0.2 model specification (2026-11-15)",
+          "source_sha256": "ce3873f15ea9830c23f0dc71233e8faaf70c6691f21a45109d2726a7c842c586"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "title": "Conditional college election probabilities (2026-11-15)",
+      "path": "docs/history/2026/2026-11-15-conditional-college-election-probabilities-2026-11-15.md",
+      "heading": "Conditional college election probabilities (2026-11-15)",
+      "output_sha256": "25a9a974bad2fe08a738bb3b0a30f50d464c795b30bd28dc17798377fee8d83a",
+      "sections": [
+        {
+          "heading": "Conditional college election probabilities (2026-11-15)",
+          "source_sha256": "25a9a974bad2fe08a738bb3b0a30f50d464c795b30bd28dc17798377fee8d83a"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "title": "Mobile application-status indicator (2026-11-15)",
+      "path": "docs/history/2026/2026-11-15-mobile-application-status-indicator-2026-11-15.md",
+      "heading": "Mobile application-status indicator (2026-11-15)",
+      "output_sha256": "889038c754b464a2c0096fdbe199bc56b97933a51db1bc93921869614864423f",
+      "sections": [
+        {
+          "heading": "Mobile application-status indicator (2026-11-15)",
+          "source_sha256": "889038c754b464a2c0096fdbe199bc56b97933a51db1bc93921869614864423f"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "title": "Common politics editor non-valid references E2E (2026-11-15)",
+      "path": "docs/history/2026/2026-11-15-common-politics-editor-non-valid-references-e2e-2026-11-15.md",
+      "heading": "Common politics editor non-valid references E2E (2026-11-15)",
+      "output_sha256": "5223ed389677c87c6700f1dcd946883131f5ea63b1492cca63f82e843620a20f",
+      "sections": [
+        {
+          "heading": "Common politics editor non-valid references E2E (2026-11-15)",
+          "source_sha256": "5223ed389677c87c6700f1dcd946883131f5ea63b1492cca63f82e843620a20f"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "title": "Politics result colors (2026-11-15)",
+      "path": "docs/history/2026/2026-11-15-politics-result-colors-2026-11-15.md",
+      "heading": "Politics result colors (2026-11-15)",
+      "output_sha256": "9d82ce661904036854c7cb46dd3016d5276ac624b26df6f08229a5dd4e54fccf",
+      "sections": [
+        {
+          "heading": "Politics result colors (2026-11-15)",
+          "source_sha256": "8c85b38c4d0e3ea9420d86ef83ce0448c055039503f533c97f9370e6d47a7505"
+        }
+      ]
+    },
+    {
+      "date": "2026-06-05",
+      "title": "Initial simulator baseline and June 5 state snapshot",
+      "path": "docs/history/2026/2026-06-05-initial-simulator-baseline-and-june-5-state-snapshot.md",
+      "heading": "Purpose",
+      "output_sha256": "c7d54ba97ab36a6442999482a1bab70ac29c9da8bd8a269a87b0aa3e71f7d0ea",
+      "sections": [
+        {
+          "heading": "Purpose",
+          "source_sha256": "8f4b396443debc0dbd0d54c0eee22cb0907070358dc936bfc690c67c2d53a9ee"
+        },
+        {
+          "heading": "Initial R Baseline And Constraints",
+          "source_sha256": "91c4bf3adeb4b25fdeb87a2c04d96348acd3d052c76e4234ebcd1d2759dba90d"
+        },
+        {
+          "heading": "Initial Target And Performance Gate",
+          "source_sha256": "e7b627c38ab0721cedf10655c9a736d9d871de17e67a391307032c0d81821f18"
+        },
+        {
+          "heading": "Consolidated State Snapshot (2026-06-05)",
+          "source_sha256": "fcea25093b2163e012ad45ecd95cb6707aae32fcfbe6fd71fd48fad112196e1b"
+        },
+        {
+          "heading": "Superseded Plan Snapshot (2026-06-05)",
+          "source_sha256": "cde0eea82019f0bcfde1d12fb77c51012a40c05ae2b56e78ce6d3a77010b19f4"
+        },
+        {
+          "heading": "Completed Foundations Snapshot (2026-06-05)",
+          "source_sha256": "c5aea4a87a77ad97ca13208323ac5bfac17ee72c5071b08644edfe07982261af"
+        },
+        {
+          "heading": "Decision Record Through 2026-06-05",
+          "source_sha256": "bd1cbdfe87a59c5a13d22e2424ec3281ee69f8543a2f6f12e9dc131ac5c59876"
+        },
+        {
+          "heading": "Verification Snapshot",
+          "source_sha256": "2d577ffdff838743f140eea1b577e57cbcadf36642415be047ff8672a3961faf"
+        },
+        {
+          "heading": "Caveats And Risks Snapshot (2026-06-05)",
+          "source_sha256": "c12c7c751af0a6982bdf6cc6e3745106bc10bf26cb8eed882fe3ade3cc8e5ca2"
+        }
+      ]
+    },
+    {
+      "date": "2026-06-01",
+      "title": "Simulator migration checkpoints 2026-06-01",
+      "path": "docs/history/2026/2026-06-01-simulator-migration-checkpoints-2026-06-01.md",
+      "heading": "2026-06-01 Checkpoint 2",
+      "output_sha256": "bb8f6da7bb0cbde00444a2dc4db3e887800a6255b8bf56ffa79f1be24102834c",
+      "sections": [
+        {
+          "heading": "2026-06-01 Checkpoint 2",
+          "source_sha256": "a988f78c960ad7fd30716582340b8675e7ee433be81978a4e9de02c8c1f3f18b"
+        },
+        {
+          "heading": "2026-06-01 Checkpoint 3",
+          "source_sha256": "77a5346a0a4b84de12d6b939a08fb53f149eca923d8f072ee18b845de029fe01"
+        },
+        {
+          "heading": "2026-06-01 Checkpoint 4",
+          "source_sha256": "4cee44b32f86e20e82201d05c3fc53cc409071a633a9c8e82360b746c5824a4b"
+        },
+        {
+          "heading": "2026-06-01 Checkpoint 5",
+          "source_sha256": "270ae00ad0b38c21d0586a5a1199b435777a7bbeb6e373b06780ce1a39e3997f"
+        },
+        {
+          "heading": "2026-06-01 Checkpoint 6",
+          "source_sha256": "436fa14b1c3a11dcb686e3962174136fc534ceadff5179df008684ea8086e559"
+        },
+        {
+          "heading": "2026-06-01 Checkpoint 7",
+          "source_sha256": "3f5d4f839a0f06170534a8bf3b540de6a50939e12da4a5d1b28d5477c3b55387"
+        },
+        {
+          "heading": "2026-06-01 Checkpoint 8",
+          "source_sha256": "46d7025c2657f89a51e11989e8b2849862729b47f2b65f08262bf04705191ad4"
+        },
+        {
+          "heading": "2026-06-01 Checkpoint 9",
+          "source_sha256": "402daaa85e5a1cd352416e55955269a032f8de8b3dccdd46961be4a2103fc105"
+        },
+        {
+          "heading": "2026-06-01 Checkpoint 10",
+          "source_sha256": "f491ee5a0fdf181d3bcbd9e69e24e606d327b48cb4276f21e127373434f1b323"
+        },
+        {
+          "heading": "2026-06-01 Checkpoint 11",
+          "source_sha256": "219619e5bed3b0a49bf3d56cf9495967d5a1393dd4a0fdd9d926d5113b1ee677"
+        },
+        {
+          "heading": "2026-06-01 Checkpoint 12",
+          "source_sha256": "83ef3a41e3f1eb80281094119bfce13fe1d551ad3d3515df2449b80dfce5176d"
+        },
+        {
+          "heading": "2026-06-01 Checkpoint 13",
+          "source_sha256": "8bfc29c12750e6bddc2e07584d984716cd74dd0a13df7d873e5be0ce681c7226"
+        },
+        {
+          "heading": "2026-06-01 Checkpoint 14",
+          "source_sha256": "e5c1e8c87c546f463c39aff0bb275f710a87811e8675f27848ea6c31621d5aca"
+        },
+        {
+          "heading": "2026-06-01 Checkpoint 15",
+          "source_sha256": "a7d622c65f989e67bae00c4273fbeae14e261137eb6dec566fb6057f7f1b7a03"
+        },
+        {
+          "heading": "2026-06-01 Checkpoint 16",
+          "source_sha256": "d0c59bbddfe2beb3a8dde53ac27bcb362fc592d19f2c3cc9e3c1f53b9fa23f66"
+        },
+        {
+          "heading": "2026-06-01 Checkpoint 17",
+          "source_sha256": "ff83b276a272f72ec3644eb2957d115d45e9a5cdf03a40e6dadb2dd1dfa49bcb"
+        },
+        {
+          "heading": "2026-06-01 Checkpoint 18",
+          "source_sha256": "bf995e82dda93b62c0eb2fe69507267e0c2fdad705d40c04daaca01ecf6645a3"
+        },
+        {
+          "heading": "2026-06-01 Checkpoint 19",
+          "source_sha256": "a64df108cb0453dc7742b01b94ae1008e3c0076741e3b161382737d773a86a2c"
+        }
+      ]
+    },
+    {
+      "date": "2026-06-02",
+      "title": "Simulator migration checkpoints 2026-06-02",
+      "path": "docs/history/2026/2026-06-02-simulator-migration-checkpoints-2026-06-02.md",
+      "heading": "2026-06-02 Checkpoint 20",
+      "output_sha256": "0bb2426fcdc801acfb2a49bcd27bc236212592748cd6227a93a67385edd05add",
+      "sections": [
+        {
+          "heading": "2026-06-02 Checkpoint 20",
+          "source_sha256": "7b1b0e508e0ba5bcce3021287a6c62e7cbe5193ed0f1a2cc7fa471d5f0d6263d"
+        },
+        {
+          "heading": "2026-06-02 Checkpoint 21",
+          "source_sha256": "32efe68973d80fa7d133e303edf76d24e00be3c05b7c021f3cc6e647c1ec8180"
+        },
+        {
+          "heading": "2026-06-02 Checkpoint 22",
+          "source_sha256": "37485973466d82d8d1daab97c2cc9fe9fb6a4eb0607c3dc05ac96f05191f61ef"
+        },
+        {
+          "heading": "2026-06-02 Checkpoint 23",
+          "source_sha256": "e740ec56153833ee587e94b77d3e288e96432bcaf378d91e24628d8772f8a0a6"
+        },
+        {
+          "heading": "2026-06-02 Checkpoint 24",
+          "source_sha256": "835dcf650c007ecdb5a5e19cab8e08c01dd1ba097d710f06f160b2d12e74060f"
+        },
+        {
+          "heading": "2026-06-02 Checkpoint 25",
+          "source_sha256": "3941236b9c0dcd2ebb2e5ad22e36fa806d2235c8c798d0d738e63b4d86035b8c"
+        }
+      ]
+    },
+    {
+      "date": "2026-06-03",
+      "title": "Simulator migration checkpoints 2026-06-03",
+      "path": "docs/history/2026/2026-06-03-simulator-migration-checkpoints-2026-06-03.md",
+      "heading": "2026-06-03 Checkpoint 26",
+      "output_sha256": "f9830d7f80f205fc764d5e9865f03f1c5344a0ec26a95a889a961ba06b35aa53",
+      "sections": [
+        {
+          "heading": "2026-06-03 Checkpoint 26",
+          "source_sha256": "f9830d7f80f205fc764d5e9865f03f1c5344a0ec26a95a889a961ba06b35aa53"
+        }
+      ]
+    },
+    {
+      "date": "2026-06-04",
+      "title": "Simulator migration checkpoints 2026-06-04",
+      "path": "docs/history/2026/2026-06-04-simulator-migration-checkpoints-2026-06-04.md",
+      "heading": "2026-06-04 Checkpoint 27",
+      "output_sha256": "517dcb984f2e3cba5f942056b5ee4cddaf5f7336bfc1be431310c2ae79522618",
+      "sections": [
+        {
+          "heading": "2026-06-04 Checkpoint 27",
+          "source_sha256": "7356838573ae089e35644aa26c12b6fc049c5df20d368ce1d726c24cbe567dc3"
+        },
+        {
+          "heading": "2026-06-04 Checkpoint 28",
+          "source_sha256": "82d6e6079338549afd6c3506dad671ae696814c94e71b61d3e1862b516d2b3d5"
+        },
+        {
+          "heading": "2026-06-04 Checkpoint 29",
+          "source_sha256": "d45801ed35d54a581ba7ae08c2e50eb91d8ae86ce19e9632c80ee7d9920d799d"
+        },
+        {
+          "heading": "2026-06-04 Checkpoint 30",
+          "source_sha256": "65d9745ca58c1a269239507b61b80335c5d960d19daad93dbe29526842ef4f00"
+        },
+        {
+          "heading": "2026-06-04 Checkpoint 31",
+          "source_sha256": "28ac40b67162aa467ea308da29b79231d8fc31c9606a8bbe820af69150457077"
+        },
+        {
+          "heading": "2026-06-04 Checkpoint 32",
+          "source_sha256": "531df17dd863e3779d1bc736085408101d7c8f151e4f61124028e306f580fa50"
+        },
+        {
+          "heading": "2026-06-04 Checkpoint 33",
+          "source_sha256": "933ffb8c93f9114f2271f36195b4f1e8b2976d37f913de460a8df5e936d83ee5"
+        },
+        {
+          "heading": "2026-06-04 Checkpoint 34",
+          "source_sha256": "38a0faaf1bd05197b168a117fbecdc5a5b8ddb0f1d4af47df1c0a6a7f30a357e"
+        },
+        {
+          "heading": "2026-06-04 Checkpoint 35",
+          "source_sha256": "90c102e8c35b097815e97f30fdaa2252de5133f43f8dde3bc50138b6511fe904"
+        },
+        {
+          "heading": "2026-06-04 Checkpoint 36",
+          "source_sha256": "0bfec5f30ba2d5aa8668d3158c272ee64df0b826b2ea1d5ea93ea00544fe178a"
+        },
+        {
+          "heading": "2026-06-04 Checkpoint 37",
+          "source_sha256": "96b7966ee17d850bb9fd6c66492a95591d0616072d3f34ec225e57cee072e9d0"
+        },
+        {
+          "heading": "2026-06-04 Checkpoint 38",
+          "source_sha256": "096fd0c6f4be508526afcc22cb2b23435fcd38d07d40ec79dcd69f5fd1cc27e6"
+        }
+      ]
+    },
+    {
+      "date": "2026-06-05",
+      "title": "Simulator migration checkpoints 2026-06-05",
+      "path": "docs/history/2026/2026-06-05-simulator-migration-checkpoints-2026-06-05.md",
+      "heading": "2026-06-05 Checkpoint 39",
+      "output_sha256": "2925f01dc8f553bb96adcb1d08ab40050f38acc16023bd7d5999a82770b43a41",
+      "sections": [
+        {
+          "heading": "2026-06-05 Checkpoint 39",
+          "source_sha256": "0a9c880d5a63c455aaadd70a94a0b934ad8e21bf6718b2f97eb4d1182e665748"
+        },
+        {
+          "heading": "2026-06-05 Checkpoint 40",
+          "source_sha256": "1a258e75bceaf2f8fce2b86303653029b606f39b16ccf74637bf0a4f8bab61e2"
+        },
+        {
+          "heading": "2026-06-05 Checkpoint 41",
+          "source_sha256": "a67deca7b2c481f08ddf4a08ae6e1bbf491c8c8ed05a967bf30cfe8febaefb0f"
+        },
+        {
+          "heading": "2026-06-05 Checkpoint 44",
+          "source_sha256": "38dfefcf3fbbbb7a63a25644c589e4b29484dd2191b3b4d75c319bf67599a739"
+        },
+        {
+          "heading": "2026-06-05 Checkpoint 43",
+          "source_sha256": "da69ef2599736d7260ccb87f2c3874057596ef86801b979f295a95fadf743c7c"
+        },
+        {
+          "heading": "2026-06-05 Checkpoint 42",
+          "source_sha256": "436df7738739eae9c8f0f60d9496d30d2a7712cf52a65b1e2d92b03f6788894c"
+        }
+      ]
+    },
+    {
+      "date": "2026-06-06",
+      "title": "Simulator migration checkpoints 2026-06-06",
+      "path": "docs/history/2026/2026-06-06-simulator-migration-checkpoints-2026-06-06.md",
+      "heading": "2026-06-06 Checkpoint 45",
+      "output_sha256": "6a4b94b78ae09a9e22ff1812b89781ed94d00c5892312d95c175ad5feb3c8640",
+      "sections": [
+        {
+          "heading": "2026-06-06 Checkpoint 45",
+          "source_sha256": "6a4b94b78ae09a9e22ff1812b89781ed94d00c5892312d95c175ad5feb3c8640"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-16",
+      "title": "2026-10-16 Politics reform implementation documentation",
+      "path": "docs/history/2026/2026-10-16-2026-10-16-politics-reform-implementation-documentation.md",
+      "heading": "2026-10-16 Politics reform implementation documentation",
+      "output_sha256": "1bc049ec9d25c5d4c97d81d17df24e797505d5b634d52169640d0aa01561fdd6",
+      "sections": [
+        {
+          "heading": "2026-10-16 Politics reform implementation documentation",
+          "source_sha256": "fc208f15d6f979a999329e506e180258860dcc216acb64541076528268e45e52"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-16",
+      "title": "2026-10-16 R26-01: normative specification and provisional decisions",
+      "path": "docs/history/2026/2026-10-16-2026-10-16-r26-01-normative-specification-and-provisional-decisions.md",
+      "heading": "2026-10-16 R26-01: normative specification and provisional decisions",
+      "output_sha256": "14cefe738330dc7e59cfa73baf393f2486f61a9da4ba0f0c4b5af8791898e102",
+      "sections": [
+        {
+          "heading": "2026-10-16 R26-01: normative specification and provisional decisions",
+          "source_sha256": "db29b1efddba1d341a25616cae33686087666c288cca0a6bdc1dd39b410eb594"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-16",
+      "title": "2026-10-16 R26-01a: Senate recovery precedents and approved I07",
+      "path": "docs/history/2026/2026-10-16-2026-10-16-r26-01a-senate-recovery-precedents-and-approved-i07.md",
+      "heading": "2026-10-16 R26-01a: Senate recovery precedents and approved I07",
+      "output_sha256": "78572267bc0879a609eeaef188c80282c66e8b9cb0f74511dbb69886f70d0c80",
+      "sections": [
+        {
+          "heading": "2026-10-16 R26-01a: Senate recovery precedents and approved I07",
+          "source_sha256": "821fd12cc5868515a5b3e3d404b3779626ddedd3e0053296c7fa6ace3a997b5b"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-17",
+      "title": "2026-10-17 R26-02: approved final-attributed vote model",
+      "path": "docs/history/2026/2026-10-17-2026-10-17-r26-02-approved-final-attributed-vote-model.md",
+      "heading": "2026-10-17 R26-02: approved final-attributed vote model",
+      "output_sha256": "bc4e8ef51616ffaf14da7a4a5b436ff61a53d31ca0fcfe12613a8930788cdccd",
+      "sections": [
+        {
+          "heading": "2026-10-17 R26-02: approved final-attributed vote model",
+          "source_sha256": "48c47985a7bf28ce74be0218dd3b28dfbc8a2ee30ad31a3cb37030648df731ef"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-17",
+      "title": "2026-10-17 R26-03: approved historical-pattern preference model",
+      "path": "docs/history/2026/2026-10-17-2026-10-17-r26-03-approved-historical-pattern-preference-model.md",
+      "heading": "2026-10-17 R26-03: approved historical-pattern preference model",
+      "output_sha256": "f6a940d7dbedb4663cc4d85f7fbb127fd97d0b041c72e437aff9dcb650a1ed15",
+      "sections": [
+        {
+          "heading": "2026-10-17 R26-03: approved historical-pattern preference model",
+          "source_sha256": "56daff26907e30f2d34ff6262333572c5da48ef87cd0f9da65ef64ea3e0d1f7c"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-17",
+      "title": "2026-10-17 R26-04: approved paired chamber vote model",
+      "path": "docs/history/2026/2026-10-17-2026-10-17-r26-04-approved-paired-chamber-vote-model.md",
+      "heading": "2026-10-17 R26-04: approved paired chamber vote model",
+      "output_sha256": "9384f33b99cabe34ded4c78e362289ca21153eadefa8463dc678520c60eb69c3",
+      "sections": [
+        {
+          "heading": "2026-10-17 R26-04: approved paired chamber vote model",
+          "source_sha256": "7ca98ea45006d0fa45ea452ac33fe95e65eedcc672bc9674380c6d4595e8860f"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-17",
+      "title": "2026-10-17 R26-05 scrutiny contracts and validation",
+      "path": "docs/history/2026/2026-10-17-2026-10-17-r26-05-scrutiny-contracts-and-validation.md",
+      "heading": "2026-10-17 R26-05 scrutiny contracts and validation",
+      "output_sha256": "434d1951282ba8ba16d14172abf887580ea0bf1b38ba926c2c4d2f886ec750c0",
+      "sections": [
+        {
+          "heading": "2026-10-17 R26-05 scrutiny contracts and validation",
+          "source_sha256": "f6bc511b8a49b0475950c67df4014ce8518d52c14df4762c7019ea6599e2b433"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-17",
+      "title": "2026-10-17 R26-06 exact numerical primitives and explicit draws",
+      "path": "docs/history/2026/2026-10-17-2026-10-17-r26-06-exact-numerical-primitives-and-explicit-draws.md",
+      "heading": "2026-10-17 R26-06 exact numerical primitives and explicit draws",
+      "output_sha256": "1dcc905562d28b9e43bbf191ef393aa0cc32bab8065710d852afbc97f9cc352c",
+      "sections": [
+        {
+          "heading": "2026-10-17 R26-06 exact numerical primitives and explicit draws",
+          "source_sha256": "86098dd1295d1d15a5de131711aa02303454605d790afe2d098890f4cb0541f0"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-18",
+      "title": "2026-10-18 R26-07 geography, census preparation and seat endowments",
+      "path": "docs/history/2026/2026-10-18-2026-10-18-r26-07-geography-census-preparation-and-seat-endowments.md",
+      "heading": "2026-10-18 R26-07 geography, census preparation and seat endowments",
+      "output_sha256": "6dfa1f5385d6e0bacc8de1ff0e7e3e8bc12d55a9214ab45d55e2583cb0786878",
+      "sections": [
+        {
+          "heading": "2026-10-18 R26-07 geography, census preparation and seat endowments",
+          "source_sha256": "a89075ffa02ddc6a3993a84074b49188451d4144c55480eb684fe830e04f16d0"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-18",
+      "title": "2026-10-18: R26-08 electoral figures and preference rankings",
+      "path": "docs/history/2026/2026-10-18-2026-10-18-r26-08-electoral-figures-and-preference-rankings.md",
+      "heading": "2026-10-18: R26-08 electoral figures and preference rankings",
+      "output_sha256": "d310b23e63113533f5936def7da52f03fe6bfb665b801b917429d47dd61474eb",
+      "sections": [
+        {
+          "heading": "2026-10-18: R26-08 electoral figures and preference rankings",
+          "source_sha256": "742984485bc603b46c4753a86368117e5d31a8fd22cfcafa257a14d1571cadd3"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-18",
+      "title": "2026-10-18: R26-09 admission and preliminary special winners",
+      "path": "docs/history/2026/2026-10-18-2026-10-18-r26-09-admission-and-preliminary-special-winners.md",
+      "heading": "2026-10-18: R26-09 admission and preliminary special winners",
+      "output_sha256": "2552c282c88800665de67b0d263e6280fbf5e07b4f694f16dce75f98e6541be6",
+      "sections": [
+        {
+          "heading": "2026-10-18: R26-09 admission and preliminary special winners",
+          "source_sha256": "56bce9bbc51fba57cde88c4f222bedf4703a0a5a7054a66b5c293efd2d2594b5"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-18",
+      "title": "2026-10-18: R26-10 special territories, proportional seats and cap ledger",
+      "path": "docs/history/2026/2026-10-18-2026-10-18-r26-10-special-territories-proportional-seats-and-cap-ledger.md",
+      "heading": "2026-10-18: R26-10 special territories, proportional seats and cap ledger",
+      "output_sha256": "a203facdd8db4986fbb1b8049b6883467c4ba53626f406c889f1478c825bc4fa",
+      "sections": [
+        {
+          "heading": "2026-10-18: R26-10 special territories, proportional seats and cap ledger",
+          "source_sha256": "79a1bc93898a62fc3929edbb9188695a85f55e36cf101a8fed48acb42f3e12d4"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-18",
+      "title": "2026-10-18: R26-11 joint governability bonus decision",
+      "path": "docs/history/2026/2026-10-18-2026-10-18-r26-11-joint-governability-bonus-decision.md",
+      "heading": "2026-10-18: R26-11 joint governability bonus decision",
+      "output_sha256": "34453f21796e021c915d4ec0165386908c8e8cb5e5454e378c8c6e2e2c5c0a2e",
+      "sections": [
+        {
+          "heading": "2026-10-18: R26-11 joint governability bonus decision",
+          "source_sha256": "1ae7169618babf3e6426a64397fff99f75d9081889b6208b8b9d795100924389"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-18",
+      "title": "2026-10-18: R26-12 Camera national allocation and cap",
+      "path": "docs/history/2026/2026-10-18-2026-10-18-r26-12-camera-national-allocation-and-cap.md",
+      "heading": "2026-10-18: R26-12 Camera national allocation and cap",
+      "output_sha256": "070648375959f1740824d90504e737cb258e6b33184811e013c5e02d25d1548f",
+      "sections": [
+        {
+          "heading": "2026-10-18: R26-12 Camera national allocation and cap",
+          "source_sha256": "eb0b69f41ecebc95498c5a454efd9d182a4824af1ff31b75a5a1abbc0d7a57ed"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-18",
+      "title": "2026-10-18: R26-13 Camera territorial allocation",
+      "path": "docs/history/2026/2026-10-18-2026-10-18-r26-13-camera-territorial-allocation.md",
+      "heading": "2026-10-18: R26-13 Camera territorial allocation",
+      "output_sha256": "f70a06a6de63dfa7d9ec4ee5da843e5610a3e9404166c31e8272ca37ac2bbc6b",
+      "sections": [
+        {
+          "heading": "2026-10-18: R26-13 Camera territorial allocation",
+          "source_sha256": "6e570bb2a2bc4aaba318e70d7b8ac6303a44086b8d7065dfedf4adbabfa6ed25"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-19",
+      "title": "2026-10-19: R26-14 Senato regional allocation and cap",
+      "path": "docs/history/2026/2026-10-19-2026-10-19-r26-14-senato-regional-allocation-and-cap.md",
+      "heading": "2026-10-19: R26-14 Senato regional allocation and cap",
+      "output_sha256": "067a75296347d50512573ab86ea9c36821e7be59e20a28868a54c634d7734239",
+      "sections": [
+        {
+          "heading": "2026-10-19: R26-14 Senato regional allocation and cap",
+          "source_sha256": "948b73fa25d6c7dba1e2c111d59d32142d566140db971b3f9491a58d5203374c"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-19",
+      "title": "2026-10-19: R26-15 Senato list and college allocation",
+      "path": "docs/history/2026/2026-10-19-2026-10-19-r26-15-senato-list-and-college-allocation.md",
+      "heading": "2026-10-19: R26-15 Senato list and college allocation",
+      "output_sha256": "fba74907e4f6eff8c0ccc03380e07d68a00206247923ab8a7f99f4612a876876",
+      "sections": [
+        {
+          "heading": "2026-10-19: R26-15 Senato list and college allocation",
+          "source_sha256": "681b11da9dd55d07e9923250852db5bee78c59dfe336ad1e36f7713a2f1a3ae5"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-19",
+      "title": "2026-10-19: R26-16 proclamations and multiple elections",
+      "path": "docs/history/2026/2026-10-19-2026-10-19-r26-16-proclamations-and-multiple-elections.md",
+      "heading": "2026-10-19: R26-16 proclamations and multiple elections",
+      "output_sha256": "cfe0c2bfae7b35fd84c96f0435ea14f114a8c9af11dfe5e78a4e2799b534398e",
+      "sections": [
+        {
+          "heading": "2026-10-19: R26-16 proclamations and multiple elections",
+          "source_sha256": "a8f1ed67779fb6e782fbfe01b95d477e7db198b70c8cad404bd24e27497c8f82"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-19",
+      "title": "2026-10-19: R26-17 initial exhaustion and replacements",
+      "path": "docs/history/2026/2026-10-19-2026-10-19-r26-17-initial-exhaustion-and-replacements.md",
+      "heading": "2026-10-19: R26-17 initial exhaustion and replacements",
+      "output_sha256": "220d8462498183a492daee9835278fae208cc1429d754a6064d929387555fb5d",
+      "sections": [
+        {
+          "heading": "2026-10-19: R26-17 initial exhaustion and replacements",
+          "source_sha256": "40fe2073d7c22fb6ca5f8831a5be22d8b42c6e1020fe36de20255b72b2131e66"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-19",
+      "title": "2026-10-19: GitHub Actions/Pages target and final publication gate",
+      "path": "docs/history/2026/2026-10-19-2026-10-19-github-actionspages-target-and-final-publication-gate.md",
+      "heading": "2026-10-19: GitHub Actions/Pages target and final publication gate",
+      "output_sha256": "899a9791cb65af7b321f4cbe8f68136261850e6340c03e033f10f16574b37cb6",
+      "sections": [
+        {
+          "heading": "2026-10-19: GitHub Actions/Pages target and final publication gate",
+          "source_sha256": "899a9791cb65af7b321f4cbe8f68136261850e6340c03e033f10f16574b37cb6"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-19",
+      "title": "2026-10-19: R26-18 composed scrutiny and simulation registry",
+      "path": "docs/history/2026/2026-10-19-2026-10-19-r26-18-composed-scrutiny-and-simulation-registry.md",
+      "heading": "2026-10-19: R26-18 composed scrutiny and simulation registry",
+      "output_sha256": "7dfc3691bbc7bb25e9c6a465f7a887085311b9d499ac07d8a1b813a85c3bf844",
+      "sections": [
+        {
+          "heading": "2026-10-19: R26-18 composed scrutiny and simulation registry",
+          "source_sha256": "f895a46ce73d9b342d9d89c45e31215dc98192f37cb7ff7de0b5e665a33c2711"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-19",
+      "title": "2026-10-19: recovery evidence handoffs and provisional I10",
+      "path": "docs/history/2026/2026-10-19-2026-10-19-recovery-evidence-handoffs-and-provisional-i10.md",
+      "heading": "2026-10-19: recovery evidence handoffs and provisional I10",
+      "output_sha256": "87bce44d39b9b08ea5de73708e513669a41db3a0e7e5b5f492e8fc3270094a4d",
+      "sections": [
+        {
+          "heading": "2026-10-19: recovery evidence handoffs and provisional I10",
+          "source_sha256": "44926eceb32d3fc625ccca04ae5dc7b117320e8838c99d72dd1175bfff36cf5a"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-19",
+      "title": "2026-10-19: provisional I11 excludes zero territorial targets from recovery",
+      "path": "docs/history/2026/2026-10-19-2026-10-19-provisional-i11-excludes-zero-territorial-targets-from-recovery.md",
+      "heading": "2026-10-19: provisional I11 excludes zero territorial targets from recovery",
+      "output_sha256": "ea9caef22cdb877eb83992b86d4afe1761a1714a3c5f3a8e6b0e96532df651d0",
+      "sections": [
+        {
+          "heading": "2026-10-19: provisional I11 excludes zero territorial targets from recovery",
+          "source_sha256": "7ce4f22d1cf6d070c40459bc46439588c9648dd2b185e795c666de26539d3970"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-19",
+      "title": "2026-10-19: R26-19 scenarios, historical preparation and generation",
+      "path": "docs/history/2026/2026-10-19-2026-10-19-r26-19-scenarios-historical-preparation-and-generation.md",
+      "heading": "2026-10-19: R26-19 scenarios, historical preparation and generation",
+      "output_sha256": "9ae4665bcff459b31154bff8369ac7dfef56871439a62e201c7fe079f2005848",
+      "sections": [
+        {
+          "heading": "2026-10-19: R26-19 scenarios, historical preparation and generation",
+          "source_sha256": "86c2984b55f929f6a0c2991f6715e085e2d52a6115842d7cc839b23d589c0749"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-20",
+      "title": "2026-10-20 — N18 ordinary corrections with unequal local totals",
+      "path": "docs/history/2026/2026-10-20-2026-10-20-n18-ordinary-corrections-with-unequal-local-totals.md",
+      "heading": "2026-10-20 — N18 ordinary corrections with unequal local totals",
+      "output_sha256": "40960a319dc848cd8361b7ee07b4d8e36f27d185a0b79b7677a56a328fcbe4e4",
+      "sections": [
+        {
+          "heading": "2026-10-20 — N18 ordinary corrections with unequal local totals",
+          "source_sha256": "40960a319dc848cd8361b7ee07b4d8e36f27d185a0b79b7677a56a328fcbe4e4"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-20",
+      "title": "2026-10-20: R26-20 worker, results and application integration",
+      "path": "docs/history/2026/2026-10-20-2026-10-20-r26-20-worker-results-and-application-integration.md",
+      "heading": "2026-10-20: R26-20 worker, results and application integration",
+      "output_sha256": "090896739ed1ff0471164fc73470d784fb1298cda0050f3b8f90d0c73f55e0c8",
+      "sections": [
+        {
+          "heading": "2026-10-20: R26-20 worker, results and application integration",
+          "source_sha256": "d6ec5edf3408f5e2108b2023494c882951d7832ae9d9100766632d911aec350a"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-20",
+      "title": "2026-10-20: R26-20 bounded reform results after browser clone exhaustion",
+      "path": "docs/history/2026/2026-10-20-2026-10-20-r26-20-bounded-reform-results-after-browser-clone-exhaustion.md",
+      "heading": "2026-10-20: R26-20 bounded reform results after browser clone exhaustion",
+      "output_sha256": "be88293951d2d12526d66bfc69a7771586bdea83255f59805560ac48575b49ee",
+      "sections": [
+        {
+          "heading": "2026-10-20: R26-20 bounded reform results after browser clone exhaustion",
+          "source_sha256": "111e4167cc54faf93daa19216531f62e4f34b017908be0bce72f0c79c3358bbe"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-20",
+      "title": "2026-10-20: R26-20a bounded parallel reform execution and worker choice",
+      "path": "docs/history/2026/2026-10-20-2026-10-20-r26-20a-bounded-parallel-reform-execution-and-worker-choice.md",
+      "heading": "2026-10-20: R26-20a bounded parallel reform execution and worker choice",
+      "output_sha256": "ca35a6c7d84562d89659c9c979aa44e09796f35f5b4e4634c5d1c936d01526ca",
+      "sections": [
+        {
+          "heading": "2026-10-20: R26-20a bounded parallel reform execution and worker choice",
+          "source_sha256": "7f8eaabbc9df63b0f5692c3cb8ff618e7d3041b8fadd03fa01dc9fc8bdf2a9c4"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-20",
+      "title": "2026-10-20: R26-21 production acceptance and diagnostic frequencies",
+      "path": "docs/history/2026/2026-10-20-2026-10-20-r26-21-production-acceptance-and-diagnostic-frequencies.md",
+      "heading": "2026-10-20: R26-21 production acceptance and diagnostic frequencies",
+      "output_sha256": "4e2bebd4b8fdf4e81f90b41c774a25bcaf7307e551b3b8542e9ae45d4405cf2b",
+      "sections": [
+        {
+          "heading": "2026-10-20: R26-21 production acceptance and diagnostic frequencies",
+          "source_sha256": "4bd35b0c6a5120b91a380b730917e6aa539ac4ab55c96720c697abfca32496fd"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-20",
+      "title": "2026-10-20: Compact 1000-run diagnostics CSV by code",
+      "path": "docs/history/2026/2026-10-20-2026-10-20-compact-1000-run-diagnostics-csv-by-code.md",
+      "heading": "2026-10-20: Compact 1000-run diagnostics CSV by code",
+      "output_sha256": "f333d3f561bec1bb392110cea8e593f0d83a4ad539beb6267e8cfd13c9e253a7",
+      "sections": [
+        {
+          "heading": "2026-10-20: Compact 1000-run diagnostics CSV by code",
+          "source_sha256": "45d7ca894ba97e701dad8bfcfd5a867edf127be1284beefeffa3f04e0af6f8db"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-20",
+      "title": "2026-10-20: Territorial eligibility review and provisional I12",
+      "path": "docs/history/2026/2026-10-20-2026-10-20-territorial-eligibility-review-and-provisional-i12.md",
+      "heading": "2026-10-20: Territorial eligibility review and provisional I12",
+      "output_sha256": "a536301298f11ced8a22f643a253ec14d437bd70e416b9b9504a6b96ec394256",
+      "sections": [
+        {
+          "heading": "2026-10-20: Territorial eligibility review and provisional I12",
+          "source_sha256": "ef7d024f8dfc8e3ef20d9c45277b8845eb63a9f9abe2381bccd1b082c918b25b"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-20",
+      "title": "2026-10-20: N28 diagnostic investigation and ordinary N18 donor restriction",
+      "path": "docs/history/2026/2026-10-20-2026-10-20-n28-diagnostic-investigation-and-ordinary-n18-donor-restriction.md",
+      "heading": "2026-10-20: N28 diagnostic investigation and ordinary N18 donor restriction",
+      "output_sha256": "8da1a39a47d73dabff77c4b57d72c3cedfda5e90fdc815d8e85632d17e91e6a0",
+      "sections": [
+        {
+          "heading": "2026-10-20: N28 diagnostic investigation and ordinary N18 donor restriction",
+          "source_sha256": "8da1a39a47d73dabff77c4b57d72c3cedfda5e90fdc815d8e85632d17e91e6a0"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-20",
+      "title": "2026-10-20: Approved I13 integer-seat donor fallback and legal-gap register",
+      "path": "docs/history/2026/2026-10-20-2026-10-20-approved-i13-integer-seat-donor-fallback-and-legal-gap-register.md",
+      "heading": "2026-10-20: Approved I13 integer-seat donor fallback and legal-gap register",
+      "output_sha256": "6e3286fa851a8187f5110282dabb2c370d4fac7b3e402d8e81dc537d4fcfdad8",
+      "sections": [
+        {
+          "heading": "2026-10-20: Approved I13 integer-seat donor fallback and legal-gap register",
+          "source_sha256": "5cefbec4d26c4b2e33a6b2e81e64c96a9605888bffe3433da018f78ba748f19c"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-21",
+      "title": "2026-10-21: I14 repeated initial Camera list remainder rankings",
+      "path": "docs/history/2026/2026-10-21-2026-10-21-i14-repeated-initial-camera-list-remainder-rankings.md",
+      "heading": "2026-10-21: I14 repeated initial Camera list remainder rankings",
+      "output_sha256": "7f3eb318eaba5057123b279e2bd79829d632a324350b258b83f6d2a0622adbf3",
+      "sections": [
+        {
+          "heading": "2026-10-21: I14 repeated initial Camera list remainder rankings",
+          "source_sha256": "e543326e6fbdf2f62c4c729b709b1d5008afd45e22c7e7d4b72a40c28ff6e99a"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-21",
+      "title": "2026-10-21: N21 donor-exhaustion investigation",
+      "path": "docs/history/2026/2026-10-21-2026-10-21-n21-donor-exhaustion-investigation.md",
+      "heading": "2026-10-21: N21 donor-exhaustion investigation",
+      "output_sha256": "b82c98ffa2135364dd758dbd0c965508cfdff479cc4e9256c77c5be61e0168ea",
+      "sections": [
+        {
+          "heading": "2026-10-21: N21 donor-exhaustion investigation",
+          "source_sha256": "b82c98ffa2135364dd758dbd0c965508cfdff479cc4e9256c77c5be61e0168ea"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-21",
+      "title": "2026-10-21: extend I13 to Senate N21/N22",
+      "path": "docs/history/2026/2026-10-21-2026-10-21-extend-i13-to-senate-n21n22.md",
+      "heading": "2026-10-21: extend I13 to Senate N21/N22",
+      "output_sha256": "ff49e24012c787eacfd38be42e0354ed3f8afbed54d9c766d5c7b004f9a85550",
+      "sections": [
+        {
+          "heading": "2026-10-21: extend I13 to Senate N21/N22",
+          "source_sha256": "ff49e24012c787eacfd38be42e0354ed3f8afbed54d9c766d5c7b004f9a85550"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-21",
+      "title": "2026-10-21: correct N22 stage failure reporting",
+      "path": "docs/history/2026/2026-10-21-2026-10-21-correct-n22-stage-failure-reporting.md",
+      "heading": "2026-10-21: correct N22 stage failure reporting",
+      "output_sha256": "b858591d61aad03db920d04157ae4ef7c3a321c38dbe26eebfbea3023d1a07ff",
+      "sections": [
+        {
+          "heading": "2026-10-21: correct N22 stage failure reporting",
+          "source_sha256": "b858591d61aad03db920d04157ae4ef7c3a321c38dbe26eebfbea3023d1a07ff"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-21",
+      "title": "2026-10-21: LG03 disjoined Camera cap-group correction (I15)",
+      "path": "docs/history/2026/2026-10-21-2026-10-21-lg03-disjoined-camera-cap-group-correction-i15.md",
+      "heading": "2026-10-21: LG03 disjoined Camera cap-group correction (I15)",
+      "output_sha256": "486885337982bf389cf94d0dd746c45028bfc47e602b66d943901d06c0d3a332",
+      "sections": [
+        {
+          "heading": "2026-10-21: LG03 disjoined Camera cap-group correction (I15)",
+          "source_sha256": "486885337982bf389cf94d0dd746c45028bfc47e602b66d943901d06c0d3a332"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-21",
+      "title": "2026-10-21: N18/N21/N22 recipient-exhaustion investigation",
+      "path": "docs/history/2026/2026-10-21-2026-10-21-n18n21n22-recipient-exhaustion-investigation.md",
+      "heading": "2026-10-21: N18/N21/N22 recipient-exhaustion investigation",
+      "output_sha256": "3c6c3db5ce53d0f983231a89e2e9435b25f486cd58672c1df97899bda41cedac",
+      "sections": [
+        {
+          "heading": "2026-10-21: N18/N21/N22 recipient-exhaustion investigation",
+          "source_sha256": "3c6c3db5ce53d0f983231a89e2e9435b25f486cd58672c1df97899bda41cedac"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-21",
+      "title": "2026-10-21: implement LG04 recipient reuse and unlimited I15 passes",
+      "path": "docs/history/2026/2026-10-21-2026-10-21-implement-lg04-recipient-reuse-and-unlimited-i15-passes.md",
+      "heading": "2026-10-21: implement LG04 recipient reuse and unlimited I15 passes",
+      "output_sha256": "dd2cf1994821afcf73196c03881155d4937fa00b2a2d41e5f1efcbe977077a64",
+      "sections": [
+        {
+          "heading": "2026-10-21: implement LG04 recipient reuse and unlimited I15 passes",
+          "source_sha256": "dd2cf1994821afcf73196c03881155d4937fa00b2a2d41e5f1efcbe977077a64"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-22",
+      "title": "2026-10-22 — Reform scenario editor alignment",
+      "path": "docs/history/2026/2026-10-22-2026-10-22-reform-scenario-editor-alignment.md",
+      "heading": "2026-10-22 — Reform scenario editor alignment",
+      "output_sha256": "1e504bcfd6c0348dc03ff6fc12d7abf4e20e2f256534c5c956f86f32c61ab5b4",
+      "sections": [
+        {
+          "heading": "2026-10-22 — Reform scenario editor alignment",
+          "source_sha256": "9a314f9baab7ec9eecfcab18b79798e43452e8967a02f1bb83a65542ac90868c"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-22",
+      "title": "2026-10-22 — Row-local presence and editor-local chamber controls",
+      "path": "docs/history/2026/2026-10-22-2026-10-22-row-local-presence-and-editor-local-chamber-controls.md",
+      "heading": "2026-10-22 — Row-local presence and editor-local chamber controls",
+      "output_sha256": "2043574fda4924a9bf617634f10a80064a161a3b07a7a2bff51697897f431ba5",
+      "sections": [
+        {
+          "heading": "2026-10-22 — Row-local presence and editor-local chamber controls",
+          "source_sha256": "2043574fda4924a9bf617634f10a80064a161a3b07a7a2bff51697897f431ba5"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-22",
+      "title": "2026-10-22 — Reform result tables and plots alignment",
+      "path": "docs/history/2026/2026-10-22-2026-10-22-reform-result-tables-and-plots-alignment.md",
+      "heading": "2026-10-22 — Reform result tables and plots alignment",
+      "output_sha256": "9b2d5561c9bd5ff209fefafc881596f27924d4bb5e0d98aae980321e611016eb",
+      "sections": [
+        {
+          "heading": "2026-10-22 — Reform result tables and plots alignment",
+          "source_sha256": "73d561e84a93603b942e99f1fcd9bf25fa51b618af1cea90b5fcdb38002d4f23"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-22",
+      "title": "2026-10-22 — Reform message priority and affected simulations",
+      "path": "docs/history/2026/2026-10-22-2026-10-22-reform-message-priority-and-affected-simulations.md",
+      "heading": "2026-10-22 — Reform message priority and affected simulations",
+      "output_sha256": "d8f00230577b275296875933195773e52c8ee39c86bfb73c9f023a0b89cb603f",
+      "sections": [
+        {
+          "heading": "2026-10-22 — Reform message priority and affected simulations",
+          "source_sha256": "3fe05282578eee3780f142971fd80241fdf80a64fbf26ae1bbb42f4a88efe20f"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-23",
+      "title": "2026-10-23 — Selected poll archive and reconciliation pilot",
+      "path": "docs/history/2026/2026-10-23-2026-10-23-selected-poll-archive-and-reconciliation-pilot.md",
+      "heading": "2026-10-23 — Selected poll archive and reconciliation pilot",
+      "output_sha256": "88c16eed4bff2c70f92bb329d6cf1b02d6491c5c363d2b5c04ae0ffbd4ba5142",
+      "sections": [
+        {
+          "heading": "2026-10-23 — Selected poll archive and reconciliation pilot",
+          "source_sha256": "f5c1e1cef1553b9116a1db92d1cec2ba993915ed20ad2a9aad0bbddeb39d22e2"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-23",
+      "title": "2026-10-23 — Poll-informed references (substep 2)",
+      "path": "docs/history/2026/2026-10-23-2026-10-23-poll-informed-references-substep-2.md",
+      "heading": "2026-10-23 — Poll-informed references (substep 2)",
+      "output_sha256": "0d073d9183bd4fbeba485d82f78d892f0421b0433417538421f3e749c9c2d32c",
+      "sections": [
+        {
+          "heading": "2026-10-23 — Poll-informed references (substep 2)",
+          "source_sha256": "0d073d9183bd4fbeba485d82f78d892f0421b0433417538421f3e749c9c2d32c"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-23",
+      "title": "2026-10-23 — Historical poll calibration pipeline (substep 3)",
+      "path": "docs/history/2026/2026-10-23-2026-10-23-historical-poll-calibration-pipeline-substep-3.md",
+      "heading": "2026-10-23 — Historical poll calibration pipeline (substep 3)",
+      "output_sha256": "60be88ae1280ef86ee991f7ce46caba16330da75e10aade45c25e2fc5af60d80",
+      "sections": [
+        {
+          "heading": "2026-10-23 — Historical poll calibration pipeline (substep 3)",
+          "source_sha256": "ed275190ae615cbe508aaa46a0afa0c906fc6355f071f832cbfc42727d640dcc"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-23",
+      "title": "2026-10-23 — Authoritative poll JSON and optional manual audits",
+      "path": "docs/history/2026/2026-10-23-2026-10-23-authoritative-poll-json-and-optional-manual-audits.md",
+      "heading": "2026-10-23 — Authoritative poll JSON and optional manual audits",
+      "output_sha256": "35f7813be2b45f9985fd3d60d4302f2ced67814fd04ce901ce35505ab8b7afae",
+      "sections": [
+        {
+          "heading": "2026-10-23 — Authoritative poll JSON and optional manual audits",
+          "source_sha256": "35f7813be2b45f9985fd3d60d4302f2ced67814fd04ce901ce35505ab8b7afae"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-23",
+      "title": "2026-10-23 — Original-uncertainty and error-floor benchmark comparison",
+      "path": "docs/history/2026/2026-10-23-2026-10-23-original-uncertainty-and-error-floor-benchmark-comparison.md",
+      "heading": "2026-10-23 — Original-uncertainty and error-floor benchmark comparison",
+      "output_sha256": "5aaaac893f34fd0c616b48f80cd9d38123b1bd6f5a74a8a097053d46712375e8",
+      "sections": [
+        {
+          "heading": "2026-10-23 — Original-uncertainty and error-floor benchmark comparison",
+          "source_sha256": "5aaaac893f34fd0c616b48f80cd9d38123b1bd6f5a74a8a097053d46712375e8"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-23",
+      "title": "2026-10-23 — Weighted-poll joint uncertainty study and geographic integration proposal",
+      "path": "docs/history/2026/2026-10-23-2026-10-23-weighted-poll-joint-uncertainty-study-and-geographic-integration.md",
+      "heading": "2026-10-23 — Weighted-poll joint uncertainty study and geographic integration proposal",
+      "output_sha256": "2d52a664acf66e743e0ce1eca59d23dac20e1d4be6b5586e952019b03d428228",
+      "sections": [
+        {
+          "heading": "2026-10-23 — Weighted-poll joint uncertainty study and geographic integration proposal",
+          "source_sha256": "2d52a664acf66e743e0ce1eca59d23dac20e1d4be6b5586e952019b03d428228"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-23",
+      "title": "2026-10-23 — National and municipal generation-model comparison",
+      "path": "docs/history/2026/2026-10-23-2026-10-23-national-and-municipal-generation-model-comparison.md",
+      "heading": "2026-10-23 — National and municipal generation-model comparison",
+      "output_sha256": "6248aeb0c65f318f43ccae0fe37e55930269987271a9f8df4862cdb459452f9b",
+      "sections": [
+        {
+          "heading": "2026-10-23 — National and municipal generation-model comparison",
+          "source_sha256": "6248aeb0c65f318f43ccae0fe37e55930269987271a9f8df4862cdb459452f9b"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-24",
+      "title": "2026-10-24 — Revised drift requirements and combined non-valid outcome",
+      "path": "docs/history/2026/2026-10-24-2026-10-24-revised-drift-requirements-and-combined-non-valid-outcome.md",
+      "heading": "2026-10-24 — Revised drift requirements and combined non-valid outcome",
+      "output_sha256": "d8ad14ae95954999fae77ad6477eeb3b0cefe3e9847adcd79080f61816bfa767",
+      "sections": [
+        {
+          "heading": "2026-10-24 — Revised drift requirements and combined non-valid outcome",
+          "source_sha256": "d8ad14ae95954999fae77ad6477eeb3b0cefe3e9847adcd79080f61816bfa767"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-24",
+      "title": "2026-10-24 — Electorate-wide latent-drift research and staged comparisons",
+      "path": "docs/history/2026/2026-10-24-2026-10-24-electorate-wide-latent-drift-research-and-staged-comparisons.md",
+      "heading": "2026-10-24 — Electorate-wide latent-drift research and staged comparisons",
+      "output_sha256": "b516c19efca28e5c562ae16793db269cbbb6db10631c83f9445b5a5b4698002f",
+      "sections": [
+        {
+          "heading": "2026-10-24 — Electorate-wide latent-drift research and staged comparisons",
+          "source_sha256": "b516c19efca28e5c562ae16793db269cbbb6db10631c83f9445b5a5b4698002f"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-25",
+      "title": "25 October 2026 - Markdown math delimiter compatibility",
+      "path": "docs/history/2026/2026-10-25-25-october-2026-markdown-math-delimiter-compatibility.md",
+      "heading": "25 October 2026 - Markdown math delimiter compatibility",
+      "output_sha256": "1dd5663ddab2a1ad4d924dc8243a575bd8ffd6ad1dbc0f3e61606bf004280316",
+      "sections": [
+        {
+          "heading": "25 October 2026 - Markdown math delimiter compatibility",
+          "source_sha256": "1dd5663ddab2a1ad4d924dc8243a575bd8ffd6ad1dbc0f3e61606bf004280316"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-25",
+      "title": "2026-10-25 — Scenario-owned party memberships and fitting contract",
+      "path": "docs/history/2026/2026-10-25-2026-10-25-scenario-owned-party-memberships-and-fitting-contract.md",
+      "heading": "2026-10-25 — Scenario-owned party memberships and fitting contract",
+      "output_sha256": "c54d9d5bc7ab4e424beb7f946032c820cebabf2518f2afa57a0e21cb42f3f5b2",
+      "sections": [
+        {
+          "heading": "2026-10-25 — Scenario-owned party memberships and fitting contract",
+          "source_sha256": "c54d9d5bc7ab4e424beb7f946032c820cebabf2518f2afa57a0e21cb42f3f5b2"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-26",
+      "title": "2026-10-26 — Neutral reference-date priors and backward history",
+      "path": "docs/history/2026/2026-10-26-2026-10-26-neutral-reference-date-priors-and-backward-history.md",
+      "heading": "2026-10-26 — Neutral reference-date priors and backward history",
+      "output_sha256": "024eb09304e3762178372bbcc8c2decda7ed35d9165cebb210dcf1912e696848",
+      "sections": [
+        {
+          "heading": "2026-10-26 — Neutral reference-date priors and backward history",
+          "source_sha256": "024eb09304e3762178372bbcc8c2decda7ed35d9165cebb210dcf1912e696848"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-26",
+      "title": "2026-10-26 — Party-model transition without legacy adapters",
+      "path": "docs/history/2026/2026-10-26-2026-10-26-party-model-transition-without-legacy-adapters.md",
+      "heading": "2026-10-26 — Party-model transition without legacy adapters",
+      "output_sha256": "aa300044a18b9942eef8af0161635e6c6a45da2d2ca7171271a7e63b32bb5e2b",
+      "sections": [
+        {
+          "heading": "2026-10-26 — Party-model transition without legacy adapters",
+          "source_sha256": "aa300044a18b9942eef8af0161635e6c6a45da2d2ca7171271a7e63b32bb5e2b"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-26",
+      "title": "2026-10-26 — Party drift stage-0 implementation and inference stop",
+      "path": "docs/history/2026/2026-10-26-2026-10-26-party-drift-stage-0-implementation-and-inference-stop.md",
+      "heading": "2026-10-26 — Party drift stage-0 implementation and inference stop",
+      "output_sha256": "85b5af330270cfe022b23487620ae4b7f30ce0e119fc1b1763b7ca9ea7ce1224",
+      "sections": [
+        {
+          "heading": "2026-10-26 — Party drift stage-0 implementation and inference stop",
+          "source_sha256": "85b5af330270cfe022b23487620ae4b7f30ce0e119fc1b1763b7ca9ea7ce1224"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-26",
+      "title": "2026-10-26 — Restricted components, offline Stan and user-requested pause",
+      "path": "docs/history/2026/2026-10-26-2026-10-26-restricted-components-offline-stan-and-user-requested-pause.md",
+      "heading": "2026-10-26 — Restricted components, offline Stan and user-requested pause",
+      "output_sha256": "be85e3ac6e57762b1f15dbfada84df8a7c8595d9dcad2bfbee6d998bccc40cf6",
+      "sections": [
+        {
+          "heading": "2026-10-26 — Restricted components, offline Stan and user-requested pause",
+          "source_sha256": "be85e3ac6e57762b1f15dbfada84df8a7c8595d9dcad2bfbee6d998bccc40cf6"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-26",
+      "title": "2026-10-26 — Partial reform share references and special-territory capacity",
+      "path": "docs/history/2026/2026-10-26-2026-10-26-partial-reform-share-references-and-special-territory-capacity.md",
+      "heading": "2026-10-26 — Partial reform share references and special-territory capacity",
+      "output_sha256": "adc2a37b97ee690cd9c2d9e352cd0c308f6a8a36274ef9ee59ccce9887771324",
+      "sections": [
+        {
+          "heading": "2026-10-26 — Partial reform share references and special-territory capacity",
+          "source_sha256": "adc2a37b97ee690cd9c2d9e352cd0c308f6a8a36274ef9ee59ccce9887771324"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-26",
+      "title": "2026-10-26 — Manual archive: 19 non-computable runs traced to LG05/LG06",
+      "path": "docs/history/2026/2026-10-26-2026-10-26-manual-archive-19-non-computable-runs-traced-to-lg05lg06.md",
+      "heading": "2026-10-26 — Manual archive: 19 non-computable runs traced to LG05/LG06",
+      "output_sha256": "68c73083a15c61d45de08fbab2612737bc1fbbba3a4763c3e3d8156923263056",
+      "sections": [
+        {
+          "heading": "2026-10-26 — Manual archive: 19 non-computable runs traced to LG05/LG06",
+          "source_sha256": "68c73083a15c61d45de08fbab2612737bc1fbbba3a4763c3e3d8156923263056"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-26",
+      "title": "2026-10-26 — Approved I13 N16 extension and Sud chiama Nord support trace",
+      "path": "docs/history/2026/2026-10-26-2026-10-26-approved-i13-n16-extension-and-sud-chiama-nord-support-trace.md",
+      "heading": "2026-10-26 — Approved I13 N16 extension and Sud chiama Nord support trace",
+      "output_sha256": "48e12aeca1064ef815ca8088bc19684c40605adb71235dd3ca3ce8cf43382c8d",
+      "sections": [
+        {
+          "heading": "2026-10-26 — Approved I13 N16 extension and Sud chiama Nord support trace",
+          "source_sha256": "48e12aeca1064ef815ca8088bc19684c40605adb71235dd3ca3ce8cf43382c8d"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-26",
+      "title": "2026-10-26 — Approved I17 exclusion of zero-vote cap-path N16 recipients",
+      "path": "docs/history/2026/2026-10-26-2026-10-26-approved-i17-exclusion-of-zero-vote-cap-path-n16-recipients.md",
+      "heading": "2026-10-26 — Approved I17 exclusion of zero-vote cap-path N16 recipients",
+      "output_sha256": "6d4d6702bb788825841147c826852421db702fff221f6733cee05add48bc7d12",
+      "sections": [
+        {
+          "heading": "2026-10-26 — Approved I17 exclusion of zero-vote cap-path N16 recipients",
+          "source_sha256": "6d4d6702bb788825841147c826852421db702fff221f6733cee05add48bc7d12"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-26",
+      "title": "2026-10-26 Italian briefing on electoral reform gaps for policymakers",
+      "path": "docs/history/2026/2026-10-26-2026-10-26-italian-briefing-on-electoral-reform-gaps-for-policymakers.md",
+      "heading": "2026-10-26 Italian briefing on electoral reform gaps for policymakers",
+      "output_sha256": "fce27f9d08a51155e94cfe134ea5bf742e202cb2f0a243294e94c4ab6763666d",
+      "sections": [
+        {
+          "heading": "2026-10-26 Italian briefing on electoral reform gaps for policymakers",
+          "source_sha256": "fce27f9d08a51155e94cfe134ea5bf742e202cb2f0a243294e94c4ab6763666d"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-26",
+      "title": "2026-10-26 Reform result chart selectors",
+      "path": "docs/history/2026/2026-10-26-2026-10-26-reform-result-chart-selectors.md",
+      "heading": "2026-10-26 Reform result chart selectors",
+      "output_sha256": "14369b60be6c9af8739796a69e0b1db828651d5cfb8555f1ab8a9a82500aeb9c",
+      "sections": [
+        {
+          "heading": "2026-10-26 Reform result chart selectors",
+          "source_sha256": "14369b60be6c9af8739796a69e0b1db828651d5cfb8555f1ab8a9a82500aeb9c"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-26",
+      "title": "2026-10-26 Remaining reform UI refinements",
+      "path": "docs/history/2026/2026-10-26-2026-10-26-remaining-reform-ui-refinements.md",
+      "heading": "2026-10-26 Remaining reform UI refinements",
+      "output_sha256": "13817060337316de6304c1d2784560ceb4a38d9e4c1d651abc2190dacd044846",
+      "sections": [
+        {
+          "heading": "2026-10-26 Remaining reform UI refinements",
+          "source_sha256": "13817060337316de6304c1d2784560ceb4a38d9e4c1d651abc2190dacd044846"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-27",
+      "title": "2026-10-27 Reference-based bonus candidates and supplied positions",
+      "path": "docs/history/2026/2026-10-27-2026-10-27-reference-based-bonus-candidates-and-supplied-positions.md",
+      "heading": "2026-10-27 Reference-based bonus candidates and supplied positions",
+      "output_sha256": "a3b377cc1c4ae43276c7bde40fe29bf92a2017e5f0a874381d6755cf97b2c52a",
+      "sections": [
+        {
+          "heading": "2026-10-27 Reference-based bonus candidates and supplied positions",
+          "source_sha256": "2ec80ab90ac1cd8f95ae17f073b4166a56a9d205ca14d73d4844b083731c746f"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-27",
+      "title": "2026-10-27 — Resumed party-level research with a fast share model",
+      "path": "docs/history/2026/2026-10-27-2026-10-27-resumed-party-level-research-with-a-fast-share-model.md",
+      "heading": "2026-10-27 — Resumed party-level research with a fast share model",
+      "output_sha256": "c9b93913aecd9d2366ad0d9502c4a4a97ad2668044b514f62b2c26924ef75ffa",
+      "sections": [
+        {
+          "heading": "2026-10-27 — Resumed party-level research with a fast share model",
+          "source_sha256": "da54269d8a773474a8aa2ad60d32c8333de6d89853975cb94236ebc51b1f14cf"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-27",
+      "title": "2026-10-27 — College spinogram bonus filter and simulation counts",
+      "path": "docs/history/2026/2026-10-27-2026-10-27-college-spinogram-bonus-filter-and-simulation-counts.md",
+      "heading": "2026-10-27 — College spinogram bonus filter and simulation counts",
+      "output_sha256": "9daf3712b45c6805d4d25451854b836e675fab8f2057dcb141f336d7cbc45620",
+      "sections": [
+        {
+          "heading": "2026-10-27 — College spinogram bonus filter and simulation counts",
+          "source_sha256": "9daf3712b45c6805d4d25451854b836e675fab8f2057dcb141f336d7cbc45620"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-27",
+      "title": "2026-10-27 — Independent college spinogram share source",
+      "path": "docs/history/2026/2026-10-27-2026-10-27-independent-college-spinogram-share-source.md",
+      "heading": "2026-10-27 — Independent college spinogram share source",
+      "output_sha256": "9b11a7cbc3800136e3414af4c92df509489ff1f6eacc45625974c4d9275a6872",
+      "sections": [
+        {
+          "heading": "2026-10-27 — Independent college spinogram share source",
+          "source_sha256": "9b11a7cbc3800136e3414af4c92df509489ff1f6eacc45625974c4d9275a6872"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-28",
+      "title": "2026-10-28 — Complete the legislator note's legal references and examples",
+      "path": "docs/history/2026/2026-10-28-2026-10-28-complete-the-legislator-notes-legal-references-and-examples.md",
+      "heading": "2026-10-28 — Complete the legislator note's legal references and examples",
+      "output_sha256": "6dd661743c949ff049bee902327307ddd26e6f85531b8f339ae407cc8f8f0f9f",
+      "sections": [
+        {
+          "heading": "2026-10-28 — Complete the legislator note's legal references and examples",
+          "source_sha256": "6dd661743c949ff049bee902327307ddd26e6f85531b8f339ae407cc8f8f0f9f"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-28",
+      "title": "2026-10-28 — Standalone SCN scenario and artifact-independent note examples",
+      "path": "docs/history/2026/2026-10-28-2026-10-28-standalone-scn-scenario-and-artifact-independent-note-examples.md",
+      "heading": "2026-10-28 — Standalone SCN scenario and artifact-independent note examples",
+      "output_sha256": "6e0c97fb323a90fcbe11baf964e0fecaa658d7487488a95145489f93c8f5ebbc",
+      "sections": [
+        {
+          "heading": "2026-10-28 — Standalone SCN scenario and artifact-independent note examples",
+          "source_sha256": "6e0c97fb323a90fcbe11baf964e0fecaa658d7487488a95145489f93c8f5ebbc"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-28",
+      "title": "2026-10-28 — Confirmed reset of the reform scenario",
+      "path": "docs/history/2026/2026-10-28-2026-10-28-confirmed-reset-of-the-reform-scenario.md",
+      "heading": "2026-10-28 — Confirmed reset of the reform scenario",
+      "output_sha256": "c6ada3ed9618e0e4d8c5fe66e5f0c5c099651eaf99c7d7f1f0c9ad2299d055d5",
+      "sections": [
+        {
+          "heading": "2026-10-28 — Confirmed reset of the reform scenario",
+          "source_sha256": "c6ada3ed9618e0e4d8c5fe66e5f0c5c099651eaf99c7d7f1f0c9ad2299d055d5"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-28",
+      "title": "2026-10-28 — Unique Other category across implemented elections",
+      "path": "docs/history/2026/2026-10-28-2026-10-28-unique-other-category-across-implemented-elections.md",
+      "heading": "2026-10-28 — Unique Other category across implemented elections",
+      "output_sha256": "2cc3285b91cf33122dababa8b5ac4b4a87d75fff3b377e124d0a4f96a8913eca",
+      "sections": [
+        {
+          "heading": "2026-10-28 — Unique Other category across implemented elections",
+          "source_sha256": "6e390dd3f9ce5a0ff595ebdf6f75763066af9a0c67f58d3732a9f6f80f37a829"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-28",
+      "title": "2026-10-28 — Formalize the fast research model description",
+      "path": "docs/history/2026/2026-10-28-2026-10-28-formalize-the-fast-research-model-description.md",
+      "heading": "2026-10-28 — Formalize the fast research model description",
+      "output_sha256": "41f193924e09cc2fb6b5ee0f1ae8ee7fb1ad2f86947098ab493157292219490d",
+      "sections": [
+        {
+          "heading": "2026-10-28 — Formalize the fast research model description",
+          "source_sha256": "24014750b84d1f4359db02a49c0f057147941bb941e0887ce0a2d3cda0ca5505"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-28",
+      "title": "2026-10-28 — Plan fast vote generation for the reform browser workflow",
+      "path": "docs/history/2026/2026-10-28-2026-10-28-plan-fast-vote-generation-for-the-reform-browser-workflow.md",
+      "heading": "2026-10-28 — Plan fast vote generation for the reform browser workflow",
+      "output_sha256": "511bfc689a59e59e890da09dfe2eb4c03b73ac753ac464aef0690708d048a884",
+      "sections": [
+        {
+          "heading": "2026-10-28 — Plan fast vote generation for the reform browser workflow",
+          "source_sha256": "cdfd1ba32a3729b56f55384ecdc8cac4d71605f1f119d8c55b0857a6e5faa935"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-28",
+      "title": "2026-10-28 — FV-01 production contracts and preserved research evidence",
+      "path": "docs/history/2026/2026-10-28-2026-10-28-fv-01-production-contracts-and-preserved-research-evidence.md",
+      "heading": "2026-10-28 — FV-01 production contracts and preserved research evidence",
+      "output_sha256": "3cbcf5fc56c1c46451390635368ab730f7a5ebeccc101459fff83c433fb16fae",
+      "sections": [
+        {
+          "heading": "2026-10-28 — FV-01 production contracts and preserved research evidence",
+          "source_sha256": "0dc8ccf91d3cbccd457868688f1b352e37cb77f39172da4c2ac10abc5f90b2a7"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-29",
+      "title": "2026-10-29 — FV-02 browser-safe reference fitting and profile estimation",
+      "path": "docs/history/2026/2026-10-29-2026-10-29-fv-02-browser-safe-reference-fitting-and-profile-estimation.md",
+      "heading": "2026-10-29 — FV-02 browser-safe reference fitting and profile estimation",
+      "output_sha256": "9e26cfa33d1e7d9475793d02d4b56ca64f86f7b99167422783c8dbdde0b175e9",
+      "sections": [
+        {
+          "heading": "2026-10-29 — FV-02 browser-safe reference fitting and profile estimation",
+          "source_sha256": "04ff8aee88ec7d717858445a7ce504e421417ebada4caca1393bfeadea77b8bc"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-29",
+      "title": "2026-10-29 — FV-03 compact editable production history",
+      "path": "docs/history/2026/2026-10-29-2026-10-29-fv-03-compact-editable-production-history.md",
+      "heading": "2026-10-29 — FV-03 compact editable production history",
+      "output_sha256": "0e528185787bb3acf6da159d42f0b4cd13de3ffb46f3c43d70614ea0ef98ac13",
+      "sections": [
+        {
+          "heading": "2026-10-29 — FV-03 compact editable production history",
+          "source_sha256": "fcdbf02f7ee2cb2a4a878654bd7cfc930e60ef40f6eb4b074b9e5870bbcae29f"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-29",
+      "title": "2026-10-29 — Approved next-day historical availability and deferred live-count forecasting",
+      "path": "docs/history/2026/2026-10-29-2026-10-29-approved-next-day-historical-availability-and-deferred-live-count.md",
+      "heading": "2026-10-29 — Approved next-day historical availability and deferred live-count forecasting",
+      "output_sha256": "859a30801b2a2d67fa047966c047efb71f8697943e1a750e989944bbb9bb93b6",
+      "sections": [
+        {
+          "heading": "2026-10-29 — Approved next-day historical availability and deferred live-count forecasting",
+          "source_sha256": "00cc269da48f766bb1edb40bcd02d64b63af27bb47048d006a5a5cddc8aa82ee"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-29",
+      "title": "2026-10-29 — FV-04: headless fast generation and paired physical ballots",
+      "path": "docs/history/2026/2026-10-29-2026-10-29-fv-04-headless-fast-generation-and-paired-physical-ballots.md",
+      "heading": "2026-10-29 — FV-04: headless fast generation and paired physical ballots",
+      "output_sha256": "02be499881606f1dde7676326ba0ecdd6ccc7fbb8e26190cc22a82c1203e19b4",
+      "sections": [
+        {
+          "heading": "2026-10-29 — FV-04: headless fast generation and paired physical ballots",
+          "source_sha256": "78c1fb36f7fb4cd5b7a9a1026fb89a8b6d6f6db4307697b16ae2f4993a0bd107"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-29",
+      "title": "2026-10-29 — FV-05: reproducible prefitted candidate release",
+      "path": "docs/history/2026/2026-10-29-2026-10-29-fv-05-reproducible-prefitted-candidate-release.md",
+      "heading": "2026-10-29 — FV-05: reproducible prefitted candidate release",
+      "output_sha256": "cb2efaed5465b8a958dc04719b0d8a06329916c8d16aa857c7d06c4d76d93761",
+      "sections": [
+        {
+          "heading": "2026-10-29 — FV-05: reproducible prefitted candidate release",
+          "source_sha256": "0f71361d7973dc26c377c561ba3e44fd4458a3ff006d77cca2a9c401f31a7d27"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-29",
+      "title": "2026-10-29 — FV-06: browser refitting and revision-bound state",
+      "path": "docs/history/2026/2026-10-29-2026-10-29-fv-06-browser-refitting-and-revision-bound-state.md",
+      "heading": "2026-10-29 — FV-06: browser refitting and revision-bound state",
+      "output_sha256": "a6425c8df12d77bd5b7b69b0ab2a95a0da2726383b50e3aa8f134e89ed4324f3",
+      "sections": [
+        {
+          "heading": "2026-10-29 — FV-06: browser refitting and revision-bound state",
+          "source_sha256": "b0e8216a00b6d063a158bb26fb130b8f79f5e5f4d92107fa3e5b8c82c959a541"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-29",
+      "title": "2026-10-29 — FV-07 candidate browser workspace and fitted-session replay",
+      "path": "docs/history/2026/2026-10-29-2026-10-29-fv-07-candidate-browser-workspace-and-fitted-session-replay.md",
+      "heading": "2026-10-29 — FV-07 candidate browser workspace and fitted-session replay",
+      "output_sha256": "f9e11ccfa1dbcf37f367fa627826306da6719e7d67951d6069a5ce382ea00e60",
+      "sections": [
+        {
+          "heading": "2026-10-29 — FV-07 candidate browser workspace and fitted-session replay",
+          "source_sha256": "ef23f8d19730b560717177121a75079253d9f887c6a1f2da4f3dcd8c80401482"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-30",
+      "title": "2026-10-30 — FV-08 acceptance engineering and blocked default selection",
+      "path": "docs/history/2026/2026-10-30-2026-10-30-fv-08-acceptance-engineering-and-blocked-default-selection.md",
+      "heading": "2026-10-30 — FV-08 acceptance engineering and blocked default selection",
+      "output_sha256": "8c0fe24097cb6cff137304451513c2895a0c8395f2fbc302a39723ad3d3ee0d9",
+      "sections": [
+        {
+          "heading": "2026-10-30 — FV-08 acceptance engineering and blocked default selection",
+          "source_sha256": "1e1343e43019c7b1b5dd87885f9b11c941a7c772130267054b47fff38b6e9b31"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-30",
+      "title": "2026-10-30 — Filing-aware replacement models and requested future default",
+      "path": "docs/history/2026/2026-10-30-2026-10-30-filing-aware-replacement-models-and-requested-future-default.md",
+      "heading": "2026-10-30 — Filing-aware replacement models and requested future default",
+      "output_sha256": "3a7e32345e2c0f6ae1b34cd65e010f16c89db77e9f1e5dac709564a44ac871df",
+      "sections": [
+        {
+          "heading": "2026-10-30 — Filing-aware replacement models and requested future default",
+          "source_sha256": "7c2093fa1eb9b3b6fa7a33c5764417500585394ce226d8b9aad6c91c31890970"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-30",
+      "title": "2026-10-30 — Feasibility of an actual production legacy comparison",
+      "path": "docs/history/2026/2026-10-30-2026-10-30-feasibility-of-an-actual-production-legacy-comparison.md",
+      "heading": "2026-10-30 — Feasibility of an actual production legacy comparison",
+      "output_sha256": "01076f732556f895e0516c43a5c72bf0a20eed544520b0e2e93c8fc7c726c738",
+      "sections": [
+        {
+          "heading": "2026-10-30 — Feasibility of an actual production legacy comparison",
+          "source_sha256": "e49a15b4757f59f284981f2bcdcbc51f29ee2cc0156d682953096aae9683989e"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-30",
+      "title": "2026-10-30 — Display fixed reform seat endowments",
+      "path": "docs/history/2026/2026-10-30-2026-10-30-display-fixed-reform-seat-endowments.md",
+      "heading": "2026-10-30 — Display fixed reform seat endowments",
+      "output_sha256": "1a29061bf313271dfa2fde64a5f888010b87ab4c82ab3af9f91549d6a333cac2",
+      "sections": [
+        {
+          "heading": "2026-10-30 — Display fixed reform seat endowments",
+          "source_sha256": "1a29061bf313271dfa2fde64a5f888010b87ab4c82ab3af9f91549d6a333cac2"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-30",
+      "title": "2026-10-30 — Installed legacy generator comparison with and without poll refresh",
+      "path": "docs/history/2026/2026-10-30-2026-10-30-installed-legacy-generator-comparison-with-and-without-poll-refre.md",
+      "heading": "2026-10-30 — Installed legacy generator comparison with and without poll refresh",
+      "output_sha256": "a64677c6f20f5eca5396039066007879176bf4542867884922bfa3e2b4f3bd33",
+      "sections": [
+        {
+          "heading": "2026-10-30 — Installed legacy generator comparison with and without poll refresh",
+          "source_sha256": "ab0ae221090825ae40b6eb04456325013198936c22864a4fd71b9624bf17a725"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-30",
+      "title": "2026-10-30 — Camera TAA admitted-member allocation and exception replay",
+      "path": "docs/history/2026/2026-10-30-2026-10-30-camera-taa-admitted-member-allocation-and-exception-replay.md",
+      "heading": "2026-10-30 — Camera TAA admitted-member allocation and exception replay",
+      "output_sha256": "ac4d08acd5c5e217908671ba1692f254fc020cf1e2a99c46e55a42ff8f96e349",
+      "sections": [
+        {
+          "heading": "2026-10-30 — Camera TAA admitted-member allocation and exception replay",
+          "source_sha256": "ac4d08acd5c5e217908671ba1692f254fc020cf1e2a99c46e55a42ff8f96e349"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-30",
+      "title": "2026-10-30 — Senate Sicilia N21 draw 135 diagnosis and proposed interpretation",
+      "path": "docs/history/2026/2026-10-30-2026-10-30-senate-sicilia-n21-draw-135-diagnosis-and-proposed-interpretation.md",
+      "heading": "2026-10-30 — Senate Sicilia N21 draw 135 diagnosis and proposed interpretation",
+      "output_sha256": "dcf09fcee4a5e59cfc86b3463157ce53a05e95998f71107e19d26db1826317fb",
+      "sections": [
+        {
+          "heading": "2026-10-30 — Senate Sicilia N21 draw 135 diagnosis and proposed interpretation",
+          "source_sha256": "deac0fd6fdb766b67d2dc6343576e6c7c2a5018b898f82e0d0c5d7e489bf7c1f"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-30",
+      "title": "2026-10-30 — Approved I14-v2 Senate extension and full frozen-workload replay",
+      "path": "docs/history/2026/2026-10-30-2026-10-30-approved-i14-v2-senate-extension-and-full-frozen-workload-replay.md",
+      "heading": "2026-10-30 — Approved I14-v2 Senate extension and full frozen-workload replay",
+      "output_sha256": "cbbf6d2b43fed363ce29d8c2fab0184e44e5585b51ca7a4356714d3521ad5b95",
+      "sections": [
+        {
+          "heading": "2026-10-30 — Approved I14-v2 Senate extension and full frozen-workload replay",
+          "source_sha256": "69c9ab98a2f5cc6da1d35090a9cfb23ef2d8f7afc80254de5b903d278080b1ea"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-30",
+      "title": "2026-10-30 Cumulative slate-position probabilities and last-position spinogram",
+      "path": "docs/history/2026/2026-10-30-2026-10-30-cumulative-slate-position-probabilities-and-last-position-spinogr.md",
+      "heading": "2026-10-30 Cumulative slate-position probabilities and last-position spinogram",
+      "output_sha256": "01787ddb95fe84c932c03ef1d1cc5e9e5195ce0bfa07ca2f77fd1544d5d1d95e",
+      "sections": [
+        {
+          "heading": "2026-10-30 Cumulative slate-position probabilities and last-position spinogram",
+          "source_sha256": "01787ddb95fe84c932c03ef1d1cc5e9e5195ce0bfa07ca2f77fd1544d5d1d95e"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-31",
+      "title": "2026-10-31 — Constituency spinogram and simpler territorial controls",
+      "path": "docs/history/2026/2026-10-31-2026-10-31-constituency-spinogram-and-simpler-territorial-controls.md",
+      "heading": "2026-10-31 — Constituency spinogram and simpler territorial controls",
+      "output_sha256": "323d6b9583fcc51cd09803a12b273e4eb70ae5d44a8b6b59c8dde08ec2e3aaac",
+      "sections": [
+        {
+          "heading": "2026-10-31 — Constituency spinogram and simpler territorial controls",
+          "source_sha256": "323d6b9583fcc51cd09803a12b273e4eb70ae5d44a8b6b59c8dde08ec2e3aaac"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-31",
+      "title": "FV-08 unified scenario and generation workflow — 31 October 2026",
+      "path": "docs/history/2026/2026-10-31-fv-08-unified-scenario-and-generation-workflow-31-october-2026.md",
+      "heading": "FV-08 unified scenario and generation workflow — 31 October 2026",
+      "output_sha256": "be9f08c4c94a2dab52ae8dc31d213095d4878375be93e8e8bf556e8dab824eff",
+      "sections": [
+        {
+          "heading": "FV-08 unified scenario and generation workflow — 31 October 2026",
+          "source_sha256": "3e98639a7a52635bd0baeeb6d592317f466269838f4d05d0357207ca47b07ef8"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-01",
+      "title": "Post-FV-08 correspondence-policy audit — 1 November 2026",
+      "path": "docs/history/2026/2026-11-01-post-fv-08-correspondence-policy-audit-1-november-2026.md",
+      "heading": "Post-FV-08 correspondence-policy audit — 1 November 2026",
+      "output_sha256": "f62b3306ca237a230241210f7b8e29cb1c72582084fec67b8347c2873c403e0f",
+      "sections": [
+        {
+          "heading": "Post-FV-08 correspondence-policy audit — 1 November 2026",
+          "source_sha256": "bfd4156946e0f879437b031f006c57a6053f3410a966758f58a5c7d632bddd2d"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-02",
+      "title": "M01/M02 comparison feasibility — 2 November 2026",
+      "path": "docs/history/2026/2026-11-02-m01m02-comparison-feasibility-2-november-2026.md",
+      "heading": "M01/M02 comparison feasibility — 2 November 2026",
+      "output_sha256": "0d05d09bcf1a3927bddba056e80c5391e9cdb1ab30f47290fa7af3adeab9ccb0",
+      "sections": [
+        {
+          "heading": "M01/M02 comparison feasibility — 2 November 2026",
+          "source_sha256": "c5315f9f9a36630a63859fae450f3c3003930d0376b2df4030ea454dc7039229"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-02",
+      "title": "Current M01/M02 Camera-only comparison — 2 November 2026",
+      "path": "docs/history/2026/2026-11-02-current-m01m02-camera-only-comparison-2-november-2026.md",
+      "heading": "Current M01/M02 Camera-only comparison — 2 November 2026",
+      "output_sha256": "34e9a584570b023cfef2b6f64ec9b7d066f5db56fc9f93be51b547dd0324b03c",
+      "sections": [
+        {
+          "heading": "Current M01/M02 Camera-only comparison — 2 November 2026",
+          "source_sha256": "2b81bf4c393cb66700f430efa01f3f8b22ca55eae8f6c6e33142a07b32c39616"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-02",
+      "title": "M01/M02 pre-correction restoration — 2 November 2026",
+      "path": "docs/history/2026/2026-11-02-m01m02-pre-correction-restoration-2-november-2026.md",
+      "heading": "M01/M02 pre-correction restoration — 2 November 2026",
+      "output_sha256": "0990fb2c46f2df63da6868ed0fcfeb7202b17fb42cc2093156923c7dfe92125a",
+      "sections": [
+        {
+          "heading": "M01/M02 pre-correction restoration — 2 November 2026",
+          "source_sha256": "0990fb2c46f2df63da6868ed0fcfeb7202b17fb42cc2093156923c7dfe92125a"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-02",
+      "title": "FV-09 research archive and cleanup — 2 November 2026",
+      "path": "docs/history/2026/2026-11-02-fv-09-research-archive-and-cleanup-2-november-2026.md",
+      "heading": "FV-09 research archive and cleanup — 2 November 2026",
+      "output_sha256": "8d4825a8ad6863ba0c957e7f6dbbf108d8b5e071dee9b87e6eed343148c92ab5",
+      "sections": [
+        {
+          "heading": "FV-09 research archive and cleanup — 2 November 2026",
+          "source_sha256": "8c06267af90f47bd9863eb4828570b2b49af94d102b89997f87b808789f5d660"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-02",
+      "title": "Migration checklist review and cleanup — 2 November 2026",
+      "path": "docs/history/2026/2026-11-02-migration-checklist-review-and-cleanup-2-november-2026.md",
+      "heading": "Migration checklist review and cleanup — 2 November 2026",
+      "output_sha256": "39b4285438e1a1962d4f60a484b90cfdeaa52a658f0ff9447123c509a5a0c741",
+      "sections": [
+        {
+          "heading": "Migration checklist review and cleanup — 2 November 2026",
+          "source_sha256": "a4a81b9fbb7c9e1ab1bdffb9b7fb1446ae58aa9b3a5c75eb5326f18f7b40e79f"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-02",
+      "title": "2026-11-02 — Shared web workspaces and politics defaults",
+      "path": "docs/history/2026/2026-11-02-2026-11-02-shared-web-workspaces-and-politics-defaults.md",
+      "heading": "2026-11-02 — Shared web workspaces and politics defaults",
+      "output_sha256": "8c2d35f82c79aea7b18217a9666c3bc6fb45b062c48745dafeff8a985e999668",
+      "sections": [
+        {
+          "heading": "2026-11-02 — Shared web workspaces and politics defaults",
+          "source_sha256": "f87857cd58999510d6ffd7303790410a7aeb43fe20bae414874f7ee025e9f35e"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-02",
+      "title": "2026-11-02: Complete Node production data preparation",
+      "path": "docs/history/2026/2026-11-02-2026-11-02-complete-node-production-data-preparation.md",
+      "heading": "2026-11-02: Complete Node production data preparation",
+      "output_sha256": "87c282eadebf3ad388d725e7b0a8c3dff83c59875fd8406e851efb615554f380",
+      "sections": [
+        {
+          "heading": "2026-11-02: Complete Node production data preparation",
+          "source_sha256": "a25734aff792b2188fabd18b396de55a28257a2e93fe8215530cc517eadaf7a8"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-02",
+      "title": "2026-11-02 — Production acceptance pruning and stale entry-point retirement",
+      "path": "docs/history/2026/2026-11-02-2026-11-02-production-acceptance-pruning-and-stale-entry-point-retirement.md",
+      "heading": "2026-11-02 — Production acceptance pruning and stale entry-point retirement",
+      "output_sha256": "282ee0ecbcfa57f2220cbf5abf79df9a8d99420c6c84cbfa792e17247b5c2222",
+      "sections": [
+        {
+          "heading": "2026-11-02 — Production acceptance pruning and stale entry-point retirement",
+          "source_sha256": "282ee0ecbcfa57f2220cbf5abf79df9a8d99420c6c84cbfa792e17247b5c2222"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-02",
+      "title": "2026-11-02 — R and temporary bridge retirement",
+      "path": "docs/history/2026/2026-11-02-2026-11-02-r-and-temporary-bridge-retirement.md",
+      "heading": "2026-11-02 — R and temporary bridge retirement",
+      "output_sha256": "25375777dfa7214be78a9e23e13d3cee5102595238843198ea903894337357c1",
+      "sections": [
+        {
+          "heading": "2026-11-02 — R and temporary bridge retirement",
+          "source_sha256": "25375777dfa7214be78a9e23e13d3cee5102595238843198ea903894337357c1"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-02",
+      "title": "2026-11-02 — Local derived-data cleanup",
+      "path": "docs/history/2026/2026-11-02-2026-11-02-local-derived-data-cleanup.md",
+      "heading": "2026-11-02 — Local derived-data cleanup",
+      "output_sha256": "39ca763470213a129ceed04a0e7c430a09f8510de0053381e59ea0c1690a28e0",
+      "sections": [
+        {
+          "heading": "2026-11-02 — Local derived-data cleanup",
+          "source_sha256": "d0d4aab1e356a1b024037b3cf5f95af5a83a6087903416e0d97c23d972eef60a"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-04",
+      "title": "2026-11-04 — Election-wide bonus winner chart",
+      "path": "docs/history/2026/2026-11-04-2026-11-04-election-wide-bonus-winner-chart.md",
+      "heading": "2026-11-04 — Election-wide bonus winner chart",
+      "output_sha256": "fe3984dc1320b2043dfb8d2b13027a77595540e900feccfb0d1b599ed2e136da",
+      "sections": [
+        {
+          "heading": "2026-11-04 — Election-wide bonus winner chart",
+          "source_sha256": "fe3984dc1320b2043dfb8d2b13027a77595540e900feccfb0d1b599ed2e136da"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-04",
+      "title": "2026-11-04 — Election probability table colors",
+      "path": "docs/history/2026/2026-11-04-2026-11-04-election-probability-table-colors.md",
+      "heading": "2026-11-04 — Election probability table colors",
+      "output_sha256": "524e53bafba9f49eb7825f227ea9c3cc8d55f5a7a4681fa8540ce54064bdfa89",
+      "sections": [
+        {
+          "heading": "2026-11-04 — Election probability table colors",
+          "source_sha256": "524e53bafba9f49eb7825f227ea9c3cc8d55f5a7a4681fa8540ce54064bdfa89"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-07",
+      "title": "2026-11-07 — Common politics generator and session decisions",
+      "path": "docs/history/2026/2026-11-07-2026-11-07-common-politics-generator-and-session-decisions.md",
+      "heading": "2026-11-07 — Common politics generator and session decisions",
+      "output_sha256": "18ca0af79a4bd5944973238d08262380582efa1d2bfc50488b181af3a7c16cc9",
+      "sections": [
+        {
+          "heading": "2026-11-07 — Common politics generator and session decisions",
+          "source_sha256": "cce8c1cd20683bf5307a1c4977e61861af970b5ea4d1c772bc3f324a3f0c73ca"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-07",
+      "title": "CP-03 — Adapt existing execution paths (2026-11-07)",
+      "path": "docs/history/2026/2026-11-07-cp-03-adapt-existing-execution-paths-2026-11-07.md",
+      "heading": "CP-03 — Adapt existing execution paths (2026-11-07)",
+      "output_sha256": "2322d12f4f3b3e572ce7b9dbe93d3d4fb5a3e6dc7d3f60aecd9793e0b810274e",
+      "sections": [
+        {
+          "heading": "CP-03 — Adapt existing execution paths (2026-11-07)",
+          "source_sha256": "fe1b55a163d5b8d1be2cf0bdcc075a78f83b23ce48272f19374b558ffff999ac"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-08",
+      "title": "CP-04 — Replace authored-default construction (2026-11-08)",
+      "path": "docs/history/2026/2026-11-08-cp-04-replace-authored-default-construction-2026-11-08.md",
+      "heading": "CP-04 — Replace authored-default construction (2026-11-08)",
+      "output_sha256": "3f7e134a58cf07c9c39da3bc8e408b04ba96162db4bca91850f9ae8bbca86519",
+      "sections": [
+        {
+          "heading": "CP-04 — Replace authored-default construction (2026-11-08)",
+          "source_sha256": "3f7e134a58cf07c9c39da3bc8e408b04ba96162db4bca91850f9ae8bbca86519"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-08",
+      "title": "CP-05 — Enforce new-format files and draft isolation (2026-11-08)",
+      "path": "docs/history/2026/2026-11-08-cp-05-enforce-new-format-files-and-draft-isolation-2026-11-08.md",
+      "heading": "CP-05 — Enforce new-format files and draft isolation (2026-11-08)",
+      "output_sha256": "443b748cc9d266dce26d2c49bff755fc0514229a0358a87e25de4e063901997b",
+      "sections": [
+        {
+          "heading": "CP-05 — Enforce new-format files and draft isolation (2026-11-08)",
+          "source_sha256": "c3b1c97aebeeccfb27972f0f18a0c87aa691dc8ff057af4237d923276dbd3901"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-14",
+      "title": "CP-06 — Build the common editor (2026-11-14)",
+      "path": "docs/history/2026/2026-11-14-cp-06-build-the-common-editor-2026-11-14.md",
+      "heading": "CP-06 — Build the common editor (2026-11-14)",
+      "output_sha256": "b35ffcd6211550cfa35118b1d192a5b40fed95c6e7bc43ccca9c446d03e9479d",
+      "sections": [
+        {
+          "heading": "CP-06 — Build the common editor (2026-11-14)",
+          "source_sha256": "ec9ef0a4f8efd8fabd057f1f4b233b53e0c3fa1476ae85e2ec173b3d4b19fc13"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-14",
+      "title": "CP-07 — Unify lifecycle, persistence and results (2026-11-14)",
+      "path": "docs/history/2026/2026-11-14-cp-07-unify-lifecycle-persistence-and-results-2026-11-14.md",
+      "heading": "CP-07 — Unify lifecycle, persistence and results (2026-11-14)",
+      "output_sha256": "b7a4d9f3e866a12852034c013a114af6b86dd7c10f4213c62e51c8069c25ff0d",
+      "sections": [
+        {
+          "heading": "CP-07 — Unify lifecycle, persistence and results (2026-11-14)",
+          "source_sha256": "76f9458e7ae44f66fcb80ac0111be5c9ac1f611bf6938747b334340f807e9bb0"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-14",
+      "title": "M02 resource investigation after CP-07 (2026-11-14)",
+      "path": "docs/history/2026/2026-11-14-m02-resource-investigation-after-cp-07-2026-11-14.md",
+      "heading": "M02 resource investigation after CP-07 (2026-11-14)",
+      "output_sha256": "28c36dff2a590ae8162b3203198189bc25c0849760f589b36a920463c8e4efb8",
+      "sections": [
+        {
+          "heading": "M02 resource investigation after CP-07 (2026-11-14)",
+          "source_sha256": "62d26eedd04168aed90972b85e6cd2128448580937302c60b45a0b0eeaa20884"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-14",
+      "title": "Common execution resource fixes (2026-11-14)",
+      "path": "docs/history/2026/2026-11-14-common-execution-resource-fixes-2026-11-14.md",
+      "heading": "Common execution resource fixes (2026-11-14)",
+      "output_sha256": "824687cbc584e8dbae9622e1e4b6080123918f3c60fc5e86f2c027a383dcdd45",
+      "sections": [
+        {
+          "heading": "Common execution resource fixes (2026-11-14)",
+          "source_sha256": "43cc7f075169d5460f12e1b5a9961f7b713830bb0ce541d541dc8d7fe277975b"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-14",
+      "title": "CP-08 — Acceptance, cleanup and documentation (2026-11-14)",
+      "path": "docs/history/2026/2026-11-14-cp-08-acceptance-cleanup-and-documentation-2026-11-14.md",
+      "heading": "CP-08 — Acceptance, cleanup and documentation (2026-11-14)",
+      "output_sha256": "b7b170f650493331232144a915345646d821c79b04f02de09ccf1b640701086f",
+      "sections": [
+        {
+          "heading": "CP-08 — Acceptance, cleanup and documentation (2026-11-14)",
+          "source_sha256": "146841f386076b0125bf17b3ae75b1789921e42ec453bcdd266de9e25cc84705"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "title": "Fixed application status box (2026-11-15)",
+      "path": "docs/history/2026/2026-11-15-fixed-application-status-box-2026-11-15.md",
+      "heading": "Fixed application status box (2026-11-15)",
+      "output_sha256": "3967db311805b774dbb65ba61b1152e34c65344ae13d061fd47d9b909fcbc6e4",
+      "sections": [
+        {
+          "heading": "Fixed application status box (2026-11-15)",
+          "source_sha256": "3967db311805b774dbb65ba61b1152e34c65344ae13d061fd47d9b909fcbc6e4"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "title": "2026-11-15 — Common politics Altre liste layout",
+      "path": "docs/history/2026/2026-11-15-2026-11-15-common-politics-altre-liste-layout.md",
+      "heading": "2026-11-15 — Common politics Altre liste layout",
+      "output_sha256": "8124d6c96bdc9d51be2e8f092da5e63a688b12997700d06bc246301fd6ba315a",
+      "sections": [
+        {
+          "heading": "2026-11-15 — Common politics Altre liste layout",
+          "source_sha256": "c2a4325077241ee6130d0e644b86565617259d316638219532991967b989bfa5"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "title": "2026-11-15: Browser tests after editor and results rearrangement",
+      "path": "docs/history/2026/2026-11-15-2026-11-15-browser-tests-after-editor-and-results-rearrangement.md",
+      "heading": "2026-11-15: Browser tests after editor and results rearrangement",
+      "output_sha256": "14b707a955ed45058ceb3b2b4fa875729cc2122597fd8e7afff275dfb40c4aa8",
+      "sections": [
+        {
+          "heading": "2026-11-15: Browser tests after editor and results rearrangement",
+          "source_sha256": "14b707a955ed45058ceb3b2b4fa875729cc2122597fd8e7afff275dfb40c4aa8"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "title": "2026-11-15 — November national poll update",
+      "path": "docs/history/2026/2026-11-15-2026-11-15-november-national-poll-update.md",
+      "heading": "2026-11-15 — November national poll update",
+      "output_sha256": "b28d3599ccbf1431fdff62b1ed3560cdf280b58b9600e84ff31c464278a2ec55",
+      "sections": [
+        {
+          "heading": "2026-11-15 — November national poll update",
+          "source_sha256": "b28d3599ccbf1431fdff62b1ed3560cdf280b58b9600e84ff31c464278a2ec55"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "title": "2026-11-15 — Include November polls in the common default",
+      "path": "docs/history/2026/2026-11-15-2026-11-15-include-november-polls-in-the-common-default.md",
+      "heading": "2026-11-15 — Include November polls in the common default",
+      "output_sha256": "c10123dfa412f56668d7efff0bc2c9909a5306b7c5535703a06281fbd063fcb9",
+      "sections": [
+        {
+          "heading": "2026-11-15 — Include November polls in the common default",
+          "source_sha256": "c10123dfa412f56668d7efff0bc2c9909a5306b7c5535703a06281fbd063fcb9"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-16",
+      "title": "November model adoption (2026-11-16)",
+      "path": "docs/history/2026/2026-11-16-november-model-adoption-2026-11-16.md",
+      "heading": "November model adoption (2026-11-16)",
+      "output_sha256": "6a2457674824c0e7f30fde905c514eb7527591500f53be1a0c488349d2a9e69e",
+      "sections": [
+        {
+          "heading": "November model adoption (2026-11-16)",
+          "source_sha256": "6bc830bf4b9d3e2261311123afd8b19c1c1faf876f83f11cfb736a76bdcaf2bd"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-16",
+      "title": "Acceptance output and selective inspection (2026-11-16)",
+      "path": "docs/history/2026/2026-11-16-acceptance-output-and-selective-inspection-2026-11-16.md",
+      "heading": "Acceptance output and selective inspection (2026-11-16)",
+      "output_sha256": "56b1e3796dc846539f18222179c8b488f37d3c62f9ececf9eed61c0b94e83a9a",
+      "sections": [
+        {
+          "heading": "Acceptance output and selective inspection (2026-11-16)",
+          "source_sha256": "09de500a53cffbb6c4743bb59db474f527a6a6b14805406f57294b921911552d"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-16",
+      "title": "2026-11-16 — Final hosting reassessment implementation",
+      "path": "docs/history/2026/2026-11-16-2026-11-16-final-hosting-reassessment-implementation.md",
+      "heading": "2026-11-16 — Final hosting reassessment implementation",
+      "output_sha256": "32b856a6030dea16cd5d7035722a37f996138c51751d6405fe745a1286d8e5bb",
+      "sections": [
+        {
+          "heading": "2026-11-16 — Final hosting reassessment implementation",
+          "source_sha256": "67a9ece912f616ca5ade33d41b97179be544b61e81abce391599cea2d8c122d7"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-17",
+      "title": "2026-11-17 — Hosted source update and acquisition consistency",
+      "path": "docs/history/2026/2026-11-17-2026-11-17-hosted-source-update-and-acquisition-consistency.md",
+      "heading": "2026-11-17 — Hosted source update and acquisition consistency",
+      "output_sha256": "f4bc45f4f61f08c0521786ebdb38b7ba883e1577aa38fe4568feafbc4bd5222c",
+      "sections": [
+        {
+          "heading": "2026-11-17 — Hosted source update and acquisition consistency",
+          "source_sha256": "f4bc45f4f61f08c0521786ebdb38b7ba883e1577aa38fe4568feafbc4bd5222c"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-17",
+      "title": "2026-11-17 — Bounded source-download retries",
+      "path": "docs/history/2026/2026-11-17-2026-11-17-bounded-source-download-retries.md",
+      "heading": "2026-11-17 — Bounded source-download retries",
+      "output_sha256": "ef7cc930d3716063c53d74c9bc39dff6543b6c0b17ed3dbab8127e7f7e61d214",
+      "sections": [
+        {
+          "heading": "2026-11-17 — Bounded source-download retries",
+          "source_sha256": "ef7cc930d3716063c53d74c9bc39dff6543b6c0b17ed3dbab8127e7f7e61d214"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-17",
+      "title": "2026-11-17 — Hosted browser readiness and diagnostic correction",
+      "path": "docs/history/2026/2026-11-17-2026-11-17-hosted-browser-readiness-and-diagnostic-correction.md",
+      "heading": "2026-11-17 — Hosted browser readiness and diagnostic correction",
+      "output_sha256": "c61f77143d6163f9284e6a6970b40c93e5d15f0347ce3336e497b80161a7a170",
+      "sections": [
+        {
+          "heading": "2026-11-17 — Hosted browser readiness and diagnostic correction",
+          "source_sha256": "c61f77143d6163f9284e6a6970b40c93e5d15f0347ce3336e497b80161a7a170"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-18",
+      "title": "2026-11-18 — Focused acceptance profiles and Firefox startup deadline",
+      "path": "docs/history/2026/2026-11-18-2026-11-18-focused-acceptance-profiles-and-firefox-startup-deadline.md",
+      "heading": "2026-11-18 — Focused acceptance profiles and Firefox startup deadline",
+      "output_sha256": "07b718460fd380c795f75cb8d508ab82f66b1a75f2480ca94131ea01662ed971",
+      "sections": [
+        {
+          "heading": "2026-11-18 — Focused acceptance profiles and Firefox startup deadline",
+          "source_sha256": "07b718460fd380c795f75cb8d508ab82f66b1a75f2480ca94131ea01662ed971"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-18",
+      "title": "2026-11-18 — Explicit worker mode in the editor control check",
+      "path": "docs/history/2026/2026-11-18-2026-11-18-explicit-worker-mode-in-the-editor-control-check.md",
+      "heading": "2026-11-18 — Explicit worker mode in the editor control check",
+      "output_sha256": "2df3a46584ac7d3ca610f1634c4757084e8e00fdaf62268152a5beed906b0034",
+      "sections": [
+        {
+          "heading": "2026-11-18 — Explicit worker mode in the editor control check",
+          "source_sha256": "2df3a46584ac7d3ca610f1634c4757084e8e00fdaf62268152a5beed906b0034"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-18",
+      "title": "2026-11-18 — Bounded retries for source hostname lookup failures",
+      "path": "docs/history/2026/2026-11-18-2026-11-18-bounded-retries-for-source-hostname-lookup-failures.md",
+      "heading": "2026-11-18 — Bounded retries for source hostname lookup failures",
+      "output_sha256": "896476c5dc87e5ec6b7219057c42b3a588ffd3dc94a5e122f919d57539c7b8dc",
+      "sections": [
+        {
+          "heading": "2026-11-18 — Bounded retries for source hostname lookup failures",
+          "source_sha256": "896476c5dc87e5ec6b7219057c42b3a588ffd3dc94a5e122f919d57539c7b8dc"
+        }
+      ]
+    }
+  ]
+}

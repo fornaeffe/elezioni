@@ -31,7 +31,7 @@ Read only the relevant companion contract:
 - [Scenario, assets and identity](vote-generation-fast-contracts.md).
 - [Reference interventions and paired-chamber boundary](vote-generation-fast-references.md).
 - [Frozen numerical and production acceptance protocol](vote-generation-fast-validation.md).
-- [Implementation sequence](vote-generation-production-plan.md).
+- [Model and scenario contracts](vote-generation-fast-contracts.md), with preparation, fitting and release steps in the adjacent operation guides.
 
 The derivation below has Camera/European reference contexts. The production
 Camera/Senato extension is a separately versioned contract; no European fit is

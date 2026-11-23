@@ -27,7 +27,7 @@ current worker/session integration.
 | Prepare Senate contrasts/profiles | `vote-share/senate-adapter.ts` |
 | Assemble counts, people, preferences and legal input | `assembly.ts` → `assembleReformSimulation` |
 | Review fixed equations/acceptance | [Reference contract](vote-generation-fast-references.md), [frozen protocol](vote-generation-fast-validation.md) |
-| Review measured evidence | [Benchmark snapshot](../test/fixtures/benchmarks/vote_share_generation.json), [migration history](migration-history.md) |
+| Review measured evidence | [Benchmark snapshot](../test/fixtures/benchmarks/vote_share_generation.json), [migration history](history/README.md) |
 
 ## Calling and ownership
 

@@ -6,7 +6,7 @@ Runtime changes below are proposals; none was applied. CP-08 remains open.
 This is the historical investigation. The subsequently approved implementation
 is described in [execution](execution.md#workers-and-workspace-integration) and
 [lifecycle](lifecycle.md#sessions-and-bounded-resources); its verification is
-recorded in [migration history](../migration-history.md).
+recorded in [migration history](../history/README.md).
 
 ## Finding
 
@@ -185,4 +185,4 @@ The investigation used the four short browser probes above and focused CP-01
 replay, common execution/lifecycle and ordered-pool tests. No generated default,
 production bundle, frozen legal/checksum fixture, probability model or scrutiny
 implementation was edited. The exact focused test outcome is recorded in
-[migration history](../migration-history.md).
+[migration history](../history/README.md).

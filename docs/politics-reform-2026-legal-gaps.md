@@ -15,7 +15,7 @@ checked again on 21 October 2026; [article 2(10), amending S17](https://www.gazz
 checked on 21 October 2026. The simulator policies below are Luca's explicit
 decisions, not established administrative practice or binding interpretations.
 Keep operative contracts in the [specification](politics-reform-2026-specification.md)
-and verification history in [migration history](migration-history.md).
+and verification history in [migration history](history/README.md).
 
 | Gap | Rule | Simulator treatment |
 | --- | --- | --- |

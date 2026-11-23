@@ -13,7 +13,7 @@ activation, and the final migration gate owns public deployment.
 | Change raw history or poll correspondence | [Source preparation](vote-generation-fast-data.md) |
 | Read a candidate in a worker | [release.ts](../web/src/lib/politics/reform-2026/vote-share/release.ts) and transport section below |
 | Change numerical or generation behavior | [Engine guide](../web/src/lib/politics/reform-2026/vote-share/README.md), [generation guide](vote-generation-fast-generation.md) |
-| Review measured evidence | [Snapshot](../test/fixtures/benchmarks/vote_share_release.json), [history](migration-history.md#2026-10-29--fv-05-reproducible-prefitted-candidate-release) |
+| Review measured evidence | [Snapshot](../test/fixtures/benchmarks/vote_share_release.json), [history](history/2026/2026-10-29-2026-10-29-fv-05-reproducible-prefitted-candidate-release.md#2026-10-29-fv-05-reproducible-prefitted-candidate-release) |
 
 ## Reproduce locally or in CI
 

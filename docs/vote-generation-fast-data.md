@@ -15,7 +15,7 @@ component basis, Senate adapter or default fit. Read the
 | Change selected history/memberships/date | [compiler](../web/src/lib/politics/reform-2026/vote-share/source-compiler.ts) |
 | Numerical estimation | [FV-02 engine guide](../web/src/lib/politics/reform-2026/vote-share/README.md) |
 | Prefit/package an explicit default without activating it | [FV-05 candidate release](vote-generation-fast-release.md) |
-| Recorded acceptance/resources | [Original FV-03 benchmark](../test/fixtures/benchmarks/vote_share_sources.json), [availability-policy update](../test/fixtures/benchmarks/vote_share_availability.json), [history](migration-history.md#2026-10-29--fv-03-compact-editable-production-history) |
+| Recorded acceptance/resources | [Original FV-03 benchmark](../test/fixtures/benchmarks/vote_share_sources.json), [availability-policy update](../test/fixtures/benchmarks/vote_share_availability.json), [history](history/2026/2026-10-29-2026-10-29-fv-03-compact-editable-production-history.md#2026-10-29-fv-03-compact-editable-production-history) |
 
 ## Commands and ownership
 

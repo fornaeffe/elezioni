@@ -6,8 +6,8 @@ Camera e Senato. Il testo dei due testi unici incorpora la legge 9 ottobre 2026,
 con entrata in vigore il 24 ottobre 2026. In caso di contrasto prevalgono il testo
 promulgato e le rettifiche ufficiali.
 
-- Per ordine di lavoro e verifiche: [piano operativo](politics-reform-2026-plan.md).
 - Per funzioni, test e interpretazioni provvisorie: [specifica](politics-reform-2026-specification.md).
+- Per l'implementazione esistente: [guida dell'applicazione](politics-reform-2026-application.md).
 - Per le scelte statistiche: [decisioni di modellazione](politics-reform-2026-modelling.md).
 - Per le lacune che impediscono uno scrutinio completo e le deroghe approvate: [registro delle lacune](politics-reform-2026-legal-gaps.md).
 

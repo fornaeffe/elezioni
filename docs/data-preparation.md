@@ -76,7 +76,7 @@ It contains no fitted coefficients or generated observations. The earlier
 politics choices remain a reference scenario; the visible politics default
 comes from the common authored scenario and deterministic packaging. Excel is not a Node pipeline input.
 Original workbooks are available in the pre-retirement Git revision pinned in
-[migration history](migration-history.md#2026-11-02--r-and-temporary-bridge-retirement).
+[migration history](history/2026/2026-11-02-2026-11-02-r-and-temporary-bridge-retirement.md#2026-11-02-r-and-temporary-bridge-retirement).
 
 ISTAT's historical API changes the ordering of rows with the same municipal
 code between identical requests. Its crosswalks are therefore reviewed,

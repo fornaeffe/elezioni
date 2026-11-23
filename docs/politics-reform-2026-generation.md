@@ -22,7 +22,7 @@ candidate/preference assembly. They do not install or fit the current v5 model.
 Use this guide for generation work. Legal scrutiny stays in the stage modules;
 the [modelling decisions](politics-reform-2026-modelling.md) define semantics.
 Use the [validation protocol](politics-reform-2026-generation-protocol.md) for
-diagnostics and [migration history](migration-history.md#2026-10-19-r26-19-scenarios-historical-preparation-and-generation)
+diagnostics and [migration history](history/2026/2026-10-19-2026-10-19-r26-19-scenarios-historical-preparation-and-generation.md#2026-10-19-r26-19-scenarios-historical-preparation-and-generation)
 for measured evidence, versions and limitations. For worker/UI/export use the [application guide](politics-reform-2026-application.md).
 For common/chamber editing, v1/v2 presentation metadata compatibility and planner
 previews, use the [scenario editor guide](politics-reform-2026-editor.md).

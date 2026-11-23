@@ -2,7 +2,7 @@
 
 Use this guide for profiling or changing result archive import/export. Format,
 validation and staging rules remain in [common politics files](common-politics-scenario/files.md).
-Measured outcomes belong in [migration history](migration-history.md).
+Measured outcomes belong in [migration history](history/README.md).
 
 | Responsibility | Entry point under `web/` |
 | --- | --- |

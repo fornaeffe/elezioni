@@ -724,7 +724,7 @@ reference-backed group conservation, overlapping identification directions,
 shared poll errors, legacy fixed-reference semantics and direct cell counts.
 Production preparation verifies source integrity, matching semantic keys and a
 complete 588-seat legal allocation. Browser and full-campaign receipts are
-recorded in [migration history](../../../docs/migration-history.md) and the
+recorded in [migration history](../../../docs/history/README.md) and the
 [current acceptance snapshot](../../../test/fixtures/benchmarks/correspondence_corrections_acceptance.json):
 1,296 unit tests, root/project-base browser checks and 1,000 complete simulations
 per model passed. Historical findings above remain frozen. FV-09 cleanup and public deployment remain separate work.

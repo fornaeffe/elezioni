@@ -2,13 +2,11 @@
 
 Archived research. Current supported laws: [M01 2.0.0](../../../docs/models/M01.md) and [M02 2.0.0](../../../docs/models/M02.md). Reproduction and historical scope: [archive index](../README.md).
 
-**Production selection, 28 October 2026:** Luca approves this fast model for the
+**Production selection, 28 October 2026:** Luca approved this fast model for the
 2026 reform workflow, with periodic default prefitting and browser refitting.
-Use the [production implementation plan](../../../docs/vote-generation-production-plan.md)
-for the active steps and the [archive plan](../../../docs/vote-generation-research-archive-plan.md)
-for research retention/cleanup. The research results and implementation status
-below are the recorded baseline; approval does not imply that browser integration
-or production acceptance has already happened.
+Its maintained contracts and operation guides are linked from the
+[archive index](../README.md). The research results below are historical evidence;
+current supported models and release guidance are maintained in the linked docs.
 
 FV-01 extracted the unchanged numerical definition into the maintained
 [model contract](../../../docs/vote-generation-fast-model.md). Use the separate

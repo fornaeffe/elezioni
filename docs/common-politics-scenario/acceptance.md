@@ -170,7 +170,7 @@ and legal/model corrections stay separate.
 ## Recorded acceptance
 
 CP-08 and the workspace merger were accepted on 15 November 2026. See the
-[final history entry](../migration-history.md#cp-08-final-acceptance-2026-11-15)
+[final history entry](../history/2026/2026-11-14-cp-08-acceptance-cleanup-and-documentation-2026-11-14.md#cp-08-final-acceptance-2026-11-15)
 for outcomes, timings and qualifications. The [machine-readable evidence](acceptance-2026-11-15.json)
 pins the original local receipts, exact execution/data identities, worker counts,
 memory samples' peaks and full archive digests. Large receipts and archives remain

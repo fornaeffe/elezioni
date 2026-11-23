@@ -2,7 +2,7 @@
 
 Use this guide for the poll step in [TODO.md](../TODO.md).
 For measured results and source-selection rationale, read only the
-[poll pilot history](migration-history.md#2026-10-23--selected-poll-archive-and-reconciliation-pilot).
+[poll pilot history](history/2026/2026-10-23-2026-10-23-selected-poll-archive-and-reconciliation-pilot.md#2026-10-23-selected-poll-archive-and-reconciliation-pilot).
 
 ## Task map and boundaries
 

@@ -142,4 +142,4 @@ For later release/performance acceptance, use CP-08's complete three-pair gates,
 both URL bases and its prescribed 1,000-run campaigns. This baseline step does
 not substitute for those gates or promise above-1,000-run resource acceptance.
 Actual CP-01 command outcomes and environment are recorded in
-[migration history](../migration-history.md#cp-01--inventory-and-preserve-behavior-2026-11-07).
+[migration history](../history/2026/2026-11-07-2026-11-07-common-politics-generator-and-session-decisions.md#cp-01-inventory-and-preserve-behavior-2026-11-07).

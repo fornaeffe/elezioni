@@ -1,11 +1,9 @@
 # Politics reform 2026: modelling decisions
 
-Read the section corresponding to R26-02, R26-03, or R26-04 in
-[`politics-reform-2026-plan.md`](politics-reform-2026-plan.md). R26-02, R26-03 and
-R26-04 are approved. Their R26-19 implementation, fitted preference parameters,
+R26-02, R26-03 and R26-04 are approved. Their R26-19 implementation, fitted preference parameters,
 source reconciliation and assumed chamber profiles are documented in the
-[generation guide](politics-reform-2026-generation.md). Application integration
-and acceptance remain R26-20/21. No calibrated model of bonus-only ballot
+[generation guide](politics-reform-2026-generation.md). Application behavior
+was delivered under R26-20/21; publication acceptance is tracked in TODO. No calibrated model of bonus-only ballot
 composition or future national chamber-error covariance is established here.
 Constructed data can test mechanics and sensitivity;
 it cannot establish the real distribution of unobserved voting behavior.
@@ -13,8 +11,7 @@ it cannot establish the real distribution of unobserved voting behavior.
 For each decision, present options and evidence to Luca, then record the chosen
 semantics, rejected alternatives and rationale, supported outputs, assumptions,
 verification criteria, and conditions for revisiting it in
-[`migration-history.md`](migration-history.md). Update active directives after
-the choice. Approval of one decision does not settle the other choices.
+the dated records under [`history`](history/README.md). Approval of one decision does not settle the other choices.
 Any experiment used for a decision must be reproducible and distinguish a
 modelling assumption from a measured electoral fact.
 
@@ -24,7 +21,7 @@ modelling assumption from a measured electoral fact.
 
 **Approved by Luca on 17 October 2026:** generate final attributed list totals;
 retain explicit components for supplied scenarios and legal tests. The
-[decision record](migration-history.md#2026-10-17-r26-02-approved-final-attributed-vote-model)
+[decision record](history/2026/2026-10-17-2026-10-17-r26-02-approved-final-attributed-vote-model.md#2026-10-17-r26-02-approved-final-attributed-vote-model)
 contains the alternatives, rationale, arithmetic evidence and source-data limit.
 
 - Interpret generated list totals, scenario shares and local overrides as
@@ -118,7 +115,7 @@ do not identify unobserved ballot behavior.
 
 **Approved by Luca on 17 October 2026:** fit a synthetic model informed by
 historical preference patterns, with supplied valid preference counts taking
-precedence. The [decision record](migration-history.md#2026-10-17-r26-03-approved-historical-pattern-preference-model)
+precedence. The [decision record](history/2026/2026-10-17-2026-10-17-r26-03-approved-historical-pattern-preference-model.md#2026-10-17-r26-03-approved-historical-pattern-preference-model)
 contains the source audit, alternatives, rationale and transfer limits. Model
 family selection is complete. R26-19 implements fitting, generation and downstream
 validation using independently supplied legal fixtures; see the generation guide
@@ -167,7 +164,7 @@ The local 2024 Emilia-Romagna cache covers the region's municipalities and
 sections, but a single election is not national calibration. Additional municipal
 and European sources were located and sampled during the decision review;
 their availability does not imply completed cleaning or calibration. Use the
-[dated source/evidence register](migration-history.md#preference-source-audit-and-evidence)
+[dated source/evidence register](history/2026/2026-10-17-2026-10-17-r26-03-approved-historical-pattern-preference-model.md#preference-source-audit-and-evidence)
 to start R26-19, then:
 
 - Reconcile source versions/totals, join verified candidate rosters and gender,
@@ -222,7 +219,7 @@ parameters tied to an explained modelling meaning.
 **Approved by Luca on 17 October 2026:** shared political shocks plus historical
 chamber contrasts and correlated chamber-specific residuals, anchored to a common
 scenario share when supplied. Explicit per-chamber shares take precedence over
-model-derived references. The [decision record](migration-history.md#2026-10-17-r26-04-approved-paired-chamber-vote-model)
+model-derived references. The [decision record](history/2026/2026-10-17-2026-10-17-r26-04-approved-paired-chamber-vote-model.md#2026-10-17-r26-04-approved-paired-chamber-vote-model)
 contains alternatives, the official-source audit and limits of calibration.
 
 - Fit paired historical contrasts at common geographic units, with shared

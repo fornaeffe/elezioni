@@ -26,7 +26,7 @@ use the [FV-07 workspace guide](vote-generation-fast-workspace.md).
 | Change scheduling or cancellation | [reform-fit.worker.ts](../web/src/lib/workers/reform-fit.worker.ts), [execution.ts](../web/src/lib/politics/reform-2026/vote-share/execution.ts) |
 | Plan memory or hand buffers to generation workers | Ownership section below; [fit-resources.ts](../web/src/lib/politics/reform-2026/vote-share/fit-resources.ts) |
 | Prepare a default / review its political basis | [FV-05 release guide](vote-generation-fast-release.md) |
-| Review verification evidence | [Snapshot](../test/fixtures/benchmarks/vote_share_fit.json), [history](migration-history.md#2026-10-29--fv-06-browser-refitting-and-revision-bound-state) |
+| Review verification evidence | [Snapshot](../test/fixtures/benchmarks/vote_share_fit.json), [history](history/2026/2026-10-29-2026-10-29-fv-06-browser-refitting-and-revision-bound-state.md#2026-10-29-fv-06-browser-refitting-and-revision-bound-state) |
 
 ## Client contract
 

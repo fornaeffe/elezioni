@@ -6,7 +6,7 @@ Use this guide for substep 3 of the poll work in
 [TODO.md](../../../TODO.md). For current-poll import and opt-in
 reference scenarios, see [poll preparation](../../../docs/polls-preparation.md). Measured scores
 and verification are in the
-[calibration history](../../../docs/migration-history.md#2026-10-23--historical-poll-calibration-pipeline-substep-3).
+[calibration history](../../../docs/history/2026/2026-10-23-2026-10-23-historical-poll-calibration-pipeline-substep-3.md#2026-10-23-historical-poll-calibration-pipeline-substep-3).
 
 For the later weighted-poll uncertainty estimators, retests and regional/local
 integration proposal, use [poll uncertainty research](polls-uncertainty.md).
