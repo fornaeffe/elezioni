@@ -164,9 +164,10 @@ After Luca merges into `main`, publication is an explicit action:
    investigation; it does not automatically roll back the public site.
 5. Record the actual URL, main SHA, `release.json` data identities, hosted times,
    memory/disk, site bytes and public transfer/outcome receipts in
-   [migration history](migration-history.md). Only then close the final plan item.
+   [project history](history/README.md), and update the publication evidence task in
+   [TODO](../TODO.md).
 
-Expected default URL: `https://fornaeffe.github.io/elezioni/` (**not yet published
-or accepted**). If hosted measurements exceed the limits, retain the failed
+Public URL, as reported by Luca: `https://fornaeffe.github.io/elezioni/`.
+Record the supporting publication evidence as described above. If hosted measurements exceed the limits, retain the failed
 receipts, identify the limiting stage, and reassess free alternatives before
 selecting a replacement. Current eligibility alone is not hosted acceptance.

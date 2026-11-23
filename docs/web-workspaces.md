@@ -94,7 +94,7 @@ for the full matrix, national campaign commands and measured-evidence boundary.
 Previous-law scrutiny exceptions retain their R behavior. Execution errors now
 identify the failing simulation/chamber and real elapsed time. The pre-preparation-migration
 default's 1,000-run benchmark exposed the Camera flipper dead end at simulation 584; this
-is an open legal-review blocker in [the plan](../MIGRATION_PLAN.md#plan), not an
+is an open legal-review blocker in [the plan](../TODO.md), not an
 accepted 1,000-run campaign or a corrected scrutiny rule.
 Its frozen input remains a regression fixture; the revised dataset need not
 reproduce that same failing seed/simulation.

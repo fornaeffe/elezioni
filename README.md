@@ -56,7 +56,7 @@ condivise, `docs/` le specifiche, `test/fixtures/` i riferimenti di regressione
 e `research/` gli studi separati dalla produzione.
 
 Attività aperte e verifiche effettuate sono
-nel [piano](MIGRATION_PLAN.md) e nella [cronologia](docs/migration-history.md).
+nel [TODO](TODO.md) e nella [cronologia](docs/history/README.md).
 
 ## Modelli di generazione dei voti
 

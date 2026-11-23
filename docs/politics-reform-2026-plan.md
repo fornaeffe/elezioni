@@ -1,7 +1,7 @@
 # Politics reform 2026: implementation plan
 
 This is the operational plan for the reform item in
-[`../MIGRATION_PLAN.md`](../MIGRATION_PLAN.md). It specifies future work; an
+[`../TODO.md`](../TODO.md). It specifies future work; an
 unchecked step is not implemented or verified. Work on one requested step at a
 time and leave subsequent application features inactive.
 
@@ -29,9 +29,8 @@ reopen completed legal stages or migrate the other election generators.
 - For completed work, decisions, verification, and limitations, use
   [`migration-history.md`](migration-history.md). Keep this plan directive-only.
 - Stable repository instructions remain in [`../AGENTS.md`](../AGENTS.md).
-- For the GitHub Actions/Pages target and final all-election publication gate,
-  use [`../MIGRATION_PLAN.md`](../MIGRATION_PLAN.md#plan). R26 application
-  acceptance does not itself publish the site or complete the whole migration.
+- For GitHub Actions/Pages procedures, use [hosting](hosting.md). R26 application
+  acceptance does not itself establish publication evidence.
 
 ## Architecture and completion rules
 
@@ -597,10 +596,8 @@ identify skips in tests which genuinely depend on those artifacts.
 
 For application acceptance, generate all required production inputs and run
 their dependent checks without skips. Exercise static project-base navigation,
-direct page loads/refreshes and worker/data loading. Whole-migration hosted-runner
-feasibility, deployment and public-site verification remain the final
-[publication gate](../MIGRATION_PLAN.md#plan), after the municipal and remaining
-data-preparation migration; R26-21 does not enable deployment.
+direct page loads/refreshes and worker/data loading. The historical whole-migration publication gate was separate from R26-21.
+For current publication evidence follow [TODO](../TODO.md) and [hosting](hosting.md).
 
 Benchmark 10, 100, and 1000 simulations with data/model/algorithm versions,
 seed, environment, elapsed times, and peak memory where measurable. Separate

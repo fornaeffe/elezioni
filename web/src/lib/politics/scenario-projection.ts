@@ -137,7 +137,7 @@ function projectPercentages(
     warnings.push({
       code: 'POLITICS_SCENARIO_OVERRIDES_RENORMALIZED',
       message: `All active lists have explicit valid-vote share overrides totaling ${shareTotal}%; they were normalized to 100% across active lists before conversion to elector fractions.`,
-      todoReference: 'MIGRATION_PLAN.md#current-caveats'
+      todoReference: 'TODO.md#future-work'
     });
 
     for (const row of overridden) {
@@ -325,7 +325,7 @@ function applyCandidateTemplatesToRamo(
       message: `Some candidate templates did not match active ${ramo} candidate slots and were ignored: ${unused
         .map(candidateTemplateLabel)
         .join(', ')}.`,
-      todoReference: 'MIGRATION_PLAN.md#current-caveats'
+      todoReference: 'TODO.md#future-work'
     });
   }
 
@@ -574,7 +574,7 @@ function areaTargetValidShares(
     warnings.push({
       code: 'POLITICS_SCENARIO_LOCAL_OVERRIDES_UNUSED',
       message: `Local share overrides for ${localOverrideLabel(scope, locationCode)} did not match active scenario lists and were ignored.`,
-      todoReference: 'MIGRATION_PLAN.md#current-caveats'
+      todoReference: 'TODO.md#future-work'
     });
     return null;
   }
@@ -585,7 +585,7 @@ function areaTargetValidShares(
       message: `All active lists have explicit local valid-vote share overrides totaling ${Number(
         overrideShareTotal.toFixed(2)
       )}% in ${localOverrideLabel(scope, locationCode)}; they were normalized to 100% before conversion to elector fractions.`,
-      todoReference: 'MIGRATION_PLAN.md#current-caveats'
+      todoReference: 'TODO.md#future-work'
     });
 
     for (const list of overriddenLists) {
@@ -731,7 +731,7 @@ function warnIfLocalOverrideOverlaps(
       broader.scope,
       broader.locationCode
     )}; the more specific override was applied later, so the broader aggregate may no longer match exactly.`,
-    todoReference: 'MIGRATION_PLAN.md#current-caveats'
+    todoReference: 'TODO.md#future-work'
   });
 }
 
@@ -774,7 +774,7 @@ function applyLocalShareOverrides(
         warnings.push({
           code: 'POLITICS_SCENARIO_LOCAL_OVERRIDES_UNUSED',
           message: `Local share overrides for ${localOverrideLabel(scope, locationCode)} did not match the current scenario geography and were ignored.`,
-          todoReference: 'MIGRATION_PLAN.md#current-caveats'
+          todoReference: 'TODO.md#future-work'
         });
         continue;
       }
@@ -883,7 +883,7 @@ export function projectScenarioOntoPoliticsSource(
     warnings.push({
       code: 'POLITICS_SCENARIO_NO_LISTS',
       message: 'No scenario list is available, so the bundled default source was used unchanged.',
-      todoReference: 'MIGRATION_PLAN.md#current-caveats'
+      todoReference: 'TODO.md#future-work'
     });
 
     return {

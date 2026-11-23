@@ -1,4 +1,4 @@
-/** The common preparation â†’ generation â†’ law assembly â†’ scrutiny dispatch boundary. */
+/** The common preparation → generation → law assembly → scrutiny dispatch boundary. */
 import { ROSATELLUM, REFORM, chambers, type PoliticsScenario } from '../scenario/schema';
 import { activeGenerator, requirePair } from '../scenario/registry';
 import { parsePoliticsScenario, validateActiveScenario, ScenarioValidationError } from '../scenario/validation';

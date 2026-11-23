@@ -3,7 +3,7 @@
 Archived research. Current supported laws: [M01 2.0.0](../../../docs/models/M01.md) and [M02 2.0.0](../../../docs/models/M02.md). Reproduction and historical scope: [archive index](../README.md).
 
 Use this guide for substep 3 of the poll work in
-[MIGRATION_PLAN.md](../../../MIGRATION_PLAN.md). For current-poll import and opt-in
+[TODO.md](../../../TODO.md). For current-poll import and opt-in
 reference scenarios, see [poll preparation](../../../docs/polls-preparation.md). Measured scores
 and verification are in the
 [calibration history](../../../docs/migration-history.md#2026-10-23--historical-poll-calibration-pipeline-substep-3).

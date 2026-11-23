@@ -59,9 +59,8 @@ Validate required production data before building and running release checks;
 missing bundles or skipped required checks must fail release. Ship only runtime
 assets, with versioned paths and verified compressed/chunked loading where
 needed; exclude raw archives, preparation audits and debug fixtures. Artifact
-publication below writes a local source artifact, not a public website. Website
-publication and measured free-tier reassessment belong to the
-[final migration gate](../MIGRATION_PLAN.md#plan).
+publication below writes a local source artifact, not a public website. Publication procedures and hosted measurements are covered in the
+[hosting guide](../docs/hosting.md).
 
 ## Regenerate in another clone
 

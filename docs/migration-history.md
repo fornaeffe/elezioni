@@ -279,7 +279,7 @@ Record through: 2026-11-08
 This file preserves the detailed migration record: completed implementation,
 decisions and rationale, verification results, encountered problems,
 workarounds, risks, and dated checkpoints. It is historical context, not the
-active task list. See [`../MIGRATION_PLAN.md`](../MIGRATION_PLAN.md) for the
+active task list. See [`../TODO.md`](../TODO.md) for the
 current directive-only plan and [`../AGENTS.md`](../AGENTS.md) for stable agent
 instructions.
 

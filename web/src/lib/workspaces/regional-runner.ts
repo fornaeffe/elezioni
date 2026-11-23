@@ -103,7 +103,7 @@ export async function runRegionalWorkspace(request: SimulationRequest, post: (me
             electionKind: request.kind,
             severity: 'info',
             message: 'Scenario lists are projected from Emilia-Romagna historical correspondences when raw historical votes are available; regional workflow does not generate individual candidates.',
-            todoReference: 'MIGRATION_PLAN.md#next-work'
+            todoReference: 'TODO.md#future-work'
         }
     ];
     for (const note of staticSnapshot.metadata.preparation?.notes ?? [])

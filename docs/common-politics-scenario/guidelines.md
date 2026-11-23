@@ -6,7 +6,7 @@
 > current registry and adoption report for implemented pairs and versions.
 
 Design proposal for the open workspace-merger item in
-[MIGRATION_PLAN.md](../../MIGRATION_PLAN.md). This document defines the target;
+[TODO.md](../../TODO.md). This document defines the target;
 the [CP-02 contract guide](contract.md) and [CP-03 execution guide](execution.md)
 record the implemented domain and execution boundaries. Workspace integration
 remains in the later steps. The
@@ -525,7 +525,7 @@ to declared candidate identities. Apply D14's approved editor scope below.
 
 #### Approved subject colors (D04)
 
-Include the separate party-color task from `MIGRATION_PLAN.md` in CP-04. Store
+Include the separate party-color task from `TODO.md` in CP-04. Store
 each subject's color once and retain it across chambers, laws and generators.
 These are approved application colors inspired by political presentation;
 composite and scenario-specific tickets use editorial choices, not claimed
@@ -675,7 +675,7 @@ input in the new-format contract, validation, defaults, execution and roundtrips
 including inputs without an editor. Scenario download/edit/upload remains
 available; no embedded raw JSON editor or UI-editability acceptance gate is
 required for deferred settings. Deferred tasks are tracked at the end of
-[the post-migration plan](../../MIGRATION_PLAN.md#deferred-common-politics-editors-d14).
+[the post-migration plan](../../TODO.md#deferred-common-politics-editors-d14).
 
 | Concern | Migration delivery |
 | --- | --- |

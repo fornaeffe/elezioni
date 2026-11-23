@@ -1,7 +1,7 @@
 # Senate Sicilia N21: draw 135 investigation
 
 Status: **Senate extension approved, implemented and verified as I14-v2**.
-Review and approval date: 30 October 2026. See the [migration task](../MIGRATION_PLAN.md)
+Review and approval date: 30 October 2026. See the [migration task](../TODO.md)
 for acceptance status. The original diagnosis and isolated proof are retained below.
 
 ## Finding and decision

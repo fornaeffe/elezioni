@@ -1,6 +1,6 @@
 # Reform results: tables and plots
 
-Use this guide for the results alignment at `MIGRATION_PLAN.md:209`. For
+Use this guide for reform results and the alignment work tracked in [TODO](../TODO.md). For
 execution, local session recovery and archive transport use the
 [application guide](politics-reform-2026-application.md). For legal allocation
 and recovery use the [core reading map](../web/src/lib/politics/reform-2026/README.md).

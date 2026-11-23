@@ -5,10 +5,10 @@ This repository contains a static SvelteKit and TypeScript simulator under
 simulation remains deferred. Production preparation uses Node/TypeScript;
 the retired R implementation is available only in Git history.
 
-Use [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) as the active task list. Record
-completed work, rationale, verification, problems, and workarounds in
-[`docs/migration-history.md`](docs/migration-history.md). Keep this file limited
-to stable instructions that apply across migration steps.
+Use [`TODO.md`](TODO.md) as the active task list. Record substantive completed
+work, rationale, verification and limitations following the
+[project history convention](docs/history/README.md). Keep this file limited to
+stable instructions.
 
 ## Working Principles
 
@@ -18,8 +18,8 @@ to stable instructions that apply across migration steps.
   behavior unless Luca explicitly approves a correction.
 - Keep the applicable election-law text in comments close to translated
   scrutiny logic.
-- Update the plan when a step is completed or reveals a safer order or a new
-  blocker. Put evidence and narrative in history, not in the plan.
+- Update the task list when work is completed or reveals a safer order or a new
+  blocker. Put evidence and narrative in history, not in the task list.
 
 - DO NOT RUN long acceptance campaigns by yourself. Give Luca the command to 
   launch them, then Luca will communicate the result. Compact, focused tests
@@ -69,7 +69,9 @@ to stable instructions that apply across migration steps.
 - Target GitHub Pages hosting with GitHub Actions for Node/TypeScript data
   preparation, validation and static builds. Keep navigation, worker and data
   URLs compatible with a configurable project base path. Use the final
-  publication gate in `MIGRATION_PLAN.md` before enabling public deployment.
+  release and publication procedures in [hosting](docs/hosting.md).
+- Follow [legacy workflow contracts and verification](docs/legacy-workflow-contracts.md)
+  when working on the applicable legacy workflows or parity boundaries.
 - Keep the legal scrutiny core separate from UI components and worker
   orchestration. Keep algorithms modular and selectable through stable
   registries, even while only one implementation exists.

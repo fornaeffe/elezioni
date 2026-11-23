@@ -1,6 +1,6 @@
 # Poll preparation
 
-Use this guide for the poll step in [MIGRATION_PLAN.md](../MIGRATION_PLAN.md).
+Use this guide for the poll step in [TODO.md](../TODO.md).
 For measured results and source-selection rationale, read only the
 [poll pilot history](migration-history.md#2026-10-23--selected-poll-archive-and-reconciliation-pilot).
 

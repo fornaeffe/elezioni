@@ -14,8 +14,8 @@ forecast models with only the goals in the [feasible-model research guide](../re
 fixed. The earlier Beta/national-margin and timing rules below describe the
 original campaign; they do not constrain that replacement comparison.
 FV-01–FV-09 implementation is complete; acceptance evidence and its limitations
-are recorded in history. Whole-migration publication remains a separate gate. The authoritative
-remaining checklist is in [MIGRATION_PLAN.md](../MIGRATION_PLAN.md); record evidence in
+are recorded in history. Publication evidence is tracked separately. The authoritative
+remaining checklist is in [TODO.md](../TODO.md); record evidence in
 [migration history](migration-history.md).
 
 | Task | Read |

@@ -147,7 +147,7 @@ declared **joint** renewal is incomplete input, not a single-chamber election.
 
 Foreign scrutiny, further historical Camera/Senato coverage review, and
 away-from-home distribution modelling are in the
-[post-migration roadmap](../MIGRATION_PLAN.md#after-completion-of-the-web-migration).
+[post-migration roadmap](../TODO.md#future-work).
 Paired Senate-history preparation is required within R26-19 by approved R26-04.
 
 L8(12) assigns an away-from-home voter to the lists/candidates of the temporary

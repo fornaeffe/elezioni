@@ -16,4 +16,4 @@ imports are retired.
 The retained numerical release schema and portable numeric states are internal
 model inputs, not compatible user scenario/result files. Old file uploads are
 rejected and old draft keys remain untouched. Deferred D14 editors are listed
-in `MIGRATION_PLAN.md`; retained settings still validate and survive roundtrips.
+in `TODO.md`; retained settings still validate and survive roundtrips.

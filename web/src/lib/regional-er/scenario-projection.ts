@@ -91,7 +91,7 @@ function projectPercentages(
       message: `All active regional lists have explicit valid-vote share overrides totaling ${Number(
         overrideShareTotal.toFixed(2)
       )}%; they were normalized to 100%.`,
-      todoReference: 'MIGRATION_PLAN.md#next-work'
+      todoReference: 'TODO.md#future-work'
     });
     for (const row of overridden) {
       projected.set(row.projectedListName, (sourcePoliticalTotal * Math.max(Number(row.scenario.startingShare) || 0, 0)) / overrideShareTotal);
@@ -282,7 +282,7 @@ function targetValidShares(
       message: `All active lists have explicit local valid-vote share overrides totaling ${Number(
         overrideTotal.toFixed(2)
       )}%; they were normalized to 100%.`,
-      todoReference: 'MIGRATION_PLAN.md#next-work'
+      todoReference: 'TODO.md#future-work'
     });
     for (const list of overriddenLists) target.set(list, Math.max(Number(overrideByList.get(listKey(list))?.startingShare) || 0, 0) / overrideTotal);
     return target;
@@ -396,7 +396,7 @@ function applyLocalShareOverrides(
         warnings.push({
           code: 'REGIONAL_ER_SCENARIO_LOCAL_OVERRIDES_UNUSED',
           message: `Local share overrides for ${scope} ${locationCode} did not match Emilia-Romagna geography and were ignored.`,
-          todoReference: 'MIGRATION_PLAN.md#next-work'
+          todoReference: 'TODO.md#future-work'
         });
         continue;
       }
@@ -409,7 +409,7 @@ function applyLocalShareOverrides(
         warnings.push({
           code: 'REGIONAL_ER_SCENARIO_LOCAL_OVERRIDES_OVERLAP',
           message: `Local share overrides for ${scope} ${locationCode} overlap broader ${broader.scope} ${broader.locationCode}; the more specific override was applied later.`,
-          todoReference: 'MIGRATION_PLAN.md#next-work'
+          todoReference: 'TODO.md#future-work'
         });
       }
 
