@@ -182,6 +182,14 @@ Start these additions after all simulator workflows and data preparation have
 completed the web migration; they do not expand the current domestic reform
 implementation or municipal parity scope.
 
+- [ ] Evaluate different history management:
+  - A single file, as currently implemented
+  - A file for each entry in a docs/history folder
+  - Commit comments
+  - Other solutions
+- [ ] **UI polishing**
+  - [ ] Replace labels for info/warnings/error that currently exposes internal
+    ids with more meaningful labels and/or descriptions.
 - [ ] **Additional model drafts evaluation**. Do it in research\vote-generation 
   folder. For each model, follow the steps until completion or until evidence of
   model unusability.
