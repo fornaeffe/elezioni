@@ -17,7 +17,6 @@
     {#each ['common', 'camera', 'senato'] as channel (channel)}
       <ReferenceFields {scenario} {target} scope={node.scope} channel={channel as 'common' | 'camera' | 'senato'} label={`${node.name} ${channel === 'common' ? 'comune' : channel === 'camera' ? 'Camera' : 'Senato'}`} {edit} />
     {/each}
-    <p class="hint">Campi vuoti: eredita il riferimento più ampio secondo il modello attivo. Zero è una dichiarazione esplicita.</p>
     <button onclick={() => edit(s => removeReferences(s, target, referenceScopes(node)))}>Rimuovi riferimenti nel territorio e discendenti</button>
     {#if node.children.length}<ReferenceTree {scenario} {target} nodes={node.children} {edit} />{/if}
   </LazySection>

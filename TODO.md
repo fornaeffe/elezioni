@@ -10,6 +10,9 @@ tasks when the evidence changes; detailed execution plans belong near their work
   - [ ] Merge "Scarica scenario JSON" and "Scarica scenario JSON.gz" buttons in 
     a single split button with "Scarica scenario JSON.gz" as the main default 
     action.
+  - [ ] When I click on "Ripristina scenario predefinito", in some cases (maybe
+    when results are loaded?) I got an error. Inspect, reproduce the bug, 
+    diagnose and fix. 
   - [ ] Add toggletips to convey tips about UI components use, that the user can
     open clicking on a small info icon near the control label:
     - [ ] Next to "Riferimento nazionale (%)": it should explain the meaning of 
@@ -29,10 +32,30 @@ tasks when the evidence changes; detailed execution plans belong near their work
     - [ ] Next to "Disponibile" in 
       [CandidateForm](web\src\lib\politics\editor\CandidateForm.svelte), explaining
       the meaning and consequences of not being available.
-  - [ ] Rethink [FilingTree](web\src\lib\politics\editor\FilingTree.svelte):
-    - [ ] Levels without any controls in it should not be rendered at all. Currently,
-      reform college level for coalitions tree are shown even if they contain no
+    - [ ] Next to "Moltiplicatore nazionale" and "Moltiplicatore locale" in
+      [ReferencesEditor](web\src\lib\politics\editor\ReferencesEditor.svelte:47),
+      describing their meanings. 
+    - [ ] Next to ["Data di riferimento"](web\src\lib\politics\editor\CommonPoliticsEditor.svelte:95).
+  - [ ] In [FilingTree](web\src\lib\politics\editor\FilingTree.svelte) and
+    [ReferenceTree](web\src\lib\politics\editor\ReferenceTree.svelte):
+    - [ ] Some levels of FilingTree show "0 candidati fissati" when they (and 
+      their children) have 0 fixed candidates,
+      some other levels do not show anything when they (and their children) have
+      0 fixed candidates. We should uniform this behavior, a level should not 
+      show anything when it and its children have 0 fixed candidates. In ReferenceTree,
+      if a tree element has 0 references in it or in its children, it should not show
+      "0 dichiarazioni", just the element name.
+    - [ ] "n candidati fissati" should be visually distinguishable from the tree
+      element title, currently it is styled exactly the same. The same style should
+      be adopted for "n dichiarazioni" in ReferenceTree (with a common style 
+      definition, not repeated identical definitions).
+    - [ ] A tree element without any controls in it nor in its children should not be 
+      rendered at all. Currently,
+      reform college elements for coalitions tree are shown even if they contain no
       controls.
+    - [ ] Evaluate a true combobox to replace 
+      ["Cerca candidato" field](web\src\lib\politics\editor\CandidateSlots.svelte:50)
+      and [candidate selector](web\src\lib\politics\editor\CandidateSlots.svelte:55).
     - [ ] Currently, [CandidateForm](web\src\lib\politics\editor\CandidateForm.svelte)
       is rendered inside [CandidateSlots](web\src\lib\politics\editor\CandidateSlots.svelte)
       on a click on "Crea candidato" button. "Crea candidato" should instead be 
@@ -40,6 +63,35 @@ tasks when the evidence changes; detailed execution plans belong near their work
       selector](web\src\lib\politics\editor\CandidateSlots.svelte:55), and it should
       open a cancelable modal dialog for candidate creation. On successful creation
       the candidate should be selected in the select that started the modal dialog.
+    - [ ] Rethink [ReferenceTree](web\src\lib\politics\editor\ReferenceTree.svelte:16) 
+      and [ReferenceFields](web\src\lib\politics\editor\ReferenceFields.svelte)
+      layout, and add appropriate toggletips to explain fields meaning.
+    - [ ] For [ReferenceTree](web\src\lib\politics\editor\ReferenceTree.svelte:16)
+      province level elements the rendered name is currently "Provincia 012", 
+      "Provincia 013", ... It should instead be "Provincia: nnnn" where nnnn is 
+      the province's name.
+    - [ ] In lists' FilingTree move the tri-state checkbox in the LazySection
+      title row, between the arrowhead and the section title, making it visible
+      when the title is visible, even if the section is closed. A tri-state checkbox
+      should be visible next to "Depositi e candidati" title, also, conveying
+      the state of the whole filing tree even when the tree is closed.
+    - [ ] Filing state of the tri-state checkbox should be visually more distinguishable:
+      use light red, yellow and green colors for unfiled, partially filed and 
+      fully filed states.
+  - [ ] Add a confirmation step (preferably via a native modal dialog) when deleting
+    a coalition or a list. 
+  - [ ] Change [other lists editor](web\src\lib\politics\editor\SubjectsEditor.svelte):
+    when "other lists" is off, show just a button that opens a cancelable modal 
+    dialog for activation of "other lists" (with component selection).
+  - [ ] Rethink [non-valid ReferencesEditor](web\src\lib\politics\editor\CommonPoliticsEditor.svelte:96):
+    check if we can move national common reference input inside the collapsible
+    section, and rename the collapsible section "Astensione e voti non validi"
+    instead of "Riferimenti avanzati", without breaking other uses of the component.
+  - [ ] Rewrite models' names and descriptions in a more undersantable manner.
+  - [ ] Rename different components with same name
+  - [ ] Review historical memberships
+  - [ ] Rethink membership editor, component pooling editor and component reference
+    editor.
   - [ ] Style the `view.stale` and `view.recommendation` messages like other
     warnings.
   - [ ] Remove the collapsible "Dettagli" section from general warnings, that 
@@ -116,6 +168,9 @@ tasks when the evidence changes; detailed execution plans belong near their work
   the selected group. Evaluate the feasibilty and logic of a list of suggested
   majorities, with their respective probability of reach the majority and median
   seat count.
+- [ ] Add a per-fixed-candidate result section, showing for each fixed candidate
+  the election probability, global and for each of its slots (if filed in more 
+  than one slot).
 - [ ] **Additional model drafts evaluation**. Do it in research\vote-generation 
   folder. For each model, follow the steps until completion or until evidence of
   model unusability.

@@ -84,19 +84,18 @@
       </div>
       <div id={`list-options-${list.id}`} hidden={!openLists[list.id]}>
         {#if openLists[list.id]}
-        <p>{scenario.lawSettings[scenario.selection.scrutiny.id].filings.find(f => f.listId === list.id)?.locations.length ?? 0} depositi salvati</p>
-        <ReferencesEditor {scenario} target={{ kind: 'list', id: list.id }} label="Riferimento nazionale" {assets} {edit} mode="advanced" />
-        <p>La partecipazione è determinata dai depositi. Nome, coalizione e minoranza sono comuni alle camere.</p>
-        {#if list.kind !== 'other'}
-          <label>Regione di minoranza<select value={list.minority?.regionId ?? ''} onchange={e => edit(s => updateList(s, { ...list, minority: e.currentTarget.value ? {
-            regionId: e.currentTarget.value, namespace: s.data.referenceGeography.version, legalReference: list.minority?.legalReference ?? null } : null }))}>
-            <option value="">Nessuna dichiarazione</option>{#each assets?.references ?? [] as r (JSON.stringify(r.scope))}{#if r.scope.kind === 'region'}<option value={r.scope.code}>{r.name}</option>{/if}{/each}
-          </select></label>
-          {#if list.minority}<label>Riferimento normativo minoranza<input value={list.minority.legalReference ?? ''} onchange={e => edit(s => updateList(s, { ...list, minority: { ...list.minority!, legalReference: e.currentTarget.value || null } }))} /></label>{/if}
-        {/if}
-        {#if capabilities(scenario).scrutiny.bonusLinks}<BonusLinksEditor {scenario} subject={{ kind: 'list', id: list.id }} {edit} />{/if}
-        {#if assets}<LazySection title={`Depositi e candidati · ${scenario.lawSettings[scenario.selection.scrutiny.id].placements.filter(p => p.owner.kind === 'list' && p.owner.id === list.id).length} candidati fissati`}><FilingTree {scenario} owner={{ kind: 'list', id: list.id }} {assets} {edit} /></LazySection>{/if}
-        <button onclick={() => edit(s => deleteSubject(s, { kind: 'list', id: list.id }))}>Elimina lista</button>
+          <ReferencesEditor {scenario} target={{ kind: 'list', id: list.id }} label="Riferimento nazionale" {assets} {edit} mode="advanced" />
+          {#if list.kind !== 'other'}
+            <label>Regione di minoranza<select value={list.minority?.regionId ?? ''} onchange={e => edit(s => updateList(s, { ...list, minority: e.currentTarget.value ? {
+              regionId: e.currentTarget.value, namespace: s.data.referenceGeography.version, legalReference: list.minority?.legalReference ?? null } : null }))}>
+              <option value="">Nessuna dichiarazione</option>{#each assets?.references ?? [] as r (JSON.stringify(r.scope))}{#if r.scope.kind === 'region'}<option value={r.scope.code}>{r.name}</option>{/if}{/each}
+            </select></label>
+            {#if list.minority}<label>Riferimento normativo minoranza<input value={list.minority.legalReference ?? ''} onchange={e => edit(s => updateList(s, { ...list, minority: { ...list.minority!, legalReference: e.currentTarget.value || null } }))} /></label>{/if}
+          {/if}
+          {#if capabilities(scenario).scrutiny.bonusLinks}<BonusLinksEditor {scenario} subject={{ kind: 'list', id: list.id }} {edit} />{/if}
+          <p>Lista depositata in {scenario.lawSettings[scenario.selection.scrutiny.id].filings.find(f => f.listId === list.id)?.locations.length ?? 0} collegi</p>
+          {#if assets}<LazySection title={`Depositi e candidati · ${scenario.lawSettings[scenario.selection.scrutiny.id].placements.filter(p => p.owner.kind === 'list' && p.owner.id === list.id).length} candidati fissati`}><FilingTree {scenario} owner={{ kind: 'list', id: list.id }} {assets} {edit} /></LazySection>{/if}
+          <button onclick={() => edit(s => deleteSubject(s, { kind: 'list', id: list.id }))}>Elimina lista</button>
         {/if}
       </div>
     </article>

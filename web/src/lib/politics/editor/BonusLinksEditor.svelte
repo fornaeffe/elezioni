@@ -10,14 +10,16 @@
   let replacements = $derived(pending ? scenario.lawSettings['politiche-reform-2026-v1'].bonusLinks.filter(p => sameSubject(p.camera, pending!.camera) || sameSubject(p.senato, pending!.senato)) : []);
   const reason = (value: string) => value.replace('camera:', 'Camera: ').replace('senato:', 'Senato: ').replace('automatic-counterpart', 'collegamento automatico per presenza in entrambe le camere').replace('endpoint-chamber-or-affiliation', 'camera dichiarata o affiliazione non eleggibile');
 </script>
-<p>Collegamenti:</p>
-{#each links as link (`${link.status}:${link.camera.kind}:${link.camera.id}:${link.senato.kind}:${link.senato.id}`)}
-  <p>{subjectName(scenario, link.camera)} ↔ {subjectName(scenario, link.senato)} ·
-    {link.status === 'automatic' ? 'Automatico' : link.status === 'explicit-active' ? 'Esplicito attivo' : 'Esplicito conservato, inattivo'}
-    {#if link.reasons.length}— {link.reasons.map(reason).join('; ')}{/if}
-  </p>
-  {#if link.status !== 'automatic'}<button onclick={() => edit(s => removeBonusLink(s, link))}>Rimuovi collegamento conservato</button>{/if}
-{/each}
+{#if links.length > 0}
+  <p>Collegamenti:</p>
+  {#each links as link (`${link.status}:${link.camera.kind}:${link.camera.id}:${link.senato.kind}:${link.senato.id}`)}
+    <p>{subjectName(scenario, link.camera)} ↔ {subjectName(scenario, link.senato)} ·
+      {link.status === 'automatic' ? 'Automatico' : link.status === 'explicit-active' ? 'Esplicito attivo' : 'Esplicito conservato, inattivo'}
+      {#if link.reasons.length}— {link.reasons.map(reason).join('; ')}{/if}
+    </p>
+    {#if link.status !== 'automatic'}<button onclick={() => edit(s => removeBonusLink(s, link))}>Rimuovi collegamento conservato</button>{/if}
+  {/each}
+{/if}
 {#each chambers as chamber (chamber)}
   {#if eligibleBonusEndpoint(scenario, subject, chamber)}
     {@const opposite = chamber === 'camera' ? 'senato' : 'camera'}

@@ -68,7 +68,15 @@
     {#if selected.other}<p>“Altri” è il complemento delle opzioni offerte; i membri non sono modificabili.</p>
     {:else}
       {@const members = declaration?.members ?? selected.members}
-      {#each members as id (id)}<p>{assets.components.find(c => c.id === id)?.name ?? id}<button onclick={() => sourceMembers(members.filter(c => c !== id))}>Rimuovi membro {id}</button></p>{/each}
+      {#each members as id (id)}
+        {@const name = assets.components.find(c => c.id === id)?.name ?? id}
+        <p>
+          {name}
+          <button onclick={() => sourceMembers(members.filter(c => c !== id))}>
+            Rimuovi membro {name}
+          </button>
+        </p>
+      {/each}
       <label>Aggiungi membro storico<select value="" onchange={e => { if (e.currentTarget.value) sourceMembers([...members, e.currentTarget.value]); }}>
         <option value="">Scegli componente</option>
         {#each assets.components.filter(c => !members.includes(c.id)) as c (c.id)}<option value={c.id} disabled={historicalConflict(c.id)}>{c.name}{historicalConflict(c.id) ? ' — usato in altra opzione della fonte' : ''}</option>{/each}

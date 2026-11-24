@@ -92,12 +92,12 @@
     </div>
     <SubjectsEditor {scenario} {assets} edit={apply} />
     <LazySection title="Impostazioni avanzate dello scenario">
-      <label>Data di riferimento<input type="date" value={scenario.referenceDate} onchange={e => apply(s => editScenario(s, n => { n.referenceDate = e.currentTarget.value; }))} /></label>
-      <ReferencesEditor {scenario} target={null} label="Astensione e voti non validi" {assets} edit={apply} />
+      <p><label>Data di riferimento<input type="date" value={scenario.referenceDate} onchange={e => apply(s => editScenario(s, n => { n.referenceDate = e.currentTarget.value; }))} /></label></p>
       <label>Generatore dei voti<select aria-label="Generatore dei voti" value={generator.id} onchange={e => { const model = modelRegistry[e.currentTarget.value as GeneratorId]; apply(s => selectGenerator(s, model.id, model.version)); }}>
         {#each generationModels.filter(m => supportedPairs.some(p => p.law === scenario.selection.scrutiny.id && p.generator === m.id)) as model (model.id)}<option value={model.id}>{model.label}</option>{/each}
       </select></label>
       <p>{capabilities(scenario).generator.referenceSd ? 'M02: campo politico condiviso, incertezza dei riferimenti e raggruppamento di componenti. Le differenze fra Camera e Senato restano quelle della storia abbinata e dei riferimenti espliciti; le loro variazioni future non sono stimate.' : 'M01: composizioni storiche e shock di lista. SD e moltiplicatori M02 restano salvati, inattivi.'}</p>
+      <ReferencesEditor {scenario} target={null} label="Astensione e voti non validi" {assets} edit={apply} />
       {#if assets}<AdvancedEditor {scenario} {assets} edit={apply} />{/if}
       <LazySection title={`Identità dei candidati · ${scenario.candidates.length}`}>
         {#each scenario.candidates as candidate (candidate.id)}<LazySection title={candidate.name}><CandidateForm {scenario} {candidate} edit={apply} /></LazySection>{/each}

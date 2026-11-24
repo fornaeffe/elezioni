@@ -27,7 +27,15 @@
 {#if different && mode !== 'advanced'}<span class="badge">Riferimenti distinti per camera</span>{/if}
 {#if mode !== 'basic'}
 <LazySection title={`Riferimenti avanzati · ${rows.length} dichiarazioni`}>
-  <p>{target === null ? 'Astensioni e schede non valide: percentuali degli elettori.' : 'Percentuali dei voti validi.'} Campo vuoto: nessuna sostituzione. M01 ignora le SD salvate; M02 le utilizza.</p>
+  <p>
+    {target === null ? 
+    'Astensioni e schede non valide: tutti i valori sono espressi in percentuale sugli elettori.' :
+    'Tutti i valori sono espressi in percentuale sui voti validi.'}
+  </p>
+  <p>
+    Se i riferimenti vengono lasciati vuoti il modello stimerà le percentuali
+    in base ai dati storici e ai sondaggi.
+  </p>
   <ReferenceFields {scenario} {target} scope={{ kind: 'national' }} {label} {edit} showMean={false} showRemove={mode === 'advanced'} />
   {#each ['camera', 'senato'] as channel (channel)}
     <ReferenceFields {scenario} {target} scope={{ kind: 'national' }} channel={channel as 'camera' | 'senato'} label={`${label} ${channel === 'camera' ? 'Camera' : 'Senato'}`} {edit} />
