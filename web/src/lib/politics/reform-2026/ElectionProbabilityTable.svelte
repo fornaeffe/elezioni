@@ -26,13 +26,31 @@
     <option value="capolista-bonus">Capolista presente in una lista bonus</option>
     <option value="capolista-no-bonus">Capolista non presente in alcuna lista bonus</option>
   </select></label>
-  <p>Ogni cella indica la probabilità che sia eletto da questa lista in questo collegio il candidato in quella posizione oppure almeno un candidato successivo. Ordine: capolista, poi sei candidati per preferenze decrescenti in ciascuna simulazione. Sono inclusi i recuperi nella sede finale, senza richiedere un rapporto di causa tra le elezioni. Un’elezione altrove, da sola, non conta. Non è una probabilità individuale per una persona fissa.</p>
+  <p>Ogni cella indica la probabilità che sia eletto da questa lista in questo 
+    collegio il candidato in quella posizione oppure almeno un candidato 
+    successivo. La prima colonna rappresenta i capolista, le colonne seguenti 
+    gli altri sei candidati in ordine di preferenze decrescenti (non, quindi, 
+    l'ordine di presentazione sulla scheda). Sono inclusi nella percentuale i 
+    candidati eletti perché un ripescaggio li ha eletti 
+    ripescandoli da questo collegio. Non sono inclusi nella percentuale i candidati eletti in 
+    un altro collegio o nel listino premio.</p>
   {#if metric === 'all'}
     <p>Denominatore: tutte le simulazioni richieste.</p>
   {:else}
-    <p>Il gruppo dipende dalla presenza del capolista in qualsiasi lista bonus dello stesso ramo, indipendentemente dall’attribuzione del premio. Il denominatore è il numero di simulazioni del gruppo noto per ciascun collegio. Le simulazioni senza dati della lista non sono incluse: se presenti, la percentuale riguarda solo le simulazioni con gruppo noto.</p>
+    <p>Le simulazioni sono divise in due gruppi, a seconda della presenza del 
+      capolista in qualsiasi lista bonus 
+      dello stesso ramo, indipendentemente dall’attribuzione del premio. 
+      Il denominatore, per ciascun collegio, è il numero di simulazioni del 
+      gruppo scelto (capolista candidato anche nel listino premio o capolista 
+      non candidato in listini premio). Le simulazioni senza dati della lista non sono incluse: 
+      se presenti, la percentuale riguarda solo le simulazioni con gruppo noto.</p>
   {/if}
-  <p>≥ indica un minimo confermato con esiti mancanti nel denominatore; n.d. indica nessun esito noto o denominatore nullo; — indica una posizione assente. Ogni cella riporta gli esiti noti nel suggerimento. Risultati condizionati ai modelli e ai profili delle preferenze.</p>
+  <p>Nel caso di esiti mancanti, ≥ indica una percentuale minima; 
+    n.d. indica nessun esito noto o denominatore nullo; 
+    — indica una posizione assente. 
+    Ogni cella riporta gli esiti noti nel tooltip. 
+    I risultati dipendono dal modello di generazione casuale dei voti, delle 
+    preferenze e delle candidature.</p>
   {#if error}<p role="alert">{error}</p>
   {:else if !selected}<p>Nessuna lista disponibile per questo ramo.</p>
   {:else if !data}<p role="status">Preparazione delle probabilità…</p>

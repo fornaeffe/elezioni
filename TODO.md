@@ -4,17 +4,111 @@ This is the active task list. Record completed work and evidence according to
 [project history](docs/history/README.md). Order work by dependencies and update
 tasks when the evidence changes; detailed execution plans belong near their work.
 
-- [ ] **Deferred M06 research:** specify and validate its grouped-history endpoint
-  law, missing/new-component support and full-list accuracy before browser acceptance.
-
 ## Future work
 
 - [ ] **UI polishing**
-  - [ ] Replace labels for info/warnings/error that currently exposes internal
-    ids with more meaningful labels and/or descriptions.
+  - [ ] Add a favicon
+  - [ ] Make landing page height equal to viewport height, if enough to correctly
+    render content. Currently, it is taller that the viewport and the footer is 
+    out of view.
+  - [ ] `site-header`, `site-main` and `common-politics-editor` use different 
+    paddings, resulting in a non-homogeneous layout, with objects differently 
+    aligned at different screen size. Use one common layout policy, with centrally
+    defined spacing and alignment values and logics.
+  - [ ] Merge "Scarica scenario JSON" and "Scarica scenario JSON.gz" buttons in 
+    a single split button with "Scarica scenario JSON.gz" as the main default 
+    action.
+  - [ ] Add toggletips to convey tips about UI components use, that the user can
+    open clicking on a small info icon near the control label:
+    - [ ] Next to "Riferimento nazionale (%)": it should explain the meaning of 
+      the national reference (different between lists and non-valid, and possibly
+      dinamically selected according to the currently selected model, if this 
+      reference has a different meaning between models), and what happens if 
+      this field is left blank.
+    - [ ] Next to "Numero di simulazioni": it should suggest to start with 10
+      simulations to check the computational time on the users' device, then
+      raise it to 1000 to obtain statistically significant results.
+  - [ ] Style the `view.stale` and `view.recommendation` messages like other
+    warnings.
+  - [ ] Remove the collapsible "Dettagli" section from general warnings, that 
+    currently contains only the warning code. Move the warning code at the end 
+    of the warning description, in parentheses.
+  - [ ] Do not make information messages collapsible. Move the info code at the
+    end of the warning description, in parentheses, like warnings.
+  - [ ] In "Riepilogo dei messaggi", under "Messaggio" column, 
+    show only the error/warning/info title, with a collapsible (default collapsed)
+    description of the message. The code should be at the end of the description,
+    in parentheses.
+  - [ ] Replace "COMMON_CONTRAST_FALLBACK" label with a more meaningful label.
+  - [ ] Assess if "Dotazioni territoriali provvisorie" (`I08_PROVISIONAL_SEATS`)
+    warning shoud stay both
+    in general warnings and in per-simulation warnings, as currently implemented,
+    or if it could stay only in general warnings.
+  - [ ] `I12_TERRITORIAL_ELIGIBILITY` should be treated as a general information
+    describing the adopted interpretation,
+    non a per-simulation warning.
+  - [ ] When clicking on "Simulazioni interessate" button, the "Simulazioni 
+    interessate" section opens below the table, not necessarily in view of the 
+    user. It is thus not obvious for the user that something happened. Rethink
+    the behavior of this button and the location of "Simulazioni interessate"
+    section.
+  - [ ] Rethink the "Chiudi elenco delle simulazioni" button location and appearance
+  - [ ] Move the "Scarica tutti gli ID filtrati CSV" button in the same line of
+    "Filtra simulazioni", if width allows, and render it as an icon button with
+    a meaningful `title`.
+  - [ ] Rethink interested simulation "Messaggi di" and "Risultato di" buttons:
+    "Messaggi di" should expand the simulation row with details, instead of 
+    showing details at the bottom of the list (possibly out of view),
+    "Risultato di" should also scroll the page to bring inspected simulation's
+    results' section in view, with a "Torna su" button available (while still 
+    meaningful).
+  - [ ] Details opened clicking on "Messaggi di ..." button (or expanding the 
+    affected simulation row, in the previous TODO is implemented) should be made
+    more readable: develop a solution to translate syntaxes like 
+    `same-list-other-territory: senato:territory:09 -> senato:territory:11; retained`
+    or `["senato","ordinary","senato:P:090001","fdi",5]`
+    into human-readable meaningful phrases.
+  - [ ] When results are loading, "Vincitori del premio" shows "Nessuna 
+    assegnazione del premio disponibile" as if there aren't any data available.
+    If this message only represent a placeholder while data are loading, it should
+    be substituted with an appropriate skeleton / loading placeholder. If it 
+    represents both a real no data state and a loading state, it should stay for
+    the no data state but the loading state should show an appropriate skeleton /
+    loading placeholder. Check if this behavior is replicated in any other section,
+    and correct it in the same way.
+  - [ ] Rethink and rewrite these unclear terms and phrases, better explaining their meaning:
+    - [ ] "simulazioni conservate"
+    - [ ] "Eletti per affiliazione personale finale; coalizioni per titolarità del seggio."
+    - [ ] "Identità e recuperi restano condizionati ai dati/modelli delle preferenze."
+    - [ ] `web\src\lib\politics\reform-2026\ReformTerritorialSpinogram.svelte:185-188`
+    - [ ] `web\src\lib\politics\reform-2026\ReformTerritorialSpinogram.svelte:191-193`
+  - [ ] In `web\src\lib\politics\PoliticsSummaryTable.svelte`:
+    - [ ] remove `'Mean elected': 'Eletti medi'` column, and rename "Eletti confermati medi"
+      in "Eletti medi"
+    - [ ] Add a greater than or equal sign in front of values where the denominator
+      includes unresolved simulations.
+  - [ ] Uniform the style of result section filter: adopt the compact same-row
+    of "Eletti medi e percentuali sui voti validi" also for "Percentuali per lista",
+    "Probabilità di elezione", "Eletti per collegio o circoscrizione". Keep spanning
+    over multiple rows when the width cannot accomodate all fields.
+  - [ ] Invert colors in spinograms: darker colors = more candidates elected.
+  - [ ] Make the "Percentuali per lista" boxplots expands its labels on large 
+    screen, instead of clipping labels while leaving blank space on the right
+- [ ] Some results (particularly "Probabilità di elezione") take a long time to
+  load on some occasions. Investigate the results loading performances and check
+  if there are any avoidable slowdowns, of if some cases need unavoidable long
+  loading (more than 5 seconds as a rule of thumb) add a progress indicator.
+- [ ] Add a majority result section: where the user could compose a majority 
+  grouping lists, and the app should show the percentage of simulations in which
+  that group owns the majority of seats, and what is the median seat count for 
+  the selected group. Evaluate the feasibilty and logic of a list of suggested
+  majorities, with their respective probability of reach the majority and median
+  seat count.
 - [ ] **Additional model drafts evaluation**. Do it in research\vote-generation 
   folder. For each model, follow the steps until completion or until evidence of
   model unusability.
+  - [ ] **Deferred M06 research:** specify and validate its grouped-history endpoint
+    law, missing/new-component support and full-list accuracy before browser acceptance.
   - [ ] Evaluate model draft [M08](docs/model-drafts/M08v0.0.1.md)
     - [x] Check model internal consistency and completeness ([review](research/vote-generation/m08-review.md))
     - [ ] Define remaining model details

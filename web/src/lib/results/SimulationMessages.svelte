@@ -66,10 +66,6 @@
 </script>
 
 <ResultSection title="Messaggi delle simulazioni">
-  <p>
-    Simulazioni interessate su {requested} richieste; ogni simulazione conta una sola volta per codice e gravità.
-    Le occorrenze contano anche le ripetizioni.
-  </p>
   <form onsubmit={applyFilter}>
     <label>
       Gravità dei messaggi

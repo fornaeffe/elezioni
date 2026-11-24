@@ -14,11 +14,11 @@
     'Election observations': 'Esiti noti',
     'Mean vote share %': 'Percentuale media %',
     'Mean elected': 'Eletti medi',
-    'Confirmed elected minimum / requested': 'Eletti confermati minimi / richieste',
-    'Ordinary minimum / requested': 'Ordinari minimi / richieste',
-    'Bonus minimum / requested': 'Premio minimo / richieste',
-    'Special minimum / requested': 'Uninominali speciali minimi / richieste',
-    'TAA minimum / requested': 'Proporzionali TAA minimi / richieste',
+    'Confirmed elected minimum / requested': 'Eletti confermati medi',
+    'Ordinary minimum / requested': 'Eletti ordinari medi',
+    'Bonus minimum / requested': 'Eletti premio medi',
+    'Special minimum / requested': 'Eletti uninominali speciali medi',
+    'TAA minimum / requested': 'Eletti proporzionali TAA medi',
   };
 </script>
 
@@ -30,15 +30,7 @@
         esiti noti: numero di osservazioni disponibili per la lista e il ramo. Percentuale media ed eletti
         medi sono disponibili solo con tutte le osservazioni note.
       </p>
-      <p>
-        Le colonne «minimi / richieste» dividono gli eletti confermati per tutte le simulazioni richieste:
-        sono medie minime, non percentuali né probabilità. Estero escluso.
-      </p>
-      {#if isReform}<p>
-          Ordinari, premio, uninominali speciali e proporzionali TAA suddividono quel minimo per categoria;
-          possono includere recuperi nella sede finale.
-        </p>
-      {:else}<p>
+      {#if !isReform}<p>
           Rosatellum: le liste riportano i soli seggi plurinominali; le coalizioni e i sostegni comprendono
           anche gli eletti uninominali.
         </p>{/if}

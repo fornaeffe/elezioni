@@ -108,6 +108,15 @@
   {#key editorEpoch}<CommonPoliticsEditor scenario={view.scenario} onchange={s => { controller.change(s); }} {execution} {stageExternalFile} />{/key}
   <section class="sessions" aria-label="Sessioni dei risultati">
     <h2>Risultati delle elezioni politiche</h2>
+    {#if view.viewed?.politics}
+      {@const record = view.viewed}
+      <p>Scenario eseguito: {record.politics!.run.executedScenario.name} · {record.politics!.run.execution.generator.id}@{record.politics!.run.execution.generator.version} · {record.result.completedSimulations}/{record.result.benchmark.simulations} simulazioni conservate · worker effettivi {record.politics!.run.execution.actualWorkers}.</p>
+      {#if view.stale}<p role="status">Lo scenario è stato modificato: questi 
+        risultati si riferiscono ad uno scenario precedente, che è conservato 
+        insieme ai risultati ed è possibile ripristinare. Per ottenere i risultati
+        relativi allo scenario modificato occorre avviare una nuova simulazione.</p>{/if}
+      {#if view.recommendation}<p role="status">Le 10 simulazioni sono riuscite. Per risultati significativi consigliamo 1.000 simulazioni: modifica il numero e avvia una nuova esecuzione.</p>{/if}
+    {/if}
     <details class="result-transfer">
       <summary>Caricamento, selezione e download dei risultati</summary>
       <label>Importa risultati<input type="file" accept=".json,.gz" onchange={e => { const file = e.currentTarget.files?.[0]; if (file) void controller.importResult(file); e.currentTarget.value = ''; }} /></label>
@@ -127,9 +136,6 @@
     </details>
     {#if view.viewed?.politics}
       {@const record = view.viewed}
-      <p>Scenario eseguito: {record.politics!.run.executedScenario.name} · {record.politics!.run.execution.generator.id}@{record.politics!.run.execution.generator.version} · {record.result.completedSimulations}/{record.result.benchmark.simulations} simulazioni conservate · worker effettivi {record.politics!.run.execution.actualWorkers}.</p>
-      {#if view.stale}<p role="status">Scenario modificato. Risultati ed export conservano lo scenario eseguito.</p>{/if}
-      {#if view.recommendation}<p role="status">Le 10 simulazioni sono riuscite. Per risultati significativi consigliamo 1.000 simulazioni: modifica il numero e avvia una nuova esecuzione.</p>{/if}
       {#key `${record.id}:${record.result.completedSimulations}:${record.result.storage?.state}`}<PoliticsSessionResults {record} client={client.results} />{/key}
     {/if}
   </section>

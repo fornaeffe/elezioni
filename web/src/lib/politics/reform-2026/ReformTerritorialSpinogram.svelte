@@ -169,9 +169,9 @@
         </p>{/if}
       {#if effectiveMeasure === 'last-position'}<p>
           Posizione dell’ultimo candidato eletto da questa lista in questo collegio: 0 = nessuno, 1 =
-          capolista, 2 = prima preferenza, …, 7 = sesta preferenza. Le elezioni altrove non contano; i
-          recuperi contano nella sede finale. Le posizioni saltate restano nell’ordine, anche senza un
-          rapporto di causa tra le elezioni. Un esito incompleto può lasciare ignota l’ultima posizione.
+          capolista, 2 = primo candidato in ordine di preferenze, …, 7 = ultimo 
+          candidato in ordine di preferenze. I candidati eletti altrove non contano; 
+          i candidati ripescati contano. Un esito incompleto può lasciare ignota l’ultima posizione.
         </p>{/if}
       {#if constituency}
         <label>
@@ -200,16 +200,7 @@
           <option value="not-awarded">Solo senza premio attribuito</option>
         </select>
       </label>
-      <p>
-        Il filtro usa l’attribuzione del premio congiunto, indipendentemente dalla lista selezionata e dai
-        seggi inclusi. Le decisioni sul premio mancanti o non calcolabili sono escluse dai due sottoinsiemi.
-      </p>
       {#if selected && active}
-        <p class="axis-sources">
-          Asse Y: {outcomeLabel} · {selected.chamber} · {selected.name}
-          <br />
-          Asse X: percentuale sui voti validi · {selected.chamber} · {selected.name}
-        </p>
         {#key JSON.stringify([selected.id, effectiveMeasure, bonusFilter, effectiveScope])}
           <ReformSeriesPanel
             {client}

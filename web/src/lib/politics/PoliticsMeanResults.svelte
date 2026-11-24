@@ -15,8 +15,9 @@
     per titolarità del seggio. Sono inclusi ordinari, premio, uninominali speciali e proporzionali TAA; Estero escluso.
   </p>
   <p>
-    ≥ indica una media minima di eletti confermati sulle simulazioni richieste. Le medie complete richiedono
-    tutti gli esiti noti; i dati mancanti non valgono zero.
+    Nel caso siano presenti 
+    simulazioni dove non è stato possibile completare lo scrutinio, ≥ 
+    indica la percentuale minima.
   </p>
   {#if isReform}<p>Identità e recuperi restano condizionati ai dati/modelli delle preferenze.</p>
   {:else}<p>

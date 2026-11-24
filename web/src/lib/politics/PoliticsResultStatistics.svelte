@@ -69,10 +69,11 @@
     {@const o = overview}
     {#if isReform}<ResultSection title="Vincitori del premio" open>
         <p>
-          Percentuale delle simulazioni richieste in cui il premio congiunto è assegnato alla coppia collegata
-          Camera–Senato, indipendentemente dai seggi poi coperti. Ogni simulazione conta una volta; se i nomi
-          coincidono, la coppia è mostrata una sola volta. ≥ indica un minimo con decisioni mancanti; il
-          premio non assegnato resta nel denominatore.
+          Percentuale delle simulazioni richieste in cui il premio congiunto è 
+          assegnato alla coppia collegata
+          Camera–Senato, indipendentemente dai seggi poi coperti. Nel caso siano presenti 
+          simulazioni dove non è stato possibile completare lo scrutinio, ≥ 
+          indica la percentuale minima.
         </p>
         {#if bonusError}<p role="alert">Impossibile caricare i vincitori del premio: {bonusError}</p>
         {:else}<div class="bonus-bars">

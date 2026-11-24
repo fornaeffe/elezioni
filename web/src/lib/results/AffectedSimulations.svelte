@@ -131,9 +131,6 @@
       </label>
       <button>Filtra simulazioni</button>
     </form>
-    <p>
-      ID unici in ordine crescente, massimo 50 per pagina. Il filtro del ramo del riepilogo resta applicato.
-    </p>
     <button onclick={exportIds} disabled={exporting || !ids}>
       {exporting ? 'Preparazione CSV…' : 'Scarica tutti gli ID filtrati CSV'}
     </button>
