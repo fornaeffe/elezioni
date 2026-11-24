@@ -123,7 +123,7 @@ test('position probabilities and the last-position spinogram use local ranked ev
   await local.getByLabel('Misura del collegio').selectOption('last-position');
   const panel = local.locator('.series-panel');
   await panel.scrollIntoViewIfNeeded();
-  await expect(local.locator('.axis-sources')).toContainText('Asse Y: ultima posizione eletta');
+  await expect(panel.getByRole('region', { name: /^Ultima posizione eletta ·/ })).toBeVisible();
   await expect(panel).toContainText('9/12 coppie note · 2 esiti ignoti con percentuale nota · 1 percentuali non disponibili');
   await panel.locator('.spine-panel-button').click();
   await expect(page.getByRole('dialog')).toContainText('Ultima posizione eletta');
@@ -244,7 +244,7 @@ test('territorial spinogram switches geography, measures, categories and groupin
   await expect(page.getByRole('dialog')).toContainText('Eletti ordinari + premio');
   await page.keyboard.press('Escape');
   await local.getByLabel('Seggi inclusi').selectOption('ordinary');
-  await expect(local.locator('.axis-sources')).toContainText('Asse Y: eletti ordinari · camera · camera list 1 · Nord');
+  await expect(panel.getByRole('region', { name: 'Eletti ordinari · camera · camera list 1 · Nord', exact: true })).toBeVisible();
   await expect(panel.locator('.spine-cell').filter({ hasText: /^[34]$/ })).toHaveCount(0);
   await expect(panel).toContainText('10/12 coppie note');
   await local.getByLabel('Simulazioni della circoscrizione').selectOption('awarded');
@@ -256,12 +256,12 @@ test('territorial spinogram switches geography, measures, categories and groupin
   await expect(local.getByLabel('Seggi inclusi')).toHaveValue('ordinary');
   await local.getByLabel('Circoscrizione del grafico').selectOption('south');
   await expect(local.getByLabel('Lista della circoscrizione')).toHaveValue('list:constructed-1');
-  await expect(local.locator('.axis-sources')).toContainText('Asse X: percentuale sui voti validi · camera · camera list 1 · Sud');
+  await expect(panel.getByRole('region', { name: 'Eletti ordinari · camera · camera list 1 · Sud', exact: true })).toContainText('Percentuale sui voti validi');
   await local.getByLabel('Raggruppamento della circoscrizione').selectOption('subject');
   await expect(local.getByLabel('Coalizione / lista singola della circoscrizione')).toHaveValue('coalition:constructed');
   await expect(panel).toContainText('5/6 coppie note');
   await local.getByLabel('Ramo della circoscrizione').selectOption('senato');
-  await expect(local.locator('.axis-sources')).toContainText('senato · Coalizione test · Sud');
+  await expect(panel.getByRole('img', { name: 'senato · Coalizione test · Sud', exact: true })).toBeVisible();
   await local.locator(':scope > summary').click();
   await expect(panel).toHaveCount(0);
   await local.locator(':scope > summary').click();

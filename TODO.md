@@ -7,13 +7,6 @@ tasks when the evidence changes; detailed execution plans belong near their work
 ## Future work
 
 - [ ] **UI polishing**
-  - [ ] Make landing page height equal to viewport height, if enough to correctly
-    render content. Currently, it is taller that the viewport and the footer is 
-    out of view.
-  - [ ] `site-header`, `site-main` and `common-politics-editor` use different 
-    paddings, resulting in a non-homogeneous layout, with objects differently 
-    aligned at different screen size. Use one common layout policy, with centrally
-    defined spacing and alignment values and logics.
   - [ ] Merge "Scarica scenario JSON" and "Scarica scenario JSON.gz" buttons in 
     a single split button with "Scarica scenario JSON.gz" as the main default 
     action.

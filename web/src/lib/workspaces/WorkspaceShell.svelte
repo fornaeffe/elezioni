@@ -18,7 +18,7 @@
 
 <style>
   .workspace-shell { --workspace-border: #d7e0e5; color: #15232d; font-family: system-ui, sans-serif; }
-  nav { max-width: 1500px; margin: auto; padding: .8rem 1.5rem; display: flex; flex-wrap: wrap; gap: 1.25rem; border-bottom: 1px solid var(--workspace-border); }
+  nav { padding-block: .8rem; display: flex; flex-wrap: wrap; gap: 1.25rem; border-bottom: 1px solid var(--workspace-border); }
   a { color: #24536e; text-underline-offset: .2rem; }
   [aria-current] { font-weight: 700; }
 </style>

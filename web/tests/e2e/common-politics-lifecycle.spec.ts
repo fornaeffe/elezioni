@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { openConstructedPolitics as setup } from '../fixtures/constructed-page';
-import { openResultTables } from '../fixtures/common-page';
+import { openResultTables, staleResultNotice } from '../fixtures/common-page';
 import { politicsDraftKey } from '../../src/lib/politics/files/draft';
 import { politicsSessionsKey } from '../../src/lib/politics/workspace-controller';
 import { REFORM, ROSATELLUM, type PoliticsScenario } from '../../src/lib/politics/scenario/schema';
@@ -72,7 +72,7 @@ for (const [law, model] of [[ROSATELLUM, 'M01'], [ROSATELLUM, 'M02'], [REFORM, '
     await expect(rawTables.getByRole('table', { name: first.result.storage.tables[tableIndex].name, exact: true })).toBeVisible();
     await expect(page.getByRole('alert')).toHaveCount(0);
     await page.getByLabel('Nome scenario', { exact: true }).fill('Edited after execution'); await page.getByLabel('Nome scenario', { exact: true }).blur();
-    await expect(page.getByText('Scenario modificato. Risultati ed export conservano lo scenario eseguito.', { exact: true })).toBeVisible();
+    await expect(staleResultNotice(page)).toBeVisible();
     await page.evaluate(() => {
       const node = document.querySelector('aside[aria-label="Stato dell\'applicazione"]')!;
       const seen: string[] = [];
@@ -95,7 +95,7 @@ for (const [law, model] of [[ROSATELLUM, 'M01'], [ROSATELLUM, 'M02'], [REFORM, '
     await page.reload();
     await openTransfers(page);
     await openResultTables(page);
-    await expect(page.getByText('Scenario modificato. Risultati ed export conservano lo scenario eseguito.', { exact: true })).toBeVisible();
+    await expect(staleResultNotice(page)).toBeVisible();
     await expect(page.getByRole('combobox', { name: 'Tabella dei risultati', exact: true })).toBeVisible();
     if (model === 'M02') await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText('fitting riutilizzato', { timeout: 60000 });
     await page.getByRole('button', { name: 'Carica lo scenario di questa sessione', exact: true }).click();

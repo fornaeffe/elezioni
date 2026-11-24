@@ -141,6 +141,7 @@
   </section>
 {/if}
 <style>
-  .sessions { max-width: 1460px; margin: 1rem auto; padding: 1rem; font-family: system-ui, sans-serif; border-top: 1px solid #cbd5e1; } .result-transfer { margin-block: .75rem 1rem; } .result-transfer > summary { cursor: pointer; font-weight: 600; } label { display: grid; gap: .4rem; margin: .75rem 0; } .controls { display: flex; flex-wrap: wrap; gap: .75rem; }
+  .sessions { margin-block-start: 1rem; padding-block-start: 1rem; border-top: 1px solid #cbd5e1; }
+  .result-transfer { margin-block: .75rem 1rem; } .result-transfer > summary { cursor: pointer; font-weight: 600; } label { display: grid; gap: .4rem; margin: .75rem 0; } .controls { display: flex; flex-wrap: wrap; gap: .75rem; }
   input, select, button { max-width: 100%; box-sizing: border-box; padding: .5rem; font: inherit; }
 </style>

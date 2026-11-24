@@ -484,7 +484,7 @@
 </svelte:head>
 
 <WorkspaceShell id="regional-er" busy={isBusy}>
-<main>
+<div class="regional-content">
   <section class="toolbar" aria-label="Simulazione">
     <div>
       <h1>{scenarioDraft.name || 'Regionali Emilia-Romagna'}</h1>
@@ -829,15 +829,13 @@
       {/if}
     {/if}
   </section>
-</main>
+</div>
 </WorkspaceShell>
 
 <style>
 
-  main {
-    width: min(1500px, calc(100% - 3rem));
-    margin: 0 auto;
-    padding: 1rem 0 3rem;
+  .regional-content {
+    margin-block-start: 1rem;
     display: grid;
     gap: 1rem;
   }

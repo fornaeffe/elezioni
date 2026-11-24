@@ -36,6 +36,9 @@ export async function openResultTables(page: Page) {
     if (!await section.evaluate(node => (node as HTMLDetailsElement).open)) await section.locator(':scope > summary').click();
     return section;
 }
+export function staleResultNotice(page: Page) {
+    return page.getByRole('status').filter({ hasText: /^Lo scenario è stato modificato:/ });
+}
 export async function selectedCommon(page: Page) {
     return page.evaluate(async (key) => {
         const index = JSON.parse(localStorage.getItem(key)!);

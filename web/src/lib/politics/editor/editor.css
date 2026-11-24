@@ -1,5 +1,4 @@
-.common-politics-editor { max-width: 1400px; margin: auto; padding: 1.5rem; color: #173042; font: 1rem/1.5 system-ui, sans-serif; }
-.common-politics-editor * { box-sizing: border-box; }
+.common-politics-editor { color: #173042; font: 1rem/1.5 system-ui, sans-serif; }
 .common-politics-editor fieldset { min-width: 0; border: 0; padding: 0; margin: 0; }
 .common-politics-editor section { margin-block: 1.5rem; }
 .common-politics-editor article, .common-politics-editor details { border: 1px solid #cbd5df; border-radius: .5rem; padding: .8rem; margin-block: .6rem; background: #fff; }
@@ -22,7 +21,6 @@
 .common-politics-editor .bounded-list { max-height: 18rem; overflow: auto; }
 .common-politics-editor .bounded-list label { display: flex; }
 @media (max-width: 650px) {
-  .common-politics-editor { padding: .75rem; }
   .common-politics-editor .chamber-grid { grid-template-columns: 1fr; }
   .common-politics-editor label { display: flex; width: 100%; }
   .common-politics-editor input:not([type=checkbox]):not([type=color]), .common-politics-editor select { width: 100%; min-width: 0; }

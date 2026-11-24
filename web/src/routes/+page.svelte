@@ -8,7 +8,7 @@
   <title>Simulatore elezioni</title>
 </svelte:head>
 
-<main class="selector" aria-label="Selezione simulazione">
+<div class="selector">
   <section class="intro">
     <p class="eyebrow">Simulatore elezioni</p>
     <h1>Scegli il flusso di simulazione</h1>
@@ -23,18 +23,13 @@
       </a>
     {/each}
   </nav>
-</main>
+</div>
 
 <style>
 
   .selector {
-    min-height: 100vh;
     display: grid;
-    align-content: center;
     gap: 2rem;
-    width: min(960px, calc(100% - 2rem));
-    margin: 0 auto;
-    padding: 2rem 0;
   }
 
   .intro {
