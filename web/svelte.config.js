@@ -18,6 +18,9 @@ const config = {
     prerender: {
       entries: ['*']
     }
+  },
+  vitePlugin: {
+    inspector: true
   }
 };
 
