@@ -54,7 +54,7 @@
       </div>
       <div id={`coalition-options-${coalition.id}`} hidden={!openCoalitions[coalition.id]}>
         {#if openCoalitions[coalition.id]}
-        <p>Camere: {coalition.chambers.map(ch => ch === 'camera' ? 'Camera' : 'Senato').join(', ') || 'nessuna camera'}</p>
+        <p>Coalizione presente in:</p>
         {#each chambers as chamber (chamber)}
           <label><input type="checkbox" checked={coalition.chambers.includes(chamber)} onchange={e => edit(s => updateCoalition(s, { ...coalition,
             chambers: e.currentTarget.checked ? [...coalition.chambers, chamber] : coalition.chambers.filter(c => c !== chamber) }))} />{chamber === 'camera' ? 'Camera' : 'Senato'}</label>

@@ -47,7 +47,6 @@
     return { id: `bonus-${pin.id}`, candidateId: pin.candidateId, location: bonusNode.location, owner: bonusOwner, role: 'bonus', position, affiliationListId: owner.id };
   }
 </script>
-<p>Posti non fissati: generazione automatica. Rimuovere una scelta libera solo quel posto; gli altri non vengono spostati.</p>
 <label>Cerca candidato<input type="search" bind:value={search} /></label>
 {#each Array.from({ length: Math.min(node.slots, limit) }, (_, i) => i + 1) as position (position)}
   {@const pin = pins.find(p => p.position === position)}

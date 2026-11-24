@@ -20,6 +20,26 @@ tasks when the evidence changes; detailed execution plans belong near their work
     - [ ] Next to "Numero di simulazioni": it should suggest to start with 10
       simulations to check the computational time on the users' device, then
       raise it to 1000 to obtain statistically significant results.
+    - [ ] Next to "Data di nascita" in 
+      [CandidateForm](web\src\lib\politics\editor\CandidateForm.svelte): it should
+      contain the information currently conveyed by the phrase "Se vuota alla 
+      creazione: 1 gennaio 1977. La data assunta influenza età e spareggi e 
+      resta salvata." that itself should be removed from CandidateForm; but with
+      a more clear wording.
+    - [ ] Next to "Disponibile" in 
+      [CandidateForm](web\src\lib\politics\editor\CandidateForm.svelte), explaining
+      the meaning and consequences of not being available.
+  - [ ] Rethink [FilingTree](web\src\lib\politics\editor\FilingTree.svelte):
+    - [ ] Levels without any controls in it should not be rendered at all. Currently,
+      reform college level for coalitions tree are shown even if they contain no
+      controls.
+    - [ ] Currently, [CandidateForm](web\src\lib\politics\editor\CandidateForm.svelte)
+      is rendered inside [CandidateSlots](web\src\lib\politics\editor\CandidateSlots.svelte)
+      on a click on "Crea candidato" button. "Crea candidato" should instead be 
+      an option of [candidate
+      selector](web\src\lib\politics\editor\CandidateSlots.svelte:55), and it should
+      open a cancelable modal dialog for candidate creation. On successful creation
+      the candidate should be selected in the select that started the modal dialog.
   - [ ] Style the `view.stale` and `view.recommendation` messages like other
     warnings.
   - [ ] Remove the collapsible "Dettagli" section from general warnings, that 
