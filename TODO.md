@@ -7,7 +7,6 @@ tasks when the evidence changes; detailed execution plans belong near their work
 ## Future work
 
 - [ ] **UI polishing**
-  - [ ] Add a favicon
   - [ ] Make landing page height equal to viewport height, if enough to correctly
     render content. Currently, it is taller that the viewport and the footer is 
     out of view.
