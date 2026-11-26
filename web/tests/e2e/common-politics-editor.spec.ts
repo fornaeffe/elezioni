@@ -92,15 +92,26 @@ test('visible non-valid reference retains explicit zero, default uncertainty and
   expect(stored.nonValidReferences.find((r: { channel: string; scope: { kind: string } }) => r.channel === 'camera' && r.scope.kind === 'national')).toMatchObject({ mean: 0, uncertainty: { sdPercentagePoints: 0, origin: 'default' } });
   await input.fill('10'); await input.blur();
   await expect(section.getByLabel(`SD ${referenceLabel} (punti percentuali)`, { exact: true })).toHaveValue('1');
-  const emilia = section.locator('details').filter({ has: page.locator('summary').filter({ hasText: /^Emilia-Romagna ·/ }) }).last();
-  await emilia.locator(':scope > summary').click();
-  await emilia.getByLabel('Emilia-Romagna comune (%)', { exact: true }).fill('5'); await emilia.getByLabel('Emilia-Romagna comune (%)', { exact: true }).blur();
+  const emilia = section.locator('summary').filter({ hasText: /^Emilia-Romagna(?: ·|$)/ });
+  await expect(emilia).toHaveText('Emilia-Romagna');
+  await emilia.click();
+  const province = section.locator('summary').filter({ hasText: /^Provincia 037(?: ·|$)/ });
+  await expect(province).toHaveText('Provincia 037');
+  await province.click();
+  const local = section.getByLabel('Provincia 037 comune (%)', { exact: true });
+  await local.fill('5'); await local.blur();
+  await expect(province).toHaveText('Provincia 037 · 1 dichiarazioni');
+  await expect(emilia).toHaveText('Emilia-Romagna · 1 dichiarazioni');
+  await expect(emilia.locator('.summary-count')).toHaveCSS('font-weight', '400');
   await page.getByLabel('Camere da rinnovare').selectOption('camera');
   stored = await draft(page);
-  expect(stored.nonValidReferences.some((r: { scope: { kind: string; code: string }; mean: number }) => r.scope.kind === 'region' && r.scope.code === '08' && r.mean === 0.05)).toBe(true);
+  expect(stored.nonValidReferences.some((r: { scope: { kind: string; code: string }; mean: number }) => r.scope.kind === 'province' && r.scope.code === '037' && r.mean === 0.05)).toBe(true);
   await section.getByRole('button', { name: `Rimuovi ${referenceLabel}`, exact: true }).click();
   await expect(input).toHaveValue('');
   expect((await draft(page)).nonValidReferences).toHaveLength(authored.nonValidReferences.length + 1);
+  await section.getByRole('button', { name: 'Rimuovi Provincia 037 comune', exact: true }).click();
+  await expect(province).toHaveText('Provincia 037');
+  await expect(emilia).toHaveText('Emilia-Romagna');
 });
 
 test('new lists initialize every law, tri-state filings and linked/unlinked chamber memberships', async ({ page }) => {
@@ -112,8 +123,8 @@ test('new lists initialize every law, tri-state filings and linked/unlinked cham
   for (const block of Object.values(stored.lawSettings) as { filings: { listId: string; locations: unknown[] }[] }[]) expect(block.filings.find(f => f.listId === list.id)!.locations.length).toBeGreaterThan(0);
   const article = page.getByRole('article', { name: 'Lista nuova', exact: true });
   await article.getByRole('button', { name: /^Opzioni lista/ }).click();
-  await article.locator('summary').filter({ hasText: /^Depositi e candidati/ }).click();
-  await article.locator('summary').filter({ hasText: /^Camera ·/ }).click();
+  await article.locator('summary').filter({ hasText: /^Depositi e candidati$/ }).click();
+  await article.locator('summary').filter({ hasText: /^Camera$/ }).click();
   const all = article.getByRole('checkbox', { name: 'Deposita tutta Camera', exact: true });
   await expect(all).toBeChecked();
   await all.uncheck(); stored = await draft(page);
@@ -292,11 +303,22 @@ test('candidate trees retain sparse pins and explain disabled identities while f
   const territory = seats.geography.territories.find((t: { id: string }) => t.id === college.territoryId);
   await page.goto(`${base}/politics/editor`); await ready(page);
   const article = page.getByRole('article', { name: "Fratelli d'Italia", exact: true });
-  const openIn = async (pattern: RegExp) => { await article.locator('summary').filter({ hasText: pattern }).first().click(); };
-  await article.getByRole('button', { name: /^Opzioni lista/ }).click(); await openIn(/^Depositi e candidati/); await openIn(/^Camera ·/);
+  const summary = (pattern: RegExp) => article.locator('summary').filter({ hasText: pattern }).first();
+  const filingPath: ReturnType<typeof summary>[] = [];
+  const openIn = async (pattern: RegExp) => {
+    const branch = summary(pattern);
+    await expect(branch.locator('.summary-count')).toHaveText('· 1 candidati fissati');
+    filingPath.push(branch);
+    await branch.click();
+  };
+  await article.getByRole('button', { name: /^Opzioni lista/ }).click();
+  await openIn(/^Depositi e candidati/); await openIn(/^Camera(?: ·|$)/);
   await openIn(new RegExp(`^${territory.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
   await openIn(new RegExp(`^${college.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
-  await openIn(/^Candidati ·/);
+  const candidates = summary(/^Candidati(?: ·|$)/);
+  await expect(candidates.locator('.summary-count')).toHaveText('· 1 fissati');
+  await expect(candidates.locator('.summary-count')).toHaveCSS('font-weight', '400');
+  await candidates.click();
   const fourth = article.getByRole('combobox', { name: 'Candidato 4', exact: true });
   await expect(fourth).toHaveValue('older');
   expect(await article.getByRole('combobox', { name: 'Candidato 1', exact: true }).locator('option[value=young]').getAttribute('disabled')).not.toBeNull();
@@ -308,6 +330,8 @@ test('candidate trees retain sparse pins and explain disabled identities while f
   await fourth.selectOption('');
   expect((await draft(page)).lawSettings['politiche-reform-2026-v1'].placements).toEqual([]);
   expect((await draft(page)).candidates).toHaveLength(3);
+  for (const branch of filingPath) await expect(branch.locator('.summary-count')).toHaveCount(0);
+  await expect(candidates).toHaveText('Candidati');
 });
 
 test('advanced controls edit source membership, pooling provenance and model-specific fallback without losing inactive values', async ({ page }) => {

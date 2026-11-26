@@ -12,17 +12,6 @@ meantime, the linked file has been edited and the link has not been updated.
 - [ ] **UI polishing**
   - [ ] In [FilingTree](web\src\lib\politics\editor\FilingTree.svelte) and
     [ReferenceTree](web\src\lib\politics\editor\ReferenceTree.svelte):
-    - [ ] Some levels of FilingTree show "0 candidati fissati" when they (and 
-      their children) have 0 fixed candidates,
-      some other levels do not show anything when they (and their children) have
-      0 fixed candidates. We should uniform this behavior, a level should not 
-      show anything when it and its children have 0 fixed candidates. In ReferenceTree,
-      if a tree element has 0 references in it or in its children, it should not show
-      "0 dichiarazioni", just the element name.
-    - [ ] "n candidati fissati" should be visually distinguishable from the tree
-      element title, currently it is styled exactly the same. The same style should
-      be adopted for "n dichiarazioni" in ReferenceTree (with a common style 
-      definition, not repeated identical definitions).
     - [ ] A tree element without any controls in it nor in its children should not be 
       rendered at all. Currently,
       reform college elements for coalitions tree are shown even if they contain no

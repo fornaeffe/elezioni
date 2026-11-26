@@ -38,7 +38,7 @@
 {/if}
 {#if different && mode !== 'advanced'}<span class="badge">Riferimenti distinti per camera</span>{/if}
 {#if mode !== 'basic'}
-<LazySection title={`Riferimenti avanzati · ${rows.length} dichiarazioni`}>
+<LazySection title="Riferimenti avanzati" count={{ value: rows.length, label: 'dichiarazioni' }}>
   <ReferenceFields {scenario} {target} scope={{ kind: 'national' }} {label} {edit} showMean={false} showRemove={mode === 'advanced'} />
   {#each ['camera', 'senato'] as channel (channel)}
     <ReferenceFields {scenario} {target} scope={{ kind: 'national' }} channel={channel as 'camera' | 'senato'} label={`${label} ${channel === 'camera' ? 'Camera' : 'Senato'}`} {edit} {meanHelp} />

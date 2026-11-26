@@ -13,7 +13,7 @@
 </script>
 {#if nodes.length > 30}<label>Cerca territorio<input type="search" bind:value={query} oninput={() => limit = 40} /></label>{/if}
 {#each filtered.slice(0, limit) as node (scopeKey(node.scope))}
-  <LazySection title={`${node.name} · ${count(node)} riferimenti`}>
+  <LazySection title={node.name} count={{ value: count(node), label: 'dichiarazioni' }}>
     {#each ['common', 'camera', 'senato'] as channel (channel)}
       <ReferenceFields {scenario} {target} scope={node.scope} channel={channel as 'common' | 'camera' | 'senato'} label={`${node.name} ${channel === 'common' ? 'comune' : channel === 'camera' ? 'Camera' : 'Senato'}`} {edit} />
     {/each}
