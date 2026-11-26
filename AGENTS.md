@@ -101,6 +101,32 @@ stable instructions.
 - The scrutiny algorithms should follow the law as strictly as possible, adopting documented provisional fallback to overcome situations
   where a strict law application would prevent scrutiny completion. Ideally, given the same input of a real election (e.g. lists, votes, candidates...) it should return the real outcome (elected candidates).
 
+## UI theming and styling
+
+- Give each styling rule one owner. Prefer the simplest implementation that
+  meets the interaction and accessibility requirements. Remove obsolete rules
+  and components when replacing them.
+- Define global theme variables in a single `web/src/lib/ui/token.css`, loaded
+  by the root layout. Keep shared element defaults in a small, low-specificity
+  `base.css`. Promote repeated values to a theme token when they represent the
+  same role and should change together. Keep data-driven values, such as party
+  colors and chart measurements, with their data.
+- Prefer native HTML for controls, disclosures, dialogs, and other interactions
+  it can handle simply. Use Bits UI for behaviors that native elements would
+  require substantial code to provide. Use custom Svelte components for
+  reusable UI that neither already provides. Extract a subcomponent when it
+  has distinct state, substantial internal styling, or a clear reuse case.
+- Keep internal styles scoped to the component that renders the markup. Parents
+  own external placement, spacing, and available width. The root layout owns
+  the shared page frame. When a child needs a visual value from its parent,
+  expose a component-scoped CSS custom property with a default in the child.
+- Style Bits UI parts and states through their documented data attributes. Use
+  app-owned data attributes where needed to scope rules to a component,
+  including on portaled content. Use data attributes for custom component
+  variants or states where appropriate. Use the Bits UI `child` snippet with
+  scoped CSS or the `style` prop when it fits the use case better. Forward the
+  supplied props when rendering through `child`.
+
 ## Other general instructions
 
 - Use `$...$` and `$$...$$` syntax for markdown math formulas.
