@@ -230,15 +230,12 @@
     margin: 1rem 0;
   }
   select {
-    box-sizing: border-box;
     width: 100%;
     min-width: 0;
-    font: inherit;
-    padding: 0.5rem;
   }
   p {
     font-size: 0.85rem;
     line-height: 1.5;
-    color: #4d5963;
+    color: var(--color-text-muted);
   }
 </style>

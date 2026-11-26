@@ -70,11 +70,7 @@
   p {
     font-size: 0.85rem;
     line-height: 1.5;
-    color: #4d5963;
-  }
-  button {
-    font: inherit;
-    padding: 0.5rem;
+    color: var(--color-text-muted);
   }
   .table-scroll {
     overflow: auto;
@@ -86,7 +82,7 @@
   th,
   td {
     padding: 0.5rem;
-    border-bottom: 1px solid #e5e9ed;
+    border-bottom: 1px solid var(--color-border);
     text-align: left;
   }
 </style>

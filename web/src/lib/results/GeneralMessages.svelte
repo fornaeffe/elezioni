@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Notice from '$lib/ui/Notice.svelte';
   import type { ResultServiceClient } from '../core/result-service-client';
   import type { ScrutinyWarning, SimulationResult } from '../core/types';
   import { diagnosticScope, diagnosticTitle, diagnosticSeverityLabel } from '../core/diagnostic-messages';
@@ -36,14 +37,13 @@
 </script>
 
 <ResultSection title="Informazioni e avvisi generali">
-  {#if result.storage?.state === 'interrupted'}<p class="execution">
+  <div class="entries">
+  {#if result.storage?.state === 'interrupted'}<Notice as="div" severity="error">
       <strong>Calcolo interrotto: {processed}/{requested} simulazioni conservate.</strong>
        Le simulazioni non elaborate restano nel denominatore richiesto e non sono considerate prive di messaggi.
-    </p>{/if}
+    </Notice>{/if}
   {#each general.rows as w, i (generalOffset + i)}
-    <article
-      class={{ error: w.severity === 'error', warning: w.severity !== 'info' && w.severity !== 'error' }}
-    >
+    <Notice as="article" severity={w.severity ?? 'warning'}>
       <p class="scope">
         {diagnosticSeverityLabel(w.severity)} · {diagnosticScope(w) === 'global'
           ? 'Tutte le simulazioni'
@@ -63,8 +63,9 @@
         {#if w.lawReference}<p>Riferimento: {w.lawReference}</p>{/if}
         {#if w.todoReference}<p>{w.todoReference}</p>{/if}
       </ResultSection>
-    </article>
+    </Notice>
   {:else}<p>Nessun messaggio generale registrato.</p>{/each}
+  </div>
   {#if general.total > 50}<nav aria-label="Pagine messaggi generali">
       <button
         disabled={generalOffset === 0}
@@ -84,5 +85,12 @@
         Generali successivi
       </button>
     </nav>{/if}
-  {#if issue}<p role="status" class="error">{issue}</p>{/if}
+  {#if issue}<Notice as="p" severity="error" role="status">{issue}</Notice>{/if}
 </ResultSection>
+
+<style>
+  .entries { display: grid; gap: var(--space-2); margin-block: var(--space-2); }
+  h4 { margin-block: var(--space-2); }
+  .scope { margin: 0; font-size: var(--text-small); font-weight: 600; }
+  nav { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-block: var(--space-3); }
+</style>

@@ -2,7 +2,7 @@
   import { onMount, tick } from 'svelte';
   import { useStatus } from '$lib/app-status.svelte';
   import SplitButton from '$lib/ui/SplitButton.svelte';
-  import Toggletip from '$lib/ui/Toggletip.svelte';
+  import FieldWithHelp from '$lib/ui/FieldWithHelp.svelte';
   const appStatus = useStatus();
   import { type PoliticsScenario, type GeneratorId, type LawId, laws, REFORM } from '../scenario/schema';
   import { activeGenerator, capabilities, supportedPairs } from '../scenario/registry';
@@ -19,7 +19,6 @@
   import LazySection from './LazySection.svelte';
   import RunControls, { type ExecutionControls } from './RunControls.svelte';
   import CandidateForm from './CandidateForm.svelte';
-  import './editor.css';
   let { scenario, onchange, execution, stageExternalFile }: { scenario: PoliticsScenario; onchange: (next: PoliticsScenario) => void;
     execution?: ExecutionControls; stageExternalFile?: (file: File) => Promise<(() => void) | null> } = $props();
   const referenceDateId = $props.id();
@@ -83,33 +82,30 @@
   {#if issues.length}<LazySection title={`Verifica dello scenario · ${issues.length} problemi da correggere`}><ul>{#each issues as issue, i (`${issue.code}:${issue.path}:${i}`)}<li>{issue.code}: {issue.message}</li>{/each}</ul></LazySection>{/if}
   <fieldset disabled={execution?.busy}>
     <div class="row">
-      <label>Carica scenario<input type="file" accept=".json,.gz" onchange={e => { const file = e.currentTarget.files?.[0]; if (file) void importFile(file); e.currentTarget.value = ''; }} /></label>
+      <label data-field>Carica scenario<input type="file" accept=".json,.gz" onchange={e => { const file = e.currentTarget.files?.[0]; if (file) void importFile(file); e.currentTarget.value = ''; }} /></label>
       <SplitButton
         label="Download dello scenario"
         optionsLabel="Opzioni di download dello scenario"
+        disabled={execution?.busy}
         primary={{ label: 'Scarica scenario JSON.gz', run: () => download(true) }}
         options={[{ label: 'Scarica scenario JSON', run: () => download(false) }]}
       />
       <button onclick={() => { if (confirm('Ripristinare lo scenario predefinito? Le modifiche della bozza saranno sostituite.')) apply(() => createDefaultCommonPoliticsScenario()); }}>Ripristina scenario predefinito</button>
     </div>
     <div class="row">
-      <label>Nome scenario<input value={scenario.name} onchange={e => apply(s => editScenario(s, n => { n.name = e.currentTarget.value; }))} /></label>
-      <label>Data elezione<input type="date" value={scenario.electionDate} onchange={e => apply(s => editScenario(s, n => { n.electionDate = e.currentTarget.value; }))} /></label>
-      <label>Legge elettorale<select value={scenario.selection.scrutiny.id} onchange={e => apply(s => selectLaw(s, e.currentTarget.value as LawId))}>{#each laws as law (law)}<option value={law}>{lawName(law)}</option>{/each}</select></label>
-      <label>Camere da rinnovare<select value={scenario.renewal} onchange={e => apply(s => setRenewal(s, e.currentTarget.value as PoliticsScenario['renewal']))}><option value="joint">Camera e Senato</option><option value="camera">Solo Camera</option><option value="senato">Solo Senato</option></select></label>
+      <label data-field>Nome scenario<input value={scenario.name} onchange={e => apply(s => editScenario(s, n => { n.name = e.currentTarget.value; }))} /></label>
+      <label data-field>Data elezione<input type="date" value={scenario.electionDate} onchange={e => apply(s => editScenario(s, n => { n.electionDate = e.currentTarget.value; }))} /></label>
+      <label data-field>Legge elettorale<select value={scenario.selection.scrutiny.id} onchange={e => apply(s => selectLaw(s, e.currentTarget.value as LawId))}>{#each laws as law (law)}<option value={law}>{lawName(law)}</option>{/each}</select></label>
+      <label data-field>Camere da rinnovare<select value={scenario.renewal} onchange={e => apply(s => setRenewal(s, e.currentTarget.value as PoliticsScenario['renewal']))}><option value="joint">Camera e Senato</option><option value="camera">Solo Camera</option><option value="senato">Solo Senato</option></select></label>
     </div>
-    <SubjectsEditor {scenario} {assets} edit={apply} />
+    <div class="subjects"><SubjectsEditor {scenario} {assets} edit={apply} /></div>
     <LazySection title="Impostazioni avanzate dello scenario">
       <div>
-        <span class="field-with-tip">
-          <span class="field-caption">
-            <label for={referenceDateId}>Data di riferimento</label>
-            <Toggletip label="Data di riferimento" text="È la data a cui si riferiscono le quote inserite nello scenario e l’ultimo giorno utile per i risultati storici e i sondaggi. Il modello proietta il voto da questa data fino all’elezione. Può coincidere con la data dell’elezione o precederla." />
-          </span>
+        <FieldWithHelp id={referenceDateId} label="Data di riferimento" help="È la data a cui si riferiscono le quote inserite nello scenario e l’ultimo giorno utile per i risultati storici e i sondaggi. Il modello proietta il voto da questa data fino all’elezione. Può coincidere con la data dell’elezione o precederla.">
           <input id={referenceDateId} type="date" value={scenario.referenceDate} onchange={e => apply(s => editScenario(s, n => { n.referenceDate = e.currentTarget.value; }))} />
-        </span>
+        </FieldWithHelp>
       </div>
-      <label>Generatore dei voti<select aria-label="Generatore dei voti" value={generator.id} onchange={e => { const model = modelRegistry[e.currentTarget.value as GeneratorId]; apply(s => selectGenerator(s, model.id, model.version)); }}>
+      <label data-field>Generatore dei voti<select aria-label="Generatore dei voti" value={generator.id} onchange={e => { const model = modelRegistry[e.currentTarget.value as GeneratorId]; apply(s => selectGenerator(s, model.id, model.version)); }}>
         {#each generationModels.filter(m => supportedPairs.some(p => p.law === scenario.selection.scrutiny.id && p.generator === m.id)) as model (model.id)}<option value={model.id}>{model.label}</option>{/each}
       </select></label>
       <p>{capabilities(scenario).generator.referenceSd ? 'M02: campo politico condiviso, incertezza dei riferimenti e raggruppamento di componenti. Le differenze fra Camera e Senato restano quelle della storia abbinata e dei riferimenti espliciti; le loro variazioni future non sono stimate.' : 'M01: composizioni storiche e shock di lista. SD e moltiplicatori M02 restano salvati, inattivi.'}</p>
@@ -121,5 +117,15 @@
       </LazySection>
     </LazySection>
   </fieldset>
-  <RunControls {scenario} {execution} edit={apply} />
+  <div class="run"><RunControls {scenario} {execution} edit={apply} /></div>
 </div>
+
+<style>
+  .common-politics-editor { line-height: 1.5; }
+  fieldset { min-inline-size: 0; border: 0; padding: 0; margin: 0; }
+  .row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+  .row + .row { margin-block-start: var(--space-3); }
+  .subjects, .run { margin-block: 1.5rem; }
+
+  @media (width <= 650px) { .row > label { inline-size: 100%; } }
+</style>

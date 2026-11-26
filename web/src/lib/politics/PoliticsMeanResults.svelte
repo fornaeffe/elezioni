@@ -64,7 +64,7 @@
   p {
     font-size: 0.85rem;
     line-height: 1.5;
-    color: #4d5963;
+    color: var(--color-text-muted);
   }
   label {
     display: grid;
@@ -72,11 +72,6 @@
     margin: 1rem 0;
   }
   select {
-    font: inherit;
-    padding: 0.5rem;
-  }
-  select {
-    box-sizing: border-box;
     width: 100%;
     min-width: 0;
   }

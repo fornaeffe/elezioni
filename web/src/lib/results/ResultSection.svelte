@@ -31,22 +31,17 @@
   details {
     min-width: 0;
     margin: 0;
-    border-bottom: 1px solid #e5e9ed;
-    padding: 1rem 0;
+    border-block-end: 1px solid var(--color-border);
+    padding-block: var(--space-4);
   }
   summary {
-    cursor: pointer;
-    color: #4d5963;
-    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    font-size: var(--text-small);
     font-weight: 750;
-  }
-  summary:focus-visible {
-    outline: 2px solid #3878a0;
-    outline-offset: 0.25rem;
   }
   details.compact {
     border: 0;
-    padding: 0.25rem 0;
+    padding-block: var(--space-1);
   }
   .compact > summary {
     font-size: inherit;

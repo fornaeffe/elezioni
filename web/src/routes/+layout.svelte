@@ -5,6 +5,8 @@
   import { page } from '$app/state';
   import { resolve } from '$app/paths';
   import { House } from '@lucide/svelte';
+  import '$lib/ui/token.css';
+  import '$lib/ui/base.css';
   const status = provideStatus();
   let { children }: { children: Snippet } = $props();
   const isLanding = $derived(page.route.id === '/');
@@ -28,9 +30,6 @@
   </footer>
 </div>
 <style>
-  :global(body) { margin: 0; background: #f4f7f8; color: #15232d; font-family: system-ui, sans-serif; }
-  :global(*), :global(*::before), :global(*::after) { box-sizing: border-box; }
-
   .app-shell {
     --page-content-width: 90rem;
     --page-gutter: clamp(0.75rem, 2vw, 1.5rem);
@@ -46,9 +45,8 @@
   }
 
   .site-header { min-height: 3.25rem; padding-block: 0.45rem; display: flex; align-items: center; }
-  .home-button { display: inline-flex; align-items: center; justify-content: center; width: 2.25rem; height: 2.25rem; border-radius: 6px; color: inherit; }
-  .home-button:hover { background: #e5ecef; }
-  .home-button:focus-visible, .site-footer a:focus-visible { outline: 2px solid #315f75; outline-offset: 2px; }
+  .home-button { display: inline-flex; align-items: center; justify-content: center; width: 2.25rem; height: 2.25rem; border-radius: var(--radius-control); color: inherit; }
+  .home-button:hover { background: var(--color-action-hover); }
   .site-main { flex: 1 0 auto; padding-block: 1rem 3rem; }
   .site-main.landing {
     display: grid;
@@ -56,6 +54,6 @@
     align-content: center;
     padding-block: 2rem;
   }
-  .site-footer { min-height: 2.75rem; display: flex; align-items: center; padding-block: 0.5rem; border-top: 1px solid #d7e0e5; font-size: 0.85rem; text-align: center; }
-  .site-footer a { color: #405b6a; }
+  .site-footer { min-height: 2.75rem; display: flex; align-items: center; padding-block: var(--space-2); border-top: 1px solid var(--color-border); font-size: var(--text-small); text-align: center; }
+  .site-footer a { color: var(--color-text-muted); }
 </style>

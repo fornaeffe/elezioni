@@ -2,6 +2,7 @@
   import { useStatus } from '$lib/app-status.svelte';
   const appStatus = useStatus();
   import WorkspaceMessages from './WorkspaceMessages.svelte';
+  import Notice from '$lib/ui/Notice.svelte';
   import { navigateWorkspaceImport } from './navigation';
   import { takeWorkspaceImport } from './handoff';
   import WorkspaceShell from './WorkspaceShell.svelte';
@@ -496,11 +497,11 @@
   </section>
 
   {#if validationMessages.length > 0}
-    <section class="message-list warning" aria-label="Validazione scenario">
+    <Notice as="section" severity="warning" aria-label="Validazione scenario">
       {#each validationMessages as message, i (i)}
         <p>{message}</p>
       {/each}
-    </section>
+    </Notice>
   {/if}
 
   <WorkspaceMessages messages={messages.filter(m => !['WORKER_ERROR', 'SCENARIO_LOAD_ERROR', 'RESULT_LOAD_ERROR', 'DOWNLOAD_ERROR'].includes(m.code))} result={lastResult} />
@@ -778,7 +779,7 @@
     <RegionalErResultCharts charts={resultCharts} />
 
     {#if resultScenarioChanged}
-      <div class="stale-result-warning" role="alert" data-testid="regional-stale-result-warning">
+      <Notice severity="warning" role="alert" data-testid="regional-stale-result-warning">
         <p>
           <strong>Scenario modificato.</strong> I risultati mostrati si riferiscono allo scenario precedente.
           Riesegui la simulazione per aggiornarli oppure ripristina lo scenario associato ai risultati.
@@ -793,7 +794,7 @@
             Ripristina scenario dei risultati
           </button>
         </div>
-      </div>
+      </Notice>
     {/if}
 
     {#if primaryTables.length === 0}
@@ -803,9 +804,7 @@
         {#each primaryTables as table (table.name)}
           <section class="table-block">
             <h3>{table.name}</h3>
-            <div class="table-wrap">
-              <ResultTableView {table} />
-            </div>
+            <ResultTableView {table} />
           </section>
         {/each}
       </div>
@@ -820,9 +819,7 @@
           {#each diagnosticTables as table (table.name)}
             <section class="table-block">
               <h3>{table.name}</h3>
-              <div class="table-wrap">
-                <ResultTableView {table} />
-              </div>
+              <ResultTableView {table} />
             </section>
           {/each}
         </div>
@@ -841,12 +838,11 @@
   }
 
   .toolbar,
-  .panel,
-  .message-list {
-    background: #ffffff;
-    border: 1px solid #dce5e9;
-    border-radius: 8px;
-    padding: 1rem;
+  .panel {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-panel);
+    padding: var(--space-4);
   }
 
   .toolbar {
@@ -872,7 +868,7 @@
 
   .toolbar p,
   .empty {
-    color: #60727e;
+    color: var(--color-text-muted);
     margin-top: 0.35rem;
   }
 
@@ -907,29 +903,10 @@
     display: grid;
     gap: 0.25rem;
     font-size: 0.8rem;
-    color: #4b5f6c;
+    color: var(--color-text-muted);
   }
 
-  input,
-  select,
-  button {
-    font: inherit;
-  }
-
-  input,
-  select {
-    min-height: 2.2rem;
-    border: 1px solid #cfdce3;
-    border-radius: 6px;
-    padding: 0.35rem 0.5rem;
-    background: #ffffff;
-    color: #182733;
-  }
-
-  input[type='color'] {
-    width: 2.5rem;
-    padding: 0.15rem;
-  }
+  label :is(input, select) { color: var(--color-text); }
 
   input[type='number'] {
     width: 7rem;
@@ -937,20 +914,9 @@
 
   button {
     min-height: 2.2rem;
-    border: 1px solid #c5d4dc;
-    border-radius: 6px;
-    padding: 0.4rem 0.7rem;
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
-    color: #182733;
-    background: #ffffff;
-    cursor: pointer;
-  }
-
-  button:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
+    gap: var(--space-2);
   }
 
 
@@ -959,7 +925,7 @@
     border: 0;
     padding: 0;
     min-height: auto;
-    color: #245d73;
+    color: var(--color-accent);
     background: transparent;
   }
 
@@ -995,32 +961,11 @@
     justify-content: start;
   }
 
-  .message-list {
-    display: grid;
-    gap: 0.4rem;
-  }
-
-
-  .message-list.warning {
-    border-color: #e4c785;
-    background: #fff7df;
-  }
-
-  .stale-result-warning {
-    display: grid;
-    gap: 10px;
-    margin: 16px;
-    border-left: 4px solid #c4822e;
-    background: #fff7ec;
-    padding: 10px 12px;
-    color: #6f4315;
-    font-size: 13px;
-  }
-
   .stale-result-actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: var(--space-2);
+    margin-block-start: var(--space-2);
   }
 
   .hidden-input {
@@ -1028,12 +973,11 @@
   }
 
   details {
-    border-top: 1px solid #e3ebef;
+    border-top: 1px solid var(--color-border);
     padding-top: 1rem;
   }
 
   summary {
-    cursor: pointer;
     font-weight: 700;
   }
 
@@ -1056,8 +1000,8 @@
   .location-results {
     display: grid;
     min-width: min(30rem, 100%);
-    border: 1px solid #d6e1e6;
-    border-radius: 6px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-control);
     overflow: hidden;
   }
 
@@ -1065,21 +1009,23 @@
     justify-content: space-between;
     border: 0;
     border-radius: 0;
-    border-bottom: 1px solid #e5edf1;
+    border-bottom: 1px solid var(--color-border);
   }
+
+  .location-results button:focus-visible { outline-offset: -2px; }
 
   .location-results button:last-child {
     border-bottom: 0;
   }
 
   .location-results span:last-child {
-    color: #667984;
+    color: var(--color-text-muted);
     font-size: 0.78rem;
   }
 
   .local-group {
-    border: 1px solid #dce5e9;
-    border-radius: 8px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-panel);
     padding: 0.75rem;
     display: grid;
     gap: 0.5rem;
@@ -1091,18 +1037,10 @@
     align-items: center;
   }
 
-  .table-wrap {
-    overflow: auto;
-    border: 1px solid #dce5e9;
-    border-radius: 8px;
-  }
-
-
-
-
+  .table-block { min-inline-size: 0; --result-table-border: 1px solid var(--color-border); }
 
   .elapsed {
-    color: #637783;
+    color: var(--color-text-muted);
     font-variant-numeric: tabular-nums;
   }
 

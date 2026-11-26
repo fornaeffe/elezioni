@@ -115,7 +115,7 @@
     </button>
   </div>
   {#if error}<p role="alert">{error}</p>{/if}
-  {#if table}<div class="table-scroll"><ResultTableView {table} /></div>{/if}
+  {#if table}<ResultTableView {table} />{/if}
 </ResultSection>
 
 <style>
@@ -129,16 +129,5 @@
     flex-wrap: wrap;
     gap: 0.5rem;
     align-items: center;
-  }
-  input,
-  select,
-  button {
-    max-width: 100%;
-    box-sizing: border-box;
-    padding: 0.5rem;
-    font: inherit;
-  }
-  .table-scroll {
-    overflow: auto;
   }
 </style>

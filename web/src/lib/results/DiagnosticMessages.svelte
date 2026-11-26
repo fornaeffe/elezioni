@@ -3,7 +3,6 @@
   import type { SimulationResult } from '../core/types';
   import GeneralMessages from './GeneralMessages.svelte';
   import SimulationMessages from './SimulationMessages.svelte';
-  import './diagnostic-messages.css';
 
   let {
     client,
@@ -22,3 +21,7 @@
   <GeneralMessages {client} {result} {owner} />
   <SimulationMessages {client} {result} {owner} {onInspect} />
 </div>
+
+<style>
+  .messages { min-inline-size: 0; margin-block: var(--space-4); }
+</style>

@@ -52,6 +52,6 @@
 
 <style>
   .series-panel { min-height: 5rem; min-width: 0; }
-  h4 { font-size: .85rem; margin: .75rem 0; color: #697681; }
-  .coverage { font-size: .8rem; color: #697681; padding: 0 1rem; }
+  h4 { font-size: .85rem; margin: .75rem 0; color: var(--color-text-muted); }
+  .coverage { font-size: .8rem; color: var(--color-text-muted); padding: 0 1rem; }
 </style>

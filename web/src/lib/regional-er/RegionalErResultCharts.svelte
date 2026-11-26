@@ -71,7 +71,7 @@
   .track {
     height: 0.7rem;
     overflow: hidden;
-    background: #e6edf1;
+    background: var(--color-track);
     border-radius: 999px;
   }
 

@@ -1,0 +1,71 @@
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--color-background);
+  color: var(--color-text);
+  font-family: var(--font-ui);
+}
+
+:where(button, input, select, textarea), :where(input)::file-selector-button {
+  font: inherit;
+  color: inherit;
+}
+
+:where(button, select, textarea, input:not([type=checkbox], [type=radio], [type=range], [type=hidden])) {
+  max-inline-size: 100%;
+  padding: var(--space-2);
+  border: 1px solid var(--color-control-border);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+}
+
+:where(button) { background: var(--color-action); }
+:where(button:enabled, summary) { cursor: pointer; }
+:where(button:enabled:hover) { background: var(--color-action-hover); }
+:where(button:disabled, input:disabled, select:disabled, textarea:disabled) { opacity: 0.65; }
+:where(input[type=checkbox], input[type=radio], input[type=range]) { accent-color: var(--color-accent); }
+:where(input[type=color]) { inline-size: 3rem; block-size: 2.5rem; padding: var(--space-1); }
+
+:where([data-field]) {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+
+@media (width <= 650px) {
+  :where([data-field]) { display: flex; }
+  :where([data-field] > :is(select, input:not([type=checkbox], [type=radio], [type=color]))) {
+    inline-size: 100%;
+    min-inline-size: 0;
+  }
+}
+
+:where(button[data-variant=primary]) {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font-weight: 700;
+}
+
+:where(button[data-variant=primary]:enabled:hover) { background: var(--color-accent-hover); }
+
+:where(:focus-visible) {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+.visually-hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

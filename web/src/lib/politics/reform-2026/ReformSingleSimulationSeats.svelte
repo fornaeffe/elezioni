@@ -139,19 +139,12 @@
     gap: 0.5rem;
     align-items: center;
   }
-  input,
-  select {
-    max-width: 100%;
-    box-sizing: border-box;
-    padding: 0.5rem;
-    font: inherit;
-  }
   .seat-track {
     display: inline-block;
     width: 10rem;
     max-width: 100%;
     height: 0.75rem;
-    background: #e8edf1;
+    background: var(--color-track);
     border-radius: 1rem;
     overflow: hidden;
     vertical-align: middle;

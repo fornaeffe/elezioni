@@ -167,8 +167,12 @@ test('explicit cancellation locks execution and retains assigned simulation IDs 
   await page.getByRole('button', { name: 'Avvia simulazione', exact: true }).click();
   await expect(page.getByRole('combobox', { name: 'Legge elettorale', exact: true })).toBeDisabled();
   await expect(page.getByRole('button', { name: 'Genera seed casuale delle simulazioni', exact: true })).toBeDisabled();
+  const scenarioDownload = page.getByRole('group', { name: 'Download dello scenario' });
+  await expect(scenarioDownload.getByRole('button', { name: 'Scarica scenario JSON.gz' })).toBeDisabled();
+  await expect(scenarioDownload.getByRole('button', { name: 'Opzioni di download dello scenario' })).toBeDisabled();
   await page.getByRole('button', { name: /^Stato:/ }).click(); await page.getByRole('button', { name: 'Annulla', exact: true }).first().click();
   await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText('Esecuzione interrotta', { timeout: 60000 });
+  await expect(scenarioDownload.getByRole('button', { name: 'Opzioni di download dello scenario' })).toBeEnabled();
   const result = await saved(page), n = result.result.completedSimulations;
   expect(n).toBeLessThan(10); expect(result.result.benchmark.simulations).toBe(10);
   expect(result.politics.run.session.simulations.map((s: any) => s.id)).toEqual(Array.from({ length: n }, (_, i) => i + 1));

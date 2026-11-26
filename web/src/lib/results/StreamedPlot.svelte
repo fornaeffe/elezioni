@@ -18,7 +18,10 @@
       const left = outliers ? 0 : 64, top = outliers ? 0 : 16, plotWidth = width - left - (outliers ? 0 : 16), plotHeight = height - (outliers ? 0 : 66);
       context.clearRect(0, 0, width, height);
       if (!outliers) {
-        context.strokeStyle = '#c8d0d7'; context.fillStyle = '#697681'; context.font = '12px system-ui';
+        const theme = getComputedStyle(canvas);
+        context.strokeStyle = theme.getPropertyValue('--color-chart-axis').trim();
+        context.fillStyle = theme.color;
+        context.font = `12px ${theme.fontFamily}`;
         context.beginPath(); context.moveTo(left, top); context.lineTo(left, top + plotHeight); context.lineTo(left + plotWidth, top + plotHeight); context.stroke();
         for (let i = 0; i <= 4; i++) {
           context.textAlign = 'center'; context.fillText(`${displayNumber(maxX * i / 4)}%`, left + plotWidth * i / 4, top + plotHeight + 22);
@@ -61,8 +64,8 @@
 
 <style>
   .streamed-plot { width: 100%; min-width: 0; }
-  canvas { display: block; width: 100%; height: auto; }
-  p { margin: .25rem 0; font-size: .8rem; color: #697681; }
+  canvas { display: block; width: 100%; height: auto; color: var(--color-text-muted); }
+  p { margin: .25rem 0; font-size: .8rem; color: var(--color-text-muted); }
   .outliers { position: absolute; inset: 0; pointer-events: none; }
   .outliers canvas { height: 22px; }
 </style>

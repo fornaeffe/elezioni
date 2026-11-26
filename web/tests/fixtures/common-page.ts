@@ -59,7 +59,7 @@ export async function downloadCommon(page: Page, name: string) {
 }
 export async function expectStatusError(page: Page, message: string | RegExp) {
     const box = page.locator('aside[aria-label="Stato dell\'applicazione"]');
-    await expect(box).toHaveClass(/error/);
+    await expect(box).toHaveAttribute('data-state', 'error');
     const toggle = box.getByRole('button', { name: /^Stato:/ });
     if (await toggle.getAttribute('aria-expanded') !== 'true') await toggle.click();
     await expect(box.getByText(message)).toBeVisible();

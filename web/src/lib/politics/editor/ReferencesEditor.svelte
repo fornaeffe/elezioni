@@ -1,5 +1,6 @@
 <script lang="ts">
-  import Toggletip from '$lib/ui/Toggletip.svelte';
+  import FieldWithHelp from '$lib/ui/FieldWithHelp.svelte';
+  import Badge from '$lib/ui/Badge.svelte';
   import type { PoliticsScenario } from '../scenario/schema';
   import { capabilities } from '../scenario/registry';
   import type { EditorAssets } from './assets';
@@ -16,7 +17,7 @@
     { key: 'local', label: 'Moltiplicatore locale comune (adimensionale)',
       help: 'Regola quanto può variare il sostegno alla lista da comune a comune nelle simulazioni M02, per Camera e Senato. Usa 1 per la variabilità predefinita, 0 per azzerare questa fonte di variabilità e un valore maggiore di 1 per aumentarla.' }
   ] as const;
-  let { scenario, target, label, assets, edit, mode = 'all' }: { scenario: PoliticsScenario; target: ReferenceTarget; label: string; assets: EditorAssets | null; edit: ApplyEdit; mode?: 'all' | 'basic' | 'advanced' } = $props();
+  let { scenario, target, label, assets, edit, mode = 'all', hideCaptionOnWide = false }: { scenario: PoliticsScenario; target: ReferenceTarget; label: string; assets: EditorAssets | null; edit: ApplyEdit; mode?: 'all' | 'basic' | 'advanced'; hideCaptionOnWide?: boolean } = $props();
   const multiplierId = $props.id();
   const generator = $derived(capabilities(scenario).generator);
   const meanHelp = $derived(nationalReferenceHelp(generator.id, target?.kind ?? 'non-valid'));
@@ -34,9 +35,9 @@
   }
 </script>
 {#if mode !== 'advanced'}
-<ReferenceFields {scenario} {target} scope={{ kind: 'national' }} {label} {edit} {meanHelp} showSd={false} compact={mode === 'basic'} showRemove={mode !== 'basic'} />
+<ReferenceFields {scenario} {target} scope={{ kind: 'national' }} {label} {edit} {meanHelp} showSd={false} {hideCaptionOnWide} showRemove={mode !== 'basic'} />
 {/if}
-{#if different && mode !== 'advanced'}<span class="badge">Riferimenti distinti per camera</span>{/if}
+{#if different && mode !== 'advanced'}<Badge>Riferimenti distinti per camera</Badge>{/if}
 {#if mode !== 'basic'}
 <LazySection title="Riferimenti avanzati" count={{ value: rows.length, label: 'dichiarazioni' }}>
   <ReferenceFields {scenario} {target} scope={{ kind: 'national' }} {label} {edit} showMean={false} showRemove={mode === 'advanced'} />
@@ -47,13 +48,17 @@
       {@const values = effectiveUncertaintyMultipliers(scenario, target.id, 'camera')}
       {#each multiplierFields as { key, label: fieldLabel, help } (key)}
         {@const id = `${multiplierId}-${key}`}
-        <span class="field-with-tip">
-          <span class="field-caption"><label for={id}>{fieldLabel}</label><Toggletip label={fieldLabel} text={help} /></span>
+        <FieldWithHelp {id} label={fieldLabel} {help}>
           <input {id} type="number" min="0" step="any" value={values[key]} onchange={e => multiplier(key, e.currentTarget.value)} />
-        </span>
+        </FieldWithHelp>
       {/each}
   {/if}
   {#if assets}<ReferenceTree {scenario} {target} nodes={assets.references} {edit} />{:else}<p>Dati territoriali in caricamento.</p>{/if}
 </LazySection>
 
 {/if}
+
+<style>
+  input { inline-size: 8rem; }
+  @media (width <= 650px) { input { inline-size: 100%; } }
+</style>

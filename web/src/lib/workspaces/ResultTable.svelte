@@ -10,9 +10,13 @@
   </table>
 </div>
 <style>
-  .table-scroll { overflow: auto; }
+  .table-scroll {
+    overflow: auto;
+    border: var(--result-table-border, 0);
+    border-radius: var(--radius-panel);
+  }
   table { width: 100%; border-collapse: collapse; font-size: .9rem; }
   caption { text-align: left; font-weight: 650; padding: .75rem 0; }
-  th, td { padding: .5rem; text-align: left; border-bottom: 1px solid #d7e0e5; max-width: 40rem; overflow-wrap: anywhere; }
-  th { background: #f3f6f8; }
+  th, td { padding: var(--space-2); text-align: start; border-block-end: 1px solid var(--color-border); max-width: 40rem; overflow-wrap: anywhere; }
+  th { background: var(--color-surface-muted); }
 </style>

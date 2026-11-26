@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Notice from '$lib/ui/Notice.svelte';
   import { onMount, tick } from 'svelte';
   import { useStatus } from '$lib/app-status.svelte';
   const appStatus = useStatus();
@@ -111,11 +112,11 @@
     {#if view.viewed?.politics}
       {@const record = view.viewed}
       <p>Scenario eseguito: {record.politics!.run.executedScenario.name} · {record.politics!.run.execution.generator.id}@{record.politics!.run.execution.generator.version} · {record.result.completedSimulations}/{record.result.benchmark.simulations} simulazioni conservate · worker effettivi {record.politics!.run.execution.actualWorkers}.</p>
-      {#if view.stale}<p role="status">Lo scenario è stato modificato: questi 
+      {#if view.stale}<Notice as="p" severity="warning" role="status">Lo scenario è stato modificato: questi
         risultati si riferiscono ad uno scenario precedente, che è conservato 
         insieme ai risultati ed è possibile ripristinare. Per ottenere i risultati
-        relativi allo scenario modificato occorre avviare una nuova simulazione.</p>{/if}
-      {#if view.recommendation}<p role="status">Le 10 simulazioni sono riuscite. Per risultati significativi consigliamo 1.000 simulazioni: modifica il numero e avvia una nuova esecuzione.</p>{/if}
+        relativi allo scenario modificato occorre avviare una nuova simulazione.</Notice>{/if}
+      {#if view.recommendation}<Notice as="p" severity="info" role="status">Le 10 simulazioni sono riuscite. Per risultati significativi consigliamo 1.000 simulazioni: modifica il numero e avvia una nuova esecuzione.</Notice>{/if}
     {/if}
     <details class="result-transfer">
       <summary>Caricamento, selezione e download dei risultati</summary>
@@ -141,7 +142,9 @@
   </section>
 {/if}
 <style>
-  .sessions { margin-block-start: 1rem; padding-block-start: 1rem; border-top: 1px solid #cbd5e1; }
-  .result-transfer { margin-block: .75rem 1rem; } .result-transfer > summary { cursor: pointer; font-weight: 600; } label { display: grid; gap: .4rem; margin: .75rem 0; } .controls { display: flex; flex-wrap: wrap; gap: .75rem; }
-  input, select, button { max-width: 100%; box-sizing: border-box; padding: .5rem; font: inherit; }
+  .sessions { margin-block-start: var(--space-4); padding-block-start: var(--space-4); border-top: 1px solid var(--color-border); }
+  .result-transfer { margin-block: var(--space-3) var(--space-4); }
+  .result-transfer > summary { font-weight: 600; }
+  label { display: grid; gap: var(--space-1); margin-block: var(--space-3); }
+  .controls { display: flex; flex-wrap: wrap; gap: var(--space-3); }
 </style>

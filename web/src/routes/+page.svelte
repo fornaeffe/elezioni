@@ -41,7 +41,7 @@
     margin: 0;
     font-size: 0.8rem;
     text-transform: uppercase;
-    color: #5e6f7b;
+    color: var(--color-text-muted);
     font-weight: 700;
   }
 
@@ -65,16 +65,16 @@
     gap: 1rem;
     min-height: 9rem;
     padding: 1.25rem;
-    border: 1px solid #d7e0e5;
+    border: 1px solid var(--color-border);
     border-radius: 8px;
-    background: #ffffff;
+    background: var(--color-surface);
     color: inherit;
     text-decoration: none;
     box-shadow: 0 10px 30px rgba(25, 46, 61, 0.08);
   }
 
   .workflow:hover {
-    border-color: #8aa7b8;
+    border-color: var(--color-control-border);
   }
 
   .workflow span {
@@ -87,7 +87,7 @@
   }
 
   .workflow small {
-    color: #5e6f7b;
+    color: var(--color-text-muted);
     line-height: 1.45;
   }
 

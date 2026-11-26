@@ -19,11 +19,11 @@
 <style>
   .paired-bars { display: grid; gap: .5rem; margin: 1rem 0; font-size: .85rem; }
   .heading, .row { display: grid; grid-template-columns: minmax(8rem, 1fr) 2fr 2fr; gap: 1rem; align-items: center; }
-  .heading { font-weight: 700; color: #4d5963; }
+  .heading { font-weight: 700; color: var(--color-text-muted); }
   .label { overflow-wrap: anywhere; }
   .value { display: grid; grid-template-columns: 1fr 5rem; gap: .5rem; align-items: center; }
   strong { font-variant-numeric: tabular-nums; text-align: right; font-weight: 600; }
-  .track { background: #e8edf1; height: .75rem; border-radius: 1rem; overflow: hidden; }
+  .track { background: var(--color-track); height: .75rem; border-radius: 1rem; overflow: hidden; }
   .track > span { display: block; height: 100%; }
   @media (max-width: 600px) { .heading, .row { gap: .5rem; grid-template-columns: minmax(5rem, 1fr) 1.5fr 1.5fr; } .value { grid-template-columns: 1fr; gap: .2rem; } strong { text-align: left; } }
 </style>

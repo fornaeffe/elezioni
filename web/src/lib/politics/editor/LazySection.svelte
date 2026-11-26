@@ -17,8 +17,20 @@
 </details>
 
 <style>
+  details {
+    min-inline-size: 0;
+    margin-block: var(--space-2);
+    padding: var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-panel);
+    background: var(--color-surface);
+  }
+
+  summary { font-weight: 600; overflow-wrap: anywhere; }
+  :global(details) details { background: var(--color-surface-muted); }
+
   .summary-count {
-    color: #4d6272;
+    color: var(--color-text-muted);
     font-size: 0.875em;
     font-weight: 400;
   }

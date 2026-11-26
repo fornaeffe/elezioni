@@ -65,9 +65,9 @@
 </div>
 <style>
   label { display: grid; gap: .5rem; margin: 1rem 0; }
-  select { box-sizing: border-box; width: 100%; min-width: 0; padding: .5rem; font: inherit; }
-  p { font-size: .85rem; line-height: 1.5; color: #4d5963; }
+  select { width: 100%; min-width: 0; }
+  p { font-size: .85rem; line-height: 1.5; color: var(--color-text-muted); }
   .table-scroll { overflow: auto; }
   table { border-collapse: collapse; font-size: .8rem; width: 100%; }
-  th, td { padding: .5rem; border-bottom: 1px solid #e5e9ed; text-align: left; }
+  th, td { padding: .5rem; border-bottom: 1px solid var(--color-border); text-align: left; }
 </style>

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Notice from '$lib/ui/Notice.svelte';
   import type { SimulationResult } from '../core/types';
   let { messages = [], result }: { messages?: { code?: string; message: string; severity?: 'info' | 'warning' | 'error' }[]; result?: SimulationResult | null } = $props();
   // Action feedback (including reset/import) must not hide the interpretation
@@ -8,17 +9,20 @@
     { label: 'Note simulazione', severity: 'info', values: combined.filter(m => m.severity === 'info') },
     { label: 'Avvisi simulazione', severity: 'warning', values: combined.filter(m => m.severity !== 'info' && m.severity !== 'error') },
     { label: 'Errori simulazione', severity: 'error', values: combined.filter(m => m.severity === 'error') },
-  ]);
+  ] as const);
 </script>
-{#each groups as group (group.severity)}
-  {#if group.values.length}<section class={group.severity} aria-label={group.label} role={group.severity === 'error' ? 'alert' : undefined}>
-    {#each group.values as message, i (i)}<p>{#if message.code}<strong>{message.code}</strong>: {/if}{message.message}</p>{/each}
-  </section>{/if}
-{/each}
+{#if combined.length}
+  <div class="messages">
+    {#each groups as group (group.severity)}
+      {#if group.values.length}
+        <Notice as="section" severity={group.severity} aria-label={group.label} role={group.severity === 'error' ? 'alert' : undefined}>
+          {#each group.values as message, i (i)}<p>{#if message.code}<strong>{message.code}</strong>: {/if}{message.message}</p>{/each}
+        </Notice>
+      {/if}
+    {/each}
+  </div>
+{/if}
 <style>
-  section { padding: .75rem 1rem; border-radius: .4rem; margin: .75rem 0; overflow-wrap: anywhere; }
-  .info { background: #edf6fb; border: 1px solid #c6dfef; }
-  .warning { background: #fff8e5; border: 1px solid #e7d69a; }
-  .error { background: #fff0ed; border: 1px solid #e8bbb2; }
-  p { margin: .35rem 0; }
+  .messages { display: grid; gap: var(--space-3); }
+  p { margin-block: var(--space-1); }
 </style>

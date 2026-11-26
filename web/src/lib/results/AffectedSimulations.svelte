@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Notice from '$lib/ui/Notice.svelte';
   import type { ResultServiceClient } from '../core/result-service-client';
   import type { ScrutinyWarning, SimulationResult } from '../core/types';
   import {
@@ -175,7 +176,7 @@
         ? `Messaggi originali della simulazione ${inspecting}`
         : 'Testi originali salvati (ID esatti non disponibili)'}
     </h4>
-    {#if context}{#each context.rows as w, i (contextOffset + i)}<article>
+    {#if context}<div class="contexts">{#each context.rows as w, i (contextOffset + i)}<Notice as="article" severity={w.severity ?? 'warning'}>
           <p>{w.message}</p>
           <p>
             {w.occurrences ?? 1} occorrenze ·
@@ -191,7 +192,7 @@
             </p>{/if}{#if w.drawContextId}<p>Sorteggio: {w.drawContextId}</p>{/if}{#if w.todoReference}<p>
               {w.todoReference}
             </p>{/if}
-        </article>{/each}
+        </Notice>{/each}</div>
       {#if context.total > 50}<nav aria-label="Pagine contesti">
           <button
             disabled={contextOffset === 0}
@@ -214,4 +215,14 @@
     {:else}<p role="status">Caricamento messaggi originali…</p>{/if}
   {/if}
 </section>
-{#if issue}<p role="status" class="error">{issue}</p>{/if}
+{#if issue}<Notice as="p" severity="error" role="status">{issue}</Notice>{/if}
+
+<style>
+  form, nav { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-block: var(--space-3); }
+  form { align-items: end; }
+  nav { align-items: center; }
+  label { display: grid; gap: var(--space-1); max-inline-size: 100%; }
+  .ids { padding-inline-start: 1.3rem; }
+  .ids li { margin-block: var(--space-2); }
+  .contexts { display: grid; gap: var(--space-2); }
+</style>

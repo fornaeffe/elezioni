@@ -45,15 +45,20 @@ test('common law/model selections, deferred settings, seeds and locks survive re
   expect(stored.execution.fittingSeed).toBe('fit-preserved');
   expect(stored.execution.simulationSeed).not.toBe(before.execution.simulationSeed);
   expect(stored.modelSettings).toEqual(authored.modelSettings);
+  const gzipDownload = page.getByRole('button', { name: 'Scarica scenario JSON.gz', exact: true });
   const downloadOptions = page.getByRole('button', { name: 'Opzioni di download dello scenario', exact: true });
-  const jsonDownload = page.getByRole('button', { name: 'Scarica scenario JSON', exact: true });
+  const jsonDownload = page.getByRole('menuitem', { name: 'Scarica scenario JSON', exact: true });
   await expect(jsonDownload).toBeHidden();
-  await downloadOptions.press('Enter');
-  await expect(downloadOptions).toHaveAttribute('aria-expanded', 'true');
-  await downloadOptions.press('Tab');
-  await expect(jsonDownload).toBeFocused();
-  await jsonDownload.press('Escape');
+  await gzipDownload.focus();
+  await page.keyboard.press('Tab');
   await expect(downloadOptions).toBeFocused();
+  await expect(downloadOptions).toHaveCSS('outline-style', 'solid');
+  await page.keyboard.press('ArrowDown');
+  await expect(downloadOptions).toHaveAttribute('aria-expanded', 'true');
+  await expect(jsonDownload).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(downloadOptions).toBeFocused();
+  await expect(downloadOptions).toHaveCSS('outline-style', 'solid');
   await expect(jsonDownload).toBeHidden();
   await downloadOptions.click();
   await expect(jsonDownload).toBeVisible();
@@ -63,7 +68,7 @@ test('common law/model selections, deferred settings, seeds and locks survive re
   for (const gzip of [true, false]) {
     if (!gzip) await downloadOptions.click();
     const download = page.waitForEvent('download');
-    if (gzip) await page.getByRole('button', { name: 'Scarica scenario JSON.gz', exact: true }).click();
+    if (gzip) await gzipDownload.click();
     else await jsonDownload.click();
     const file = await download, path = await file.path();
     expect(file.suggestedFilename()).toBe(gzip ? 'scenario-politiche.json.gz' : 'scenario-politiche.json');

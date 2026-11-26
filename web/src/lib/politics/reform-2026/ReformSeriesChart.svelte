@@ -47,6 +47,6 @@
 <style>
   .controls { display: flex; flex-wrap: wrap; gap: 1rem; margin: 1rem 0; }
   label { display: grid; gap: .5rem; flex: 1 1 12rem; min-width: 0; }
-  select { box-sizing: border-box; width: 100%; min-width: 0; font: inherit; padding: .5rem; }
-  p { font-size: .85rem; color: #4d5963; }
+  select { width: 100%; min-width: 0; }
+  p { font-size: .85rem; color: var(--color-text-muted); }
 </style>

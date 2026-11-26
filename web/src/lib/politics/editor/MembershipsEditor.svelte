@@ -33,12 +33,12 @@
     }, assets.context));
   }
 </script>
-{#if !listId}<label>Vista appartenenze<select bind:value={view}><option value="future">Liste future</option><option value="source">Fonte e opzione storica</option></select></label>{/if}
+{#if !listId}<label data-field>Vista appartenenze<select bind:value={view}><option value="future">Liste future</option><option value="source">Fonte e opzione storica</option></select></label>{/if}
 {#if view === 'future'}
-  {#if !listId}<label>Cerca lista<input type="search" bind:value={search} /></label>{/if}
+  {#if !listId}<label data-field>Cerca lista<input type="search" bind:value={search} /></label>{/if}
   {#each scenario.memberships.filter(m => (!listId || m.listId === listId) && scenario.subjects.lists.find(l => l.id === m.listId)?.name.toLocaleLowerCase('it').includes(search.toLocaleLowerCase('it'))) as membership (membership.listId)}
     <LazySection title={`${scenario.subjects.lists.find(l => l.id === membership.listId)?.name} · Camera ${membership.camera.length}, Senato ${membership.senato.length}`}>
-      <label><input type="checkbox" checked={membership.locked} onchange={e => edit(s => setMembershipLock(s, membership.listId, e.currentTarget.checked, assets.context))} />Collega Camera e Senato</label>
+      <label data-field><input type="checkbox" checked={membership.locked} onchange={e => edit(s => setMembershipLock(s, membership.listId, e.currentTarget.checked, assets.context))} />Collega Camera e Senato</label>
       <p>Ricollegare sostituisce interamente Senato con Camera, anche se vuota. I conflitti bloccano l’intera modifica.</p>
       <div class="chamber-grid">
         {#each chambers as chamber (chamber)}
@@ -48,7 +48,7 @@
               <div>{options.find(c => c.id === id)?.name ?? id}<button onclick={() => edit(s => setMembers(s, membership.listId, chamber, membership[chamber].filter(c => c !== id), assets.context))}>Rimuovi componente {options.find(c => c.id === id)?.name ?? id}</button></div>
             {/each}
             {#if !membership[chamber].length}<p>Nessun membro storico: attivo il componente proprio con ipotesi salvate.</p>{/if}
-            <label>Aggiungi componente {chamber}<select value={additions[`${membership.listId}:${chamber}`] ?? ''} onchange={e => additions[`${membership.listId}:${chamber}`] = e.currentTarget.value}>
+            <label data-field>Aggiungi componente {chamber}<select value={additions[`${membership.listId}:${chamber}`] ?? ''} onchange={e => additions[`${membership.listId}:${chamber}`] = e.currentTarget.value}>
               <option value="">Scegli componente</option>
               {#each options.filter(c => !membership[chamber].includes(c.id)) as component (component.id)}
                 {@const used = conflict(membership.listId, chamber, component.id)}
@@ -62,8 +62,8 @@
     </LazySection>
   {/each}
 {:else}
-  <label>Fonte<select bind:value={source} onchange={() => choice = ''}><option value="">Scegli fonte</option>{#each sources as id (id)}<option value={id}>{id}</option>{/each}</select></label>
-  <label>Opzione<select bind:value={choice}><option value="">Scegli opzione</option>{#each assets.sources.filter(s => s.sourceId === source) as row (row.choiceId)}<option value={row.choiceId}>{row.name}</option>{/each}</select></label>
+  <label data-field>Fonte<select bind:value={source} onchange={() => choice = ''}><option value="">Scegli fonte</option>{#each sources as id (id)}<option value={id}>{id}</option>{/each}</select></label>
+  <label data-field>Opzione<select bind:value={choice}><option value="">Scegli opzione</option>{#each assets.sources.filter(s => s.sourceId === source) as row (row.choiceId)}<option value={row.choiceId}>{row.name}</option>{/each}</select></label>
   {#if selected}
     {#if selected.other}<p>“Altri” è il complemento delle opzioni offerte; i membri non sono modificabili.</p>
     {:else}
@@ -77,7 +77,7 @@
           </button>
         </p>
       {/each}
-      <label>Aggiungi membro storico<select value="" onchange={e => { if (e.currentTarget.value) sourceMembers([...members, e.currentTarget.value]); }}>
+      <label data-field>Aggiungi membro storico<select value="" onchange={e => { if (e.currentTarget.value) sourceMembers([...members, e.currentTarget.value]); }}>
         <option value="">Scegli componente</option>
         {#each assets.components.filter(c => !members.includes(c.id)) as c (c.id)}<option value={c.id} disabled={historicalConflict(c.id)}>{c.name}{historicalConflict(c.id) ? ' — usato in altra opzione della fonte' : ''}</option>{/each}
       </select></label>
@@ -86,10 +86,10 @@
       {#if capabilities(scenario).generator.sourceCompositions}
         <p>Composizione M01: frazioni percentuali, somma richiesta 100%. Non sono conteggi osservati. Totale: {Object.values(composition?.fractions ?? {}).reduce((a, b) => a + b, 0) * 100}%.</p>
         {#each [...new Set([...members, ...Object.keys(composition?.fractions ?? {})])] as id (id)}
-          <label>Frazione {id} (%)<input type="number" min="0" max="100" step="any" value={composition?.fractions[id] === undefined ? '' : composition.fractions[id] * 100} onchange={e => fraction(id, e.currentTarget.value)} /></label>
+          <label data-field>Frazione {id} (%)<input type="number" min="0" max="100" step="any" value={composition?.fractions[id] === undefined ? '' : composition.fractions[id] * 100} onchange={e => fraction(id, e.currentTarget.value)} /></label>
         {/each}
         {#if composition}
-          <label>Provenienza composizione<input value={composition.provenance} onchange={e => edit(s => editScenario(s, n => { n.modelSettings.M01.compositions.find(r => r.sourceId === source && r.choiceId === choice)!.provenance = e.currentTarget.value; }))} /></label>
+          <label data-field>Provenienza composizione<input value={composition.provenance} onchange={e => edit(s => editScenario(s, n => { n.modelSettings.M01.compositions.find(r => r.sourceId === source && r.choiceId === choice)!.provenance = e.currentTarget.value; }))} /></label>
           <button onclick={() => edit(s => editScenario(s, n => { n.modelSettings.M01.compositions = n.modelSettings.M01.compositions.filter(r => !(r.sourceId === source && r.choiceId === choice)); }, assets.context))}>Rimuovi composizione esplicita</button>
           <p>Senza composizione esplicita, M01 usa l’allocazione uguale tra i membri dichiarati; non sono conteggi osservati.</p>
         {/if}
@@ -97,3 +97,19 @@
     {/if}
   {/if}
 {/if}
+
+<style>
+  .chamber-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+  fieldset {
+    min-inline-size: 0;
+    margin: 0;
+    padding: var(--space-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-control);
+  }
+  input[type=number] { inline-size: 8rem; }
+  @media (width <= 650px) {
+    .chamber-grid { grid-template-columns: 1fr; }
+    input[type=number] { inline-size: 100%; }
+  }
+</style>

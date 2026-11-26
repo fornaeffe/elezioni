@@ -11,7 +11,7 @@
   let filtered = $derived(nodes.filter(n => n.name.toLocaleLowerCase('it').includes(query.toLocaleLowerCase('it'))));
   function count(node: ReferenceNode) { const keys = new Set(referenceScopes(node).map(scopeKey)); return referenceRows(scenario, target).filter(r => keys.has(scopeKey(r.scope))).length; }
 </script>
-{#if nodes.length > 30}<label>Cerca territorio<input type="search" bind:value={query} oninput={() => limit = 40} /></label>{/if}
+{#if nodes.length > 30}<label data-field>Cerca territorio<input type="search" bind:value={query} oninput={() => limit = 40} /></label>{/if}
 {#each filtered.slice(0, limit) as node (scopeKey(node.scope))}
   <LazySection title={node.name} count={{ value: count(node), label: 'dichiarazioni' }}>
     {#each ['common', 'camera', 'senato'] as channel (channel)}

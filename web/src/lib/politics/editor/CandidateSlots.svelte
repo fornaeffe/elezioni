@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Badge from '$lib/ui/Badge.svelte';
   import type { PoliticsScenario, Subject, Placement } from '../scenario/schema';
   import { ROSATELLUM } from '../scenario/schema';
   import { locationKey } from '../scenario/validation';
@@ -47,11 +48,11 @@
     return { id: `bonus-${pin.id}`, candidateId: pin.candidateId, location: bonusNode.location, owner: bonusOwner, role: 'bonus', position, affiliationListId: owner.id };
   }
 </script>
-<label>Cerca candidato<input type="search" bind:value={search} /></label>
+<label data-field>Cerca candidato<input type="search" bind:value={search} /></label>
 {#each Array.from({ length: Math.min(node.slots, limit) }, (_, i) => i + 1) as position (position)}
   {@const pin = pins.find(p => p.position === position)}
   <div class="candidate-slot">
-    <label>Candidato {position}
+    <label data-field>Candidato {position}
       <select value={pin?.candidateId ?? ''} onchange={e => choose(position, e.currentTarget.value)}>
         <option value="">Genera automaticamente</option>
         {#each scenario.candidates.filter(c => c.id === pin?.candidateId || c.name.toLocaleLowerCase('it').includes(search.toLocaleLowerCase('it'))) as candidate (candidate.id)}
@@ -60,13 +61,13 @@
         {/each}
       </select>
     </label>
-    {#if pin}<span class="badge">{active.has(pin.id) ? 'Fissato' : 'Fissato, inattivo'}</span><button onclick={() => editing = pin.candidateId}>Modifica candidato</button>{/if}
-    {#if pin && 'minority' in pin}<label><input type="checkbox" checked={pin.minority} onchange={e => edit(s => upsertPlacement(s, law, { ...pin, minority: e.currentTarget.checked }, assets.context))} />Candidatura di minoranza</label>{/if}
+    {#if pin}<Badge>{active.has(pin.id) ? 'Fissato' : 'Fissato, inattivo'}</Badge><button onclick={() => editing = pin.candidateId}>Modifica candidato</button>{/if}
+    {#if pin && 'minority' in pin}<label data-field><input type="checkbox" checked={pin.minority} onchange={e => edit(s => upsertPlacement(s, law, { ...pin, minority: e.currentTarget.checked }, assets.context))} />Candidatura di minoranza</label>{/if}
     {#if pin && bonusFor(pin)}
       {@const bonus = bonusFor(pin)!}
       {@const selected = scenario.lawSettings[law].placements.some(p => p.id === bonus.id)}
       {@const reason = candidateReason(scenario, scenario.candidates.find(c => c.id === pin.candidateId)!, bonus, assets.context)}
-      <label><input type="checkbox" checked={selected} disabled={!selected && !!reason} onchange={e => edit(s => e.currentTarget.checked ? upsertPlacement(s, law, bonus, assets.context) : removePlacement(s, law, bonus.id))} />Nel listino della circoscrizione{reason && !selected ? ` · ${reason}` : ''}</label>
+      <label data-field><input type="checkbox" checked={selected} disabled={!selected && !!reason} onchange={e => edit(s => e.currentTarget.checked ? upsertPlacement(s, law, bonus, assets.context) : removePlacement(s, law, bonus.id))} />Nel listino della circoscrizione{reason && !selected ? ` · ${reason}` : ''}</label>
     {/if}
   </div>
 {/each}

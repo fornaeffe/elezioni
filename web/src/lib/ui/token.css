@@ -1,0 +1,42 @@
+:root {
+  color-scheme: light;
+
+  --font-ui: system-ui, sans-serif;
+  --text-small: 0.875rem;
+  --color-text: #15232d;
+  --color-text-muted: #4d6272;
+  --color-background: #f4f7f8;
+  --color-surface: #fff;
+  --color-surface-muted: #f3f6f8;
+  --color-track: #e8edf1;
+  --color-chart-axis: #718798;
+  --color-border: #d7e0e5;
+  --color-control-border: #718798;
+
+  --color-accent: #176694;
+  --color-accent-hover: #145273;
+  --color-on-accent: #fff;
+  --color-focus: var(--color-accent);
+  --color-action: #edf5fa;
+  --color-action-hover: #e0edf4;
+
+  --color-info-surface: #edf6fb;
+  --color-info-border: #50798f;
+  --color-warning-text: #724300;
+  --color-warning-surface: #fff7df;
+  --color-warning-border: #946000;
+  --color-error-text: #8b2119;
+  --color-error-surface: #fff0ed;
+  --color-error-border: #a92d22;
+  --color-success-surface: #e4f5e9;
+  --color-success-border: #388451;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --radius-control: 0.375rem;
+  --radius-panel: 0.5rem;
+  --shadow-overlay: 0 0.25rem 0.8rem #17304240;
+  --color-backdrop: rgb(24 32 38 / 58%);
+}

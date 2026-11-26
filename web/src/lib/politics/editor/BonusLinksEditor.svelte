@@ -23,7 +23,7 @@
 {#each chambers as chamber (chamber)}
   {#if eligibleBonusEndpoint(scenario, subject, chamber)}
     {@const opposite = chamber === 'camera' ? 'senato' : 'camera'}
-    <label>Controparte {opposite === 'camera' ? 'Camera' : 'Senato'}
+    <label data-field>Controparte {opposite === 'camera' ? 'Camera' : 'Senato'}
       <select value="" onchange={e => { const counterpart = subjects.find(x => `${x.kind}:${x.id}` === e.currentTarget.value); pending = counterpart ? (chamber === 'camera' ? { camera: subject, senato: counterpart } : { camera: counterpart, senato: subject }) : null; }}>
         <option value="">Scegli una controparte</option>
         {#each subjects.filter(x => eligibleBonusEndpoint(scenario, x, opposite)) as item (`${item.kind}:${item.id}`)}

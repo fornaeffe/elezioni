@@ -12,7 +12,7 @@
 <span id={id} popover="auto" class="panel" ontoggle={event => open = event.newState === 'open'}>
   {text}
 </span>
-<span class="announcement" role="status">{open ? text : ''}</span>
+<span class="visually-hidden" role="status">{open ? text : ''}</span>
 
 <style>
   button.trigger {
@@ -26,26 +26,25 @@
     border: 0;
     border-radius: 50%;
     background: transparent;
-    color: #176694;
+    color: var(--color-accent);
     cursor: pointer;
   }
 
   button.trigger:hover, button.trigger:focus-visible {
-    background: #edf5fa;
+    background: var(--color-action-hover);
   }
 
   .panel {
-    box-sizing: border-box;
     width: min(22rem, calc(100vw - 2rem));
     max-height: min(24rem, calc(100dvh - 2rem));
     overflow: auto;
     padding: .65rem .8rem;
-    border: 1px solid #9aaebf;
-    border-radius: .4rem;
-    background: #fff;
-    color: #173042;
-    box-shadow: 0 .25rem .8rem #17304226;
-    font-size: .875rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-panel);
+    background: var(--color-surface);
+    color: var(--color-text);
+    box-shadow: var(--shadow-overlay);
+    font-size: var(--text-small);
     font-weight: 400;
     line-height: 1.45;
   }
@@ -60,12 +59,4 @@
     }
   }
 
-  .announcement {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
 </style>

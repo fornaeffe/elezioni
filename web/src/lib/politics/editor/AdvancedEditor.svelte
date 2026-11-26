@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Toggletip from '$lib/ui/Toggletip.svelte';
+  import FieldWithHelp from '$lib/ui/FieldWithHelp.svelte';
   import type { PoliticsScenario } from '../scenario/schema';
   import { capabilities } from '../scenario/registry';
   import type { EditorAssets } from './assets';
@@ -52,41 +52,47 @@
     {#each scenario.history.pooling as group (group.id)}
       <LazySection title={`${scenario.subjects.components.find(c => c.id === group.id)?.name ?? group.id} · ${group.members.length} componenti`}>
         <p>Base risultante: {group.members.map(id => assets.components.find(c => c.id === id)?.name ?? id).join(', ')}</p>
-        <label>Provenienza raggruppamento<input value={group.provenance} onchange={e => edit(s => editScenario(s, n => { n.history.pooling.find(p => p.id === group.id)!.provenance = e.currentTarget.value; }))} /></label>
+        <label data-field>Provenienza raggruppamento<input value={group.provenance} onchange={e => edit(s => editScenario(s, n => { n.history.pooling.find(p => p.id === group.id)!.provenance = e.currentTarget.value; }))} /></label>
         <button onclick={() => removePool(group.id)}>Rimuovi raggruppamento</button>
       </LazySection>
     {/each}
-    <label>Nome raggruppamento<input bind:value={poolName} /></label>
-    <label>Cerca componente originale<input type="search" bind:value={query} /></label>
+    <label data-field>Nome raggruppamento<input bind:value={poolName} /></label>
+    <label data-field>Cerca componente originale<input type="search" bind:value={query} /></label>
     <div class="bounded-list">
       {#each assets.components.filter(c => c.name.toLocaleLowerCase('it').includes(query.toLocaleLowerCase('it'))) as c (c.id)}
         {@const used = scenario.history.pooling.some(p => p.members.includes(c.id))}
-        <label><input type="checkbox" disabled={used} checked={poolMembers.includes(c.id)} onchange={e => poolMembers = e.currentTarget.checked ? [...poolMembers, c.id] : poolMembers.filter(id => id !== c.id)} />{c.name}{used ? ' · già raggruppato' : ''}</label>
+        <label data-field><input type="checkbox" disabled={used} checked={poolMembers.includes(c.id)} onchange={e => poolMembers = e.currentTarget.checked ? [...poolMembers, c.id] : poolMembers.filter(id => id !== c.id)} />{c.name}{used ? ' · già raggruppato' : ''}</label>
       {/each}
     </div>
     <p>Nuova base: {poolMembers.join(', ') || 'Nessun componente selezionato'}</p>
-    <label>Provenienza<input bind:value={poolProvenance} /></label>
+    <label data-field>Provenienza<input bind:value={poolProvenance} /></label>
     <button disabled={!poolName.trim() || !poolProvenance.trim() || poolMembers.length < 2} onclick={pool}>Crea raggruppamento</button>
   </LazySection>
 {/if}
 <LazySection title="Ipotesi senza storico e riferimenti dei componenti">
-  <label>Componente<select bind:value={componentId}><option value="">Scegli componente</option>{#each components as c (c.id)}<option value={c.id}>{c.name}</option>{/each}</select></label>
+  <label data-field>Componente<select bind:value={componentId}><option value="">Scegli componente</option>{#each components as c (c.id)}<option value={c.id}>{c.name}</option>{/each}</select></label>
   {#if component}
     <p>Componente proprio: attivo solo nelle camere dove la lista non ha membri storici. Le ipotesi restano salvate quando inattivo.</p>
     {#if capabilities(scenario).generator.id === 'M02'}
       {#each fallbackFields as { key, label, help } (key)}
         {@const id = `${fallbackId}-${key}`}
-        <span class="field-with-tip">
-          <span class="field-caption"><label for={id}>{label}</label><Toggletip {label} text={help} /></span>
+        <FieldWithHelp {id} {label} {help}>
           <input {id} type="number" min={key === 'geographicLogProfile' ? undefined : 0} step="any" value={component.fallback.M02[key]} onchange={e => fallback(key, e.currentTarget.value)} />
-        </span>
+        </FieldWithHelp>
       {/each}
-      <label>Provenienza ipotesi M02<input value={component.fallback.M02.provenance} onchange={e => fallback('provenance', e.currentTarget.value)} /></label>
+      <label data-field>Provenienza ipotesi M02<input value={component.fallback.M02.provenance} onchange={e => fallback('provenance', e.currentTarget.value)} /></label>
     {:else}<p>M01 usa il profilo regionale o, in assenza, l’allocazione uguale tra liste. I parametri M02 salvati non hanno effetto su M01. Provenienza: {component.fallback.M01.provenance}</p>{/if}
-    <label>Assunzioni di supporto<input value={component.support} onchange={e => edit(s => editScenario(s, n => { n.newComponents.find(c => c.id === componentId)!.support = e.currentTarget.value; }))} /></label>
+    <label data-field>Assunzioni di supporto<input value={component.support} onchange={e => edit(s => editScenario(s, n => { n.newComponents.find(c => c.id === componentId)!.support = e.currentTarget.value; }))} /></label>
   {/if}
   {#if componentId}<ReferencesEditor {scenario} target={{ kind: 'component', id: componentId }} label="Riferimento componente" {assets} {edit} />{/if}
 </LazySection>
+
+<style>
+  .bounded-list { max-block-size: 18rem; overflow: auto; }
+  .bounded-list label { display: flex; }
+  input[type=number] { inline-size: 8rem; }
+  @media (width <= 650px) { input[type=number] { inline-size: 100%; } }
+</style>
 <LazySection title="Elettorato · dati in sola lettura">
   <p>Fonte vincolata: {scenario.data.electorate.version}. Data: {assets.electorate.targets[0]?.date} · età minima {assets.electorate.minimumAge} anni.</p>
   <p>Camera: {assets.electorate.targets.reduce((n, t) => n + t.camera, 0).toLocaleString('it')}; Senato: {assets.electorate.targets.reduce((n, t) => n + t.senato, 0).toLocaleString('it')}.</p>

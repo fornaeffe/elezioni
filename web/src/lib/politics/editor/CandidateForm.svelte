@@ -1,6 +1,6 @@
 <script lang="ts">
   import { untrack } from 'svelte';
-  import Toggletip from '$lib/ui/Toggletip.svelte';
+  import FieldWithHelp from '$lib/ui/FieldWithHelp.svelte';
   import type { Candidate, PoliticsScenario } from '../scenario/schema';
   import { assumedCandidateBirthDate, createCandidate, updateCandidate, deleteCandidate } from '../scenario/edits';
   import type { ApplyEdit } from './model';
@@ -25,21 +25,22 @@
   }
 </script>
 <form onsubmit={save} class="candidate-form">
-  <label>Nome candidato<input required bind:value={name} /></label>
-  <label>Genere<select aria-label="Genere" required bind:value={gender}><option value="">Seleziona il genere</option><option value="female">Donna</option><option value="male">Uomo</option></select></label>
-  <span class="field-with-tip">
-    <span class="field-caption"><label for={birthDateId}>Data di nascita</label><Toggletip label="Data di nascita" text={birthDateHelp} /></span>
+  <label data-field>Nome candidato<input required bind:value={name} /></label>
+  <label data-field>Genere<select aria-label="Genere" required bind:value={gender}><option value="">Seleziona il genere</option><option value="female">Donna</option><option value="male">Uomo</option></select></label>
+  <FieldWithHelp id={birthDateId} label="Data di nascita" help={birthDateHelp}>
     <input id={birthDateId} type="date" required={!!candidate} bind:value={birthDate} />
-  </span>
+  </FieldWithHelp>
   {#if candidate?.birthDateOrigin === 'assumed'}<p>Data di nascita assunta.</p>{/if}
-  <span class="field-with-tip">
+  <FieldWithHelp id={availableId} label="Disponibile" leading help="Togli la spunta se la persona non è disponibile a candidarsi e indica il motivo. Non sarà selezionabile per nuove candidature. Per simulare, rimuovi o sostituisci le candidature già fissate che sono attive.">
     <input id={availableId} type="checkbox" bind:checked={available} />
-    <span class="field-caption">
-      <label for={availableId}>Disponibile</label>
-      <Toggletip label="Disponibile" text="Togli la spunta se la persona non è disponibile a candidarsi e indica il motivo. Non sarà selezionabile per nuove candidature. Per simulare, rimuovi o sostituisci le candidature già fissate che sono attive." />
-    </span>
-  </span>
-  {#if !available}<label>Motivo indisponibilità<input required bind:value={reason} /></label>{/if}
+  </FieldWithHelp>
+  {#if !available}<label data-field>Motivo indisponibilità<input required bind:value={reason} /></label>{/if}
   <button type="submit">Salva candidato</button><button type="button" onclick={done}>Chiudi candidato</button>
   {#if candidate}<button type="button" onclick={() => { edit(s => deleteCandidate(s, candidate.id)); done(); }}>Elimina identità e tutte le candidature</button>{/if}
 </form>
+
+<style>
+  form { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+  p { flex-basis: 100%; margin-block: 0; color: var(--color-text-muted); }
+  @media (width <= 650px) { label { inline-size: 100%; } }
+</style>

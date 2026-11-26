@@ -169,7 +169,7 @@
   p {
     font-size: 0.85rem;
     line-height: 1.5;
-    color: #4d5963;
+    color: var(--color-text-muted);
   }
   .bonus-bars {
     display: grid;
@@ -184,7 +184,7 @@
     align-items: center;
   }
   .bonus-track {
-    background: #e8edf1;
+    background: var(--color-track);
     height: 0.75rem;
     border-radius: 1rem;
     overflow: hidden;
@@ -203,7 +203,7 @@
   th,
   td {
     padding: 0.5rem;
-    border-bottom: 1px solid #e5e9ed;
+    border-bottom: 1px solid var(--color-border);
     text-align: left;
   }
 </style>

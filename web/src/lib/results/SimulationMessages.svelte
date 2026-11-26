@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Notice from '$lib/ui/Notice.svelte';
   import type { ResultServiceClient } from '../core/result-service-client';
   import type { SimulationResult } from '../core/types';
   import {
@@ -188,5 +189,21 @@
       />
     {/key}
   {/if}
-  {#if issue}<p role="status" class="error">{issue}</p>{/if}
+  {#if issue}<Notice as="p" severity="error" role="status">{issue}</Notice>{/if}
 </ResultSection>
+
+<style>
+  form, nav, .totals { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-3); }
+  nav { align-items: center; margin-block: var(--space-3); }
+  label { display: grid; gap: var(--space-1); max-inline-size: 100%; }
+  small { display: block; }
+  .scroll { overflow: auto; }
+  table { inline-size: 100%; min-inline-size: 40rem; border-collapse: collapse; }
+  caption { padding-block: var(--space-3); text-align: start; font-weight: 600; }
+  th, td {
+    padding: var(--space-2);
+    border-block-end: 1px solid var(--color-border);
+    text-align: start;
+    overflow-wrap: anywhere;
+  }
+</style>

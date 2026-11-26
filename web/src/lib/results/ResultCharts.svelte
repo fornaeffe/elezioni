@@ -1,6 +1,7 @@
 <script lang="ts">
-  import type { Snippet } from 'svelte';
+  import { tick, type Snippet } from 'svelte';
   import { X } from '@lucide/svelte';
+  import ResultSection from './ResultSection.svelte';
   import type {
     CollegeChartOption,
     ResultChart,
@@ -44,6 +45,9 @@
   const scatterBottom = scatterTop + scatterHeight;
 
   let enlargedSpinogram = $state<EnlargedSpinogram | null>(null);
+  let spinogramDialog: HTMLDialogElement;
+  let spinogramTrigger: HTMLButtonElement;
+  let pointerStartedOnBackdrop = false;
 
   function bounded(value: number): number {
     return Math.max(0, Math.min(100, value));
@@ -65,32 +69,22 @@
     return initialOpen ?? (chart.kind === 'bar' || chart.kind === 'boxplot');
   }
 
-  function openSpinogram(title: string, xLabel: string, panel: SpinePanel): void {
+  async function openSpinogram(trigger: HTMLButtonElement, title: string, xLabel: string, panel: SpinePanel) {
+    spinogramTrigger = trigger;
     enlargedSpinogram = { title, xLabel, panel };
+    await tick();
+    if (spinogramDialog?.isConnected && !spinogramDialog.open) spinogramDialog.showModal();
   }
 
   function closeSpinogram(): void {
     enlargedSpinogram = null;
-  }
-
-  function handleKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Escape') closeSpinogram();
+    spinogramTrigger.focus({ preventScroll: true });
   }
 </script>
 
-<svelte:window onkeydown={handleKeydown} />
-
 <div class="result-charts">
   {#each charts as chart, index (index)}
-    <svelte:element
-      this={collapsible ? 'details' : 'section'}
-      class={{ 'wide-chart': chart.kind === 'scatter' || chart.kind === 'spine' }}
-      open={collapsible ? detailOpen(chart) : undefined}
-      role="region"
-      aria-label={chart.title}
-    >
-      {#if collapsible}<summary>{chart.title}</summary>{/if}
-
+    {#snippet chartContent()}
       {#if chart.kind === 'bar'}
         <div class="bar-chart">
           {#each chart.groups as group, index (index)}
@@ -203,7 +197,7 @@
               <button
                 type="button"
                 class="spine-panel-button"
-                onclick={() => openSpinogram(chart.title, chart.xLabel, panel)}
+                onclick={event => openSpinogram(event.currentTarget, chart.title, chart.xLabel, panel)}
                 aria-label={panel.label}
                 title={panel.label}
               >
@@ -241,84 +235,110 @@
           {/each}
         </div>
       {/if}
-    </svelte:element>
+    {/snippet}
+    <div class={{ 'wide-chart': chart.kind === 'scatter' || chart.kind === 'spine' }}>
+      {#if collapsible}
+        <ResultSection title={chart.title} open={detailOpen(chart)}>
+          {@render chartContent()}
+        </ResultSection>
+      {:else}
+        <section aria-label={chart.title}>
+          {@render chartContent()}
+        </section>
+      {/if}
+    </div>
   {/each}
 
   {#if plurinominalOptions.length > 0 && plurinominalChart}
-    <details class="wide-chart" open role="region" aria-label={plurinominalChart.title}>
-      <summary>{plurinominalChart.title}</summary>
-      <div class="pluri-control">
-        <label>
-          Collegio
-          <select
-            value={selectedPlurinominalOption?.id ?? ''}
-            onchange={(event) => onSelectPlurinominalOption((event.currentTarget as HTMLSelectElement).value)}
-          >
-            {#each plurinominalOptions as option, index (index)}
-              <option value={option.id}>{option.label}</option>
-            {/each}
-          </select>
-        </label>
-      </div>
-      <div class="small-multiple-grid single">
-        {#each plurinominalChart.panels as panel, index (index)}
-          <section class="small-panel" aria-label={panel.label}>
-            <h4>{panel.label}</h4>
-            <button
-              type="button"
-              class="spine-panel-button"
-              onclick={() => openSpinogram(plurinominalChart.title, plurinominalChart.xLabel, panel)}
-              aria-label={panel.label}
-              title={panel.label}
+    <div class="wide-chart">
+      <ResultSection title={plurinominalChart.title} open>
+        <div class="pluri-control">
+          <label>
+            Collegio
+            <select
+              value={selectedPlurinominalOption?.id ?? ''}
+              onchange={(event) => onSelectPlurinominalOption((event.currentTarget as HTMLSelectElement).value)}
             >
-              <div class="spine-plot large" role="img" aria-label={panel.label}>
-                {#each panel.bins as bin, index (index)}
-                  <span
-                    class="spine-bin"
-                    title={bin.label}
-                    style={`left: ${pct(bin.xPercent)}; width: ${pct(bin.widthPercent)};`}
-                  >
-                    {#each bin.cells as cell, index (index)}
-                      <span
-                        class="spine-cell"
-                        style={`top: ${pct(cell.yPercent)}; height: ${pct(cell.heightPercent)}; background-color: ${cell.color}; color: ${cell.textColor};`}
-                      >
-                        {#if cell.label}
-                          <span>{cell.label}</span>
-                        {/if}
-                      </span>
-                    {/each}
+              {#each plurinominalOptions as option, index (index)}
+                <option value={option.id}>{option.label}</option>
+              {/each}
+            </select>
+          </label>
+        </div>
+        <div class="small-multiple-grid single">
+          {#each plurinominalChart.panels as panel, index (index)}
+            <section class="small-panel" aria-label={panel.label}>
+              <h4>{panel.label}</h4>
+              <button
+                type="button"
+                class="spine-panel-button"
+                onclick={event => openSpinogram(event.currentTarget, plurinominalChart.title, plurinominalChart.xLabel, panel)}
+                aria-label={panel.label}
+                title={panel.label}
+              >
+                <div class="spine-plot large" role="img" aria-label={panel.label}>
+                  {#each panel.bins as bin, index (index)}
+                    <span
+                      class="spine-bin"
+                      title={bin.label}
+                      style={`left: ${pct(bin.xPercent)}; width: ${pct(bin.widthPercent)};`}
+                    >
+                      {#each bin.cells as cell, index (index)}
+                        <span
+                          class="spine-cell"
+                          style={`top: ${pct(cell.yPercent)}; height: ${pct(cell.heightPercent)}; background-color: ${cell.color}; color: ${cell.textColor};`}
+                        >
+                          {#if cell.label}
+                            <span>{cell.label}</span>
+                          {/if}
+                        </span>
+                      {/each}
+                    </span>
+                  {/each}
+                </div>
+              </button>
+              <div class="spine-axis" aria-hidden="true">
+                {#each panel.ticks as tick, index (index)}
+                  <span class="spine-axis-tick" style={`left: ${pct(tick.positionPercent)};`}>
+                    <span></span>
+                    <em>{tick.label}</em>
                   </span>
                 {/each}
               </div>
-            </button>
-            <div class="spine-axis" aria-hidden="true">
-              {#each panel.ticks as tick, index (index)}
-                <span class="spine-axis-tick" style={`left: ${pct(tick.positionPercent)};`}>
-                  <span></span>
-                  <em>{tick.label}</em>
-                </span>
-              {/each}
-            </div>
-          </section>
-        {/each}
-      </div>
-    </details>
+            </section>
+          {/each}
+        </div>
+      </ResultSection>
+    </div>
   {/if}
 </div>
 
-{#if enlargedSpinogram}
-  <div class="overlay" role="presentation">
-    <button type="button" class="overlay-backdrop" onclick={closeSpinogram} aria-label="Chiudi"></button>
-    <div class="overlay-panel" role="dialog" aria-modal="true" aria-label={enlargedSpinogram.panel.label}>
+<dialog
+  bind:this={spinogramDialog}
+  closedby="any"
+  aria-label={enlargedSpinogram?.panel.label}
+  onclose={closeSpinogram}
+  onpointerdown={event => {
+    pointerStartedOnBackdrop = event.target === event.currentTarget;
+  }}
+  onpointerup={event => {
+    // Older browsers support modal dialogs but ignore the closedby attribute.
+    if (!('closedBy' in HTMLDialogElement.prototype) && pointerStartedOnBackdrop &&
+        event.target === event.currentTarget) spinogramDialog.close();
+  }}
+>
+  {#if enlargedSpinogram}
+    <div class="dialog-content">
       <div class="overlay-heading">
         <div>
           <h3>{enlargedSpinogram.title}</h3>
           <p>{enlargedSpinogram.panel.label}</p>
         </div>
-        <button type="button" class="close-button" onclick={closeSpinogram} aria-label="Chiudi" title="Chiudi">
-          <X size={20} aria-hidden="true" />
-        </button>
+        <form method="dialog">
+          <button class="close-button" aria-label="Chiudi" title="Chiudi">
+            <X size={20} aria-hidden="true" />
+          </button>
+        </form>
       </div>
       <div class="spine-plot enlarged" role="img" aria-label={enlargedSpinogram.panel.label}>
         {#each enlargedSpinogram.panel.bins as bin, index (index)}
@@ -350,8 +370,8 @@
       </div>
       <p class="axis-label">{enlargedSpinogram.xLabel}</p>
     </div>
-  </div>
-{/if}
+  {/if}
+</dialog>
 
 <style>
   .result-charts {
@@ -360,18 +380,7 @@
     padding: 16px 16px 0;
   }
 
-  details {
-    min-width: 0;
-    border-bottom: 1px solid #e5e9ed;
-    padding-bottom: 14px;
-  }
-
-  summary {
-    cursor: pointer;
-    color: #4d5963;
-    font-size: 14px;
-    font-weight: 750;
-  }
+  .result-charts > div { min-inline-size: 0; }
 
   .bar-chart,
   .boxplot-chart {
@@ -390,7 +399,7 @@
 
   h4 {
     margin: 0;
-    color: #697681;
+    color: var(--color-text-muted);
     font-size: 12px;
     font-weight: 750;
     text-transform: uppercase;
@@ -412,7 +421,7 @@
   .bar-label,
   .boxplot-label {
     overflow: hidden;
-    color: #34414a;
+    color: var(--color-text);
     font-size: 12px;
     font-weight: 650;
     text-overflow: ellipsis;
@@ -424,7 +433,7 @@
     overflow: hidden;
     height: 12px;
     border-radius: 999px;
-    background: #e8edf1;
+    background: var(--color-track);
   }
 
   .bar-fill {
@@ -434,7 +443,7 @@
   }
 
   .bar-value {
-    color: #4d5963;
+    color: var(--color-text-muted);
     font-size: 12px;
     font-variant-numeric: tabular-nums;
     font-weight: 700;
@@ -445,7 +454,7 @@
     position: relative;
     height: 24px;
     margin-left: min(180px, 34%);
-    border-bottom: 1px solid #dbe2e7;
+    border-bottom: 1px solid var(--color-border);
   }
 
   .axis-tick {
@@ -459,11 +468,11 @@
   .axis-tick span {
     width: 1px;
     height: 7px;
-    background: #c8d0d7;
+    background: var(--color-chart-axis);
   }
 
   .axis-tick em {
-    color: #697681;
+    color: var(--color-text-muted);
     font-size: 11px;
     font-style: normal;
     font-variant-numeric: tabular-nums;
@@ -500,7 +509,7 @@
 
   .boxplot-whisker {
     height: 1px;
-    background: #72808a;
+    background: var(--color-chart-axis);
   }
 
   .boxplot-box {
@@ -520,12 +529,12 @@
     height: 7px;
     border: 1px solid;
     border-radius: 50%;
-    background: #ffffff;
+    background: var(--color-surface);
   }
 
   .axis-label {
     margin: 2px 0 0;
-    color: #697681;
+    color: var(--color-text-muted);
     font-size: 11px;
     text-align: right;
   }
@@ -542,7 +551,7 @@
   }
 
   .small-panel {
-    border: 1px solid #e1e6ea;
+    border: 1px solid var(--color-border);
     border-radius: 6px;
     padding: 10px;
   }
@@ -553,13 +562,13 @@
   }
 
   text {
-    fill: #697681;
+    fill: var(--color-text-muted);
     font-size: 4px;
     font-variant-numeric: tabular-nums;
   }
 
   .axis {
-    stroke: #aeb8c0;
+    stroke: var(--color-chart-axis);
     stroke-width: 0.35;
   }
 
@@ -567,8 +576,8 @@
     position: relative;
     overflow: hidden;
     height: 150px;
-    border: 1px solid #cfd7de;
-    background: #f7f9fa;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface-muted);
   }
 
   .spine-plot.large {
@@ -586,12 +595,6 @@
     background: transparent;
     padding: 0;
     cursor: zoom-in;
-    font: inherit;
-  }
-
-  .spine-panel-button:focus-visible {
-    outline: 2px solid #2f6f57;
-    outline-offset: 3px;
   }
 
   .spine-bin,
@@ -623,7 +626,7 @@
   .spine-axis {
     position: relative;
     height: 28px;
-    border-top: 1px solid #cfd7de;
+    border-top: 1px solid var(--color-border);
   }
 
   .spine-axis.enlarged-axis {
@@ -641,11 +644,11 @@
   .spine-axis-tick span {
     width: 1px;
     height: 8px;
-    background: #aeb8c0;
+    background: var(--color-chart-axis);
   }
 
   .spine-axis-tick em {
-    color: #697681;
+    color: var(--color-text-muted);
     font-size: 10px;
     font-style: normal;
     font-variant-numeric: tabular-nums;
@@ -660,52 +663,35 @@
   label {
     display: grid;
     gap: 6px;
-    color: #4d5963;
+    color: var(--color-text-muted);
     font-size: 13px;
     font-weight: 650;
   }
 
   select {
     min-height: 38px;
-    border: 1px solid #c9d0d6;
-    border-radius: 6px;
-    background: #ffffff;
-    color: #182026;
-    padding: 0 10px;
-    font: inherit;
+    color: var(--color-text);
   }
 
-  .overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 20;
-    display: grid;
-    place-items: center;
-    background: rgba(24, 32, 38, 0.58);
-    padding: 28px;
-  }
-
-  .overlay-backdrop {
-    position: absolute;
-    inset: 0;
-    border: 0;
-    background: transparent;
+  dialog {
+    width: min(1180px, calc(100% - 56px));
+    max-width: none;
+    max-height: calc(100dvh - 56px);
+    overscroll-behavior: contain;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-panel);
+    background: var(--color-surface);
+    color: var(--color-text);
     padding: 0;
+    box-shadow: var(--shadow-overlay);
   }
 
-  .overlay-panel {
-    position: relative;
-    z-index: 1;
+  dialog::backdrop { background: var(--color-backdrop); }
+
+  .dialog-content {
     display: grid;
-    gap: 14px;
-    width: min(1180px, 100%);
-    max-height: calc(100vh - 56px);
-    overflow: auto;
-    border: 1px solid #d8dee3;
-    border-radius: 8px;
-    background: #ffffff;
-    padding: 16px;
-    box-shadow: 0 24px 70px rgba(24, 32, 38, 0.28);
+    gap: var(--space-3);
+    padding: var(--space-4);
   }
 
   .overlay-heading {
@@ -721,14 +707,14 @@
   }
 
   .overlay-heading h3 {
-    color: #182026;
+    color: var(--color-text);
     font-size: 17px;
     font-weight: 750;
   }
 
   .overlay-heading p {
     margin-top: 3px;
-    color: #697681;
+    color: var(--color-text-muted);
     font-size: 13px;
     font-weight: 650;
   }
@@ -740,11 +726,6 @@
     width: 38px;
     min-width: 38px;
     height: 38px;
-    border: 1px solid #bdc7d0;
-    border-radius: 6px;
-    background: #ffffff;
-    color: #182026;
-    cursor: pointer;
   }
 
   @media (min-width: 1120px) {
@@ -776,12 +757,9 @@
       gap: 2px;
     }
 
-    .overlay {
-      padding: 12px;
-    }
-
-    .overlay-panel {
-      max-height: calc(100vh - 24px);
+    dialog {
+      width: calc(100% - 24px);
+      max-height: calc(100dvh - 24px);
     }
   }
 </style>

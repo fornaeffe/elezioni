@@ -9,42 +9,10 @@ meantime, the linked file has been edited and the link has not been updated.
 
 ## Future work
 
-- [ ] **Rationalize UI theming and styling** using the
-  [UI styling guidelines](AGENTS.md#ui-theming-and-styling).
-  - [ ] Establish the foundation. Add `web/src/lib/ui/token.css` and a small
-    `base.css`, imported by the root layout. Limit this pass to the existing
-    light theme. Standardize colors by role and check contrast. Use the current
-    shared page frame for all routes.
-  - [ ] Pilot in the [politics editor](web/src/lib/politics/editor/CommonPoliticsEditor.svelte).
-    Apply shared control and focus styles, move subject grids and mobile rules
-    into `SubjectsEditor`, and give field components ownership of their internals.
-    Keep section spacing in the parent. Preserve the native-popover `Toggletip`
-    and lazy mounting of editor trees. Retire `editor.css` as its rules migrate
-    and delete the reform `scenario-editor.css` after confirming it is unused.
-  - [ ] Keep [SplitButton](web/src/lib/ui/SplitButton.svelte) for scenario
-    downloads. Keep the native primary action for JSON.gz and use Bits UI
-    `DropdownMenu` for the JSON alternative. Preserve both downloads and the
-    editor's disabled state during execution. Check arrow-key navigation,
-    dismissal, and focus return.
-  - [ ] Replace the [spinogram overlay](web/src/lib/results/ResultCharts.svelte)
-    with a native modal `<dialog>` opened through `showModal()`. Verify the
-    close button, backdrop dismissal, Escape, and focus return to the trigger.
-  - [ ] Migrate results and Emilia-Romagna. Move `diagnostic-messages.css` rules
-    to the components that render messages, filters, and tables. Share notice
-    presentation where it repeats, with severity styling independent of live
-    announcements. Reuse `ResultSection` and `ResultTable` where their contracts
-    fit, and share run-control presentation where it repeats. Keep feature
-    execution logic and chart geometry with their owners.
-  - [ ] Verify each slice with `npm run check`, a static build, and focused
-    Playwright checks for the shared frame, editor, results, and regional
-    workspace. Cover narrow layouts, keyboard and focus behavior, disabled
-    states, and disclosure mounting. Check changed interactions in Chromium and
-    Firefox and smoke-test under `/elezioni`. Update affected locators to match
-    rendered semantics and record the results in project history.
 - [ ] **UI polishing**
   - [ ] In [FilingTree](web\src\lib\politics\editor\FilingTree.svelte) and
     [ReferenceTree](web\src\lib\politics\editor\ReferenceTree.svelte):
-    - [ ] After the theming migration, replace the separate search and select in
+    - [ ] Replace the separate search and select in
       [CandidateSlots](web/src/lib/politics/editor/CandidateSlots.svelte) with
       Bits UI `Combobox`. Make "Crea candidato" an option that opens
       [CandidateForm](web/src/lib/politics/editor/CandidateForm.svelte) in a
@@ -111,8 +79,6 @@ meantime, the linked file has been edited and the link has not been updated.
     do not show controls for that list's new component without history. If 
     even component's references are ignored when a list has historical members,
     do not list that list in this section's selector at all.
-  - [ ] Style the `view.stale` and `view.recommendation` messages like other
-    warnings.
   - [ ] Remove the collapsible "Dettagli" section from general warnings, that 
     currently contains only the warning code. Move the warning code at the end 
     of the warning description, in parentheses.

@@ -73,7 +73,7 @@
     <LazySection title={node.name} count={{ value: pins([node]), label: 'candidati fissati' }}>
       {#if filingLocations.length}
         {@const filingState = state(filingLocations)}
-        <label><input type="checkbox" checked={filingState.checked} indeterminate={filingState.mixed}
+        <label data-field><input type="checkbox" checked={filingState.checked} indeterminate={filingState.mixed}
           aria-label={`Deposita ${node.name}`} {disabled} onchange={e => toggle(filingLocations, e.currentTarget.checked)} />Deposita in {node.name}</label>
       {/if}
       {#if showCandidates}
@@ -94,7 +94,7 @@
     {#if disabled}<p>Camera esclusa dalla coalizione: depositi e candidati conservati, inattivi.</p>{/if}
     {#if filingLocations.length}
       {@const filingState = state(filingLocations)}
-      <label><input type="checkbox" aria-label={`Deposita tutta ${chamber === 'camera' ? 'Camera' : 'Senato'}`} checked={filingState.checked}
+      <label data-field><input type="checkbox" aria-label={`Deposita tutta ${chamber === 'camera' ? 'Camera' : 'Senato'}`} checked={filingState.checked}
         indeterminate={filingState.mixed} {disabled} onchange={e => toggle(filingLocations, e.currentTarget.checked)} />Deposita in tutti i collegi</label>
     {/if}
     {@render tree(branches, disabled)}
