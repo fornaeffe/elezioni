@@ -26,7 +26,7 @@
         <label>Worker richiesti<select value={scenario.execution.workers.kind} onchange={e => edit(s => editScenario(s, n => { n.execution.workers = e.currentTarget.value === 'auto' ? { kind: 'auto', policy: 'model-aware-v1' } : { kind: 'fixed', count: 1 }; }))}><option value="auto">Automatici · in base al modello</option><option value="fixed">Numero esplicito</option></select></label>
         {#if scenario.execution.workers.kind === 'fixed'}<label>Numero di worker richiesti<input type="number" min="1" step="1" value={scenario.execution.workers.count} onchange={e => edit(s => editScenario(s, n => { n.execution.workers = { kind: 'fixed', count: Number(e.currentTarget.value) }; }))} /></label>{/if}
         {#if execution?.workerInfo}
-          <p class="worker-info">Worker richiesti: {execution.workerInfo.requested} · consigliati {execution.workerInfo.recommended} · massimo CPU {execution.workerInfo.maximum}. Stima per worker: {execution.workerInfo.memoryMiB} MiB.</p>
+          <p class="worker-info">Worker richiesti: {execution.workerInfo.requested} · consigliati {execution.workerInfo.recommended} · massimi {execution.workerInfo.maximum}. Memoria necessaria stimata per worker: {execution.workerInfo.memoryMiB} MiB.</p>
           {#if execution.workerInfo.warning}<p class="worker-warning" role="status">Se il browser dovesse esaurire la memoria disponibile, riprova riducendo il numero di worker.</p>{/if}
         {/if}
         <LazySection title="Generazione delle candidature">
@@ -43,7 +43,6 @@
         </LazySection>
         {#if model.id === 'M02'}
           <LazySection title="Fitting e checkpoint">
-            <p>Il modello selezionato viene caricato automaticamente. Il checkpoint deve corrispondere esattamente allo scenario e alle dipendenze.</p>
             <button disabled={!execution?.onFit} onclick={() => execution?.onFit?.()}>Ricalcola fitting</button>
             <label>Carica checkpoint<input type="file" accept=".json,.gz" disabled={!execution?.onImportCheckpoint} onchange={e => { const file = e.currentTarget.files?.[0]; if (file) execution?.onImportCheckpoint?.(file); e.currentTarget.value = ''; }} /></label>
             <button disabled={!execution?.onExportCheckpoint} onclick={() => execution?.onExportCheckpoint?.()}>Scarica checkpoint</button>

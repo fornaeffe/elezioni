@@ -4,6 +4,9 @@ This is the active task list. Record completed work and evidence according to
 [project history](docs/history/README.md). Order work by dependencies and update
 tasks when the evidence changes; detailed execution plans belong near their work.
 
+Keep in mind that links with a line number might point to the wrong line if, in the 
+meantime, the linked file has been edited and the link has not been updated.
+
 ## Future work
 
 - [ ] **UI polishing**
@@ -36,6 +39,8 @@ tasks when the evidence changes; detailed execution plans belong near their work
       [ReferencesEditor](web\src\lib\politics\editor\ReferencesEditor.svelte:47),
       describing their meanings. 
     - [ ] Next to ["Data di riferimento"](web\src\lib\politics\editor\CommonPoliticsEditor.svelte:95).
+    - [ ] Next to "Profilo geografico", "SD profilo", "SD innovazione locale", 
+      "SD innovazioni nazionale".
   - [ ] In [FilingTree](web\src\lib\politics\editor\FilingTree.svelte) and
     [ReferenceTree](web\src\lib\politics\editor\ReferenceTree.svelte):
     - [ ] Some levels of FilingTree show "0 candidati fissati" when they (and 
@@ -88,10 +93,41 @@ tasks when the evidence changes; detailed execution plans belong near their work
     section, and rename the collapsible section "Astensione e voti non validi"
     instead of "Riferimenti avanzati", without breaking other uses of the component.
   - [ ] Rewrite models' names and descriptions in a more undersantable manner.
+  - [ ] Rethink membership editor, component pooling editor and component reference
+    editor:
+    - [ ] Add short explanatory text under the first collapsible section of this
+      group, describing the meaning of components and membership.
+    - [ ] Separate future lists memberships editor from historical sources 
+      memberships editor.
+    - [ ] Change ["Rimuovi componente" button](web\src\lib\politics\editor\MembershipsEditor.svelte:48)
+      into a compact icon button, moving the current text to `title` attribute.
+    - [ ] Change ["Conferma aggiunta" button](web\src\lib\politics\editor\MembershipsEditor.svelte:58)
+      into a compact icon button placed just right to the select, moving the 
+      current text to `title` attribute. 
+    - [ ] Change [membership lock checkbox](web\src\lib\politics\editor\MembershipsEditor.svelte:41)
+      with a lock icon switch placed between Camera and Senato boxes, without
+      visible text but with "Collega Camera e Senato" as `title`.
+    - [ ] Change historical sources membership editor into a collapsible tree 
+      view with levels:
+        - source (in chronological order, with a visually clear distinction 
+          between elections and polls)
+        - option
+    - [ ] Change ["Rimuovi membro" button](web\src\lib\politics\editor\MembershipsEditor.svelte:75)
+      into a compact icon button, moving the current text to `title` attribute.
+    - [ ] Rethink the presentation of 
+      ["Provenienza"](web\src\lib\politics\editor\MembershipsEditor.svelte:85),
+      making it more understandable.
+    - [ ] In pooled component editor, list a pool's components one per row 
+      instead of inline, and add, if possible, a button to remove one component.
+    - [ ] In pooled component editor, move the new pool form into a cancelable
+      modal dialog, to be opened through a button.
   - [ ] Rename different components with same name
   - [ ] Review historical memberships
-  - [ ] Rethink membership editor, component pooling editor and component reference
-    editor.
+  - [ ] In "Ipotesi senza storico e riferimenti dei componenti" do not show
+    controls for settings that are ignored, i.e. if a list has historical members,
+    do not show controls for that list's new component without history. If 
+    even component's references are ignored when a list has historical members,
+    do not list that list in this section's selector at all.
   - [ ] Style the `view.stale` and `view.recommendation` messages like other
     warnings.
   - [ ] Remove the collapsible "Dettagli" section from general warnings, that 
@@ -141,6 +177,7 @@ tasks when the evidence changes; detailed execution plans belong near their work
     loading placeholder. Check if this behavior is replicated in any other section,
     and correct it in the same way.
   - [ ] Rethink and rewrite these unclear terms and phrases, better explaining their meaning:
+    - [ ] "Seleziona componenti interi etc..." (`web\src\lib\politics\editor\AdvancedEditor.svelte:38`)
     - [ ] "simulazioni conservate"
     - [ ] "Eletti per affiliazione personale finale; coalizioni per titolarità del seggio."
     - [ ] "Identità e recuperi restano condizionati ai dati/modelli delle preferenze."
@@ -158,6 +195,7 @@ tasks when the evidence changes; detailed execution plans belong near their work
   - [ ] Invert colors in spinograms: darker colors = more candidates elected.
   - [ ] Make the "Percentuali per lista" boxplots expands its labels on large 
     screen, instead of clipping labels while leaving blank space on the right
+  - [ ] Add web documentation or links to markdown documentation on GitHub.
 - [ ] Some results (particularly "Probabilità di elezione") take a long time to
   load on some occasions. Investigate the results loading performances and check
   if there are any avoidable slowdowns, of if some cases need unavoidable long
