@@ -7,7 +7,7 @@ import { REFORM, type PoliticsScenario, type Reference, type NonValidReference, 
   type Placement, type Candidate, type Subject } from '../scenario/schema';
 
 export type Edit = (scenario: PoliticsScenario) => PoliticsScenario;
-export type ApplyEdit = (edit: Edit) => boolean;
+export type ApplyEdit = (edit: Edit, onError?: (message: string) => void) => boolean;
 export type Mutable<T> = T extends object ? { -readonly [K in keyof T]: Mutable<T[K]> } : T;
 export function editScenario(s: PoliticsScenario, change: (draft: Mutable<PoliticsScenario>) => void, context?: DomainContext) {
   const next = structuredClone(s) as Mutable<PoliticsScenario>;

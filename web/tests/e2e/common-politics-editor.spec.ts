@@ -6,7 +6,7 @@ import authored from '../../../data/politics-default-scenario.json' with { type:
 import { decodeScenario, encodeScenario } from '../../src/lib/politics/scenario/serialization';
 import { createDefaultCommonPoliticsScenario } from '../../src/lib/politics/scenario/defaults';
 import { politicsDraftKey } from '../../src/lib/politics/files/draft';
-import { createCandidate, upsertPlacement } from '../../src/lib/politics/scenario/edits';
+import { createCandidate, selectLaw, upsertPlacement } from '../../src/lib/politics/scenario/edits';
 import { waitForPoliticsReady } from '../fixtures/politics-readiness';
 
 const base = process.env.BASE_PATH ?? '';
@@ -309,6 +309,11 @@ test('coalition candidate trees prune empty Reform branches and keep Rosatellum 
   await expect(territory.locator('..').locator(':scope > details > summary')).toHaveText(['Candidati']);
   await summary('Candidati').click();
   await expect(firstSlot).toBeVisible();
+  await firstSlot.press('ArrowDown');
+  const options = page.getByRole('listbox');
+  await expect(options.getByRole('option', { name: 'Genera automaticamente' })).toBeVisible();
+  await expect(options.getByRole('option', { name: 'Crea candidato' })).toHaveCount(0);
+  await firstSlot.press('Escape');
 
   await page.getByRole('combobox', { name: 'Legge elettorale', exact: true }).selectOption('politiche-r-parity-v1');
   await ready(page);
@@ -350,18 +355,112 @@ test('candidate trees retain sparse pins and explain disabled identities while f
   await expect(candidates.locator('.summary-count')).toHaveCSS('font-weight', '400');
   await candidates.click();
   const fourth = article.getByRole('combobox', { name: 'Candidato 4', exact: true });
-  await expect(fourth).toHaveValue('older');
-  expect(await article.getByRole('combobox', { name: 'Candidato 1', exact: true }).locator('option[value=young]').getAttribute('disabled')).not.toBeNull();
-  await expect(fourth.locator('option[value=unavailable]')).toContainText('Rinuncia dichiarata');
+  const options = page.getByRole('listbox');
+  await expect(fourth).toHaveValue('Identità eleggibile');
+  await article.getByRole('combobox', { name: 'Candidato 1', exact: true }).press('ArrowDown');
+  await expect(options.getByRole('option', { name: /Identità troppo giovane/ })).toBeDisabled();
+  await expect(options.getByRole('option', { name: /Identità troppo giovane/ })).toContainText('Età insufficiente');
+  await expect(options.getByRole('option', { name: /Identità indisponibile/ })).toBeDisabled();
+  await expect(options.getByRole('option', { name: /Identità indisponibile/ })).toContainText('Rinuncia dichiarata');
+  await expect(options.getByRole('option', { name: /Identità eleggibile/ })).toBeDisabled();
+  await page.keyboard.press('Escape');
   await expect(article.getByRole('checkbox', { name: 'Deposita tutta Camera', exact: true })).toHaveJSProperty('indeterminate', true);
   await article.getByRole('checkbox', { name: `Deposita ${college.name}`, exact: true }).uncheck();
   expect((await draft(page)).lawSettings['politiche-reform-2026-v1'].placements).toMatchObject([{ position: 4, candidateId: 'older' }]);
   await expect(article.getByText('Fissato, inattivo', { exact: true })).toBeVisible();
-  await fourth.selectOption('');
+  await fourth.press('ArrowDown');
+  await options.getByRole('option', { name: 'Genera automaticamente' }).click();
+  await expect(fourth).toHaveValue('Genera automaticamente');
   expect((await draft(page)).lawSettings['politiche-reform-2026-v1'].placements).toEqual([]);
   expect((await draft(page)).candidates).toHaveLength(3);
   for (const branch of filingPath) await expect(branch.locator('.summary-count')).toHaveCount(0);
   await expect(candidates).toHaveText('Candidati');
+});
+
+test('candidate picker searches and creates atomically with cancellation and focus return', async ({ page }) => {
+  const s = createCandidate(selectLaw(createDefaultCommonPoliticsScenario(), 'politiche-r-parity-v1'), {
+    id: 'existing', name: 'Ada Esistente', gender: 'female', birthDate: '1970-01-01', availability: { kind: 'available' },
+  });
+  await page.addInitScript(({ key, s }) => localStorage.setItem(key, JSON.stringify(s)), { key: politicsDraftKey, s });
+  await page.goto(`${base}/politics/editor`); await ready(page);
+  const coalition = page.getByRole('article', { name: 'Centrodestra', exact: true });
+  const summary = (title: string) => coalition.locator('summary').and(coalition.getByText(title, { exact: true }));
+  await coalition.getByRole('button', { name: 'Opzioni coalizione Centrodestra', exact: true }).click();
+  for (const title of ['Candidati della coalizione', 'Camera', 'Collegio plurinominale Piemonte 1 - P01', 'Collegio uninominale Piemonte 1 - U01', 'Candidati']) {
+    await summary(title).click();
+  }
+
+  const slot = coalition.getByRole('combobox', { name: 'Candidato 1', exact: true });
+  const options = page.getByRole('listbox');
+  await slot.fill('esIST');
+  await expect(options.getByRole('option', { name: 'Ada Esistente' })).toBeVisible();
+  await expect(options.getByRole('option', { name: 'Genera automaticamente' })).toHaveCount(0);
+  await slot.press('Enter');
+  await expect(slot).toHaveValue('Ada Esistente');
+  const before = await draft(page);
+  const previousPin = before.lawSettings['politiche-r-parity-v1'].placements[0];
+  expect(previousPin).toMatchObject({ candidateId: 'existing', position: 1, role: 'uninominal' });
+
+  await slot.fill('Non corrisponde');
+  await expect(options.getByRole('status')).toHaveText('Nessuna opzione trovata');
+  await slot.press('Escape');
+  await expect(options).toBeHidden();
+  await expect(slot).toHaveValue('Ada Esistente');
+  expect(await draft(page)).toEqual(before);
+
+  const dialog = page.getByRole('dialog', { name: 'Crea candidato' });
+  const name = dialog.getByRole('textbox', { name: 'Nome candidato' });
+  await slot.fill('Nuova');
+  await expect(options.getByRole('option', { name: 'Crea candidato' })).toBeVisible();
+  await slot.press('Enter');
+  await expect(dialog).toBeVisible();
+  await expect(name).toBeFocused();
+  await name.fill('Da scartare');
+  await page.keyboard.press('Escape');
+  await expect(dialog).toBeHidden();
+  await expect(slot).toBeFocused();
+  await expect(slot).toHaveValue('Ada Esistente');
+  expect(await draft(page)).toEqual(before);
+
+  await slot.press('ArrowDown');
+  await options.getByRole('option', { name: 'Crea candidato' }).click();
+  await expect(name).toHaveValue('');
+  await dialog.getByRole('button', { name: 'Annulla' }).click();
+  await expect(dialog).toBeHidden();
+  await expect(slot).toBeFocused();
+
+  await slot.press('ArrowDown');
+  await options.getByRole('option', { name: 'Crea candidato' }).click();
+  await name.fill('Teresa Nuova');
+  await dialog.getByRole('combobox', { name: 'Genere' }).selectOption('female');
+  const birthDate = dialog.getByLabel('Data di nascita', { exact: true });
+  await birthDate.fill('2020-01-01');
+  const save = dialog.getByRole('button', { name: 'Salva candidato' });
+  await save.click();
+  await expect(dialog.getByRole('alert')).toHaveText('Età insufficiente per la camera');
+  await expect(dialog).toBeVisible();
+  await expect(name).toHaveValue('Teresa Nuova');
+  expect(await draft(page)).toEqual(before);
+
+  await birthDate.fill('1970-01-01');
+  await save.click();
+  await expect(dialog).toBeHidden();
+  await expect(slot).toBeFocused();
+  await expect(slot).toHaveValue('Teresa Nuova');
+  const after = await draft(page);
+  expect(after.candidates).toHaveLength(2);
+  const created = after.candidates[1];
+  expect(created).toMatchObject({ name: 'Teresa Nuova', birthDate: '1970-01-01' });
+  expect(after.lawSettings['politiche-r-parity-v1'].placements).toEqual([{ ...previousPin, candidateId: created.id }]);
+
+  await page.setViewportSize({ width: 375, height: 800 });
+  await coalition.getByRole('button', { name: 'Mostra opzioni per Candidato 1' }).click();
+  await expect(options.getByRole('option', { name: 'Teresa Nuova' })).toBeVisible();
+  const inputBox = (await slot.boundingBox())!;
+  const popupBox = (await options.boundingBox())!;
+  expect(Math.abs(popupBox.x - inputBox.x)).toBeLessThan(8);
+  expect(popupBox.x).toBeGreaterThanOrEqual(0);
+  expect(popupBox.x + popupBox.width).toBeLessThanOrEqual(375);
 });
 
 test('advanced controls edit source membership, pooling provenance and model-specific fallback without losing inactive values', async ({ page }) => {

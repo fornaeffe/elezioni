@@ -11,7 +11,7 @@
   import { createDefaultCommonPoliticsScenario } from '../scenario/defaults';
   import { encodeScenario, decodeScenario } from '../scenario/serialization';
   import { parsePoliticsScenario, validateActiveScenario } from '../scenario/validation';
-  import { editScenario, type Edit } from './model';
+  import { editScenario, type ApplyEdit } from './model';
   import { loadEditorAssets, type EditorAssets } from './assets';
   import SubjectsEditor from './SubjectsEditor.svelte';
   import ReferencesEditor from './ReferencesEditor.svelte';
@@ -42,16 +42,24 @@
       status = 'Caricamento non riuscito'; error = e instanceof Error ? e.message : String(e);
     }
   }
-  function apply(edit: Edit) {
-    if (execution?.busy) return false;
+  const apply: ApplyEdit = (edit, onError) => {
+    if (execution?.busy) {
+      onError?.('Attendi il termine della simulazione per modificare lo scenario.');
+      return false;
+    }
     try {
       const before = scenario;
       const next = parsePoliticsScenario(edit(scenario), assets?.context);
       onchange(next); ++editRevision; importController?.abort(); error = '';
       if (before.selection.scrutiny.id !== next.selection.scrutiny.id || activeGenerator(before).id !== activeGenerator(next).id || JSON.stringify(before.data) !== JSON.stringify(next.data)) void load(next);
       return true;
-    } catch (e) { error = `Modifica non applicata: ${e instanceof Error ? e.message : String(e)}`; return false; }
-  }
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      if (onError) onError(message);
+      else error = `Modifica non applicata: ${message}`;
+      return false;
+    }
+  };
   async function importFile(file: File) {
     const revision = editRevision;
     error = ''; importController?.abort();

@@ -12,13 +12,6 @@ meantime, the linked file has been edited and the link has not been updated.
 - [ ] **UI polishing**
   - [ ] In [FilingTree](web\src\lib\politics\editor\FilingTree.svelte) and
     [ReferenceTree](web\src\lib\politics\editor\ReferenceTree.svelte):
-    - [ ] Replace the separate search and select in
-      [CandidateSlots](web/src/lib/politics/editor/CandidateSlots.svelte) with
-      Bits UI `Combobox`. Make "Crea candidato" an option that opens
-      [CandidateForm](web/src/lib/politics/editor/CandidateForm.svelte) in a
-      cancelable native modal dialog. Select the newly created candidate in the
-      originating picker on success. Verify eligibility, existing selections,
-      cancellation, and focus return.
     - [ ] Rethink [ReferenceTree](web\src\lib\politics\editor\ReferenceTree.svelte:16) 
       and [ReferenceFields](web\src\lib\politics\editor\ReferenceFields.svelte)
       layout, and add appropriate toggletips to explain fields meaning.

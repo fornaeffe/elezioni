@@ -1,5 +1,7 @@
 <script lang="ts">
+  import { tick } from 'svelte';
   import Badge from '$lib/ui/Badge.svelte';
+  import SearchCombobox from '$lib/ui/SearchCombobox.svelte';
   import type { PoliticsScenario, Subject, Placement } from '../scenario/schema';
   import { ROSATELLUM } from '../scenario/schema';
   import { locationKey } from '../scenario/validation';
@@ -9,7 +11,10 @@
   import { candidateReason, type ApplyEdit } from './model';
   import CandidateForm from './CandidateForm.svelte';
   let { scenario, owner, node, assets, edit }: { scenario: PoliticsScenario; owner: Subject; node: FilingNode; assets: EditorAssets; edit: ApplyEdit } = $props();
-  let creating = $state(false), editing = $state<string | null>(null), search = $state('');
+  const dialogTitleId = $props.id();
+  let createDialog = $state<HTMLDialogElement>();
+  let creation = $state.raw<{ position: number; input: HTMLInputElement } | null>(null);
+  let editing = $state<string | null>(null);
   let law = $derived(scenario.selection.scrutiny.id);
   let role = $derived(node.role!);
   let pins = $derived(scenario.lawSettings[law].placements.filter(p => sameSubject(p.owner, owner) && p.role === role && locationKey(p.location) === locationKey(node.location)));
@@ -21,17 +26,46 @@
       location: node.location, owner, position, affiliationListId: owner.kind === 'list' ? owner.id : null };
     return law === ROSATELLUM ? { ...common, role: role as 'uninominal' | 'plurinominal', minority: false } : { ...common, role: role as 'ordinary' | 'bonus' | 'special' };
   }
-  function choose(position: number, id: string) {
-    const pin = slot(position);
-    const ordinary = role === 'bonus' ? scenario.lawSettings[law].placements.find(p => p.candidateId === id && p.role === 'ordinary' && p.owner.kind === 'list' &&
-      (owner.kind === 'list' ? p.owner.id === owner.id : scenario.subjects.lists.some(l => l.id === p.owner.id && l.coalitionId === owner.id)) &&
+  function assign(s: PoliticsScenario, pin: Placement, id: string) {
+    if (!id) return removePlacement(s, law, pin.id);
+    const ordinary = role === 'bonus' ? s.lawSettings[law].placements.find(p => p.candidateId === id && p.role === 'ordinary' && p.owner.kind === 'list' &&
+      (owner.kind === 'list' ? p.owner.id === owner.id : s.subjects.lists.some(l => l.id === p.owner.id && l.coalitionId === owner.id)) &&
       assets.context.geographyRelations.some(r => locationKey(r.parent) === locationKey(node.location) && locationKey(r.child) === locationKey(p.location))) : null;
     const affiliationListId = ordinary?.owner.id ?? pin.affiliationListId;
-    edit(s => id ? upsertPlacement(s, law, { ...pin, candidateId: id, affiliationListId }, assets.context) : removePlacement(s, law, pin.id));
+    return upsertPlacement(s, law, { ...pin, candidateId: id, affiliationListId }, assets.context);
+  }
+  function placeCreated(s: PoliticsScenario, position: number, id: string) {
+    const pin = slot(position);
+    const candidate = s.candidates.find(c => c.id === id)!;
+    const reason = candidateReason(s, candidate, pin, assets.context);
+    if (reason) throw new Error(reason);
+    return assign(s, pin, id);
+  }
+  async function startCreation(position: number, input: HTMLInputElement) {
+    creation = { position, input };
+    await tick();
+    createDialog?.showModal();
+  }
+  function endCreation() {
+    const input = creation?.input;
+    creation = null;
+    input?.focus();
   }
   function affiliation(candidateId: string) {
     const p = scenario.lawSettings[law].placements.find(p => p.candidateId === candidateId && p.owner.kind === 'list');
     return p ? scenario.subjects.lists.find(l => l.id === p.owner.id)?.name : null;
+  }
+  function candidateOptions(position: number) {
+    const pin = slot(position);
+    return [
+      { value: '', label: 'Genera automaticamente' },
+      ...scenario.candidates.map(candidate => ({
+        value: candidate.id,
+        label: candidate.name,
+        detail: affiliation(candidate.id) ?? undefined,
+        disabledReason: candidateReason(scenario, candidate, pin, assets.context),
+      })),
+    ];
   }
   function bonusFor(pin: Placement): Placement | null {
     if (pin.role !== 'ordinary') return null;
@@ -48,19 +82,12 @@
     return { id: `bonus-${pin.id}`, candidateId: pin.candidateId, location: bonusNode.location, owner: bonusOwner, role: 'bonus', position, affiliationListId: owner.id };
   }
 </script>
-<label data-field>Cerca candidato<input type="search" bind:value={search} /></label>
 {#each Array.from({ length: Math.min(node.slots, limit) }, (_, i) => i + 1) as position (position)}
   {@const pin = pins.find(p => p.position === position)}
-  <div class="candidate-slot">
-    <label data-field>Candidato {position}
-      <select value={pin?.candidateId ?? ''} onchange={e => choose(position, e.currentTarget.value)}>
-        <option value="">Genera automaticamente</option>
-        {#each scenario.candidates.filter(c => c.id === pin?.candidateId || c.name.toLocaleLowerCase('it').includes(search.toLocaleLowerCase('it'))) as candidate (candidate.id)}
-          {@const reason = candidateReason(scenario, candidate, slot(position), assets.context)}
-          <option value={candidate.id} disabled={!!reason}>{candidate.name}{affiliation(candidate.id) ? ` · ${affiliation(candidate.id)}` : ''}{reason ? ` — ${reason}` : ''}</option>
-        {/each}
-      </select>
-    </label>
+  <div>
+    <SearchCombobox label={`Candidato ${position}`} value={pin?.candidateId ?? ''} options={candidateOptions(position)}
+      onValueChange={id => edit(s => assign(s, slot(position), id))}
+      action={role === 'bonus' ? undefined : { label: 'Crea candidato', run: input => void startCreation(position, input) }} />
     {#if pin}<Badge>{active.has(pin.id) ? 'Fissato' : 'Fissato, inattivo'}</Badge><button onclick={() => editing = pin.candidateId}>Modifica candidato</button>{/if}
     {#if pin && 'minority' in pin}<label data-field><input type="checkbox" checked={pin.minority} onchange={e => edit(s => upsertPlacement(s, law, { ...pin, minority: e.currentTarget.checked }, assets.context))} />Candidatura di minoranza</label>{/if}
     {#if pin && bonusFor(pin)}
@@ -72,6 +99,29 @@
   </div>
 {/each}
 {#if node.slots > limit}<button onclick={() => limit += 12}>Altri posti</button>{/if}
-<button onclick={() => creating = true}>Crea candidato</button>
-{#if creating}<CandidateForm {scenario} {edit} done={() => creating = false} />{/if}
+{#if role !== 'bonus'}
+  <dialog bind:this={createDialog} aria-labelledby={dialogTitleId} onclose={endCreation}>
+    {#if creation}
+      {@const position = creation.position}
+      <h2 id={dialogTitleId}>Crea candidato</h2>
+      <CandidateForm {scenario} {edit} closeLabel="Annulla" done={() => createDialog?.close()}
+        afterCreate={(s, id) => placeCreated(s, position, id)} />
+    {/if}
+  </dialog>
+{/if}
 {#if editing}{#key editing}<CandidateForm {scenario} candidate={scenario.candidates.find(c => c.id === editing)} {edit} done={() => editing = null} />{/key}{/if}
+
+<style>
+  dialog {
+    inline-size: min(36rem, calc(100% - 2 * var(--space-4)));
+    max-block-size: calc(100% - 2 * var(--space-4));
+    padding: var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-panel);
+    color: var(--color-text);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-overlay);
+  }
+  dialog::backdrop { background: var(--color-backdrop); }
+  h2 { margin-block: 0 var(--space-4); }
+</style>
