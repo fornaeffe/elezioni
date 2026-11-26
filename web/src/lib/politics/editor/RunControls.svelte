@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Toggletip from '$lib/ui/Toggletip.svelte';
   import type { PoliticsScenario } from '../scenario/schema';
   import { REFORM } from '../scenario/schema';
   import { activeGenerator } from '../scenario/registry';
@@ -11,13 +12,20 @@
     workerInfo?: { requested: string; recommended: number; maximum: number; memoryMiB: number; warning: boolean };
   }
   let { scenario, edit, execution }: { scenario: PoliticsScenario; edit: ApplyEdit; execution?: ExecutionControls } = $props();
+  const simulationsId = $props.id();
   let model = $derived(activeGenerator(scenario));
   function seed(key: 'fittingSeed' | 'simulationSeed') { edit(s => editScenario(s, n => { n.execution[key] = crypto.randomUUID(); })); }
 </script>
 <section aria-labelledby="run-title">
   <h2 id="run-title">Simulazione</h2>
   <fieldset disabled={execution?.busy}>
-    <label>Numero di simulazioni<input type="number" min="1" step="1" value={scenario.execution.simulations} onchange={e => edit(s => editScenario(s, n => { n.execution.simulations = Number(e.currentTarget.value); }))} /></label>
+    <span class="field-with-tip">
+      <span class="field-caption">
+        <label for={simulationsId}>Numero di simulazioni</label>
+        <Toggletip label="Numero di simulazioni" text="Inizia con 10 simulazioni per misurare il tempo di calcolo sul tuo dispositivo. Se la prova va a buon fine e il tempo è accettabile, passa a 1.000 per ottenere stime più stabili, ad esempio per le probabilità di elezione." />
+      </span>
+      <input id={simulationsId} type="number" min="1" step="1" value={scenario.execution.simulations} onchange={e => edit(s => editScenario(s, n => { n.execution.simulations = Number(e.currentTarget.value); }))} />
+    </span>
     <details class="advanced">
       <summary>Impostazioni avanzate della simulazione</summary>
       <div class="advanced-content">

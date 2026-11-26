@@ -2,6 +2,7 @@
   import { onMount, tick } from 'svelte';
   import { useStatus } from '$lib/app-status.svelte';
   import SplitButton from '$lib/ui/SplitButton.svelte';
+  import Toggletip from '$lib/ui/Toggletip.svelte';
   const appStatus = useStatus();
   import { type PoliticsScenario, type GeneratorId, type LawId, laws, REFORM } from '../scenario/schema';
   import { activeGenerator, capabilities, supportedPairs } from '../scenario/registry';
@@ -21,6 +22,7 @@
   import './editor.css';
   let { scenario, onchange, execution, stageExternalFile }: { scenario: PoliticsScenario; onchange: (next: PoliticsScenario) => void;
     execution?: ExecutionControls; stageExternalFile?: (file: File) => Promise<(() => void) | null> } = $props();
+  const referenceDateId = $props.id();
   let assets = $state.raw<EditorAssets | null>(null), error = $state(''), status = $state('Caricamento del modello selezionato…');
   let controller: AbortController | null = null, importController: AbortController | null = null, disposed = false, epoch = 0, editRevision = 0;
   $effect(() => { appStatus.set('politics-editor', error ? { state: 'error', label: 'Errore editor', detail: error, retry: !assets ? () => void load(scenario) : undefined } : !assets ? { state: status === 'Caricamento annullato' ? 'ready' : 'working', label: status, cancel: () => { controller?.abort(); ++epoch; status = 'Caricamento annullato'; }, retry: () => void load(scenario) } : { state: 'ready', label: status }); });
@@ -98,7 +100,15 @@
     </div>
     <SubjectsEditor {scenario} {assets} edit={apply} />
     <LazySection title="Impostazioni avanzate dello scenario">
-      <p><label>Data di riferimento<input type="date" value={scenario.referenceDate} onchange={e => apply(s => editScenario(s, n => { n.referenceDate = e.currentTarget.value; }))} /></label></p>
+      <div>
+        <span class="field-with-tip">
+          <span class="field-caption">
+            <label for={referenceDateId}>Data di riferimento</label>
+            <Toggletip label="Data di riferimento" text="È la data a cui si riferiscono le quote inserite nello scenario e l’ultimo giorno utile per i risultati storici e i sondaggi. Il modello proietta il voto da questa data fino all’elezione. Può coincidere con la data dell’elezione o precederla." />
+          </span>
+          <input id={referenceDateId} type="date" value={scenario.referenceDate} onchange={e => apply(s => editScenario(s, n => { n.referenceDate = e.currentTarget.value; }))} />
+        </span>
+      </div>
       <label>Generatore dei voti<select aria-label="Generatore dei voti" value={generator.id} onchange={e => { const model = modelRegistry[e.currentTarget.value as GeneratorId]; apply(s => selectGenerator(s, model.id, model.version)); }}>
         {#each generationModels.filter(m => supportedPairs.some(p => p.law === scenario.selection.scrutiny.id && p.generator === m.id)) as model (model.id)}<option value={model.id}>{model.label}</option>{/each}
       </select></label>

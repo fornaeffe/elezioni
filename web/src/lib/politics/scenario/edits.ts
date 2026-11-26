@@ -93,10 +93,14 @@ export function createList(s: PoliticsScenario, list: PoliticsScenario['subjects
       isListFilingLocation(l, context.geographyRelations)).map(l => ({ ...l })) });
   }, context);
 }
+export function assumedCandidateBirthDate(electionDate: string): string {
+  return `${Number(electionDate.slice(0, 4)) - 50}-01-01`;
+}
+
 export function createCandidate(s: PoliticsScenario, input: { readonly id: string; readonly name: string;
   readonly gender: Candidate['gender']; readonly birthDate?: string | null; readonly availability: Candidate['availability'] }): PoliticsScenario {
   const supplied = input.birthDate != null && input.birthDate.trim() !== '';
-  const birthDate = supplied ? input.birthDate! : `${Number(s.electionDate.slice(0, 4)) - 50}-01-01`;
+  const birthDate = supplied ? input.birthDate! : assumedCandidateBirthDate(s.electionDate);
   if (!isCalendarDate(birthDate)) throw new Error('INVALID_BIRTH_DATE');
   return edit(s, n => { n.candidates.push({ id: input.id, name: input.name, gender: input.gender, birthDate,
     birthDateOrigin: supplied ? 'declared' : 'assumed', availability: structuredClone(input.availability) }); });

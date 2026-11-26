@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Toggletip from '$lib/ui/Toggletip.svelte';
   import type { PoliticsScenario } from '../scenario/schema';
   import { capabilities } from '../scenario/registry';
   import type { EditorAssets } from './assets';
@@ -7,7 +8,18 @@
   import ReferenceFields from './ReferenceFields.svelte';
   import ReferenceTree from './ReferenceTree.svelte';
   import { effectiveUncertaintyMultipliers } from '../scenario/references';
+  import { nationalReferenceHelp } from './reference-help';
+
+  const multiplierFields = [
+    { key: 'national', label: 'Moltiplicatore nazionale comune (adimensionale)',
+      help: 'Regola quanto può variare il sostegno alla lista a livello nazionale nelle simulazioni M02, per Camera e Senato. Usa 1 per la variabilità predefinita, 0 per azzerare questa fonte di variabilità e un valore maggiore di 1 per aumentarla.' },
+    { key: 'local', label: 'Moltiplicatore locale comune (adimensionale)',
+      help: 'Regola quanto può variare il sostegno alla lista da comune a comune nelle simulazioni M02, per Camera e Senato. Usa 1 per la variabilità predefinita, 0 per azzerare questa fonte di variabilità e un valore maggiore di 1 per aumentarla.' }
+  ] as const;
   let { scenario, target, label, assets, edit, mode = 'all' }: { scenario: PoliticsScenario; target: ReferenceTarget; label: string; assets: EditorAssets | null; edit: ApplyEdit; mode?: 'all' | 'basic' | 'advanced' } = $props();
+  const multiplierId = $props.id();
+  const generator = $derived(capabilities(scenario).generator);
+  const meanHelp = $derived(nationalReferenceHelp(generator.id, target?.kind ?? 'non-valid'));
   let rows = $derived(referenceRows(scenario, target));
   let different = $derived(rows.some(r => r.scope.kind === 'national' && r.channel !== 'common'));
   function multiplier(key: 'national' | 'local', value: string) {
@@ -22,31 +34,23 @@
   }
 </script>
 {#if mode !== 'advanced'}
-<ReferenceFields {scenario} {target} scope={{ kind: 'national' }} {label} {edit} showSd={false} compact={mode === 'basic'} showRemove={mode !== 'basic'} />
+<ReferenceFields {scenario} {target} scope={{ kind: 'national' }} {label} {edit} {meanHelp} showSd={false} compact={mode === 'basic'} showRemove={mode !== 'basic'} />
 {/if}
 {#if different && mode !== 'advanced'}<span class="badge">Riferimenti distinti per camera</span>{/if}
 {#if mode !== 'basic'}
 <LazySection title={`Riferimenti avanzati · ${rows.length} dichiarazioni`}>
-  <p>
-    {target === null ? 
-    'Astensioni e schede non valide: tutti i valori sono espressi in percentuale sugli elettori.' :
-    'Tutti i valori sono espressi in percentuale sui voti validi.'}
-  </p>
-  <p>
-    Se i riferimenti vengono lasciati vuoti il modello stimerà le percentuali
-    in base ai dati storici e ai sondaggi.
-  </p>
   <ReferenceFields {scenario} {target} scope={{ kind: 'national' }} {label} {edit} showMean={false} showRemove={mode === 'advanced'} />
   {#each ['camera', 'senato'] as channel (channel)}
-    <ReferenceFields {scenario} {target} scope={{ kind: 'national' }} channel={channel as 'camera' | 'senato'} label={`${label} ${channel === 'camera' ? 'Camera' : 'Senato'}`} {edit} />
+    <ReferenceFields {scenario} {target} scope={{ kind: 'national' }} channel={channel as 'camera' | 'senato'} label={`${label} ${channel === 'camera' ? 'Camera' : 'Senato'}`} {edit} {meanHelp} />
   {/each}
-  {#if target?.kind === 'list' && capabilities(scenario).generator.uncertaintyMultipliers}
+  {#if target?.kind === 'list' && generator.uncertaintyMultipliers}
       {@const values = effectiveUncertaintyMultipliers(scenario, target.id, 'camera')}
-      {#each ['national', 'local'] as k (k)}
-        {@const key = k as 'national' | 'local'}
-        <label>Moltiplicatore {key === 'national' ? 'nazionale' : 'locale'} comune (adimensionale)
-          <input type="number" min="0" step="any" value={values[key]} onchange={e => multiplier(key, e.currentTarget.value)} />
-        </label>
+      {#each multiplierFields as { key, label: fieldLabel, help } (key)}
+        {@const id = `${multiplierId}-${key}`}
+        <span class="field-with-tip">
+          <span class="field-caption"><label for={id}>{fieldLabel}</label><Toggletip label={fieldLabel} text={help} /></span>
+          <input {id} type="number" min="0" step="any" value={values[key]} onchange={e => multiplier(key, e.currentTarget.value)} />
+        </span>
       {/each}
   {/if}
   {#if assets}<ReferenceTree {scenario} {target} nodes={assets.references} {edit} />{:else}<p>Dati territoriali in caricamento.</p>{/if}

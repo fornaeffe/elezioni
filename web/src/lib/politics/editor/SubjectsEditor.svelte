@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Toggletip from '$lib/ui/Toggletip.svelte';
   import type { PoliticsScenario } from '../scenario/schema';
   import { chambers, REFORM } from '../scenario/schema';
   import { capabilities } from '../scenario/registry';
@@ -11,6 +12,7 @@
   import FilingTree from './FilingTree.svelte';
   import ReferencesEditor from './ReferencesEditor.svelte';
   import MembershipsEditor from './MembershipsEditor.svelte';
+  import { nationalReferenceHelp } from './reference-help';
   let { scenario, assets, edit }: { scenario: PoliticsScenario; assets: EditorAssets | null; edit: ApplyEdit } = $props();
   let openCoalitions = $state<Record<string, boolean>>({}), openLists = $state<Record<string, boolean>>({});
   let coalitionName = $state(''), listName = $state(''), otherMembers = $state<string[]>([]);
@@ -70,7 +72,13 @@
 </section>
 <section aria-labelledby="lists-title">
   <h2 id="lists-title">Liste</h2>
-  <div class="subject-header list-grid" aria-hidden="true"><span>Colore</span><span>Nome lista</span><span>Coalizione</span><span>Riferimento nazionale (%)</span><span></span></div>
+  <div class="subject-header list-grid">
+    <span aria-hidden="true">Colore</span><span aria-hidden="true">Nome lista</span><span aria-hidden="true">Coalizione</span>
+    <span class="field-caption">
+      <span aria-hidden="true">Riferimento nazionale (%)</span>
+      <Toggletip label="Riferimento nazionale (%)" text={nationalReferenceHelp(capabilities(scenario).generator.id, 'list')} />
+    </span>
+  </div>
   {#each scenario.subjects.lists.filter(l => l.kind !== 'other') as list (list.id)}
     <article aria-label={list.name}>
       <div class="subject-row list-grid">

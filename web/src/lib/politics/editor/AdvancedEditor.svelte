@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Toggletip from '$lib/ui/Toggletip.svelte';
   import type { PoliticsScenario } from '../scenario/schema';
   import { capabilities } from '../scenario/registry';
   import type { EditorAssets } from './assets';
@@ -6,7 +7,19 @@
   import LazySection from './LazySection.svelte';
   import MembershipsEditor from './MembershipsEditor.svelte';
   import ReferencesEditor from './ReferencesEditor.svelte';
+
+  const fallbackFields = [
+    { key: 'geographicLogProfile', label: 'Profilo geografico (log-rapporto)',
+      help: 'Correzione al peso del componente in ciascun comune rispetto al suo peso nazionale, espressa come log-rapporto. Per un componente senza storico si usa lo stesso valore in tutti i comuni. Zero lascia invariato il peso prima della normalizzazione locale.' },
+    { key: 'profileSd', label: 'SD profilo (log-rapporto)',
+      help: 'Deviazione standard che esprime l’incertezza sul profilo geografico del componente alla data di riferimento. Valori più alti permettono maggiore variabilità tra i profili di partenza simulati.' },
+    { key: 'localInnovationSd', label: 'SD innovazione locale (log-rapporto)',
+      help: 'Deviazione standard delle variazioni comunali del sostegno al componente dalla data di riferimento all’elezione. Valori più alti consentono ai comuni di discostarsi maggiormente dall’andamento nazionale.' },
+    { key: 'nationalInnovationSd', label: 'SD innovazione nazionale (log-rapporto)',
+      help: 'Deviazione standard delle variazioni nazionali del sostegno al componente dalla data di riferimento all’elezione. Valori più alti consentono uno spostamento comune a tutti i comuni più ampio.' }
+  ] as const;
   let { scenario, assets, edit }: { scenario: PoliticsScenario; assets: EditorAssets; edit: ApplyEdit } = $props();
+  const fallbackId = $props.id();
   let poolName = $state(''), poolMembers = $state<string[]>([]), poolProvenance = $state(''), query = $state('');
   let componentId = $state('');
   let components = $derived(capabilities(scenario).generator.id === 'M02' ? scenario.newComponents : [...new Map([
@@ -61,8 +74,12 @@
   {#if component}
     <p>Componente proprio: attivo solo nelle camere dove la lista non ha membri storici. Le ipotesi restano salvate quando inattivo.</p>
     {#if capabilities(scenario).generator.id === 'M02'}
-      {#each [{ key: 'geographicLogProfile', label: 'Profilo geografico (log-rapporto)' }, { key: 'profileSd', label: 'SD profilo (log-rapporto)' }, { key: 'localInnovationSd', label: 'SD innovazione locale (log-rapporto)' }, { key: 'nationalInnovationSd', label: 'SD innovazione nazionale (log-rapporto)' }] as field (field.key)}
-        <label>{field.label}<input type="number" min={field.key === 'geographicLogProfile' ? undefined : 0} step="any" value={component.fallback.M02[field.key as 'profileSd']} onchange={e => fallback(field.key as 'profileSd', e.currentTarget.value)} /></label>
+      {#each fallbackFields as { key, label, help } (key)}
+        {@const id = `${fallbackId}-${key}`}
+        <span class="field-with-tip">
+          <span class="field-caption"><label for={id}>{label}</label><Toggletip {label} text={help} /></span>
+          <input {id} type="number" min={key === 'geographicLogProfile' ? undefined : 0} step="any" value={component.fallback.M02[key]} onchange={e => fallback(key, e.currentTarget.value)} />
+        </span>
       {/each}
       <label>Provenienza ipotesi M02<input value={component.fallback.M02.provenance} onchange={e => fallback('provenance', e.currentTarget.value)} /></label>
     {:else}<p>M01 usa il profilo regionale o, in assenza, l’allocazione uguale tra liste. I parametri M02 salvati non hanno effetto su M01. Provenienza: {component.fallback.M01.provenance}</p>{/if}

@@ -10,34 +10,6 @@ meantime, the linked file has been edited and the link has not been updated.
 ## Future work
 
 - [ ] **UI polishing**
-  - [ ] When I click on "Ripristina scenario predefinito", in some cases (maybe
-    when results are loaded?) I got an error. Inspect, reproduce the bug, 
-    diagnose and fix. 
-  - [ ] Add toggletips to convey tips about UI components use, that the user can
-    open clicking on a small info icon near the control label:
-    - [ ] Next to "Riferimento nazionale (%)": it should explain the meaning of 
-      the national reference (different between lists and non-valid, and possibly
-      dinamically selected according to the currently selected model, if this 
-      reference has a different meaning between models), and what happens if 
-      this field is left blank.
-    - [ ] Next to "Numero di simulazioni": it should suggest to start with 10
-      simulations to check the computational time on the users' device, then
-      raise it to 1000 to obtain statistically significant results.
-    - [ ] Next to "Data di nascita" in 
-      [CandidateForm](web\src\lib\politics\editor\CandidateForm.svelte): it should
-      contain the information currently conveyed by the phrase "Se vuota alla 
-      creazione: 1 gennaio 1977. La data assunta influenza età e spareggi e 
-      resta salvata." that itself should be removed from CandidateForm; but with
-      a more clear wording.
-    - [ ] Next to "Disponibile" in 
-      [CandidateForm](web\src\lib\politics\editor\CandidateForm.svelte), explaining
-      the meaning and consequences of not being available.
-    - [ ] Next to "Moltiplicatore nazionale" and "Moltiplicatore locale" in
-      [ReferencesEditor](web\src\lib\politics\editor\ReferencesEditor.svelte:47),
-      describing their meanings. 
-    - [ ] Next to ["Data di riferimento"](web\src\lib\politics\editor\CommonPoliticsEditor.svelte:95).
-    - [ ] Next to "Profilo geografico", "SD profilo", "SD innovazione locale", 
-      "SD innovazioni nazionale".
   - [ ] In [FilingTree](web\src\lib\politics\editor\FilingTree.svelte) and
     [ReferenceTree](web\src\lib\politics\editor\ReferenceTree.svelte):
     - [ ] Some levels of FilingTree show "0 candidati fissati" when they (and 

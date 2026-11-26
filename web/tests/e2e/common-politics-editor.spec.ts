@@ -128,6 +128,72 @@ test('new lists initialize every law, tri-state filings and linked/unlinked cham
   await expect(membership.getByLabel('Aggiungi componente senato')).toBeDisabled();
 });
 
+test('field toggletips explain scenario settings and work with keyboard and narrow screens', async ({ page }) => {
+  await page.goto(`${base}/politics/editor`); await ready(page);
+  const tip = (label: string) => page.getByRole('button', { name: `Aiuto per ${label}`, exact: true });
+  const panel = page.locator('[popover]:popover-open');
+  const referenceLabel = 'Riferimento nazionale (%)';
+  const desktopTip = page.locator('.subject-header').filter({ has: tip(referenceLabel) }).getByRole('button');
+  await desktopTip.press('Enter');
+  await expect(panel).toContainText(/voti validi.*M02.*campo vuoto/);
+  await page.keyboard.press('Escape');
+  await expect(panel).toHaveCount(0);
+  await expect(desktopTip).toBeFocused();
+
+  await page.getByRole('button', { name: /^Opzioni lista/ }).first().click();
+  await open(page, /^Riferimenti avanzati/);
+  await tip('Moltiplicatore nazionale comune (adimensionale)').click();
+  await expect(panel).toContainText('livello nazionale');
+  await tip('Moltiplicatore locale comune (adimensionale)').click();
+  await expect(panel).toContainText('da comune a comune');
+  await tip('Moltiplicatore locale comune (adimensionale)').click();
+  await expect(panel).toHaveCount(0);
+
+  await open(page, /^Impostazioni avanzate dello scenario$/);
+  await tip('Data di riferimento').click();
+  await expect(panel).toContainText(/risultati storici e i sondaggi/);
+  await page.getByLabel('Data di riferimento', { exact: true }).click();
+  await expect(panel).toHaveCount(0);
+  await tip('Astensione e voti non validi (%)').click();
+  await expect(panel).toContainText(/elettori.*M02.*partecipazione storica/);
+
+  await open(page, /^Identità dei candidati/); await open(page, /^Nuovo candidato$/);
+  await tip('Data di nascita').click();
+  await expect(panel).toContainText(/gennaio 1977.*spareggi/);
+  await tip('Disponibile').click();
+  await expect(panel).toContainText(/indica il motivo.*candidature già fissate/);
+  await expect(page.getByRole('checkbox', { name: 'Disponibile', exact: true })).toBeChecked();
+
+  await open(page, /^Ipotesi senza storico/);
+  await page.getByRole('combobox', { name: 'Componente', exact: true }).selectOption('new:fdi');
+  for (const [label, content] of [
+    ['Profilo geografico', 'stesso valore in tutti i comuni'],
+    ['SD profilo', 'incertezza sul profilo geografico'],
+    ['SD innovazione locale', 'variazioni comunali'],
+    ['SD innovazione nazionale', 'variazioni nazionali'],
+  ]) {
+    await tip(`${label} (log-rapporto)`).click();
+    await expect(panel).toContainText(content);
+  }
+
+  await page.getByLabel('Generatore dei voti', { exact: true }).selectOption('M01'); await ready(page);
+  await tip('Astensione e voti non validi (%)').click();
+  await expect(panel).toContainText(/elettori.*M01.*partecipazione storica/);
+  await page.keyboard.press('Escape');
+  await page.setViewportSize({ width: 320, height: 660 });
+  await expect(desktopTip).toBeHidden();
+  const mobileTip = page.locator('.subject-reference').first().getByRole('button', { name: `Aiuto per ${referenceLabel}`, exact: true });
+  await mobileTip.click();
+  await expect(panel).toContainText(/voti validi.*M01.*campo vuoto/);
+  expect(await panel.evaluate(el => {
+    const { left, right, top, bottom } = el.getBoundingClientRect();
+    return left >= 0 && right <= innerWidth && top >= 0 && bottom <= innerHeight;
+  })).toBe(true);
+
+  await tip('Numero di simulazioni').click();
+  await expect(panel).toContainText(/10 simulazioni.*1\.000/);
+});
+
 test('candidate creation has no inferred gender, preserves assumed dates and supports edits/deletion', async ({ page }) => {
   await page.goto(`${base}/politics/editor`); await ready(page);
   await open(page, /^Impostazioni avanzate dello scenario$/); await open(page, /^Identità dei candidati/); await open(page, /^Nuovo candidato$/);
@@ -265,7 +331,9 @@ test('advanced controls edit source membership, pooling provenance and model-spe
   await page.getByRole('combobox', { name: 'Fonte', exact: true }).selectOption('camera-2008');
   const choice = authored.history.sourceMemberships.find(r => r.sourceId === 'camera-2008')!;
   await page.getByRole('combobox', { name: 'Opzione', exact: true }).selectOption(choice.choiceId);
-  await page.getByRole('button', { name: `Rimuovi membro ${choice.members[0]}`, exact: true }).click();
+  const memberId = choice.members[0];
+  const memberName = authored.subjects.components.find(c => c.id === memberId)?.name ?? memberId;
+  await page.getByRole('button', { name: `Rimuovi membro ${memberName}`, exact: true }).click();
   expect((await draft(page)).history.sourceMemberships.find((r: { choiceId: string }) => r.choiceId === choice.choiceId).members).toEqual([]);
   await open(page, /^Elettorato/);
   await expect(page.getByText(/età minima 18 anni/)).toBeVisible();
