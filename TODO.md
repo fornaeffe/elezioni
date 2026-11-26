@@ -12,10 +12,6 @@ meantime, the linked file has been edited and the link has not been updated.
 - [ ] **UI polishing**
   - [ ] In [FilingTree](web\src\lib\politics\editor\FilingTree.svelte) and
     [ReferenceTree](web\src\lib\politics\editor\ReferenceTree.svelte):
-    - [ ] A tree element without any controls in it nor in its children should not be 
-      rendered at all. Currently,
-      reform college elements for coalitions tree are shown even if they contain no
-      controls.
     - [ ] Evaluate a true combobox to replace 
       ["Cerca candidato" field](web\src\lib\politics\editor\CandidateSlots.svelte:50)
       and [candidate selector](web\src\lib\politics\editor\CandidateSlots.svelte:55).

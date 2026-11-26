@@ -290,6 +290,31 @@ test('bonus declarations remain visible when inactive, reactivate, disclose repl
   await expect(senato).toBeVisible();
 });
 
+test('coalition candidate trees prune empty Reform branches and keep Rosatellum paths', async ({ page }) => {
+  await page.goto(`${base}/politics/editor`); await ready(page);
+  const coalition = page.getByRole('article', { name: 'Centrodestra', exact: true });
+  const summary = (title: string) => coalition.locator('summary').and(coalition.getByText(title, { exact: true }));
+  const firstSlot = coalition.getByRole('combobox', { name: 'Candidato 1', exact: true });
+
+  await coalition.getByRole('button', { name: 'Opzioni coalizione Centrodestra', exact: true }).click();
+  await summary('Candidati della coalizione').click();
+  await summary('Camera').click();
+  const territory = summary('Piemonte 1');
+  await territory.click();
+  await expect(territory.locator('..').locator(':scope > details > summary')).toHaveText(['Candidati']);
+  await summary('Candidati').click();
+  await expect(firstSlot).toBeVisible();
+
+  await page.getByRole('combobox', { name: 'Legge elettorale', exact: true }).selectOption('politiche-r-parity-v1');
+  await ready(page);
+  await summary('Candidati della coalizione').click();
+  await summary('Camera').click();
+  await summary('Collegio plurinominale Piemonte 1 - P01').click();
+  await summary('Collegio uninominale Piemonte 1 - U01').click();
+  await summary('Candidati').click();
+  await expect(firstSlot).toBeVisible();
+});
+
 test('candidate trees retain sparse pins and explain disabled identities while filings become inactive', async ({ page }) => {
   let s = createDefaultCommonPoliticsScenario();
   s = createCandidate(s, { id: 'older', name: 'Identità eleggibile', gender: 'female', birthDate: '1970-01-01', availability: { kind: 'available' } });
