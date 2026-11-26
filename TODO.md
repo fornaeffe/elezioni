@@ -12,7 +12,7 @@ meantime, the linked file has been edited and the link has not been updated.
 - [ ] **UI polishing**
   - [ ] In [FilingTree](web\src\lib\politics\editor\FilingTree.svelte) and
     [ReferenceTree](web\src\lib\politics\editor\ReferenceTree.svelte):
-    - [ ] Rethink [ReferenceTree](web\src\lib\politics\editor\ReferenceTree.svelte:16) 
+    - [x] Rethink [ReferenceTree](web\src\lib\politics\editor\ReferenceTree.svelte:16)
       and [ReferenceFields](web\src\lib\politics\editor\ReferenceFields.svelte)
       layout, and add appropriate toggletips to explain fields meaning.
     - [ ] For [ReferenceTree](web\src\lib\politics\editor\ReferenceTree.svelte:16)

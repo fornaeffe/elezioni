@@ -12,7 +12,7 @@
   import FilingTree from './FilingTree.svelte';
   import ReferencesEditor from './ReferencesEditor.svelte';
   import MembershipsEditor from './MembershipsEditor.svelte';
-  import { nationalReferenceHelp } from './reference-help';
+  import { referenceQuotaHelp } from './reference-help';
   let { scenario, assets, edit }: { scenario: PoliticsScenario; assets: EditorAssets | null; edit: ApplyEdit } = $props();
   let openCoalitions = $state<Record<string, boolean>>({}), openLists = $state<Record<string, boolean>>({});
   let coalitionName = $state(''), listName = $state(''), otherMembers = $state<string[]>([]);
@@ -76,7 +76,7 @@
     <span aria-hidden="true">Colore</span><span aria-hidden="true">Nome lista</span><span aria-hidden="true">Coalizione</span>
     <span class="field-caption">
       <span aria-hidden="true">Riferimento nazionale (%)</span>
-      <Toggletip label="Riferimento nazionale (%)" text={nationalReferenceHelp(capabilities(scenario).generator.id, 'list')} />
+      <Toggletip label="Riferimento nazionale (%)" text={referenceQuotaHelp(capabilities(scenario).generator.id, 'list')} />
     </span>
   </div>
   {#each scenario.subjects.lists.filter(l => l.kind !== 'other') as list (list.id)}

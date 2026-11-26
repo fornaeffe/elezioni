@@ -14,11 +14,23 @@
 {#if nodes.length > 30}<label data-field>Cerca territorio<input type="search" bind:value={query} oninput={() => limit = 40} /></label>{/if}
 {#each filtered.slice(0, limit) as node (scopeKey(node.scope))}
   <LazySection title={node.name} count={{ value: count(node), label: 'dichiarazioni' }}>
-    {#each ['common', 'camera', 'senato'] as channel (channel)}
-      <ReferenceFields {scenario} {target} scope={node.scope} channel={channel as 'common' | 'camera' | 'senato'} label={`${node.name} ${channel === 'common' ? 'comune' : channel === 'camera' ? 'Camera' : 'Senato'}`} {edit} />
-    {/each}
-    <button onclick={() => edit(s => removeReferences(s, target, referenceScopes(node)))}>Rimuovi riferimenti nel territorio e discendenti</button>
+    <ReferenceFields {scenario} {target} scope={node.scope} label={node.name} {edit} layout="grid" />
+    <button type="button" class="remove-subtree" onclick={() => edit(s => removeReferences(s, target, referenceScopes(node)))}>
+      {node.children.length ? 'Rimuovi riferimenti nel territorio e discendenti' : 'Rimuovi riferimenti nel territorio'}
+    </button>
     {#if node.children.length}<ReferenceTree {scenario} {target} nodes={node.children} {edit} />{/if}
   </LazySection>
 {/each}
 {#if filtered.length > limit}<button onclick={() => limit += 40}>Mostra altri territori</button>{/if}
+
+<style>
+  .remove-subtree {
+    padding: var(--space-1);
+    border: 0;
+    background: transparent;
+    color: var(--color-text-muted);
+    font-size: var(--text-small);
+    text-align: start;
+  }
+  .remove-subtree:hover { background: var(--color-action-hover); }
+</style>

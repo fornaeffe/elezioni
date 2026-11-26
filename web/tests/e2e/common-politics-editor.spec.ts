@@ -83,7 +83,7 @@ test('common law/model selections, deferred settings, seeds and locks survive re
   expect(await draft(page)).toEqual(stored);
 });
 
-test('visible non-valid reference retains explicit zero, default uncertainty and local tree declarations', async ({ page }) => {
+test('non-valid reference grids reflow and preserve uncertainty and local tree declarations', async ({ page }) => {
   await page.goto(`${base}/politics/editor`); await ready(page);
   await open(page, /^Impostazioni avanzate dello scenario$/);
   const section = page.locator('details').filter({ has: page.locator(':scope > summary').filter({ hasText: /^Impostazioni avanzate dello scenario$/ }) });
@@ -96,18 +96,59 @@ test('visible non-valid reference retains explicit zero, default uncertainty and
   let stored = await draft(page);
   expect(stored.nonValidReferences.find((r: { channel: string; scope: { kind: string } }) => r.channel === 'camera' && r.scope.kind === 'national')).toMatchObject({ mean: 0, uncertainty: { sdPercentagePoints: 0, origin: 'default' } });
   await input.fill('10'); await input.blur();
-  await expect(section.getByLabel(`SD ${referenceLabel} (punti percentuali)`, { exact: true })).toHaveValue('1');
+  const nationalSd = section.getByLabel(`SD ${referenceLabel} (punti percentuali)`, { exact: true });
+  await expect(nationalSd).toHaveValue('1');
+  await nationalSd.fill('2'); await nationalSd.blur();
+  await expect(nationalSd).toHaveAccessibleDescription('Esplicita');
+  await section.getByRole('button', { name: `Usa SD predefinita per ${referenceLabel}`, exact: true }).click();
+  await expect(nationalSd).toHaveValue('1');
+  await expect(nationalSd).toHaveAccessibleDescription('Predefinita');
   const emilia = section.locator('summary').filter({ hasText: /^Emilia-Romagna(?: ·|$)/ });
   await expect(emilia).toHaveText('Emilia-Romagna');
   await emilia.click();
   const province = section.locator('summary').filter({ hasText: /^Provincia 037(?: ·|$)/ });
   await expect(province).toHaveText('Provincia 037');
   await province.click();
-  const local = section.getByLabel('Provincia 037 comune (%)', { exact: true });
+  const provinceGrid = section.getByRole('group', { name: 'Riferimenti per Provincia 037', exact: true });
+  const local = provinceGrid.getByLabel('Provincia 037 comune (%)', { exact: true });
+  const localCamera = provinceGrid.getByLabel('Provincia 037 Camera (%)', { exact: true });
+  const localSd = provinceGrid.getByLabel('SD Provincia 037 comune (punti percentuali)', { exact: true });
+  await expect(local).toHaveAttribute('placeholder', '% auto');
   await local.fill('5'); await local.blur();
   await expect(province).toHaveText('Provincia 037 · 1 dichiarazioni');
   await expect(emilia).toHaveText('Emilia-Romagna · 1 dichiarazioni');
   await expect(emilia.locator('.summary-count')).toHaveCSS('font-weight', '400');
+  const desktopQuota = (await local.boundingBox())!;
+  const desktopCamera = (await localCamera.boundingBox())!;
+  expect(desktopCamera.y).toBeCloseTo(desktopQuota.y, 0);
+  expect(desktopCamera.x).toBeGreaterThan(desktopQuota.x);
+  expect((await localSd.boundingBox())!.y).toBeGreaterThan(desktopQuota.y);
+
+  await page.setViewportSize({ width: 320, height: 900 });
+  const mobileQuota = (await local.boundingBox())!;
+  const mobileCamera = (await localCamera.boundingBox())!;
+  const mobileSd = (await localSd.boundingBox())!;
+  expect(mobileCamera.x).toBeCloseTo(mobileQuota.x, 0);
+  expect(mobileCamera.y).toBeGreaterThan(mobileQuota.y);
+  expect(mobileSd.y).toBeCloseTo(mobileQuota.y, 0);
+  expect(mobileSd.x + mobileSd.width).toBeLessThanOrEqual(320);
+  await provinceGrid.getByRole('button', { name: 'Aiuto per Quota (%)', exact: true }).click();
+  await expect(page.locator('[popover]:popover-open')).toContainText(/elettori.*nel territorio.*% auto.*zero è un valore esplicito/);
+  await page.keyboard.press('Escape');
+
+  const generator = section.getByLabel('Generatore dei voti', { exact: true });
+  async function selectGeneratorAndOpenProvince(model: 'M01' | 'M02') {
+    await generator.selectOption(model); await ready(page);
+    await open(page, /^Riferimenti avanzati/);
+    await open(page, /^Emilia-Romagna(?: ·|$)/);
+    await open(page, /^Provincia 037(?: ·|$)/);
+  }
+  await selectGeneratorAndOpenProvince('M01');
+  await expect(local).toHaveValue('5');
+  await expect(localSd).toHaveCount(0);
+  await expect(provinceGrid.getByRole('button', { name: 'Aiuto per SD (p.p.)', exact: true })).toHaveCount(0);
+  await selectGeneratorAndOpenProvince('M02');
+  await expect(localSd).toHaveValue('2.5');
   await page.getByLabel('Camere da rinnovare').selectOption('camera');
   stored = await draft(page);
   expect(stored.nonValidReferences.some((r: { scope: { kind: string; code: string }; mean: number }) => r.scope.kind === 'province' && r.scope.code === '037' && r.mean === 0.05)).toBe(true);
@@ -116,6 +157,21 @@ test('visible non-valid reference retains explicit zero, default uncertainty and
   expect((await draft(page)).nonValidReferences).toHaveLength(authored.nonValidReferences.length + 1);
   await section.getByRole('button', { name: 'Rimuovi Provincia 037 comune', exact: true }).click();
   await expect(province).toHaveText('Provincia 037');
+  await expect(emilia).toHaveText('Emilia-Romagna');
+
+  const provinceDetails = province.locator('..');
+  await provinceDetails.getByRole('searchbox', { name: 'Cerca territorio' }).fill('Bologna');
+  await provinceDetails.locator('summary').filter({ hasText: /^Bologna$/ }).click();
+  const leaf = provinceDetails.getByRole('group', { name: 'Riferimenti per Bologna', exact: true });
+  const leafQuota = leaf.getByLabel('Bologna comune (%)', { exact: true });
+  await leafQuota.fill('4'); await leafQuota.blur();
+  const leafSd = leaf.getByLabel('SD Bologna comune (punti percentuali)', { exact: true });
+  await expect(leafSd).toHaveValue('2');
+  const leafBounds = (await leafSd.boundingBox())!;
+  expect(leafBounds.x + leafBounds.width).toBeLessThanOrEqual(320);
+  await expect(province).toHaveText('Provincia 037 · 1 dichiarazioni');
+  await provinceDetails.getByRole('button', { name: 'Rimuovi riferimenti nel territorio e discendenti', exact: true }).click();
+  await expect(leafQuota).toHaveValue('');
   await expect(emilia).toHaveText('Emilia-Romagna');
 });
 

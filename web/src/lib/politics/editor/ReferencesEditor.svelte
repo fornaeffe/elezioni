@@ -9,7 +9,6 @@
   import ReferenceFields from './ReferenceFields.svelte';
   import ReferenceTree from './ReferenceTree.svelte';
   import { effectiveUncertaintyMultipliers } from '../scenario/references';
-  import { nationalReferenceHelp } from './reference-help';
 
   const multiplierFields = [
     { key: 'national', label: 'Moltiplicatore nazionale comune (adimensionale)',
@@ -20,7 +19,6 @@
   let { scenario, target, label, assets, edit, mode = 'all', hideCaptionOnWide = false }: { scenario: PoliticsScenario; target: ReferenceTarget; label: string; assets: EditorAssets | null; edit: ApplyEdit; mode?: 'all' | 'basic' | 'advanced'; hideCaptionOnWide?: boolean } = $props();
   const multiplierId = $props.id();
   const generator = $derived(capabilities(scenario).generator);
-  const meanHelp = $derived(nationalReferenceHelp(generator.id, target?.kind ?? 'non-valid'));
   let rows = $derived(referenceRows(scenario, target));
   let different = $derived(rows.some(r => r.scope.kind === 'national' && r.channel !== 'common'));
   function multiplier(key: 'national' | 'local', value: string) {
@@ -35,15 +33,12 @@
   }
 </script>
 {#if mode !== 'advanced'}
-<ReferenceFields {scenario} {target} scope={{ kind: 'national' }} {label} {edit} {meanHelp} showSd={false} {hideCaptionOnWide} showRemove={mode !== 'basic'} />
+<ReferenceFields {scenario} {target} scope={{ kind: 'national' }} {label} {edit} {hideCaptionOnWide} showCommonRemove={mode !== 'basic'} />
 {/if}
 {#if different && mode !== 'advanced'}<Badge>Riferimenti distinti per camera</Badge>{/if}
 {#if mode !== 'basic'}
 <LazySection title="Riferimenti avanzati" count={{ value: rows.length, label: 'dichiarazioni' }}>
-  <ReferenceFields {scenario} {target} scope={{ kind: 'national' }} {label} {edit} showMean={false} showRemove={mode === 'advanced'} />
-  {#each ['camera', 'senato'] as channel (channel)}
-    <ReferenceFields {scenario} {target} scope={{ kind: 'national' }} channel={channel as 'camera' | 'senato'} label={`${label} ${channel === 'camera' ? 'Camera' : 'Senato'}`} {edit} {meanHelp} />
-  {/each}
+  <ReferenceFields {scenario} {target} scope={{ kind: 'national' }} {label} {edit} layout="grid" showCommonRemove={mode === 'advanced'} />
   {#if target?.kind === 'list' && generator.uncertaintyMultipliers}
       {@const values = effectiveUncertaintyMultipliers(scenario, target.id, 'camera')}
       {#each multiplierFields as { key, label: fieldLabel, help } (key)}
