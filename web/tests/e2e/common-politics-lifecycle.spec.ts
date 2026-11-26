@@ -123,7 +123,7 @@ for (const [law, model] of [[ROSATELLUM, 'M01'], [ROSATELLUM, 'M02'], [REFORM, '
     await expect(page.getByRole('combobox', { name: 'Sessione dei risultati', exact: true })).toHaveValue(selected);
     // Scenario exports still describe the draft, never whichever archive was viewed.
     const scenarioDownload = page.waitForEvent('download');
-    await page.getByRole('button', { name: 'Scarica scenario JSON', exact: true }).click();
+    await page.getByRole('button', { name: 'Scarica scenario JSON.gz', exact: true }).click();
     const sf = await scenarioDownload;
     const current: PoliticsScenario = decodeScenario(new Uint8Array(await readFile((await sf.path())!)));
     expect(current.execution.workers).toEqual({ kind: 'fixed', count: 2 });

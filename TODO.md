@@ -10,9 +10,6 @@ meantime, the linked file has been edited and the link has not been updated.
 ## Future work
 
 - [ ] **UI polishing**
-  - [ ] Merge "Scarica scenario JSON" and "Scarica scenario JSON.gz" buttons in 
-    a single split button with "Scarica scenario JSON.gz" as the main default 
-    action.
   - [ ] When I click on "Ripristina scenario predefinito", in some cases (maybe
     when results are loaded?) I got an error. Inspect, reproduce the bug, 
     diagnose and fix. 

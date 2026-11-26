@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
   import { useStatus } from '$lib/app-status.svelte';
+  import SplitButton from '$lib/ui/SplitButton.svelte';
   const appStatus = useStatus();
   import { type PoliticsScenario, type GeneratorId, type LawId, laws, REFORM } from '../scenario/schema';
   import { activeGenerator, capabilities, supportedPairs } from '../scenario/registry';
@@ -81,7 +82,12 @@
   <fieldset disabled={execution?.busy}>
     <div class="row">
       <label>Carica scenario<input type="file" accept=".json,.gz" onchange={e => { const file = e.currentTarget.files?.[0]; if (file) void importFile(file); e.currentTarget.value = ''; }} /></label>
-      <button onclick={() => download(false)}>Scarica scenario JSON</button><button onclick={() => download(true)}>Scarica scenario JSON.gz</button>
+      <SplitButton
+        label="Download dello scenario"
+        optionsLabel="Opzioni di download dello scenario"
+        primary={{ label: 'Scarica scenario JSON.gz', run: () => download(true) }}
+        options={[{ label: 'Scarica scenario JSON', run: () => download(false) }]}
+      />
       <button onclick={() => { if (confirm('Ripristinare lo scenario predefinito? Le modifiche della bozza saranno sostituite.')) apply(() => createDefaultCommonPoliticsScenario()); }}>Ripristina scenario predefinito</button>
     </div>
     <div class="row">

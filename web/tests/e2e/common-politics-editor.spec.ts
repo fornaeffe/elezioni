@@ -45,10 +45,29 @@ test('common law/model selections, deferred settings, seeds and locks survive re
   expect(stored.execution.fittingSeed).toBe('fit-preserved');
   expect(stored.execution.simulationSeed).not.toBe(before.execution.simulationSeed);
   expect(stored.modelSettings).toEqual(authored.modelSettings);
-  for (const gzip of [false, true]) {
+  const downloadOptions = page.getByRole('button', { name: 'Opzioni di download dello scenario', exact: true });
+  const jsonDownload = page.getByRole('button', { name: 'Scarica scenario JSON', exact: true });
+  await expect(jsonDownload).toBeHidden();
+  await downloadOptions.press('Enter');
+  await expect(downloadOptions).toHaveAttribute('aria-expanded', 'true');
+  await downloadOptions.press('Tab');
+  await expect(jsonDownload).toBeFocused();
+  await jsonDownload.press('Escape');
+  await expect(downloadOptions).toBeFocused();
+  await expect(jsonDownload).toBeHidden();
+  await downloadOptions.click();
+  await expect(jsonDownload).toBeVisible();
+  await page.getByRole('heading', { name: 'Simulatore delle elezioni politiche', exact: true }).click();
+  await expect(jsonDownload).toBeHidden();
+
+  for (const gzip of [true, false]) {
+    if (!gzip) await downloadOptions.click();
     const download = page.waitForEvent('download');
-    await page.getByRole('button', { name: gzip ? 'Scarica scenario JSON.gz' : 'Scarica scenario JSON', exact: true }).click();
+    if (gzip) await page.getByRole('button', { name: 'Scarica scenario JSON.gz', exact: true }).click();
+    else await jsonDownload.click();
     const file = await download, path = await file.path();
+    expect(file.suggestedFilename()).toBe(gzip ? 'scenario-politiche.json.gz' : 'scenario-politiche.json');
+    await expect(jsonDownload).toBeHidden();
     const bytes = new Uint8Array(await readFile(path!));
     expect(decodeScenario(bytes)).toEqual(stored);
     await page.getByLabel('Carica scenario', { exact: true }).setInputFiles({ name: file.suggestedFilename(), mimeType: 'application/octet-stream', buffer: Buffer.from(bytes) });
