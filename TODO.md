@@ -12,15 +12,6 @@ meantime, the linked file has been edited and the link has not been updated.
 - [ ] **UI polishing**
   - [ ] In [FilingTree](web\src\lib\politics\editor\FilingTree.svelte) and
     [ReferenceTree](web\src\lib\politics\editor\ReferenceTree.svelte):
-    - [x] Rethink [ReferenceTree](web\src\lib\politics\editor\ReferenceTree.svelte:16)
-      and [ReferenceFields](web\src\lib\politics\editor\ReferenceFields.svelte)
-      layout, and add appropriate toggletips to explain fields meaning.
-    - [x] Use the standard button style and a trash icon for territorial
-      reference removal.
-    - [ ] For [ReferenceTree](web\src\lib\politics\editor\ReferenceTree.svelte:16)
-      province level elements the rendered name is currently "Provincia 012", 
-      "Provincia 013", ... It should instead be "Provincia: nnnn" where nnnn is 
-      the province's name.
     - [ ] In lists' FilingTree move the tri-state checkbox in the LazySection
       title row, between the arrowhead and the section title, making it visible
       when the title is visible, even if the section is closed. A tri-state checkbox

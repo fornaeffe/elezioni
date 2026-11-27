@@ -103,19 +103,24 @@ test('non-valid reference grids reflow and preserve uncertainty and local tree d
   await section.getByRole('button', { name: `Usa SD predefinita per ${referenceLabel}`, exact: true }).click();
   await expect(nationalSd).toHaveValue('1');
   await expect(nationalSd).toHaveAccessibleDescription('Predefinita');
+  await open(page, /^Lombardia$/);
+  await expect(section.locator('summary').filter({ hasText: /^Provincia: Varese$/ })).toBeVisible();
+  await expect(section.locator('summary').filter({ hasText: /^Provincia: Como$/ })).toBeVisible();
   const emilia = section.locator('summary').filter({ hasText: /^Emilia-Romagna(?: ·|$)/ });
   await expect(emilia).toHaveText('Emilia-Romagna');
   await emilia.click();
-  const province = section.locator('summary').filter({ hasText: /^Provincia 037(?: ·|$)/ });
-  await expect(province).toHaveText('Provincia 037');
+  const provinceLabel = 'Provincia: Bologna';
+  const provinceHeading = /^Provincia: Bologna(?: ·|$)/;
+  const province = section.locator('summary').filter({ hasText: provinceHeading });
+  await expect(province).toHaveText(provinceLabel);
   await province.click();
-  const provinceGrid = section.getByRole('group', { name: 'Riferimenti per Provincia 037', exact: true });
-  const local = provinceGrid.getByLabel('Provincia 037 comune (%)', { exact: true });
-  const localCamera = provinceGrid.getByLabel('Provincia 037 Camera (%)', { exact: true });
-  const localSd = provinceGrid.getByLabel('SD Provincia 037 comune (punti percentuali)', { exact: true });
+  const provinceGrid = section.getByRole('group', { name: `Riferimenti per ${provinceLabel}`, exact: true });
+  const local = provinceGrid.getByLabel(`${provinceLabel} comune (%)`, { exact: true });
+  const localCamera = provinceGrid.getByLabel(`${provinceLabel} Camera (%)`, { exact: true });
+  const localSd = provinceGrid.getByLabel(`SD ${provinceLabel} comune (punti percentuali)`, { exact: true });
   await expect(local).toHaveAttribute('placeholder', '% auto');
   await local.fill('5'); await local.blur();
-  await expect(province).toHaveText('Provincia 037 · 1 dichiarazioni');
+  await expect(province).toHaveText(`${provinceLabel} · 1 dichiarazioni`);
   await expect(emilia).toHaveText('Emilia-Romagna · 1 dichiarazioni');
   await expect(emilia.locator('.summary-count')).toHaveCSS('font-weight', '400');
   const desktopQuota = (await local.boundingBox())!;
@@ -141,7 +146,7 @@ test('non-valid reference grids reflow and preserve uncertainty and local tree d
     await generator.selectOption(model); await ready(page);
     await open(page, /^Riferimenti avanzati/);
     await open(page, /^Emilia-Romagna(?: ·|$)/);
-    await open(page, /^Provincia 037(?: ·|$)/);
+    await open(page, provinceHeading);
   }
   await selectGeneratorAndOpenProvince('M01');
   await expect(local).toHaveValue('5');
@@ -155,8 +160,8 @@ test('non-valid reference grids reflow and preserve uncertainty and local tree d
   await section.getByRole('button', { name: `Rimuovi ${referenceLabel}`, exact: true }).click();
   await expect(input).toHaveValue('');
   expect((await draft(page)).nonValidReferences).toHaveLength(authored.nonValidReferences.length + 1);
-  await section.getByRole('button', { name: 'Rimuovi Provincia 037 comune', exact: true }).click();
-  await expect(province).toHaveText('Provincia 037');
+  await section.getByRole('button', { name: `Rimuovi ${provinceLabel} comune`, exact: true }).click();
+  await expect(province).toHaveText(provinceLabel);
   await expect(emilia).toHaveText('Emilia-Romagna');
 
   const provinceDetails = province.locator('..');
@@ -169,7 +174,7 @@ test('non-valid reference grids reflow and preserve uncertainty and local tree d
   await expect(leafSd).toHaveValue('2');
   const leafBounds = (await leafSd.boundingBox())!;
   expect(leafBounds.x + leafBounds.width).toBeLessThanOrEqual(320);
-  await expect(province).toHaveText('Provincia 037 · 1 dichiarazioni');
+  await expect(province).toHaveText(`${provinceLabel} · 1 dichiarazioni`);
 
   const removeSubtree = provinceDetails.getByRole('button', { name: 'Rimuovi riferimenti nel territorio e discendenti', exact: true });
   await expect(removeSubtree).toHaveCSS('border-top-style', 'solid');

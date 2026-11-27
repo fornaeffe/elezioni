@@ -1,5 +1,6 @@
 import { pollChoiceId } from '../reform-2026/vote-share/correspondences';
 import { asset } from '$app/paths';
+import { generatedPoliticsMunicipalities } from '$lib/scenario/politics-municipalities.generated';
 import type { PoliticsScenario, Asset, Location, LawId, ReferenceScope } from '../scenario/schema';
 import { laws, REFORM } from '../scenario/schema';
 import { verifyAssetBytes } from '../scenario/dependencies';
@@ -20,6 +21,9 @@ export interface EditorAssets {
   filings: Record<LawId, FilingNode[]>;
   electorate: ExecutionElectorate;
 }
+
+const provinceNames = new Map(generatedPoliticsMunicipalities.map(row => [String(row.CODICE_PROVINCIA), row.PROVINCIA]));
+
 /** Fetch exact pins, including inactive law geographies needed to create complete new subjects. No default substitution. */
 export async function loadEditorAssets(s: PoliticsScenario, signal: AbortSignal): Promise<EditorAssets> {
   const values = new Map<string, unknown>();
@@ -46,7 +50,15 @@ export async function loadEditorAssets(s: PoliticsScenario, signal: AbortSignal)
     const region = references.find(r => r.scope.kind !== 'national' && r.scope.code === target.region);
     if (!region) continue;
     let province = region.children.find(p => p.scope.kind !== 'national' && p.scope.code === target.province);
-    if (!province) { province = { scope: { kind: 'province', namespace: s.data.referenceGeography.version, code: target.province }, name: `Provincia ${target.province}`, children: [] }; region.children.push(province); }
+    if (!province) {
+      const name = provinceNames.get(target.province);
+      province = {
+        scope: { kind: 'province', namespace: s.data.referenceGeography.version, code: target.province },
+        name: name ? `Provincia: ${name}` : `Provincia ${target.province}`,
+        children: []
+      };
+      region.children.push(province);
+    }
     province.children.push({ scope: { kind: 'municipality', namespace: s.data.referenceGeography.version, code: target.code }, name: target.name, children: [] });
   }
   const filings = Object.fromEntries(laws.map(law => {
