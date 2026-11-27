@@ -2,6 +2,7 @@
   import { Trash2 } from '@lucide/svelte';
   import { tick } from 'svelte';
   import { OTHER_LIST_ID } from '$lib/core/other-list';
+  import Dialog from '$lib/ui/Dialog.svelte';
   import type { PoliticsScenario, Subject } from '../scenario/schema';
 
   let { scenario, onconfirm }: {
@@ -9,8 +10,6 @@
     onconfirm: (subject: Subject, reviewed: PoliticsScenario, onError: (message: string) => void) => boolean;
   } = $props();
 
-  const titleId = $props.id();
-  const detailsId = `${titleId}-details`;
   let dialog = $state<HTMLDialogElement>();
   let pending = $state.raw<{
     subject: Subject;
@@ -28,9 +27,7 @@
     if (!row) return;
     pending = { subject, name: row.name, reviewed: scenario, trigger, nextFocus };
     await tick();
-    if (!dialog) return;
-    dialog.returnValue = '';
-    dialog.showModal();
+    dialog?.showModal();
   }
 
   function confirmRemoval() {
@@ -38,24 +35,24 @@
     if (onconfirm(pending.subject, pending.reviewed, message => error = message)) dialog?.close('confirmed');
   }
 
-  function finishRemoval() {
+  function finishRemoval(event: Event & { currentTarget: HTMLDialogElement }) {
     const request = pending;
     pending = null;
     error = '';
     if (!request) return;
-    const destination = dialog?.returnValue === 'confirmed' || !request.trigger.isConnected
+    const destination = event.currentTarget.returnValue === 'confirmed' || !request.trigger.isConnected
       ? request.nextFocus() : request.trigger;
     destination?.focus();
   }
 </script>
 
-<dialog bind:this={dialog} aria-labelledby={titleId} aria-describedby={detailsId} onclose={finishRemoval}>
-  {#if pending}
-    {@const { subject, name, reviewed } = pending}
-    {@const coalition = subject.kind === 'coalition'}
-    {@const other = subject.kind === 'list' && subject.id === OTHER_LIST_ID}
-    <h2 id={titleId}>{other ? `Disattivare «${name}»?` : `Eliminare ${coalition ? 'la coalizione' : 'la lista'} «${name}»?`}</h2>
-    <div id={detailsId}>
+{#if pending}
+  {@const { subject, name, reviewed } = pending}
+  {@const coalition = subject.kind === 'coalition'}
+  {@const other = subject.kind === 'list' && subject.id === OTHER_LIST_ID}
+  {@const title = other ? `Disattivare «${name}»?` : `Eliminare ${coalition ? 'la coalizione' : 'la lista'} «${name}»?`}
+  <Dialog bind:element={dialog} {title} onclose={finishRemoval}>
+    {#snippet description()}
       {#if coalition}
         {@const memberCount = reviewed.subjects.lists.filter(l => l.coalitionId === subject.id).length}
         {#if memberCount > 0}
@@ -71,32 +68,18 @@
         {/if}
         {#if other}<p>La riattivazione non ripristina i riferimenti precedenti.</p>{/if}
       {/if}
-    </div>
+    {/snippet}
     {#if error}<p class="error" role="alert">{error}</p>{/if}
-    <div class="actions">
+    {#snippet actions()}
       <button type="button" onclick={() => dialog?.close()}>Annulla</button>
       <button type="button" data-variant="danger" onclick={confirmRemoval}>
         <Trash2 size={16} aria-hidden="true" />
         {other ? 'Conferma disattivazione' : coalition ? 'Elimina coalizione' : 'Elimina lista'}
       </button>
-    </div>
-  {/if}
-</dialog>
+    {/snippet}
+  </Dialog>
+{/if}
 
 <style>
-  dialog {
-    max-inline-size: min(28rem, calc(100% - 2 * var(--space-4)));
-    padding: var(--space-4);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-panel);
-    color: var(--color-text);
-    background: var(--color-surface);
-    box-shadow: var(--shadow-overlay);
-    overflow-wrap: anywhere;
-  }
-
-  dialog::backdrop { background: var(--color-backdrop); }
-  h2 { margin-block: 0 var(--space-3); }
-  .error { color: var(--color-error-text); }
-  .actions { display: flex; flex-wrap: wrap; justify-content: end; gap: var(--space-2); }
+  .error { margin: 0; color: var(--color-error-text); }
 </style>

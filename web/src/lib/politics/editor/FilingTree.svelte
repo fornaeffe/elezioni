@@ -1,5 +1,6 @@
 <script lang="ts">
   import { tick } from 'svelte';
+  import Dialog from '$lib/ui/Dialog.svelte';
   import type { Location, PoliticsScenario, Subject } from '../scenario/schema';
   import { chambers } from '../scenario/schema';
   import { locationKey } from '../scenario/validation';
@@ -26,8 +27,6 @@
   }
 
   let { scenario, owner, assets, edit }: { scenario: PoliticsScenario; owner: Subject; assets: EditorAssets; edit: ApplyEdit } = $props();
-  const confirmationTitleId = $props.id();
-  const confirmationDetailsId = `${confirmationTitleId}-details`;
   let confirmationDialog = $state<HTMLDialogElement>();
   let pending = $state.raw<FilingChange | null>(null);
   let law = $derived(scenario.selection.scrutiny.id);
@@ -153,40 +152,21 @@
   {@render chamberSections()}
 {/if}
 
-{#if list}
-  <dialog bind:this={confirmationDialog} aria-labelledby={confirmationTitleId} aria-describedby={confirmationDetailsId} onclose={finishFilingChange}>
-    {#if pending}
-      <h2 id={confirmationTitleId}>{pending.checked ? 'Conferma deposito' : 'Conferma rimozione dei depositi'}</h2>
-      <p id={confirmationDetailsId}>Stai {pending.checked ? 'depositando' : 'rimuovendo il deposito di' } <b>{list.name}</b> in <b>{pending.scope}</b>. La modifica cambierà {pending.count} {pending.count === 1 ? 'collegio' : 'collegi'}</p>
-      <div class="confirmation-actions">
-        <button type="button" onclick={() => confirmationDialog?.close()}>Annulla</button>
-        <button type="button" onclick={confirmFilingChange}>{pending.checked ? 'Deposita' : 'Rimuovi depositi'}</button>
-      </div>
-    {/if}
-  </dialog>
+{#if list && pending}
+  {@const { checked, scope, count } = pending}
+  <Dialog bind:element={confirmationDialog}
+    title={checked ? 'Conferma deposito' : 'Conferma rimozione dei depositi'} onclose={finishFilingChange}>
+    {#snippet description()}
+      <p>Stai {checked ? 'depositando' : 'rimuovendo il deposito di'} <b>{list.name}</b> in <b>{scope}</b>. La modifica cambierà {count} {count === 1 ? 'collegio' : 'collegi'}</p>
+    {/snippet}
+    {#snippet actions()}
+      <button type="button" onclick={() => confirmationDialog?.close()}>Annulla</button>
+      <button type="button" onclick={confirmFilingChange}>{checked ? 'Deposita' : 'Rimuovi depositi'}</button>
+    {/snippet}
+  </Dialog>
 {/if}
 
 <style>
-  dialog {
-    max-inline-size: min(28rem, calc(100% - 2 * var(--space-4)));
-    padding: var(--space-4);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-panel);
-    color: var(--color-text);
-    background: var(--color-surface);
-    box-shadow: var(--shadow-overlay);
-  }
-
-  dialog::backdrop { background: var(--color-backdrop); }
-  h2 { margin-block: 0 var(--space-3); }
-
-  .confirmation-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-    justify-content: end;
-  }
-
   .filing-checkbox {
     --filing-border: var(--color-error-border);
     display: grid;

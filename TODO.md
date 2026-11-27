@@ -16,8 +16,8 @@ meantime, the linked file has been edited and the link has not been updated.
   - [ ] Fix error reporting text in status box: currently, "Error" is shown twice,
     as in "Error: Error: REFERENCE_SUBJECT: component references require a declared new component". It should be shown once.
   - [ ] Change [other lists editor](web\src\lib\politics\editor\SubjectsEditor.svelte):
-    when "other lists" is off, show just a button that opens a cancelable modal 
-    dialog for activation of "other lists" (with component selection).
+    when "other lists" is off, show a button that opens a cancelable activation
+    form with component selection in the shared [dialog](web/src/lib/ui/Dialog.svelte).
   - [ ] Rethink [non-valid ReferencesEditor](web\src\lib\politics\editor\CommonPoliticsEditor.svelte:96):
     check if we can move national common reference input inside the collapsible
     section, and rename the collapsible section "Astensione e voti non validi"
@@ -49,8 +49,8 @@ meantime, the linked file has been edited and the link has not been updated.
       making it more understandable.
     - [ ] In pooled component editor, list a pool's components one per row 
       instead of inline, and add, if possible, a button to remove one component.
-    - [ ] In pooled component editor, move the new pool form into a cancelable
-      modal dialog, to be opened through a button.
+  - [ ] In pooled component editor, open the cancelable new pool form in the
+      shared dialog through a button.
   - [ ] Rename different components with same name
   - [ ] Review historical memberships
   - [ ] In "Ipotesi senza storico e riferimenti dei componenti" do not show

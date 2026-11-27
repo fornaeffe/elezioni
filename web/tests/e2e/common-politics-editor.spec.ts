@@ -226,7 +226,7 @@ test('new lists initialize every law, tri-state filings and linked/unlinked cham
   const deposit = confirmation.getByRole('button', { name: 'Deposita', exact: true });
   const remove = confirmation.getByRole('button', { name: 'Rimuovi depositi', exact: true });
   await wholeTree.press('Space');
-  await expect(confirmation).toHaveAccessibleDescription(/Lista nuova · Tutti i collegi modificabili · \d+ collegi/);
+  await expect(confirmation).toHaveAccessibleDescription(/rimuovendo il deposito di Lista nuova in tutti i collegi modificabili\. La modifica cambierà \d+ collegi/);
   await expect(cancel).toBeFocused();
   expect(await draft(page)).toEqual(stored);
   await cancel.click();
@@ -246,7 +246,7 @@ test('new lists initialize every law, tri-state filings and linked/unlinked cham
   const cameraSummary = article.locator('summary').filter({ hasText: /^Camera$/ });
   await expect(all).toBeVisible();
   await all.click();
-  await expect(confirmation).toHaveAccessibleDescription(/Lista nuova · Camera · \d+ collegi/);
+  await expect(confirmation).toHaveAccessibleDescription(/depositando Lista nuova in Camera\. La modifica cambierà \d+ collegi/);
   await deposit.click();
   await expect(cameraSummary.locator('..')).toHaveJSProperty('open', false);
   await expect(wholeTree).toHaveJSProperty('indeterminate', true);
@@ -620,7 +620,7 @@ test('candidate trees retain sparse pins and explain disabled identities while f
   await expect(article.getByRole('checkbox', { name: 'Deposita tutta Camera', exact: true })).toHaveJSProperty('indeterminate', true);
   await collegeCheckbox.click();
   const confirmation = filingConfirmation(page);
-  await expect(confirmation).toHaveAccessibleDescription(`Fratelli d'Italia · ${college.name} · 1 collegio`);
+  await expect(confirmation).toHaveAccessibleDescription(`Stai rimuovendo il deposito di Fratelli d'Italia in ${college.name}. La modifica cambierà 1 collegio`);
   await confirmation.getByRole('button', { name: 'Rimuovi depositi', exact: true }).click();
   expect((await draft(page)).lawSettings['politiche-reform-2026-v1'].placements).toMatchObject([{ position: 4, candidateId: 'older' }]);
   await expect(article.getByText('Fissato, inattivo', { exact: true })).toBeVisible();
@@ -681,9 +681,14 @@ test('candidate picker searches and creates atomically with cancellation and foc
   await slot.press('ArrowDown');
   await options.getByRole('option', { name: 'Crea candidato' }).click();
   await expect(name).toHaveValue('');
+  const desktopViewport = page.viewportSize()!;
+  await page.setViewportSize({ width: 375, height: 320 });
+  await expect(dialog).toBeInViewport({ ratio: 1 });
+  expect(await dialog.evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true);
   await dialog.getByRole('button', { name: 'Annulla' }).click();
   await expect(dialog).toBeHidden();
   await expect(slot).toBeFocused();
+  await page.setViewportSize(desktopViewport);
 
   await slot.press('ArrowDown');
   await options.getByRole('option', { name: 'Crea candidato' }).click();

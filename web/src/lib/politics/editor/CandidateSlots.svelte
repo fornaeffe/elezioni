@@ -1,6 +1,7 @@
 <script lang="ts">
   import { tick } from 'svelte';
   import Badge from '$lib/ui/Badge.svelte';
+  import Dialog from '$lib/ui/Dialog.svelte';
   import SearchCombobox from '$lib/ui/SearchCombobox.svelte';
   import type { PoliticsScenario, Subject, Placement } from '../scenario/schema';
   import { ROSATELLUM } from '../scenario/schema';
@@ -11,7 +12,6 @@
   import { candidateReason, type ApplyEdit } from './model';
   import CandidateForm from './CandidateForm.svelte';
   let { scenario, owner, node, assets, edit }: { scenario: PoliticsScenario; owner: Subject; node: FilingNode; assets: EditorAssets; edit: ApplyEdit } = $props();
-  const dialogTitleId = $props.id();
   let createDialog = $state<HTMLDialogElement>();
   let creation = $state.raw<{ position: number; input: HTMLInputElement } | null>(null);
   let editing = $state<string | null>(null);
@@ -99,29 +99,11 @@
   </div>
 {/each}
 {#if node.slots > limit}<button onclick={() => limit += 12}>Altri posti</button>{/if}
-{#if role !== 'bonus'}
-  <dialog bind:this={createDialog} aria-labelledby={dialogTitleId} onclose={endCreation}>
-    {#if creation}
-      {@const position = creation.position}
-      <h2 id={dialogTitleId}>Crea candidato</h2>
-      <CandidateForm {scenario} {edit} closeLabel="Annulla" done={() => createDialog?.close()}
-        afterCreate={(s, id) => placeCreated(s, position, id)} />
-    {/if}
-  </dialog>
+{#if creation && role !== 'bonus'}
+  {@const position = creation.position}
+  <Dialog bind:element={createDialog} title="Crea candidato" onclose={endCreation} --dialog-width="36rem">
+    <CandidateForm {scenario} {edit} closeLabel="Annulla" done={() => createDialog?.close()}
+      afterCreate={(s, id) => placeCreated(s, position, id)} />
+  </Dialog>
 {/if}
 {#if editing}{#key editing}<CandidateForm {scenario} candidate={scenario.candidates.find(c => c.id === editing)} {edit} done={() => editing = null} />{/key}{/if}
-
-<style>
-  dialog {
-    inline-size: min(36rem, calc(100% - 2 * var(--space-4)));
-    max-block-size: calc(100% - 2 * var(--space-4));
-    padding: var(--space-4);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-panel);
-    color: var(--color-text);
-    background: var(--color-surface);
-    box-shadow: var(--shadow-overlay);
-  }
-  dialog::backdrop { background: var(--color-backdrop); }
-  h2 { margin-block: 0 var(--space-4); }
-</style>
