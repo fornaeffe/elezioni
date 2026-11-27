@@ -10,8 +10,8 @@ meantime, the linked file has been edited and the link has not been updated.
 ## Future work
 
 - [ ] **UI polishing**
-  - [ ] Change [other lists editor](web\src\lib\politics\editor\SubjectsEditor.svelte):
-    when "other lists" is off, show a button that opens a cancelable activation
+  - [x] Change [other lists editor](web\src\lib\politics\editor\SubjectsEditor.svelte):
+    when "other lists" is off, show only a button that opens a cancelable activation
     form with component selection in the shared [dialog](web/src/lib/ui/Dialog.svelte).
   - [ ] Rethink [non-valid ReferencesEditor](web\src\lib\politics\editor\CommonPoliticsEditor.svelte:96):
     check if we can move national common reference input inside the collapsible

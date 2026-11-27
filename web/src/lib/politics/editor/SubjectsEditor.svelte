@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Trash2 } from '@lucide/svelte';
   import Toggletip from '$lib/ui/Toggletip.svelte';
+  import Dialog from '$lib/ui/Dialog.svelte';
   import type { PoliticsScenario, Subject } from '../scenario/schema';
   import { chambers, REFORM } from '../scenario/schema';
   import { capabilities } from '../scenario/registry';
@@ -18,7 +19,8 @@
   let { scenario, assets, edit }: { scenario: PoliticsScenario; assets: EditorAssets | null; edit: ApplyEdit } = $props();
   let openCoalitions = $state<Record<string, boolean>>({}), openLists = $state<Record<string, boolean>>({});
   let coalitionName = $state(''), listName = $state(''), otherMembers = $state<string[]>([]);
-  let otherSetup = $state(false), otherOpen = $state(false), otherSearch = $state('');
+  let otherOpen = $state(false), otherSearch = $state('');
+  let otherActivationDialog = $state<HTMLDialogElement>();
   let removalDialog = $state<ReturnType<typeof SubjectRemovalDialog>>();
   let addCoalitionInput = $state<HTMLInputElement>();
   let addListInput = $state<HTMLInputElement>();
@@ -42,12 +44,27 @@
     edit(s => newList(s, id, listName, 'list'));
     listName = '';
   }
-  function addOther() {
-    if (!assets) return;
-    edit(s => {
+  function addOther(): boolean {
+    if (!assets) return false;
+    return edit(s => {
       if (!otherMembers.length) throw new Error('Scegli esplicitamente i componenti del residuo.');
       return setMembers(newList(s, OTHER_LIST_ID, OTHER_LIST_NAME, 'other'), OTHER_LIST_ID, 'camera', otherMembers, assets!.context);
     });
+  }
+
+  function openOtherActivation() {
+    otherMembers = [];
+    otherSearch = '';
+    otherActivationDialog?.showModal();
+  }
+
+  function finishOtherActivation() {
+    otherMembers = [];
+    otherSearch = '';
+  }
+
+  function activateOther() {
+    if (addOther()) otherActivationDialog?.close();
   }
 
   function requestRemoval(subject: Subject, trigger: HTMLButtonElement) {
@@ -142,47 +159,49 @@
   {/each}
   <div class="row"><label data-field>Nuova lista<input bind:this={addListInput} bind:value={listName} /></label><button disabled={!listName.trim() || !assets} onclick={addList}>Aggiungi lista</button></div>
   <article aria-label="Altre liste" class="other-card">
+    {#if other}
     <div class="other-row">
-      <span class="other-dot" aria-hidden="true" style:color={OTHER_LIST_COLOR}>{other ? '●' : '○'}</span>
+      <span class="other-dot" aria-hidden="true" style:color={OTHER_LIST_COLOR}>●</span>
       <div class="other-identity"><strong>Altre liste</strong><small>Categoria residuale · senza candidati né seggi</small></div>
-      {#if other}
-        <div class="other-reference"><ReferencesEditor {scenario} target={{ kind: 'list', id: other.id }} label="Riferimento nazionale" {assets} {edit} mode="basic" /></div>
-        <button type="button" aria-expanded={otherOpen} aria-controls="other-options" onclick={() => otherOpen = !otherOpen}>Opzioni {otherOpen ? '▴' : '▾'}</button>
-      {:else}
-        <button type="button" bind:this={activateOtherButton} aria-expanded={otherSetup} aria-controls={otherSetup ? 'other-setup' : undefined} disabled={!assets} onclick={() => otherSetup = !otherSetup}>Attiva</button>
+      <div class="other-reference"><ReferencesEditor {scenario} target={{ kind: 'list', id: other.id }} label="Riferimento nazionale" {assets} {edit} mode="basic" /></div>
+      <button type="button" aria-expanded={otherOpen} aria-controls="other-options" onclick={() => otherOpen = !otherOpen}>Opzioni {otherOpen ? '▴' : '▾'}</button>
+    </div>
+    <div id="other-options" hidden={!otherOpen}>
+      {#if otherOpen}
+        {#if assets}<LazySection title={`Componenti · ${otherMembership?.locked ? 'Camera e Senato collegati' : 'Camere separate'} · Camera ${otherMembership?.camera.length ?? 0}, Senato ${otherMembership?.senato.length ?? 0}`}><MembershipsEditor {scenario} {assets} {edit} listId={other.id} /></LazySection>{/if}
+        <ReferencesEditor {scenario} target={{ kind: 'list', id: other.id }} label="Riferimento nazionale" {assets} {edit} mode="advanced" />
+        {#if assets}<LazySection title="Copertura territoriale"><p>La copertura determina dove la categoria riceve voti nella legge selezionata.</p><FilingTree {scenario} owner={{ kind: 'list', id: other.id }} {assets} {edit} /></LazySection>{/if}
+        <button type="button" data-variant="danger" onclick={e => requestRemoval({ kind: 'list', id: other.id }, e.currentTarget)}>
+          <Trash2 size={16} aria-hidden="true" /> Disattiva Altre liste
+        </button>
       {/if}
     </div>
-    {#if other}
-      <div id="other-options" hidden={!otherOpen}>
-        {#if otherOpen}
-          {#if assets}<LazySection title={`Componenti · ${otherMembership?.locked ? 'Camera e Senato collegati' : 'Camere separate'} · Camera ${otherMembership?.camera.length ?? 0}, Senato ${otherMembership?.senato.length ?? 0}`}><MembershipsEditor {scenario} {assets} {edit} listId={other.id} /></LazySection>{/if}
-          <ReferencesEditor {scenario} target={{ kind: 'list', id: other.id }} label="Riferimento nazionale" {assets} {edit} mode="advanced" />
-          {#if assets}<LazySection title="Copertura territoriale"><p>La copertura determina dove la categoria riceve voti nella legge selezionata.</p><FilingTree {scenario} owner={{ kind: 'list', id: other.id }} {assets} {edit} /></LazySection>{/if}
-          <button type="button" data-variant="danger" onclick={e => requestRemoval({ kind: 'list', id: other.id }, e.currentTarget)}>
-            <Trash2 size={16} aria-hidden="true" /> Disattiva Altre liste
-          </button>
-        {/if}
-      </div>
-    {:else if otherSetup}
-      <div id="other-setup" class="other-setup">
-        <fieldset><legend>Componenti del residuo</legend>
-          <p>Seleziona almeno un componente libero. Camera e Senato saranno inizialmente collegati.</p>
-          {#if !assets}<p>Dati in caricamento.</p>
-          {:else if !otherOptions.length}<p>Nessun componente libero: modifica prima le appartenenze nelle impostazioni avanzate.</p>
-          {:else}
-            <label data-field>Cerca componente<input type="search" bind:value={otherSearch} /></label>
-            <div class="bounded-list other-choices">
-              {#each otherOptions.filter(c => c.name.toLocaleLowerCase('it').includes(otherSearch.toLocaleLowerCase('it'))) as c (c.id)}
-                <label data-field><input type="checkbox" value={c.id} checked={otherMembers.includes(c.id)} onchange={e => otherMembers = e.currentTarget.checked ? [...otherMembers, c.id] : otherMembers.filter(id => id !== c.id)} />{c.name}</label>
-              {:else}<p>Nessun componente corrisponde alla ricerca.</p>{/each}
-            </div>
-          {/if}
-        </fieldset>
-        <div class="other-actions"><span>{otherMembers.length} selezionati</span><button onclick={() => { otherSetup = false; otherMembers = []; otherSearch = ''; }}>Annulla</button><button disabled={!assets || !otherMembers.length || otherMembers.some(id => !otherOptions.some(c => c.id === id))} onclick={() => { addOther(); otherSetup = false; otherSearch = ''; }}>Attiva Altre liste</button></div>
-      </div>
+    {:else}
+      <button class="other-activate" type="button" bind:this={activateOtherButton} disabled={!assets} onclick={openOtherActivation}>Attiva Altre liste</button>
     {/if}
   </article>
 </section>
+
+<Dialog bind:element={otherActivationDialog} title="Attiva «Altre liste»" onclose={finishOtherActivation} --dialog-width="36rem">
+  <fieldset><legend>Componenti del residuo</legend>
+    <p>Seleziona almeno un componente libero. Camera e Senato saranno inizialmente collegati.</p>
+    {#if !assets}<p>Dati in caricamento.</p>
+    {:else if !otherOptions.length}<p>Nessun componente libero: modifica prima le appartenenze nelle impostazioni avanzate.</p>
+    {:else}
+      <label data-field>Cerca componente<input type="search" bind:value={otherSearch} /></label>
+      <div class="bounded-list other-choices">
+        {#each otherOptions.filter(c => c.name.toLocaleLowerCase('it').includes(otherSearch.toLocaleLowerCase('it'))) as c (c.id)}
+          <label data-field><input type="checkbox" value={c.id} checked={otherMembers.includes(c.id)} onchange={e => otherMembers = e.currentTarget.checked ? [...otherMembers, c.id] : otherMembers.filter(id => id !== c.id)} />{c.name}</label>
+        {:else}<p>Nessun componente corrisponde alla ricerca.</p>{/each}
+      </div>
+    {/if}
+  </fieldset>
+  {#snippet actions()}
+    <span class="other-selection-count">{otherMembers.length} selezionati</span>
+    <button type="button" onclick={() => otherActivationDialog?.close()}>Annulla</button>
+    <button type="button" disabled={!assets || !otherMembers.length || otherMembers.some(id => !otherOptions.some(c => c.id === id))} onclick={activateOther}>Attiva Altre liste</button>
+  {/snippet}
+</Dialog>
 
 <SubjectRemovalDialog bind:this={removalDialog} {scenario} onconfirm={confirmRemoval} />
 
@@ -217,11 +236,6 @@
   .other-identity small { display: block; color: var(--color-text-muted); }
   .other-reference { grid-column: 3; }
   .other-row > button { grid-column: 4; }
-  .other-setup {
-    border-block-start: 1px solid var(--color-border);
-    margin-block-start: var(--space-3);
-    padding-block-start: var(--space-3);
-  }
   fieldset { min-inline-size: 0; border: 0; margin: 0; padding: 0; }
   legend { font-weight: 600; }
   .other-choices {
@@ -233,15 +247,15 @@
     background: var(--color-surface-muted);
   }
   .other-choices label { display: flex; }
-  .other-actions {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-    margin-block-start: var(--space-2);
+  .other-selection-count {
+    margin-inline-end: auto;
+    color: var(--color-text-muted);
   }
-  .other-actions span { margin-inline-end: auto; }
+
+  .other-activate { inline-size: 100%; }
+
+  /* Dialog actions are owned by Dialog.svelte; this count joins that row. */
+  :global(dialog .actions) .other-selection-count { align-self: center; }
 
   @media (width <= 650px) {
     .row > label { inline-size: 100%; }

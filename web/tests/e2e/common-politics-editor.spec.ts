@@ -530,10 +530,17 @@ test('list deletion discloses fallback references, respects cancellation and cle
 test('Altre liste deactivation uses the shared dialog and focuses activation', async ({ page }) => {
   await page.goto(`${base}/politics/editor`); await ready(page);
   const row = page.getByRole('article', { name: 'Altre liste', exact: true });
-  const activate = row.getByRole('button', { name: 'Attiva', exact: true });
+  const activate = row.getByRole('button', { name: 'Attiva Altre liste', exact: true });
   await activate.click();
-  await row.getByRole('group', { name: 'Componenti del residuo' }).getByRole('checkbox').first().check();
-  await row.getByRole('button', { name: 'Attiva Altre liste', exact: true }).click();
+  const activation = page.getByRole('dialog', { name: 'Attiva «Altre liste»' });
+  await activation.getByRole('group', { name: 'Componenti del residuo' }).getByRole('checkbox').first().check();
+  await activation.getByRole('button', { name: 'Annulla', exact: true }).click();
+  await expect(activation).not.toBeVisible();
+  await expect(activate).toBeFocused();
+  await activate.click();
+  const reopened = page.getByRole('dialog', { name: 'Attiva «Altre liste»' });
+  await reopened.getByRole('group', { name: 'Componenti del residuo' }).getByRole('checkbox').first().check();
+  await reopened.getByRole('button', { name: 'Attiva Altre liste', exact: true }).click();
   await row.getByRole('button', { name: /^Opzioni/ }).click();
   await row.getByRole('button', { name: 'Disattiva Altre liste', exact: true }).click();
 
