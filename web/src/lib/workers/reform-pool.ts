@@ -3,6 +3,7 @@ import type { ReformRunChunk, ReformRunReady } from './reform-compute';
 import type { GenerationPacket } from '../politics/reform-2026/vote-share/fit-types';
 import { ownedBuffers } from '../politics/reform-2026/vote-share/fit-resources';
 import type { PoliticsComputePacket } from './politics-compute';
+import { restoreOperationError } from '../core/operation-error';
 
 type Request = ReformComputeRequest extends infer T ? T extends { requestId: number } ? Omit<T, 'requestId'> : never : never;
 export interface ReformComputeConnection {
@@ -22,7 +23,7 @@ export class ReformComputeClient implements ReformComputeConnection {
       clearTimeout(pending.timer);
       this.pending = undefined;
       if (event.data.ok) pending.resolve(event.data.data);
-      else { const error = new Error(event.data.error ?? 'Compute worker failed'); this.failure = error; pending.reject(error); }
+      else { const error = restoreOperationError(event.data.error); this.failure = error; pending.reject(error); }
     };
     worker.onerror = event => { event.preventDefault(); this.fail(new Error(event.message || 'Compute worker crashed')); };
     worker.onmessageerror = () => this.fail(new Error('Unable to decode compute worker message'));

@@ -1,4 +1,5 @@
 import type { StoredResult } from '../core/result-store';
+import { errorDiagnostic, OperationError, type ErrorDiagnostic } from '../core/operation-error';
 import type { PoliticsScenario } from './scenario/schema';
 import type { PoliticsCheckpoint } from './scenario/envelopes';
 import { parsePoliticsScenario } from './scenario/validation';
@@ -24,6 +25,16 @@ export interface PoliticsWorkspacePorts {
   validateScenario(s: PoliticsScenario): Promise<void>;
   changed(): void;
 }
+export type PoliticsOperation = 'restore-draft' | 'restore-index' | 'save-draft' | 'save-index' |
+  'prepare' | 'load-checkpoint' | 'cancel' | 'run' | 'select-session' | 'import-result' | 'load-scenario';
+export interface PoliticsFailure {
+  operation: PoliticsOperation;
+  diagnostic: ErrorDiagnostic;
+}
+function failure(operation: PoliticsOperation, error: unknown): PoliticsFailure {
+  return { operation, diagnostic: errorDiagnostic(error, `POLITICS_${operation.replaceAll('-', '_').toUpperCase()}_FAILED`) };
+}
+
 export class PoliticsWorkspaceController {
   scenario: PoliticsScenario;
   sessions: SessionEntry[] = [];
@@ -35,8 +46,8 @@ export class PoliticsWorkspaceController {
   preparing = false;
   status = 'Inizializzazione';
   progress = '';
-  error = '';
-  storageError = '';
+  error: PoliticsFailure | null = null;
+  storageError: PoliticsFailure | null = null;
   private revision = 0;
   private viewRevision = 0;
   private taskRevision = 0;
@@ -52,12 +63,12 @@ export class PoliticsWorkspaceController {
   private notify() { if (!this.disposed) this.ports.changed(); }
   private saveSessions() {
     try { this.ports.storage.setItem(politicsSessionsKey, JSON.stringify({ owner: this.owner, selected: this.selected, sessions: this.sessions })); }
-    catch (e) { this.storageError = `Indice delle sessioni non salvato: ${String(e)}`; }
+    catch (e) { this.storageError = failure('save-index', e); }
   }
   async initialize() {
     this.owner = crypto.randomUUID();
     try { this.scenario = readPoliticsDraft(this.ports.storage) ?? this.scenario; }
-    catch (e) { this.error = `Bozza salvata non caricata: ${String(e)}`; }
+    catch (e) { this.error = failure('restore-draft', e); }
     try {
       const saved = this.ports.storage.getItem(politicsSessionsKey);
       if (saved) {
@@ -70,7 +81,7 @@ export class PoliticsWorkspaceController {
           new Set(index.sessions.map((s: SessionEntry) => s.id)).size !== index.sessions.length) throw new Error('Invalid session index');
         this.owner = index.owner; this.selected = index.selected; this.sessions = index.sessions;
       }
-    } catch (e) { this.error = `Indice delle sessioni non caricato: ${String(e)}`; }
+    } catch (e) { this.error = failure('restore-index', e); }
     this.notify();
     const restore = this.selected ? this.selectSession(this.selected) : Promise.resolve();
     const initializationError = this.error;
@@ -82,22 +93,23 @@ export class PoliticsWorkspaceController {
     if (this.busy || this.disposed) return false;
     const parsed = parsePoliticsScenario(next);
     this.scenario = parsed; ++this.revision;
-    try { writePoliticsDraft(this.ports.storage, parsed); this.storageError = ''; }
-    catch (e) { this.storageError = `Bozza non salvata: ${String(e)}`; }
+    try { writePoliticsDraft(this.ports.storage, parsed); this.storageError = null; }
+    catch (e) { this.storageError = failure('save-draft', e); }
     this.prepare(); return true;
   }
   prepare(force = false, checkpoint?: PoliticsCheckpoint) {
     if (this.busy || this.disposed) return;
     const revision = this.revision, token = ++this.taskRevision;
     const previous = this.preparation;
-    this.preparing = true; this.preparation = null; this.status = 'Preparazione del modello'; this.error = ''; this.notify();
+    this.preparing = true; this.preparation = null; this.status = 'Preparazione del modello'; this.error = null; this.notify();
     this.pending = this.ports.runtime.prepare(structuredClone(this.scenario), force, checkpoint).then(summary => {
       if (this.disposed || token !== this.taskRevision || revision !== this.revision) return;
       this.preparation = summary;
       this.status = summary.reuse.fit ? 'Modello pronto · fitting riutilizzato' : 'Modello pronto'; this.progress = summary.note ?? '';
     }).catch(e => { if (!this.disposed && token === this.taskRevision) {
       if (checkpoint) this.preparation = previous;
-      this.error = String(e); this.status = checkpoint && previous ? 'Checkpoint non caricato · modello precedente pronto' : 'Preparazione non riuscita';
+      this.error = failure(checkpoint ? 'load-checkpoint' : 'prepare', e);
+      this.status = checkpoint && previous ? 'Checkpoint non caricato · modello precedente pronto' : 'Preparazione non riuscita';
     } })
       .finally(() => { if (token === this.taskRevision) { this.preparing = false; this.notify(); } });
   }
@@ -109,7 +121,7 @@ export class PoliticsWorkspaceController {
     if (this.disposed) return;
     if (!this.busy) { ++this.taskRevision; this.preparing = false; this.preparation = null; this.status = 'Preparazione annullata'; this.notify(); }
     else { this.status = 'Annullamento · conservazione delle simulazioni assegnate'; this.notify(); }
-    try { await this.ports.runtime.cancel(); } catch (e) { if (!this.disposed) this.error = String(e); }
+    try { await this.ports.runtime.cancel(); } catch (e) { if (!this.disposed) this.error = failure('cancel', e); }
     this.notify();
   }
   private entry(record: StoredResult): SessionEntry {
@@ -132,13 +144,17 @@ export class PoliticsWorkspaceController {
     try {
       await this.pending;
       if (this.disposed || revision !== this.revision) return;
-      if (!this.preparation) throw new Error(this.error || 'Preparare il modello prima di eseguire la simulazione');
+      if (!this.preparation) {
+        this.error ??= failure('run', new OperationError('POLITICS_MODEL_NOT_PREPARED', 'Model preparation is required before running a simulation.'));
+        this.status = 'Esecuzione non riuscita';
+        return;
+      }
       politicsRunResources(this.scenario, this.preparation.capacity);
       const captured = parsePoliticsScenario(this.scenario), id = crypto.randomUUID();
       if (viewRevision === this.viewRevision) { this.selected = id; this.viewed = null; }
       this.sessions = [{ id, law: captured.selection.scrutiny.id, model: `${activeGenerator(captured).id}@${activeGenerator(captured).version}`,
         createdAt: new Date().toISOString(), renewal: captured.renewal, completed: 0, requested: captured.execution.simulations }, ...this.sessions];
-      this.saveSessions(); this.status = 'Esecuzione'; this.error = ''; this.notify();
+      this.saveSessions(); this.status = 'Esecuzione'; this.error = null; this.notify();
       const record = await this.ports.runtime.run(captured, id, this.owner, p => {
         if (this.disposed || revision !== this.revision) return;
         if (p.phase === 'simulate') this.sessions = this.sessions.map(s => s.id === id ? { ...s, completed: p.completed } : s);
@@ -149,7 +165,7 @@ export class PoliticsWorkspaceController {
       if (this.selected === id) this.attach(record);
       else { this.sessions = this.sessions.map(s => s.id === id ? this.entry(record) : s); this.saveSessions(); }
       this.status = record.result.storage?.state === 'complete' ? 'Esecuzione completata' : 'Esecuzione interrotta';
-    } catch (e) { if (!this.disposed) { this.error = String(e); this.status = 'Esecuzione non riuscita'; } }
+    } catch (e) { if (!this.disposed) { this.error = failure('run', e); this.status = 'Esecuzione non riuscita'; } }
     finally { this.busy = false; this.notify(); }
   }
   async selectSession(id: string) {
@@ -157,21 +173,21 @@ export class PoliticsWorkspaceController {
     try {
       const record = await this.ports.manifest(id, this.owner);
       if (!this.disposed && token === this.viewRevision) this.attach(record);
-    } catch (e) { if (!this.disposed && token === this.viewRevision) { this.error = `Sessione selezionata non disponibile: ${String(e)}`; this.notify(); } }
+    } catch (e) { if (!this.disposed && token === this.viewRevision) { this.error = failure('select-session', e); this.notify(); } }
   }
   async importResult(file: File) {
-    this.error = ''; this.notify();
+    this.error = null; this.notify();
     const token = ++this.viewRevision;
     try {
       const record = await this.ports.importResult(file, crypto.randomUUID(), this.owner);
       if (!this.disposed && token === this.viewRevision) this.attach(record);
-    } catch (e) { if (!this.disposed && token === this.viewRevision) { this.error = `Risultati non caricati: ${String(e)}`; this.notify(); } }
+    } catch (e) { if (!this.disposed && token === this.viewRevision) { this.error = failure('import-result', e); this.notify(); } }
   }
   async loadViewedScenario() {
     if (this.busy || !this.viewed?.politics) return false;
     const revision = this.revision, next = parsePoliticsScenario(this.viewed.politics.run.executedScenario);
     try { await this.ports.validateScenario(next); if (!this.disposed && !this.busy && revision === this.revision) return this.change(next); }
-    catch (e) { if (!this.disposed) { this.error = `Scenario non caricato: ${String(e)}`; this.notify(); } }
+    catch (e) { if (!this.disposed) { this.error = failure('load-scenario', e); this.notify(); } }
     return false;
   }
   dispose() { this.disposed = true; ++this.revision; ++this.viewRevision; ++this.taskRevision; this.ports.runtime.close(); }

@@ -18,7 +18,7 @@ export async function waitForPoliticsReady(page: Page, _refitting = false) {
   let lastProgress = '';
   try { await expect.poll(async () => {
     const label = await status.getByRole('button', { name: /^Stato:/ }).getAttribute('aria-label');
-    if (/^Stato: (Operazione non riuscita|Preparazione non riuscita|Errore editor)/.test(label ?? ''))
+    if (await status.getAttribute('data-state') === 'error')
       throw new Error(`Politics preparation failed: ${label}`);
     lastProgress = ((await status.textContent()) ?? '').slice(-1500);
     return label;

@@ -34,14 +34,16 @@ describe('CP-07 session action table and task ownership', () => {
     const initial = h.controller.scenario;
     await h.controller.initialize();
     expect(h.manifest).toHaveBeenCalledExactlyOnceWith('saved', 'owner');
-    expect(h.controller.viewed?.id).toBe('saved'); expect(h.controller.error).toBe('');
+    expect(h.controller.viewed?.id).toBe('saved'); expect(h.controller.error).toBeNull();
     expect(h.controller.scenario).toEqual(initial); expect(h.runtime.run).not.toHaveBeenCalled();
   });
   it('preserves the preparation failure when Run is requested and dispatches no simulations', async () => {
     const h = harness(), initial = h.controller.scenario;
     vi.mocked(h.runtime.prepare).mockRejectedValueOnce(new RangeError('Override removes all locally filed support'));
     await h.controller.initialize(); await h.controller.run();
-    expect(h.controller.error).toContain('Override removes all locally filed support');
+    expect(h.controller.error).toMatchObject({ operation: 'prepare', diagnostic: {
+      name: 'RangeError', message: 'Override removes all locally filed support',
+    } });
     expect(h.runtime.run).not.toHaveBeenCalled(); expect(h.controller.sessions).toEqual([]);
     expect(h.controller.scenario).toEqual(initial); expect(h.controller.busy).toBe(false);
   });
@@ -75,19 +77,19 @@ describe('CP-07 session action table and task ownership', () => {
     h.manifest.mockRejectedValueOnce(new Error('unavailable')); await h.controller.initialize();
     expect(h.manifest).toHaveBeenCalledExactlyOnceWith('missing', 'owner');
     expect(h.controller.viewed).toBeNull(); expect(h.controller.selected).toBe('missing');
-    expect(h.controller.error).toContain('non disponibile');
+    expect(h.controller.error).toMatchObject({ operation: 'select-session', diagnostic: { message: 'unavailable' } });
   });
   it('retains the in-memory draft on quota failure and current results on a corrupt import', async () => {
     const h = harness(); await h.controller.initialize(); await h.controller.selectSession('saved');
     h.storage.setItem.mockImplementation(() => { throw new Error('QuotaExceededError'); });
     const next = selectLaw(h.controller.scenario, ROSATELLUM); h.controller.change(next);
-    expect(h.controller.scenario).toEqual(next); expect(h.controller.storageError).toContain('non salvata');
+    expect(h.controller.scenario).toEqual(next); expect(h.controller.storageError).toMatchObject({ operation: 'save-draft' });
     h.importResult.mockRejectedValueOnce(new Error('corrupt')); await h.controller.importResult(new File(['{'], 'bad.json'));
     expect(h.controller.viewed?.id).toBe('saved'); expect(h.controller.scenario).toEqual(next);
   });
   it('reports a corrupt shared draft while keeping the detached default editable', async () => {
     const h = harness({ [politicsDraftKey]: '{' }); await h.controller.initialize();
-    expect(h.controller.error).toContain('Bozza salvata non caricata');
+    expect(h.controller.error).toMatchObject({ operation: 'restore-draft' });
     expect(h.controller.scenario).toEqual(fixture().scenario);
   });
   it('recommends 1000 only after ten complete outcomes, without changing either seeds or count', async () => {

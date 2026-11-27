@@ -10,6 +10,23 @@ work, rationale, verification and limitations following the
 [project history convention](docs/history/README.md). Keep this file limited to
 stable instructions.
 
+## Engineering Philosophy & Architectural Standards
+
+### 1. Long-Term Maintainability Over Quick Fixes
+- **No Band-Aid Solutions:** Never implement tactical workarounds, hardcoded edge-case `if/else` patches, or duplicate logic just to make a test pass or close a task quickly. Always trace issues to their root cause and design the cleanest, most idiomatic long-term solution.
+- **Holistic Codebase Awareness:** Before writing any code, thoroughly explore related modules, existing abstractions, data schemas, and architectural patterns across the repository. Ensure every new change aligns with and strengthens the overall system design.
+- **Zero Technical Debt Policy:** Prefer modular, extensible, and strongly-typed implementations over minimal diffs. If a feature exposes a flaw in how data flows or how components are coupled, fix the underlying abstraction rather than working around it.
+
+### 2. Proactive Refactoring & Scope Expansion
+- **Think Like a Staff Engineer:** Do not limit yourself strictly to the narrowest literal interpretation of the prompt if doing so degrades codebase quality. Evaluate how the requested change impacts the broader repository goals (performance, maintainability, modularity, and clarity).
+- **Propose Broader Improvements:** Whenever you identify duplicated patterns, tight coupling, leaky abstractions, or structural bottlenecks adjacent to your task, proactively highlight them and propose a broader refactor.
+  - *For small/medium improvements:* Apply the clean refactor directly as part of your solution and explain the architectural reasoning in your summary.
+  - *For large-scale or breaking architectural shifts:* Outline the proposed refactor clearly — explaining the long-term benefits and trade-offs — and ask for confirmation before executing sweeping changes across unrelated modules.
+
+### 3. Execution Workflow
+- **Analyze First, Code Second:** Map out the affected components, edge cases, and architectural implications before modifying files.
+- **Verify System-Wide Impact:** After making changes, check downstream consumers, shared utilities, and test suites to ensure consistency across the entire repository, updating documentation or types wherever contracts evolve - but do not run long testing batches by yourself, ask me to launch them (see below about testing).
+
 ## Working Principles
 
 - Keep the project clean, clear, and scalable. Prefer a sound long-term design
@@ -88,6 +105,15 @@ stable instructions.
   `warning` for issues that may affect interpretation, and `error` for failed
   execution paths. Present informational notes separately from warnings and
   errors.
+- Pass operational errors across worker boundaries with a stable code and a
+  plain diagnostic message. Use the shared
+  [error contract](web/src/lib/core/operation-error.ts) and retain exception
+  names, causes, and stacks for debugging.
+- Write user-facing errors once at the UI boundary. Use a localized operation
+  label and include a corrective action when known. Show field-specific errors
+  by the affected control when its location is known. Announce status changes
+  to assistive technology without moving focus, and keep diagnostic codes and
+  messages available in the expanded status details.
 
 - The vote generation algorithm should:
   - generate a plausible distribution of votes for each list in each municipality at the next political election with these properties (that must hold not only nationwide but also for each college), in this priority order:

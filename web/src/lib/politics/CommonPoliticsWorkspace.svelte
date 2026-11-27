@@ -1,13 +1,14 @@
 <script lang="ts">
   import Notice from '$lib/ui/Notice.svelte';
   import { onMount, tick } from 'svelte';
-  import { useStatus } from '$lib/app-status.svelte';
+  import { useStatus, type StatusError } from '$lib/app-status.svelte';
+  import { errorDiagnostic } from '$lib/core/operation-error';
   const appStatus = useStatus();
   import { resolve } from '$app/paths';
   import CommonPoliticsEditor from './editor/CommonPoliticsEditor.svelte';
   import PoliticsSessionResults from './PoliticsSessionResults.svelte';
   import { createDefaultCommonPoliticsScenario } from './scenario/defaults';
-  import { PoliticsWorkspaceController } from './workspace-controller';
+  import { PoliticsWorkspaceController, type PoliticsFailure, type PoliticsOperation } from './workspace-controller';
   import { PoliticsClient } from './execution/client';
   import { loadEditorAssets } from './editor/assets';
   import { parsePoliticsScenario } from './scenario/validation';
@@ -23,7 +24,27 @@
   import { archiveProgressText, type ArchiveProgressListener } from '../core/archive-progress';
   let controller: PoliticsWorkspaceController;
   let client = $state.raw<PoliticsClient>()!;
-  let render = $state(0), ready = $state(false), editorEpoch = $state(0), fileError = $state(''), exporting = $state(false);
+  let render = $state(0), ready = $state(false), editorEpoch = $state(0), exporting = $state(false);
+  let fileError = $state.raw<StatusError | null>(null);
+  const failureLabels: Record<PoliticsOperation, string> = {
+    'restore-draft': 'Bozza salvata non caricata',
+    'restore-index': 'Indice delle sessioni non caricato',
+    'save-draft': 'Bozza non salvata',
+    'save-index': 'Indice delle sessioni non salvato',
+    prepare: 'Impossibile preparare il modello',
+    'load-checkpoint': 'Checkpoint non caricato',
+    cancel: 'Operazione non annullata',
+    run: 'Esecuzione della simulazione non riuscita',
+    'select-session': 'Sessione selezionata non disponibile',
+    'import-result': 'Risultati non caricati',
+    'load-scenario': 'Scenario non caricato',
+  };
+  function failureStatus({ operation, diagnostic }: PoliticsFailure): StatusError {
+    const detail = diagnostic.code === 'REFERENCE_SUBJECT'
+      ? 'Controlla che i riferimenti puntino a liste presenti nello scenario o a componenti dichiarati come nuovi.'
+      : diagnostic.code === 'POLITICS_MODEL_NOT_PREPARED' ? 'Prepara il modello prima di avviare la simulazione.' : undefined;
+    return { state: 'error', label: failureLabels[operation], detail, diagnostics: [diagnostic] };
+  }
   let lawFilter = $state(''), modelFilter = $state('');
   const view = $derived.by(() => { render; return ready ? { scenario: controller.scenario, sessions: controller.sessions, selected: controller.selected,
     viewed: controller.viewed, busy: controller.busy, preparing: controller.preparing, status: controller.status, progress: controller.progress,
@@ -38,9 +59,9 @@
     onImportCheckpoint: (file: File) => { void importCheckpoint(file); },
     onExportCheckpoint: view.preparation && !view.preparing ? () => { void exportCheckpoint(); } : undefined } : undefined);
   $effect(() => { const v = view; appStatus.set('politics-execution', !v ? { state: 'working', label: 'Inizializzazione' } : v.busy || v.preparing ? { state: 'working', label: v.status, detail: v.progress, cancel: () => void controller.cancel() } : { state: 'ready', label: v.status, detail: v.progress }); });
-  $effect(() => { if (view?.error) appStatus.set('politics-error', { state: 'error', label: 'Operazione non riuscita', detail: view.error }); else appStatus.clear('politics-error'); });
-  $effect(() => { if (view?.storageError) appStatus.set('politics-storage', { state: 'error', label: 'Errore di salvataggio', detail: view.storageError }); else appStatus.clear('politics-storage'); });
-  $effect(() => { if (fileError) appStatus.set('politics-file-error', { state: 'error', label: 'Errore file', detail: fileError }); else appStatus.clear('politics-file-error'); });
+  $effect(() => { if (view?.error) appStatus.set('politics-error', failureStatus(view.error)); else appStatus.clear('politics-error'); });
+  $effect(() => { if (view?.storageError) appStatus.set('politics-storage', failureStatus(view.storageError)); else appStatus.clear('politics-storage'); });
+  $effect(() => { if (fileError) appStatus.set('politics-file-error', fileError); else appStatus.clear('politics-file-error'); });
   async function track<T>(label: string, task: (progress: ArchiveProgressListener) => Promise<T>): Promise<T> {
     const id = crypto.randomUUID(); appStatus.set(id, { state: 'working', label });
     try {
@@ -50,25 +71,31 @@
   }
   function download(file: Blob, name: string) { const url = URL.createObjectURL(file), a = document.createElement('a'); a.href = url; a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); }
   async function exportCheckpoint() {
-    fileError = '';
+    fileError = null;
     try { await track('Preparazione checkpoint per il download', async () => { const checkpoint = await client.checkpoint(); if (!checkpoint) throw new Error('Checkpoint non applicabile a M01'); download(new Blob([JSON.stringify(checkpoint)]), 'politiche-checkpoint.json'); }); }
-    catch (e) { fileError = String(e); }
+    catch (e) { fileError = { state: 'error', label: 'Checkpoint non scaricato', diagnostics: [errorDiagnostic(e, 'CHECKPOINT_EXPORT_FAILED')] }; }
   }
   async function importCheckpoint(file: File) {
-    fileError = '';
+    fileError = null;
     const reader = new JsonStreamReader(jsonFileStream(file));
     try { const checkpoint = parsePoliticsCheckpoint(await track('Caricamento checkpoint', () => reader.value())); await reader.finish(); controller.prepare(false, checkpoint); }
-    catch (e) { fileError = `Checkpoint non caricato: ${String(e)}`; } finally { await reader.close(); }
+    catch (e) { fileError = { state: 'error', label: 'Checkpoint non caricato', diagnostics: [errorDiagnostic(e, 'CHECKPOINT_IMPORT_FAILED')] }; }
+    finally { await reader.close(); }
   }
   async function exportResult(format: 'json' | 'csv') {
-    if (!view?.viewed) return; fileError = ''; exporting = true;
+    if (!view?.viewed) return; fileError = null; exporting = true;
     try { const resultId = view.viewed.id; const file = await track('Preparazione risultati per il download', progress => client.results.call<File>('export', { resultId, owner: controller.owner, format }, progress)); download(file, `politiche-risultati.${format === 'json' ? 'json.gz' : 'csv'}`); }
-    catch (e) { fileError = String(e); } finally { exporting = false; }
+    catch (e) { fileError = { state: 'error', label: 'Risultati non scaricati', diagnostics: [errorDiagnostic(e, 'RESULT_EXPORT_FAILED')] }; }
+    finally { exporting = false; }
   }
   async function loadViewedScenario() { if (await controller.loadViewedScenario()) editorEpoch++; }
   async function stageExternalFile(file: File) {
     const target = await fileWorkspace(file);
-    if (target.kind === 'regionali-er') return () => { void navigateWorkspaceImport({ file }).catch(e => { fileError = String(e); }); };
+    if (target.kind === 'regionali-er') return () => {
+      void navigateWorkspaceImport({ file }).catch(e => {
+        fileError = { state: 'error', label: 'File regionale non caricato', diagnostics: [errorDiagnostic(e, 'REGIONAL_FILE_IMPORT_FAILED')] };
+      });
+    };
     const metadata = await inspectPoliticsFile(file);
     return metadata.kind === 'politics-scenario' ? null : () => { void controller.importResult(file); };
   }
@@ -100,7 +127,9 @@
         if (alive && controller.scenario === draftAtImport && !controller.busy) { controller.change(scenario); editorEpoch++; }
       }
       });
-    }).catch(e => { if (alive) fileError = String(e); });
+    }).catch(e => {
+      if (alive) fileError = { state: 'error', label: 'File non caricato', diagnostics: [errorDiagnostic(e, 'WORKSPACE_FILE_IMPORT_FAILED')] };
+    });
     return () => { alive = false; validation.abort(); controller.dispose(); appStatus.clear('politics-execution'); appStatus.clear('politics-error'); appStatus.clear('politics-storage'); appStatus.clear('politics-file-error'); };
   });
 </script>

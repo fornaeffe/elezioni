@@ -14,6 +14,7 @@ import { importStoredPolitics } from '../politics/files/stored-archive';
 import { encodedExportStream } from '../core/export-stream';
 import type { ArchiveProgress, ArchiveProgressListener } from '../core/archive-progress';
 import type { PositionMetric } from '../politics/reform-2026/election-probability';
+import { errorDiagnostic, type ErrorDiagnostic } from '../core/operation-error';
 
 export interface ResultServiceRequest {
   type: 'result-service'; requestId: number;
@@ -29,7 +30,7 @@ export interface ResultServiceRequest {
 }
 export interface ResultServiceReply {
   type: 'result-service'; requestId: number; ok: boolean; data?: unknown;
-  error?: { code: string; message: string };
+  error?: ErrorDiagnostic;
 }
 export interface ResultServiceProgress {
   type: 'result-service-progress'; requestId: number; progress: ArchiveProgress;
@@ -40,7 +41,6 @@ const active = new Set<string>();
 export function setResultActive(id: string, running: boolean) { if (running) active.add(id); else active.delete(id); }
 const deleting = new Set<string>();
 const resultJobs = new Map<string, Set<Promise<unknown>>>();
-const describe = (error: unknown) => error instanceof Error ? `${error.name}: ${error.message}` : String(error);
 
 async function exportStoredFile(record: StoredResult, format: 'json' | 'csv', values?: AsyncGenerator<string>, progress?: ArchiveProgressListener): Promise<File> {
   if (!navigator.storage?.getDirectory) throw new Error('Questo browser richiede il supporto ai file temporanei OPFS per esportare risultati grandi. I risultati locali sono conservati.');
@@ -154,5 +154,5 @@ export async function handleResultService(request: ResultServiceRequest, onProgr
       } else throw new Error('Unknown result operation');
     }
     return { type: 'result-service', requestId: request.requestId, ok: true, data };
-  } catch (error) { return { type: 'result-service', requestId: request.requestId, ok: false, error: { code: 'RESULT_SERVICE_ERROR', message: describe(error) } }; }
+  } catch (error) { return { type: 'result-service', requestId: request.requestId, ok: false, error: errorDiagnostic(error, 'RESULT_SERVICE_ERROR') }; }
 }

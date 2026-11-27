@@ -13,14 +13,19 @@
     {#if kind === 'error'}<CircleAlert size={20} aria-hidden="true" />{:else if kind === 'working'}<span class="working-icon" aria-hidden="true"><LoaderCircle size={20} /></span>{:else}<CircleCheck size={20} aria-hidden="true" />{/if}
     <span class="toggle-label">{label}</span>
   </button>
-  <div class="visually-hidden" role="status" aria-live="polite">{kind === 'error' ? 'Errore' : kind === 'working' ? 'Operazione in corso' : 'Pronto'}</div>
+  <div class="visually-hidden" role="status" aria-live="polite" aria-atomic="true">
+    {kind === 'error' ? [label, selected?.detail].filter(Boolean).join('. ') : kind === 'working' ? 'Operazione in corso' : 'Pronto'}
+  </div>
     <div class="content" hidden={!open}>
       {#if entries.length === 0}<p>Pronto</p>{/if}
       {#each entries as [id, entry] (id)}
         <div class="entry">
           <strong>{entry.label}</strong>
-          {#if entry.detail}
-            <p>{entry.state === 'error' ? entry.detail.replace(/\bError:(?:[ \t]+Error:)+/g, 'Error:') : entry.detail}</p>
+          {#if entry.detail}<p>{entry.detail}</p>{/if}
+          {#if entry.state === 'error'}
+            {#each entry.diagnostics as diagnostic, index (`${diagnostic.code}:${index}`)}
+              <p><code>{diagnostic.code}</code>{#if diagnostic.message} {diagnostic.message}{/if}</p>
+            {/each}
           {/if}
           {#if entry.cancel}<button onclick={entry.cancel}>Annulla</button>{/if}
           {#if entry.retry}<button onclick={entry.retry}>Riprova</button>{/if}

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
-  import { useStatus } from '$lib/app-status.svelte';
+  import { useStatus, type StatusError } from '$lib/app-status.svelte';
+  import { errorDiagnostic, errorMessage } from '$lib/core/operation-error';
   import SplitButton from '$lib/ui/SplitButton.svelte';
   import FieldWithHelp from '$lib/ui/FieldWithHelp.svelte';
   const appStatus = useStatus();
@@ -22,16 +23,17 @@
   let { scenario, onchange, execution, stageExternalFile }: { scenario: PoliticsScenario; onchange: (next: PoliticsScenario) => void;
     execution?: ExecutionControls; stageExternalFile?: (file: File) => Promise<(() => void) | null> } = $props();
   const referenceDateId = $props.id();
-  let assets = $state.raw<EditorAssets | null>(null), error = $state(''), status = $state('Caricamento del modello selezionato…');
+  let assets = $state.raw<EditorAssets | null>(null), status = $state('Caricamento del modello selezionato…');
+  let error = $state.raw<StatusError | null>(null);
   let controller: AbortController | null = null, importController: AbortController | null = null, disposed = false, epoch = 0, editRevision = 0;
-  $effect(() => { appStatus.set('politics-editor', error ? { state: 'error', label: 'Errore editor', detail: error, retry: !assets ? () => void load(scenario) : undefined } : !assets ? { state: status === 'Caricamento annullato' ? 'ready' : 'working', label: status, cancel: () => { controller?.abort(); ++epoch; status = 'Caricamento annullato'; }, retry: () => void load(scenario) } : { state: 'ready', label: status }); });
+  $effect(() => { appStatus.set('politics-editor', error ? { ...error, retry: !assets ? () => void load(scenario) : undefined } : !assets ? { state: status === 'Caricamento annullato' ? 'ready' : 'working', label: status, cancel: () => { controller?.abort(); ++epoch; status = 'Caricamento annullato'; }, retry: () => void load(scenario) } : { state: 'ready', label: status }); });
   let generator = $derived(activeGenerator(scenario));
   let issues = $derived(assets ? validateActiveScenario(scenario, assets.context) : []);
   const lawName = (law: LawId) => law === REFORM ? 'Riforma 2026' : 'Rosatellum';
   async function load(next: PoliticsScenario) {
     controller?.abort(); controller = new AbortController();
     const revision = ++epoch;
-    error = ''; assets = null; status = `Caricamento ${activeGenerator(next).id} · ${lawName(next.selection.scrutiny.id)}…`;
+    error = null; assets = null; status = `Caricamento ${activeGenerator(next).id} · ${lawName(next.selection.scrutiny.id)}…`;
     try {
       const loaded = await loadEditorAssets(next, controller.signal);
       parsePoliticsScenario(next, loaded.context);
@@ -39,7 +41,8 @@
       assets = loaded; status = `${activeGenerator(next).id} · dati verificati`;
     } catch (e) {
       if (disposed || revision !== epoch || controller.signal.aborted) return;
-      status = 'Caricamento non riuscito'; error = e instanceof Error ? e.message : String(e);
+      status = 'Caricamento non riuscito';
+      error = { state: 'error', label: 'Dati dell’editor non caricati', diagnostics: [errorDiagnostic(e, 'EDITOR_LOAD_FAILED')] };
     }
   }
   const apply: ApplyEdit = (edit, onError) => {
@@ -50,19 +53,18 @@
     try {
       const before = scenario;
       const next = parsePoliticsScenario(edit(scenario), assets?.context);
-      onchange(next); ++editRevision; importController?.abort(); error = '';
+      onchange(next); ++editRevision; importController?.abort(); error = null;
       if (before.selection.scrutiny.id !== next.selection.scrutiny.id || activeGenerator(before).id !== activeGenerator(next).id || JSON.stringify(before.data) !== JSON.stringify(next.data)) void load(next);
       return true;
     } catch (e) {
-      const message = e instanceof Error ? e.message : String(e);
-      if (onError) onError(message);
-      else error = `Modifica non applicata: ${message}`;
+      if (onError) onError(errorMessage(e));
+      else error = { state: 'error', label: 'Modifica non applicata', diagnostics: [errorDiagnostic(e, 'EDITOR_EDIT_FAILED')] };
       return false;
     }
   };
   async function importFile(file: File) {
     const revision = editRevision;
-    error = ''; importController?.abort();
+    error = null; importController?.abort();
     const staged = new AbortController(); importController = staged;
     const task = `scenario-import-${crypto.randomUUID()}`; appStatus.set(task, { state: 'working', label: 'Caricamento file' });
     try {
@@ -74,14 +76,17 @@
       const loaded = await loadEditorAssets(next, staged.signal);
       parsePoliticsScenario(next, loaded.context);
       if (disposed || staged.signal.aborted || execution?.busy || revision !== editRevision) return;
-      onchange(next); ++editRevision; controller?.abort(); ++epoch; assets = loaded; error = ''; status = `${activeGenerator(next).id} · dati verificati`;
-    } catch (e) { if (!disposed && !staged.signal.aborted) error = `Scenario non caricato. ${e instanceof Error ? e.message : String(e)}`; } finally { appStatus.clear(task); }
+      onchange(next); ++editRevision; controller?.abort(); ++epoch; assets = loaded; error = null; status = `${activeGenerator(next).id} · dati verificati`;
+    } catch (e) {
+      if (!disposed && !staged.signal.aborted) error = { state: 'error', label: 'Scenario non caricato', diagnostics: [errorDiagnostic(e, 'SCENARIO_IMPORT_FAILED')] };
+    } finally { appStatus.clear(task); }
   }
   async function download(gzip: boolean) {
     const task = `scenario-export-${crypto.randomUUID()}`; appStatus.set(task, { state: 'working', label: 'Preparazione scenario per il download' });
     await tick(); await new Promise<void>(resolve => setTimeout(resolve, 0));
     try { const url = URL.createObjectURL(new Blob([encodeScenario(scenario, gzip)])); const a = document.createElement('a'); a.href = url; a.download = `scenario-politiche.json${gzip ? '.gz' : ''}`; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); }
-    catch (e) { error = String(e); } finally { appStatus.clear(task); }
+    catch (e) { error = { state: 'error', label: 'Scenario non scaricato', diagnostics: [errorDiagnostic(e, 'SCENARIO_EXPORT_FAILED')] }; }
+    finally { appStatus.clear(task); }
   }
   onMount(() => { void load(scenario); return () => { disposed = true; ++epoch; controller?.abort(); importController?.abort(); appStatus.clear('politics-editor'); }; });
 </script>

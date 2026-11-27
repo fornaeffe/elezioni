@@ -1,4 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
+import { politicsSessionsKey } from '../../src/lib/politics/workspace-controller';
+import { installEditorPreparation } from '../fixtures/editor-preparation';
 
 async function holdData(page: Page) {
   let release!: () => void;
@@ -52,7 +54,7 @@ test('status remains fixed and compact on mobile, with accessible error details'
   await expect(box).toHaveAttribute('data-state', 'error');
   await expect(toggle.locator('svg')).toBeVisible();
   await toggle.click();
-  await expect(box.getByText(/Scenario non caricato/)).toBeVisible();
+  await expect(box.locator('.entry').getByText('Scenario non caricato', { exact: true })).toBeVisible();
   await box.getByRole('button', { name: 'Chiudi avviso' }).click();
   await expect(box).not.toHaveAttribute('data-state', 'error');
   } finally { release(); }
@@ -64,21 +66,50 @@ test('regional import errors appear in the shared status box', async ({ page }) 
   await page.locator('input[type=file]').first().setInputFiles({ name: 'bad.json', mimeType: 'application/json', buffer: Buffer.from('{') });
   await expect(box).toHaveAttribute('data-state', 'error');
   await page.getByRole('button', { name: /^Stato:/ }).click();
-  await expect(box.locator('strong').filter({ hasText: 'Operazione regionale non riuscita' })).toBeVisible();
+  await expect(box.locator('strong').filter({ hasText: 'Scenario regionale non caricato' })).toBeVisible();
 });
 
-test('worker errors show a single Error prefix in the status box', async ({ page }) => {
-  const diagnostic = 'REFERENCE_SUBJECT: component references require a declared new component';
+test('the status box presents a structured worker error with actionable guidance', async ({ page }) => {
+  const diagnostic = { code: 'REFERENCE_SUBJECT', name: 'Error', message: 'component references require a declared new component', stack: 'private stack' };
   await page.route('**/politics-workspace.worker-*.js', route => route.fulfill({
     contentType: 'text/javascript',
     body: `self.onmessage = ({ data: { type, requestId, action } }) => {
-      if (action === 'prepare') self.postMessage({ type, requestId, ok: false, error: ${JSON.stringify(`Error: ${diagnostic}`)} });
+      if (action === 'prepare') self.postMessage({ type, requestId, ok: false, error: ${JSON.stringify(diagnostic)} });
     };`,
   }));
 
-  await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
-  const box = page.locator('aside[aria-label="Stato dell\'applicazione"]');
-  await box.getByRole('button', { name: 'Stato: Operazione non riuscita' }).click();
-  await expect(box.getByText(`Error: ${diagnostic}`, { exact: true })).toBeVisible();
+  const release = await holdData(page);
+  try {
+    await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
+    const box = page.locator('aside[aria-label="Stato dell\'applicazione"]');
+    await expect(box.getByRole('status')).toHaveText(/Impossibile preparare il modello.*Controlla che i riferimenti/);
+    await box.getByRole('button', { name: 'Stato: Impossibile preparare il modello' }).click();
+    const entry = box.locator('.entry').filter({ hasText: diagnostic.code });
+    await expect(entry.getByText(/Controlla che i riferimenti/)).toBeVisible();
+    await expect(entry.getByText(diagnostic.code, { exact: true })).toBeVisible();
+    await expect(entry).toContainText(diagnostic.message);
+    await expect(entry).not.toContainText(/Error:|private stack/);
+  } finally { release(); }
+});
+
+test('an unavailable local result keeps its diagnostic code and its operation label', async ({ page }) => {
+  await installEditorPreparation(page);
+  await page.addInitScript(key => {
+    localStorage.setItem(key, JSON.stringify({
+      owner: 'test-owner', selected: 'missing', sessions: [{
+        id: 'missing', law: 'politiche-reform-2026-v1', model: 'M02@3.0.0', createdAt: '2026-11-27T00:00:00Z',
+        renewal: 'joint', completed: 0, requested: 1,
+      }],
+    }));
+  }, politicsSessionsKey);
+  const release = await holdData(page);
+  try {
+    await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
+    const box = page.locator('aside[aria-label="Stato dell\'applicazione"]');
+    await box.getByRole('button', { name: 'Stato: Sessione selezionata non disponibile' }).click();
+    const entry = box.locator('.entry').filter({ hasText: 'RESULT_SERVICE_ERROR' });
+    await expect(entry.getByText('RESULT_SERVICE_ERROR', { exact: true })).toBeVisible();
+    await expect(entry).toContainText('Local result session is unavailable');
+  } finally { release(); }
 });
 

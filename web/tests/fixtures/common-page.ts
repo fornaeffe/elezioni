@@ -62,5 +62,5 @@ export async function expectStatusError(page: Page, message: string | RegExp) {
     await expect(box).toHaveAttribute('data-state', 'error');
     const toggle = box.getByRole('button', { name: /^Stato:/ });
     if (await toggle.getAttribute('aria-expanded') !== 'true') await toggle.click();
-    await expect(box.getByText(message)).toBeVisible();
+    await expect(box.locator('.entry').getByText(message).first()).toBeVisible();
 }

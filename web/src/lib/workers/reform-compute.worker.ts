@@ -3,6 +3,8 @@ import { computeReformRun, encodeReformRun, prepareFastCompute, type PreparedFas
 import type { GenerationPacket } from '../politics/reform-2026/vote-share/fit-types';
 import { preparePoliticsCompute, computePoliticsRun, type PoliticsComputePacket } from './politics-compute';
 import type { PreparedPoliticsCompute } from '../politics/execution/compute-inputs';
+import type { ErrorDiagnostic } from '../core/operation-error';
+import { politicsErrorDiagnostic } from '../politics/execution/error-diagnostic';
 
 export type ReformComputeRequest = { requestId: number } & (
   { action: 'init'; scenario: unknown; basePath: string } |
@@ -10,7 +12,9 @@ export type ReformComputeRequest = { requestId: number } & (
   { action:'init-politics';packet:PoliticsComputePacket } |
   { action: 'compute'; simulation: number } | { action: 'pull' }
 );
-export interface ReformComputeReply { requestId: number; ok: boolean; data?: unknown; error?: string }
+export type ReformComputeReply = { requestId: number } & (
+  { ok: true; data: unknown } | { ok: false; error: ErrorDiagnostic }
+);
 
 let prepared: PreparedFastCompute | undefined;
 let politics: PreparedPoliticsCompute | undefined;
@@ -45,6 +49,6 @@ self.onmessage = async (event: MessageEvent<ReformComputeRequest>) => {
     }
     self.postMessage({ requestId: request.requestId, ok: true, data } satisfies ReformComputeReply);
   } catch (error) {
-    self.postMessage({ requestId: request.requestId, ok: false, error: error instanceof Error ? `${error.name}: ${error.message}` : String(error) } satisfies ReformComputeReply);
+    self.postMessage({ requestId: request.requestId, ok: false, error: politicsErrorDiagnostic(error, 'COMPUTE_WORKER_ERROR') } satisfies ReformComputeReply);
   } finally { busy = false; }
 };

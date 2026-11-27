@@ -18,12 +18,13 @@ export async function installEditorPreparation(page: Page, holdFirstRefit = fals
         event.stopImmediatePropagation();
         const reply = (data: unknown) => self.postMessage({ type: 'politics-task', requestId: m.requestId, ok: true, data });
         if (m.action === 'cancel') {
-          if (held !== undefined) self.postMessage({ type: 'politics-task', requestId: held, ok: false, error: 'Controlled refit cancelled' });
+          if (held !== undefined) self.postMessage({ type: 'politics-task', requestId: held, ok: false,
+            error: { code: 'CANCELLED', message: 'Controlled refit cancelled' } });
           held = undefined; reply(null); return;
         }
         if (m.action !== 'prepare') {
           self.postMessage({ type: 'politics-task', requestId: m.requestId, ok: false,
-            error: `Editor-only fixture forbids ${m.action}` }); return;
+            error: { code: 'UNSUPPORTED_OPERATION', message: `Editor-only fixture forbids ${m.action}` } }); return;
         }
         if (hold && m.force) {
           hold = false; held = m.requestId;

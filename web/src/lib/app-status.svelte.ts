@@ -1,5 +1,9 @@
 import { getContext, setContext, untrack } from 'svelte';
-export type StatusEntry = { state: 'ready' | 'working' | 'error'; label: string; detail?: string; cancel?: () => void; retry?: () => void };
+import type { ErrorDiagnostic } from './core/operation-error';
+
+type StatusContent = { label: string; detail?: string; cancel?: () => void; retry?: () => void };
+export type StatusError = StatusContent & { state: 'error'; diagnostics: readonly Pick<ErrorDiagnostic, 'code' | 'message'>[] };
+export type StatusEntry = (StatusContent & { state: 'ready' | 'working' }) | StatusError;
 const key = Symbol('app-status');
 export class AppStatus {
   entries = $state<Record<string, StatusEntry>>({});

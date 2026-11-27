@@ -42,7 +42,7 @@ export function createWorkspaceExecution(factory: () => WorkspaceWorker) {
         };
         active.onerror = event => {
           if (revision !== token) return;
-          cancel(); phase = 'error'; failed(new Error(event.message));
+          cancel(); phase = 'error'; failed(event.error instanceof Error ? event.error : new Error(event.message));
         };
         active.postMessage(request);
       } catch (e) { cancel(); phase = 'error'; failed(e instanceof Error ? e : new Error(String(e))); }

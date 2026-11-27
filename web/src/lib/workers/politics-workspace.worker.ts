@@ -13,11 +13,17 @@ import { runStoredPolitics } from '../politics/execution/stored-run';
 import { canonicalJson } from '../politics/scenario/dependencies';
 import type { AssetBytes } from '../politics/reform-2026/vote-share/source-codec';
 import { readPreparation, writePreparation } from '../politics/execution/preparation-store';
+import type { ErrorDiagnostic } from '../core/operation-error';
+import { politicsErrorDiagnostic } from '../politics/execution/error-diagnostic';
+import type { SimulationProgress } from '../core/types';
 
 export interface PoliticsTaskRequest {
   type: 'politics-task'; requestId: number; action: 'prepare' | 'run' | 'cancel' | 'checkpoint' | 'dispose';
   basePath: string; scenario?: PoliticsScenario; force?: boolean; checkpoint?: PoliticsCheckpoint; id?: string; owner?: string;
 }
+export type PoliticsTaskReply = { type: 'politics-task'; requestId: number } & (
+  { progress: SimulationProgress } | { ok: true; data: unknown } | { ok: false; error: ErrorDiagnostic }
+);
 let prepared: PreparedPoliticsExecution | undefined, packet: PoliticsComputePacket | undefined;
 let task: AbortController | undefined, sequence = 0, running = false, cancellation = false;
 const cache = new PoliticsPreparationCache();
@@ -124,5 +130,8 @@ self.onmessage = (event: MessageEvent<PoliticsTaskRequest | ResultServiceRequest
     }
     if (revision !== sequence || controller.signal.aborted) throw new Error('Preparation cancelled');
     reply({ keys: next.keys, reuse: next.reuse, capacity: politicsCapacity(packet, navigator, retainedCoordinatorBytes()), note: cacheNote });
-  })().catch(error => self.postMessage({ type: 'politics-task', requestId: request.requestId, ok: false, error: String(error) }));
+  })().catch(error => self.postMessage({
+    type: 'politics-task', requestId: request.requestId, ok: false,
+    error: politicsErrorDiagnostic(error, 'POLITICS_WORKER_ERROR'),
+  } satisfies PoliticsTaskReply));
 };

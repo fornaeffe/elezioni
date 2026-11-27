@@ -1,4 +1,7 @@
 import { ResultServiceClient } from '../../core/result-service-client';
+import { OperationError, restoreOperationError } from '../../core/operation-error';
+import type { PoliticsTaskReply } from '../../workers/politics-workspace.worker';
+import type { ResultServiceProgress, ResultServiceReply } from '../../workers/result-service';
 import type { StoredResult } from '../../core/result-store';
 import type { PoliticsScenario } from '../scenario/schema';
 import type { PoliticsCheckpoint } from '../scenario/envelopes';
@@ -31,14 +34,20 @@ export class PoliticsClient implements PoliticsRuntime {
     worker.addEventListener('error', this.failure);
     worker.addEventListener('messageerror', this.failure);
   }
-  private receive = (event: MessageEvent) => {
+  private receive = (event: MessageEvent<PoliticsTaskReply | ResultServiceReply | ResultServiceProgress>) => {
     const m = event.data; if (m.type !== 'politics-task') return;
     const pending = this.pending.get(m.requestId); if (!pending) return;
-    if (m.progress) { pending.progress?.(m.progress); return; }
+    if ('progress' in m) { pending.progress?.(m.progress); return; }
     this.pending.delete(m.requestId);
-    if (m.ok) pending.resolve(m.data); else pending.reject(new Error(m.error));
+    if (m.ok) pending.resolve(m.data); else pending.reject(restoreOperationError(m.error));
   };
-  private failure = () => { for (const p of this.pending.values()) p.reject(new Error('Politics worker failed')); this.pending.clear(); this.results.close(); };
+  private failure = (event: Event) => {
+    const error = new OperationError('POLITICS_WORKER_ERROR', 'Politics worker failed', {
+      cause: event instanceof ErrorEvent ? event.error ?? event.message : undefined,
+    });
+    for (const p of this.pending.values()) p.reject(error);
+    this.pending.clear(); this.results.close();
+  };
   private call<T>(action: string, fields: object = {}, progress?: (p: SimulationProgress) => void): Promise<T> {
     const requestId = ++this.sequence;
     return new Promise<T>((resolve, reject) => {

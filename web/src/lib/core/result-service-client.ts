@@ -1,5 +1,6 @@
 import type { ResultServiceReply, ResultServiceRequest, ResultServiceProgress } from '../workers/result-service';
 import type { ArchiveProgressListener } from './archive-progress';
+import { OperationError, restoreOperationError } from './operation-error';
 
 export class ResultServiceClient {
   private sequence = 0;
@@ -16,7 +17,8 @@ export class ResultServiceClient {
     if (event.data.type === 'result-service-progress') { pending.progress?.(event.data.progress); return; }
     this.pending.delete(event.data.requestId);
     if (event.data.ok) pending.resolve(event.data.data);
-    else pending.reject(new Error(`${event.data.error?.code}: ${event.data.error?.message}`));
+    else pending.reject(event.data.error ? restoreOperationError(event.data.error)
+      : new OperationError('RESULT_SERVICE_ERROR', 'Result worker failed'));
   };
   call<T>(action: ResultServiceRequest['action'], fields: Omit<ResultServiceRequest, 'action' | 'type' | 'requestId'>, progress?: ArchiveProgressListener): Promise<T> {
     const requestId = ++this.sequence;

@@ -1,5 +1,6 @@
 import { appendResultBatch, cellsWarning, getStoredResult, newResultStorage, saveStoredResult, type Cell, type StoredResult } from '../../core/result-store';
 import type { SimulationProgress, SimulationResult } from '../../core/types';
+import { OperationError } from '../../core/operation-error';
 import { ReformComputeClient, runOrderedReformPool, type ReformComputeConnection } from '../../workers/reform-pool';
 import type { PoliticsComputePacket } from '../../workers/politics-compute';
 import type { PreparedPoliticsExecution } from './prepare';
@@ -103,9 +104,10 @@ export async function runStoredPolitics(prepared: PreparedPoliticsExecution, pac
     // Discard every uncommitted mutation; never publish a partial simulation.
     const saved = await getStoredResult(id, owner);
     saved.result.storage!.state = 'interrupted'; saved.result.status = 'not_implemented';
+    const reason = error instanceof OperationError ? `${error.code}: ${error.message}` : String(error);
     saved.result.warnings.push({ code: failureCode, severity: 'error', electionKind: 'politiche',
       scope: 'execution',
-      message: `${String(error)}. Conservate ${saved.result.completedSimulations}/${s.execution.simulations} simulazioni; denominatore originale invariato.` });
+      message: `${reason}. Conservate ${saved.result.completedSimulations}/${s.execution.simulations} simulazioni; denominatore originale invariato.` });
     const run = saved.politics!.run;
     saved.politics!.run = { ...run, session: { ...run.session, state: 'interrupted' }, result: { ...run.result, status: 'not_implemented',
       warnings: saved.result.warnings.map(w => ({ ...w, electionKind: 'politiche', severity: w.severity ?? 'warning' })) } };

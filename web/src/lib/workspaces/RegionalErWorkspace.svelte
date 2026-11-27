@@ -13,6 +13,7 @@
   import { snapshotDescriptors } from './snapshots.generated';
   import { fileWorkspace, regionalScenarioWorkspace as scenarioWorkspace } from './import-routing';
   import { isOtherList, setOtherListEnabled, OTHER_LIST_COLOR } from '$lib/core/other-list';
+  import { errorDiagnostic, type ErrorDiagnostic } from '$lib/core/operation-error';
   import { resolve } from '$app/paths';
   import { Download, Play, Plus, RotateCcw, Trash2, Upload } from '@lucide/svelte';
   import { onMount, tick } from 'svelte';
@@ -56,7 +57,15 @@
     code: string;
     message: string;
     severity: UiMessageSeverity;
+    diagnostic?: ErrorDiagnostic;
   }
+
+  const statusErrorLabels = new Map([
+    ['WORKER_ERROR', 'Simulazione regionale non riuscita'],
+    ['SCENARIO_LOAD_ERROR', 'Scenario regionale non caricato'],
+    ['RESULT_LOAD_ERROR', 'Risultati regionali non caricati'],
+    ['DOWNLOAD_ERROR', 'Risultati regionali non scaricati'],
+  ]);
 
   interface LocationOption {
     scope: ScenarioLocalShareOverrideScope;
@@ -131,7 +140,13 @@
   });
   $effect(() => onBusyChange?.(isBusy));
   $effect(() => { appStatus.set('regional-operation', running ? { state: 'working', label: 'Simulazione regionale', detail: phase, cancel: () => { execution.cancel(); phase = 'cancelled'; } } : busyAction ? { state: 'working', label: busyAction } : { state: 'ready', label: phase === 'cancelled' ? 'Calcolo annullato' : 'Pronto' }); });
-  $effect(() => { const errors = messages.filter(m => ['WORKER_ERROR', 'SCENARIO_LOAD_ERROR', 'RESULT_LOAD_ERROR', 'DOWNLOAD_ERROR'].includes(m.code)); if (errors.length) appStatus.set('regional-error', { state: 'error', label: 'Operazione regionale non riuscita', detail: errors.map(m => m.message).join('\n') }); else appStatus.clear('regional-error'); });
+  $effect(() => {
+    const errors = messages.filter(m => statusErrorLabels.has(m.code));
+    if (errors.length) appStatus.set('regional-error', { state: 'error',
+      label: statusErrorLabels.get(errors[0].code) ?? 'Operazione regionale non riuscita',
+      diagnostics: errors.map(e => e.diagnostic ?? e) });
+    else appStatus.clear('regional-error');
+  });
   onMount(() => () => { appStatus.clear('regional-operation'); appStatus.clear('regional-error'); });
 
 
@@ -294,7 +309,7 @@
       await new Promise<void>(resolve => setTimeout(resolve, 0));
       return await action();
     } catch (error) {
-      messages = [uiMessage('DOWNLOAD_ERROR', error instanceof Error ? error.message : String(error), 'error')];
+      messages = [uiError('DOWNLOAD_ERROR', error)];
     } finally {
       busyAction = '';
     }
@@ -374,6 +389,11 @@
     return { code, message, severity };
   }
 
+  function uiError(code: string, error: unknown): UiMessage {
+    const diagnostic = errorDiagnostic(error, code);
+    return { ...uiMessage(code, diagnostic.message, 'error'), diagnostic };
+  }
+
   function workerMessage(warning: ScrutinyWarning): UiMessage {
     return uiMessage(warning.code, warning.message, warning.severity ?? 'warning');
   }
@@ -429,7 +449,7 @@
         messages = [uiMessage('SCENARIO_IMPORT', `Scenario importato da ${file.name}.`, 'info')];
           }
     } catch (error) {
-      messages = [uiMessage('SCENARIO_LOAD_ERROR', error instanceof Error ? error.message : String(error), 'error')];
+      messages = [uiError('SCENARIO_LOAD_ERROR', error)];
     } finally { busyAction = ''; }
   }
 
@@ -444,7 +464,7 @@
       if ((await fileWorkspace(file)).id !== 'regional-er') { await navigateWorkspaceImport({ file }); return; }
       applyResultExport(parseSimulationResultExport(await readJsonFile(file)));
     } catch (error) {
-      messages = [uiMessage('RESULT_LOAD_ERROR', error instanceof Error ? error.message : String(error), 'error')];
+      messages = [uiError('RESULT_LOAD_ERROR', error)];
     } finally {
       busyAction = ''; input.value = '';
     }
@@ -462,7 +482,7 @@
       lastResult = message; tables = message.tables;
       resultScenario = cloneRegionalErScenario(scenarioSnapshot); resultScenarioFingerprint = serializeRegionalErScenario(scenarioSnapshot);
       messages = message.warnings.map(workerMessage); elapsedMs = message.benchmark.elapsedMs; phase = message.status;
-    }, error => { messages = [uiMessage('WORKER_ERROR', error.message, 'error')]; phase = 'error'; },
+    }, error => { messages = [uiError('WORKER_ERROR', error)]; phase = 'error'; },
       progress => { phase = progress.phase; elapsedMs = progress.elapsedMs; });
   }
 
@@ -504,7 +524,7 @@
     </Notice>
   {/if}
 
-  <WorkspaceMessages messages={messages.filter(m => !['WORKER_ERROR', 'SCENARIO_LOAD_ERROR', 'RESULT_LOAD_ERROR', 'DOWNLOAD_ERROR'].includes(m.code))} result={lastResult} />
+  <WorkspaceMessages messages={messages.filter(m => !statusErrorLabels.has(m.code))} result={lastResult} />
 
 
   <section class="panel">
