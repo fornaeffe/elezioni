@@ -17,7 +17,11 @@
     <div class="content" hidden={!open}>
       {#if entries.length === 0}<p>Pronto</p>{/if}
       {#each entries as [id, entry] (id)}
-        <div class="entry"><strong>{entry.label}</strong>{#if entry.detail}<p>{entry.detail}</p>{/if}
+        <div class="entry">
+          <strong>{entry.label}</strong>
+          {#if entry.detail}
+            <p>{entry.state === 'error' ? entry.detail.replace(/\bError:(?:[ \t]+Error:)+/g, 'Error:') : entry.detail}</p>
+          {/if}
           {#if entry.cancel}<button onclick={entry.cancel}>Annulla</button>{/if}
           {#if entry.retry}<button onclick={entry.retry}>Riprova</button>{/if}
           {#if entry.state === 'error'}<button onclick={() => status.clear(id)}>Chiudi avviso</button>{/if}

@@ -67,3 +67,18 @@ test('regional import errors appear in the shared status box', async ({ page }) 
   await expect(box.locator('strong').filter({ hasText: 'Operazione regionale non riuscita' })).toBeVisible();
 });
 
+test('worker errors show a single Error prefix in the status box', async ({ page }) => {
+  const diagnostic = 'REFERENCE_SUBJECT: component references require a declared new component';
+  await page.route('**/politics-workspace.worker-*.js', route => route.fulfill({
+    contentType: 'text/javascript',
+    body: `self.onmessage = ({ data: { type, requestId, action } }) => {
+      if (action === 'prepare') self.postMessage({ type, requestId, ok: false, error: ${JSON.stringify(`Error: ${diagnostic}`)} });
+    };`,
+  }));
+
+  await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
+  const box = page.locator('aside[aria-label="Stato dell\'applicazione"]');
+  await box.getByRole('button', { name: 'Stato: Operazione non riuscita' }).click();
+  await expect(box.getByText(`Error: ${diagnostic}`, { exact: true })).toBeVisible();
+});
+
