@@ -16,8 +16,11 @@ test('explicit refit cancellation and retry do not overwrite the draft', async (
     await page.getByText('Impostazioni avanzate della simulazione', { exact: true }).click();
     await page.getByText('Fitting e checkpoint', { exact: true }).click();
     await page.getByRole('button', { name: 'Ricalcola fitting', exact: true }).click();
-    await page.getByRole('button', { name: /^Stato:/ }).click(); await page.getByRole('button', { name: 'Annulla', exact: true }).first().click();
-    await expect(page.locator('aside[aria-label="Stato dell\'applicazione"]')).toContainText('Preparazione annullata');
+  const status = page.getByRole('complementary', { name: "Stato dell'applicazione" });
+  await status.getByRole('button', { name: 'Stato: Preparazione del modello' }).click();
+  await expect(status.getByText('Controlled editor refit · 0/1', { exact: true })).toBeVisible();
+  await status.getByRole('button', { name: 'Annulla', exact: true }).click();
+  await expect(status).toContainText('Preparazione annullata');
     await page.getByRole('button', { name: 'Ricalcola fitting', exact: true }).click();
     await waitForPoliticsReady(page);
     const stored = await page.evaluate(key => JSON.parse(localStorage.getItem(key) ?? 'null'), politicsDraftKey);

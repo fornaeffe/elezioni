@@ -25,6 +25,7 @@
   let controller: PoliticsWorkspaceController;
   let client = $state.raw<PoliticsClient>()!;
   let render = $state(0), ready = $state(false), editorEpoch = $state(0), exporting = $state(false);
+  let progress = $state('');
   let fileError = $state.raw<StatusError | null>(null);
   const failureLabels: Record<PoliticsOperation, string> = {
     'restore-draft': 'Bozza salvata non caricata',
@@ -47,18 +48,24 @@
   }
   let lawFilter = $state(''), modelFilter = $state('');
   const view = $derived.by(() => { render; return ready ? { scenario: controller.scenario, sessions: controller.sessions, selected: controller.selected,
-    viewed: controller.viewed, busy: controller.busy, preparing: controller.preparing, status: controller.status, progress: controller.progress,
+    viewed: controller.viewed, busy: controller.busy, preparing: controller.preparing, status: controller.status,
     error: controller.error, storageError: controller.storageError, stale: controller.stale, recommendation: controller.recommend1000,
     preparation: controller.preparation } : null; });
-  const execution = $derived(view ? { busy: view.busy, preparing: view.preparing, status: view.status, progress: view.progress,
+  const editorScenario = $derived(view?.scenario);
+  const execution = $derived(view ? { busy: view.busy,
     workerInfo: view.preparation ? { requested: view.scenario.execution.workers.kind === 'auto' ? 'automatici' : String(view.scenario.execution.workers.count),
       recommended: view.preparation.capacity.recommended, maximum: view.preparation.capacity.maximum,
       memoryMiB: Math.ceil(view.preparation.capacity.perWorkerBytes / 1048576),
       warning: view.scenario.execution.workers.kind === 'fixed' && (workerMemoryWarning(view.scenario.execution.workers.count, view.preparation.capacity) || workerHeapWarning(view.scenario.execution.workers.count, view.preparation.capacity)) } : undefined,
-    onRun: () => { void controller.run(); }, onCancel: () => { void controller.cancel(); }, onFit: () => controller.prepare(true),
+    onRun: () => { void controller.run(); }, onFit: () => controller.prepare(true),
     onImportCheckpoint: (file: File) => { void importCheckpoint(file); },
     onExportCheckpoint: view.preparation && !view.preparing ? () => { void exportCheckpoint(); } : undefined } : undefined);
-  $effect(() => { const v = view; appStatus.set('politics-execution', !v ? { state: 'working', label: 'Inizializzazione' } : v.busy || v.preparing ? { state: 'working', label: v.status, detail: v.progress, cancel: () => void controller.cancel() } : { state: 'ready', label: v.status, detail: v.progress }); });
+  $effect(() => {
+    const v = view;
+    appStatus.set('politics-execution', !v ? { state: 'working', label: 'Inizializzazione' }
+      : v.busy || v.preparing ? { state: 'working', label: v.status, detail: progress, cancel: () => void controller.cancel() }
+      : { state: 'ready', label: v.status, detail: progress });
+  });
   $effect(() => { if (view?.error) appStatus.set('politics-error', failureStatus(view.error)); else appStatus.clear('politics-error'); });
   $effect(() => { if (view?.storageError) appStatus.set('politics-storage', failureStatus(view.storageError)); else appStatus.clear('politics-storage'); });
   $effect(() => { if (fileError) appStatus.set('politics-file-error', fileError); else appStatus.clear('politics-file-error'); });
@@ -104,7 +111,8 @@
     const validation = new AbortController();
     client = new PoliticsClient(new Worker(new URL('../workers/politics-workspace.worker.ts', import.meta.url), { type: 'module' }), resolve('/').replace(/\/$/, ''));
     controller = new PoliticsWorkspaceController(createDefaultCommonPoliticsScenario(), { runtime: client, storage: localStorage,
-      changed: () => { render++; }, manifest: (id, owner) => client.results.call('manifest', { resultId: id, owner }),
+      changed: () => { render++; }, progressChanged: detail => { progress = detail; },
+      manifest: (id, owner) => client.results.call('manifest', { resultId: id, owner }),
       importResult: (file, id, owner) => track('Caricamento risultati', progress => client.results.call('import', { file, resultId: id, owner, commonPolitics: true }, progress)),
       validateScenario: async s => { const assets = await loadEditorAssets(s, validation.signal); parsePoliticsScenario(s, assets.context); } });
     client.onPreparationProgress = (detail, completed, total) => controller.preparationProgress(detail, completed, total);
@@ -134,8 +142,10 @@
   });
 </script>
 <svelte:head><title>Elezioni politiche</title></svelte:head>
+{#if editorScenario}
+  {#key editorEpoch}<CommonPoliticsEditor scenario={editorScenario} onchange={s => { controller.change(s); }} {execution} {stageExternalFile} />{/key}
+{/if}
 {#if view}
-  {#key editorEpoch}<CommonPoliticsEditor scenario={view.scenario} onchange={s => { controller.change(s); }} {execution} {stageExternalFile} />{/key}
   <section class="sessions" aria-label="Sessioni dei risultati">
     <h2>Risultati delle elezioni politiche</h2>
     {#if view.viewed?.politics}

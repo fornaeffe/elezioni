@@ -10,6 +10,8 @@ meantime, the linked file has been edited and the link has not been updated.
 ## Future work
 
 - [ ] **UI polishing**
+  - [x] Keep politics model progress responsive during editor validation and
+    isolate the shared page-frame checks from model fitting.
   - [x] Change [other lists editor](web\src\lib\politics\editor\SubjectsEditor.svelte):
     when "other lists" is off, show only a button that opens a cancelable activation
     form with component selection in the shared [dialog](web/src/lib/ui/Dialog.svelte).

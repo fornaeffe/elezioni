@@ -23,9 +23,10 @@ function harness(saved: Record<string, string> = {}) {
   const runtime: PoliticsRuntime = { prepare: vi.fn(async () => summary), run: vi.fn(async () => record()),
     cancel: vi.fn(async () => {}), checkpoint: vi.fn(async () => null), close: vi.fn() };
   const manifest = vi.fn(async (id: string) => record(id)), importResult = vi.fn(async () => record('imported'));
+  const changed = vi.fn(), progressChanged = vi.fn();
   const controller = new PoliticsWorkspaceController(fixture().scenario, { storage, runtime, manifest, importResult,
-    validateScenario: async () => {}, changed: vi.fn() });
-  return { controller, storage, saved, runtime, manifest, importResult };
+    validateScenario: async () => {}, changed, progressChanged });
+  return { controller, storage, saved, runtime, manifest, importResult, changed, progressChanged };
 }
 describe('CP-07 session action table and task ownership', () => {
   it.each(['M01@2.0.0', 'M02@3.0.0', 'M02@2.0.0'])('restores a selected stored %s session without changing the active model', async model => {
@@ -46,6 +47,22 @@ describe('CP-07 session action table and task ownership', () => {
     } });
     expect(h.runtime.run).not.toHaveBeenCalled(); expect(h.controller.sessions).toEqual([]);
     expect(h.controller.scenario).toEqual(initial); expect(h.controller.busy).toBe(false);
+  });
+  it('publishes preparation progress without invalidating the scenario view', async () => {
+    const h = harness(), pending = deferred<PreparationSummary>();
+    vi.mocked(h.runtime.prepare).mockReturnValueOnce(pending.promise);
+    await h.controller.initialize();
+    h.changed.mockClear();
+
+    h.controller.preparationProgress('Fitting', 1, 3);
+    h.controller.preparationProgress('Fitting', 2, 3);
+    expect(h.progressChanged.mock.calls).toEqual([['Fitting · 1/3'], ['Fitting · 2/3']]);
+    expect(h.changed).not.toHaveBeenCalled();
+
+    pending.resolve({ ...summary, note: 'Preparation complete' });
+    await vi.waitFor(() => expect(h.controller.preparing).toBe(false));
+    expect(h.progressChanged).toHaveBeenLastCalledWith('Preparation complete');
+    expect(h.changed).toHaveBeenCalledOnce();
   });
   it('keeps result browsing, imports, switching and explicit scenario loading independent', async () => {
     const h = harness(); await h.controller.initialize(); await h.controller.selectSession('saved');

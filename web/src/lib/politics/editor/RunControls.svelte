@@ -7,7 +7,7 @@
   import LazySection from './LazySection.svelte';
   /** CP-07 supplies task ownership. Presentation never starts or randomizes execution implicitly. */
   export interface ExecutionControls {
-    busy: boolean; preparing?: boolean; status: string; progress?: string; onRun: () => void; onCancel: () => void;
+    busy: boolean; onRun: () => void;
     onFit?: () => void; onImportCheckpoint?: (file: File) => void; onExportCheckpoint?: () => void;
     workerInfo?: { requested: string; recommended: number; maximum: number; memoryMiB: number; warning: boolean };
   }

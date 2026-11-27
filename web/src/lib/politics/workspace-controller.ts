@@ -24,6 +24,7 @@ export interface PoliticsWorkspacePorts {
   importResult(file: File, id: string, owner: string): Promise<StoredResult>;
   validateScenario(s: PoliticsScenario): Promise<void>;
   changed(): void;
+  progressChanged(detail: string): void;
 }
 export type PoliticsOperation = 'restore-draft' | 'restore-index' | 'save-draft' | 'save-index' |
   'prepare' | 'load-checkpoint' | 'cancel' | 'run' | 'select-session' | 'import-result' | 'load-scenario';
@@ -45,7 +46,6 @@ export class PoliticsWorkspaceController {
   busy = false;
   preparing = false;
   status = 'Inizializzazione';
-  progress = '';
   error: PoliticsFailure | null = null;
   storageError: PoliticsFailure | null = null;
   private revision = 0;
@@ -105,7 +105,8 @@ export class PoliticsWorkspaceController {
     this.pending = this.ports.runtime.prepare(structuredClone(this.scenario), force, checkpoint).then(summary => {
       if (this.disposed || token !== this.taskRevision || revision !== this.revision) return;
       this.preparation = summary;
-      this.status = summary.reuse.fit ? 'Modello pronto · fitting riutilizzato' : 'Modello pronto'; this.progress = summary.note ?? '';
+      this.status = summary.reuse.fit ? 'Modello pronto · fitting riutilizzato' : 'Modello pronto';
+      this.ports.progressChanged(summary.note ?? '');
     }).catch(e => { if (!this.disposed && token === this.taskRevision) {
       if (checkpoint) this.preparation = previous;
       this.error = failure(checkpoint ? 'load-checkpoint' : 'prepare', e);
@@ -114,8 +115,8 @@ export class PoliticsWorkspaceController {
       .finally(() => { if (token === this.taskRevision) { this.preparing = false; this.notify(); } });
   }
   preparationProgress(detail: string, completed: number, total: number) {
-    if (!this.preparing) return;
-    this.progress = `${detail} · ${completed}/${total}`; this.notify();
+    if (this.disposed || !this.preparing) return;
+    this.ports.progressChanged(`${detail} · ${completed}/${total}`);
   }
   async cancel() {
     if (this.disposed) return;
@@ -157,8 +158,11 @@ export class PoliticsWorkspaceController {
       this.saveSessions(); this.status = 'Esecuzione'; this.error = null; this.notify();
       const record = await this.ports.runtime.run(captured, id, this.owner, p => {
         if (this.disposed || revision !== this.revision) return;
-        if (p.phase === 'simulate') this.sessions = this.sessions.map(s => s.id === id ? { ...s, completed: p.completed } : s);
-        this.progress = `${p.phase} · ${p.completed}/${p.total}`; this.notify();
+        this.ports.progressChanged(`${p.phase} · ${p.completed}/${p.total}`);
+        if (p.phase === 'simulate') {
+          this.sessions = this.sessions.map(s => s.id === id ? { ...s, completed: p.completed } : s);
+          this.notify();
+        }
       });
       if (this.disposed || revision !== this.revision) return;
       // Browsing another session while running is permitted and does not get undone.

@@ -1,4 +1,5 @@
 import { expect, test, type Locator } from '@playwright/test';
+import { installEditorPreparation } from '../fixtures/editor-preparation';
 
 const base = process.env.BASE_PATH ?? '';
 
@@ -20,6 +21,7 @@ function contentEdges(target: Locator) {
 
 for (const width of [390, 1024, 1600]) {
   test(`shares the page frame at ${width}px`, async ({ page }) => {
+    await installEditorPreparation(page);
     await page.setViewportSize({ width, height: 900 });
     await page.goto(`${base}/`);
 

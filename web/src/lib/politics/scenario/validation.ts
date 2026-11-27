@@ -46,9 +46,10 @@ export function validateScenario(value: unknown, context?: DomainContext): reado
   const ownedComponents = new Map(s.memberships.map(m => [m.newComponentId, m.listId]));
   const refSubjectExists = (subject: { kind: 'list' | 'component'; id: string }) => subject.kind === 'list' ? listIds.has(subject.id) : componentExists(subject.id);
   const geoVersion = (law: LawId) => s.data.lawAssets[law].geography.version;
+  const pinnedLocations = context && new Set(context.locations.map(locationKey));
   const checkLocation = (location: Location, law: LawId, path: string) => {
     if (location.law !== law || location.geographyVersion !== geoVersion(law)) error('INVALID_GEOGRAPHY', path, 'Law/geography namespace mismatch');
-    if (context) has(context.locations.some(l => locationKey(l) === locationKey(location)), path, 'Unknown pinned law/chamber/location');
+    if (pinnedLocations) has(pinnedLocations.has(locationKey(location)), path, 'Unknown pinned law/chamber/location');
   };
   unique(s.subjects.lists, l => l.id, '$.subjects.lists'); unique(s.subjects.coalitions, c => c.id, '$.subjects.coalitions');
   unique(s.candidates, c => c.id, '$.candidates'); unique(s.newComponents, c => c.id, '$.newComponents');
