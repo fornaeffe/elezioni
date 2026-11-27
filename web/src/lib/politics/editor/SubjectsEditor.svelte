@@ -1,6 +1,7 @@
 <script lang="ts">
+  import { Trash2 } from '@lucide/svelte';
   import Toggletip from '$lib/ui/Toggletip.svelte';
-  import type { PoliticsScenario } from '../scenario/schema';
+  import type { PoliticsScenario, Subject } from '../scenario/schema';
   import { chambers, REFORM } from '../scenario/schema';
   import { capabilities } from '../scenario/registry';
   import { createCoalition, createList, updateCoalition, updateList, deleteSubject, setMembers } from '../scenario/edits';
@@ -12,11 +13,16 @@
   import FilingTree from './FilingTree.svelte';
   import ReferencesEditor from './ReferencesEditor.svelte';
   import MembershipsEditor from './MembershipsEditor.svelte';
+  import SubjectRemovalDialog from './SubjectRemovalDialog.svelte';
   import { referenceQuotaHelp } from './reference-help';
   let { scenario, assets, edit }: { scenario: PoliticsScenario; assets: EditorAssets | null; edit: ApplyEdit } = $props();
   let openCoalitions = $state<Record<string, boolean>>({}), openLists = $state<Record<string, boolean>>({});
   let coalitionName = $state(''), listName = $state(''), otherMembers = $state<string[]>([]);
-  let otherSetup = $state(false), otherOpen = $state(false), otherSearch = $state(''), otherConfirm = $state(false);
+  let otherSetup = $state(false), otherOpen = $state(false), otherSearch = $state('');
+  let removalDialog = $state<ReturnType<typeof SubjectRemovalDialog>>();
+  let addCoalitionInput = $state<HTMLInputElement>();
+  let addListInput = $state<HTMLInputElement>();
+  let activateOtherButton = $state<HTMLButtonElement>();
   const other = $derived(scenario.subjects.lists.find(l => l.kind === 'other'));
   const otherMembership = $derived(scenario.memberships.find(m => m.listId === other?.id));
   const otherOptions = $derived([
@@ -43,6 +49,28 @@
       return setMembers(newList(s, OTHER_LIST_ID, OTHER_LIST_NAME, 'other'), OTHER_LIST_ID, 'camera', otherMembers, assets!.context);
     });
   }
+
+  function requestRemoval(subject: Subject, trigger: HTMLButtonElement) {
+    const nextOptions = trigger.closest('article')?.nextElementSibling?.querySelector<HTMLButtonElement>('.subject-options');
+    void removalDialog?.open(subject, trigger, () => {
+      if (nextOptions?.isConnected) return nextOptions;
+      if (subject.kind === 'coalition') return addCoalitionInput;
+      if (subject.id === OTHER_LIST_ID && activateOtherButton?.isConnected && !activateOtherButton.disabled) return activateOtherButton;
+      return addListInput;
+    });
+  }
+
+  function confirmRemoval(subject: Subject, reviewed: PoliticsScenario, onError: (message: string) => void) {
+    const applied = edit(s => {
+      if (s !== reviewed) throw new Error('Lo scenario è cambiato. Annulla e riapri la conferma.');
+      return deleteSubject(s, subject);
+    }, onError);
+    if (applied && subject.kind === 'list' && subject.id === OTHER_LIST_ID) {
+      otherMembers = [];
+      otherOpen = false;
+    }
+    return applied;
+  }
 </script>
 <section aria-labelledby="coalitions-title">
   <h2 id="coalitions-title">Coalizioni</h2>
@@ -63,12 +91,14 @@
         {/each}
         {#if capabilities(scenario).scrutiny.bonusLinks}<BonusLinksEditor {scenario} subject={{ kind: 'coalition', id: coalition.id }} {edit} />{/if}
         {#if assets}<LazySection title="Candidati della coalizione"><FilingTree {scenario} owner={{ kind: 'coalition', id: coalition.id }} {assets} {edit} /></LazySection>{/if}
-        <button onclick={() => edit(s => deleteSubject(s, { kind: 'coalition', id: coalition.id }))}>Elimina coalizione</button>
+        <button type="button" data-variant="danger" onclick={e => requestRemoval({ kind: 'coalition', id: coalition.id }, e.currentTarget)}>
+          <Trash2 size={16} aria-hidden="true" /> Elimina coalizione
+        </button>
         {/if}
       </div>
     </article>
   {/each}
-  <div class="row"><label data-field>Nuova coalizione<input bind:value={coalitionName} /></label><button disabled={!coalitionName.trim()} onclick={() => { const name = coalitionName; edit(s => createCoalition(s, { id: `coalition-${crypto.randomUUID()}`, name, color: '#64748b' })); coalitionName = ''; }}>Aggiungi coalizione</button></div>
+  <div class="row"><label data-field>Nuova coalizione<input bind:this={addCoalitionInput} bind:value={coalitionName} /></label><button disabled={!coalitionName.trim()} onclick={() => { const name = coalitionName; edit(s => createCoalition(s, { id: `coalition-${crypto.randomUUID()}`, name, color: '#64748b' })); coalitionName = ''; }}>Aggiungi coalizione</button></div>
 </section>
 <section aria-labelledby="lists-title">
   <h2 id="lists-title">Liste</h2>
@@ -103,12 +133,14 @@
           {#if capabilities(scenario).scrutiny.bonusLinks}<BonusLinksEditor {scenario} subject={{ kind: 'list', id: list.id }} {edit} />{/if}
           <p>Lista depositata in {scenario.lawSettings[scenario.selection.scrutiny.id].filings.find(f => f.listId === list.id)?.locations.length ?? 0} collegi</p>
           {#if assets}<FilingTree {scenario} owner={{ kind: 'list', id: list.id }} {assets} {edit} />{/if}
-          <button onclick={() => edit(s => deleteSubject(s, { kind: 'list', id: list.id }))}>Elimina lista</button>
+          <button type="button" data-variant="danger" onclick={e => requestRemoval({ kind: 'list', id: list.id }, e.currentTarget)}>
+            <Trash2 size={16} aria-hidden="true" /> Elimina lista
+          </button>
         {/if}
       </div>
     </article>
   {/each}
-  <div class="row"><label data-field>Nuova lista<input bind:value={listName} /></label><button disabled={!listName.trim() || !assets} onclick={addList}>Aggiungi lista</button></div>
+  <div class="row"><label data-field>Nuova lista<input bind:this={addListInput} bind:value={listName} /></label><button disabled={!listName.trim() || !assets} onclick={addList}>Aggiungi lista</button></div>
   <article aria-label="Altre liste" class="other-card">
     <div class="other-row">
       <span class="other-dot" aria-hidden="true" style:color={OTHER_LIST_COLOR}>{other ? '●' : '○'}</span>
@@ -117,7 +149,7 @@
         <div class="other-reference"><ReferencesEditor {scenario} target={{ kind: 'list', id: other.id }} label="Riferimento nazionale" {assets} {edit} mode="basic" /></div>
         <button type="button" aria-expanded={otherOpen} aria-controls="other-options" onclick={() => otherOpen = !otherOpen}>Opzioni {otherOpen ? '▴' : '▾'}</button>
       {:else}
-        <button type="button" aria-expanded={otherSetup} aria-controls={otherSetup ? 'other-setup' : undefined} disabled={!assets} onclick={() => otherSetup = !otherSetup}>Attiva</button>
+        <button type="button" bind:this={activateOtherButton} aria-expanded={otherSetup} aria-controls={otherSetup ? 'other-setup' : undefined} disabled={!assets} onclick={() => otherSetup = !otherSetup}>Attiva</button>
       {/if}
     </div>
     {#if other}
@@ -126,9 +158,9 @@
           {#if assets}<LazySection title={`Componenti · ${otherMembership?.locked ? 'Camera e Senato collegati' : 'Camere separate'} · Camera ${otherMembership?.camera.length ?? 0}, Senato ${otherMembership?.senato.length ?? 0}`}><MembershipsEditor {scenario} {assets} {edit} listId={other.id} /></LazySection>{/if}
           <ReferencesEditor {scenario} target={{ kind: 'list', id: other.id }} label="Riferimento nazionale" {assets} {edit} mode="advanced" />
           {#if assets}<LazySection title="Copertura territoriale"><p>La copertura determina dove la categoria riceve voti nella legge selezionata.</p><FilingTree {scenario} owner={{ kind: 'list', id: other.id }} {assets} {edit} /></LazySection>{/if}
-          {#if otherConfirm}
-            <div class="other-confirm"><p>La disattivazione rimuove Altre liste e i suoi riferimenti e depositi. La riattivazione non ripristina i riferimenti precedenti.</p><button onclick={() => otherConfirm = false}>Annulla</button><button onclick={() => { edit(s => deleteSubject(s, { kind: 'list', id: other.id })); otherMembers = []; otherConfirm = false; otherOpen = false; }}>Conferma disattivazione</button></div>
-          {:else}<button onclick={() => otherConfirm = true}>Disattiva Altre liste</button>{/if}
+          <button type="button" data-variant="danger" onclick={e => requestRemoval({ kind: 'list', id: other.id }, e.currentTarget)}>
+            <Trash2 size={16} aria-hidden="true" /> Disattiva Altre liste
+          </button>
         {/if}
       </div>
     {:else if otherSetup}
@@ -151,6 +183,8 @@
     {/if}
   </article>
 </section>
+
+<SubjectRemovalDialog bind:this={removalDialog} {scenario} onconfirm={confirmRemoval} />
 
 <style>
   section + section { margin-block-start: 1.5rem; }
@@ -183,7 +217,7 @@
   .other-identity small { display: block; color: var(--color-text-muted); }
   .other-reference { grid-column: 3; }
   .other-row > button { grid-column: 4; }
-  .other-setup, .other-confirm {
+  .other-setup {
     border-block-start: 1px solid var(--color-border);
     margin-block-start: var(--space-3);
     padding-block-start: var(--space-3);

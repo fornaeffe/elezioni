@@ -470,9 +470,77 @@ test('bonus declarations remain visible when inactive, reactivate, disclose repl
   await expect(camera.getByRole('status')).toContainText('Saranno sostituiti: Accordo Camera ↔ Accordo Senato');
   await camera.getByRole('button', { name: 'Conferma collegamento', exact: true }).click();
   expect((await draft(page)).lawSettings['politiche-reform-2026-v1'].bonusLinks).toHaveLength(1);
-  await camera.getByRole('button', { name: 'Elimina coalizione', exact: true }).click();
+  const remove = camera.getByRole('button', { name: 'Elimina coalizione', exact: true });
+  const confirmation = page.getByRole('dialog', { name: 'Eliminare la coalizione «Accordo Camera»?' });
+  await remove.click();
+  await expect(confirmation.getByRole('button', { name: 'Annulla', exact: true })).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(confirmation).toBeHidden();
+  await expect(remove).toBeFocused();
+  expect((await draft(page)).lawSettings['politiche-reform-2026-v1'].bonusLinks).toHaveLength(1);
+
+  await remove.click();
+  await confirmation.getByRole('button', { name: 'Elimina coalizione', exact: true }).click();
+  await expect(camera).toHaveCount(0);
   expect((await draft(page)).lawSettings['politiche-reform-2026-v1'].bonusLinks).toEqual([]);
-  await expect(senato).toBeVisible();
+  await expect(senato.getByRole('button', { name: /^Opzioni coalizione/ })).toBeFocused();
+});
+
+test('list deletion discloses fallback references, respects cancellation and clears the removed component selection', async ({ page }) => {
+  await page.goto(`${base}/politics/editor`); await ready(page);
+  const name = 'Lista da eliminare';
+  const addInput = page.getByLabel('Nuova lista', { exact: true });
+  await addInput.fill(name);
+  await page.getByRole('button', { name: 'Aggiungi lista', exact: true }).click();
+  const list = page.getByRole('article', { name, exact: true });
+  const listId = (await draft(page)).subjects.lists.find((row: { name: string }) => row.name === name).id;
+  const fallbackId = (await draft(page)).memberships.find((row: { listId: string }) => row.listId === listId).newComponentId;
+
+  await open(page, /^Impostazioni avanzate dello scenario$/);
+  await open(page, /^Ipotesi senza storico/);
+  const component = page.getByRole('combobox', { name: 'Componente', exact: true });
+  await component.selectOption(fallbackId);
+  const reference = page.getByLabel('Riferimento componente (%)', { exact: true });
+  await reference.fill('10');
+  await reference.blur();
+  const before = await draft(page);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await list.getByRole('button', { name: /^Opzioni lista/ }).click();
+  const remove = list.getByRole('button', { name: 'Elimina lista', exact: true });
+  await remove.click();
+  const confirmation = page.getByRole('dialog', { name: `Eliminare la lista «${name}»?` });
+  await expect(confirmation).toContainText('Verrà rimosso anche il componente proprio e il suo riferimento.');
+  expect(await confirmation.evaluate(dialog => dialog.scrollWidth <= dialog.clientWidth)).toBe(true);
+  await confirmation.getByRole('button', { name: 'Annulla', exact: true }).click();
+  await expect(remove).toBeFocused();
+  expect(await draft(page)).toEqual(before);
+
+  await remove.click();
+  await confirmation.getByRole('button', { name: 'Elimina lista', exact: true }).click();
+  await expect(list).toHaveCount(0);
+  await expect(component).toHaveValue('');
+  await expect(reference).toHaveCount(0);
+  await expect(addInput).toBeFocused();
+  const after = await draft(page);
+  expect(after.newComponents).toEqual(before.newComponents.filter((row: { id: string }) => row.id !== fallbackId));
+  expect(after.references).toEqual(before.references.filter((row: { subject: { id: string } }) => row.subject.id !== fallbackId));
+});
+
+test('Altre liste deactivation uses the shared dialog and focuses activation', async ({ page }) => {
+  await page.goto(`${base}/politics/editor`); await ready(page);
+  const row = page.getByRole('article', { name: 'Altre liste', exact: true });
+  const activate = row.getByRole('button', { name: 'Attiva', exact: true });
+  await activate.click();
+  await row.getByRole('group', { name: 'Componenti del residuo' }).getByRole('checkbox').first().check();
+  await row.getByRole('button', { name: 'Attiva Altre liste', exact: true }).click();
+  await row.getByRole('button', { name: /^Opzioni/ }).click();
+  await row.getByRole('button', { name: 'Disattiva Altre liste', exact: true }).click();
+
+  const confirmation = page.getByRole('dialog', { name: 'Disattivare «Altre liste»?' });
+  await expect(confirmation).toContainText('La riattivazione non ripristina i riferimenti precedenti.');
+  await confirmation.getByRole('button', { name: 'Conferma disattivazione', exact: true }).click();
+  await expect(activate).toBeFocused();
 });
 
 test('coalition candidate trees prune empty Reform branches and keep Rosatellum paths', async ({ page }) => {

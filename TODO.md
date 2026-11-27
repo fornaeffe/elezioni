@@ -10,8 +10,11 @@ meantime, the linked file has been edited and the link has not been updated.
 ## Future work
 
 - [ ] **UI polishing**
-  - [ ] Add a confirmation step (preferably via a native modal dialog) when deleting
-    a coalition or a list. 
+  - [ ] Add an explicit repair action for drafts that retain orphaned fallback
+    components and references after earlier list deletions. Preview the cleanup
+    before applying it.
+  - [ ] Fix error reporting text in status box: currently, "Error" is shown twice,
+    as in "Error: Error: REFERENCE_SUBJECT: component references require a declared new component". It should be shown once.
   - [ ] Change [other lists editor](web\src\lib\politics\editor\SubjectsEditor.svelte):
     when "other lists" is off, show just a button that opens a cancelable modal 
     dialog for activation of "other lists" (with component selection).

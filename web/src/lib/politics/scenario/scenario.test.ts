@@ -242,6 +242,36 @@ describe('D11 reciprocal declarations', () => {
 });
 
 describe('reference conventions and retained model meaning', () => {
+  it('deletes only the selected list and its owned component references', () => {
+    const { scenario, context } = fixture();
+    const draft = mutable(scenario);
+    const component = draft.newComponents[0];
+    draft.newComponents.push({ ...component, id: 'older-orphan' });
+    const componentReference = (id: string) => ({ ...draft.references[0], id, subject: { kind: 'component' as const, id } });
+    draft.references.push(componentReference(component.id), componentReference('older-orphan'));
+    draft.references.push({ ...componentReference(component.id), id: 'local', channel: 'senato',
+      scope: { kind: 'region', namespace: draft.data.referenceGeography.version, code: '01' }, appliesTo: ['M01'] });
+    const before = parsePoliticsScenario(draft, context);
+    const after = parsePoliticsScenario(deleteSubject(before, { kind: 'list', id: 'a' }), context);
+
+    expect(after.newComponents).toEqual(draft.newComponents.slice(1));
+    expect(after.references).toEqual([componentReference('older-orphan')]);
+    expect(after.history).toEqual(draft.history);
+    expect(after.memberships).toEqual(draft.memberships.slice(1));
+    expect(after.subjects.lists).toEqual(draft.subjects.lists.slice(1));
+    expect(before).toEqual(draft);
+  });
+
+  it('blocks list deletion when its component is used by an imported source mapping', () => {
+    const { scenario, context } = fixture();
+    const draft = mutable(scenario);
+    draft.history.sourceMemberships[0].members.push(draft.memberships[0].newComponentId);
+    const before = parsePoliticsScenario(draft, context);
+
+    expect(() => deleteSubject(before, { kind: 'list', id: 'a' })).toThrow('nell’appartenenza della scelta «a» della fonte «e-camera»');
+    expect(before).toEqual(draft);
+  });
+
   it('uses explicit units, capped scope defaults, boundary zero and preserves explicit SD', () => {
     const { scenario } = fixture();
     const row = scenario.references[0];

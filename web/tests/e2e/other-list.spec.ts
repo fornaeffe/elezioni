@@ -83,8 +83,9 @@ for (const [law,model] of [[ROSATELLUM,'M01'],[REFORM,'M01'],[REFORM,'M02']] as 
   await row.getByText('Copertura territoriale', {exact:true}).click();
   await expect(row.getByText(/La copertura determina/)).toBeVisible();
   await row.getByRole('button',{name:'Disattiva Altre liste',exact:true}).click();
-  await expect(row.getByText(/non ripristina i riferimenti precedenti/)).toBeVisible();
-  await row.getByRole('button',{name:'Conferma disattivazione'}).click();
+  const confirmation=page.getByRole('dialog',{name:'Disattivare «Altre liste»?'});
+  await expect(confirmation.getByText(/non ripristina i riferimenti precedenti/)).toBeVisible();
+  await confirmation.getByRole('button',{name:'Conferma disattivazione'}).click();
   await row.getByRole('button',{name:'Attiva',exact:true}).click();
   await row.locator(`input[type=checkbox][value="${id}"]`).check();
   await activate.click();

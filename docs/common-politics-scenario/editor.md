@@ -59,6 +59,11 @@ All implementation paths below are relative to `web/src/lib/politics/editor/`.
 - New lists initialize both laws' eligible filings, both chamber sets and a
   stable owned fallback component. The latter is activated by absent historical
   members, rather than inserted as a fictitious historical option.
+- A native modal confirms coalition deletion, list deletion and deactivation
+  of Altre liste. Deleting a coalition makes its lists autonomous. Deleting a
+  list also removes its owned fallback and its references. A source or model
+  input that still uses the fallback blocks deletion and is identified in the
+  dialog. Repair of older orphaned components is a separate task.
 - Unfiling or excluding a chamber retains candidate pins. Removing a pin leaves
   its identity and other positions intact. Identity deletion uses the domain's
   cleanup across inactive laws and external declarations. Candidate-option checks

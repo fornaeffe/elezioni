@@ -7,7 +7,7 @@ import { prepareScenarioGeneration } from '../reform-2026/vote-share/unified-gen
 import { compileLegacy } from '../reform-2026/vote-share/legacy-adapter';
 import { requiredAssets } from '../scenario/dependencies';
 import { runPoliticsSimulation } from '../simulation-scrutiny';
-import { createList } from '../scenario/edits';
+import { createList, deleteSubject } from '../scenario/edits';
 import { loadExecutionData } from './assets';
 import { createPoliticsComputePacket } from './compute-packet';
 
@@ -114,6 +114,22 @@ describe('CP-03 common execution', () => {
     f.scenario.lawSettings[ROSATELLUM].filings[0].locations.push(ordinary);
     await expect(preparePoliticsExecution(f.scenario, f.readers)).rejects.toThrow('INVALID_GEOGRAPHY');
   });
+  it('prepares and generates with M02 after deleting a list with a fallback reference', async () => {
+    const f = await commonPoliticsFixture(REFORM, 'M02');
+    const data = await loadExecutionData(f.scenario, f.readers);
+    const listId = 'created', componentId = 'created-component';
+    const created = createList(f.scenario, { id: listId, name: 'Created', color: '#123456', kind: 'list', coalitionId: null, minority: null },
+      { ...f.scenario.newComponents[0], id: componentId }, data.domain);
+    const withReference = { ...created, references: [...created.references, {
+      id: 'created-reference', scope: { kind: 'national' }, channel: 'common', subject: { kind: 'component', id: componentId },
+      mean: 0.1, denominator: 'valid-votes', appliesTo: ['M02'], uncertainty: { sdPercentagePoints: 1, origin: 'explicit', policyVersion: null }
+    }] } as const;
+
+    const deleted = deleteSubject(withReference, { kind: 'list', id: listId });
+    expect(deleted).toEqual(f.scenario);
+    const prepared = await preparePoliticsExecution(deleted, f.readers);
+    expect(prepared.generateVotes(7).counts.size).toBeGreaterThan(0);
+  }, 60000);
   it.each([[ROSATELLUM, 'M01'], [ROSATELLUM, 'M02'], [REFORM, 'M01'], [REFORM, 'M02']] as const)('supports either single renewal for %s/%s', async (law, model) => {
     const f = await commonPoliticsFixture(law, model);
     for (const ch of ['camera', 'senato'] as const) {

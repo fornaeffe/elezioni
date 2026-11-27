@@ -53,6 +53,20 @@ body {
 
 :where(button[data-variant=primary]:enabled:hover) { background: var(--color-accent-hover); }
 
+:where(button[data-variant=danger]) {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  border-color: var(--color-error-border);
+  background: var(--color-error-surface);
+  color: var(--color-error-text);
+}
+
+:where(button[data-variant=danger]:enabled:hover) {
+  background: var(--color-error-surface);
+  box-shadow: inset 0 0 0 1px var(--color-error-border);
+}
+
 :where(:focus-visible) {
   outline: 2px solid var(--color-focus);
   outline-offset: 3px;

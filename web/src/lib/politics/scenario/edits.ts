@@ -148,15 +148,34 @@ export function removeBonusLink(s: PoliticsScenario, pair: ExplicitBonusLink): P
   return edit(s, n => { n.lawSettings[REFORM].bonusLinks = n.lawSettings[REFORM].bonusLinks.filter(p =>
     !(sameSubject(p.camera, pair.camera) && sameSubject(p.senato, pair.senato))); });
 }
+
+function assertFallbackCanBeRemoved(s: PoliticsScenario, id: string): void {
+  const name = s.newComponents.find(c => c.id === id)?.name ?? id;
+  const message = `Il componente «${name}» (${id}) è usato`;
+  const poll = s.history.polls.added.find(p => p.normalized.some(option => option.members.includes(id)));
+  if (poll) throw new Error(`${message} nel sondaggio aggiunto «${poll.id}».`);
+  const membership = s.history.sourceMemberships.find(row => row.members.includes(id));
+  if (membership) throw new Error(`${message} nell’appartenenza della scelta «${membership.choiceId}» della fonte «${membership.sourceId}».`);
+  const composition = s.modelSettings.M01.compositions.find(row => Object.hasOwn(row.fractions, id));
+  if (composition) throw new Error(`${message} nella composizione M01 della scelta «${composition.choiceId}» della fonte «${composition.sourceId}».`);
+  const supplementalPoll = s.modelSettings.M01.supplementalPolls.find(p => p.groups.some(group => group.members.includes(id)));
+  if (supplementalPoll) throw new Error(`${message} nel sondaggio supplementare M01 «${supplementalPoll.id}».`);
+}
+
 export function deleteSubject(s: PoliticsScenario, subject: Subject): PoliticsScenario {
   return edit(s, n => {
     if (subject.kind === 'coalition') {
       n.subjects.coalitions = n.subjects.coalitions.filter(c => c.id !== subject.id);
       for (const l of n.subjects.lists) if (l.coalitionId === subject.id) l.coalitionId = null;
     } else {
+      const fallbackId = n.memberships.find(m => m.listId === subject.id)?.newComponentId;
+      if (fallbackId !== undefined) {
+        assertFallbackCanBeRemoved(n, fallbackId);
+        n.newComponents = n.newComponents.filter(c => c.id !== fallbackId);
+      }
       n.subjects.lists = n.subjects.lists.filter(l => l.id !== subject.id);
       n.memberships = n.memberships.filter(m => m.listId !== subject.id);
-      n.references = n.references.filter(r => r.subject.kind !== 'list' || r.subject.id !== subject.id);
+      n.references = n.references.filter(r => r.subject.id !== (r.subject.kind === 'list' ? subject.id : fallbackId));
       n.modelSettings.M02.uncertaintyMultipliers = n.modelSettings.M02.uncertaintyMultipliers.filter(r => r.listId !== subject.id);
     }
     for (const law of laws) {

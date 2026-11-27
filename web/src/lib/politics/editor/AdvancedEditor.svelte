@@ -25,6 +25,7 @@
   let components = $derived(capabilities(scenario).generator.id === 'M02' ? scenario.newComponents : [...new Map([
     ...assets.components, ...scenario.subjects.components, ...scenario.history.pooling.map(p => ({ id: p.id, name: p.id })), ...scenario.newComponents
   ].map(c => [c.id, c])).values()]);
+  let selectedComponent = $derived(components.find(c => c.id === componentId));
   let component = $derived(scenario.newComponents.find(c => c.id === componentId));
   function fallback(key: 'geographicLogProfile' | 'profileSd' | 'localInnovationSd' | 'nationalInnovationSd' | 'provenance', value: string) {
     edit(s => editScenario(s, n => { const row = n.newComponents.find(c => c.id === componentId)!; if (key === 'provenance') row.fallback.M02[key] = value; else row.fallback.M02[key] = Number(value); }));
@@ -70,7 +71,7 @@
   </LazySection>
 {/if}
 <LazySection title="Ipotesi senza storico e riferimenti dei componenti">
-  <label data-field>Componente<select bind:value={componentId}><option value="">Scegli componente</option>{#each components as c (c.id)}<option value={c.id}>{c.name}</option>{/each}</select></label>
+  <label data-field>Componente<select value={selectedComponent?.id ?? ''} onchange={e => componentId = e.currentTarget.value}><option value="">Scegli componente</option>{#each components as c (c.id)}<option value={c.id}>{c.name}</option>{/each}</select></label>
   {#if component}
     <p>Componente proprio: attivo solo nelle camere dove la lista non ha membri storici. Le ipotesi restano salvate quando inattivo.</p>
     {#if capabilities(scenario).generator.id === 'M02'}
@@ -84,7 +85,7 @@
     {:else}<p>M01 usa il profilo regionale o, in assenza, l’allocazione uguale tra liste. I parametri M02 salvati non hanno effetto su M01. Provenienza: {component.fallback.M01.provenance}</p>{/if}
     <label data-field>Assunzioni di supporto<input value={component.support} onchange={e => edit(s => editScenario(s, n => { n.newComponents.find(c => c.id === componentId)!.support = e.currentTarget.value; }))} /></label>
   {/if}
-  {#if componentId}<ReferencesEditor {scenario} target={{ kind: 'component', id: componentId }} label="Riferimento componente" {assets} {edit} />{/if}
+  {#if selectedComponent}<ReferencesEditor {scenario} target={{ kind: 'component', id: selectedComponent.id }} label="Riferimento componente" {assets} {edit} />{/if}
 </LazySection>
 
 <style>
