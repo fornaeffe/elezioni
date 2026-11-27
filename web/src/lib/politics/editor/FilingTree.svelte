@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { tick } from 'svelte';
   import type { Location, PoliticsScenario, Subject } from '../scenario/schema';
   import { chambers } from '../scenario/schema';
   import { locationKey } from '../scenario/validation';
@@ -16,7 +17,19 @@
     showCandidates: boolean;
   }
 
+  interface FilingChange {
+    locations: readonly Location[];
+    scope: string;
+    checked: boolean;
+    count: number;
+    trigger: HTMLInputElement;
+  }
+
   let { scenario, owner, assets, edit }: { scenario: PoliticsScenario; owner: Subject; assets: EditorAssets; edit: ApplyEdit } = $props();
+  const confirmationTitleId = $props.id();
+  const confirmationDetailsId = `${confirmationTitleId}-details`;
+  let confirmationDialog = $state<HTMLDialogElement>();
+  let pending = $state.raw<FilingChange | null>(null);
   let law = $derived(scenario.selection.scrutiny.id);
   let list = $derived(owner.kind === 'list' ? scenario.subjects.lists.find(l => l.id === owner.id) : null);
   let filed = $derived(scenario.lawSettings[law].filings.find(f => f.listId === owner.id)?.locations ?? []);
@@ -44,13 +57,29 @@
     });
   }
 
-  function state(locations: readonly Location[]) {
+  function getFilingState(locations: readonly Location[]) {
     const selected = locations.filter(location => keys.has(locationKey(location))).length;
-    return { checked: locations.length > 0 && selected === locations.length, mixed: selected > 0 && selected < locations.length };
+    return { selected, checked: locations.length > 0 && selected === locations.length, mixed: selected > 0 && selected < locations.length };
   }
-  function toggle(locations: readonly Location[], checked: boolean) {
+  async function requestFilingChange(event: MouseEvent & { currentTarget: HTMLInputElement }, locations: readonly Location[], scope: string) {
+    event.preventDefault();
+    if (pending) return;
+    const { checked, selected } = getFilingState(locations);
+    pending = { locations, scope, checked: !checked, count: checked ? selected : locations.length - selected, trigger: event.currentTarget };
+    await tick();
+    confirmationDialog?.showModal();
+  }
+  function confirmFilingChange() {
+    if (!pending) return;
+    const { locations, checked } = pending;
     const remove = new Set(locations.map(locationKey));
     edit(s => setFilings(s, law, owner.id, [...filed.filter(l => !remove.has(locationKey(l))), ...(checked ? locations : [])], assets.context));
+    confirmationDialog?.close();
+  }
+  function finishFilingChange() {
+    const trigger = pending?.trigger;
+    pending = null;
+    trigger?.focus({ preventScroll: true });
   }
   function permitted(chamber: 'camera' | 'senato') { return !list?.coalitionId || !!scenario.subjects.coalitions.find(c => c.id === list.coalitionId)?.chambers.includes(chamber); }
   function pins(nodes: readonly FilingNode[]) {
@@ -70,18 +99,18 @@
   }
 </script>
 
-{#snippet filingCheckbox(locations: readonly Location[], name: string, description: string, disabled: boolean)}
-  {@const filingState = state(locations)}
+{#snippet filingCheckbox(locations: readonly Location[], name: string, description: string, scope: string, disabled: boolean)}
+  {@const filingState = getFilingState(locations)}
   <label class="filing-checkbox" title={description}>
     <input type="checkbox" aria-label={name} checked={filingState.checked} indeterminate={filingState.mixed}
-      {disabled} onchange={event => toggle(locations, event.currentTarget.checked)} />
+      {disabled} onclick={event => requestFilingChange(event, locations, scope)} />
   </label>
 {/snippet}
 
 {#snippet tree(branches: readonly FilingBranch[], disabled: boolean)}
   {#each branches as { node, children, filingLocations, showCandidates } (locationKey(node.location))}
     {#snippet branchCheckbox()}
-      {@render filingCheckbox(filingLocations, `Deposita ${node.name}`, `Deposita in ${node.name}`, disabled)}
+      {@render filingCheckbox(filingLocations, `Deposita ${node.name}`, `Deposita in ${node.name}`, node.name, disabled)}
     {/snippet}
     <LazySection title={node.name} count={{ value: pins([node]), label: 'candidati fissati' }}
       headerControl={filingLocations.length ? branchCheckbox : undefined}>
@@ -99,7 +128,7 @@
   {#each chamberTrees as { chamber, nodes, branches, filingLocations, disabled } (chamber)}
     {@const chamberName = chamber === 'camera' ? 'Camera' : 'Senato'}
     {#snippet chamberCheckbox()}
-      {@render filingCheckbox(filingLocations, `Deposita tutta ${chamberName}`, 'Deposita in tutti i collegi', disabled)}
+      {@render filingCheckbox(filingLocations, `Deposita tutta ${chamberName}`, 'Deposita in tutti i collegi', chamberName, disabled)}
     {/snippet}
     <LazySection
       title={`${chamberName}${!renewed(scenario, chamber) ? ' · rinnovo inattivo' : ''}`}
@@ -116,7 +145,7 @@
   <LazySection title="Depositi e candidati" count={{ value: placements.length, label: 'candidati fissati' }}>
     {#snippet headerControl()}
       {@const description = 'Deposita in tutti i collegi modificabili'}
-      {@render filingCheckbox(editableLocations, description, description, !editableLocations.length)}
+      {@render filingCheckbox(editableLocations, description, description, 'tutti i collegi modificabili', !editableLocations.length)}
     {/snippet}
     {@render chamberSections()}
   </LazySection>
@@ -124,7 +153,40 @@
   {@render chamberSections()}
 {/if}
 
+{#if list}
+  <dialog bind:this={confirmationDialog} aria-labelledby={confirmationTitleId} aria-describedby={confirmationDetailsId} onclose={finishFilingChange}>
+    {#if pending}
+      <h2 id={confirmationTitleId}>{pending.checked ? 'Conferma deposito' : 'Conferma rimozione dei depositi'}</h2>
+      <p id={confirmationDetailsId}>Stai {pending.checked ? 'depositando' : 'rimuovendo il deposito di' } <b>{list.name}</b> in <b>{pending.scope}</b>. La modifica cambierà {pending.count} {pending.count === 1 ? 'collegio' : 'collegi'}</p>
+      <div class="confirmation-actions">
+        <button type="button" onclick={() => confirmationDialog?.close()}>Annulla</button>
+        <button type="button" onclick={confirmFilingChange}>{pending.checked ? 'Deposita' : 'Rimuovi depositi'}</button>
+      </div>
+    {/if}
+  </dialog>
+{/if}
+
 <style>
+  dialog {
+    max-inline-size: min(28rem, calc(100% - 2 * var(--space-4)));
+    padding: var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-panel);
+    color: var(--color-text);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-overlay);
+  }
+
+  dialog::backdrop { background: var(--color-backdrop); }
+  h2 { margin-block: 0 var(--space-3); }
+
+  .confirmation-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    justify-content: end;
+  }
+
   .filing-checkbox {
     --filing-border: var(--color-error-border);
     display: grid;

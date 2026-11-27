@@ -25,6 +25,9 @@ async function open(page: Page, title: string | RegExp) {
   if (!await summary.evaluate(el => (el.parentElement as HTMLDetailsElement).open)) await summary.click();
 }
 async function draft(page: Page) { return page.evaluate(key => JSON.parse(localStorage.getItem(key)!), politicsDraftKey); }
+function filingConfirmation(page: Page) {
+  return page.getByRole('dialog', { name: /^Conferma (?:deposito|rimozione dei depositi)$/ });
+}
 
 test('common law/model selections, deferred settings, seeds and locks survive reload and both files', async ({ page }) => {
   await page.goto(`${base}/politics/editor`); await ready(page);
@@ -218,7 +221,21 @@ test('new lists initialize every law, tri-state filings and linked/unlinked cham
   expect(marker.x + marker.width).toBeLessThanOrEqual(checkbox.x);
   expect(checkbox.x + checkbox.width).toBeLessThanOrEqual(title.x);
   await expect(all).toHaveCount(0);
+  const confirmation = filingConfirmation(page);
+  const cancel = confirmation.getByRole('button', { name: 'Annulla', exact: true });
+  const deposit = confirmation.getByRole('button', { name: 'Deposita', exact: true });
+  const remove = confirmation.getByRole('button', { name: 'Rimuovi depositi', exact: true });
   await wholeTree.press('Space');
+  await expect(confirmation).toHaveAccessibleDescription(/Lista nuova · Tutti i collegi modificabili · \d+ collegi/);
+  await expect(cancel).toBeFocused();
+  expect(await draft(page)).toEqual(stored);
+  await cancel.click();
+  await expect(confirmation).toBeHidden();
+  await expect(wholeTree).toBeFocused();
+  await expect(wholeTree).toBeChecked();
+  expect(await draft(page)).toEqual(stored);
+  await wholeTree.press('Space');
+  await remove.click();
   await expect(wholeTree).not.toBeChecked();
   await expect(checkboxLabel).toHaveCSS('background-color', 'rgb(255, 240, 237)');
   await expect(filingSection).toHaveJSProperty('open', false);
@@ -228,16 +245,29 @@ test('new lists initialize every law, tri-state filings and linked/unlinked cham
   await expect(filingSection).toHaveJSProperty('open', true);
   const cameraSummary = article.locator('summary').filter({ hasText: /^Camera$/ });
   await expect(all).toBeVisible();
-  await all.check();
+  await all.click();
+  await expect(confirmation).toHaveAccessibleDescription(/Lista nuova · Camera · \d+ collegi/);
+  await deposit.click();
   await expect(cameraSummary.locator('..')).toHaveJSProperty('open', false);
   await expect(wholeTree).toHaveJSProperty('indeterminate', true);
   await expect(checkboxLabel).toHaveCSS('background-color', 'rgb(255, 247, 223)');
+  const partial = await draft(page);
   await wholeTree.click();
+  await expect(confirmation).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(confirmation).toBeHidden();
+  await expect(wholeTree).toBeFocused();
+  await expect(wholeTree).toHaveJSProperty('indeterminate', true);
+  expect(await draft(page)).toEqual(partial);
+  await wholeTree.click();
+  await deposit.click();
   await expect(wholeTree).toBeChecked();
   await expect(wholeTree).toHaveJSProperty('indeterminate', false);
   await expect(filingSection).toHaveJSProperty('open', true);
   await expect(all).toBeChecked();
-  await all.uncheck(); stored = await draft(page);
+  await all.click();
+  await remove.click();
+  stored = await draft(page);
   expect(stored.lawSettings['politiche-reform-2026-v1'].filings.find((f: { listId: string }) => f.listId === list.id).locations.every((l: { chamber: string }) => l.chamber === 'senato')).toBe(true);
   await open(page, /^Impostazioni avanzate dello scenario$/); await open(page, /^Appartenenze dei componenti$/);
   await open(page, /^Lista nuova · Camera/);
@@ -273,6 +303,7 @@ test('whole-tree filings preserve excluded declarations and candidate pins', asy
   const wholeTree = article.getByRole('checkbox', { name: 'Deposita in tutti i collegi modificabili', exact: true });
   await expect(wholeTree).toHaveJSProperty('indeterminate', true);
   await wholeTree.press('Space');
+  await filingConfirmation(page).getByRole('button', { name: 'Deposita', exact: true }).click();
   await expect(wholeTree).toBeChecked();
   await expect(summary.locator('..')).toHaveJSProperty('open', false);
   const savedLocations = async (): Promise<Location[]> => (await draft(page)).lawSettings[law].filings
@@ -286,7 +317,8 @@ test('whole-tree filings preserve excluded declarations and candidate pins', asy
   await expect(article.getByRole('checkbox', { name: 'Deposita tutta Camera', exact: true })).toBeChecked();
   await expect(cameraSummary.locator('..')).toHaveJSProperty('open', false);
   await expect(article.getByRole('checkbox', { name: 'Deposita tutta Senato', exact: true })).toBeDisabled();
-  await wholeTree.uncheck();
+  await wholeTree.click();
+  await filingConfirmation(page).getByRole('button', { name: 'Rimuovi depositi', exact: true }).click();
   await expect(wholeTree).toHaveJSProperty('indeterminate', false);
   expect(await savedLocations()).toEqual(senate);
   expect((await draft(page)).lawSettings[law].placements).toEqual(scenario.lawSettings[law].placements);
@@ -518,7 +550,10 @@ test('candidate trees retain sparse pins and explain disabled identities while f
   await expect(options.getByRole('option', { name: /Identità eleggibile/ })).toBeDisabled();
   await page.keyboard.press('Escape');
   await expect(article.getByRole('checkbox', { name: 'Deposita tutta Camera', exact: true })).toHaveJSProperty('indeterminate', true);
-  await collegeCheckbox.uncheck();
+  await collegeCheckbox.click();
+  const confirmation = filingConfirmation(page);
+  await expect(confirmation).toHaveAccessibleDescription(`Fratelli d'Italia · ${college.name} · 1 collegio`);
+  await confirmation.getByRole('button', { name: 'Rimuovi depositi', exact: true }).click();
   expect((await draft(page)).lawSettings['politiche-reform-2026-v1'].placements).toMatchObject([{ position: 4, candidateId: 'older' }]);
   await expect(article.getByText('Fissato, inattivo', { exact: true })).toBeVisible();
   await fourth.press('ArrowDown');
