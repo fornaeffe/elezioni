@@ -23,6 +23,7 @@
   const id = $props.id();
   const generator = $derived(capabilities(scenario).generator);
   const national = $derived(scope.kind === 'national');
+  const nonValid = $derived(target === null);
   const quotaHelp = $derived(referenceQuotaHelp(generator.id, target?.kind ?? 'non-valid', scope.kind));
   const scopeAddress = $derived(scopeKey(scope));
   const rows = $derived(referenceRows(scenario, target).filter(row =>
@@ -77,7 +78,7 @@
               <Toggletip label={heading} text={commonReferenceHelp(national)} />
             {/if}
           </div>
-          {#if national && common}
+          {#if national && common && !nonValid}
             <span class="quota unavailable" aria-hidden="true">—</span>
           {:else}
             {@render quota(inputId, `${name} (%)`, channel, row)}

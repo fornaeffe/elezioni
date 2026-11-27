@@ -21,6 +21,7 @@
   const generator = $derived(capabilities(scenario).generator);
   let rows = $derived(referenceRows(scenario, target));
   let different = $derived(rows.some(r => r.scope.kind === 'national' && r.channel !== 'common'));
+  const advancedTitle = $derived(target === null ? label : 'Riferimenti avanzati');
   function multiplier(key: 'national' | 'local', value: string) {
     edit(s => editScenario(s, n => {
       if (target?.kind !== 'list') return;
@@ -37,7 +38,8 @@
 {/if}
 {#if different && mode !== 'advanced'}<Badge>Riferimenti distinti per camera</Badge>{/if}
 {#if mode !== 'basic'}
-<LazySection title="Riferimenti avanzati" count={{ value: rows.length, label: 'dichiarazioni' }}>
+<LazySection title={advancedTitle} count={{ value: rows.length, label: 'dichiarazioni' }}>
+  {#if target === null && mode === 'advanced' && different}<Badge>Riferimenti distinti per camera</Badge>{/if}
   <ReferenceFields {scenario} {target} scope={{ kind: 'national' }} {label} {edit} layout="grid" showCommonRemove={mode === 'advanced'} />
   {#if target?.kind === 'list' && generator.uncertaintyMultipliers}
       {@const values = effectiveUncertaintyMultipliers(scenario, target.id, 'camera')}

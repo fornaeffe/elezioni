@@ -10,15 +10,9 @@ meantime, the linked file has been edited and the link has not been updated.
 ## Future work
 
 - [ ] **UI polishing**
-  - [x] Keep politics model progress responsive during editor validation and
-    isolate the shared page-frame checks from model fitting.
-  - [x] Change [other lists editor](web\src\lib\politics\editor\SubjectsEditor.svelte):
-    when "other lists" is off, show only a button that opens a cancelable activation
-    form with component selection in the shared [dialog](web/src/lib/ui/Dialog.svelte).
-  - [ ] Rethink [non-valid ReferencesEditor](web\src\lib\politics\editor\CommonPoliticsEditor.svelte:96):
-    check if we can move national common reference input inside the collapsible
-    section, and rename the collapsible section "Astensione e voti non validi"
-    instead of "Riferimenti avanzati", without breaking other uses of the component.
+  - [ ] Review `$effect()` usage: check if the same (or better) behavior
+    could be achieved with `$state()` and `$derived()` or other Svelte 5
+    idiomatic patterns. If yes, change the code accordingly.
   - [ ] Rewrite models' names and descriptions in a more undersantable manner.
   - [ ] Rethink membership editor, component pooling editor and component reference
     editor:

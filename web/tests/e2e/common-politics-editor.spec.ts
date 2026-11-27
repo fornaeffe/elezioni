@@ -92,7 +92,9 @@ test('non-valid reference grids reflow and preserve uncertainty and local tree d
   await open(page, /^Impostazioni avanzate dello scenario$/);
   const section = page.locator('details').filter({ has: page.locator(':scope > summary').filter({ hasText: /^Impostazioni avanzate dello scenario$/ }) });
   const referenceLabel = 'Astensione e voti non validi Camera';
-  await section.locator('summary').filter({ hasText: /^Riferimenti avanzati/ }).click();
+  await section.locator('summary').filter({ hasText: /^Astensione e voti non validi/ }).click();
+  const nationalGrid = section.getByRole('group', { name: 'Riferimenti nazionali', exact: true });
+  await expect(nationalGrid.getByLabel('Astensione e voti non validi (%)', { exact: true })).toBeVisible();
   const input = section.getByLabel(`${referenceLabel} (%)`, { exact: true });
   await expect(input).toBeVisible(); await expect(input).toHaveValue('');
   await input.fill('0'); await input.blur();
@@ -148,7 +150,7 @@ test('non-valid reference grids reflow and preserve uncertainty and local tree d
   const generator = section.getByLabel('Generatore dei voti', { exact: true });
   async function selectGeneratorAndOpenProvince(model: 'M01' | 'M02') {
     await generator.selectOption(model); await ready(page);
-    await open(page, /^Riferimenti avanzati/);
+    await open(page, /^Astensione e voti non validi/);
     await open(page, /^Emilia-Romagna(?: ·|$)/);
     await open(page, provinceHeading);
   }
@@ -350,7 +352,8 @@ test('field toggletips explain scenario settings and work with keyboard and narr
   await expect(panel).toContainText(/risultati storici e i sondaggi/);
   await page.getByLabel('Data di riferimento', { exact: true }).click();
   await expect(panel).toHaveCount(0);
-  await tip('Astensione e voti non validi (%)').click();
+  await open(page, /^Astensione e voti non validi/);
+  await tip('Quota (%)').click();
   await expect(panel).toContainText(/elettori.*M02.*partecipazione storica/);
 
   await open(page, /^Identità dei candidati/); await open(page, /^Nuovo candidato$/);
@@ -373,7 +376,7 @@ test('field toggletips explain scenario settings and work with keyboard and narr
   }
 
   await page.getByLabel('Generatore dei voti', { exact: true }).selectOption('M01'); await ready(page);
-  await tip('Astensione e voti non validi (%)').click();
+  await tip('Quota (%)').click();
   await expect(panel).toContainText(/elettori.*M01.*partecipazione storica/);
   await page.keyboard.press('Escape');
   await page.setViewportSize({ width: 320, height: 660 });

@@ -122,7 +122,7 @@
         {#each generationModels.filter(m => supportedPairs.some(p => p.law === scenario.selection.scrutiny.id && p.generator === m.id)) as model (model.id)}<option value={model.id}>{model.label}</option>{/each}
       </select></label>
       <p>{capabilities(scenario).generator.referenceSd ? 'M02: campo politico condiviso, incertezza dei riferimenti e raggruppamento di componenti. Le differenze fra Camera e Senato restano quelle della storia abbinata e dei riferimenti espliciti; le loro variazioni future non sono stimate.' : 'M01: composizioni storiche e shock di lista. SD e moltiplicatori M02 restano salvati, inattivi.'}</p>
-      <ReferencesEditor {scenario} target={null} label="Astensione e voti non validi" {assets} edit={apply} />
+      <ReferencesEditor {scenario} target={null} label="Astensione e voti non validi" {assets} edit={apply} mode="advanced" />
       {#if assets}<AdvancedEditor {scenario} {assets} edit={apply} />{/if}
       <LazySection title={`Identità dei candidati · ${scenario.candidates.length}`}>
         {#each scenario.candidates as candidate (candidate.id)}<LazySection title={candidate.name}><CandidateForm {scenario} {candidate} edit={apply} /></LazySection>{/each}
