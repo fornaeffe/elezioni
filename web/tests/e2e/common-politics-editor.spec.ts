@@ -170,7 +170,19 @@ test('non-valid reference grids reflow and preserve uncertainty and local tree d
   const leafBounds = (await leafSd.boundingBox())!;
   expect(leafBounds.x + leafBounds.width).toBeLessThanOrEqual(320);
   await expect(province).toHaveText('Provincia 037 · 1 dichiarazioni');
-  await provinceDetails.getByRole('button', { name: 'Rimuovi riferimenti nel territorio e discendenti', exact: true }).click();
+
+  const removeSubtree = provinceDetails.getByRole('button', { name: 'Rimuovi riferimenti nel territorio e discendenti', exact: true });
+  await expect(removeSubtree).toHaveCSS('border-top-style', 'solid');
+  await expect(removeSubtree.locator('svg')).toHaveAttribute('aria-hidden', 'true');
+  const buttonBounds = (await removeSubtree.boundingBox())!;
+  expect(buttonBounds.x + buttonBounds.width).toBeLessThanOrEqual(320);
+  const labelLineCount = await removeSubtree.locator('span').evaluate(label => {
+    const range = document.createRange();
+    range.selectNodeContents(label);
+    return range.getClientRects().length;
+  });
+  expect(labelLineCount).toBeGreaterThan(1);
+  await removeSubtree.click();
   await expect(leafQuota).toHaveValue('');
   await expect(emilia).toHaveText('Emilia-Romagna');
 });

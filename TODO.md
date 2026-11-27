@@ -15,6 +15,8 @@ meantime, the linked file has been edited and the link has not been updated.
     - [x] Rethink [ReferenceTree](web\src\lib\politics\editor\ReferenceTree.svelte:16)
       and [ReferenceFields](web\src\lib\politics\editor\ReferenceFields.svelte)
       layout, and add appropriate toggletips to explain fields meaning.
+    - [x] Use the standard button style and a trash icon for territorial
+      reference removal.
     - [ ] For [ReferenceTree](web\src\lib\politics\editor\ReferenceTree.svelte:16)
       province level elements the rendered name is currently "Provincia 012", 
       "Provincia 013", ... It should instead be "Provincia: nnnn" where nnnn is 

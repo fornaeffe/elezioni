@@ -41,12 +41,14 @@
   <ReferenceFields {scenario} {target} scope={{ kind: 'national' }} {label} {edit} layout="grid" showCommonRemove={mode === 'advanced'} />
   {#if target?.kind === 'list' && generator.uncertaintyMultipliers}
       {@const values = effectiveUncertaintyMultipliers(scenario, target.id, 'camera')}
-      {#each multiplierFields as { key, label: fieldLabel, help } (key)}
-        {@const id = `${multiplierId}-${key}`}
-        <FieldWithHelp {id} label={fieldLabel} {help}>
-          <input {id} type="number" min="0" step="any" value={values[key]} onchange={e => multiplier(key, e.currentTarget.value)} />
-        </FieldWithHelp>
-      {/each}
+      <div class="multiplier-fields">
+        {#each multiplierFields as { key, label: fieldLabel, help } (key)}
+          {@const id = `${multiplierId}-${key}`}
+          <FieldWithHelp {id} label={fieldLabel} {help}>
+            <input {id} type="number" min="0" step="any" value={values[key]} onchange={e => multiplier(key, e.currentTarget.value)} />
+          </FieldWithHelp>
+        {/each}
+      </div>
   {/if}
   {#if assets}<ReferenceTree {scenario} {target} nodes={assets.references} {edit} />{:else}<p>Dati territoriali in caricamento.</p>{/if}
 </LazySection>
@@ -55,5 +57,11 @@
 
 <style>
   input { inline-size: 8rem; }
+  .multiplier-fields {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-1)
+  }
   @media (width <= 650px) { input { inline-size: 100%; } }
 </style>
