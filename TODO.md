@@ -10,16 +10,6 @@ meantime, the linked file has been edited and the link has not been updated.
 ## Future work
 
 - [ ] **UI polishing**
-  - [ ] In [FilingTree](web\src\lib\politics\editor\FilingTree.svelte) and
-    [ReferenceTree](web\src\lib\politics\editor\ReferenceTree.svelte):
-    - [ ] In lists' FilingTree move the tri-state checkbox in the LazySection
-      title row, between the arrowhead and the section title, making it visible
-      when the title is visible, even if the section is closed. A tri-state checkbox
-      should be visible next to "Depositi e candidati" title, also, conveying
-      the state of the whole filing tree even when the tree is closed.
-    - [ ] Filing state of the tri-state checkbox should be visually more distinguishable:
-      use light red, yellow and green colors for unfiled, partially filed and 
-      fully filed states.
   - [ ] Add a confirmation step (preferably via a native modal dialog) when deleting
     a coalition or a list. 
   - [ ] Change [other lists editor](web\src\lib\politics\editor\SubjectsEditor.svelte):

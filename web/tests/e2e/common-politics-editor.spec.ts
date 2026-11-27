@@ -6,7 +6,8 @@ import authored from '../../../data/politics-default-scenario.json' with { type:
 import { decodeScenario, encodeScenario } from '../../src/lib/politics/scenario/serialization';
 import { createDefaultCommonPoliticsScenario } from '../../src/lib/politics/scenario/defaults';
 import { politicsDraftKey } from '../../src/lib/politics/files/draft';
-import { createCandidate, selectLaw, upsertPlacement } from '../../src/lib/politics/scenario/edits';
+import { createCandidate, selectLaw, setCoalitionScope, setFilings, setRenewal, upsertPlacement } from '../../src/lib/politics/scenario/edits';
+import type { Location } from '../../src/lib/politics/scenario/schema';
 import { waitForPoliticsReady } from '../fixtures/politics-readiness';
 
 const base = process.env.BASE_PATH ?? '';
@@ -201,9 +202,40 @@ test('new lists initialize every law, tri-state filings and linked/unlinked cham
   for (const block of Object.values(stored.lawSettings) as { filings: { listId: string; locations: unknown[] }[] }[]) expect(block.filings.find(f => f.listId === list.id)!.locations.length).toBeGreaterThan(0);
   const article = page.getByRole('article', { name: 'Lista nuova', exact: true });
   await article.getByRole('button', { name: /^Opzioni lista/ }).click();
-  await article.locator('summary').filter({ hasText: /^Depositi e candidati$/ }).click();
-  await article.locator('summary').filter({ hasText: /^Camera$/ }).click();
+  const filingSummary = article.locator('summary').filter({ hasText: /^Depositi e candidati$/ });
+  const filingSection = filingSummary.locator('..');
+  const wholeTree = article.getByRole('checkbox', { name: 'Deposita in tutti i collegi modificabili', exact: true });
+  const checkboxLabel = wholeTree.locator('..');
   const all = article.getByRole('checkbox', { name: 'Deposita tutta Camera', exact: true });
+  await expect(wholeTree).toBeVisible();
+  await expect(wholeTree).toBeChecked();
+  await expect(checkboxLabel).toHaveAttribute('title', 'Deposita in tutti i collegi modificabili');
+  await expect(checkboxLabel).toHaveCSS('background-color', 'rgb(228, 245, 233)');
+  await expect(filingSection).toHaveJSProperty('open', false);
+  const marker = (await filingSummary.locator('[aria-hidden="true"]').boundingBox())!;
+  const checkbox = (await checkboxLabel.boundingBox())!;
+  const title = (await filingSummary.getByText('Depositi e candidati', { exact: true }).boundingBox())!;
+  expect(marker.x + marker.width).toBeLessThanOrEqual(checkbox.x);
+  expect(checkbox.x + checkbox.width).toBeLessThanOrEqual(title.x);
+  await expect(all).toHaveCount(0);
+  await wholeTree.press('Space');
+  await expect(wholeTree).not.toBeChecked();
+  await expect(checkboxLabel).toHaveCSS('background-color', 'rgb(255, 240, 237)');
+  await expect(filingSection).toHaveJSProperty('open', false);
+  await page.keyboard.press('Tab');
+  await expect(filingSummary).toBeFocused();
+  await filingSummary.press('Space');
+  await expect(filingSection).toHaveJSProperty('open', true);
+  const cameraSummary = article.locator('summary').filter({ hasText: /^Camera$/ });
+  await expect(all).toBeVisible();
+  await all.check();
+  await expect(cameraSummary.locator('..')).toHaveJSProperty('open', false);
+  await expect(wholeTree).toHaveJSProperty('indeterminate', true);
+  await expect(checkboxLabel).toHaveCSS('background-color', 'rgb(255, 247, 223)');
+  await wholeTree.click();
+  await expect(wholeTree).toBeChecked();
+  await expect(wholeTree).toHaveJSProperty('indeterminate', false);
+  await expect(filingSection).toHaveJSProperty('open', true);
   await expect(all).toBeChecked();
   await all.uncheck(); stored = await draft(page);
   expect(stored.lawSettings['politiche-reform-2026-v1'].filings.find((f: { listId: string }) => f.listId === list.id).locations.every((l: { chamber: string }) => l.chamber === 'senato')).toBe(true);
@@ -215,6 +247,49 @@ test('new lists initialize every law, tri-state filings and linked/unlinked cham
   await expect(membership.getByLabel('Aggiungi componente senato')).toBeEnabled();
   await membership.getByLabel('Collega Camera e Senato').check();
   await expect(membership.getByLabel('Aggiungi componente senato')).toBeDisabled();
+});
+
+test('whole-tree filings preserve excluded declarations and candidate pins', async ({ page }) => {
+  const law = 'politiche-reform-2026-v1';
+  const listId = 'fdi';
+  let scenario = createDefaultCommonPoliticsScenario();
+  const locations = scenario.lawSettings[law].filings.find(filing => filing.listId === listId)!.locations;
+  const camera = locations.find(location => location.chamber === 'camera')!;
+  const senate = locations.filter(location => location.chamber === 'senato');
+  expect(senate.length).toBeGreaterThan(0);
+  scenario = setCoalitionScope(scenario, 'centrodestra', ['camera']);
+  scenario = setRenewal(scenario, 'senato');
+  scenario = setFilings(scenario, law, listId, [camera, ...senate]);
+  scenario = createCandidate(scenario, { id: 'pin', name: 'Candidata fissata', gender: 'female', birthDate: '1970-01-01', availability: { kind: 'available' } });
+  scenario = upsertPlacement(scenario, law, {
+    id: 'retained-pin', candidateId: 'pin', location: camera, owner: { kind: 'list', id: listId },
+    role: 'ordinary', position: 1, affiliationListId: listId
+  });
+  await page.addInitScript(({ key, scenario }) => localStorage.setItem(key, JSON.stringify(scenario)), { key: politicsDraftKey, scenario });
+  await page.goto(`${base}/politics/editor`); await ready(page);
+  const article = page.getByRole('article', { name: "Fratelli d'Italia", exact: true });
+  await article.getByRole('button', { name: /^Opzioni lista/ }).click();
+  const summary = article.locator('summary').filter({ hasText: /^Depositi e candidati/ });
+  const wholeTree = article.getByRole('checkbox', { name: 'Deposita in tutti i collegi modificabili', exact: true });
+  await expect(wholeTree).toHaveJSProperty('indeterminate', true);
+  await wholeTree.press('Space');
+  await expect(wholeTree).toBeChecked();
+  await expect(summary.locator('..')).toHaveJSProperty('open', false);
+  const savedLocations = async (): Promise<Location[]> => (await draft(page)).lawSettings[law].filings
+    .find((filing: { listId: string }) => filing.listId === listId).locations;
+  const filed = await savedLocations();
+  expect(filed.filter(location => location.chamber === 'camera').length).toBeGreaterThan(1);
+  expect(filed.filter(location => location.chamber === 'senato')).toEqual(senate);
+
+  await summary.click();
+  const cameraSummary = article.locator('summary').filter({ hasText: /^Camera · rinnovo inattivo/ });
+  await expect(article.getByRole('checkbox', { name: 'Deposita tutta Camera', exact: true })).toBeChecked();
+  await expect(cameraSummary.locator('..')).toHaveJSProperty('open', false);
+  await expect(article.getByRole('checkbox', { name: 'Deposita tutta Senato', exact: true })).toBeDisabled();
+  await wholeTree.uncheck();
+  await expect(wholeTree).toHaveJSProperty('indeterminate', false);
+  expect(await savedLocations()).toEqual(senate);
+  expect((await draft(page)).lawSettings[law].placements).toEqual(scenario.lawSettings[law].placements);
 });
 
 test('field toggletips explain scenario settings and work with keyboard and narrow screens', async ({ page }) => {
@@ -422,6 +497,11 @@ test('candidate trees retain sparse pins and explain disabled identities while f
   await article.getByRole('button', { name: /^Opzioni lista/ }).click();
   await openIn(/^Depositi e candidati/); await openIn(/^Camera(?: ·|$)/);
   await openIn(new RegExp(`^${territory.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
+  const collegeSummary = summary(new RegExp(`^${college.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
+  const collegeCheckbox = article.getByRole('checkbox', { name: `Deposita ${college.name}`, exact: true });
+  await expect(collegeSummary.locator('..')).toHaveJSProperty('open', false);
+  await expect(collegeCheckbox).toBeChecked();
+  await expect(collegeCheckbox.locator('..')).toHaveAttribute('title', `Deposita in ${college.name}`);
   await openIn(new RegExp(`^${college.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
   const candidates = summary(/^Candidati(?: ·|$)/);
   await expect(candidates.locator('.summary-count')).toHaveText('· 1 fissati');
@@ -438,7 +518,7 @@ test('candidate trees retain sparse pins and explain disabled identities while f
   await expect(options.getByRole('option', { name: /Identità eleggibile/ })).toBeDisabled();
   await page.keyboard.press('Escape');
   await expect(article.getByRole('checkbox', { name: 'Deposita tutta Camera', exact: true })).toHaveJSProperty('indeterminate', true);
-  await article.getByRole('checkbox', { name: `Deposita ${college.name}`, exact: true }).uncheck();
+  await collegeCheckbox.uncheck();
   expect((await draft(page)).lawSettings['politiche-reform-2026-v1'].placements).toMatchObject([{ position: 4, candidateId: 'older' }]);
   await expect(article.getByText('Fissato, inattivo', { exact: true })).toBeVisible();
   await fourth.press('ArrowDown');

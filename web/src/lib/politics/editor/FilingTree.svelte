@@ -26,8 +26,9 @@
     const nodes = assets.filings[law].filter(node => node.location.chamber === chamber);
     const branches = visibleBranches(nodes);
     const filingLocations = branches.flatMap(branch => branch.filingLocations);
-    return { chamber, nodes, branches, filingLocations };
+    return { chamber, nodes, branches, filingLocations, disabled: !permitted(chamber) };
   }).filter(tree => tree.branches.length > 0));
+  const editableLocations = $derived(chamberTrees.flatMap(tree => tree.disabled ? [] : tree.filingLocations));
 
   function visibleBranches(nodes: readonly FilingNode[]): FilingBranch[] {
     return nodes.flatMap(node => {
@@ -68,14 +69,22 @@
       : node.role === 'bonus' || node.role === 'uninominal';
   }
 </script>
+
+{#snippet filingCheckbox(locations: readonly Location[], name: string, description: string, disabled: boolean)}
+  {@const filingState = state(locations)}
+  <label class="filing-checkbox" title={description}>
+    <input type="checkbox" aria-label={name} checked={filingState.checked} indeterminate={filingState.mixed}
+      {disabled} onchange={event => toggle(locations, event.currentTarget.checked)} />
+  </label>
+{/snippet}
+
 {#snippet tree(branches: readonly FilingBranch[], disabled: boolean)}
   {#each branches as { node, children, filingLocations, showCandidates } (locationKey(node.location))}
-    <LazySection title={node.name} count={{ value: pins([node]), label: 'candidati fissati' }}>
-      {#if filingLocations.length}
-        {@const filingState = state(filingLocations)}
-        <label data-field><input type="checkbox" checked={filingState.checked} indeterminate={filingState.mixed}
-          aria-label={`Deposita ${node.name}`} {disabled} onchange={e => toggle(filingLocations, e.currentTarget.checked)} />Deposita in {node.name}</label>
-      {/if}
+    {#snippet branchCheckbox()}
+      {@render filingCheckbox(filingLocations, `Deposita ${node.name}`, `Deposita in ${node.name}`, disabled)}
+    {/snippet}
+    <LazySection title={node.name} count={{ value: pins([node]), label: 'candidati fissati' }}
+      headerControl={filingLocations.length ? branchCheckbox : undefined}>
       {#if showCandidates}
         <LazySection title="Candidati" count={{ value: pinsAt(node), label: 'fissati' }}>
           <CandidateSlots {scenario} {owner} {node} {assets} {edit} />
@@ -85,18 +94,65 @@
     </LazySection>
   {/each}
 {/snippet}
-{#each chamberTrees as { chamber, nodes, branches, filingLocations } (chamber)}
-  {@const disabled = !permitted(chamber)}
-  <LazySection
-    title={`${chamber === 'camera' ? 'Camera' : 'Senato'}${!renewed(scenario, chamber) ? ' · rinnovo inattivo' : ''}`}
-    count={{ value: pins(nodes), label: 'candidati fissati' }}
-  >
-    {#if disabled}<p>Camera esclusa dalla coalizione: depositi e candidati conservati, inattivi.</p>{/if}
-    {#if filingLocations.length}
-      {@const filingState = state(filingLocations)}
-      <label data-field><input type="checkbox" aria-label={`Deposita tutta ${chamber === 'camera' ? 'Camera' : 'Senato'}`} checked={filingState.checked}
-        indeterminate={filingState.mixed} {disabled} onchange={e => toggle(filingLocations, e.currentTarget.checked)} />Deposita in tutti i collegi</label>
-    {/if}
-    {@render tree(branches, disabled)}
+
+{#snippet chamberSections()}
+  {#each chamberTrees as { chamber, nodes, branches, filingLocations, disabled } (chamber)}
+    {@const chamberName = chamber === 'camera' ? 'Camera' : 'Senato'}
+    {#snippet chamberCheckbox()}
+      {@render filingCheckbox(filingLocations, `Deposita tutta ${chamberName}`, 'Deposita in tutti i collegi', disabled)}
+    {/snippet}
+    <LazySection
+      title={`${chamberName}${!renewed(scenario, chamber) ? ' · rinnovo inattivo' : ''}`}
+      count={{ value: pins(nodes), label: 'candidati fissati' }}
+      headerControl={filingLocations.length ? chamberCheckbox : undefined}
+    >
+      {#if disabled}<p>Camera esclusa dalla coalizione: depositi e candidati conservati, inattivi.</p>{/if}
+      {@render tree(branches, disabled)}
+    </LazySection>
+  {/each}
+{/snippet}
+
+{#if list && list.kind !== 'other'}
+  <LazySection title="Depositi e candidati" count={{ value: placements.length, label: 'candidati fissati' }}>
+    {#snippet headerControl()}
+      {@const description = 'Deposita in tutti i collegi modificabili'}
+      {@render filingCheckbox(editableLocations, description, description, !editableLocations.length)}
+    {/snippet}
+    {@render chamberSections()}
   </LazySection>
-{/each}
+{:else}
+  {@render chamberSections()}
+{/if}
+
+<style>
+  .filing-checkbox {
+    --filing-border: var(--color-error-border);
+    display: grid;
+    place-items: center;
+    box-sizing: border-box;
+    inline-size: 100%;
+    block-size: 100%;
+    border: 1px solid var(--filing-border);
+    border-radius: var(--radius-control);
+    background: var(--color-error-surface);
+    cursor: pointer;
+  }
+
+  .filing-checkbox:has(:checked) {
+    --filing-border: var(--color-success-border);
+    background: var(--color-success-surface);
+  }
+
+  .filing-checkbox:has(:indeterminate) {
+    --filing-border: var(--color-warning-border);
+    background: var(--color-warning-surface);
+  }
+
+  .filing-checkbox:has(:disabled) { cursor: default; }
+
+  .filing-checkbox input {
+    margin: 0;
+    accent-color: var(--filing-border);
+    cursor: inherit;
+  }
+</style>

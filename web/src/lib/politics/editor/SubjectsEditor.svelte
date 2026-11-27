@@ -102,14 +102,7 @@
           {/if}
           {#if capabilities(scenario).scrutiny.bonusLinks}<BonusLinksEditor {scenario} subject={{ kind: 'list', id: list.id }} {edit} />{/if}
           <p>Lista depositata in {scenario.lawSettings[scenario.selection.scrutiny.id].filings.find(f => f.listId === list.id)?.locations.length ?? 0} collegi</p>
-          {#if assets}
-            <LazySection title="Depositi e candidati" count={{
-              value: scenario.lawSettings[scenario.selection.scrutiny.id].placements.filter(p => p.owner.kind === 'list' && p.owner.id === list.id).length,
-              label: 'candidati fissati'
-            }}>
-              <FilingTree {scenario} owner={{ kind: 'list', id: list.id }} {assets} {edit} />
-            </LazySection>
-          {/if}
+          {#if assets}<FilingTree {scenario} owner={{ kind: 'list', id: list.id }} {assets} {edit} />{/if}
           <button onclick={() => edit(s => deleteSubject(s, { kind: 'list', id: list.id }))}>Elimina lista</button>
         {/if}
       </div>
