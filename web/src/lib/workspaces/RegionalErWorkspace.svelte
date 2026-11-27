@@ -50,7 +50,6 @@
   } from '$lib/scenario/regional-er';
   import { generatedPoliticsMunicipalities } from '$lib/scenario/politics-municipalities.generated';
 
-  let { onBusyChange }: { onBusyChange?: (busy: boolean) => void } = $props();
   type UiMessageSeverity = 'info' | 'warning' | 'error';
 
   interface UiMessage {
@@ -138,7 +137,6 @@
     else if (incoming?.payload) applyResultExport(incoming.payload);
     
   });
-  $effect(() => onBusyChange?.(isBusy));
   $effect(() => { appStatus.set('regional-operation', running ? { state: 'working', label: 'Simulazione regionale', detail: phase, cancel: () => { execution.cancel(); phase = 'cancelled'; } } : busyAction ? { state: 'working', label: busyAction } : { state: 'ready', label: phase === 'cancelled' ? 'Calcolo annullato' : 'Pronto' }); });
   $effect(() => {
     const errors = messages.filter(m => statusErrorLabels.has(m.code));

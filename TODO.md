@@ -13,6 +13,13 @@ meantime, the linked file has been edited and the link has not been updated.
   - [ ] Review `$effect()` usage: check if the same (or better) behavior
     could be achieved with `$state()` and `$derived()` or other Svelte 5
     idiomatic patterns. If yes, change the code accordingly.
+    - [ ] Result queries for general messages, the simulation-message summary,
+      affected simulation IDs and context, and election probabilities.
+    - [ ] Navigation from a diagnostic to a simulation in the result tables
+      and the reform seat chart.
+    - [ ] Shared application status for regional operations and errors,
+      politics execution and errors, and editor loading.
+    - [ ] Regional draft persistence in `draft.svelte.ts`.
   - [ ] Rewrite models' names and descriptions in a more undersantable manner.
   - [ ] Rethink membership editor, component pooling editor and component reference
     editor:
