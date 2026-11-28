@@ -24,10 +24,12 @@ Oversized rows fail explicitly; archives never become whole resident results.
 
 Output coalesces strings to a 64 Ki-character target, plus one source record,
 before one UTF-8 encoder and one gzip stream. CSV uses the same buffering.
-Archive scans fetch at most 16 chunks per IndexedDB transaction, reduced using
-the stored maximum raw chunk size to target 4 MiB. One permitted oversized
-record can exceed that target. Ordinary table pages request one chunk.
-Unpublished chunk sequences remain invisible.
+Archive transfers and full result scans fetch at most 16 chunks per IndexedDB
+transaction, reduced using the stored maximum raw chunk size to target 4 MiB.
+Full result scans include stored diagnostics, filtered simulation-ID exports,
+reform statistics and election probabilities. One permitted oversized record
+can exceed the target. Ordinary table pages request one chunk. Unpublished
+chunk sequences remain invisible.
 
 For common archives with at least 2 MiB of stored compressed chunks and four
 logical processors, an operation lazily starts two decompression workers. At

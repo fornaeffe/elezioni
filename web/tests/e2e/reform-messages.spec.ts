@@ -172,11 +172,12 @@ test('diagnostic queries preserve pagination, recover from failures and ignore a
 
   const fitFile = await currentBrowserSession();
   const scenario = fitFile.scenario as unknown as import('../../src/lib/politics/reform-2026/generation-types').ReformGenerationScenario;
-  const archive = diagnosticResult(scenario);
+  const completed = 60;
+  const archive = diagnosticResult(scenario, completed, 75);
   const diagnostics = archive.result.tables.find(table => table.name === diagnosticTableName)!;
   diagnostics.rows.push(...Array.from({ length: 51 }, (_, index) => diagnosticCells({
     code: `TEST_PAGE_${index}`, electionKind: 'politiche', scope: 'simulation',
-    severity: 'info', simulationId: 1201, message: `Summary pagination sample ${index}`,
+    severity: 'info', simulationId: completed, message: `Summary pagination sample ${index}`,
   })));
   diagnostics.rows.push(...Array.from({ length: 51 }, (_, index) => diagnosticCells({
     code: `TEST_GENERAL_${index}`, electionKind: 'politiche', scope: 'global',

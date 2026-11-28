@@ -8,7 +8,7 @@ async function* rows(record: StoredResult, name: string) {
   const index = record.result.storage!.tables.findIndex(t => t.name === name);
   if (index < 0) return;
   const columns = record.result.storage!.tables[index].columns;
-  for await (const cells of storedRows(record.id, index)) yield Object.fromEntries(columns.map((c, i) => [c, cells[i]])) as ResultTable['rows'][number];
+  for await (const cells of storedRows(record.id, index, { prefetch: true })) yield Object.fromEntries(columns.map((c, i) => [c, cells[i]])) as ResultTable['rows'][number];
 }
 type StoredRow = ResultTable['rows'][number];
 export interface BonusPairProbability {

@@ -16,7 +16,7 @@ async function* messages(record: StoredResult) {
   const { index, versioned } = source(record);
   if (index >= 0) {
     const descriptor = record.result.storage!.tables[index];
-    for await (const cells of storedRows(record.id, index)) {
+    for await (const cells of storedRows(record.id, index, { prefetch: true })) {
       if (versioned) yield diagnosticEvent(cells, descriptor.columns);
       else {
         const row = Object.fromEntries(descriptor.columns.map((c, i) => [c, cells[i]]));
@@ -30,7 +30,7 @@ async function* messages(record: StoredResult) {
   // Raw warnings preserve execution failures (including imported ones) and are
   // independent of the manifest's deliberately short information preview.
   const seenExecution = new Set<string>();
-  for await (const cells of storedRows(record.id, -1)) {
+  for await (const cells of storedRows(record.id, -1, { prefetch: true })) {
     const w = cellsWarning(cells), scope = diagnosticScope(w);
     if (scope === 'execution') { seenExecution.add(JSON.stringify(w)); yield w; }
     else if (index < 0) yield w;
