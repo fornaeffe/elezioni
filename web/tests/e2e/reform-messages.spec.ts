@@ -132,18 +132,29 @@ test('global context precedes exact frequencies and bounded ID inspection, filte
   expect(errors).toEqual([]);
 });
 
-test('summary pagination and filters recover from failures and ignore a late reply', async ({ page }) => {
+test('diagnostic queries preserve pagination, recover from failures and ignore a late reply', async ({ page }) => {
   await page.addInitScript(() => {
     const postMessage = Worker.prototype.postMessage;
+    let failedGeneralPage = false;
     Worker.prototype.postMessage = function (message, ...args) {
       const send = () => Reflect.apply(postMessage, this, [message, ...args]);
+      const fail = (text: string) => this.dispatchEvent(new MessageEvent('message', { data: {
+        type: 'result-service', requestId: message.requestId, ok: false,
+        error: { code: 'TEST_DIAGNOSTIC_FAILURE', message: text },
+      } }));
+      if (message?.action === 'messages-general' && message.offset === 50 && !failedGeneralPage) {
+        failedGeneralPage = true;
+        document.addEventListener('fail-general-page', () => fail('Pagina generale non caricata.'), { once: true });
+        return;
+      }
+      if (message?.action === 'messages-context' && message.filter?.simulation === 1) {
+        document.addEventListener('fail-context-page', () => fail('Contesto non caricato.'), { once: true });
+        return;
+      }
       if (message?.action !== 'messages-summary') return send();
 
       if (message.filter?.text === 'fail summary') {
-        queueMicrotask(() => this.dispatchEvent(new MessageEvent('message', { data: {
-          type: 'result-service', requestId: message.requestId, ok: false,
-          error: { code: 'TEST_SUMMARY_FAILURE', message: 'Richiesta di prova non riuscita.' },
-        } })));
+        queueMicrotask(() => fail('Richiesta di prova non riuscita.'));
         return;
       }
       if (message.filter?.text !== 'TEST_INFO') return send();
@@ -167,10 +178,30 @@ test('summary pagination and filters recover from failures and ignore a late rep
     code: `TEST_PAGE_${index}`, electionKind: 'politiche', scope: 'simulation',
     severity: 'info', simulationId: 1201, message: `Summary pagination sample ${index}`,
   })));
+  diagnostics.rows.push(...Array.from({ length: 51 }, (_, index) => diagnosticCells({
+    code: `TEST_GENERAL_${index}`, electionKind: 'politiche', scope: 'global',
+    severity: 'info', message: `General pagination sample ${index}`,
+  })));
 
   await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
   await page.getByLabel('Legge elettorale').selectOption(scenario.algorithmId);
   await seedPresentationSession(page, currentArchive(archive, fitFile));
+
+  const general = page.getByRole('region', { name: 'Informazioni e avvisi generali', exact: true });
+  await general.locator(':scope > summary').click();
+  const generalPages = general.getByRole('navigation', { name: 'Pagine messaggi generali' });
+  const generalLoading = general.getByText('Caricamento messaggi generali…', { exact: true });
+  await expect(generalPages).toContainText('1–50 di 79');
+  await general.getByRole('button', { name: 'Generali successivi' }).click();
+  await expect(generalLoading).toBeVisible();
+  await expect(generalPages).toContainText('1–50 di 79');
+  await page.evaluate(() => document.dispatchEvent(new Event('fail-general-page')));
+  await expect(general.getByText('Pagina generale non caricata.')).toBeVisible();
+  await expect(generalLoading).toBeHidden();
+  await general.getByRole('button', { name: 'Riprova a caricare i messaggi generali' }).click();
+  await expect(generalPages).toContainText('51–79 di 79');
+  await general.locator(':scope > summary').click();
+
   const summary = page.getByRole('region', { name: 'Messaggi delle simulazioni', exact: true });
   await summary.locator(':scope > summary').click();
   const pagination = summary.getByRole('navigation', { name: 'Pagine riepilogo' });
@@ -208,4 +239,21 @@ test('summary pagination and filters recover from failures and ignore a late rep
   await apply.click();
   await expect(pagination).toContainText('1–50 di 55');
   await expect(error).toBeHidden();
+
+  await summary.getByRole('button', { name: 'Simulazioni per TEST_ERROR (error)', exact: true }).click();
+  const affected = summary.getByRole('region', { name: 'Simulazioni interessate', exact: true });
+  const contextLoading = affected.getByText('Caricamento messaggi originali…', { exact: true });
+  await affected.getByRole('button', { name: 'Messaggi di 1', exact: true }).click();
+  await expect(contextLoading).toBeVisible();
+  await affected.getByRole('button', { name: 'ID successivi', exact: true }).click();
+  const nextContext = affected.getByRole('button', { name: 'Messaggi di 51', exact: true });
+  await expect(nextContext).toBeVisible();
+  await expect(contextLoading).toBeVisible();
+  await page.evaluate(() => document.dispatchEvent(new Event('fail-context-page')));
+  const contextError = affected.getByText('Contesto non caricato.');
+  await expect(contextError).toBeVisible();
+  await expect(contextLoading).toBeHidden();
+  await nextContext.click();
+  await expect(affected.getByText('Original reason 51', { exact: true })).toHaveCount(2);
+  await expect(contextError).toBeHidden();
 });
