@@ -330,6 +330,10 @@ test('field toggletips explain scenario settings and work with keyboard and narr
   await page.goto(`${base}/politics/editor`); await ready(page);
   const tip = (label: string) => page.getByRole('button', { name: `Aiuto per ${label}`, exact: true });
   const panel = page.locator('[popover]:popover-open');
+  const abstentionQuotaTip = page.locator('summary')
+    .filter({ hasText: /^Astensione e voti non validi/ })
+    .locator('..')
+    .getByRole('button', { name: 'Aiuto per Quota (%)', exact: true });
   const referenceLabel = 'Riferimento nazionale (%)';
   const desktopTip = page.locator('.subject-header').filter({ has: tip(referenceLabel) }).getByRole('button');
   await desktopTip.press('Enter');
@@ -353,7 +357,7 @@ test('field toggletips explain scenario settings and work with keyboard and narr
   await page.getByLabel('Data di riferimento', { exact: true }).click();
   await expect(panel).toHaveCount(0);
   await open(page, /^Astensione e voti non validi/);
-  await tip('Quota (%)').click();
+  await abstentionQuotaTip.click();
   await expect(panel).toContainText(/elettori.*M02.*partecipazione storica/);
 
   await open(page, /^Identità dei candidati/); await open(page, /^Nuovo candidato$/);
@@ -376,7 +380,7 @@ test('field toggletips explain scenario settings and work with keyboard and narr
   }
 
   await page.getByLabel('Generatore dei voti', { exact: true }).selectOption('M01'); await ready(page);
-  await tip('Quota (%)').click();
+  await abstentionQuotaTip.click();
   await expect(panel).toContainText(/elettori.*M01.*partecipazione storica/);
   await page.keyboard.press('Escape');
   await page.setViewportSize({ width: 320, height: 660 });
