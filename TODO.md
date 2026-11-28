@@ -13,8 +13,8 @@ meantime, the linked file has been edited and the link has not been updated.
   - [ ] Review `$effect()` usage: check if the same (or better) behavior
     could be achieved with `$state()` and `$derived()` or other Svelte 5
     idiomatic patterns. If yes, change the code accordingly.
-    - [ ] Result queries for general messages, the simulation-message summary,
-      affected simulation IDs and context, and election probabilities.
+    - [ ] Result queries for general messages, affected simulation IDs and
+      context, and election probabilities.
     - [ ] Navigation from a diagnostic to a simulation in the result tables
       and the reform seat chart.
     - [ ] Shared application status for regional operations and errors,
@@ -185,7 +185,9 @@ meantime, the linked file has been edited and the link has not been updated.
   [workspace boundaries](docs/web-workspaces.md#defaults-and-compatibility) and
   the 2 November workspace entry in migration history. Note that if the generator
   has changed since the failure discovery, the same seed may not generate the 
-  failure any more.
+  failure any more. Make regional result storage follow Common Politics' behavior.
+  Then reassess the `result.storage` guard in `GeneralMessages`; if no problems
+  arise, keep only the `messages-general` path.
 - [ ] Correct meaningful local support for future filed lists without historical
   candidature/support, including Sud chiama Nord in Molise/Basilicata. Separate
   historical absence from future filing zeros; choose an explicit local estimate

@@ -4,6 +4,7 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
   preprocess: vitePreprocess(),
+  compilerOptions: { experimental: { async: true } },
   kit: {
     paths: { base: process.env.BASE_PATH ?? '' },
     // A hosted cold/warm replay of one revision must produce identical bytes.

@@ -3,7 +3,7 @@ import { openResultTables } from '../fixtures/common-page';
 import { currentBrowserSession, currentArchive } from '../fixtures/current-browser-session';
 import { expect, test } from '../fixtures/editor-preparation';
 import { diagnosticResult } from '../fixtures/diagnostic-result';
-import { diagnosticTableName } from '../../src/lib/core/diagnostic-messages';
+import { diagnosticCells, diagnosticTableName } from '../../src/lib/core/diagnostic-messages';
 import { gunzipSync } from 'fflate';
 
 test('global context precedes exact frequencies and bounded ID inspection, filtering and full CSV', async ({ page }) => {
@@ -130,4 +130,82 @@ test('global context precedes exact frequencies and bounded ID inspection, filte
   for await (const chunk of zeroStream!) zeroChunks.push(Buffer.from(chunk));
   expect(JSON.parse(new TextDecoder().decode(gunzipSync(Buffer.concat(zeroChunks)))).run.result.completedSimulations).toBe(0);
   expect(errors).toEqual([]);
+});
+
+test('summary pagination and filters recover from failures and ignore a late reply', async ({ page }) => {
+  await page.addInitScript(() => {
+    const postMessage = Worker.prototype.postMessage;
+    Worker.prototype.postMessage = function (message, ...args) {
+      const send = () => Reflect.apply(postMessage, this, [message, ...args]);
+      if (message?.action !== 'messages-summary') return send();
+
+      if (message.filter?.text === 'fail summary') {
+        queueMicrotask(() => this.dispatchEvent(new MessageEvent('message', { data: {
+          type: 'result-service', requestId: message.requestId, ok: false,
+          error: { code: 'TEST_SUMMARY_FAILURE', message: 'Richiesta di prova non riuscita.' },
+        } })));
+        return;
+      }
+      if (message.filter?.text !== 'TEST_INFO') return send();
+
+      document.addEventListener('release-summary-request', send, { once: true });
+      const markReply = ({ data }: MessageEvent) => {
+        if (data.type !== 'result-service' || data.requestId !== message.requestId) return;
+        this.removeEventListener('message', markReply);
+        document.documentElement.dataset.summaryProbe = 'replied';
+      };
+      this.addEventListener('message', markReply);
+      document.documentElement.dataset.summaryProbe = 'held';
+    };
+  });
+
+  const fitFile = await currentBrowserSession();
+  const scenario = fitFile.scenario as unknown as import('../../src/lib/politics/reform-2026/generation-types').ReformGenerationScenario;
+  const archive = diagnosticResult(scenario);
+  const diagnostics = archive.result.tables.find(table => table.name === diagnosticTableName)!;
+  diagnostics.rows.push(...Array.from({ length: 51 }, (_, index) => diagnosticCells({
+    code: `TEST_PAGE_${index}`, electionKind: 'politiche', scope: 'simulation',
+    severity: 'info', simulationId: 1201, message: `Summary pagination sample ${index}`,
+  })));
+
+  await page.goto(`${process.env.BASE_PATH ?? ''}/politics`);
+  await page.getByLabel('Legge elettorale').selectOption(scenario.algorithmId);
+  await seedPresentationSession(page, currentArchive(archive, fitFile));
+  const summary = page.getByRole('region', { name: 'Messaggi delle simulazioni', exact: true });
+  await summary.locator(':scope > summary').click();
+  const pagination = summary.getByRole('navigation', { name: 'Pagine riepilogo' });
+  await expect(pagination).toContainText('1–50 di 55');
+  await summary.getByRole('button', { name: 'Riepilogo successivo' }).click();
+  await expect(pagination).toContainText('51–55 di 55');
+  await expect(summary.getByRole('table').locator('tbody tr')).toHaveCount(5);
+
+  const search = summary.getByRole('searchbox', { name: 'Cerca nei messaggi' });
+  const apply = summary.getByRole('button', { name: 'Filtra messaggi' });
+  const loading = summary.getByText('Caricamento riepilogo messaggi…', { exact: true });
+  const probe = page.locator('html');
+  await search.fill('TEST_INFO');
+  await expect(pagination).toContainText('51–55 di 55');
+  await apply.click();
+  await expect(probe).toHaveAttribute('data-summary-probe', 'held');
+  await expect(loading).toBeVisible();
+  await search.fill('TEST_OTHER');
+  await apply.click();
+  const table = summary.getByRole('table');
+  await expect(table).toContainText('TEST_OTHER');
+  await expect(loading).toBeHidden();
+  await page.evaluate(() => document.dispatchEvent(new Event('release-summary-request')));
+  await expect(probe).toHaveAttribute('data-summary-probe', 'replied');
+  await expect(table).toContainText('TEST_OTHER');
+  await expect(table).not.toContainText('TEST_INFO');
+
+  await search.fill('fail summary');
+  await apply.click();
+  const error = summary.getByText('Richiesta di prova non riuscita.', { exact: true });
+  await expect(error).toBeVisible();
+  await expect(loading).toBeHidden();
+  await expect(search).toHaveValue('fail summary');
+  await search.fill('');
+  await apply.click();
+  await expect(pagination).toContainText('1–50 di 55');
+  await expect(error).toBeHidden();
 });
